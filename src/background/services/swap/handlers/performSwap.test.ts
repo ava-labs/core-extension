@@ -422,6 +422,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
             gasLimit: params.gasLimit,
             data: 'data',
             to: params.srcToken,
+            type: 0,
           },
           tabId
         );
@@ -456,6 +457,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
             data: 'data',
             to: 'toAddress',
             value: undefined,
+            type: 0,
           },
           tabId
         );
@@ -502,6 +504,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
             gasLimit: params.gasLimit,
             data: 'data',
             to: params.srcToken,
+            type: 0,
           },
           tabId
         );
@@ -536,6 +539,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
             data: 'data',
             to: 'toAddress',
             value: undefined,
+            type: 0,
           },
           tabId
         );
@@ -604,6 +608,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
             data: 'data',
             to: 'toAddress',
             value: `0x${new BN(params.srcAmount).toString('hex')}`,
+            type: 0,
           },
           tabId
         );
@@ -658,6 +663,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
             data: 'data',
             to: 'toAddress',
             value: `0x${new BN('10100').toString('hex')}`,
+            type: 0,
           },
           tabId
         );
@@ -723,6 +729,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
             gasLimit: 1,
             data: 'data',
             to: 'toAddress',
+            type: 0,
           },
           tabId
         );

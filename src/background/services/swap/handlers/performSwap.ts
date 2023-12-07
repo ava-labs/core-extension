@@ -218,6 +218,7 @@ export class PerformSwapHandler implements HandlerType {
                   : Number(gasLimit),
                 data,
                 to: srcTokenAddress,
+                type: 0, //type: The EIP-2718 type of this transaction envelope, or null for to use the network default. To force using a lagacy transaction without an envelope, use type 0.
               },
               request.tabId
             )
@@ -306,6 +307,7 @@ export class PerformSwapHandler implements HandlerType {
             srcToken === activeNetwork.networkToken.symbol
               ? `0x${new BN(sourceAmount).toString('hex')}`
               : undefined, // AVAX value needs to be sent with the transaction
+          type: 0, //type: The EIP-2718 type of this transaction envelope, or null for to use the network default. To force using a lagacy transaction without an envelope, use type 0.
         },
         request.tabId
       )

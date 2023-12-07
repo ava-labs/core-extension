@@ -313,7 +313,8 @@ export class BridgeService implements OnLock, OnStorageReady {
           type: TransferEventType.TX_HASH,
           txHash,
         }),
-      async (txData) => this.walletService.sign(txData, tabId, network)
+      async (txData) =>
+        this.walletService.sign({ ...txData, type: 0 }, tabId, network) //type: The EIP-2718 type of this transaction envelope, or null for to use the network default. To force using a lagacy transaction without an envelope, use type 0.
     );
   }
 
