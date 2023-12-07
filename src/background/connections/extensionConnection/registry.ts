@@ -115,6 +115,12 @@ import { FireblocksUpdateApiCredentialsHandler } from '@src/background/services/
 import { SeedlessTokenEvents } from '@src/background/services/seedless/events/seedlessTokenEvents';
 import { UpdateSignerTokenHandler } from '@src/background/services/seedless/handlers/updateSignerToken';
 import { HasSignerTokenExpiredHandler } from '@src/background/services/seedless/handlers/hasSignerTokenExpired';
+import { SeedlessMfaEvents } from '@src/background/services/seedless/events/seedlessMfaEvents';
+import { SubmitMfaResponseHandler } from '@src/background/services/seedless/handlers/submitMfaResponse';
+import { GetRecoveryPhraseExportStateHandler } from '@src/background/services/seedless/handlers/getRecoveryPhraseExportState';
+import { InitRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/initRecoveryPhraseExport';
+import { CompleteRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/completeRecoveryPhraseExport';
+import { CancelRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/cancelRecoveryPhraseExport';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -279,6 +285,26 @@ import { HasSignerTokenExpiredHandler } from '@src/background/services/seedless/
     token: 'ExtensionRequestHandler',
     useToken: HasSignerTokenExpiredHandler,
   },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SubmitMfaResponseHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetRecoveryPhraseExportStateHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: InitRecoveryPhraseExportHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: CompleteRecoveryPhraseExportHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: CancelRecoveryPhraseExportHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -312,5 +338,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: DefiPortfolioUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: WalletConnectEvents },
   { token: 'ExtensionEventEmitter', useToken: SeedlessTokenEvents },
+  { token: 'ExtensionEventEmitter', useToken: SeedlessMfaEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

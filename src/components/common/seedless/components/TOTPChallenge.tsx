@@ -71,7 +71,7 @@ export const TOTPChallenge = ({ error, isLoading, onSubmit }: Props) => {
           disabled={isLoading}
           fullWidth
         >
-          {t('Verify')}
+          {isLoading ? t('Verifying...') : t('Verify')}
         </Button>
       </Stack>
     </Stack>

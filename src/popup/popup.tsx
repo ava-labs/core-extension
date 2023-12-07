@@ -203,8 +203,14 @@ const ConnectBitcoinWallet = lazy(() => {
 });
 
 const SeedlessAuthPopup = lazy(() => {
-  return import('../pages/SeedlessAuthPopup/SeedlessAuthPopup').then((m) => ({
+  return import('../pages/SeedlessPopups/SeedlessAuthPopup').then((m) => ({
     default: m.SeedlessAuthPopup,
+  }));
+});
+
+const SeedlessExportPopup = lazy(() => {
+  return import('../pages/SeedlessPopups/SeedlessExportPopup').then((m) => ({
+    default: m.SeedlessExportPopup,
   }));
 });
 
@@ -660,6 +666,14 @@ export function Popup() {
                                                 fallback={<CircularProgress />}
                                               >
                                                 <SeedlessAuthPopup />
+                                              </Suspense>
+                                            </Route>
+
+                                            <Route path="/seedless-export">
+                                              <Suspense
+                                                fallback={<CircularProgress />}
+                                              >
+                                                <SeedlessExportPopup />
                                               </Suspense>
                                             </Route>
 

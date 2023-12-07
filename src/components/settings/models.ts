@@ -13,6 +13,7 @@ export enum SettingsPages {
   ADVANCED = 'ADVANCED',
   LANGUAGE = 'LANGUAGE',
   FEEDBACK = 'FEEDBACK',
+  EXPORT_RECOVERY_PHRASE = 'EXPORT_RECOVERY_PHRASE',
 }
 
 export interface SettingsPageProps {
@@ -20,4 +21,5 @@ export interface SettingsPageProps {
   navigateTo: (page: SettingsPages) => void;
   goBack: () => void;
   onClose?: () => void;
+  showNotificationDotOn?: SettingsPages[];
 }

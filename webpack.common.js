@@ -80,6 +80,7 @@ module.exports = {
       // use alias for bn.js to prevent bundling it >23 times per output file (saves ~1.5MB)
       'bn.js': path.resolve('./node_modules/bn.js'),
       path: require.resolve('path-browserify'),
+      '@hpke/core': path.resolve('./node_modules/@hpke/core/esm/core/mod.js'),
     },
     // We're using different node.js modules in our code,
     // this prevents WebPack from failing on them or embedding

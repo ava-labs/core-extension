@@ -37,7 +37,7 @@
     "@avalabs/utils-sdk": "2.8.0-alpha.158",
     "@avalabs/wallets-sdk": "2.8.0-alpha.158",
     "@coinbase/cbpay-js": "1.6.0",
-    "@cubist-labs/cubesigner-sdk": "0.1.77",
+    "@cubist-labs/cubesigner-sdk": "0.2.15",
     "@ethereumjs/common": "2.6.5",
     "@ethereumjs/tx": "3.4.0",
     "@keystonehq/animated-qr": "0.5.2",

@@ -14,7 +14,7 @@ type Props = {
   error?: AuthErrorCode;
   isLoading: boolean;
   deviceName?: string;
-  completeFidoChallenge: () => Promise<unknown>;
+  completeFidoChallenge: (force: boolean) => Promise<unknown>;
 };
 export const FIDOChallenge = ({
   error,
@@ -77,7 +77,7 @@ export const FIDOChallenge = ({
             <Typography variant="body2" color="text.secondary">
               {errorMessage}
             </Typography>
-            <Button size="large" onClick={completeFidoChallenge}>
+            <Button size="large" onClick={() => completeFidoChallenge(true)}>
               {t('Try again')}
             </Button>
           </>

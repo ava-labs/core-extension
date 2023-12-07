@@ -2,10 +2,15 @@ import Big from 'big.js';
 import BN from 'bn.js';
 import { SerializableValue } from './serialize';
 
-export type DeserializableValue = {
-  type: 'Big' | 'BigNumber' | 'BN' | 'BigInt';
-  value: string;
-};
+export type DeserializableValue =
+  | {
+      type: 'Big' | 'BigNumber' | 'BN' | 'BigInt';
+      value: string;
+    }
+  | {
+      type: 'Buffer';
+      value: number[];
+    };
 
 /**
  * Deserialize complex numbers like `Big`, `BN`, etc. back to their original
@@ -40,6 +45,8 @@ function deserializeValue({
     case 'BigNumber':
     case 'BigInt':
       return BigInt(value);
+    case 'Buffer':
+      return Buffer.from(value);
     default:
       throw new Error('unhandled serialization');
   }

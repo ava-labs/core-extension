@@ -38,6 +38,13 @@ jobs:
           echo CORE_WEB_BASE_URL=${{ secrets.CORE_WEB_BASE_URL }} >> .env.production
           echo GLACIER_API_KEY=${{ secrets.GLACIER_API_KEY }} >> .env.production
           echo WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }} >> .env.production
+          echo SEEDLESS_URL=${{ secrets.SEEDLESS_URL }} >> .env.production
+          echo SEEDLESS_ORG_ID=${{ secrets.SEEDLESS_ORG_ID }} >> .env.production
+          echo GOOGLE_OAUTH_CLIENT_ID=${{ secrets.GOOGLE_OAUTH_CLIENT_ID }} >> .env.production
+          echo APPLE_OAUTH_CLIENT_ID=${{ secrets.APPLE_OAUTH_CLIENT_ID }} >> .env.production
+          echo APPLE_OAUTH_REDIRECT_URL=${{ secrets.APPLE_OAUTH_REDIRECT_URL }} >> .env.production
+          echo CUBESIGNER_ENV=${{ secrets.CUBESIGNER_ENV }} >> .env.production
+          echo SEEDLESS_FIDO_IDENTITY_URL=${{ secrets.SEEDLESS_FIDO_IDENTITY_URL }} >> .env.production
       - name: Install dependencies
         run: yarn setup
       - name: Build library

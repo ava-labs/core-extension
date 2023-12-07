@@ -89,12 +89,7 @@ export const openWindow = async (options: Windows.CreateCreateDataType) => {
   }
 };
 
-export const openExtensionNewWindow = async (
-  route?: string,
-  queryString?: string
-) => {
-  let extensionURL = browser.runtime.getURL(contextToOpenIn);
-
+export const openPopup = async ({ url, setSelfAsOpener = false }) => {
   const platform = await browser.runtime.getPlatformInfo();
 
   const isPlatformWindows = platform?.os === 'win';
@@ -114,16 +109,10 @@ export const openExtensionNewWindow = async (
     // do nothing, don't know where the last window is so let's just place it to 0,0
   }
 
-  if (queryString) {
-    extensionURL += `?${queryString}`;
-  }
-
-  if (route) {
-    extensionURL += `#/${route}`;
-  }
   return openWindow({
-    url: extensionURL,
+    url,
     focused: true,
+    setSelfAsOpener,
     type: 'popup',
     height: !isPlatformWindows
       ? NOTIFICATION_HEIGHT
@@ -133,6 +122,25 @@ export const openExtensionNewWindow = async (
       : NOTIFICATION_WIDTH + WINDOWS_SCROLLBAR_WIDTH,
     left,
     top,
+  });
+};
+
+export const openExtensionNewWindow = async (
+  route?: string,
+  queryString?: string
+) => {
+  let extensionURL = browser.runtime.getURL(contextToOpenIn);
+
+  if (queryString) {
+    extensionURL += `?${queryString}`;
+  }
+
+  if (route) {
+    extensionURL += `#/${route}`;
+  }
+
+  return openPopup({
+    url: extensionURL,
   });
 };
 

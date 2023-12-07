@@ -13,7 +13,7 @@ export const useSeedlessAuthPromptState = () => {
   const location = useLocation();
   const [isAuthPromptVisible, setIsAuthPromptVisible] = useState(false);
 
-  const isAuthPopupPage = location.pathname.includes('seedless-auth');
+  const isAuthPopupPage = location.pathname.includes('seedless');
 
   useEffect(() => {
     // Deactivate state querying on in the auth popup itself

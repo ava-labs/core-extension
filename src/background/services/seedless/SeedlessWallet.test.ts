@@ -98,7 +98,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     beforeEach(() => {
       jest
-        .mocked(cs.CubeSigner.loadSignerSession)
+        .mocked(cs.SignerSession.loadSignerSession)
         .mockRejectedValue(connectionError);
 
       wallet = new SeedlessWallet({ networkService, sessionStorage });
@@ -114,7 +114,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
   describe('.getPublicKeys()', () => {
     describe('when accounts are not created yet', () => {
       beforeEach(() => {
-        jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+        jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
           keys: jest.fn().mockResolvedValue([]),
         } as any);
 
@@ -130,7 +130,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when ETH or Avalanche key is not returned', () => {
       beforeEach(() => {
-        jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+        jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
           keys: jest.fn().mockResolvedValue([evmKey]),
         } as any);
 
@@ -146,7 +146,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when required keys are returned', () => {
       beforeEach(() => {
-        jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+        jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
           keys: jest.fn().mockResolvedValue(validKeySet),
         } as any);
 
@@ -165,7 +165,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when a key set contains keys for multiple accounts', () => {
       beforeEach(() => {
-        jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+        jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
           keys: jest.fn().mockResolvedValue(validKeySetWithTwoAccounts),
         } as any);
 
@@ -188,7 +188,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when multiple key sets are returned', () => {
       beforeEach(() => {
-        jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+        jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
           keys: jest
             .fn()
             .mockResolvedValue([
@@ -214,7 +214,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
   describe('.signTransaction()', () => {
     beforeEach(() => {
-      jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+      jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
         keys: jest.fn().mockResolvedValue(validKeySet),
       } as any);
     });
@@ -356,7 +356,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           data: jest.fn().mockReturnValue({ signature }),
         }),
       } as any;
-      jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValue(session);
+      jest
+        .mocked(cs.SignerSession.loadSignerSession)
+        .mockResolvedValue(session);
     });
 
     describe('when public key is not provided', () => {
@@ -549,7 +551,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           data: jest.fn().mockReturnValue({ signature }),
         }),
       } as any;
-      jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValue(session);
+      jest
+        .mocked(cs.SignerSession.loadSignerSession)
+        .mockResolvedValue(session);
     });
 
     describe('when public key is not provided', () => {
@@ -781,7 +785,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         keys: jest.fn().mockResolvedValue(validKeySet),
         proveIdentity: jest.fn(),
       } as any;
-      jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValue(session);
+      jest
+        .mocked(cs.SignerSession.loadSignerSession)
+        .mockResolvedValue(session);
 
       wallet = new SeedlessWallet({
         networkService,
@@ -896,7 +902,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           data: jest.fn().mockReturnValue({ signature }),
         }),
       } as any;
-      jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValue(session);
+      jest
+        .mocked(cs.SignerSession.loadSignerSession)
+        .mockResolvedValue(session);
     });
 
     describe('when no network is provided', () => {

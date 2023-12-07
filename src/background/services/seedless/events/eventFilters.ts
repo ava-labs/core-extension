@@ -1,5 +1,5 @@
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import { SeedlessEvents } from '../models';
+import { MfaRequestData, SeedlessEvents } from '../models';
 
 export function isSeedlessTokenEvent(
   evt: ExtensionConnectionEvent
@@ -7,5 +7,14 @@ export function isSeedlessTokenEvent(
   return (
     evt?.name === SeedlessEvents.TokenExpired ||
     evt?.name === SeedlessEvents.TokenRefreshed
+  );
+}
+
+export function isSeedlessMfaEvent(
+  evt: ExtensionConnectionEvent
+): evt is ExtensionConnectionEvent<MfaRequestData> {
+  return (
+    evt?.name === SeedlessEvents.MfaRequest ||
+    evt?.name === SeedlessEvents.MfaFailure
   );
 }

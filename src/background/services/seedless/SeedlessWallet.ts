@@ -30,9 +30,10 @@ import { MessageParams, MessageType } from '../messages/models';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { Transaction } from 'bitcoinjs-lib';
 import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
-import { CoreApiError } from './models';
+import { CoreApiError, MfaRequestType } from './models';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
-import { isTokenExpiredError } from './utils';
+import { isFailedMfaError, isTokenExpiredError } from './utils';
+import { SeedlessMfaService } from './SeedlessMfaService';
 
 type ConstructorOpts = {
   networkService: NetworkService;
@@ -40,6 +41,7 @@ type ConstructorOpts = {
   addressPublicKey?: PubKeyType;
   network?: Network;
   sessionManager?: SeedlessSessionManager;
+  mfaService?: SeedlessMfaService;
 };
 
 export class SeedlessWallet {
@@ -49,6 +51,7 @@ export class SeedlessWallet {
   #network?: Network;
   #sessionManager?: SeedlessSessionManager;
   #signerSession?: cs.SignerSession;
+  #mfaService?: SeedlessMfaService;
 
   constructor({
     networkService,
@@ -56,12 +59,14 @@ export class SeedlessWallet {
     addressPublicKey,
     network,
     sessionManager,
+    mfaService,
   }: ConstructorOpts) {
     this.#networkService = networkService;
     this.#sessionStorage = sessionStorage;
     this.#addressPublicKey = addressPublicKey;
     this.#network = network;
     this.#sessionManager = sessionManager;
+    this.#mfaService = mfaService;
   }
 
   get #connected() {
@@ -73,7 +78,7 @@ export class SeedlessWallet {
       return;
     }
 
-    this.#signerSession = await cs.CubeSigner.loadSignerSession(
+    this.#signerSession = await cs.SignerSession.loadSignerSession(
       this.#sessionStorage
     );
   }
@@ -120,7 +125,7 @@ export class SeedlessWallet {
     }
   }
 
-  async #getMnemonicId(): Promise<string> {
+  async #getMnemonicId(withPrefix = false): Promise<string> {
     if (!this.#addressPublicKey) {
       throw new Error('Public key not available');
     }
@@ -140,7 +145,7 @@ export class SeedlessWallet {
         throw new Error('Cannot establish the mnemonic id');
       }
 
-      return mnemonicId;
+      return withPrefix ? `Key#Mnemonic_${mnemonicId}` : mnemonicId;
     } catch (err) {
       this.#handleError(err);
     }
@@ -156,6 +161,128 @@ export class SeedlessWallet {
     return this.#signerSession;
   }
 
+  async getMnemonicExportState(): Promise<
+    cs.UserExportInitResponse | undefined
+  > {
+    const session = await this.#getSession();
+    const paginator = session.userExportList();
+
+    const [request] = await paginator.fetchAll();
+
+    return request;
+  }
+
+  async initMnemonicExport(tabId?: number): Promise<cs.UserExportInitResponse> {
+    const session = await this.#getSession();
+    const mnemonicId = await this.#getMnemonicId(true);
+
+    const initRequest = await session.userExportInit(mnemonicId);
+
+    if (!initRequest.requiresMfa()) {
+      return initRequest.data();
+    }
+
+    const result = await this.#approveWithMfa(initRequest, tabId);
+
+    return result.data();
+  }
+
+  async #getMfaType(): Promise<MfaRequestType> | never {
+    const session = await this.#getSession();
+    const identity = await session.proveIdentity();
+
+    const mfaType = identity.user_info?.configured_mfa?.[0]?.type;
+
+    if (mfaType === 'fido') {
+      return MfaRequestType.Fido;
+    } else if (mfaType === 'totp') {
+      return MfaRequestType.Totp;
+    }
+
+    throw new Error(`Unsupported MFA type: ${mfaType}`);
+  }
+
+  async cancelMnemonicExport(): Promise<void> {
+    const session = await this.#getSession();
+    const mnemonicId = await this.#getMnemonicId(true);
+
+    await session.userExportDelete(mnemonicId);
+  }
+
+  async #approveWithMfa<T>(
+    request: cs.CubeSignerResponse<T>,
+    tabId?: number
+  ): Promise<cs.CubeSignerResponse<T>> {
+    if (!this.#mfaService) {
+      throw new Error('MFA is required, but MFA service is not available');
+    }
+
+    try {
+      const type = await this.#getMfaType();
+
+      if (type === MfaRequestType.Totp) {
+        const code = await this.#mfaService.requestMfa({
+          mfaId: request.mfaId(),
+          type,
+          tabId,
+        });
+        return await request.approveTotp(await this.#getSession(), code);
+      } else if (type === MfaRequestType.Fido) {
+        const session = await this.#getSession();
+        const challenge = await session.fidoApproveStart(request.mfaId());
+
+        const fidoAnswer = await this.#mfaService.requestMfa({
+          mfaId: request.mfaId(),
+          type,
+          options: challenge.options,
+          tabId,
+        });
+
+        const mfaInfo = await challenge.answer(fidoAnswer);
+
+        if (!mfaInfo.receipt) {
+          throw new Error('Fido challenge not approved');
+        }
+
+        return await request.signWithMfaApproval({
+          mfaId: request.mfaId(),
+          mfaOrgId: process.env.SEEDLESS_ORG_ID || '',
+          mfaConf: mfaInfo.receipt.confirmation,
+        });
+      } else {
+        throw new Error('Unsupported MFA type');
+      }
+    } catch (err) {
+      // Only repeat the prompt if it was an MFA failure
+      if (isFailedMfaError(err)) {
+        // Emit error & retry
+        await this.#mfaService.emitMfaError(request.mfaId(), tabId);
+
+        return this.#approveWithMfa(request, tabId);
+      }
+
+      this.#handleError(err);
+    }
+  }
+
+  async completeMnemonicExport(
+    publicKey: CryptoKey,
+    tabId?: number
+  ): Promise<cs.UserExportCompleteResponse> {
+    const session = await this.#getSession();
+    const mnemonicId = await this.#getMnemonicId(true);
+
+    const request = await session.userExportComplete(mnemonicId, publicKey);
+
+    if (!request.requiresMfa()) {
+      return request.data();
+    }
+
+    const result = await this.#approveWithMfa(request, tabId);
+
+    return result.data();
+  }
+
   async getPublicKeys(): Promise<PubKeyType[]> {
     const session = await this.#getSession();
     // get keys and filter out non derived ones and group them
@@ -167,7 +294,7 @@ export class SeedlessWallet {
       this.#handleError(err);
     }
 
-    const requiredKeyTypes = ['SecpEthAddr', 'SecpAvaAddr'];
+    const requiredKeyTypes: cs.KeyTypeApi[] = ['SecpEthAddr', 'SecpAvaAddr'];
     const keys = rawKeys
       ?.filter(
         (k) =>
@@ -248,6 +375,7 @@ export class SeedlessWallet {
     try {
       const session = await this.#getSession();
       const keys = await session.keys();
+      // TODO: Cubist should provide filtering by key_type
       const key = keys
         .filter(({ key_type }) => key_type === type)
         .find(({ publicKey }) => strip0x(publicKey) === lookupPublicKey);

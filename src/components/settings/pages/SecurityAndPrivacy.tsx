@@ -9,6 +9,7 @@ import { WalletType } from '@src/background/services/wallet/models';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
 import { Trans, useTranslation } from 'react-i18next';
 import {
+  Badge,
   Button,
   ChevronRightIcon,
   Divider,
@@ -23,11 +24,13 @@ import {
 } from '@avalabs/k2-components';
 import { useState } from 'react';
 import Dialog from '@src/components/common/Dialog';
+import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedlessAnalytics';
 
 export function SecurityAndPrivacy({
   goBack,
   navigateTo,
   width,
+  showNotificationDotOn = [],
 }: SettingsPageProps) {
   const { t } = useTranslation();
   const { walletDetails } = useWalletContext();
@@ -156,6 +159,42 @@ export function SecurityAndPrivacy({
               <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
                 {t('Show Recovery')}
               </ListItemText>
+
+              <ListItemIcon>
+                <ChevronRightIcon size={24} />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+        )}
+        {walletDetails?.type === WalletType.SEEDLESS && (
+          <ListItem sx={{ p: 0 }}>
+            <ListItemButton
+              sx={{
+                justifyContent: 'space-between',
+                py: 1,
+                px: 2,
+                m: 0,
+                '&:hover': { borderRadius: 0 },
+              }}
+              data-testid="seedless-export-recovery-phrase-menu-item"
+              onClick={() => {
+                capture(SeedlessExportAnalytics.MenuItemClicked);
+                navigateTo(SettingsPages.EXPORT_RECOVERY_PHRASE);
+              }}
+            >
+              <Badge
+                color="secondary"
+                variant="dot"
+                invisible={
+                  !showNotificationDotOn.includes(
+                    SettingsPages.EXPORT_RECOVERY_PHRASE
+                  )
+                }
+              >
+                <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
+                  {t('Export Recovery Phrase')}
+                </ListItemText>
+              </Badge>
 
               <ListItemIcon>
                 <ChevronRightIcon size={24} />

@@ -4,7 +4,6 @@ import {
   MfaRequestInfo,
   SignerSession,
   SignerSessionData,
-  SignerSessionManager,
   envs,
 } from '@cubist-labs/cubesigner-sdk';
 
@@ -13,8 +12,13 @@ import sentryCaptureException, {
 } from '@src/monitoring/sentryCaptureException';
 
 import { getSignerToken } from '@src/utils/seedless/getSignerToken';
-import { loginWithCubeSigner } from '@src/utils/seedless/loginWithCubeSigner';
+import {
+  getSignerSession,
+  requestOidcAuth,
+} from '@src/utils/seedless/getCubeSigner';
 import { OidcTokenGetter } from '@src/utils/seedless/getOidcTokenProvider';
+import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
+import { FIDOApiEndpoint } from '@src/utils/seedless/fido/types';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export enum AuthStep {
@@ -37,6 +41,7 @@ export enum AuthErrorCode {
   FidoChallengeNotApproved = 'fido-challenge-not-approved',
   FidoChallengeFailed = 'fido-challenge-failed',
   NoMfaMethodsConfigured = 'no-mfa-methods-configured',
+  WrongMfaResponseAttempt = 'wrong-mfa-response-attempt',
 }
 
 export type UseSeedlessAuthOptions = {
@@ -114,7 +119,7 @@ export const useSeedlessAuth = ({
         }
 
         setOidcToken(idToken);
-        const authResponse = await loginWithCubeSigner(idToken);
+        const authResponse = await requestOidcAuth(idToken);
 
         const requiresMfa = authResponse.requiresMfa();
 
@@ -128,13 +133,8 @@ export const useSeedlessAuth = ({
         const mfaSessionInfo = authResponse.mfaSessionInfo();
 
         if (mfaSessionInfo) {
-          const manager = await SignerSessionManager.createFromSessionInfo(
-            envs[process.env.CUBESIGNER_ENV || ''],
-            process.env.SEEDLESS_ORG_ID || '',
-            mfaSessionInfo
-          );
           setMfaId(authResponse.mfaId());
-          setSession(await SignerSession.loadSignerSession(manager.storage));
+          setSession(await getSignerSession(mfaSessionInfo));
 
           if (!mfaType) {
             setError(AuthErrorCode.NoMfaMethodsConfigured);
@@ -200,7 +200,7 @@ export const useSeedlessAuth = ({
       }
 
       try {
-        const oidcAuthResponse = await loginWithCubeSigner(oidcToken, {
+        const oidcAuthResponse = await requestOidcAuth(oidcToken, {
           mfaOrgId: process.env.SEEDLESS_ORG_ID || '',
           mfaId,
           mfaConf: status.receipt.confirmation,
@@ -252,15 +252,15 @@ export const useSeedlessAuth = ({
     try {
       const challenge = await session.fidoApproveStart(mfaId);
 
-      // Extensions need to leave rpId blank
-      // https://chromium.googlesource.com/chromium/src/+/main/content/browser/webauth/origins.md
-      delete challenge.options.rpId;
-
-      // prompt the user to tap their FIDO and send the answer back to CubeSigner
       let mfaInfo: MfaRequestInfo;
 
       try {
-        mfaInfo = await challenge.createCredentialAndAnswer();
+        // prompt the user to tap their FIDO and send the answer back to CubeSigner
+        const answer = await launchFidoFlow(
+          FIDOApiEndpoint.Authenticate,
+          challenge.options
+        );
+        mfaInfo = await challenge.answer(answer);
       } catch {
         setError(AuthErrorCode.FidoChallengeFailed);
         return false;
@@ -273,7 +273,7 @@ export const useSeedlessAuth = ({
       }
 
       // proceed with the MFA approval
-      let authResponse = await loginWithCubeSigner(oidcToken);
+      let authResponse = await requestOidcAuth(oidcToken);
 
       authResponse = await authResponse.signWithMfaApproval({
         mfaId,
@@ -291,17 +291,7 @@ export const useSeedlessAuth = ({
         return false;
       }
 
-      const signerSessionManager =
-        await SignerSessionManager.createFromSessionInfo(
-          envs[process.env.CUBESIGNER_ENV || ''],
-          process.env.SEEDLESS_ORG_ID || '',
-          authResponse.data()
-        );
-
-      await onSignerTokenObtained?.(
-        await signerSessionManager.storage.retrieve(),
-        email
-      );
+      await onSignerTokenObtained?.(await getSignerToken(authResponse), email);
       return true;
     } catch (err) {
       setError(AuthErrorCode.UnknownError);

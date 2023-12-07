@@ -35,12 +35,12 @@ export class SeedlessBtcSigner implements SignerAsync {
 
   /**
    * Constructor.
-   * @param {cs.KeyInfo} fromKey key on whose behalf to sign
+   * @param {string} fromKey key on whose behalf to sign
    * @param {bc.Psbt} psbt Partially signed bitcoin transaction
    * @param {number} inputIndex Index of the transaction input to sign
    * @param {Utxo[]} utxos Unspent outputs corresponding to transaction intputs
    * @param {bc.networks.Network} network Bitcoin network
-   * @param {cs.SignerSession} signerSession cubesigner signer session
+   * @param {SignerSession} signerSession cubesigner signer session
    */
   constructor(
     fromKey: string,

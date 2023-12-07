@@ -16,8 +16,8 @@ import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { OnboardingURLs } from '@src/background/services/onboarding/models';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import { CubeSigner, envs } from '@cubist-labs/cubesigner-sdk';
 import { TOTPModal } from './modals/TOTPModal';
+import { getOidcClient } from '@src/utils/seedless/getCubeSigner';
 import { FIDOModal } from './modals/FIDOModal';
 import { FIDOSteps, RecoveryMethodTypes } from './models';
 
@@ -50,14 +50,8 @@ export function RecoveryMethodsLogin() {
       if (!oidcToken) {
         return false;
       }
-      const cubesigner = new CubeSigner({
-        orgId: process.env.SEEDLESS_ORG_ID || '',
-        env: envs[process.env.CUBESIGNER_ENV || ''],
-      });
-      const identity = await cubesigner.oidcProveIdentity(
-        oidcToken,
-        process.env.SEEDLESS_ORG_ID || ''
-      );
+      const oidcClient = getOidcClient(oidcToken);
+      const identity = await oidcClient.identityProve();
       const configuredMfa = identity.user_info?.configured_mfa;
 
       if (configuredMfa) {

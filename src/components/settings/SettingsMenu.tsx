@@ -17,12 +17,18 @@ import { Language } from './pages/Language';
 import { Feedback } from './pages/Feedback';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import {
+  Badge,
   Drawer,
   IconButton,
   MenuIcon,
   Stack,
   styled,
 } from '@avalabs/k2-components';
+import { ExportRecoveryPhrase } from './pages/ExportRecoveryPhrase';
+import {
+  ExportState,
+  useSeedlessMnemonicExport,
+} from '@src/hooks/useSeedlessMnemonicExport';
 
 const AnimatedContainer = styled(Stack)`
   height: 100%;
@@ -89,6 +95,10 @@ export function SettingsMenu() {
     settingsActivePage,
   ]);
   const [isBackAnimation, setIsBackAnimation] = useState<boolean>(false);
+  const { state: seedlessExportState } = useSeedlessMnemonicExport();
+
+  const showSeedlessExportDot =
+    seedlessExportState === ExportState.ReadyToExport;
 
   useEffect(() => {
     setNavStack([settingsActivePage]);
@@ -141,13 +151,23 @@ export function SettingsMenu() {
       pageElement = <AddContact {...pageProps} />;
       break;
     case SettingsPages.SECURITY_AND_PRIVACY:
-      pageElement = <SecurityAndPrivacy {...pageProps} />;
+      pageElement = (
+        <SecurityAndPrivacy
+          {...pageProps}
+          showNotificationDotOn={
+            showSeedlessExportDot ? [SettingsPages.EXPORT_RECOVERY_PHRASE] : []
+          }
+        />
+      );
       break;
     case SettingsPages.CHANGE_PASSWORD:
       pageElement = <ChangePassword {...pageProps} />;
       break;
     case SettingsPages.RECOVERY_PHRASE:
       pageElement = <RecoveryPhrase {...pageProps} />;
+      break;
+    case SettingsPages.EXPORT_RECOVERY_PHRASE:
+      pageElement = <ExportRecoveryPhrase {...pageProps} />;
       break;
     case SettingsPages.CONNECTED_SITES:
       pageElement = <ConnectedSites {...pageProps} />;
@@ -168,7 +188,14 @@ export function SettingsMenu() {
       pageElement = <Feedback {...pageProps} />;
       break;
     default:
-      pageElement = <MainPage {...pageProps} />;
+      pageElement = (
+        <MainPage
+          {...pageProps}
+          showNotificationDotOn={
+            showSeedlessExportDot ? [SettingsPages.SECURITY_AND_PRIVACY] : []
+          }
+        />
+      );
   }
 
   const animationClass = isBackAnimation ? 'slideBack' : 'slideNext';
@@ -182,7 +209,22 @@ export function SettingsMenu() {
           p: 0,
         }}
       >
-        <MenuIcon size={24} />
+        <Badge
+          color="secondary"
+          badgeContent="1"
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          componentsProps={{
+            badge: {
+              style: { minWidth: 0, width: 16, height: 16 },
+            },
+          }}
+          invisible={!showSeedlessExportDot}
+        >
+          <MenuIcon size={24} />
+        </Badge>
       </IconButton>
       <CSSTransition
         addEndListener={(node, done) =>

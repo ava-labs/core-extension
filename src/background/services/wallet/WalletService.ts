@@ -61,7 +61,6 @@ import { FIREBLOCKS_REQUEST_EXPIRY } from '../fireblocks/models';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
-
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();

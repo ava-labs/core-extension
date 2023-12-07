@@ -2,7 +2,7 @@ import Big from 'big.js';
 import BN from 'bn.js';
 import { DeserializableValue } from './deserialize';
 
-export type SerializableValue = Big | bigint | BN;
+export type SerializableValue = Big | bigint | BN | Buffer;
 
 /**
  * Prepare data for JSON serialization by converting complex numbers like `Big`,
@@ -31,6 +31,8 @@ function serializeValue(value: SerializableValue): DeserializableValue {
     return { type: 'BN', value: value.toString() };
   } else if (typeof value === 'bigint') {
     return { type: 'BigInt', value: value.toString() };
+  } else if (value instanceof Buffer) {
+    return { type: 'Buffer', value: Array.from(value) };
   } else {
     throw new Error('unhandled serialization');
   }
@@ -38,6 +40,9 @@ function serializeValue(value: SerializableValue): DeserializableValue {
 
 function isSerializable(value: unknown): value is SerializableValue {
   return (
-    value instanceof Big || value instanceof BN || typeof value === 'bigint'
+    value instanceof Big ||
+    value instanceof BN ||
+    typeof value === 'bigint' ||
+    value instanceof Buffer
   );
 }
