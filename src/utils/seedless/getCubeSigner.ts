@@ -88,7 +88,7 @@ export async function requestOidcAuth(
 ): Promise<CubeSignerResponse<SignerSessionData>> {
   const oidcClient = getOidcClient(oidcToken);
   return await oidcClient.sessionCreate(
-    ['sign:*', 'manage:*'],
+    ['sign:*', 'manage:*', 'export:*'],
     {
       // How long singing with a particular token works from the token creation
       auth_lifetime: 5 * 60, // 5 minutes
