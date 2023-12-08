@@ -2,6 +2,7 @@ import { t as translate } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useTheme, darkTheme, Typography, Stack } from '@avalabs/k2-components';
 import zxcvbn from 'zxcvbn';
+import { useEffect } from 'react';
 
 const REQUIRED_PASSWORD_STRENTGH = 2; // can be 0-4
 
@@ -52,7 +53,9 @@ export function PasswordStrength({
   const { t } = useTranslation();
   const theme = useTheme();
   const { score: strength } = zxcvbn(password);
-  setPasswordStrength(strength);
+  useEffect(() => {
+    setPasswordStrength(strength);
+  }, [setPasswordStrength, strength]);
   const scoreWords = [
     t('Strength: weak. Keep adding characters.'),
     t('Strength: weak. Keep adding characters.'),

@@ -40,9 +40,11 @@ export const ImportWallet = () => {
   const history = useHistory();
 
   const onNext = useCallback(async () => {
-    capture('OnboardingMnemonicImported');
-    setMnemonic(recoveryPhrase);
-    history.push(OnboardingURLs.CREATE_PASSWORD);
+    if (recoveryPhrase) {
+      capture('OnboardingMnemonicImported');
+      setMnemonic(recoveryPhrase);
+      history.push(OnboardingURLs.CREATE_PASSWORD);
+    }
   }, [capture, history, recoveryPhrase, setMnemonic]);
 
   useEffect(() => {
@@ -72,11 +74,10 @@ export const ImportWallet = () => {
   const onPhraseChanged = useCallback(() => {
     const phrase = [...words].join(' ');
 
-    setRecoveryPhrase(phrase);
-
     if (!isPhraseValid(phrase)) {
       setError(t('Invalid mnemonic phrase'));
     } else {
+      setRecoveryPhrase(phrase);
       setError('');
       onNext();
     }
