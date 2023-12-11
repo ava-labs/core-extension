@@ -65,6 +65,7 @@ const OnboardingContext = createContext<{
     SetStateAction<SignerSessionData | undefined>
   >;
   setUserEmail: Dispatch<SetStateAction<string | undefined>>;
+  resetStates: () => void;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -113,7 +114,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const { capture } = useAnalyticsContext();
 
-  function resetStates() {
+  const resetStates = useCallback(() => {
     setMnemonic('');
     setXpub('');
     setXpubXP('');
@@ -126,13 +127,13 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setSeedlessSignerToken(undefined);
     setWalletType(undefined);
     setUserEmail(undefined);
-  }
+  }, []);
 
   useEffect(() => {
     if (nextPhase === OnboardingPhase.RESTART) {
       resetStates();
     }
-  }, [nextPhase]);
+  }, [nextPhase, resetStates]);
 
   useEffect(() => {
     const walletTypeSelectingPhases = [
@@ -242,14 +243,15 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       xpubXP,
       accountName,
       analyticsConsent,
-      authProvider,
       publicKeys,
       masterFingerprint,
       seedlessSignerToken,
+      authProvider,
+      userEmail,
       capture,
       walletType,
+      resetStates,
       t,
-      userEmail,
     ]
   );
 
@@ -282,6 +284,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setSeedlessSignerToken,
         setAuthProvider,
         setUserEmail,
+        resetStates,
       }}
     >
       {/*
