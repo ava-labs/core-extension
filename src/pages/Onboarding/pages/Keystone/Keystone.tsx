@@ -29,6 +29,7 @@ import {
   OnboardingURLs,
 } from '@src/background/services/onboarding/models';
 import { useHistory } from 'react-router-dom';
+import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 
 const KeystoneStepImage = styled(Stack)`
   position: relative;
@@ -143,7 +144,10 @@ export const Keystone = () => {
         }}
       >
         <OnboardingStepHeader title={headerTitles[stepNumber]} />
-        <FunctionIsOffline functionName={t('Keystone')} hidePageTitle />
+        <FunctionIsOffline
+          functionName={FunctionNames.KEYSTONE}
+          hidePageTitle
+        />
       </Stack>
     );
   }

@@ -9,7 +9,12 @@ import {
 } from '@src/background/services/storage/utils/crypto';
 import browser from 'webextension-polyfill';
 import { singleton } from 'tsyringe';
-import { EncryptedData, WALLET_STORAGE_ENCRYPTION_KEY } from './models';
+import {
+  EncryptedData,
+  KeyDerivationVersion,
+  WALLET_STORAGE_ENCRYPTION_KEY,
+  WalletStorageEncryptionKeyData,
+} from './models';
 import {
   getDataWithSchemaVersion,
   migrateToLatest,
@@ -27,10 +32,11 @@ export class StorageService implements OnLock {
    */
   async activate(password: string) {
     try {
-      this._storageKey = await this.load<string>(
+      const keyData = await this.load<WalletStorageEncryptionKeyData>(
         WALLET_STORAGE_ENCRYPTION_KEY,
         password
       );
+      this._storageKey = keyData?.storageKey;
 
       this.callbackManager.onStorageReady();
     } catch (err) {
@@ -46,12 +52,20 @@ export class StorageService implements OnLock {
   async changePassword(oldPassword: string, newPassword: string) {
     try {
       // double check that the old password is correct
-      const key = await this.load<string>(
+      const key = await this.load<WalletStorageEncryptionKeyData>(
         WALLET_STORAGE_ENCRYPTION_KEY,
         oldPassword
       );
 
-      await this.save(WALLET_STORAGE_ENCRYPTION_KEY, key, newPassword);
+      if (!key) {
+        throw new Error('password incorrect');
+      }
+
+      await this.save<WalletStorageEncryptionKeyData>(
+        WALLET_STORAGE_ENCRYPTION_KEY,
+        key,
+        newPassword
+      );
     } catch (err) {
       return Promise.reject(new Error('password incorrect'));
     }
@@ -64,7 +78,13 @@ export class StorageService implements OnLock {
       crypto.getRandomValues(new Uint8Array(32))
     ).toString('hex');
 
-    await this.save(WALLET_STORAGE_ENCRYPTION_KEY, storageKey, password);
+    await this.save<WalletStorageEncryptionKeyData>(
+      WALLET_STORAGE_ENCRYPTION_KEY,
+      {
+        storageKey,
+      },
+      password
+    );
     this._storageKey = storageKey;
     this.callbackManager.onStorageReady();
   }
@@ -80,6 +100,7 @@ export class StorageService implements OnLock {
       cypher: Uint8Array;
       nonce: Uint8Array;
       salt?: Uint8Array;
+      keyDerivationVersion?: KeyDerivationVersion;
     } = customEncryptionKey
       ? await encryptWithPassword({
           secret: serializeToJSON<T>(dataWithSchemaVersion),
@@ -95,6 +116,7 @@ export class StorageService implements OnLock {
         cypher: Array.from(encryptedData.cypher),
         nonce: Array.from(encryptedData.nonce),
         salt: encryptedData.salt ? Array.from(encryptedData.salt) : undefined,
+        keyDerivationVersion: encryptedData.keyDerivationVersion,
       },
     };
 
@@ -111,7 +133,7 @@ export class StorageService implements OnLock {
       return;
     }
 
-    const encryptedData = result[key];
+    const encryptedData: EncryptedData = result[key];
     if (!encryptedData.nonce || !encryptedData.cypher) {
       return;
     }
@@ -125,8 +147,10 @@ export class StorageService implements OnLock {
       data = await decryptWithPassword({
         cypher: Uint8Array.from(encryptedData.cypher),
         password: customEncryptionKey,
-        salt: Uint8Array.from(encryptedData.salt),
+        salt: Uint8Array.from(encryptedData.salt ?? []),
         nonce: Uint8Array.from(encryptedData.nonce),
+        keyDerivationVersion:
+          encryptedData.keyDerivationVersion ?? KeyDerivationVersion.V1,
       });
     } else {
       const keyBuffer = Buffer.from(this._storageKey ?? '');

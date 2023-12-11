@@ -123,4 +123,12 @@ export enum ExtensionRequest {
   WALLET_CONNECT_IMPORT_ACCOUNT = 'wallet_connect_import_account',
 
   FIREBLOCKS_UPDATE_API_CREDENTIALS = 'fireblocks_update_api_credentials',
+
+  SEEDLESS_UPDATE_SIGNER_TOKEN = 'seedless_update_signer_token',
+  SEEDLESS_HAS_TOKEN_EXPIRED = 'seedless_has_token_expired',
+  SEEDLESS_INIT_RECOVERY_PHRASE_EXPORT = 'seedless_init_recovery_phrase_export',
+  SEEDLESS_CANCEL_RECOVERY_PHRASE_EXPORT = 'seedless_cancel_recovery_phrase_export',
+  SEEDLESS_GET_RECOVERY_PHRASE_EXPORT_STATE = 'seedless_get_recovery_phrase_export_state',
+  SEEDLESS_COMPLETE_RECOVERY_PHRASE_EXPORT = 'seedless_complete_recovery_phrase_export',
+  SEEDLESS_SUBMIT_MFA_RESPONSE = 'seedless_submit_mfa_response',
 }

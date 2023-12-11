@@ -1,10 +1,11 @@
 import { EventEmitter } from 'events';
-import { singleton } from 'tsyringe';
+import { container, singleton } from 'tsyringe';
 import {
   PubKeyType,
   SeedlessAuthProvider,
   SigningResult,
   SignTransactionRequest,
+  WalletDetails,
   WalletEvents,
   WalletType,
 } from './models';
@@ -59,12 +60,11 @@ import { SecretType } from '../secrets/models';
 import { FIREBLOCKS_REQUEST_EXPIRY } from '../fireblocks/models';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
-
+import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();
-  private _walletType?: WalletType;
-  private _derivationPath?: DerivationPath;
+  private _walletDetails: WalletDetails | undefined;
 
   constructor(
     private networkService: NetworkService,
@@ -75,19 +75,15 @@ export class WalletService implements OnLock, OnUnlock {
     private secretService: SecretsService
   ) {}
 
-  public get walletType(): WalletType | undefined {
-    return this._walletType;
-  }
-
-  public get derivationPath(): DerivationPath | undefined {
-    return this._derivationPath;
+  public get walletDetails(): WalletDetails | undefined {
+    return this._walletDetails;
   }
 
   private emitWalletState() {
-    this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, {
-      walletType: this._walletType,
-      derivationPath: this._derivationPath,
-    });
+    this.eventEmitter.emit(
+      WalletEvents.WALLET_STATE_UPDATE,
+      this.walletDetails
+    );
   }
 
   async onUnlock(): Promise<void> {
@@ -101,26 +97,44 @@ export class WalletService implements OnLock, OnUnlock {
 
     switch (secrets.type) {
       case SecretType.Seedless:
-        this._walletType = WalletType.SEEDLESS;
+        {
+          this._walletDetails = {
+            type: WalletType.SEEDLESS,
+            authProvider: secrets.authProvider,
+            derivationPath: secrets.derivationPath,
+            userEmail: secrets.userEmail,
+          };
+          // Refresh session on unlock
+          const sessionManager = container.resolve(SeedlessSessionManager);
+          sessionManager.refreshSession();
+        }
         break;
       case SecretType.Mnemonic:
-        this._walletType = WalletType.MNEMONIC;
+        this._walletDetails = {
+          type: WalletType.MNEMONIC,
+          derivationPath: secrets.derivationPath,
+        };
         break;
 
       case SecretType.Ledger:
       case SecretType.LedgerLive:
-        this._walletType = WalletType.LEDGER;
+        this._walletDetails = {
+          type: WalletType.LEDGER,
+          derivationPath: secrets.derivationPath,
+        };
         break;
 
       case SecretType.Keystone:
-        this._walletType = WalletType.KEYSTONE;
+        this._walletDetails = {
+          type: WalletType.KEYSTONE,
+          derivationPath: secrets.derivationPath,
+        };
         break;
 
       default:
         throw new Error('Wallet initialization failed, no key found');
     }
 
-    this._derivationPath = secrets.derivationPath;
     this.emitWalletState();
   }
 
@@ -136,6 +150,7 @@ export class WalletService implements OnLock, OnUnlock {
     masterFingerprint,
     seedlessSignerToken,
     authProvider,
+    userEmail,
   }: {
     xpub?: string;
     xpubXP?: string;
@@ -144,14 +159,15 @@ export class WalletService implements OnLock, OnUnlock {
     masterFingerprint?: string;
     seedlessSignerToken?: SignerSessionData;
     authProvider?: SeedlessAuthProvider;
+    userEmail?: string;
   }) {
     if (seedlessSignerToken) {
       const seedlessStorage = new SeedlessTokenStorage(this.secretService);
       await seedlessStorage.save(seedlessSignerToken);
-      const seedlessWallet = new SeedlessWallet(
-        this.networkService,
-        seedlessStorage
-      );
+      const seedlessWallet = new SeedlessWallet({
+        networkService: this.networkService,
+        sessionStorage: seedlessStorage,
+      });
       pubKeys = await seedlessWallet.getPublicKeys();
 
       if (!pubKeys.length) {
@@ -178,13 +194,13 @@ export class WalletService implements OnLock, OnUnlock {
       derivationPath,
       masterFingerprint,
       authProvider,
+      userEmail,
     });
     await this.onUnlock();
   }
 
   onLock() {
-    this._walletType = undefined;
-    this._derivationPath = undefined;
+    this._walletDetails = undefined;
     this.emitWalletState();
   }
 
@@ -208,12 +224,13 @@ export class WalletService implements OnLock, OnUnlock {
         throw new Error('Account public key not available');
       }
 
-      const wallet = new SeedlessWallet(
-        this.networkService,
-        new SeedlessTokenStorage(this.secretService),
+      const wallet = new SeedlessWallet({
+        networkService: this.networkService,
+        sessionStorage: new SeedlessTokenStorage(this.secretService),
         addressPublicKey,
-        activeNetwork
-      );
+        network: activeNetwork,
+        sessionManager: container.resolve(SeedlessSessionManager),
+      });
       return wallet;
     }
 
@@ -761,7 +778,7 @@ export class WalletService implements OnLock, OnUnlock {
   async addAddress(index: number): Promise<Record<NetworkVMType, string>> {
     const secrets = await this.secretService.getActiveAccountSecrets();
 
-    if (secrets.type === SecretType.LedgerLive) {
+    if (secrets.type === SecretType.LedgerLive && !secrets.pubKeys[index]) {
       // With LedgerLive, we don't have xPub or Mnemonic, so we need
       // to get the new address pubkey from the Ledger device.
       if (!this.ledgerService.recentTransport) {
@@ -804,11 +821,11 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     if (secrets.type === SecretType.Seedless && !secrets.pubKeys[index]) {
-      const wallet = new SeedlessWallet(
-        this.networkService,
-        new SeedlessTokenStorage(this.secretService),
-        secrets.pubKeys[0]
-      );
+      const wallet = new SeedlessWallet({
+        networkService: this.networkService,
+        sessionStorage: new SeedlessTokenStorage(this.secretService),
+        addressPublicKey: secrets.pubKeys[0],
+      });
 
       // Prompt Core Seedless API to derive new keys
       await wallet.addAccount(index);

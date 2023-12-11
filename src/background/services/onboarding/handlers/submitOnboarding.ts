@@ -31,6 +31,7 @@ type HandlerType = ExtensionRequestHandler<
       masterFingerprint: string | undefined;
       seedlessSignerToken: SignerSessionData | undefined;
       authProvider: SeedlessAuthProvider | undefined;
+      userEmail: string | undefined;
     }
   ]
 >;
@@ -63,6 +64,7 @@ export class SubmitOnboardingHandler implements HandlerType {
       masterFingerprint,
       seedlessSignerToken,
       authProvider,
+      userEmail,
     } = (request.params ?? [])[0] ?? {};
 
     if (!seedlessSignerToken && !mnemonic && !xPubFromHardware && !pubKeys) {
@@ -96,6 +98,13 @@ export class SubmitOnboardingHandler implements HandlerType {
       };
     }
 
+    if (seedlessSignerToken && !userEmail) {
+      return {
+        ...request,
+        error: 'User email is required to create a seedless wallet',
+      };
+    }
+
     // XPUB form EVM m/44'/60'/0'
     const xpub =
       xPubFromHardware || (mnemonic && (await getXpubFromMnemonic(mnemonic)));
@@ -123,7 +132,11 @@ export class SubmitOnboardingHandler implements HandlerType {
       });
       await this.accountsService.addAccount(accountName);
     } else if (seedlessSignerToken) {
-      await this.walletService.init({ authProvider, seedlessSignerToken });
+      await this.walletService.init({
+        authProvider,
+        seedlessSignerToken,
+        userEmail,
+      });
 
       // Create accounts for all obtained keys.
       const secrets = await this.secretsService.getPrimaryAccountSecrets();

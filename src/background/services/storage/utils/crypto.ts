@@ -1,13 +1,37 @@
 import nacl from 'tweetnacl';
 import { scrypt } from '@noble/hashes/scrypt';
 import { sha256 } from '@noble/hashes/sha256';
+import { KeyDerivationVersion } from '../models';
+import argon2Browser from 'argon2-browser';
 
 /**
  * Derives the encryption key from the password
  */
-function deriveKey(password: string | Uint8Array, salt: Uint8Array) {
+async function deriveKey(
+  password: string | Uint8Array,
+  salt: Uint8Array,
+  keyDerivationVersion: KeyDerivationVersion
+): Promise<Uint8Array> {
   // takes about 150ms on an i9 mbp, bumping it up to 2 ** 16 would be better but it slows down UX way to much
-  return scrypt(password, salt, { N: 2 ** 15, r: 8, p: 1, dkLen: 32 });
+
+  if (keyDerivationVersion === KeyDerivationVersion.V1) {
+    return scrypt(password, salt, { N: 2 ** 15, r: 8, p: 1, dkLen: 32 });
+  }
+
+  const hashResult: { hash: Uint8Array; encoded: string; hashHex: string } =
+    await argon2Browser.hash({
+      // required
+      pass: password,
+      salt: salt,
+      // optional
+      time: 3, // the number of iterations
+      parallelism: 1,
+      mem: 2 ** 16, // 64 MiB
+      hashLen: 32, // desired hash length
+      type: argon2Browser.ArgonType.Argon2id,
+    });
+
+  return hashResult.hash;
 }
 
 export async function encryptWithPassword({
@@ -20,10 +44,15 @@ export async function encryptWithPassword({
   cypher: Uint8Array;
   nonce: Uint8Array;
   salt: Uint8Array;
+  keyDerivationVersion: KeyDerivationVersion;
 }> {
   const salt = crypto.getRandomValues(new Uint8Array(16));
 
-  const encryptionKey = await deriveKey(password, salt);
+  const encryptionKey = await deriveKey(
+    password,
+    salt,
+    KeyDerivationVersion.V2
+  );
 
   const { cypher, nonce } = await encryptWithKey({ secret, encryptionKey });
 
@@ -33,6 +62,7 @@ export async function encryptWithPassword({
     salt,
     cypher,
     nonce,
+    keyDerivationVersion: KeyDerivationVersion.V2,
   };
 }
 
@@ -82,7 +112,8 @@ export async function decryptWithKey({
   let key: Uint8Array;
   // If there is a salt provided we always need to derive the key
   if (salt && salt.length > 0) {
-    key = await deriveKey(encryptionKey, salt);
+    // we have data for legacy users that has been encrypted with a hashed derivation key
+    key = await deriveKey(encryptionKey, salt, KeyDerivationVersion.V1);
   } else if (encryptionKey.length === 64) {
     // legacy users have a 64 byte encryption key which is not supported by secretbox
     // shorten it to 32 bytes via hashing
@@ -106,13 +137,15 @@ export async function decryptWithPassword({
   password,
   salt,
   nonce,
+  keyDerivationVersion,
 }: {
   cypher: Uint8Array;
   password: string;
   salt: Uint8Array;
   nonce: Uint8Array;
+  keyDerivationVersion: KeyDerivationVersion;
 }): Promise<string> {
-  const encryptionKey = await deriveKey(password, salt);
+  const encryptionKey = await deriveKey(password, salt, keyDerivationVersion);
 
   try {
     return decryptWithKey({ cypher, encryptionKey, nonce });

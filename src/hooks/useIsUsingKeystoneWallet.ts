@@ -4,13 +4,13 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
 const useIsUsingKeystoneWallet = () => {
-  const { walletType } = useWalletContext();
+  const { walletDetails } = useWalletContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
 
   return (
-    walletType === WalletType.KEYSTONE &&
+    walletDetails?.type === WalletType.KEYSTONE &&
     activeAccount?.type === AccountType.PRIMARY
   );
 };

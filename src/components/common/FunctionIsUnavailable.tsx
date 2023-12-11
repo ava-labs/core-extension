@@ -1,10 +1,11 @@
 import { PropsWithChildren } from 'react';
 import { PageTitle, PageTitleVariant } from './PageTitle';
-import { Trans } from 'react-i18next';
-import { FunctionNames } from './FunctionIsOffline';
+import { Trans, useTranslation } from 'react-i18next';
+import { getTranslatedFunctionName } from './FunctionIsOffline';
 import { Stack, Typography } from '@avalabs/k2-components';
+import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 interface FunctionIsOfflineProps {
-  functionName: string;
+  functionName: FunctionNames;
   network: string;
 }
 
@@ -13,6 +14,8 @@ export function FunctionIsUnavailable({
   network,
   children,
 }: PropsWithChildren<FunctionIsOfflineProps>) {
+  const { t } = useTranslation();
+
   return (
     <Stack
       sx={{
@@ -33,7 +36,8 @@ export function FunctionIsUnavailable({
           <Trans
             i18nKey="Sorry, {{functionName}} is unavailable on <br/>{{network}} network."
             values={{
-              functionName: FunctionNames[functionName] || functionName,
+              functionName:
+                getTranslatedFunctionName(functionName) ?? t('This Feature'),
               network,
             }}
           />

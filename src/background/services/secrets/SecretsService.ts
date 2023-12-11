@@ -266,6 +266,7 @@ export class SecretsService {
       btcWalletPolicyDetails,
       seedlessSignerToken,
       authProvider,
+      userEmail,
     } = walletKeys;
 
     if (seedlessSignerToken) {
@@ -273,6 +274,7 @@ export class SecretsService {
         type: SecretType.Seedless,
         pubKeys: pubKeys ?? [],
         seedlessSignerToken,
+        userEmail,
         derivationPath,
         authProvider: authProvider ?? SeedlessAuthProvider.Google,
       };

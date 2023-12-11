@@ -24,6 +24,7 @@ import { DefiErrorState } from './components/DefiErrorState';
 import { DefiPortfolioItemGroup } from './components/DefiPortfolioItemGroup';
 import { DefiProtocolDetailsHeader } from './components/DefiProtocolDetailsHeader';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 
 export function DefiProtocolDetails() {
   const { protocolId } = useParams<{ protocolId: string }>();
@@ -46,7 +47,9 @@ export function DefiProtocolDetails() {
   useEffect(refresh, [refresh]);
 
   if (!featureFlags[FeatureGates.DEFI]) {
-    return <FunctionIsOffline hidePageTitle functionName={t('DeFi')} />;
+    return (
+      <FunctionIsOffline hidePageTitle functionName={FunctionNames.DEFI} />
+    );
   }
 
   return (

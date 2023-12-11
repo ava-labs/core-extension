@@ -30,13 +30,19 @@ import {
   CurrencyIcon,
   Chip,
   ComputerIcon,
+  Badge,
 } from '@avalabs/k2-components';
 import browser from 'webextension-polyfill';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
-export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
+export function MainPage({
+  navigateTo,
+  width,
+  onClose,
+  showNotificationDotOn = [],
+}: SettingsPageProps) {
   const { t } = useTranslation();
-  const { walletType } = useWalletContext();
+  const { walletDetails } = useWalletContext();
   const { lockWallet } = useSettingsContext();
   const { currentLanguage } = useLanguage();
   const {
@@ -211,7 +217,7 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-        {walletType === WalletType.LEDGER && (
+        {walletDetails?.type === WalletType.LEDGER && (
           <ListItem sx={{ p: 0 }}>
             <ListItemButton
               sx={{
@@ -277,7 +283,17 @@ export function MainPage({ navigateTo, width, onClose }: SettingsPageProps) {
             onClick={() => navigateTo(SettingsPages.SECURITY_AND_PRIVACY)}
           >
             <ListItemIcon>
-              <LockIcon size={24} />
+              <Badge
+                color="secondary"
+                variant="dot"
+                invisible={
+                  !showNotificationDotOn.includes(
+                    SettingsPages.SECURITY_AND_PRIVACY
+                  )
+                }
+              >
+                <LockIcon size={24} />
+              </Badge>
             </ListItemIcon>
             <ListItemText
               sx={{ ml: 1, my: 0 }}

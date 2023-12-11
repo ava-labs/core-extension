@@ -9,7 +9,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTranslation } from 'react-i18next';
 import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
 import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
-import { authenticateWithGoogle } from '@src/pages/Onboarding/utils/authenticateWithGoogle';
+import { authenticateWithGoogle } from '@src/utils/seedless/authenticateWithGoogle';
 
 export interface SeedlesButton {
   setIsLoading: Dispatch<SetStateAction<boolean>>;
@@ -35,6 +35,7 @@ export function GoogleButton({ setIsLoading }: SeedlesButton) {
         signIn({
           setIsLoading,
           getOidcToken: authenticateWithGoogle,
+          provider: SeedlessAuthProvider.Google,
         });
       }}
     >

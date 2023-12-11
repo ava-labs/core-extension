@@ -5,7 +5,6 @@ import {
   useLedgerContext,
 } from '@src/contexts/LedgerProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LedgerWrongVersionContent } from '@src/pages/Ledger/LedgerWrongVersion';
@@ -21,7 +20,6 @@ export function useLedgerDisconnectedDialog(
   otherNetwork?: Network
 ): boolean {
   const { t } = useTranslation();
-  const { walletType } = useWalletContext();
   const { hasLedgerTransport, wasTransportAttempted, appType, avaxAppVersion } =
     useLedgerContext();
   const { showDialog, clearDialog } = useDialog();
@@ -102,7 +100,6 @@ export function useLedgerDisconnectedDialog(
     wasTransportAttempted,
     hasLedgerTransport,
     showLedgerDisconnectedDialog,
-    walletType,
     appType,
     showIncorrectAppDialog,
     requiredAppType,

@@ -1,10 +1,4 @@
-import {
-  CubeSigner,
-  envs,
-  SignerSession,
-  SignerSessionManager,
-  TotpChallenge,
-} from '@cubist-labs/cubesigner-sdk';
+import { SignerSession, TotpChallenge } from '@cubist-labs/cubesigner-sdk';
 import {
   SeedlessRegistartionResult,
   approveSeedlessRegistration,
@@ -13,7 +7,12 @@ import { toast } from '@avalabs/k2-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useHistory } from 'react-router-dom';
 import { OnboardingURLs } from '@src/background/services/onboarding/models';
-import { getCubeSigner } from '../utils/getCubeSigner';
+import {
+  requestOidcAuth,
+  getOidcClient,
+  getOrgId,
+  getSignerSession,
+} from '@src/utils/seedless/getCubeSigner';
 import { useTranslation } from 'react-i18next';
 import {
   Dispatch,
@@ -22,25 +21,44 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
+import { getSignerToken } from '@src/utils/seedless/getSignerToken';
+import { RecoveryMethodTypes } from '../pages/Seedless/models';
+import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
+import { FIDOApiEndpoint, KeyType } from '@src/utils/seedless/fido/types';
 
 type OidcTokenGetter = () => Promise<string>;
 type GetAuthButtonCallbackOptions = {
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   getOidcToken: OidcTokenGetter;
+  provider: SeedlessAuthProvider;
+};
+
+const TOTP_ISSUER: string = 'Core';
+
+const recoveryMethodToFidoKeyType = (method: RecoveryMethodTypes): KeyType => {
+  switch (method) {
+    case RecoveryMethodTypes.PASSKEY:
+      return KeyType.Passkey;
+
+    case RecoveryMethodTypes.YUBIKEY:
+      return KeyType.Yubikey;
+
+    default:
+      throw new Error('Unsupported FIDO device');
+  }
 };
 
 export function useSeedlessActions() {
-  const { setOidcToken, setSeedlessSignerToken, oidcToken } =
+  const { capture } = useAnalyticsContext();
+  const { setOidcToken, setSeedlessSignerToken, oidcToken, setUserEmail } =
     useOnboardingContext();
   const history = useHistory();
   const { t } = useTranslation();
   const [totpChallenge, setTotpChallenge] = useState<TotpChallenge>();
-  const [cubeSigner, setCubeSigner] = useState<CubeSigner | null>(null);
-  const [mfaManager, setMfaManager] = useState<SignerSessionManager | null>(
-    null
-  );
+  const [mfaSession, setMfaSession] = useState<SignerSession | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [mfaId, setMfaId] = useState<string | null>(null);
 
   useEffect(() => {
     errorMessage && toast.error(errorMessage);
@@ -50,15 +68,8 @@ export function useSeedlessActions() {
     async (idToken) => {
       setOidcToken(idToken);
 
-      const cubesigner = new CubeSigner({
-        orgId: process.env.SEEDLESS_ORG_ID || '',
-        env: envs[process.env.CUBESIGNER_ENV || ''],
-      });
-
-      const identity = await cubesigner.oidcProveIdentity(
-        idToken,
-        process.env.SEEDLESS_ORG_ID || ''
-      );
+      const oidcClient = getOidcClient(idToken);
+      const identity = await oidcClient.identityProve();
 
       if (!identity.user_info) {
         const result = await approveSeedlessRegistration(identity);
@@ -68,67 +79,52 @@ export function useSeedlessActions() {
           return;
         }
       }
-      try {
-        const oidcAuthResponse = await getCubeSigner(idToken);
-        const sessionInfo = oidcAuthResponse.data();
-        const sessionMgr = await SignerSessionManager.createFromSessionInfo(
-          envs[process.env.CUBESIGNER_ENV || ''],
-          process.env.SEEDLESS_ORG_ID || '',
-          sessionInfo
-        );
-        const signerToken = await sessionMgr.storage.retrieve();
+      setUserEmail(identity.email);
 
-        setSeedlessSignerToken(signerToken);
-        if ((identity.user_info?.configured_mfa ?? []).length === 0) {
-          history.push(OnboardingURLs.RECOVERY_METHODS);
-        } else {
-          history.push(OnboardingURLs.RECOVERY_METHODS_LOGIN);
-        }
-      } catch (e) {
-        toast.error(t('Invalid code'));
+      if ((identity.user_info?.configured_mfa ?? []).length === 0) {
+        history.push(OnboardingURLs.RECOVERY_METHODS);
+      } else {
+        history.push(OnboardingURLs.RECOVERY_METHODS_LOGIN);
       }
     },
-    [history, setSeedlessSignerToken, setOidcToken, t]
+    [history, setOidcToken, t, setUserEmail]
   );
 
   const signIn = useCallback(
-    ({ setIsLoading, getOidcToken }: GetAuthButtonCallbackOptions) => {
+    ({
+      setIsLoading,
+      getOidcToken,
+      provider,
+    }: GetAuthButtonCallbackOptions) => {
       setIsLoading(true);
       getOidcToken()
         .then(handleOidcToken)
         .catch(() => {
+          capture('SeedlessSignInFailed', { provider });
           toast.error(t('Seedless login error'));
         })
         .finally(() => {
           setIsLoading(false);
         });
     },
-    [handleOidcToken, t]
+    [capture, handleOidcToken, t]
   );
 
   const registerTOTPStart = useCallback(() => {
     if (!oidcToken) {
       return false;
     }
-    getCubeSigner(oidcToken)
+    requestOidcAuth(oidcToken)
       .then(async (c) => {
         const mfaSessionInfo = c.mfaSessionInfo();
         if (!mfaSessionInfo) {
           console.error('No MFA info');
           return;
         }
-        const manager = await SignerSessionManager.createFromSessionInfo(
-          envs[process.env.CUBESIGNER_ENV || ''],
-          process.env.SEEDLESS_ORG_ID || '',
-          mfaSessionInfo
-        );
-        setMfaManager(manager);
-        const cs = new CubeSigner({
-          sessionMgr: manager,
-        });
-        setCubeSigner(cs);
-
-        cs.resetTotpStart()
+        const signerSession = await getSignerSession(mfaSessionInfo);
+        setMfaSession(signerSession);
+        signerSession
+          .resetTotpStart(TOTP_ISSUER)
           .then((challenge) => {
             setTotpChallenge(challenge.data());
           })
@@ -140,42 +136,25 @@ export function useSeedlessActions() {
       })
       .catch((e) => {
         console.error(e);
+        capture('SeedlessRegisterTOTPStartFailed');
         return false;
       });
-  }, [oidcToken, t]);
+  }, [capture, oidcToken, t]);
 
   const verifyRegistrationCode = useCallback(
     async (code: string) => {
       setErrorMessage('');
-      if (
-        !cubeSigner ||
-        !totpChallenge ||
-        !mfaManager ||
-        code.length < 6 ||
-        !oidcToken
-      ) {
+      if (!totpChallenge || !mfaSession || code.length < 6 || !oidcToken) {
         return;
       }
       try {
-        await cubeSigner.resetTotpComplete(totpChallenge.totpId, code);
+        await mfaSession.resetTotpComplete(totpChallenge.totpId, code);
         // attempt to reuse the code quickly
-        const c = await getCubeSigner(oidcToken);
-        const mfaSessionInfo = c.mfaSessionInfo();
-        if (!mfaSessionInfo) {
-          return;
-        }
-
+        const c = await requestOidcAuth(oidcToken);
         if (!c.requiresMfa()) {
           throw new Error('MFA setup failed');
         }
 
-        const mfaSession = new SignerSession(
-          await SignerSessionManager.createFromSessionInfo(
-            envs[process.env.CUBESIGNER_ENV || ''],
-            process.env.SEEDLESS_ORG_ID || '',
-            mfaSessionInfo
-          )
-        );
         const status = await mfaSession.totpApprove(c.mfaId(), code);
 
         if (!status.receipt?.confirmation) {
@@ -183,102 +162,103 @@ export function useSeedlessActions() {
           return;
         }
 
-        const oidcAuthResponse = await getCubeSigner(oidcToken, {
-          mfaOrgId: process.env.SEEDLESS_ORG_ID || '',
+        const oidcAuthResponse = await requestOidcAuth(oidcToken, {
+          mfaOrgId: getOrgId(),
           mfaId: c.mfaId(),
           mfaConf: status.receipt.confirmation,
         });
 
-        const sessionInfo = oidcAuthResponse.data();
-        const sessionMgr = await SignerSessionManager.createFromSessionInfo(
-          envs[process.env.CUBESIGNER_ENV || ''],
-          process.env.SEEDLESS_ORG_ID || '',
-          sessionInfo
-        );
-        setSeedlessSignerToken(await sessionMgr.storage.retrieve());
+        const signerToken = oidcAuthResponse.data();
+        setSeedlessSignerToken(signerToken);
         return true;
       } catch (e) {
         setErrorMessage(t('Invalid code'));
         return false;
       }
     },
-    [
-      cubeSigner,
-      mfaManager,
-      oidcToken,
-      setSeedlessSignerToken,
-      t,
-      totpChallenge,
-    ]
+    [oidcToken, setSeedlessSignerToken, t, totpChallenge, mfaSession]
   );
 
-  const loginTOTPStart = useCallback(() => {
+  const loginWithFIDO = useCallback(async () => {
     if (!oidcToken) {
       return false;
     }
-    getCubeSigner(oidcToken).then(async (c) => {
-      if (!c.requiresMfa()) {
-        const signerSession = await SignerSessionManager.createFromSessionInfo(
-          envs[process.env.CUBESIGNER_ENV || ''],
-          process.env.SEEDLESS_ORG_ID || '',
-          c.data()
-        );
-        setSeedlessSignerToken(await signerSession.storage.retrieve());
-        history.push(OnboardingURLs.CREATE_PASSWORD);
-        return true;
-      }
-      const mfaSession = c.mfaSessionInfo();
-      if (!mfaSession) {
+    let resp = await requestOidcAuth(oidcToken);
+    if (resp.requiresMfa()) {
+      const mfaSessionInfo = resp.mfaSessionInfo();
+      if (!mfaSessionInfo) {
         return false;
       }
+      const signerSession = await getSignerSession(mfaSessionInfo);
+      const respondMfaId = resp.mfaId();
 
-      setMfaId(c.mfaId());
-      setMfaManager(
-        await SignerSessionManager.createFromSessionInfo(
-          envs[process.env.CUBESIGNER_ENV || ''],
-          process.env.SEEDLESS_ORG_ID || '',
-          mfaSession
-        )
+      const challenge = await signerSession.fidoApproveStart(respondMfaId);
+
+      // prompt the user to tap their FIDO and send the answer back to CubeSigner
+      const answer = await launchFidoFlow(
+        FIDOApiEndpoint.Authenticate,
+        challenge.options
       );
-      return true;
-    });
-  }, [history, oidcToken, setSeedlessSignerToken]);
+      const mfaInfo = await challenge.answer(answer);
 
-  const verifyLoginCode = useCallback(
-    async (code: string) => {
-      setErrorMessage('');
-      if (!mfaManager || !mfaId || !oidcToken || code.length < 6) {
+      // print out the current status of the MFA request and assert that it has been approved
+      if (!mfaInfo.receipt) {
+        throw new Error('MFA not approved yet');
+      }
+
+      // proceed with the MFA approval
+      resp = await resp.signWithMfaApproval({
+        mfaId: respondMfaId,
+        mfaOrgId: process.env.SEEDLESS_ORG_ID || '',
+        mfaConf: mfaInfo.receipt.confirmation,
+      });
+    }
+    if (resp.requiresMfa()) {
+      throw new Error('MFA should not be required after approval');
+    }
+    setSeedlessSignerToken(await getSignerToken(resp));
+    return true;
+  }, [oidcToken, setSeedlessSignerToken]);
+
+  const addFIDODevice = useCallback(
+    async (name: string, selectedMethod: RecoveryMethodTypes) => {
+      if (!oidcToken) {
+        return false;
+      }
+      const loginResp = await requestOidcAuth(oidcToken);
+
+      const mfaSessionInfo = loginResp.requiresMfa()
+        ? loginResp.mfaSessionInfo()
+        : loginResp.data();
+
+      if (!mfaSessionInfo) {
+        console.error('No MFA info');
         return;
       }
 
-      try {
-        const mfaSession = new SignerSession(mfaManager);
-        const status = await mfaSession.totpApprove(mfaId, code);
-
-        if (!status.receipt?.confirmation) {
-          setErrorMessage(t('Code verification error'));
-          return;
-        }
-
-        const oidcAuthResponse = await getCubeSigner(oidcToken, {
-          mfaOrgId: process.env.SEEDLESS_ORG_ID || '',
-          mfaId,
-          mfaConf: status.receipt.confirmation,
-        });
-        const sessionInfo = oidcAuthResponse.data();
-        const sessionMgr = await SignerSessionManager.createFromSessionInfo(
-          envs[process.env.CUBESIGNER_ENV || ''],
-          process.env.SEEDLESS_ORG_ID || '',
-          sessionInfo
-        );
-        setSeedlessSignerToken(await sessionMgr.storage.retrieve());
-        return true;
-      } catch (e) {
-        setErrorMessage(t('Invalid code'));
-        return false;
+      const session = await getSignerSession(mfaSessionInfo);
+      const addFidoResp = await session.addFidoStart(name);
+      const challenge = addFidoResp.data();
+      if (
+        selectedMethod === RecoveryMethodTypes.PASSKEY &&
+        (await PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable())
+      ) {
+        challenge.options.authenticatorSelection = {
+          authenticatorAttachment: 'platform',
+        };
       }
+
+      const answer = await launchFidoFlow(
+        FIDOApiEndpoint.Register,
+        challenge.options,
+        recoveryMethodToFidoKeyType(selectedMethod)
+      );
+
+      await challenge.answer(answer);
+
+      return true;
     },
-    [mfaManager, mfaId, oidcToken, setSeedlessSignerToken, t]
+    [oidcToken]
   );
 
   return {
@@ -286,7 +266,7 @@ export function useSeedlessActions() {
     registerTOTPStart,
     totpChallenge,
     verifyRegistrationCode,
-    verifyLoginCode,
-    loginTOTPStart,
+    addFIDODevice,
+    loginWithFIDO,
   };
 }

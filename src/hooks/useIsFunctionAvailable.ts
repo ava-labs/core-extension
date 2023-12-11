@@ -4,9 +4,42 @@ import {
   isFireblocksAccount,
   isWalletConnectAccount,
 } from '@src/background/services/accounts/utils/typeGuards';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 import isFireblocksApiSupported from '@src/background/services/fireblocks/utils/isFireblocksApiSupported';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import useIsUsingSeedlessAccount from './useIsUsingSeedlessAccount';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+
+export enum FunctionNames {
+  BRIDGE = 'Bridge',
+  BUY = 'Buy',
+  COLLECTIBLES = 'COLLECTIBLES',
+  DEFI = 'DeFi',
+  FEATURE = 'Feature', // Default when function name is unknown or not included
+  KEYSTONE = 'Keystone',
+  MANAGE_TOKEN = 'ManageTokens',
+  RECEIVE = 'Receive',
+  SEND = 'Send',
+  SWAP = 'Swap',
+  SIGN = 'Sign', // This is being used  by dApp approval process
+}
+
+const FeatureFlagMap: Record<string, FeatureGates> = {
+  [FunctionNames.BRIDGE]: FeatureGates.BRIDGE,
+  [FunctionNames.BUY]: FeatureGates.BUY,
+  [FunctionNames.DEFI]: FeatureGates.DEFI,
+  [FunctionNames.KEYSTONE]: FeatureGates.KEYSTONE,
+  [FunctionNames.SEND]: FeatureGates.SEND,
+  [FunctionNames.SWAP]: FeatureGates.SWAP,
+};
+
+const functionRequireSigning = [
+  FunctionNames.BRIDGE,
+  FunctionNames.SEND,
+  FunctionNames.SWAP,
+  FunctionNames.SIGN,
+];
 
 // The list we want to DISABLE features on certain networks or account types (blacklist)
 type ComplexCheck = (activeNetwork: ChainId, activeAccount: Account) => boolean;
@@ -66,21 +99,48 @@ const enabledFeatues = {
   Buy: [ChainId.AVALANCHE_MAINNET_ID, ChainId.AVALANCHE_TESTNET_ID],
 };
 
+/**
+ * isFunctionAvailable:
+ * This is checking feature flags to see if a specific feature is currently available.
+ * Also it checks if seedless signing is available if the account is seedless.
+ *
+ * isFunctionSupported:
+ * This is checking if the function is supported on the active network.
+ */
 interface FunctionIsAvailable {
   isFunctionAvailable: boolean;
+  isFunctionSupported: boolean;
   isReady: boolean;
-  checkIsFunctionAvailable: (functionName: string) => boolean;
+  checkIsFunctionSupported: (functionName: FunctionNames) => boolean;
+  checkIsFunctionAvailable: (functionName: FunctionNames) => boolean;
 }
+
 export const useIsFunctionAvailable = (
-  functionName?: string
+  functionName?: FunctionNames
 ): FunctionIsAvailable => {
   const { network } = useNetworkContext();
+  const isUsingSeedlessAccount = useIsUsingSeedlessAccount();
+  const { featureFlags } = useFeatureFlagContext();
   const {
     accounts: { active },
   } = useAccountsContext();
   const isReady = Boolean(network && active);
 
-  const checkIsFunctionAvailable = (name: string) => {
+  const checkIsFunctionAvailable = (functionToCheck: FunctionNames) => {
+    if (
+      isUsingSeedlessAccount &&
+      functionRequireSigning.includes(functionToCheck) &&
+      !featureFlags[FeatureGates.SEEDLESS_SIGNING]
+    ) {
+      return false;
+    }
+
+    const featureFlagToCheck = FeatureFlagMap[functionToCheck];
+
+    return featureFlagToCheck ? featureFlags[featureFlagToCheck] : true;
+  };
+
+  const checkIsFunctionSupported = (name: FunctionNames) => {
     if (!network || !active) {
       return false;
     }
@@ -112,19 +172,19 @@ export const useIsFunctionAvailable = (
     return {
       isReady,
       isFunctionAvailable: false,
-      checkIsFunctionAvailable,
+      isFunctionSupported: false,
+      checkIsFunctionSupported: checkIsFunctionSupported,
+      checkIsFunctionAvailable: checkIsFunctionAvailable,
     };
   }
-  if (checkIsFunctionAvailable(functionName)) {
-    return {
-      isReady,
-      isFunctionAvailable: true,
-      checkIsFunctionAvailable,
-    };
-  }
+
   return {
     isReady,
-    isFunctionAvailable: false,
-    checkIsFunctionAvailable,
+    isFunctionAvailable: checkIsFunctionAvailable(
+      functionName ?? FunctionNames.FEATURE
+    ),
+    isFunctionSupported: checkIsFunctionSupported(functionName),
+    checkIsFunctionSupported: checkIsFunctionSupported,
+    checkIsFunctionAvailable: checkIsFunctionAvailable,
   };
 };

@@ -19,7 +19,7 @@ const useRegisterBtcWalletPolicy = () => {
   const [walletPolicyDerivationpath, setWalletPolicyDerivationpath] = useState<
     string | undefined
   >();
-  const { derivationPath } = useWalletContext();
+  const { walletDetails } = useWalletContext();
   const { appType, setMasterFingerprint } = useLedgerContext();
   const { accounts } = useAccountsContext();
   const { request } = useConnectionContext();
@@ -39,10 +39,10 @@ const useRegisterBtcWalletPolicy = () => {
       setMasterFingerprint(masterFingerprint);
 
       if (!masterFingerprint) {
-        if (derivationPath === DerivationPath.LedgerLive) {
+        if (walletDetails?.derivationPath === DerivationPath.LedgerLive) {
           setWalletPolicyName(`Core - ${activeAccount.name}`);
           setWalletPolicyDerivationpath(`44'/60'/${activeAccount.index}'`);
-        } else if (derivationPath === DerivationPath.BIP44) {
+        } else if (walletDetails?.derivationPath === DerivationPath.BIP44) {
           setWalletPolicyName('Core');
           setWalletPolicyDerivationpath(`44'/60'/0'`);
         }
@@ -62,7 +62,7 @@ const useRegisterBtcWalletPolicy = () => {
   }, [
     activeAccount,
     appType,
-    derivationPath,
+    walletDetails,
     isUsingLedgerWallet,
     request,
     setMasterFingerprint,

@@ -36,6 +36,7 @@ import {
   typedSignatureHash,
 } from '@metamask/eth-sig-util';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
+import { SeedlessSessionManager } from './SeedlessSessionManager';
 
 jest.mock('@cubist-labs/cubesigner-sdk');
 jest.mock('@avalabs/wallets-sdk');
@@ -49,8 +50,44 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
   const networkService = jest.mocked<NetworkService>(
     new NetworkService({} as any)
   );
+  const sessionManager = jest.mocked<SeedlessSessionManager>({
+    notifyTokenExpired: jest.fn(),
+  } as any);
 
   let wallet: SeedlessWallet;
+
+  const itCorrectlyHandlesExpiredSession = ({
+    additionalSetup,
+    executeSigning,
+  }: {
+    additionalSetup?: (error: Error) => void;
+    executeSigning: () => Promise<unknown>;
+  }) => {
+    describe('when session has expired', () => {
+      beforeEach(() => {
+        const error = new Error('Session expired for User#1234-ABCD');
+        // eslint-disable-next-line
+        // @ts-expect-error
+        error.status = 403; // CubeSinger throws a regular Error with additional props
+
+        additionalSetup?.(error);
+      });
+
+      it('notifies of expired token', async () => {
+        try {
+          await executeSigning();
+        } catch {
+          expect(sessionManager.notifyTokenExpired).toHaveBeenCalled();
+        }
+      });
+
+      it('modifies error message to prevent leaking sensitive data', async () => {
+        await expect(executeSigning()).rejects.toThrowError(
+          'Session has expired'
+        );
+      });
+    });
+  };
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -61,10 +98,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     beforeEach(() => {
       jest
-        .mocked(cs.CubeSigner.loadSignerSession)
+        .mocked(cs.SignerSession.loadSignerSession)
         .mockRejectedValue(connectionError);
 
-      wallet = new SeedlessWallet(networkService, sessionStorage);
+      wallet = new SeedlessWallet({ networkService, sessionStorage });
     });
 
     it('fails the requests', async () => {
@@ -77,11 +114,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
   describe('.getPublicKeys()', () => {
     describe('when accounts are not created yet', () => {
       beforeEach(() => {
-        jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+        jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
           keys: jest.fn().mockResolvedValue([]),
         } as any);
 
-        wallet = new SeedlessWallet(networkService, sessionStorage);
+        wallet = new SeedlessWallet({ networkService, sessionStorage });
       });
 
       it('raises an error', async () => {
@@ -93,11 +130,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when ETH or Avalanche key is not returned', () => {
       beforeEach(() => {
-        jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+        jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
           keys: jest.fn().mockResolvedValue([evmKey]),
         } as any);
 
-        wallet = new SeedlessWallet(networkService, sessionStorage);
+        wallet = new SeedlessWallet({ networkService, sessionStorage });
       });
 
       it('raises an error', async () => {
@@ -109,11 +146,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when required keys are returned', () => {
       beforeEach(() => {
-        jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+        jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
           keys: jest.fn().mockResolvedValue(validKeySet),
         } as any);
 
-        wallet = new SeedlessWallet(networkService, sessionStorage);
+        wallet = new SeedlessWallet({ networkService, sessionStorage });
       });
 
       it('correctly extracts the public keys', async () => {
@@ -128,11 +165,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when a key set contains keys for multiple accounts', () => {
       beforeEach(() => {
-        jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+        jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
           keys: jest.fn().mockResolvedValue(validKeySetWithTwoAccounts),
         } as any);
 
-        wallet = new SeedlessWallet(networkService, sessionStorage);
+        wallet = new SeedlessWallet({ networkService, sessionStorage });
       });
 
       it(`sorts them by derivation path's account index`, async () => {
@@ -151,7 +188,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when multiple key sets are returned', () => {
       beforeEach(() => {
-        jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+        jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
           keys: jest
             .fn()
             .mockResolvedValue([
@@ -161,7 +198,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             ]),
         } as any);
 
-        wallet = new SeedlessWallet(networkService, sessionStorage);
+        wallet = new SeedlessWallet({ networkService, sessionStorage });
       });
 
       it('extracts the public keys from the first valid set', async () => {
@@ -177,14 +214,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
   describe('.signTransaction()', () => {
     beforeEach(() => {
-      jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValueOnce({
+      jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
         keys: jest.fn().mockResolvedValue(validKeySet),
       } as any);
     });
 
     describe('when public key is not provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage);
+        wallet = new SeedlessWallet({ networkService, sessionStorage });
       });
 
       it('raises an error', async () => {
@@ -196,8 +233,12 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when target network is not provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage, {
-          evm: 'la la la',
+        wallet = new SeedlessWallet({
+          networkService,
+          sessionStorage,
+          addressPublicKey: {
+            evm: 'la la la',
+          },
         });
       });
 
@@ -211,14 +252,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     describe('when incompatible provider is obtained for provided network', () => {
       beforeEach(() => {
         networkService.getProviderForNetwork.mockReturnValue({} as any);
-        wallet = new SeedlessWallet(
+        wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          {
+          addressPublicKey: {
             evm: 'la la la',
           },
-          {} as any
-        );
+          network: {} as any,
+        });
       });
 
       it('raises an error', async () => {
@@ -244,14 +285,24 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         signerConstructorSpy = jest.fn().mockReturnValueOnce(signer);
         jest.mocked(cs.ethers.Signer).mockImplementation(signerConstructorSpy);
 
-        wallet = new SeedlessWallet(
+        wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          {
+          addressPublicKey: {
             evm: evmKey.publicKey,
           },
-          { vmName: NetworkVMType.EVM } as any
-        );
+          network: { vmName: NetworkVMType.EVM } as any,
+          sessionManager,
+        });
+      });
+
+      itCorrectlyHandlesExpiredSession({
+        additionalSetup: (sessionExpiredError) => {
+          jest
+            .spyOn(signer, 'signTransaction')
+            .mockRejectedValue(sessionExpiredError);
+        },
+        executeSigning: () => wallet.signTransaction({} as any),
       });
 
       it(`constructs the Signer class`, async () => {
@@ -305,12 +356,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           data: jest.fn().mockReturnValue({ signature }),
         }),
       } as any;
-      jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValue(session);
+      jest
+        .mocked(cs.SignerSession.loadSignerSession)
+        .mockResolvedValue(session);
     });
 
     describe('when public key is not provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage);
+        wallet = new SeedlessWallet({ networkService, sessionStorage });
       });
 
       it('raises an error', async () => {
@@ -334,15 +387,25 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       };
 
       beforeEach(() => {
-        wallet = new SeedlessWallet(
+        wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          {
+          addressPublicKey: {
             evm: strip0x(evmKey.publicKey),
             xp: 'xp xp xp',
           },
-          {} as any
-        );
+          network: {} as any,
+          sessionManager,
+        });
+      });
+
+      itCorrectlyHandlesExpiredSession({
+        additionalSetup: (sessionExpiredError) => {
+          jest
+            .spyOn(session, 'signBlob')
+            .mockRejectedValue(sessionExpiredError);
+        },
+        executeSigning: () => wallet.signAvalancheTx(txRequest as any),
       });
 
       it('uses the EVM public key', async () => {
@@ -394,15 +457,25 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       };
 
       beforeEach(() => {
-        wallet = new SeedlessWallet(
+        wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          {
+          addressPublicKey: {
             evm: strip0x(evmKey.publicKey),
             xp: strip0x(avaKey.publicKey),
           },
-          {} as any
-        );
+          network: {} as any,
+          sessionManager,
+        });
+      });
+
+      itCorrectlyHandlesExpiredSession({
+        additionalSetup: (sessionExpiredError) => {
+          jest
+            .spyOn(session, 'signBlob')
+            .mockRejectedValue(sessionExpiredError);
+        },
+        executeSigning: () => wallet.signAvalancheTx(txRequest as any),
       });
 
       describe('in testnet mode', () => {
@@ -478,12 +551,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           data: jest.fn().mockReturnValue({ signature }),
         }),
       } as any;
-      jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValue(session);
+      jest
+        .mocked(cs.SignerSession.loadSignerSession)
+        .mockResolvedValue(session);
     });
 
     describe('when public key is not provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage);
+        wallet = new SeedlessWallet({ networkService, sessionStorage });
       });
 
       it('raises an error', async () => {
@@ -495,7 +570,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when network is not provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage, {} as any);
+        wallet = new SeedlessWallet({
+          networkService,
+          sessionStorage,
+          addressPublicKey: {} as any,
+        });
       });
 
       it('raises an error', async () => {
@@ -507,14 +586,15 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('with EVM messages', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(
+        wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          {
+          addressPublicKey: {
             evm: strip0x(evmKey.publicKey),
           },
-          {} as any
-        );
+          network: {} as any,
+          sessionManager,
+        });
 
         jest.mocked(getEvmAddressFromPubKey).mockReturnValue(evmKey.materialId);
       });
@@ -539,6 +619,16 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             chainId: 1,
           },
         },
+      });
+
+      itCorrectlyHandlesExpiredSession({
+        additionalSetup: (sessionExpiredError) => {
+          jest
+            .spyOn(session, 'signBlob')
+            .mockRejectedValue(sessionExpiredError);
+        },
+        executeSigning: () =>
+          wallet.signMessage(MessageType.ETH_SIGN, ethSignMsg),
       });
 
       it.each([
@@ -614,26 +704,26 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           getAddress: () => `X-${avaKey.materialId}`,
         } as any);
 
-        wallet = new SeedlessWallet(
+        wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          {
+          addressPublicKey: {
             evm: strip0x(evmKey.publicKey),
             xp: 'xp xp xp',
           },
-          {} as any
-        );
+          network: {} as any,
+        });
       });
 
       it('validates presence of X/P public key', async () => {
-        wallet = new SeedlessWallet(
+        wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          {
+          addressPublicKey: {
             evm: strip0x(evmKey.publicKey),
           },
-          {} as any
-        );
+          network: {} as any,
+        });
 
         await expect(
           wallet.signMessage(MessageType.AVALANCHE_SIGN, getMessage())
@@ -661,14 +751,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     });
 
     it('returns the obtained signature', async () => {
-      wallet = new SeedlessWallet(
+      wallet = new SeedlessWallet({
         networkService,
         sessionStorage,
-        {
+        addressPublicKey: {
           evm: strip0x(evmKey.publicKey),
         },
-        {} as any
-      );
+        network: {} as any,
+      });
 
       jest.mocked(getEvmAddressFromPubKey).mockReturnValue(evmKey.materialId);
 
@@ -695,10 +785,16 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         keys: jest.fn().mockResolvedValue(validKeySet),
         proveIdentity: jest.fn(),
       } as any;
-      jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValue(session);
+      jest
+        .mocked(cs.SignerSession.loadSignerSession)
+        .mockResolvedValue(session);
 
-      wallet = new SeedlessWallet(networkService, sessionStorage, {
-        evm: strip0x(evmKey.publicKey),
+      wallet = new SeedlessWallet({
+        networkService,
+        sessionStorage,
+        addressPublicKey: {
+          evm: strip0x(evmKey.publicKey),
+        },
       });
 
       global.fetch = jest.fn().mockResolvedValue({
@@ -727,8 +823,12 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     describe('when the mnemonic id cannot be established', () => {
       beforeEach(() => {
         global.fetch = jest.fn().mockRejectedValue(new Error('Timeout'));
-        wallet = new SeedlessWallet(networkService, sessionStorage, {
-          evm: 'unpaired-public-key',
+        wallet = new SeedlessWallet({
+          networkService,
+          sessionStorage,
+          addressPublicKey: {
+            evm: 'unpaired-public-key',
+          },
         });
       });
 
@@ -776,7 +876,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     const signature = '0xA1B2C3D4';
     let session: jest.Mocked<cs.SignerSession>;
 
-    const mockPbst = (overrides = {}) => {
+    const mockPsbt = (overrides = {}) => {
       const psbt: any = {
         signInputAsync: jest.fn(),
         validateSignaturesOfAllInputs: jest.fn(),
@@ -802,12 +902,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           data: jest.fn().mockReturnValue({ signature }),
         }),
       } as any;
-      jest.mocked(cs.CubeSigner.loadSignerSession).mockResolvedValue(session);
+      jest
+        .mocked(cs.SignerSession.loadSignerSession)
+        .mockResolvedValue(session);
     });
 
     describe('when no network is provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage, undefined);
+        wallet = new SeedlessWallet({ networkService, sessionStorage });
       });
 
       it('raises an error', async () => {
@@ -819,9 +921,13 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when non-Bitcoin network is provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet(networkService, sessionStorage, undefined, {
-          chainId: ChainId.ETHEREUM_HOMESTEAD,
-        } as Network);
+        wallet = new SeedlessWallet({
+          networkService,
+          sessionStorage,
+          network: {
+            chainId: ChainId.ETHEREUM_HOMESTEAD,
+          } as Network,
+        });
       });
 
       it('raises an error', async () => {
@@ -834,14 +940,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     describe('when incompatible provider is obtained for provided network', () => {
       beforeEach(() => {
         networkService.getProviderForNetwork.mockReturnValue({} as any);
-        wallet = new SeedlessWallet(
+        wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          {
+          addressPublicKey: {
             evm: 'la la la',
           },
-          { chainId: ChainId.BITCOIN } as any
-        );
+          network: { chainId: ChainId.BITCOIN } as any,
+        });
       });
 
       it('raises an error', async () => {
@@ -853,13 +959,17 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when public key is not provided', () => {
       beforeEach(() => {
-        mockPbst();
+        mockPsbt();
         networkService.getProviderForNetwork.mockReturnValue(
           new BlockCypherProvider()
         );
-        wallet = new SeedlessWallet(networkService, sessionStorage, undefined, {
-          chainId: ChainId.BITCOIN,
-        } as Network);
+        wallet = new SeedlessWallet({
+          networkService,
+          sessionStorage,
+          network: {
+            chainId: ChainId.BITCOIN,
+          } as Network,
+        });
       });
 
       it('raises an error', async () => {
@@ -883,16 +993,28 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         networkService.getProviderForNetwork.mockReturnValue(
           blockcypherProvider
         );
-        wallet = new SeedlessWallet(
+        wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          pubKey,
-          network
-        );
+          addressPublicKey: pubKey,
+          network,
+          sessionManager,
+        });
+      });
+
+      itCorrectlyHandlesExpiredSession({
+        additionalSetup: (sessionExpiredError) => {
+          const psbt = mockPsbt();
+
+          jest
+            .spyOn(psbt, 'signInputAsync')
+            .mockRejectedValueOnce(sessionExpiredError);
+        },
+        executeSigning: () => wallet.signTx([1] as any, []),
       });
 
       it('constructs a separate signer for each of tx inputs', async () => {
-        const psbt = mockPbst();
+        const psbt = mockPsbt();
         const inputs = [1, 2, 3];
 
         await wallet.signTx(inputs as any, []);
@@ -913,7 +1035,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('uses the constructed signers to sign the transaction inputs', async () => {
-        const psbt = mockPbst();
+        const psbt = mockPsbt();
 
         const inputs = [1, 2, 3];
         await wallet.signTx(inputs as any, []);
@@ -929,7 +1051,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('validates signatures', async () => {
-        const psbt = mockPbst();
+        const psbt = mockPsbt();
 
         await wallet.signTx([1] as any, []);
 
@@ -937,7 +1059,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('finalizes all inputs', async () => {
-        const psbt = mockPbst();
+        const psbt = mockPsbt();
 
         await wallet.signTx([1] as any, []);
 
@@ -945,7 +1067,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('returns the extracted transaction', async () => {
-        const pstb = mockPbst();
+        const pstb = mockPsbt();
         const mockedResult = { nice: 'transaction' };
         pstb.extractTransaction.mockReturnValue(mockedResult);
 

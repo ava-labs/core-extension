@@ -13,7 +13,7 @@ export function LedgerWrongVersionOverlay({
 }: {
   onClose?: () => void;
 }) {
-  const { walletType } = useWalletContext();
+  const { walletDetails } = useWalletContext();
   const {
     ledgerVersionWarningClosed,
     updateLedgerVersionWarningClosed,
@@ -41,7 +41,7 @@ export function LedgerWrongVersionOverlay({
   // Used on Portfolio
   if (
     !ledgerVersionWarningClosed &&
-    walletType === WalletType.LEDGER &&
+    walletDetails?.type === WalletType.LEDGER &&
     ledgerCheck
   ) {
     return (

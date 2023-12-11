@@ -21,9 +21,11 @@ import { GoogleButton } from '../Seedless/components/GoogleButton';
 import { AppleButton } from '../Seedless/components/AppleButton';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import { useState } from 'react';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function SignUpWithSeedles() {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
   const { featureFlags } = useFeatureFlagContext();
   const history = useHistory();
   const [isAuthenticationInProgress, setIsAuthenticationInProgress] =
@@ -81,6 +83,7 @@ export function SignUpWithSeedles() {
             endIcon={<ListIcon size={20} />}
             onClick={() => {
               history.push(OnboardingURLs.CREATE_WALLET);
+              capture('RecoveryPhraseClicked');
             }}
           >
             {t('Recovery Phrase')}
@@ -88,7 +91,10 @@ export function SignUpWithSeedles() {
         </Stack>
         <Stack sx={{ mt: 8, rowGap: 1 }}>
           <TypographyLink
-            onClick={() => history.push(OnboardingURLs.SIGN_IN)}
+            onClick={() => {
+              history.push(OnboardingURLs.SIGN_IN);
+              capture('AlreadyHaveAWalletClicked');
+            }}
             data-testid="access-existing-wallet-button"
           >
             {t('Already Have a Wallet?')}

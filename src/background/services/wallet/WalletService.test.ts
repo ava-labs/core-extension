@@ -51,6 +51,7 @@ import { SecretType } from '../secrets/models';
 import { networks, Transaction } from 'bitcoinjs-lib';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
+import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -62,6 +63,7 @@ jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('./utils/getDerivationPath');
 jest.mock('../seedless/SeedlessWallet');
+jest.mock('../seedless/SeedlessSessionManager');
 
 jest.mock('@metamask/eth-sig-util', () => {
   const personalSignMock = jest.fn();
@@ -225,28 +227,35 @@ describe('background/services/wallet/WalletService.ts', () => {
   });
 
   describe('onLock', () => {
-    it('clears the walletType and triggers an event', async () => {
+    it('clears the wallet details and triggers an event', async () => {
       mockMnemonicWallet();
 
+      await walletService.onUnlock();
+      expect(walletService.walletDetails).toEqual({
+        type: WalletType.MNEMONIC,
+        derivationPath: DerivationPath.BIP44,
+      });
+
       const eventListener = jest.fn();
       walletService.addListener(
         WalletEvents.WALLET_STATE_UPDATE,
         eventListener
       );
 
-      await walletService.onUnlock();
-      expect(walletService.walletType).toBe(WalletType.MNEMONIC);
-
       walletService.onLock();
-      expect(walletService.walletType).toBeUndefined();
-      expect(eventListener).toHaveBeenCalledWith({
-        walletType: undefined,
-        derivationPath: undefined,
-      });
+
+      expect(walletService.walletDetails).toBeUndefined();
+      expect(eventListener).toHaveBeenCalledWith(undefined);
     });
 
-    it('clears the walletType and the derivationPath and triggers an event for Ledger wallets', async () => {
+    it('clears the wallet details and triggers an event for Ledger wallets', async () => {
       mockLedgerWallet();
+
+      await walletService.onUnlock();
+      expect(walletService.walletDetails).toEqual({
+        type: WalletType.LEDGER,
+        derivationPath: DerivationPath.BIP44,
+      });
 
       const eventListener = jest.fn();
       walletService.addListener(
@@ -254,24 +263,16 @@ describe('background/services/wallet/WalletService.ts', () => {
         eventListener
       );
 
-      await walletService.onUnlock();
-      expect(walletService.walletType).toBe(WalletType.LEDGER);
-      expect(walletService.derivationPath).toBe(DerivationPath.BIP44);
-
       walletService.onLock();
-      expect(walletService.walletType).toBeUndefined();
-      expect(walletService.derivationPath).toBeUndefined();
-      expect(eventListener).toHaveBeenCalledWith({
-        walletType: undefined,
-        derivationPath: undefined,
-      });
+      expect(walletService.walletDetails).toBeUndefined();
+      expect(eventListener).toHaveBeenCalledWith(undefined);
     });
   });
 
   describe('onUnlock', () => {
     it('returns early if storage is empty', async () => {
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.walletType).toBeUndefined();
+      expect(walletService.walletDetails).toBeUndefined();
     });
 
     it('sets the walletType as mnemonic', async () => {
@@ -283,9 +284,12 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
 
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.walletType).toBe(WalletType.MNEMONIC);
+      expect(walletService.walletDetails).toEqual({
+        type: WalletType.MNEMONIC,
+        derivationPath: DerivationPath.BIP44,
+      });
       expect(eventListener).toHaveBeenCalledWith({
-        walletType: WalletType.MNEMONIC,
+        type: WalletType.MNEMONIC,
         derivationPath: DerivationPath.BIP44,
       });
     });
@@ -300,9 +304,12 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
 
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.walletType).toBe(WalletType.LEDGER);
+      expect(walletService.walletDetails).toEqual({
+        type: WalletType.LEDGER,
+        derivationPath: DerivationPath.BIP44,
+      });
       expect(eventListener).toHaveBeenCalledWith({
-        walletType: WalletType.LEDGER,
+        type: WalletType.LEDGER,
         derivationPath: DerivationPath.BIP44,
       });
     });
@@ -317,10 +324,31 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
 
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.walletType).toBe(WalletType.LEDGER);
-      expect(eventListener).toHaveBeenCalledWith({
-        walletType: WalletType.LEDGER,
+      expect(walletService.walletDetails).toEqual({
+        type: WalletType.LEDGER,
         derivationPath: DerivationPath.LedgerLive,
+      });
+      expect(eventListener).toHaveBeenCalledWith({
+        type: WalletType.LEDGER,
+        derivationPath: DerivationPath.LedgerLive,
+      });
+    });
+
+    describe('with seedless wallets', () => {
+      beforeEach(() => {
+        mockSeedlessWallet();
+      });
+
+      it('refreshes session', async () => {
+        const refreshSession = jest.fn();
+
+        jest
+          .mocked(SeedlessSessionManager)
+          .mockReturnValue({ refreshSession } as any);
+
+        await walletService.onUnlock();
+
+        expect(refreshSession).toHaveBeenCalled();
       });
     });
 
@@ -332,7 +360,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       await expect(walletService.onUnlock()).rejects.toThrowError(
         'Wallet initialization failed, no key found'
       );
-      expect(walletService.walletType).toBeUndefined();
+      expect(walletService.walletDetails).toBeUndefined();
     });
   });
 
@@ -1092,6 +1120,26 @@ describe('background/services/wallet/WalletService.ts', () => {
         );
       });
 
+      it('uses pubkey if index is already known', async () => {
+        const addressBuffEvm = Buffer.from('0x1');
+        const addressBuffXP = Buffer.from('0x2');
+        getAddressesSpy.mockReturnValueOnce(addressesMock);
+        mockLedgerLiveWallet({
+          pubKeys: [
+            {
+              evm: addressBuffEvm.toString('hex'),
+              xp: addressBuffXP.toString('hex'),
+            },
+          ],
+        });
+
+        const result = await walletService.addAddress(0);
+        expect(getAddressesSpy).toHaveBeenCalledWith(0);
+        expect(getPubKeyFromTransport).not.toHaveBeenCalled();
+        expect(result).toStrictEqual(addressesMock);
+        expect(secretsService.updateSecrets).not.toHaveBeenCalled();
+      });
+
       it('gets the addresses correctly', async () => {
         const addressBuffEvm = Buffer.from('0x1');
         const addressBuffXP = Buffer.from('0x2');
@@ -1144,11 +1192,11 @@ describe('background/services/wallet/WalletService.ts', () => {
         it('calls addAccount on SeedlessWallet', async () => {
           const result = await walletService.addAddress(1);
 
-          expect(SeedlessWallet).toHaveBeenCalledWith(
+          expect(SeedlessWallet).toHaveBeenCalledWith({
             networkService,
-            expect.any(SeedlessTokenStorage),
-            { evm: 'evm', xp: 'xp' }
-          );
+            sessionStorage: expect.any(SeedlessTokenStorage),
+            addressPublicKey: { evm: 'evm', xp: 'xp' },
+          });
 
           expect(seedlessWalletMock.addAccount).toHaveBeenCalledWith(1);
           expect(secretsService.updateSecrets).toHaveBeenCalledWith({

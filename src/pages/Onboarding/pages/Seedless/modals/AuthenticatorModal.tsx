@@ -15,7 +15,8 @@ import { TypographyLink } from '@src/pages/Onboarding/components/TypographyLink'
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode.react';
 import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
-import { Bold } from '../RecoveryMethods';
+import { InlineBold } from '@src/components/common/InlineBold';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export enum AuthenticatorSteps {
   SCAN = 'scan',
@@ -36,6 +37,7 @@ export function AuthenticatorModal({
   onCancel,
 }: AuthenticatorModalProps) {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
   const theme = useTheme();
   const [step, setStep] = useState(activeStep);
   const { registerTOTPStart, totpChallenge, verifyRegistrationCode } =
@@ -66,6 +68,22 @@ export function AuthenticatorModal({
     [t]
   );
 
+  const verifyCode = useCallback(async () => {
+    setIsCodeVerifying(true);
+    const isSuccessful = await verifyRegistrationCode(totpCode);
+    if (!isSuccessful) {
+      capture('SeedlessAuthenticatorVerificationFailed');
+      setError(t('Incorrect code. Try again.'));
+    }
+    if (isSuccessful) {
+      capture('SeedlessAuthenticatorVerificationSuccess');
+      onFinish();
+      setError('');
+    }
+
+    setIsCodeVerifying(false);
+  }, [capture, onFinish, t, totpCode, verifyRegistrationCode]);
+
   const descriptions = useMemo(
     () => ({
       scan: (
@@ -74,7 +92,7 @@ export function AuthenticatorModal({
             <Trans
               i18nKey="On your mobile device, install an <bold>authenticator app</bold> and use it to scan this QR code. Or enter the code manually."
               components={{
-                bold: <Bold />,
+                bold: <InlineBold />,
               }}
             />
           </Typography>
@@ -145,6 +163,12 @@ export function AuthenticatorModal({
             multiline
             error={!!error}
             helperText={error}
+            onKeyDown={async (event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                await verifyCode();
+              }
+            }}
           />
         </Stack>
       ),
@@ -235,6 +259,7 @@ export function AuthenticatorModal({
       theme.typography.subtitle2.fontSize,
       totpChallenge,
       totpSecret,
+      verifyCode,
     ]
   );
 
@@ -273,21 +298,9 @@ export function AuthenticatorModal({
       scan: () => setStep(AuthenticatorSteps.VERIFY),
       help: () => setStep(AuthenticatorSteps.VERIFY),
       code: () => setStep(AuthenticatorSteps.VERIFY),
-      verify: async () => {
-        setIsCodeVerifying(true);
-        const isSuccessful = await verifyRegistrationCode(totpCode);
-        if (!isSuccessful) {
-          setError(t('Incorrect code. Try again.'));
-        }
-        if (isSuccessful) {
-          onFinish();
-          setError('');
-        }
-
-        setIsCodeVerifying(false);
-      },
+      verify: () => verifyCode(),
     }),
-    [onFinish, t, totpCode, verifyRegistrationCode]
+    [verifyCode]
   );
 
   return (
@@ -369,6 +382,7 @@ export function AuthenticatorModal({
               color="secondary"
               data-testid="authenticator-modal-cancel"
               onClick={onCancel}
+              isDisabled={isCodeVerifying}
             >
               {t('Cancel')}
             </Button>

@@ -7,7 +7,7 @@ import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,
 } from '@src/background/services/onboarding/models';
-import { authenticateWithApple } from '@src/pages/Onboarding/utils/authenticateWithApple';
+import { authenticateWithApple } from '@src/utils/seedless/authenticateWithApple';
 import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
 import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
 
@@ -31,6 +31,7 @@ export function AppleButton({ setIsLoading }: SeedlesButton) {
         signIn({
           setIsLoading,
           getOidcToken: authenticateWithApple,
+          provider: SeedlessAuthProvider.Apple,
         });
       }}
     >

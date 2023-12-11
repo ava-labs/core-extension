@@ -6,7 +6,10 @@ import { WalletIsEmpty } from './WalletIsEmpty';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
 import { TokenType } from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
 import { AutoSizer } from 'react-virtualized';
@@ -30,7 +33,8 @@ export function TokenList({ searchQuery }: TokenListProps) {
   const history = useHistory();
   const setSendDataInParams = useSetSendDataInParams();
   const { capture } = useAnalyticsContext();
-  const { checkIsFunctionAvailable } = useIsFunctionAvailable();
+  const { isFunctionSupported: isManageTokenSupported } =
+    useIsFunctionAvailable(FunctionNames.MANAGE_TOKEN);
 
   const hasNoFunds =
     tokensWithBalances.length === 1 &&
@@ -107,7 +111,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
           my: 1,
         }}
       >
-        {checkIsFunctionAvailable('ManageTokens') && tokens.length && (
+        {isManageTokenSupported && tokens.length && (
           <Button
             variant="text"
             size="small"

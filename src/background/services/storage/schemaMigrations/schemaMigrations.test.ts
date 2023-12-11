@@ -3,6 +3,7 @@ import { getDataWithSchemaVersion, migrateToLatest } from './schemaMigrations';
 const upToDateKey = 'upToDateKey';
 const outDatedKeyWithInvalidSchema = 'outDatedKeyWithInvalidSchema';
 const outDatedKeyWithArrayInput = 'outDatedKeyWithArrayInput';
+const outDatedKeyWithPrimitiveInput = 'outDatedKeyWithPrimitiveInput';
 const outDatedKeyWithCorrectOrder = 'outDatedKeyWithCorrectOrder';
 const outDatedKeyWithIncorrectOrder = 'outDatedKeyWithIncorrectOrder';
 const outDatedKeyWithIncorrectVersion = 'outDatedKeyWithIncorrectVersion';
@@ -47,6 +48,18 @@ const MOCK_SCHEMA_MAP = {
         version: 2,
         migration: {
           up: jest.fn(async (data) => ({ ...data[0], version: 2 })),
+          previousSchema: mockJoiSchema,
+        },
+      },
+    ],
+  },
+  [outDatedKeyWithPrimitiveInput]: {
+    latestVersion: 2,
+    migrations: [
+      {
+        version: 2,
+        migration: {
+          up: jest.fn(async (data) => ({ data, version: 2 })),
           previousSchema: mockJoiSchema,
         },
       },
@@ -175,6 +188,38 @@ describe('background/services/storage/migrations/migrations', () => {
         MOCK_SCHEMA_MAP[outDatedKeyWithArrayInput].migrations[0]?.migration.up
       ).toHaveBeenCalledWith(data);
       expect(result).toStrictEqual({ ...data[0], version: 2 });
+    });
+
+    it('migrates the schema when the input is a string', async () => {
+      const data = 'some-data-string';
+
+      const result = await migrateToLatest(outDatedKeyWithPrimitiveInput, data);
+      expect(
+        MOCK_SCHEMA_MAP[outDatedKeyWithPrimitiveInput].migrations[0]?.migration
+          .up
+      ).toHaveBeenCalledWith(data);
+      expect(result).toStrictEqual({ data: 'some-data-string', version: 2 });
+    });
+
+    it('migrates the schema when the input is a number', async () => {
+      const data = 12341234;
+
+      const result = await migrateToLatest(outDatedKeyWithPrimitiveInput, data);
+      expect(
+        MOCK_SCHEMA_MAP[outDatedKeyWithPrimitiveInput].migrations[0]?.migration
+          .up
+      ).toHaveBeenCalledWith(data);
+      expect(result).toStrictEqual({ data: 12341234, version: 2 });
+    });
+    it('migrates the schema when the input is boolean', async () => {
+      const data = false;
+
+      const result = await migrateToLatest(outDatedKeyWithPrimitiveInput, data);
+      expect(
+        MOCK_SCHEMA_MAP[outDatedKeyWithPrimitiveInput].migrations[0]?.migration
+          .up
+      ).toHaveBeenCalledWith(data);
+      expect(result).toStrictEqual({ data: false, version: 2 });
     });
 
     it('migrates the schema when the migration order is correct', async () => {

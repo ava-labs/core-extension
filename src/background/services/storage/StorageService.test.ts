@@ -7,7 +7,7 @@ import {
   encryptWithKey,
   encryptWithPassword,
 } from './utils/crypto';
-import { WALLET_STORAGE_ENCRYPTION_KEY } from './models';
+import { KeyDerivationVersion, WALLET_STORAGE_ENCRYPTION_KEY } from './models';
 import * as schemaMigrations from './schemaMigrations/schemaMigrations';
 
 jest.mock('@src/background/runtime/CallbackManager');
@@ -37,7 +37,9 @@ describe('src/background/services/storage/StorageService.ts', () => {
 
   describe('activate', () => {
     it('notifies callback manager when storage is ready', async () => {
-      jest.mocked(decryptWithPassword).mockResolvedValue('"encryption-key"');
+      jest
+        .mocked(decryptWithPassword)
+        .mockResolvedValue('{ "storageKey": "encryption-key", "version": 2 }');
       jest.mocked(browser.storage.local.get).mockResolvedValue({
         [WALLET_STORAGE_ENCRYPTION_KEY]: {
           cypher: [1, 1, 1],
@@ -75,7 +77,9 @@ describe('src/background/services/storage/StorageService.ts', () => {
 
   describe('onLock', () => {
     it('clears storage key on lock', async () => {
-      jest.mocked(decryptWithPassword).mockResolvedValue('"encryption-key"');
+      jest
+        .mocked(decryptWithPassword)
+        .mockResolvedValue('{ "storageKey": "encryption-key", "version": 2 }');
       jest.mocked(browser.storage.local.get).mockResolvedValue({
         [WALLET_STORAGE_ENCRYPTION_KEY]: {
           cypher: [1, 1, 1],
@@ -100,6 +104,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
         cypher: new Uint8Array([1, 1, 1]),
         nonce: new Uint8Array([2, 2]),
         salt: new Uint8Array([3, 3, 3]),
+        keyDerivationVersion: KeyDerivationVersion.V2,
       });
       jest
         .mocked(decryptWithPassword)
@@ -124,6 +129,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
           password: 'old-password',
           salt: new Uint8Array([3, 3, 3]),
           nonce: new Uint8Array([2, 2]),
+          keyDerivationVersion: KeyDerivationVersion.V1,
         },
       ]);
 
@@ -136,13 +142,17 @@ describe('src/background/services/storage/StorageService.ts', () => {
         cypher: new Uint8Array([1, 1, 1]),
         nonce: new Uint8Array([2, 2]),
         salt: new Uint8Array([3, 3, 3]),
+        keyDerivationVersion: KeyDerivationVersion.V2,
       });
-      jest.mocked(decryptWithPassword).mockResolvedValue('"encryption-key"');
+      jest
+        .mocked(decryptWithPassword)
+        .mockResolvedValue('{ "storageKey": "encryption-key", "version": 2 }');
       jest.mocked(browser.storage.local.get).mockResolvedValue({
         [WALLET_STORAGE_ENCRYPTION_KEY]: {
           cypher: [1, 1, 1],
           nonce: [2, 2],
           salt: [3, 3, 3],
+          keyDerivationVersion: KeyDerivationVersion.V2,
         },
       });
       const service = new StorageService(new CallbackManager());
@@ -156,12 +166,16 @@ describe('src/background/services/storage/StorageService.ts', () => {
           password: 'old-password',
           salt: new Uint8Array([3, 3, 3]),
           nonce: new Uint8Array([2, 2]),
+          keyDerivationVersion: KeyDerivationVersion.V2,
         },
       ]);
 
       expect(encryptWithPassword).toHaveBeenCalledTimes(1);
       expect(jest.mocked(encryptWithPassword).mock.calls[0]).toEqual([
-        { secret: '"encryption-key"', password: 'new-password' },
+        {
+          secret: '{"storageKey":"encryption-key","version":2}',
+          password: 'new-password',
+        },
       ]);
 
       expect(browser.storage.local.set).toHaveBeenCalledTimes(1);
@@ -170,6 +184,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
           cypher: [1, 1, 1],
           nonce: [2, 2],
           salt: [3, 3, 3],
+          keyDerivationVersion: KeyDerivationVersion.V2,
         },
       });
     });
@@ -181,6 +196,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
         cypher: new Uint8Array([1, 1, 1]),
         nonce: new Uint8Array([2, 2]),
         salt: new Uint8Array([3, 3, 3]),
+        keyDerivationVersion: KeyDerivationVersion.V2,
       });
       jest.mocked(encryptWithKey).mockResolvedValue({
         cypher: new Uint8Array([1, 1, 1]),
@@ -195,7 +211,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
       expect(encryptWithPassword).toHaveBeenCalledTimes(1);
       expect(encryptWithPassword).toHaveBeenCalledWith({
         secret:
-          '"0101010101010101010101010101010101010101010101010101010101010101"',
+          '{"storageKey":"0101010101010101010101010101010101010101010101010101010101010101","version":2}',
         password: 'password',
       });
       expect(browser.storage.local.set).toHaveBeenCalledWith({
@@ -203,6 +219,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
           cypher: [1, 1, 1],
           nonce: [2, 2],
           salt: [3, 3, 3],
+          keyDerivationVersion: KeyDerivationVersion.V2,
         },
       });
       expect(callbackManager.onStorageReady).toHaveBeenCalled();
@@ -232,6 +249,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
         cypher: new Uint8Array([1, 1, 1]),
         nonce: new Uint8Array([2, 2]),
         salt: new Uint8Array([3, 3, 3]),
+        keyDerivationVersion: KeyDerivationVersion.V2,
       });
       const service = new StorageService(new CallbackManager());
 
@@ -245,7 +263,12 @@ describe('src/background/services/storage/StorageService.ts', () => {
 
       expect(browser.storage.local.set).toHaveBeenCalledTimes(1);
       expect(browser.storage.local.set).toHaveBeenCalledWith({
-        STORAGE_KEY: { cypher: [1, 1, 1], nonce: [2, 2], salt: [3, 3, 3] },
+        STORAGE_KEY: {
+          cypher: [1, 1, 1],
+          nonce: [2, 2],
+          salt: [3, 3, 3],
+          keyDerivationVersion: KeyDerivationVersion.V2,
+        },
       });
     });
 
@@ -254,7 +277,9 @@ describe('src/background/services/storage/StorageService.ts', () => {
         cypher: new Uint8Array([1, 1, 1]),
         nonce: new Uint8Array([2, 2]),
       });
-      jest.mocked(decryptWithPassword).mockResolvedValue('"encryption-key"');
+      jest
+        .mocked(decryptWithPassword)
+        .mockResolvedValue('{ "storageKey": "encryption-key", "version": 2 }');
       jest.mocked(browser.storage.local.get).mockResolvedValue({
         [WALLET_STORAGE_ENCRYPTION_KEY]: {
           cypher: [1, 1, 1],
@@ -271,6 +296,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
           password: 'some-password',
           salt: new Uint8Array([3, 3, 3]),
           nonce: new Uint8Array([2, 2]),
+          keyDerivationVersion: KeyDerivationVersion.V1,
         },
       ]);
 
@@ -354,6 +380,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
           password: 'some-password',
           salt: new Uint8Array([3, 3, 3]),
           nonce: new Uint8Array([2, 2]),
+          keyDerivationVersion: KeyDerivationVersion.V1,
         },
       ]);
 
@@ -366,7 +393,9 @@ describe('src/background/services/storage/StorageService.ts', () => {
     });
 
     it('decrypts data with encryption key', async () => {
-      jest.mocked(decryptWithPassword).mockResolvedValue('"encryption-key"');
+      jest
+        .mocked(decryptWithPassword)
+        .mockResolvedValue('{ "storageKey": "encryption-key", "version": 2 }');
       jest.mocked(decryptWithKey).mockResolvedValue('"some-data"');
       jest.mocked(browser.storage.local.get).mockResolvedValue({
         [WALLET_STORAGE_ENCRYPTION_KEY]: {

@@ -38,6 +38,7 @@ jobs:
           echo APPLE_OAUTH_CLIENT_ID=${{ secrets.APPLE_OAUTH_CLIENT_ID }} >> .env.production
           echo APPLE_OAUTH_REDIRECT_URL=${{ secrets.APPLE_OAUTH_REDIRECT_URL }} >> .env.production
           echo CUBESIGNER_ENV=${{ secrets.CUBESIGNER_ENV }} >> .env.production
+          echo SEEDLESS_FIDO_IDENTITY_URL=${{ secrets.SEEDLESS_FIDO_IDENTITY_URL }} >> .env.production
       - name: Install dependencies
         run: yarn setup
       - name: Run tests

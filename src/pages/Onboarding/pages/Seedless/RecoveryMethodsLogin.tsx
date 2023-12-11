@@ -4,8 +4,6 @@ import {
   Skeleton,
   Stack,
   Typography,
-  UsbIcon,
-  styled,
   toast,
 } from '@avalabs/k2-components';
 import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
@@ -13,32 +11,29 @@ import { Trans, useTranslation } from 'react-i18next';
 import { MethodCard } from './components/MethodCard';
 import { PageNav } from '../../components/PageNav';
 import { useHistory } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { OnboardingURLs } from '@src/background/services/onboarding/models';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import { CubeSigner, envs } from '@cubist-labs/cubesigner-sdk';
 import { TOTPModal } from './modals/TOTPModal';
-
-export enum Methods {
-  PASSKEY = 'passkey',
-  AUTHENTICATOR = 'totp',
-  YUBIKEY = 'yubikey',
-}
-
-export const Bold = styled('span')`
-  font-weight: bold;
-`;
+import { getOidcClient } from '@src/utils/seedless/getCubeSigner';
+import { FIDOModal } from './modals/FIDOModal';
+import { FIDOSteps, RecoveryMethodTypes } from './models';
 
 export function RecoveryMethodsLogin() {
   const history = useHistory();
   const { t } = useTranslation();
-  const [selectedMethod, setSelectedMethod] = useState<Methods | null>(null);
+  const [selectedMethod, setSelectedMethod] =
+    useState<RecoveryMethodTypes | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
   const { oidcToken } = useOnboardingContext();
-  const [configuredMfas, setConfiguredMfas] = useState<string[]>([]);
+  const [configuredMfas, setConfiguredMfas] = useState<
+    { type: RecoveryMethodTypes; name: string }[]
+  >([]);
+  const [selectedDevice, setSelectedDevice] = useState<number | null>(null);
+
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -55,24 +50,43 @@ export function RecoveryMethodsLogin() {
       if (!oidcToken) {
         return false;
       }
-      const cubesigner = new CubeSigner({
-        orgId: process.env.SEEDLESS_ORG_ID || '',
-        env: envs[process.env.CUBESIGNER_ENV || ''],
-      });
-      const identity = await cubesigner.oidcProveIdentity(
-        oidcToken,
-        process.env.SEEDLESS_ORG_ID || ''
-      );
+      const oidcClient = getOidcClient(oidcToken);
+      const identity = await oidcClient.identityProve();
       const configuredMfa = identity.user_info?.configured_mfa;
-      if (configuredMfa) {
-        const mfas = configuredMfa.map((mfa) => mfa.type);
 
+      if (configuredMfa) {
+        const mfas = configuredMfa.map((mfa) => {
+          if (mfa.type === 'fido') {
+            return {
+              name: mfa.name,
+              type: mfa.type as RecoveryMethodTypes.FIDO,
+            };
+          }
+          if (mfa.type === 'totp') {
+            return {
+              name: '',
+              type: mfa.type as RecoveryMethodTypes.TOTP,
+            };
+          }
+          return {
+            name: '',
+            type: RecoveryMethodTypes.UNKNOWN,
+          };
+        });
         setConfiguredMfas(mfas);
+        if (mfas.length === 1 && mfas[0]) {
+          setSelectedMethod(mfas[0].type);
+          setIsModalOpen(true);
+        }
       }
       setIsLoading(false);
     };
     getMfas();
   }, [oidcToken]);
+
+  const onFinish = useCallback(() => {
+    history.push(OnboardingURLs.CREATE_PASSWORD);
+  }, [history]);
 
   return (
     <>
@@ -104,42 +118,72 @@ export function RecoveryMethodsLogin() {
           >
             {isLoading && (
               <>
-                <Skeleton width="100%" height="150px" />
-                <Skeleton width="100%" height="150px" />
+                <Skeleton
+                  sx={{
+                    width: '100%',
+                    height: '80px',
+                    transform: 'none',
+                  }}
+                />
+                <Skeleton
+                  sx={{
+                    width: '100%',
+                    height: '80px',
+                    transform: 'none',
+                  }}
+                />
               </>
             )}
-            {featureFlags[FeatureGates.SEEDLESS_MFA_PASSKEY] &&
-              configuredMfas.includes(Methods.PASSKEY) && (
+            {configuredMfas.map((mfaDevice, index) => {
+              if (
+                mfaDevice.type === 'totp' &&
+                !featureFlags[FeatureGates.SEEDLESS_MFA_AUTHENTICATOR]
+              ) {
+                return null;
+              }
+
+              if (
+                mfaDevice.type === 'fido' &&
+                !featureFlags[FeatureGates.SEEDLESS_MFA_PASSKEY] &&
+                !featureFlags[FeatureGates.SEEDLESS_MFA_YUBIKEY]
+              ) {
+                return null;
+              }
+
+              return (
                 <MethodCard
-                  icon={<KeyIcon size={24} />}
-                  title={t('Passkey')}
-                  description={t('Add a Passkey as a recovery method.')}
-                  onClick={() => setSelectedMethod(Methods.PASSKEY)}
-                  isActive={selectedMethod === Methods.PASSKEY}
+                  key={index}
+                  icon={
+                    mfaDevice.type === 'totp' ? (
+                      <QRCodeIcon size={24} />
+                    ) : (
+                      <KeyIcon size={24} />
+                    )
+                  }
+                  title={
+                    mfaDevice.name
+                      ? mfaDevice.name
+                      : mfaDevice.type === 'totp'
+                      ? t('Authenticator')
+                      : t('FIDO Device')
+                  }
+                  description={
+                    mfaDevice.type === 'totp'
+                      ? t('Verify an authenticator app as a recovery method.')
+                      : t('Verify your FIDO device as a recovery method.')
+                  }
+                  onClick={() => {
+                    setSelectedMethod(mfaDevice.type);
+                    setSelectedDevice(index);
+                  }}
+                  isActive={
+                    configuredMfas.length === 1 ??
+                    selectedDevice === index ??
+                    false
+                  }
                 />
-              )}
-            {featureFlags[FeatureGates.SEEDLESS_MFA_AUTHENTICATOR] &&
-              configuredMfas.includes(Methods.AUTHENTICATOR) && (
-                <MethodCard
-                  icon={<QRCodeIcon size={24} />}
-                  title={t('Authenticator')}
-                  description={t(
-                    'Verify an authenticator app as a recovery method.'
-                  )}
-                  onClick={() => setSelectedMethod(Methods.AUTHENTICATOR)}
-                  isActive={selectedMethod === Methods.AUTHENTICATOR}
-                />
-              )}
-            {featureFlags[FeatureGates.SEEDLESS_MFA_YUBIKEY] &&
-              configuredMfas.includes(Methods.YUBIKEY) && (
-                <MethodCard
-                  icon={<UsbIcon size={24} />}
-                  title={t('Yubikey ')}
-                  description={t('Add a Yubikey as a recovery method.')}
-                  onClick={() => setSelectedMethod(Methods.YUBIKEY)}
-                  isActive={selectedMethod === Methods.YUBIKEY}
-                />
-              )}
+              );
+            })}
           </Stack>
         </Stack>
 
@@ -155,12 +199,20 @@ export function RecoveryMethodsLogin() {
           disableNext={!selectedMethod}
         />
       </Stack>
-      {isModalOpen && selectedMethod === Methods.AUTHENTICATOR && (
+      {isModalOpen && selectedMethod === RecoveryMethodTypes.TOTP && (
         <TOTPModal
           onFinish={() => {
             history.push(OnboardingURLs.CREATE_PASSWORD);
           }}
           onCancel={() => setIsModalOpen(false)}
+        />
+      )}
+      {isModalOpen && selectedMethod === RecoveryMethodTypes.FIDO && (
+        <FIDOModal
+          onFinish={onFinish}
+          onCancel={() => setIsModalOpen(false)}
+          selectedMethod={selectedMethod}
+          startingStep={FIDOSteps.LOGIN}
         />
       )}
     </>

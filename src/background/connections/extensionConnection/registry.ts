@@ -112,6 +112,15 @@ import { WalletConnectEvents } from '@src/background/services/walletConnect/even
 import { GetTokensListHandler } from '@src/background/services/tokens/handlers/getTokenList';
 import { EstablishRequiredSession } from '@src/background/services/walletConnect/handlers/establishRequiredSession';
 import { FireblocksUpdateApiCredentialsHandler } from '@src/background/services/fireblocks/handlers/fireblocksUpdateApiCredentials';
+import { SeedlessTokenEvents } from '@src/background/services/seedless/events/seedlessTokenEvents';
+import { UpdateSignerTokenHandler } from '@src/background/services/seedless/handlers/updateSignerToken';
+import { HasSignerTokenExpiredHandler } from '@src/background/services/seedless/handlers/hasSignerTokenExpired';
+import { SeedlessMfaEvents } from '@src/background/services/seedless/events/seedlessMfaEvents';
+import { SubmitMfaResponseHandler } from '@src/background/services/seedless/handlers/submitMfaResponse';
+import { GetRecoveryPhraseExportStateHandler } from '@src/background/services/seedless/handlers/getRecoveryPhraseExportState';
+import { InitRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/initRecoveryPhraseExport';
+import { CompleteRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/completeRecoveryPhraseExport';
+import { CancelRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/cancelRecoveryPhraseExport';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -268,6 +277,34 @@ import { FireblocksUpdateApiCredentialsHandler } from '@src/background/services/
     token: 'ExtensionRequestHandler',
     useToken: FireblocksUpdateApiCredentialsHandler,
   },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: UpdateSignerTokenHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: HasSignerTokenExpiredHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SubmitMfaResponseHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetRecoveryPhraseExportStateHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: InitRecoveryPhraseExportHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: CompleteRecoveryPhraseExportHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: CancelRecoveryPhraseExportHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -300,5 +337,7 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: CurrencyRatesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: DefiPortfolioUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: WalletConnectEvents },
+  { token: 'ExtensionEventEmitter', useToken: SeedlessTokenEvents },
+  { token: 'ExtensionEventEmitter', useToken: SeedlessMfaEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

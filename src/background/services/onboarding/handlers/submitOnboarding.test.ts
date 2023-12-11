@@ -129,6 +129,24 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
     });
   });
 
+  it('returns error if seedless is attempted without specifying the email address', async () => {
+    const handler = getHandler();
+    const request = getRequest([
+      {
+        password: 'pass',
+        seedlessSignerToken: {} as any,
+        authProvider: SeedlessAuthProvider.Apple,
+      },
+    ]);
+
+    const result = await handler.handle(request);
+
+    expect(result).toEqual({
+      ...request,
+      error: 'User email is required to create a seedless wallet',
+    });
+  });
+
   it('returns error if derivation path is not determinable', async () => {
     const handler = getHandler();
     const request = getRequest([
@@ -188,6 +206,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
         password: 'password',
         accountName: 'test-acc',
         seedlessSignerToken: {},
+        userEmail: 'a@b.c',
         authProvider: SeedlessAuthProvider.Google,
         analyticsConsent: true,
       },
@@ -209,6 +228,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
     expect(walletServiceMock.init).toHaveBeenCalledWith({
       seedlessSignerToken: {},
       authProvider: SeedlessAuthProvider.Google,
+      userEmail: 'a@b.c',
     });
 
     // Adds all derived accounts

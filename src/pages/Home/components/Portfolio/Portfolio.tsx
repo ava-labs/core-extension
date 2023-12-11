@@ -15,7 +15,7 @@ import {
   styled,
 } from '@avalabs/k2-components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionUnavailable';
+import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionAvailable';
 import { Redirect } from 'react-router-dom';
 import { usePersistedTabs } from '@src/hooks/usePersistedTabs';
 import { usePageHistory } from '@src/hooks/usePageHistory';
@@ -56,7 +56,7 @@ export function Portfolio() {
   const { capture } = useAnalyticsContext();
   const { featureFlags } = useFeatureFlagContext();
   const { activeTab, setActiveTab } = usePersistedTabs(PortfolioTabs.ASSETS);
-  const { isReady, checkIsFunctionAvailable } = useIsFunctionAvailable();
+  const { isReady, checkIsFunctionSupported } = useIsFunctionAvailable();
   const [listType, setListType] = useState(ListType.GRID);
   const [hadDefiEnabled, setHadDefiEnabled] = useState(false);
   const { getPageHistoryData, isHistoryLoading } = usePageHistory();
@@ -96,9 +96,9 @@ export function Portfolio() {
         return false;
       }
 
-      return checkIsFunctionAvailable(idToCheck);
+      return checkIsFunctionSupported(idToCheck);
     },
-    [checkIsFunctionAvailable, hadDefiEnabled]
+    [checkIsFunctionSupported, hadDefiEnabled]
   );
 
   const handleChange = useCallback(

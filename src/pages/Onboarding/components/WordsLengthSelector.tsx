@@ -17,6 +17,9 @@ export const wordPhraseLength = [12, 18, 24];
 export function WordsLengthSelector({
   wordsLength: currentWordsLength,
   setWordsLength,
+}: {
+  wordsLength: number;
+  setWordsLength: (length: number) => void;
 }) {
   const theme = useTheme();
   const { t } = useTranslation();

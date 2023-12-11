@@ -48,6 +48,7 @@ export default class AutoPairingPostMessageConnection extends AbstractConnection
     this.#channel.addEventListener('message', (event) => {
       if (
         event.origin !== window.location.origin ||
+        !event.data?.message ||
         event.data.message.type !== CHANNEL_BROADCAST_REQUEST_EVENT
       ) {
         return;
@@ -61,6 +62,7 @@ export default class AutoPairingPostMessageConnection extends AbstractConnection
     const handler = (event) => {
       if (
         event.origin !== window.location.origin ||
+        !event.data?.message ||
         event.data.message.type !== CHANNEL_BROADCAST_EVENT
       ) {
         return;

@@ -68,3 +68,8 @@ export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 // A helper generic that turns only given keys (K) of type T
 // from optional to required.
 export type EnsureDefined<T, K extends keyof T> = T & Required<Pick<T, K>>;
+
+// A helper generic that turns all keys of given type to "never" defined.
+export type Never<T> = {
+  [P in keyof T]?: never;
+};

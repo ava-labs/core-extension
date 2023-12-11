@@ -32,6 +32,7 @@ import { LoadingContent } from '@src/popup/LoadingContent';
 import { toast } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import { useAnalyticsContext } from './AnalyticsProvider';
 
 const Onboarding = lazy(() =>
   import('../pages/Onboarding/Onboarding').then((m) => ({
@@ -63,6 +64,8 @@ const OnboardingContext = createContext<{
   setSeedlessSignerToken: Dispatch<
     SetStateAction<SignerSessionData | undefined>
   >;
+  setUserEmail: Dispatch<SetStateAction<string | undefined>>;
+  resetStates: () => void;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -94,9 +97,12 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const [authProvider, setAuthProvider] = useState<SeedlessAuthProvider>();
 
+  const [userEmail, setUserEmail] = useState<string>();
+
   const { t } = useTranslation();
 
   const [oidcToken, setOidcToken] = useState<string>('');
+
   const [seedlessSignerToken, setSeedlessSignerToken] = useState<
     SignerSessionData | undefined
   >(undefined);
@@ -104,7 +110,11 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   const [onboardingPhase, setOnboardingPhase] =
     useState<OnboardingPhase | null>(null);
 
-  function resetStates() {
+  const [walletType, setWalletType] = useState<string>();
+
+  const { capture } = useAnalyticsContext();
+
+  const resetStates = useCallback(() => {
     setMnemonic('');
     setXpub('');
     setXpubXP('');
@@ -115,13 +125,33 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setMasterFingerprint('');
     setOidcToken('');
     setSeedlessSignerToken(undefined);
-  }
+    setWalletType(undefined);
+    setUserEmail(undefined);
+  }, []);
 
   useEffect(() => {
     if (nextPhase === OnboardingPhase.RESTART) {
       resetStates();
     }
-  }, [nextPhase]);
+  }, [nextPhase, resetStates]);
+
+  useEffect(() => {
+    const walletTypeSelectingPhases = [
+      OnboardingPhase.CREATE_WALLET,
+      OnboardingPhase.IMPORT_WALLET,
+      OnboardingPhase.LEDGER,
+      OnboardingPhase.KEYSTONE,
+      OnboardingPhase.SEEDLESS_GOOGLE,
+      OnboardingPhase.SEEDLESS_APPLE,
+    ];
+
+    if (
+      onboardingPhase &&
+      walletTypeSelectingPhases.includes(onboardingPhase)
+    ) {
+      setWalletType(onboardingPhase);
+    }
+  }, [onboardingPhase]);
 
   useEffect(() => {
     if (!request || !events) {
@@ -184,14 +214,17 @@ export function OnboardingContextProvider({ children }: { children: any }) {
             masterFingerprint,
             seedlessSignerToken,
             authProvider,
+            userEmail,
           },
         ],
       })
         .then(() => {
+          capture('OnboardingSubmitSucceeded', { walletType });
           resetStates();
           postSubmitHandler();
         })
         .catch(() => {
+          capture('OnboardingSubmitFailed', { walletType });
           setNextPhase(OnboardingPhase.PASSWORD);
           toast.error(t('Something went wrong. Please try again.'), {
             duration: 3000,
@@ -202,19 +235,23 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         });
     },
     [
+      submitInProgress,
+      mnemonic,
+      xpub,
+      password,
+      request,
+      xpubXP,
       accountName,
       analyticsConsent,
-      authProvider,
-      masterFingerprint,
-      mnemonic,
-      password,
       publicKeys,
-      request,
+      masterFingerprint,
       seedlessSignerToken,
+      authProvider,
+      userEmail,
+      capture,
+      walletType,
+      resetStates,
       t,
-      xpub,
-      xpubXP,
-      submitInProgress,
     ]
   );
 
@@ -246,6 +283,8 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         oidcToken,
         setSeedlessSignerToken,
         setAuthProvider,
+        setUserEmail,
+        resetStates,
       }}
     >
       {/*

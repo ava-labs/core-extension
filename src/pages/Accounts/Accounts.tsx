@@ -26,6 +26,7 @@ import { AccountsActionButton } from './components/AccountsActionButton';
 import { AddAccountError } from './AddAccountError';
 import { AccountList } from './AccountList';
 import { ConfirmAccountRemovalDialog } from './components/ConfirmAccountRemovalDialog';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export enum AccountsTab {
   Primary,
@@ -62,6 +63,7 @@ export function Accounts() {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const history = useHistory();
+  const { walletDetails } = useWalletContext();
 
   const setActiveTab = useCallback(
     (tab: AccountsTab) => {
@@ -83,6 +85,9 @@ export function Accounts() {
     try {
       setHasError(false);
       const id = await addAccount();
+      capture('CreatedANewAccountSuccessfully', {
+        walletType: walletDetails?.type,
+      });
       await selectAccount(id);
 
       // Make sure we land on the Primary accounts list, since the account

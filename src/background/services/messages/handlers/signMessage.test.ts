@@ -38,7 +38,9 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
     walletServiceMock = {
       signMessage: jest.fn(),
-      walletType: WalletType.MNEMONIC,
+      walletDetails: {
+        type: WalletType.MNEMONIC,
+      },
     } as any;
 
     networkServiceMock = {
@@ -88,7 +90,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
   describe('handleAuthenticated', () => {
     it('throws if walletType is undefined', async () => {
-      walletServiceMock.walletType = undefined;
+      walletServiceMock.walletDetails = undefined;
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock
