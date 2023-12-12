@@ -103,7 +103,7 @@ jobs:
           echo "TESTRAIL_RUN_ID=$(head -n 1 testrail_run_id.txt)" >> $GITHUB_ENV
       - name: Success slack notification
         if: success()
-        uses: slackapi/slack-github-action@v1.22.0
+        uses: slackapi/slack-github-action@v1.24.0
         with:
           payload: |
             {
@@ -117,7 +117,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Failure slack notification
         if: failure()
-        uses: slackapi/slack-github-action@v1.22.0
+        uses: slackapi/slack-github-action@v1.24.0
         with:
           payload: |
             {
