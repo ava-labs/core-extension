@@ -14,7 +14,6 @@ interface MethodCardProps {
   title: string;
   description: string;
   onClick: () => void;
-  isActive: boolean;
 }
 
 export function MethodCard({
@@ -22,7 +21,6 @@ export function MethodCard({
   title,
   description,
   onClick,
-  isActive,
 }: MethodCardProps) {
   const theme = useTheme();
   return (
@@ -30,9 +28,7 @@ export function MethodCard({
       data-testid={`method-card-${title}`}
       onClick={onClick}
       sx={{
-        backgroundColor: isActive
-          ? theme.palette.primary.main
-          : theme.palette.background.paper,
+        backgroundColor: theme.palette.background.paper,
       }}
     >
       <CardActionArea>
@@ -42,9 +38,7 @@ export function MethodCard({
             justifyContent: 'space-between',
             alignItems: 'center',
             p: 2,
-            color: isActive
-              ? theme.palette.common.black
-              : theme.palette.text.primary,
+            color: theme.palette.text.primary,
           }}
         >
           <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
@@ -55,9 +49,7 @@ export function MethodCard({
               </Typography>
               <Typography
                 sx={{
-                  color: isActive
-                    ? theme.palette.common.black
-                    : theme.palette.text.secondary,
+                  color: theme.palette.text.secondary,
                 }}
               >
                 {description}

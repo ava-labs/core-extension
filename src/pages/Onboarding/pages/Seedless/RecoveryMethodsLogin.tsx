@@ -32,7 +32,6 @@ export function RecoveryMethodsLogin() {
   const [configuredMfas, setConfiguredMfas] = useState<
     { type: RecoveryMethodTypes; name: string }[]
   >([]);
-  const [selectedDevice, setSelectedDevice] = useState<number | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -174,13 +173,7 @@ export function RecoveryMethodsLogin() {
                   }
                   onClick={() => {
                     setSelectedMethod(mfaDevice.type);
-                    setSelectedDevice(index);
                   }}
-                  isActive={
-                    configuredMfas.length === 1 ??
-                    selectedDevice === index ??
-                    false
-                  }
                 />
               );
             })}
@@ -204,13 +197,19 @@ export function RecoveryMethodsLogin() {
           onFinish={() => {
             history.push(OnboardingURLs.CREATE_PASSWORD);
           }}
-          onCancel={() => setIsModalOpen(false)}
+          onCancel={() => {
+            setIsModalOpen(false);
+            history.push(OnboardingURLs.ONBOARDING_HOME);
+          }}
         />
       )}
       {isModalOpen && selectedMethod === RecoveryMethodTypes.FIDO && (
         <FIDOModal
           onFinish={onFinish}
-          onCancel={() => setIsModalOpen(false)}
+          onCancel={() => {
+            setIsModalOpen(false);
+            history.push(OnboardingURLs.ONBOARDING_HOME);
+          }}
           selectedMethod={selectedMethod}
           startingStep={FIDOSteps.LOGIN}
         />

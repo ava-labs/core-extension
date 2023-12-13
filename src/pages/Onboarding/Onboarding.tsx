@@ -48,7 +48,7 @@ const OnboardingStep = styled(Stack)`
 
 const AppBackground = styled(Stack)`
   height: 100%;
-  background: url('/images/onboarding-background.png') no-repeat center/cover;
+  background: url('/images/onboarding-background.svg') no-repeat center/cover;
 `;
 
 export function Onboarding() {
