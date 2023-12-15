@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import { ACCOUNTS_STORAGE_KEY } from '../../accounts/models';
+import { WALLET_STORAGE_ENCRYPTION_KEY } from '../models';
 import { WALLET_STORAGE_KEY } from '@src/background/services/wallet/models';
 import { NETWORK_STORAGE_KEY } from '@src/background/services/network/models';
 import accounts_v2 from './migrations/accounts_v2';
@@ -7,7 +8,6 @@ import wallet_v2 from './migrations/wallet_v2';
 import wallet_v3 from './migrations/wallet_v3';
 import network_v2 from './migrations/network_v2';
 import wallet_storage_encryption_key_v2 from './migrations/wallet_storage_encryption_key_v2';
-import { WALLET_STORAGE_ENCRYPTION_KEY } from '../models';
 
 export type Migration = {
   previousSchema: Joi.Schema;

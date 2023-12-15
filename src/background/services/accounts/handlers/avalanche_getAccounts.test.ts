@@ -1,6 +1,7 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { AccountType } from '../models';
 import { AvalancheGetAccountsHandler } from './avalanche_getAccounts';
+import { WalletType } from '../../wallet/models';
 
 describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () => {
   const accounts = [
@@ -33,28 +34,67 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
     activeAccount: accounts[0],
   } as any;
 
+  const walletServiceMock = {
+    walletDetails: {
+      type: WalletType.MNEMONIC,
+    },
+  } as any;
+
   beforeEach(() => {
     jest.resetAllMocks();
   });
 
   it('handleAuthenticated', async () => {
-    const handler = new AvalancheGetAccountsHandler(accountServiceMock);
+    const handler = new AvalancheGetAccountsHandler(
+      accountServiceMock,
+      walletServiceMock
+    );
     const request = {
       id: '123',
       method: DAppProviderRequest.AVALANCHE_GET_ACCOUNTS,
     } as any;
 
     const result = await handler.handleAuthenticated(request);
-    const expectedResult = accounts.map((acc, i) => ({
-      ...acc,
-      active: i === 0,
-    }));
-
-    expect(result).toEqual({ ...request, result: expectedResult });
+    expect(result).toEqual({
+      ...request,
+      result: [
+        {
+          index: 1,
+          id: 'uuid1',
+          addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          type: AccountType.PRIMARY,
+          walletType: WalletType.MNEMONIC,
+          active: true,
+        },
+        {
+          index: 2,
+          id: 'uuid2',
+          addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          type: AccountType.PRIMARY,
+          walletType: WalletType.MNEMONIC,
+          active: false,
+        },
+        {
+          id: 'uuid3',
+          addressC: '0x222222eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          type: AccountType.IMPORTED,
+          active: false,
+        },
+        {
+          id: 'uuid4',
+          addressC: '0333333eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeg',
+          type: AccountType.IMPORTED,
+          active: false,
+        },
+      ],
+    });
   });
 
   it('handleUnauthenticated', async () => {
-    const handler = new AvalancheGetAccountsHandler(accountServiceMock);
+    const handler = new AvalancheGetAccountsHandler(
+      accountServiceMock,
+      walletServiceMock
+    );
     const request = {
       id: '123',
       method: DAppProviderRequest.AVALANCHE_GET_ACCOUNTS,

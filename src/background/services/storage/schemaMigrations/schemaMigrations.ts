@@ -21,9 +21,9 @@ export const migrateToLatest = async <T>(
   }
 
   // just to make sure migrations are piped in the correct order...
-  const orderedMigrations = [...schema.migrations].sort(
-    (a, b) => a.version - b.version
-  );
+  const orderedMigrations = [...schema.migrations]
+    .filter(({ version }) => version > currentVersion)
+    .sort((a, b) => a.version - b.version);
 
   const results = await orderedMigrations.reduce<Promise<T>>(
     async (migrationResult, currentMigration) => {

@@ -238,6 +238,22 @@ describe('background/services/storage/migrations/migrations', () => {
       expect(result).toStrictEqual({ ...data, version: 3 });
     });
 
+    it('migrates the partially updated schema when the migration order is correct', async () => {
+      const data = {
+        version: 2,
+        foo: 'bar',
+      };
+
+      const result = await migrateToLatest(outDatedKeyWithCorrectOrder, data);
+      expect(
+        MOCK_SCHEMA_MAP[outDatedKeyWithCorrectOrder].migrations[0]?.migration.up
+      ).not.toHaveBeenCalled();
+      expect(
+        MOCK_SCHEMA_MAP[outDatedKeyWithCorrectOrder].migrations[1]?.migration.up
+      ).toHaveBeenCalledWith({ ...data, version: 2 });
+      expect(result).toStrictEqual({ ...data, version: 3 });
+    });
+
     it('migrates the schema when the migration order is incorrect', async () => {
       const data = {
         version: 1,
@@ -256,6 +272,24 @@ describe('background/services/storage/migrations/migrations', () => {
       expect(result).toStrictEqual({ ...data, version: 3 });
     });
 
+    it('migrates the partially updated schema when the migration order is incorrect', async () => {
+      const data = {
+        version: 2,
+        foo: 'bar',
+      };
+
+      const result = await migrateToLatest(outDatedKeyWithIncorrectOrder, data);
+      expect(
+        MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectOrder].migrations[0]?.migration
+          .up
+      ).toHaveBeenCalledWith({ ...data, version: 2 });
+      expect(
+        MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectOrder].migrations[1]?.migration
+          .up
+      ).not.toHaveBeenCalled();
+      expect(result).toStrictEqual({ ...data, version: 3 });
+    });
+
     it('migrates the schema no further than the pre-defined latest version', async () => {
       const data = {
         version: 1,
@@ -270,6 +304,31 @@ describe('background/services/storage/migrations/migrations', () => {
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectVersion].migrations[0]
           ?.migration.up
       ).toHaveBeenCalledWith({ ...data, version: 1 });
+      expect(
+        MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectVersion].migrations[1]
+          ?.migration.up
+      ).toHaveBeenCalledWith({ ...data, version: 2 });
+      expect(
+        MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectVersion].migrations[2]
+          ?.migration.up
+      ).not.toHaveBeenCalled();
+      expect(result).toStrictEqual({ ...data, version: 3 });
+    });
+
+    it('migrates the partially updated schema no further than the pre-defined latest version', async () => {
+      const data = {
+        version: 2,
+        foo: 'bar',
+      };
+
+      const result = await migrateToLatest(
+        outDatedKeyWithIncorrectVersion,
+        data
+      );
+      expect(
+        MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectVersion].migrations[0]
+          ?.migration.up
+      ).not.toHaveBeenCalled();
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectVersion].migrations[1]
           ?.migration.up

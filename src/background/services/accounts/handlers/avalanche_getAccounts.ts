@@ -2,12 +2,17 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
+import { Account, AccountType } from '../models';
+import { WalletService } from '../../wallet/WalletService';
 
 @injectable()
 export class AvalancheGetAccountsHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.AVALANCHE_GET_ACCOUNTS];
 
-  constructor(private accountsService: AccountsService) {
+  constructor(
+    private accountsService: AccountsService,
+    private walletService: WalletService
+  ) {
     super();
   }
 
@@ -15,13 +20,21 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
     const accounts = this.accountsService.getAccountList();
     const activeAccount = this.accountsService.activeAccount;
 
+    const getWalletType = (acc: Account) => {
+      if (acc.type === AccountType.PRIMARY) {
+        return this.walletService.walletDetails?.type;
+      }
+    };
+
     return {
       ...request,
       result: accounts.map((acc) => {
         const active = activeAccount?.id === acc.id;
+        const walletType = getWalletType(acc);
 
         return {
           ...acc,
+          walletType,
           active,
         };
       }),
