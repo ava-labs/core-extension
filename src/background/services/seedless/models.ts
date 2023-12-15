@@ -1,3 +1,5 @@
+import { DecodedFIDOResult } from '@src/utils/seedless/fido/types';
+
 export class CoreApiError extends Error {}
 
 export enum SeedlessEvents {
@@ -12,19 +14,20 @@ export enum MfaRequestType {
   Fido = 'Fido',
 }
 
-export type MfaRequestData =
-  | {
-      type: MfaRequestType.Fido;
-      options?: any;
-      mfaId: string;
-      tabId?: number;
-    }
-  | {
-      type: MfaRequestType.Totp;
-      mfaId: string;
-      options?: never;
-      tabId?: number;
-    };
+export type MfaRequestData = MfaTotpRequest | MfaFidoRequest;
+
+export type MfaFidoRequest = {
+  type: MfaRequestType.Fido;
+  options?: any;
+  mfaId: string;
+  tabId?: number;
+};
+export type MfaTotpRequest = {
+  type: MfaRequestType.Totp;
+  mfaId: string;
+  options?: never;
+  tabId?: number;
+};
 
 export type MfaFailureData = {
   mfaId: string;
@@ -35,7 +38,7 @@ export type MfaResponseData =
   | {
       mfaId: string;
       code: string;
-      answer?: never;
+      answer?: DecodedFIDOResult;
     }
   | {
       mfaId: string;

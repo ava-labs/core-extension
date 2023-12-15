@@ -11,6 +11,7 @@ describe('deserialize', () => {
   };
   const bigString =
     '10000000000000000000000000000000000000000000000000000000000000';
+  const buffer = Buffer.from('This is a text');
   const serializableValues: [
     value: SerializableValue,
     serializedValue: DeserializableValue
@@ -18,6 +19,7 @@ describe('deserialize', () => {
     [new Big(bigString), { type: 'Big', value: bigString }],
     [new BN(bigString), { type: 'BN', value: bigString }],
     [BigInt(bigString), { type: 'BigInt', value: bigString }],
+    [buffer, { type: 'Buffer', value: Array.from(buffer) }],
   ];
 
   // Primitives

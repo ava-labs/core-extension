@@ -48,7 +48,7 @@ type FIDOAuthenticationResult<T> = {
     clientDataJSON: BufferLikeValue<T>;
     authenticatorData: BufferLikeValue<T>;
     signature: BufferLikeValue<T>;
-    userHandle: BufferLikeValue<T>;
+    userHandle: BufferLikeValue<T> | null;
   };
 };
 

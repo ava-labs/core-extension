@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill';
+import { windows } from 'webextension-polyfill';
 
 import { openPopup } from '../../extensionUtils';
 
@@ -45,7 +45,7 @@ export async function launchFidoFlow(
   // Make sure to close the popup if the calling window gets closed
   window.addEventListener('beforeunload', () => {
     if (popup?.id) {
-      browser.windows.remove(popup.id);
+      windows.remove(popup.id);
     }
   });
 
@@ -60,19 +60,18 @@ export async function launchFidoFlow(
         return;
       }
 
-      // Popup can now be closed safely
-      closeSubscription.unsubscribe();
-      if (popup?.id) {
-        browser.windows.remove(popup.id);
-      }
-
       const response = JSON.parse(event.data);
 
       if (isValidResponse(endpoint, response)) {
+        // Popup can now be closed safely
+        closeSubscription.unsubscribe();
+        if (popup?.id) {
+          windows.remove(popup.id);
+        }
+        window.removeEventListener('message', onResponse);
+
         resolve(convertResult(response));
       }
-
-      window.removeEventListener('message', onResponse);
     };
 
     window.addEventListener('message', onResponse);

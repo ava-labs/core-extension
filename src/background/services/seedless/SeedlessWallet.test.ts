@@ -37,11 +37,14 @@ import {
 } from '@metamask/eth-sig-util';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
+import { SeedlessMfaService } from './SeedlessMfaService';
+import { MfaRequestType } from './models';
 
 jest.mock('@cubist-labs/cubesigner-sdk');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('../network/NetworkService');
 jest.mock('./SeedlessBtcSigner');
+jest.mock('./SeedlessMfaService');
 
 describe('src/background/services/seedless/SeedlessWallet', () => {
   const sessionStorage = jest.mocked<SeedlessTokenStorage>(
@@ -52,6 +55,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
   );
   const sessionManager = jest.mocked<SeedlessSessionManager>({
     notifyTokenExpired: jest.fn(),
+  } as any);
+  const mfaService = jest.mocked<SeedlessMfaService>({
+    requestMfa: jest.fn(),
+    emitMfaError: jest.fn(),
   } as any);
 
   let wallet: SeedlessWallet;
@@ -1072,6 +1079,274 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         pstb.extractTransaction.mockReturnValue(mockedResult);
 
         expect(await wallet.signTx([1] as any, [])).toEqual(mockedResult);
+      });
+    });
+  });
+
+  describe('phrase export', () => {
+    const mnemonicId = `Key#Mnemonic_${evmKey.derivation_info.mnemonic_id}`;
+    let session: jest.Mocked<cs.SignerSession>;
+
+    beforeEach(() => {
+      session = {
+        keys: jest.fn().mockResolvedValue(validKeySet),
+        proveIdentity: jest.fn(),
+        userExportList: jest.fn(),
+        userExportInit: jest.fn(),
+        userExportDelete: jest.fn(),
+        userExportComplete: jest.fn(),
+        fidoApproveStart: jest.fn(),
+      } as any;
+
+      jest
+        .mocked(cs.SignerSession.loadSignerSession)
+        .mockResolvedValue(session);
+
+      wallet = new SeedlessWallet({
+        networkService,
+        sessionStorage,
+        addressPublicKey: {
+          evm: strip0x(evmKey.publicKey),
+        },
+        mfaService,
+      });
+    });
+
+    describe('.getMnemonicExportState()', () => {
+      it('returns the pending export', async () => {
+        const request = {
+          key_id: 'Key#Mnemonic_abcd1234',
+          valid_epoch: 123456789,
+          exp_epoch: 987654321,
+        };
+
+        session.userExportList.mockReturnValueOnce({
+          fetchAll: jest.fn().mockResolvedValue([request]),
+        } as any);
+
+        expect(await wallet.getMnemonicExportState()).toEqual(request);
+
+        session.userExportList.mockReturnValueOnce({
+          fetchAll: jest.fn().mockResolvedValue([]),
+        } as any);
+
+        expect(await wallet.getMnemonicExportState()).toEqual(undefined);
+      });
+    });
+
+    describe('.cancelMnemonicExport()', () => {
+      it('calls session.userExportDelete() with proper params', async () => {
+        await wallet.cancelMnemonicExport();
+
+        expect(session.userExportDelete).toHaveBeenCalledWith(mnemonicId);
+      });
+
+      it('returns undefined', async () => {
+        expect(await wallet.cancelMnemonicExport()).toBeUndefined();
+      });
+    });
+
+    describe('.initMnemonicExport()', () => {
+      describe('when no mfa is required', () => {
+        const result = {
+          key_id: 'Key#Mnemonic_abcd1234',
+          valid_epoch: 123456789,
+          exp_epoch: 987654321,
+        } as any;
+
+        beforeEach(() => {
+          session.userExportInit.mockResolvedValue({
+            requiresMfa() {
+              return false;
+            },
+            data() {
+              return result;
+            },
+          } as any);
+        });
+
+        it('cancels the initiated export & throws an error', async () => {
+          await expect(wallet.initMnemonicExport()).rejects.toEqual(
+            new Error('Expected MFA to be required')
+          );
+          expect(session.userExportDelete).toHaveBeenCalledWith(
+            expect.any(String)
+          );
+        });
+      });
+
+      describe('when MFA is required', () => {
+        const result = {
+          key_id: 'Key#Mnemonic_abcd1234',
+          valid_epoch: 123456789,
+          exp_epoch: 987654321,
+        } as any;
+
+        const mfaId = 'mfa-1234';
+
+        const originalRequest = {
+          requiresMfa() {
+            return true;
+          },
+          mfaId() {
+            return mfaId;
+          },
+          approveTotp: jest.fn(),
+          signWithMfaApproval: jest.fn(),
+        } as any;
+
+        beforeEach(() => {
+          session.userExportInit.mockResolvedValue(originalRequest);
+          originalRequest.approveTotp.mockResolvedValue({
+            data() {
+              return result;
+            },
+          });
+          originalRequest.signWithMfaApproval.mockResolvedValue({
+            data() {
+              return result;
+            },
+          });
+        });
+
+        describe('when user has FIDO device setup', () => {
+          const mfaInfo = {
+            receipt: {
+              confirmation: 'confirmation',
+            },
+          };
+          let challenge;
+
+          const fidoResponse = {
+            response: {
+              signature: 'signature',
+            },
+          } as any;
+
+          beforeEach(() => {
+            challenge = {
+              options: { publicKey: 'asd' },
+              answer: jest.fn().mockResolvedValue(mfaInfo),
+            } as any;
+            session.proveIdentity.mockResolvedValueOnce({
+              user_info: {
+                configured_mfa: [
+                  {
+                    type: 'fido',
+                  },
+                ],
+              },
+            } as any);
+            session.fidoApproveStart.mockResolvedValue(challenge);
+          });
+
+          it('prompts a FIDO challenge', async () => {
+            await wallet.initMnemonicExport(123);
+
+            expect(mfaService.requestMfa).toHaveBeenCalledWith(
+              expect.objectContaining({
+                mfaId,
+                type: MfaRequestType.Fido,
+                options: challenge.options,
+                tabId: 123,
+              })
+            );
+          });
+
+          it('calls Challenge.answer() with the users response', async () => {
+            mfaService.requestMfa.mockResolvedValueOnce(fidoResponse);
+
+            await wallet.initMnemonicExport();
+
+            expect(challenge.answer).toHaveBeenCalledWith(fidoResponse);
+          });
+
+          it('signs the original request with MFA receipt', async () => {
+            await wallet.initMnemonicExport();
+
+            expect(originalRequest.signWithMfaApproval).toHaveBeenCalledWith(
+              expect.objectContaining({
+                mfaConf: mfaInfo.receipt.confirmation,
+              })
+            );
+          });
+        });
+
+        describe('when user has TOTP authenticator configured', () => {
+          const code = '132465';
+
+          beforeEach(() => {
+            session.proveIdentity.mockResolvedValue({
+              user_info: {
+                configured_mfa: [
+                  {
+                    type: 'totp',
+                  },
+                ],
+              },
+            } as any);
+          });
+
+          it('prompts a TOTP challenge', async () => {
+            await wallet.initMnemonicExport(123);
+
+            expect(mfaService.requestMfa).toHaveBeenCalledWith(
+              expect.objectContaining({
+                mfaId,
+                type: MfaRequestType.Totp,
+                tabId: 123,
+              })
+            );
+          });
+
+          it('approves the original request with obtained TOTP code', async () => {
+            mfaService.requestMfa.mockResolvedValueOnce(code as any);
+
+            await wallet.initMnemonicExport();
+
+            expect(originalRequest.approveTotp).toHaveBeenCalledWith(
+              session,
+              code
+            );
+          });
+
+          describe('and user provides a wrong TOTP code', () => {
+            const badCode = '133731';
+            const wrongCodeError = new Error('Invalid TOTP code');
+            (wrongCodeError as any).status = 403;
+
+            beforeEach(() => {
+              // Mock user providing bad code at first
+              mfaService.requestMfa.mockResolvedValueOnce(badCode as any);
+              // Mock Cubist "wrong totp code" response:
+              jest
+                .mocked(originalRequest.approveTotp)
+                .mockRejectedValueOnce(wrongCodeError);
+            });
+
+            it('prompts another TOTP code', async () => {
+              await wallet.initMnemonicExport(123);
+
+              expect(mfaService.requestMfa).toHaveBeenNthCalledWith(
+                1,
+                expect.objectContaining({
+                  mfaId,
+                  type: MfaRequestType.Totp,
+                  tabId: 123,
+                })
+              );
+              expect(mfaService.emitMfaError).toHaveBeenCalledWith(mfaId, 123);
+              expect(mfaService.requestMfa).toHaveBeenNthCalledWith(
+                2,
+                expect.objectContaining({
+                  mfaId,
+                  type: MfaRequestType.Totp,
+                  tabId: 123,
+                })
+              );
+            });
+          });
+        });
       });
     });
   });

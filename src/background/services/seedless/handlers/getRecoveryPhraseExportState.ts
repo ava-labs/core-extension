@@ -43,11 +43,16 @@ export class GetRecoveryPhraseExportStateHandler implements HandlerType {
       mfaService: this.seedlessMfaService,
     });
 
-    const exportRequest = await wallet.getMnemonicExportState();
-
-    return {
-      ...request,
-      result: exportRequest,
-    };
+    try {
+      return {
+        ...request,
+        result: await wallet.getMnemonicExportState(),
+      };
+    } catch (err: any) {
+      return {
+        ...request,
+        error: err instanceof Error ? err.message : err.toString(),
+      };
+    }
   };
 }

@@ -13,6 +13,9 @@ import { SeedlessWallet } from '../SeedlessWallet';
 import { SeedlessTokenStorage } from '../SeedlessTokenStorage';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { NetworkService } from '../../network/NetworkService';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_COMPLETE_RECOVERY_PHRASE_EXPORT,
@@ -46,32 +49,69 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
       mfaService: this.seedlessMfaService,
     });
 
-    const keyPair = await userExportKeygen();
-    const exportResponse = await wallet.completeMnemonicExport(
-      keyPair.publicKey,
-      request.tabId
-    );
+    let keyPair: CryptoKeyPair;
 
-    const exportDecrypted = await userExportDecrypt(
-      keyPair.privateKey,
-      exportResponse
-    );
+    try {
+      keyPair = await userExportKeygen();
+    } catch (err) {
+      sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
 
-    // This check is needed due to typing errors in CubeSigner SDK
-    // (the `mnemonic` field is not present there).
-    // TODO: remove when typings are fixed.
-    const hasMnemonic = 'mnemonic' in exportDecrypted;
-
-    if (!hasMnemonic || typeof exportDecrypted.mnemonic !== 'string') {
       return {
         ...request,
-        error: 'Unexpected error occured while decrypting the recovery phrase',
+        error: 'Failed to generate the encryption key pair',
       };
     }
 
-    return {
-      ...request,
-      result: exportDecrypted.mnemonic,
-    };
+    let exportResponse: Awaited<
+      ReturnType<SeedlessWallet['completeMnemonicExport']>
+    >;
+
+    try {
+      exportResponse = await wallet.completeMnemonicExport(
+        keyPair.publicKey,
+        request.tabId
+      );
+    } catch (err) {
+      sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
+
+      return {
+        ...request,
+        error: 'Failed to complete the recovery phrase export',
+      };
+    }
+
+    try {
+      const exportDecrypted = await userExportDecrypt(
+        keyPair.privateKey,
+        exportResponse
+      );
+
+      const hasMnemonic = 'mnemonic' in exportDecrypted;
+
+      if (!hasMnemonic || typeof exportDecrypted.mnemonic !== 'string') {
+        sentryCaptureException(
+          new Error('Export decrypted, but has no mnemonic'),
+          SentryExceptionTypes.SEEDLESS
+        );
+
+        return {
+          ...request,
+          error:
+            'Unexpected error occured while decrypting the recovery phrase',
+        };
+      }
+
+      return {
+        ...request,
+        result: exportDecrypted.mnemonic,
+      };
+    } catch (err) {
+      sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
+
+      return {
+        ...request,
+        error: 'Failed to decrypt the recovery phrase',
+      };
+    }
   };
 }
