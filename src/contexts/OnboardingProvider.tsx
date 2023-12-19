@@ -66,6 +66,8 @@ const OnboardingContext = createContext<{
   >;
   setUserEmail: Dispatch<SetStateAction<string | undefined>>;
   resetStates: () => void;
+  setIsNewAccount: Dispatch<SetStateAction<boolean>>;
+  isNewAccount: boolean;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -111,6 +113,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     useState<OnboardingPhase | null>(null);
 
   const [walletType, setWalletType] = useState<string>();
+  const [isNewAccount, setIsNewAccount] = useState(false);
 
   const { capture } = useAnalyticsContext();
 
@@ -127,6 +130,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setSeedlessSignerToken(undefined);
     setWalletType(undefined);
     setUserEmail(undefined);
+    setIsNewAccount(false);
   }, []);
 
   useEffect(() => {
@@ -285,6 +289,8 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setAuthProvider,
         setUserEmail,
         resetStates,
+        setIsNewAccount,
+        isNewAccount,
       }}
     >
       {/*

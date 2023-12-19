@@ -22,8 +22,13 @@ import { TypographyLink } from '../components/TypographyLink';
 import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
 
 export const AnalyticsConsent = () => {
-  const { setAnalyticsConsent, submit, onboardingPhase, analyticsConsent } =
-    useOnboardingContext();
+  const {
+    setAnalyticsConsent,
+    submit,
+    onboardingPhase,
+    analyticsConsent,
+    isNewAccount,
+  } = useOnboardingContext();
   const { capture, stopDataCollection } = useAnalyticsContext();
   const { t } = useTranslation();
   const history = useHistory();
@@ -57,17 +62,16 @@ export const AnalyticsConsent = () => {
       return;
     }
 
-    const coreWebLink =
-      onboardingPhase === OnboardingPhase.CREATE_WALLET
-        ? `${process.env.CORE_WEB_BASE_URL}/discover/?newUser=1`
-        : process.env.CORE_WEB_BASE_URL;
+    const coreWebLink = isNewAccount
+      ? `${process.env.CORE_WEB_BASE_URL}/discover/?newUser=1`
+      : process.env.CORE_WEB_BASE_URL;
 
     // submit handler can't be in the onNext and onBack callbacks since it would run in a stale closure
     // resulting in an always false analytics consent
     submit(() =>
       coreWebLink ? window.location.replace(coreWebLink) : window.close()
     );
-  }, [analyticsConsent, onboardingPhase, submit]);
+  }, [analyticsConsent, isNewAccount, onboardingPhase, submit]);
 
   return (
     <Stack
