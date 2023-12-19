@@ -249,7 +249,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     // If we received the tx hash, we can look it up for details.
     if (typeof signResult.txHash === 'string') {
       const [tx, txLookupError] = await resolve(
-        provider.getBlockCypher().getTxData(signResult.txHash)
+        provider.getBlockCypher().waitForTx(signResult.txHash)
       );
 
       if (!tx || txLookupError) {

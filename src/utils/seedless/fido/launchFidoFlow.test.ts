@@ -108,7 +108,11 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
 
     await new Promise(process.nextTick);
 
-    expect(openPopup).toHaveBeenCalledWith({ url, setSelfAsOpener: true });
+    expect(openPopup).toHaveBeenCalledWith({
+      url,
+      setSelfAsOpener: true,
+      right: 70,
+    });
   });
 
   it('closes the popup if the calling window gets closed', async () => {

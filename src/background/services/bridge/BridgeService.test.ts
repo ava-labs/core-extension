@@ -184,7 +184,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
     };
 
     const blockcypherMock = {
-      getTxData: jest.fn().mockResolvedValue(txLookupResult),
+      waitForTx: jest.fn().mockResolvedValue(txLookupResult),
     };
     const provider = {
       getBlockCypher: () => blockcypherMock,
@@ -224,7 +224,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
       const { hash, confirmations, from, gasLimit, value } =
         await service.transferBtcAsset(new Big(0.0001), 1234);
 
-      expect(blockcypherMock.getTxData).toHaveBeenCalledWith(txHash);
+      expect(blockcypherMock.waitForTx).toHaveBeenCalledWith(txHash);
 
       expect({ hash, confirmations, from }).toStrictEqual({
         hash: txLookupResult.hash,
