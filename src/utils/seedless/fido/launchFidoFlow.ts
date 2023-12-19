@@ -40,6 +40,7 @@ export async function launchFidoFlow(
   const popup = await openPopup({
     url: url.toString(),
     setSelfAsOpener: true,
+    right: 70,
   });
 
   // Make sure to close the popup if the calling window gets closed

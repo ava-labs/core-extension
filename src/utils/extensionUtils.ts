@@ -89,21 +89,24 @@ export const openWindow = async (options: Windows.CreateCreateDataType) => {
   }
 };
 
-export const openPopup = async ({ url, setSelfAsOpener = false }) => {
+export const openPopup = async ({
+  url,
+  setSelfAsOpener = false,
+  top = 0,
+  right = 0,
+}) => {
   const platform = await browser.runtime.getPlatformInfo();
 
   const isPlatformWindows = platform?.os === 'win';
-
   let left = 0;
-  let top = 0;
   try {
     const lastFocused = await browser.windows.getLastFocused();
     // Position window in top right corner of lastFocused window.
-    top = lastFocused.top ? lastFocused.top : 0;
+    top = lastFocused.top ? lastFocused.top + top : 0;
     left =
       typeof lastFocused.left === 'number' &&
       typeof lastFocused.width === 'number'
-        ? lastFocused.left + (lastFocused.width - NOTIFICATION_WIDTH)
+        ? lastFocused.left + (lastFocused.width - NOTIFICATION_WIDTH) - right
         : 0;
   } catch (_) {
     // do nothing, don't know where the last window is so let's just place it to 0,0
