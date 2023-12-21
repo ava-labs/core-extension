@@ -474,6 +474,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     if (!isCustomNetworkExist) {
       this.setNetwork(chainId);
     }
+    if (this._activeNetwork?.chainId === customNetwork.chainId) {
+      this._activeNetwork = customNetwork;
+      this.activeNetworkChanged.dispatch(customNetwork);
+    }
     this.updateNetworkState();
   }
 
