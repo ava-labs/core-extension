@@ -1,17 +1,21 @@
 import {
   Box,
+  InfoCircleIcon,
   Stack,
   StackProps,
+  Tooltip,
   Typography,
   useTheme,
 } from '@avalabs/k2-components';
 
 type ApprovalSectionHeaderProps = {
   label: string;
+  tooltip?: string;
 };
 
 export const ApprovalSectionHeader: React.FC<ApprovalSectionHeaderProps> = ({
   label,
+  tooltip,
   children,
 }) => (
   <Stack
@@ -22,9 +26,20 @@ export const ApprovalSectionHeader: React.FC<ApprovalSectionHeaderProps> = ({
       alignItems: 'center',
     }}
   >
-    <Typography component="h2" variant="body2" sx={{ fontWeight: 'semibold' }}>
-      {label}
-    </Typography>
+    <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Typography
+        component="h2"
+        variant="body2"
+        sx={{ fontWeight: 'semibold' }}
+      >
+        {label}
+      </Typography>
+      {tooltip && (
+        <Tooltip sx={{ cursor: 'pointer', ml: 1 }} title={tooltip}>
+          <InfoCircleIcon />
+        </Tooltip>
+      )}
+    </Stack>
     <Box>{children}</Box>
   </Stack>
 );

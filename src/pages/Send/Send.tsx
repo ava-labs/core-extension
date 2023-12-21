@@ -333,7 +333,6 @@ export function SendPage() {
             token={selectedToken}
             fallbackAmountDisplayValue={amountInputDisplay}
             onSubmit={handleApproval}
-            maxGasPrice={maxGasPrice}
             gasPrice={gasPriceState}
             selectedGasFee={selectedGasFee}
           />
