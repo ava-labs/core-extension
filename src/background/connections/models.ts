@@ -4,6 +4,8 @@ import { Runtime } from 'webextension-polyfill';
 import { DomainMetadata } from '../models';
 import { ExtensionRequest } from './extensionConnection/models';
 import { JsonRpcRequest } from './dAppConnection/models';
+import { ErrorData } from '@src/utils/errors';
+import { EthereumRpcError } from 'eth-rpc-errors';
 
 interface ExtensionConnectionMessageBase<
   Method extends ExtensionRequest,
@@ -55,7 +57,7 @@ export type ExtensionConnectionMessageResponse<
       }
     | {
         result?: never;
-        error: string;
+        error: string | EthereumRpcError<ErrorData>;
       }
   );
 

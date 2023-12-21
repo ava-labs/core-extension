@@ -1,19 +1,23 @@
 import { waitForIntervalRuns } from '@src/tests/test-utils';
-import { PeerType } from 'fireblocks-sdk';
+import { PeerType, TransactionStatus } from 'fireblocks-sdk';
 import { FireblocksBTCSigner } from './FireblocksBTCSigner';
 import { FireblocksService } from './FireblocksService';
 import {
-  FireblocksError,
+  FireblocksErrorCode,
   KnownAddressDictionary,
-  NetworkError,
   TRANSACTION_POLLING_INTERVAL_MS,
-  TX_SUBMISSION_FAILURE_STATUSES,
 } from './models';
+import { CommonError } from '@src/utils/errors';
+import { ethErrors } from 'eth-rpc-errors';
+
+jest.mock('@avalabs/utils-sdk');
 
 jest.mock('ethers', () => ({
   ...jest.requireActual('ethers'),
   sha256: jest.fn().mockReturnValue('0x1234'),
 }));
+
+jest.mock('@src/monitoring/sentryCaptureException');
 
 jest.mock('jose', () => {
   const jose = jest.requireActual('jose');
@@ -219,7 +223,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
     });
 
     describe('when transaction submission fails due to network issues', () => {
-      it('returns a NetworkError', async () => {
+      it('returns a network error', async () => {
         jest.mocked(global.fetch).mockRejectedValueOnce(new Error('Timeout'));
 
         const signer = new FireblocksBTCSigner(fbService, '0', true);
@@ -234,36 +238,42 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
               },
             ]
           )
-        ).rejects.toThrowError(NetworkError);
+        ).rejects.toThrowError(
+          ethErrors.rpc.internal({ data: { reason: CommonError.NetworkError } })
+        );
       });
     });
 
     describe('when transaction submission succeeds, but Fireblocks stops it with', () => {
-      it.each(TX_SUBMISSION_FAILURE_STATUSES)(
-        '"%s" status, we return a proper FireblocksError',
-        async (status) => {
-          jest
-            .spyOn(fbService, 'request')
-            .mockResolvedValueOnce({ id: 'tx-id' }) // mocked POST transaction request (tx creation)
-            .mockResolvedValueOnce({ status }); // mocked GET transaction request (tx status tracking)
+      it.each([
+        [TransactionStatus.BLOCKED, FireblocksErrorCode.Blocked],
+        [TransactionStatus.CANCELLED, FireblocksErrorCode.Cancelled],
+        [TransactionStatus.CANCELLING, FireblocksErrorCode.Cancelled],
+        [TransactionStatus.TIMEOUT, FireblocksErrorCode.Timeout],
+        [TransactionStatus.FAILED, FireblocksErrorCode.Failed],
+        [TransactionStatus.REJECTED, FireblocksErrorCode.Rejected],
+      ])('"%s" status, we return a proper error', async (status, errorCode) => {
+        jest
+          .spyOn(fbService, 'request')
+          .mockResolvedValueOnce({ id: 'tx-id' }) // mocked POST transaction request (tx creation)
+          .mockResolvedValueOnce({ status }); // mocked GET transaction request (tx status tracking)
 
-          const signer = new FireblocksBTCSigner(fbService, '0', true);
+        const signer = new FireblocksBTCSigner(fbService, '0', true);
 
-          expect(() =>
-            signer.signTx(
-              [],
-              [
-                {
-                  address: knownAddress,
-                  value: 1000,
-                },
-              ]
-            )
-          ).rejects.toThrowError(
-            new FireblocksError(`Transaction unsuccessful (status: ${status})`)
-          );
-        }
-      );
+        expect(() =>
+          signer.signTx(
+            [],
+            [
+              {
+                address: knownAddress,
+                value: 1000,
+              },
+            ]
+          )
+        ).rejects.toThrowError(
+          ethErrors.rpc.transactionRejected({ data: { reason: errorCode } })
+        );
+      });
     });
   });
 });

@@ -13,13 +13,16 @@ import type {
 import { wait } from '@avalabs/utils-sdk';
 import { satoshiToBtc } from '@avalabs/bridge-sdk';
 
+import { wrapError } from '@src/utils/errors';
+
 import { BtcTransactionRequest, SigningResult } from '../wallet/models';
 import {
-  FireblocksError,
+  FireblocksErrorCode,
   TRANSACTION_POLLING_INTERVAL_MS,
   TX_SUBMISSION_FAILURE_STATUSES,
 } from './models';
 import { FireblocksService } from './FireblocksService';
+import { ethErrors } from 'eth-rpc-errors';
 
 /**
  * Class used to dispatch BTC transactions using Fireblocks API.
@@ -98,11 +101,19 @@ export class FireblocksBTCSigner {
       destinations,
     };
 
-    await this.#client.request<CreateTransactionResponse>({
-      path: '/transactions',
-      method: 'POST',
-      body,
-    });
+    await this.#client
+      .request<CreateTransactionResponse>({
+        path: '/transactions',
+        method: 'POST',
+        body,
+      })
+      .catch(
+        wrapError(
+          ethErrors.rpc.internal({
+            data: { reason: FireblocksErrorCode.Unknown },
+          })
+        )
+      );
 
     // TODO: Emit an event containing a transaction ID, so we can start
     // tracking the transaction status in the background.
@@ -134,9 +145,7 @@ export class FireblocksBTCSigner {
 
       // If we know the transaction was unsucessful, raise an error.
       if (this.#hasTransactionFailed(tx.status)) {
-        throw new FireblocksError(
-          `Transaction unsuccessful (status: ${tx.status})`
-        );
+        this.#handleTxFailure(tx);
       }
 
       // If the transaction was not broadcasted, continue polling.
@@ -150,6 +159,35 @@ export class FireblocksBTCSigner {
     return tx;
   }
 
+  #handleTxFailure(tx: TransactionResponse): never {
+    let reason = FireblocksErrorCode.Unknown;
+
+    switch (tx.status) {
+      case TransactionStatus.FAILED:
+        reason = FireblocksErrorCode.Failed;
+        break;
+
+      case TransactionStatus.BLOCKED:
+        reason = FireblocksErrorCode.Blocked;
+        break;
+
+      case TransactionStatus.CANCELLING:
+      case TransactionStatus.CANCELLED:
+        reason = FireblocksErrorCode.Cancelled;
+        break;
+
+      case TransactionStatus.REJECTED:
+        reason = FireblocksErrorCode.Rejected;
+        break;
+
+      case TransactionStatus.TIMEOUT:
+        reason = FireblocksErrorCode.Timeout;
+        break;
+    }
+
+    throw ethErrors.rpc.transactionRejected({ data: { reason } });
+  }
+
   async #getDestinations(
     outputs: BtcTransactionRequest['outputs'],
     txAssetId: string
@@ -159,12 +197,14 @@ export class FireblocksBTCSigner {
       txAssetId
     );
 
-    // The last output seems to always be the "rest".
-    // We can't have it here - Fireblocks "wants to" add it on its own,
-    // otherwise it errors out.
-    return outputs
-      .slice(0, -1)
-      .map<TransactionDestination>(({ value, address }) => {
+    // When there are multiple outputs, the last seems to always be the "rest".
+    // Unfortunately, we can't have that rest UTXO here, as Fireblocks "wants to"
+    // add it on its own; otherwise it errors out.
+    const outputsWithoutRest =
+      outputs.length === 1 ? outputs : outputs.slice(0, -1);
+
+    return outputsWithoutRest.map<TransactionDestination>(
+      ({ value, address }) => {
         // The easiest approach for us would be to use "one time addresses" here,
         // but these are discouraged by Fireblocks and disabled  by default in the
         // Transaction Approval Policies (TAP), as per:
@@ -185,7 +225,8 @@ export class FireblocksBTCSigner {
             },
           },
         };
-      });
+      }
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
