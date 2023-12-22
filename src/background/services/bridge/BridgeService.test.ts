@@ -13,6 +13,9 @@ import { StorageService } from '../storage/StorageService';
 import { WalletService } from '../wallet/WalletService';
 
 import { BridgeService } from './BridgeService';
+import { CommonError } from '@src/utils/errors';
+import { FireblocksErrorCode } from '../fireblocks/models';
+import { ethErrors } from 'eth-rpc-errors';
 
 jest.mock('@avalabs/bridge-sdk', () => {
   const { mockConfig } = require('./fixtures/mockBridgeConfig');
@@ -97,6 +100,62 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
     });
   });
 
+  describe('when transaction signing fails', () => {
+    const accountsService = {
+      activeAccount: {
+        addressC: '1234-abcd',
+        addressBTC,
+        type: AccountType.PRIMARY,
+      },
+    } as unknown as AccountsService;
+
+    let service: BridgeService;
+
+    beforeEach(async () => {
+      jest.mocked(getBtcTransaction).mockReturnValue({
+        inputs: [],
+        outputs: [],
+      } as any);
+
+      service = new BridgeService(
+        storageService,
+        networkService,
+        walletService,
+        accountsService,
+        featureFlagService,
+        networkFeeService,
+        networkBalancesService
+      );
+      await service.onStorageReady();
+    });
+
+    it('propagates recognized errors', async () => {
+      walletService.sign.mockRejectedValueOnce(
+        ethErrors.rpc.transactionRejected({
+          data: { reason: FireblocksErrorCode.Blocked },
+        })
+      );
+
+      await expect(
+        service.transferBtcAsset(new Big(1000), 1234)
+      ).rejects.toThrowError(
+        ethErrors.rpc.transactionRejected({
+          data: { reason: FireblocksErrorCode.Blocked },
+        })
+      );
+    });
+
+    it('defaults to unknown error if original exception is not recognized', async () => {
+      walletService.sign.mockRejectedValueOnce(new Error('what is dis'));
+
+      await expect(
+        service.transferBtcAsset(new Big(1000), 1234)
+      ).rejects.toThrowError(
+        ethErrors.rpc.internal({ data: { reason: CommonError.Unknown } })
+      );
+    });
+  });
+
   describe('when a signed tx is received from WalletService', () => {
     const accountsService = {
       activeAccount: {
@@ -167,7 +226,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
     });
   });
 
-  describe('when a signed tx is received from WalletService', () => {
+  describe('when a tx hash is received from WalletService', () => {
     const accountsService = {
       activeAccount: {
         addressC: '1234-abcd',
@@ -184,7 +243,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
     };
 
     const blockcypherMock = {
-      getTxData: jest.fn().mockResolvedValue(txLookupResult),
+      waitForTx: jest.fn().mockResolvedValue(txLookupResult),
     };
     const provider = {
       getBlockCypher: () => blockcypherMock,
@@ -224,7 +283,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
       const { hash, confirmations, from, gasLimit, value } =
         await service.transferBtcAsset(new Big(0.0001), 1234);
 
-      expect(blockcypherMock.getTxData).toHaveBeenCalledWith(txHash);
+      expect(blockcypherMock.waitForTx).toHaveBeenCalledWith(txHash);
 
       expect({ hash, confirmations, from }).toStrictEqual({
         hash: txLookupResult.hash,

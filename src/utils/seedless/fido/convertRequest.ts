@@ -6,11 +6,10 @@ export function convertRequest(
   endpoint: FIDOApiEndpoint,
   options: FIDOApiRequest
 ): string {
-  if (endpoint === FIDOApiEndpoint.Authenticate) {
-    return JSON.stringify(options, convertBuffersToBase64Url);
-  }
-
-  if (endpoint === FIDOApiEndpoint.Register) {
+  if (
+    endpoint === FIDOApiEndpoint.Authenticate ||
+    endpoint === FIDOApiEndpoint.Register
+  ) {
     return JSON.stringify(options, convertBuffersToBase64Url);
   }
 

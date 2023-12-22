@@ -179,7 +179,8 @@ export class SeedlessWallet {
     const initRequest = await session.userExportInit(mnemonicId);
 
     if (!initRequest.requiresMfa()) {
-      return initRequest.data();
+      await session.userExportDelete(mnemonicId);
+      throw new Error('Expected MFA to be required');
     }
 
     const result = await this.#approveWithMfa(initRequest, tabId);
@@ -275,7 +276,7 @@ export class SeedlessWallet {
     const request = await session.userExportComplete(mnemonicId, publicKey);
 
     if (!request.requiresMfa()) {
-      return request.data();
+      throw new Error('Expected MFA to be required');
     }
 
     const result = await this.#approveWithMfa(request, tabId);

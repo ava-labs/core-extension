@@ -41,6 +41,7 @@ import { Avalanche, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { isWalletConnectAccount } from '../accounts/utils/typeGuards';
 import { FeatureGates } from '../featureFlags/models';
 import { TransactionResponse } from 'ethers';
+import { wrapError } from '@src/utils/errors';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {
@@ -219,13 +220,9 @@ export class BridgeService implements OnLock, OnStorageReady {
       feeRate
     );
 
-    const [signResult, error] = await resolve(
-      this.walletService.sign({ inputs, outputs }, tabId, btcNetwork)
-    );
-
-    if (!signResult || error) {
-      throw new Error('Failed to sign transaction.');
-    }
+    const signResult = await this.walletService
+      .sign({ inputs, outputs }, tabId, btcNetwork)
+      .catch(wrapError('Failed to sign transaction'));
 
     // If we received a signed tx, we need to issue it ourselves.
     if (typeof signResult.signedTx === 'string') {
@@ -248,13 +245,10 @@ export class BridgeService implements OnLock, OnStorageReady {
 
     // If we received the tx hash, we can look it up for details.
     if (typeof signResult.txHash === 'string') {
-      const [tx, txLookupError] = await resolve(
-        provider.getBlockCypher().getTxData(signResult.txHash)
-      );
-
-      if (!tx || txLookupError) {
-        throw new Error('Transaction not found');
-      }
+      const tx = await provider
+        .getBlockCypher()
+        .waitForTx(signResult.txHash)
+        .catch(wrapError('Transaction not found'));
 
       return {
         hash: tx.hash,

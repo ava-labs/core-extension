@@ -5,11 +5,17 @@ import { SecretType } from '../secrets/models';
 import { SecretsService } from '../secrets/SecretsService';
 import { FireblocksSecretsService } from './FireblocksSecretsService';
 import { FireblocksService } from './FireblocksService';
-import { FireblocksError, NetworkError } from './models';
+import { FireblocksErrorCode } from './models';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
+import { CommonError } from '@src/utils/errors';
+import { ethErrors } from 'eth-rpc-errors';
 
 jest.mock('ethers');
 jest.mock('../accounts/AccountsService');
 jest.mock('../secrets/SecretsService');
+jest.mock('@src/monitoring/sentryCaptureException');
 
 jest.mock('jose', () => {
   const jose = jest.requireActual('jose');
@@ -189,8 +195,47 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
     } as Response);
 
     await expect(service.request({ path: '/anything' })).rejects.toThrowError(
-      new FireblocksError(`Request failed: [400] Invalid Request`, apiResponse)
+      ethErrors.rpc.internal({
+        data: {
+          reason: FireblocksErrorCode.Unknown,
+          httpStatus: 400,
+          httpStatusText: 'Invalid Request',
+          apiErrorCode: 1427,
+          apiErrorMessage: 'Source type of transaction is invalid',
+        },
+      })
     );
+  });
+
+  it('captures API errors to Sentry', async () => {
+    jest.mocked(global.fetch).mockResolvedValueOnce({
+      ok: false,
+      json: () =>
+        Promise.resolve({
+          code: 1337,
+          message: 'Cannot read properties of undefined (reading "type")',
+        }),
+      status: 500,
+      statusText: 'Server Error',
+    } as Response);
+
+    try {
+      await service.request({ path: '/anything' });
+    } catch {
+      expect(sentryCaptureException).toHaveBeenCalledWith(
+        ethErrors.rpc.internal({
+          data: {
+            reason: FireblocksErrorCode.Unknown,
+            httpStatus: 500,
+            httpStatusText: 'Server Error',
+            apiErrorCode: 1337,
+            apiErrorMessage:
+              'Cannot read properties of undefined (reading "type")',
+          },
+        }),
+        SentryExceptionTypes.FIREBLOCKS
+      );
+    }
   });
 
   it('returns a NetworkError on totally failed requests', async () => {
@@ -198,7 +243,11 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
     jest.mocked(global.fetch).mockRejectedValueOnce(error);
 
     await expect(service.request({ path: '/anything' })).rejects.toThrowError(
-      new NetworkError(error)
+      ethErrors.rpc.internal({
+        data: {
+          reason: CommonError.NetworkError,
+        },
+      })
     );
   });
 });

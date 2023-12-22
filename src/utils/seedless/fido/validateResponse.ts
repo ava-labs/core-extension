@@ -49,8 +49,9 @@ export const isValidResponse = (
   const { error } = schema.validate(response);
 
   if (error) {
+    const messages = error.details.map(({ message }) => message);
     sentryCaptureException(
-      new Error(error.details.join(' | ')),
+      new Error(`Invalid Identity API response: ${messages.join(' | ')}`),
       SentryExceptionTypes.SEEDLESS
     );
 

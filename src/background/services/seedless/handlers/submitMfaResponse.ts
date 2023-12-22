@@ -22,7 +22,7 @@ export class SubmitMfaResponseHandler implements HandlerType {
     const [response] = request.params;
 
     if (!response) {
-      return { ...request, error: 'missing token' };
+      return { ...request, error: 'MFA response is required' };
     }
 
     if (!response.mfaId) {
@@ -30,7 +30,7 @@ export class SubmitMfaResponseHandler implements HandlerType {
     }
 
     if (!response.code && !response.answer) {
-      return { ...request, error: 'MFA response is required' };
+      return { ...request, error: 'TOTP code or FIDO answer is required' };
     }
 
     await this.seedlessMfaService.submitMfaResponse(response);

@@ -53,7 +53,7 @@ export function ConfirmMnemonic({
 
     const toConfirm: Record<number, WordToConfirm> = {};
     while (Object.keys(toConfirm).length < confirmWordCount) {
-      const randomIndex = Math.ceil(Math.random() * wordCount - 1);
+      const randomIndex = Math.floor(Math.random() * wordCount);
       const randomWord = words[randomIndex];
       if (!toConfirm[randomIndex] && randomWord) {
         toConfirm[randomIndex] = {

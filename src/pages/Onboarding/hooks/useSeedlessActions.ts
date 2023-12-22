@@ -52,8 +52,13 @@ const recoveryMethodToFidoKeyType = (method: RecoveryMethodTypes): KeyType => {
 
 export function useSeedlessActions() {
   const { capture } = useAnalyticsContext();
-  const { setOidcToken, setSeedlessSignerToken, oidcToken, setUserEmail } =
-    useOnboardingContext();
+  const {
+    setOidcToken,
+    setSeedlessSignerToken,
+    oidcToken,
+    setUserEmail,
+    setIsNewAccount,
+  } = useOnboardingContext();
   const history = useHistory();
   const { t } = useTranslation();
   const [totpChallenge, setTotpChallenge] = useState<TotpChallenge>();
@@ -72,6 +77,7 @@ export function useSeedlessActions() {
       const identity = await oidcClient.identityProve();
 
       if (!identity.user_info) {
+        setIsNewAccount(true);
         const result = await approveSeedlessRegistration(identity);
 
         if (result !== SeedlessRegistartionResult.APPROVED) {
@@ -87,7 +93,7 @@ export function useSeedlessActions() {
         history.push(OnboardingURLs.RECOVERY_METHODS_LOGIN);
       }
     },
-    [history, setOidcToken, t, setUserEmail]
+    [setOidcToken, setUserEmail, setIsNewAccount, t, history]
   );
 
   const signIn = useCallback(

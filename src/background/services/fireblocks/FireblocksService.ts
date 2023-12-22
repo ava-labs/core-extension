@@ -1,4 +1,5 @@
 import { sha256, toUtf8Bytes } from 'ethers';
+import { ethErrors } from 'eth-rpc-errors';
 import {
   PagedVaultAccountsResponse,
   PeerType,
@@ -13,12 +14,13 @@ import type {
 import { SignJWT } from 'jose';
 import { inject, singleton } from 'tsyringe';
 
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
+import { CommonError, isWrappedError } from '@src/utils/errors';
+
 import type { FireblocksSecretsProvider } from './models';
-import {
-  FireblocksError,
-  KnownAddressDictionary,
-  NetworkError,
-} from './models';
+import { FireblocksErrorCode, KnownAddressDictionary } from './models';
 
 // Create registry for FireblocksSecretsProviders to be injected.
 // FireblocksSecretsProvider is an interface that can have multiple implementation,
@@ -245,20 +247,22 @@ export class FireblocksService {
 
       return this.#handleErrorResponse(response);
     } catch (err) {
-      // If error was recognized & wrapped, just rethrow it.
-      if (err instanceof FireblocksError) {
+      // If error was recognized & wrapped, just propagate it.
+      if (isWrappedError(err)) {
         throw err;
       }
 
       // At this point, the only errors we should get here are network problems,
       // like timeouts, aborted requests, etc.
-      // We wrap them in a NetworkError class, so they can be easily recognized
-      // and used by potential retry mechanism in the future.
-      if (err instanceof Error) {
-        throw new NetworkError(err);
-      }
-
-      throw err;
+      throw ethErrors.rpc.internal({
+        data: {
+          reason:
+            err instanceof TypeError // Fetch failures are TypeErrors
+              ? CommonError.NetworkError
+              : CommonError.Unknown,
+          originalError: err,
+        },
+      });
     }
   }
 
@@ -271,9 +275,18 @@ export class FireblocksService {
       parsedError = new Error('Unable to parse the API response');
     }
 
-    throw new FireblocksError(
-      `Request failed: [${response.status}] ${response.statusText}`,
-      parsedError
-    );
+    const error = ethErrors.rpc.internal({
+      data: {
+        reason: FireblocksErrorCode.Unknown,
+        httpStatus: response.status,
+        httpStatusText: response.statusText,
+        apiErrorCode: parsedError.code,
+        apiErrorMessage: parsedError.message,
+      },
+    });
+
+    sentryCaptureException(error, SentryExceptionTypes.FIREBLOCKS);
+
+    throw error;
   }
 }

@@ -6,10 +6,13 @@ import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 
 import {
   MfaFailureData,
+  MfaFidoRequest,
   MfaRequestData,
   MfaResponseData,
+  MfaTotpRequest,
   SeedlessEvents,
 } from './models';
+import { DecodedFIDOResult } from '@src/utils/seedless/fido/types';
 
 @singleton()
 export class SeedlessMfaService implements OnUnlock, OnLock {
@@ -29,27 +32,17 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     this.#subscription?.unsubscribe();
   }
 
-  public submitSignatureResponse(response: MfaResponseData) {
-    this.#response$.next(response);
-  }
-
-  async requestMfa({
-    mfaId,
-    type,
-    options,
-    tabId,
-  }: MfaRequestData): Promise<string> {
-    this.#request$.next({
-      mfaId,
-      type,
-      tabId,
-      options,
-    });
+  async requestMfa(mfaRequest: MfaTotpRequest): Promise<string>;
+  async requestMfa(mfaRequest: MfaFidoRequest): Promise<DecodedFIDOResult>;
+  async requestMfa(
+    mfaRequest: MfaRequestData
+  ): Promise<string | DecodedFIDOResult> {
+    this.#request$.next(mfaRequest);
 
     // Wait for the user to respond to the MFA challenge
     return firstValueFrom(
       this.#response$.pipe(
-        filter((response) => response.mfaId === mfaId),
+        filter((response) => response.mfaId === mfaRequest.mfaId),
         map((response: MfaResponseData) => response.code ?? response.answer)
       )
     );

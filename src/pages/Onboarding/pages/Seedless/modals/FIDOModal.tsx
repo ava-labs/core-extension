@@ -9,7 +9,6 @@ import {
   AlertCircleIcon,
 } from '@avalabs/k2-components';
 import { Overlay } from '@src/components/common/Overlay';
-import { TypographyLink } from '@src/pages/Onboarding/components/TypographyLink';
 import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -254,24 +253,27 @@ export function FIDOModal({
             p: 2,
           }}
         >
-          {step !== FIDOSteps.ERROR && (
-            <Stack>
-              <TypographyLink
+          <Stack>
+            {step !== FIDOSteps.ERROR && (
+              <Button
+                variant="text"
+                disabled={step === FIDOSteps.REGISTER}
+                onClick={async () => {
+                  await addDevice();
+                }}
                 sx={{
                   color:
                     step === FIDOSteps.LOGIN
                       ? 'text.secondary'
                       : 'secondary.main',
                 }}
-                onClick={async () => {
-                  await addDevice();
-                }}
                 data-testid="fido-modal-naming-skip"
               >
                 {t('Skip')}
-              </TypographyLink>
-            </Stack>
-          )}
+              </Button>
+            )}
+          </Stack>
+
           <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
             <Button
               color="secondary"

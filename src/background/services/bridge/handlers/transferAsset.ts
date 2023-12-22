@@ -6,6 +6,8 @@ import { injectable } from 'tsyringe';
 import { BridgeService } from '../BridgeService';
 import { BtcTransactionResponse } from '../models';
 import { TransactionResponse } from 'ethers';
+import { ethErrors } from 'eth-rpc-errors';
+import { CommonError, isWrappedError } from '@src/utils/errors';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_TRANSFER_ASSET,
@@ -22,27 +24,16 @@ export class BridgeTransferAssetHandler implements HandlerType {
   handle: HandlerType['handle'] = async (request) => {
     const [currentBlockchain, amount, asset] = request.params;
 
-    if (currentBlockchain === Blockchain.BITCOIN) {
-      try {
-        const result = await this.bridgeService.transferBtcAsset(
-          amount,
-          request.tabId
-        );
-
+    try {
+      if (currentBlockchain === Blockchain.BITCOIN) {
         return {
           ...request,
-          result,
+          result: await this.bridgeService.transferBtcAsset(
+            amount,
+            request.tabId
+          ),
         };
-      } catch (error) {
-        console.error(error);
-
-        return {
-          ...request,
-          error: 'User declined the transaction',
-        };
-      }
-    } else {
-      try {
+      } else {
         const result = await this.bridgeService.transferAsset(
           currentBlockchain,
           amount,
@@ -51,21 +42,27 @@ export class BridgeTransferAssetHandler implements HandlerType {
           request.tabId
         );
 
-        if (!result) return { ...request, error: 'Unknown error' };
+        if (!result) {
+          return {
+            ...request,
+            error: ethErrors.rpc.internal({
+              data: { reason: CommonError.Unknown },
+            }),
+          };
+        }
 
         return {
           ...request,
           result,
         };
-      } catch (error: any) {
-        // user declined the transaction
-        console.error(error);
-
-        return {
-          ...request,
-          error: 'User declined the transaction',
-        };
       }
+    } catch (err) {
+      return {
+        ...request,
+        error: isWrappedError(err)
+          ? err
+          : ethErrors.rpc.internal({ data: { reason: CommonError.Unknown } }),
+      };
     }
   };
 }

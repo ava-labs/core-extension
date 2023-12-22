@@ -150,7 +150,6 @@ type SendConfirmProps = {
   token: TokenWithBalance | undefined;
   fallbackAmountDisplayValue?: string;
   onSubmit(): void;
-  maxGasPrice?: string;
   gasPrice?: bigint;
   selectedGasFee?: GasFeeModifier;
 };
@@ -322,7 +321,11 @@ export const SendConfirm = ({
 
         <Section>
           <SectionRow>
-            <SectionLabel variant="caption">{t('Network Fee')}</SectionLabel>
+            <SectionLabel variant="caption">
+              {network?.vmName === NetworkVMType.EVM
+                ? t('Maximum Network Fee')
+                : t('Network Fee')}
+            </SectionLabel>
             <SectionData>
               <Typography
                 variant="body2"

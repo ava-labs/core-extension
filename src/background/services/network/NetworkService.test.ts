@@ -105,6 +105,48 @@ describe('background/services/network/NetworkService', () => {
     process.env = env;
   });
 
+  describe('saveCustomNetwork()', () => {
+    let customNetwork;
+    beforeEach(() => {
+      customNetwork = mockNetwork(NetworkVMType.EVM, false);
+    });
+    it('should throw an error because of the chainlist failed to load', async () => {
+      jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(undefined);
+      expect(service.saveCustomNetwork(customNetwork)).rejects.toThrowError(
+        'chainlist failed to load'
+      );
+    });
+    it('should throw an error because of duplicated ID', async () => {
+      const newCustomNetwork = { ...customNetwork, chainId: 43114 };
+      expect(service.saveCustomNetwork(newCustomNetwork)).rejects.toThrowError(
+        'chain ID already exists'
+      );
+    });
+    it('should save the custom network', async () => {
+      await service.saveCustomNetwork(customNetwork);
+      const network = !!service.customNetworks[customNetwork.chainId];
+      expect(network).toBe(true);
+    });
+    it('should set the custom network as an active network', async () => {
+      await service.saveCustomNetwork(customNetwork);
+      expect(service.activeNetwork?.chainId).toEqual(customNetwork.chainId);
+    });
+    it('should update the active custom network data', async () => {
+      const newRpcUrl = 'https://new.url.set';
+      await service.saveCustomNetwork(customNetwork);
+      await service.saveCustomNetwork({
+        ...customNetwork,
+        rpcUrl: newRpcUrl,
+      });
+      const activeNetworkRpcUrl = service.activeNetwork?.rpcUrl;
+      expect(activeNetworkRpcUrl).toBe(newRpcUrl);
+    });
+    it('should call `updateNetworkState`', async () => {
+      service.updateNetworkState = jest.fn();
+      await service.saveCustomNetwork(customNetwork);
+      expect(service.updateNetworkState).toHaveBeenCalled();
+    });
+  });
   describe('when chain list is not available through Glacier', () => {
     beforeEach(() => {
       jest.useFakeTimers();

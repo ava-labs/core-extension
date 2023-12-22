@@ -41,6 +41,12 @@ export function RecoveryMethods() {
     }
   }, [history, oidcToken, t]);
 
+  useEffect(() => {
+    if (selectedMethod) {
+      setIsModalOpen(true);
+    }
+  }, [selectedMethod]);
+
   return (
     <>
       <Stack
@@ -80,7 +86,6 @@ export function RecoveryMethods() {
                 title={t('Passkey')}
                 description={t('Add a Passkey as a recovery method.')}
                 onClick={() => setSelectedMethod(RecoveryMethodTypes.PASSKEY)}
-                isActive={selectedMethod === RecoveryMethodTypes.PASSKEY}
               />
             )}
             {featureFlags[FeatureGates.SEEDLESS_MFA_AUTHENTICATOR] && (
@@ -91,7 +96,6 @@ export function RecoveryMethods() {
                   'Use an authenticator app as a recovery method.'
                 )}
                 onClick={() => setSelectedMethod(RecoveryMethodTypes.TOTP)}
-                isActive={selectedMethod === RecoveryMethodTypes.TOTP}
               />
             )}
             {featureFlags[FeatureGates.SEEDLESS_MFA_YUBIKEY] && (
@@ -100,7 +104,6 @@ export function RecoveryMethods() {
                 title={t('Yubikey')}
                 description={t('Add a Yubikey as a recovery method.')}
                 onClick={() => setSelectedMethod(RecoveryMethodTypes.YUBIKEY)}
-                isActive={selectedMethod === RecoveryMethodTypes.YUBIKEY}
               />
             )}
           </Stack>
@@ -128,6 +131,7 @@ export function RecoveryMethods() {
           onCancel={() => {
             capture(`FidoDevice${selectedMethod}Cancelled`);
             setIsModalOpen(false);
+            setSelectedMethod(null);
           }}
         />
       )}
@@ -142,6 +146,7 @@ export function RecoveryMethods() {
             onCancel={() => {
               setIsModalOpen(false);
               capture(`FidoDevice${selectedMethod}Cancelled`);
+              setSelectedMethod(null);
             }}
             selectedMethod={selectedMethod}
           />

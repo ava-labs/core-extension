@@ -14,8 +14,6 @@ export const TX_SUBMISSION_FAILURE_STATUSES = [
   TransactionStatus.REJECTED,
 ];
 
-type FireblocksApiErrorResponse = { code: number; message: string };
-
 export const BTC_ACCESS_ERROR_PREFIX = `FireblocksBtcAccessError:`;
 
 export enum FireblocksBtcAccessErrorCode {
@@ -32,20 +30,13 @@ export class FireblocksBtcAccessError extends Error {
   }
 }
 
-export class FireblocksError extends Error {
-  // @see https://developers.fireblocks.com/reference/api-responses
-  constructor(
-    message: string,
-    public originalError?: Error | FireblocksApiErrorResponse
-  ) {
-    super(`Fireblocks: ${message}`);
-  }
-}
-
-export class NetworkError extends Error {
-  constructor(public originalError: Error) {
-    super(originalError.message);
-  }
+export enum FireblocksErrorCode {
+  Failed = 'fireblocks-tx-failed',
+  Blocked = 'fireblocks-tx-blocked',
+  Cancelled = 'fireblocks-tx-cancelled',
+  Rejected = 'fireblocks-tx-rejected',
+  Timeout = 'fireblocks-tx-timeout',
+  Unknown = 'fireblocks-tx-unknown-error',
 }
 
 // On Testnet Fireblocks workspaces, we require the connected vault to have one of those wallets created.

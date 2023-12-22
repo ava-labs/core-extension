@@ -12,7 +12,8 @@ import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function CreateWallet() {
-  const { setMnemonic, setOnboardingPhase } = useOnboardingContext();
+  const { setMnemonic, setOnboardingPhase, setIsNewAccount } =
+    useOnboardingContext();
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [mnemonic, setMnemonicPhrase] = useState<string>('');
   const { capture } = useAnalyticsContext();
@@ -26,10 +27,11 @@ export function CreateWallet() {
   }, [capture, history]);
 
   useEffect(() => {
+    setIsNewAccount(true);
     setMnemonicPhrase(createNewMnemonic());
     setOnboardingPhase(OnboardingPhase.CREATE_WALLET);
     capture(ONBOARDING_EVENT_NAMES.create_wallet);
-  }, [capture, setOnboardingPhase]);
+  }, [capture, setIsNewAccount, setOnboardingPhase]);
 
   return isCopied ? (
     <ConfirmPhrase

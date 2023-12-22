@@ -308,9 +308,21 @@ export function CustomFees({
     return null;
   }
 
+  const isMaxFeeUsed =
+    network?.vmName === NetworkVMType.EVM && !networkFee.isFixedFee;
+
   return (
     <ApprovalSection>
-      <ApprovalSectionHeader label={t('Network Fee')}>
+      <ApprovalSectionHeader
+        label={t(isMaxFeeUsed ? 'Maximum Network Fee' : 'Network Fee')}
+        tooltip={
+          isMaxFeeUsed
+            ? t(
+                'Core estimates the maximum gas (maxFeePerGas) a transaction could consume based on network conditions. This transaction will likely consume less gas than estimated.'
+              )
+            : undefined
+        }
+      >
         <IconButton
           size="small"
           data-testid="edit-gas-limit-button"

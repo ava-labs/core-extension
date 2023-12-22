@@ -55,8 +55,10 @@ import {
   Divider,
   Stack,
   SwapIcon,
+  ToastCard,
   Tooltip,
   Typography,
+  toast,
   useTheme,
 } from '@avalabs/k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
@@ -67,6 +69,7 @@ import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
+import { useErrorMessage } from '@src/hooks/useErrorMessage';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -126,6 +129,7 @@ export function Bridge() {
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
+  const getTranslatedError = useErrorMessage();
 
   const {
     accounts: { active: activeAccount },
@@ -469,6 +473,18 @@ export function Bridge() {
         sourceBlockchain: currentBlockchain,
         targetBlockchain,
       });
+
+      const { title, hint } = getTranslatedError(transferError);
+
+      toast.custom(
+        <ToastCard variant="error">
+          <Typography variant="subtitle2">{title}</Typography>
+          <Typography variant="caption" color="text.primary">
+            {hint}
+          </Typography>
+        </ToastCard>,
+        { duration: 5000 }
+      );
       return;
     }
 
