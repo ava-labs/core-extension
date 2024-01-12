@@ -10,9 +10,6 @@ enum SeedlessRegistartionResponseTextStatus {
   ALREADY_REGISTERED = 'ALREADY_REGISTERED',
   APPROVED = 'ok',
 }
-interface SeedlessRegistartionResponseTextObject {
-  message: SeedlessRegistartionResponseTextStatus;
-}
 
 export async function approveSeedlessRegistration(
   identityProof: IdentityProof
@@ -25,22 +22,18 @@ export async function approveSeedlessRegistration(
     },
   })
     .then(async (response) => {
-      const responseText: SeedlessRegistartionResponseTextObject = JSON.parse(
-        await response.text()
-      );
+      const { message }: { message: SeedlessRegistartionResponseTextStatus } =
+        await response.json();
 
       if (
-        responseText.message ===
-        SeedlessRegistartionResponseTextStatus.ALREADY_REGISTERED
+        message === SeedlessRegistartionResponseTextStatus.ALREADY_REGISTERED
       ) {
         return SeedlessRegistartionResult.ALREADY_REGISTERED;
       }
-      if (
-        responseText.message === SeedlessRegistartionResponseTextStatus.APPROVED
-      ) {
+      if (message === SeedlessRegistartionResponseTextStatus.APPROVED) {
         return SeedlessRegistartionResult.APPROVED;
       }
-      throw new Error(responseText.message);
+      throw new Error(message);
     })
     .catch(() => {
       return SeedlessRegistartionResult.ERROR;
