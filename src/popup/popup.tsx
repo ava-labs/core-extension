@@ -214,6 +214,12 @@ const SeedlessExportPopup = lazy(() => {
   }));
 });
 
+const ExportPrivateKey = lazy(() => {
+  return import('../pages/ExportPrivateKey/ExportPrivateKey').then((m) => ({
+    default: m.ExportPrivateKey,
+  }));
+});
+
 const pagesWithoutHeader = [
   '/tokens/manage',
   '/bridge/confirm',
@@ -226,6 +232,7 @@ const pagesWithoutHeader = [
   '/import-with-walletconnect',
   '/defi',
   '/fireblocks',
+  '/export-private-key',
 ];
 
 export function Popup() {
@@ -594,6 +601,14 @@ export function Popup() {
                                                 fallback={<CircularProgress />}
                                               >
                                                 <Accounts />
+                                              </Suspense>
+                                            </Route>
+
+                                            <Route path="/export-private-key">
+                                              <Suspense
+                                                fallback={<CircularProgress />}
+                                              >
+                                                <ExportPrivateKey />
                                               </Suspense>
                                             </Route>
 

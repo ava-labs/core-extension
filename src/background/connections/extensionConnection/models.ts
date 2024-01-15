@@ -17,6 +17,7 @@ export enum ExtensionRequest {
   ACCOUNT_RENAME = 'account_rename',
   ACCOUNT_ADD = 'account_add',
   ACCOUNT_DELETE = 'account_delete',
+  ACCOUNT_GET_PRIVATEKEY = 'account_get_privatekey',
 
   BALANCES_GET = 'balances_get',
   BALANCES_START_POLLING = 'balances_start_polling',

@@ -11,16 +11,12 @@ import {
   BitcoinColorIcon,
   Button,
   Checkbox,
-  Chip,
   EditIcon,
-  FireblocksIcon,
   Grow,
   IconButton,
-  KeyIcon,
   Stack,
   StackProps,
   Typography,
-  WalletConnectIcon,
   styled,
   useTheme,
   Tooltip,
@@ -36,6 +32,8 @@ import { SimpleAddress } from '@src/components/common/SimpleAddress';
 import { AccountBalance } from './AccountBalance';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isProductionBuild } from '@src/utils/environment';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+import { AccountItemChip } from './AccountItemChip';
 
 interface AccountItemProps {
   account: Account;
@@ -78,6 +76,8 @@ export const AccountItem = forwardRef(
     }: AccountItemProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
+    const { walletDetails } = useWalletContext();
+    const walletType = walletDetails?.type;
     const [accountName, setAccountName] = useState<string>(account.name);
     const { renameAccount, isActiveAccount } = useAccountsContext();
     const { updateBalanceOnAllNetworks } = useBalancesContext();
@@ -141,37 +141,6 @@ export const AccountItem = forwardRef(
         onClick();
       }
     }, [isDeleteMode, account.id, toggle, onClick, disabledReason]);
-
-    const getChipLabel = (type: AccountType) => {
-      if (type === AccountType.IMPORTED) {
-        return t('Private Key');
-      }
-      if (type === AccountType.WALLET_CONNECT) {
-        return t('Wallet Connect');
-      }
-      if (type === AccountType.FIREBLOCKS) {
-        return t('Fireblocks');
-      }
-      return undefined;
-    };
-
-    const getChipLogo = (type: AccountType) => {
-      const iconColor = 'currentColor';
-      if (type === AccountType.IMPORTED) {
-        return <KeyIcon size={16} color={iconColor} />;
-      }
-      if (type === AccountType.WALLET_CONNECT) {
-        return <WalletConnectIcon size={16} color={iconColor} />;
-      }
-      if (type === AccountType.FIREBLOCKS) {
-        return <FireblocksIcon size={16} color={iconColor} />;
-      }
-      return undefined;
-    };
-
-    const chipLogo = getChipLogo(account.type);
-
-    const chipLabel = getChipLabel(account.type);
 
     return (
       <Tooltip title={disabledReason}>
@@ -315,19 +284,7 @@ export const AccountItem = forwardRef(
                 )}
               </Stack>
 
-              {account.type !== AccountType.PRIMARY && (
-                <Chip
-                  icon={chipLogo}
-                  label={chipLabel}
-                  sx={{
-                    backgroundColor: 'grey.50',
-                    color: 'background.paper',
-                    py: 0,
-                    height: '20px',
-                    alignSelf: 'flex-end',
-                  }}
-                />
-              )}
+              <AccountItemChip walletType={walletType} account={account} />
             </Stack>
           </Stack>
         </Wrapper>

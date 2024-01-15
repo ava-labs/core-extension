@@ -121,6 +121,7 @@ import { GetRecoveryPhraseExportStateHandler } from '@src/background/services/se
 import { InitRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/initRecoveryPhraseExport';
 import { CompleteRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/completeRecoveryPhraseExport';
 import { CancelRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/cancelRecoveryPhraseExport';
+import { GetPrivateKeyHandler } from '@src/background/services/accounts/handlers/getPrivateKey';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -304,6 +305,10 @@ import { CancelRecoveryPhraseExportHandler } from '@src/background/services/seed
   {
     token: 'ExtensionRequestHandler',
     useToken: CancelRecoveryPhraseExportHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetPrivateKeyHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

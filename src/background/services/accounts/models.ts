@@ -116,3 +116,10 @@ export enum AccountsEvents {
   ACCOUNTS_UPDATED = 'accounts-updated',
   ACTIVE_ACCOUNT_CHANGED = 'active-account-changed',
 }
+
+export enum GetPrivateKeyErrorTypes {
+  Password = 'password',
+  Type = 'type',
+  DerivePath = 'derivePath',
+  Mnemonic = 'mnemonic',
+}
