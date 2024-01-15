@@ -47,6 +47,7 @@ export const networkToBlockchain = (network: Network | undefined) => {
     case ChainId.ETHEREUM_HOMESTEAD:
     case ChainId.ETHEREUM_TEST_RINKEBY:
     case ChainId.ETHEREUM_TEST_GOERLY:
+    case ChainId.ETHEREUM_TEST_SEPOLIA:
       return Blockchain.ETHEREUM;
     case ChainId.BITCOIN:
     case ChainId.BITCOIN_TESTNET:

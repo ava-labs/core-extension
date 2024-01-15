@@ -397,6 +397,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
         ChainId.ETHEREUM_HOMESTEAD,
         ChainId.ETHEREUM_TEST_RINKEBY,
         ChainId.ETHEREUM_TEST_GOERLY,
+        ChainId.ETHEREUM_TEST_SEPOLIA,
         ChainId.SWIMMER,
         ChainId.SWIMMER_TESTNET,
         ChainId.DFK,

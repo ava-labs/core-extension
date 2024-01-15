@@ -44,6 +44,7 @@ export const TESTNET_LOOKUP_ASSETS = [
   'AVAXTEST', // Avalanche Fuji
   'ETH_TEST3', // Ethereum Goerli
   'ETH_TEST4', // Ethereum Rinkeby
+  'ETH_TEST5', // Ethereum Sepolia
 ];
 
 // On Mainnet Fireblocks workspaces, we require the connected vault to have one of those wallets created.

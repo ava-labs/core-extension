@@ -2,7 +2,9 @@ import { Blockchain } from '@avalabs/bridge-sdk';
 import { Network } from '@avalabs/chains-sdk';
 
 function getAvalancheExplorerBaseUrl(isMainnet = true) {
-  return isMainnet ? 'https://snowtrace.io' : 'https://testnet.snowtrace.io';
+  return isMainnet
+    ? 'https://subnets.avax.network/c-chain'
+    : 'https://subnets-test.avax.network/c-chain';
 }
 
 function getAvalancheTxLink(hash: string, isMainnet = true) {
@@ -13,7 +15,7 @@ function getAvalancheTxLink(hash: string, isMainnet = true) {
 function getEtherscanLink(txHash: string, isMainnet: boolean) {
   const root = isMainnet
     ? 'https://etherscan.io'
-    : 'https://rinkeby.etherscan.io';
+    : 'https://sepolia.etherscan.io';
   return `${root}/tx/${txHash}`;
 }
 
