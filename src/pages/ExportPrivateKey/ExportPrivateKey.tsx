@@ -14,6 +14,7 @@ import {
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { WalletType } from '@src/background/services/wallet/models';
 import { useTranslation } from 'react-i18next';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function ExportPrivateKey() {
   const theme = useTheme();
@@ -22,6 +23,7 @@ export function ExportPrivateKey() {
   const { accounts } = useAccountsContext();
   const { walletDetails } = useWalletContext();
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
 
   const [type, setType] = useState<
     WalletType.MNEMONIC | AccountType.IMPORTED | null
@@ -35,6 +37,7 @@ export function ExportPrivateKey() {
 
   const onSubmit = useCallback(() => {
     if (!type) {
+      capture('ExportPrivateKeyErrorInvalidType');
       throw new Error('Invalid type!');
     }
     setIsLoading(true);
@@ -44,18 +47,21 @@ export function ExportPrivateKey() {
     })
       .then((res) => {
         setPrivateKey(res);
+        capture('ExportPrivateKeySuccessful');
       })
       .catch((e: { type: GetPrivateKeyErrorTypes; message: string }) => {
         if (e.type === GetPrivateKeyErrorTypes.Password) {
           setError(t('Invalid Password'));
+          capture('ExportPrivateKeyErrorInvalidPassword');
           return;
         }
         setError(t('Something bad happened please try again later!'));
+        capture('ExportPrivateKeyFailed');
       })
       .finally(() => {
         setIsLoading(false);
       });
-  }, [id, index, password, request, t, type]);
+  }, [capture, id, index, password, request, t, type]);
 
   useEffect(() => {
     const url = new URLSearchParams(search);

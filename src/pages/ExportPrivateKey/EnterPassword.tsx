@@ -6,6 +6,7 @@ import {
   styled,
 } from '@avalabs/k2-components';
 import { PageTitle } from '@src/components/common/PageTitle';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
@@ -38,13 +39,17 @@ export function EnterPassword({
 }: EnterPassword) {
   const history = useHistory();
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
 
   return (
     <>
       <Stack>
         <PageTitle
           margin={'22px 0 4px 0'}
-          onBackClick={() => history.replace('/accounts')}
+          onBackClick={() => {
+            capture('ExportPrivateKeyCancelled');
+            history.replace('/accounts');
+          }}
         >
           {t('Enter Password')}
         </PageTitle>
@@ -94,7 +99,10 @@ export function EnterPassword({
             fullWidth
             variant="contained"
             color="secondary"
-            onClick={() => history.replace('/accounts')}
+            onClick={() => {
+              capture('ExportPrivateKeyCancelled');
+              history.replace('/accounts');
+            }}
           >
             {t('Cancel')}
           </Button>

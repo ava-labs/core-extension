@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { IconWrapper } from './EnterPassword';
 import { useCallback } from 'react';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 interface ShowPrivateKeyProps {
   privateKey: string;
@@ -24,10 +25,12 @@ export function ShowPrivateKey({ privateKey }: ShowPrivateKeyProps) {
   const history = useHistory();
   const { t } = useTranslation();
   const theme = useTheme();
+  const { capture } = useAnalyticsContext();
   const onCopy = useCallback(() => {
     navigator.clipboard.writeText(privateKey || '');
+    capture('ExportPrivateKeyCopied');
     toast.success(t('Copied!'), { duration: 2000 });
-  }, [privateKey, t]);
+  }, [capture, privateKey, t]);
 
   return (
     <>

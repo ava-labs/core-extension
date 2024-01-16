@@ -9,6 +9,7 @@ import {
 } from '@avalabs/k2-components';
 import { Account, AccountType } from '@src/background/services/accounts/models';
 import { WalletType } from '@src/background/services/wallet/models';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
@@ -22,6 +23,7 @@ export function AccountItemChip({ account, walletType }: AccountItemChipProps) {
   const { t } = useTranslation();
   const history = useHistory();
   const { type: accountType } = account;
+  const { capture } = useAnalyticsContext();
 
   const privateKeyIsAvailable = useMemo(
     () =>
@@ -63,6 +65,7 @@ export function AccountItemChip({ account, walletType }: AccountItemChipProps) {
         size="small"
         disabled={!privateKeyIsAvailable}
         onClick={(e: Event) => {
+          capture('ExportPrivateKeyClicked');
           e.stopPropagation();
           history.push(`/export-private-key?accountId=${account.id}`);
         }}
