@@ -1,0 +1,221 @@
+{
+  "abi": {
+    "func": "setApprovalForAll",
+    "params": ["0x1E0049783F008A0085193E00003D00cd54003c71", false]
+  },
+  "actions": [
+    {
+      "type": "send_token",
+      "from_addr": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85",
+      "to_addr": "0x1E0049783F008A0085193E00003D00cd54003c71",
+      "token": {
+        "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+        "chain": "avax",
+        "name": "USD Coin",
+        "symbol": "USDC",
+        "decimals": 6,
+        "logo_url": "token.logo.url",
+        "price": 1.0001,
+        "usd_value": 3,
+        "amount": 3.000505,
+        "is_scam": false,
+        "is_infinity": false,
+        "is_suspicious": false
+      }
+    },
+    {
+      "type": "send_nft",
+      "from_addr": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85",
+      "to_addr": "0x1E0049783F008A0085193E00003D00cd54003c71",
+      "nft": {
+        "is_erc1155": true,
+        "contract_id": "0x253954d29386e174ed4bc69902391a8ed3fd51ca",
+        "name": "NFTflow Membership Pass",
+        "description": "NFT description",
+        "thumbnail_url": "ntf.thumbnail.url",
+        "amound": 1,
+        "collection": {
+          "name": "NFT Collection name",
+          "description": "NFT Collection description",
+          "logo_url": "collection.url"
+        },
+        "is_scam": false,
+        "is_suspicious": false
+      }
+    },
+    {
+      "type": "approve_token",
+      "owner": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85",
+      "spender": {
+        "id": "0x1E0049783F008A0085193E00003D00cd54003c71",
+        "protocol": {
+          "id": "opensea",
+          "name": "OpenSea",
+          "logo_url": "protocol.logo.url"
+        }
+      },
+      "token": {
+        "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+        "chain": "avax",
+        "name": "USD Coin",
+        "symbol": "USDC",
+        "decimals": 6,
+        "logo_url": "token.logo.url",
+        "price": 1.0001,
+        "usd_value": 3,
+        "amount": 3.000505,
+        "is_scam": false,
+        "is_infinity": false,
+        "is_suspicious": false
+      }
+    },
+    {
+      "type": "revoke_token_approval",
+      "owner": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85",
+      "spender": {
+        "id": "0x1E0049783F008A0085193E00003D00cd54003c71",
+        "protocol": {
+          "id": "opensea",
+          "name": "OpenSea",
+          "logo_url": "protocol.logo.url"
+        }
+      },
+      "token": {
+        "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+        "chain": "avax",
+        "name": "USD Coin",
+        "symbol": "USDC",
+        "decimals": 6,
+        "logo_url": "token.logo.url",
+        "price": 1.0001,
+        "usd_value": 3,
+        "amount": 3.000505,
+        "is_scam": false,
+        "is_infinity": true,
+        "is_suspicious": false
+      }
+    },
+    {
+      "type": "approve_nft",
+      "owner": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85",
+      "spender": {
+        "id": "0x1E0049783F008A0085193E00003D00cd54003c71",
+        "protocol": {
+          "id": "opensea",
+          "name": "OpenSea",
+          "logo_url": "protocol.logo.url"
+        }
+      },
+      "nft": {
+        "is_erc1155": true,
+        "contract_id": "0x253954d29386e174ed4bc69902391a8ed3fd51ca",
+        "name": "NFTflow Membership Pass",
+        "description": "NFT description",
+        "thumbnail_url": "ntf.thumbnail.url",
+        "amound": 1,
+        "collection": null,
+        "is_scam": true,
+        "is_suspicious": true
+      }
+    },
+    {
+      "type": "revoke_nft_approval",
+      "owner": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85",
+      "spender": {
+        "id": "0x1E0049783F008A0085193E00003D00cd54003c71",
+        "protocol": {
+          "id": "opensea",
+          "name": "OpenSea",
+          "logo_url": "protocol.logo.url"
+        }
+      },
+      "nft": {
+        "is_erc1155": true,
+        "contract_id": "0x253954d29386e174ed4bc69902391a8ed3fd51ca",
+        "name": "NFTflow Membership Pass",
+        "description": "NFT description",
+        "thumbnail_url": "ntf.thumbnail.url",
+        "amound": 1,
+        "collection": null,
+        "is_scam": true,
+        "is_suspicious": true
+      }
+    },
+    {
+      "type": "approve_nft_collection",
+      "owner": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85",
+      "spender": {
+        "id": "0x1E0049783F008A0085193E00003D00cd54003c71",
+        "protocol": {
+          "id": "opensea",
+          "name": "OpenSea",
+          "logo_url": "protocol.logo.url"
+        }
+      },
+      "collection": {
+        "is_erc1155": false,
+        "id": "0x253954d29386e174ed4bc69902391a8ed3fd51ca",
+        "name": "NFTflow Membership Pass",
+        "description": "NFT description",
+        "logo_url": "ntf.thumbnail.logo_url",
+        "is_scam": false,
+        "is_suspicious": false
+      }
+    },
+    {
+      "type": "revoke_nft_collection_approval",
+      "owner": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85",
+      "spender": {
+        "id": "0x1E0049783F008A0085193E00003D00cd54003c71",
+        "protocol": {
+          "id": "opensea",
+          "name": "OpenSea",
+          "logo_url": "protocol.logo.url"
+        }
+      },
+      "collection": {
+        "is_erc1155": false,
+        "id": "0x253954d29386e174ed4bc69902391a8ed3fd51ca",
+        "name": "NFTflow Membership Pass",
+        "description": "NFT description",
+        "logo_url": "ntf.thumbnail.logo_url",
+        "is_scam": false,
+        "is_suspicious": false
+      }
+    },
+    {
+      "type": "cancel_tx",
+      "from_addr": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85"
+    },
+    {
+      "type": "deploy_contract",
+      "from_addr": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85"
+    },
+    {
+      "type": "call",
+      "from_addr": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85",
+      "to_addr": "0x1E0049783F008A0085193E00003D00cd54003c71",
+      "contract": {
+        "id": "0x1E0049783F008A0085193E00003D00cd54003c71",
+        "protocol": {
+          "id": "opensea",
+          "name": "OpenSea",
+          "logo_url": "protocol.logo.url"
+        }
+      }
+    },
+    {
+      "type": "call",
+      "from_addr": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85",
+      "to_addr": "0x1E0049783F008A0085193E00003D00cd54003c71",
+      "contract": {
+        "id": "0x1E0049783F008A0085193E00003D00cd54003c71"
+      }
+    },
+    {
+      "type": "call",
+      "from_addr": "0x5853ed4f26a3fcea565b3fbc698bb19cdf6deb85",
+      "to_addr": "0x1E0049783F008A0085193E00003D00cd54003c71"
+    }
+  ]
+}

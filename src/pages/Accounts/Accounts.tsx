@@ -16,7 +16,7 @@ import { useHistory } from 'react-router-dom';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalDialog';
+import { LedgerApprovalDialog } from '@src/pages/SignTransaction/components/LedgerApprovalDialog';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { Overlay } from '@src/components/common/Overlay';
 import { useTabFromParams } from '@src/hooks/useTabFromParams';

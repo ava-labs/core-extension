@@ -4,9 +4,10 @@ import { ethErrors } from 'eth-rpc-errors';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { Transaction } from '../models';
 import { FeatureGates } from '../../featureFlags/models';
+import { EthSendTransactionParams } from '../handlers/eth_sendTransaction';
 
 const getTargetNetworkForTx = async (
-  tx: Transaction,
+  tx: Transaction | EthSendTransactionParams,
   networkService: NetworkService,
   featureFlagService: FeatureFlagService
 ) => {

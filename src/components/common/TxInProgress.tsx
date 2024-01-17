@@ -1,13 +1,13 @@
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import { KeystoneApprovalOverlay } from '@src/pages/SignTransaction/KeystoneApprovalOverlay';
-import { LedgerApprovalDialog } from '@src/pages/SignTransaction/LedgerApprovalDialog';
+import { KeystoneApprovalOverlay } from '@src/pages/SignTransaction/components/KeystoneApprovalOverlay';
+import { LedgerApprovalDialog } from '@src/pages/SignTransaction/components/LedgerApprovalDialog';
 import { Overlay } from '@src/components/common/Overlay';
-import { WalletConnectApprovalOverlay } from '@src/pages/SignTransaction/WalletConnectApprovalOverlay';
+import { WalletConnectApprovalOverlay } from '@src/pages/SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
-import { FireblocksApprovalOverlay } from '@src/pages/SignTransaction/FireblocksApprovalOverlay';
+import { FireblocksApprovalOverlay } from '@src/pages/SignTransaction/components/FireblocksApproval/FireblocksApprovalOverlay';
 
 interface TxInProgressProps {
   address?: string;

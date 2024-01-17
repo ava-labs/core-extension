@@ -6,7 +6,7 @@ import { Avalanche } from '@avalabs/wallets-sdk';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
-import { Action, ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from '@src/background/services/actions/models';
 
 import { ImportTxView } from './components/ApproveImportTx';
 import { ExportTxView } from './components/ApproveExportTx';
@@ -17,7 +17,7 @@ import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { BaseTxView } from './components/ApproveBaseTx';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
-import { LedgerApprovalOverlay } from '../SignTransaction/LedgerApprovalOverlay';
+import { LedgerApprovalOverlay } from '../SignTransaction/components/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import { ApproveCreateSubnet } from './components/ApproveCreateSubnet';
 import { ApproveCreateChain } from './components/ApproveCreateChain';
@@ -25,12 +25,12 @@ import { AddSubnetValidatorView } from './components/ApproveAddSubnetValidator';
 import { AvalancheTxHeader } from './components/AvalancheTxHeader';
 import { ExcessiveBurnWarningDialog } from './components/ExcessiveBurnWarningDialog';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
-import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectApprovalOverlay';
+import { WalletConnectApprovalOverlay } from '../SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import { AddPermissionlessValidator } from '@src/pages/ApproveAction/components/ApproveAddPermissionlessValidator';
 import { AddPermissionlessDelegator } from '@src/pages/ApproveAction/components/ApproveAddPermissionlessDelegator';
 import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
-import { FireblocksApprovalOverlay } from '../SignTransaction/FireblocksApprovalOverlay';
+import { FireblocksApprovalOverlay } from '../SignTransaction/components/FireblocksApproval/FireblocksApprovalOverlay';
 import { RemoveSubnetValidatorView } from './components/ApproveRemoveSubnetValidator';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import {
@@ -88,40 +88,37 @@ export function AvalancheSignTx() {
       onReject: cancelHandler,
     });
 
-  const renderDeviceApproval = useCallback(
-    ({ displayData }: Action) => {
-      if (isApprovalOverlayVisible) {
-        if (isUsingLedgerWallet) {
-          return <LedgerApprovalOverlay displayData={displayData} />;
-        }
-
-        if (isWalletConnectAccount) {
-          return (
-            <WalletConnectApprovalOverlay
-              onReject={handleRejection}
-              onSubmit={handleApproval}
-            />
-          );
-        }
-        if (isFireblocksAccount) {
-          return (
-            <FireblocksApprovalOverlay
-              onReject={handleRejection}
-              onSubmit={handleApproval}
-            />
-          );
-        }
+  const renderDeviceApproval = useCallback(() => {
+    if (isApprovalOverlayVisible) {
+      if (isUsingLedgerWallet) {
+        return <LedgerApprovalOverlay />;
       }
-    },
-    [
-      isApprovalOverlayVisible,
-      isUsingLedgerWallet,
-      isWalletConnectAccount,
-      isFireblocksAccount,
-      handleRejection,
-      handleApproval,
-    ]
-  );
+
+      if (isWalletConnectAccount) {
+        return (
+          <WalletConnectApprovalOverlay
+            onReject={handleRejection}
+            onSubmit={handleApproval}
+          />
+        );
+      }
+      if (isFireblocksAccount) {
+        return (
+          <FireblocksApprovalOverlay
+            onReject={handleRejection}
+            onSubmit={handleApproval}
+          />
+        );
+      }
+    }
+  }, [
+    isApprovalOverlayVisible,
+    isUsingLedgerWallet,
+    isWalletConnectAccount,
+    isFireblocksAccount,
+    handleRejection,
+    handleApproval,
+  ]);
 
   const renderSignTxDetails = useCallback(
     (tx: Avalanche.Tx) => {
@@ -196,7 +193,7 @@ export function AvalancheSignTx() {
 
   return (
     <Stack sx={{ px: 2, width: 1, justifyContent: 'space-between' }}>
-      {renderDeviceApproval(action)}
+      {renderDeviceApproval()}
       <AvalancheTxHeader tx={txData} />
 
       <Scrollbars>

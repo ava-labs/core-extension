@@ -1,0 +1,85 @@
+{
+  "balance_change": {
+    "success": true,
+    "error": null,
+    "send_token_list": [
+      {
+        "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+        "chain": "avax",
+        "name": "USD Coin",
+        "symbol": "USDC",
+        "decimals": 6,
+        "logo_url": "token.logo.url",
+        "price": 1.0001,
+        "usd_value": 3,
+        "amount": 3.000505,
+        "is_scam": false,
+        "is_infinity": false,
+        "is_suspicious": false
+      }
+    ],
+    "receive_token_list": [
+      {
+        "id": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+        "chain": "avax",
+        "name": "USD Coin",
+        "symbol": "USDC",
+        "decimals": 6,
+        "logo_url": "token.logo.url",
+        "price": 1.0001,
+        "usd_value": 3,
+        "amount": 100.000505,
+        "is_scam": false,
+        "is_infinity": false,
+        "is_suspicious": false
+      }
+    ],
+    "send_nft_list": [
+      {
+        "is_erc1155": true,
+        "contract_id": "0x253954d29386e174ed4bc69902391a8ed3fd51ca",
+        "name": "NFTflow Membership Pass",
+        "description": "NFT description",
+        "thumbnail_url": "ntf.thumbnail.url",
+        "amound": 1,
+        "collection": {
+          "name": "NFT Collection name",
+          "description": "NFT Collection description",
+          "logo_url": "collection.url"
+        },
+        "is_scam": false,
+        "is_suspicious": false
+      }
+    ],
+    "receive_nft_list": [
+      {
+        "is_erc1155": true,
+        "contract_id": "0x2123123",
+        "name": "OtherNFT",
+        "description": "NFT description",
+        "thumbnail_url": "ntf2.thumbnail.url",
+        "amound": 1,
+        "collection": {
+          "name": "NFT Collection name",
+          "description": "NFT Collection description",
+          "logo_url": "collection.url"
+        },
+        "is_scam": false,
+        "is_suspicious": false
+      }
+    ],
+    "usd_value_change": 0
+  },
+  "gas": {
+    "success": true,
+    "error": null,
+    "gas_used": 47037,
+    "gas_limit": 47037
+  },
+  "is_multisig": false,
+  "multisig": null,
+  "pre_exec": {
+    "success": true,
+    "error": null
+  }
+}

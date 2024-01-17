@@ -24,7 +24,7 @@ export class TransactionCompletedEvents implements DAppEventEmitter {
       (response) => {
         if (response.tabId === this._connectionInfo?.tabId) {
           this.eventEmitter.emit('update', {
-            id: `${response.id}`,
+            id: `${response.requestId}`,
             method: response.method,
             params: [
               {

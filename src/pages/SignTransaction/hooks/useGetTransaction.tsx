@@ -5,16 +5,8 @@ import { filter, map, Subscription, take } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { transactionFinalizedUpdateListener } from '@src/background/services/transactions/events/transactionFinalizedUpdateListener';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import Web3 from 'web3';
-import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
-import { Limit, SpendLimit } from '../CustomSpendLimit';
 import { GasFeeModifier } from '@src/components/common/CustomFees';
-import {
-  bigToLocaleString,
-  bnToBig,
-  bnToLocaleString,
-  hexToBN,
-} from '@avalabs/utils-sdk';
+
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -24,11 +16,7 @@ import { NetworkFee } from '@src/background/services/networkFee/models';
 import { Network } from '@avalabs/chains-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useDialog } from '@src/contexts/DialogContextProvider';
-import { BN } from 'bn.js';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { MaxUint256 } from 'ethers';
-
-export const UNLIMITED_SPEND_LIMIT_LABEL = 'Unlimited';
 
 export function useGetTransaction(requestId: string) {
   // Target network of the transaction defined by the chainId param. May differ from the active one.
@@ -46,18 +34,7 @@ export function useGetTransaction(requestId: string) {
     maxPriorityFeePerGas?: bigint;
   } | null>(null);
   const [hash, setHash] = useState<string>('');
-  const [showCustomSpendLimit, setShowCustomSpendLimit] =
-    useState<boolean>(false);
   const [showRawTransactionData, setShowRawTransactionData] = useState(false);
-  const [displaySpendLimit, setDisplaySpendLimit] = useState<string>(
-    UNLIMITED_SPEND_LIMIT_LABEL
-  );
-  const [limitFiatValue, setLimitFiatValue] = useState<string | null>(
-    UNLIMITED_SPEND_LIMIT_LABEL
-  );
-  const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
-    limitType: Limit.DEFAULT,
-  });
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
     GasFeeModifier.NORMAL
   );
@@ -99,7 +76,7 @@ export function useGetTransaction(requestId: string) {
         gasLimit:
           values.customGasLimit ??
           customGas?.gasLimit ??
-          currentTx?.displayValues.gasLimit,
+          currentTx?.displayValues?.gas.gasLimit,
         tokenPrice,
         tokenDecimals: network?.networkToken.decimals,
       });
@@ -122,81 +99,6 @@ export function useGetTransaction(requestId: string) {
     ]
   );
 
-  const updateLimitFiatValue = useCallback(
-    (spendLimit: SpendLimit) => {
-      if (spendLimit.limitType === Limit.UNLIMITED) {
-        setLimitFiatValue(UNLIMITED_SPEND_LIMIT_LABEL);
-      } else {
-        const price =
-          transaction?.displayValues?.tokenToBeApproved?.price?.value;
-        const amount =
-          spendLimit.limitType === Limit.CUSTOM
-            ? spendLimit.value?.bn ?? new BN(0)
-            : hexToBN(transaction?.displayValues?.approveData?.limit);
-
-        // If we don't know the price, let's not show anything.
-        if (!price) {
-          setLimitFiatValue(null);
-        } else {
-          const fiatValue = bnToBig(
-            amount,
-            transaction.displayValues.tokenToBeApproved.decimals
-          ).mul(price);
-          setLimitFiatValue(bigToLocaleString(fiatValue, 4));
-        }
-      }
-    },
-    [setLimitFiatValue, transaction]
-  );
-
-  const setSpendLimit = useCallback(
-    (customSpendData: SpendLimit) => {
-      const srcToken: string =
-        transaction?.displayValues.tokenToBeApproved.address;
-      const spenderAddress: string =
-        transaction?.displayValues.approveData.spender;
-      let limitAmount = '';
-
-      if (customSpendData.limitType === Limit.UNLIMITED) {
-        setCustomSpendLimit({
-          ...customSpendData,
-          value: undefined,
-        });
-        limitAmount = MaxUint256.toString(16);
-        setDisplaySpendLimit(UNLIMITED_SPEND_LIMIT_LABEL);
-      } else {
-        setCustomSpendLimit(customSpendData);
-        setDisplaySpendLimit(
-          customSpendData.limitType === Limit.CUSTOM
-            ? customSpendData.value?.amount || '0'
-            : bnToLocaleString(
-                hexToBN(transaction?.displayValues.approveData.limit),
-                transaction?.displayValues.tokenToBeApproved.decimals
-              )
-        );
-        limitAmount =
-          customSpendData.limitType === Limit.CUSTOM
-            ? customSpendData.value?.bn.toString()
-            : transaction?.displayValues?.approveData?.limit;
-      }
-      updateLimitFiatValue(customSpendData);
-
-      // create hex string for approval amount
-      const web3 = new Web3();
-      const contract = new web3.eth.Contract(ERC20.abi as any, srcToken);
-
-      const hashedCustomSpend =
-        limitAmount &&
-        contract.methods.approve(spenderAddress, limitAmount).encodeABI();
-
-      updateTransaction({
-        id: transaction?.id,
-        params: { data: hashedCustomSpend },
-      });
-    },
-    [transaction, updateTransaction, updateLimitFiatValue]
-  );
-
   useEffect(() => {
     request<GetTransactionHandler>({
       method: ExtensionRequest.TRANSACTIONS_GET,
@@ -211,7 +113,7 @@ export function useGetTransaction(requestId: string) {
         .pipe(
           filter(transactionFinalizedUpdateListener),
           map(({ value }) => value),
-          filter((tx) => tx.id === Number(requestId)),
+          filter((tx) => tx.id === requestId),
           take(1)
         )
         .subscribe({
@@ -227,38 +129,6 @@ export function useGetTransaction(requestId: string) {
     // only call this once, we need to get the transaction and subscriptions only once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (transaction?.displayValues?.approveData?.limit) {
-      if (MaxUint256 === BigInt(transaction.displayValues.approveData.limit)) {
-        setDisplaySpendLimit(UNLIMITED_SPEND_LIMIT_LABEL);
-        setLimitFiatValue(UNLIMITED_SPEND_LIMIT_LABEL);
-      } else {
-        const limit = hexToBN(transaction.displayValues.approveData.limit);
-
-        setDisplaySpendLimit(
-          bnToLocaleString(
-            limit,
-            transaction.displayValues.tokenToBeApproved.decimals
-          )
-        );
-
-        const price =
-          transaction?.displayValues?.tokenToBeApproved?.price?.value;
-
-        if (typeof price !== 'number') {
-          setLimitFiatValue(null);
-        } else {
-          // If we know the token price, let's show the spend limit's USD value as well
-          const fiatValue = bnToBig(
-            limit,
-            transaction.displayValues.tokenToBeApproved.decimals
-          ).mul(price);
-          setLimitFiatValue(bigToLocaleString(fiatValue, 4));
-        }
-      }
-    }
-  }, [transaction]);
 
   useEffect(() => {
     const updateNetworkAndFees = async () => {
@@ -296,30 +166,22 @@ export function useGetTransaction(requestId: string) {
   return useMemo(() => {
     const feeDisplayValues =
       networkFee &&
-      transaction?.displayValues.gasLimit &&
+      transaction?.displayValues?.gas.gasLimit &&
       calculateGasAndFees({
         maxFeePerGas: customGas?.maxFeePerGas ?? networkFee.low.maxFee,
-        gasLimit: customGas?.gasLimit ?? transaction.displayValues.gasLimit,
+        gasLimit: customGas?.gasLimit ?? transaction.displayValues.gas.gasLimit,
         tokenPrice,
         tokenDecimals: network?.networkToken.decimals,
       });
 
     return {
-      ...transaction?.displayValues,
-      id: transaction?.id,
-      ...(transaction?.txParams ? { txParams: transaction?.txParams } : {}),
+      transaction,
       ...feeDisplayValues,
       updateTransaction,
       hash,
       setCustomFee,
-      showCustomSpendLimit,
-      setShowCustomSpendLimit,
       showRawTransactionData,
       setShowRawTransactionData,
-      setSpendLimit,
-      limitFiatValue,
-      displaySpendLimit,
-      customSpendLimit,
       selectedGasFee,
       network,
       networkFee,
@@ -335,12 +197,7 @@ export function useGetTransaction(requestId: string) {
     updateTransaction,
     hash,
     setCustomFee,
-    showCustomSpendLimit,
     showRawTransactionData,
-    setSpendLimit,
-    limitFiatValue,
-    displaySpendLimit,
-    customSpendLimit,
     selectedGasFee,
     hasTransactionError,
     setHasTransactionError,

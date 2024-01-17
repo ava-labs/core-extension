@@ -14,7 +14,7 @@ type GasPriceArgs =
     };
 
 type Args = GasPriceArgs & {
-  tokenPrice: number;
+  tokenPrice?: number;
   tokenDecimals?: number;
   gasLimit?: number;
 };
@@ -44,10 +44,13 @@ export function calculateGasAndFees({
     ? bigToLocaleString(bigintToBig(bnTip, tokenDecimals), 8)
     : null;
 
-  const feeUSD = parseFloat((parseFloat(fee) * tokenPrice).toFixed(4));
-  const tipUSD = tip
-    ? parseFloat((parseFloat(tip) * tokenPrice).toFixed(4))
+  const feeUSD = tokenPrice
+    ? parseFloat((parseFloat(fee) * tokenPrice).toFixed(4))
     : null;
+  const tipUSD =
+    tokenPrice && tip
+      ? parseFloat((parseFloat(tip) * tokenPrice).toFixed(4))
+      : null;
 
   return {
     maxFeePerGas: maxFeePerGas,
