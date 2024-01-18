@@ -30,7 +30,7 @@ import { NetworkLogoK2 } from '@src/components/common/NetworkLogoK2';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useBridgeContext } from '@src/contexts/BridgeProvider';
+import { usePendingBridgeTransactions } from '@src/pages/Bridge/hooks/usePendingBridgeTransactions';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { BN } from 'bn.js';
 
@@ -58,7 +58,8 @@ export function ActiveNetworkWidget({
   } = useAccountsContext();
   const { isTokensCached } = useBalancesContext();
   const { capture } = useAnalyticsContext();
-  const { bridgeTransactions } = useBridgeContext();
+
+  const bridgeTransactions = usePendingBridgeTransactions();
 
   if (!network || !assetList?.length) {
     return <Skeleton variant="rounded" sx={{ width: 343, height: 190 }} />;

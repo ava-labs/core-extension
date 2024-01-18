@@ -17,6 +17,8 @@ interface LedgerApprovalDialogProps {
   feeSymbol?: string;
   header?: string;
   nftName?: string;
+  currentSignature?: number;
+  requiredSignatures?: number;
 }
 
 export function LedgerApprovalDialog({
@@ -27,10 +29,16 @@ export function LedgerApprovalDialog({
   feeSymbol,
   header,
   nftName,
+  currentSignature,
+  requiredSignatures,
 }: LedgerApprovalDialogProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const title = header ?? t('Approve on your Ledger');
+
+  const hasSignaturesInfo =
+    typeof requiredSignatures === 'number' &&
+    typeof currentSignature === 'number';
 
   return (
     <Stack
@@ -107,11 +115,27 @@ export function LedgerApprovalDialog({
               <Divider sx={{ my: 2 }} />
             </>
           )}
+          {hasSignaturesInfo && (
+            <>
+              <Stack>
+                <Typography variant="body2" margin="0 0 4px 0">
+                  {t('Current signature')}
+                </Typography>
+                <Typography variant="body1">
+                  {t('{{current}} out of {{total}}', {
+                    current: currentSignature,
+                    total: requiredSignatures,
+                  })}
+                </Typography>
+              </Stack>
+              <Divider sx={{ my: 2 }} />
+            </>
+          )}
           <Stack>
             <Typography variant="body2" margin="0 0 4px 0">
               {t('Status')}
             </Typography>
-            <Stack sx={{ mt: 1, flexDirection: 'row' }}>
+            <Stack sx={{ mt: 1, flexDirection: 'row', gap: 1 }}>
               <CircularProgress size={24} />
             </Stack>
           </Stack>

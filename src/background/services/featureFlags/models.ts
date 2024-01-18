@@ -23,6 +23,7 @@ export enum FeatureGates {
   SEEDLESS_MFA_AUTHENTICATOR = 'seedless-mfa-authenticator',
   SEEDLESS_MFA_YUBIKEY = 'seedless-mfa-yubikey',
   SEEDLESS_SIGNING = 'seedless-signing',
+  UNIFIED_BRIDGE_CCTP = 'unified-bridge-cctp',
   DEBANK_TRANSACTION_PARSING = 'debank-transaction-parsing',
   DEBANK_TRANSACTION_PRE_EXECUTION = 'debank-transaction-pre-execution',
 }
@@ -54,6 +55,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.SEEDLESS_MFA_AUTHENTICATOR]: false,
   [FeatureGates.SEEDLESS_MFA_YUBIKEY]: false,
   [FeatureGates.SEEDLESS_SIGNING]: false,
+  [FeatureGates.UNIFIED_BRIDGE_CCTP]: false,
   [FeatureGates.DEBANK_TRANSACTION_PARSING]: false,
   [FeatureGates.DEBANK_TRANSACTION_PRE_EXECUTION]: false,
 };
@@ -84,6 +86,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.SEEDLESS_MFA_AUTHENTICATOR]: true,
   [FeatureGates.SEEDLESS_MFA_YUBIKEY]: true,
   [FeatureGates.SEEDLESS_SIGNING]: true,
+  [FeatureGates.UNIFIED_BRIDGE_CCTP]: true,
   [FeatureGates.DEBANK_TRANSACTION_PARSING]: false,
   [FeatureGates.DEBANK_TRANSACTION_PRE_EXECUTION]: false,
 };

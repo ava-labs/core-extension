@@ -37,10 +37,12 @@ export function ElapsedTimer({
   offloadDelayTooltip,
   startTime,
   endTime,
+  hasError,
 }: {
   offloadDelayTooltip?: React.ReactChild;
   startTime: number;
   endTime?: number;
+  hasError?: boolean;
 }) {
   const { t } = useTranslation();
   const { hours, minutes, seconds, reset, isRunning } = useStopwatch({
@@ -73,11 +75,11 @@ export function ElapsedTimer({
 
   return (
     <TimeElapsed
-      complete={!!endTime}
+      complete={!!endTime && !hasError}
       sx={{
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: hasError ? 'center' : 'space-between',
       }}
     >
       <Typography>
@@ -85,7 +87,9 @@ export function ElapsedTimer({
         {displayedMinutes}:{displayedSeconds}
       </Typography>
       {endTime ? (
-        <CheckIcon size="12" sx={{ ml: 0.5 }} />
+        hasError ? null : (
+          <CheckIcon size="12" sx={{ ml: 0.5 }} />
+        )
       ) : (
         offloadDelayTooltip ?? (
           <Tooltip title={t('Time Elapsed')}>

@@ -19,13 +19,17 @@ import { getNftMetadata } from '@src/utils/getNftMetadata';
 import { getSmallImageForNFT } from '../balances/nft/utils/getSmallImageForNFT';
 import { resolve } from '@src/utils/promiseResolver';
 import { TokenType } from '../balances/models';
+import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
 
 @singleton()
 export class HistoryServiceGlacier {
   private glacierSdkInstance = new Glacier({
     BASE: process.env.GLACIER_URL,
   });
-  constructor(private accountsService: AccountsService) {}
+  constructor(
+    private accountsService: AccountsService,
+    private unifiedBridgeService: UnifiedBridgeService
+  ) {}
 
   async getHistory(network: Network): Promise<TxHistoryItem[]> {
     const account = this.getAddress(network.chainId);
@@ -81,6 +85,17 @@ export class HistoryServiceGlacier {
     return method;
   }
 
+  private isBridgeAddress(address?: string) {
+    if (!address) {
+      return false;
+    }
+
+    return [
+      ETHEREUM_ADDRESS,
+      ...this.unifiedBridgeService.state.addresses,
+    ].includes(address.toLowerCase());
+  }
+
   private getHistoryItemCategories(
     { nativeTransaction, erc20Transfers, erc721Transfers }: TransactionDetails,
     address: string
@@ -88,7 +103,10 @@ export class HistoryServiceGlacier {
     const nativeOnly = !erc20Transfers && !erc721Transfers;
     const method = this.parseRawMethod(nativeTransaction.method?.methodName);
 
-    const isBridge = erc20Transfers?.[0]?.from?.address === ETHEREUM_ADDRESS;
+    const isBridge =
+      this.isBridgeAddress(erc20Transfers?.[0]?.from?.address) ||
+      this.isBridgeAddress(erc20Transfers?.[0]?.to?.address);
+
     const isSwap = method.toLowerCase().includes('swap');
     const isNativeSend =
       nativeOnly && nativeTransaction.from.address === address;

@@ -5,6 +5,8 @@ import {
   useBridgeSDK,
   useGetTokenSymbolOnNetwork,
 } from '@avalabs/bridge-sdk';
+import { uniqBy } from 'lodash';
+
 import { getBalances } from '../utils/getBalances';
 import { AssetBalance } from '../models';
 import { useMemo } from 'react';
@@ -13,6 +15,9 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { AccountType } from '@src/background/services/accounts/models';
+import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
+
+import { isUnifiedBridgeAsset } from '../utils/isUnifiedBridgeAsset';
 
 /**
  * Get for the current chain.
@@ -21,7 +26,7 @@ import { AccountType } from '@src/background/services/accounts/models';
  */
 export function useAssetBalancesEVM(
   chain: Blockchain.AVALANCHE | Blockchain.ETHEREUM,
-  asset?: Asset
+  selectedAsset?: Asset
 ): {
   assetsWithBalances: AssetBalance[];
 } {
@@ -31,6 +36,7 @@ export function useAssetBalancesEVM(
   } = useAccountsContext();
 
   const { avalancheAssets, ethereumAssets, currentBlockchain } = useBridgeSDK();
+  const { transferableAssets: unifiedBridgeAssets } = useUnifiedBridgeContext();
 
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
 
@@ -56,53 +62,70 @@ export function useAssetBalancesEVM(
         return obj;
       }, {});
 
-    const assets = asset
-      ? { [asset.symbol]: asset }
-      : isAvalanche
-      ? avalancheAssets
-      : filteredEthereumAssets;
+    const abAssets = Object.values(
+      isAvalanche ? avalancheAssets : filteredEthereumAssets
+    );
 
-    // filter out assets for networks not available
-    const availableAssets = Object.values(assets).filter(
-      ({ nativeNetwork }: Asset) => {
-        if (chain === Blockchain.AVALANCHE) {
-          if (
-            nativeNetwork === Blockchain.ETHEREUM &&
-            !featureFlags[FeatureGates.BRIDGE_ETH]
-          ) {
-            // ETH is not available filter ETH tokens out
-            return false;
-          }
-          if (nativeNetwork === Blockchain.BITCOIN) {
-            // Filter out BTC tokens if BTC bridge is not available, or
-            // the active account was imported via WalletConnect (the BTC address is unknown).
+    if (!abAssets.length) {
+      return [];
+    }
 
-            const isBtcSupportedByActiveAccount =
-              activeAccount?.addressBTC &&
-              activeAccount?.type !== AccountType.WALLET_CONNECT;
+    const allAssets = selectedAsset
+      ? [selectedAsset]
+      : // Deduplicate the assets since both Unified & legacy SDKs could allow bridging the same assets.
+        // unifiedBridgeAssets go first so that they're not the ones removed (we prefer Unified bridge over legacy)
+        uniqBy([...unifiedBridgeAssets, ...abAssets], (asset) =>
+          isUnifiedBridgeAsset(asset)
+            ? asset.symbol
+            : getTokenSymbolOnNetwork(asset.symbol, chain)
+        );
 
-            return (
-              featureFlags[FeatureGates.BRIDGE_BTC] &&
-              isBtcSupportedByActiveAccount
-            );
-          }
+    const availableAssets = allAssets.filter((asset) => {
+      if (chain === Blockchain.AVALANCHE) {
+        if (isUnifiedBridgeAsset(asset)) {
+          return featureFlags[FeatureGates.BRIDGE_ETH];
         }
 
-        // no further filtering is needed since it's not possible to bridge between eth and btc
-        return true;
+        const { nativeNetwork } = asset;
+
+        if (
+          nativeNetwork === Blockchain.ETHEREUM &&
+          !featureFlags[FeatureGates.BRIDGE_ETH]
+        ) {
+          // ETH is not available filter ETH tokens out
+          return false;
+        }
+        if (nativeNetwork === Blockchain.BITCOIN) {
+          // Filter out BTC tokens if BTC bridge is not available, or
+          // the active account was imported via WalletConnect (the BTC address is unknown).
+
+          const isBtcSupportedByActiveAccount =
+            activeAccount?.addressBTC &&
+            activeAccount?.type !== AccountType.WALLET_CONNECT;
+
+          return (
+            featureFlags[FeatureGates.BRIDGE_BTC] &&
+            isBtcSupportedByActiveAccount
+          );
+        }
       }
-    );
+
+      // no further filtering is needed since it's not possible to bridge between eth and btc
+      return true;
+    });
 
     return getBalances(availableAssets, tokens).map((token) => {
       return {
         ...token,
-        symbolOnNetwork: getTokenSymbolOnNetwork(token.symbol, chain),
+        symbolOnNetwork: isUnifiedBridgeAsset(token.asset)
+          ? token.asset.symbol
+          : getTokenSymbolOnNetwork(token.symbol, chain),
       };
     });
   }, [
     chain,
     currentBlockchain,
-    asset,
+    selectedAsset,
     avalancheAssets,
     ethereumAssets,
     tokens,
@@ -110,6 +133,7 @@ export function useAssetBalancesEVM(
     getTokenSymbolOnNetwork,
     activeAccount?.type,
     activeAccount?.addressBTC,
+    unifiedBridgeAssets,
   ]);
 
   const assetsWithBalances = balances.sort(

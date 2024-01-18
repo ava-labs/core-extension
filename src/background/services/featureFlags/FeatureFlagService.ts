@@ -170,7 +170,10 @@ export class FeatureFlagService {
     getAndDispatchFlags();
   }
 
-  addListener(event: FeatureFlagEvents, callback: (data: unknown) => void) {
+  addListener(
+    event: FeatureFlagEvents,
+    callback: (data: FeatureFlags) => void
+  ) {
     this.#eventEmitter.on(event, callback);
   }
 }

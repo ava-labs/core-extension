@@ -1,5 +1,7 @@
 import { Blockchain } from '@avalabs/bridge-sdk';
+import { Chain } from '@avalabs/bridge-unified';
 import { Network } from '@avalabs/chains-sdk';
+import { networkToBlockchain } from '@src/pages/Bridge/utils/blockchainConversion';
 
 function getAvalancheExplorerBaseUrl(isMainnet = true) {
   return isMainnet
@@ -24,11 +26,14 @@ function getBTCBlockchainLink(txHash: string, isMainnet: boolean) {
   return `https://www.blockchain.com/${env}/tx/${txHash}`;
 }
 export function getExplorerAddress(
-  chain: Blockchain,
+  chain: Blockchain | Chain,
   txHash: string,
   isMainnet: boolean
 ) {
-  switch (chain) {
+  const normalizedChain =
+    typeof chain === 'object' ? networkToBlockchain(chain) : chain;
+
+  switch (normalizedChain) {
     case Blockchain.AVALANCHE:
       return getAvalancheTxLink(txHash, isMainnet);
     case Blockchain.BITCOIN:

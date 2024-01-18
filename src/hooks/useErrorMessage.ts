@@ -4,6 +4,7 @@ import { errorCodes } from 'eth-rpc-errors';
 
 import { FireblocksErrorCode } from '@src/background/services/fireblocks/models';
 import { CommonError, isWrappedError } from '@src/utils/errors';
+import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
 
 type ErrorTranslation = {
   title: string;
@@ -82,6 +83,26 @@ export const useErrorMessage = () => {
     [t]
   );
 
+  const unifiedBridgeErrors: Record<UnifiedBridgeError, ErrorTranslation> =
+    useMemo(
+      () => ({
+        [UnifiedBridgeError.AmountLessThanFee]: {
+          title: t('Amount is too low'),
+          hint: t('The amount cannot be lower than the bridging fee'),
+        },
+        [UnifiedBridgeError.InvalidFee]: {
+          title: t('The bridging fee is unknown'),
+        },
+        [UnifiedBridgeError.UnknownAsset]: {
+          title: t('This asset cannot be bridged'),
+        },
+        [UnifiedBridgeError.UnsupportedNetwork]: {
+          title: t('Unsupported network'),
+        },
+      }),
+      [t]
+    );
+
   const commonErrors: Record<CommonError, ErrorTranslation> = useMemo(
     () => ({
       [CommonError.Unknown]: {
@@ -94,6 +115,20 @@ export const useErrorMessage = () => {
         title: t('Network error'),
         hint: t('Please try again'),
       },
+      [CommonError.NoActiveAccount]: {
+        title: t('No account is active'),
+        hint: t('Please try again'),
+      },
+      [CommonError.NoActiveNetwork]: {
+        title: t('No active network'),
+        hint: t('Please try again'),
+      },
+      [CommonError.UnknownNetwork]: {
+        title: t('Unknown network'),
+      },
+      [CommonError.UnknownNetworkFee]: {
+        title: t('Unknown network fee'),
+      },
     }),
     [t]
   );
@@ -101,10 +136,11 @@ export const useErrorMessage = () => {
   const messages = useMemo(
     () => ({
       ...fireblocksErrors,
+      ...unifiedBridgeErrors,
       ...commonErrors,
       ...standardRpcErrors,
     }),
-    [fireblocksErrors, commonErrors, standardRpcErrors]
+    [fireblocksErrors, commonErrors, standardRpcErrors, unifiedBridgeErrors]
   );
 
   return useCallback(
@@ -116,7 +152,7 @@ export const useErrorMessage = () => {
       let message: ErrorTranslation = messages[CommonError.Unknown];
 
       if (isWrappedError(error)) {
-        message = messages[error.data.reason];
+        message = messages[error.data.reason] ?? messages[CommonError.Unknown];
       } else if (
         typeof error === 'object' &&
         error !== null &&

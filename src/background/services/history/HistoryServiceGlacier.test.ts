@@ -75,6 +75,9 @@ const mockedAccountsService = {
     addressC: userAddress,
   },
 } as any;
+const mockedUnifiedBridgeService = {
+  state: { addresses: [] },
+} as any;
 
 const senderAddress = 'Sender Address';
 
@@ -340,7 +343,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
   });
   describe('getHistory', () => {
     it('should return an empty array if account is missing', async () => {
-      const service = new HistoryServiceGlacier({} as any);
+      const service = new HistoryServiceGlacier(
+        {} as any,
+        mockedUnifiedBridgeService
+      );
       try {
         const result = await service.getHistory(network);
         expect(result).toStrictEqual([]);
@@ -356,7 +362,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
           listTransactions: jest.fn().mockRejectedValue(mockedError),
         };
       });
-      const service = new HistoryServiceGlacier(mockedAccountsService);
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      );
       try {
         const result = await service.getHistory(network);
         expect(result).toStrictEqual([]);
@@ -367,7 +376,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
 
     it('should return expected results', async () => {
       // detailsWithInternalTransactions, detailsForFailedTransaction, and txDetails1 should be filtered
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      );
       try {
         const result = await service.getHistory(network);
         expect(result.length).toEqual(1);
@@ -380,7 +392,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
 
   describe('getAddress', () => {
     it('should return btc Address when param is BTC network ID', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getAddress(ChainId.BITCOIN);
       expect(result).toEqual(btcAddress);
 
@@ -389,7 +404,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
     });
 
     it('should return C Address when param is non-BTC network ID', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const networks = [
         ChainId.AVALANCHE_MAINNET_ID,
         ChainId.AVALANCHE_TESTNET_ID,
@@ -414,17 +432,26 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
 
   describe('parseRawMethod', () => {
     it('should return method name with startCase', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.parseRawMethod('approve(address,uint256)');
       expect(result).toEqual('Approve');
     });
     it('should return empty string if no method name was provided', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.parseRawMethod();
       expect(result).toEqual('');
     });
     it('should return provided method name if open parentheses is not in method name', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const methodName = 'Hello!';
       const result = service.parseRawMethod(methodName);
       expect(result).toEqual(methodName);
@@ -433,12 +460,18 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
 
   describe('getHistoryItemCategories', () => {
     it('should return isBridge as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isBridge).toBeFalsy();
     });
     it('should return isBridge as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
 
       const bridgeTx = {
         ...txDetails1,
@@ -450,12 +483,18 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isContractCall).toBeFalsy();
     });
     it('should return isSwap as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isSwap).toBeFalsy();
     });
     it('should return isSwap as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const swapNativeTx = {
         ...nativeTx,
         method: {
@@ -472,7 +511,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isContractCall).toBeTruthy();
     });
     it('should return isNativeSend as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isNativeSend).toBeFalsy();
       const sendNativeTx = {
@@ -489,7 +531,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result2.isNativeSend).toBeFalsy();
     });
     it('should return isNativeSend as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const sendNativeTx = {
         ...nativeTx,
         from: {
@@ -505,7 +550,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isContractCall).toBeFalsy();
     });
     it('should return isNativeReceive as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isNativeReceive).toBeFalsy();
 
@@ -523,7 +571,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result2.isNativeReceive).toBeFalsy();
     });
     it('should return isNativeReceive as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const receiveNativeTx = {
         ...nativeTx,
         to: {
@@ -539,12 +590,18 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isContractCall).toBeFalsy();
     });
     it('should return isNFTPurchase as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isNFTPurchase).toBeFalsy();
     });
     it('should return isNFTPurchase as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const receiveNativeTx = {
         ...nativeTx,
         method: {
@@ -576,12 +633,18 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isContractCall).toBeTruthy();
     });
     it('should return isApprove as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isApprove).toBeFalsy();
     });
     it('should return isApprove as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const approveNativeTx = {
         ...nativeTx,
         method: {
@@ -598,7 +661,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isContractCall).toBeTruthy();
     });
     it('should return isTransfer as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const approveNativeTx = {
         ...nativeTx,
         method: {
@@ -613,19 +679,28 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isTransfer).toBeFalsy();
     });
     it('should return isTransfer as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isTransfer).toBeTruthy();
       expect(result.type).toEqual(TransactionType.TRANSFER);
       expect(result.isContractCall).toBeFalsy();
     });
     it('should return isAirdrop as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isAirdrop).toBeFalsy();
     });
     it('should return isAirdrop as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const airdropNativeTx = {
         ...nativeTx,
         method: {
@@ -642,12 +717,18 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isContractCall).toBeTruthy();
     });
     it('should return isUnwrap as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isUnwrap).toBeFalsy();
     });
     it('should return isUnwrap as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const unwrapNativeTx = {
         ...nativeTx,
         method: {
@@ -664,12 +745,18 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isContractCall).toBeTruthy();
     });
     it('should return isFillOrder as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getHistoryItemCategories(txDetails1, userAddress);
       expect(result.isFillOrder).toBeFalsy();
     });
     it('should return isFillOrder as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const fillNativeTx = {
         ...nativeTx,
         method: {
@@ -689,7 +776,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
 
   describe('getSenderInfo', () => {
     it('should return isOutgoing as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getSenderInfo(
         historyItemCategories,
         txDetails1,
@@ -698,7 +788,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isOutgoing).toBeFalsy();
     });
     it('should return isOutgoing as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const categories = {
         ...historyItemCategories,
         isNativeSend: true,
@@ -725,7 +818,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
     });
 
     it('should return isIncoming as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getSenderInfo(
         historyItemCategories,
         txDetails1,
@@ -734,7 +830,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isIncoming).toBeFalsy();
     });
     it('should return isIncoming as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const categories = {
         ...historyItemCategories,
         isNativeReceive: true,
@@ -760,7 +859,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result2.isIncoming).toBeTruthy();
     });
     it('should return isSender as false', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getSenderInfo(
         historyItemCategories,
         txDetails1,
@@ -769,7 +871,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isSender).toBeFalsy();
     });
     it('should return isSender as true', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const sendNativeTx = {
         ...nativeTx,
         from: {
@@ -788,7 +893,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
       expect(result.isSender).toBeTruthy();
     });
     it('should return expected from and to', () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = service.getSenderInfo(
         historyItemCategories,
         txDetails1,
@@ -801,12 +909,18 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
 
   describe('getTokens', () => {
     it('should return empty array when no tokens are available', async () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = await service.getTokens(txDetails1, network, userAddress);
       expect(result.length).toEqual(0);
     });
     it('should return expected nativeToken info when nativeTransaction has a value', async () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const nativeTxWithValue = {
         ...nativeTx,
         value: '100000000000000000000',
@@ -830,7 +944,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
     });
 
     it('should return token info from erc20Transfer', async () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = await service.getTokens(
         { ...txDetails1, erc20Transfers: [erc20Tx] },
         network,
@@ -851,7 +968,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
     });
 
     it('should return token info from erc721Transfer', async () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = await service.getTokens(
         { ...txDetails1, erc721Transfers: [erc721Tx] },
         network,
@@ -872,7 +992,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
     });
 
     it('should return token info with imageUri from fetched metadata', async () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
 
       const result = await service.getTokens(
         {
@@ -893,7 +1016,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
     });
 
     it('should return token info with empty imageUri if fails to fetch metadata', async () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
 
       (getNftMetadata as jest.Mock).mockImplementation(() =>
         Promise.reject(new Error('Failed to fetch metadata'))
@@ -918,7 +1044,10 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
 
   describe('convertToTxHistoryItem', () => {
     it('should return expected value', async () => {
-      const service = new HistoryServiceGlacier(mockedAccountsService) as any;
+      const service = new HistoryServiceGlacier(
+        mockedAccountsService,
+        mockedUnifiedBridgeService
+      ) as any;
       const result = await service.convertToTxHistoryItem(
         detailsForTransfer,
         network,

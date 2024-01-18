@@ -101,7 +101,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
           if (historyItem.isContractCall) {
             return t('Contract Call');
           }
-          return historyItem.tokens[0]?.name;
+          return historyItem.tokens[0]?.symbol;
       }
     }
   }, [network, t, historyItem]);

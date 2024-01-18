@@ -1,13 +1,28 @@
 import { Blockchain, BridgeConfig } from '@avalabs/bridge-sdk';
+import { Chain } from '@avalabs/bridge-unified';
 import { ChainId, Network } from '@avalabs/chains-sdk';
+import { caipToChainId } from '@src/utils/caipConversion';
 import { t } from 'i18next';
 
 export const blockchainToNetwork = (
-  blockChain: Blockchain,
+  blockChain: Blockchain | Chain,
   networks: Network[],
   bridgeConfig: BridgeConfig,
   isTestnet?: boolean
 ) => {
+  if (typeof blockChain === 'object') {
+    // We got a Chain from @avalabs/bridge-unified
+    const chain = networks.find(
+      (network) => network.chainId === caipToChainId(blockChain.chainId)
+    );
+
+    if (!chain) {
+      throw new Error(t('Blockchain not supported'));
+    }
+
+    return chain;
+  }
+
   switch (blockChain) {
     case Blockchain.AVALANCHE:
       return networks.find(
@@ -15,12 +30,13 @@ export const blockchainToNetwork = (
           network.chainId ===
           bridgeConfig.config?.critical.networks[Blockchain.AVALANCHE]
       );
-    case Blockchain.ETHEREUM:
+    case Blockchain.ETHEREUM: {
       return networks.find(
         (network) =>
           network.chainId ===
           bridgeConfig.config?.critical.networks[Blockchain.ETHEREUM]
       );
+    }
     case Blockchain.BITCOIN:
       return networks.find((network) => {
         if (isTestnet === undefined) {
@@ -38,7 +54,7 @@ export const blockchainToNetwork = (
   }
 };
 
-export const networkToBlockchain = (network: Network | undefined) => {
+export const networkToBlockchain = (network: Network | Chain | undefined) => {
   switch (network?.chainId) {
     case ChainId.AVALANCHE_MAINNET_ID:
     case ChainId.AVALANCHE_LOCAL_ID:

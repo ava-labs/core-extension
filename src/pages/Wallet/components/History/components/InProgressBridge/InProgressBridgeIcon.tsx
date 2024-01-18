@@ -6,8 +6,12 @@ import {
 } from '@avalabs/k2-components';
 export interface InProgressBridgeIconProp {
   value: number;
+  hasError?: boolean;
 }
-export function InProgressBridgeIcon({ value }: InProgressBridgeIconProp) {
+export function InProgressBridgeIcon({
+  value,
+  hasError,
+}: InProgressBridgeIconProp) {
   const theme = useTheme();
 
   return (
@@ -25,8 +29,9 @@ export function InProgressBridgeIcon({ value }: InProgressBridgeIconProp) {
         variant="determinate"
         size={32}
         thickness={2}
-        value={value}
+        value={hasError ? 100 : value}
         disableShrink={false}
+        color={hasError ? 'error' : 'secondary'}
       />
       <Stack
         sx={{
@@ -41,7 +46,9 @@ export function InProgressBridgeIcon({ value }: InProgressBridgeIconProp) {
         <BridgeIcon
           size={theme.spacing(2)}
           sx={{
-            color: theme.palette.secondary.main,
+            color: hasError
+              ? theme.palette.error.main
+              : theme.palette.secondary.main,
           }}
         />
       </Stack>

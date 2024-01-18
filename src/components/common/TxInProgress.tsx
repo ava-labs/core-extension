@@ -76,6 +76,8 @@ export function TxInProgress({
           amount={amount}
           symbol={symbol}
           nftName={nftName}
+          currentSignature={currentSignature}
+          requiredSignatures={requiredSignatures}
         />
       </Overlay>
     );
