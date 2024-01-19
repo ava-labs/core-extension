@@ -1,8 +1,12 @@
 import { Blockchain } from '@avalabs/bridge-sdk';
+import { Chain } from '@avalabs/bridge-unified';
 import { Network } from '@avalabs/chains-sdk';
+import { networkToBlockchain } from '@src/pages/Bridge/utils/blockchainConversion';
 
 function getAvalancheExplorerBaseUrl(isMainnet = true) {
-  return isMainnet ? 'https://snowtrace.io' : 'https://testnet.snowtrace.io';
+  return isMainnet
+    ? 'https://subnets.avax.network/c-chain'
+    : 'https://subnets-test.avax.network/c-chain';
 }
 
 function getAvalancheTxLink(hash: string, isMainnet = true) {
@@ -13,7 +17,7 @@ function getAvalancheTxLink(hash: string, isMainnet = true) {
 function getEtherscanLink(txHash: string, isMainnet: boolean) {
   const root = isMainnet
     ? 'https://etherscan.io'
-    : 'https://rinkeby.etherscan.io';
+    : 'https://sepolia.etherscan.io';
   return `${root}/tx/${txHash}`;
 }
 
@@ -22,11 +26,14 @@ function getBTCBlockchainLink(txHash: string, isMainnet: boolean) {
   return `https://www.blockchain.com/${env}/tx/${txHash}`;
 }
 export function getExplorerAddress(
-  chain: Blockchain,
+  chain: Blockchain | Chain,
   txHash: string,
   isMainnet: boolean
 ) {
-  switch (chain) {
+  const normalizedChain =
+    typeof chain === 'object' ? networkToBlockchain(chain) : chain;
+
+  switch (normalizedChain) {
     case Blockchain.AVALANCHE:
       return getAvalancheTxLink(txHash, isMainnet);
     case Blockchain.BITCOIN:

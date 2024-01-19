@@ -34,12 +34,12 @@ import { useIsIntersecting } from './hooks/useIsIntersecting';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
-import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/LedgerApprovalOverlay';
-import { WalletConnectApprovalOverlay } from '../SignTransaction/WalletConnectApprovalOverlay';
+import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/components/LedgerApprovalOverlay';
+import { WalletConnectApprovalOverlay } from '../SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
-import { FireblocksApprovalOverlay } from '../SignTransaction/FireblocksApprovalOverlay';
+import { FireblocksApprovalOverlay } from '../SignTransaction/components/FireblocksApproval/FireblocksApprovalOverlay';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import {
   FunctionNames,
@@ -146,7 +146,7 @@ export function SignMessage() {
     }
 
     if (isUsingLedgerWallet && action?.status === ActionStatus.SUBMITTING) {
-      return <LedgerApprovalOverlay displayData={{}} />;
+      return <LedgerApprovalOverlay />;
     }
 
     return null;

@@ -121,6 +121,12 @@ import { GetRecoveryPhraseExportStateHandler } from '@src/background/services/se
 import { InitRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/initRecoveryPhraseExport';
 import { CompleteRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/completeRecoveryPhraseExport';
 import { CancelRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/cancelRecoveryPhraseExport';
+import { UnifiedBridgeTransferAsset } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTransferAsset';
+import { UnifiedBridgeGetFee } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeGetFee';
+import { UnifiedBridgeGetState } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeGetState';
+import { UnifiedBridgeGetAssets } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeGetAssets';
+import { UnifiedBridgeEvents } from '@src/background/services/unifiedBridge/events/unifiedBridgeEvents';
+import { GetPrivateKeyHandler } from '@src/background/services/accounts/handlers/getPrivateKey';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -305,6 +311,26 @@ import { CancelRecoveryPhraseExportHandler } from '@src/background/services/seed
     token: 'ExtensionRequestHandler',
     useToken: CancelRecoveryPhraseExportHandler,
   },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: UnifiedBridgeTransferAsset,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: UnifiedBridgeGetFee,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: UnifiedBridgeGetState,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: UnifiedBridgeGetAssets,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetPrivateKeyHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -339,5 +365,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: WalletConnectEvents },
   { token: 'ExtensionEventEmitter', useToken: SeedlessTokenEvents },
   { token: 'ExtensionEventEmitter', useToken: SeedlessMfaEvents },
+  { token: 'ExtensionEventEmitter', useToken: UnifiedBridgeEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

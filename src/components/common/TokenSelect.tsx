@@ -190,59 +190,62 @@ export function TokenSelect({
     }
   }, [bridgeTokensList, onTokenChange, selectedToken]);
 
-  function rowRenderer({ key, index, style }) {
-    const token = displayTokenList[index];
+  const rowRenderer = useCallback(
+    ({ key, index, style }) => {
+      const token = displayTokenList[index];
 
-    if (!token) {
-      // Token should be truthy and should not get here. Just adding this to not break the list if this happens. This will make the row just empty.
-      return <div style={style} key={key}></div>;
-    }
-    return (
-      <StyledDropdownMenuItem
-        style={style}
-        data-testid={`token-search-menu-item-${index}`}
-        key={key}
-        onClick={() => {
-          onTokenChange(token.token);
-          onSelectToggle && onSelectToggle();
-        }}
-      >
-        <Stack
-          sx={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexGrow: 1,
+      if (!token) {
+        // Token should be truthy and should not get here. Just adding this to not break the list if this happens. This will make the row just empty.
+        return <div style={style} key={key}></div>;
+      }
+      return (
+        <StyledDropdownMenuItem
+          style={style}
+          data-testid={`token-search-menu-item-${index}`}
+          key={key}
+          onClick={() => {
+            onTokenChange(token.token);
+            onSelectToggle && onSelectToggle();
           }}
         >
           <Stack
             sx={{
               flexDirection: 'row',
+              justifyContent: 'space-between',
               alignItems: 'center',
+              flexGrow: 1,
             }}
           >
-            <TokenIcon
-              width="32px"
-              height="32px"
-              src={token.symbol === 'ETH' ? EthLogo : token.token.logoUri}
-              name={token.symbol}
-            />
-            <Typography variant="h6" sx={{ ml: 2 }}>
-              <TokenEllipsis text={token.name} maxLength={14} />
-            </Typography>
+            <Stack
+              sx={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <TokenIcon
+                width="32px"
+                height="32px"
+                src={token.symbol === 'ETH' ? EthLogo : token.token.logoUri}
+                name={token.symbol}
+              />
+              <Typography variant="h6" sx={{ ml: 2 }}>
+                <TokenEllipsis text={token.name} maxLength={14} />
+              </Typography>
+            </Stack>
+            <BalanceColumn>
+              <Typography variant="body1">
+                {token.displayValue}{' '}
+                <TokenEllipsis text={token.symbol} maxLength={8} />
+              </Typography>
+            </BalanceColumn>
           </Stack>
-          <BalanceColumn>
-            <Typography variant="body1">
-              {token.displayValue}{' '}
-              <TokenEllipsis text={token.symbol} maxLength={8} />
-            </Typography>
-          </BalanceColumn>
-        </Stack>
-      </StyledDropdownMenuItem>
-    );
-  }
+        </StyledDropdownMenuItem>
+      );
+    },
+    [displayTokenList, onSelectToggle, onTokenChange]
+  );
 
-  const renderTokenLabel = () => {
+  const renderTokenLabel = useCallback(() => {
     if (selectedToken?.unconfirmedBalance) {
       return (
         <Stack sx={{ flexDirection: 'row' }}>
@@ -262,7 +265,7 @@ export function TokenSelect({
     } else {
       return `${t('Balance')}: ${selectedToken?.balanceDisplayValue ?? '0'}`;
     }
-  };
+  }, [selectedToken, t]);
 
   return (
     <Stack sx={{ width: '100%' }}>

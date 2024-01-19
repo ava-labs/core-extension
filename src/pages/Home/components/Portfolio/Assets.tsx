@@ -1,7 +1,7 @@
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useTranslation } from 'react-i18next';
 import { TokenList } from './TokenList';
-import { useBridgeContext } from '@src/contexts/BridgeProvider';
+import { usePendingBridgeTransactions } from '@src/pages/Bridge/hooks/usePendingBridgeTransactions';
 import {
   Badge,
   Box,
@@ -35,7 +35,7 @@ enum AssetsTabs {
 export function Assets() {
   const { t } = useTranslation();
   const { network } = useNetworkContext();
-  const { bridgeTransactions } = useBridgeContext();
+  const bridgeTransactions = usePendingBridgeTransactions();
   const history = useHistory();
   const { currencyFormatter } = useSettingsContext();
   const activeNetworkAssetList = useTokensWithBalances();

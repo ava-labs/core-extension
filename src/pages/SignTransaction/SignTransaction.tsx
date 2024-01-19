@@ -1,6 +1,8 @@
 import {
   Box,
   Button,
+  CodeIcon,
+  IconButton,
   LoadingDots,
   Scrollbars,
   Skeleton,
@@ -8,58 +10,41 @@ import {
   Typography,
 } from '@avalabs/k2-components';
 import { BN } from 'bn.js';
-import {
-  AddLiquidityDisplayData,
-  ContractCall,
-  SwapExactTokensForTokenDisplayValues,
-  ApproveTransactionData,
-  SimpleSwapDisplayValues,
-} from '@src/contracts/contractParsers/models';
-import {
-  TransactionDisplayValues,
-  TransactionDisplayValuesWithGasData,
-  TxStatus,
-} from '@src/background/services/transactions/models';
+import { TxStatus } from '@src/background/services/transactions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useMemo, useState } from 'react';
-import { ApproveTx } from './ApproveTx';
-import { SwapTx } from './SwapTx';
-import { UnknownTx } from './UnknownTx';
 import { useGetTransaction } from './hooks/useGetTransaction';
-import { AddLiquidityTx } from './AddLiquidityTx';
-import { LedgerApprovalOverlay } from './LedgerApprovalOverlay';
-import { CustomSpendLimit } from './CustomSpendLimit';
+import { LedgerApprovalOverlay } from './components/LedgerApprovalOverlay';
 import { SignTxErrorBoundary } from './components/SignTxErrorBoundary';
 import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog';
 import { TransactionProgressState } from './models';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenType } from '@src/background/services/balances/models';
-import { hexToBN } from '@avalabs/utils-sdk';
 import { Trans, useTranslation } from 'react-i18next';
 import { RawTransactionData } from './components/RawTransactionData';
 import { CustomFees } from '@src/components/common/CustomFees';
 import { useSignTransactionHeader } from './hooks/useSignTransactionHeader';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import { KeystoneApprovalOverlay } from './KeystoneApprovalOverlay';
+import { KeystoneApprovalOverlay } from './components/KeystoneApprovalOverlay';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import Dialog from '@src/components/common/Dialog';
-import { TransactionErrorDialog } from './TransactionErrorDialog';
-import { WalletConnectApprovalOverlay } from './WalletConnectApprovalOverlay';
+import { TransactionErrorDialog } from './components/TransactionErrorDialog';
+import { WalletConnectApprovalOverlay } from './components/WalletConnectApproval/WalletConnectApprovalOverlay';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
-import { FireblocksApprovalOverlay } from './FireblocksApprovalOverlay';
-
-const hasGasPriceData = (
-  displayData: TransactionDisplayValues
-): displayData is TransactionDisplayValuesWithGasData => {
-  return (
-    typeof displayData.maxFeePerGas === 'bigint' &&
-    typeof displayData.gasLimit === 'number' &&
-    displayData.gasLimit > 0
-  );
-};
+import { FireblocksApprovalOverlay } from './components/FireblocksApproval/FireblocksApprovalOverlay';
+import { TxBalanceChange } from './components/TxBalanceChange';
+import { TransactionActionInfo } from './components/TransactionActionInfo/TransactionActionInfo';
+import {
+  ApprovalSection,
+  ApprovalSectionBody,
+  ApprovalSectionHeader,
+} from '@src/components/common/approval/ApprovalSection';
+import { NetworkDetails, WebsiteDetails } from './components/ApprovalTxDetails';
+import { getToAddressesFromTransaction } from './utils/getToAddressesFromTransaction';
+import { SpendLimitInfo } from './components/SpendLimitInfo/SpendLimitInfo';
 
 export function SignTransactionPage() {
   const { t } = useTranslation();
@@ -69,29 +54,24 @@ export function SignTransactionPage() {
   }, []);
   const {
     updateTransaction,
-    id,
-    contractType,
     setCustomFee,
-    showCustomSpendLimit,
-    setShowCustomSpendLimit,
     showRawTransactionData,
     setShowRawTransactionData,
-    setSpendLimit,
-    displaySpendLimit,
-    limitFiatValue,
-    customSpendLimit,
     selectedGasFee,
     network,
     networkFee,
     hasTransactionError,
     setHasTransactionError,
-    ...params
+    transaction,
+    maxFeePerGas,
+    gasLimit,
+    fee,
   } = useGetTransaction(requestId);
   const [transactionProgressState, setTransactionProgressState] = useState(
     TransactionProgressState.NOT_APPROVED
   );
   const tokens = useTokensWithBalances(false, network?.chainId);
-  const header = useSignTransactionHeader(contractType);
+  const header = useSignTransactionHeader(transaction);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
@@ -99,58 +79,46 @@ export function SignTransactionPage() {
 
   useLedgerDisconnectedDialog(window.close, undefined, network);
 
-  const hasTokenBalance = useMemo(
-    () => tokens.find(({ type }) => type === TokenType.NATIVE)?.balance,
+  const nativeTokenWithBalance = useMemo(
+    () => tokens.find(({ type }) => type === TokenType.NATIVE),
     [tokens]
   );
   const hasEnoughForNetworkFee = useMemo(() => {
-    return tokens
-      .find(({ type }) => type === TokenType.NATIVE)
-      ?.balance.gte(
-        new BN(
-          (params.maxFeePerGas
-            ? params.maxFeePerGas * BigInt(params.gasLimit || 0n)
-            : 0n
-          ).toString()
-        )
-      );
-  }, [tokens, params.maxFeePerGas, params.gasLimit]);
+    return nativeTokenWithBalance?.balance.gte(
+      new BN(
+        (transaction?.displayValues?.gas.maxFeePerGas
+          ? transaction?.displayValues?.gas.maxFeePerGas *
+            BigInt(transaction?.displayValues?.gas.gasLimit || 0n)
+          : 0n
+        ).toString()
+      )
+    );
+  }, [nativeTokenWithBalance, transaction]);
 
-  const cancelHandler = () => {
-    if (id) {
+  const cancelHandler = useCallback(() => {
+    if (transaction?.id) {
       updateTransaction({
         status: TxStatus.ERROR_USER_CANCELED,
-        id: id,
+        id: transaction?.id,
       });
       window.close();
     }
-  };
+  }, [transaction?.id, updateTransaction]);
 
   useWindowGetsClosedOrHidden(cancelHandler);
 
-  const displayData: TransactionDisplayValues = {
-    ...params,
-    contractType,
-  };
-
-  const hasFeeInformation = Boolean(networkFee) && hasGasPriceData(displayData);
   const isReadyForApproval =
-    hasTokenBalance &&
-    hasFeeInformation &&
+    nativeTokenWithBalance &&
     transactionProgressState === TransactionProgressState.NOT_APPROVED;
 
-  const requestedApprovalLimit = displayData.approveData
-    ? hexToBN(displayData.approveData.limit)
-    : undefined;
-
-  const submit = async () => {
+  const submit = useCallback(async () => {
     setTransactionProgressState(TransactionProgressState.PENDING);
 
     await updateTransaction({
       status: TxStatus.SUBMITTING,
-      id: id,
+      id: transaction?.id,
     }).finally(() => window.close());
-  };
+  }, [transaction?.id, updateTransaction]);
 
   const { handleApproval, handleRejection, isApprovalOverlayVisible } =
     useApprovalHelpers({
@@ -158,7 +126,7 @@ export function SignTransactionPage() {
       onReject: cancelHandler,
     });
 
-  if (!Object.keys(displayData).length) {
+  if (!transaction) {
     return (
       <Stack
         sx={{
@@ -173,23 +141,10 @@ export function SignTransactionPage() {
     );
   }
 
-  if (showCustomSpendLimit) {
-    return (
-      <CustomSpendLimit
-        site={displayData.site || { domain: 'unkown' }}
-        requestedApprovalLimit={requestedApprovalLimit}
-        spendLimit={customSpendLimit}
-        token={displayData.tokenToBeApproved}
-        onClose={() => setShowCustomSpendLimit(false)}
-        setSpendLimit={setSpendLimit}
-      />
-    );
-  }
-
   if (showRawTransactionData) {
     return (
       <RawTransactionData
-        data={displayData.txParams?.data}
+        data={transaction?.txParams?.data}
         onClose={() => setShowRawTransactionData(false)}
       />
     );
@@ -200,7 +155,11 @@ export function SignTransactionPage() {
       {isApprovalOverlayVisible && (
         <>
           {isUsingLedgerWallet && (
-            <LedgerApprovalOverlay displayData={displayData} />
+            <LedgerApprovalOverlay
+              fee={fee}
+              feeSymbol={network?.networkToken.symbol}
+              {...getToAddressesFromTransaction(transaction)}
+            />
           )}
 
           {isUsingKeystoneWallet && (
@@ -260,62 +219,38 @@ export function SignTransactionPage() {
             }}
           >
             <SignTxErrorBoundary>
-              {
-                {
-                  [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS]: (
-                    <SwapTx
-                      {...(displayData as SwapExactTokensForTokenDisplayValues)}
-                      setShowRawTransactionData={setShowRawTransactionData}
-                      network={network}
-                    />
-                  ),
-                  [ContractCall.SIMPLE_SWAP]: (
-                    <SwapTx
-                      {...(displayData as SimpleSwapDisplayValues)}
-                      setShowRawTransactionData={setShowRawTransactionData}
-                      network={network}
-                    />
-                  ),
-                  [ContractCall.APPROVE]: (
-                    <ApproveTx
-                      {...(displayData as ApproveTransactionData)}
-                      setShowCustomSpendLimit={setShowCustomSpendLimit}
-                      setShowRawTransactionData={setShowRawTransactionData}
-                      displaySpendLimit={displaySpendLimit}
-                      requestedApprovalLimit={requestedApprovalLimit}
-                      limitFiatValue={limitFiatValue}
-                      network={network}
-                    />
-                  ),
-                  [ContractCall.ADD_LIQUIDITY]: (
-                    <AddLiquidityTx
-                      {...(displayData as AddLiquidityDisplayData)}
-                      setShowRawTransactionData={setShowRawTransactionData}
-                      network={network}
-                    />
-                  ),
-                  [ContractCall.ADD_LIQUIDITY_AVAX]: (
-                    <AddLiquidityTx
-                      {...(displayData as AddLiquidityDisplayData)}
-                      setShowRawTransactionData={setShowRawTransactionData}
-                      network={network}
-                    />
-                  ),
-                  ['unknown']: (
-                    <UnknownTx
-                      {...(displayData as TransactionDisplayValues)}
-                      setShowRawTransactionData={setShowRawTransactionData}
-                      network={network}
-                    />
-                  ),
-                }[contractType || 'unknown']
-              }
+              <Stack sx={{ width: '100%', gap: 3, pt: 1 }}>
+                <ApprovalSection>
+                  <ApprovalSectionHeader label={t('Transaction Details')}>
+                    <IconButton
+                      size="small"
+                      sx={{ px: 0, minWidth: 'auto' }}
+                      onClick={() => setShowRawTransactionData(true)}
+                    >
+                      <CodeIcon />
+                    </IconButton>
+                  </ApprovalSectionHeader>
+                  <ApprovalSectionBody sx={{ py: 1 }}>
+                    {transaction.site && (
+                      <WebsiteDetails site={transaction.site} />
+                    )}
+                    {network && <NetworkDetails network={network} />}
+
+                    <TransactionActionInfo transaction={transaction} />
+                  </ApprovalSectionBody>
+                </ApprovalSection>
+              </Stack>
+              <SpendLimitInfo
+                transaction={transaction}
+                updateTransaction={updateTransaction}
+              />
+              <TxBalanceChange transaction={transaction} />
 
               <Stack sx={{ gap: 1, width: '100%' }}>
-                {hasFeeInformation ? (
+                {maxFeePerGas && gasLimit ? (
                   <CustomFees
-                    maxFeePerGas={displayData.maxFeePerGas}
-                    limit={displayData.gasLimit}
+                    maxFeePerGas={maxFeePerGas}
+                    limit={gasLimit}
                     onChange={setCustomFee}
                     selectedGasFeeModifier={selectedGasFee}
                     network={network}
@@ -371,10 +306,10 @@ export function SignTransactionPage() {
             size="large"
             fullWidth
             onClick={() => {
-              id &&
+              transaction?.id &&
                 updateTransaction({
                   status: TxStatus.ERROR_USER_CANCELED,
-                  id: id,
+                  id: transaction?.id,
                 });
               window.close();
             }}
@@ -402,7 +337,7 @@ export function SignTransactionPage() {
             onConfirm={async () => {
               updateTransaction({
                 status: TxStatus.ERROR,
-                id: id,
+                id: transaction?.id,
                 error: 'Invalid param: chainId',
               });
               setHasTransactionError(false);

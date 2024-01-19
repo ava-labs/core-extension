@@ -20,10 +20,10 @@ import {
   Typography,
 } from '@avalabs/k2-components';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/LedgerApprovalOverlay';
+import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/components/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
-import { KeystoneApprovalOverlay } from '../SignTransaction/KeystoneApprovalOverlay';
+import { KeystoneApprovalOverlay } from '../SignTransaction/components/KeystoneApprovalOverlay';
 
 export function BitcoinSignTx() {
   const { t } = useTranslation();
@@ -65,12 +65,11 @@ export function BitcoinSignTx() {
     if (isUsingLedgerWallet) {
       return (
         <LedgerApprovalOverlay
-          displayData={{
-            toAddress: displayData.sendState.address,
-            amount: btcAmountDisplay,
-            symbol: 'BTC',
-            fee: sendFeeDisplay,
-          }}
+          to={displayData.sendState.address}
+          amount={btcAmountDisplay}
+          symbol="BTC"
+          fee={sendFeeDisplay}
+          feeSymbol="BTC"
         />
       );
     }

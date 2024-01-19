@@ -16,6 +16,8 @@ export enum SentryExceptionTypes {
   SEEDLESS = 'seedless',
 
   FIREBLOCKS = 'fireblocks',
+
+  UNIFIED_BRIDGE = 'unifiedBridge',
 }
 
 // wrapper to make error reporting contexts unfirom accross the codebase

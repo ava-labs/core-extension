@@ -1,6 +1,6 @@
 import { StorageService } from '../storage/StorageService';
 import { DefiService } from './DefiService';
-import { DebankService } from './debank';
+import { DebankService } from '../debank';
 import {
   DefiItemGroup,
   DefiPortfolio,

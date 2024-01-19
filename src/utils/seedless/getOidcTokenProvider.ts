@@ -13,7 +13,7 @@ export const getOidcTokenProvider = (
   authProvider?: SeedlessAuthProvider
 ): OidcTokenGetter | never => {
   if (!authProvider || !SUPPORTED_PROVIDERS[authProvider]) {
-    throw new Error(`Unsupported provider: ${authProvider}`);
+    throw new Error(`Unsupported provider: ${authProvider || 'unknown'}`);
   }
 
   return SUPPORTED_PROVIDERS[authProvider];

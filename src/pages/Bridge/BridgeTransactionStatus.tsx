@@ -1,11 +1,4 @@
-import {
-  Blockchain,
-  usePrice,
-  BridgeTransaction,
-  getNativeSymbol,
-  usePriceForChain,
-  useBridgeSDK,
-} from '@avalabs/bridge-sdk';
+import { Blockchain, usePrice, useBridgeSDK } from '@avalabs/bridge-sdk';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory, useParams } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
@@ -36,14 +29,26 @@ import {
   ChevronDownIcon,
   useTheme,
 } from '@avalabs/k2-components';
+
 import Dialog from '@src/components/common/Dialog';
+import { bigintToBig } from '@src/utils/bigintToBig';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { ConfirmationTracker } from '@src/components/common/ConfirmationTracker';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+
 import { blockchainToNetwork } from './utils/blockchainConversion';
+import { getNativeTokenSymbol } from './utils/getNativeTokenSymbol';
+import { isUnifiedBridgeTransfer } from './utils/isUnifiedBridgeTransfer';
+
+import { useBridgeAmounts } from './hooks/useBridgeAmounts';
 import { useSyncBridgeConfig } from './hooks/useSyncBridgeConfig';
+import { useBridgeNetworkPrice } from './hooks/useBridgeNetworkPrice';
+import { useBridgeTransferStatus } from './hooks/useBridgeTransferStatus';
+
 import { BridgeCard } from './components/BridgeCard';
 import { OffloadTimerTooltip } from './components/OffloadTimerTooltip';
+import { usePendingBridgeTransactions } from './hooks/usePendingBridgeTransactions';
+import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 
 const BridgeTransactionStatus = () => {
   const { t } = useTranslation();
@@ -59,15 +64,22 @@ const BridgeTransactionStatus = () => {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-  const { bridgeTransactions, removeBridgeTransaction } = useBridgeContext();
+  const { getErrorMessage } = useUnifiedBridgeContext();
+  const bridgeTransactions = usePendingBridgeTransactions();
+  const { removeBridgeTransaction } = useBridgeContext();
   const [fromCardOpen, setFromCardOpen] = useState<boolean>(false);
   const [toCardOpen, setToCardOpen] = useState<boolean>(false);
   const [toastShown, setToastShown] = useState<boolean>();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const isMainnet = useIsMainnet();
-  const bridgeTransaction = bridgeTransactions[params.txHash] as
-    | BridgeTransaction
-    | undefined;
+  const bridgeTransaction = useMemo(
+    () =>
+      bridgeTransactions.find(
+        ({ sourceTxHash }) => sourceTxHash === params.txHash
+      ),
+    [params.txHash, bridgeTransactions]
+  );
+
   const coingeckoId = useCoinGeckoId(bridgeTransaction?.symbol);
   const logoUri = useLogoUriForBridgeTransaction(bridgeTransaction);
   const { networks } = useNetworkContext();
@@ -101,46 +113,52 @@ const BridgeTransactionStatus = () => {
     coingeckoId,
     currency.toLowerCase() as VsCurrencyType
   );
-  const networkPrice = usePriceForChain(bridgeTransaction?.sourceChain);
-  const targetNetworkPrice = usePriceForChain(bridgeTransaction?.targetChain);
+  const networkPrice = useBridgeNetworkPrice(bridgeTransaction?.sourceChain);
+  const targetNetworkPrice = useBridgeNetworkPrice(
+    bridgeTransaction?.targetChain
+  );
   const { capture } = useAnalyticsContext();
+  const { amount, sourceNetworkFee, targetNetworkFee } =
+    useBridgeAmounts(bridgeTransaction);
 
   const formattedNetworkPrice =
-    networkPrice && bridgeTransaction?.sourceNetworkFee
-      ? currencyFormatter(
-          networkPrice.mul(bridgeTransaction.sourceNetworkFee).toNumber()
-        )
+    networkPrice && sourceNetworkFee
+      ? currencyFormatter(networkPrice.mul(sourceNetworkFee).toNumber())
       : '-';
 
   const formattedTargetNetworkPrice =
-    targetNetworkPrice && bridgeTransaction?.targetNetworkFee
-      ? currencyFormatter(
-          targetNetworkPrice.mul(bridgeTransaction.targetNetworkFee).toNumber()
-        )
+    targetNetworkPrice && targetNetworkFee
+      ? currencyFormatter(targetNetworkPrice.mul(targetNetworkFee).toNumber())
       : '-';
 
-  const cappedCount = useMemo(() => {
-    if (bridgeTransaction) {
-      return Math.min(
-        bridgeTransaction?.confirmationCount,
-        bridgeTransaction?.requiredConfirmationCount
-      );
-    }
-    return undefined;
-  }, [bridgeTransaction]);
+  const {
+    isComplete,
+    sourceCurrentConfirmations,
+    sourceRequiredConfirmations,
+    targetCurrentConfirmations,
+    targetRequiredConfirmations,
+  } = useBridgeTransferStatus(bridgeTransaction);
+
+  const errorCode = isUnifiedBridgeTransfer(bridgeTransaction)
+    ? bridgeTransaction.errorCode
+    : undefined;
+  const hasError = typeof errorCode !== 'undefined';
 
   useEffect(() => {
-    if (bridgeTransaction?.complete && !toastShown) {
+    if (bridgeTransaction && isComplete && !toastShown) {
+      const errorMessage = errorCode ? getErrorMessage(errorCode) : '';
       const toasterId = toast.custom(
         <ToastCard
           onDismiss={() => toast.remove(toasterId)}
-          variant="success"
-          title={t('Bridge Successful')}
+          variant={hasError ? 'error' : 'success'}
+          title={hasError ? t('Bridge Failed') : t('Bridge Successful')}
         >
-          {t(`You transferred {{amount}} {{symbol}}!`, {
-            amount: bridgeTransaction.amount,
-            symbol: bridgeTransaction.symbol,
-          })}
+          {hasError
+            ? errorMessage
+            : t(`You transferred {{amount}} {{symbol}}!`, {
+                amount,
+                symbol: bridgeTransaction.symbol,
+              })}
         </ToastCard>,
         { duration: Infinity }
       );
@@ -149,7 +167,7 @@ const BridgeTransactionStatus = () => {
     }
     // We only want this to trigger when `complete` switches to `true` and on load
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bridgeTransaction?.complete, toastShown]);
+  }, [bridgeTransaction?.completedAt, toastShown]);
 
   const isOffboarding =
     bridgeTransaction?.sourceChain === Blockchain.AVALANCHE &&
@@ -180,7 +198,7 @@ const BridgeTransactionStatus = () => {
             variant="text"
             sx={{ mr: 1 }}
             onClick={() => {
-              if (bridgeTransaction?.complete) {
+              if (bridgeTransaction && isComplete) {
                 history.replace('/home');
                 removeBridgeTransaction(bridgeTransaction.sourceTxHash);
               } else {
@@ -188,7 +206,7 @@ const BridgeTransactionStatus = () => {
               }
             }}
           >
-            {bridgeTransaction?.complete ? t('Close') : t('Hide')}
+            {isComplete ? t('Close') : t('Hide')}
           </Button>
         </Stack>
       </PageTitle>
@@ -202,7 +220,7 @@ const BridgeTransactionStatus = () => {
               defaultSize={48}
               zIndex={2}
               withBackground
-              showComplete={bridgeTransaction.complete}
+              showComplete={isComplete && !hasError}
               showGlobeMargin={true}
             />
             <Card // sending amount (Top Card)
@@ -221,7 +239,9 @@ const BridgeTransactionStatus = () => {
                 </Typography>
                 <Stack sx={{ flexDirection: 'row' }}>
                   <Typography variant="h6">
-                    {bridgeTransaction.amount?.toNumber()}
+                    {isUnifiedBridgeTransfer(bridgeTransaction)
+                      ? bigintToBig(bridgeTransaction.amount, 6).toNumber()
+                      : bridgeTransaction.amount?.toNumber()}
                   </Typography>
                   <Typography
                     variant="h6"
@@ -234,17 +254,15 @@ const BridgeTransactionStatus = () => {
 
               <Stack sx={{ alignItems: 'flex-end', width: '100%' }}>
                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {bridgeTransaction.amount &&
-                    currencyFormatter(
-                      assetPrice.mul(bridgeTransaction.amount).toNumber()
-                    )}
+                  {amount &&
+                    currencyFormatter(assetPrice.mul(amount).toNumber())}
                 </Typography>
               </Stack>
             </Card>
             <BridgeCard // from chain (Middle Card)
               isWaiting={false} // starts immediately
               isDone={Boolean(bridgeTransaction.targetStartedAt)}
-              isTransferComplete={bridgeTransaction.complete}
+              isTransferComplete={isComplete}
             >
               <Stack
                 sx={{
@@ -260,7 +278,9 @@ const BridgeTransactionStatus = () => {
                     variant="body2"
                     sx={{ textTransform: 'capitalize', mr: 1 }}
                   >
-                    {bridgeTransaction.sourceChain}
+                    {isUnifiedBridgeTransfer(bridgeTransaction)
+                      ? bridgeTransaction.sourceChain.chainName
+                      : bridgeTransaction.sourceChain}
                   </Typography>
                   <NetworkLogo
                     src={sourceNetwork?.logoUri}
@@ -313,10 +333,8 @@ const BridgeTransactionStatus = () => {
                     >
                       <Typography variant="body2">
                         {' '}
-                        {bridgeTransaction.sourceNetworkFee
-                          ?.toNumber()
-                          .toFixed(9)}{' '}
-                        {getNativeSymbol(bridgeTransaction.sourceChain)}
+                        {sourceNetworkFee?.toNumber().toFixed(9)}{' '}
+                        {getNativeTokenSymbol(bridgeTransaction.sourceChain)}
                       </Typography>
                       <Typography
                         variant="caption"
@@ -343,6 +361,7 @@ const BridgeTransactionStatus = () => {
                     <ElapsedTimer
                       startTime={bridgeTransaction.sourceStartedAt}
                       endTime={bridgeTransaction.targetStartedAt}
+                      hasError={hasError}
                     />
                   </Stack>
                 </>
@@ -368,24 +387,20 @@ const BridgeTransactionStatus = () => {
                       }}
                     >
                       <Typography variant="body2" sx={{ mr: 2 }}>
-                        {cappedCount}/
-                        {bridgeTransaction.requiredConfirmationCount}
+                        {sourceCurrentConfirmations}/
+                        {sourceRequiredConfirmations}
                       </Typography>
                       <ElapsedTimer
                         startTime={bridgeTransaction.sourceStartedAt}
                         endTime={bridgeTransaction.targetStartedAt}
+                        hasError={hasError}
                       />
                     </Stack>
                   </Stack>
                   <ConfirmationTracker
                     started={true}
-                    requiredCount={bridgeTransaction.requiredConfirmationCount}
-                    currentCount={
-                      bridgeTransaction.confirmationCount >
-                      bridgeTransaction.requiredConfirmationCount
-                        ? bridgeTransaction.requiredConfirmationCount
-                        : bridgeTransaction.confirmationCount
-                    }
+                    requiredCount={sourceRequiredConfirmations}
+                    currentCount={sourceCurrentConfirmations}
                     labelBackgroundColor={theme.palette.grey[850]}
                   />
                   <Collapse in={fromCardOpen}>
@@ -409,10 +424,8 @@ const BridgeTransactionStatus = () => {
                       >
                         <Typography variant="body2">
                           {' '}
-                          {bridgeTransaction.sourceNetworkFee
-                            ?.toNumber()
-                            .toFixed(9)}{' '}
-                          {getNativeSymbol(bridgeTransaction.sourceChain)}
+                          {sourceNetworkFee?.toNumber().toFixed(9)}{' '}
+                          {getNativeTokenSymbol(bridgeTransaction.sourceChain)}
                         </Typography>
                         <Typography
                           variant="caption"
@@ -439,8 +452,8 @@ const BridgeTransactionStatus = () => {
             </BridgeCard>
             <BridgeCard // to chain (Bottom Card)
               isWaiting={!bridgeTransaction.targetStartedAt}
-              isDone={bridgeTransaction.complete}
-              isTransferComplete={bridgeTransaction.complete}
+              isDone={isComplete}
+              isTransferComplete={isComplete}
             >
               <Stack
                 sx={{
@@ -457,7 +470,9 @@ const BridgeTransactionStatus = () => {
                     variant="body2"
                     sx={{ textTransform: 'capitalize', mr: 1 }}
                   >
-                    {bridgeTransaction.targetChain}
+                    {isUnifiedBridgeTransfer(bridgeTransaction)
+                      ? bridgeTransaction.targetChain.chainName
+                      : bridgeTransaction.targetChain}
                   </Typography>
                   <NetworkLogo
                     src={targetNetwork?.logoUri}
@@ -489,7 +504,7 @@ const BridgeTransactionStatus = () => {
                 </Stack>
               </Stack>
               <Divider sx={{ my: 1.5 }} />
-              {bridgeTransaction.complete ? (
+              {isComplete ? (
                 <>
                   <Stack
                     sx={{
@@ -510,10 +525,8 @@ const BridgeTransactionStatus = () => {
                     >
                       <Typography variant="body2">
                         {' '}
-                        {bridgeTransaction.targetNetworkFee
-                          ?.toNumber()
-                          .toFixed(9)}{' '}
-                        {getNativeSymbol(bridgeTransaction.targetChain)}
+                        {targetNetworkFee?.toNumber().toFixed(9)}{' '}
+                        {getNativeTokenSymbol(bridgeTransaction.targetChain)}
                       </Typography>
                       <Typography
                         variant="caption"
@@ -541,6 +554,7 @@ const BridgeTransactionStatus = () => {
                       <ElapsedTimer
                         startTime={bridgeTransaction.targetStartedAt}
                         endTime={bridgeTransaction.completedAt}
+                        hasError={hasError}
                       />
                     )}
                   </Stack>
@@ -567,12 +581,20 @@ const BridgeTransactionStatus = () => {
                       }}
                     >
                       <Typography variant="body2" sx={{ mr: 2 }}>
-                        {bridgeTransaction.complete ? '1' : '0'}/
+                        {isUnifiedBridgeTransfer(bridgeTransaction)
+                          ? bridgeTransaction.targetConfirmationCount // with Unified Bridge, the SDK provides info about the target confirmations
+                          : bridgeTransaction.complete // with Legacy Bridge, it's either 0 if tx has not completed yet, or 1 if it has
+                          ? '1'
+                          : '0'}
+                        /
                         {
-                          1 // On the destination network, we just need 1 confirmation
+                          isUnifiedBridgeTransfer(bridgeTransaction)
+                            ? bridgeTransaction.requiredTargetConfirmationCount
+                            : 1 // With legacy Avalanche Bridge, we just need 1 confirmation on the destination network
                         }
                       </Typography>
                       <ElapsedTimer
+                        hasError={hasError}
                         offloadDelayTooltip={
                           isOffboarding && hasOffBoardingDelay ? (
                             <OffloadTimerTooltip
@@ -591,11 +613,9 @@ const BridgeTransactionStatus = () => {
                   {bridgeTransaction.targetStartedAt && (
                     <>
                       <ConfirmationTracker
-                        started={!!bridgeTransaction.targetStartedAt}
-                        requiredCount={
-                          1 // On destination, we just need 1 confirmation
-                        }
-                        currentCount={bridgeTransaction.complete ? 1 : 0}
+                        currentCount={targetCurrentConfirmations}
+                        requiredCount={targetRequiredConfirmations}
+                        started={Boolean(bridgeTransaction.targetStartedAt)}
                         labelBackgroundColor={theme.palette.grey[850]}
                       />
                       <Collapse in={toCardOpen}>
@@ -619,10 +639,10 @@ const BridgeTransactionStatus = () => {
                           >
                             <Typography variant="body2">
                               {' '}
-                              {bridgeTransaction.targetNetworkFee
-                                ?.toNumber()
-                                .toFixed(9)}{' '}
-                              {getNativeSymbol(bridgeTransaction.targetChain)}
+                              {targetNetworkFee?.toNumber().toFixed(9)}{' '}
+                              {getNativeTokenSymbol(
+                                bridgeTransaction.targetChain
+                              )}
                             </Typography>
                             <Typography
                               variant="caption"

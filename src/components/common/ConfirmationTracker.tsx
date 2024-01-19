@@ -99,20 +99,18 @@ const Label = styled(Typography)(() => ({
 
 const StartLabel = styled(Label, {
   shouldForwardProp: (prop) => prop !== 'labelBackgroundColor',
-})(({ theme, labelBackgroundColor }) => ({
+})(() => ({
   left: 0,
   transform: 'unset',
-  backgroundColor: labelBackgroundColor || theme.palette.background.default,
   zIndex: 1,
   paddingRight: 8,
 }));
 
 const FinishLabel = styled(Label, {
   shouldForwardProp: (prop) => prop !== 'labelBackgroundColor',
-})(({ theme, labelBackgroundColor }) => ({
+})(() => ({
   right: 0,
   left: 'unset',
-  backgroundColor: labelBackgroundColor || theme.palette.background.default,
   zIndex: 1,
   paddingLeft: 8,
   transform: 'unset',
@@ -164,10 +162,13 @@ export const ConfirmationTracker = memo(function ConfirmationTracker({
     const containerWidth = containerRef.current?.clientWidth;
 
     if (!containerWidth) {
-      return 90;
+      return numberOfDots === 1 ? 125 : 90;
     }
 
-    return (containerWidth - 4 * 20) / 3;
+    const divider = numberOfDots < 3 ? 2 : 3;
+    const multiplier = numberOfDots < 3 ? 3 : 4;
+
+    return (containerWidth - multiplier * 20) / divider;
   };
 
   const renderLine = (complete: boolean, active: boolean, grow = false) => (
@@ -215,7 +216,7 @@ export const ConfirmationTracker = memo(function ConfirmationTracker({
     started && currentCount < requiredCount && currentCount >= numberOfDots;
   const showBreakEnd = currentCount < requiredCount - 2 && requiredCount > 3;
 
-  if (currentCount > 1) {
+  if (currentCount > 1 && requiredCount > 2) {
     if (!showBreakEnd) {
       left = -(calculateLineWidth() + 20) * (requiredCount - 3);
     } else {
@@ -289,13 +290,8 @@ export const ConfirmationTracker = memo(function ConfirmationTracker({
         <Circle
           complete={currentCount >= requiredCount}
           active={lastStepActive}
-          labelBackgroundColor={labelBackgroundColor}
         />
-        <FinishLabel
-          margin="25px 0 0 0"
-          size={14}
-          labelBackgroundColor={labelBackgroundColor}
-        >
+        <FinishLabel margin="25px 0 0 0" size={14}>
           {t('Final')}
         </FinishLabel>
       </Box>

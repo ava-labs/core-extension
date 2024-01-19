@@ -6,6 +6,8 @@ import {
   TokenWithBalance,
   TokenType,
 } from '@src/background/services/balances/models';
+import { BridgeAsset } from '@avalabs/bridge-unified';
+import { isUnifiedBridgeAsset } from './isUnifiedBridgeAsset';
 
 /**
  * Get balances of wrapped erc20 tokens on Avalanche
@@ -13,7 +15,7 @@ import {
  * @param tokens
  */
 export function getBalances(
-  assets: Asset[],
+  assets: Array<Asset | BridgeAsset>,
   tokens: TokenWithBalance[]
 ): AssetBalance[] {
   const tokensByAddress = tokens.reduce<{
@@ -30,7 +32,9 @@ export function getBalances(
 
   return assets.map((asset) => {
     const symbol = asset.symbol;
-    const token = isNativeAsset(asset)
+    const token = isUnifiedBridgeAsset(asset)
+      ? tokensByAddress[asset.address?.toLowerCase() ?? asset.symbol]
+      : isNativeAsset(asset)
       ? tokensByAddress[asset.symbol.toLowerCase()]
       : isBtcAsset(asset)
       ? tokensByAddress[asset.wrappedContractAddress.toLowerCase()]

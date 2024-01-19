@@ -7,15 +7,18 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-components';
+import React from 'react';
 
 type ApprovalSectionHeaderProps = {
   label: string;
   tooltip?: string;
+  tooltipIcon?: React.ReactElement;
 };
 
 export const ApprovalSectionHeader: React.FC<ApprovalSectionHeaderProps> = ({
   label,
   tooltip,
+  tooltipIcon = <InfoCircleIcon />,
   children,
 }) => (
   <Stack
@@ -36,7 +39,7 @@ export const ApprovalSectionHeader: React.FC<ApprovalSectionHeaderProps> = ({
       </Typography>
       {tooltip && (
         <Tooltip sx={{ cursor: 'pointer', ml: 1 }} title={tooltip}>
-          <InfoCircleIcon />
+          {tooltipIcon}
         </Tooltip>
       )}
     </Stack>

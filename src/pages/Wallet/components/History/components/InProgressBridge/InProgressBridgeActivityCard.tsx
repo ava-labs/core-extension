@@ -19,9 +19,13 @@ import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useBlockchainNames } from '../../useBlockchainNames';
 import { InProgressBridgeIcon } from './InProgressBridgeIcon';
+import { BridgeTransfer } from '@avalabs/bridge-unified';
+import { isUnifiedBridgeTransfer } from '@src/pages/Bridge/utils/isUnifiedBridgeTransfer';
+import { bigintToBig } from '@src/utils/bigintToBig';
+import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 
 export interface InProgressBridgeActivityCardProp {
-  tx: BridgeTransaction;
+  tx: BridgeTransaction | BridgeTransfer;
 }
 
 export function InProgressBridgeActivityCard({
@@ -36,10 +40,8 @@ export function InProgressBridgeActivityCard({
   const { sourceBlockchain, targetBlockchain } = useBlockchainNames(tx);
   const [toastShown, setToastShown] = useState<boolean>(false);
 
-  const { bridgeTransactions, removeBridgeTransaction } = useBridgeContext();
-  const bridgeTransaction = bridgeTransactions[tx.sourceTxHash] as
-    | BridgeTransaction
-    | undefined;
+  const { removeBridgeTransaction } = useBridgeContext();
+  const { getErrorMessage } = useUnifiedBridgeContext();
 
   const explorerUrl = useMemo(() => {
     const networkData = blockchainToNetwork(
@@ -54,38 +56,66 @@ export function InProgressBridgeActivityCard({
   }, [tx.sourceChain, tx.sourceTxHash, networks, bridgeConfig]);
 
   const inProgressValue = useMemo(() => {
-    if (!bridgeTransaction) {
+    if (!tx) {
       return 0;
     }
-    const confirmationCount = bridgeTransaction.requiredConfirmationCount + 1; // 1 is added for target network
+
+    if (isUnifiedBridgeTransfer(tx)) {
+      const totalConfirmationsRequired =
+        tx.requiredSourceConfirmationCount + tx.requiredTargetConfirmationCount;
+      const totalConfirmationsObtained =
+        tx.sourceConfirmationCount + tx.targetConfirmationCount;
+
+      return Math.min(
+        100,
+        (totalConfirmationsObtained / totalConfirmationsRequired) * 100
+      );
+    }
+
+    const confirmationCount = tx.requiredConfirmationCount + 1; // 1 is added for target network
+
     const currentCount =
-      bridgeTransaction.confirmationCount >
-      bridgeTransaction.requiredConfirmationCount
-        ? bridgeTransaction.requiredConfirmationCount
-        : bridgeTransaction.confirmationCount;
+      tx.confirmationCount > tx.requiredConfirmationCount
+        ? tx.requiredConfirmationCount
+        : tx.confirmationCount;
 
     return (currentCount / confirmationCount) * 100;
-  }, [bridgeTransaction]);
+  }, [tx]);
+
+  const amount = useMemo(() => {
+    if (isUnifiedBridgeTransfer(tx)) {
+      return bigintToBig(tx.amount, tx.amountDecimals);
+    }
+
+    return tx.amount;
+  }, [tx]);
 
   useEffect(() => {
-    if (!tx.complete) {
+    if (!tx.completedAt) {
       return;
     }
 
     if (!toastShown) {
       setToastShown(true);
+
+      const isSuccessful = !isUnifiedBridgeTransfer(tx) || !tx.errorCode;
+
       const toastId = toast.custom(
         <ToastCard
-          variant="success"
-          title={t('Bridge Successful')}
+          variant={isSuccessful ? 'success' : 'error'}
+          title={isSuccessful ? t('Bridge Successful') : t('Bridge Failed')}
           onDismiss={() => {
             toast.remove(toastId);
           }}
         >
-          {t(`You transferred {{amount}} {{symbol}}`, {
-            amount: tx.amount,
-            symbol: tx.symbol,
-          })}
+          {isSuccessful
+            ? t(`You transferred {{amount}} {{symbol}}`, {
+                amount,
+                symbol: tx.symbol,
+              })
+            : tx.errorCode
+            ? getErrorMessage(tx.errorCode)
+            : ''}
         </ToastCard>,
         {
           duration: Infinity,
@@ -94,7 +124,10 @@ export function InProgressBridgeActivityCard({
     }
 
     removeBridgeTransaction(tx.sourceTxHash);
-  }, [removeBridgeTransaction, t, toastShown, tx]);
+  }, [removeBridgeTransaction, t, toastShown, tx, amount, getErrorMessage]);
+
+  const errorCode = isUnifiedBridgeTransfer(tx) ? tx.errorCode : undefined;
+  const hasError = typeof errorCode !== 'undefined';
 
   return (
     <Card
@@ -128,7 +161,10 @@ export function InProgressBridgeActivityCard({
                 alignItems: 'center',
               }}
             >
-              <InProgressBridgeIcon value={inProgressValue} />
+              <InProgressBridgeIcon
+                value={inProgressValue}
+                hasError={hasError}
+              />
               <Stack>
                 <Stack
                   sx={{
@@ -143,7 +179,7 @@ export function InProgressBridgeActivityCard({
                       variant="body2"
                       sx={{ fontWeight: 'fontWeightSemibold' }}
                     >
-                      {tx.amount?.toString()}
+                      {amount.toString()}
                     </Typography>
                     <Typography
                       variant="body2"
@@ -190,26 +226,28 @@ export function InProgressBridgeActivityCard({
             </Stack>
           </Stack>
         </Stack>
-        <Stack
-          sx={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Typography>{t('Network Fee')}</Typography>
-          <Stack sx={{ flexDirection: 'row', columnGap: 1 }}>
-            <Typography>{t('Pending')}</Typography>
-            {explorerUrl && (
-              <ExternalLinkIcon
-                size={16}
-                sx={{ color: theme.palette.primary.main, cursor: 'pointer' }}
-                onClick={() => {
-                  window.open(explorerUrl, '_blank', 'noreferrer');
-                }}
-              />
-            )}
+        {!hasError && (
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Typography>{t('Network Fee')}</Typography>
+            <Stack sx={{ flexDirection: 'row', columnGap: 1 }}>
+              <Typography>{t('Pending')}</Typography>
+              {explorerUrl && (
+                <ExternalLinkIcon
+                  size={16}
+                  sx={{ color: theme.palette.primary.main, cursor: 'pointer' }}
+                  onClick={() => {
+                    window.open(explorerUrl, '_blank', 'noreferrer');
+                  }}
+                />
+              )}
+            </Stack>
           </Stack>
-        </Stack>
+        )}
       </Stack>
     </Card>
   );

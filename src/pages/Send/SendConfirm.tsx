@@ -247,7 +247,7 @@ export const SendConfirm = ({
 
       return {
         amount: fees.fee,
-        fiatValue: currencyFormatter(fees.feeUSD),
+        fiatValue: fees.feeUSD ? currencyFormatter(fees.feeUSD) : '',
       };
     }
 

@@ -5,10 +5,14 @@ import { singleton } from 'tsyringe';
 import { Erc20Tx } from '@avalabs/snowtrace-sdk';
 import { Network } from '@avalabs/chains-sdk';
 import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
+import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
 
 @singleton()
 export class HistoryServiceBridgeHelper {
-  constructor(private bridgeService: BridgeService) {}
+  constructor(
+    private bridgeService: BridgeService,
+    private unifiedBridgeService: UnifiedBridgeService
+  ) {}
 
   /**
    * Checking if the transaction is a bridge transaction with Ethereum
@@ -24,9 +28,17 @@ export class HistoryServiceBridgeHelper {
     const config = this.bridgeService.bridgeConfig;
     const ethereumAssets = config?.config?.critical.assets;
     const bitcoinAssets = config?.config?.criticalBitcoin?.bitcoinAssets;
+    const unifiedBridgeAddresses = this.unifiedBridgeService.state.addresses;
 
     if (!ethereumAssets || !bitcoinAssets) {
       return false;
+    }
+
+    if (
+      unifiedBridgeAddresses.includes(tx.from.toLowerCase()) ||
+      unifiedBridgeAddresses.includes(tx.to.toLowerCase())
+    ) {
+      return true;
     }
 
     if (isEthereumNetwork(network)) {

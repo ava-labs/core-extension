@@ -20,6 +20,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { filterBridgeStateToNetwork } from '@src/background/services/bridge/utils';
+import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
+import { caipToChainId } from '@src/utils/caipConversion';
 
 const LogoContainer = styled('div')`
   margin-top: 4px;
@@ -42,6 +44,9 @@ export function NetworkList() {
   const { currencyFormatter } = useSettingsContext();
   const { t } = useTranslation();
   const { bridgeState } = useBridgeContext();
+  const {
+    state: { pendingTransfers: unifiedBridgeTxs },
+  } = useUnifiedBridgeContext();
 
   function getNetworkValue({ vmName, chainId }: Network) {
     const networkAddress =
@@ -77,10 +82,20 @@ export function NetworkList() {
     <>
       <NetworkListContainer direction="row" justifyContent="space-between">
         {favoriteNetworksWithoutActive.map((favoriteNetwork) => {
-          const { bridgeTransactions } = filterBridgeStateToNetwork(
-            bridgeState,
-            favoriteNetwork
-          );
+          const { bridgeTransactions: legacyBridgeTxs } =
+            filterBridgeStateToNetwork(bridgeState, favoriteNetwork);
+          const filteredUnifiedBridgeTxs = Object.values(
+            unifiedBridgeTxs
+          ).filter(({ sourceChain, targetChain }) => {
+            return (
+              caipToChainId(sourceChain.chainId) === favoriteNetwork.chainId ||
+              caipToChainId(targetChain.chainId) === favoriteNetwork.chainId
+            );
+          });
+          const bridgeTransactions = [
+            ...Object.values(legacyBridgeTxs),
+            ...filteredUnifiedBridgeTxs,
+          ];
           const networkBalances = tokens.balances?.[favoriteNetwork.chainId];
           const networkBalance = getNetworkValue(favoriteNetwork);
 
@@ -115,7 +130,7 @@ export function NetworkList() {
               >
                 <LogoContainer>
                   <Badge
-                    badgeContent={Object.values(bridgeTransactions).length}
+                    badgeContent={bridgeTransactions.length}
                     color="secondary"
                   >
                     <NetworkLogo

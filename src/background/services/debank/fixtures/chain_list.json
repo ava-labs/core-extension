@@ -1,0 +1,20 @@
+[
+  {
+    "id": "avax",
+    "community_id": 43114,
+    "name": "Avalanche",
+    "native_token_id": "avax",
+    "logo_url": "https://static.debank.com/image/chain/logo_url/avax/4d1649e8a0c7dec9de3491b81807d402.png",
+    "wrapped_token_id": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+    "is_support_pre_exec": true
+  },
+  {
+    "id": "eth",
+    "community_id": 1,
+    "name": "Ethereum",
+    "native_token_id": "eth",
+    "logo_url": "https://static.debank.com/image/chain/logo_url/eth/42ba589cd077e7bdd97db6480b0ff61d.png",
+    "wrapped_token_id": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+    "is_support_pre_exec": false
+  }
+]

@@ -51,12 +51,10 @@ export function useEthBridge(
   }, [request, currentAsset, isEthereumBridge]);
 
   const { createBridgeTransaction, transferAsset } = useBridgeContext();
-  const { assetsWithBalances: selectedAssetWithBalances } = useAssetBalancesEVM(
-    Blockchain.ETHEREUM,
-    isEthereumBridge ? currentAssetData : undefined
-  );
-  const sourceBalance = selectedAssetWithBalances[0];
   const { assetsWithBalances } = useAssetBalancesEVM(Blockchain.ETHEREUM);
+  const sourceBalance = assetsWithBalances.find(
+    ({ asset }) => asset.symbol === currentAsset
+  );
 
   const hasEnoughForNetworkFee = useHasEnoughForGas();
 

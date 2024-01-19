@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { NetworkSelector } from './components/NetworkSelector';
 import { AssetBalance } from './models';
-import { useBridge } from './hooks/useBridge';
+import { BridgeProviders, useBridge } from './hooks/useBridge';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import {
@@ -53,6 +53,8 @@ import {
   Card,
   CircularProgress,
   Divider,
+  InfoCircleIcon,
+  Link,
   Stack,
   SwapIcon,
   ToastCard,
@@ -70,6 +72,9 @@ import {
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
+import { isUnifiedBridgeAsset } from './utils/isUnifiedBridgeAsset';
+import { getTokenAddress } from './utils/getTokenAddress';
+import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -78,6 +83,7 @@ function formatBalance(balance: Big | undefined) {
 export function Bridge() {
   useSyncBridgeConfig(); // keep bridge config up-to-date
   useSetBridgeChainFromNetwork();
+  const [currentAssetAddress, setCurrentAssetAddress] = useState<string>();
   const {
     sourceBalance,
     amount,
@@ -92,7 +98,9 @@ export function Bridge() {
     wrapStatus,
     transfer,
     bridgeFee,
-  } = useBridge();
+    provider,
+    bridgeStep,
+  } = useBridge(currentAssetAddress);
 
   const {
     bridgeConfig,
@@ -104,6 +112,7 @@ export function Bridge() {
     sourceAssets,
   } = useBridgeSDK();
   const { error } = useBridgeConfig();
+  const { getAssetAddressOnTargetChain } = useUnifiedBridgeContext();
   const { t } = useTranslation();
   const availableBlockchains = useAvailableBlockchains();
 
@@ -149,7 +158,18 @@ export function Bridge() {
     }
   }, [bridgeConfig, networks, currentBlockchain]);
 
-  const denomination = sourceBalance?.asset.denomination || 0;
+  const denomination = useMemo(() => {
+    if (!sourceBalance) {
+      return 0;
+    }
+
+    if (isUnifiedBridgeAsset(sourceBalance.asset)) {
+      return sourceBalance?.asset.decimals;
+    }
+
+    return sourceBalance.asset.denomination;
+  }, [sourceBalance]);
+
   const amountBN = useMemo(
     () => bigToBN(amount, denomination),
     [amount, denomination]
@@ -175,11 +195,18 @@ export function Bridge() {
       decimals: denomination,
       priceUSD: price,
       logoUri: sourceBalance.logoUri,
-      name: sourceBalance.asset.symbol,
-      symbol: getTokenSymbolOnNetwork(
-        sourceBalance.asset.symbol,
-        currentBlockchain
-      ),
+      name: isUnifiedBridgeAsset(sourceBalance.asset)
+        ? sourceBalance.asset.symbol
+        : getTokenSymbolOnNetwork(
+            sourceBalance.asset.symbol,
+            currentBlockchain
+          ),
+      symbol: isUnifiedBridgeAsset(sourceBalance.asset)
+        ? sourceBalance.asset.symbol
+        : getTokenSymbolOnNetwork(
+            sourceBalance.asset.symbol,
+            currentBlockchain
+          ),
       address: sourceBalance.asset.symbol,
       contractType: 'ERC-20',
       unconfirmedBalanceDisplayValue: formatBalance(
@@ -202,6 +229,7 @@ export function Bridge() {
   const bridgePageHistoryData: {
     selectedToken?: string;
     inputAmount?: Big;
+    selectedTokenAddress?: string;
   } = getPageHistoryData();
 
   // derive blockchain/network from network
@@ -223,6 +251,7 @@ export function Bridge() {
   useEffect(() => {
     const sourceSymbols = Object.keys(sourceAssets);
     const symbol = bridgePageHistoryData.selectedToken;
+
     if (
       symbol &&
       !currentAsset &&
@@ -231,27 +260,51 @@ export function Bridge() {
     ) {
       // Workaround for a race condition with useEffect in BridgeSDKProvider
       // that also calls setCurrentAsset :(
-      setTimeout(() => setCurrentAsset(symbol), 1);
+      const timer = setTimeout(() => {
+        setCurrentAsset(symbol);
+        setCurrentAssetAddress(
+          bridgePageHistoryData.selectedTokenAddress ?? ''
+        );
+      }, 1);
+
+      return () => {
+        clearTimeout(timer);
+      };
     }
   }, [
     bridgePageHistoryData.selectedToken,
+    bridgePageHistoryData.selectedTokenAddress,
     currentAsset,
+    currentAssetAddress,
     setCurrentAsset,
     sourceAssets,
+    bridgeConfig,
+    networks,
+    targetBlockchain,
   ]);
 
   const handleBlockchainSwitchFrom = useCallback(
     (blockchain: Blockchain) => {
-      setNavigationHistoryData({
-        selectedToken: currentAsset,
-        inputAmount: amount,
-      });
       const blockChainNetwork = blockchainToNetwork(
         blockchain,
         networks,
         bridgeConfig
       );
-      blockChainNetwork && setNetwork(blockChainNetwork);
+
+      if (blockChainNetwork) {
+        setNetwork(blockChainNetwork);
+        const assetAddressOnOppositeChain = getAssetAddressOnTargetChain(
+          currentAsset,
+          blockChainNetwork.chainId
+        );
+
+        setCurrentAssetAddress(assetAddressOnOppositeChain);
+        setNavigationHistoryData({
+          selectedTokenAddress: assetAddressOnOppositeChain,
+          selectedToken: currentAsset,
+          inputAmount: amount,
+        });
+      }
 
       // Reset because a denomination change will change its value
       setAmount(BIG_ZERO);
@@ -259,6 +312,7 @@ export function Bridge() {
     [
       amount,
       bridgeConfig,
+      getAssetAddressOnTargetChain,
       currentAsset,
       networks,
       setAmount,
@@ -338,9 +392,9 @@ export function Bridge() {
   const formattedReceiveAmount = useMemo(() => {
     const unit = currentAsset ? ` ${currentAsset}` : '';
     return hasValidAmount && receiveAmount
-      ? `${bigToLocaleString(receiveAmount, 9)}${unit}`
+      ? `${bigToLocaleString(receiveAmount, denomination)}${unit}`
       : '-';
-  }, [currentAsset, hasValidAmount, receiveAmount]);
+  }, [currentAsset, hasValidAmount, receiveAmount, denomination]);
 
   const formattedReceiveAmountCurrency = useMemo(() => {
     const result =
@@ -355,95 +409,122 @@ export function Bridge() {
     return price && amount ? formatCurrency(price * amount.toNumber()) : '-';
   }, [amount, formatCurrency, price]);
 
-  const handleAmountChanged = (value: { bn: BN; amount: string }) => {
-    const bigValue = bnToBig(value.bn, denomination);
-    setNavigationHistoryData({
-      selectedToken: currentAsset,
-      inputAmount: bigValue,
-    });
+  const handleAmountChanged = useCallback(
+    (value: { bn: BN; amount: string }) => {
+      const bigValue = bnToBig(value.bn, denomination);
+      setNavigationHistoryData({
+        selectedTokenAddress: currentAssetAddress,
+        selectedToken: currentAsset,
+        inputAmount: bigValue,
+      });
 
-    setAmount(bigValue);
-    sendAmountEnteredAnalytics('Bridge');
+      setAmount(bigValue);
+      sendAmountEnteredAnalytics('Bridge');
 
-    // When there is no balance for given token, maximum is undefined
-    if (!maximum || (maximum && bigValue && maximum.lt(bigValue))) {
-      const errorMessage = t('Insufficient balance');
+      // When there is no balance for given token, maximum is undefined
+      if (!maximum || (maximum && bigValue && maximum.lt(bigValue))) {
+        const errorMessage = t('Insufficient balance');
 
-      if (errorMessage === bridgeError) {
+        if (errorMessage === bridgeError) {
+          return;
+        }
+
+        setBridgeError(errorMessage);
+        capture('BridgeTokenSelectError', {
+          errorMessage,
+        });
         return;
       }
+      setBridgeError('');
+    },
+    [
+      bridgeError,
+      capture,
+      currentAsset,
+      currentAssetAddress,
+      denomination,
+      maximum,
+      sendAmountEnteredAnalytics,
+      setAmount,
+      setNavigationHistoryData,
+      t,
+    ]
+  );
 
-      setBridgeError(errorMessage);
-      capture('BridgeTokenSelectError', {
-        errorMessage,
-      });
-      return;
-    }
-    setBridgeError('');
-  };
-
-  const handleBlockchainToggle = () => {
+  const handleBlockchainToggle = useCallback(() => {
     if (targetBlockchain) {
-      setNavigationHistoryData({
-        selectedToken: currentAsset,
-        inputAmount: undefined,
-      });
       // convert blockChain to Network
       const blockChainNetwork = blockchainToNetwork(
         targetBlockchain,
         networks,
         bridgeConfig
       );
-      setAmount(BIG_ZERO);
-      blockChainNetwork && setNetwork(blockChainNetwork);
-      setIsSwitched(!isSwitched);
+
+      if (blockChainNetwork) {
+        const assetAddressOnOppositeChain = getAssetAddressOnTargetChain(
+          currentAsset,
+          blockChainNetwork.chainId
+        );
+
+        setCurrentAssetAddress(assetAddressOnOppositeChain);
+        setNavigationHistoryData({
+          selectedTokenAddress: assetAddressOnOppositeChain,
+          selectedToken: currentAsset,
+          inputAmount: undefined,
+        });
+        setAmount(BIG_ZERO);
+        setNetwork(blockChainNetwork);
+        setIsSwitched(!isSwitched);
+      }
     }
-  };
+  }, [
+    bridgeConfig,
+    currentAsset,
+    isSwitched,
+    networks,
+    setAmount,
+    setNetwork,
+    setNavigationHistoryData,
+    targetBlockchain,
+    getAssetAddressOnTargetChain,
+  ]);
 
-  const handleSelect = (symbol: string) => {
-    setNavigationHistoryData({
-      selectedToken: symbol,
-      inputAmount: undefined,
-    });
-    setAmount(BIG_ZERO);
-    setCurrentAsset(symbol);
-    sendTokenSelectedAnalytics('Bridge');
+  const handleSelect = useCallback(
+    (token: AssetBalance) => {
+      const symbol = token.symbol;
+      const address = getTokenAddress(token);
 
-    if (!hasEnoughForNetworkFee) {
-      capture('BridgeTokenSelectError', {
-        errorMessage: 'Insufficent balance to cover gas costs.',
+      setCurrentAssetAddress(address);
+      setNavigationHistoryData({
+        selectedToken: symbol,
+        selectedTokenAddress: address,
+        inputAmount: undefined,
       });
-    }
-  };
+      setAmount(BIG_ZERO);
+      setCurrentAsset(symbol);
+      sendTokenSelectedAnalytics('Bridge');
 
-  const onNextClicked = () => {
+      if (!hasEnoughForNetworkFee) {
+        capture('BridgeTokenSelectError', {
+          errorMessage: 'Insufficent balance to cover gas costs.',
+        });
+      }
+    },
+    [
+      capture,
+      hasEnoughForNetworkFee,
+      sendTokenSelectedAnalytics,
+      setAmount,
+      setCurrentAsset,
+      setNavigationHistoryData,
+    ]
+  );
+
+  const onNextClicked = useCallback(() => {
     history.push('/bridge/confirm');
-  };
+  }, [history]);
 
-  const onSubmitClicked = () => {
-    if (isUsingLedgerWallet) {
-      setTransferWithLedger(true);
-    } else if (isUsingWalletConnectAccount || isUsingFireblocksAccount) {
-      setIsPending(true);
-    } else {
-      handleTransfer();
-    }
-  };
-
-  useEffect(() => {
-    // If we see this status when bridging, this means we'll need two approvals
-    // from the user: first to wrap the asset, 2nd to deposit it.
-    if (wrapStatus === WrapStatus.WAITING_FOR_DEPOSIT_CONFIRMATION) {
-      setRequiredSignatures(2);
-      setCurrentSignature(1);
-    }
-
-    if (wrapStatus === WrapStatus.WAITING_FOR_CONFIRMATION) {
-      setCurrentSignature(requiredSignatures);
-    }
-  }, [wrapStatus, requiredSignatures]);
-
-  const handleTransfer = async () => {
+  const handleTransfer = useCallback(async () => {
     if (BIG_ZERO.eq(amount)) return;
 
     capture('BridgeTransferStarted', {
@@ -499,7 +580,52 @@ export function Bridge() {
     history.push(
       `/bridge/transaction-status/${currentBlockchain}/${hash}/${timestamp}`
     );
-  };
+  }, [
+    amount,
+    bridgeFee,
+    capture,
+    currentBlockchain,
+    t,
+    getTranslatedError,
+    history,
+    transfer,
+    targetBlockchain,
+  ]);
+
+  const onSubmitClicked = useCallback(() => {
+    if (isUsingLedgerWallet) {
+      setTransferWithLedger(true);
+    } else if (isUsingWalletConnectAccount || isUsingFireblocksAccount) {
+      setIsPending(true);
+    } else {
+      handleTransfer();
+    }
+  }, [
+    handleTransfer,
+    isUsingFireblocksAccount,
+    isUsingLedgerWallet,
+    isUsingWalletConnectAccount,
+  ]);
+
+  useEffect(() => {
+    // If we see this status when bridging, this means we'll need two approvals
+    // from the user: first to wrap the asset, 2nd to deposit it.
+    if (wrapStatus === WrapStatus.WAITING_FOR_DEPOSIT_CONFIRMATION) {
+      setRequiredSignatures(2);
+      setCurrentSignature(1);
+    }
+
+    if (wrapStatus === WrapStatus.WAITING_FOR_CONFIRMATION) {
+      setCurrentSignature(requiredSignatures);
+    }
+  }, [wrapStatus, requiredSignatures]);
+
+  useEffect(() => {
+    if (bridgeStep) {
+      setRequiredSignatures(bridgeStep.requiredSignatures);
+      setCurrentSignature(bridgeStep.currentSignature);
+    }
+  }, [bridgeStep]);
 
   if (
     error ||
@@ -558,7 +684,10 @@ export function Bridge() {
             currentAsset={currentAsset}
             bridgeFee={
               bridgeFee
-                ? `${bigToLocaleString(bridgeFee, 9)} ${currentAsset}`
+                ? `${bigToLocaleString(
+                    bridgeFee,
+                    denomination
+                  )} ${currentAsset}`
                 : '-'
             }
             receiveAmount={receiveAmount}
@@ -582,7 +711,7 @@ export function Bridge() {
           {isPending && (
             <TxInProgress
               address={t('Avalanche Bridge')}
-              amount={bigToLocaleString(amount)}
+              amount={bigToLocaleString(amount, denomination)}
               symbol={currentAsset}
               currentSignature={currentSignature}
               requiredSignatures={requiredSignatures}
@@ -641,9 +770,7 @@ export function Bridge() {
                           maxAmount={maximum && bigToBN(maximum, denomination)}
                           bridgeTokensList={assetsWithBalances}
                           selectedToken={selectedTokenForTokenSelect}
-                          onTokenChange={(token: AssetBalance) => {
-                            handleSelect(token.symbol);
-                          }}
+                          onTokenChange={handleSelect}
                           inputAmount={
                             // Reset BNInput when programmatically setting the amount to zero
                             !sourceBalance || amountBN.isZero()
@@ -786,6 +913,56 @@ export function Bridge() {
               </Card>
             </Stack>
 
+            {/* FIXME: Unified SDK can handle multiple bridges, but for now it's just the CCTP */}
+            {provider === BridgeProviders.Unified && (
+              <Stack
+                direction="row"
+                sx={{
+                  py: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 0.5,
+                }}
+              >
+                <Typography variant="caption">{t('Powered by')}</Typography>
+
+                <img
+                  src="/images/logos/circle-cctp.png"
+                  style={{ width: 50, height: 14 }}
+                />
+                <Tooltip
+                  PopperProps={{
+                    sx: { maxWidth: 188 },
+                  }}
+                  title={
+                    <Trans
+                      i18nKey="{{symbol}} is routed through {{bridgeName}}. <faqLink>Bridge FAQs</faqLink>"
+                      values={{
+                        symbol: currentAsset,
+                        bridgeName: `Circle's Cross-Chain Transfer Protocol`,
+                      }}
+                      components={{
+                        faqLink: (
+                          <Link
+                            href="https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+                            target="_blank"
+                            rel="noreferrer"
+                            sx={{
+                              fontSize: 'caption.fontSize',
+                              display: 'inline-flex',
+                              color: 'secondary.dark',
+                            }}
+                          />
+                        ),
+                      }}
+                    />
+                  }
+                >
+                  <InfoCircleIcon sx={{ cursor: 'pointer' }} />
+                </Tooltip>
+              </Stack>
+            )}
+
             {wrapStatus === WrapStatus.WAITING_FOR_DEPOSIT && (
               <Typography size={14} sx={{ alignSelf: 'center' }}>
                 {t('Waiting for deposit confirmation')}
@@ -795,6 +972,7 @@ export function Bridge() {
             <Button
               data-testid="bridger-transfer-button"
               fullWidth
+              size="large"
               disabled={disableTransfer}
               onClick={onNextClicked}
               sx={{

@@ -3,7 +3,6 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NoTransactions } from './components/NoTransactions';
 import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
-import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import {
   TransactionType,
@@ -26,6 +25,7 @@ import {
   Typography,
 } from '@avalabs/k2-components';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
+import { usePendingBridgeTransactions } from '../Bridge/hooks/usePendingBridgeTransactions';
 
 type WalletRecentTxsProps = {
   isEmbedded?: boolean;
@@ -81,7 +81,8 @@ export function WalletRecentTxs({
    * If there is no tokenSymbolFilter, then we just return all the current bridge transactions
    * because its probably being rendered in the all activity list.
    */
-  const { bridgeTransactions } = useBridgeContext();
+  const bridgeTransactions = usePendingBridgeTransactions();
+
   const filteredBridgeTransactions = tokenSymbolFilter
     ? Object.values(bridgeTransactions).filter(
         (tx) => tx.symbol === tokenSymbolFilter

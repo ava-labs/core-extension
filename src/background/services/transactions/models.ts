@@ -1,8 +1,8 @@
 /* eslint-disable no-prototype-builtins */
 
-import { DomainMetadata, EnsureDefined } from '@src/background/models';
-import { ContractCall } from '@src/contracts/contractParsers/models';
-import { TransactionDescription } from 'ethers';
+import { EthSendTransactionParams } from './handlers/eth_sendTransaction';
+import { TokenType } from '../balances/models';
+import { DomainMetadata } from '@src/background/models';
 
 export enum TxStatus {
   // user has been shown the UI and we are waiting on approval
@@ -26,42 +26,198 @@ export enum TransactionEvent {
   TRANSACTION_FINALIZED = 'transaction-finalized',
 }
 
-export interface TransactionDisplayValues {
-  fromAddress?: string;
-  toAddress?: string;
-  maxFeePerGas?: bigint;
-  maxPriorityFeePerGas?: bigint;
-  contractType?: ContractCall;
-  gasLimit?: number;
-  fee?: string;
-  feeUSD?: number;
-  site?: DomainMetadata;
-  description?: TransactionDescription;
-  [key: string]: any;
+export enum TransactionType {
+  SEND_TOKEN = 'send_token',
+  SEND_NFT = 'send_nft',
+  APPROVE_TOKEN = 'approve_token',
+  APPROVE_NFT = 'approve_nft',
+  APPROVE_NFT_COLLECTION = 'approve_nft_collection',
+  REVOKE_TOKEN_APPROVAL = 'revoke_token_approval',
+  REVOKE_NFT_APPROVAL = 'revoke_nft_approval',
+  REVOKE_NFT_COLLECTION_APPROVAL = 'revoke_nft_collection_approval',
+  CANCEL_TX = 'cancel_tx',
+  DEPLOY_CONTRACT = 'deploy_contract',
+  SWAP = 'swap',
+  ADD_LIQUIDITY = 'add_liquidity',
+  CALL = 'call',
 }
 
-export type TransactionDisplayValuesWithGasData = EnsureDefined<
-  TransactionDisplayValues,
-  'maxFeePerGas' | 'gasLimit'
->;
+export interface TransactionToken {
+  address: string;
+  decimals: number;
+  symbol: string;
+  name: string;
+  logoUri?: string;
+
+  amount?: bigint;
+  usdValue?: number;
+  usdPrice?: number;
+
+  isScam?: boolean;
+  isInfinity?: boolean;
+  isSuspicious?: boolean;
+}
+
+export interface TransactionNft {
+  type: TokenType.ERC721 | TokenType.ERC1155;
+  address: string;
+  name: string;
+  description: string;
+  logoUri?: string;
+  symbol?: string;
+
+  amount: bigint;
+
+  collection?: {
+    name: string;
+    description: string | null;
+    logoUri: string;
+  };
+
+  isScam?: boolean;
+  isSuspicious?: boolean;
+}
+
+export type TransactionAction =
+  | {
+      type: TransactionType.SEND_TOKEN;
+      fromAddress: string;
+      toAddress: string;
+      token: TransactionToken;
+    }
+  | {
+      type: TransactionType.SEND_NFT;
+      fromAddress: string;
+      toAddress: string;
+      nft: TransactionNft;
+    }
+  | {
+      type:
+        | TransactionType.APPROVE_TOKEN
+        | TransactionType.REVOKE_TOKEN_APPROVAL;
+      spender: {
+        address: string;
+        protocol?: {
+          id: string;
+          name: string;
+          logoUri: string;
+        };
+      };
+      token: TransactionToken;
+      customSpendLimit?: bigint;
+    }
+  | {
+      type: TransactionType.APPROVE_NFT | TransactionType.REVOKE_NFT_APPROVAL;
+      owner: string;
+      spender: {
+        address: string;
+        protocol?: {
+          id: string;
+          name: string;
+          logoUri: string;
+        };
+      };
+      token: TransactionNft;
+    }
+  | {
+      type:
+        | TransactionType.APPROVE_NFT_COLLECTION
+        | TransactionType.REVOKE_NFT_COLLECTION_APPROVAL;
+      owner: string;
+      spender: {
+        address: string;
+        protocol?: {
+          id: string;
+          name: string;
+          logoUri: string;
+        };
+      };
+      collection: {
+        id: string;
+        name: string;
+        description: string;
+        address: string;
+        logoUri: string;
+        type: TokenType.ERC721 | TokenType.ERC1155;
+
+        isScam?: boolean;
+        isSuspicious?: boolean;
+      };
+    }
+  | {
+      type: TransactionType.CANCEL_TX;
+      fromAddress: string;
+    }
+  | {
+      type: TransactionType.DEPLOY_CONTRACT;
+      fromAddress: string;
+    }
+  | {
+      type: TransactionType.CALL;
+      fromAddress: string;
+      contract?: {
+        address: string;
+        protocol?: {
+          id: string;
+          name: string;
+          logoUri: string;
+        };
+      };
+    }
+  | {
+      type: TransactionType.ADD_LIQUIDITY | TransactionType.SWAP;
+      fromAddress: string;
+      contract?: {
+        address: string;
+      };
+    };
+
+export interface TransactionDisplayValues {
+  fromAddress: string;
+
+  abi?: {
+    func: string;
+    params: unknown[];
+  };
+
+  actions: TransactionAction[];
+
+  gas: {
+    maxPriorityFeePerGas?: bigint;
+    maxFeePerGas: bigint;
+    gasLimit: number;
+    recommendedGasLimit?: number;
+  };
+
+  balanceChange?: {
+    usdValueChange?: number;
+    sendTokenList: TransactionToken[];
+    receiveTokenList: TransactionToken[];
+    sendNftList: TransactionNft[];
+    receiveNftList: TransactionNft[];
+  };
+
+  preExecSuccess?: boolean;
+}
 
 export interface Transaction {
-  id: number | string | void;
+  id: string;
+  requestId: string;
   method: string;
   time: number;
   status: TxStatus;
-  metamaskNetworkId: string;
   chainId: string;
-  txParams: txParams;
-  type: string;
-  transactionCategory: string;
+  txParams: EthSendTransactionParamsWithGas;
   txHash?: string;
-  displayValues: TransactionDisplayValues;
+  displayValues?: TransactionDisplayValues;
   error?: string;
   tabId?: number;
+  site?: DomainMetadata;
 }
 
-export function isTxParams(params: Partial<txParams>): params is txParams {
+export function isTxParams(
+  params: Partial<EthSendTransactionParams>
+): params is EthSendTransactionParams {
   return !!params.from;
 }
 
@@ -69,23 +225,19 @@ export type PendingTransactions = {
   [id: string]: Transaction;
 };
 
-export interface txParams {
-  from: string;
-  to: string;
-  value?: string;
-  data?: string;
-  gas?: number;
-  type?: number;
-  gasPrice?: string;
-  maxFeePerGas?: string;
-  maxPriorityFeePerGas?: string;
+export interface EthSendTransactionParamsWithGas
+  extends EthSendTransactionParams {
+  type: number;
+  gasLimit: string;
+  maxFeePerGas: string;
 }
+
 /**
  * This is updating the gasPrice and gasEstimate for a pending tx
  */
 export interface txParamsUpdate {
   id: any;
-  params: txParams;
+  params: Partial<EthSendTransactionParamsWithGas>;
   tabId?: number;
 }
 /**

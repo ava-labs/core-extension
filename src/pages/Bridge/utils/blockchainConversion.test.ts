@@ -298,6 +298,14 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       const result = networkToBlockchain(network);
       expect(result).toEqual(Blockchain.ETHEREUM);
     });
+    it('should return ETHEREUM if network is ETHEREUM_TEST_SEPOLIA', () => {
+      const network = {
+        ...baseNetwork,
+        chainId: ChainId.ETHEREUM_TEST_SEPOLIA,
+      };
+      const result = networkToBlockchain(network);
+      expect(result).toEqual(Blockchain.ETHEREUM);
+    });
     it('should return BITCOIN if network is BITCOIN', () => {
       const network = { ...baseNetwork, chainId: ChainId.BITCOIN };
       const result = networkToBlockchain(network);
