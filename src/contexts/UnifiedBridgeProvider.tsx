@@ -40,6 +40,10 @@ import { UnifiedBridgeGetAssets } from '@src/background/services/unifiedBridge/h
 import { useTranslation } from 'react-i18next';
 
 interface UnifiedBridgeContext {
+  getAssetAddressOnTargetChain(
+    symbol?: string,
+    chainId?: number
+  ): string | undefined;
   getFee(
     symbol: string,
     amount: bigint,
@@ -59,6 +63,9 @@ interface UnifiedBridgeContext {
 
 const DEFAULT_STATE = {
   state: UNIFIED_BRIDGE_DEFAULT_STATE,
+  getAssetAddressOnTargetChain() {
+    return undefined;
+  },
   getErrorMessage() {
     return '';
   },
@@ -170,6 +177,19 @@ export function UnifiedBridgeProvider({
     [assets]
   );
 
+  const getAssetAddressOnTargetChain = useCallback(
+    (symbol?: string, targetChainId?: number) => {
+      if (!symbol || !targetChainId) {
+        return;
+      }
+
+      const asset = getAsset(symbol, targetChainId);
+
+      return asset?.address;
+    },
+    [getAsset]
+  );
+
   const getFee = useCallback(
     async (
       symbol: string,
@@ -267,6 +287,7 @@ export function UnifiedBridgeProvider({
       value={{
         getErrorMessage,
         state,
+        getAssetAddressOnTargetChain,
         getFee,
         supportsAsset,
         transferAsset,

@@ -74,6 +74,7 @@ import {
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { isUnifiedBridgeAsset } from './utils/isUnifiedBridgeAsset';
 import { getTokenAddress } from './utils/getTokenAddress';
+import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -111,6 +112,7 @@ export function Bridge() {
     sourceAssets,
   } = useBridgeSDK();
   const { error } = useBridgeConfig();
+  const { getAssetAddressOnTargetChain } = useUnifiedBridgeContext();
   const { t } = useTranslation();
   const availableBlockchains = useAvailableBlockchains();
 
@@ -260,11 +262,9 @@ export function Bridge() {
       // that also calls setCurrentAsset :(
       const timer = setTimeout(() => {
         setCurrentAsset(symbol);
-        if (typeof currentAssetAddress === 'undefined') {
-          setCurrentAssetAddress(
-            bridgePageHistoryData.selectedTokenAddress ?? ''
-          );
-        }
+        setCurrentAssetAddress(
+          bridgePageHistoryData.selectedTokenAddress ?? ''
+        );
       }, 1);
 
       return () => {
@@ -285,25 +285,34 @@ export function Bridge() {
 
   const handleBlockchainSwitchFrom = useCallback(
     (blockchain: Blockchain) => {
-      setNavigationHistoryData({
-        selectedTokenAddress: currentAssetAddress,
-        selectedToken: currentAsset,
-        inputAmount: amount,
-      });
       const blockChainNetwork = blockchainToNetwork(
         blockchain,
         networks,
         bridgeConfig
       );
-      blockChainNetwork && setNetwork(blockChainNetwork);
+
+      if (blockChainNetwork) {
+        setNetwork(blockChainNetwork);
+        const assetAddressOnOppositeChain = getAssetAddressOnTargetChain(
+          currentAsset,
+          blockChainNetwork.chainId
+        );
+
+        setCurrentAssetAddress(assetAddressOnOppositeChain);
+        setNavigationHistoryData({
+          selectedTokenAddress: assetAddressOnOppositeChain,
+          selectedToken: currentAsset,
+          inputAmount: amount,
+        });
+      }
 
       // Reset because a denomination change will change its value
       setAmount(BIG_ZERO);
     },
     [
-      currentAssetAddress,
       amount,
       bridgeConfig,
+      getAssetAddressOnTargetChain,
       currentAsset,
       networks,
       setAmount,
@@ -444,31 +453,40 @@ export function Bridge() {
 
   const handleBlockchainToggle = useCallback(() => {
     if (targetBlockchain) {
-      setNavigationHistoryData({
-        selectedTokenAddress: currentAssetAddress,
-        selectedToken: currentAsset,
-        inputAmount: undefined,
-      });
       // convert blockChain to Network
       const blockChainNetwork = blockchainToNetwork(
         targetBlockchain,
         networks,
         bridgeConfig
       );
-      setAmount(BIG_ZERO);
-      blockChainNetwork && setNetwork(blockChainNetwork);
-      setIsSwitched(!isSwitched);
+
+      if (blockChainNetwork) {
+        const assetAddressOnOppositeChain = getAssetAddressOnTargetChain(
+          currentAsset,
+          blockChainNetwork.chainId
+        );
+
+        setCurrentAssetAddress(assetAddressOnOppositeChain);
+        setNavigationHistoryData({
+          selectedTokenAddress: assetAddressOnOppositeChain,
+          selectedToken: currentAsset,
+          inputAmount: undefined,
+        });
+        setAmount(BIG_ZERO);
+        setNetwork(blockChainNetwork);
+        setIsSwitched(!isSwitched);
+      }
     }
   }, [
     bridgeConfig,
     currentAsset,
-    currentAssetAddress,
     isSwitched,
     networks,
     setAmount,
     setNetwork,
     setNavigationHistoryData,
     targetBlockchain,
+    getAssetAddressOnTargetChain,
   ]);
 
   const handleSelect = useCallback(

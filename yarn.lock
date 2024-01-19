@@ -61,10 +61,10 @@
     "@avalabs/utils-sdk" "2.8.0-alpha.164"
     "@avalabs/wallets-sdk" "2.8.0-alpha.164"
 
-"@avalabs/bridge-unified@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-2.0.0.tgz#a797bf8bb540e8f233966e71cf632983f6266b50"
-  integrity sha512-QqHyh0CR/LULNqDqTRpg58arINmCdi8eZB6JV47eerSBdl9oj7OtFbx6eivXd94STYhgWVJOQgjRxo5L1wcHPA==
+"@avalabs/bridge-unified@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-2.0.1.tgz#553c77ad02d4e10c0bcf049d5023897af61cb864"
+  integrity sha512-9nntqVGZ+fWnT4WRqMs16kqRzx/z6w4QilrDPSnNtftxrLpztVdMoYgLRoP1AcD3y2+E0e1DkwVEUGpkAQ1yew==
   dependencies:
     abitype "0.9.3"
     lodash "4.17.21"
