@@ -5,7 +5,9 @@ import { initializeProvider } from './initializeInpageProvider';
 
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection');
 jest.mock('./CoreProvider', () => ({
-  CoreProvider: jest.fn().mockImplementation(() => ({ isAvalanche: true })),
+  CoreProvider: jest
+    .fn()
+    .mockImplementation(() => ({ isAvalanche: true, info: { name: 'name' } })),
 }));
 jest.mock('./MultiWalletProviderProxy', () => ({
   createMultiWalletProxy: jest.fn(),
@@ -17,6 +19,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
   const mockMultiWalletProxy = { defaultProvider: {}, addProvider: jest.fn() };
   beforeEach(() => {
     windowMock = {
+      addEventListener: jest.fn(),
       dispatchEvent: jest.fn(),
     } as any;
     (createMultiWalletProxy as jest.Mock).mockReturnValue(mockMultiWalletProxy);
@@ -166,6 +169,44 @@ describe('src/background/providers/initializeInpageProvider', () => {
           `Cannot assign to read only property 'avalanche' of object '#<Object>'`
         );
       }
+    });
+  });
+
+  describe('EIP-6963', () => {
+    it('announces core provider with eip6963:announceProvider', () => {
+      const provider = initializeProvider(connectionMock, 10, windowMock);
+
+      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(4);
+      expect(windowMock.dispatchEvent.mock.calls[3][0].type).toEqual(
+        'eip6963:announceProvider'
+      );
+      expect(windowMock.dispatchEvent.mock.calls[3][0].detail).toEqual({
+        info: provider.info,
+        provider: provider,
+      });
+    });
+    it('re-announces on eip6963:requestProvider', () => {
+      const provider = initializeProvider(connectionMock, 10, windowMock);
+
+      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(4);
+
+      expect(windowMock.addEventListener).toHaveBeenCalledTimes(1);
+      expect(windowMock.addEventListener).toHaveBeenCalledWith(
+        'eip6963:requestProvider',
+        expect.anything()
+      );
+
+      windowMock.addEventListener.mock.calls[0][1]();
+
+      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(5);
+
+      expect(windowMock.dispatchEvent.mock.calls[4][0].type).toEqual(
+        'eip6963:announceProvider'
+      );
+      expect(windowMock.dispatchEvent.mock.calls[4][0].detail).toEqual({
+        info: provider.info,
+        provider: provider,
+      });
     });
   });
 });
