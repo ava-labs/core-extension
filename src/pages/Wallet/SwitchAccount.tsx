@@ -67,7 +67,7 @@ export function SwitchAccount() {
         >
           <WalletIcon size={48} />
         </Avatar>
-        <Typography variant="h3" sx={{ fontSize: 24 }}>
+        <Typography variant="h4">
           {t('Switch to {{name}}?', {
             name: request.selectedAccount?.name,
           })}

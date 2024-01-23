@@ -23,10 +23,7 @@ export function BridgeTransferAsset({ action }: { action: Action }) {
 
   return (
     <Stack sx={{ flexGrow: 1, width: 1 }}>
-      <Typography
-        component="h1"
-        sx={{ mt: 1.5, mb: 3.5, fontSize: 24, fontWeight: 'bold' }}
-      >
+      <Typography variant="h4" sx={{ mt: 1.5, mb: 3.5 }}>
         {t('Bridge Approval')}
       </Typography>
       <ApprovalSection>

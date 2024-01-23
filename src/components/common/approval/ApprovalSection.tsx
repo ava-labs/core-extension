@@ -30,13 +30,7 @@ export const ApprovalSectionHeader: React.FC<ApprovalSectionHeaderProps> = ({
     }}
   >
     <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
-      <Typography
-        component="h2"
-        variant="body2"
-        sx={{ fontWeight: 'semibold' }}
-      >
-        {label}
-      </Typography>
+      <Typography component="h6">{label}</Typography>
       {tooltip && (
         <Tooltip sx={{ cursor: 'pointer', ml: 1 }} title={tooltip}>
           {tooltipIcon}

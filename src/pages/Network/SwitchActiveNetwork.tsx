@@ -70,7 +70,7 @@ export function SwitchActiveNetwork() {
                 <GlobeIcon size={56} />
               </TokenIcon>
             </SiteAvatar>
-            <Typography variant="h3">
+            <Typography variant="h4">
               {t('Switch to {{chainName}} Network?', {
                 chainName: network?.chainName,
               })}

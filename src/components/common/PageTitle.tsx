@@ -81,11 +81,9 @@ export const PageTitle = ({
       )}
       {thumbnailImage && <ThumbnailImage src={thumbnailImage} />}
       <Typography
-        component="h1"
+        variant="h4"
         sx={{
-          fontSize: 24,
           width: '100%',
-          fontWeight: 'bold',
           marginLeft: showBackButton ? 0 : 2,
         }}
       >

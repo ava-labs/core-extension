@@ -3,18 +3,12 @@ import {
   ButtonProps,
   ChevronDownIcon,
   Tooltip,
-  styled,
+  Typography,
 } from '@avalabs/k2-components';
 
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useHistory } from 'react-router-dom';
-
-const AccountName = styled('span')`
-  max-width: 165px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
 
 export function AccountSelectorButton(props: ButtonProps) {
   const history = useHistory();
@@ -34,11 +28,11 @@ export function AccountSelectorButton(props: ButtonProps) {
         capture('AccountSelectorOpened');
       }}
       endIcon={<ChevronDownIcon />}
-      sx={{ p: 0, fontSize: '20px' }}
+      sx={{ p: 0 }}
       {...props}
     >
       <Tooltip title={activeAccount?.name}>
-        <AccountName>{activeAccount?.name}</AccountName>
+        <Typography variant="h6">{activeAccount?.name}</Typography>
       </Tooltip>
     </Button>
   );

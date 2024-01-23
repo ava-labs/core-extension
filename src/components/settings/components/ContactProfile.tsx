@@ -244,7 +244,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
               {showInitials()}
             </Typography>
           </Avatar>
-          <Typography variant="h3" sx={{ my: 3 }}>
+          <Typography variant="h4" sx={{ my: 3 }}>
             {contact.name}
           </Typography>
           {isEdit ? (

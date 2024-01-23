@@ -55,14 +55,13 @@ export const AvalancheTxHeader: React.FC<AvalancheTxHeaderProps> = ({ tx }) => {
     <Box
       sx={{
         width: '100%',
-        backgroundColor: 'background.default',
         py: 1.5,
         mb: 2,
         zIndex: 1,
         height: '56px',
       }}
     >
-      <Typography component="h1" variant="h3">
+      <Typography variant="h4" component="h1">
         {header}
       </Typography>
     </Box>

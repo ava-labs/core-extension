@@ -114,9 +114,7 @@ export function PermissionsPage() {
     >
       <Stack sx={{ gap: 3, py: 1.5 }}>
         <Box sx={{ width: '100%' }}>
-          <Typography component="h1" sx={{ fontSize: 24, fontWeight: 'bold' }}>
-            {t('Connect Core to Dapp')}
-          </Typography>
+          <Typography variant="h4">{t('Connect Core to Dapp')}</Typography>
         </Box>
         <Stack sx={{ gap: 2.5, alignItems: 'center' }}>
           <SiteAvatar sx={{ m: 0 }}>
@@ -129,7 +127,7 @@ export function PermissionsPage() {
             </TokenIcon>
           </SiteAvatar>
           <Stack textAlign="center" gap={0.5}>
-            <Typography component="h2" variant="h5">
+            <Typography variant="h5">
               {request.displayData.domainName}
             </Typography>
             <Typography
