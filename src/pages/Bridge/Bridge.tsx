@@ -308,6 +308,7 @@ export function Bridge() {
 
       // Reset because a denomination change will change its value
       setAmount(BIG_ZERO);
+      setBridgeError('');
     },
     [
       amount,
@@ -475,6 +476,7 @@ export function Bridge() {
         setAmount(BIG_ZERO);
         setNetwork(blockChainNetwork);
         setIsSwitched(!isSwitched);
+        setBridgeError('');
       }
     }
   }, [
@@ -727,7 +729,20 @@ export function Bridge() {
       </Route>
       <Route path="/bridge">
         <Stack sx={{ height: '100%', width: '100%' }}>
-          <PageTitle>{t('Bridge')}</PageTitle>
+          <PageTitle
+            onBackClick={() => {
+              // We need to reset the current asset when the user purposefully navigates away from Bridge.
+              // That's because this kind of action will clear the data we saved in NavigationHistoryService,
+              // therefore leaving us with no "currentAssetAddress", without which we cannot distinguish between
+              // USDC and USDC.e
+              // Closing & reopening of the extension will still work & load the previous form values,
+              // because this action does not clear the data in NavigationHistoryService.
+              setCurrentAsset('');
+              history.replace('/home');
+            }}
+          >
+            {t('Bridge')}
+          </PageTitle>
           <Stack sx={{ flex: 1, px: 2 }}>
             <Stack sx={{ flex: 1 }}>
               <Card sx={{ p: 0, overflow: 'unset' }}>

@@ -52,7 +52,9 @@ const ActionButtonWrapper = styled(Stack)`
   }
 `;
 
-const Menu = styled(Stack)<{ isOpen: boolean }>`
+const Menu = styled(Stack, {
+  shouldForwardProp: (prop) => prop !== 'isOpen',
+})<{ isOpen: boolean }>`
   border-radius: 40px;
   width: ${({ isOpen }) => (isOpen ? '80px' : '40px')};
   position: absolute;

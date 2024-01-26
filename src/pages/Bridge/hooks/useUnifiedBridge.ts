@@ -1,7 +1,12 @@
 import Big from 'big.js';
 import { bigToBigInt } from '@avalabs/utils-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Blockchain, isNativeAsset, useBridgeSDK } from '@avalabs/bridge-sdk';
+import {
+  BIG_ZERO,
+  Blockchain,
+  isNativeAsset,
+  useBridgeSDK,
+} from '@avalabs/bridge-sdk';
 
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { bigintToBig } from '@src/utils/bigintToBig';
@@ -73,25 +78,28 @@ export function useUnifiedBridge(
       amount &&
       supportsAsset(currentAssetAddress, targetChainId)
     ) {
-      getFee(
-        currentAsset,
-        bigToBigInt(amount, currentAssetData.denomination),
-        targetChainId
-      ).then((fee) => {
-        // Do not update the state if the component was unmounted in the meantime
-        if (!isMounted) {
-          return;
-        }
+      const hasAmount = amount && !amount.eq(BIG_ZERO);
 
-        const feeBig = bigintToBig(fee, currentAssetData.denomination);
-        setBridgeFee(feeBig);
-        setMinimum(feeBig);
-        setReceiveAmount(amount.sub(feeBig));
+      if (hasAmount) {
+        getFee(
+          currentAsset,
+          bigToBigInt(amount, currentAssetData.denomination),
+          targetChainId
+        ).then((fee) => {
+          if (!isMounted) {
+            return;
+          }
 
-        if (sourceBalance?.balance) {
-          setMaximum(sourceBalance.balance);
-        }
-      });
+          const feeBig = bigintToBig(fee, currentAssetData.denomination);
+          setBridgeFee(feeBig);
+          setMinimum(feeBig);
+          setReceiveAmount(amount.sub(feeBig));
+        });
+      }
+
+      if (sourceBalance?.balance) {
+        setMaximum(sourceBalance.balance);
+      }
     }
 
     return () => {
@@ -104,7 +112,7 @@ export function useUnifiedBridge(
     amount,
     targetChainId,
     getFee,
-    sourceBalance,
+    sourceBalance?.balance,
     supportsAsset,
   ]);
 

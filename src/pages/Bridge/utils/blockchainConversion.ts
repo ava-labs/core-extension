@@ -55,7 +55,12 @@ export const blockchainToNetwork = (
 };
 
 export const networkToBlockchain = (network: Network | Chain | undefined) => {
-  switch (network?.chainId) {
+  const chainId =
+    typeof network?.chainId === 'string'
+      ? caipToChainId(network.chainId)
+      : network?.chainId;
+
+  switch (chainId) {
     case ChainId.AVALANCHE_MAINNET_ID:
     case ChainId.AVALANCHE_LOCAL_ID:
     case ChainId.AVALANCHE_TESTNET_ID:
