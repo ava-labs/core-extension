@@ -54,9 +54,9 @@ export function useAssetBalancesEVM(
       return [];
     }
 
-    // do not allow BUSD.e onboardings
     const filteredEthereumAssets: EthereumAssets = Object.keys(ethereumAssets)
-      .filter((key) => ethereumAssets[key]?.symbol !== 'BUSD')
+      .filter((key) => ethereumAssets[key]?.symbol !== 'BUSD') // do not allow BUSD.e onboardings
+      .filter((key) => ethereumAssets[key]?.symbol !== 'USDC') // do not use Legacy Bridge for USDC onboardings
       .reduce((obj, key) => {
         obj[key] = ethereumAssets[key];
         return obj;

@@ -64,7 +64,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
       <Scrollbars>
         {filteredContacts.length === 0 && (
           <Stack sx={{ alignContent: 'center', mt: 12 }}>
-            <Typography variant="h4" sx={{ textAlign: 'center', mb: 1 }}>
+            <Typography variant="h5" sx={{ textAlign: 'center', mb: 1 }}>
               {t('No Contacts Saved')}
             </Typography>
             <Typography

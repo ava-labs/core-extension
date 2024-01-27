@@ -62,10 +62,11 @@ export function requestEngine(
       id: `${request.method}-${Math.floor(Math.random() * 10000000)}`,
     };
     const response = connectionRequest(requestWithId);
-    isDevelopment() && requestLog('Extension Request', requestWithId);
+    isDevelopment() &&
+      requestLog(`Extension Request  (${requestWithId.method})`, requestWithId);
     connection.postMessage(serializeToJSON(requestWithId));
     response.then((res) => {
-      isDevelopment() && responseLog('Extension Response', res);
+      isDevelopment() && responseLog(`Extension Response (${res.method})`, res);
       return res;
     });
     return response;

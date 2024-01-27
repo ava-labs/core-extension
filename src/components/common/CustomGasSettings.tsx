@@ -64,12 +64,7 @@ const FeeAmount = ({ value, fiatValue, tokenSymbol }) => (
         <Typography variant="h5" component="span" color="text.primary">
           {value}
         </Typography>
-        <Typography
-          variant="h5"
-          component="span"
-          color="text.secondary"
-          sx={{ fontSize: 'body1.fontSize' }}
-        >
+        <Typography variant="h6" component="span" color="text.secondary">
           {tokenSymbol}
         </Typography>
       </Stack>

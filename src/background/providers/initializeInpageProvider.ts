@@ -1,6 +1,7 @@
 import AbstractConnection from '../utils/messaging/AbstractConnection';
 import { CoreProvider } from './CoreProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
+import { EIP6963ProviderDetail } from './models';
 
 /**
  * Initializes a CoreProvide and assigns it as window.ethereum.
@@ -23,6 +24,7 @@ export function initializeProvider(
   setGlobalProvider(provider, globalObject);
   setAvalancheGlobalProvider(provider, globalObject);
   setEvmproviders(provider, globalObject);
+  announceWalletProvider(provider, globalObject);
 
   return provider;
 }
@@ -110,4 +112,29 @@ function setEvmproviders(
   globalObject.evmproviders.core = providerInstance;
 
   globalObject.dispatchEvent(new Event('evmproviders#initialized'));
+}
+
+function announceWalletProvider(
+  providerInstance: CoreProvider,
+  globalObject = window
+): void {
+  const announceEvent = new CustomEvent<EIP6963ProviderDetail>(
+    'eip6963:announceProvider',
+    {
+      detail: Object.freeze({
+        info: { ...providerInstance.info },
+        provider: providerInstance,
+      }),
+    }
+  );
+
+  // The Wallet dispatches an announce event which is heard by
+  // the DApp code that had run earlier
+  globalObject.dispatchEvent(announceEvent);
+
+  // The Wallet listens to the request events which may be
+  // dispatched later and re-dispatches the `EIP6963AnnounceProviderEvent`
+  globalObject.addEventListener('eip6963:requestProvider', () => {
+    globalObject.dispatchEvent(announceEvent);
+  });
 }

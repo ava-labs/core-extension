@@ -191,7 +191,6 @@ export function SignTransactionPage() {
           <Box
             sx={{
               width: '100%',
-              backgroundColor: 'background.default',
               pt: 1,
               pb: 2,
               px: 2,
@@ -199,12 +198,7 @@ export function SignTransactionPage() {
               height: '56px',
             }}
           >
-            <Typography
-              component="h1"
-              sx={{ fontSize: 24, fontWeight: 'bold' }}
-            >
-              {header}
-            </Typography>
+            <Typography variant="h4">{header}</Typography>
           </Box>
         )}
         {/* Actions  */}
@@ -269,9 +263,7 @@ export function SignTransactionPage() {
 
                 {!hasEnoughForNetworkFee && (
                   <Stack sx={{ width: '100%', alignItems: 'flex-start' }}>
-                    <Typography
-                      sx={{ color: 'error.main', fontSize: 'caption.fontSize' }}
-                    >
+                    <Typography variant="caption" sx={{ color: 'error.main' }}>
                       <Trans
                         i18nKey="Insufficient balance to cover gas costs. <br /> Please add {{symbol}}."
                         values={{ symbol: network?.networkToken.symbol }}

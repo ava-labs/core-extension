@@ -26,7 +26,11 @@ const AttributeLabel = (props: AttributeTypographyProps) => (
 );
 
 const AttributeData = (props: AttributeTypographyProps) => (
-  <Typography {...props} variant="h6" sx={{ wordWrap: 'break-word' }} />
+  <Typography
+    {...props}
+    variant="h6"
+    sx={{ wordWrap: 'break-word', fontWeight: 'fontWeightSemibold' }}
+  />
 );
 
 export function CollectibleDetails() {
@@ -101,7 +105,7 @@ export function CollectibleDetails() {
           >
             {t('Send')}
           </Button>
-          <Typography variant="h4">{t('Description')}</Typography>
+          <Typography variant="h5">{t('Description')}</Typography>
           <Stack
             sx={{
               mt: 2,
@@ -120,7 +124,7 @@ export function CollectibleDetails() {
           </Stack>
 
           {nft?.attributes && nft.attributes.length > 0 && (
-            <Typography variant="h4">{t('Properties')}</Typography>
+            <Typography variant="h5">{t('Properties')}</Typography>
           )}
           <Stack
             sx={{

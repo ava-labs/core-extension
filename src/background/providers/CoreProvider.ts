@@ -36,6 +36,7 @@ export class CoreProvider extends EventEmitter {
     uuid: EVM_PROVIDER_INFO_UUID,
     icon: EVM_PROVIDER_INFO_ICON,
     description: EVM_PROVIDER_INFO_DESCRIPTION,
+    rdns: EVM_PROVIDER_INFO_RDNS,
   };
 
   chainId: string | null = null;

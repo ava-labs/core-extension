@@ -67,7 +67,7 @@ export function WalletBalances() {
           )}
           <Typography
             data-testid="wallet-balance"
-            variant="h2"
+            variant="h3"
             sx={{ fontWeight: 'fontWeightBold' }}
           >
             {currencyFormatter(balanceTotal).replace(currency, '')}

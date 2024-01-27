@@ -99,21 +99,23 @@ const Label = styled(Typography)(() => ({
 
 const StartLabel = styled(Label, {
   shouldForwardProp: (prop) => prop !== 'labelBackgroundColor',
-})(() => ({
+})(({ theme }) => ({
   left: 0,
   transform: 'unset',
   zIndex: 1,
   paddingRight: 8,
+  backgroundColor: theme.palette.grey[850],
 }));
 
 const FinishLabel = styled(Label, {
   shouldForwardProp: (prop) => prop !== 'labelBackgroundColor',
-})(() => ({
+})(({ theme }) => ({
   right: 0,
   left: 'unset',
   zIndex: 1,
   paddingLeft: 8,
   transform: 'unset',
+  backgroundColor: theme.palette.grey[850],
 }));
 
 const DashedLine: any = styled('div', {

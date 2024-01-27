@@ -232,7 +232,7 @@ export function SignMessage() {
           ) : null}
 
           <Stack sx={{ py: 1.5 }}>
-            <Typography variant="h3">
+            <Typography variant="h4">
               {action.error ? t('Signing Failed') : t('Sign Message')}
             </Typography>
           </Stack>

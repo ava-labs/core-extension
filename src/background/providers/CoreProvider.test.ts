@@ -41,6 +41,7 @@ describe('src/background/providers/CoreProvider', () => {
         icon: 'EVM_PROVIDER_INFO_ICON',
         name: 'EVM_PROVIDER_INFO_NAME',
         uuid: 'EVM_PROVIDER_INFO_UUID',
+        rdns: 'EVM_PROVIDER_INFO_RDNS',
       });
     });
   });

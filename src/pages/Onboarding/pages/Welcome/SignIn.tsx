@@ -55,8 +55,8 @@ export function SignIn() {
           <Logo height={25} />
           <BrandName height={17} margin="0 0 0 12px" />
         </Stack>
-        <Stack sx={{ mb: 8 }}>
-          <Typography variant="h3">{t('Sign In with...')}</Typography>
+        <Stack sx={{ mt: 6, mb: 2 }}>
+          <Typography variant="h4">{t('Sign in with...')}</Typography>
         </Stack>
         <Stack sx={{ rowGap: 2 }}>
           {featureFlags[FeatureGates.SEEDLESS_ONBOARDING_GOOGLE] && (

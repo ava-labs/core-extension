@@ -39,7 +39,7 @@ export function SettingsHeader({
         <IconButton data-testid="go-back-button" onClick={goBack} disableRipple>
           <ChevronLeftIcon size={32} />
         </IconButton>
-        <Typography variant="h3">{title}</Typography>
+        <Typography variant="h4">{title}</Typography>
       </Stack>
       {action}
     </Stack>

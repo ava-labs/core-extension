@@ -31,6 +31,7 @@ browser.tabs.query({ active: true }).then(() => {
             position: 'top-center',
           }}
           theme={darkTheme}
+          withResponsiveFontSizes={false}
         >
           <I18nextProvider i18n={i18n}>
             <ConnectionContextProvider>
