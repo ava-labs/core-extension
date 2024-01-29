@@ -9,6 +9,11 @@ Core integrates CubeSigner to provide Seedless onboarding and sign in functional
 - CubeSigner documentation: https://signer-docs.cubist.dev/
 - Typescript SDK: https://github.com/cubist-labs/CubeSigner-TypeScript-SDK
 - CubeSigner CLI: https://github.com/cubist-partners/CubeSigner
+- Seedless API Repository: https://github.com/ava-labs/core-seedless-api
+
+## Seedless Runbook
+
+Runbook documenting production access, and incident handling procedures: https://ava-labs.atlassian.net/wiki/spaces/EN/pages/2471231641/Seedless+Runbook
 
 ## Key management
 
