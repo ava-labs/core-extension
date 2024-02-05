@@ -32,10 +32,11 @@ jest.mock('jose', () => {
     }),
   };
 });
-
+const vaultAccount1 = 'vault-account-1';
 const extWalletAddr = 'tb1q32r4p22fyexux0m0gr8lf8z9entmzu8sl2t29n';
 const intWalletAddr = 'tb1a2b3c4d5e6f5e4d3c2b1axuxemuzebalt2t2nda';
 const vaultAcctAddr = 'tb1jsdjadsuidhkjadj8as78yu1idajdjk12387a8s';
+const vaultAcctAddr2 = 'tb1vaultAcctAddr2';
 
 const mockResponsesByPath =
   (responses: Record<string, any>) =>
@@ -60,6 +61,7 @@ const mockResponsesByPath =
 describe('src/background/services/fireblocks/FireblocksService', () => {
   const secretsService = jest.mocked(new SecretsService({} as any));
   const secretsProvider = new FireblocksSecretsService(secretsService);
+  let service: FireblocksService;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -86,7 +88,128 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
     service = new FireblocksService(secretsProvider);
   });
 
-  let service: FireblocksService;
+  describe('getBtcAddressByAccountId', () => {
+    it('should call the endpoint until all pages are fetched', async () => {
+      jest.mocked(global.fetch).mockImplementation(
+        mockResponsesByPath({
+          [`/vault/accounts/${vaultAccount1}/BTC_TEST/addresses_paginated`]: {
+            addresses: [
+              {
+                assetId: 'BTC_TEST',
+                address: vaultAcctAddr,
+                tag: 'tag',
+                addressFormat: 'SEGWIT',
+                type: 'Permanent',
+                userDefined: false,
+              },
+            ],
+          },
+        })
+      );
+
+      const result = await service.getBtcAddressByAccountId(
+        vaultAccount1,
+        false
+      );
+      expect(result).toEqual(vaultAcctAddr);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return the value even when account is not on the first page', async () => {
+      jest.mocked(global.fetch).mockImplementation(
+        mockResponsesByPath({
+          [`/vault/accounts/${vaultAccount1}/BTC_TEST/addresses_paginated`]: {
+            addresses: [
+              {
+                assetId: 'BTC_TEST',
+                address: vaultAcctAddr,
+                tag: 'Deposit',
+                addressFormat: 'SEGWIT',
+                type: 'test',
+                userDefined: false,
+              },
+            ],
+            paging: {
+              after: 'paging-token',
+            },
+          },
+          [`/vault/accounts/${vaultAccount1}/BTC_TEST/addresses_paginated?after=paging-token`]:
+            {
+              addresses: [
+                {
+                  assetId: 'BTC_TEST',
+                  address: vaultAcctAddr2,
+                  tag: 'tag',
+                  addressFormat: 'SEGWIT',
+                  type: 'Permanent',
+                  userDefined: false,
+                },
+              ],
+            },
+        })
+      );
+
+      const result = await service.getBtcAddressByAccountId(
+        vaultAccount1,
+        false
+      );
+      expect(result).toEqual(vaultAcctAddr2);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('getAllAddesses', () => {
+    const primaryAddress = {
+      assetId: 'BTC_TEST',
+      address: vaultAcctAddr,
+      tag: 'tag',
+      addressFormat: 'SEGWIT',
+      type: 'Permanent',
+      userDefined: false,
+    };
+    const depositAddress = {
+      assetId: 'BTC_TEST',
+      address: vaultAcctAddr,
+      tag: 'Deposit',
+      addressFormat: 'SEGWIT',
+      type: 'test',
+      userDefined: false,
+    };
+    it('should fetch only once if there is no more pages', async () => {
+      jest.mocked(global.fetch).mockImplementation(
+        mockResponsesByPath({
+          [`/vault/accounts/${vaultAccount1}/BTC_TEST/addresses_paginated`]: {
+            addresses: [primaryAddress],
+          },
+        })
+      );
+
+      const result = await service.getAllAddesses(vaultAccount1, 'BTC_TEST');
+      expect(result).toEqual([primaryAddress]);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return the value when the account id is found', async () => {
+      jest.mocked(global.fetch).mockImplementation(
+        mockResponsesByPath({
+          [`/vault/accounts/${vaultAccount1}/BTC_TEST/addresses_paginated`]: {
+            addresses: [depositAddress],
+            paging: {
+              after: 'paging-token',
+            },
+          },
+          [`/vault/accounts/${vaultAccount1}/BTC_TEST/addresses_paginated?after=paging-token`]:
+            {
+              addresses: [primaryAddress],
+            },
+        })
+      );
+
+      const result = await service.getAllAddesses(vaultAccount1, 'BTC_TEST');
+      expect(result).toEqual([depositAddress, primaryAddress]);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+  });
 
   describe('.getAllKnownAddressesForAsset()', () => {
     describe('when matching external wallets exist', () => {
@@ -148,7 +271,6 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
     });
 
     describe('when matching vault accounts exist', () => {
-      const vaultAccount1 = 'vault-account-1';
       beforeEach(() => {
         jest.mocked(global.fetch).mockImplementation(
           mockResponsesByPath({
@@ -160,12 +282,18 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
               ],
             },
 
-            [`/vault/accounts/${vaultAccount1}/BTC/addresses`]: [
-              {
-                assetId: 'BTC',
-                address: vaultAcctAddr,
-              },
-            ],
+            [`/vault/accounts/${vaultAccount1}/BTC/addresses_paginated`]: {
+              addresses: [
+                {
+                  assetId: 'BTC',
+                  address: vaultAcctAddr,
+                  tag: 'tag',
+                  addressFormat: 'SEGWIT',
+                  type: 'Permanent',
+                  userDefined: false,
+                },
+              ],
+            },
           })
         );
       });

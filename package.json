@@ -65,7 +65,7 @@
     "eth-rpc-errors": "4.0.3",
     "ethers": "6.7.1",
     "events": "3.3.0",
-    "fireblocks-sdk": "5.6.1",
+    "fireblocks-sdk": "5.20.0",
     "i18next": "21.9.2",
     "i18next-http-backend": "1.4.4",
     "joi": "17.7.0",
