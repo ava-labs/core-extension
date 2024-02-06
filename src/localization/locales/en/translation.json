@@ -734,7 +734,7 @@
   "Transaction has been rejected": "Transaction has been rejected",
   "Transaction has failed": "Transaction has failed",
   "Transaction pending...": "Transaction pending...",
-  "Transaction pre-exution is unavailable. The displayed token list might be incomplete": "Transaction pre-exution is unavailable. The displayed token list might be incomplete",
+  "Transaction pre-exution is unavailable. The displayed token list might be incomplete.": "Transaction pre-exution is unavailable. The displayed token list might be incomplete.",
   "Transaction rejected": "Transaction rejected",
   "Transaction timed out": "Transaction timed out",
   "Transfer": "Transfer",
