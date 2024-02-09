@@ -17,7 +17,7 @@ export class SetAnalyticsConsentHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async (request) => {
     const [consent] = request.params || [];
-    await this.settingsService.setAnalyticsConsent(!!consent);
+    await this.settingsService.setAnalyticsConsent(consent);
 
     return {
       ...request,

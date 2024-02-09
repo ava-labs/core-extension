@@ -13,6 +13,7 @@ import {
   SettingsEvents,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
   TokensVisibility,
+  AnalyticsConsent,
 } from './models';
 import { SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant } from './models';
 import { changeLanguage } from 'i18next';
@@ -23,7 +24,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   showTokensWithoutBalances: false,
   theme: ThemeVariant.DARK,
   tokensVisibility: {},
-  analyticsConsent: true,
+  analyticsConsent: AnalyticsConsent.Approved,
   language: Languages.EN,
 };
 
@@ -136,11 +137,13 @@ export class SettingsService implements OnStorageReady, OnLock {
     await this.saveSettings(newSettings);
   }
 
-  async setAnalyticsConsent(consent: boolean) {
+  async setAnalyticsConsent(approved: boolean) {
     const settings = await this.getSettings();
     await this.saveSettings({
       ...settings,
-      analyticsConsent: !!consent,
+      analyticsConsent: approved
+        ? AnalyticsConsent.Approved
+        : AnalyticsConsent.Denied,
     });
   }
 

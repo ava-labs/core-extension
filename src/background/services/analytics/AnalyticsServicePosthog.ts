@@ -6,6 +6,7 @@ import { SettingsService } from '../settings/SettingsService';
 import { AnalyticsService } from './AnalyticsService';
 import { AnalyticsCapturedEvent, AnalyticsState } from './models';
 import { FeatureGates } from '../featureFlags/models';
+import { AnalyticsConsent } from '../settings/models';
 import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
 import sentryCaptureException, {
   SentryExceptionTypes,
@@ -42,11 +43,11 @@ export class AnalyticsServicePosthog {
   }
 
   async #captureEvent(event: AnalyticsCapturedEvent, useEncryption: boolean) {
-    const settings = await this.settingsService.getSettings();
+    const { analyticsConsent } = await this.settingsService.getSettings();
 
     if (
       !this.featureFlagService.featureFlags[FeatureGates.EVENTS] ||
-      !settings.analyticsConsent
+      analyticsConsent === AnalyticsConsent.Denied
     ) {
       return;
     }

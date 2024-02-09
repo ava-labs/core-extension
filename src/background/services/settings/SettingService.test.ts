@@ -6,6 +6,7 @@ import {
 } from '@avalabs/chains-sdk';
 import { SettingsService } from './SettingsService';
 import {
+  AnalyticsConsent,
   Languages,
   SETTINGS_STORAGE_KEY,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
@@ -64,7 +65,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     showTokensWithoutBalances: true,
     theme: ThemeVariant.DARK,
     tokensVisibility: {},
-    analyticsConsent: false,
+    analyticsConsent: AnalyticsConsent.Denied,
     language: Languages.DE,
   };
   const storedUnencryptedSettings: SettingsState = {
@@ -73,7 +74,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     showTokensWithoutBalances: false,
     theme: ThemeVariant.DARK,
     tokensVisibility: {},
-    analyticsConsent: true,
+    analyticsConsent: AnalyticsConsent.Approved,
     language: Languages.DE,
   };
 
@@ -245,7 +246,7 @@ describe('background/services/settings/SettingsService.ts', () => {
 
         expect(eventListener).toHaveBeenCalledWith({
           ...storedSettings,
-          analyticsConsent: true,
+          analyticsConsent: AnalyticsConsent.Approved,
         });
       });
 

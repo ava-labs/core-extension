@@ -4,10 +4,17 @@ import { CaptureAnalyticsEventHandler } from '@src/background/services/analytics
 import { ClearAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/clearAnalyticsIds';
 import { GetAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/getAnalyticsIds';
 import { InitAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/initAnalyticsIds';
-import { createContext, useCallback, useContext, useEffect } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { filter, first, from, merge } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useSettingsContext } from './SettingsProvider';
+import { AnalyticsConsent } from '@src/background/services/settings/models';
 
 type CaptureFn = (
   eventName: string,
@@ -18,6 +25,7 @@ type CaptureFn = (
 
 const AnalyticsContext = createContext<{
   initAnalyticsIds: (storeInStorage: boolean) => Promise<void>;
+  isInitialized: boolean;
   stopDataCollection: () => Promise<void>;
   capture: CaptureFn;
   captureEncrypted: CaptureFn;
@@ -28,6 +36,7 @@ const windowId = crypto.randomUUID();
 export function AnalyticsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const { analyticsConsent } = useSettingsContext();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const capture: CaptureFn = useCallback(
     async (
@@ -41,7 +50,10 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
       forceRequestAttempt?: boolean,
       useEncryption = false
     ) => {
-      if (!analyticsConsent && !forceRequestAttempt) {
+      if (
+        analyticsConsent === AnalyticsConsent.Denied &&
+        !forceRequestAttempt
+      ) {
         return;
       }
 
@@ -97,7 +109,10 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
       events().pipe(filter(analyticsStateUpdatedEventListener))
     )
       .pipe(first())
-      .subscribe(() => {
+      .subscribe((ids) => {
+        if (!ids) {
+          setIsInitialized(!!ids);
+        }
         capture('WindowOpened', {
           path: window.location.pathname,
         });
@@ -113,6 +128,7 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
       value={{
         capture,
         captureEncrypted,
+        isInitialized,
         initAnalyticsIds,
         stopDataCollection,
       }}

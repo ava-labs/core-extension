@@ -46,7 +46,7 @@ export interface SettingsState {
   showTokensWithoutBalances: boolean;
   theme: ThemeVariant;
   tokensVisibility: TokensVisibility;
-  analyticsConsent: boolean;
+  analyticsConsent: AnalyticsConsent;
   language: Languages;
 }
 
@@ -69,4 +69,10 @@ export enum CURRENCIES {
   // JPY: 'JPY',
   // CNH: 'CNH',
   // NZD: 'NZD'
+}
+
+export enum AnalyticsConsent {
+  Pending = 'pending',
+  Approved = 'approved',
+  Denied = 'denied',
 }

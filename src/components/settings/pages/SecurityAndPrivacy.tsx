@@ -25,6 +25,8 @@ import {
 import { useState } from 'react';
 import Dialog from '@src/components/common/Dialog';
 import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedlessAnalytics';
+import { AnalyticsConsent } from '@src/background/services/settings/models';
+import { useAnalyticsConsentCallbacks } from '@src/hooks/useAnalyticsConsentCallbacks';
 
 export function SecurityAndPrivacy({
   goBack,
@@ -34,9 +36,9 @@ export function SecurityAndPrivacy({
 }: SettingsPageProps) {
   const { t } = useTranslation();
   const { walletDetails } = useWalletContext();
-  const { analyticsConsent, setAnalyticsConsent } = useSettingsContext();
-  const { capture, stopDataCollection, initAnalyticsIds } =
-    useAnalyticsContext();
+  const { analyticsConsent } = useSettingsContext();
+  const { onApproval, onRejection } = useAnalyticsConsentCallbacks('settings');
+  const { capture, stopDataCollection } = useAnalyticsContext();
   const { request } = useConnectionContext();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
@@ -208,19 +210,14 @@ export function SecurityAndPrivacy({
           </ListItemText>
           <Switch
             size="small"
-            checked={analyticsConsent}
-            onChange={async () => {
-              const newConsent = !analyticsConsent;
+            checked={analyticsConsent === AnalyticsConsent.Approved}
+            onChange={async (ev) => {
+              const newConsent = ev.target.checked;
 
-              if (!newConsent) {
-                await capture('AnalyticsDisabled');
-                stopDataCollection();
-                setAnalyticsConsent(newConsent);
+              if (newConsent) {
+                onApproval();
               } else {
-                await setAnalyticsConsent(newConsent);
-                await initAnalyticsIds(true);
-                // sends an ANALYTICS_CAPTURE_EVENT request without waiting for state updates
-                capture('AnalyticsEnabled', undefined, true);
+                onRejection();
               }
             }}
           />

@@ -8,6 +8,7 @@ import {
 } from './AnalyticsProvider';
 import { useConnectionContext } from './ConnectionProvider';
 import { useSettingsContext } from './SettingsProvider';
+import { AnalyticsConsent } from '@src/background/services/settings/models';
 
 const renderWithAnalytics = (ui, { ...renderOptions }) => {
   return render(
@@ -94,7 +95,7 @@ describe('contexts/AnalyticsProvider', () => {
     (connectionMocks.events as jest.Mock).mockReturnValue(new Subject());
 
     (useSettingsContext as jest.Mock).mockReturnValue({
-      analyticsConsent: true,
+      analyticsConsent: AnalyticsConsent.Approved,
     });
   });
 
@@ -272,7 +273,7 @@ describe('contexts/AnalyticsProvider', () => {
 
     it('does not capture events when analytics consent missing', () => {
       (useSettingsContext as jest.Mock).mockReturnValue({
-        analyticsConsent: false,
+        analyticsConsent: AnalyticsConsent.Denied,
       });
       renderWithAnalytics(
         <TestComponent captureParams={captureParams} initParams={[true]} />,
@@ -295,7 +296,7 @@ describe('contexts/AnalyticsProvider', () => {
       ];
 
       (useSettingsContext as jest.Mock).mockReturnValue({
-        analyticsConsent: false,
+        analyticsConsent: AnalyticsConsent.Denied,
       });
       renderWithAnalytics(
         <TestComponent captureParams={params} initParams={[true]} />,

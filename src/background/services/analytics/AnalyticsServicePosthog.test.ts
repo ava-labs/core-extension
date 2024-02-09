@@ -10,6 +10,7 @@ import sentryCaptureException, {
 } from '@src/monitoring/sentryCaptureException';
 import browser from 'webextension-polyfill';
 import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
+import { AnalyticsConsent } from '../settings/models';
 
 jest.mock('@avalabs/utils-sdk');
 jest.mock('@src/monitoring/sentryCaptureException');
@@ -56,9 +57,13 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
       getSessionId: jest.fn().mockResolvedValueOnce('sessionId'),
     } as unknown as AnalyticsService);
 
-  const buildSettingsService = (analyticsConsent = true) =>
+  const buildSettingsService = (hasConsent = true) =>
     ({
-      getSettings: jest.fn().mockResolvedValue({ analyticsConsent }),
+      getSettings: jest.fn().mockResolvedValue({
+        analyticsConsent: hasConsent
+          ? AnalyticsConsent.Approved
+          : AnalyticsConsent.Denied,
+      }),
     } as unknown as SettingsService);
 
   describe('.captureEncryptedEvent()', () => {

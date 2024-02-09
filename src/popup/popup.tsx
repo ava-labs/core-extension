@@ -54,6 +54,7 @@ import { SeedlessAuthPrompt } from '@src/components/common/seedless/SeedlessAuth
 import { AccountManagerProvider } from '@src/pages/Accounts/providers/AccountManagerProvider';
 import { AccountDetailsView } from '@src/pages/Accounts/AccountDetailsView';
 import { UnifiedBridgeProvider } from '@src/contexts/UnifiedBridgeProvider';
+import { AnalyticsOptInDialog } from '@src/components/dialogs/AnalyticsOptInDialog';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -313,6 +314,7 @@ export function Popup() {
                                     <WalletConnectContextProvider>
                                       <WalletLoading>
                                         <TestnetBanner />
+                                        <AnalyticsOptInDialog />
                                         <Stack
                                           sx={{
                                             flexGrow: 1,
