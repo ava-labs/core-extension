@@ -18,7 +18,6 @@ import {
   Grow,
   Collapse,
   XIcon,
-  Box,
   IconButton,
 } from '@avalabs/k2-components';
 
@@ -28,6 +27,7 @@ import {
 } from '@src/hooks/useIsFunctionAvailable';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
+import { Flipper } from '../Flipper';
 
 const ActionButtonWrapper = styled(Stack)`
   padding: 0 8px;
@@ -205,37 +205,10 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
             },
           }}
         >
-          <Box
-            sx={{
-              position: 'relative',
-              width: 24,
-              height: 24,
-              backgroundColor: 'inherit',
-              transform: isOpen ? 'rotateX(180deg)' : 'rotateX(0)',
-              transition: 'transform .2s ease-in-out',
-              transformStyle: 'preserve-3d',
-            }}
-          >
-            <XIcon
-              size={24}
-              sx={{
-                backgroundColor: 'inherit',
-                transform: 'rotateX(180deg)',
-                position: 'absolute',
-                backfaceVisibility: 'hidden',
-                zIndex: -1,
-              }}
-            />
-            <LightningIcon
-              size={24}
-              sx={{
-                background: 'inherit',
-                position: 'absolute',
-                backfaceVisibility: 'hidden',
-                zIndex: 1,
-              }}
-            />
-          </Box>
+          <Flipper size={24} isFlipped={!isOpen}>
+            <XIcon />
+            <LightningIcon />
+          </Flipper>
           <Collapse orientation="horizontal" in={isExpanded} unmountOnExit>
             <ButtonText isExpanded={isExpanded}>{fabText}</ButtonText>
           </Collapse>

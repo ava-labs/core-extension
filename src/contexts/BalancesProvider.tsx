@@ -62,7 +62,7 @@ const BalancesContext = createContext<{
   tokens: BalancesState;
   nfts: NftState;
   updateNftBalances?: (pageToken: NftPageTokens, callback?: () => void) => void;
-  updateBalanceOnAllNetworks?: (account: Account) => Promise<void>;
+  updateBalanceOnAllNetworks: (account: Account) => Promise<void>;
   registerSubscriber: () => void;
   unregisterSubscriber: () => void;
   isTokensCached: boolean;
@@ -73,6 +73,7 @@ const BalancesContext = createContext<{
   nfts: { loading: false },
   registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   unregisterSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  async updateBalanceOnAllNetworks() {},
   isTokensCached: true,
   totalBalance: null,
   getTotalBalance() {

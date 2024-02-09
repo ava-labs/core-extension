@@ -26,37 +26,45 @@ export const ConfirmAccountRemovalDialog = ({
 
   return (
     <Dialog
-      onClose={onClose}
       PaperProps={{
         sx: { m: 2 },
       }}
+      sx={{ textAlign: 'center' }}
       {...props}
     >
       <DialogTitle>
-        <Typography variant="h5">{t('Are You Sure?')}</Typography>
+        <Typography variant="h5">
+          {isMultiple ? t('Delete Accounts?') : t('Delete Account?')}
+        </Typography>
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2">
           {isMultiple
             ? t(
-                'Clicking “Delete” will permanently remove the selected accounts from Core. To re-add them, you will need to enter the private keys again.'
+                'Deleting the accounts will remove any information associated with them.'
               )
             : t(
-                'Clicking “Delete” will permanently remove the selected account from Core. To re-add it, you will need to enter its private key again.'
+                'Deleting the account will remove any information associated with it.'
               )}
         </Typography>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ gap: 1 }}>
         <Button
           onClick={onConfirm}
           variant="contained"
           size="large"
           disabled={isDeleting}
           isLoading={isDeleting}
+          data-testid="delete-account-confirm-button"
         >
           {t('Delete')}
         </Button>
-        <Button onClick={onClose} variant="text" disabled={isDeleting}>
+        <Button
+          onClick={onClose}
+          variant="text"
+          disabled={isDeleting}
+          data-testid="delete-account-cancel-button"
+        >
           {t('Cancel')}
         </Button>
       </DialogActions>

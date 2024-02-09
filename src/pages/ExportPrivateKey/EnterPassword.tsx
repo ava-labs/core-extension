@@ -48,7 +48,11 @@ export function EnterPassword({
           margin={'22px 0 4px 0'}
           onBackClick={() => {
             capture('ExportPrivateKeyCancelled');
-            history.replace('/accounts');
+            if (history.length <= 2) {
+              history.replace('/accounts');
+            } else {
+              history.goBack();
+            }
           }}
         >
           {t('Enter Password')}
@@ -69,6 +73,7 @@ export function EnterPassword({
             helperText={errorMessage}
             size="medium"
             fullWidth
+            autoFocus
             onKeyPress={(e) => {
               if (e.key === 'Enter') {
                 onSubmit();

@@ -32,7 +32,6 @@ import { SimpleAddress } from '@src/components/common/SimpleAddress';
 import { AccountBalance } from './AccountBalance';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isProductionBuild } from '@src/utils/environment';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { AccountItemChip } from './AccountItemChip';
 
 interface AccountItemProps {
@@ -76,8 +75,6 @@ export const AccountItem = forwardRef(
     }: AccountItemProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
-    const { walletDetails } = useWalletContext();
-    const walletType = walletDetails?.type;
     const [accountName, setAccountName] = useState<string>(account.name);
     const { renameAccount, isActiveAccount } = useAccountsContext();
     const { updateBalanceOnAllNetworks } = useBalancesContext();
@@ -284,7 +281,7 @@ export const AccountItem = forwardRef(
                 )}
               </Stack>
 
-              <AccountItemChip walletType={walletType} account={account} />
+              <AccountItemChip account={account} />
             </Stack>
           </Stack>
         </Wrapper>
