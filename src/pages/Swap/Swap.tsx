@@ -43,6 +43,8 @@ import {
 } from '@avalabs/k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -56,7 +58,7 @@ const ReviewOrderButtonContainer = styled('div')<{
 
 export function Swap() {
   const { t } = useTranslation();
-  const { capture } = useAnalyticsContext();
+  const { capture, captureEncrypted } = useAnalyticsContext();
   const { network } = useNetworkContext();
   const { swap } = useSwapContext();
   const { networkFee } = useNetworkFeeContext();
@@ -70,6 +72,9 @@ export function Swap() {
   const tokensWBalances = useTokensWithBalances();
   const allTokensOnNetwork = useTokensWithBalances(true);
   const { resetKeystoneRequest } = useKeystoneContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
 
   const [isReviewOrderOpen, setIsReviewOrderOpen] = useState<boolean>(false);
   const [slippageTolerance, setSlippageTolerance] = useState('1');
@@ -104,6 +109,16 @@ export function Swap() {
     destAmount,
   } = useSwapStateFunctions();
 
+  const activeAddress = useMemo(
+    () =>
+      network
+        ? isBitcoinNetwork(network)
+          ? activeAccount?.addressBTC
+          : activeAccount?.addressC
+        : undefined,
+    [activeAccount?.addressBTC, activeAccount?.addressC, network]
+  );
+
   const fromAmount = useMemo(() => {
     const result =
       destinationInputField === 'from' ? new BN(destAmount) : defaultFromValue;
@@ -126,7 +141,10 @@ export function Swap() {
   }, [destinationInputField, isLoading, maxFromValue]);
 
   async function performSwap() {
-    capture('SwapConfirmed');
+    captureEncrypted('SwapConfirmed', {
+      address: activeAddress,
+      chainId: network?.chainId,
+    });
 
     const {
       amount,
@@ -167,9 +185,19 @@ export function Swap() {
       toast.error(t('Swap Failed'));
       setIsReviewOrderOpen(false);
       history.push('/home');
-
+      captureEncrypted('SwapFailed', {
+        address: activeAddress,
+        chainId: network?.chainId,
+      });
       return;
     }
+
+    captureEncrypted('SwapSuccessful', {
+      address: activeAddress,
+      txHash: result.swapTxHash,
+      chainId: network?.chainId,
+    });
+
     toastCardWithLink({
       title: t('Swap Successful'),
       url: network && getExplorerAddressByNetwork(network, result.swapTxHash),

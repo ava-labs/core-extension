@@ -9,7 +9,7 @@ import { FeatureGates } from '../../featureFlags/models';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
   null,
-  [event: AnalyticsCapturedEvent]
+  [event: AnalyticsCapturedEvent, useEncryption?: boolean]
 >;
 
 @injectable()
@@ -29,8 +29,14 @@ export class CaptureAnalyticsEventHandler implements HandlerType {
       };
     }
 
+    const [event, useEncryption] = request.params;
+
     try {
-      await this.analyticsServicePosthog.captureEvent(request.params[0]);
+      if (useEncryption) {
+        await this.analyticsServicePosthog.captureEncryptedEvent(event);
+      } else {
+        await this.analyticsServicePosthog.captureEvent(event);
+      }
 
       return {
         ...request,

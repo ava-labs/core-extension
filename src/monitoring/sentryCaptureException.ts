@@ -18,6 +18,8 @@ export enum SentryExceptionTypes {
   FIREBLOCKS = 'fireblocks',
 
   UNIFIED_BRIDGE = 'unifiedBridge',
+
+  ANALYTICS = 'analytics',
 }
 
 // wrapper to make error reporting contexts unfirom accross the codebase

@@ -26,6 +26,10 @@ Object.defineProperty(global.document, 'prerendering', {
 global.chrome = {
   runtime: {
     id: 'testid',
+    getPlatformInfo: () => ({
+      os: 'mac',
+      arch: 'arm',
+    }),
     getManifest: () => ({
       manifest_version: 3,
       version: '0.0.0',

@@ -6,6 +6,10 @@ import { SettingsService } from '../settings/SettingsService';
 import { AnalyticsService } from './AnalyticsService';
 import { AnalyticsCapturedEvent, AnalyticsState } from './models';
 import { FeatureGates } from '../featureFlags/models';
+import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 @singleton()
 export class AnalyticsServicePosthog {
@@ -20,14 +24,31 @@ export class AnalyticsServicePosthog {
     private settingsService: SettingsService
   ) {}
 
+  /**
+   * Alias for {@link AnalyticsServicePosthog.captureEvent} with enforced data encryption.
+   */
+  async captureEncryptedEvent(event: AnalyticsCapturedEvent) {
+    return this.#captureEvent(event, true).catch((err) => {
+      // Capture all errors and report them to Sentry instead of breaking the execution chain.
+      sentryCaptureException(err, SentryExceptionTypes.ANALYTICS);
+    });
+  }
+
   async captureEvent(event: AnalyticsCapturedEvent) {
+    return this.#captureEvent(event, false).catch((err) => {
+      // Capture all errors and report them to Sentry instead of breaking the execution chain.
+      sentryCaptureException(err, SentryExceptionTypes.ANALYTICS);
+    });
+  }
+
+  async #captureEvent(event: AnalyticsCapturedEvent, useEncryption: boolean) {
     const settings = await this.settingsService.getSettings();
 
     if (
       !this.featureFlagService.featureFlags[FeatureGates.EVENTS] ||
       !settings.analyticsConsent
     ) {
-      throw new Error('No need to capture event');
+      return;
     }
 
     const analyticsState = await this.analyticsService.getIds();
@@ -37,11 +58,16 @@ export class AnalyticsServicePosthog {
     }
 
     const sessionId = await this.analyticsService.getSessionId();
+
     const extensionVersion = chrome.runtime.getManifest().version;
     const featureFlagsData = this.getFeatureFlagsData();
 
     const preppedProperties = event.properties
-      ? await this.prepProperties(event.windowId, event.properties)
+      ? await this.prepProperties(
+          event.windowId,
+          event.properties,
+          useEncryption
+        )
       : {};
 
     const body = {
@@ -94,12 +120,16 @@ export class AnalyticsServicePosthog {
 
   private async prepProperties(
     windowId: string,
-    properties: Record<string, any>
+    properties: Record<string, any>,
+    useEncryption = false
   ) {
     const userEnv = await getUserEnvironment();
+    const preppedProps = useEncryption
+      ? await encryptAnalyticsData(JSON.stringify(properties ?? {}))
+      : properties;
 
     return {
-      ...properties,
+      ...preppedProps,
       ...userEnv,
       $window_id: windowId,
     };

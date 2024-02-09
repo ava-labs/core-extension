@@ -26,12 +26,18 @@ import { getTxDescription } from './utils/getTxDescription';
 import { contractParserMap } from './contracts/contractParsers/contractParserMap';
 import { TransactionDescription } from 'ethers';
 import { parseBasicDisplayValues } from './contracts/contractParsers/utils/parseBasicDisplayValues';
+import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
+import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
+import { encryptAnalyticsData } from '../analytics/utils/encryptAnalyticsData';
 
 jest.mock('../lock/LockService');
+jest.mock('../analytics/AnalyticsServicePosthog');
+jest.mock('../analytics/utils/encryptAnalyticsData');
 jest.mock('../debank');
 jest.mock('../tokens/TokenManagerService');
 jest.mock('../networkFee/NetworkFeeService');
 jest.mock('../network/NetworkService');
+jest.mock('../network/utils/isBitcoinNetwork');
 jest.mock('../storage/StorageService');
 jest.mock('../balances/BalanceAggregatorService');
 jest.mock('../featureFlags/FeatureFlagService');
@@ -99,6 +105,7 @@ describe('background/services/transactions/TransactionsService.ts', () => {
     {} as any,
     {} as any,
     {} as any,
+    {} as any,
     {} as any
   );
   const featureFlagService = new FeatureFlagService(
@@ -108,6 +115,11 @@ describe('background/services/transactions/TransactionsService.ts', () => {
   );
   const debankService = new DebankService({} as any);
   const tokenManagerService = new TokenManagerService({} as any, {} as any);
+  const analyticsServicePosthog = new AnalyticsServicePosthog(
+    {} as any,
+    {} as any,
+    {} as any
+  );
   const accountMock = {
     type: AccountType.PRIMARY,
     id: '12',
@@ -129,6 +141,12 @@ describe('background/services/transactions/TransactionsService.ts', () => {
       description: '',
       logoUri: '',
     },
+  };
+
+  const mockedEncryptResult = {
+    data: 'testData',
+    enc: 'testEnc',
+    keyID: 'testKeyId',
   };
 
   let service: TransactionsService;
@@ -154,6 +172,11 @@ describe('background/services/transactions/TransactionsService.ts', () => {
     jest.mocked(networkFeeService).getNetworkFee.mockResolvedValue(mockedFees);
     jest.mocked(networkFeeService).estimateGasLimit.mockResolvedValue(1234);
     jest.mocked(tokenManagerService).getTokensByChainId.mockResolvedValue([]);
+    jest
+      .mocked(analyticsServicePosthog)
+      .captureEncryptedEvent.mockResolvedValue();
+    jest.mocked(isBitcoinNetwork).mockReturnValue(false);
+    (encryptAnalyticsData as jest.Mock).mockResolvedValue(mockedEncryptResult);
 
     service = new TransactionsService(
       storageService,
@@ -163,7 +186,8 @@ describe('background/services/transactions/TransactionsService.ts', () => {
       accountsService,
       featureFlagService,
       debankService,
-      tokenManagerService
+      tokenManagerService,
+      analyticsServicePosthog
     );
   });
 
@@ -770,6 +794,9 @@ describe('background/services/transactions/TransactionsService.ts', () => {
 
       expect(storageService.save).not.toHaveBeenCalled();
       expect(subscription).not.toHaveBeenCalled();
+      expect(
+        analyticsServicePosthog.captureEncryptedEvent
+      ).not.toHaveBeenCalled();
     });
 
     it('updates transaction parameters', async () => {
@@ -808,6 +835,9 @@ describe('background/services/transactions/TransactionsService.ts', () => {
         }
       );
       expect(subscription).not.toHaveBeenCalled();
+      expect(
+        analyticsServicePosthog.captureEncryptedEvent
+      ).not.toHaveBeenCalled();
     });
 
     it('updates tx status: TxStatus.SUBMITTING', async () => {
@@ -837,6 +867,9 @@ describe('background/services/transactions/TransactionsService.ts', () => {
         }
       );
       expect(subscription).not.toHaveBeenCalled();
+      expect(
+        analyticsServicePosthog.captureEncryptedEvent
+      ).not.toHaveBeenCalled();
     });
 
     it('updates tx status: TxStatus.PENDING', async () => {
@@ -866,14 +899,24 @@ describe('background/services/transactions/TransactionsService.ts', () => {
         }
       );
       expect(subscription).not.toHaveBeenCalled();
+      expect(
+        analyticsServicePosthog.captureEncryptedEvent
+      ).not.toHaveBeenCalled();
     });
 
     it('updates tx status: TxStatus.SIGNED', async () => {
       const subscription = jest.fn();
       service.addListener(TransactionEvent.TRANSACTION_FINALIZED, subscription);
+
+      const tx2 = {
+        id: 'tx2',
+        displayData: {},
+        txParams: { type: 1 },
+        method: 'txMethod',
+      };
       jest.mocked(storageService.load).mockResolvedValue({
         tx1: { id: 'tx1', displayData: {}, txParams: { type: 1 } },
-        tx2: { id: 'tx2', displayData: {}, txParams: { type: 1 } },
+        tx2,
       });
       // does nothing if no result is present
       await service.updateTransaction({
@@ -898,20 +941,40 @@ describe('background/services/transactions/TransactionsService.ts', () => {
       );
       expect(subscription).toHaveBeenCalledTimes(1);
       expect(subscription).toHaveBeenCalledWith({
-        displayData: {},
-        id: 'tx2',
         status: TxStatus.SIGNED,
         txHash: '0x123123',
-        txParams: { type: 1 },
+        ...tx2,
       });
+
+      expect(
+        analyticsServicePosthog.captureEncryptedEvent
+      ).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          name: 'transactionSuccessful',
+          properties: {
+            address: accountMock.addressC,
+            txHash: '0x123123',
+            method: 'txMethod',
+          },
+        })
+      );
     });
 
     it('updates tx status: TxStatus.ERROR', async () => {
       const subscription = jest.fn();
       service.addListener(TransactionEvent.TRANSACTION_FINALIZED, subscription);
+      jest.mocked(isBitcoinNetwork).mockReturnValue(true);
+
+      const tx2 = {
+        id: 'tx2',
+        displayData: {},
+        txParams: { type: 1 },
+        method: 'tx-method',
+      };
       jest.mocked(storageService.load).mockResolvedValue({
         tx1: { id: 'tx1', displayData: {}, txParams: { type: 1 } },
-        tx2: { id: 'tx2', displayData: {}, txParams: { type: 1 } },
+        tx2,
       });
 
       // does nothing if no result is present
@@ -930,20 +993,36 @@ describe('background/services/transactions/TransactionsService.ts', () => {
       );
       expect(subscription).toHaveBeenCalledTimes(1);
       expect(subscription).toHaveBeenCalledWith({
-        displayData: {},
-        id: 'tx2',
         status: TxStatus.ERROR,
         error: 'Very bad error',
-        txParams: { type: 1 },
+        ...tx2,
       });
+
+      expect(
+        analyticsServicePosthog.captureEncryptedEvent
+      ).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          name: 'transactionFailed',
+          properties: { address: accountMock.addressC, method: 'tx-method' },
+        })
+      );
     });
 
     it('updates tx status: TxStatus.ERROR_USER_CANCELED', async () => {
       const subscription = jest.fn();
       service.addListener(TransactionEvent.TRANSACTION_FINALIZED, subscription);
+
+      const tx2 = {
+        id: 'tx2',
+        displayData: {},
+        txParams: { type: 1 },
+        method: 'test-method',
+      };
+
       jest.mocked(storageService.load).mockResolvedValue({
         tx1: { id: 'tx1', displayData: {}, txParams: { type: 1 } },
-        tx2: { id: 'tx2', displayData: {}, txParams: { type: 1 } },
+        tx2,
       });
 
       // does nothing if no result is present
@@ -961,11 +1040,19 @@ describe('background/services/transactions/TransactionsService.ts', () => {
       );
       expect(subscription).toHaveBeenCalledTimes(1);
       expect(subscription).toHaveBeenCalledWith({
-        displayData: {},
-        id: 'tx2',
         status: TxStatus.ERROR_USER_CANCELED,
-        txParams: { type: 1 },
+        ...tx2,
       });
+
+      expect(
+        analyticsServicePosthog.captureEncryptedEvent
+      ).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          name: 'transactionFailed',
+          properties: { address: accountMock.addressC, method: 'test-method' },
+        })
+      );
     });
   });
 });

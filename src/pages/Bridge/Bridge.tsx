@@ -75,6 +75,7 @@ import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { isUnifiedBridgeAsset } from './utils/isUnifiedBridgeAsset';
 import { getTokenAddress } from './utils/getTokenAddress';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
+import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -134,7 +135,7 @@ export function Bridge() {
   const history = useHistory();
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const [isSwitched, setIsSwitched] = useState(false);
-  const { capture } = useAnalyticsContext();
+  const { capture, captureEncrypted } = useAnalyticsContext();
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
@@ -145,6 +146,16 @@ export function Bridge() {
   } = useAccountsContext();
   const { network, setNetwork, networks } = useNetworkContext();
   const { resetKeystoneRequest } = useKeystoneContext();
+
+  const activeAddress = useMemo(
+    () =>
+      network
+        ? isBitcoinNetwork(network)
+          ? activeAccount?.addressBTC
+          : activeAccount?.addressC
+        : undefined,
+    [activeAccount?.addressBTC, activeAccount?.addressC, network]
+  );
 
   const targetNetwork = useMemo(() => {
     if (targetBlockchain) {
@@ -529,7 +540,8 @@ export function Bridge() {
   const handleTransfer = useCallback(async () => {
     if (BIG_ZERO.eq(amount)) return;
 
-    capture('BridgeTransferStarted', {
+    captureEncrypted('BridgeTransferStarted', {
+      address: activeAddress,
       sourceBlockchain: currentBlockchain,
       targetBlockchain,
     });
@@ -543,7 +555,8 @@ export function Bridge() {
       console.error(transferError);
       // do not show the error when the user denied the transfer
       if (transferError === 'User declined the transaction') {
-        capture('BridgeTransferRequestUserRejectedError', {
+        captureEncrypted('BridgeTransferRequestUserRejectedError', {
+          address: activeAddress,
           sourceBlockchain: currentBlockchain,
           targetBlockchain,
           fee: bridgeFee?.toNumber(),
@@ -552,7 +565,8 @@ export function Bridge() {
       }
 
       setBridgeError(t('There was a problem with the transfer'));
-      capture('BridgeTransferRequestError', {
+      captureEncrypted('BridgeTransferRequestError', {
+        address: activeAddress,
         sourceBlockchain: currentBlockchain,
         targetBlockchain,
       });
@@ -571,7 +585,9 @@ export function Bridge() {
       return;
     }
 
-    capture('BridgeTransferRequestSucceeded', {
+    captureEncrypted('BridgeTransferRequestSucceeded', {
+      address: activeAddress,
+      txHash: hash,
       sourceBlockchain: currentBlockchain,
       targetBlockchain,
     });
@@ -584,14 +600,15 @@ export function Bridge() {
     );
   }, [
     amount,
-    bridgeFee,
-    capture,
+    captureEncrypted,
     currentBlockchain,
+    targetBlockchain,
+    activeAddress,
+    transfer,
+    history,
     t,
     getTranslatedError,
-    history,
-    transfer,
-    targetBlockchain,
+    bridgeFee,
   ]);
 
   const onSubmitClicked = useCallback(() => {

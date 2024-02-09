@@ -21,6 +21,7 @@ import { ChainId } from '@avalabs/chains-sdk';
 import { blockchainToNetwork } from '@src/pages/Bridge/utils/blockchainConversion';
 import { findTokenForAsset } from '@src/pages/Bridge/utils/findTokenForAsset';
 import { isBitcoinNetwork } from '../../network/utils/isBitcoinNetwork';
+import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 
 // this is used for core web
 @injectable()
@@ -31,7 +32,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
     private bridgeService: BridgeService,
     private accountsService: AccountsService,
     private balanceAggregatorService: BalanceAggregatorService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private analyticsServicePosthog: AnalyticsServicePosthog
   ) {
     super();
   }
@@ -164,6 +166,28 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
     };
   };
 
+  #getSourceChainId = (currentBlockchain: Blockchain) => {
+    const isMainnet = this.networkService.isMainnet();
+
+    switch (currentBlockchain) {
+      case Blockchain.BITCOIN:
+        return isMainnet ? ChainId.BITCOIN : ChainId.BITCOIN_TESTNET;
+
+      case Blockchain.AVALANCHE:
+        return isMainnet
+          ? ChainId.AVALANCHE_MAINNET_ID
+          : ChainId.AVALANCHE_TESTNET_ID;
+
+      case Blockchain.ETHEREUM:
+        return isMainnet
+          ? ChainId.ETHEREUM_HOMESTEAD
+          : ChainId.ETHEREUM_TEST_SEPOLIA;
+
+      default:
+        throw 'Unknown source chain';
+    }
+  };
+
   onActionApproved = async (
     pendingAction: Action,
     _result, // Unused
@@ -176,17 +200,14 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
     const asset = pendingAction?.displayData.asset;
     const denomination = asset.denomination;
     const amount = bnToBig(stringToBN(amountStr, denomination), denomination);
+    const sourceChainId = this.#getSourceChainId(currentBlockchain);
 
     if (currentBlockchain === Blockchain.BITCOIN) {
       try {
-        const btcChainID = this.networkService.isMainnet()
-          ? ChainId.BITCOIN
-          : ChainId.BITCOIN_TESTNET;
-
         // Refresh UTXOs before to ensure that it is updated
         this.accountsService.activeAccount &&
           (await this.balanceAggregatorService.updateBalancesForNetworks(
-            [btcChainID],
+            [sourceChainId],
             [this.accountsService.activeAccount]
           ));
 
@@ -203,14 +224,33 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
           'BTC'
         );
 
+        this.analyticsServicePosthog.captureEncryptedEvent({
+          name: 'avalanche_bridgeAsset_success',
+          windowId: crypto.randomUUID(),
+          properties: {
+            address: this.accountsService.activeAccount?.addressBTC,
+            txHash: result.hash,
+            chainId: sourceChainId,
+          },
+        });
+
         // Refresh UTXOs
         this.accountsService.activeAccount &&
           this.balanceAggregatorService.updateBalancesForNetworks(
-            [btcChainID],
+            [sourceChainId],
             [this.accountsService.activeAccount]
           );
         onSuccess(result);
       } catch (e) {
+        this.analyticsServicePosthog.captureEncryptedEvent({
+          name: 'avalanche_bridgeAsset_failed',
+          windowId: crypto.randomUUID(),
+          properties: {
+            address: this.accountsService.activeAccount?.addressBTC,
+            chainId: sourceChainId,
+          },
+        });
+
         onError(e);
       }
     } else {
@@ -232,10 +272,29 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
             amount,
             asset.symbol
           );
+
+          this.analyticsServicePosthog.captureEncryptedEvent({
+            name: 'avalanche_bridgeAsset_success',
+            windowId: crypto.randomUUID(),
+            properties: {
+              address: this.accountsService.activeAccount?.addressC,
+              txHash: result.hash,
+              chainId: sourceChainId,
+            },
+          });
         }
 
         onSuccess(result);
       } catch (e) {
+        this.analyticsServicePosthog.captureEncryptedEvent({
+          name: 'avalanche_bridgeAsset_failed',
+          windowId: crypto.randomUUID(),
+          properties: {
+            address: this.accountsService.activeAccount?.addressC,
+            chainId: sourceChainId,
+          },
+        });
+
         onError(e);
       }
     }

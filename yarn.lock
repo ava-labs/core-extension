@@ -3341,7 +3341,7 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@hpke/core@^1.2.5":
+"@hpke/core@1.2.5", "@hpke/core@^1.2.5":
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/@hpke/core/-/core-1.2.5.tgz#9973171c55c7155d6ab2afc41bd03648a510cec0"
   integrity sha512-aXN1K6xEMAT2pT28K9bhLop+DepbhcoWpnMM4Z25Ee/PfqYlNoIX2alF9S5wLw66eZdKoVLwsJ6lAiL7xFsc3g==

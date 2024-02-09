@@ -18,6 +18,7 @@ import { PermissionsService } from '../permissions/PermissionsService';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
 import { isProductionBuild } from '@src/utils/environment';
+import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 
 jest.mock('../storage/StorageService');
 jest.mock('../wallet/WalletService');
@@ -26,6 +27,7 @@ jest.mock('../lock/LockService');
 jest.mock('../keystone/KeystoneService');
 jest.mock('../permissions/PermissionsService');
 jest.mock('../fireblocks/FireblocksService');
+jest.mock('../analytics/utils/encryptAnalyticsData');
 jest.mock('@src/utils/environment');
 
 describe('background/services/accounts/AccountsService', () => {
@@ -49,6 +51,13 @@ describe('background/services/accounts/AccountsService', () => {
 
   const permissionsService = new PermissionsService({} as any);
 
+  const analyticsServicePosthog = new AnalyticsServicePosthog(
+    {} as any,
+    {} as any,
+    {} as any
+  );
+
+  let accountsService: AccountsService;
   const emptyAccounts = {
     primary: [],
     imported: {},
@@ -127,6 +136,7 @@ describe('background/services/accounts/AccountsService', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     (storageService.load as jest.Mock).mockResolvedValue(emptyAccounts);
+    analyticsServicePosthog.captureEncryptedEvent = jest.fn();
     (walletService.addAddress as jest.Mock).mockResolvedValue({
       [NetworkVMType.EVM]: evmAddress,
       [NetworkVMType.BITCOIN]: btcAddress,
@@ -136,17 +146,19 @@ describe('background/services/accounts/AccountsService', () => {
     });
     networkService.developerModeChanged.add = jest.fn();
     networkService.developerModeChanged.remove = jest.fn();
+    accountsService = new AccountsService(
+      storageService,
+      walletService,
+      networkService,
+      permissionsService,
+      analyticsServicePosthog
+    );
   });
 
   describe('getAccountList', () => {
     it('returns a flat list of all accounts', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
+
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
 
       await accountsService.onUnlock();
@@ -187,12 +199,6 @@ describe('background/services/accounts/AccountsService', () => {
 
   describe('onUnlock', () => {
     it('init returns with no accounts from storage', async () => {
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       await accountsService.onUnlock();
 
       expect(storageService.load).toBeCalledTimes(1);
@@ -202,12 +208,6 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('init returns with accounts not from updating', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
 
       await accountsService.onUnlock();
@@ -222,12 +222,6 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('init returns with accounts with missing addresses', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockAccounts(false));
       (walletService.getAddresses as jest.Mock).mockResolvedValue({
         [NetworkVMType.EVM]: evmAddress,
@@ -257,12 +251,6 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('account addresses are updated on developer mode change', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockAccounts(true));
       (walletService.getAddresses as jest.Mock).mockResolvedValue({
         [NetworkVMType.EVM]: otherEvmAddress,
@@ -309,16 +297,10 @@ describe('background/services/accounts/AccountsService', () => {
   });
 
   describe('.refreshAddressesForAccount()', () => {
-    let accountsService, mockedAccounts;
+    let mockedAccounts;
 
     beforeEach(async () => {
       mockedAccounts = mockAccounts(true);
-      accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       jest.mocked(storageService.load).mockResolvedValue(mockedAccounts);
       jest.mocked(walletService.getAddresses).mockResolvedValue({
         [NetworkVMType.EVM]: otherEvmAddress,
@@ -377,12 +359,6 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('activates the primary account', async () => {
       const mockedAccounts = mockAccounts(true, false, 'fb-acc');
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       jest.spyOn(accountsService, 'activateAccount');
       jest.mocked(storageService.load).mockResolvedValue(mockedAccounts);
       jest.mocked(walletService.getAddresses).mockResolvedValue({
@@ -429,12 +405,6 @@ describe('background/services/accounts/AccountsService', () => {
   describe('onLock', () => {
     it('clears accounts and subscriptions on lock', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
       expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
@@ -451,12 +421,6 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('emits ACCOUNTS_UPDATED event when onLock is called', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       const eventListener = jest.fn();
       await accountsService.onUnlock();
@@ -473,12 +437,6 @@ describe('background/services/accounts/AccountsService', () => {
   describe('getAccounts', () => {
     it('returns accounts', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
       const accounts = accountsService.getAccounts();
@@ -493,12 +451,6 @@ describe('background/services/accounts/AccountsService', () => {
         const uuid = 'uuid';
         (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
 
-        const accountsService = new AccountsService(
-          storageService,
-          walletService,
-          networkService,
-          permissionsService
-        );
         await accountsService.onUnlock();
 
         expect(storageService.load).toBeCalledTimes(1);
@@ -523,6 +475,16 @@ describe('background/services/accounts/AccountsService', () => {
           imported: {},
           active: undefined,
         });
+
+        expect(
+          analyticsServicePosthog.captureEncryptedEvent
+        ).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({
+            name: 'addedNewPrimaryAccount',
+            properties: { addresses: Object.values(getAllAddresses()) },
+          })
+        );
       });
 
       it('sets default name when no name is given', async () => {
@@ -530,12 +492,7 @@ describe('background/services/accounts/AccountsService', () => {
         (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
 
         const mockedAccounts = mockAccounts(true);
-        const accountsService = new AccountsService(
-          storageService,
-          walletService,
-          networkService,
-          permissionsService
-        );
+
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         await accountsService.onUnlock();
 
@@ -570,12 +527,7 @@ describe('background/services/accounts/AccountsService', () => {
         (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
 
         const mockedAccounts = mockAccounts(true);
-        const accountsService = new AccountsService(
-          storageService,
-          walletService,
-          networkService,
-          permissionsService
-        );
+
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         await accountsService.onUnlock();
         expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
@@ -607,12 +559,6 @@ describe('background/services/accounts/AccountsService', () => {
         (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
 
         const mockedAccounts = mockAccounts(true);
-        const accountsService = new AccountsService(
-          storageService,
-          walletService,
-          networkService,
-          permissionsService
-        );
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         const eventListener = jest.fn();
         await accountsService.onUnlock();
@@ -649,12 +595,6 @@ describe('background/services/accounts/AccountsService', () => {
           importType: ImportType.PRIVATE_KEY,
           data: 'privateKey',
         };
-        const accountsService = new AccountsService(
-          storageService,
-          walletService,
-          networkService,
-          permissionsService
-        );
         await accountsService.onUnlock();
 
         expect(storageService.load).toBeCalledTimes(1);
@@ -691,6 +631,16 @@ describe('background/services/accounts/AccountsService', () => {
           },
           active: undefined,
         });
+
+        expect(
+          analyticsServicePosthog.captureEncryptedEvent
+        ).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({
+            name: 'addedNewImportedAccount',
+            properties: { addresses: Object.values(getAllAddresses()) },
+          })
+        );
       });
 
       it('sets default name when no name is given', async () => {
@@ -699,12 +649,6 @@ describe('background/services/accounts/AccountsService', () => {
           data: 'privateKey',
         };
         const mockedAccounts = mockAccounts(true);
-        const accountsService = new AccountsService(
-          storageService,
-          walletService,
-          networkService,
-          permissionsService
-        );
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         await accountsService.onUnlock();
 
@@ -753,12 +697,6 @@ describe('background/services/accounts/AccountsService', () => {
           data: 'privateKey',
         };
         const mockedAccounts = mockAccounts(true);
-        const accountsService = new AccountsService(
-          storageService,
-          walletService,
-          networkService,
-          permissionsService
-        );
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         const eventListener = jest.fn();
         await accountsService.onUnlock();
@@ -804,12 +742,6 @@ describe('background/services/accounts/AccountsService', () => {
           data: 'privateKey',
         };
         const mockedAccounts = mockAccounts(true);
-        const accountsService = new AccountsService(
-          storageService,
-          walletService,
-          networkService,
-          permissionsService
-        );
         (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
         await accountsService.onUnlock();
 
@@ -838,12 +770,6 @@ describe('background/services/accounts/AccountsService', () => {
           importType: ImportType.PRIVATE_KEY,
           data: 'privateKey',
         };
-        const accountsService = new AccountsService(
-          storageService,
-          walletService,
-          networkService,
-          permissionsService
-        );
 
         (walletService.addImportedWallet as jest.Mock).mockRejectedValueOnce(
           new Error(errorMessage)
@@ -859,12 +785,6 @@ describe('background/services/accounts/AccountsService', () => {
 
   describe('setAccountName', () => {
     it('throws error if account not found', async () => {
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       await accountsService.onUnlock();
       expect(accountsService.getAccounts()).toStrictEqual(emptyAccounts);
 
@@ -875,12 +795,6 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('renames primary accounts correctly', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
       expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
@@ -895,12 +809,6 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('renames imported accounts correctly', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
       expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
@@ -914,12 +822,6 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('emits event if name changes', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       const eventListener = jest.fn();
 
@@ -949,12 +851,6 @@ describe('background/services/accounts/AccountsService', () => {
   describe('activateAccount', () => {
     it('throws error if account not found', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
       expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
@@ -966,12 +862,6 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('changes primary account to active', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
       expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
@@ -984,12 +874,6 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('changes imported account to active', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
       expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
@@ -1006,12 +890,6 @@ describe('background/services/accounts/AccountsService', () => {
     });
 
     it('emits event when activateAccount is called', async () => {
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockAccounts(true));
       const eventListener = jest.fn();
       await accountsService.onUnlock();
@@ -1029,12 +907,6 @@ describe('background/services/accounts/AccountsService', () => {
   describe('deleteAccounts', () => {
     it('removes the imported accounts and their secrets', async () => {
       const mockedAccounts = mockAccounts(true);
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       const eventListener = jest.fn();
 
@@ -1071,12 +943,6 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('changes the active account if deleted', async () => {
       const mockedAccounts = mockAccounts(true, false, '0x1');
-      const accountsService = new AccountsService(
-        storageService,
-        walletService,
-        networkService,
-        permissionsService
-      );
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       const eventListener = jest.fn();
 

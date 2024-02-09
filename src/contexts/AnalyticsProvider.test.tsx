@@ -23,7 +23,7 @@ const TestComponent = ({
   captureParams: [string, Record<string, any>, boolean?];
   initParams: [storeInStorage: boolean];
 }) => {
-  const { capture, stopDataCollection, initAnalyticsIds } =
+  const { capture, captureEncrypted, stopDataCollection, initAnalyticsIds } =
     useAnalyticsContext();
 
   return (
@@ -35,6 +35,14 @@ const TestComponent = ({
         }}
       >
         capture
+      </button>
+      <button
+        data-testid="capture-encrypted-button"
+        onClick={() => {
+          captureEncrypted(...captureParams);
+        }}
+      >
+        capture encrypted
       </button>
       <button
         data-testid="stop-button"
@@ -122,6 +130,7 @@ describe('contexts/AnalyticsProvider', () => {
             },
             windowId: '00000000-0000-0000-0000-000000000000',
           },
+          false,
         ],
       });
     });
@@ -161,6 +170,7 @@ describe('contexts/AnalyticsProvider', () => {
             },
             windowId: '00000000-0000-0000-0000-000000000000',
           },
+          false,
         ],
       });
     });
@@ -201,6 +211,34 @@ describe('contexts/AnalyticsProvider', () => {
             },
             windowId: '00000000-0000-0000-0000-000000000000',
           },
+          false,
+        ],
+      });
+    });
+  });
+
+  describe('captureEncrypted', () => {
+    it('captures events with useEncryption param set to true', () => {
+      renderWithAnalytics(
+        <TestComponent captureParams={captureParams} initParams={[true]} />,
+        {}
+      );
+
+      const connectionMocks = useConnectionContext();
+      (connectionMocks.request as jest.Mock).mockReset();
+
+      fireEvent.click(screen.getByTestId('capture-encrypted-button'));
+
+      expect(connectionMocks.request).toHaveBeenCalledTimes(1);
+      expect(connectionMocks.request).toHaveBeenCalledWith({
+        method: ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
+        params: [
+          {
+            name: captureParams[0],
+            properties: captureParams[1],
+            windowId: '00000000-0000-0000-0000-000000000000',
+          },
+          true,
         ],
       });
     });
@@ -227,6 +265,7 @@ describe('contexts/AnalyticsProvider', () => {
             properties: captureParams[1],
             windowId: '00000000-0000-0000-0000-000000000000',
           },
+          false,
         ],
       });
     });
@@ -277,6 +316,7 @@ describe('contexts/AnalyticsProvider', () => {
             properties: params[1],
             windowId: '00000000-0000-0000-0000-000000000000',
           },
+          false,
         ],
       });
     });
