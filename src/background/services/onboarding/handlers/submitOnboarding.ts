@@ -118,6 +118,14 @@ export class SubmitOnboardingHandler implements HandlerType {
 
     await this.storageService.createStorageKey(password);
 
+    // Save the analytics consent as soon as possible to avoid
+    // wrongly capturing any analytics data.
+    await this.settingsService.setAnalyticsConsent(analyticsConsent);
+
+    if (analyticsConsent) {
+      await this.analyticsService.saveTemporaryAnalyticsIds();
+    }
+
     // Derive xpubXP from mnemonic / ledger
     const xpubXP = mnemonic
       ? Avalanche.getXpubFromMnemonic(mnemonic)
@@ -163,13 +171,8 @@ export class SubmitOnboardingHandler implements HandlerType {
     const account = this.accountsService.getAccountList()[0];
     await this.accountsService.activateAccount(account?.id ?? '');
     await this.onboardingService.setIsOnboarded(true);
-    await this.settingsService.setAnalyticsConsent(analyticsConsent);
 
     await this.lockService.unlock(password);
-
-    if (analyticsConsent) {
-      await this.analyticsService.saveTemporaryAnalyticsIds();
-    }
 
     return {
       ...request,
