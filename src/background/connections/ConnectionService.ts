@@ -37,15 +37,6 @@ export class ConnectionService {
   }
 
   private handleConnection(connection: Runtime.Port) {
-    /**
-     * we only want connection from the parent app, that is frameId = 0
-     *
-     * If it doesnt have a frameid then its the extension popup itself
-     */
-    if (connection.sender?.frameId && connection.sender?.frameId !== 0) {
-      return;
-    }
-
     if (connection.sender?.id !== browser.runtime.id) {
       return;
     }
