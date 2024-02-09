@@ -38,8 +38,15 @@ import { useConnectionContext } from './ConnectionProvider';
 import { CommonError } from '@src/utils/errors';
 import { UnifiedBridgeGetAssets } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeGetAssets';
 import { useTranslation } from 'react-i18next';
+import { UnifiedBridgeEstimateGas } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeEstimateGas';
+import { CustomGasSettings } from '@src/background/services/bridge/models';
 
 interface UnifiedBridgeContext {
+  estimateTransferGas(
+    symbol: string,
+    amount: bigint,
+    targetChainId: number
+  ): Promise<bigint>;
   getAssetAddressOnTargetChain(
     symbol?: string,
     chainId?: number
@@ -54,7 +61,8 @@ interface UnifiedBridgeContext {
     symbol: string,
     amount: bigint,
     targetChainId: number,
-    onStepChange: (stepDetails: BridgeStepDetails) => void
+    onStepChange: (stepDetails: BridgeStepDetails) => void,
+    customGasSettings?: CustomGasSettings
   ): Promise<any>;
   getErrorMessage(errorCode: ErrorCode): string;
   transferableAssets: BridgeAsset[];
@@ -63,6 +71,9 @@ interface UnifiedBridgeContext {
 
 const DEFAULT_STATE = {
   state: UNIFIED_BRIDGE_DEFAULT_STATE,
+  estimateTransferGas() {
+    throw new Error('Bridge not ready');
+  },
   getAssetAddressOnTargetChain() {
     return undefined;
   },
@@ -177,6 +188,30 @@ export function UnifiedBridgeProvider({
     [assets]
   );
 
+  const estimateTransferGas = useCallback(
+    (symbol: string, amount: bigint, targetChainId: number) => {
+      if (!network) {
+        throw ethErrors.rpc.internal({
+          data: { reason: CommonError.UnknownNetwork },
+        });
+      }
+
+      const asset = getAsset(symbol, network.chainId);
+
+      if (!asset) {
+        throw ethErrors.rpc.invalidParams({
+          data: { reason: UnifiedBridgeError.UnknownAsset },
+        });
+      }
+
+      return request<UnifiedBridgeEstimateGas>({
+        method: ExtensionRequest.UNIFIED_BRIDGE_ESTIMATE_GAS,
+        params: [asset, amount, targetChainId],
+      });
+    },
+    [getAsset, network, request]
+  );
+
   const getAssetAddressOnTargetChain = useCallback(
     (symbol?: string, targetChainId?: number) => {
       if (!symbol || !targetChainId) {
@@ -223,7 +258,8 @@ export function UnifiedBridgeProvider({
       symbol: string,
       amount: bigint,
       targetChainId: number,
-      onStepChange: (stepDetails: BridgeStepDetails) => void
+      onStepChange: (stepDetails: BridgeStepDetails) => void,
+      customGasSettings?: CustomGasSettings
     ) => {
       if (!network) {
         throw ethErrors.rpc.internal({
@@ -250,7 +286,7 @@ export function UnifiedBridgeProvider({
 
       const txHash = request<UnifiedBridgeTransferAsset>({
         method: ExtensionRequest.UNIFIED_BRIDGE_TRANSFER_ASSET,
-        params: [asset, amount, targetChainId],
+        params: [asset, amount, targetChainId, customGasSettings],
       }).finally(() => {
         transferEventSubscription.unsubscribe();
       });
@@ -285,6 +321,7 @@ export function UnifiedBridgeProvider({
   return (
     <UnifiedBridgeContext.Provider
       value={{
+        estimateTransferGas,
         getErrorMessage,
         state,
         getAssetAddressOnTargetChain,

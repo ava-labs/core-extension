@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import Big from 'big.js';
 import { useHasEnoughForGas } from './useHasEnoughtForGas';
+import { CustomGasSettings } from '@src/background/services/bridge/models';
 
 /**
  * Hook for when the source is Avalanche
@@ -38,42 +39,46 @@ export function useAvalancheBridge(
   const maximum = sourceBalance?.balance || BIG_ZERO;
   const receiveAmount = amount.gt(minimum) ? amount.minus(bridgeFee) : BIG_ZERO;
 
-  const transfer = useCallback(async () => {
-    if (!currentAssetData) return Promise.reject();
+  const transfer = useCallback(
+    async (customGasSettings: CustomGasSettings) => {
+      if (!currentAssetData) return Promise.reject();
 
-    const timestamp = Date.now();
-    const result = await transferAsset(
+      const timestamp = Date.now();
+      const result = await transferAsset(
+        amount,
+        currentAssetData,
+        customGasSettings,
+        () => {
+          //not used
+        },
+        setTxHash
+      );
+
+      setTransactionDetails({
+        tokenSymbol: currentAssetData.symbol,
+        amount,
+      });
+
+      createBridgeTransaction({
+        sourceChain: Blockchain.AVALANCHE,
+        sourceTxHash: result.hash,
+        sourceStartedAt: timestamp,
+        targetChain: targetBlockchain,
+        amount,
+        symbol: currentAssetData.symbol,
+      });
+
+      return result.hash;
+    },
+    [
       amount,
+      createBridgeTransaction,
       currentAssetData,
-      () => {
-        //not used
-      },
-      setTxHash
-    );
-
-    setTransactionDetails({
-      tokenSymbol: currentAssetData.symbol,
-      amount,
-    });
-
-    createBridgeTransaction({
-      sourceChain: Blockchain.AVALANCHE,
-      sourceTxHash: result.hash,
-      sourceStartedAt: timestamp,
-      targetChain: targetBlockchain,
-      amount,
-      symbol: currentAssetData.symbol,
-    });
-
-    return result.hash;
-  }, [
-    amount,
-    createBridgeTransaction,
-    currentAssetData,
-    setTransactionDetails,
-    targetBlockchain,
-    transferAsset,
-  ]);
+      setTransactionDetails,
+      targetBlockchain,
+      transferAsset,
+    ]
+  );
 
   return {
     sourceBalance,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { WheelEvent, useEffect, useState } from 'react';
 import BN from 'bn.js';
 import Big from 'big.js';
 import {
@@ -140,6 +140,12 @@ export function BNInput({
         }}
         onClick={(e) => {
           e.stopPropagation();
+        }}
+        onWheel={(e: WheelEvent<HTMLInputElement>) => {
+          // Prevent changing value by mouse wheel
+          if (e.target === document.activeElement) {
+            (document.activeElement as HTMLInputElement).blur();
+          }
         }}
         error={error}
         placeholder="0.0"

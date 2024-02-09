@@ -11,7 +11,7 @@ import {
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { NetworkSelector } from './components/NetworkSelector';
 import { AssetBalance } from './models';
@@ -55,6 +55,7 @@ import {
   Divider,
   InfoCircleIcon,
   Link,
+  Scrollbars,
   Stack,
   SwapIcon,
   ToastCard,
@@ -75,6 +76,9 @@ import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { isUnifiedBridgeAsset } from './utils/isUnifiedBridgeAsset';
 import { getTokenAddress } from './utils/getTokenAddress';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
+import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { CustomGasSettings } from '@src/background/services/bridge/models';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 
 function formatBalance(balance: Big | undefined) {
@@ -92,6 +96,7 @@ export function Bridge() {
     assetsWithBalances,
     hasEnoughForNetworkFee,
     loading,
+    estimateGas,
     price,
     maximum,
     minimum,
@@ -101,11 +106,14 @@ export function Bridge() {
     bridgeFee,
     provider,
     bridgeStep,
+    gasSettings,
+    setGasSettings,
   } = useBridge(currentAssetAddress);
 
   const {
     bridgeConfig,
     currentAsset,
+    currentAssetData,
     setCurrentAsset,
     currentBlockchain,
     setCurrentBlockchain,
@@ -146,6 +154,12 @@ export function Bridge() {
   } = useAccountsContext();
   const { network, setNetwork, networks } = useNetworkContext();
   const { resetKeystoneRequest } = useKeystoneContext();
+
+  const { networkFee } = useNetworkFeeContext();
+
+  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
+    GasFeeModifier.INSTANT
+  );
 
   const activeAddress = useMemo(
     () =>
@@ -253,10 +267,16 @@ export function Bridge() {
 
   // Set source blockchain & amount from page storage
   useEffect(() => {
-    if (bridgePageHistoryData.inputAmount) {
+    if (!amount && bridgePageHistoryData.inputAmount) {
       setAmount(new Big(bridgePageHistoryData.inputAmount));
     }
-  }, [bridgePageHistoryData.inputAmount, setAmount, networks, setNetwork]);
+  }, [
+    amount,
+    bridgePageHistoryData.inputAmount,
+    setAmount,
+    networks,
+    setNetwork,
+  ]);
 
   // Set token from page storage
   useEffect(() => {
@@ -547,7 +567,7 @@ export function Bridge() {
     });
 
     setIsPending(true);
-    const [hash, transferError] = await resolve(transfer());
+    const [hash, transferError] = await resolve(transfer(gasSettings));
     setTransferWithLedger(false);
     setIsPending(false);
 
@@ -600,6 +620,8 @@ export function Bridge() {
     );
   }, [
     amount,
+    bridgeFee,
+    gasSettings,
     captureEncrypted,
     currentBlockchain,
     targetBlockchain,
@@ -608,7 +630,6 @@ export function Bridge() {
     history,
     t,
     getTranslatedError,
-    bridgeFee,
   ]);
 
   const onSubmitClicked = useCallback(() => {
@@ -624,6 +645,59 @@ export function Bridge() {
     isUsingFireblocksAccount,
     isUsingLedgerWallet,
     isUsingWalletConnectAccount,
+  ]);
+
+  const onGasSettingsChanged = useCallback(
+    (newSettings: CustomGasSettings) => {
+      setGasSettings((currSettings) => {
+        const hasNewMaxFee =
+          typeof newSettings.maxFeePerGas !== 'undefined' &&
+          newSettings.maxFeePerGas !== currSettings.maxFeePerGas;
+
+        const hasNewMaxTip =
+          typeof newSettings.maxPriorityFeePerGas !== 'undefined' &&
+          newSettings.maxPriorityFeePerGas !==
+            currSettings.maxPriorityFeePerGas;
+
+        const hasNewGasLimit =
+          typeof newSettings.gasLimit !== 'undefined' &&
+          newSettings.gasLimit !== currSettings.gasLimit;
+
+        if (hasNewMaxFee || hasNewMaxTip || hasNewGasLimit) {
+          return {
+            ...currSettings,
+            ...newSettings,
+          };
+        }
+
+        return currSettings;
+      });
+    },
+    [setGasSettings]
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (amount && amount.gt(BIG_ZERO)) {
+      estimateGas(amount, currentAssetData).then((limit) => {
+        if (isMounted && typeof limit === 'bigint') {
+          onGasSettingsChanged({
+            gasLimit: limit,
+          });
+        }
+      });
+
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [
+    amount,
+    estimateGas,
+    currentAsset,
+    currentAssetData,
+    onGasSettingsChanged,
   ]);
 
   useEffect(() => {
@@ -645,6 +719,8 @@ export function Bridge() {
       setCurrentSignature(bridgeStep.currentSignature);
     }
   }, [bridgeStep]);
+
+  const cardRef = useRef<HTMLDivElement>(null);
 
   if (
     error ||
@@ -760,197 +836,275 @@ export function Bridge() {
           >
             {t('Bridge')}
           </PageTitle>
-          <Stack sx={{ flex: 1, px: 2 }}>
-            <Stack sx={{ flex: 1 }}>
-              <Card sx={{ p: 0, overflow: 'unset' }}>
-                <Stack sx={{ width: '100%' }}>
-                  {/* From section */}
-                  <Card
-                    sx={{
-                      p: 0,
-                      backgroundColor: 'grey.850',
-                      overflow: 'unset',
-                    }}
-                  >
-                    <Stack sx={{ width: '100%' }}>
-                      <Stack
-                        direction="row"
-                        sx={{
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          p: 2,
-                          pr: 1,
-                        }}
-                      >
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: 'fontWeightSemibold' }}
-                        >
-                          {t('From')}
-                        </Typography>
-                        <NetworkSelector
-                          testId="bridge-from-chain-selector"
-                          selected={currentBlockchain}
-                          onSelect={handleBlockchainSwitchFrom}
-                          chains={availableBlockchains}
-                        />
-                      </Stack>
-                      <Stack
-                        sx={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
-                      >
-                        <TokenSelect
-                          maxAmount={maximum && bigToBN(maximum, denomination)}
-                          bridgeTokensList={assetsWithBalances}
-                          selectedToken={selectedTokenForTokenSelect}
-                          onTokenChange={handleSelect}
-                          inputAmount={
-                            // Reset BNInput when programmatically setting the amount to zero
-                            !sourceBalance || amountBN.isZero()
-                              ? undefined
-                              : amountBN
-                          }
-                          onInputAmountChange={handleAmountChanged}
-                          onSelectToggle={() => {
-                            setIsTokenSelectOpen(!isTokenSelectOpen);
+          <Scrollbars>
+            <Stack
+              sx={{
+                flex: 1,
+                px: 2,
+                pb: provider === BridgeProviders.Unified ? 14 : 10,
+              }}
+            >
+              <Stack sx={{ flex: 1 }}>
+                <Card ref={cardRef} sx={{ p: 0, overflow: 'unset' }}>
+                  <Stack sx={{ width: '100%' }}>
+                    {/* From section */}
+                    <Card
+                      sx={{
+                        p: 0,
+                        backgroundColor: 'grey.850',
+                        overflow: 'unset',
+                      }}
+                    >
+                      <Stack sx={{ width: '100%' }}>
+                        <Stack
+                          direction="row"
+                          sx={{
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            p: 2,
+                            pr: 1,
                           }}
-                          isOpen={isTokenSelectOpen}
-                          isValueLoading={loading}
-                          setIsOpen={setIsTokenSelectOpen}
-                          padding="0 16px 8px"
-                          skipHandleMaxAmount
-                          label=""
-                        />
-                      </Stack>
-                      <Stack
-                        direction="row"
-                        sx={{
-                          height: 28,
-                          position: 'relative',
-                          top: -25,
-                          justifyContent: 'center',
-                        }}
-                      >
-                        {(bridgeError ||
-                          isAmountTooLow ||
-                          !hasEnoughForNetworkFee) && (
-                          <Tooltip
-                            placement="bottom"
-                            title={
-                              <Stack sx={{ rowGap: 2, p: 1 }}>
-                                {errorTooltipContent}
-                              </Stack>
-                            }
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: 'fontWeightSemibold' }}
                           >
-                            <Stack
-                              sx={{
-                                flexDirection: 'row',
-                                columnGap: 0.5,
-                                cursor: 'pointer',
-                                mt: 0.5,
-                              }}
+                            {t('From')}
+                          </Typography>
+                          <NetworkSelector
+                            testId="bridge-from-chain-selector"
+                            selected={currentBlockchain}
+                            onSelect={handleBlockchainSwitchFrom}
+                            chains={availableBlockchains}
+                          />
+                        </Stack>
+                        <Stack
+                          sx={{
+                            flexGrow: 1,
+                            maxHeight: 'unset',
+                            height: '100%',
+                          }}
+                        >
+                          <TokenSelect
+                            maxAmount={
+                              maximum && bigToBN(maximum, denomination)
+                            }
+                            bridgeTokensList={assetsWithBalances}
+                            selectedToken={selectedTokenForTokenSelect}
+                            onTokenChange={handleSelect}
+                            inputAmount={
+                              // Reset BNInput when programmatically setting the amount to zero
+                              !sourceBalance || amountBN.isZero()
+                                ? undefined
+                                : amountBN
+                            }
+                            onInputAmountChange={handleAmountChanged}
+                            onSelectToggle={() => {
+                              setIsTokenSelectOpen(!isTokenSelectOpen);
+                            }}
+                            isOpen={isTokenSelectOpen}
+                            isValueLoading={loading}
+                            setIsOpen={setIsTokenSelectOpen}
+                            padding="0 16px 8px"
+                            skipHandleMaxAmount
+                            label=""
+                            containerRef={cardRef}
+                          />
+                        </Stack>
+                        <Stack
+                          direction="row"
+                          sx={{
+                            height: 28,
+                            position: 'relative',
+                            top: -25,
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {(bridgeError ||
+                            isAmountTooLow ||
+                            !hasEnoughForNetworkFee) && (
+                            <Tooltip
+                              placement="bottom"
+                              title={
+                                <Stack sx={{ rowGap: 2, p: 1 }}>
+                                  {errorTooltipContent}
+                                </Stack>
+                              }
                             >
-                              <Typography
-                                variant="caption"
-                                color={theme.palette.error.main}
+                              <Stack
+                                sx={{
+                                  flexDirection: 'row',
+                                  columnGap: 0.5,
+                                  cursor: 'pointer',
+                                  mt: 0.5,
+                                }}
                               >
-                                {t('Error')}
-                              </Typography>
-                              <AlertCircleIcon
-                                size={12}
-                                color={theme.palette.error.main}
-                              />
-                            </Stack>
-                          </Tooltip>
-                        )}
+                                <Typography
+                                  variant="caption"
+                                  color={theme.palette.error.main}
+                                >
+                                  {t('Error')}
+                                </Typography>
+                                <AlertCircleIcon
+                                  size={12}
+                                  color={theme.palette.error.main}
+                                />
+                              </Stack>
+                            </Tooltip>
+                          )}
+                        </Stack>
                       </Stack>
-                    </Stack>
-                  </Card>
+                    </Card>
 
-                  {/* Switch to swap from and to */}
-                  <Stack sx={{ alignItems: 'center', mt: -2.5, pb: 1 }}>
-                    <Tooltip title={<Typography>{t('Switch')}</Typography>}>
-                      <Button
-                        data-testid="bridge-switch-button"
-                        usehigherzindex={isTokenSelectOpen ? '0' : '1'}
-                        onClick={handleBlockchainToggle}
-                        disabled={!targetBlockchain}
-                        sx={{ width: 40, height: 40 }}
-                      >
-                        <SwapIcon
-                          size={20}
+                    {/* Switch to swap from and to */}
+                    <Stack sx={{ alignItems: 'center', mt: -2.5, pb: 1 }}>
+                      <Tooltip title={<Typography>{t('Switch')}</Typography>}>
+                        <Button
+                          data-testid="bridge-switch-button"
+                          usehigherzindex={isTokenSelectOpen ? '0' : '1'}
+                          onClick={handleBlockchainToggle}
+                          disabled={!targetBlockchain}
+                          sx={{ width: 40, height: 40 }}
+                        >
+                          <SwapIcon
+                            size={20}
+                            sx={{
+                              transform: 'rotate(90deg)',
+                            }}
+                          />
+                        </Button>
+                      </Tooltip>
+                    </Stack>
+
+                    {/* To section */}
+                    <Card sx={{ background: 'none', zIndex: 1 }}>
+                      <Stack sx={{ width: '100%', p: 2, pt: 1, rowGap: 2 }}>
+                        <Stack
+                          direction="row"
                           sx={{
-                            transform: 'rotate(90deg)',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
                           }}
-                        />
-                      </Button>
-                    </Tooltip>
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: 'fontWeightSemibold' }}
+                          >
+                            {t('To')}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: 'fontWeightSemibold' }}
+                          >
+                            {targetNetwork ? targetNetwork.chainName : ''}
+                          </Typography>
+                        </Stack>
+                        <Divider divider={<Divider />} sx={{ rowGap: 2 }} />
+                        <Stack>
+                          <Stack
+                            sx={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              mb: 1,
+                            }}
+                          >
+                            <Typography>{t('Receive')}</Typography>
+
+                            <Typography>{formattedReceiveAmount}</Typography>
+                          </Stack>
+                          <Stack
+                            sx={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              color={theme.palette.text.secondary}
+                            >
+                              {t('Estimated')}
+                            </Typography>
+
+                            <Typography
+                              variant="caption"
+                              color={theme.palette.text.secondary}
+                            >
+                              {formattedReceiveAmountCurrency}
+                            </Typography>
+                          </Stack>
+                        </Stack>
+                      </Stack>
+                    </Card>
                   </Stack>
+                </Card>
+              </Stack>
 
-                  {/* To section */}
-                  <Card sx={{ background: 'none', zIndex: 1 }}>
-                    <Stack sx={{ width: '100%', p: 2, rowGap: 2 }}>
-                      <Stack
-                        direction="row"
-                        sx={{
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: 'fontWeightSemibold' }}
-                        >
-                          {t('To')}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: 'fontWeightSemibold' }}
-                        >
-                          {targetNetwork ? targetNetwork.chainName : ''}
-                        </Typography>
-                      </Stack>
-                      <Divider divider={<Divider />} sx={{ rowGap: 2 }} />
-                      <Stack>
-                        <Stack
-                          sx={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            mb: 1,
-                          }}
-                        >
-                          <Typography>{t('Receive')}</Typography>
+              {wrapStatus === WrapStatus.WAITING_FOR_DEPOSIT && (
+                <Typography size={14} sx={{ alignSelf: 'center' }}>
+                  {t('Waiting for deposit confirmation')}
+                </Typography>
+              )}
 
-                          <Typography>{formattedReceiveAmount}</Typography>
-                        </Stack>
-                        <Stack
-                          sx={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <Typography color={theme.palette.text.secondary}>
-                            {t('Estimated')}
-                          </Typography>
+              <Stack
+                sx={{
+                  mt: 1.25,
+                  // hide network fees component if token list is opened (otherwise we get doubled scrollbars)
+                  ...(isTokenSelectOpen ? { display: 'none' } : {}),
+                }}
+              >
+                <CustomFees
+                  isLimitReadonly
+                  maxFeePerGas={gasSettings.maxFeePerGas || 0n}
+                  limit={Number(gasSettings.gasLimit) || 0}
+                  onChange={(settings) => {
+                    onGasSettingsChanged({
+                      maxFeePerGas: settings.maxFeePerGas,
+                      maxPriorityFeePerGas: settings.maxPriorityFeePerGas,
+                      // do not allow changing gasLimit via the UI
+                    });
 
-                          <Typography color={theme.palette.text.secondary}>
-                            {formattedReceiveAmountCurrency}
-                          </Typography>
-                        </Stack>
-                      </Stack>
-                    </Stack>
-                  </Card>
-                </Stack>
-              </Card>
+                    if (settings.feeType) {
+                      setSelectedGasFee(settings.feeType);
+                    }
+                  }}
+                  onModifierChangeCallback={(
+                    modifier: GasFeeModifier | undefined
+                  ) => {
+                    if (modifier) {
+                      setSelectedGasFee(modifier);
+                    }
+                    capture('BridgeFeeOptionChanged', { modifier });
+                  }}
+                  selectedGasFeeModifier={selectedGasFee}
+                  network={network}
+                  networkFee={networkFee}
+                />
+              </Stack>
             </Stack>
+          </Scrollbars>
 
+          <Stack
+            sx={{
+              position: 'fixed',
+              display: isTokenSelectOpen ? 'none' : 'flex',
+              bottom: 0,
+              width: 1,
+              maxWidth: 375,
+              px: 2,
+              pt: 1.5,
+              pb: 3,
+              backgroundColor: 'rgba(0,0,0,0.85)',
+              backdropFilter: 'blur(12px)',
+              gap: 2,
+            }}
+          >
             {/* FIXME: Unified SDK can handle multiple bridges, but for now it's just the CCTP */}
             {provider === BridgeProviders.Unified && (
               <Stack
                 direction="row"
                 sx={{
-                  py: 1,
                   justifyContent: 'center',
                   alignItems: 'center',
                   gap: 0.5,
@@ -959,8 +1113,9 @@ export function Bridge() {
                 <Typography variant="caption">{t('Powered by')}</Typography>
 
                 <img
-                  src="/images/logos/circle-cctp.png"
-                  style={{ width: 50, height: 14 }}
+                  src="/images/logos/circle.png"
+                  style={{ height: 14 }}
+                  alt="Circle"
                 />
                 <Tooltip
                   PopperProps={{
@@ -994,23 +1149,12 @@ export function Bridge() {
                 </Tooltip>
               </Stack>
             )}
-
-            {wrapStatus === WrapStatus.WAITING_FOR_DEPOSIT && (
-              <Typography size={14} sx={{ alignSelf: 'center' }}>
-                {t('Waiting for deposit confirmation')}
-              </Typography>
-            )}
-
             <Button
               data-testid="bridger-transfer-button"
               fullWidth
               size="large"
               disabled={disableTransfer}
               onClick={onNextClicked}
-              sx={{
-                mt: 2,
-                mb: 3,
-              }}
             >
               {isPending && <CircularProgress size={16} sx={{ mr: 1 }} />}
               {t('Next')}

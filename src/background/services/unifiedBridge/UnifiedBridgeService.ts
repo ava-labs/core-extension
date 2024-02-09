@@ -27,8 +27,10 @@ import {
   UNIFIED_BRIDGE_STATE_STORAGE_KEY,
   UNIFIED_BRIDGE_TRACKED_FLAGS,
   UnifiedBridgeError,
+  UnifiedBridgeEstimateGasParams,
   UnifiedBridgeEvent,
   UnifiedBridgeState,
+  UnifiedBridgeTransferParams,
 } from './models';
 import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
@@ -40,6 +42,7 @@ import {
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { FeeRate } from '../networkFee/models';
 
 @singleton()
 export class UnifiedBridgeService implements OnStorageReady {
@@ -197,13 +200,37 @@ export class UnifiedBridgeService implements OnStorageReady {
     return fee;
   }
 
-  async transfer({
+  async estimateGas({
     asset,
     amount,
     targetChainId,
-    tabId,
-  }): Promise<BridgeTransfer> {
+  }: UnifiedBridgeEstimateGasParams): Promise<bigint> {
+    const { fromAddress, sourceChain, targetChain } = await this.#buildParams({
+      targetChainId,
+    });
+
+    const gasLimit = await this.#core.estimateGas({
+      asset,
+      fromAddress,
+      amount,
+      sourceChain,
+      targetChain,
+    });
+
+    return gasLimit;
+  }
+
+  async #buildParams({ targetChainId }):
+    | Promise<{
+        sourceChain: Chain;
+        sourceChainId: number;
+        targetChain: Chain;
+        provider: JsonRpcApiProvider;
+        fromAddress: `0x${string}`;
+      }>
+    | never {
     const { activeAccount } = this.accountsService;
+    const { activeNetwork } = this.networkService;
 
     if (!activeAccount) {
       throw ethErrors.rpc.invalidParams({
@@ -213,7 +240,7 @@ export class UnifiedBridgeService implements OnStorageReady {
       });
     }
 
-    if (!this.networkService.activeNetwork) {
+    if (!activeNetwork) {
       throw ethErrors.rpc.invalidParams({
         data: {
           reason: CommonError.NoActiveNetwork,
@@ -221,7 +248,7 @@ export class UnifiedBridgeService implements OnStorageReady {
       });
     }
 
-    if (isBitcoinNetwork(this.networkService.activeNetwork)) {
+    if (isBitcoinNetwork(activeNetwork)) {
       throw ethErrors.rpc.invalidParams({
         data: {
           reason: UnifiedBridgeError.UnsupportedNetwork,
@@ -229,17 +256,38 @@ export class UnifiedBridgeService implements OnStorageReady {
       });
     }
 
-    const sourceChainId = this.networkService.activeNetwork.chainId;
+    const sourceChainId = activeNetwork.chainId;
     const sourceChain = await this.#buildChain(sourceChainId);
     const targetChain = await this.#buildChain(targetChainId);
 
-    const provider = await this.networkService.getProviderForNetwork(
-      this.networkService.activeNetwork
-    );
+    const provider = (await this.networkService.getProviderForNetwork(
+      activeNetwork
+    )) as JsonRpcApiProvider;
+
+    const fromAddress = activeAccount.addressC as `0x${string}`;
+
+    return {
+      sourceChain,
+      sourceChainId,
+      targetChain,
+      provider,
+      fromAddress,
+    };
+  }
+
+  async transfer({
+    asset,
+    amount,
+    targetChainId,
+    customGasSettings,
+    tabId,
+  }: UnifiedBridgeTransferParams): Promise<BridgeTransfer> {
+    const { fromAddress, provider, sourceChain, sourceChainId, targetChain } =
+      await this.#buildParams({ targetChainId });
 
     const bridgeTransfer = await this.#core.transferAsset({
       asset,
-      fromAddress: activeAccount.addressC as `0x${string}`,
+      fromAddress,
       amount,
       sourceChain,
       targetChain,
@@ -250,8 +298,21 @@ export class UnifiedBridgeService implements OnStorageReady {
         );
       },
       sign: async ({ from, to, data }) => {
-        const feeRate = await this.feeService.getNetworkFee();
-        if (!feeRate) {
+        let feeRate: FeeRate = {
+          maxFee: customGasSettings?.maxFeePerGas ?? 0n,
+          maxTip: customGasSettings?.maxPriorityFeePerGas ?? 0n,
+        };
+
+        // If we have no custom fee rate, fetch it from the network
+        if (!feeRate.maxFee) {
+          const networkFee = await this.feeService.getNetworkFee();
+
+          if (networkFee) {
+            feeRate = networkFee.high;
+          }
+        }
+
+        if (!feeRate.maxFee) {
           throw ethErrors.rpc.internal({
             data: { reason: CommonError.UnknownNetworkFee },
           });
@@ -274,8 +335,8 @@ export class UnifiedBridgeService implements OnStorageReady {
             data,
             chainId: sourceChainId,
             gasLimit,
-            maxFeePerGas: feeRate.high.maxFee,
-            maxPriorityFeePerGas: feeRate.high.maxTip,
+            maxFeePerGas: feeRate.maxFee,
+            maxPriorityFeePerGas: feeRate.maxTip,
             nonce,
           } as TransactionRequest,
           tabId

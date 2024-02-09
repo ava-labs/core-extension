@@ -440,6 +440,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       expect(bridgeServiceMock.transferBtcAsset).toBeCalledTimes(1);
       expect(bridgeServiceMock.transferBtcAsset).toBeCalledWith(
         amount,
+        undefined,
         frontendTabId
       );
 
@@ -539,6 +540,8 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         ethAction.displayData.currentBlockchain,
         amount,
         ethAction.displayData.asset,
+
+        undefined,
         frontendTabId
       );
       expect(bridgeServiceMock.transferBtcAsset).toBeCalledTimes(0);

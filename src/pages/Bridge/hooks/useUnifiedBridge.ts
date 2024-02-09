@@ -2,6 +2,7 @@ import Big from 'big.js';
 import { bigToBigInt } from '@avalabs/utils-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  Asset,
   BIG_ZERO,
   Blockchain,
   isNativeAsset,
@@ -18,6 +19,7 @@ import { useHasEnoughForGas } from './useHasEnoughtForGas';
 import { isUnifiedBridgeAsset } from '../utils/isUnifiedBridgeAsset';
 import { BridgeStepDetails } from '@avalabs/bridge-unified';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { CustomGasSettings } from '@src/background/services/bridge/models';
 
 /**
  * Hook for when the Unified Bridge SDK can handle the transfer
@@ -36,7 +38,8 @@ export function useUnifiedBridge(
   } = useBridgeSDK();
   const { network } = useNetworkContext();
   const { capture } = useAnalyticsContext();
-  const { getFee, transferAsset, supportsAsset } = useUnifiedBridgeContext();
+  const { estimateTransferGas, getFee, transferAsset, supportsAsset } =
+    useUnifiedBridgeContext();
 
   const [receiveAmount, setReceiveAmount] = useState<Big>();
   const [maximum, setMaximum] = useState<Big>();
@@ -116,54 +119,78 @@ export function useUnifiedBridge(
     supportsAsset,
   ]);
 
-  const transfer = useCallback(async () => {
-    capture('unifedBridgeTransferStarted', {
-      bridgeType: 'CCTP',
-      sourceBlockchain: currentBlockchain,
-      targetBlockchain,
-    });
+  const estimateGas = useCallback(
+    (transferAmount: Big, asset: Asset) => {
+      if (!asset) {
+        throw new Error('No asset data');
+      }
 
-    if (!currentAsset) {
-      throw new Error('No asset chosen');
-    }
+      const symbol = isNativeAsset(asset)
+        ? asset.wrappedAssetSymbol
+        : asset.symbol;
 
-    if (!currentAssetData) {
-      throw new Error('No asset data');
-    }
+      return estimateTransferGas(
+        symbol,
+        bigToBigInt(transferAmount, asset.denomination),
+        targetChainId
+      );
+    },
+    [estimateTransferGas, targetChainId]
+  );
 
-    const symbol = isNativeAsset(currentAssetData)
-      ? currentAssetData.wrappedAssetSymbol
-      : currentAsset || '';
+  const transfer = useCallback(
+    async (customGasSettings: CustomGasSettings) => {
+      capture('unifedBridgeTransferStarted', {
+        bridgeType: 'CCTP',
+        sourceBlockchain: currentBlockchain,
+        targetBlockchain,
+      });
 
-    const hash = await transferAsset(
-      currentAsset,
-      bigToBigInt(amount, currentAssetData.denomination),
-      targetChainId,
-      setBridgeStep
-    );
+      if (!currentAsset) {
+        throw new Error('No asset chosen');
+      }
 
-    setTxHash(hash);
-    setTransactionDetails({
-      tokenSymbol: symbol,
+      if (!currentAssetData) {
+        throw new Error('No asset data');
+      }
+
+      const symbol = isNativeAsset(currentAssetData)
+        ? currentAssetData.wrappedAssetSymbol
+        : currentAsset || '';
+
+      const hash = await transferAsset(
+        currentAsset,
+        bigToBigInt(amount, currentAssetData.denomination),
+        targetChainId,
+        setBridgeStep,
+        customGasSettings
+      );
+
+      setTxHash(hash);
+      setTransactionDetails({
+        tokenSymbol: symbol,
+        amount,
+      });
+
+      return hash;
+    },
+    [
       amount,
-    });
-
-    return hash;
-  }, [
-    amount,
-    currentAssetData,
-    currentAsset,
-    setTransactionDetails,
-    transferAsset,
-    targetChainId,
-    capture,
-    currentBlockchain,
-    targetBlockchain,
-  ]);
+      currentAssetData,
+      currentAsset,
+      setTransactionDetails,
+      transferAsset,
+      targetChainId,
+      capture,
+      currentBlockchain,
+      targetBlockchain,
+    ]
+  );
 
   return {
     sourceBalance,
     bridgeStep,
+    estimateGas,
     assetsWithBalances,
     hasEnoughForNetworkFee,
     receiveAmount,

@@ -52,3 +52,9 @@ export interface BtcTransactionResponse {
   confirmations: number;
   from: string;
 }
+
+export type CustomGasSettings = {
+  maxFeePerGas?: bigint;
+  maxPriorityFeePerGas?: bigint;
+  gasLimit?: bigint;
+};

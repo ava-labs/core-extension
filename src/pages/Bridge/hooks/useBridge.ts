@@ -6,8 +6,9 @@ import {
   useBridgeFeeEstimate,
   WrapStatus,
   useMinimumTransferAmount,
+  Asset,
 } from '@avalabs/bridge-sdk';
-import { useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 
 import { AssetBalance } from '../models';
 import { useBtcBridge } from './useBtcBridge';
@@ -18,6 +19,8 @@ import { useUnifiedBridge } from './useUnifiedBridge';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { ChainId } from '@avalabs/chains-sdk';
 import { BridgeStepDetails } from '@avalabs/bridge-unified';
+import { useBridgeContext } from '@src/contexts/BridgeProvider';
+import { CustomGasSettings } from '@src/background/services/bridge/models';
 
 export interface BridgeAdapter {
   address?: string;
@@ -42,13 +45,19 @@ export interface BridgeAdapter {
    * Transfer funds to the target blockchain
    * @returns the transaction hash
    */
-  transfer: () => Promise<string | undefined>;
+  transfer: (
+    customGasSettings: CustomGasSettings
+  ) => Promise<string | undefined>;
+  estimateGas?(amount: Big, asset?: Asset): Promise<bigint | undefined>;
   bridgeStep?: BridgeStepDetails;
 }
 
 interface Bridge extends BridgeAdapter {
   amount: Big;
   setAmount: (amount: Big) => void;
+  setGasSettings: Dispatch<SetStateAction<CustomGasSettings>>;
+  estimateGas(amount: Big, asset?: Asset): Promise<bigint | undefined>;
+  gasSettings: CustomGasSettings;
   bridgeFee?: Big;
   provider: BridgeProviders;
 }
@@ -58,11 +67,16 @@ export enum BridgeProviders {
   Unified,
 }
 
+const DEFAULT_GAS_SETTINGS = {};
+
 export function useBridge(currentAssetAddress?: string): Bridge {
   const { currentBlockchain: source, targetBlockchain } = useBridgeSDK();
+  const { estimateGas } = useBridgeContext();
   const { supportsAsset } = useUnifiedBridgeContext();
 
   const [amount, setAmount] = useState<Big>(BIG_ZERO);
+
+  const [gasSettings, setGasSettings] = useState(DEFAULT_GAS_SETTINGS);
 
   const bridgeFee = useBridgeFeeEstimate(amount) || BIG_ZERO;
   const minimum = useMinimumTransferAmount(amount);
@@ -104,9 +118,12 @@ export function useBridge(currentAssetAddress?: string): Bridge {
       minimum,
       setAmount,
       bridgeFee,
+      estimateGas,
+      gasSettings,
+      setGasSettings,
       provider: BridgeProviders.Avalanche,
     }),
-    [amount, bridgeFee, minimum]
+    [amount, bridgeFee, minimum, estimateGas, gasSettings]
   );
 
   const bridge = useMemo(() => {

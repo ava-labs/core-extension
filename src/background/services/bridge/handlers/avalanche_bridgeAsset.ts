@@ -213,6 +213,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
 
         const result = await this.bridgeService.transferBtcAsset(
           amount,
+          undefined,
           frontendTabId
         );
         await this.bridgeService.createTransaction(
@@ -259,6 +260,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
           currentBlockchain,
           amount,
           asset,
+          undefined,
           frontendTabId
         );
         if (result) {

@@ -276,6 +276,7 @@
   "Error, malformed request data": "Error, malformed request data",
   "Error:": "Error:",
   "Estimated": "Estimated",
+  "Estimated gas units needed to complete the transaction. Includes a small buffer. Not editable for this transaction.": "Estimated gas units needed to complete the transaction. Includes a small buffer. Not editable for this transaction.",
   "Ethereum Address": "Ethereum Address",
   "Euro": "Euro",
   "Explore Ecosystem": "Explore Ecosystem",

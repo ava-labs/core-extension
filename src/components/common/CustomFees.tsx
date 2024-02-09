@@ -42,6 +42,7 @@ interface CustomGasFeesProps {
   selectedGasFeeModifier?: GasFeeModifier;
   network?: Network;
   networkFee: NetworkFee | null;
+  isLimitReadonly?: boolean;
 }
 
 export enum GasFeeModifier {
@@ -155,6 +156,7 @@ export function CustomFees({
   selectedGasFeeModifier,
   network,
   networkFee,
+  isLimitReadonly,
 }: CustomGasFeesProps) {
   const { t } = useTranslation();
   const tokenPrice = useNativeTokenPrice(network);
@@ -211,7 +213,7 @@ export function CustomFees({
         setIsGasPriceTooHigh(true);
         // call cb with limit and gas
         onChange({
-          customGasLimit,
+          customGasLimit: customGasLimit ?? gasLimit,
           maxFeePerGas: rate.maxFee,
           maxPriorityFeePerGas: rate.maxTip,
           feeType: modifier,
@@ -221,7 +223,7 @@ export function CustomFees({
       setNewFees(updatedFees);
       // call cb with limit and gas
       onChange({
-        customGasLimit,
+        customGasLimit: customGasLimit ?? gasLimit,
         maxFeePerGas: rate.maxFee,
         maxPriorityFeePerGas: rate.maxTip,
         feeType: modifier,
@@ -295,14 +297,18 @@ export function CustomFees({
   );
 
   useEffect(() => {
-    if (networkFee) {
-      // 1. Update selected fees when data is loaded loaded.
-      // 2. Make sure Normal preset is selected if the network fee is fixed.
-      networkFee.isFixedFee
-        ? updateGasFee(GasFeeModifier.NORMAL)
-        : updateGasFee(selectedGasFeeModifier);
+    // 1. Update selected fees when data is loaded loaded.
+    // 2. Make sure Normal preset is selected if the network fee is fixed.
+    if (typeof networkFee?.isFixedFee !== 'boolean') {
+      return;
     }
-  }, [networkFee, selectedGasFeeModifier, updateGasFee]);
+
+    if (networkFee.isFixedFee) {
+      updateGasFee(GasFeeModifier.NORMAL);
+    } else {
+      updateGasFee(selectedGasFeeModifier);
+    }
+  }, [networkFee?.isFixedFee, selectedGasFeeModifier, updateGasFee]);
 
   if (!networkFee) {
     return null;
@@ -310,6 +316,8 @@ export function CustomFees({
 
   const isMaxFeeUsed =
     network?.vmName === NetworkVMType.EVM && !networkFee.isFixedFee;
+
+  const isCustomGasLimitSupported = network?.vmName === NetworkVMType.EVM;
 
   return (
     <ApprovalSection>
@@ -323,13 +331,15 @@ export function CustomFees({
             : undefined
         }
       >
-        <IconButton
-          size="small"
-          data-testid="edit-gas-limit-button"
-          onClick={() => setShowEditGasLimit(true)}
-        >
-          <GearIcon />
-        </IconButton>
+        {isCustomGasLimitSupported && (
+          <IconButton
+            size="small"
+            data-testid="edit-gas-limit-button"
+            onClick={() => setShowEditGasLimit(true)}
+          >
+            <GearIcon />
+          </IconButton>
+        )}
       </ApprovalSectionHeader>
       <ApprovalSectionBody>
         <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -512,6 +522,7 @@ export function CustomFees({
         )}
       >
         <CustomGasSettings
+          isLimitReadonly={isLimitReadonly}
           feeDisplayDecimals={networkFee.displayDecimals}
           gasLimit={gasLimit}
           maxFeePerGas={customFee?.maxFee || 0n}
