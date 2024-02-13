@@ -2,11 +2,15 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Button,
+  Chip,
+  GearIcon,
   Stack,
   Tab,
   TabPanel,
   Tabs,
   TrashIcon,
+  Typography,
+  XIcon,
   toast,
   useTheme,
 } from '@avalabs/k2-components';
@@ -20,13 +24,18 @@ import { LedgerApprovalDialog } from '@src/pages/SignTransaction/components/Ledg
 import { PageTitle } from '@src/components/common/PageTitle';
 import { Overlay } from '@src/components/common/Overlay';
 import { useTabFromParams } from '@src/hooks/useTabFromParams';
-import { Account } from '@src/background/services/accounts/models';
 
 import { AccountsActionButton } from './components/AccountsActionButton';
 import { AddAccountError } from './AddAccountError';
-import { AccountList } from './AccountList';
 import { ConfirmAccountRemovalDialog } from './components/ConfirmAccountRemovalDialog';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { Flipper } from '@src/components/common/Flipper';
+import { useAccountManager } from './providers/AccountManagerProvider';
+import { AccountList, SelectionMode } from './components/AccountList';
+import { WalletType } from '@src/background/services/wallet/models';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { useWalletName } from './hooks/useWalletName';
 
 export enum AccountsTab {
   Primary,
@@ -41,29 +50,30 @@ export function Accounts() {
     selectAccount,
     addAccount,
     deleteAccounts,
-    accounts: {
-      imported: importedAccounts,
-      primary: regularAccounts,
-      active: activeAccount,
-    },
+    accounts: { imported: importedAccounts, primary: regularAccounts },
   } = useAccountsContext();
+  const { exitManageMode, isManageMode, toggleManageMode, selectedAccounts } =
+    useAccountManager();
 
   const { activeTab: tabFromUrl } = useTabFromParams();
   const activeTab = isKnownTab(parseInt(tabFromUrl))
     ? parseInt(tabFromUrl)
     : AccountsTab.Primary;
-  const [isEditing, setIsEditing] = useState(false);
+
   const [hasError, setHasError] = useState(false);
   const [addAccountLoading, setAddAccountLoading] = useState(false);
   const { hasLedgerTransport } = useLedgerContext();
   const { capture } = useAnalyticsContext();
-  const [isDeleteMode, setIsDeleteMode] = useState(false);
   const theme = useTheme();
-  const [deleteIdList, setDeleteIdList] = useState<string[]>([]);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const history = useHistory();
   const { walletDetails } = useWalletContext();
+  const { featureFlags } = useFeatureFlagContext();
+  const canPrimaryAccountsBeRemoved =
+    featureFlags[FeatureGates.PRIMARY_ACCOUNT_REMOVAL];
+
+  const walletName = useWalletName();
 
   const setActiveTab = useCallback(
     (tab: AccountsTab) => {
@@ -99,7 +109,6 @@ export function Accounts() {
       // which will then block the transport for addAccount() call and
       // cause account creation to break for Ledger wallets.
       setActiveTab(AccountsTab.Primary);
-      setIsEditing(true);
     } catch (e) {
       setHasError(true);
     }
@@ -107,23 +116,17 @@ export function Accounts() {
     setAddAccountLoading(false);
   };
 
-  const onAccountClicked = async (account: Account) => {
-    await selectAccount(account.id);
-    history.replace('/home');
-    await capture('AccountSelectorAccountSwitched', { type: account.type });
-  };
-
   const onAccountDeleteSuccess = async () => {
     capture('ImportedAccountDeleteSucceeded');
     toast.success(t('Account(s) Deleted!'), { duration: 2000 });
-    setIsDeleteMode(false);
+    exitManageMode();
     setIsConfirmDialogOpen(false);
     setIsDeleting(false);
   };
 
   const onAccountDelete = () => {
     setIsDeleting(true);
-    deleteAccounts(deleteIdList).then(() => {
+    deleteAccounts(Array.from(selectedAccounts)).then(() => {
       onAccountDeleteSuccess();
     });
   };
@@ -136,6 +139,7 @@ export function Accounts() {
       setActiveTab(AccountsTab.Primary);
     }
   }, [hasAnyAccounts, hasImportedAccounts, setActiveTab]);
+
   return (
     <Stack
       sx={{
@@ -153,15 +157,34 @@ export function Accounts() {
         open={isConfirmDialogOpen}
         onClose={() => setIsConfirmDialogOpen(false)}
         onConfirm={onAccountDelete}
-        isMultiple={deleteIdList.length > 1}
+        isMultiple={selectedAccounts.length > 1}
         isDeleting={isDeleting}
       />
-      <PageTitle
-        margin={'22px 0 4px 0'}
-        onBackClick={() => history.replace('/home')}
+      <Stack
+        direction="row"
+        sx={{ mt: 2.5, mb: 0.5, pr: 1, alignItems: 'center' }}
       >
-        {t('Account Manager')}
-      </PageTitle>
+        <PageTitle margin="0" onBackClick={() => history.replace('/home')}>
+          {isManageMode ? t('Manage Accounts') : t('Account Manager')}
+        </PageTitle>
+        {(canPrimaryAccountsBeRemoved ||
+          activeTab === AccountsTab.Imported) && (
+          <Button
+            variant="text"
+            size="large"
+            color="primary"
+            sx={{ p: 0 }}
+            disableRipple
+            onClick={toggleManageMode}
+            data-testid="manage-accounts-button"
+          >
+            <Flipper size={24} isFlipped={isManageMode}>
+              <GearIcon />
+              <XIcon />
+            </Flipper>
+          </Button>
+        )}
+      </Stack>
 
       {hasError && <AddAccountError />}
 
@@ -178,8 +201,7 @@ export function Accounts() {
                 ? 'MainAccountPageClicked'
                 : 'ImportedAccountPageClicked'
             );
-            setIsDeleteMode(false);
-            setIsEditing(false);
+            exitManageMode();
             setActiveTab(tab);
           }}
         >
@@ -204,8 +226,8 @@ export function Accounts() {
           borderColor: 'divider',
           mt: -0.25,
           pt: hasImportedAccounts ? 0.75 : 2,
-          flexGrow: 1,
           overflow: 'hidden',
+          flexGrow: 1,
         }}
       >
         <TabPanel
@@ -216,21 +238,24 @@ export function Accounts() {
             height: activeTab === AccountsTab.Primary ? '100%' : 0,
           }}
         >
-          <AccountList
-            allowDeleting={false}
-            accounts={regularAccounts}
-            activeAccount={activeAccount}
-            isEditing={isEditing}
-            onAccountClicked={onAccountClicked}
-            setIsEditing={setIsEditing}
-            isDeleteMode={isDeleteMode}
-            setIsDeleteMode={(status) => {
-              setDeleteIdList([]);
-              setIsDeleteMode(status);
-            }}
-            deleteIdList={deleteIdList}
-            setDeleteIdList={setDeleteIdList}
-          />
+          <Stack sx={{ gap: 1.5, pt: 1, width: 1 }}>
+            {walletName && (
+              <Stack direction="row" sx={{ gap: 1, px: 2 }}>
+                <Typography variant="button">{walletName}</Typography>
+                <Chip size="small" color="success" label={t('Active')} />
+              </Stack>
+            )}
+            <AccountList
+              walletType={walletDetails?.type}
+              accounts={regularAccounts}
+              selectionMode={
+                canPrimaryAccountsBeRemoved &&
+                walletDetails?.type !== WalletType.SEEDLESS
+                  ? SelectionMode.Consecutive
+                  : SelectionMode.None
+              }
+            />
+          </Stack>
         </TabPanel>
         <TabPanel
           value={activeTab}
@@ -238,22 +263,12 @@ export function Accounts() {
           sx={{
             display: 'flex',
             height: activeTab === AccountsTab.Imported ? '100%' : 0,
+            pt: 1,
           }}
         >
           <AccountList
-            allowDeleting
             accounts={Object.values(importedAccounts)}
-            activeAccount={activeAccount}
-            isEditing={isEditing}
-            onAccountClicked={onAccountClicked}
-            setIsEditing={setIsEditing}
-            isDeleteMode={isDeleteMode}
-            setIsDeleteMode={(status) => {
-              setDeleteIdList([]);
-              setIsDeleteMode(status);
-            }}
-            deleteIdList={deleteIdList}
-            setDeleteIdList={setDeleteIdList}
+            selectionMode={SelectionMode.Any}
           />
         </TabPanel>
       </Box>
@@ -261,11 +276,11 @@ export function Accounts() {
         direction="row"
         sx={{ py: 3, px: 2, justifyContent: 'center', alignItems: 'center' }}
       >
-        {isDeleteMode ? (
+        {isManageMode ? (
           <Button
             fullWidth
             size="large"
-            disabled={deleteIdList.length === 0}
+            disabled={selectedAccounts.length === 0}
             data-testid="delete-imported-account-button"
             onClick={() => {
               capture('ImportedAccountDeleteClicked');
@@ -273,7 +288,7 @@ export function Accounts() {
             }}
           >
             <TrashIcon size={14} sx={{ mr: 1 }} />
-            {deleteIdList.length <= 1
+            {selectedAccounts.length <= 1
               ? t('Delete Account')
               : t('Delete Accounts')}
           </Button>

@@ -5,18 +5,22 @@ import {
 } from '@avalabs/wallets-sdk';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { isSwimmer } from '@src/utils/isSwimmerNetwork';
-import Big from 'big.js';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
 import {
-  EIP1559GasModifier,
   FeeRate,
   NetworkFee,
   NetworkFeeEvents,
   TransactionPriority,
 } from './models';
-import { bigintToBig } from '@src/utils/bigintToBig';
+
+const EVM_BASE_TIP = BigInt(5e8); // 0.5 Gwei
+const EVM_TIP_MODIFIERS: Record<TransactionPriority, bigint> = {
+  low: 1n, // use the base tip
+  medium: 4n, // 4x base
+  high: 6n, // 6x base
+};
 
 @singleton()
 export class NetworkFeeService implements OnUnlock, OnLock {
@@ -24,18 +28,6 @@ export class NetworkFeeService implements OnUnlock, OnLock {
   private intervalId?: ReturnType<typeof setInterval>;
 
   private currentNetworkFee: NetworkFee | null = null;
-
-  private evmFeeModifiers: Record<TransactionPriority, EIP1559GasModifier> = {
-    low: {
-      baseFeeMultiplier: new Big(1.05), // We add additional 5% to account for sudden gas price increases
-    },
-    medium: {
-      baseFeeMultiplier: new Big(1.1),
-    },
-    high: {
-      baseFeeMultiplier: new Big(1.15),
-    },
-  };
 
   constructor(private networkService: NetworkService) {}
 
@@ -107,45 +99,35 @@ export class NetworkFeeService implements OnUnlock, OnLock {
     network: Network,
     provider: JsonRpcBatchInternal
   ): Promise<NetworkFee> {
-    const { maxFeePerGas, maxPriorityFeePerGas: lastMaxPriorityFeePerGas } =
-      await (provider as JsonRpcBatchInternal).getFeeData();
+    const { maxFeePerGas: baseMaxFee } = await (
+      provider as JsonRpcBatchInternal
+    ).getFeeData();
 
-    if (maxFeePerGas === null) {
+    if (baseMaxFee === null) {
       throw new Error('Fetching fee data failed');
     }
 
-    const baseMaxFee = bigintToBig(maxFeePerGas, 0);
-    const maxPriorityFeePerGas = bigintToBig(lastMaxPriorityFeePerGas ?? 0n, 0);
-
     return {
       displayDecimals: 9, // use Gwei to display amount
-      baseMaxFee: maxFeePerGas,
-      low: this.getEVMFeeForPriority(baseMaxFee, maxPriorityFeePerGas, 'low'),
-      medium: this.getEVMFeeForPriority(
-        baseMaxFee,
-        maxPriorityFeePerGas,
-        'medium'
-      ),
-      high: this.getEVMFeeForPriority(baseMaxFee, maxPriorityFeePerGas, 'high'),
+      baseMaxFee,
+      low: this.getEVMFeeForPriority(baseMaxFee, EVM_BASE_TIP, 'low'),
+      medium: this.getEVMFeeForPriority(baseMaxFee, EVM_BASE_TIP, 'medium'),
+      high: this.getEVMFeeForPriority(baseMaxFee, EVM_BASE_TIP, 'high'),
       isFixedFee: isSwimmer(network) ? true : false,
     };
   }
 
   private getEVMFeeForPriority(
-    baseMaxFee: Big,
-    maxPriorityFee: Big,
+    baseMaxFee: bigint,
+    maxPriorityFee: bigint,
     priority: TransactionPriority
   ): FeeRate {
-    const modifier = this.evmFeeModifiers[priority];
-    const maxFee = baseMaxFee.mul(modifier.baseFeeMultiplier);
-
-    // max base fee should be greater than or equal to the max priority fee
-    // https://github.com/ava-labs/coreth/blob/26818b3fcdd9831cf31f15c7e65faeecb78f3e70/core/tx_pool.go#L701
-    const maxTip = maxPriorityFee.gt(maxFee) ? maxFee : maxPriorityFee;
+    const maxTip = maxPriorityFee * EVM_TIP_MODIFIERS[priority];
+    const maxFee = baseMaxFee + maxTip;
 
     return {
-      maxFee: BigInt(maxFee.toFixed(0)),
-      maxTip: BigInt(maxTip.toFixed(0)),
+      maxFee,
+      maxTip,
     };
   }
 

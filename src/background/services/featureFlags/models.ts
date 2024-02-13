@@ -26,6 +26,7 @@ export enum FeatureGates {
   UNIFIED_BRIDGE_CCTP = 'unified-bridge-cctp',
   DEBANK_TRANSACTION_PARSING = 'debank-transaction-parsing',
   DEBANK_TRANSACTION_PRE_EXECUTION = 'debank-transaction-pre-execution',
+  PRIMARY_ACCOUNT_REMOVAL = 'primary-account-removal',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -58,6 +59,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.UNIFIED_BRIDGE_CCTP]: false,
   [FeatureGates.DEBANK_TRANSACTION_PARSING]: false,
   [FeatureGates.DEBANK_TRANSACTION_PRE_EXECUTION]: false,
+  [FeatureGates.PRIMARY_ACCOUNT_REMOVAL]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -89,6 +91,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.UNIFIED_BRIDGE_CCTP]: true,
   [FeatureGates.DEBANK_TRANSACTION_PARSING]: false,
   [FeatureGates.DEBANK_TRANSACTION_PRE_EXECUTION]: false,
+  [FeatureGates.PRIMARY_ACCOUNT_REMOVAL]: true,
 };
 
 export enum FeatureFlagEvents {

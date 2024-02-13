@@ -1,4 +1,8 @@
-import { getBtcTransaction } from '@avalabs/bridge-sdk';
+import {
+  Blockchain,
+  estimateGas,
+  getBtcTransaction,
+} from '@avalabs/bridge-sdk';
 import { BITCOIN_NETWORK, ChainId } from '@avalabs/chains-sdk';
 import { BlockCypherProvider } from '@avalabs/wallets-sdk';
 import Big from 'big.js';
@@ -23,6 +27,7 @@ jest.mock('@avalabs/bridge-sdk', () => {
   return {
     ...jest.requireActual('@avalabs/bridge-sdk'),
     getBtcTransaction: jest.fn(),
+    estimateGas: jest.fn(),
     fetchConfig: jest.fn().mockResolvedValue({ config: mockConfig }),
   };
 });
@@ -41,6 +46,8 @@ const networkService = jest.mocked<NetworkService>({
   },
   getBitcoinNetwork: jest.fn().mockReturnValue(BITCOIN_NETWORK),
   getProviderForNetwork: jest.fn(),
+  getAvalancheProvider: jest.fn(),
+  getEthereumProvider: jest.fn(),
 } as any);
 
 const walletService = jest.mocked<WalletService>({
@@ -93,7 +100,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
 
     it('does not allow bridging BTC', async () => {
       await expect(
-        service.transferBtcAsset(new Big(1000), 1234)
+        service.transferBtcAsset(new Big(1000), undefined, 1234)
       ).rejects.toThrowError(
         'WalletConnect accounts are not supported by Bridge yet'
       );
@@ -137,7 +144,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
       );
 
       await expect(
-        service.transferBtcAsset(new Big(1000), 1234)
+        service.transferBtcAsset(new Big(1000), undefined, 1234)
       ).rejects.toThrowError(
         ethErrors.rpc.transactionRejected({
           data: { reason: FireblocksErrorCode.Blocked },
@@ -149,7 +156,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
       walletService.sign.mockRejectedValueOnce(new Error('what is dis'));
 
       await expect(
-        service.transferBtcAsset(new Big(1000), 1234)
+        service.transferBtcAsset(new Big(1000), undefined, 1234)
       ).rejects.toThrowError(
         ethErrors.rpc.internal({ data: { reason: CommonError.Unknown } })
       );
@@ -208,7 +215,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
 
     it('issues the transaction and returns its details', async () => {
       const { hash, confirmations, from, gasLimit, value } =
-        await service.transferBtcAsset(new Big(0.0001), 1234);
+        await service.transferBtcAsset(new Big(0.0001), undefined, 1234);
 
       expect(provider.issueRawTx).toHaveBeenCalledWith(signedTx);
 
@@ -281,7 +288,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
 
     it('looks up the transaction details on the blockchain and returns them', async () => {
       const { hash, confirmations, from, gasLimit, value } =
-        await service.transferBtcAsset(new Big(0.0001), 1234);
+        await service.transferBtcAsset(new Big(0.0001), undefined, 1234);
 
       expect(blockcypherMock.waitForTx).toHaveBeenCalledWith(txHash);
 
@@ -296,6 +303,73 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
       // Reference: https://github.com/jestjs/jest/issues/11617
       expect(Number(gasLimit)).toEqual(txLookupResult.fees);
       expect(Number(value)).toEqual(10000);
+    });
+  });
+
+  describe('.estimateGas()', () => {
+    const accountsService = {
+      activeAccount: {
+        addressC: '1234-abcd',
+        addressBTC,
+        type: AccountType.FIREBLOCKS,
+      },
+    } as unknown as AccountsService;
+
+    let service: BridgeService;
+
+    beforeEach(async () => {
+      service = new BridgeService(
+        storageService,
+        networkService,
+        walletService,
+        accountsService,
+        featureFlagService,
+        networkFeeService,
+        networkBalancesService
+      );
+      await service.onStorageReady();
+    });
+
+    describe('when bridging from Bitcoin', () => {
+      beforeEach(() => {
+        jest.mocked(getBtcTransaction).mockReturnValue({
+          inputs: [],
+          outputs: [],
+          fee: 10000,
+        } as any);
+      });
+
+      it('uses byteLength as gas limit estimation', async () => {
+        expect(
+          await service.estimateGas(Blockchain.BITCOIN, new Big('1'), {} as any)
+        ).toEqual(10000n);
+      });
+    });
+
+    describe('when bridging from EVM', () => {
+      it('uses estimateGas() util from the SDK', async () => {
+        jest.mocked(estimateGas).mockResolvedValueOnce(12345n);
+
+        const result = await service.estimateGas(
+          Blockchain.ETHEREUM,
+          new Big('1'),
+          {} as any
+        );
+
+        expect(estimateGas).toHaveBeenCalledWith(
+          new Big('1'),
+          accountsService.activeAccount?.addressC,
+          {} as any,
+          {
+            ethereum: networkService.getEthereumProvider(),
+            avalanche: networkService.getAvalancheProvider(),
+          },
+          service.bridgeConfig.config,
+          Blockchain.ETHEREUM
+        );
+
+        expect(result).toEqual(12345n);
+      });
     });
   });
 });

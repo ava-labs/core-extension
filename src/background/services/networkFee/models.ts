@@ -1,5 +1,3 @@
-import Big from 'big.js';
-
 export type FeeRate = {
   maxFee: bigint;
   maxTip?: bigint;
@@ -13,10 +11,6 @@ export interface NetworkFee {
   high: FeeRate;
   isFixedFee: boolean;
 }
-
-export type EIP1559GasModifier = {
-  baseFeeMultiplier: Big;
-};
 
 export type TransactionPriority = 'low' | 'medium' | 'high';
 

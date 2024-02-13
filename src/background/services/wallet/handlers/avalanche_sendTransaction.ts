@@ -10,6 +10,7 @@ import {
   EVM,
   utils,
   avaxSerial,
+  VM,
 } from '@avalabs/avalanchejs-v2';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
@@ -17,6 +18,8 @@ import { AccountsService } from '../../accounts/AccountsService';
 import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/wallets-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
+import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
+import { ChainId } from '@avalabs/chains-sdk';
 
 type TxParams = {
   transactionHex: string;
@@ -33,7 +36,8 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams
   constructor(
     private walletService: WalletService,
     private networkService: NetworkService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private analyticsServicePosthog: AnalyticsServicePosthog
   ) {
     super();
   }
@@ -171,6 +175,34 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams
     };
   };
 
+  #getAddressForVM(vm: VM) {
+    const account = this.accountsService.activeAccount;
+
+    if (!account) {
+      return;
+    }
+
+    if (vm === 'EVM') {
+      return account.addressC;
+    } else if (vm === 'AVM') {
+      return account.addressAVM;
+    } else if (vm === 'PVM') {
+      return account.addressPVM;
+    }
+  }
+
+  #getChainIdForVM(vm: VM) {
+    const isMainnet = this.networkService.isMainnet();
+
+    if (vm === 'EVM') {
+      return isMainnet
+        ? ChainId.AVALANCHE_MAINNET_ID
+        : ChainId.AVALANCHE_TESTNET_ID;
+    }
+
+    return isMainnet ? ChainId.AVALANCHE_XP : ChainId.AVALANCHE_TEST_XP;
+  }
+
   onActionApproved = async (
     pendingAction: Action,
     result,
@@ -178,12 +210,15 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams
     onError,
     frontendTabId?: number
   ) => {
-    try {
-      const {
-        displayData: { vm, unsignedTxJson },
-        params: { externalIndices, internalIndices },
-      } = pendingAction;
+    const {
+      displayData: { vm, unsignedTxJson },
+      params: { externalIndices, internalIndices },
+    } = pendingAction;
 
+    const usedAddress = this.#getAddressForVM(vm);
+    const usedNetwork = this.#getChainIdForVM(vm);
+
+    try {
       // Parse the json into a tx object
       const unsignedTx =
         vm === EVM
@@ -216,6 +251,16 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams
       );
 
       if (typeof txHash === 'string') {
+        this.analyticsServicePosthog.captureEncryptedEvent({
+          name: 'avalanche_sendTransaction_success',
+          windowId: crypto.randomUUID(),
+          properties: {
+            address: usedAddress,
+            txHash: txHash,
+            chainId: usedNetwork,
+          },
+        });
+
         // If we already have the transaction hash (i.e. it was dispatched by WalletConnect),
         // we just return it to the caller.
         onSuccess(txHash);
@@ -237,9 +282,28 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams
         const prov = await this.networkService.getAvalanceProviderXP();
         const res = await prov.issueTxHex(signedTransactionHex, vm);
 
+        this.analyticsServicePosthog.captureEncryptedEvent({
+          name: 'avalanche_sendTransaction_success',
+          windowId: crypto.randomUUID(),
+          properties: {
+            address: usedAddress,
+            txHash: res.txID,
+            chainId: usedNetwork,
+          },
+        });
+
         onSuccess(res.txID);
       }
     } catch (e) {
+      this.analyticsServicePosthog.captureEncryptedEvent({
+        name: 'avalanche_sendTransaction_failed',
+        windowId: crypto.randomUUID(),
+        properties: {
+          address: usedAddress,
+          chainId: usedNetwork,
+        },
+      });
+
       onError(e);
     }
   };

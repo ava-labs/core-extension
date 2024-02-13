@@ -20,6 +20,7 @@ import { PermissionsService } from '../permissions/PermissionsService';
 import { isProductionBuild } from '@src/utils/environment';
 import { DerivedAddresses } from '../secrets/models';
 import { isPrimaryAccount } from './utils/typeGuards';
+import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 
 @singleton()
 export class AccountsService implements OnLock, OnUnlock {
@@ -74,7 +75,8 @@ export class AccountsService implements OnLock, OnUnlock {
     private storageService: StorageService,
     private walletService: WalletService,
     private networkService: NetworkService,
-    private permissionsService: PermissionsService
+    private permissionsService: PermissionsService,
+    private analyticsServicePosthog: AnalyticsServicePosthog
   ) {}
 
   async onUnlock(): Promise<void> {
@@ -275,6 +277,16 @@ export class AccountsService implements OnLock, OnUnlock {
     };
   }
 
+  #getAllAddresses() {
+    return this.getAccountList().flatMap((acc) => [
+      acc.addressC,
+      acc.addressBTC,
+      acc.addressAVM,
+      acc.addressPVM,
+      acc.addressCoreEth,
+    ]);
+  }
+
   async addAccount(name?: string, options?: ImportData) {
     if (options) {
       try {
@@ -306,6 +318,13 @@ export class AccountsService implements OnLock, OnUnlock {
           },
         };
         await this.permissionsService.addWhitelistDomains(newAccount.addressC);
+
+        this.analyticsServicePosthog.captureEncryptedEvent({
+          name: 'addedNewImportedAccount',
+          windowId: crypto.randomUUID(),
+          properties: { addresses: this.#getAllAddresses() },
+        });
+
         return account.id;
       } catch (err) {
         throw new Error(
@@ -342,6 +361,13 @@ export class AccountsService implements OnLock, OnUnlock {
       await this.permissionsService.addWhitelistDomains(
         addresses[NetworkVMType.EVM]
       );
+
+      this.analyticsServicePosthog.captureEncryptedEvent({
+        name: 'addedNewPrimaryAccount',
+        windowId: crypto.randomUUID(),
+        properties: { addresses: this.#getAllAddresses() },
+      });
+
       return id;
     }
   }

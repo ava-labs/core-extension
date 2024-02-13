@@ -1,10 +1,13 @@
 import { resolve } from '@avalabs/utils-sdk';
 import {
+  Asset,
+  BitcoinConfigAsset,
   Blockchain,
   BridgeConfig,
   BridgeTransaction,
   btcToSatoshi,
   Environment,
+  estimateGas,
   EthereumConfigAsset,
   fetchConfig,
   getBtcTransaction,
@@ -15,6 +18,7 @@ import {
   transferAsset as transferAssetSDK,
   WrapStatus,
 } from '@avalabs/bridge-sdk';
+import { isNil, omit, omitBy } from 'lodash';
 import { EventEmitter } from 'events';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
@@ -26,6 +30,7 @@ import {
   DefaultBridgeState,
   TransferEventType,
   BtcTransactionResponse,
+  CustomGasSettings,
 } from './models';
 import { WalletService } from '../wallet/WalletService';
 import { AccountsService } from '../accounts/AccountsService';
@@ -170,6 +175,7 @@ export class BridgeService implements OnLock, OnStorageReady {
 
   async transferBtcAsset(
     amount: Big,
+    customGasSettings?: CustomGasSettings,
     tabId?: number
   ): Promise<BtcTransactionResponse> {
     if (!this.config?.config) {
@@ -201,9 +207,12 @@ export class BridgeService implements OnLock, OnStorageReady {
     const amountInSatoshis = btcToSatoshi(amount);
 
     // mimicing the same feeRate in useBtcBridge
-    const feeRate = Number(
-      (await this.networkFeeService.getNetworkFee(btcNetwork))?.high.maxFee ?? 0
-    );
+    const feeRate =
+      customGasSettings?.maxFeePerGas ??
+      Number(
+        (await this.networkFeeService.getNetworkFee(btcNetwork))?.high.maxFee ??
+          0
+      );
 
     const token =
       this.networkBalancesService.balances[btcNetwork.chainId]?.[addressBtc]?.[
@@ -217,7 +226,7 @@ export class BridgeService implements OnLock, OnStorageReady {
       addressBtc,
       utxos,
       amountInSatoshis,
-      feeRate
+      Number(feeRate)
     );
 
     const signResult = await this.walletService
@@ -264,10 +273,72 @@ export class BridgeService implements OnLock, OnStorageReady {
     );
   }
 
+  async estimateGas(
+    currentBlockchain: Blockchain,
+    amount: Big,
+    asset: Asset
+  ): Promise<bigint | undefined> {
+    if (!this.config?.config) {
+      throw new Error('missing bridge config');
+    }
+    if (!this.accountsService.activeAccount) {
+      throw new Error('no active account found');
+    }
+    this.featureFlagService.ensureFlagEnabled(FeatureGates.BRIDGE);
+
+    if (currentBlockchain === Blockchain.BITCOIN) {
+      const btcNetwork = await this.networkService.getBitcoinNetwork();
+      const addressBtc = this.accountsService.activeAccount.addressBTC;
+
+      if (!addressBtc) {
+        throw new Error('No BTC address');
+      }
+
+      const token =
+        this.networkBalancesService.balances[btcNetwork.chainId]?.[
+          addressBtc
+        ]?.['BTC'];
+
+      const utxos = token?.utxos ?? [];
+
+      // Bitcoin's formula for fee is `transactionByteLength * feeRate`.
+      // By setting the feeRate here to 1, we'll receive the transaction's byte length,
+      // which is what we need to have the dynamic fee calculations in the UI.
+      // Think of the byteLength as gasLimit for EVM transactions.
+      const feeRate = 1;
+      const { fee: byteLength } = getBtcTransaction(
+        this.config.config,
+        addressBtc,
+        utxos,
+        btcToSatoshi(amount),
+        feeRate
+      );
+
+      return BigInt(byteLength);
+    } else {
+      const avalancheProvider =
+        await this.networkService.getAvalancheProvider();
+      const ethereumProvider = await this.networkService.getEthereumProvider();
+
+      return estimateGas(
+        amount,
+        this.accountsService.activeAccount.addressC,
+        asset as Exclude<Asset, BitcoinConfigAsset>,
+        {
+          ethereum: ethereumProvider,
+          avalanche: avalancheProvider,
+        },
+        this.config.config,
+        currentBlockchain
+      );
+    }
+  }
+
   async transferAsset(
     currentBlockchain: Blockchain,
     amount: Big,
     asset: EthereumConfigAsset | NativeAsset,
+    customGasSettings?: CustomGasSettings,
     tabId?: number
   ): Promise<TransactionResponse | undefined> {
     if (!this.config?.config) {
@@ -307,8 +378,25 @@ export class BridgeService implements OnLock, OnStorageReady {
           type: TransferEventType.TX_HASH,
           txHash,
         }),
-      async (txData) =>
-        this.walletService.sign({ ...txData, type: 0 }, tabId, network) //type: The EIP-2718 type of this transaction envelope, or null for to use the network default. To force using a lagacy transaction without an envelope, use type 0.
+      async (txData) => {
+        // ignore our gas estimation, use whatever the SDK estimated at the time of signing
+        const gasSettings = omit(customGasSettings ?? {}, 'gasLimit');
+
+        const tx = {
+          ...txData,
+          // do not override gas-related properties with nullish values
+          ...omitBy(gasSettings ?? {}, isNil),
+        };
+        return this.walletService.sign(
+          {
+            ...tx,
+            gasPrice: tx.maxFeePerGas ? undefined : tx.gasPrice, // erase gasPrice if maxFeePerGas can be used
+            type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
+          },
+          tabId,
+          network
+        );
+      }
     );
   }
 

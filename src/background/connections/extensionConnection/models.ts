@@ -35,6 +35,7 @@ export enum ExtensionRequest {
   BRIDGE_TRANSACTION_REMOVE = 'bridge_transaction_remove',
   BRIDGE_SET_IS_DEV_ENV = 'bridge_set_is_dev_env',
   BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT = 'bridge_get_eth_max_transfer_amount',
+  BRIDGE_ESTIMATE_GAS = 'bridge_estimate_gas',
 
   WALLET_GET_DETAILS = 'wallet_getDetails',
   WALLET_UNENCRYPTED_MNEMONIC = 'wallet_getUnencryptedMnemonic',
@@ -134,6 +135,7 @@ export enum ExtensionRequest {
   SEEDLESS_SUBMIT_MFA_RESPONSE = 'seedless_submit_mfa_response',
 
   UNIFIED_BRIDGE_GET_FEE = 'unified_bridge_get_fee',
+  UNIFIED_BRIDGE_ESTIMATE_GAS = 'unified_bridge_estimate_gas',
   UNIFIED_BRIDGE_TRANSFER_ASSET = 'unified_bridge_transfer_asset',
   UNIFIED_BRIDGE_GET_STATE = 'unified_bridge_get_state',
   UNIFIED_BRIDGE_GET_ASSETS = 'unified_bridge_get_assets',

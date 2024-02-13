@@ -24,6 +24,7 @@ import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { NetworkFee } from '@src/background/services/networkFee/models';
 import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { CustomGasSettings } from '@src/background/services/bridge/models';
 
 const NETWORK_FEE_REFRESH_INTERVAL = 60_000;
 
@@ -195,45 +196,48 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     feeRate,
   ]);
 
-  const transfer = useCallback(async () => {
-    if (!isBitcoinBridge || !config || !activeAccount || !btcAsset || !utxos)
-      return;
+  const transfer = useCallback(
+    async (customGasSettings: CustomGasSettings) => {
+      if (!isBitcoinBridge || !config || !activeAccount || !btcAsset || !utxos)
+        return;
 
-    const timestamp = Date.now();
-    const symbol = currentAsset || '';
+      const timestamp = Date.now();
+      const symbol = currentAsset || '';
 
-    const result = await request<BridgeTransferAssetHandler>({
-      method: ExtensionRequest.BRIDGE_TRANSFER_ASSET,
-      params: [currentBlockchain, amountInBtc, btcAsset],
-    });
+      const result = await request<BridgeTransferAssetHandler>({
+        method: ExtensionRequest.BRIDGE_TRANSFER_ASSET,
+        params: [currentBlockchain, amountInBtc, btcAsset, customGasSettings],
+      });
 
-    setTransactionDetails({
-      tokenSymbol: symbol,
-      amount: amountInBtc,
-    });
-    createBridgeTransaction({
-      sourceChain: Blockchain.BITCOIN,
-      sourceTxHash: result.hash,
-      sourceStartedAt: timestamp,
-      targetChain: Blockchain.AVALANCHE,
-      amount: amountInBtc,
-      symbol,
-    });
+      setTransactionDetails({
+        tokenSymbol: symbol,
+        amount: amountInBtc,
+      });
+      createBridgeTransaction({
+        sourceChain: Blockchain.BITCOIN,
+        sourceTxHash: result.hash,
+        sourceStartedAt: timestamp,
+        targetChain: Blockchain.AVALANCHE,
+        amount: amountInBtc,
+        symbol,
+      });
 
-    return result.hash;
-  }, [
-    isBitcoinBridge,
-    config,
-    activeAccount,
-    btcAsset,
-    utxos,
-    currentAsset,
-    request,
-    currentBlockchain,
-    amountInBtc,
-    setTransactionDetails,
-    createBridgeTransaction,
-  ]);
+      return result.hash;
+    },
+    [
+      isBitcoinBridge,
+      config,
+      activeAccount,
+      btcAsset,
+      utxos,
+      currentAsset,
+      request,
+      currentBlockchain,
+      amountInBtc,
+      setTransactionDetails,
+      createBridgeTransaction,
+    ]
+  );
 
   return {
     address: activeAccount?.addressBTC,

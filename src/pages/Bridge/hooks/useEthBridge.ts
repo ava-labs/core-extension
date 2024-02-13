@@ -14,6 +14,7 @@ import { useHasEnoughForGas } from './useHasEnoughtForGas';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { GetEthMaxTransferAmountHandler } from '@src/background/services/bridge/handlers/getEthMaxTransferAmount';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { CustomGasSettings } from '@src/background/services/bridge/models';
 
 /**
  * Hook for when the bridge source chain is Ethereum
@@ -63,43 +64,47 @@ export function useEthBridge(
 
   const receiveAmount = amount.gt(minimum) ? amount.minus(bridgeFee) : BIG_ZERO;
 
-  const transfer = useCallback(async () => {
-    if (!currentAssetData) return Promise.reject();
+  const transfer = useCallback(
+    async (customGasSettings: CustomGasSettings) => {
+      if (!currentAssetData) return Promise.reject();
 
-    const timestamp = Date.now();
-    const symbol = isNativeAsset(currentAssetData)
-      ? currentAssetData.wrappedAssetSymbol
-      : currentAsset || '';
+      const timestamp = Date.now();
+      const symbol = isNativeAsset(currentAssetData)
+        ? currentAssetData.wrappedAssetSymbol
+        : currentAsset || '';
 
-    const result = await transferAsset(
+      const result = await transferAsset(
+        amount,
+        currentAssetData,
+        customGasSettings,
+        setWrapStatus,
+        setTxHash
+      );
+
+      setTransactionDetails({
+        tokenSymbol: symbol,
+        amount,
+      });
+      createBridgeTransaction({
+        sourceChain: Blockchain.ETHEREUM,
+        sourceTxHash: result.hash,
+        sourceStartedAt: timestamp,
+        targetChain: Blockchain.AVALANCHE,
+        amount,
+        symbol,
+      });
+
+      return result.hash;
+    },
+    [
       amount,
       currentAssetData,
-      setWrapStatus,
-      setTxHash
-    );
-
-    setTransactionDetails({
-      tokenSymbol: symbol,
-      amount,
-    });
-    createBridgeTransaction({
-      sourceChain: Blockchain.ETHEREUM,
-      sourceTxHash: result.hash,
-      sourceStartedAt: timestamp,
-      targetChain: Blockchain.AVALANCHE,
-      amount,
-      symbol,
-    });
-
-    return result.hash;
-  }, [
-    amount,
-    currentAssetData,
-    createBridgeTransaction,
-    currentAsset,
-    setTransactionDetails,
-    transferAsset,
-  ]);
+      createBridgeTransaction,
+      currentAsset,
+      setTransactionDetails,
+      transferAsset,
+    ]
+  );
 
   return {
     sourceBalance,

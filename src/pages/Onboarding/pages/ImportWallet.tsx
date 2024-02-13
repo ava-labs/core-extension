@@ -22,11 +22,10 @@ import {
   WordsLengthSelector,
   wordPhraseLength,
 } from '../components/WordsLengthSelector';
+import splitSeedPhrase from '../utils/splitSeedPhrase';
 
-const isPhraseCorrectLength = (phrase: string) => {
-  const isCorrect = wordPhraseLength.includes(phrase.trim().split(' ').length);
-  return isCorrect;
-};
+const isPhraseCorrectLength = (phrase: string) =>
+  wordPhraseLength.includes(splitSeedPhrase(phrase).length);
 
 export const ImportWallet = () => {
   const { capture } = useAnalyticsContext();
@@ -99,10 +98,9 @@ export const ImportWallet = () => {
             autoFocus={i === 0}
             placeholder={`${i + 1}.`}
             onPaste={(e) => {
-              const pastedText = e.clipboardData
-                .getData('Text')
-                .trim()
-                .split(' ');
+              const pastedText = splitSeedPhrase(
+                e.clipboardData.getData('Text')
+              );
 
               setWords(
                 [...words.slice(0, i), ...pastedText].slice(0, wordsLength)

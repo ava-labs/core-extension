@@ -18,6 +18,7 @@ import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/
 import { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handlers/setIsDevEnv';
 import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import {
+  CustomGasSettings,
   BridgeState,
   BtcTransactionResponse,
   DefaultBridgeState,
@@ -37,14 +38,17 @@ import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
 import { TransactionResponse } from 'ethers';
+import { EstimateGasForBridgeTxHandler } from '@src/background/services/bridge/handlers/estimateGasForBridgeTx';
 
 interface BridgeContext {
   createBridgeTransaction(tx: PartialBridgeTransaction): Promise<void>;
   removeBridgeTransaction(txHash: string): Promise<void>;
   bridgeTransactions: BridgeState['bridgeTransactions'];
+  estimateGas: (amount: Big, asset: Asset) => Promise<bigint | undefined>;
   transferAsset: (
     amount: Big,
     asset: Asset,
+    customGasSettings: CustomGasSettings,
     onStatusChange: (status: WrapStatus) => void,
     onTxHashChange: (txHash: string) => void
   ) => Promise<TransactionResponse | BtcTransactionResponse>;
@@ -152,9 +156,20 @@ function InnerBridgeProvider({ children }: { children: any }) {
     });
   }
 
+  const estimateGas = useCallback(
+    (amount: Big, asset: Asset) => {
+      return request<EstimateGasForBridgeTxHandler>({
+        method: ExtensionRequest.BRIDGE_ESTIMATE_GAS,
+        params: [currentBlockchain, amount, asset],
+      });
+    },
+    [currentBlockchain, request]
+  );
+
   async function transferAsset(
     amount: Big,
     asset: Asset,
+    customGasSettings: CustomGasSettings,
     onStatusChange: (status: WrapStatus) => void,
     onTxHashChange: (txHash: string) => void
   ) {
@@ -171,7 +186,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
 
     const result = await request<BridgeTransferAssetHandler>({
       method: ExtensionRequest.BRIDGE_TRANSFER_ASSET,
-      params: [currentBlockchain, amount, asset],
+      params: [currentBlockchain, amount, asset, customGasSettings],
     });
 
     transferEventSubscription.unsubscribe();
@@ -182,6 +197,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
     <bridgeContext.Provider
       value={{
         bridgeTransactions,
+        estimateGas,
         transferAsset,
         removeBridgeTransaction,
         createBridgeTransaction,

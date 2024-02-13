@@ -17,6 +17,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
   const trackTransfer = jest.fn();
   const transferAsset = jest.fn();
   const getFees = jest.fn();
+  const estimateGas = jest.fn();
 
   const networkService = {
     activeNetwork: { chainId: 43113 },
@@ -62,6 +63,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
 
     core = {
       bridges: new Map(),
+      estimateGas,
       getFees,
       getAssets: jest.fn().mockResolvedValue({}),
       trackTransfer,
@@ -211,7 +213,109 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
       );
     });
 
-    const asset = { address: 'adderss' };
+    const asset = { address: 'adderss' } as any;
+
+    describe('when custom gas settings are passed', () => {
+      const highMarketFee = {
+        maxFee: 1000n,
+        maxTip: 10n,
+      };
+
+      const estimatedGasLimits = [55_000n, 165_000n];
+
+      beforeEach(() => {
+        feeService.getNetworkFee.mockResolvedValue({
+          high: highMarketFee,
+        });
+
+        feeService.estimateGasLimit
+          .mockResolvedValueOnce(estimatedGasLimits[0])
+          .mockResolvedValueOnce(estimatedGasLimits[1]);
+
+        networkService.getProviderForNetwork.mockResolvedValue({
+          getTransactionCount: jest
+            .fn()
+            .mockResolvedValueOnce(5)
+            .mockResolvedValueOnce(6),
+        });
+
+        walletService.sign
+          .mockResolvedValueOnce({ signedTx: 'approval-tx-hex' })
+          .mockResolvedValueOnce({ signedTx: 'transfer-tx-hex' });
+      });
+
+      it('applies the user-provided maxFeePerGas and maxPriorityFeePerGas', async () => {
+        const maxFeePerGas = BigInt(50e9);
+        const maxPriorityFeePerGas = BigInt(5e9);
+
+        await service.transfer({
+          asset,
+          amount: 1000000n,
+          targetChainId: 5,
+          tabId: 1234,
+          customGasSettings: {
+            maxFeePerGas,
+            maxPriorityFeePerGas,
+          },
+        });
+
+        expect(walletService.sign).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({
+            maxFeePerGas,
+            maxPriorityFeePerGas,
+          }),
+          1234
+        );
+
+        expect(walletService.sign).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({
+            maxFeePerGas,
+            maxPriorityFeePerGas,
+          }),
+          1234
+        );
+      });
+
+      it('ignores the user-provided gasLimit', async () => {
+        const maxFeePerGas = BigInt(50e9);
+        const maxPriorityFeePerGas = BigInt(5e9);
+        const gasLimit = 50_000n;
+
+        await service.transfer({
+          asset,
+          amount: 1000000n,
+          targetChainId: 5,
+          tabId: 1234,
+          customGasSettings: {
+            maxFeePerGas,
+            maxPriorityFeePerGas,
+            gasLimit,
+          },
+        });
+
+        expect(walletService.sign).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({
+            maxFeePerGas,
+            maxPriorityFeePerGas,
+            gasLimit: estimatedGasLimits[0],
+          }),
+          1234
+        );
+
+        expect(walletService.sign).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({
+            maxFeePerGas,
+            maxPriorityFeePerGas,
+            gasLimit: estimatedGasLimits[1],
+          }),
+          1234
+        );
+      });
+    });
 
     describe('when network fee is unknown', () => {
       beforeEach(() => {
@@ -341,6 +445,33 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
       expect(core.getFees).toHaveBeenCalledWith({
         asset,
         amount: 100n,
+        sourceChain: expect.objectContaining({ chainId: chainIdToCaip(43113) }),
+        targetChain: expect.objectContaining({ chainId: chainIdToCaip(5) }),
+      });
+    });
+  });
+
+  describe('.estimateGas()', () => {
+    const asset = {
+      address: 'address',
+    } as any;
+
+    beforeEach(() => {
+      estimateGas.mockResolvedValue(12345n);
+    });
+
+    it(`properly calls SDK's estimateGas() and returns the same value`, async () => {
+      const result = await service.estimateGas({
+        asset,
+        amount: 100n,
+        targetChainId: 5,
+      });
+
+      expect(result).toEqual(12345n);
+      expect(core.estimateGas).toHaveBeenCalledWith({
+        asset,
+        amount: 100n,
+        fromAddress: accountsService.activeAccount.addressC,
         sourceChain: expect.objectContaining({ chainId: chainIdToCaip(43113) }),
         targetChain: expect.objectContaining({ chainId: chainIdToCaip(5) }),
       });

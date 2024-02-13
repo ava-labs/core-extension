@@ -22,7 +22,7 @@ export async function parseBasicDisplayValues(
 
   const sendTokenList: TransactionToken[] = [];
 
-  if (request.value) {
+  if (request.value && BigInt(request.value) > 0n) {
     sendTokenList.push({
       address: network.networkToken.symbol,
       decimals: network.networkToken.decimals,

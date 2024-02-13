@@ -246,6 +246,7 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
                 chainId: parseInt(e.target.value),
               });
             }}
+            disabled={action === NetworkFormAction.Edit}
             data-testid="chain-id"
             value={isNaN(customNetwork.chainId) ? '' : customNetwork.chainId}
             placeholder={t('Enter Chain ID')}

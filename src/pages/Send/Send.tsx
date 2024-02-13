@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTokenFromParams } from '@src/hooks/useTokenFromParams';
 import { SendForm } from './components/SendForm';
 import { bnToLocaleString, stringToBN } from '@avalabs/utils-sdk';
@@ -43,6 +43,8 @@ import {
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 
 const DEFAULT_DECIMALS = 9;
 
@@ -57,6 +59,9 @@ export function SendPage() {
   const [amountInputDisplay, setAmountInputDisplay] = useState<string>();
   const { sendState, resetSendState, submitSendState, updateSendState } =
     useSend();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
 
   const tokensWBalances = useTokensWithBalances(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
@@ -70,7 +75,7 @@ export function SendPage() {
   const [currentNetwork, setCurrentNetwork] = useState(network?.vmName);
   const [gasPriceState, setGasPrice] = useState<bigint>();
 
-  const { capture } = useAnalyticsContext();
+  const { capture, captureEncrypted } = useAnalyticsContext();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
 
@@ -82,6 +87,16 @@ export function SendPage() {
     token?: TokenWithBalance;
     amountInput?: string;
   } = getPageHistoryData();
+
+  const activeAddress = useMemo(
+    () =>
+      network
+        ? isBitcoinNetwork(network)
+          ? activeAccount?.addressBTC
+          : activeAccount?.addressC
+        : undefined,
+    [activeAccount?.addressBTC, activeAccount?.addressC, network]
+  );
 
   // this will prevent the amount reset after come back from Confirmation page or when the user set the amount before choose the destionation address
   useEffect(() => {
@@ -252,20 +267,34 @@ export function SendPage() {
   async function sendFunds() {
     if (!sendState.canSubmit) return;
 
-    capture('SendApproved', {
+    captureEncrypted('SendApproved', {
+      address: activeAddress,
       selectedGasFee,
+      chainId: network?.chainId,
     });
 
     await submitSendState()
-      .then((txId) => {
+      .then(async (txId) => {
         resetSendState();
         toastCardWithLink({
           title: t('Send Successful'),
           url: getURL(txId),
           label: t('View in Explorer'),
         });
+        captureEncrypted('SendSuccessful', {
+          address: activeAddress,
+          txHash: txId,
+          selectedGasFee,
+          chainId: network?.chainId,
+        });
       })
-      .catch(() => {
+      .catch(async () => {
+        captureEncrypted('SendFailed', {
+          address: activeAddress,
+          selectedGasFee,
+          chainId: network?.chainId,
+        });
+
         toast.error(t('Transaction Failed'));
       })
       .finally(() => {

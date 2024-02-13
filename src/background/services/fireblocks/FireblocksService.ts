@@ -6,7 +6,6 @@ import {
   VaultAccountResponse,
 } from 'fireblocks-sdk';
 import type {
-  DepositAddressResponse,
   ExternalWalletAsset,
   InternalWalletAsset,
   WalletContainerResponse,
@@ -19,7 +18,11 @@ import sentryCaptureException, {
 } from '@src/monitoring/sentryCaptureException';
 import { CommonError, isWrappedError } from '@src/utils/errors';
 
-import type { FireblocksSecretsProvider } from './models';
+import type {
+  AddressResponse,
+  FireblocksSecretsProvider,
+  PaginatedAddressesResponse,
+} from './models';
 import { FireblocksErrorCode, KnownAddressDictionary } from './models';
 
 // Create registry for FireblocksSecretsProviders to be injected.
@@ -57,23 +60,77 @@ export class FireblocksService {
     return null;
   }
 
-  async getBtcAddressByAccountId(accountId: string, isMainnet: boolean) {
+  async getBtcAddressByAccountId(
+    accountId: string,
+    isMainnet: boolean,
+    nextPaginationToken?: string
+  ) {
     const assetId = isMainnet ? 'BTC' : 'BTC_TEST';
-    const addresses = await this.request<DepositAddressResponse[]>({
-      path: `/vault/accounts/${accountId}/${assetId}/addresses`,
-    });
 
-    const permanent = addresses.find((address) => {
+    const response = await this.getAddresses(
+      accountId,
+      assetId,
+      nextPaginationToken
+    );
+
+    const permanent = response.addresses.find((address) => {
       return address.type === 'Permanent' && address.addressFormat === 'SEGWIT';
     });
 
-    return permanent?.address;
+    if (permanent) {
+      return permanent.address;
+    }
+
+    if (response.paging?.after) {
+      return await this.getBtcAddressByAccountId(
+        accountId,
+        isMainnet,
+        response.paging?.after
+      );
+    }
+
+    return undefined;
   }
 
   async getVaultAccountById(id: string) {
     return this.request<VaultAccountResponse>({
       path: `/vault/accounts/${id}`,
     });
+  }
+
+  async getAddresses(
+    accountId: string,
+    assetId: string,
+    nextPaginationToken?: string
+  ) {
+    const queryParamKey = '?after=';
+
+    return await this.request<PaginatedAddressesResponse>({
+      path: `/vault/accounts/${accountId}/${assetId}/addresses_paginated${
+        nextPaginationToken ? queryParamKey + nextPaginationToken : ''
+      }`,
+    });
+  }
+
+  async getAllAddesses(accountId: string, assetId: string) {
+    let addresses: AddressResponse[] = [];
+    let fetchNext = true;
+    let nextPaginationToken: string | undefined = undefined;
+
+    do {
+      const response = await this.getAddresses(
+        accountId,
+        assetId,
+        nextPaginationToken
+      );
+      nextPaginationToken = response.paging?.after;
+      addresses = [...addresses, ...response.addresses];
+      if (!nextPaginationToken) {
+        fetchNext = false;
+      }
+    } while (fetchNext);
+
+    return addresses;
   }
 
   async fetchVaultAccountsForAsset(assetId: string) {
@@ -93,13 +150,11 @@ export class FireblocksService {
      */
     const vaultAccountsForAsset = await Promise.allSettled<{
       vaultId: string;
-      addresses: DepositAddressResponse[];
+      addresses: AddressResponse[];
     }>(
       vaultAccounts.accounts.map(async ({ id }) => ({
         vaultId: id,
-        addresses: await this.request({
-          path: `/vault/accounts/${id}/${assetId}/addresses`,
-        }),
+        addresses: await this.getAllAddesses(id, assetId),
       }))
     );
 

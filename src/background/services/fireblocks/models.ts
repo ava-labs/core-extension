@@ -1,5 +1,9 @@
 import { DestinationTransferPeerPath, TransactionStatus } from 'fireblocks-sdk';
 import { KeyLike } from 'jose';
+import {
+  AddressResponse as _AddressResponse,
+  PaginatedAddressesResponse as _PaginatedAddressesResponse,
+} from 'fireblocks-sdk';
 
 export type KnownAddressDictionary = Map<string, DestinationTransferPeerPath>;
 
@@ -57,3 +61,15 @@ export const FIREBLOCKS_REQUEST_EXPIRY = 120 * 60; // 2 hours, used only by Wall
 export interface FireblocksSecretsProvider {
   getSecrets(): Promise<{ apiKey: string; privateKey: KeyLike }>;
 }
+
+export type AddressResponse = Omit<_AddressResponse, 'type'> & {
+  type?: string;
+};
+// this is used as a replacement for PaginatedAddressesResponse from fireblocks sdk
+// due to wrong type declarations
+export type PaginatedAddressesResponse = Omit<
+  _PaginatedAddressesResponse,
+  'addresses'
+> & {
+  addresses: AddressResponse[];
+};

@@ -11,15 +11,20 @@ const BOTTOM_PADDING = 16;
 
 // Dropdown is absolutely positioned, and fills the viewport beneath the select element
 const getDropdownHeight = (
-  anchorEl: MutableRefObject<HTMLElement | null>
+  anchorEl: MutableRefObject<HTMLElement | null>,
+  containerRef?: MutableRefObject<HTMLElement | null>
 ): number => {
   if (!anchorEl.current || !window.visualViewport) return 0; // Default height
-  return (
-    window.visualViewport.height -
-    anchorEl?.current?.getBoundingClientRect().top -
-    anchorEl?.current?.offsetHeight -
-    BOTTOM_PADDING
-  );
+
+  const anchorTop =
+    anchorEl.current.getBoundingClientRect().top -
+    anchorEl.current.offsetHeight;
+
+  if (containerRef?.current) {
+    return containerRef.current.getBoundingClientRect().bottom - anchorTop;
+  }
+
+  return window.visualViewport.height - anchorTop - BOTTOM_PADDING;
 };
 
 const getOffsetTop = (anchorEl: MutableRefObject<HTMLElement | null>) =>
@@ -56,6 +61,7 @@ type ContainedDropdownProps = {
   margin?: string;
   borderRadius?: string;
   setIsOpen: (isOpen: boolean) => void;
+  containerRef?: MutableRefObject<HTMLElement | null>;
 };
 
 /**
@@ -71,8 +77,9 @@ export const ContainedDropdown = ({
   margin,
   borderRadius,
   setIsOpen,
+  containerRef,
 }: PropsWithChildren<ContainedDropdownProps>) => {
-  const calculatedHeight = getDropdownHeight(anchorEl);
+  const calculatedHeight = getDropdownHeight(anchorEl, containerRef);
   const top = getOffsetTop(anchorEl);
   const container = useRef<HTMLDivElement>(null);
   const { spacing } = useTheme();

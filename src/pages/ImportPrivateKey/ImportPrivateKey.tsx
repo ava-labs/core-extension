@@ -23,7 +23,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import { networks } from 'bitcoinjs-lib';
 import { t } from 'i18next';
-import { useEffect, useState } from 'react';
+import { KeyboardEvent, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AccountsTab } from '../Accounts/Accounts';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
@@ -54,6 +54,7 @@ export function ImportPrivateKey() {
   const isLoading = hasFocus && !derivedAddresses && !error;
 
   const handleImport = async () => {
+    capture('ImportPrivateKeyClicked');
     setImportLoading(true);
     try {
       await addAccount('', {
@@ -124,6 +125,12 @@ export function ImportPrivateKey() {
       <Stack sx={{ px: 2, gap: 3, height: '100%' }}>
         <Stack sx={{ gap: 1.5 }}>
           <TextField
+            autoFocus
+            onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === 'Enter') {
+                handleImport();
+              }
+            }}
             data-testid="import-private-key-input"
             fullWidth
             label={t('Enter Private Key')}
@@ -196,10 +203,7 @@ export function ImportPrivateKey() {
             size="large"
             disabled={!derivedAddresses || isImportLoading}
             fullWidth
-            onClick={() => {
-              capture('ImportPrivateKeyClicked');
-              handleImport();
-            }}
+            onClick={handleImport}
             isLoading={isImportLoading}
             sx={{ gap: 1.5 }}
           >

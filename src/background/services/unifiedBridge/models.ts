@@ -1,9 +1,11 @@
 import {
+  BridgeAsset,
   BridgeStepDetails,
   BridgeTransfer,
   ChainAssetMap,
 } from '@avalabs/bridge-unified';
 import { FeatureGates } from '../featureFlags/models';
+import { CustomGasSettings } from '../bridge/models';
 
 export enum UnifiedBridgeError {
   UnknownAsset = 'unknown-asset',
@@ -46,3 +48,16 @@ export type UnifiedBridgeAssetsUpdated = {
   name: UnifiedBridgeEvent.AssetsUpdated;
   value: ChainAssetMap;
 };
+
+export type UnifiedBridgeTransferParams = {
+  asset: BridgeAsset;
+  amount: bigint;
+  targetChainId: number;
+  customGasSettings?: CustomGasSettings;
+  tabId?: number;
+};
+
+export type UnifiedBridgeEstimateGasParams = Pick<
+  UnifiedBridgeTransferParams,
+  'amount' | 'asset' | 'targetChainId'
+>;

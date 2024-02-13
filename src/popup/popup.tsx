@@ -51,7 +51,10 @@ import { WalletConnectContextProvider } from '@src/contexts/WalletConnectContext
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { TestnetBanner } from '@src/components/common/TestnetBanner';
 import { SeedlessAuthPrompt } from '@src/components/common/seedless/SeedlessAuthPrompt';
+import { AccountManagerProvider } from '@src/pages/Accounts/providers/AccountManagerProvider';
+import { AccountDetailsView } from '@src/pages/Accounts/AccountDetailsView';
 import { UnifiedBridgeProvider } from '@src/contexts/UnifiedBridgeProvider';
+import { AnalyticsOptInDialog } from '@src/components/dialogs/AnalyticsOptInDialog';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -311,6 +314,7 @@ export function Popup() {
                                     <WalletConnectContextProvider>
                                       <WalletLoading>
                                         <TestnetBanner />
+                                        <AnalyticsOptInDialog />
                                         <Stack
                                           sx={{
                                             flexGrow: 1,
@@ -626,13 +630,35 @@ export function Popup() {
                                                   <SwitchActiveNetwork />
                                                 </Suspense>
                                               </Route>
-                                              <Route path="/accounts">
+                                              <Route path="/accounts" exact>
                                                 <Suspense
                                                   fallback={
                                                     <CircularProgress />
                                                   }
                                                 >
-                                                  <Accounts />
+                                                  <AccountManagerProvider>
+                                                    <Accounts />
+                                                  </AccountManagerProvider>
+                                                </Suspense>
+                                              </Route>
+                                              <Route path="/accounts/:accountId">
+                                                <Suspense
+                                                  fallback={
+                                                    <CircularProgress />
+                                                  }
+                                                >
+                                                  <AccountManagerProvider>
+                                                    <AccountDetailsView />
+                                                  </AccountManagerProvider>
+                                                </Suspense>
+                                              </Route>
+                                              <Route path="/export-private-key">
+                                                <Suspense
+                                                  fallback={
+                                                    <CircularProgress />
+                                                  }
+                                                >
+                                                  <ExportPrivateKey />
                                                 </Suspense>
                                               </Route>
                                               <Route path="/import-private-key">
@@ -644,16 +670,6 @@ export function Popup() {
                                                   <ImportPrivateKeyPage />
                                                 </Suspense>
                                               </Route>
-                                              =======
-                                              <Route path="/export-private-key">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <ExportPrivateKey />
-                                                </Suspense>
-                                              </Route>
                                               <Route path="/assets">
                                                 <Suspense
                                                   fallback={
@@ -663,6 +679,7 @@ export function Popup() {
                                                   <Assets />
                                                 </Suspense>
                                               </Route>
+
                                               <Route path="/defi/:protocolId">
                                                 <Suspense
                                                   fallback={
@@ -674,6 +691,7 @@ export function Popup() {
                                                   <DefiProtocolDetails />
                                                 </Suspense>
                                               </Route>
+
                                               <Route path="/import-with-walletconnect">
                                                 <Suspense
                                                   fallback={
@@ -685,6 +703,7 @@ export function Popup() {
                                                   <ImportWithWalletConnect />
                                                 </Suspense>
                                               </Route>
+
                                               <Route path="/fireblocks/import-with-walletconnect">
                                                 <Suspense
                                                   fallback={
@@ -696,6 +715,7 @@ export function Popup() {
                                                   <ImportFireblocksWithWalletConnect />
                                                 </Suspense>
                                               </Route>
+
                                               <Route path="/fireblocks/connect-bitcoin/:accountId">
                                                 <Suspense
                                                   fallback={
@@ -707,6 +727,7 @@ export function Popup() {
                                                   <ConnectBitcoinWallet />
                                                 </Suspense>
                                               </Route>
+
                                               <Route path="/seedless-auth">
                                                 <Suspense
                                                   fallback={
@@ -716,6 +737,7 @@ export function Popup() {
                                                   <SeedlessAuthPopup />
                                                 </Suspense>
                                               </Route>
+
                                               <Route path="/seedless-export">
                                                 <Suspense
                                                   fallback={
@@ -725,6 +747,7 @@ export function Popup() {
                                                   <SeedlessExportPopup />
                                                 </Suspense>
                                               </Route>
+
                                               <Route path="/">
                                                 <Redirect to="/home" />
                                               </Route>

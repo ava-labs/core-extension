@@ -30,6 +30,7 @@ const AccountsContext = createContext<{
   addAccount(name?: string, importData?: ImportData): Promise<any>;
   deleteAccounts(ids: string[]): Promise<any>;
   getAccount(address: string): Account | undefined;
+  getAccountById(id: string): Account | undefined;
 }>({} as any);
 
 export function AccountsContextProvider({ children }: { children: any }) {
@@ -72,6 +73,14 @@ export function AccountsContextProvider({ children }: { children: any }) {
     (address: string) =>
       allAccounts.find(
         (acc) => acc.addressC.toLowerCase() === address.toLowerCase()
+      ),
+    [allAccounts]
+  );
+
+  const getAccountById = useCallback(
+    (accountId: string) =>
+      allAccounts.find(
+        (acc) => acc.id.toLowerCase() === accountId.toLowerCase()
       ),
     [allAccounts]
   );
@@ -126,6 +135,7 @@ export function AccountsContextProvider({ children }: { children: any }) {
       value={{
         accounts,
         getAccount,
+        getAccountById,
         allAccounts,
         isActiveAccount,
         selectAccount,

@@ -4,7 +4,7 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import Big from 'big.js';
 import { injectable } from 'tsyringe';
 import { BridgeService } from '../BridgeService';
-import { BtcTransactionResponse } from '../models';
+import { CustomGasSettings, BtcTransactionResponse } from '../models';
 import { TransactionResponse } from 'ethers';
 import { ethErrors } from 'eth-rpc-errors';
 import { CommonError, isWrappedError } from '@src/utils/errors';
@@ -12,7 +12,12 @@ import { CommonError, isWrappedError } from '@src/utils/errors';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_TRANSFER_ASSET,
   TransactionResponse | BtcTransactionResponse,
-  [currentBlockchain: Blockchain, amountStr: Big, asset: Asset]
+  [
+    currentBlockchain: Blockchain,
+    amountStr: Big,
+    asset: Asset,
+    customGasSettings?: CustomGasSettings
+  ]
 >;
 
 @injectable()
@@ -22,7 +27,8 @@ export class BridgeTransferAssetHandler implements HandlerType {
   constructor(private bridgeService: BridgeService) {}
 
   handle: HandlerType['handle'] = async (request) => {
-    const [currentBlockchain, amount, asset] = request.params;
+    const [currentBlockchain, amount, asset, customGasSettings] =
+      request.params;
 
     try {
       if (currentBlockchain === Blockchain.BITCOIN) {
@@ -30,6 +36,7 @@ export class BridgeTransferAssetHandler implements HandlerType {
           ...request,
           result: await this.bridgeService.transferBtcAsset(
             amount,
+            customGasSettings,
             request.tabId
           ),
         };
@@ -39,6 +46,7 @@ export class BridgeTransferAssetHandler implements HandlerType {
           amount,
           // This is needed for the bridge to work currently
           asset as any,
+          customGasSettings,
           request.tabId
         );
 

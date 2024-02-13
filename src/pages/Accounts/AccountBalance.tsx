@@ -101,61 +101,49 @@ export function AccountBalance({
   );
 
   return (
-    <Stack direction="row" sx={{ alignItems: 'center' }}>
-      <Stack
-        direction="row"
-        sx={{
-          alignItems: 'center',
-          overflow: 'hidden',
-          position: 'relative',
-          minHeight: '16px',
-        }}
-        style={{ minWidth: skeletonWidth }}
+    <Stack
+      direction="row"
+      sx={{
+        alignItems: 'center',
+        overflow: 'hidden',
+        position: 'relative',
+        minHeight: '16px',
+        gap: 0.4,
+      }}
+      style={{ minWidth: skeletonWidth }}
+    >
+      <Grow {...commonTransitionProps} in={isBalanceLoading}>
+        <Skeleton
+          height={16}
+          width={isBalanceLoading ? skeletonWidth : 0}
+          sx={{
+            position: 'absolute',
+            right: 0,
+            transition: 'all ease-in-out 0.2s',
+          }}
+        />
+      </Grow>
+      <Grow
+        {...commonTransitionProps}
+        in={!hasBalance && !isBalanceLoading}
+        mountOnEnter
+        unmountOnExit
       >
-        <Grow {...commonTransitionProps} in={isBalanceLoading}>
-          <Skeleton
-            height={16}
-            width={isBalanceLoading ? skeletonWidth : 0}
-            sx={{
-              position: 'absolute',
-              right: 0,
-              transition: 'all ease-in-out 0.2s',
-            }}
-          />
-        </Grow>
-        <Grow
-          {...commonTransitionProps}
-          in={!hasBalance && !isBalanceLoading}
-          mountOnEnter
-          unmountOnExit
+        <Button
+          ref={balanceTextRef}
+          variant="text"
+          data-testid="view-balance-button"
+          size="small"
+          disableRipple
+          onClick={onViewBalanceClicked}
         >
-          <Button
-            ref={balanceTextRef}
-            variant="text"
-            data-testid="view-balance-button"
-            size="small"
-            disableRipple
-            onClick={onViewBalanceClicked}
-          >
-            {t('View Balance')}
-          </Button>
-        </Grow>
-
-        <Grow
-          {...commonTransitionProps}
-          in={hasBalance && !isBalanceLoading}
-          mountOnEnter
-          unmountOnExit
-        >
-          <Typography ref={balanceTextRef} variant="body2">
-            {currencyFormatter(balanceTotalUSD || 0).replace(currency, '')}
-          </Typography>
-        </Grow>
-      </Stack>
+          {t('View Balance')}
+        </Button>
+      </Grow>
 
       <Grow
         {...commonTransitionProps}
-        in={hasBalance}
+        in={hasBalance && !isBalanceLoading}
         mountOnEnter
         unmountOnExit
       >
@@ -163,11 +151,21 @@ export function AccountBalance({
           size="small"
           onClick={onRefreshClicked}
           data-testid="account-balance-refresh"
-          color={isBalanceLoading ? 'secondary' : 'inherit'}
-          sx={{ opacity: 0.6, ml: 0.75 }}
+          sx={{ p: 0.25 }}
         >
-          <AnimatedRefreshIcon size={12} isSpinning={isBalanceLoading} />
+          <AnimatedRefreshIcon size={16} isSpinning={isBalanceLoading} />
         </IconButton>
+      </Grow>
+
+      <Grow
+        {...commonTransitionProps}
+        in={hasBalance && !isBalanceLoading}
+        mountOnEnter
+        unmountOnExit
+      >
+        <Typography ref={balanceTextRef} variant="h6">
+          {currencyFormatter(balanceTotalUSD || 0).replace(currency, '')}
+        </Typography>
       </Grow>
     </Stack>
   );

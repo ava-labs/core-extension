@@ -9,9 +9,6 @@ import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 import {
   Button,
   ChevronLeftIcon,
-  DataThresholdingIcon,
-  ImportContactsIcon,
-  KeyIcon,
   Stack,
   Typography,
 } from '@avalabs/k2-components';
@@ -108,35 +105,19 @@ export const AnalyticsConsent = () => {
             />
           </Typography>
         </Stack>
-        <Typography variant="h5" sx={{ mb: 1 }}>
-          {t('Core will never...')}
+        <Typography variant="body1" sx={{ mb: 1 }}>
+          <Trans
+            i18nKey="Core will <typography>never</typography> sell or share data."
+            components={{
+              typography: (
+                <Typography
+                  component="span"
+                  sx={{ fontWeight: 'fontWeightBold' }}
+                />
+              ),
+            }}
+          />
         </Typography>
-        <Stack
-          sx={{
-            alignItems: 'flex-start',
-            rowGap: 1,
-            width: '100%',
-          }}
-        >
-          <Stack direction="row">
-            <KeyIcon size={22} sx={{ mr: 2 }} />
-            <Typography variant="body1">
-              {t('Collect keys, public addresses, balances, or hashes')}
-            </Typography>
-          </Stack>
-          <Stack direction="row">
-            <ImportContactsIcon size={22} sx={{ mr: 2 }} />
-            <Typography variant="body1">
-              {t('Collect full IP addresses')}
-            </Typography>
-          </Stack>
-          <Stack direction="row">
-            <DataThresholdingIcon size={22} sx={{ mr: 2 }} />
-            <Typography variant="body1">
-              {t('Sell or share data. Ever!')}
-            </Typography>
-          </Stack>
-        </Stack>
       </Stack>
 
       <PageNav

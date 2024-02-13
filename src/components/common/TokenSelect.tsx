@@ -1,5 +1,6 @@
 import {
   ChangeEvent,
+  MutableRefObject,
   useCallback,
   useEffect,
   useMemo,
@@ -81,6 +82,7 @@ interface TokenSelectProps {
   isValueLoading?: boolean;
   hideErrorMessage?: boolean;
   skipHandleMaxAmount?: boolean;
+  containerRef?: MutableRefObject<HTMLElement | null>;
 }
 
 export function TokenSelect({
@@ -101,6 +103,7 @@ export function TokenSelect({
   skipHandleMaxAmount,
   bridgeTokensList,
   setIsOpen,
+  containerRef,
 }: TokenSelectProps) {
   const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
@@ -287,7 +290,6 @@ export function TokenSelect({
         <InputContainer
           data-testid="token-selector-dropdown"
           ref={selectButtonRef}
-          onClick={() => onSelectToggle && onSelectToggle()}
           sx={{
             flexDirection: 'row',
             padding,
@@ -295,6 +297,7 @@ export function TokenSelect({
           }}
         >
           <TokenSelector
+            onClick={onSelectToggle}
             isOpen={isOpen}
             token={
               selectedToken
@@ -355,6 +358,7 @@ export function TokenSelect({
             anchorEl={selectButtonRef}
             isOpen={isOpen}
             setIsOpen={setIsOpen}
+            containerRef={containerRef}
           >
             <DropdownContents>
               <Divider sx={{ mx: 2, mt: 1 }} />

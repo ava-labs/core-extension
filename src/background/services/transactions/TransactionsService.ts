@@ -1,3 +1,4 @@
+import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
@@ -37,6 +38,7 @@ import { getTxDescription } from './utils/getTxDescription';
 import { ContractParserHandler } from './contracts/contractParsers/models';
 import { contractParserMap } from './contracts/contractParsers/contractParserMap';
 import { parseBasicDisplayValues } from './contracts/contractParsers/utils/parseBasicDisplayValues';
+import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 
 @singleton()
 export class TransactionsService {
@@ -49,7 +51,8 @@ export class TransactionsService {
     private accountsService: AccountsService,
     private featureFlagService: FeatureFlagService,
     private debankService: DebankService,
-    private tokenManagerService: TokenManagerService
+    private tokenManagerService: TokenManagerService,
+    private analyticsServicePosthog: AnalyticsServicePosthog
   ) {}
 
   async getTransactions(): Promise<PendingTransactions> {
@@ -212,6 +215,31 @@ export class TransactionsService {
         TransactionEvent.TRANSACTION_FINALIZED,
         updateTxStatusFinalized(update, tx)
       );
+
+      let activeAddress = this.accountsService.activeAccount?.addressC;
+      if (
+        this.networkService.activeNetwork &&
+        isBitcoinNetwork(this.networkService.activeNetwork)
+      ) {
+        activeAddress = this.accountsService.activeAccount?.addressBTC;
+      }
+
+      const isFailedTx = [
+        TxStatus.ERROR,
+        TxStatus.ERROR_USER_CANCELED,
+      ].includes((update as txStatusUpdate).status);
+
+      // No need to await the request here.
+      this.analyticsServicePosthog.captureEncryptedEvent({
+        name: isFailedTx ? 'transactionFailed' : 'transactionSuccessful',
+        windowId: crypto.randomUUID(),
+        properties: {
+          address: activeAddress,
+          txHash: isFailedTx ? undefined : update.result,
+          method: tx.method,
+          chainId: this.networkService.activeNetwork?.chainId,
+        },
+      });
     }
   }
 

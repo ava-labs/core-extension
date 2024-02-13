@@ -29,6 +29,7 @@ type OnSave = (data: GasSettings) => void;
 interface CustomGasSettingsProps {
   feeDisplayDecimals: number;
   gasLimit: number;
+  isLimitReadonly?: boolean;
   maxFeePerGas: bigint;
   maxPriorityFeePerGas: bigint;
   onSave: OnSave;
@@ -80,6 +81,7 @@ const FeeAmount = ({ value, fiatValue, tokenSymbol }) => (
 export function CustomGasSettings({
   feeDisplayDecimals,
   gasLimit,
+  isLimitReadonly,
   maxFeePerGas,
   maxPriorityFeePerGas,
   onSave,
@@ -207,7 +209,6 @@ export function CustomGasSettings({
             )}
           />
           <TextField
-            autoFocus
             fullWidth
             type={'number'}
             value={Number(customMaxFeePerGas) / 10 ** feeDisplayDecimals}
@@ -260,17 +261,28 @@ export function CustomGasSettings({
         <Stack sx={{ width: '100%', gap: 0.5 }}>
           <TextFieldLabel
             label={t('Gas Limit')}
-            tooltip={t(
-              'Total units of gas needed to complete the transaction. Do not edit unless necessary.'
-            )}
+            tooltip={
+              isLimitReadonly
+                ? t(
+                    'Estimated gas units needed to complete the transaction. Includes a small buffer. Not editable for this transaction.'
+                  )
+                : t(
+                    'Total units of gas needed to complete the transaction. Do not edit unless necessary.'
+                  )
+            }
           />
           <TextField
-            autoFocus
             fullWidth
+            InputProps={{
+              readOnly: isLimitReadonly,
+            }}
+            disabled={isLimitReadonly}
             type={'number'}
-            value={customGasLimit}
-            onChange={(evt) =>
-              setCustomGasLimit(parseInt(evt.currentTarget.value))
+            value={customGasLimit?.toString()}
+            onChange={
+              isLimitReadonly
+                ? undefined
+                : (evt) => setCustomGasLimit(parseInt(evt.currentTarget.value))
             }
             error={!!errors.gasLimit}
             data-testid="gas-limit"

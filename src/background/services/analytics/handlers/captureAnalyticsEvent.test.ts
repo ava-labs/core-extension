@@ -11,6 +11,7 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
 
   const analyticsServicePosthogMock = {
     captureEvent: jest.fn(),
+    captureEncryptedEvent: jest.fn(),
   } as any;
 
   const mockEvent = {
@@ -34,7 +35,7 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
     const request = {
       id: '123',
       method: ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
-      params: [mockEvent],
+      params: [mockEvent, false],
     } as any;
 
     const result = await handler.handle(request);
@@ -44,6 +45,29 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
     expect(analyticsServicePosthogMock.captureEvent).toHaveBeenCalledWith(
       mockEvent
     );
+  });
+
+  it('uses encryption when requested', async () => {
+    const handler = new CaptureAnalyticsEventHandler(
+      analyticsServicePosthogMock,
+      featureFlagServiceMock
+    );
+
+    const request = {
+      id: '123',
+      method: ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
+      params: [mockEvent, true],
+    } as any;
+
+    const result = await handler.handle(request);
+
+    expect(result).toEqual({ ...request, result: null });
+    expect(
+      analyticsServicePosthogMock.captureEncryptedEvent
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      analyticsServicePosthogMock.captureEncryptedEvent
+    ).toHaveBeenCalledWith(mockEvent);
   });
 
   it('does not capture events when FeatureGates.EVENTS flag is off', async () => {

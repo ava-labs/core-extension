@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Contact } from '@avalabs/types';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
@@ -36,6 +36,8 @@ import {
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
+import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 export function CollectibleSend() {
   const { t } = useTranslation();
@@ -48,7 +50,10 @@ export function CollectibleSend() {
   const { network } = useNetworkContext();
   const { networkFee } = useNetworkFeeContext();
   const tokensWithBalances = useTokensWithBalances(true);
-  const { capture } = useAnalyticsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
+  const { capture, captureEncrypted } = useAnalyticsContext();
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
@@ -77,6 +82,17 @@ export function CollectibleSend() {
       type: nft?.type,
     });
   };
+
+  const activeAddress = useMemo(
+    () =>
+      network
+        ? isBitcoinNetwork(network)
+          ? activeAccount?.addressBTC
+          : activeAccount?.addressC
+        : undefined,
+    [activeAccount?.addressBTC, activeAccount?.addressC, network]
+  );
+
   const gasToken = tokensWithBalances?.find(
     ({ type }) => type === TokenType.NATIVE
   );
@@ -108,26 +124,33 @@ export function CollectibleSend() {
   }
 
   async function sendCollectible() {
-    capture('NftSendStarted', { chainId: network?.chainId, type: nft?.type });
+    captureEncrypted('NftSendStarted', {
+      address: activeAddress,
+      chainId: network?.chainId,
+      type: nft?.type,
+    });
 
     if (!sendState.canSubmit) return;
 
     await submitSendState()
-      .then((txId) => {
+      .then(async (txId) => {
         resetSendState();
         toastCardWithLink({
           title: t('Send Successful'),
           url: getURL(txId),
           label: t('View in Explorer'),
         });
-        capture('NftSendSucceeded', {
+        captureEncrypted('NftSendSucceeded', {
+          address: activeAddress,
+          txHash: txId,
           chainId: network?.chainId,
           type: nft?.type,
         });
       })
-      .catch(() => {
+      .catch(async () => {
         toast.error(t('Transaction Failed'));
-        capture('NftSendFailed', {
+        captureEncrypted('NftSendFailed', {
+          address: activeAddress,
           chainId: network?.chainId,
           type: nft?.type,
         });

@@ -25,6 +25,8 @@ jobs:
           echo RELEASE=alpha >> .env.production
           echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env.production
           echo POSTHOG_URL=${{ secrets.POSTHOG_URL }} >> .env.production
+          echo ANALYTICS_ENCRYPTION_KEY=${{ secrets.ANALYTICS_ENCRYPTION_KEY }} >> .env.production
+          echo ANALYTICS_ENCRYPTION_KEY_ID=${{ secrets.ANALYTICS_ENCRYPTION_KEY_ID }} >> .env.production
           echo COVALENT_API_KEY=${{ secrets.COVALENT_API_KEY }} >> .env.production
           echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
           echo PROXY_URL=${{ secrets.PROXY_URL }} >> .env.production

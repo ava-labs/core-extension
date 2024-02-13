@@ -4,19 +4,31 @@ import { CaptureAnalyticsEventHandler } from '@src/background/services/analytics
 import { ClearAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/clearAnalyticsIds';
 import { GetAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/getAnalyticsIds';
 import { InitAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/initAnalyticsIds';
-import { createContext, useCallback, useContext, useEffect } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { filter, first, from, merge } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useSettingsContext } from './SettingsProvider';
+import { AnalyticsConsent } from '@src/background/services/settings/models';
+
+type CaptureFn = (
+  eventName: string,
+  properties?: Record<string, any>,
+  forceRequestAttempt?: boolean,
+  useEncryption?: boolean
+) => Promise<void>;
 
 const AnalyticsContext = createContext<{
   initAnalyticsIds: (storeInStorage: boolean) => Promise<void>;
+  isInitialized: boolean;
   stopDataCollection: () => Promise<void>;
-  capture: (
-    eventName: string,
-    properties?: Record<string, any>,
-    forceRequestAttempt?: boolean
-  ) => Promise<void>;
+  capture: CaptureFn;
+  captureEncrypted: CaptureFn;
 }>({} as any);
 
 const windowId = crypto.randomUUID();
@@ -24,8 +36,9 @@ const windowId = crypto.randomUUID();
 export function AnalyticsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const { analyticsConsent } = useSettingsContext();
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const capture = useCallback(
+  const capture: CaptureFn = useCallback(
     async (
       eventName: string,
       properties?: Record<string, any>,
@@ -34,9 +47,13 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
        * The service will still validate if the setting is properly enabled
        * Useful when you don't want to / can't wait for the changes to be reflected in the state (e.g: when disabling analytics)
        */
-      forceRequestAttempt?: boolean
+      forceRequestAttempt?: boolean,
+      useEncryption = false
     ) => {
-      if (!analyticsConsent && !forceRequestAttempt) {
+      if (
+        analyticsConsent === AnalyticsConsent.Denied &&
+        !forceRequestAttempt
+      ) {
         return;
       }
 
@@ -49,6 +66,7 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
               windowId,
               properties: { ...properties },
             },
+            useEncryption,
           ],
         });
       } catch (err) {
@@ -56,6 +74,13 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
       }
     },
     [analyticsConsent, request]
+  );
+
+  /** Same as capture(), but always sets useEncryption param to true */
+  const captureEncrypted: CaptureFn = useCallback(
+    async (eventName, properties, forceRequestAttempt) =>
+      capture(eventName, properties, forceRequestAttempt, true),
+    [capture]
   );
 
   const initAnalyticsIds = useCallback(
@@ -84,7 +109,10 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
       events().pipe(filter(analyticsStateUpdatedEventListener))
     )
       .pipe(first())
-      .subscribe(() => {
+      .subscribe((ids) => {
+        if (!ids) {
+          setIsInitialized(!!ids);
+        }
         capture('WindowOpened', {
           path: window.location.pathname,
         });
@@ -99,6 +127,8 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
     <AnalyticsContext.Provider
       value={{
         capture,
+        captureEncrypted,
+        isInitialized,
         initAnalyticsIds,
         stopDataCollection,
       }}

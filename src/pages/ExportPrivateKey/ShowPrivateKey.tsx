@@ -37,7 +37,11 @@ export function ShowPrivateKey({ privateKey }: ShowPrivateKeyProps) {
       <Stack>
         <PageTitle
           margin={'22px 0 4px 0'}
-          onBackClick={() => history.replace('/accounts')}
+          onBackClick={() =>
+            history.length <= 2
+              ? history.replace('/accounts')
+              : history.goBack()
+          }
         >
           {t('Your Private Key')}
         </PageTitle>
@@ -67,6 +71,7 @@ export function ShowPrivateKey({ privateKey }: ShowPrivateKeyProps) {
               borderRadius: 1,
               alignItems: 'center',
             }}
+            data-testid="copy-private-key"
           >
             <Stack sx={{ wordBreak: 'break-all' }}>
               <Typography variant="body1">{privateKey}</Typography>
