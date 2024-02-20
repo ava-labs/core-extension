@@ -40,7 +40,7 @@ export class GetUnencryptedMnemonicHandler implements HandlerType {
 
     const secrets = await this.secretsService.getActiveAccountSecrets();
 
-    if (secrets.type !== SecretType.Mnemonic) {
+    if (secrets.secretType !== SecretType.Mnemonic) {
       return {
         ...request,
         error: 'Not a MnemonicWallet',

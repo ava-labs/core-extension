@@ -26,7 +26,9 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 type AccountsActionButtonProps = {
   disabled?: boolean;
+  isButtonDisabled?: boolean;
   onAddNewAccount: () => void;
+  disabledButtonTooltipText?: string;
 };
 
 const StyledMenuItem = styled(MenuItem)`
@@ -39,6 +41,8 @@ const StyledMenuItem = styled(MenuItem)`
 export const AccountsActionButton = ({
   disabled,
   onAddNewAccount,
+  disabledButtonTooltipText,
+  isButtonDisabled,
 }: AccountsActionButtonProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const history = useHistory();
@@ -83,13 +87,24 @@ export const AccountsActionButton = ({
       variant="contained"
       fullWidth
     >
-      <Button
-        onClick={onAddNewAccount}
-        sx={{ gap: 1 }}
-        data-testid={'add-primary-account'}
+      <Tooltip
+        title={disabledButtonTooltipText}
+        sx={{
+          display: 'flex',
+          width: '100%',
+          mr: 0.5,
+        }}
       >
-        {t('Create Account')}
-      </Button>
+        <Button
+          onClick={onAddNewAccount}
+          sx={{ gap: 1 }}
+          data-testid={'add-primary-account'}
+          disabled={isButtonDisabled}
+        >
+          {t('Create Account')}
+        </Button>
+      </Tooltip>
+
       <ClickAwayListener onClickAway={() => setIsMenuOpen(false)}>
         <Button
           ref={toggleButtonRef}

@@ -12,6 +12,7 @@ import { MigrateMissingPublicKeysFromLedgerHandler } from './migrateMissingPubli
 jest.mock('../../secrets/SecretsService');
 jest.mock('@avalabs/wallets-sdk');
 
+const WALLET_ID = 'wallet_id';
 describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger.ts', () => {
   const request = {
     id: '123',
@@ -45,7 +46,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
   it('does nothing if wallet type is incorrect', async () => {
     secretsService.getActiveAccountSecrets.mockResolvedValue({
-      type: SecretType.Mnemonic,
+      secretType: SecretType.Mnemonic,
     } as any);
     const result = await handleRequest();
 
@@ -56,7 +57,8 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
   it('returns error if transport is missing', async () => {
     (ledgerService as any).recentTransport = undefined;
     secretsService.getActiveAccountSecrets.mockResolvedValue({
-      type: SecretType.Ledger,
+      secretType: SecretType.Ledger,
+      id: WALLET_ID,
     } as any);
 
     const { error } = await handleRequest();
@@ -67,10 +69,11 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
   describe('Derivation path: BIP44', () => {
     it('terminates early if there is nothing to update', async () => {
       secretsService.getActiveAccountSecrets.mockResolvedValue({
-        type: SecretType.Ledger,
+        secretType: SecretType.Ledger,
         xpub: 'xpub',
         xpubXP: 'xpubXP',
         derivationPath: DerivationPath.BIP44,
+        id: WALLET_ID,
       } as any);
 
       const { result } = await handleRequest();
@@ -81,27 +84,32 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
     it('updates the extended public key correctly', async () => {
       secretsService.getActiveAccountSecrets.mockResolvedValue({
-        type: SecretType.Ledger,
+        secretType: SecretType.Ledger,
         xpub: 'xpub',
         derivationPath: DerivationPath.BIP44,
+        id: WALLET_ID,
       } as any);
 
       jest.mocked(getLedgerExtendedPublicKey).mockResolvedValueOnce('xpubXP');
 
       const { result } = await handleRequest();
       expect(result).toBe(true);
-      expect(secretsService.updateSecrets).toHaveBeenCalledWith({
-        xpubXP: 'xpubXP',
-      });
+      expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+        {
+          xpubXP: 'xpubXP',
+        },
+        WALLET_ID
+      );
     });
   });
 
   describe('Derivation path: Ledger Live', () => {
     it('terminates early if there is nothing to update', async () => {
       secretsService.getActiveAccountSecrets.mockResolvedValue({
-        type: SecretType.LedgerLive,
+        secretType: SecretType.LedgerLive,
         pubKeys: [],
         derivationPath: DerivationPath.LedgerLive,
+        id: WALLET_ID,
       } as any);
 
       const { result } = await handleRequest();
@@ -116,9 +124,10 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
         { evm: 'evm3', xp: '' },
       ];
       secretsService.getActiveAccountSecrets.mockResolvedValue({
-        type: SecretType.LedgerLive,
+        secretType: SecretType.LedgerLive,
         pubKeys,
         derivationPath: DerivationPath.LedgerLive,
+        id: WALLET_ID,
       } as any);
 
       jest
@@ -131,16 +140,19 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
         'Error while searching for missing public keys: incomplete migration.'
       );
 
-      expect(secretsService.updateSecrets).toHaveBeenCalledWith({
-        pubKeys: [
-          { evm: 'evm', xp: 'xp' },
-          {
-            evm: 'evm2',
-            xp: '1234',
-          },
-          { evm: 'evm3', xp: '' },
-        ],
-      });
+      expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+        {
+          pubKeys: [
+            { evm: 'evm', xp: 'xp' },
+            {
+              evm: 'evm2',
+              xp: '1234',
+            },
+            { evm: 'evm3', xp: '' },
+          ],
+        },
+        WALLET_ID
+      );
 
       expect(getPubKeyFromTransport).toHaveBeenNthCalledWith(
         1,
@@ -166,9 +178,10 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
       ];
 
       secretsService.getActiveAccountSecrets.mockResolvedValue({
-        type: SecretType.LedgerLive,
+        secretType: SecretType.LedgerLive,
         pubKeys,
         derivationPath: DerivationPath.LedgerLive,
+        id: WALLET_ID,
       } as any);
       jest
         .mocked(getPubKeyFromTransport)
@@ -178,16 +191,19 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
       const { result } = await handleRequest();
 
       expect(result).toBe(true);
-      expect(secretsService.updateSecrets).toHaveBeenCalledWith({
-        pubKeys: [
-          { evm: 'evm', xp: 'xp' },
-          {
-            evm: 'evm2',
-            xp: '1234',
-          },
-          { evm: 'evm3', xp: '5678' },
-        ],
-      });
+      expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+        {
+          pubKeys: [
+            { evm: 'evm', xp: 'xp' },
+            {
+              evm: 'evm2',
+              xp: '1234',
+            },
+            { evm: 'evm3', xp: '5678' },
+          ],
+        },
+        WALLET_ID
+      );
 
       expect(getPubKeyFromTransport).toHaveBeenNthCalledWith(
         1,

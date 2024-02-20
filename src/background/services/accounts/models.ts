@@ -81,6 +81,7 @@ export interface PrimaryAccount extends AccountStorageItem {
   index: number;
   type: AccountType.PRIMARY;
   addressBTC: string;
+  walletId: string;
 }
 
 export type ImportedAccount =
@@ -101,9 +102,10 @@ export interface FireblocksAccount extends AccountStorageItem {
 
 export type Account = PrimaryAccount | ImportedAccount;
 
+export type WalletId = string;
 export interface Accounts {
   active?: Account;
-  primary: PrimaryAccount[];
+  primary: Record<WalletId, PrimaryAccount[]>;
   imported: Record<
     string,
     ImportedAccount | WalletConnectAccount | FireblocksAccount

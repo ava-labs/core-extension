@@ -10,6 +10,7 @@ import {
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
 import {
+  AddPrimaryWalletSecrets,
   AvalancheTransactionRequest,
   WalletEvents,
   WalletType,
@@ -49,7 +50,6 @@ import { SecretsService } from '../secrets/SecretsService';
 import { Account, AccountType, ImportType } from '../accounts/models';
 import { SecretType } from '../secrets/models';
 import { networks, Transaction } from 'bitcoinjs-lib';
-import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 
@@ -105,16 +105,19 @@ describe('background/services/wallet/WalletService.ts', () => {
   let getDefaultFujiProviderMock: jest.Mock;
   let getAddressMock: jest.Mock;
 
+  const WALLET_ID = 'wallet-id';
+
   const mockMnemonicWallet = (
     additionalData = {},
     account?: Partial<Account>
   ) => {
     const data = {
-      type: SecretType.Mnemonic,
+      secretType: SecretType.Mnemonic,
       mnemonic: 'mnemonic',
       xpub: 'xpub',
       xpubXP: 'xpubXP',
       derivationPath: DerivationPath.BIP44,
+      walletId: WALLET_ID,
       ...additionalData,
       account: {
         type: AccountType.PRIMARY,
@@ -123,6 +126,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     };
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
     secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
 
     return data;
   };
@@ -132,10 +136,11 @@ describe('background/services/wallet/WalletService.ts', () => {
     account?: Partial<Account>
   ) => {
     const data = {
-      type: SecretType.Ledger,
+      secretType: SecretType.Ledger,
       xpub: 'xpub',
       xpubXP: 'xpubXP',
       derivationPath: DerivationPath.BIP44,
+      walletId: WALLET_ID,
       ...additionalData,
       account: {
         type: AccountType.PRIMARY,
@@ -144,6 +149,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     };
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
     secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
 
     return data;
   };
@@ -153,9 +159,10 @@ describe('background/services/wallet/WalletService.ts', () => {
     account?: Partial<Account>
   ) => {
     const data = {
-      type: SecretType.LedgerLive,
+      secretType: SecretType.LedgerLive,
       derivationPath: DerivationPath.LedgerLive,
       pubKeys: [{ evm: 'evm', xp: 'xp' }],
+      walletId: WALLET_ID,
       ...additionalData,
       account: {
         type: AccountType.PRIMARY,
@@ -164,6 +171,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     };
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
     secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
 
     return data;
   };
@@ -173,9 +181,10 @@ describe('background/services/wallet/WalletService.ts', () => {
     account?: Partial<Account>
   ) => {
     const data = {
-      type: SecretType.Seedless,
+      secretType: SecretType.Seedless,
       derivationPath: DerivationPath.BIP44,
       pubKeys: [{ evm: 'evm', xp: 'xp' }],
+      walletId: WALLET_ID,
       ...additionalData,
       account: {
         type: AccountType.PRIMARY,
@@ -184,6 +193,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     };
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
     secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
 
     return data;
   };
@@ -354,7 +364,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     it('throws when storage contains malformed data', async () => {
       mockMnemonicWallet({
-        type: 'unknown lol',
+        secretType: 'unknown lol',
       });
 
       await expect(walletService.onUnlock()).rejects.toThrowError(
@@ -365,66 +375,100 @@ describe('background/services/wallet/WalletService.ts', () => {
   });
 
   describe('init', () => {
-    it('throws if non of the params were provided', async () => {
-      await expect(walletService.init({})).rejects.toThrowError(
-        'Mnemonic, pubKeys or xpub is required'
-      );
-    });
-
-    describe('when seedless token is provided', () => {
-      const token = {} as SignerSessionData;
-      const keys = [
-        {
-          evm: 'la la la',
-          xp: 'xp xp xp',
-        },
-      ];
-      beforeEach(() => {
-        jest.mocked(SeedlessWallet).mockReturnValue(seedlessWalletMock);
-        jest.spyOn(seedlessWalletMock, 'getPublicKeys').mockResolvedValue(keys);
-      });
-
-      it('uses SeedlessWallet to fetch the keys', async () => {
-        await walletService.init({ seedlessSignerToken: token });
-
-        expect(seedlessWalletMock.getPublicKeys).toHaveBeenCalled();
-      });
-
-      it('raises na error if no keys are returned', async () => {
-        jest.spyOn(seedlessWalletMock, 'getPublicKeys').mockResolvedValue([]);
-
-        await expect(
-          walletService.init({ seedlessSignerToken: token })
-        ).rejects.toThrowError('Unable to get pubkey for seedless wallet');
-      });
-
-      it('updates pub keys via SecretsService', async () => {
-        await walletService.init({ seedlessSignerToken: token });
-
-        expect(secretsService.updateSecrets).toHaveBeenCalledWith(
-          expect.objectContaining({
-            pubKeys: keys,
-          })
-        );
-      });
-    });
-
     it('stores the data and invokes onUnlock', async () => {
       const onUnlockSpy = jest.spyOn(walletService as any, 'onUnlock');
       (getDerivationPath as jest.Mock).mockReturnValueOnce(
         DerivationPath.BIP44
       );
 
-      await walletService.init({ mnemonic });
-
-      expect(secretsService.updateSecrets).toHaveBeenCalledWith({
+      await walletService.init({
         mnemonic,
-        pubKeys: undefined,
-        xpub: undefined,
-        xpubXP: undefined,
+        xpub: 'xpub',
+        xpubXP: 'xpubXP',
         derivationPath: DerivationPath.BIP44,
+        secretType: SecretType.Mnemonic,
       });
+
+      expect(secretsService.addSecrets).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mnemonic,
+          secretType: SecretType.Mnemonic,
+          xpub: 'xpub',
+          xpubXP: 'xpubXP',
+          derivationPath: DerivationPath.BIP44,
+          name: 'mnemonic 1',
+        })
+      );
       expect(onUnlockSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('addPrimaryWallet()', () => {
+    describe('#validateSecretsType()', () => {
+      it('should throw `mnemonic` error', () => {
+        const params = {
+          secretType: SecretType.Mnemonic,
+        } as AddPrimaryWalletSecrets;
+
+        (getDerivationPath as jest.Mock).mockReturnValueOnce(
+          DerivationPath.BIP44
+        );
+        expect(
+          walletService.addPrimaryWallet({
+            ...params,
+          })
+        ).rejects.toThrowError(
+          'Mnemonic or xpub or pubKey is required to create a new wallet!'
+        );
+      });
+      it('should throw `ledger live` error', () => {
+        const params = {
+          secretType: SecretType.LedgerLive,
+        } as AddPrimaryWalletSecrets;
+
+        (getDerivationPath as jest.Mock).mockReturnValueOnce(
+          DerivationPath.BIP44
+        );
+        expect(
+          walletService.addPrimaryWallet({
+            ...params,
+          })
+        ).rejects.toThrowError('PubKey is required to create a new wallet!');
+      });
+      it('should throw generic error', () => {
+        const params = {
+          secretType: SecretType.Keystone,
+        } as AddPrimaryWalletSecrets;
+
+        (getDerivationPath as jest.Mock).mockReturnValueOnce(
+          DerivationPath.BIP44
+        );
+        expect(
+          walletService.addPrimaryWallet({
+            ...params,
+          })
+        ).rejects.toThrowError(
+          'Mnemonic or xpub or pubKey is required to create a new wallet!'
+        );
+      });
+    });
+    it('should save the new wallet values', async () => {
+      const params = {
+        mnemonic: 'mnemonic',
+        xpub: 'xpub',
+        xpubXP: 'xpubXP',
+        derivationPath: DerivationPath.BIP44,
+        secretType: SecretType.Mnemonic,
+      } as AddPrimaryWalletSecrets;
+      (getDerivationPath as jest.Mock).mockReturnValueOnce(
+        DerivationPath.BIP44
+      );
+      await walletService.addPrimaryWallet({
+        ...params,
+      });
+      expect(secretsService.addSecrets).toHaveBeenCalledWith(
+        expect.objectContaining(params)
+      );
     });
   });
 
@@ -1055,7 +1099,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       mockMnemonicWallet();
       getAddressesSpy.mockReturnValueOnce(addressesMock);
 
-      const result = await walletService.addAddress(1);
+      const result = await walletService.addAddress(1, WALLET_ID);
       expect(getAddressesSpy).toHaveBeenCalledWith(1);
       expect(result).toStrictEqual(addressesMock);
     });
@@ -1069,9 +1113,9 @@ describe('background/services/wallet/WalletService.ts', () => {
         // @ts-ignore
         ledgerService.recentTransport = undefined;
 
-        await expect(walletService.addAddress(1)).rejects.toThrowError(
-          'Ledger transport not available'
-        );
+        await expect(
+          walletService.addAddress(1, WALLET_ID)
+        ).rejects.toThrowError('Ledger transport not available');
       });
 
       it('throws when it fails to get EVM pubkey from ledger', async () => {
@@ -1087,9 +1131,9 @@ describe('background/services/wallet/WalletService.ts', () => {
           Buffer.from('')
         );
 
-        await expect(walletService.addAddress(1)).rejects.toThrowError(
-          'Failed to get public key from device.'
-        );
+        await expect(
+          walletService.addAddress(1, WALLET_ID)
+        ).rejects.toThrowError('Failed to get public key from device.');
         expect(getPubKeyFromTransport).toHaveBeenCalledWith(
           transportMock,
           1,
@@ -1110,9 +1154,9 @@ describe('background/services/wallet/WalletService.ts', () => {
           .mockReturnValueOnce(Buffer.from('evm'))
           .mockReturnValueOnce(Buffer.from(''));
 
-        await expect(walletService.addAddress(1)).rejects.toThrowError(
-          'Failed to get public key from device.'
-        );
+        await expect(
+          walletService.addAddress(1, WALLET_ID)
+        ).rejects.toThrowError('Failed to get public key from device.');
         expect(getPubKeyFromTransport).toHaveBeenCalledWith(
           transportMock,
           1,
@@ -1133,7 +1177,7 @@ describe('background/services/wallet/WalletService.ts', () => {
           ],
         });
 
-        const result = await walletService.addAddress(0);
+        const result = await walletService.addAddress(0, WALLET_ID);
         expect(getAddressesSpy).toHaveBeenCalledWith(0);
         expect(getPubKeyFromTransport).not.toHaveBeenCalled();
         expect(result).toStrictEqual(addressesMock);
@@ -1155,17 +1199,20 @@ describe('background/services/wallet/WalletService.ts', () => {
           .mockReturnValueOnce(addressBuffEvm)
           .mockReturnValueOnce(addressBuffXP);
 
-        const result = await walletService.addAddress(0);
+        const result = await walletService.addAddress(0, WALLET_ID);
         expect(getAddressesSpy).toHaveBeenCalledWith(0);
         expect(result).toStrictEqual(addressesMock);
-        expect(secretsService.updateSecrets).toHaveBeenCalledWith({
-          pubKeys: [
-            {
-              evm: addressBuffEvm.toString('hex'),
-              xp: addressBuffXP.toString('hex'),
-            },
-          ],
-        });
+        expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+          {
+            pubKeys: [
+              {
+                evm: addressBuffEvm.toString('hex'),
+                xp: addressBuffXP.toString('hex'),
+              },
+            ],
+          },
+          WALLET_ID
+        );
       });
     });
 
@@ -1190,7 +1237,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         });
 
         it('calls addAccount on SeedlessWallet', async () => {
-          const result = await walletService.addAddress(1);
+          const result = await walletService.addAddress(1, WALLET_ID);
 
           expect(SeedlessWallet).toHaveBeenCalledWith({
             networkService,
@@ -1199,9 +1246,12 @@ describe('background/services/wallet/WalletService.ts', () => {
           });
 
           expect(seedlessWalletMock.addAccount).toHaveBeenCalledWith(1);
-          expect(secretsService.updateSecrets).toHaveBeenCalledWith({
-            pubKeys: newKeys,
-          });
+          expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+            {
+              pubKeys: newKeys,
+            },
+            WALLET_ID
+          );
           expect(getAddressesSpy).toHaveBeenCalledWith(1);
           expect(result).toStrictEqual(addressesMock);
         });
@@ -1214,7 +1264,7 @@ describe('background/services/wallet/WalletService.ts', () => {
           });
         });
 
-        it('it retrieves the addresses without contacting seedless api', async () => {
+        it('retrieves the addresses without contacting seedless api', async () => {
           const addressBuffEvm = Buffer.from('0x1');
           const addressBuffXP = Buffer.from('0x2');
 
@@ -1225,7 +1275,7 @@ describe('background/services/wallet/WalletService.ts', () => {
             .mockReturnValueOnce(addressBuffEvm as any)
             .mockReturnValueOnce(addressBuffXP as any);
 
-          const result = await walletService.addAddress(1);
+          const result = await walletService.addAddress(1, WALLET_ID);
 
           expect(SeedlessWallet).not.toHaveBeenCalled();
           expect(secretsService.updateSecrets).not.toHaveBeenCalled();
@@ -1247,7 +1297,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('throws if storage is empty', async () => {
-      mockMnemonicWallet({ type: 'unknown' });
+      mockMnemonicWallet({ secretType: 'unknown' });
       await expect(walletService.getAddresses(0)).rejects.toThrowError(
         'No public key available'
       );
@@ -1383,7 +1433,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(secretsService.saveImportedWallet).not.toHaveBeenCalled();
       await result.commit();
       expect(secretsService.saveImportedWallet).toHaveBeenCalledWith(uuid, {
-        type: ImportType.PRIVATE_KEY,
+        secretType: SecretType.PrivateKey,
         secret: 'privateKey',
       });
     });
@@ -1462,7 +1512,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     it('throws if importType is not supported', async () => {
       secretsService.getImportedAccountSecrets.mockResolvedValue({
-        type: 'unknown' as any,
+        secretType: 'unknown' as any,
         secret: 'secret',
       });
 
@@ -1473,7 +1523,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     it('throws if addresses are missing', async () => {
       secretsService.getImportedAccountSecrets.mockResolvedValue({
-        type: SecretType.PrivateKey,
+        secretType: SecretType.PrivateKey,
         secret: 'secret',
       });
       (getEvmAddressFromPubKey as jest.Mock).mockReturnValueOnce('');
@@ -1486,7 +1536,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     it('returns the addresses for PRIVATE_KEY correctly', async () => {
       secretsService.getImportedAccountSecrets.mockResolvedValue({
-        type: SecretType.PrivateKey,
+        secretType: SecretType.PrivateKey,
         secret: 'secret',
       });
 
@@ -1544,11 +1594,11 @@ describe('background/services/wallet/WalletService.ts', () => {
       });
       secretsService.deleteImportedWallets.mockResolvedValue({
         id2: {
-          type: ImportType.PRIVATE_KEY,
+          secretType: SecretType.PrivateKey,
           secret: 'secret2',
         },
         id3: {
-          type: ImportType.PRIVATE_KEY,
+          secretType: SecretType.PrivateKey,
           secret: 'secret3',
         },
       });
@@ -1676,7 +1726,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     describe('imported accounts', () => {
       it('throws if secrets for imported account is not found', async () => {
         mockMnemonicWallet(
-          { type: SecretType.PrivateKey },
+          { secretType: SecretType.PrivateKey },
           {
             type: AccountType.IMPORTED,
             id: 'unknown',
@@ -1693,7 +1743,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       it('throws if the account has unknown import type', async () => {
         mockMnemonicWallet(
           {
-            type: 'what-is-this',
+            secretType: 'what-is-this',
             secret: 'secret1',
           },
           {
@@ -1710,7 +1760,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       it('returns the public keys correctly for private key imports', async () => {
         mockMnemonicWallet(
           {
-            type: SecretType.PrivateKey,
+            secretType: SecretType.PrivateKey,
             secret: 'secret1',
           },
           {
@@ -1734,7 +1784,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         const accountId = 'id-wallet-connect';
         mockMnemonicWallet(
           {
-            type: SecretType.WalletConnect,
+            secretType: SecretType.WalletConnect,
             pubKey: {
               evm: evmPub,
               xp: xpPub,

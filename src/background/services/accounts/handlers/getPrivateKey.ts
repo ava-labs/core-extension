@@ -70,7 +70,7 @@ export class GetPrivateKeyHandler implements HandlerType {
           accountId
         );
 
-        if (account?.type === SecretType.PrivateKey) {
+        if (account?.secretType === SecretType.PrivateKey) {
           return {
             ...request,
             result: add0x(account.secret),
@@ -91,8 +91,7 @@ export class GetPrivateKeyHandler implements HandlerType {
 
       if (
         !primaryAccount ||
-        primaryAccount?.type !== SecretType.Mnemonic ||
-        !primaryAccount.mnemonic
+        primaryAccount?.secretType !== SecretType.Mnemonic
       ) {
         return {
           ...request,

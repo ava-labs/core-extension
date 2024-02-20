@@ -97,6 +97,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     addressC: 'account1 C address',
     type: AccountType.PRIMARY,
     index: 0,
+    walletId: 'wallet-id-1',
   };
 
   const account2: Account = {
@@ -106,6 +107,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     addressC: 'account2 C address',
     type: AccountType.PRIMARY,
     index: 1,
+    walletId: 'wallet-id-2',
   };
 
   const network1TokenBalance: NetworkTokenWithBalance = {

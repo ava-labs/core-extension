@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -36,6 +36,7 @@ import { WalletType } from '@src/background/services/wallet/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useWalletName } from './hooks/useWalletName';
+import { AccountType } from '@src/background/services/accounts/models';
 
 export enum AccountsTab {
   Primary,
@@ -50,7 +51,7 @@ export function Accounts() {
     selectAccount,
     addAccount,
     deleteAccounts,
-    accounts: { imported: importedAccounts, primary: regularAccounts },
+    accounts: { imported: importedAccounts, primary: primaryAccounts, active },
   } = useAccountsContext();
   const { exitManageMode, isManageMode, toggleManageMode, selectedAccounts } =
     useAccountManager();
@@ -72,6 +73,8 @@ export function Accounts() {
   const { featureFlags } = useFeatureFlagContext();
   const canPrimaryAccountsBeRemoved =
     featureFlags[FeatureGates.PRIMARY_ACCOUNT_REMOVAL];
+
+  const canCreateAccount = active?.type !== AccountType.PRIMARY;
 
   const walletName = useWalletName();
 
@@ -131,8 +134,9 @@ export function Accounts() {
     });
   };
 
-  const hasAnyAccounts = regularAccounts.length > 0;
   const hasImportedAccounts = Object.keys(importedAccounts).length > 0;
+
+  const hasAnyAccounts = Object.values(primaryAccounts).length > 0;
 
   useEffect(() => {
     if (hasAnyAccounts && !hasImportedAccounts) {
@@ -247,7 +251,7 @@ export function Accounts() {
             )}
             <AccountList
               walletType={walletDetails?.type}
-              accounts={regularAccounts}
+              accounts={Object.values(primaryAccounts).flat()}
               selectionMode={
                 canPrimaryAccountsBeRemoved &&
                 walletDetails?.type !== WalletType.SEEDLESS
@@ -276,7 +280,7 @@ export function Accounts() {
         direction="row"
         sx={{ py: 3, px: 2, justifyContent: 'center', alignItems: 'center' }}
       >
-        {isManageMode ? (
+        {isManageMode && (
           <Button
             fullWidth
             size="large"
@@ -292,10 +296,15 @@ export function Accounts() {
               ? t('Delete Account')
               : t('Delete Accounts')}
           </Button>
-        ) : (
+        )}
+        {!isManageMode && (
           <AccountsActionButton
             disabled={addAccountLoading}
+            isButtonDisabled={canCreateAccount}
             onAddNewAccount={addAccountAndFocus}
+            disabledButtonTooltipText={
+              canCreateAccount ? t('Please select a wallet') : ''
+            }
           />
         )}
       </Stack>

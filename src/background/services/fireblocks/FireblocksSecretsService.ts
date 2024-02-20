@@ -18,7 +18,7 @@ export class FireblocksSecretsService implements FireblocksSecretsProvider {
     // By default thought, we'll get the credentials directly from SecretsService
     const secrets = await this.secretsService.getActiveAccountSecrets();
 
-    if (secrets.type !== SecretType.Fireblocks) {
+    if (secrets.secretType !== SecretType.Fireblocks) {
       throw new FireblocksBtcAccessError(
         FireblocksBtcAccessErrorCode.WrongAccountType
       );

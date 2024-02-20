@@ -5,7 +5,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { FireblocksService } from '../FireblocksService';
 import { AccountsService } from '../../accounts/AccountsService';
-import { AccountType, ImportType } from '../../accounts/models';
+import { AccountType } from '../../accounts/models';
 import { NetworkService } from '../../network/NetworkService';
 import {
   FireblocksBtcAccessError,
@@ -15,6 +15,7 @@ import {
   TESTNET_LOOKUP_ASSETS,
 } from '../models';
 import { SecretsService } from '../../secrets/SecretsService';
+import { SecretType } from '../../secrets/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.FIREBLOCKS_UPDATE_API_CREDENTIALS,
@@ -120,7 +121,7 @@ export class FireblocksUpdateApiCredentialsHandler implements HandlerType {
       const addressBTC = await this.#getBtcAddress(vaultAccountId);
 
       await this.secretsService.saveImportedWallet(coreAccountId, {
-        type: ImportType.FIREBLOCKS,
+        secretType: SecretType.Fireblocks,
         addresses: {
           addressC: account.addressC,
           addressBTC,

@@ -20,7 +20,13 @@ const useIsIncorrectDevice = () => {
     masterFingerprint,
   } = useLedgerContext();
   const { accounts } = useAccountsContext();
-  const firstAddress = accounts.primary[0]?.addressC;
+  const activeWalletAccount = accounts.active?.id;
+
+  const firstAccount =
+    activeWalletAccount && accounts.primary[activeWalletAccount];
+
+  const firstAddress =
+    firstAccount && firstAccount[0] && firstAccount[0].addressC;
 
   useEffect(() => {
     const compareAddresses = async () => {

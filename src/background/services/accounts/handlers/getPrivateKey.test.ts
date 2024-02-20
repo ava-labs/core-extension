@@ -7,6 +7,7 @@ import { SecretType } from '../../secrets/models';
 import { getWalletFromMnemonic } from '@avalabs/wallets-sdk';
 
 jest.mock('@avalabs/wallets-sdk', () => ({
+  ...jest.requireActual('@avalabs/wallets-sdk'),
   getWalletFromMnemonic: jest.fn(),
 }));
 
@@ -122,7 +123,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
     });
     sercretServiceMock.getPrimaryAccountSecrets.mockResolvedValue({
       mnemonic: 'some-words-here',
-      type: SecretType.Mnemonic,
+      secretType: SecretType.Mnemonic,
     });
     const handler = getHandler();
 
@@ -143,7 +144,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
   it('should return the private key for the given account', async () => {
     sercretServiceMock.getPrimaryAccountSecrets.mockResolvedValue({
       mnemonic: 'some-words-here',
-      type: SecretType.Mnemonic,
+      secretType: SecretType.Mnemonic,
     });
     const handler = getHandler();
     const params = [{ type: WalletType.MNEMONIC, index: 0, password: 'asd' }];
@@ -157,10 +158,10 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       result: '123123123',
     });
   });
-  it('should return the private key when the `AccountType` is imported and the `type` is `privateKey`', async () => {
+  it('should return the private key when the `AccountType` is imported and the `secretType` is `privateKey`', async () => {
     const params = [{ type: AccountType.IMPORTED, id: 'asd', password: 'asd' }];
     sercretServiceMock.getImportedAccountSecrets.mockResolvedValue({
-      type: SecretType.PrivateKey,
+      secretType: SecretType.PrivateKey,
       secret: 'secretKey',
     });
     const handler = getHandler();

@@ -4,7 +4,7 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { AccountsService } from '../AccountsService';
-import { Account, AccountType } from '../models';
+import { Account, AccountType, WalletId } from '../models';
 import { Action } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 
@@ -24,6 +24,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
 
     // until core web sends only IDs...
     const allAccounts = this.accountsService.getAccountList();
+
     const selectedAccount = allAccounts.find((account) =>
       account.type === AccountType.PRIMARY
         ? account.index === selectedIndexOrID ||
@@ -43,8 +44,9 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
     const actionData = {
       ...request,
       tabId: request.site.tabId,
-      selectedAccount,
+      selectedAccount: selectedAccount,
     };
+
     await this.openApprovalWindow(actionData, `switchAccount`);
 
     return { ...request, result: DEFERRED_RESPONSE };
@@ -66,6 +68,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
     try {
       const { selectedAccount } = pendingAction as Action & {
         selectedAccount: Account;
+        inactiveWalletId?: WalletId;
       };
       if (pendingAction.site?.domain) {
         await this.permissionsService.setAccountPermissionForDomain(

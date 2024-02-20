@@ -39,7 +39,7 @@ describe('src/background/services/seedless/handlers/initRecoveryPhraseExport', (
     jest.mocked(SeedlessWallet).mockReturnValue(wallet);
 
     secretsService.getPrimaryAccountSecrets.mockResolvedValue({
-      type: SecretType.Seedless,
+      secretType: SecretType.Seedless,
       pubKeys: [
         {
           evm: 'evm',

@@ -30,6 +30,7 @@ export function ExportPrivateKey() {
   >();
   const [index, setIndex] = useState(0);
   const [id, setId] = useState('');
+
   const [privateKey, setPrivateKey] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [password, setPassword] = useState('');
@@ -77,12 +78,14 @@ export function ExportPrivateKey() {
     }
     if (!isImported && isMnemonic) {
       setType(WalletType.MNEMONIC);
-      const account = accounts.primary.find((primaryAccount) => {
-        return primaryAccount.id === accountId;
-      });
+      const account = Object.values(accounts.primary)
+        .flat()
+        .find((primaryAccount) => {
+          return primaryAccount.id === accountId;
+        });
       account && setIndex(account?.index);
     }
-  }, [accounts, index, search, walletDetails?.type]);
+  }, [accounts, index, search, walletDetails, walletDetails?.type]);
 
   return (
     <>

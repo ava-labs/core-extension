@@ -1,24 +1,21 @@
-import { DerivationPath } from '@avalabs/wallets-sdk';
 import { omit, pick } from 'lodash';
 import { container, singleton } from 'tsyringe';
 
 import { AccountsService } from '../accounts/AccountsService';
-import { AccountType, ImportType } from '../accounts/models';
+import { AccountType } from '../accounts/models';
 import { StorageService } from '../storage/StorageService';
 import {
   BtcWalletPolicyDetails,
-  ImportedWalletData,
   WalletSecretInStorage,
   WALLET_STORAGE_KEY,
-  SeedlessAuthProvider,
+  AddPrimaryWalletSecrets,
 } from '../wallet/models';
-
 import {
-  AccountWithSecrets,
   ImportedAccountSecrets,
-  PrimaryAccountSecrets,
+  PrimaryWalletSecrets,
   SecretType,
 } from './models';
+import { isPrimaryAccount } from '../accounts/utils/typeGuards';
 
 /**
  * Use this service to fetch, save or delete account secrets.
@@ -27,63 +24,136 @@ import {
 export class SecretsService {
   constructor(private storageService: StorageService) {}
 
-  async updateSecrets(secrets: Partial<WalletSecretInStorage>) {
-    if ('imported' in secrets) {
-      throw new Error(
-        'Please use designated methods to manage imported wallets'
-      );
-    }
-
-    const existingSecrets = await this.#loadSecrets(false);
+  async addSecrets(secrets: AddPrimaryWalletSecrets) {
+    const storedSecrets = await this.#loadSecrets(false);
+    const existingWallets = storedSecrets?.wallets;
+    const walletId = crypto.randomUUID();
+    const wallets = existingWallets ?? [];
+    wallets.push({
+      ...secrets,
+      id: walletId,
+    });
 
     await this.storageService.save<Partial<WalletSecretInStorage>>(
       WALLET_STORAGE_KEY,
       {
-        ...existingSecrets,
-        ...secrets,
+        ...storedSecrets,
+        wallets,
       }
     );
+    return walletId;
   }
 
-  async getPrimaryAccountSecrets(): Promise<PrimaryAccountSecrets | null> {
+  async updateSecrets(
+    secrets: Partial<PrimaryWalletSecrets>,
+    walletId: string
+  ): Promise<string | null> {
+    const storedSecrets = await this.#loadSecrets(false);
+
+    const updatedWalletSecrets = storedSecrets?.wallets.map((wallet) => {
+      if (wallet.id === walletId) {
+        return {
+          ...wallet,
+          ...secrets,
+        };
+      }
+      return { ...wallet };
+    });
+
+    if (updatedWalletSecrets) {
+      await this.storageService.save<Partial<WalletSecretInStorage>>(
+        WALLET_STORAGE_KEY,
+        {
+          ...storedSecrets,
+          wallets: [...updatedWalletSecrets] as PrimaryWalletSecrets[],
+        }
+      );
+      return walletId;
+    }
+
+    return null;
+  }
+
+  async deleteSecrets(walletId: string) {
+    const storedSecrets = await this.#loadSecrets(false);
+
+    const updatedWalletSecrets = storedSecrets?.wallets.filter(
+      (wallet) => wallet.id !== walletId
+    );
+
+    const updatedImportedSecrets = storedSecrets?.importedAccounts;
+    if (updatedImportedSecrets) {
+      delete updatedImportedSecrets[walletId];
+    }
+    if (updatedWalletSecrets) {
+      await this.storageService.save<Partial<WalletSecretInStorage>>(
+        WALLET_STORAGE_KEY,
+        {
+          ...updatedImportedSecrets,
+          wallets: [...updatedWalletSecrets],
+        }
+      );
+    }
+  }
+
+  getActiveWalletSecrets(walletKeys: WalletSecretInStorage) {
+    const accountsService = container.resolve(AccountsService);
+
+    const activeWalletId = isPrimaryAccount(accountsService.activeAccount)
+      ? accountsService.activeAccount.walletId
+      : accountsService.activeAccount?.id;
+
+    if (walletKeys.wallets.length === 1) {
+      return walletKeys.wallets[0];
+    }
+    return walletKeys.wallets.find((wallet) => wallet.id === activeWalletId);
+  }
+
+  async getPrimaryAccountSecrets() {
     const walletKeys = await this.#loadSecrets(false);
 
     if (!walletKeys) {
       return null;
     }
+    const activeWalletSecrets = this.getActiveWalletSecrets(walletKeys);
 
-    return this.#parsePrimarySecrets(walletKeys);
+    if (!activeWalletSecrets) {
+      return null;
+    }
+
+    return activeWalletSecrets;
   }
 
   async getImportedAccountSecrets(
     accountId: string
   ): Promise<ImportedAccountSecrets> {
     const walletKeys = await this.#loadSecrets(true);
-    const accountData = walletKeys.imported?.[accountId];
+
+    const accountData = walletKeys.importedAccounts?.[accountId];
 
     if (!accountData) {
       throw new Error('No secrets found for imported account');
     }
 
     // Imported via private key submission
-    if (accountData.type === ImportType.PRIVATE_KEY) {
+    if (accountData.secretType === SecretType.PrivateKey) {
       return {
-        type: SecretType.PrivateKey,
+        secretType: SecretType.PrivateKey,
         secret: accountData.secret,
       };
     }
 
-    if (accountData.type === ImportType.WALLET_CONNECT) {
+    if (accountData.secretType === SecretType.WalletConnect) {
       return {
-        type: SecretType.WalletConnect,
+        secretType: SecretType.WalletConnect,
         addresses: accountData.addresses,
         pubKey: accountData.pubKey,
       };
     }
 
-    if (accountData.type === ImportType.FIREBLOCKS) {
+    if (accountData.secretType === SecretType.Fireblocks) {
       return {
-        type: SecretType.Fireblocks,
+        secretType: SecretType.Fireblocks,
         addresses: accountData.addresses,
         api: accountData.api,
       };
@@ -92,20 +162,25 @@ export class SecretsService {
     throw new Error('Unsupported import type');
   }
 
-  async getActiveAccountSecrets(): Promise<AccountWithSecrets> {
+  async getActiveAccountSecrets() {
     const walletKeys = await this.#loadSecrets(true);
 
     // But later on, we rely on the active account only.
     // To resolve circular dependencies we are  getting accounts service on the fly instead of via constructor
     const accountsService = container.resolve(AccountsService);
+
     const { activeAccount } = accountsService;
 
     if (!activeAccount || activeAccount.type === AccountType.PRIMARY) {
-      const secrets = await this.#parsePrimarySecrets(walletKeys);
+      const activeWalletSecrets = this.getActiveWalletSecrets(walletKeys);
+
+      if (!activeWalletSecrets) {
+        throw new Error('There is no values for this account');
+      }
 
       return {
         ...(activeAccount ? { account: activeAccount } : null),
-        ...secrets,
+        ...activeWalletSecrets,
       };
     }
 
@@ -117,29 +192,48 @@ export class SecretsService {
     };
   }
 
+  async getWalletAccountsSecretsById(walletId: string) {
+    const walletKeys = await this.#loadSecrets(true);
+
+    const walletSecrets = walletKeys.wallets.find(
+      (wallet) => wallet.id === walletId
+    );
+
+    if (!walletSecrets) {
+      throw new Error('There is no values for this wallet');
+    }
+    if (!walletSecrets.secretType) {
+      throw new Error('Unknown secrets found for primary account');
+    }
+
+    return walletSecrets;
+  }
+
   async deleteImportedWallets(
     ids: string[]
-  ): Promise<Record<string, ImportedWalletData | undefined>> {
-    const { imported, ...primarySecrets } = await this.#loadSecrets(true);
+  ): Promise<Record<string, ImportedAccountSecrets | undefined>> {
+    const { importedAccounts, ...primarySecrets } = await this.#loadSecrets(
+      true
+    );
 
-    const deleted = pick(imported, ids);
-    const newImported = omit(imported, ids);
+    const deleted = pick(importedAccounts, ids);
+    const newImported = omit(importedAccounts, ids);
 
     await this.storageService.save<WalletSecretInStorage>(WALLET_STORAGE_KEY, {
       ...primarySecrets,
-      imported: newImported,
+      importedAccounts: newImported,
     });
 
     return deleted;
   }
 
-  async saveImportedWallet(id: string, data: ImportedWalletData) {
+  async saveImportedWallet(id: string, data: ImportedAccountSecrets) {
     const secrets = await this.#loadSecrets(true);
 
     await this.storageService.save<WalletSecretInStorage>(WALLET_STORAGE_KEY, {
       ...secrets,
-      imported: {
-        ...secrets.imported,
+      importedAccounts: {
+        ...secrets.importedAccounts,
         [id]: data,
       },
     });
@@ -149,13 +243,14 @@ export class SecretsService {
     xpub: string,
     masterFingerprint: string,
     hmacHex: string,
-    name: string
+    name: string,
+    walletId: string
   ) {
     const secrets = await this.getActiveAccountSecrets();
 
     if (
-      secrets.type !== SecretType.Ledger &&
-      secrets.type !== SecretType.LedgerLive
+      secrets.secretType !== SecretType.Ledger &&
+      secrets.secretType !== SecretType.LedgerLive
     ) {
       throw new Error(
         'Error while saving wallet policy details: incorrect wallet type.'
@@ -164,7 +259,7 @@ export class SecretsService {
 
     const { account } = secrets;
 
-    if (secrets.type === SecretType.LedgerLive && account) {
+    if (secrets.secretType === SecretType.LedgerLive && account) {
       const pubKeys = secrets.pubKeys ?? [];
       const pubKeyInfo = pubKeys[account.index];
 
@@ -189,26 +284,32 @@ export class SecretsService {
 
       pubKeys[account.index] = pubKeyInfo;
 
-      return await this.updateSecrets({
-        pubKeys,
-      });
+      return await this.updateSecrets(
+        {
+          pubKeys,
+        },
+        walletId
+      );
     }
 
-    if (secrets.type === SecretType.Ledger) {
+    if (secrets.secretType === SecretType.Ledger) {
       if (secrets?.btcWalletPolicyDetails) {
         throw new Error(
           'Error while saving wallet policy details: policy details already stored.'
         );
       }
 
-      return await this.updateSecrets({
-        btcWalletPolicyDetails: {
-          xpub,
-          masterFingerprint,
-          hmacHex,
-          name,
+      return await this.updateSecrets(
+        {
+          btcWalletPolicyDetails: {
+            xpub,
+            masterFingerprint,
+            hmacHex,
+            name,
+          },
         },
-      });
+        walletId
+      );
     }
 
     throw new Error(
@@ -221,7 +322,7 @@ export class SecretsService {
   > {
     const secrets = await this.getActiveAccountSecrets();
 
-    if (secrets.type === SecretType.LedgerLive && secrets.account) {
+    if (secrets.secretType === SecretType.LedgerLive && secrets.account) {
       const accountIndex = secrets.account.index;
       const pubKeyInfo = secrets.pubKeys[accountIndex];
 
@@ -231,7 +332,7 @@ export class SecretsService {
       };
     }
 
-    if (secrets.type === SecretType.Ledger) {
+    if (secrets.secretType === SecretType.Ledger) {
       return {
         accountIndex: 0,
         details: secrets.btcWalletPolicyDetails,
@@ -251,78 +352,5 @@ export class SecretsService {
     }
 
     return walletKeys ?? null;
-  }
-
-  #parsePrimarySecrets(
-    walletKeys: WalletSecretInStorage
-  ): PrimaryAccountSecrets {
-    const {
-      mnemonic,
-      masterFingerprint,
-      pubKeys,
-      xpub,
-      xpubXP,
-      derivationPath,
-      btcWalletPolicyDetails,
-      seedlessSignerToken,
-      authProvider,
-      userEmail,
-    } = walletKeys;
-
-    if (seedlessSignerToken) {
-      return {
-        type: SecretType.Seedless,
-        pubKeys: pubKeys ?? [],
-        seedlessSignerToken,
-        userEmail,
-        derivationPath,
-        authProvider: authProvider ?? SeedlessAuthProvider.Google,
-      };
-    }
-
-    // If we have a phrase, we know it's a mnemonic wallet
-    if (mnemonic && xpub && xpubXP) {
-      return {
-        type: SecretType.Mnemonic,
-        mnemonic,
-        xpub,
-        xpubXP,
-        derivationPath,
-      };
-    }
-
-    // If we have a master fingerprint and an xpub, we're dealing with Keystone
-    if (masterFingerprint && xpub) {
-      return {
-        type: SecretType.Keystone,
-        xpub,
-        masterFingerprint,
-        derivationPath,
-      };
-    }
-
-    // If we don't have the phrase or the fingerprint, but we do have xpub,
-    // we're dealing with Ledger + BIP44 derivation path
-    if (xpub) {
-      return {
-        type: SecretType.Ledger,
-        xpub,
-        xpubXP,
-        derivationPath: DerivationPath.BIP44,
-        btcWalletPolicyDetails,
-      };
-    }
-
-    // If we have none of the above, but we do have public keys,
-    // we're dealing with Ledger + LedgerLive derivation path.
-    if (pubKeys) {
-      return {
-        type: SecretType.LedgerLive,
-        pubKeys,
-        derivationPath: DerivationPath.LedgerLive,
-      };
-    }
-
-    throw new Error('Unknown secrets found for primary account');
   }
 }

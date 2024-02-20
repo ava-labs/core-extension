@@ -17,7 +17,6 @@ import { SecretType } from './models';
 import { SecretsService } from './SecretsService';
 
 jest.mock('../storage/StorageService');
-jest.mock('../accounts/AccountsService');
 jest.mock('../network/NetworkService');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('tsyringe', () => {
@@ -32,6 +31,7 @@ jest.mock('tsyringe', () => {
   };
 });
 
+const ACTIVE_WALLET_ID = 'active-wallet-id';
 describe('src/background/services/secrets/SecretsService.ts', () => {
   const storageService = jest.mocked(new StorageService({} as CallbackManager));
   const networkService = jest.mocked(new NetworkService(storageService));
@@ -45,7 +45,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    jest.mocked(container.resolve).mockReturnValue({ activeAccount });
+    jest.mocked(container.resolve).mockReturnValue({
+      activeAccount,
+      getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
+    });
     getAddressMock = jest.fn().mockImplementation((pubkey, chain) => {
       return `${chain}-`;
     });
@@ -70,17 +73,24 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     account?: Partial<Account>
   ) => {
     if (account) {
-      jest
-        .mocked(container.resolve)
-        .mockReturnValue({ activeAccount: account });
+      jest.mocked(container.resolve).mockReturnValue({
+        activeAccount: account,
+        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
+      });
     }
     const data = {
-      mnemonic: 'mnemonic',
-      xpub: 'xpub',
-      xpubXP: 'xpubXP',
-      derivationPath: DerivationPath.BIP44,
+      wallets: [
+        {
+          mnemonic: 'mnemonic',
+          xpub: 'xpub',
+          xpubXP: 'xpubXP',
+          derivationPath: DerivationPath.BIP44,
+          id: ACTIVE_WALLET_ID,
+        },
+      ],
       ...additionalData,
     };
+    //as Wallet
     jest.spyOn(storageService, 'load').mockResolvedValue(data);
 
     return data;
@@ -91,16 +101,22 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     account?: Partial<Account>
   ) => {
     if (account) {
-      jest
-        .mocked(container.resolve)
-        .mockReturnValueOnce({ activeAccount: account });
+      jest.mocked(container.resolve).mockReturnValueOnce({
+        activeAccount: account,
+        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
+      });
     }
 
     const data = {
-      masterFingerprint: 'masterFingerprint',
-      xpub: 'xpub',
-      derivationPath: DerivationPath.BIP44,
-      ...additionalData,
+      wallets: [
+        {
+          masterFingerprint: 'masterFingerprint',
+          xpub: 'xpub',
+          derivationPath: DerivationPath.BIP44,
+          id: ACTIVE_WALLET_ID,
+          ...additionalData,
+        },
+      ],
     };
     jest.spyOn(storageService, 'load').mockResolvedValue(data);
 
@@ -112,16 +128,23 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     account?: Partial<Account>
   ) => {
     if (account) {
-      jest
-        .mocked(container.resolve)
-        .mockReturnValueOnce({ activeAccount: account });
+      jest.mocked(container.resolve).mockReturnValueOnce({
+        activeAccount: account,
+        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
+      });
     }
 
     const data = {
-      xpub: 'xpub',
-      xpubXP: 'xpubXP',
-      derivationPath: DerivationPath.BIP44,
-      ...additionalData,
+      wallets: [
+        {
+          xpub: 'xpub',
+          xpubXP: 'xpubXP',
+          derivationPath: DerivationPath.BIP44,
+          id: ACTIVE_WALLET_ID,
+          secretType: SecretType.Ledger,
+          ...additionalData,
+        },
+      ],
     };
     jest.spyOn(storageService, 'load').mockResolvedValue(data);
 
@@ -133,15 +156,22 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     account?: Partial<Account>
   ) => {
     if (account) {
-      jest
-        .mocked(container.resolve)
-        .mockReturnValue({ activeAccount: account });
+      jest.mocked(container.resolve).mockReturnValue({
+        activeAccount: account,
+        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
+      });
     }
 
     const data = {
-      derivationPath: DerivationPath.LedgerLive,
-      pubKeys: [{ evm: 'evm', xp: 'xp' }],
-      ...additionalData,
+      wallets: [
+        {
+          derivationPath: DerivationPath.LedgerLive,
+          pubKeys: [{ evm: 'evm', xp: 'xp' }],
+          id: ACTIVE_WALLET_ID,
+          secretType: SecretType.LedgerLive,
+          ...additionalData,
+        },
+      ],
     };
 
     jest.spyOn(storageService, 'load').mockResolvedValue(data);
@@ -158,34 +188,97 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       );
     });
 
-    it('throws error if secrets cannot be resolved', async () => {
-      storageService.load.mockResolvedValue({ key: 'some-unknown-secret' });
+    it('should return the wallet object', async () => {
+      storageService.load.mockResolvedValue({
+        wallets: [{ key: 'some-unknown-secret' }],
+      });
 
-      await expect(
-        secretsService.getPrimaryAccountSecrets()
-      ).rejects.toThrowError('Unknown secrets found for primary account');
+      await expect(secretsService.getPrimaryAccountSecrets()).resolves.toEqual({
+        key: 'some-unknown-secret',
+      });
     });
   });
 
-  describe('updateSecrets', () => {
-    it('throws if is used with `imported` key', async () => {
-      await expect(
-        secretsService.updateSecrets({ imported: {} })
-      ).rejects.toThrowError(
-        'Please use designated methods to manage imported wallets'
-      );
-    });
-
-    it('does not implicitly remove existing secrets in storage', async () => {
-      storageService.load.mockResolvedValue({
+  describe('addSecrets()', () => {
+    it('should save a new wallet to the `wallets` array', async () => {
+      const uuid = 'uuid';
+      (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
+      const existingWallets = [
+        {
+          isActive: true,
+        },
+      ];
+      const existingSecrets = {
         xpub: 'xpub',
+        wallets: existingWallets,
+      };
+      storageService.load.mockResolvedValue(existingSecrets);
+      await secretsService.addSecrets({
+        mnemonic: 'mnemonic',
+        secretType: SecretType.Mnemonic,
+        derivationPath: DerivationPath.BIP44,
+        xpub: 'xpib',
+        xpubXP: 'xpubXP',
       });
+      expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
+        ...existingSecrets,
+        wallets: [
+          { ...existingSecrets.wallets[0] },
+          {
+            id: uuid,
+            mnemonic: 'mnemonic',
+            secretType: SecretType.Mnemonic,
+            derivationPath: DerivationPath.BIP44,
+            xpub: 'xpib',
+            xpubXP: 'xpubXP',
+          },
+        ],
+      });
+    });
+  });
+  describe('updateSecrets', () => {
+    it('does not implicitly remove existing secrets in storage', async () => {
+      const existingSecrets = {
+        xpub: 'xpub',
+        wallets: [
+          {
+            id: ACTIVE_WALLET_ID,
+          },
+        ],
+      };
+      storageService.load.mockResolvedValue(existingSecrets);
 
-      await secretsService.updateSecrets({ xpubXP: 'xpubXP' });
+      await secretsService.updateSecrets(
+        { xpubXP: 'xpubXP' },
+        ACTIVE_WALLET_ID
+      );
 
       expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
-        xpub: 'xpub',
-        xpubXP: 'xpubXP',
+        ...existingSecrets,
+        wallets: [{ ...existingSecrets.wallets[0], xpubXP: 'xpubXP' }],
+      });
+    });
+  });
+
+  describe('deleteSecrets()', () => {
+    it('should remove the secrets from the storage', async () => {
+      const tempWalletId = 'removable-wallet-id';
+      const existingSecrets = {
+        wallets: [
+          {
+            id: ACTIVE_WALLET_ID,
+          },
+          {
+            id: tempWalletId,
+          },
+        ],
+      };
+      storageService.load.mockResolvedValue(existingSecrets);
+      await secretsService.deleteSecrets(tempWalletId);
+
+      expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
+        ...existingSecrets,
+        wallets: [{ ...existingSecrets.wallets[0] }],
       });
     });
   });
@@ -205,6 +298,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
         jest.mocked(container.resolve).mockReturnValue({
           activeAccount: undefined,
+          getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
         });
       });
 
@@ -212,7 +306,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         const result = await secretsService.getActiveAccountSecrets();
 
         expect('account' in result).toBe(false);
-        expect(result.type).toBe(SecretType.LedgerLive);
+        expect(result.secretType).toBe(SecretType.LedgerLive);
       });
     });
 
@@ -225,6 +319,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       beforeEach(() => {
         jest.mocked(container.resolve).mockReturnValue({
           activeAccount: account,
+          getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
         });
       });
 
@@ -238,11 +333,12 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       it('recognizes mnemonic wallets', async () => {
         const secrets = mockMnemonicWallet();
         const result = await secretsService.getActiveAccountSecrets();
-
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { ...rest } = secrets.wallets[0];
         expect(result).toEqual({
-          type: SecretType.Mnemonic,
           account,
-          ...secrets,
+          ...rest,
+          id: ACTIVE_WALLET_ID,
         });
       });
 
@@ -250,10 +346,14 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         const secrets = mockLedgerWallet();
         const result = await secretsService.getActiveAccountSecrets();
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { ...rest } = secrets.wallets[0];
         expect(result).toEqual({
-          type: SecretType.Ledger,
           account,
-          ...secrets,
+          btcWalletPolicyDetails: undefined,
+          ...rest,
+          secretType: SecretType.Ledger,
+          id: ACTIVE_WALLET_ID,
         });
       });
 
@@ -261,10 +361,13 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         const secrets = mockLedgerLiveWallet();
         const result = await secretsService.getActiveAccountSecrets();
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { ...rest } = secrets.wallets[0];
         expect(result).toEqual({
-          type: SecretType.LedgerLive,
           account,
-          ...secrets,
+          ...rest,
+          secretType: SecretType.LedgerLive,
+          id: ACTIVE_WALLET_ID,
         });
       });
 
@@ -272,17 +375,19 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         const secrets = mockKeystoneWallet();
         const result = await secretsService.getActiveAccountSecrets();
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { ...rest } = secrets.wallets[0];
         expect(result).toEqual({
-          type: SecretType.Keystone,
           account,
-          ...secrets,
+          ...rest,
+          id: ACTIVE_WALLET_ID,
         });
       });
     });
 
     describe('when a PrivateKey-imported account is active', () => {
       const secrets = {
-        type: ImportType.PRIVATE_KEY,
+        secretType: SecretType.PrivateKey,
         secret: 'secret',
       };
       const account = {
@@ -293,9 +398,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       beforeEach(() => {
         jest.mocked(container.resolve).mockReturnValue({
           activeAccount: account,
+          getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
         });
         mockMnemonicWallet({
-          imported: {
+          importedAccounts: {
             [account.id]: secrets,
           },
         });
@@ -305,8 +411,8 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         const result = await secretsService.getActiveAccountSecrets();
 
         expect(result).toEqual({
-          ...secrets,
-          type: SecretType.PrivateKey,
+          secret: 'secret',
+          secretType: SecretType.PrivateKey,
           account,
         });
       });
@@ -316,41 +422,43 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
   describe('getImportedAccountSecrets', () => {
     it('recognizes PrivateKey imports', async () => {
       mockMnemonicWallet({
-        imported: {
+        importedAccounts: {
           pk1: {
-            type: ImportType.PRIVATE_KEY,
+            secretType: SecretType.PrivateKey,
             secret: 'secret',
           },
         },
       });
 
       expect(await secretsService.getImportedAccountSecrets('pk1')).toEqual({
-        type: SecretType.PrivateKey,
+        secretType: SecretType.PrivateKey,
         secret: 'secret',
       });
     });
 
     it('recognizes WalletConnect imports', async () => {
       const wcData = {
-        type: ImportType.WALLET_CONNECT,
+        secretType: SecretType.WalletConnect,
         pubKey: { evm: 'evm', xp: 'xp' },
         addresses: { addressC: 'addressC' },
       };
       mockMnemonicWallet({
-        imported: {
+        importedAccounts: {
           wc1: wcData,
         },
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { secretType, ...rest } = wcData;
       expect(await secretsService.getImportedAccountSecrets('wc1')).toEqual({
-        ...wcData,
-        type: SecretType.WalletConnect,
+        ...rest,
+        secretType: SecretType.WalletConnect,
       });
     });
 
     it('recognizes Fireblocks imports', async () => {
       const fbData = {
-        type: ImportType.FIREBLOCKS,
+        secretType: SecretType.Fireblocks,
         api: {
           key: 'key',
           secret: 'secret',
@@ -358,14 +466,16 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         addresses: { addressC: 'addressC' },
       };
       mockMnemonicWallet({
-        imported: {
+        importedAccounts: {
           fb1: fbData,
         },
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { secretType, ...rest } = fbData;
       expect(await secretsService.getImportedAccountSecrets('fb1')).toEqual({
-        ...fbData,
-        type: SecretType.Fireblocks,
+        ...rest,
+        secretType: SecretType.Fireblocks,
       });
     });
   });
@@ -383,7 +493,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
     beforeEach(() => {
       secrets = mockMnemonicWallet({
-        imported: {
+        importedAccounts: {
           fbAcc,
         },
       });
@@ -391,16 +501,22 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
     it('adds new wallet data to storage', async () => {
       const pkAcc = {
-        type: ImportType.PRIVATE_KEY,
+        secretType: SecretType.PrivateKey,
         secret: 'secret',
       } as const;
 
       await secretsService.saveImportedWallet('pkAcc', pkAcc);
 
+      secrets;
+
       expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
-        ...secrets,
-        imported: {
-          fbAcc,
+        wallets: [
+          {
+            ...secrets.wallets[0],
+          },
+        ],
+        importedAccounts: {
+          ...secrets.importedAccounts,
           pkAcc,
         },
       });
@@ -409,16 +525,16 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
   describe('deleteImportedWallets', () => {
     const pkAcc = {
-      type: ImportType.PRIVATE_KEY,
+      secretType: SecretType.PrivateKey,
       secret: 'secret',
     };
     const wcAcc = {
-      type: ImportType.WALLET_CONNECT,
+      secretType: SecretType.WalletConnect,
       pubKey: { evm: 'evm', xp: 'xp' },
       addresses: { addressC: 'addressC' },
     };
     const fbAcc = {
-      type: ImportType.FIREBLOCKS,
+      secretType: SecretType.Fireblocks,
       api: {
         key: 'key',
         secret: 'secret',
@@ -429,7 +545,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
     beforeEach(() => {
       secrets = mockMnemonicWallet({
-        imported: {
+        importedAccounts: {
           pkAcc,
           wcAcc,
           fbAcc,
@@ -447,9 +563,18 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         pkAcc,
         fbAcc,
       });
+      const { mnemonic, xpub, xpubXP, derivationPath, id } = secrets.wallets[0];
       expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
-        ...secrets,
-        imported: {
+        wallets: [
+          {
+            derivationPath,
+            mnemonic,
+            xpub,
+            xpubXP,
+            id,
+          },
+        ],
+        importedAccounts: {
           wcAcc,
         },
       });
@@ -458,7 +583,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
   describe('when a WalletConnect-imported account is active', () => {
     const secrets = {
-      type: ImportType.WALLET_CONNECT,
+      secretType: SecretType.WalletConnect,
       addresses: {
         addressC: 'addressC',
         addressBTC: 'addressBTC',
@@ -476,9 +601,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     beforeEach(() => {
       jest.mocked(container.resolve).mockReturnValue({
         activeAccount: account,
+        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
       });
       mockMnemonicWallet({
-        imported: {
+        importedAccounts: {
           [account.id]: secrets,
         },
       });
@@ -488,8 +614,9 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       const result = await secretsService.getActiveAccountSecrets();
 
       expect(result).toEqual({
-        ...secrets,
-        type: SecretType.WalletConnect,
+        addresses: { ...secrets.addresses },
+        pubKey: { ...secrets.pubKey },
+        secretType: SecretType.WalletConnect,
         account,
       });
     });
@@ -497,7 +624,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
   describe('when a Fireblocks-imported account is active', () => {
     const secrets = {
-      type: ImportType.FIREBLOCKS,
+      secretType: SecretType.Fireblocks,
       addresses: {
         addressC: 'addressC',
         addressBTC: 'addressBTC',
@@ -515,9 +642,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     beforeEach(() => {
       jest.mocked(container.resolve).mockReturnValue({
         activeAccount: account,
+        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
       });
       mockMnemonicWallet({
-        imported: {
+        importedAccounts: {
           [account.id]: secrets,
         },
       });
@@ -526,9 +654,11 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     it(`returns the imported account's secrets along with the account`, async () => {
       const result = await secretsService.getActiveAccountSecrets();
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { secretType, ...rest } = secrets;
       expect(result).toEqual({
-        ...secrets,
-        type: SecretType.Fireblocks,
+        ...rest,
+        secretType: SecretType.Fireblocks,
         account,
       });
     });
@@ -594,6 +724,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     beforeEach(() => {
       jest.mocked(container.resolve).mockReturnValue({
         activeAccount: { type: AccountType.PRIMARY, index: 0 },
+        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
       });
     });
 
@@ -602,7 +733,8 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         xpub,
         masterFingerprint,
         hmacHex,
-        name
+        name,
+        ACTIVE_WALLET_ID
       );
 
     it('throws if wallet type is not Ledger', async () => {
@@ -657,17 +789,22 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         await storeBtcWalletPolicyDetails();
 
         expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
-          ...existingSecrets,
-          pubKeys: [
+          wallets: [
             {
-              evm: '0x1',
-              xp: '0x2',
-              btcWalletPolicyDetails: {
-                xpub,
-                masterFingerprint,
-                hmacHex,
-                name,
-              },
+              derivationPath: existingSecrets.wallets[0]?.derivationPath,
+              id: ACTIVE_WALLET_ID,
+              secretType: SecretType.LedgerLive,
+              pubKeys: [
+                {
+                  ...existingSecrets.wallets[0]?.pubKeys[0],
+                  btcWalletPolicyDetails: {
+                    xpub,
+                    masterFingerprint,
+                    hmacHex,
+                    name,
+                  },
+                },
+              ],
             },
           ],
         });
@@ -691,13 +828,21 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         await storeBtcWalletPolicyDetails();
 
         expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
-          ...existingSecrets,
-          btcWalletPolicyDetails: {
-            xpub,
-            masterFingerprint,
-            hmacHex,
-            name,
-          },
+          wallets: [
+            {
+              id: ACTIVE_WALLET_ID,
+              derivationPath: existingSecrets.wallets[0]?.derivationPath,
+              btcWalletPolicyDetails: {
+                xpub,
+                masterFingerprint,
+                hmacHex,
+                name,
+              },
+              xpub: existingSecrets.wallets[0]?.xpub,
+              xpubXP: existingSecrets.wallets[0]?.xpubXP,
+              secretType: SecretType.Ledger,
+            },
+          ],
         });
       });
     });

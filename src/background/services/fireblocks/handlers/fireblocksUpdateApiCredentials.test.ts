@@ -13,6 +13,7 @@ import {
   MAINNET_LOOKUP_ASSETS,
   TESTNET_LOOKUP_ASSETS,
 } from '../models';
+import { SecretType } from '../../secrets/models';
 
 jest.mock('../FireblocksService', () => ({
   FireblocksService: jest.fn().mockReturnValue({
@@ -112,7 +113,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
           secret: 'SECRET_KEY',
           vaultAccountId: 'VAULT_ACCOUNT_ID',
         },
-        type: AccountType.FIREBLOCKS,
+        secretType: SecretType.Fireblocks,
       }
     );
 

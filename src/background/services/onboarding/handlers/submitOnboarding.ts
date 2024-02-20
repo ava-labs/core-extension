@@ -1,6 +1,13 @@
 import { ChainId } from '@avalabs/chains-sdk';
-import { getXpubFromMnemonic, Avalanche } from '@avalabs/wallets-sdk';
-import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import {
+  getXpubFromMnemonic,
+  Avalanche,
+  DerivationPath,
+} from '@avalabs/wallets-sdk';
+import {
+  MemorySessionStorage,
+  SignerSessionData,
+} from '@cubist-labs/cubesigner-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
@@ -15,6 +22,7 @@ import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
+import { SeedlessWallet } from '../../seedless/SeedlessWallet';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ONBOARDING_SUBMIT,
@@ -131,39 +139,111 @@ export class SubmitOnboardingHandler implements HandlerType {
       ? Avalanche.getXpubFromMnemonic(mnemonic)
       : xPubXpFromLedger;
 
-    if (xpub) {
-      await this.walletService.init({
+    let walletId = '';
+    let secretType: SecretType | null = null;
+    if (!walletId && seedlessSignerToken && userEmail) {
+      secretType = SecretType.Seedless;
+      const memorySessionStorage = new MemorySessionStorage(
+        seedlessSignerToken
+      );
+      const seedlessWallet = new SeedlessWallet({
+        networkService: this.networkService,
+        sessionStorage: memorySessionStorage,
+      });
+
+      walletId = await this.walletService.init({
+        secretType,
+        pubKeys: (await seedlessWallet.getPublicKeys()) ?? [],
+        seedlessSignerToken: await memorySessionStorage.retrieve(),
+        userEmail,
+        authProvider: authProvider ?? SeedlessAuthProvider.Google,
+        derivationPath: DerivationPath.BIP44,
+      });
+    }
+
+    // If we have a phrase, we know it's a mnemonic wallet
+    if (!walletId && mnemonic && xpub && xpubXP) {
+      secretType = SecretType.Mnemonic;
+      walletId = await this.walletService.init({
+        secretType,
         mnemonic,
         xpub,
         xpubXP,
-        masterFingerprint,
+        derivationPath: DerivationPath.BIP44,
       });
-      await this.accountsService.addAccount(accountName);
-    } else if (seedlessSignerToken) {
-      await this.walletService.init({
-        authProvider,
-        seedlessSignerToken,
-        userEmail,
-      });
+    }
 
-      // Create accounts for all obtained keys.
+    // If we have a master fingerprint and an xpub, we're dealing with Keystone
+    if (!walletId && masterFingerprint && xpub) {
+      secretType = SecretType.Keystone;
+      walletId = await this.walletService.init({
+        secretType: SecretType.Keystone,
+        xpub,
+        masterFingerprint,
+        derivationPath: DerivationPath.BIP44,
+      });
+    }
+
+    // If we don't have the phrase or the fingerprint, but we do have xpub,
+    // we're dealing with Ledger + BIP44 derivation path
+    if (!walletId && xpub) {
+      secretType = SecretType.Ledger;
+      walletId = await this.walletService.init({
+        secretType,
+        xpub,
+        xpubXP,
+        derivationPath: DerivationPath.BIP44,
+      });
+    }
+
+    // If we have none of the above, but we do have public keys,
+    // we're dealing with Ledger + LedgerLive derivation path.
+    if (!walletId && pubKeys?.length) {
+      secretType = SecretType.LedgerLive;
+      walletId = await this.walletService.init({
+        secretType: SecretType.LedgerLive,
+        pubKeys,
+        derivationPath: DerivationPath.LedgerLive,
+      });
+    }
+
+    if (!walletId) {
+      throw new Error('Wallet initialization failed.');
+    }
+
+    if (xpub) {
+      await this.accountsService.addPrimaryAccount({
+        name: accountName,
+        walletId,
+      });
+    }
+
+    if (secretType === SecretType.Seedless) {
       const secrets = await this.secretsService.getPrimaryAccountSecrets();
-      if (secrets?.type === SecretType.Seedless) {
+      if (secrets?.secretType === SecretType.Seedless) {
         // Adding accounts cannot be parallelized, they need to be added one-by-one.
         // Otherwise race conditions occur and addresses get mixed up.
         for (let i = 0; i < secrets.pubKeys.length; i++) {
-          await this.accountsService.addAccount(i === 0 ? accountName : '');
+          await this.accountsService.addPrimaryAccount({
+            name: i === 0 ? accountName : '',
+            walletId,
+          });
         }
       } else {
         throw new Error('Seedless wallet initialization failed');
       }
-    } else if (pubKeys?.length) {
-      await this.walletService.init({ pubKeys });
+    }
+
+    if (pubKeys?.length) {
       for (let i = 0; i < pubKeys.length; i++) {
         const newAccountName = i === 0 ? accountName : '';
-        await this.accountsService.addAccount(newAccountName);
+        await this.accountsService.addPrimaryAccount({
+          name: newAccountName,
+          walletId,
+        });
       }
     }
+
     // add favorite networks before account activation so they can be loaded by the balances service
     await this.networkService.addFavoriteNetwork(ChainId.BITCOIN);
     await this.networkService.addFavoriteNetwork(ChainId.ETHEREUM_HOMESTEAD);

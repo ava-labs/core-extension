@@ -29,7 +29,7 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
   it('returns error if storage does not contain mnemonic', async () => {
     lockService.verifyPassword.mockResolvedValue(true);
     secretsService.getActiveAccountSecrets.mockResolvedValue({
-      type: SecretType.Ledger,
+      secretType: SecretType.Ledger,
     } as any);
 
     const handler = buildHandler();
@@ -45,7 +45,7 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
     const mnemonic = 'super-complex-mnemonic';
     lockService.verifyPassword.mockResolvedValue(true);
     secretsService.getActiveAccountSecrets.mockResolvedValue({
-      type: SecretType.Mnemonic,
+      secretType: SecretType.Mnemonic,
       mnemonic,
     } as any);
     const handler = buildHandler();

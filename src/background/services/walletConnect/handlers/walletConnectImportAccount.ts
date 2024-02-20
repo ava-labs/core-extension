@@ -73,9 +73,12 @@ export class WalletConnectImportAccount implements HandlerType {
       const accountData = await this.#getAccountData(request, session);
       const accountName = await this.#getDefaultAccountName(importType);
 
-      const accountId = await this.accountsService.addAccount(accountName, {
-        importType,
-        data: accountData,
+      const accountId = await this.accountsService.addImportedAccount({
+        name: accountName,
+        options: {
+          importType,
+          data: accountData,
+        },
       });
 
       await this.accountsService.activateAccount(accountId);

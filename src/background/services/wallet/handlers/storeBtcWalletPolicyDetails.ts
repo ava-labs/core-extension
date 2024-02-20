@@ -27,8 +27,8 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
     const secrets = await this.secretsService.getActiveAccountSecrets();
 
     if (
-      secrets.type !== SecretType.Ledger &&
-      secrets.type !== SecretType.LedgerLive
+      secrets.secretType !== SecretType.Ledger &&
+      secrets.secretType !== SecretType.LedgerLive
     ) {
       throw new Error('incorrect account type');
     }
@@ -64,7 +64,8 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
         xpub,
         masterFingerPrint,
         hmacHex,
-        name
+        name,
+        secrets.id
       );
     }
 

@@ -1,5 +1,9 @@
 import { ChainId } from '@avalabs/chains-sdk';
-import { Avalanche, getXpubFromMnemonic } from '@avalabs/wallets-sdk';
+import {
+  Avalanche,
+  DerivationPath,
+  getXpubFromMnemonic,
+} from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
@@ -13,12 +17,37 @@ import { SubmitOnboardingHandler } from './submitOnboarding';
 import { SecretsService } from '../../secrets/SecretsService';
 import { SeedlessAuthProvider } from '../../wallet/models';
 import { SecretType } from '../../secrets/models';
+import {
+  MemorySessionStorage,
+  SignerSessionData,
+} from '@cubist-labs/cubesigner-sdk';
+
+const WALLET_ID = 'wallet-id';
+
+jest.mock('../../seedless/SeedlessWallet');
+
+jest.mock('@cubist-labs/cubesigner-sdk');
+const mockrMemorySession = {
+  MemorySessionStorage: {
+    retrieve: jest.fn().mockResolvedValue({} as SignerSessionData),
+  },
+};
+
+(MemorySessionStorage as jest.Mock).mockImplementation(
+  () => mockrMemorySession
+);
 
 jest.mock('@avalabs/wallets-sdk', () => ({
+  ...jest.requireActual('@avalabs/wallets-sdk'),
   getXpubFromMnemonic: jest.fn(),
   Avalanche: {
     getXpubFromMnemonic: jest.fn(),
   },
+}));
+
+jest.mock('../../wallet/WalletService', () => ({
+  ...jest.requireActual('../../wallet/WalletService'),
+  init: jest.fn(),
 }));
 
 describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () => {
@@ -38,7 +67,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
     init: jest.fn(),
   } as unknown as WalletService;
   const accountsServiceMock = {
-    addAccount: jest.fn(),
+    addPrimaryAccount: jest.fn(),
     getAccountList: jest.fn(),
     activateAccount: jest.fn(),
   } as unknown as AccountsService;
@@ -81,6 +110,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
     (accountsServiceMock.getAccountList as jest.Mock).mockReturnValue([
       accountMock,
     ]);
+    (walletServiceMock.init as jest.Mock).mockResolvedValue(WALLET_ID);
   });
 
   it('returns error if params are missing', async () => {
@@ -188,7 +218,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
     jest
       .mocked(secretsServiceMock.getPrimaryAccountSecrets)
       .mockResolvedValueOnce({
-        type: SecretType.Seedless,
+        secretType: SecretType.Seedless,
         pubKeys: [
           {
             evm: 'evm',
@@ -226,20 +256,26 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
 
     // Initializes the wallet
     expect(walletServiceMock.init).toHaveBeenCalledWith({
-      seedlessSignerToken: {},
+      seedlessSignerToken: undefined,
       authProvider: SeedlessAuthProvider.Google,
       userEmail: 'a@b.c',
+      pubKeys: [],
+      derivationPath: DerivationPath.BIP44,
+      secretType: SecretType.Seedless,
     });
 
     // Adds all derived accounts
-    expect(accountsServiceMock.addAccount).toHaveBeenCalledTimes(2);
-    expect(accountsServiceMock.addAccount).toHaveBeenNthCalledWith(
-      1,
-      'test-acc'
-    );
-    expect(accountsServiceMock.addAccount).toHaveBeenNthCalledWith(2, '');
+    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledTimes(2);
+    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(1, {
+      name: 'test-acc',
+      walletId: WALLET_ID,
+    });
+    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(2, {
+      name: '',
+      walletId: WALLET_ID,
+    });
 
-    // Adds favorite networks
+    // // Adds favorite networks
     expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
       1,
       ChainId.BITCOIN
@@ -249,7 +285,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       ChainId.ETHEREUM_HOMESTEAD
     );
 
-    // Activates the first account
+    // // Activates the first account
     expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith(
       accountMock.id
     );
@@ -291,8 +327,13 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       mnemonic: 'mnemonic',
       xpub: 'xpubFromMnemonic',
       xpubXP: 'xpubFromMnemonicXP',
+      derivationPath: DerivationPath.BIP44,
+      secretType: SecretType.Mnemonic,
     });
-    expect(accountsServiceMock.addAccount).toHaveBeenCalledWith('Bob');
+    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
+      name: 'Bob',
+      walletId: WALLET_ID,
+    });
     expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
       1,
       ChainId.BITCOIN
@@ -340,8 +381,13 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       mnemonic: undefined,
       xpub: 'xpub',
       xpubXP: 'xpubXP',
+      derivationPath: DerivationPath.BIP44,
+      secretType: SecretType.Ledger,
     });
-    expect(accountsServiceMock.addAccount).toHaveBeenCalledWith('Bob');
+    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
+      name: 'Bob',
+      walletId: WALLET_ID,
+    });
     expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
       1,
       ChainId.BITCOIN
@@ -387,12 +433,15 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       'password'
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
-      mnemonic: undefined,
       xpub: 'xpub',
-      xpubXP: '',
       masterFingerprint: 'masterFingerprint',
+      derivationPath: DerivationPath.BIP44,
+      secretType: SecretType.Keystone,
     });
-    expect(accountsServiceMock.addAccount).toHaveBeenCalledWith('Bob');
+    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
+      name: 'Bob',
+      walletId: WALLET_ID,
+    });
     expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
       1,
       ChainId.BITCOIN
@@ -437,10 +486,21 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
       pubKeys: ['pubkey1', 'pubkey2', 'pubkey3'],
+      derivationPath: DerivationPath.LedgerLive,
+      secretType: SecretType.LedgerLive,
     });
-    expect(accountsServiceMock.addAccount).toHaveBeenNthCalledWith(1, 'Bob');
-    expect(accountsServiceMock.addAccount).toHaveBeenNthCalledWith(2, '');
-    expect(accountsServiceMock.addAccount).toHaveBeenNthCalledWith(3, '');
+    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(1, {
+      name: 'Bob',
+      walletId: WALLET_ID,
+    });
+    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(2, {
+      name: '',
+      walletId: WALLET_ID,
+    });
+    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(3, {
+      name: '',
+      walletId: WALLET_ID,
+    });
     expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
       1,
       ChainId.BITCOIN

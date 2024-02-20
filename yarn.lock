@@ -114,10 +114,10 @@
     ledger-bitcoin "^0.2.1"
     sha3 "2.1.4"
 
-"@avalabs/k2-components@4.18.0-alpha.19":
-  version "4.18.0-alpha.19"
-  resolved "https://registry.yarnpkg.com/@avalabs/k2-components/-/k2-components-4.18.0-alpha.19.tgz#7198847e23f3920f98e6d89c3d80c3e6a1acf8c5"
-  integrity sha512-JAswiYv8sURKTcNujepxKVNQd8/KhJCTkEmFWgEhQi8bDhaJ7U+HOkjoJKHPSZgrX70KWSRI1r8qh84qiA+ZYg==
+"@avalabs/k2-components@4.18.0-alpha.23":
+  version "4.18.0-alpha.23"
+  resolved "https://registry.yarnpkg.com/@avalabs/k2-components/-/k2-components-4.18.0-alpha.23.tgz#5274ba3ac7278da5efb4ffede930a9a1975bfb29"
+  integrity sha512-VLIRoyJRn+8FCzLFStfhd8y6TegzoOAIQ4dz17RI3hgucs/RrNVgna4L8WKlqgR41mKglxc3dpvZLg9QMQPWnw==
   dependencies:
     "@emotion/react" "11.11.1"
     "@emotion/styled" "11.11.0"

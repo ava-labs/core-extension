@@ -48,6 +48,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     name: 'active account',
     addressBTC: 'BTC_address',
     addressC: 'C_address',
+    walletId: 'wallet-id-1',
   };
 
   const accountsServiceMock = {

@@ -43,7 +43,7 @@ export class UpdateSignerTokenHandler implements HandlerType {
 
     const secrets = await this.secretsService.getActiveAccountSecrets();
 
-    if (secrets.type !== SecretType.Seedless) {
+    if (secrets.secretType !== SecretType.Seedless) {
       return {
         ...request,
         error: 'action available only for seedless accounts',

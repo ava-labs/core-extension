@@ -29,15 +29,20 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
   handle: HandlerType['handle'] = async (request) => {
     try {
       const secrets = await this.secretsService.getActiveAccountSecrets();
-
       if (
-        secrets.type !== SecretType.Ledger &&
-        secrets.type !== SecretType.LedgerLive
+        secrets.secretType !== SecretType.Ledger &&
+        secrets.secretType !== SecretType.LedgerLive
       ) {
         return {
           ...request,
           result: true,
         };
+      }
+
+      const walletId = secrets.id;
+
+      if (!walletId) {
+        throw new Error('Wallet id is missing');
       }
 
       const transport = this.ledgerService.recentTransport;
@@ -46,7 +51,7 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
         throw new Error('Ledger transport not available');
       }
 
-      if (secrets.type === SecretType.Ledger) {
+      if (secrets.secretType === SecretType.Ledger) {
         // nothing to update, exit early
         if (secrets.xpubXP) {
           return {
@@ -61,8 +66,8 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
           Avalanche.LedgerWallet.getAccountPath('X')
         );
 
-        await this.secretsService.updateSecrets({ xpubXP });
-      } else if (secrets.type === SecretType.LedgerLive) {
+        await this.secretsService.updateSecrets({ xpubXP }, walletId);
+      } else if (secrets.secretType === SecretType.LedgerLive) {
         const hasMissingXPPublicKey = (secrets.pubKeys ?? []).some(
           (pubKey) => !pubKey.xp
         );
@@ -106,9 +111,12 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
           }
         }
 
-        await this.secretsService.updateSecrets({
-          pubKeys: migrationResult.updatedPubKeys,
-        });
+        await this.secretsService.updateSecrets(
+          {
+            pubKeys: migrationResult.updatedPubKeys,
+          },
+          walletId
+        );
 
         if (migrationResult.hasError) {
           throw new Error(
