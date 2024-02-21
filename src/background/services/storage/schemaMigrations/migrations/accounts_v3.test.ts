@@ -6,6 +6,9 @@ describe('background/services/storage/schemaMigrations/migrations/accounts_v3', 
   beforeEach(() => {
     jest.resetAllMocks();
   });
+
+  const walletId = 'migrated-wallet-id';
+
   const validInput = {
     active: {
       index: 0,
@@ -59,7 +62,6 @@ describe('background/services/storage/schemaMigrations/migrations/accounts_v3', 
 
   it('should migrate the accounts to v3 successfully', async () => {
     const result = await accounts_v3.up(validInput);
-    const walletId = 'migrated-wallet-id';
     expect(result).toStrictEqual({
       active: {
         index: 0,
@@ -87,6 +89,74 @@ describe('background/services/storage/schemaMigrations/migrations/accounts_v3', 
             name: 'name 2',
             addressBTC: 'addressBTC',
             addressC: 'addressC',
+            type: AccountType.PRIMARY,
+            walletId,
+          },
+        ],
+      },
+      imported: {},
+      version: 3,
+    });
+  });
+
+  it('should migrate the accounts to v3 successfully with missing addresses', async () => {
+    const result = await accounts_v3.up({
+      active: {
+        index: 0,
+        id: 'uuid1',
+        name: 'name',
+        addressBTC: '',
+        addressC: '',
+        type: AccountType.PRIMARY,
+      },
+      primary: [
+        {
+          index: 0,
+          id: 'uuid1',
+          name: 'name',
+          addressBTC: '',
+          addressC: '',
+          type: AccountType.PRIMARY,
+        } as PrimaryAccount,
+        {
+          index: 1,
+          id: 'uuid2',
+          name: 'name 2',
+          addressBTC: '',
+          addressC: '',
+          type: AccountType.PRIMARY,
+        } as PrimaryAccount,
+      ],
+      imported: {},
+    });
+
+    expect(result).toStrictEqual({
+      active: {
+        index: 0,
+        id: 'uuid1',
+        name: 'name',
+        addressBTC: '',
+        addressC: '',
+        type: AccountType.PRIMARY,
+        walletId,
+      },
+      primary: {
+        [walletId]: [
+          {
+            index: 0,
+            id: 'uuid1',
+            name: 'name',
+            addressBTC: '',
+            addressC: '',
+            type: AccountType.PRIMARY,
+            walletId,
+          },
+          {
+            index: 1,
+            id: 'uuid2',
+            name: 'name 2',
+            addressBTC: '',
+            addressC: '',
             type: AccountType.PRIMARY,
             walletId,
           },
