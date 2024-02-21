@@ -15,6 +15,9 @@ Object.defineProperties(global.crypto, {
   getRandomValues: {
     value: (arr) => arr.map(() => 1),
   },
+  subtle: {
+    value: require('node:crypto').subtle,
+  },
 });
 
 Object.defineProperty(global.document, 'prerendering', {
