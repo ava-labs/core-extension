@@ -105,7 +105,7 @@ export function ImportPrivateKey() {
   useEffect(() => {
     if (derivedAddresses && updateBalanceOnAllNetworks) {
       setIsBalanceLoading(true);
-      updateBalanceOnAllNetworks(derivedAddresses as Account).finally(() =>
+      updateBalanceOnAllNetworks([derivedAddresses as Account]).finally(() =>
         setIsBalanceLoading(false)
       );
     }

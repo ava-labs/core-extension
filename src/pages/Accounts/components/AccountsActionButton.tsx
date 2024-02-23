@@ -12,6 +12,9 @@ import {
   styled,
   FireblocksIcon,
   Tooltip,
+  ListIcon,
+  Typography,
+  TypographyProps,
 } from '@avalabs/k2-components';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -38,6 +41,16 @@ const StyledMenuItem = styled(MenuItem)`
   }
 `;
 
+const MenuSubheader = (props: TypographyProps) => (
+  <Typography
+    variant="caption"
+    component="li"
+    sx={{ px: 2, pt: 1, pb: 0.5, cursor: 'default' }}
+    color="text.secondary"
+    {...props}
+  />
+);
+
 export const AccountsActionButton = ({
   disabled,
   onAddNewAccount,
@@ -55,6 +68,11 @@ export const AccountsActionButton = ({
   const goToImportScreen = useCallback(() => {
     capture('ImportPrivateKey_Clicked');
     history.push('/import-private-key');
+  }, [history, capture]);
+
+  const goToAddSeedphraseScreen = useCallback(() => {
+    capture('AddWalletWithSeedphrase_Clicked');
+    history.push('/accounts/add-wallet/seedphrase');
   }, [history, capture]);
 
   const goToWalletConnectScreen = useCallback(() => {
@@ -127,7 +145,17 @@ export const AccountsActionButton = ({
           >
             {({ TransitionProps }) => (
               <Grow {...TransitionProps} timeout={250}>
-                <MenuList dense sx={{ p: 0, mb: 1, overflow: 'hidden' }}>
+                <MenuList
+                  dense
+                  sx={{
+                    p: 0,
+                    py: 0.5,
+                    mb: 1,
+                    overflow: 'hidden',
+                    backgroundColor: 'grey.800',
+                  }}
+                >
+                  <MenuSubheader>{t('Import Account')}</MenuSubheader>
                   <StyledMenuItem
                     onClick={goToImportScreen}
                     data-testid="add-import-account"
@@ -162,6 +190,19 @@ export const AccountsActionButton = ({
                         {t('Import with Fireblocks')}
                       </StyledMenuItem>
                     </Tooltip>
+                  )}
+
+                  {featureFlags[FeatureGates.ADD_WALLET_WITH_SEEDPHRASE] && (
+                    <>
+                      <MenuSubheader>{t('Add Wallet')}</MenuSubheader>
+                      <StyledMenuItem
+                        onClick={goToAddSeedphraseScreen}
+                        data-testid="add-wallet-seed-phrase"
+                      >
+                        <ListIcon size={16} sx={{ pr: 1 }} />
+                        {t('Add Wallet with Seed Phrase')}
+                      </StyledMenuItem>
+                    </>
                   )}
                 </MenuList>
               </Grow>

@@ -219,7 +219,10 @@ export class AccountsService implements OnLock, OnUnlock {
       return this.walletService.getImportedAddresses(account.id);
     }
 
-    const addresses = await this.walletService.getAddresses(account.index);
+    const addresses = await this.walletService.getAddresses(
+      account.index,
+      account.walletId
+    );
 
     return {
       addressC: addresses[NetworkVMType.EVM],
@@ -344,11 +347,8 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   async addPrimaryAccount({ walletId, name }: AddAccountParams) {
-    const activeWalletPrimaryAccounts = this.#getActiveWalletPrimaryAccounts();
-
-    const lastAccount = this.accounts.primary[walletId]
-      ? activeWalletPrimaryAccounts.at(-1)
-      : 0;
+    const selectedWalletAccounts = this.accounts.primary[walletId] ?? [];
+    const lastAccount = selectedWalletAccounts.at(-1);
 
     const nextIndex = lastAccount ? lastAccount.index + 1 : 0;
     const newAccount = {
@@ -367,7 +367,7 @@ export class AccountsService implements OnLock, OnUnlock {
       primary: {
         ...this.accounts.primary,
         [walletId]: [
-          ...activeWalletPrimaryAccounts,
+          ...selectedWalletAccounts,
           {
             ...newAccount,
             id,

@@ -129,7 +129,7 @@ export const AccountItem = forwardRef(
 
     const getBalance = useCallback(async () => {
       setIsBalanceLoading(true);
-      await updateBalanceOnAllNetworks(account);
+      await updateBalanceOnAllNetworks([account]);
       setIsBalanceLoading(false);
     }, [account, updateBalanceOnAllNetworks]);
 

@@ -127,7 +127,7 @@ export const AccountItem = forwardRef(
         return;
       }
       setIsBalanceLoading(true);
-      await updateBalanceOnAllNetworks(account);
+      await updateBalanceOnAllNetworks([account]);
       setIsBalanceLoading(false);
     };
 

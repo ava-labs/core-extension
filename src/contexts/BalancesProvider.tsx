@@ -62,7 +62,7 @@ const BalancesContext = createContext<{
   tokens: BalancesState;
   nfts: NftState;
   updateNftBalances?: (pageToken: NftPageTokens, callback?: () => void) => void;
-  updateBalanceOnAllNetworks: (account: Account) => Promise<void>;
+  updateBalanceOnAllNetworks: (accounts: Account[]) => Promise<void>;
   registerSubscriber: () => void;
   unregisterSubscriber: () => void;
   isTokensCached: boolean;
@@ -71,9 +71,9 @@ const BalancesContext = createContext<{
 }>({
   tokens: { loading: true },
   nfts: { loading: false },
+  async updateBalanceOnAllNetworks() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   unregisterSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
-  async updateBalanceOnAllNetworks() {},
   isTokensCached: true,
   totalBalance: null,
   getTotalBalance() {
@@ -242,14 +242,14 @@ export function BalancesProvider({ children }: { children: any }) {
   }, [network?.chainId, activeAccount?.addressC, updateNftBalances]);
 
   const updateBalanceOnAllNetworks = useCallback(
-    async (account: Account) => {
+    async (accounts: Account[]) => {
       if (!network) {
         return;
       }
 
       const balances = await request<UpdateBalancesForNetworkHandler>({
         method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
-        params: [[account]],
+        params: [accounts],
       });
 
       dispatch({
@@ -275,7 +275,7 @@ export function BalancesProvider({ children }: { children: any }) {
       }
       return null;
     },
-    [activeAccount?.addressC, network?.isTestnet, tokens]
+    [activeAccount?.addressC, network?.isTestnet, tokens.totalBalance]
   );
 
   return (

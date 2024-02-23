@@ -129,6 +129,7 @@ import { UnifiedBridgeEvents } from '@src/background/services/unifiedBridge/even
 import { GetPrivateKeyHandler } from '@src/background/services/accounts/handlers/getPrivateKey';
 import { EstimateGasForBridgeTxHandler } from '@src/background/services/bridge/handlers/estimateGasForBridgeTx';
 import { UnifiedBridgeEstimateGas } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeEstimateGas';
+import { ImportSeedPhraseHandler } from '@src/background/services/wallet/handlers/importSeedPhrase';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -340,6 +341,10 @@ import { UnifiedBridgeEstimateGas } from '@src/background/services/unifiedBridge
   {
     token: 'ExtensionRequestHandler',
     useToken: UnifiedBridgeEstimateGas,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: ImportSeedPhraseHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

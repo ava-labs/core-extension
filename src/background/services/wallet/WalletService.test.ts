@@ -1100,7 +1100,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       getAddressesSpy.mockReturnValueOnce(addressesMock);
 
       const result = await walletService.addAddress(1, WALLET_ID);
-      expect(getAddressesSpy).toHaveBeenCalledWith(1);
+      expect(getAddressesSpy).toHaveBeenCalledWith(1, WALLET_ID);
       expect(result).toStrictEqual(addressesMock);
     });
 
@@ -1178,7 +1178,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         });
 
         const result = await walletService.addAddress(0, WALLET_ID);
-        expect(getAddressesSpy).toHaveBeenCalledWith(0);
+        expect(getAddressesSpy).toHaveBeenCalledWith(0, WALLET_ID);
         expect(getPubKeyFromTransport).not.toHaveBeenCalled();
         expect(result).toStrictEqual(addressesMock);
         expect(secretsService.updateSecrets).not.toHaveBeenCalled();
@@ -1200,7 +1200,7 @@ describe('background/services/wallet/WalletService.ts', () => {
           .mockReturnValueOnce(addressBuffXP);
 
         const result = await walletService.addAddress(0, WALLET_ID);
-        expect(getAddressesSpy).toHaveBeenCalledWith(0);
+        expect(getAddressesSpy).toHaveBeenCalledWith(0, WALLET_ID);
         expect(result).toStrictEqual(addressesMock);
         expect(secretsService.updateSecrets).toHaveBeenCalledWith(
           {
@@ -1252,7 +1252,7 @@ describe('background/services/wallet/WalletService.ts', () => {
             },
             WALLET_ID
           );
-          expect(getAddressesSpy).toHaveBeenCalledWith(1);
+          expect(getAddressesSpy).toHaveBeenCalledWith(1, WALLET_ID);
           expect(result).toStrictEqual(addressesMock);
         });
       });
@@ -1280,7 +1280,7 @@ describe('background/services/wallet/WalletService.ts', () => {
           expect(SeedlessWallet).not.toHaveBeenCalled();
           expect(secretsService.updateSecrets).not.toHaveBeenCalled();
 
-          expect(getAddressesSpy).toHaveBeenCalledWith(1);
+          expect(getAddressesSpy).toHaveBeenCalledWith(1, WALLET_ID);
           expect(result).toStrictEqual(addressesMock);
         });
       });
@@ -1296,39 +1296,17 @@ describe('background/services/wallet/WalletService.ts', () => {
       [NetworkVMType.CoreEth]: 'C-',
     });
 
-    it('throws if storage is empty', async () => {
-      mockMnemonicWallet({ secretType: 'unknown' });
-      await expect(walletService.getAddresses(0)).rejects.toThrowError(
-        'No public key available'
+    it('throws error if walletId is not provided', async () => {
+      await expect(walletService.getAddresses(0, '')).rejects.toThrow(
+        'Wallet id not provided'
       );
     });
 
-    it('works when active account is imported', async () => {
-      mockLedgerWallet(
-        {
-          imported: {
-            fb: {
-              type: ImportType.FIREBLOCKS,
-              addresses: { addressC: 'addressC' },
-            },
-          },
-        },
-        { type: AccountType.FIREBLOCKS, id: 'fb' }
-      );
-
-      (getAddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
-      (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x2');
-      (networkService.isMainnet as jest.Mock).mockReturnValueOnce(false);
-      await expect(walletService.getAddresses(0)).resolves.toStrictEqual(
-        addressesMock('0x1', '0x2')
-      );
-      expect(Avalanche.getAddressPublicKeyFromXpub).toBeCalledWith('xpubXP', 0);
-      expect(getAddressFromXPub).toHaveBeenCalledWith('xpub', 0);
-      expect(getBech32AddressFromXPub).toHaveBeenCalledWith(
-        'xpub',
-        0,
-        networks.testnet
-      );
+    it('throws if storage is empty', async () => {
+      mockMnemonicWallet({ secretType: 'unknown' });
+      await expect(
+        walletService.getAddresses(0, WALLET_ID)
+      ).rejects.toThrowError('No public key available');
     });
 
     it('returns the addresses for xpub', async () => {
@@ -1336,9 +1314,9 @@ describe('background/services/wallet/WalletService.ts', () => {
       (getAddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
       (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x2');
       (networkService.isMainnet as jest.Mock).mockReturnValueOnce(false);
-      await expect(walletService.getAddresses(0)).resolves.toStrictEqual(
-        addressesMock('0x1', '0x2')
-      );
+      await expect(
+        walletService.getAddresses(0, WALLET_ID)
+      ).resolves.toStrictEqual(addressesMock('0x1', '0x2'));
       expect(Avalanche.getAddressPublicKeyFromXpub).toBeCalledWith('xpubXP', 0);
       expect(getAddressFromXPub).toHaveBeenCalledWith('xpub', 0);
       expect(getBech32AddressFromXPub).toHaveBeenCalledWith(
@@ -1354,9 +1332,9 @@ describe('background/services/wallet/WalletService.ts', () => {
       });
       (networkService.isMainnet as jest.Mock).mockReturnValueOnce(false);
 
-      await expect(walletService.getAddresses(0)).rejects.toThrowError(
-        'Account not added'
-      );
+      await expect(
+        walletService.getAddresses(0, WALLET_ID)
+      ).rejects.toThrowError('Account not added');
     });
 
     it('returns the addresses for pubKey', async () => {
@@ -1368,9 +1346,9 @@ describe('background/services/wallet/WalletService.ts', () => {
       (getEvmAddressFromPubKey as jest.Mock).mockReturnValueOnce('0x1');
       (getBtcAddressFromPubKey as jest.Mock).mockReturnValueOnce('0x2');
 
-      await expect(walletService.getAddresses(0)).resolves.toStrictEqual(
-        addressesMock('0x1', '0x2')
-      );
+      await expect(
+        walletService.getAddresses(0, WALLET_ID)
+      ).resolves.toStrictEqual(addressesMock('0x1', '0x2'));
 
       expect(getEvmAddressFromPubKey).toHaveBeenCalledWith(pubKeyBuff);
       expect(getBtcAddressFromPubKey).toHaveBeenCalledWith(

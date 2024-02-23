@@ -353,4 +353,44 @@ export class SecretsService {
 
     return walletKeys ?? null;
   }
+
+  async isKnownSecret(
+    type: SecretType.Mnemonic,
+    mnemonic: string
+  ): Promise<boolean>;
+  async isKnownSecret(
+    type: SecretType.PrivateKey,
+    privateKey: string
+  ): Promise<boolean>;
+  async isKnownSecret(
+    type: SecretType.Mnemonic | SecretType.PrivateKey,
+    secret: unknown
+  ): Promise<boolean> {
+    const secrets = await this.#loadSecrets(false);
+
+    if (!secrets) {
+      return false;
+    }
+
+    if (type === SecretType.Mnemonic) {
+      return secrets.wallets.some(
+        (wallet) =>
+          wallet.secretType === SecretType.Mnemonic &&
+          wallet.mnemonic === secret
+      );
+    }
+
+    if (type === SecretType.PrivateKey) {
+      if (!secrets.importedAccounts) {
+        return false;
+      }
+
+      return Object.values(secrets.importedAccounts).some(
+        (acc) =>
+          acc.secretType === SecretType.PrivateKey && acc.secret === secret
+      );
+    }
+
+    throw new Error('Unsupported secret type');
+  }
 }

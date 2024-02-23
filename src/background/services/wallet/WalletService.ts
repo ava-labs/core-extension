@@ -836,13 +836,20 @@ export class WalletService implements OnLock, OnUnlock {
       );
     }
 
-    return this.getAddresses(index);
+    return this.getAddresses(index, walletId);
   }
 
   async getAddresses(
-    index: number
+    index: number,
+    walletId: string
   ): Promise<Record<NetworkVMType, string> | never> {
-    const secrets = await this.secretService.getPrimaryAccountSecrets();
+    if (!walletId) {
+      throw new Error('Wallet id not provided');
+    }
+
+    const secrets = await this.secretService.getWalletAccountsSecretsById(
+      walletId
+    );
 
     if (!secrets) {
       throw new Error('Wallet is not initialized');

@@ -5,6 +5,7 @@ import { errorCodes } from 'eth-rpc-errors';
 import { FireblocksErrorCode } from '@src/background/services/fireblocks/models';
 import { CommonError, isWrappedError } from '@src/utils/errors';
 import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
+import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
 
 type ErrorTranslation = {
   title: string;
@@ -133,14 +134,31 @@ export const useErrorMessage = () => {
     [t]
   );
 
+  const seedphraseImportError: Record<SeedphraseImportError, ErrorTranslation> =
+    useMemo(
+      () => ({
+        [SeedphraseImportError.ExistingSeedphrase]: {
+          title: t('This seedphrase is already imported.'),
+        },
+      }),
+      [t]
+    );
+
   const messages = useMemo(
     () => ({
       ...fireblocksErrors,
       ...unifiedBridgeErrors,
       ...commonErrors,
       ...standardRpcErrors,
+      ...seedphraseImportError,
     }),
-    [fireblocksErrors, commonErrors, standardRpcErrors, unifiedBridgeErrors]
+    [
+      fireblocksErrors,
+      commonErrors,
+      standardRpcErrors,
+      unifiedBridgeErrors,
+      seedphraseImportError,
+    ]
   );
 
   return useCallback(

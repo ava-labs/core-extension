@@ -253,6 +253,16 @@ describe('background/services/accounts/AccountsService', () => {
       expect(storageService.load).toBeCalledTimes(1);
       expect(storageService.load).toBeCalledWith(ACCOUNTS_STORAGE_KEY);
       expect(walletService.getAddresses).toBeCalledTimes(2);
+      expect(walletService.getAddresses).toHaveBeenNthCalledWith(
+        1,
+        0,
+        walletId
+      );
+      expect(walletService.getAddresses).toHaveBeenNthCalledWith(
+        2,
+        1,
+        walletId
+      );
       expect(walletService.getImportedAddresses).toBeCalledTimes(3);
 
       const accounts = accountsService.getAccounts();

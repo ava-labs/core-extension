@@ -139,4 +139,6 @@ export enum ExtensionRequest {
   UNIFIED_BRIDGE_TRANSFER_ASSET = 'unified_bridge_transfer_asset',
   UNIFIED_BRIDGE_GET_STATE = 'unified_bridge_get_state',
   UNIFIED_BRIDGE_GET_ASSETS = 'unified_bridge_get_assets',
+
+  WALLET_IMPORT_SEED_PHRASE = 'wallet_import_seed_phrase',
 }

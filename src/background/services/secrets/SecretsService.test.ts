@@ -81,6 +81,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     const data = {
       wallets: [
         {
+          secretType: SecretType.Mnemonic,
           mnemonic: 'mnemonic',
           xpub: 'xpub',
           xpubXP: 'xpubXP',
@@ -110,6 +111,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     const data = {
       wallets: [
         {
+          secretType: SecretType.Keystone,
           masterFingerprint: 'masterFingerprint',
           xpub: 'xpub',
           derivationPath: DerivationPath.BIP44,
@@ -569,6 +571,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           {
             derivationPath,
             mnemonic,
+            secretType: SecretType.Mnemonic,
             xpub,
             xpubXP,
             id,
@@ -712,6 +715,20 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           details: btcWalletPolicyDetails,
         }
       );
+    });
+  });
+
+  describe('isKnownSecret', () => {
+    it('returns true when seed phrase is already stored', async () => {
+      mockMnemonicWallet();
+
+      expect(
+        await secretsService.isKnownSecret(SecretType.Mnemonic, 'mnemonic')
+      ).toBe(true);
+
+      expect(
+        await secretsService.isKnownSecret(SecretType.Mnemonic, 'cinomenm')
+      ).toBe(false);
     });
   });
 

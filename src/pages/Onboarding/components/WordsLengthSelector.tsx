@@ -9,10 +9,9 @@ import {
   MenuList,
   useTheme,
 } from '@avalabs/k2-components';
+import { wordPhraseLength } from '@src/utils/seedPhraseValidation';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-export const wordPhraseLength = [12, 18, 24];
 
 export function WordsLengthSelector({
   wordsLength: currentWordsLength,

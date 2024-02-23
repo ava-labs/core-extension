@@ -224,6 +224,12 @@ const ExportPrivateKey = lazy(() => {
   }));
 });
 
+const AddWalletWithSeedPhrase = lazy(() => {
+  return import('../pages/Accounts/AddWalletWithSeedPhrase').then((m) => ({
+    default: m.AddWalletWithSeedPhrase,
+  }));
+});
+
 const pagesWithoutHeader = [
   '/tokens/manage',
   '/bridge/confirm',
@@ -639,6 +645,15 @@ export function Popup() {
                                                   <AccountManagerProvider>
                                                     <Accounts />
                                                   </AccountManagerProvider>
+                                                </Suspense>
+                                              </Route>
+                                              <Route path="/accounts/add-wallet/seedphrase">
+                                                <Suspense
+                                                  fallback={
+                                                    <CircularProgress />
+                                                  }
+                                                >
+                                                  <AddWalletWithSeedPhrase />
                                                 </Suspense>
                                               </Route>
                                               <Route path="/accounts/:accountId">
