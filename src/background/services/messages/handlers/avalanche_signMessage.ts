@@ -31,12 +31,26 @@ export class AvalancheSignMessageHandler extends DAppRequestHandler {
         }),
       };
     }
+    const accountIndex = request.params[1] ?? undefined;
+
+    if (
+      accountIndex !== undefined &&
+      (typeof accountIndex !== 'number' || accountIndex < 0)
+    ) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message: `Invalid account index provided: ${accountIndex}`,
+        }),
+      };
+    }
 
     const msgHex = Buffer.from(message, 'utf-8').toString('hex');
 
     const messageParams: MessageParams = {
       data: msgHex,
       from: '',
+      accountIndex,
     };
 
     const actionData = {

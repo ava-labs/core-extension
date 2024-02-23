@@ -15,7 +15,11 @@ import {
   WalletEvents,
   WalletType,
 } from './models';
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import {
+  AVALANCHE_XP_TEST_NETWORK,
+  Network,
+  NetworkVMType,
+} from '@avalabs/chains-sdk';
 import {
   BitcoinLedgerWallet,
   BitcoinWallet,
@@ -1078,6 +1082,40 @@ describe('background/services/wallet/WalletService.ts', () => {
         );
         expect(Buffer.from).not.toHaveBeenCalled();
       }
+    });
+
+    it('should use the accountIndex to getWallet if available', async () => {
+      const actionWithAccountIndex: Action = {
+        time: 123,
+        status: ActionStatus.SUBMITTING,
+        displayData: { messageParams: { data: 'test', accountIndex: 1 } },
+        method: 'method',
+        actionId: 'action ID',
+      };
+      const getWalletSpy = jest
+        .spyOn(walletService as any, 'getWallet')
+        .mockReturnValue(simpleSignerMock);
+      jest
+        .mocked(networkService)
+        .getAvalancheNetworkXP.mockReturnValue(AVALANCHE_XP_TEST_NETWORK);
+
+      const mockedHash = 'mockedHash';
+      simpleSignerMock.signMessage = jest
+        .fn()
+        .mockResolvedValueOnce(mockedHash);
+
+      const result = await walletService.signMessage(
+        MessageType.AVALANCHE_SIGN,
+        actionWithAccountIndex
+      );
+
+      expect(getWalletSpy).toHaveBeenCalledTimes(2);
+      expect(getWalletSpy).toHaveBeenNthCalledWith(1, { accountIndex: 1 });
+      expect(getWalletSpy).toHaveBeenNthCalledWith(2, {
+        network: AVALANCHE_XP_TEST_NETWORK,
+        accountIndex: 1,
+      });
+      expect(result).toEqual(mockedHash);
     });
   });
 

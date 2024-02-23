@@ -18,4 +18,5 @@ export type MessageParams = {
   data: any;
   from: string;
   password?: string;
+  accountIndex?: number;
 };
