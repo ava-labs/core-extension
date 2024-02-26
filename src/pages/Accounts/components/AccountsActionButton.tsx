@@ -51,6 +51,11 @@ const MenuSubheader = (props: TypographyProps) => (
   />
 );
 
+const WALLET_IMPORT_FLAGS = [
+  FeatureGates.ADD_WALLET_WITH_SEEDPHRASE,
+  FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE,
+];
+
 export const AccountsActionButton = ({
   disabled,
   onAddNewAccount,
@@ -75,6 +80,11 @@ export const AccountsActionButton = ({
     history.push('/accounts/add-wallet/seedphrase');
   }, [history, capture]);
 
+  const goToAddKeystoreFileScreen = useCallback(() => {
+    capture('AddWalletWithKeystoreFile_Clicked');
+    history.push('/accounts/add-wallet/keystore');
+  }, [history, capture]);
+
   const goToWalletConnectScreen = useCallback(() => {
     capture('ImportWithWalletConnect_Clicked');
     history.push('/import-with-walletconnect');
@@ -97,6 +107,10 @@ export const AccountsActionButton = ({
 
     return '';
   }, [t, network]);
+
+  const isAnyWalletImportAvailable = WALLET_IMPORT_FLAGS.some(
+    (flag) => featureFlags[flag]
+  );
 
   return (
     <ButtonGroup
@@ -192,17 +206,26 @@ export const AccountsActionButton = ({
                     </Tooltip>
                   )}
 
+                  {isAnyWalletImportAvailable && (
+                    <MenuSubheader>{t('Add Wallet')}</MenuSubheader>
+                  )}
                   {featureFlags[FeatureGates.ADD_WALLET_WITH_SEEDPHRASE] && (
-                    <>
-                      <MenuSubheader>{t('Add Wallet')}</MenuSubheader>
-                      <StyledMenuItem
-                        onClick={goToAddSeedphraseScreen}
-                        data-testid="add-wallet-seed-phrase"
-                      >
-                        <ListIcon size={16} sx={{ pr: 1 }} />
-                        {t('Add Wallet with Seed Phrase')}
-                      </StyledMenuItem>
-                    </>
+                    <StyledMenuItem
+                      onClick={goToAddSeedphraseScreen}
+                      data-testid="add-wallet-seed-phrase"
+                    >
+                      <ListIcon size={16} sx={{ pr: 1 }} />
+                      {t('Add Wallet with Seed Phrase')}
+                    </StyledMenuItem>
+                  )}
+                  {featureFlags[FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE] && (
+                    <StyledMenuItem
+                      onClick={goToAddKeystoreFileScreen}
+                      data-testid="add-wallet-keystore-file"
+                    >
+                      <ListIcon size={16} sx={{ pr: 1 }} />
+                      {t('Add Wallet with Keystore File')}
+                    </StyledMenuItem>
                   )}
                 </MenuList>
               </Grow>

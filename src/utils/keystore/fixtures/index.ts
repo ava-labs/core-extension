@@ -8,6 +8,7 @@ import KEYSTORE_FILE_V3 from './keystore-v3.json';
 import KEYSTORE_FILE_V4 from './keystore-v4.json';
 import KEYSTORE_FILE_V5 from './keystore-v5.json';
 import KEYSTORE_FILE_V6 from './keystore-v6.json';
+import KEYSTORE_FILE_V6_PKEY from './keystore-v6-private-key.json';
 
 export const KEYSTORE_V2 = {
   file: KEYSTORE_FILE_V2,
@@ -26,7 +27,7 @@ export const KEYSTORE_V2 = {
       type: 'mnemonic',
     },
   ],
-};
+} as const;
 export const KEYSTORE_V3 = {
   file: KEYSTORE_FILE_V3,
   password: '111111111',
@@ -44,7 +45,7 @@ export const KEYSTORE_V3 = {
       type: 'mnemonic',
     },
   ],
-};
+} as const;
 export const KEYSTORE_V4 = {
   file: KEYSTORE_FILE_V4,
   password: '111111111',
@@ -55,7 +56,7 @@ export const KEYSTORE_V4 = {
       type: 'mnemonic',
     },
   ],
-};
+} as const;
 export const KEYSTORE_V5 = {
   file: KEYSTORE_FILE_V5,
   password: '111111111',
@@ -70,7 +71,7 @@ export const KEYSTORE_V5 = {
       type: 'mnemonic',
     },
   ],
-};
+} as const;
 export const KEYSTORE_V6 = {
   file: KEYSTORE_FILE_V6,
   password: '111111111',
@@ -78,6 +79,16 @@ export const KEYSTORE_V6 = {
     {
       key: 'solar ordinary sentence pelican trim ring indicate cake ordinary water size improve impose gentle frown sound know siren sick elder wait govern tortoise unit',
       type: 'mnemonic',
+    },
+  ],
+} as const;
+export const KEYSTORE_V6_PKEY = {
+  file: KEYSTORE_FILE_V6_PKEY,
+  password: '123123123',
+  expectedPhrases: [
+    {
+      key: 'PrivateKey-2NryVJe1H9dqRbJggntZggK7fEmj3QpCHTqadj6i6m4qciANPE',
+      type: 'singleton',
     },
   ],
 } as const;

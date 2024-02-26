@@ -13,9 +13,8 @@ import {
   getEvmAddressFromPubKey,
   getPublicKeyFromPrivateKey,
 } from '@avalabs/wallets-sdk';
-import { Account, ImportType } from '@src/background/services/accounts/models';
+import { Account } from '@src/background/services/accounts/models';
 import { PageTitle } from '@src/components/common/PageTitle';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -28,6 +27,7 @@ import { useHistory } from 'react-router-dom';
 import { AccountsTab } from '../Accounts/Accounts';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
 import { strip0x } from '@avalabs/avalanchejs-v2';
+import { usePrivateKeyImport } from '../Accounts/hooks/usePrivateKeyImport';
 
 type DerivedAddresses = {
   addressC: string;
@@ -41,34 +41,28 @@ export function ImportPrivateKey() {
   const { capture } = useAnalyticsContext();
   const theme = useTheme();
   const [hasFocus, setHasFocus] = useState(false);
-  const [isImportLoading, setImportLoading] = useState(false);
   const [privateKey, setPrivateKey] = useState('');
   const [derivedAddresses, setDerivedAddresses] = useState<DerivedAddresses>();
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
   const [error, setError] = useState('');
   const [isFormDirty, setIsFormDirty] = useState(false);
   const balance = useBalanceTotalInCurrency(derivedAddresses as Account);
-  const { addAccount } = useAccountsContext();
+  const { isImporting: isImportLoading, importPrivateKey } =
+    usePrivateKeyImport();
   const history = useHistory();
 
   const isLoading = hasFocus && !derivedAddresses && !error;
 
   const handleImport = async () => {
     capture('ImportPrivateKeyClicked');
-    setImportLoading(true);
     try {
-      await addAccount('', {
-        importType: ImportType.PRIVATE_KEY,
-        data: strip0x(privateKey),
-      });
+      await importPrivateKey(privateKey);
       toast.success(t('Private Key Imported'), { duration: 2000 });
       capture('ImportPrivateKeySucceeded');
       history.replace(`/accounts?activeTab=${AccountsTab.Imported}`);
     } catch (err) {
       toast.error(t('Private Key Import Failed'), { duration: 2000 });
       console.error(err);
-    } finally {
-      setImportLoading(false);
     }
   };
 

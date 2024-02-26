@@ -230,6 +230,12 @@ const AddWalletWithSeedPhrase = lazy(() => {
   }));
 });
 
+const AddWalletWithKeystoreFile = lazy(() => {
+  return import('../pages/Accounts/AddWalletWithKeystoreFile').then((m) => ({
+    default: m.AddWalletWithKeystoreFile,
+  }));
+});
+
 const pagesWithoutHeader = [
   '/tokens/manage',
   '/bridge/confirm',
@@ -654,6 +660,15 @@ export function Popup() {
                                                   }
                                                 >
                                                   <AddWalletWithSeedPhrase />
+                                                </Suspense>
+                                              </Route>
+                                              <Route path="/accounts/add-wallet/keystore">
+                                                <Suspense
+                                                  fallback={
+                                                    <CircularProgress />
+                                                  }
+                                                >
+                                                  <AddWalletWithKeystoreFile />
                                                 </Suspense>
                                               </Route>
                                               <Route path="/accounts/:accountId">

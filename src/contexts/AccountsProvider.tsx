@@ -27,7 +27,7 @@ const AccountsContext = createContext<{
   isActiveAccount(id: string): boolean;
   selectAccount(id: string): Promise<any>;
   renameAccount(id: string, name: string): Promise<any>;
-  addAccount(name?: string, importData?: ImportData): Promise<any>;
+  addAccount(name?: string, importData?: ImportData): Promise<string>;
   deleteAccounts(ids: string[]): Promise<any>;
   getAccount(address: string): Account | undefined;
   getAccountById(id: string): Account | undefined;

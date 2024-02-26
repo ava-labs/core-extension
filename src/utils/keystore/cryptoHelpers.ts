@@ -16,10 +16,10 @@ const KEYGEN_ITERATIONS_V3 = 200000; // v3 and and any version above
 
 const makeSalt = () => randomBytes(SALT_SIZE);
 
-export const cleanPassword = (password: string, salt: Uint8Array): Uint8Array =>
+export const getHash = (password: string, salt: Uint8Array): Uint8Array =>
   sha256(concatBytes(utf8ToBytes(password), salt));
 
-export const hashPassword = (
+export const calculatePasswordHash = (
   password: string,
   salt: Uint8Array
 ): { salt: Uint8Array; hash: Uint8Array } => {
@@ -31,7 +31,7 @@ export const hashPassword = (
     slt = makeSalt();
   }
 
-  const hash = cleanPassword(password, cleanPassword(password, slt));
+  const hash = getHash(password, getHash(password, slt));
   return { salt: slt, hash };
 };
 
@@ -65,7 +65,7 @@ export const decrypt = async (
   iv: Uint8Array,
   keygenIterations?: number
 ): Promise<Uint8Array> => {
-  const pwkey = cleanPassword(password, salt);
+  const pwkey = getHash(password, salt);
   const keyMaterial = await importKey(pwkey);
   const pkey = await deriveKey(keyMaterial, salt, keygenIterations);
 

@@ -1,6 +1,7 @@
 import { FireblocksErrorCode } from '@src/background/services/fireblocks/models';
 import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
 import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
+import { KeystoreError } from '@src/utils/keystore/models';
 
 export enum CommonError {
   Unknown = 'unknown',
@@ -16,4 +17,5 @@ export type ErrorCode =
   | FireblocksErrorCode
   | CommonError
   | UnifiedBridgeError
-  | SeedphraseImportError;
+  | SeedphraseImportError
+  | KeystoreError;

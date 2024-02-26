@@ -16,8 +16,9 @@ import {
   KeyFileV4,
   KeyFileV5,
   KeyFileV6,
+  KeystoreError,
 } from './models';
-import { cleanPassword, decrypt, hashPassword } from './cryptoHelpers';
+import { getHash, decrypt, calculatePasswordHash } from './cryptoHelpers';
 
 export const KEYSTORE_VERSION = '6.0';
 
@@ -28,11 +29,11 @@ async function readV2(data: KeyFileV2, pass) {
 
   const salt = base58check.decode(data.salt);
 
-  const checkHash = cleanPassword(pass, salt);
+  const checkHash = getHash(pass, salt);
   const checkHashString = base58check.encode(toBytes(checkHash));
 
   if (checkHashString !== data.pass_hash) {
-    throw 'INVALID_PASS';
+    throw KeystoreError.InvalidPassword;
   }
 
   const decryptedKeys = await Promise.all(
@@ -65,11 +66,11 @@ async function readV3(data: KeyFileV3, pass) {
 
   const salt = base58check.decode(data.salt);
 
-  const checkHash = await hashPassword(pass, salt);
+  const checkHash = await calculatePasswordHash(pass, salt);
   const checkHashString = base58check.encode(checkHash.hash);
 
   if (checkHashString !== data.pass_hash) {
-    throw 'INVALID_PASS';
+    throw KeystoreError.InvalidPassword;
   }
 
   const decryptedKeys = await Promise.all(
@@ -95,11 +96,11 @@ async function readV4(data: KeyFileV4, pass): Promise<KeyFileDecryptedV5> {
   const version = data.version;
 
   const salt = base58check.decode(data.salt);
-  const checkHash = await hashPassword(pass, salt);
+  const checkHash = await calculatePasswordHash(pass, salt);
   const checkHashString = base58check.encode(checkHash.hash);
 
   if (checkHashString !== data.pass_hash) {
-    throw 'INVALID_PASS';
+    throw KeystoreError.InvalidPassword;
   }
 
   const decryptedKeys = await Promise.all(
@@ -127,11 +128,11 @@ async function readV5(data: KeyFileV5, pass): Promise<KeyFileDecryptedV5> {
 
   const salt = base58check.decode(data.salt);
 
-  const checkHash = await hashPassword(pass, salt);
+  const checkHash = await calculatePasswordHash(pass, salt);
   const checkHashString = base58check.encode(checkHash.hash);
 
   if (checkHashString !== data.pass_hash) {
-    throw 'INVALID_PASS';
+    throw KeystoreError.InvalidPassword;
   }
 
   const decoder = new TextDecoder();
@@ -172,7 +173,7 @@ async function readV6(data: KeyFileV6, pass): Promise<KeyFileDecryptedV6> {
           type: keyData.type,
         };
       } catch (e) {
-        throw 'INVALID_PASS';
+        throw KeystoreError.InvalidPassword;
       }
     })
   );
@@ -186,7 +187,7 @@ async function readV6(data: KeyFileV6, pass): Promise<KeyFileDecryptedV6> {
 
 export async function readKeyFile(
   data: AllKeyFileTypes,
-  pass
+  pass: string
 ): Promise<AllKeyFileDecryptedTypes> {
   switch (data.version) {
     case '6.0':
@@ -200,7 +201,7 @@ export async function readKeyFile(
     case '2.0':
       return await readV2(data as KeyFileV2, pass);
     default:
-      throw 'INVALID_VERSION';
+      throw KeystoreError.InvalidVersion;
   }
 }
 
@@ -252,6 +253,6 @@ export function extractKeysFromDecryptedFile(
     case '2.0':
       return extractKeysV2(file as KeyFileDecryptedV2);
     default:
-      throw 'INVALID_VERSION';
+      throw KeystoreError.InvalidVersion;
   }
 }

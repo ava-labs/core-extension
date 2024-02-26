@@ -10,6 +10,7 @@ import {
   Tooltip,
   Typography,
   styled,
+  toast,
   useTheme,
 } from '@avalabs/k2-components';
 import { useHistory } from 'react-router-dom';
@@ -23,11 +24,16 @@ import { useBalancesContext } from '@src/contexts/BalancesProvider';
 
 import { useConvertedCurrencyFormatter } from '../DeFi/hooks/useConvertedCurrencyFormatter';
 
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 import { NameYourWallet } from './components/NameYourWallet';
 import { useImportSeedphrase } from './hooks/useImportSeedphrase';
 import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';
 import { isPhraseCorrect } from '@src/utils/seedPhraseValidation';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useErrorMessage } from '@src/hooks/useErrorMessage';
 
 const EMPTY_ADDRESSES = Array(3).fill('');
 
@@ -47,6 +53,8 @@ export function AddWalletWithSeedPhrase() {
   const history = useHistory();
   const { t } = useTranslation();
   const { allAccounts } = useAccountsContext();
+  const { capture } = useAnalyticsContext();
+  const getErrorMessage = useErrorMessage();
   const formatCurrency = useConvertedCurrencyFormatter();
   const { updateBalanceOnAllNetworks, getTotalBalance } = useBalancesContext();
 
@@ -118,6 +126,33 @@ export function AddWalletWithSeedPhrase() {
       [deriveAddresses]
     );
 
+  const handleImport = useCallback(
+    async (name?: string) => {
+      try {
+        capture('SeedphraseImportStarted');
+
+        const result = await importSeedphrase({
+          mnemonic: phrase.trim().split(/\s+/g).join(' '),
+          name,
+        });
+
+        capture('SeedphraseImportSuccess');
+
+        toast.success(t('{{walletName}} Added', { walletName: result.name }));
+        history.replace('/accounts');
+      } catch (err) {
+        capture('SeedphraseImportFailure');
+        sentryCaptureException(
+          err as Error,
+          SentryExceptionTypes.WALLET_IMPORT
+        );
+        const { title } = getErrorMessage(err);
+        toast.error(title);
+      }
+    },
+    [capture, getErrorMessage, history, importSeedphrase, phrase, t]
+  );
+
   const keyboardShortcuts = useKeyboardShortcuts({
     Enter: onContinue,
   });
@@ -127,12 +162,7 @@ export function AddWalletWithSeedPhrase() {
       {step === Step.Name && (
         <NameYourWallet
           isImporting={isImporting}
-          onSave={async (name) => {
-            await importSeedphrase({
-              mnemonic: phrase.trim().split(/\s+/g).join(' '),
-              name,
-            });
-          }}
+          onSave={handleImport}
           onBackClick={() => setStep(Step.Import)}
         />
       )}

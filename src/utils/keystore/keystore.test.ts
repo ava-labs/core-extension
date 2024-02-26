@@ -50,9 +50,9 @@ describe('Keystore Import/Export', () => {
       KEYSTORE_V6.password
     );
 
-    expect(data.keys).toEqual(KEYSTORE_V5.expectedPhrases);
+    expect(data.keys).toEqual(KEYSTORE_V6.expectedPhrases);
     expect(extractKeysFromDecryptedFile(data)).toEqual(
-      KEYSTORE_V5.expectedPhrases
+      KEYSTORE_V6.expectedPhrases
     );
   });
 });

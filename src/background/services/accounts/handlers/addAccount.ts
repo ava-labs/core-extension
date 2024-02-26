@@ -7,7 +7,7 @@ import { isPrimaryAccount } from '../utils/typeGuards';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_ADD,
-  string | undefined,
+  string,
   { name?: string; importData?: ImportData; walletId?: string }
 >;
 
