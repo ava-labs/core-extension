@@ -1,6 +1,5 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { GetPrivateKeyHandler } from './getPrivateKey';
-import { WalletType } from '../../wallet/models';
 import { AccountType, GetPrivateKeyErrorTypes } from '../models';
 import { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
@@ -24,7 +23,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
   const request = {
     id: '123',
     method: ExtensionRequest.ACCOUNT_GET_PRIVATEKEY,
-    params: [WalletType.MNEMONIC],
+    params: [SecretType.Mnemonic],
   } as any;
 
   const getHandler = () =>
@@ -85,9 +84,9 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
     });
   });
 
-  it('should return an error when the `WalletType` is not `MNEMONIC` or the  `AccountType` is not `IMPORTED`', async () => {
+  it('should return an error when the `SecretType` is not `Mnemonic` or the  `AccountType` is not `IMPORTED`', async () => {
     const handler = getHandler();
-    const params = [{ type: WalletType.KEYSTONE, password: 'asd' }];
+    const params = [{ type: SecretType.Keystone, password: 'asd' }];
     const result = await handler.handle({
       ...request,
       params,
@@ -103,7 +102,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
   it('should return null when the secrets has no values', async () => {
     sercretServiceMock.getPrimaryAccountSecrets.mockResolvedValue(null);
     const handler = getHandler();
-    const params = [{ type: WalletType.MNEMONIC, index: 0, password: 'asd' }];
+    const params = [{ type: SecretType.Mnemonic, index: 0, password: 'asd' }];
     const result = await handler.handle({
       ...request,
       params,
@@ -127,7 +126,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
     });
     const handler = getHandler();
 
-    const params = [{ type: WalletType.MNEMONIC, index: 0, password: 'asd' }];
+    const params = [{ type: SecretType.Mnemonic, index: 0, password: 'asd' }];
     const result = await handler.handle({
       ...request,
       params,
@@ -147,7 +146,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       secretType: SecretType.Mnemonic,
     });
     const handler = getHandler();
-    const params = [{ type: WalletType.MNEMONIC, index: 0, password: 'asd' }];
+    const params = [{ type: SecretType.Mnemonic, index: 0, password: 'asd' }];
     const result = await handler.handle({
       ...request,
       params,

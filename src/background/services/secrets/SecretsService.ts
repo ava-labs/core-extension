@@ -9,6 +9,7 @@ import {
   WalletSecretInStorage,
   WALLET_STORAGE_KEY,
   AddPrimaryWalletSecrets,
+  WalletDetails,
 } from '../wallet/models';
 import {
   ImportedAccountSecrets,
@@ -42,6 +43,34 @@ export class SecretsService {
       }
     );
     return walletId;
+  }
+
+  async getPrimaryWalletsDetails(): Promise<WalletDetails[]> {
+    const secrets = await this.#loadSecrets(false);
+
+    if (!secrets) {
+      return [];
+    }
+
+    return secrets.wallets.map((wallet) => {
+      if (wallet.secretType === SecretType.Seedless) {
+        return {
+          id: wallet.id,
+          name: wallet.name,
+          type: wallet.secretType,
+          derivationPath: wallet.derivationPath,
+          authProvider: wallet.authProvider,
+          userEmail: wallet.userEmail,
+        };
+      }
+
+      return {
+        id: wallet.id,
+        name: wallet.name,
+        type: wallet.secretType,
+        derivationPath: wallet.derivationPath,
+      };
+    });
   }
 
   async updateSecrets(

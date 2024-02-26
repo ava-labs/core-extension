@@ -200,7 +200,7 @@ export function AddWalletWithSeedPhrase() {
                 : t('Add account(s) by entering a valid seed phrase.')
             }
             multiline
-            rows={5}
+            rows={3}
             value={phrase}
             placeholder={t('Enter Seed Phrase')}
             error={isKnownPhrase}

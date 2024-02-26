@@ -1,5 +1,4 @@
 import { NetworkVMType } from '@avalabs/chains-sdk';
-import { WalletType } from '@src/background/services/wallet/models';
 import { useDialog } from '@src/contexts/DialogContextProvider';
 import {
   LedgerAppType,
@@ -16,6 +15,7 @@ import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible'
 import { renderHook } from '@testing-library/react-hooks';
 import { useTranslation } from 'react-i18next';
 import { useLedgerDisconnectedDialog } from './useLedgerDisconnectedDialog';
+import { SecretType } from '@src/background/services/secrets/models';
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(),
@@ -56,7 +56,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
     (useTranslation as jest.Mock).mockReturnValue({ t: translationMock });
     (useWalletContext as jest.Mock).mockReturnValue({
       walletDetails: {
-        type: WalletType.LEDGER,
+        type: SecretType.Ledger,
       },
     });
     (useLedgerContext as jest.Mock).mockReturnValue({

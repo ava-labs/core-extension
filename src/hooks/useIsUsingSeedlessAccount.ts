@@ -1,5 +1,5 @@
 import { AccountType } from '@src/background/services/accounts/models';
-import { WalletType } from '@src/background/services/wallet/models';
+import { SecretType } from '@src/background/services/secrets/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
@@ -10,7 +10,7 @@ const useIsUsingSeedlessAccount = () => {
   } = useAccountsContext();
 
   return (
-    walletDetails?.type === WalletType.SEEDLESS &&
+    walletDetails?.type === SecretType.Seedless &&
     activeAccount?.type === AccountType.PRIMARY
   );
 };

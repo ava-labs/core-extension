@@ -5,9 +5,9 @@ import {
   PubKeyType,
   SigningResult,
   SignTransactionRequest,
-  WalletDetails,
   WalletEvents,
-  WalletType,
+  WalletDetails,
+  SUPPORTED_PRIMARY_SECRET_TYPES,
 } from './models';
 import { MessageParams, MessageType } from '../messages/models';
 import {
@@ -63,7 +63,7 @@ import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();
-  private _walletDetails: WalletDetails | undefined;
+  private _wallets: WalletDetails[] = [];
 
   constructor(
     private networkService: NetworkService,
@@ -74,67 +74,42 @@ export class WalletService implements OnLock, OnUnlock {
     private secretService: SecretsService
   ) {}
 
-  public get walletDetails(): WalletDetails | undefined {
-    return this._walletDetails;
+  public get wallets(): WalletDetails[] {
+    return this._wallets;
   }
 
-  private emitWalletState() {
-    this.eventEmitter.emit(
-      WalletEvents.WALLET_STATE_UPDATE,
-      this.walletDetails
-    );
+  private async emitWalletsInfo() {
+    this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, this.wallets);
   }
 
   async onUnlock(): Promise<void> {
-    const secrets = await this.secretService.getPrimaryAccountSecrets();
+    const wallets = await this.secretService.getPrimaryWalletsDetails();
 
-    if (!secrets) {
-      this.emitWalletState();
-      // wallet is not initialized
+    if (!wallets.length) {
       return;
     }
 
-    switch (secrets.secretType) {
-      case SecretType.Seedless:
-        {
-          this._walletDetails = {
-            type: WalletType.SEEDLESS,
-            authProvider: secrets.authProvider,
-            derivationPath: secrets.derivationPath,
-            userEmail: secrets.userEmail,
-          };
-          // Refresh session on unlock
-          const sessionManager = container.resolve(SeedlessSessionManager);
-          sessionManager.refreshSession();
-        }
-        break;
-      case SecretType.Mnemonic:
-        this._walletDetails = {
-          type: WalletType.MNEMONIC,
-          derivationPath: secrets.derivationPath,
-        };
-        break;
+    const hasUnsupportedSecret = wallets.some(
+      ({ type }) => !SUPPORTED_PRIMARY_SECRET_TYPES.includes(type)
+    );
 
-      case SecretType.Ledger:
-      case SecretType.LedgerLive:
-        this._walletDetails = {
-          type: WalletType.LEDGER,
-          derivationPath: secrets.derivationPath,
-        };
-        break;
-
-      case SecretType.Keystone:
-        this._walletDetails = {
-          type: WalletType.KEYSTONE,
-          derivationPath: secrets.derivationPath,
-        };
-        break;
-
-      default:
-        throw new Error('Wallet initialization failed, no key found');
+    if (hasUnsupportedSecret) {
+      throw new Error('Wallet initialization failed, no key found');
     }
 
-    this.emitWalletState();
+    this._wallets = wallets;
+
+    const hasSeedlessWallet = this._wallets.some(
+      ({ type }) => type === SecretType.Seedless
+    );
+
+    if (hasSeedlessWallet) {
+      // Refresh session on unlock
+      const sessionManager = container.resolve(SeedlessSessionManager);
+      sessionManager.refreshSession();
+    }
+
+    this.emitWalletsInfo();
   }
 
   /**
@@ -149,17 +124,23 @@ export class WalletService implements OnLock, OnUnlock {
   }
 
   onLock() {
-    this._walletDetails = undefined;
-    this.emitWalletState();
+    this._wallets = [];
+    this.emitWalletsInfo();
   }
 
   async addPrimaryWallet(secrets: AddPrimaryWalletSecrets) {
     this.#validateSecretsType(secrets);
     const name = secrets.name || `${secrets.secretType} 1`;
-    return await this.secretService.addSecrets({
+    const walletId = await this.secretService.addSecrets({
       ...secrets,
       name: name,
     });
+
+    this._wallets = await this.secretService.getPrimaryWalletsDetails();
+
+    this.emitWalletsInfo();
+
+    return walletId;
   }
 
   #validateSecretsType(secrets: AddPrimaryWalletSecrets) {

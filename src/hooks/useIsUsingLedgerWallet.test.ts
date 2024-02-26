@@ -1,5 +1,4 @@
 import { AccountType } from '@src/background/services/accounts/models';
-import { WalletType } from '@src/background/services/wallet/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { renderHook } from '@testing-library/react-hooks';
@@ -16,7 +15,7 @@ describe('hooks/useIsUsingLedgerWallet', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     (useWalletContext as jest.Mock).mockReturnValue({
-      walletDetails: { type: WalletType.LEDGER },
+      isLedgerWallet: true,
     });
     (useAccountsContext as jest.Mock).mockReturnValue({
       accounts: {
@@ -29,7 +28,7 @@ describe('hooks/useIsUsingLedgerWallet', () => {
 
   it('returns false if wallet type is not ledger', () => {
     (useWalletContext as jest.Mock).mockReturnValue({
-      walletDetails: { type: WalletType.MNEMONIC },
+      isLedgerWallet: false,
     });
 
     const { result } = renderHook(() => useIsUsingLedgerWallet());

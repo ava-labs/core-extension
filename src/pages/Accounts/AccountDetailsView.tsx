@@ -8,7 +8,6 @@ import {
   Card,
   CardContent,
   ChevronRightIcon,
-  Chip,
   InfoCircleIcon,
   Stack,
   Tooltip,
@@ -32,18 +31,18 @@ import { AccountDetailsAddressRow } from './components/AccountDetailsAddressRow'
 import { CurrentAddressSneakPeek } from './components/CurrentAddressSneakPeek';
 import { AccountNameInput } from './components/AccountNameInput';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useWalletName } from './hooks/useWalletName';
-import { WalletTypeIcon } from './components/WalletTypeIcon';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { AccountType } from '@src/background/services/accounts/models';
+import { isPrimaryAccount } from '@src/background/services/accounts/utils/typeGuards';
+import { WalletChip } from '@src/components/common/WalletChip';
 
 export const AccountDetailsView = () => {
   const { t } = useTranslation();
   const { isAccountSelectable } = useAccountManager();
   const { accountId } = useParams<{ accountId: string }>();
   const { getAccountById } = useAccountsContext();
-  const { walletDetails } = useWalletContext();
+  const { getWallet } = useWalletContext();
   const account = getAccountById(accountId);
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -54,11 +53,13 @@ export const AccountDetailsView = () => {
   const history = useHistory();
   const { capture } = useAnalyticsContext();
   const { deleteAccounts, renameAccount } = useAccountsContext();
+  const walletDetails = isPrimaryAccount(account)
+    ? getWallet(account.walletId)
+    : null;
   const { isPrivateKeyAvailable, showPrivateKey } = usePrivateKeyExport(
     account,
-    walletDetails?.type // TODO: derive wallet type from account
+    walletDetails?.type
   );
-  const walletName = useWalletName();
   const { featureFlags } = useFeatureFlagContext();
   const canPrimaryAccountsBeRemoved =
     featureFlags[FeatureGates.PRIMARY_ACCOUNT_REMOVAL];
@@ -81,10 +82,18 @@ export const AccountDetailsView = () => {
   }, [history]);
 
   const onEditClick = useCallback(() => {
+    if (account?.name) {
+      setNewName(account.name);
+    }
     setIsEditing((editing) => !editing);
-  }, []);
+  }, [account?.name]);
 
   const onSaveClick = useCallback(() => {
+    if (newName === account?.name) {
+      setIsEditing(false);
+      return;
+    }
+
     setIsSaving(true);
     renameAccount(accountId, newName)
       .then(() => {
@@ -95,7 +104,7 @@ export const AccountDetailsView = () => {
       .finally(() => {
         setIsSaving(false);
       });
-  }, [renameAccount, newName, accountId, t]);
+  }, [account?.name, renameAccount, newName, accountId, t]);
 
   const onDeleteClick = useCallback(async () => {
     setIsDeleting(true);
@@ -169,12 +178,8 @@ export const AccountDetailsView = () => {
             {account.name}
           </Typography>
         )}
-        <Chip
-          icon={<WalletTypeIcon size={14} />}
-          label={walletName}
-          size="small"
-          sx={{ gap: 0.5, backgroundColor: 'grey.850' }}
-        />
+
+        {walletDetails && <WalletChip walletDetails={walletDetails} />}
         <CurrentAddressSneakPeek address={address} />
       </Stack>
       <Stack sx={{ flexGrow: 1 }}>

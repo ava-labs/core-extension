@@ -33,11 +33,11 @@ import { useAccountManager } from '../providers/AccountManagerProvider';
 import { AccountBalance } from '../AccountBalance';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
-import { WalletType } from '@src/background/services/wallet/models';
+import { SecretType } from '@src/background/services/secrets/models';
 
 type AccountItemProps = {
   account: Account;
-  walletType?: WalletType;
+  walletType?: SecretType;
   selectionMode: SelectionMode;
 };
 
@@ -184,7 +184,15 @@ export const AccountItem = forwardRef(
                 direction="row"
                 sx={{ gap: 1, justifyContent: 'space-between' }}
               >
-                <Typography variant="h6" data-testid="account-name">
+                <Typography
+                  variant="h6"
+                  data-testid="account-name"
+                  sx={{
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {account.name}
                 </Typography>
                 <Stack direction="row" sx={{ alignItems: 'center' }}>

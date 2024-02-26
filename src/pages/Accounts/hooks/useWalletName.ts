@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { WalletType } from '@src/background/services/wallet/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { SecretType } from '@src/background/services/secrets/models';
 
 export const useWalletName = () => {
   const { t } = useTranslation();
@@ -14,22 +14,23 @@ export const useWalletName = () => {
     }
 
     switch (walletDetails.type) {
-      case WalletType.MNEMONIC:
+      case SecretType.Mnemonic:
         return t('Seed Phrase {{number}}', {
           number: '01',
         });
 
-      case WalletType.KEYSTONE:
+      case SecretType.Keystone:
         return t('Keystone {{number}}', {
           number: '01',
         });
 
-      case WalletType.LEDGER:
+      case SecretType.Ledger:
+      case SecretType.LedgerLive:
         return t('Ledger {{number}}', {
           number: '01',
         });
 
-      case WalletType.SEEDLESS:
+      case SecretType.Seedless:
         return t('Seedless {{number}}', {
           number: '01',
         });

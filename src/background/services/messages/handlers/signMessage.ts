@@ -36,12 +36,13 @@ export class PersonalSignHandler extends DAppRequestHandler {
   };
 
   handleAuthenticated = async (request) => {
-    if (!this.walletService.walletDetails) {
+    if (this.walletService.wallets.length === 0) {
       return {
         ...request,
         error: 'wallet undefined',
       };
     }
+
     try {
       const activeNetwork = this.networkService.activeNetwork;
 

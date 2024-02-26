@@ -22,7 +22,9 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
 
     const getWalletType = (acc: Account) => {
       if (acc.type === AccountType.PRIMARY) {
-        return this.walletService.walletDetails?.type;
+        return this.walletService.wallets.find(
+          (wallet) => wallet.id === acc.walletId
+        )?.type;
       }
     };
 

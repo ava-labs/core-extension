@@ -32,11 +32,11 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Flipper } from '@src/components/common/Flipper';
 import { useAccountManager } from './providers/AccountManagerProvider';
 import { AccountList, SelectionMode } from './components/AccountList';
-import { WalletType } from '@src/background/services/wallet/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useWalletName } from './hooks/useWalletName';
 import { AccountType } from '@src/background/services/accounts/models';
+import { SecretType } from '@src/background/services/secrets/models';
 
 export enum AccountsTab {
   Primary,
@@ -254,7 +254,7 @@ export function Accounts() {
               accounts={Object.values(primaryAccounts).flat()}
               selectionMode={
                 canPrimaryAccountsBeRemoved &&
-                walletDetails?.type !== WalletType.SEEDLESS
+                walletDetails?.type !== SecretType.Seedless
                   ? SelectionMode.Consecutive
                   : SelectionMode.None
               }

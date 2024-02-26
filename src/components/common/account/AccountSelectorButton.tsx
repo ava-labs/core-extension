@@ -8,6 +8,7 @@ import {
 
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useCallback, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 export function AccountSelectorButton(props: ButtonProps) {
@@ -16,6 +17,14 @@ export function AccountSelectorButton(props: ButtonProps) {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  const onRefChange = useCallback((node: HTMLSpanElement) => {
+    if (node) {
+      setIsOverflowing(node.scrollWidth > node.offsetWidth);
+    }
+  }, []);
 
   return (
     <Button
@@ -28,11 +37,21 @@ export function AccountSelectorButton(props: ButtonProps) {
         capture('AccountSelectorOpened');
       }}
       endIcon={<ChevronDownIcon />}
-      sx={{ p: 0 }}
+      sx={{ p: 0, maxWidth: 200 }}
       {...props}
     >
-      <Tooltip title={activeAccount?.name}>
-        <Typography variant="h6">{activeAccount?.name}</Typography>
+      <Tooltip
+        title={isOverflowing ? activeAccount?.name : ''}
+        wrapWithSpan={false}
+      >
+        <Typography
+          component="span"
+          variant="h6"
+          sx={{ textOverflow: 'ellipsis', overflow: 'hidden' }}
+          ref={onRefChange}
+        >
+          {activeAccount?.name}
+        </Typography>
       </Tooltip>
     </Button>
   );

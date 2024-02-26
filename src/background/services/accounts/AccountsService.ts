@@ -449,25 +449,43 @@ export class AccountsService implements OnLock, OnUnlock {
     }
 
     if (accountToChange.type === AccountType.PRIMARY) {
-      const accountWithNewName = { ...accountToChange, name };
-
-      const newAccounts = [...Object.values(this.accounts.primary).flat()];
-
-      newAccounts[accountToChange.index] = accountWithNewName;
-
-      this.accounts = {
-        ...this.accounts,
-        primary: {
-          ...this.accounts.primary,
-          [accountWithNewName.walletId]: newAccounts,
-        },
-      };
-    } else {
-      const accountWithNewName = { ...accountToChange, name };
-      const newAccounts = { ...this.accounts.imported };
-      newAccounts[id] = accountWithNewName;
-      this.accounts = { ...this.accounts, imported: newAccounts };
+      return this.#renamePrimaryAccount(accountToChange, name);
     }
+
+    return this.#renameImportedAccount(accountToChange, name);
+  }
+
+  async #renameImportedAccount(account: ImportedAccount, name: string) {
+    const accountWithNewName = { ...account, name };
+    const newAccounts = { ...this.accounts.imported };
+    newAccounts[account.id] = accountWithNewName;
+    this.accounts = { ...this.accounts, imported: newAccounts };
+  }
+
+  async #renamePrimaryAccount(account: PrimaryAccount, name: string) {
+    const accountWithNewName = { ...account, name };
+
+    const walletAccounts = this.accounts.primary[account.walletId];
+
+    if (!walletAccounts) {
+      throw new Error(
+        'Updated account does not exist within any of the primary wallets.'
+      );
+    }
+
+    // We need to operate on a copy of the array here, otherwise we change the
+    // existing .accounts property in-memory and the change will not be detected
+    // by this.accounts setter.
+    const newWalletAccounts = [...walletAccounts];
+    newWalletAccounts[account.index] = accountWithNewName;
+
+    this.accounts = {
+      ...this.accounts,
+      primary: {
+        ...this.accounts.primary,
+        [accountWithNewName.walletId]: newWalletAccounts,
+      },
+    };
   }
 
   async activateAccount(id: string) {

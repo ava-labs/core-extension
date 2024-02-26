@@ -5,33 +5,40 @@ import {
   KeystoneIcon,
   LedgerIcon,
   ListIcon,
+  SxProps,
 } from '@avalabs/k2-components';
+
+import { SecretType } from '@src/background/services/secrets/models';
 import {
   SeedlessAuthProvider,
-  WalletType,
+  WalletDetails,
 } from '@src/background/services/wallet/models';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 
-export const WalletTypeIcon = (props: IconBaseProps) => {
-  const { walletDetails } = useWalletContext();
-  const type = walletDetails?.type;
-  const provider = walletDetails?.authProvider;
+type WalletTypeIconProps = IconBaseProps & {
+  walletDetails: WalletDetails;
+  sx?: SxProps;
+};
 
-  switch (type) {
-    case WalletType.MNEMONIC:
+export const WalletTypeIcon = ({
+  walletDetails,
+  ...props
+}: WalletTypeIconProps) => {
+  switch (walletDetails.type) {
+    case SecretType.Mnemonic:
       return <ListIcon {...props} />;
 
-    case WalletType.KEYSTONE:
+    case SecretType.Keystone:
       return <KeystoneIcon {...props} />;
 
-    case WalletType.LEDGER:
+    case SecretType.Ledger:
+    case SecretType.LedgerLive:
       return <LedgerIcon {...props} />;
 
-    case WalletType.SEEDLESS:
+    case SecretType.Seedless:
       {
-        if (provider === SeedlessAuthProvider.Apple) {
+        if (walletDetails.authProvider === SeedlessAuthProvider.Apple) {
           return <AppleIcon {...props} />;
-        } else if (provider === SeedlessAuthProvider.Google) {
+        } else if (walletDetails.authProvider === SeedlessAuthProvider.Google) {
           return <GoogleIcon {...props} />;
         }
         return null;

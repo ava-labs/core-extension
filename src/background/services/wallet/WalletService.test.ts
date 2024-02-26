@@ -13,7 +13,6 @@ import {
   AddPrimaryWalletSecrets,
   AvalancheTransactionRequest,
   WalletEvents,
-  WalletType,
 } from './models';
 import {
   AVALANCHE_XP_TEST_NETWORK,
@@ -122,6 +121,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       xpubXP: 'xpubXP',
       derivationPath: DerivationPath.BIP44,
       walletId: WALLET_ID,
+      name: 'mnemonic',
       ...additionalData,
       account: {
         type: AccountType.PRIMARY,
@@ -131,6 +131,14 @@ describe('background/services/wallet/WalletService.ts', () => {
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
     secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
+    secretsService.getPrimaryWalletsDetails.mockResolvedValue([
+      {
+        type: data.secretType,
+        derivationPath: data.derivationPath,
+        id: data.walletId,
+        name: data.name,
+      },
+    ]);
 
     return data;
   };
@@ -145,6 +153,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       xpubXP: 'xpubXP',
       derivationPath: DerivationPath.BIP44,
       walletId: WALLET_ID,
+      name: 'ledger',
       ...additionalData,
       account: {
         type: AccountType.PRIMARY,
@@ -154,6 +163,14 @@ describe('background/services/wallet/WalletService.ts', () => {
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
     secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
+    secretsService.getPrimaryWalletsDetails.mockResolvedValue([
+      {
+        type: data.secretType,
+        derivationPath: data.derivationPath,
+        id: data.walletId,
+        name: data.name,
+      },
+    ]);
 
     return data;
   };
@@ -167,6 +184,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       derivationPath: DerivationPath.LedgerLive,
       pubKeys: [{ evm: 'evm', xp: 'xp' }],
       walletId: WALLET_ID,
+      name: 'ledger live',
       ...additionalData,
       account: {
         type: AccountType.PRIMARY,
@@ -176,12 +194,20 @@ describe('background/services/wallet/WalletService.ts', () => {
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
     secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
+    secretsService.getPrimaryWalletsDetails.mockResolvedValue([
+      {
+        type: data.secretType,
+        derivationPath: data.derivationPath,
+        id: data.walletId,
+        name: data.name,
+      },
+    ]);
 
     return data;
   };
 
   const mockSeedlessWallet = (
-    additionalData = {},
+    additionalData: any = {},
     account?: Partial<Account>
   ) => {
     const data = {
@@ -189,6 +215,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       derivationPath: DerivationPath.BIP44,
       pubKeys: [{ evm: 'evm', xp: 'xp' }],
       walletId: WALLET_ID,
+      name: 'seedles',
       ...additionalData,
       account: {
         type: AccountType.PRIMARY,
@@ -198,6 +225,16 @@ describe('background/services/wallet/WalletService.ts', () => {
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
     secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
+    secretsService.getPrimaryWalletsDetails.mockResolvedValue([
+      {
+        type: data.secretType,
+        derivationPath: data.derivationPath,
+        id: data.walletId,
+        name: data.name,
+        authProvider: data.authProvider,
+        userEmail: data.userEmail,
+      },
+    ]);
 
     return data;
   };
@@ -213,6 +250,8 @@ describe('background/services/wallet/WalletService.ts', () => {
     fireblocksService = new FireblocksService({} as any);
 
     secretsService = jest.mocked(new SecretsService({} as any));
+
+    secretsService.getPrimaryWalletsDetails = jest.fn().mockResolvedValue([]);
 
     getAddressMock = jest.fn().mockImplementation((pubkey, chain) => {
       return `${chain}-`;
@@ -241,14 +280,18 @@ describe('background/services/wallet/WalletService.ts', () => {
   });
 
   describe('onLock', () => {
-    it('clears the wallet details and triggers an event', async () => {
+    it('clears the wallets details and triggers an event', async () => {
       mockMnemonicWallet();
 
       await walletService.onUnlock();
-      expect(walletService.walletDetails).toEqual({
-        type: WalletType.MNEMONIC,
-        derivationPath: DerivationPath.BIP44,
-      });
+      expect(walletService.wallets).toEqual([
+        {
+          id: WALLET_ID,
+          type: SecretType.Mnemonic,
+          derivationPath: DerivationPath.BIP44,
+          name: 'mnemonic',
+        },
+      ]);
 
       const eventListener = jest.fn();
       walletService.addListener(
@@ -258,18 +301,22 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       walletService.onLock();
 
-      expect(walletService.walletDetails).toBeUndefined();
-      expect(eventListener).toHaveBeenCalledWith(undefined);
+      expect(walletService.wallets).toEqual([]);
+      expect(eventListener).toHaveBeenCalledWith([]);
     });
 
     it('clears the wallet details and triggers an event for Ledger wallets', async () => {
       mockLedgerWallet();
 
       await walletService.onUnlock();
-      expect(walletService.walletDetails).toEqual({
-        type: WalletType.LEDGER,
-        derivationPath: DerivationPath.BIP44,
-      });
+      expect(walletService.wallets).toEqual([
+        {
+          id: WALLET_ID,
+          type: SecretType.Ledger,
+          derivationPath: DerivationPath.BIP44,
+          name: 'ledger',
+        },
+      ]);
 
       const eventListener = jest.fn();
       walletService.addListener(
@@ -278,15 +325,15 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
 
       walletService.onLock();
-      expect(walletService.walletDetails).toBeUndefined();
-      expect(eventListener).toHaveBeenCalledWith(undefined);
+      expect(walletService.wallets).toEqual([]);
+      expect(eventListener).toHaveBeenCalledWith([]);
     });
   });
 
   describe('onUnlock', () => {
     it('returns early if storage is empty', async () => {
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.walletDetails).toBeUndefined();
+      expect(walletService.wallets).toEqual([]);
     });
 
     it('sets the walletType as mnemonic', async () => {
@@ -298,14 +345,22 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
 
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.walletDetails).toEqual({
-        type: WalletType.MNEMONIC,
-        derivationPath: DerivationPath.BIP44,
-      });
-      expect(eventListener).toHaveBeenCalledWith({
-        type: WalletType.MNEMONIC,
-        derivationPath: DerivationPath.BIP44,
-      });
+      expect(walletService.wallets).toEqual([
+        {
+          id: WALLET_ID,
+          type: SecretType.Mnemonic,
+          derivationPath: DerivationPath.BIP44,
+          name: 'mnemonic',
+        },
+      ]);
+      expect(eventListener).toHaveBeenCalledWith([
+        {
+          id: WALLET_ID,
+          type: SecretType.Mnemonic,
+          derivationPath: DerivationPath.BIP44,
+          name: 'mnemonic',
+        },
+      ]);
     });
 
     it('sets the walletType as ledger if xpub is present', async () => {
@@ -318,14 +373,22 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
 
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.walletDetails).toEqual({
-        type: WalletType.LEDGER,
-        derivationPath: DerivationPath.BIP44,
-      });
-      expect(eventListener).toHaveBeenCalledWith({
-        type: WalletType.LEDGER,
-        derivationPath: DerivationPath.BIP44,
-      });
+      expect(walletService.wallets).toEqual([
+        {
+          id: WALLET_ID,
+          type: SecretType.Ledger,
+          derivationPath: DerivationPath.BIP44,
+          name: 'ledger',
+        },
+      ]);
+      expect(eventListener).toHaveBeenCalledWith([
+        {
+          id: WALLET_ID,
+          type: SecretType.Ledger,
+          derivationPath: DerivationPath.BIP44,
+          name: 'ledger',
+        },
+      ]);
     });
 
     it('sets the walletType as ledger if pubKeys is present', async () => {
@@ -338,14 +401,22 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
 
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.walletDetails).toEqual({
-        type: WalletType.LEDGER,
-        derivationPath: DerivationPath.LedgerLive,
-      });
-      expect(eventListener).toHaveBeenCalledWith({
-        type: WalletType.LEDGER,
-        derivationPath: DerivationPath.LedgerLive,
-      });
+      expect(walletService.wallets).toEqual([
+        {
+          id: WALLET_ID,
+          type: SecretType.LedgerLive,
+          derivationPath: DerivationPath.LedgerLive,
+          name: 'ledger live',
+        },
+      ]);
+      expect(eventListener).toHaveBeenCalledWith([
+        {
+          id: WALLET_ID,
+          type: SecretType.LedgerLive,
+          derivationPath: DerivationPath.LedgerLive,
+          name: 'ledger live',
+        },
+      ]);
     });
 
     describe('with seedless wallets', () => {
@@ -374,7 +445,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       await expect(walletService.onUnlock()).rejects.toThrowError(
         'Wallet initialization failed, no key found'
       );
-      expect(walletService.walletDetails).toBeUndefined();
+      expect(walletService.wallets).toEqual([]);
     });
   });
 

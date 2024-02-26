@@ -20,13 +20,13 @@ import { MouseEvent, useCallback, useRef, useState } from 'react';
 import { Account } from '@src/background/services/accounts/models';
 
 import { usePrivateKeyExport } from '../hooks/usePrivateKeyExport';
-import { WalletType } from '@src/background/services/wallet/models';
+import { SecretType } from '@src/background/services/secrets/models';
 
 type AccountItemMenuProps = {
   account: Account;
   isActive: boolean;
   activateAccount(e: MouseEvent<HTMLElement>): void;
-  walletType?: WalletType;
+  walletType?: SecretType;
 };
 
 export const AccountItemMenu = ({
@@ -42,7 +42,6 @@ export const AccountItemMenu = ({
   const ref = useRef<HTMLButtonElement>(null);
   const { isPrivateKeyAvailable, showPrivateKey } = usePrivateKeyExport(
     account,
-
     walletType
   );
 

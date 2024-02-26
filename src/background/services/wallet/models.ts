@@ -9,6 +9,7 @@ import { TransactionRequest } from 'ethers';
 import {
   ImportedAccountSecrets,
   PrimaryWalletSecrets,
+  SecretType,
 } from '../secrets/models';
 import { DistributiveOmit } from '@src/utils/distributiveomit';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
@@ -71,26 +72,41 @@ export enum WalletEvents {
 
 export const WALLET_STORAGE_KEY = 'wallet';
 
-export enum WalletType {
-  SEEDLESS = 'SEEDLESS',
-  MNEMONIC = 'MNEMONIC',
-  LEDGER = 'LEDGER',
-  KEYSTONE = 'KEYSTONE',
-}
+export const SUPPORTED_PRIMARY_SECRET_TYPES = [
+  SecretType.Mnemonic,
+  SecretType.Keystone,
+  SecretType.Ledger,
+  SecretType.LedgerLive,
+  SecretType.Seedless,
+];
+
+export type WalletMetadata = {
+  id: string;
+  name?: string;
+};
 
 export type WalletDetails =
   | {
-      type: WalletType;
+      id: string;
+      type: SecretType;
+      name?: string;
       derivationPath: DerivationPath;
       authProvider?: never;
       userEmail?: never;
     }
   | {
-      type: WalletType.SEEDLESS;
+      id: string;
+      type: SecretType.Seedless;
+      name?: string;
       derivationPath: DerivationPath;
       authProvider: SeedlessAuthProvider;
       userEmail: string;
     };
+
+export type WalletsInfo = {
+  activeWallet?: WalletDetails;
+  wallets: WalletMetadata[];
+};
 
 export enum SeedlessAuthProvider {
   Google = 'google',

@@ -1,5 +1,4 @@
 import { LedgerWrongVersion } from './LedgerWrongVersion';
-import { WalletType } from '@src/background/services/wallet/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import {
   REQUIRED_LEDGER_VERSION,
@@ -13,7 +12,7 @@ export function LedgerWrongVersionOverlay({
 }: {
   onClose?: () => void;
 }) {
-  const { walletDetails } = useWalletContext();
+  const { isLedgerWallet } = useWalletContext();
   const {
     ledgerVersionWarningClosed,
     updateLedgerVersionWarningClosed,
@@ -39,11 +38,7 @@ export function LedgerWrongVersionOverlay({
   }
 
   // Used on Portfolio
-  if (
-    !ledgerVersionWarningClosed &&
-    walletDetails?.type === WalletType.LEDGER &&
-    ledgerCheck
-  ) {
+  if (!ledgerVersionWarningClosed && isLedgerWallet && ledgerCheck) {
     return (
       <Backdrop open>
         <Stack sx={{ m: 2 }}>
