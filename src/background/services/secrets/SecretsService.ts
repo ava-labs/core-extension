@@ -10,6 +10,7 @@ import {
   WALLET_STORAGE_KEY,
   AddPrimaryWalletSecrets,
   WalletDetails,
+  PubKeyType,
 } from '../wallet/models';
 import {
   ImportedAccountSecrets,
@@ -17,6 +18,7 @@ import {
   SecretType,
 } from './models';
 import { isPrimaryAccount } from '../accounts/utils/typeGuards';
+import _ from 'lodash';
 
 /**
  * Use this service to fetch, save or delete account secrets.
@@ -410,7 +412,15 @@ export class SecretsService {
     privateKey: string
   ): Promise<boolean>;
   async isKnownSecret(
-    type: SecretType.Mnemonic | SecretType.PrivateKey,
+    type: SecretType.LedgerLive | SecretType.Ledger,
+    pub: string | PubKeyType[]
+  ): Promise<boolean>;
+  async isKnownSecret(
+    type:
+      | SecretType.Mnemonic
+      | SecretType.PrivateKey
+      | SecretType.Ledger
+      | SecretType.LedgerLive,
     secret: unknown
   ): Promise<boolean> {
     const secrets = await this.#loadSecrets(false);
@@ -436,6 +446,23 @@ export class SecretsService {
         (acc) =>
           acc.secretType === SecretType.PrivateKey && acc.secret === secret
       );
+    }
+
+    if (type === SecretType.Ledger) {
+      return secrets.wallets.some(
+        (wallet) =>
+          wallet.secretType === SecretType.Ledger && wallet.xpub === secret
+      );
+    }
+
+    if (type === SecretType.LedgerLive) {
+      return secrets.wallets.some((wallet) => {
+        return (
+          wallet.secretType === SecretType.LedgerLive &&
+          Array.isArray(secret) &&
+          _.isEqual(wallet.pubKeys[0], secret[0])
+        );
+      });
     }
 
     throw new Error('Unsupported secret type');

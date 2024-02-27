@@ -1,9 +1,7 @@
 import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
-import { StyledNumberList } from '@src/components/common/StyledNumberList';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
-  Divider,
   ExternalLinkIcon,
   RemoteIcon,
   Stack,
@@ -14,6 +12,7 @@ import { useHistory } from 'react-router-dom';
 import { OnboardingURLs } from '@src/background/services/onboarding/models';
 import { useLanguage } from '@src/hooks/useLanguages';
 import { TypographyLink } from '../../components/TypographyLink';
+import { LedgerTroubleSteps } from '../../../../components/ledger/LedgerTroublesSteps';
 
 export function LedgerTrouble() {
   const { t } = useTranslation();
@@ -50,91 +49,7 @@ export function LedgerTrouble() {
             <RemoteIcon size={88} />
           </Stack>
 
-          <Stack sx={{ mt: 1.5, width: '100%', alignItems: 'center' }}>
-            <Stack
-              sx={{
-                width: '100%',
-                rowGap: 2,
-              }}
-            >
-              <Stack
-                sx={{
-                  flexDirection: 'row',
-                }}
-              >
-                <StyledNumberList>{t('1.')}</StyledNumberList>
-                <Typography variant="body2">
-                  {t('Connect the Ledger device to your computer.')}
-                </Typography>
-              </Stack>
-              <Stack
-                sx={{
-                  flexDirection: 'row',
-                }}
-              >
-                <StyledNumberList>{t('2.')}</StyledNumberList>
-                <Typography variant="body2">{t('Enter your PIN.')}</Typography>
-              </Stack>
-
-              <Stack
-                sx={{
-                  flexDirection: 'row',
-                }}
-              >
-                <StyledNumberList>{t('3.')}</StyledNumberList>
-                <Typography variant="body2">
-                  <Trans
-                    i18nKey="Ensure you have installed the latest <typography>Avalanche App</typography> and open it on your device."
-                    components={{
-                      typography: (
-                        <Typography
-                          as="span"
-                          sx={{
-                            fontWeight: 'bold',
-                          }}
-                        />
-                      ),
-                    }}
-                  />
-                </Typography>
-              </Stack>
-
-              <Divider flexItem style={{ margin: `${theme.spacing(1)} 0` }} />
-
-              <Typography variant="body2">
-                <Trans
-                  i18nKey="If you do not have the latest Avalanche App, please add it through the <ledgerLink>Ledger Live</ledgerLink> app manager."
-                  components={{
-                    ledgerLink: (
-                      <TypographyLink
-                        as="a"
-                        href="https://www.ledger.com/ledger-live"
-                        target="_blank"
-                        rel="noreferrer"
-                        variant="body2"
-                      />
-                    ),
-                  }}
-                />
-              </Typography>
-              <Typography variant="body2">
-                <Trans
-                  i18nKey="More instructions can be found <ledgerLink>here</ledgerLink>."
-                  components={{
-                    ledgerLink: (
-                      <TypographyLink
-                        as="a"
-                        href="https://support.ledger.com/hc/en-us/articles/4404389606417-Download-and-install-Ledger-Live?docs=true"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        variant="body2"
-                      />
-                    ),
-                  }}
-                />
-              </Typography>
-            </Stack>
-          </Stack>
+          <LedgerTroubleSteps sx={{ pt: 1.5 }} />
         </Stack>
       </Stack>
       <Stack
@@ -142,7 +57,7 @@ export function LedgerTrouble() {
           width: '100%',
           justifyItems: 'space-between',
           alignContent: 'center',
-          my: 3,
+          mb: 9,
           rowGap: theme.spacing(2),
         }}
       >

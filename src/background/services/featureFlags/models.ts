@@ -29,6 +29,7 @@ export enum FeatureGates {
   PRIMARY_ACCOUNT_REMOVAL = 'primary-account-removal',
   ADD_WALLET_WITH_SEEDPHRASE = 'add-wallet-with-seedphrase',
   ADD_WALLET_WITH_KEYSTORE_FILE = 'add-wallet-with-keystore-file',
+  ADD_WALLET_WITH_LEDGER = 'add-wallet-with-ledger',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -64,6 +65,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.PRIMARY_ACCOUNT_REMOVAL]: false,
   [FeatureGates.ADD_WALLET_WITH_SEEDPHRASE]: false,
   [FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE]: false,
+  [FeatureGates.ADD_WALLET_WITH_LEDGER]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -98,6 +100,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.PRIMARY_ACCOUNT_REMOVAL]: true,
   [FeatureGates.ADD_WALLET_WITH_SEEDPHRASE]: true,
   [FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE]: true,
+  [FeatureGates.ADD_WALLET_WITH_LEDGER]: true,
 };
 
 export enum FeatureFlagEvents {

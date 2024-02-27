@@ -852,6 +852,39 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         await secretsService.isKnownSecret(SecretType.Mnemonic, 'cinomenm')
       ).toBe(false);
     });
+    it('returns true when Ledger is already stored', async () => {
+      mockLedgerWallet();
+
+      expect(
+        await secretsService.isKnownSecret(SecretType.Ledger, 'xpub')
+      ).toBe(true);
+
+      expect(
+        await secretsService.isKnownSecret(SecretType.Ledger, 'newxpub')
+      ).toBe(false);
+    });
+    it('returns true when Ledger Live is already stored', async () => {
+      mockLedgerLiveWallet();
+
+      expect(
+        await secretsService.isKnownSecret(SecretType.LedgerLive, [
+          { evm: 'evm', xp: 'xp' },
+        ])
+      ).toBe(true);
+
+      expect(
+        await secretsService.isKnownSecret(SecretType.LedgerLive, [
+          { evm: 'evm', xp: 'xp' },
+          { evm: 'new evm', xp: 'new xp' },
+        ])
+      ).toBe(true);
+
+      expect(
+        await secretsService.isKnownSecret(SecretType.LedgerLive, [
+          { evm: 'new evm', xp: 'new xp' },
+        ])
+      ).toBe(false);
+    });
   });
 
   describe('storeBtcWalletPolicyDetails', () => {

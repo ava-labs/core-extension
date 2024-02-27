@@ -229,6 +229,11 @@ const AddWalletWithSeedPhrase = lazy(() => {
     default: m.AddWalletWithSeedPhrase,
   }));
 });
+const AddWalletWithLedger = lazy(() => {
+  return import('../pages/Accounts/AddWalletWithLedger').then((m) => ({
+    default: m.AddWalletWithLedger,
+  }));
+});
 
 const AddWalletWithKeystoreFile = lazy(() => {
   return import('../pages/Accounts/AddWalletWithKeystoreFile').then((m) => ({
@@ -669,6 +674,16 @@ export function Popup() {
                                                   }
                                                 >
                                                   <AddWalletWithKeystoreFile />
+                                                </Suspense>
+                                              </Route>
+
+                                              <Route path="/accounts/add-wallet/ledger">
+                                                <Suspense
+                                                  fallback={
+                                                    <CircularProgress />
+                                                  }
+                                                >
+                                                  <AddWalletWithLedger />
                                                 </Suspense>
                                               </Route>
                                               <Route path="/accounts/:accountId">

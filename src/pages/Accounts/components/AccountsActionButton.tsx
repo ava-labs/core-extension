@@ -85,6 +85,11 @@ export const AccountsActionButton = ({
     history.push('/accounts/add-wallet/keystore');
   }, [history, capture]);
 
+  const goToAddLedgerScreen = useCallback(() => {
+    capture('AddWalletWithLedger_Clicked');
+    history.push('/accounts/add-wallet/ledger');
+  }, [history, capture]);
+
   const goToWalletConnectScreen = useCallback(() => {
     capture('ImportWithWalletConnect_Clicked');
     history.push('/import-with-walletconnect');
@@ -225,6 +230,15 @@ export const AccountsActionButton = ({
                     >
                       <ListIcon size={16} sx={{ pr: 1 }} />
                       {t('Add Wallet with Keystore File')}
+                    </StyledMenuItem>
+                  )}
+                  {featureFlags[FeatureGates.ADD_WALLET_WITH_LEDGER] && (
+                    <StyledMenuItem
+                      onClick={goToAddLedgerScreen}
+                      data-testid="add-wallet-ledger"
+                    >
+                      <ListIcon size={16} sx={{ pr: 1 }} />
+                      {t('Add Wallet with Ledger')}
                     </StyledMenuItem>
                   )}
                 </MenuList>
