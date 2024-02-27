@@ -471,7 +471,6 @@ describe('background/services/wallet/WalletService.ts', () => {
           xpub: 'xpub',
           xpubXP: 'xpubXP',
           derivationPath: DerivationPath.BIP44,
-          name: 'mnemonic 1',
         })
       );
       expect(onUnlockSpy).toHaveBeenCalled();

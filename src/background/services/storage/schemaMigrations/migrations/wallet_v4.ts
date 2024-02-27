@@ -42,6 +42,14 @@ const up = async (walletStorage: PreviousSchema) => {
   const { imported, ...rest } = walletStorage;
   walletId = WALLET_ID;
   const secretType = getSecretsType(walletStorage);
+  const nameType =
+    secretType === SecretType.Mnemonic
+      ? 'Seed Phrase'
+      : secretType === SecretType.Seedless
+      ? 'Seedless'
+      : secretType === SecretType.Keystone
+      ? 'Keystone'
+      : 'Ledger';
 
   const newImported = {};
   if (imported) {
@@ -73,7 +81,7 @@ const up = async (walletStorage: PreviousSchema) => {
         id: walletId,
         ...rest,
         secretType,
-        name: `${secretType} 1`,
+        name: `${nameType} 01`,
       },
     ],
     importedAccounts: newImported,

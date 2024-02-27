@@ -25,6 +25,23 @@ import { isPrimaryAccount } from '../accounts/utils/typeGuards';
 export class SecretsService {
   constructor(private storageService: StorageService) {}
 
+  async #getDefaultName(secrets: AddPrimaryWalletSecrets) {
+    const defaultNames = {
+      [SecretType.Mnemonic]: 'Seed Phrase',
+      [SecretType.Ledger]: 'Ledger',
+      [SecretType.LedgerLive]: 'Ledger Live',
+      [SecretType.Keystone]: 'Keystone',
+      [SecretType.Seedless]: 'Seedless',
+    };
+    const storedSecrets = await this.#loadSecrets(false);
+    const exisitingCount =
+      storedSecrets?.wallets.filter((w) => w.secretType === secrets.secretType)
+        .length ?? 0;
+    const nextNumber = exisitingCount + 1;
+    const walletNumber = nextNumber < 10 ? `0${nextNumber}` : nextNumber;
+    return `${defaultNames[secrets.secretType]} ${walletNumber}`;
+  }
+
   async addSecrets(secrets: AddPrimaryWalletSecrets) {
     const storedSecrets = await this.#loadSecrets(false);
     const existingWallets = storedSecrets?.wallets;
@@ -33,6 +50,7 @@ export class SecretsService {
     wallets.push({
       ...secrets,
       id: walletId,
+      name: secrets.name ?? (await this.#getDefaultName(secrets)),
     });
 
     await this.storageService.save<Partial<WalletSecretInStorage>>(

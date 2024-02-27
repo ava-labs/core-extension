@@ -139,8 +139,15 @@ export type SigningResult =
   | { txHash: string; signedTx?: never }
   | { signedTx: string; txHash?: never };
 
-export type AddPrimaryWalletSecrets = DistributiveOmit<
+type PrimaryWalletSecretsWithOptionalName = DistributiveOmit<
   PrimaryWalletSecrets,
+  'name'
+> & {
+  name?: string;
+};
+
+export type AddPrimaryWalletSecrets = DistributiveOmit<
+  PrimaryWalletSecretsWithOptionalName,
   'id'
 >;
 

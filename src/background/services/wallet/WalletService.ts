@@ -130,12 +130,7 @@ export class WalletService implements OnLock, OnUnlock {
 
   async addPrimaryWallet(secrets: AddPrimaryWalletSecrets) {
     this.#validateSecretsType(secrets);
-    const name = secrets.name || `${secrets.secretType} 1`;
-    const walletId = await this.secretService.addSecrets({
-      ...secrets,
-      name: name,
-    });
-
+    const walletId = await this.secretService.addSecrets(secrets);
     this._wallets = await this.secretService.getPrimaryWalletsDetails();
 
     this.emitWalletsInfo();

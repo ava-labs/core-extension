@@ -221,6 +221,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         derivationPath: DerivationPath.BIP44,
         xpub: 'xpib',
         xpubXP: 'xpubXP',
+        name: 'walletName',
       });
       expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
         ...existingSecrets,
@@ -233,11 +234,85 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             derivationPath: DerivationPath.BIP44,
             xpub: 'xpib',
             xpubXP: 'xpubXP',
+            name: 'walletName',
+          },
+        ],
+      });
+    });
+
+    it('should save a new wallet to the `wallets` array with default name when name is missing', async () => {
+      const uuid = 'uuid';
+      (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
+      const existingWallets = [
+        {
+          isActive: true,
+        },
+      ];
+      const existingSecrets = {
+        xpub: 'xpub',
+        wallets: existingWallets,
+      };
+      storageService.load.mockResolvedValue(existingSecrets);
+      await secretsService.addSecrets({
+        mnemonic: 'mnemonic',
+        secretType: SecretType.Mnemonic,
+        derivationPath: DerivationPath.BIP44,
+        xpub: 'xpib',
+        xpubXP: 'xpubXP',
+      });
+      expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
+        ...existingSecrets,
+        wallets: [
+          { ...existingSecrets.wallets[0] },
+          {
+            id: uuid,
+            mnemonic: 'mnemonic',
+            secretType: SecretType.Mnemonic,
+            derivationPath: DerivationPath.BIP44,
+            xpub: 'xpib',
+            xpubXP: 'xpubXP',
+            name: 'Seed Phrase 01',
+          },
+        ],
+      });
+    });
+
+    it('should save a new wallet to the `wallets` array with the next index', async () => {
+      const uuid = 'uuid';
+      (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
+      const existingSecrets = {
+        wallets: [
+          {
+            id: 'id01',
+            secretType: SecretType.Ledger,
+            name: 'Ledger 01',
+          },
+        ],
+      };
+      storageService.load.mockResolvedValue(existingSecrets);
+      await secretsService.addSecrets({
+        secretType: SecretType.Ledger,
+        derivationPath: DerivationPath.BIP44,
+        xpub: 'xpub',
+        xpubXP: 'xpubXP',
+      });
+      expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
+        ...existingSecrets,
+        wallets: [
+          { ...existingSecrets.wallets[0] },
+          {
+            id: uuid,
+            secretType: SecretType.Ledger,
+            derivationPath: DerivationPath.BIP44,
+            xpub: 'xpub',
+            xpubXP: 'xpubXP',
+            name: 'Ledger 02',
           },
         ],
       });
     });
   });
+
   describe('updateSecrets', () => {
     it('does not implicitly remove existing secrets in storage', async () => {
       const existingSecrets = {

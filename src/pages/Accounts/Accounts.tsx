@@ -2,14 +2,12 @@ import { useCallback, useState, useEffect } from 'react';
 import {
   Box,
   Button,
-  Chip,
   GearIcon,
   Stack,
   Tab,
   TabPanel,
   Tabs,
   TrashIcon,
-  Typography,
   XIcon,
   toast,
   useTheme,
@@ -34,9 +32,9 @@ import { useAccountManager } from './providers/AccountManagerProvider';
 import { AccountList, SelectionMode } from './components/AccountList';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { useWalletName } from './hooks/useWalletName';
 import { AccountType } from '@src/background/services/accounts/models';
 import { SecretType } from '@src/background/services/secrets/models';
+import { AccountListPrimary } from './components/AccountListPrimary';
 
 export enum AccountsTab {
   Primary,
@@ -75,8 +73,6 @@ export function Accounts() {
     featureFlags[FeatureGates.PRIMARY_ACCOUNT_REMOVAL];
 
   const canCreateAccount = active?.type !== AccountType.PRIMARY;
-
-  const walletName = useWalletName();
 
   const setActiveTab = useCallback(
     (tab: AccountsTab) => {
@@ -194,8 +190,9 @@ export function Accounts() {
 
       {hasImportedAccounts && (
         <Tabs
-          size="medium"
+          size="small"
           label={t('Main')}
+          isContained={true}
           variant="fullWidth"
           indicatorColor="secondary"
           value={activeTab}
@@ -208,27 +205,37 @@ export function Accounts() {
             exitManageMode();
             setActiveTab(tab);
           }}
+          sx={{
+            mt: 2,
+            ml: 2,
+            minHeight: '24px',
+            height: '24px',
+          }}
         >
           <Tab
-            label={t('Main')}
+            label={t('Primary')}
             value={AccountsTab.Primary}
-            size="medium"
+            size="small"
             data-testid="main-tab-button"
+            sx={{
+              '&.MuiTab-root': { p: 0, minHeight: '20px', height: '20px' },
+            }}
           />
           <Tab
             label={t('Imported')}
             value={AccountsTab.Imported}
-            size="medium"
+            size="small"
             data-testid="imported-tab-button"
+            sx={{
+              '&.MuiTab-root': { p: 0, minHeight: '20px', height: '20px' },
+            }}
           />
         </Tabs>
       )}
       <Box
         sx={{
           width: '100%',
-          borderTop: hasImportedAccounts ? 1 : 0,
           borderColor: 'divider',
-          mt: -0.25,
           pt: hasImportedAccounts ? 0.75 : 2,
           overflow: 'hidden',
           flexGrow: 1,
@@ -242,24 +249,15 @@ export function Accounts() {
             height: activeTab === AccountsTab.Primary ? '100%' : 0,
           }}
         >
-          <Stack sx={{ gap: 1.5, pt: 1, width: 1 }}>
-            {walletName && (
-              <Stack direction="row" sx={{ gap: 1, px: 2 }}>
-                <Typography variant="button">{walletName}</Typography>
-                <Chip size="small" color="success" label={t('Active')} />
-              </Stack>
-            )}
-            <AccountList
-              walletType={walletDetails?.type}
-              accounts={Object.values(primaryAccounts).flat()}
-              selectionMode={
-                canPrimaryAccountsBeRemoved &&
-                walletDetails?.type !== SecretType.Seedless
-                  ? SelectionMode.Consecutive
-                  : SelectionMode.None
-              }
-            />
-          </Stack>
+          <AccountListPrimary
+            primaryAccount={primaryAccounts}
+            selectionMode={
+              canPrimaryAccountsBeRemoved &&
+              walletDetails?.type !== SecretType.Seedless
+                ? SelectionMode.Consecutive
+                : SelectionMode.None
+            }
+          />
         </TabPanel>
         <TabPanel
           value={activeTab}

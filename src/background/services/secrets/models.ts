@@ -32,7 +32,7 @@ interface SecretsBase {
 
 interface PrimarySecretsBase extends SecretsBase {
   id: string;
-  name?: string;
+  name: string;
 }
 
 interface SeedlessSecrets extends PrimarySecretsBase {
