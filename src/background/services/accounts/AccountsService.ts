@@ -48,19 +48,17 @@ export class AccountsService implements OnLock, OnUnlock {
       this._accounts.active?.id !== accounts.active?.id;
     this._accounts = accounts;
 
-    const activeWalletPrimaryAccounts = this.#getActiveWalletPrimaryAccounts();
+    if (Object.keys(accounts.primary).length > 0) {
+      if (isPrimaryAccount(accounts.active)) {
+        const activeWalletAccounts = accounts.primary[accounts.active.walletId];
 
-    if (activeWalletPrimaryAccounts.length > 0) {
-      if (accounts.active) {
-        // we want to set the changes put to the active account from the original account source
-        const foundActiveAccount = isPrimaryAccount(accounts.active)
-          ? activeWalletPrimaryAccounts.find(
-              (account) => account.id === accounts.active?.id
-            )
-          : accounts.imported[accounts.active.id];
-
-        this._accounts.active = foundActiveAccount;
+        this._accounts.active =
+          activeWalletAccounts?.[accounts.active.index] ?? // Try to restore the active account
+          Object.values(accounts.primary).flat()[0]; // Fall back to the first primary account
+      } else if (accounts.active) {
+        this._accounts.active = accounts.imported[accounts.active.id];
       }
+
       this.saveAccounts(this._accounts);
     }
 
@@ -80,20 +78,6 @@ export class AccountsService implements OnLock, OnUnlock {
 
   public get activeAccount() {
     return this.accounts.active;
-  }
-
-  #getActiveWalletPrimaryAccounts(accounts?: Accounts) {
-    const accountsList = accounts
-      ? Object.values(accounts.primary).flat()
-      : Object.values(this.accounts.primary).flat();
-
-    const activeWalletPrimaryAccounts = accountsList.filter((account) => {
-      if (isPrimaryAccount(this.accounts.active)) {
-        return account.walletId === this.accounts.active.walletId;
-      }
-      return true;
-    });
-    return activeWalletPrimaryAccounts;
   }
 
   constructor(
@@ -134,7 +118,7 @@ export class AccountsService implements OnLock, OnUnlock {
     const isOnFireblocksAccount =
       this.activeAccount?.type === AccountType.FIREBLOCKS;
 
-    const [primaryAccount] = this.#getActiveWalletPrimaryAccounts();
+    const [primaryAccount] = Object.values(this.accounts.primary).flat();
     const shouldSwitchToPrimaryAccount =
       primaryAccount &&
       isOnFireblocksAccount &&
@@ -149,11 +133,8 @@ export class AccountsService implements OnLock, OnUnlock {
   private init = async (updateAddresses?: boolean) => {
     const accounts = await this.loadAccounts();
 
-    // no accounts added yet, onboarding is not done yet
-    const activeWalletPrimaryAccounts =
-      this.#getActiveWalletPrimaryAccounts(accounts);
-
-    if (activeWalletPrimaryAccounts.length === 0) {
+    // no wallets added yet, onboarding is not finished
+    if (Object.keys(accounts.primary).length === 0) {
       return;
     }
 
@@ -184,7 +165,7 @@ export class AccountsService implements OnLock, OnUnlock {
       activeWalletPrimaryAccountsWithAddresses,
       importedAccountsWithAddresses,
     ] = await Promise.all([
-      Promise.all(activeWalletPrimaryAccounts.map(refreshAccount)),
+      Promise.all(Object.values(accounts.primary).flat().map(refreshAccount)),
       Promise.all(Object.values(accounts.imported).map(refreshAccount)),
     ]);
 

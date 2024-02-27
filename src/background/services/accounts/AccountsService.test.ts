@@ -67,6 +67,7 @@ describe('background/services/accounts/AccountsService', () => {
   };
 
   const walletId = 'wallet-id';
+  const secondaryWalletId = 'secondary-wallet-id';
 
   const evmAddress = '0x000000000';
   const btcAddress = 'btc000000000';
@@ -107,6 +108,16 @@ describe('background/services/accounts/AccountsService', () => {
           name: 'Account 2',
           type: AccountType.PRIMARY,
           walletId,
+          ...addresses,
+        },
+      ],
+      [secondaryWalletId]: [
+        {
+          index: 0,
+          id: 'uuid3',
+          name: 'Wallet 2 Account 1',
+          type: AccountType.PRIMARY,
+          walletId: secondaryWalletId,
           ...addresses,
         },
       ],
@@ -191,6 +202,14 @@ describe('background/services/accounts/AccountsService', () => {
           ...getAllAddresses(),
         },
         {
+          index: 0,
+          id: 'uuid3',
+          name: 'Wallet 2 Account 1',
+          type: AccountType.PRIMARY,
+          walletId: secondaryWalletId,
+          ...getAllAddresses(),
+        },
+        {
           id: '0x1',
           name: 'Imported Account 1',
           type: AccountType.IMPORTED,
@@ -252,7 +271,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(storageService.load).toBeCalledTimes(1);
       expect(storageService.load).toBeCalledWith(ACCOUNTS_STORAGE_KEY);
-      expect(walletService.getAddresses).toBeCalledTimes(2);
+      expect(walletService.getAddresses).toBeCalledTimes(3);
       expect(walletService.getAddresses).toHaveBeenNthCalledWith(
         1,
         0,
@@ -834,6 +853,25 @@ describe('background/services/accounts/AccountsService', () => {
       await expect(
         accountsService.setAccountName('unknown-uuid', 'updated name')
       ).rejects.toThrow('Account rename failed: account not found');
+    });
+
+    it('only modifies the account belonging to other wallets', async () => {
+      const mockedAccounts = mockAccounts(true);
+      (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
+      await accountsService.onUnlock();
+      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+
+      await accountsService.setAccountName('uuid3', 'Updated Name');
+
+      const accounts = accountsService.getAccounts();
+
+      expect(accounts.primary[walletId]).toEqual(
+        mockedAccounts.primary[walletId]
+      );
+
+      expect(accounts.primary[secondaryWalletId]).toEqual([
+        { ...accounts.primary[secondaryWalletId]![0], name: 'Updated Name' },
+      ]);
     });
 
     it('renames primary accounts correctly', async () => {

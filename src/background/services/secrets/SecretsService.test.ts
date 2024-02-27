@@ -68,6 +68,39 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     secretsService = new SecretsService(storageService);
   });
 
+  const mockMultipleWallets = () => {
+    const data = {
+      wallets: [
+        {
+          secretType: SecretType.Mnemonic,
+          mnemonic: 'mnemonic',
+          name: 'Seed Phrase 01',
+          xpub: 'xpub',
+          xpubXP: 'xpubXP',
+          derivationPath: DerivationPath.BIP44,
+          id: 'mnemonic-wallet',
+        },
+        {
+          xpub: 'xpub',
+          xpubXP: 'xpubXP',
+          name: 'Ledger 01',
+          derivationPath: DerivationPath.BIP44,
+          id: 'ledger-wallet',
+          secretType: SecretType.Ledger,
+        },
+      ],
+      importedAccounts: {
+        pkeyAccount: {
+          secretType: SecretType.PrivateKey,
+          secret: 'secret',
+        },
+      },
+    } as const;
+    jest.spyOn(storageService, 'load').mockResolvedValue(data);
+
+    return data;
+  };
+
   const mockMnemonicWallet = (
     additionalData = {},
     account?: Partial<Account>
@@ -91,7 +124,6 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       ],
       ...additionalData,
     };
-    //as Wallet
     jest.spyOn(storageService, 'load').mockResolvedValue(data);
 
     return data;
@@ -198,6 +230,21 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       await expect(secretsService.getPrimaryAccountSecrets()).resolves.toEqual({
         key: 'some-unknown-secret',
       });
+    });
+  });
+
+  describe('getPrimaryWalletsDetails()', () => {
+    it('lists details of primary wallets', async () => {
+      const { wallets } = mockMultipleWallets();
+
+      expect(await secretsService.getPrimaryWalletsDetails()).toEqual(
+        wallets.map((wallet) => ({
+          id: wallet.id,
+          name: wallet.name,
+          type: wallet.secretType,
+          derivationPath: wallet.derivationPath,
+        }))
+      );
     });
   });
 
