@@ -50,7 +50,11 @@ const OnboardingContext = createContext<{
   setXpubXP: Dispatch<SetStateAction<string>>;
   setAnalyticsConsent: Dispatch<SetStateAction<boolean | undefined>>;
   analyticsConsent: boolean | undefined;
-  setPasswordAndName: (password: string, accountName: string) => void;
+  setPasswordAndNames: (
+    password: string,
+    accountName: string,
+    walletName?: string
+  ) => void;
   submit(postSubmitHandler: () => void): void;
   setPublicKeys: Dispatch<SetStateAction<PubKeyType[] | undefined>>;
   publicKeys?: PubKeyType[];
@@ -86,6 +90,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   const [password, setPassword] = useState('');
 
   const [accountName, setAccountName] = useState<string>('Account 1');
+  const [walletName, setWalletName] = useState<string>();
 
   const [analyticsConsent, setAnalyticsConsent] = useState<boolean | undefined>(
     undefined
@@ -131,6 +136,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setWalletType(undefined);
     setUserEmail(undefined);
     setIsNewAccount(false);
+    setWalletName(undefined);
   }, []);
 
   useEffect(() => {
@@ -188,10 +194,14 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     }
   }, [isHome, onboardingState]);
 
-  const setPasswordAndName = useCallback((pass: string, name: string) => {
-    setPassword(pass);
-    setAccountName(name);
-  }, []);
+  const setPasswordAndNames = useCallback(
+    (pass: string, newAccountName: string, newWalletName?: string) => {
+      setPassword(pass);
+      setAccountName(newAccountName);
+      setWalletName(newWalletName);
+    },
+    []
+  );
 
   const submit = useCallback(
     (postSubmitHandler: () => void) => {
@@ -219,6 +229,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
             seedlessSignerToken,
             authProvider,
             userEmail,
+            walletName: walletName,
           },
         ],
       })
@@ -252,6 +263,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       seedlessSignerToken,
       authProvider,
       userEmail,
+      walletName,
       capture,
       walletType,
       resetStates,
@@ -273,7 +285,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setMnemonic,
         setXpub,
         setXpubXP,
-        setPasswordAndName,
+        setPasswordAndNames,
         submit,
         setAnalyticsConsent,
         analyticsConsent,

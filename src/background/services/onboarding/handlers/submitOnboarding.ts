@@ -40,6 +40,7 @@ type HandlerType = ExtensionRequestHandler<
       seedlessSignerToken: SignerSessionData | undefined;
       authProvider: SeedlessAuthProvider | undefined;
       userEmail: string | undefined;
+      walletName: string | undefined;
     }
   ]
 >;
@@ -73,6 +74,7 @@ export class SubmitOnboardingHandler implements HandlerType {
       seedlessSignerToken,
       authProvider,
       userEmail,
+      walletName,
     } = (request.params ?? [])[0] ?? {};
 
     if (!seedlessSignerToken && !mnemonic && !xPubFromHardware && !pubKeys) {
@@ -158,6 +160,7 @@ export class SubmitOnboardingHandler implements HandlerType {
         userEmail,
         authProvider: authProvider ?? SeedlessAuthProvider.Google,
         derivationPath: DerivationPath.BIP44,
+        name: walletName,
       });
     }
 
@@ -170,6 +173,7 @@ export class SubmitOnboardingHandler implements HandlerType {
         xpub,
         xpubXP,
         derivationPath: DerivationPath.BIP44,
+        name: walletName,
       });
     }
 
@@ -181,6 +185,7 @@ export class SubmitOnboardingHandler implements HandlerType {
         xpub,
         masterFingerprint,
         derivationPath: DerivationPath.BIP44,
+        name: walletName,
       });
     }
 
@@ -193,6 +198,7 @@ export class SubmitOnboardingHandler implements HandlerType {
         xpub,
         xpubXP,
         derivationPath: DerivationPath.BIP44,
+        name: walletName,
       });
     }
 
@@ -204,6 +210,7 @@ export class SubmitOnboardingHandler implements HandlerType {
         secretType: SecretType.LedgerLive,
         pubKeys,
         derivationPath: DerivationPath.LedgerLive,
+        name: walletName,
       });
     }
 

@@ -23,8 +23,9 @@ import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
 export const CreatePassword = () => {
   const { capture } = useAnalyticsContext();
   const history = useHistory();
-  const { setPasswordAndName, onboardingPhase } = useOnboardingContext();
+  const { setPasswordAndNames, onboardingPhase } = useOnboardingContext();
   const [accountName, setAccountName] = useState<string>('');
+  const [walletName, setWalletName] = useState<string>();
   const [password, setPassword] = useState<string>('');
   const [confirmPasswordVal, setConfirmPasswordVal] = useState<string>('');
   const [termAndPolicyChecked, setTermAndPolicyChecked] =
@@ -100,9 +101,18 @@ export const CreatePassword = () => {
             <TextField
               data-testid="wallet-name-input"
               label={t('Wallet Name')}
-              onChange={(e) => setAccountName(e.target.value)}
+              onChange={(e) => setWalletName(e.target.value)}
               placeholder={t('Enter a Name')}
               autoFocus
+              fullWidth
+            />
+          </Stack>
+          <Stack sx={{ height: theme.spacing(12) }}>
+            <TextField
+              data-testid="wallet-name-input"
+              label={t('Account Name')}
+              onChange={(e) => setAccountName(e.target.value)}
+              placeholder={t('Enter a Name')}
               fullWidth
             />
           </Stack>
@@ -205,7 +215,7 @@ export const CreatePassword = () => {
           capture('OnboardingPasswordSet', {
             AccountNameSet: !!accountName,
           });
-          setPasswordAndName(password, accountName);
+          setPasswordAndNames(password, accountName, walletName);
           history.push(OnboardingURLs.ANALYTICS_CONSENT);
         }}
         nextText={t('Save')}

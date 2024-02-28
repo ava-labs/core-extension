@@ -235,6 +235,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       {
         password: 'password',
         accountName: 'test-acc',
+        walletName: 'wallet-name',
         seedlessSignerToken: {},
         userEmail: 'a@b.c',
         authProvider: SeedlessAuthProvider.Google,
@@ -262,6 +263,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       pubKeys: [],
       derivationPath: DerivationPath.BIP44,
       secretType: SecretType.Seedless,
+      name: 'wallet-name',
     });
 
     // Adds all derived accounts
@@ -329,6 +331,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       xpubXP: 'xpubFromMnemonicXP',
       derivationPath: DerivationPath.BIP44,
       secretType: SecretType.Mnemonic,
+      name: undefined,
     });
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
       name: 'Bob',
@@ -361,6 +364,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
         xpubXP: 'xpubXP',
         password: 'password',
         accountName: 'Bob',
+        walletName: 'wallet-name',
         analyticsConsent: false,
       },
     ]);
@@ -383,6 +387,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       xpubXP: 'xpubXP',
       derivationPath: DerivationPath.BIP44,
       secretType: SecretType.Ledger,
+      name: 'wallet-name',
     });
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
       name: 'Bob',
@@ -437,6 +442,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       masterFingerprint: 'masterFingerprint',
       derivationPath: DerivationPath.BIP44,
       secretType: SecretType.Keystone,
+      name: undefined,
     });
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
       name: 'Bob',
@@ -468,6 +474,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
         pubKeys: ['pubkey1', 'pubkey2', 'pubkey3'],
         password: 'password',
         accountName: 'Bob',
+        walletName: 'wallet-name',
         analyticsConsent: false,
       },
     ]);
@@ -488,6 +495,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
       pubKeys: ['pubkey1', 'pubkey2', 'pubkey3'],
       derivationPath: DerivationPath.LedgerLive,
       secretType: SecretType.LedgerLive,
+      name: 'wallet-name',
     });
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(1, {
       name: 'Bob',
