@@ -7,7 +7,6 @@ import {
 } from '@src/background/services/onboarding/models';
 import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { Mnemonic } from 'ethers';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Button,
@@ -18,14 +17,9 @@ import {
 } from '@avalabs/k2-components';
 import { PageNav } from '../components/PageNav';
 import { useHistory } from 'react-router-dom';
-import {
-  WordsLengthSelector,
-  wordPhraseLength,
-} from '../components/WordsLengthSelector';
+import { WordsLengthSelector } from '../components/WordsLengthSelector';
 import splitSeedPhrase from '../utils/splitSeedPhrase';
-
-const isPhraseCorrectLength = (phrase: string) =>
-  wordPhraseLength.includes(splitSeedPhrase(phrase).length);
+import { isPhraseCorrect } from '@src/utils/seedPhraseValidation';
 
 export const ImportWallet = () => {
   const { capture } = useAnalyticsContext();
@@ -63,11 +57,7 @@ export const ImportWallet = () => {
   }, []);
 
   const isPhraseValid = useCallback((phrase: string) => {
-    return (
-      phrase &&
-      isPhraseCorrectLength(phrase) &&
-      Mnemonic.isValidMnemonic(phrase)
-    );
+    return phrase && isPhraseCorrect(phrase);
   }, []);
 
   const onPhraseChanged = useCallback(() => {

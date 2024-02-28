@@ -10,7 +10,7 @@ import { Account } from '@src/background/services/accounts/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 import { AccountItem } from './AccountItem';
-import { WalletType } from '@src/background/services/wallet/models';
+import { SecretType } from '@src/background/services/secrets/models';
 
 export enum SelectionMode {
   None, // Reserved for Seedless
@@ -21,7 +21,7 @@ export enum SelectionMode {
 type AccountListProps = {
   accounts: Account[];
   selectionMode: SelectionMode;
-  walletType?: WalletType;
+  walletType?: SecretType;
   sx?: SxProps;
 };
 

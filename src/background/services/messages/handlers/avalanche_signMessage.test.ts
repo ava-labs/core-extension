@@ -43,6 +43,19 @@ describe('avalanche_signMessage', function () {
     expect(res.error.message).toMatch('Missing mandatory param');
   });
 
+  it('returns error when account index is not valid', async () => {
+    const handler = new AvalancheSignMessageHandler(walletServiceMock as any);
+    const res = await handler.handleAuthenticated({
+      ...request,
+      params: ['hello', 'accountIndex'],
+    });
+
+    expect(res).toHaveProperty('error');
+    expect(res.error.message).toMatch(
+      'Invalid account index provided: accountIndex'
+    );
+  });
+
   it('passes the right display data', async () => {
     const handler = new AvalancheSignMessageHandler(walletServiceMock as any);
 
@@ -56,6 +69,38 @@ describe('avalanche_signMessage', function () {
           messageParams: {
             data: msgHex,
             from: '',
+          },
+          isMessageValid: true,
+          validationError: undefined,
+        },
+      },
+      'sign'
+    );
+  });
+
+  it('passes the right display data', async () => {
+    const handler = new AvalancheSignMessageHandler(walletServiceMock as any);
+
+    const requestWithAccountIndex = {
+      id: '456',
+      method: DAppProviderRequest.AVALANCHE_SIGN_MESSAGE,
+      params: [msg, 2], // test
+      site: {
+        tabId: 1,
+      },
+    };
+
+    await handler.handleAuthenticated(requestWithAccountIndex);
+
+    expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+      {
+        ...requestWithAccountIndex,
+        tabId: request.site.tabId,
+        displayData: {
+          messageParams: {
+            data: msgHex,
+            from: '',
+            accountIndex: 2,
           },
           isMessageValid: true,
           validationError: undefined,

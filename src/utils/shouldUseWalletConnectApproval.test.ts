@@ -31,6 +31,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
     addressC: crypto.randomUUID(),
     type: AccountType.PRIMARY,
     addressBTC: 'addressBTC',
+    walletId: 'wallet-id-1',
   };
 
   const importedPrivateKeyAccount: ImportedPrivateKeyAccount = {

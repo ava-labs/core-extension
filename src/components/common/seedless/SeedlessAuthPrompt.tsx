@@ -9,10 +9,10 @@ import {
   Typography,
 } from '@avalabs/k2-components';
 
-import { WalletType } from '@src/background/services/wallet/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { useSeedlessAuthPromptState } from '@src/hooks/useSeedlessAuthPromptState';
+import { SecretType } from '@src/background/services/secrets/models';
 
 export const SeedlessAuthPrompt = () => {
   const { t } = useTranslation();
@@ -35,7 +35,7 @@ export const SeedlessAuthPrompt = () => {
   }, []);
 
   // Make sure not to render the prompt if it comes for the wrong wallet by mistake somehow.
-  if (walletDetails?.type !== WalletType.SEEDLESS) {
+  if (walletDetails?.type !== SecretType.Seedless) {
     return null;
   }
 

@@ -12,6 +12,9 @@ import {
   styled,
   FireblocksIcon,
   Tooltip,
+  ListIcon,
+  Typography,
+  TypographyProps,
 } from '@avalabs/k2-components';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +29,9 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 type AccountsActionButtonProps = {
   disabled?: boolean;
+  isButtonDisabled?: boolean;
   onAddNewAccount: () => void;
+  disabledButtonTooltipText?: string;
 };
 
 const StyledMenuItem = styled(MenuItem)`
@@ -36,9 +41,26 @@ const StyledMenuItem = styled(MenuItem)`
   }
 `;
 
+const MenuSubheader = (props: TypographyProps) => (
+  <Typography
+    variant="caption"
+    component="li"
+    sx={{ px: 2, pt: 1, pb: 0.5, cursor: 'default' }}
+    color="text.secondary"
+    {...props}
+  />
+);
+
+const WALLET_IMPORT_FLAGS = [
+  FeatureGates.ADD_WALLET_WITH_SEEDPHRASE,
+  FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE,
+];
+
 export const AccountsActionButton = ({
   disabled,
   onAddNewAccount,
+  disabledButtonTooltipText,
+  isButtonDisabled,
 }: AccountsActionButtonProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const history = useHistory();
@@ -51,6 +73,21 @@ export const AccountsActionButton = ({
   const goToImportScreen = useCallback(() => {
     capture('ImportPrivateKey_Clicked');
     history.push('/import-private-key');
+  }, [history, capture]);
+
+  const goToAddSeedphraseScreen = useCallback(() => {
+    capture('AddWalletWithSeedphrase_Clicked');
+    history.push('/accounts/add-wallet/seedphrase');
+  }, [history, capture]);
+
+  const goToAddKeystoreFileScreen = useCallback(() => {
+    capture('AddWalletWithKeystoreFile_Clicked');
+    history.push('/accounts/add-wallet/keystore');
+  }, [history, capture]);
+
+  const goToAddLedgerScreen = useCallback(() => {
+    capture('AddWalletWithLedger_Clicked');
+    history.push('/accounts/add-wallet/ledger');
   }, [history, capture]);
 
   const goToWalletConnectScreen = useCallback(() => {
@@ -76,6 +113,10 @@ export const AccountsActionButton = ({
     return '';
   }, [t, network]);
 
+  const isAnyWalletImportAvailable = WALLET_IMPORT_FLAGS.some(
+    (flag) => featureFlags[flag]
+  );
+
   return (
     <ButtonGroup
       disabled={disabled}
@@ -83,13 +124,24 @@ export const AccountsActionButton = ({
       variant="contained"
       fullWidth
     >
-      <Button
-        onClick={onAddNewAccount}
-        sx={{ gap: 1 }}
-        data-testid={'add-primary-account'}
+      <Tooltip
+        title={disabledButtonTooltipText}
+        sx={{
+          display: 'flex',
+          width: '100%',
+          mr: 0.5,
+        }}
       >
-        {t('Create Account')}
-      </Button>
+        <Button
+          onClick={onAddNewAccount}
+          sx={{ gap: 1 }}
+          data-testid={'add-primary-account'}
+          disabled={isButtonDisabled}
+        >
+          {t('Create Account')}
+        </Button>
+      </Tooltip>
+
       <ClickAwayListener onClickAway={() => setIsMenuOpen(false)}>
         <Button
           ref={toggleButtonRef}
@@ -112,7 +164,17 @@ export const AccountsActionButton = ({
           >
             {({ TransitionProps }) => (
               <Grow {...TransitionProps} timeout={250}>
-                <MenuList dense sx={{ p: 0, mb: 1, overflow: 'hidden' }}>
+                <MenuList
+                  dense
+                  sx={{
+                    p: 0,
+                    py: 0.5,
+                    mb: 1,
+                    overflow: 'hidden',
+                    backgroundColor: 'grey.800',
+                  }}
+                >
+                  <MenuSubheader>{t('Import Account')}</MenuSubheader>
                   <StyledMenuItem
                     onClick={goToImportScreen}
                     data-testid="add-import-account"
@@ -147,6 +209,37 @@ export const AccountsActionButton = ({
                         {t('Import with Fireblocks')}
                       </StyledMenuItem>
                     </Tooltip>
+                  )}
+
+                  {isAnyWalletImportAvailable && (
+                    <MenuSubheader>{t('Add Wallet')}</MenuSubheader>
+                  )}
+                  {featureFlags[FeatureGates.ADD_WALLET_WITH_SEEDPHRASE] && (
+                    <StyledMenuItem
+                      onClick={goToAddSeedphraseScreen}
+                      data-testid="add-wallet-seed-phrase"
+                    >
+                      <ListIcon size={16} sx={{ pr: 1 }} />
+                      {t('Add Wallet with Seed Phrase')}
+                    </StyledMenuItem>
+                  )}
+                  {featureFlags[FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE] && (
+                    <StyledMenuItem
+                      onClick={goToAddKeystoreFileScreen}
+                      data-testid="add-wallet-keystore-file"
+                    >
+                      <ListIcon size={16} sx={{ pr: 1 }} />
+                      {t('Add Wallet with Keystore File')}
+                    </StyledMenuItem>
+                  )}
+                  {featureFlags[FeatureGates.ADD_WALLET_WITH_LEDGER] && (
+                    <StyledMenuItem
+                      onClick={goToAddLedgerScreen}
+                      data-testid="add-wallet-ledger"
+                    >
+                      <ListIcon size={16} sx={{ pr: 1 }} />
+                      {t('Add Wallet with Ledger')}
+                    </StyledMenuItem>
                   )}
                 </MenuList>
               </Grow>

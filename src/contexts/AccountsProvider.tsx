@@ -27,7 +27,7 @@ const AccountsContext = createContext<{
   isActiveAccount(id: string): boolean;
   selectAccount(id: string): Promise<any>;
   renameAccount(id: string, name: string): Promise<any>;
-  addAccount(name?: string, importData?: ImportData): Promise<any>;
+  addAccount(name?: string, importData?: ImportData): Promise<string>;
   deleteAccounts(ids: string[]): Promise<any>;
   getAccount(address: string): Account | undefined;
   getAccountById(id: string): Account | undefined;
@@ -37,7 +37,7 @@ export function AccountsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const [accounts, setAccounts] = useState<Accounts>({
     active: undefined,
-    primary: [],
+    primary: {},
     imported: {},
   });
 
@@ -53,7 +53,9 @@ export function AccountsContextProvider({ children }: { children: any }) {
       ),
       events().pipe(
         filter(accountsUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => {
+          return evt.value;
+        })
       )
     ).subscribe((result) => {
       setAccounts(result);
@@ -65,7 +67,10 @@ export function AccountsContextProvider({ children }: { children: any }) {
   }, [events, request]);
 
   const allAccounts = useMemo(
-    () => [...accounts.primary, ...Object.values(accounts.imported)],
+    () => [
+      ...Object.values(accounts.primary).flat(),
+      ...Object.values(accounts.imported),
+    ],
     [accounts.imported, accounts.primary]
   );
 
@@ -106,10 +111,10 @@ export function AccountsContextProvider({ children }: { children: any }) {
   );
 
   const addAccount = useCallback(
-    (name?: string, importData?: ImportData) =>
+    (name?: string, importData?: ImportData, walletId?: string) =>
       request<AddAccountHandler>({
         method: ExtensionRequest.ACCOUNT_ADD,
-        params: [name, importData],
+        params: { name, importData, walletId },
       }),
     [request]
   );

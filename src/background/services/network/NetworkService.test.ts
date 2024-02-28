@@ -22,6 +22,7 @@ jest.mock('@avalabs/wallets-sdk', () => {
   const getDefaultFujiProviderMock = jest.fn();
   const getDefaultMainnetProviderMock = jest.fn();
   return {
+    ...jest.requireActual('@avalabs/wallets-sdk'),
     BlockCypherProvider: BlockCypherProviderMock,
     JsonRpcBatchInternal: JsonRpcBatchInternalMock,
     Avalanche: {

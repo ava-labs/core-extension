@@ -27,11 +27,16 @@ export enum SecretType {
 }
 
 interface SecretsBase {
-  type: SecretType;
+  secretType: SecretType;
 }
 
-interface SeedlessSecrets extends SecretsBase {
-  type: SecretType.Seedless;
+interface PrimarySecretsBase extends SecretsBase {
+  id: string;
+  name: string;
+}
+
+interface SeedlessSecrets extends PrimarySecretsBase {
+  secretType: SecretType.Seedless;
   pubKeys: PubKeyType[];
   seedlessSignerToken: SignerSessionData;
   derivationPath: DerivationPath;
@@ -42,50 +47,50 @@ interface SeedlessSecrets extends SecretsBase {
   xpubXP?: never;
 }
 
-interface MnemonicSecrets extends SecretsBase {
-  type: SecretType.Mnemonic;
+interface MnemonicSecrets extends PrimarySecretsBase {
+  secretType: SecretType.Mnemonic;
   mnemonic: string;
   xpub: string;
   xpubXP: string;
   derivationPath: DerivationPath;
 }
 
-interface KeystoneSecrets extends SecretsBase {
-  type: SecretType.Keystone;
+interface KeystoneSecrets extends PrimarySecretsBase {
+  secretType: SecretType.Keystone;
   masterFingerprint: string;
   xpub: string;
   xpubXP?: never;
   derivationPath: DerivationPath;
 }
 
-interface LedgerSecrets extends SecretsBase {
-  type: SecretType.Ledger;
+interface LedgerSecrets extends PrimarySecretsBase {
+  secretType: SecretType.Ledger;
   xpub: string;
   xpubXP?: string;
   derivationPath: DerivationPath.BIP44;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
 }
 
-interface LedgerLiveSecrets extends SecretsBase {
-  type: SecretType.LedgerLive;
+interface LedgerLiveSecrets extends PrimarySecretsBase {
+  secretType: SecretType.LedgerLive;
   pubKeys: PubKeyType[];
   xpubXP?: never;
   derivationPath: DerivationPath.LedgerLive;
 }
 
 interface ImportedPrivateKeySecrets extends SecretsBase {
-  type: SecretType.PrivateKey;
+  secretType: SecretType.PrivateKey;
   secret: string;
 }
 
 interface ImportedWalletConnectSecrets extends SecretsBase {
-  type: SecretType.WalletConnect;
+  secretType: SecretType.WalletConnect;
   addresses: WalletConnectAddresses;
   pubKey?: PubKeyType;
 }
 
 interface ImportedFireblocksSecrets extends SecretsBase {
-  type: SecretType.Fireblocks;
+  secretType: SecretType.Fireblocks;
   addresses: {
     addressC: string;
     addressBTC?: string;
@@ -93,7 +98,7 @@ interface ImportedFireblocksSecrets extends SecretsBase {
   api?: FireblocksApiData;
 }
 
-export type PrimaryAccountSecrets =
+export type PrimaryWalletSecrets =
   | MnemonicSecrets
   | KeystoneSecrets
   | LedgerSecrets
@@ -108,7 +113,7 @@ export type ImportedAccountSecrets =
 export type AccountWithSecrets =
   | ({
       account?: PrimaryAccount;
-    } & PrimaryAccountSecrets)
+    } & PrimaryWalletSecrets)
   | ({ account: ImportedAccount } & ImportedAccountSecrets);
 
 export type DerivedAddresses = {

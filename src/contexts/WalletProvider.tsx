@@ -4,13 +4,11 @@ import {
   useEffect,
   useCallback,
   useState,
+  useMemo,
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
-import {
-  WalletDetails,
-  WalletType,
-} from '@src/background/services/wallet/models';
+import { WalletDetails } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useLedgerContext } from './LedgerProvider';
@@ -23,19 +21,27 @@ import { GetHistoryHandler } from '@src/background/services/history/handlers/get
 import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
 import { walletStateChangedEventListener } from '@src/background/services/wallet/events/WalletUpdatedEventListener';
 import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
+import { useAccountsContext } from './AccountsProvider';
+import { AccountType } from '@src/background/services/accounts/models';
+import { SecretType } from '@src/background/services/secrets/models';
 
 type WalletStateAndMethods = {
   isWalletLoading: boolean;
   isWalletLocked: boolean;
+  isLedgerWallet: boolean;
   walletDetails: WalletDetails | undefined;
+  wallets: WalletDetails[];
   changeWalletPassword(
     newPassword: string,
     oldPassword: string
   ): Promise<boolean>;
+  getWallet(id: string): WalletDetails | undefined;
   getUnencryptedMnemonic(password: string): Promise<string>;
   getTransactionHistory(): Promise<TxHistoryItem[]>;
 };
-const WalletContext = createContext<WalletStateAndMethods>({} as any);
+const WalletContext = createContext<WalletStateAndMethods>({
+  wallets: [],
+} as any);
 
 export function WalletContextProvider({ children }: { children: any }) {
   const { initLedgerTransport } = useLedgerContext();
@@ -45,6 +51,30 @@ export function WalletContextProvider({ children }: { children: any }) {
   const [walletDetails, setWalletDetails] = useState<
     WalletDetails | undefined
   >();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
+  const [wallets, setWallets] = useState<WalletDetails[]>([]);
+
+  const getWallet = useCallback(
+    (walletId: string) => wallets.find(({ id }) => walletId === id),
+    [wallets]
+  );
+
+  const isLedgerWallet = useMemo(() => {
+    return (
+      walletDetails?.type === SecretType.Ledger ||
+      walletDetails?.type === SecretType.LedgerLive
+    );
+  }, [walletDetails]);
+
+  useEffect(() => {
+    if (activeAccount?.type === AccountType.PRIMARY) {
+      setWalletDetails(wallets.find((w) => w.id === activeAccount.walletId));
+    } else {
+      setWalletDetails(undefined);
+    }
+  }, [activeAccount, wallets]);
 
   // listen for wallet creation
   useEffect(() => {
@@ -54,8 +84,8 @@ export function WalletContextProvider({ children }: { children: any }) {
     setIsWalletLoading(true);
     request<GetWalletDetailsHandler>({
       method: ExtensionRequest.WALLET_GET_DETAILS,
-    }).then((details) => {
-      setWalletDetails(details);
+    }).then((_wallets) => {
+      setWallets(_wallets);
     });
 
     request<GetLockStateHandler>({
@@ -79,8 +109,8 @@ export function WalletContextProvider({ children }: { children: any }) {
         filter(walletStateChangedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe((details) => {
-        setWalletDetails(details);
+      .subscribe((_wallets) => {
+        setWallets(_wallets);
       });
 
     return () => {
@@ -90,10 +120,10 @@ export function WalletContextProvider({ children }: { children: any }) {
   }, [events, request]);
 
   useEffect(() => {
-    if (!isWalletLocked && walletDetails?.type === WalletType.LEDGER) {
+    if (!isWalletLocked && isLedgerWallet) {
       initLedgerTransport();
     }
-  }, [initLedgerTransport, isWalletLocked, walletDetails]);
+  }, [initLedgerTransport, isWalletLocked, isLedgerWallet]);
 
   const unlockWallet = useCallback(
     (password: string) => {
@@ -138,9 +168,12 @@ export function WalletContextProvider({ children }: { children: any }) {
   return (
     <WalletContext.Provider
       value={{
+        getWallet,
         isWalletLoading,
         isWalletLocked,
+        isLedgerWallet,
         walletDetails,
+        wallets,
         changeWalletPassword,
         getUnencryptedMnemonic,
         getTransactionHistory,

@@ -44,6 +44,7 @@ export const AccountManagerProvider = ({
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [isManageMode, setIsManageMode] = useState(false);
 
+  const primaryAccounts = Object.values(accounts.primary).flat();
   const isAccountSelectable = useCallback(
     (accountId: string) => {
       // Only allow removing primary accounts when the backend starts supporting it.
@@ -51,7 +52,7 @@ export const AccountManagerProvider = ({
         return accountId in accounts.imported;
       }
 
-      const index = accounts.primary.findIndex(({ id }) => id === accountId);
+      const index = primaryAccounts.findIndex(({ id }) => id === accountId);
       const account = accounts.primary[index];
 
       // Account does not exist or is an imported account.
@@ -73,11 +74,17 @@ export const AccountManagerProvider = ({
       // }
 
       // or when all of the following accounts are already selected.
-      return accounts.primary
+      return primaryAccounts
         .slice(index + 1)
         .every(({ id }) => selectedAccounts.includes(id));
     },
-    [accounts.primary, accounts.imported, selectedAccounts, featureFlags]
+    [
+      featureFlags,
+      primaryAccounts,
+      accounts.primary,
+      accounts.imported,
+      selectedAccounts,
+    ]
   );
 
   const selectAccount = useCallback((accountId: string) => {

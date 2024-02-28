@@ -14,14 +14,14 @@ jobs:
     environment: alpha
     steps:
       - name: Checkout extension
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: 20.x
       - name: Create .npmrc
         run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}' >> .npmrc
       - name: Create env file
@@ -60,7 +60,7 @@ jobs:
           mv builds/*.zip builds/extension.zip
           mv builds/extension.zip ${GITHUB_WORKSPACE}
       - name: Upload builded zip file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: extension
           path: extension.zip
@@ -81,11 +81,11 @@ jobs:
       APITOKEN_SNOWTRACE: ${{secrets.APITOKEN_SNOWTRACE}}
     steps:
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: 20.x
       - name: Checkout automation repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: 'ava-labs/avalanche-test-automation'
           path: './'
@@ -93,7 +93,7 @@ jobs:
       - name: Install automation repo dependencies
         run: yarn install
       - name: Download builded zip file
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: extension
       - name: Running browser extension smoke tests on testnet/mainnet against generated zip
@@ -105,7 +105,7 @@ jobs:
           echo "TESTRAIL_RUN_ID=$(head -n 1 testrail_run_id.txt)" >> $GITHUB_ENV
       - name: Success slack notification
         if: success()
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v1.25.0
         with:
           payload: |
             {
@@ -119,7 +119,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Failure slack notification
         if: failure()
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v1.25.0
         with:
           payload: |
             {

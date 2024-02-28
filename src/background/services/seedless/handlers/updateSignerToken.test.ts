@@ -5,9 +5,10 @@ import { SecretType } from '../../secrets/models';
 
 describe('src/background/services/seedless/handlers/updateSignerToken', () => {
   const secretsService = jest.mocked<SecretsService>({
-    getActiveAccountSecrets: jest
-      .fn()
-      .mockResolvedValue({ type: SecretType.Seedless, userEmail: 'x@y.z' }),
+    getActiveAccountSecrets: jest.fn().mockResolvedValue({
+      secretType: SecretType.Seedless,
+      userEmail: 'x@y.z',
+    }),
   } as any);
 
   it('returns error when token is missing', async () => {

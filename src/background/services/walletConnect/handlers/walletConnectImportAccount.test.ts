@@ -68,7 +68,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
           active: { name: 'account 1', type: 'primary' },
           imported: { 'some-key': { id: 'some-key' } },
         }),
-        addAccount: jest.fn().mockReturnValueOnce(importedAccountId),
+        addImportedAccount: jest.fn().mockReturnValueOnce(importedAccountId),
         activateAccount: jest.fn(),
       } as any;
 
@@ -97,16 +97,18 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
         accountId: importedAccountId,
         connectedApp: mockedSessionInfo.walletApp,
       });
-      expect(accountsServiceWithAccountsMock.addAccount).toHaveBeenCalledWith(
-        'WalletConnect #1',
-        {
+      expect(
+        accountsServiceWithAccountsMock.addImportedAccount
+      ).toHaveBeenCalledWith({
+        name: 'WalletConnect #1',
+        options: {
           data: {
             addresses: { addressC: 'mockreturnaddress' },
             pubKey: undefined,
           },
           importType: 'walletConnect',
-        }
-      );
+        },
+      });
     });
   });
 
@@ -121,7 +123,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
         active: { name: 'account 1', type: 'primary' },
         imported: { 'some-key': { id: 'some-key' } },
       }),
-      addAccount: jest.fn().mockReturnValueOnce(importedAccountId),
+      addImportedAccount: jest.fn().mockReturnValueOnce(importedAccountId),
       activateAccount: jest.fn(),
     } as any;
 
@@ -155,17 +157,21 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
     expect(accountsServiceWithAccountsMock.getAccounts).toHaveBeenCalledTimes(
       1
     );
-    expect(accountsServiceWithAccountsMock.addAccount).toHaveBeenCalledTimes(1);
-    expect(accountsServiceWithAccountsMock.addAccount).toHaveBeenCalledWith(
-      'WalletConnect #1',
-      {
+    expect(
+      accountsServiceWithAccountsMock.addImportedAccount
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      accountsServiceWithAccountsMock.addImportedAccount
+    ).toHaveBeenCalledWith({
+      name: 'WalletConnect #1',
+      options: {
         data: {
           addresses: { addressC: 'mockreturnaddress' },
           pubKey: undefined,
         },
         importType: 'walletConnect',
-      }
-    );
+      },
+    });
     expect(accountsServiceWithAccountsMock.activateAccount).toBeCalledTimes(1);
     expect(result).toEqual({
       ...request,

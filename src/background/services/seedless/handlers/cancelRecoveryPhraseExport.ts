@@ -28,7 +28,7 @@ export class CancelRecoveryPhraseExportHandler implements HandlerType {
   handle: HandlerType['handle'] = async (request) => {
     const secrets = await this.secretsService.getPrimaryAccountSecrets();
 
-    if (secrets?.type !== SecretType.Seedless) {
+    if (secrets?.secretType !== SecretType.Seedless) {
       return {
         ...request,
         error: 'Action only available for seedless wallets',

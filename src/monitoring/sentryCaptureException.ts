@@ -20,6 +20,8 @@ export enum SentryExceptionTypes {
   UNIFIED_BRIDGE = 'unifiedBridge',
 
   ANALYTICS = 'analytics',
+
+  WALLET_IMPORT = 'walletImport',
 }
 
 // wrapper to make error reporting contexts unfirom accross the codebase

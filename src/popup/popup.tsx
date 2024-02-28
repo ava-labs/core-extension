@@ -224,6 +224,23 @@ const ExportPrivateKey = lazy(() => {
   }));
 });
 
+const AddWalletWithSeedPhrase = lazy(() => {
+  return import('../pages/Accounts/AddWalletWithSeedPhrase').then((m) => ({
+    default: m.AddWalletWithSeedPhrase,
+  }));
+});
+const AddWalletWithLedger = lazy(() => {
+  return import('../pages/Accounts/AddWalletWithLedger').then((m) => ({
+    default: m.AddWalletWithLedger,
+  }));
+});
+
+const AddWalletWithKeystoreFile = lazy(() => {
+  return import('../pages/Accounts/AddWalletWithKeystoreFile').then((m) => ({
+    default: m.AddWalletWithKeystoreFile,
+  }));
+});
+
 const pagesWithoutHeader = [
   '/tokens/manage',
   '/bridge/confirm',
@@ -639,6 +656,34 @@ export function Popup() {
                                                   <AccountManagerProvider>
                                                     <Accounts />
                                                   </AccountManagerProvider>
+                                                </Suspense>
+                                              </Route>
+                                              <Route path="/accounts/add-wallet/seedphrase">
+                                                <Suspense
+                                                  fallback={
+                                                    <CircularProgress />
+                                                  }
+                                                >
+                                                  <AddWalletWithSeedPhrase />
+                                                </Suspense>
+                                              </Route>
+                                              <Route path="/accounts/add-wallet/keystore">
+                                                <Suspense
+                                                  fallback={
+                                                    <CircularProgress />
+                                                  }
+                                                >
+                                                  <AddWalletWithKeystoreFile />
+                                                </Suspense>
+                                              </Route>
+
+                                              <Route path="/accounts/add-wallet/ledger">
+                                                <Suspense
+                                                  fallback={
+                                                    <CircularProgress />
+                                                  }
+                                                >
+                                                  <AddWalletWithLedger />
                                                 </Suspense>
                                               </Route>
                                               <Route path="/accounts/:accountId">

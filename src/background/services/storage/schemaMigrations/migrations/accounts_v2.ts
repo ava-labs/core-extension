@@ -1,8 +1,10 @@
 import Joi from 'joi';
 import {
-  Accounts,
+  AccountStorageItem,
   AccountType,
-  PrimaryAccount,
+  FireblocksAccount,
+  ImportedAccount,
+  WalletConnectAccount,
 } from '@src/background/services/accounts/models';
 
 const VERSION = 2;
@@ -15,6 +17,24 @@ type PreviousSchema = {
   addressC?: string;
 }[];
 
+interface PrimaryAccount extends AccountStorageItem {
+  index: number;
+  type: AccountType.PRIMARY;
+  addressBTC: string;
+}
+
+type Account = PrimaryAccount | ImportedAccount;
+
+type PreviousSchemaV2 = {
+  active?: Account;
+  primary: PrimaryAccount[];
+  imported: Record<
+    string,
+    ImportedAccount | WalletConnectAccount | FireblocksAccount
+  >;
+};
+type AccountsV2 = PreviousSchemaV2;
+
 const previousSchema = Joi.array<PreviousSchema>().items(
   Joi.object({
     index: Joi.number().required(),
@@ -26,7 +46,7 @@ const previousSchema = Joi.array<PreviousSchema>().items(
 );
 
 const up = async (accounts: PreviousSchema) => {
-  const newData = accounts.reduce<Accounts>(
+  const newData = accounts.reduce<AccountsV2>(
     (acc, primaryAccount) => {
       const { active, ...account } = {
         ...primaryAccount,

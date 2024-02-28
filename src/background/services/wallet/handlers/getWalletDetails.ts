@@ -6,7 +6,7 @@ import { WalletService } from '../WalletService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_GET_DETAILS,
-  WalletDetails | undefined
+  WalletDetails[]
 >;
 
 @injectable()
@@ -18,7 +18,7 @@ export class GetWalletDetailsHandler implements HandlerType {
   handle: HandlerType['handle'] = async (request) => {
     return {
       ...request,
-      result: this.walletService.walletDetails,
+      result: this.walletService.wallets,
     };
   };
 }

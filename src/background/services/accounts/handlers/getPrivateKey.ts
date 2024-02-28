@@ -3,14 +3,13 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { SecretsService } from '../../secrets/SecretsService';
 import { getWalletFromMnemonic } from '@avalabs/wallets-sdk';
-import { WalletType } from '../../wallet/models';
 import { AccountType, GetPrivateKeyErrorTypes } from '../models';
 import { add0x } from '@avalabs/avalanchejs-v2';
 import { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
 
 interface GetPrivateKeyHandlerParamsProps {
-  type: WalletType.MNEMONIC | AccountType.IMPORTED;
+  type: SecretType.Mnemonic | AccountType.IMPORTED;
   index: number;
   id: string;
   password: string;
@@ -57,7 +56,7 @@ export class GetPrivateKeyHandler implements HandlerType {
       };
     }
 
-    if (type !== WalletType.MNEMONIC && type !== AccountType.IMPORTED) {
+    if (type !== SecretType.Mnemonic && type !== AccountType.IMPORTED) {
       return {
         ...request,
         error: { type: GetPrivateKeyErrorTypes.Type, message: 'Invalid type' },
@@ -70,7 +69,7 @@ export class GetPrivateKeyHandler implements HandlerType {
           accountId
         );
 
-        if (account?.type === SecretType.PrivateKey) {
+        if (account?.secretType === SecretType.PrivateKey) {
           return {
             ...request,
             result: add0x(account.secret),
@@ -91,8 +90,7 @@ export class GetPrivateKeyHandler implements HandlerType {
 
       if (
         !primaryAccount ||
-        primaryAccount?.type !== SecretType.Mnemonic ||
-        !primaryAccount.mnemonic
+        primaryAccount?.secretType !== SecretType.Mnemonic
       ) {
         return {
           ...request,

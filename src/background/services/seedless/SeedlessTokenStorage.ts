@@ -11,19 +11,20 @@ export class SeedlessTokenStorage implements SignerSessionStorage {
 
   async save(seedlessSignerToken: SignerSessionData): Promise<void> {
     const secrets = await this.secretsService.getPrimaryAccountSecrets();
-
     // Prevent writing signer token to a different type of wallet
-    if (secrets && secrets.type !== SecretType.Seedless) {
+    if (!secrets || secrets.secretType !== SecretType.Seedless) {
       throw new Error('Incompatible wallet type is initialized');
     }
-
-    await this.secretsService.updateSecrets({ seedlessSignerToken });
+    await this.secretsService.updateSecrets(
+      { seedlessSignerToken },
+      secrets.id
+    );
   }
 
   async retrieve(): Promise<SignerSessionData> {
     const secrets = await this.secretsService.getActiveAccountSecrets();
 
-    if (secrets.type !== SecretType.Seedless) {
+    if (secrets.secretType !== SecretType.Seedless) {
       throw new Error('Incorrect secrets format found');
     }
 

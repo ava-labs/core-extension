@@ -1,5 +1,4 @@
 import { getEvmAddressFromPubKey } from '@avalabs/wallets-sdk';
-import { WalletType } from '@src/background/services/wallet/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
@@ -10,7 +9,7 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 const useIsIncorrectDevice = () => {
   const [isIncorrectDevice, setIsIncorrectDevice] = useState<boolean>(false);
-  const { isWalletLocked, walletDetails } = useWalletContext();
+  const { isWalletLocked, walletDetails, isLedgerWallet } = useWalletContext();
   const { request } = useConnectionContext();
   const {
     hasLedgerTransport,
@@ -20,7 +19,13 @@ const useIsIncorrectDevice = () => {
     masterFingerprint,
   } = useLedgerContext();
   const { accounts } = useAccountsContext();
-  const firstAddress = accounts.primary[0]?.addressC;
+  const activeWalletAccount = accounts.active?.id;
+
+  const firstAccount =
+    activeWalletAccount && accounts.primary[activeWalletAccount];
+
+  const firstAddress =
+    firstAccount && firstAccount[0] && firstAccount[0].addressC;
 
   useEffect(() => {
     const compareAddresses = async () => {
@@ -28,7 +33,8 @@ const useIsIncorrectDevice = () => {
 
       if (
         !isWalletLocked &&
-        walletDetails?.type === WalletType.LEDGER &&
+        walletDetails &&
+        isLedgerWallet &&
         hasLedgerTransport
       ) {
         try {
@@ -62,6 +68,7 @@ const useIsIncorrectDevice = () => {
     compareAddresses();
   }, [
     isWalletLocked,
+    isLedgerWallet,
     walletDetails,
     firstAddress,
     getPublicKey,

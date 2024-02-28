@@ -62,7 +62,7 @@ export const PageTitle = ({
     <Stack
       sx={{
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         position: 'relative',
         width: '100%',
         pt: variant === PageTitleVariant.PRIMARY ? 2 : 0,
@@ -85,6 +85,7 @@ export const PageTitle = ({
         sx={{
           width: '100%',
           marginLeft: showBackButton ? 0 : 2,
+          pt: 1,
         }}
       >
         {children}

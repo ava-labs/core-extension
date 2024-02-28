@@ -12,9 +12,9 @@ import {
   GetPrivateKeyErrorTypes,
 } from '@src/background/services/accounts/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { WalletType } from '@src/background/services/wallet/models';
 import { useTranslation } from 'react-i18next';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { SecretType } from '@src/background/services/secrets/models';
 
 export function ExportPrivateKey() {
   const theme = useTheme();
@@ -26,10 +26,11 @@ export function ExportPrivateKey() {
   const { capture } = useAnalyticsContext();
 
   const [type, setType] = useState<
-    WalletType.MNEMONIC | AccountType.IMPORTED | null
+    SecretType.Mnemonic | AccountType.IMPORTED | null
   >();
   const [index, setIndex] = useState(0);
   const [id, setId] = useState('');
+
   const [privateKey, setPrivateKey] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [password, setPassword] = useState('');
@@ -71,18 +72,20 @@ export function ExportPrivateKey() {
 
     const isImported = !!(accountId && accounts.imported[accountId]) || false;
 
-    const isMnemonic = walletDetails?.type === WalletType.MNEMONIC;
+    const isMnemonic = walletDetails?.type === SecretType.Mnemonic;
     if (isImported) {
       setType(AccountType.IMPORTED);
     }
     if (!isImported && isMnemonic) {
-      setType(WalletType.MNEMONIC);
-      const account = accounts.primary.find((primaryAccount) => {
-        return primaryAccount.id === accountId;
-      });
+      setType(SecretType.Mnemonic);
+      const account = Object.values(accounts.primary)
+        .flat()
+        .find((primaryAccount) => {
+          return primaryAccount.id === accountId;
+        });
       account && setIndex(account?.index);
     }
-  }, [accounts, index, search, walletDetails?.type]);
+  }, [accounts, index, search, walletDetails, walletDetails?.type]);
 
   return (
     <>

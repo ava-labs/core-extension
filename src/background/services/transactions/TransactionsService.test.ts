@@ -127,6 +127,7 @@ describe('background/services/transactions/TransactionsService.ts', () => {
     addressC: '0x123123123',
     addressBTC: 'tb1123123',
     index: 1,
+    walletId: 'wallet-id',
   };
   const networkMock = {
     chainId: 1,

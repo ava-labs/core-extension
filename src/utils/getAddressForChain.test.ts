@@ -9,6 +9,7 @@ describe('utils/getAddressForChain', () => {
     addressC: 'account1 C address',
     type: AccountType.PRIMARY,
     index: 0,
+    walletId: 'walletId',
   };
 
   it('should return the c-chain address', () => {

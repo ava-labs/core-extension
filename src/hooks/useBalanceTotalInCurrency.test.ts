@@ -17,6 +17,7 @@ const mockAccount: Account = {
   addressPVM: '',
   addressCoreEth: '',
   type: AccountType.PRIMARY,
+  walletId: 'walletId',
 };
 
 describe('hooks/useBalanceTotalInCurrency', () => {

@@ -5,6 +5,8 @@ import { errorCodes } from 'eth-rpc-errors';
 import { FireblocksErrorCode } from '@src/background/services/fireblocks/models';
 import { CommonError, isWrappedError } from '@src/utils/errors';
 import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
+import { KeystoreError } from '@src/utils/keystore/models';
+import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
 
 type ErrorTranslation = {
   title: string;
@@ -133,20 +135,62 @@ export const useErrorMessage = () => {
     [t]
   );
 
+  const keystoreErrors: Record<KeystoreError, ErrorTranslation> = useMemo(
+    () => ({
+      [KeystoreError.InvalidPassword]: {
+        title: t('Invalid password. Please try again.'),
+      },
+      [KeystoreError.InvalidVersion]: {
+        title: t('Unsupported Version'),
+        hint: t(
+          'Only keystore files exported from the Avalanche Wallet are supported.'
+        ),
+      },
+      [KeystoreError.NoNewWallets]: {
+        title: t('No New Wallets Found'),
+        hint: t('All keys contained in this file are already imported.'),
+      },
+      [KeystoreError.Unknown]: {
+        title: t('File Upload Failed'),
+        hint: t('Please contact our support team to resolve this issue.'),
+      },
+    }),
+    [t]
+  );
+
+  const seedphraseImportError: Record<SeedphraseImportError, ErrorTranslation> =
+    useMemo(
+      () => ({
+        [SeedphraseImportError.ExistingSeedphrase]: {
+          title: t('This seedphrase is already imported.'),
+        },
+      }),
+      [t]
+    );
+
   const messages = useMemo(
     () => ({
       ...fireblocksErrors,
       ...unifiedBridgeErrors,
       ...commonErrors,
       ...standardRpcErrors,
+      ...keystoreErrors,
+      ...seedphraseImportError,
     }),
-    [fireblocksErrors, commonErrors, standardRpcErrors, unifiedBridgeErrors]
+    [
+      fireblocksErrors,
+      commonErrors,
+      standardRpcErrors,
+      unifiedBridgeErrors,
+      keystoreErrors,
+      seedphraseImportError,
+    ]
   );
 
   return useCallback(
     (error: unknown): ErrorTranslation => {
       if (typeof error === 'string') {
-        return { title: error };
+        return messages[error] ?? { title: error };
       }
 
       let message: ErrorTranslation = messages[CommonError.Unknown];

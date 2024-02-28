@@ -8,6 +8,8 @@ import wallet_v2 from './migrations/wallet_v2';
 import wallet_v3 from './migrations/wallet_v3';
 import network_v2 from './migrations/network_v2';
 import wallet_storage_encryption_key_v2 from './migrations/wallet_storage_encryption_key_v2';
+import accounts_v3 from './migrations/accounts_v3';
+import wallet_v4 from './migrations/wallet_v4';
 import { SETTINGS_STORAGE_KEY } from '../../settings/models';
 import settings_v2 from './migrations/settings_v2';
 
@@ -29,16 +31,20 @@ export type SchemaMap = Record<
 
 export const SCHEMA_MAP = {
   [ACCOUNTS_STORAGE_KEY]: {
-    latestVersion: 2,
+    latestVersion: 3,
     migrations: [
       {
         version: 2,
         migration: accounts_v2,
       },
+      {
+        version: 3,
+        migration: accounts_v3,
+      },
     ],
   },
   [WALLET_STORAGE_KEY]: {
-    latestVersion: 3,
+    latestVersion: 4,
     migrations: [
       {
         version: 2,
@@ -47,6 +53,10 @@ export const SCHEMA_MAP = {
       {
         version: 3,
         migration: wallet_v3,
+      },
+      {
+        version: 4,
+        migration: wallet_v4,
       },
     ],
   },

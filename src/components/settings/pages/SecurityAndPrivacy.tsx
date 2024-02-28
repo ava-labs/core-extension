@@ -5,7 +5,6 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { WalletType } from '@src/background/services/wallet/models';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -27,6 +26,7 @@ import Dialog from '@src/components/common/Dialog';
 import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedlessAnalytics';
 import { AnalyticsConsent } from '@src/background/services/settings/models';
 import { useAnalyticsConsentCallbacks } from '@src/hooks/useAnalyticsConsentCallbacks';
+import { SecretType } from '@src/background/services/secrets/models';
 
 export function SecurityAndPrivacy({
   goBack,
@@ -145,7 +145,7 @@ export function SecurityAndPrivacy({
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-        {walletDetails?.type === WalletType.MNEMONIC && (
+        {walletDetails?.type === SecretType.Mnemonic && (
           <ListItem sx={{ p: 0 }}>
             <ListItemButton
               sx={{
@@ -168,7 +168,7 @@ export function SecurityAndPrivacy({
             </ListItemButton>
           </ListItem>
         )}
-        {walletDetails?.type === WalletType.SEEDLESS && (
+        {walletDetails?.type === SecretType.Seedless && (
           <ListItem sx={{ p: 0 }}>
             <ListItemButton
               sx={{
@@ -224,7 +224,7 @@ export function SecurityAndPrivacy({
         </ListItem>
       </List>
 
-      {walletDetails?.type !== WalletType.SEEDLESS && (
+      {walletDetails?.type !== SecretType.Seedless && (
         <>
           <Divider />
 

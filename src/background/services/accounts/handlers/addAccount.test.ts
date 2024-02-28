@@ -1,20 +1,29 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ImportType } from '../models';
+import { AccountType, ImportType } from '../models';
 import { AddAccountHandler } from './addAccount';
 
+const WALLET_ID = 'wallet-id';
+const ACCOUNT_NAME = 'account-name';
 describe('background/services/accounts/handlers/addAccount.ts', () => {
   const uuid = 'uuid';
-  const addAccountMock = jest.fn();
-  const accountServiceMock = {
-    addAccount: addAccountMock,
+  const addPrimaryAccountMock = jest.fn();
+  const addImportedAccountMock = jest.fn();
+  let accountServiceMock = {
+    addPrimaryAccount: addPrimaryAccountMock,
+    addImportedAccount: addImportedAccountMock,
+    activeAccount: {
+      walletId: 'wallet-id',
+      type: AccountType.PRIMARY,
+    },
   } as any;
 
   beforeEach(() => {
     jest.resetAllMocks();
-    addAccountMock.mockResolvedValue(uuid);
+    addPrimaryAccountMock.mockResolvedValue(uuid);
+    addImportedAccountMock.mockResolvedValue(uuid);
   });
 
-  it('ACCOUNT_ADD success without params', async () => {
+  it('should call the `addPrimaryAccount` without any params', async () => {
     const handler = new AddAccountHandler(accountServiceMock);
     const request = {
       id: '123',
@@ -23,54 +32,89 @@ describe('background/services/accounts/handlers/addAccount.ts', () => {
 
     const result = await handler.handle(request);
 
-    expect(addAccountMock).toBeCalledTimes(1);
-    expect(addAccountMock).toBeCalledWith(undefined, undefined);
-    expect(result).toEqual({ ...request, result: uuid });
-  });
-
-  it('ACCOUNT_ADD success with name', async () => {
-    const handler = new AddAccountHandler(accountServiceMock);
-    const request = {
-      id: '123',
-      method: ExtensionRequest.ACCOUNT_ADD,
-      params: ['name'],
-    } as any;
-
-    const result = await handler.handle(request);
-
-    expect(addAccountMock).toBeCalledTimes(1);
-    expect(addAccountMock).toBeCalledWith('name', undefined);
-    expect(result).toEqual({ ...request, result: uuid });
-  });
-
-  it('ACCOUNT_ADD success with import data', async () => {
-    const handler = new AddAccountHandler(accountServiceMock);
-    const request = {
-      id: '123',
-      method: ExtensionRequest.ACCOUNT_ADD,
-      params: [
-        '',
-        {
-          importType: ImportType.PRIVATE_KEY,
-          data: 'secretKey',
-        },
-      ],
-    } as any;
-
-    const result = await handler.handle(request);
-
-    expect(addAccountMock).toBeCalledTimes(1);
-    expect(addAccountMock).toBeCalledWith('', {
-      importType: ImportType.PRIVATE_KEY,
-      data: 'secretKey',
+    expect(addPrimaryAccountMock).toBeCalledTimes(1);
+    expect(addPrimaryAccountMock).toBeCalledWith({
+      name: undefined,
+      options: undefined,
+      walletId: WALLET_ID,
     });
     expect(result).toEqual({ ...request, result: uuid });
   });
 
-  it('ACCOUNT_ADD error', async () => {
-    const handler = new AddAccountHandler({
-      addAccount: jest.fn().mockRejectedValueOnce(new Error('some error')),
-    } as any);
+  it('should call the `addPrimaryAccount` with name', async () => {
+    const handler = new AddAccountHandler(accountServiceMock);
+    const request = {
+      id: '123',
+      method: ExtensionRequest.ACCOUNT_ADD,
+      params: { name: ACCOUNT_NAME },
+    } as any;
+
+    const result = await handler.handle(request);
+
+    expect(addPrimaryAccountMock).toBeCalledTimes(1);
+    expect(addPrimaryAccountMock).toBeCalledWith({
+      name: ACCOUNT_NAME,
+      options: undefined,
+      walletId: WALLET_ID,
+    });
+    expect(result).toEqual({ ...request, result: uuid });
+  });
+
+  it('should call the `addPrimaryAccount` with name and walletId', async () => {
+    const handler = new AddAccountHandler(accountServiceMock);
+    const request = {
+      id: '123',
+      method: ExtensionRequest.ACCOUNT_ADD,
+      params: { name: ACCOUNT_NAME, walletId: 'new-wallet-id' },
+    } as any;
+
+    const result = await handler.handle(request);
+
+    expect(addPrimaryAccountMock).toBeCalledTimes(1);
+    expect(addPrimaryAccountMock).toBeCalledWith({
+      name: ACCOUNT_NAME,
+      options: undefined,
+      walletId: 'new-wallet-id',
+    });
+    expect(result).toEqual({ ...request, result: uuid });
+  });
+
+  it('should call the `addImportedAccount` with the options of the imported account', async () => {
+    const handler = new AddAccountHandler(accountServiceMock);
+    const request = {
+      id: '123',
+      method: ExtensionRequest.ACCOUNT_ADD,
+      params: {
+        importData: {
+          importType: ImportType.PRIVATE_KEY,
+          data: 'secretKey',
+        },
+      },
+    } as any;
+
+    const result = await handler.handle(request);
+
+    expect(addImportedAccountMock).toBeCalledTimes(1);
+    expect(addImportedAccountMock).toBeCalledWith({
+      name: undefined,
+      options: {
+        importType: ImportType.PRIVATE_KEY,
+        data: 'secretKey',
+      },
+    });
+    expect(result).toEqual({ ...request, result: uuid });
+  });
+
+  it('should throw an error because the wallet id is missing from the params as well as in the service', async () => {
+    accountServiceMock = {
+      addPrimaryAccount: addPrimaryAccountMock,
+      addImportedAccount: addImportedAccountMock,
+      activeAccount: {
+        walletId: '',
+        type: AccountType.PRIMARY,
+      },
+    } as any;
+    const handler = new AddAccountHandler(accountServiceMock);
     const request = {
       id: '123',
       method: ExtensionRequest.ACCOUNT_ADD,
@@ -79,7 +123,7 @@ describe('background/services/accounts/handlers/addAccount.ts', () => {
     const result = await handler.handle(request);
     expect(result).toEqual({
       ...request,
-      error: 'Error: some error',
+      error: 'Error: There is no wallet id for the new primary account',
     });
   });
 });

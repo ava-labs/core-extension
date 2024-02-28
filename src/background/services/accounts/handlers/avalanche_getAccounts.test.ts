@@ -1,7 +1,7 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { AccountType } from '../models';
 import { AvalancheGetAccountsHandler } from './avalanche_getAccounts';
-import { WalletType } from '../../wallet/models';
+import { SecretType } from '../../secrets/models';
 
 describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () => {
   const accounts = [
@@ -35,9 +35,11 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
   } as any;
 
   const walletServiceMock = {
-    walletDetails: {
-      type: WalletType.MNEMONIC,
-    },
+    wallets: [
+      {
+        type: SecretType.Mnemonic,
+      },
+    ],
   } as any;
 
   beforeEach(() => {
@@ -63,7 +65,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
           id: 'uuid1',
           addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
           type: AccountType.PRIMARY,
-          walletType: WalletType.MNEMONIC,
+          walletType: SecretType.Mnemonic,
           active: true,
         },
         {
@@ -71,7 +73,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
           id: 'uuid2',
           addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
           type: AccountType.PRIMARY,
-          walletType: WalletType.MNEMONIC,
+          walletType: SecretType.Mnemonic,
           active: false,
         },
         {

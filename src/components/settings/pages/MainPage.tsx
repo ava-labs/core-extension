@@ -4,7 +4,6 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Logo } from '@src/components/icons/Logo';
 import { BrandName } from '@src/components/icons/BrandName';
 import { BetaLabel } from '@src/components/icons/BetaLabel';
-import { WalletType } from '@src/background/services/wallet/models';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@src/hooks/useLanguages';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
@@ -42,7 +41,7 @@ export function MainPage({
   showNotificationDotOn = [],
 }: SettingsPageProps) {
   const { t } = useTranslation();
-  const { walletDetails } = useWalletContext();
+  const { isLedgerWallet } = useWalletContext();
   const { lockWallet } = useSettingsContext();
   const { currentLanguage } = useLanguage();
   const {
@@ -217,7 +216,7 @@ export function MainPage({
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-        {walletDetails?.type === WalletType.LEDGER && (
+        {isLedgerWallet && (
           <ListItem sx={{ p: 0 }}>
             <ListItemButton
               sx={{

@@ -3,15 +3,16 @@ import {
   BitcoinOutputUTXO,
   DerivationPath,
 } from '@avalabs/wallets-sdk';
-import {
-  FireblocksApiData,
-  FireblocksImportData,
-  ImportType,
-} from '../accounts/models';
+import { FireblocksApiData, ImportType } from '../accounts/models';
 import { UnsignedTx } from '@avalabs/avalanchejs-v2';
-import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { TransactionRequest } from 'ethers';
-import { Never } from '@src/background/models';
+import {
+  ImportedAccountSecrets,
+  PrimaryWalletSecrets,
+  SecretType,
+} from '../secrets/models';
+import { DistributiveOmit } from '@src/utils/distributiveomit';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 export type SignTransactionRequest =
   | TransactionRequest
@@ -33,46 +34,10 @@ export interface WalletLockedState {
   locked: boolean;
 }
 
-type SeedlessWalletData = {
-  authProvider: SeedlessAuthProvider;
-  seedlessSignerToken: SignerSessionData;
-  userEmail: string;
-};
-
-// For Seedless, either all properties are there or none of them are.
-// It's useful for typechecking - i.e. we can only check if "seedlessSignerToken"
-// is present to stop TypeScript from complaining about the rest.
-type SeedlessSecretsInStorage = SeedlessWalletData | Never<SeedlessWalletData>;
-
 export type WalletSecretInStorage = {
-  derivationPath: DerivationPath;
-  mnemonic?: string;
-  // Extended public key of m/44'/60'/0'
-  xpub?: string;
-  /**
-   * 	Extended public key of m/44'/9000'/0'
-   * 	Used X/P chain derivation on mnemonic and Ledger (BIP44) wallets.
-   */
-  xpubXP?: string;
-  pubKeys?: PubKeyType[];
-  imported?: Record<
-    string,
-    | {
-        type: ImportType.PRIVATE_KEY;
-        secret: string;
-      }
-    | {
-        type: ImportType.WALLET_CONNECT;
-        addresses: {
-          addressC: string;
-        };
-        pubKey?: PubKeyType;
-      }
-    | ({ type: ImportType.FIREBLOCKS } & FireblocksImportData['data'])
-  >;
-  masterFingerprint?: string;
-  btcWalletPolicyDetails?: BtcWalletPolicyDetails;
-} & SeedlessSecretsInStorage;
+  wallets: PrimaryWalletSecrets[];
+  importedAccounts?: Record<string, ImportedAccountSecrets>;
+};
 
 export type PrivateKeyWalletData = {
   type: ImportType.PRIVATE_KEY;
@@ -107,26 +72,41 @@ export enum WalletEvents {
 
 export const WALLET_STORAGE_KEY = 'wallet';
 
-export enum WalletType {
-  SEEDLESS = 'SEEDLESS',
-  MNEMONIC = 'MNEMONIC',
-  LEDGER = 'LEDGER',
-  KEYSTONE = 'KEYSTONE',
-}
+export const SUPPORTED_PRIMARY_SECRET_TYPES = [
+  SecretType.Mnemonic,
+  SecretType.Keystone,
+  SecretType.Ledger,
+  SecretType.LedgerLive,
+  SecretType.Seedless,
+];
+
+export type WalletMetadata = {
+  id: string;
+  name?: string;
+};
 
 export type WalletDetails =
   | {
-      type: WalletType;
+      id: string;
+      type: SecretType;
+      name?: string;
       derivationPath: DerivationPath;
       authProvider?: never;
       userEmail?: never;
     }
   | {
-      type: WalletType.SEEDLESS;
+      id: string;
+      type: SecretType.Seedless;
+      name?: string;
       derivationPath: DerivationPath;
       authProvider: SeedlessAuthProvider;
       userEmail: string;
     };
+
+export type WalletsInfo = {
+  activeWallet?: WalletDetails;
+  wallets: WalletMetadata[];
+};
 
 export enum SeedlessAuthProvider {
   Google = 'google',
@@ -158,3 +138,24 @@ export type PubKeyType = {
 export type SigningResult =
   | { txHash: string; signedTx?: never }
   | { signedTx: string; txHash?: never };
+
+type PrimaryWalletSecretsWithOptionalName = DistributiveOmit<
+  PrimaryWalletSecrets,
+  'name'
+> & {
+  name?: string;
+};
+
+export type AddPrimaryWalletSecrets = DistributiveOmit<
+  PrimaryWalletSecretsWithOptionalName,
+  'id'
+>;
+
+export type WalletKeys = {
+  mnemonic?: string;
+  masterFingerprint?: string;
+  pubKeys?: PubKeyType[];
+  xpub?: string;
+  xpubXP?: string;
+  seedlessSignerToken?: SignerSessionData;
+};

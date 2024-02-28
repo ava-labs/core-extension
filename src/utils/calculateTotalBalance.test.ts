@@ -21,6 +21,7 @@ describe('utils/calculateTotalBalance', () => {
     addressC: 'account1 C address',
     type: AccountType.PRIMARY,
     index: 0,
+    walletId: 'walletId',
   };
   const networkToken1: NetworkToken = {
     name: 'network token 1',

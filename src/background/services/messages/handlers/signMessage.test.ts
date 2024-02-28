@@ -2,12 +2,12 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
-import { WalletType } from '../../wallet/models';
 import { MessageParams, MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
 import { PersonalSignHandler } from './signMessage';
 import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';
 import { TypedDataEncoder } from 'ethers';
+import { SecretType } from '../../secrets/models';
 
 jest.mock('../../wallet/utils/ensureMessageFormatIsValid');
 jest.mock('../utils/messageParamsParser');
@@ -38,9 +38,11 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
     walletServiceMock = {
       signMessage: jest.fn(),
-      walletDetails: {
-        type: WalletType.MNEMONIC,
-      },
+      wallets: [
+        {
+          type: SecretType.Mnemonic,
+        },
+      ],
     } as any;
 
     networkServiceMock = {
@@ -90,7 +92,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
   describe('handleAuthenticated', () => {
     it('throws if walletType is undefined', async () => {
-      walletServiceMock.walletDetails = undefined;
+      walletServiceMock.wallets = [];
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock

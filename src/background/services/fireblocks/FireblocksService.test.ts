@@ -68,7 +68,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
 
     jest.mocked(sha256).mockReturnValue('0x1234');
     secretsService.getActiveAccountSecrets.mockResolvedValue({
-      type: SecretType.Fireblocks,
+      secretType: SecretType.Fireblocks,
       addresses: {
         addressC: 'addressC',
         addressBTC: 'addressBTC',

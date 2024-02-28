@@ -30,7 +30,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
   it('throws if there is no active account', async () => {
     secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
-      type: SecretType.Ledger,
+      secretType: SecretType.Ledger,
     } as AccountWithSecrets);
 
     const handler = new StoreBtcWalletPolicyDetails(
@@ -45,7 +45,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
   it('throws if the active account is not primary', async () => {
     secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
-      type: SecretType.Ledger,
+      secretType: SecretType.Ledger,
       account: {
         type: AccountType.IMPORTED,
       } as any,
@@ -62,7 +62,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
   it('throws if wallet derivation path is unknown', async () => {
     secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
-      type: SecretType.Ledger,
+      secretType: SecretType.Ledger,
       account: {
         type: AccountType.PRIMARY,
         index: 0,
@@ -82,7 +82,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
   it('does nothing if the device is incorrect (BTC addresses dont match)', async () => {
     secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
-      type: SecretType.Ledger,
+      secretType: SecretType.Ledger,
       derivationPath: DerivationPath.BIP44,
       account: {
         type: AccountType.PRIMARY,
@@ -114,8 +114,9 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
   it('stores the details if the device is correct for BIP44', async () => {
     secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
-      type: SecretType.Ledger,
+      secretType: SecretType.Ledger,
       derivationPath: DerivationPath.BIP44,
+      id: 'wallet-id',
       account: {
         type: AccountType.PRIMARY,
         index: 1,
@@ -141,7 +142,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       'xpub',
       'masterFingerprint',
       'hmacHex',
-      'name'
+      'name',
+      'wallet-id'
     );
 
     expect(result).toStrictEqual({
@@ -154,8 +156,9 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
   it('stores the details if the device is correct for Ledger Live', async () => {
     secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
-      type: SecretType.Ledger,
+      secretType: SecretType.Ledger,
       derivationPath: DerivationPath.BIP44,
+      id: 'wallet-id',
       account: {
         type: AccountType.PRIMARY,
         index: 1,
@@ -182,7 +185,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       'xpub',
       'masterFingerprint',
       'hmacHex',
-      'name'
+      'name',
+      'wallet-id'
     );
 
     expect(result).toStrictEqual({

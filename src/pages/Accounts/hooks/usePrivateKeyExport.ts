@@ -1,13 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { WalletType } from '@src/background/services/wallet/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Account, AccountType } from '@src/background/services/accounts/models';
+import { SecretType } from '@src/background/services/secrets/models';
 
 export const usePrivateKeyExport = (
   account?: Account,
-  walletType?: WalletType
+  walletType?: SecretType
 ) => {
   const { capture } = useAnalyticsContext();
   const history = useHistory();
@@ -16,7 +16,7 @@ export const usePrivateKeyExport = (
     () =>
       account?.type === AccountType.IMPORTED ||
       (account?.type === AccountType.PRIMARY &&
-        walletType === WalletType.MNEMONIC),
+        walletType === SecretType.Mnemonic),
     [account?.type, walletType]
   );
 

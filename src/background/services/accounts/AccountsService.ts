@@ -11,6 +11,8 @@ import {
   ImportedAccount,
   ImportType,
   IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP,
+  PrimaryAccount,
+  WalletId,
 } from './models';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { WalletService } from '../wallet/WalletService';
@@ -22,13 +24,18 @@ import { DerivedAddresses } from '../secrets/models';
 import { isPrimaryAccount } from './utils/typeGuards';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 
+type AddAccountParams = {
+  walletId: string;
+  name?: string;
+};
+
 @singleton()
 export class AccountsService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();
 
   private _accounts: Accounts = {
     active: undefined,
-    primary: [],
+    primary: {},
     imported: {},
   };
 
@@ -41,14 +48,15 @@ export class AccountsService implements OnLock, OnUnlock {
       this._accounts.active?.id !== accounts.active?.id;
     this._accounts = accounts;
 
-    // do not save empty list of accounts to storage
-    if (accounts.primary.length > 0) {
-      if (accounts.active) {
-        const activeAccount = isPrimaryAccount(accounts.active)
-          ? accounts.primary[accounts.active.index]
-          : accounts.imported[accounts.active.id];
+    if (Object.keys(accounts.primary).length > 0) {
+      if (isPrimaryAccount(accounts.active)) {
+        const activeWalletAccounts = accounts.primary[accounts.active.walletId];
 
-        this._accounts.active = activeAccount;
+        this._accounts.active =
+          activeWalletAccounts?.[accounts.active.index] ?? // Try to restore the active account
+          Object.values(accounts.primary).flat()[0]; // Fall back to the first primary account
+      } else if (accounts.active) {
+        this._accounts.active = accounts.imported[accounts.active.id];
       }
 
       this.saveAccounts(this._accounts);
@@ -60,6 +68,7 @@ export class AccountsService implements OnLock, OnUnlock {
         this.accounts.active
       );
     }
+
     this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
   }
 
@@ -90,7 +99,7 @@ export class AccountsService implements OnLock, OnUnlock {
   onLock() {
     this.accounts = {
       active: undefined,
-      primary: [],
+      primary: {},
       imported: {},
     };
 
@@ -109,7 +118,7 @@ export class AccountsService implements OnLock, OnUnlock {
     const isOnFireblocksAccount =
       this.activeAccount?.type === AccountType.FIREBLOCKS;
 
-    const [primaryAccount] = this.accounts.primary;
+    const [primaryAccount] = Object.values(this.accounts.primary).flat();
     const shouldSwitchToPrimaryAccount =
       primaryAccount &&
       isOnFireblocksAccount &&
@@ -123,8 +132,9 @@ export class AccountsService implements OnLock, OnUnlock {
 
   private init = async (updateAddresses?: boolean) => {
     const accounts = await this.loadAccounts();
-    // no accounts added yet, onboarding is not done yet
-    if (accounts.primary.length === 0) {
+
+    // no wallets added yet, onboarding is not finished
+    if (Object.keys(accounts.primary).length === 0) {
       return;
     }
 
@@ -151,19 +161,37 @@ export class AccountsService implements OnLock, OnUnlock {
       };
     };
 
-    const [primaryAccountsWithAddresses, importedAccountsWithAddresses] =
-      await Promise.all([
-        Promise.all(accounts.primary.map(refreshAccount)),
-        Promise.all(Object.values(accounts.imported).map(refreshAccount)),
-      ]);
+    const [
+      activeWalletPrimaryAccountsWithAddresses,
+      importedAccountsWithAddresses,
+    ] = await Promise.all([
+      Promise.all(Object.values(accounts.primary).flat().map(refreshAccount)),
+      Promise.all(Object.values(accounts.imported).map(refreshAccount)),
+    ]);
 
+    const primaryAccounts: Record<WalletId, PrimaryAccount[]> = {};
+    for (const account of activeWalletPrimaryAccountsWithAddresses) {
+      const walletAccounts =
+        primaryAccounts && primaryAccounts[account.walletId];
+      if (walletAccounts) {
+        primaryAccounts[account.walletId] = [...walletAccounts, account];
+        continue;
+      }
+      primaryAccounts[account.walletId] = [account];
+    }
+
+    const importedAccounts: Record<string, ImportedAccount> = {};
+    for (const account of importedAccountsWithAddresses) {
+      importedAccounts[account.id] = account;
+    }
+
+    if (!accounts.active) {
+      throw new Error('There is no active account to restore');
+    }
     this.accounts = {
       ...accounts,
-      primary: primaryAccountsWithAddresses,
-      imported: importedAccountsWithAddresses.reduce((imported, account) => {
-        imported[account.id] = account;
-        return imported;
-      }, {}),
+      primary: primaryAccounts,
+      imported: importedAccounts,
     };
   };
 
@@ -172,7 +200,10 @@ export class AccountsService implements OnLock, OnUnlock {
       return this.walletService.getImportedAddresses(account.id);
     }
 
-    const addresses = await this.walletService.getAddresses(account.index);
+    const addresses = await this.walletService.getAddresses(
+      account.index,
+      account.walletId
+    );
 
     return {
       addressC: addresses[NetworkVMType.EVM],
@@ -195,16 +226,21 @@ export class AccountsService implements OnLock, OnUnlock {
     if (account.type === AccountType.PRIMARY) {
       this.accounts = {
         ...this.accounts,
-        primary: this.accounts.primary.map((acc) => {
-          if (acc.id !== accountId) {
-            return acc;
-          }
+        primary: {
+          ...this.accounts.primary,
+          [account.walletId]: Object.values(this.accounts.primary)
+            .flat()
+            .map((acc) => {
+              if (acc.id !== accountId) {
+                return acc;
+              }
 
-          return {
-            ...acc,
-            ...addresses,
-          };
-        }),
+              return {
+                ...acc,
+                ...addresses,
+              };
+            }),
+        },
       };
 
       return;
@@ -230,7 +266,7 @@ export class AccountsService implements OnLock, OnUnlock {
     return (
       accounts ?? {
         active: undefined,
-        primary: [],
+        primary: {},
         imported: {},
       }
     );
@@ -243,7 +279,9 @@ export class AccountsService implements OnLock, OnUnlock {
   getAccountByID(id: string) {
     return (
       this.accounts.imported[id] ??
-      this.accounts.primary.find((acc) => acc.id === id)
+      Object.values(this.accounts.primary)
+        .flat()
+        .find((acc) => acc.id === id)
     );
   }
 
@@ -252,7 +290,10 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   getAccountList(): Account[] {
-    return [...this.accounts.primary, ...Object.values(this.accounts.imported)];
+    return [
+      ...Object.values(this.accounts.primary).flat(),
+      ...Object.values(this.accounts.imported),
+    ];
   }
 
   #findAccountByAddress(addressC: string) {
@@ -276,7 +317,6 @@ export class AccountsService implements OnLock, OnUnlock {
       type,
     };
   }
-
   #getAllAddresses() {
     return this.getAccountList().flatMap((acc) => [
       acc.addressC,
@@ -287,66 +327,28 @@ export class AccountsService implements OnLock, OnUnlock {
     ]);
   }
 
-  async addAccount(name?: string, options?: ImportData) {
-    if (options) {
-      try {
-        const { account, commit } = await this.walletService.addImportedWallet(
-          options
-        );
+  async addPrimaryAccount({ walletId, name }: AddAccountParams) {
+    const selectedWalletAccounts = this.accounts.primary[walletId] ?? [];
+    const lastAccount = selectedWalletAccounts.at(-1);
 
-        const existingAccount = this.#findAccountByAddress(account.addressC);
+    const nextIndex = lastAccount ? lastAccount.index + 1 : 0;
+    const newAccount = {
+      index: nextIndex,
+      name: name || `Account ${nextIndex + 1}`,
+      type: AccountType.PRIMARY as const,
+      walletId: walletId,
+    };
 
-        // If the account already exists for some reason, just return its ID.
-        if (existingAccount) {
-          return existingAccount.id;
-        }
+    const addresses = await this.walletService.addAddress(nextIndex, walletId);
 
-        // the imported account is unique, we can save its secret
-        await commit();
+    const id = crypto.randomUUID();
 
-        const newAccount: ImportedAccount = this.#buildAccount(
-          account,
-          options.importType,
-          name
-        );
-
-        this.accounts = {
-          ...this.accounts,
-          imported: {
-            ...this.accounts.imported,
-            [newAccount.id]: newAccount,
-          },
-        };
-        await this.permissionsService.addWhitelistDomains(newAccount.addressC);
-
-        this.analyticsServicePosthog.captureEncryptedEvent({
-          name: 'addedNewImportedAccount',
-          windowId: crypto.randomUUID(),
-          properties: { addresses: this.#getAllAddresses() },
-        });
-
-        return account.id;
-      } catch (err) {
-        throw new Error(
-          `Account import failed with error: ${(err as Error).message}`
-        );
-      }
-    } else {
-      const lastAccount = this.accounts.primary.at(-1);
-      const nextIndex = lastAccount ? lastAccount.index + 1 : 0;
-      const newAccount = {
-        index: nextIndex,
-        name: name || `Account ${nextIndex + 1}`,
-        type: AccountType.PRIMARY as const,
-      };
-
-      const addresses = await this.walletService.addAddress(nextIndex);
-      const id = crypto.randomUUID();
-
-      this.accounts = {
-        ...this.accounts,
-        primary: [
-          ...this.accounts.primary,
+    this.accounts = {
+      ...this.accounts,
+      primary: {
+        ...this.accounts.primary,
+        [walletId]: [
+          ...selectedWalletAccounts,
           {
             ...newAccount,
             id,
@@ -357,18 +359,66 @@ export class AccountsService implements OnLock, OnUnlock {
             addressCoreEth: addresses[NetworkVMType.CoreEth],
           },
         ],
-      };
-      await this.permissionsService.addWhitelistDomains(
-        addresses[NetworkVMType.EVM]
+      },
+    };
+    await this.permissionsService.addWhitelistDomains(
+      addresses[NetworkVMType.EVM]
+    );
+
+    this.analyticsServicePosthog.captureEncryptedEvent({
+      name: 'addedNewPrimaryAccount',
+      windowId: crypto.randomUUID(),
+      properties: { addresses: this.#getAllAddresses() },
+    });
+    return id;
+  }
+
+  async addImportedAccount({
+    options,
+    name,
+  }: {
+    options: ImportData;
+    name?: string;
+  }) {
+    try {
+      const { account, commit } = await this.walletService.addImportedWallet(
+        options
       );
 
+      const existingAccount = this.#findAccountByAddress(account.addressC);
+
+      // If the account already exists for some reason, just return its ID.
+      if (existingAccount) {
+        return existingAccount.id;
+      }
+
+      // the imported account is unique, we can save its secret
+      await commit();
+
+      const newAccount: ImportedAccount = this.#buildAccount(
+        account,
+        options.importType,
+        name
+      );
+
+      this.accounts = {
+        ...this.accounts,
+        imported: {
+          ...this.accounts.imported,
+          [newAccount.id]: newAccount,
+        },
+      };
+      await this.permissionsService.addWhitelistDomains(newAccount.addressC);
       this.analyticsServicePosthog.captureEncryptedEvent({
-        name: 'addedNewPrimaryAccount',
+        name: 'addedNewImportedAccount',
         windowId: crypto.randomUUID(),
         properties: { addresses: this.#getAllAddresses() },
       });
-
-      return id;
+      return account.id;
+    } catch (err) {
+      throw new Error(
+        `Account import failed with error: ${(err as Error).message}`
+      );
     }
   }
 
@@ -380,16 +430,43 @@ export class AccountsService implements OnLock, OnUnlock {
     }
 
     if (accountToChange.type === AccountType.PRIMARY) {
-      const accountWithNewName = { ...accountToChange, name };
-      const newAccounts = [...this.accounts.primary];
-      newAccounts[accountToChange.index] = accountWithNewName;
-      this.accounts = { ...this.accounts, primary: newAccounts };
-    } else {
-      const accountWithNewName = { ...accountToChange, name };
-      const newAccounts = { ...this.accounts.imported };
-      newAccounts[id] = accountWithNewName;
-      this.accounts = { ...this.accounts, imported: newAccounts };
+      return this.#renamePrimaryAccount(accountToChange, name);
     }
+
+    return this.#renameImportedAccount(accountToChange, name);
+  }
+
+  async #renameImportedAccount(account: ImportedAccount, name: string) {
+    const accountWithNewName = { ...account, name };
+    const newAccounts = { ...this.accounts.imported };
+    newAccounts[account.id] = accountWithNewName;
+    this.accounts = { ...this.accounts, imported: newAccounts };
+  }
+
+  async #renamePrimaryAccount(account: PrimaryAccount, name: string) {
+    const accountWithNewName = { ...account, name };
+
+    const walletAccounts = this.accounts.primary[account.walletId];
+
+    if (!walletAccounts) {
+      throw new Error(
+        'Updated account does not exist within any of the primary wallets.'
+      );
+    }
+
+    // We need to operate on a copy of the array here, otherwise we change the
+    // existing .accounts property in-memory and the change will not be detected
+    // by this.accounts setter.
+    const newWalletAccounts = [...walletAccounts];
+    newWalletAccounts[account.index] = accountWithNewName;
+
+    this.accounts = {
+      ...this.accounts,
+      primary: {
+        ...this.accounts.primary,
+        [accountWithNewName.walletId]: newWalletAccounts,
+      },
+    };
   }
 
   async activateAccount(id: string) {
@@ -417,18 +494,38 @@ export class AccountsService implements OnLock, OnUnlock {
 
     const { active } = this.accounts;
 
-    const newActive =
-      active && ids.includes(active.id)
-        ? this.accounts.primary[0]
-        : this.accounts.active;
+    const mainPrimaryAcountWalletId = Object.keys(
+      this.accounts.primary
+    ).flat()[0];
 
-    await this.walletService.deleteImportedWallets(ids);
+    try {
+      if (!mainPrimaryAcountWalletId) {
+        throw new Error();
+      }
 
-    this.accounts = {
-      ...this.accounts,
-      imported: newAccounts,
-      active: newActive,
-    };
+      const firstPrimaryAccount = this.accounts.primary[
+        mainPrimaryAcountWalletId
+      ]?.find(() => true);
+
+      if (!firstPrimaryAccount) {
+        throw new Error();
+      }
+
+      const newActive =
+        active && ids.includes(active.id)
+          ? firstPrimaryAccount
+          : this.accounts.active;
+
+      await this.walletService.deleteImportedWallets(ids);
+
+      this.accounts = {
+        ...this.accounts,
+        imported: newAccounts,
+        active: newActive,
+      };
+    } catch (e) {
+      throw new Error('There is no account to set as active');
+    }
   }
 
   addListener<T = unknown>(event: AccountsEvents, callback: (data: T) => void) {

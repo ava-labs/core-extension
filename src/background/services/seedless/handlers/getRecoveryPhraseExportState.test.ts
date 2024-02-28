@@ -38,7 +38,7 @@ describe('src/background/services/seedless/handlers/ge', () => {
     jest.mocked(SeedlessWallet).mockReturnValue(wallet);
 
     secretsService.getPrimaryAccountSecrets.mockResolvedValue({
-      type: SecretType.Seedless,
+      secretType: SecretType.Seedless,
       pubKeys: [
         {
           evm: 'evm',
