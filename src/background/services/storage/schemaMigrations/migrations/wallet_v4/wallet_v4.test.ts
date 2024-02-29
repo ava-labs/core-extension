@@ -51,6 +51,35 @@ describe('background/services/storage/schemaMigrations/migrations/wallet_v4', ()
     );
   });
 
+  it('alows empty mnemoinic fields', async () => {
+    const result = await wallet_v4.up({
+      mnemonic: '',
+      derivationPath: DerivationPath.BIP44,
+      xpub: 'xpub',
+      xpubXP: 'xpubXP',
+      masterFingerprint: '',
+      version: 3,
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { imported, ...restInput } = validInput;
+    expect(result).toStrictEqual({
+      wallets: [
+        {
+          id: 'migrated-wallet-id',
+          name: `Ledger 01`,
+          secretType: SecretType.Ledger,
+          mnemonic: '',
+          derivationPath: DerivationPath.BIP44,
+          xpub: 'xpub',
+          xpubXP: 'xpubXP',
+          masterFingerprint: '',
+        },
+      ],
+      importedAccounts: {},
+      version: 4,
+    });
+  });
+
   it('migrates to v4 successfully', async () => {
     const result = await wallet_v4.up(validInput);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

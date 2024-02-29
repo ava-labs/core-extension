@@ -19,7 +19,7 @@ import { TextFieldLabel } from './TextFieldLabel';
 import { parseUnits } from 'ethers';
 
 type GasSettings = {
-  gasLimit: number;
+  customGasLimit: number;
   maxFeePerGas: bigint;
   maxPriorityFeePerGas: bigint;
 };
@@ -115,7 +115,7 @@ export function CustomGasSettings({
   function handleOnSave(): void {
     if (customGasLimit) {
       onSave({
-        gasLimit: customGasLimit,
+        customGasLimit: customGasLimit,
         maxFeePerGas: customMaxFeePerGas,
         maxPriorityFeePerGas: customMaxPriorityFeePerGas,
       });
