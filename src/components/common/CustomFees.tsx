@@ -213,7 +213,7 @@ export function CustomFees({
         setIsGasPriceTooHigh(true);
         // call cb with limit and gas
         onChange({
-          customGasLimit: customGasLimit ?? gasLimit,
+          customGasLimit: customGasLimit,
           maxFeePerGas: rate.maxFee,
           maxPriorityFeePerGas: rate.maxTip,
           feeType: modifier,
@@ -223,7 +223,7 @@ export function CustomFees({
       setNewFees(updatedFees);
       // call cb with limit and gas
       onChange({
-        customGasLimit: customGasLimit ?? gasLimit,
+        customGasLimit: customGasLimit,
         maxFeePerGas: rate.maxFee,
         maxPriorityFeePerGas: rate.maxTip,
         feeType: modifier,
@@ -529,7 +529,7 @@ export function CustomFees({
           maxPriorityFeePerGas={customFee?.maxTip || 0n}
           onCancel={() => setShowEditGasLimit(false)}
           onSave={(data) => {
-            setCustomGasLimit(data.gasLimit);
+            setCustomGasLimit(data.customGasLimit);
             setCustomFee({
               maxFee: data.maxFeePerGas,
               maxTip: data.maxPriorityFeePerGas,
@@ -541,11 +541,11 @@ export function CustomFees({
                 maxFeePerGas: data.maxFeePerGas,
                 tokenPrice,
                 tokenDecimals: network?.networkToken.decimals,
-                gasLimit: data.gasLimit,
+                gasLimit: data.customGasLimit,
               })
             );
             onChange({
-              customGasLimit: data.gasLimit,
+              customGasLimit: data.customGasLimit,
               maxFeePerGas: data.maxFeePerGas,
               maxPriorityFeePerGas: data.maxPriorityFeePerGas,
               feeType: GasFeeModifier.CUSTOM,
