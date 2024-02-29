@@ -27,7 +27,7 @@ type PreviousSchema = {
 const previousSchema = Joi.object({
   mnemonic: Joi.string().allow(''),
   xpub: Joi.string(),
-  xpubXP: Joi.string(),
+  xpubXP: Joi.string().allow(''),
   pubKeys: Joi.array().items(
     Joi.object({
       evm: Joi.string().required(),
