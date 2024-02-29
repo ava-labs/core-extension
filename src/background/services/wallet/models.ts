@@ -12,7 +12,6 @@ import {
   SecretType,
 } from '../secrets/models';
 import { DistributiveOmit } from '@src/utils/distributiveomit';
-import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 export type SignTransactionRequest =
   | TransactionRequest
@@ -150,12 +149,3 @@ export type AddPrimaryWalletSecrets = DistributiveOmit<
   PrimaryWalletSecretsWithOptionalName,
   'id'
 >;
-
-export type WalletKeys = {
-  mnemonic?: string;
-  masterFingerprint?: string;
-  pubKeys?: PubKeyType[];
-  xpub?: string;
-  xpubXP?: string;
-  seedlessSignerToken?: SignerSessionData;
-};

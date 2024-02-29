@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import { DerivationPath } from '@avalabs/wallets-sdk';
-import { WALLET_ID } from '../models';
-import { getSecretsType } from '@src/background/services/wallet/utils/getSecretsType';
+import { WALLET_ID } from '../../models';
+import { getSecretsType } from './utils/getSecretsType';
 import { SecretType } from '@src/background/services/secrets/models';
 
 const VERSION = 4;
@@ -17,12 +17,15 @@ type PreviousSchema = {
   xpub?: string;
   xpubXP?: string;
   pubKeys?: { evm: string }[];
-  imported?: Record<string, { type: ImportType; secret: string }>;
   derivationPath: DerivationPath;
+  seedlessSignerToken?: unknown; // marking it unkonwn since it's an external type. Does not worth importing here since.
+  masterFingerprint?: string;
+  imported?: Record<string, { type: ImportType; secret: string }>;
+  version?: number;
 };
 
 const previousSchema = Joi.object({
-  mnemonic: Joi.string(),
+  mnemonic: Joi.string().allow(''),
   xpub: Joi.string(),
   xpubXP: Joi.string(),
   pubKeys: Joi.array().items(
@@ -30,16 +33,19 @@ const previousSchema = Joi.object({
       evm: Joi.string().required(),
     }).unknown()
   ),
+  masterFingerprint: Joi.string().allow('').optional(),
   derivationPath: Joi.string()
     .valid(DerivationPath.BIP44, DerivationPath.LedgerLive)
     .required(),
+  seedlessSignerToken: Joi.object().optional(),
   imported: Joi.object().unknown(),
 }).unknown();
 
 let walletId = '';
 
 const up = async (walletStorage: PreviousSchema) => {
-  const { imported, ...rest } = walletStorage;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { imported, version, ...rest } = walletStorage;
   walletId = WALLET_ID;
   const secretType = getSecretsType(walletStorage);
   const nameType =

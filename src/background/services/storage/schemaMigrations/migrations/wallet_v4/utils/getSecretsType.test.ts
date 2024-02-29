@@ -1,7 +1,7 @@
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
-import { PubKeyType } from '../models';
 import { getSecretsType } from './getSecretsType';
-import { SecretType } from '../../secrets/models';
+import { SecretType } from '@src/background/services/secrets/models';
+import { PubKeyType } from '@src/background/services/wallet/models';
 
 describe('getSecretsType()', () => {
   it('should throw an error', () => {
