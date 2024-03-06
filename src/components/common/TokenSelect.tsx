@@ -346,11 +346,17 @@ export function TokenSelect({
           >
             {hideErrorMessage ? '' : error}
           </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {amountInCurrency
-              ? `${amountInCurrency.replace(currency, '')} ${currency}`
-              : `${currencyFormatter(0).replace(currency, '')} ${currency}`}
-          </Typography>
+          <Stack sx={{ minHeight: '14px' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              {selectedToken?.priceUSD !== undefined &&
+                (amountInCurrency
+                  ? `${amountInCurrency.replace(currency, '')} ${currency}`
+                  : `${currencyFormatter(0).replace(
+                      currency,
+                      ''
+                    )} ${currency}`)}
+            </Typography>
+          </Stack>
         </Stack>
 
         {!hideTokenDropdown && (

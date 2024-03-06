@@ -65,9 +65,11 @@ export class BalancesServiceBTC {
 
           const balanceBig = satoshiToBtc(balanceSatoshis);
           const balance = bigToBN(balanceBig, denomination);
-          const balanceUSD = tokenPrice
-            ? balanceBig.times(tokenPrice).toNumber()
-            : 0;
+          const balanceUSD =
+            tokenPrice === undefined
+              ? undefined
+              : balanceBig.times(tokenPrice).toNumber();
+
           const unconfirmedBalanceBig = satoshiToBtc(
             balanceSatoshisUnconfirmed
           );
@@ -75,9 +77,11 @@ export class BalancesServiceBTC {
             unconfirmedBalanceBig,
             denomination
           );
-          const unconfirmedBalanceUSD = tokenPrice
-            ? unconfirmedBalanceBig.times(tokenPrice).toNumber()
-            : 0;
+          const unconfirmedBalanceUSD =
+            tokenPrice === undefined
+              ? undefined
+              : unconfirmedBalanceBig.times(tokenPrice).toNumber();
+
           return {
             address: account.addressBTC,
             balances: {
@@ -90,9 +94,10 @@ export class BalancesServiceBTC {
                   denomination
                 ),
                 balanceUSD,
-                balanceUsdDisplayValue: tokenPrice
-                  ? balanceBig.mul(tokenPrice).toFixed(2)
-                  : undefined,
+                balanceUsdDisplayValue:
+                  tokenPrice === undefined
+                    ? undefined
+                    : balanceBig.mul(tokenPrice).toFixed(2),
                 priceUSD: tokenPrice,
                 utxos,
                 unconfirmedBalance,
@@ -100,9 +105,10 @@ export class BalancesServiceBTC {
                   unconfirmedBalance,
                   denomination
                 ),
-                unconfirmedBalanceUsdDisplayValue: tokenPrice
-                  ? unconfirmedBalanceBig.mul(tokenPrice).toFixed(2)
-                  : undefined,
+                unconfirmedBalanceUsdDisplayValue:
+                  tokenPrice === undefined
+                    ? undefined
+                    : unconfirmedBalanceBig.mul(tokenPrice).toFixed(2),
                 unconfirmedBalanceUSD,
                 logoUri:
                   'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',

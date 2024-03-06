@@ -109,16 +109,19 @@ export class BalancesServiceGlacier {
       })
       .then((res) => res.nativeTokenBalance)
       .then((balance) =>
-        this.convertNativeToTokenWithBalance(balance, balance.price?.value ?? 0)
+        this.convertNativeToTokenWithBalance(balance, balance.price?.value)
       );
   }
 
   private convertNativeToTokenWithBalance(
     native: NativeTokenBalance,
-    tokenPrice: number
+    tokenPrice?: number
   ): NetworkTokenWithBalance {
     const balance = new BN(native.balance);
-    const usdBalance = bnToBig(balance, native.decimals).mul(tokenPrice);
+    const usdBalance =
+      tokenPrice === undefined
+        ? undefined
+        : bnToBig(balance, native.decimals).mul(tokenPrice);
     const balanceDisplayValue = balanceToDisplayValue(balance, native.decimals);
 
     return {
@@ -129,8 +132,8 @@ export class BalancesServiceGlacier {
       balance,
       balanceDisplayValue,
       priceUSD: tokenPrice,
-      balanceUSD: usdBalance.toNumber() || 0,
-      balanceUsdDisplayValue: tokenPrice ? usdBalance.toFixed(2) : undefined,
+      balanceUSD: usdBalance?.toNumber(),
+      balanceUsdDisplayValue: usdBalance?.toFixed(2),
     };
   }
 
@@ -196,9 +199,10 @@ export class BalancesServiceGlacier {
           balance,
           token.decimals
         );
-        const usdBalance = bnToBig(balance, token.decimals).mul(
-          tokenPrice ?? 0
-        );
+        const usdBalance =
+          tokenPrice === undefined
+            ? undefined
+            : bnToBig(balance, token.decimals).mul(tokenPrice);
 
         return {
           ...token,
@@ -209,10 +213,8 @@ export class BalancesServiceGlacier {
           address: token.address,
           balanceDisplayValue,
           priceUSD: tokenPrice,
-          balanceUSD: usdBalance.toNumber() || 0,
-          balanceUsdDisplayValue: tokenPrice
-            ? usdBalance.toFixed(2)
-            : undefined,
+          balanceUSD: usdBalance?.toNumber(),
+          balanceUsdDisplayValue: usdBalance?.toFixed(2),
         };
       }
     );
