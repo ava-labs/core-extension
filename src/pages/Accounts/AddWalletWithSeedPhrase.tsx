@@ -196,7 +196,7 @@ export function AddWalletWithSeedPhrase() {
             }}
             helperText={
               isKnownPhrase
-                ? t('This seedphrase appears to have already been imported.')
+                ? t('This seed phrase appears to have already been imported.')
                 : t('Add account(s) by entering a valid seed phrase.')
             }
             multiline
@@ -266,7 +266,7 @@ export function AddWalletWithSeedPhrase() {
             title={
               isPhraseValid
                 ? isKnownPhrase
-                  ? t('This seedphrase appears to have already been imported.')
+                  ? t('This seed phrase appears to have already been imported.')
                   : ''
                 : t('Provided seed phrase is not valid.')
             }

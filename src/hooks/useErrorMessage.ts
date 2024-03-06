@@ -162,7 +162,7 @@ export const useErrorMessage = () => {
     useMemo(
       () => ({
         [SeedphraseImportError.ExistingSeedphrase]: {
-          title: t('This seedphrase is already imported.'),
+          title: t('This seed phrase is already imported.'),
         },
       }),
       [t]
