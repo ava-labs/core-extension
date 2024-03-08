@@ -53,7 +53,10 @@ export const TOTPChallenge = ({ error, isLoading, onSubmit }: Props) => {
             // Allow verifying by clicking Enter if we're not awaiting response yet.
             if (event.key === 'Enter') {
               event.preventDefault();
-              onSubmit(code);
+
+              if (code) {
+                onSubmit(code);
+              }
             }
           }}
           error={!!errorMessage}
@@ -68,7 +71,7 @@ export const TOTPChallenge = ({ error, isLoading, onSubmit }: Props) => {
           size="large"
           onClick={() => onSubmit(code)}
           isLoading={isLoading}
-          disabled={isLoading}
+          disabled={!code || isLoading}
           fullWidth
         >
           {isLoading ? t('Verifying...') : t('Verify')}

@@ -35,15 +35,21 @@ export const useSeedlessMfa = () => {
       setIsVerifying(true);
       setError(undefined);
 
-      request<SubmitMfaResponseHandler>({
-        method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
-        params: [
-          {
-            mfaId: mfaChallenge?.mfaId,
-            code,
-          },
-        ],
-      });
+      try {
+        await request<SubmitMfaResponseHandler>({
+          method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
+          params: [
+            {
+              mfaId: mfaChallenge?.mfaId,
+              code,
+            },
+          ],
+        });
+      } catch {
+        setError(AuthErrorCode.TotpVerificationError);
+      } finally {
+        setIsVerifying(false);
+      }
     },
     [request, mfaChallenge]
   );
