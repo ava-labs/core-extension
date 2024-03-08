@@ -53,7 +53,7 @@ export enum LedgerAppType {
   UNKNOWN = 'UNKNOWN',
 }
 
-export const REQUIRED_LEDGER_VERSION = '0.6.0';
+export const REQUIRED_LEDGER_VERSION = '0.7.3';
 
 /**
  * Run this here since each new window will have a different id
