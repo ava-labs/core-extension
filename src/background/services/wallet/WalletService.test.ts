@@ -216,6 +216,8 @@ describe('background/services/wallet/WalletService.ts', () => {
       pubKeys: [{ evm: 'evm', xp: 'xp' }],
       walletId: WALLET_ID,
       name: 'seedles',
+      userId: '123',
+      userEmail: 'a@b.c',
       ...additionalData,
       account: {
         type: AccountType.PRIMARY,
@@ -233,6 +235,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         name: data.name,
         authProvider: data.authProvider,
         userEmail: data.userEmail,
+        userId: data.userId,
       },
     ]);
 

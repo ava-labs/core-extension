@@ -81,6 +81,7 @@ export class SecretsService {
           derivationPath: wallet.derivationPath,
           authProvider: wallet.authProvider,
           userEmail: wallet.userEmail,
+          userId: wallet.userId,
         };
       }
 

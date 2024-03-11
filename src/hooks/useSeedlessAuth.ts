@@ -37,6 +37,8 @@ export enum AuthErrorCode {
   UnsupportedProvider = 'unsupported-provider',
   FailedToFetchOidcToken = 'failed-to-fetch-oidc-token',
   MismatchingEmail = 'mismatching-email',
+  MissingUserId = 'missing-user-id',
+  MismatchingUserId = 'mismatching-user-id',
   UnsupportedMfaMethod = 'unsupported-mfa-method',
   FidoChallengeNotApproved = 'fido-challenge-not-approved',
   FidoChallengeFailed = 'fido-challenge-failed',
@@ -49,7 +51,8 @@ export type UseSeedlessAuthOptions = {
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   onSignerTokenObtained: (
     token: SignerSessionData,
-    email: string
+    email: string,
+    userId: string
   ) => Promise<void>;
 };
 
@@ -64,6 +67,7 @@ export const useSeedlessAuth = ({
   const [mfaId, setMfaId] = useState('');
   const [error, setError] = useState<AuthErrorCode>();
   const [email, setEmail] = useState('');
+  const [userId, setUserId] = useState<string>();
   const [mfaDeviceName, setMfaDeviceName] = useState('');
   const { capture } = useAnalyticsContext();
 
@@ -84,15 +88,23 @@ export const useSeedlessAuth = ({
 
     return {
       email: identity.email,
+      userId: identity.identity?.sub,
       mfaType,
       deviceName,
     };
   }, []);
 
   const authenticate = useCallback(
-    async (expectedEmail?: string) => {
+    async ({
+      expectedEmail,
+      expectedUserId,
+    }: {
+      expectedEmail?: string;
+      expectedUserId?: string;
+    }) => {
       setStep(AuthStep.Initialized);
       setEmail('');
+      setUserId('');
       setIsLoading(true);
       setMfaDeviceName('');
 
@@ -107,13 +119,31 @@ export const useSeedlessAuth = ({
 
         const {
           email: obtainedEmail,
+          userId: obtainedUserId,
           mfaType,
           deviceName,
         } = await getUserDetails(idToken);
 
         setEmail(obtainedEmail);
+        setUserId(obtainedUserId);
 
-        if (expectedEmail && obtainedEmail !== expectedEmail) {
+        if (!obtainedUserId) {
+          setError(AuthErrorCode.MissingUserId);
+          return;
+        }
+
+        // Old onboardgin process for seedless did not store user ID. The expectedUserId might be missing
+        if (expectedUserId && expectedUserId !== obtainedUserId) {
+          setError(AuthErrorCode.MismatchingUserId);
+          return;
+        }
+
+        // If expectedUserId is not available, we need to check if the emails match
+        if (
+          !expectedUserId &&
+          expectedEmail &&
+          obtainedEmail !== expectedEmail
+        ) {
           setError(AuthErrorCode.MismatchingEmail);
           return;
         }
@@ -126,7 +156,7 @@ export const useSeedlessAuth = ({
         if (!requiresMfa) {
           setStep(AuthStep.Complete);
           const token = await getSignerToken(authResponse);
-          await onSignerTokenObtained?.(token, obtainedEmail);
+          await onSignerTokenObtained?.(token, obtainedEmail, obtainedUserId);
           return;
         }
 
@@ -212,7 +242,12 @@ export const useSeedlessAuth = ({
           return false;
         }
 
-        await onSignerTokenObtained?.(token, email);
+        if (!userId) {
+          setError(AuthErrorCode.MissingUserId);
+          return false;
+        }
+
+        await onSignerTokenObtained?.(token, email, userId);
         capture('TotpVaridationSuccess');
         return true;
       } catch (err) {
@@ -231,6 +266,7 @@ export const useSeedlessAuth = ({
       mfaId,
       capture,
       oidcToken,
+      userId,
       onSignerTokenObtained,
       email,
     ]
@@ -291,7 +327,16 @@ export const useSeedlessAuth = ({
         return false;
       }
 
-      await onSignerTokenObtained?.(await getSignerToken(authResponse), email);
+      if (!userId) {
+        setError(AuthErrorCode.MissingUserId);
+        return false;
+      }
+
+      await onSignerTokenObtained?.(
+        await getSignerToken(authResponse),
+        email,
+        userId
+      );
       return true;
     } catch (err) {
       setError(AuthErrorCode.UnknownError);
@@ -301,7 +346,15 @@ export const useSeedlessAuth = ({
     } finally {
       setIsLoading(false);
     }
-  }, [email, mfaId, oidcToken, onSignerTokenObtained, session, setIsLoading]);
+  }, [
+    email,
+    mfaId,
+    oidcToken,
+    onSignerTokenObtained,
+    session,
+    setIsLoading,
+    userId,
+  ]);
 
   return {
     error,

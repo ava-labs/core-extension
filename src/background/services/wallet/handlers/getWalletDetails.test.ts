@@ -29,7 +29,7 @@ describe('src/background/services/wallet/handlers/getWalletDetails.test.ts', () 
     });
   });
 
-  it('returns the authProvider & userEmail for seedless wallets', async () => {
+  it('returns the authProvider & userEmail & userId for seedless wallets', async () => {
     const handler = new GetWalletDetailsHandler({
       wallets: [
         {
@@ -37,6 +37,7 @@ describe('src/background/services/wallet/handlers/getWalletDetails.test.ts', () 
           authProvider: SeedlessAuthProvider.Apple,
           derivationPath: DerivationPath.BIP44,
           userEmail: 'abc@xy.z',
+          userId: '123',
         },
       ],
     } as any);
@@ -56,6 +57,7 @@ describe('src/background/services/wallet/handlers/getWalletDetails.test.ts', () 
           type: SecretType.Seedless,
           derivationPath: DerivationPath.BIP44,
           userEmail: 'abc@xy.z',
+          userId: '123',
         },
       ],
     });

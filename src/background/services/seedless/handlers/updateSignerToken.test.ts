@@ -4,12 +4,18 @@ import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
 
 describe('src/background/services/seedless/handlers/updateSignerToken', () => {
-  const secretsService = jest.mocked<SecretsService>({
-    getActiveAccountSecrets: jest.fn().mockResolvedValue({
-      secretType: SecretType.Seedless,
-      userEmail: 'x@y.z',
-    }),
-  } as any);
+  let secretsService;
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+    secretsService = jest.mocked<SecretsService>({
+      getActiveAccountSecrets: jest.fn().mockResolvedValue({
+        secretType: SecretType.Seedless,
+        userEmail: 'x@y.z',
+      }),
+      updateSecrets: jest.fn().mockResolvedValue('walletId'),
+    } as any);
+  });
 
   it('returns error when token is missing', async () => {
     const handler = new UpdateSignerTokenHandler(
@@ -41,13 +47,13 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
     const result = await handler.handle({
       method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
       id: 'abcd-1234',
-      params: [token, 'a@b.c'],
+      params: [token, 'a@b.c', '123'],
     });
 
     expect(result.error).toEqual('missing session information');
   });
 
-  it('returns error when email is not provided', async () => {
+  it('returns error when user ID is not provided', async () => {
     const handler = new UpdateSignerTokenHandler(
       {
         hasTokenExpired: true,
@@ -60,10 +66,35 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
     const result = await handler.handle({
       method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
       id: 'abcd-1234',
-      params: [token, ''],
+      params: [token, 'a@b.c', ''],
     });
 
-    expect(result.error).toEqual('missing email address');
+    expect(result.error).toEqual('missing user ID');
+  });
+
+  it('returns error when user ID do not match', async () => {
+    secretsService = jest.mocked<SecretsService>({
+      getActiveAccountSecrets: jest.fn().mockResolvedValue({
+        secretType: SecretType.Seedless,
+        userEmail: 'x@y.z',
+        userId: '456',
+      }),
+    } as any);
+    const handler = new UpdateSignerTokenHandler(
+      {
+        hasTokenExpired: true,
+      } as any,
+      secretsService
+    );
+
+    const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
+
+    const result = await handler.handle({
+      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+      id: 'abcd-1234',
+      params: [token, 'a@b.c', '123'],
+    });
+    expect(result.error).toEqual('mismatching user ID');
   });
 
   it('returns error when emails do not match', async () => {
@@ -79,7 +110,7 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
     const result = await handler.handle({
       method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
       id: 'abcd-1234',
-      params: [token, 'a@b.c'],
+      params: [token, 'a@b.c', '123'],
     });
 
     expect(result.error).toEqual('mismatching email address');
@@ -101,13 +132,13 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
     const result = await handler.handle({
       method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
       id: 'abcd-1234',
-      params: [token, 'x@y.z'],
+      params: [token, 'x@y.z', '123'],
     });
 
     expect(result.error).toEqual(error.message);
   });
 
-  it('attempts to update the signer token and returns null', async () => {
+  it('attempts to update the signer token and user ID and returns null', async () => {
     const updateSignerToken = jest.fn();
     const handler = new UpdateSignerTokenHandler(
       {
@@ -121,10 +152,72 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
     const result = await handler.handle({
       method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
       id: 'abcd-1234',
-      params: [token, 'x@y.z'],
+      params: [token, 'x@y.z', '123'],
     });
 
     expect(updateSignerToken).toHaveBeenCalledWith(token);
+    expect(secretsService.updateSecrets).toHaveBeenCalledTimes(1);
+    expect(result.result).toBeNull();
+  });
+
+  it('does not attempts to update the signer token when userIds match', async () => {
+    secretsService = jest.mocked<SecretsService>({
+      getActiveAccountSecrets: jest.fn().mockResolvedValue({
+        secretType: SecretType.Seedless,
+        userEmail: undefined,
+        userId: '123',
+      }),
+      updateSecrets: jest.fn().mockResolvedValue('walletId'),
+    } as any);
+    const updateSignerToken = jest.fn();
+    const handler = new UpdateSignerTokenHandler(
+      {
+        updateSignerToken,
+      } as any,
+      secretsService
+    );
+
+    const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
+
+    const result = await handler.handle({
+      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+      id: 'abcd-1234',
+      params: [token, 'x@y.z', '123'],
+    });
+
+    expect(updateSignerToken).toHaveBeenCalledWith(token);
+    expect(secretsService.updateSecrets).not.toHaveBeenCalled();
+    expect(result.result).toBeNull();
+  });
+
+  it('attempts to update the signer token with no change and returns null', async () => {
+    secretsService = jest.mocked<SecretsService>({
+      getActiveAccountSecrets: jest.fn().mockResolvedValue({
+        secretType: SecretType.Seedless,
+        userEmail: 'x@y.z',
+        userId: '123',
+      }),
+      updateSecrets: jest.fn().mockResolvedValue('walletId'),
+    } as any);
+
+    const updateSignerToken = jest.fn();
+    const handler = new UpdateSignerTokenHandler(
+      {
+        updateSignerToken,
+      } as any,
+      secretsService
+    );
+
+    const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
+
+    const result = await handler.handle({
+      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+      id: 'abcd-1234',
+      params: [token, 'x@y.z', '123'],
+    });
+
+    expect(updateSignerToken).toHaveBeenCalledWith(token);
+    expect(secretsService.updateSecrets).not.toHaveBeenCalled();
     expect(result.result).toBeNull();
   });
 });

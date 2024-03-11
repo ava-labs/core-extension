@@ -24,6 +24,8 @@ const FATAL_ERRORS = [
   AuthErrorCode.UnknownError,
   AuthErrorCode.UnsupportedProvider,
   AuthErrorCode.MismatchingEmail,
+  AuthErrorCode.MismatchingUserId,
+  AuthErrorCode.MissingUserId,
   AuthErrorCode.FailedToFetchOidcToken,
   AuthErrorCode.NoMfaMethodsConfigured,
   AuthErrorCode.UnsupportedMfaMethod,
@@ -37,12 +39,12 @@ export const SeedlessAuthPopup = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const onSignerTokenObtained = useCallback(
-    async (token: SignerSessionData, email: string) => {
+    async (token: SignerSessionData, email: string, userId: string) => {
       setIsLoading(true);
 
       request<UpdateSignerTokenHandler>({
         method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
-        params: [token, email],
+        params: [token, email, userId],
       })
         .then(() => {
           window.close();
@@ -73,11 +75,17 @@ export const SeedlessAuthPopup = () => {
   });
 
   useEffect(() => {
-    // Initiate authentication once we know what email address to expect
-    if (walletDetails?.userEmail && step === AuthStep.NotInitialized) {
-      authenticate(walletDetails.userEmail);
+    // Initiate authentication once we know what email address or userId to expect
+    if (
+      (walletDetails?.userEmail || walletDetails?.userId) &&
+      step === AuthStep.NotInitialized
+    ) {
+      authenticate({
+        expectedEmail: walletDetails.userEmail,
+        expectedUserId: walletDetails.userId,
+      });
     }
-  }, [authenticate, walletDetails?.userEmail, step]);
+  }, [authenticate, walletDetails?.userEmail, step, walletDetails?.userId]);
 
   const isFatalError = error && FATAL_ERRORS.includes(error);
 

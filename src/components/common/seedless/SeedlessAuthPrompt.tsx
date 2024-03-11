@@ -59,6 +59,7 @@ export const SeedlessAuthPrompt = () => {
       </DialogContent>
       <DialogActions>
         <Button
+          key="seedlessAuthPrompedLoginButton"
           onClick={handleLogin}
           color="primary"
           size="large"

@@ -41,7 +41,8 @@ interface SeedlessSecrets extends PrimarySecretsBase {
   seedlessSignerToken: SignerSessionData;
   derivationPath: DerivationPath;
   authProvider: SeedlessAuthProvider;
-  userEmail: string;
+  userEmail?: string;
+  userId?: string;
   mnemonic?: never;
   xpub?: never;
   xpubXP?: never;
