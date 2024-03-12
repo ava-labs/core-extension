@@ -1,7 +1,7 @@
 import { getTxInfo } from './getTxInfo';
 import { resolve } from '@src/utils/promiseResolver';
 import { JsonRpcApiProvider, TransactionDescription } from 'ethers';
-import { EthSendTransactionParams } from '../handlers/eth_sendTransaction';
+import { EthSendTransactionParams } from '../models';
 import { Network } from '@avalabs/chains-sdk';
 
 export async function getTxDescription(

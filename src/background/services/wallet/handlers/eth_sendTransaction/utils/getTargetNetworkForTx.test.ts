@@ -1,21 +1,21 @@
 import { jest } from '@jest/globals';
 import { Network, NetworkVMType } from '@avalabs/chains-sdk';
-import { Transaction } from '../models';
 import getTargetNetworkForTx from './getTargetNetworkForTx';
-import { NetworkService } from '../../network/NetworkService';
-import { StorageService } from '../../storage/StorageService';
+import { NetworkService } from '@src/background/services/network/NetworkService';
+import { StorageService } from '@src/background/services/storage/StorageService';
 import { errorCodes, EthereumRpcError } from 'eth-rpc-errors';
-import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
-import { AnalyticsService } from '../../analytics/AnalyticsService';
-import { LockService } from '../../lock/LockService';
-import { FeatureGates } from '../../featureFlags/models';
+import { FeatureFlagService } from '@src/background/services/featureFlags/FeatureFlagService';
+import { AnalyticsService } from '@src/background/services/analytics/AnalyticsService';
+import { LockService } from '@src/background/services/lock/LockService';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { EthSendTransactionParams } from '../models';
 
-jest.mock('../../network/NetworkService');
-jest.mock('../../featureFlags/FeatureFlagService');
+jest.mock('@src/background/services/network/NetworkService');
+jest.mock('@src/background/services/featureFlags/FeatureFlagService');
 
 const transactionMock = {
   chainId: '0x1',
-} as unknown as Transaction;
+} as unknown as EthSendTransactionParams;
 
 const networkMock = {
   isTestnet: true,
@@ -60,7 +60,7 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
 
   it('returns the active network if chainId was not provided', async () => {
     const network = await getTargetNetworkForTx(
-      {} as unknown as Transaction,
+      {} as unknown as EthSendTransactionParams,
       mockNetworkService,
       mockFeatureFlagService
     );
@@ -72,7 +72,7 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
     jest.spyOn(mockNetworkService, 'isActiveNetwork').mockReturnValueOnce(true);
 
     const network = await getTargetNetworkForTx(
-      {} as unknown as Transaction,
+      {} as unknown as EthSendTransactionParams,
       mockNetworkService,
       mockFeatureFlagService
     );

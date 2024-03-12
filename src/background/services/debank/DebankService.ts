@@ -31,7 +31,7 @@ import { txParamsToTransactionData } from './utils/txParamsToTransactionData';
 import {
   EthSendTransactionParamsWithGas,
   TransactionDisplayValues,
-} from '../transactions/models';
+} from '../wallet/handlers/eth_sendTransaction/models';
 import { debankActionsToTransactionActions } from './utils/debankActionsToTransactionActions';
 import { mapTokenItemToTransactionToken } from './utils/mapTokenItemToTransactionToken';
 import { mapNftToTransactionNft } from './utils/mapNftToTransactionNft';

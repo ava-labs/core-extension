@@ -4,7 +4,7 @@ import {
   ApprovalSection,
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
-import { TransactionNft } from '@src/background/services/transactions/models';
+import { TransactionNft } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
 import { TransactionTokenCard } from '../TransactionTokenCard';
 

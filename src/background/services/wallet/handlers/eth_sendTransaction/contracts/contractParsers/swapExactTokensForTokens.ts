@@ -3,7 +3,7 @@ import {
   TransactionDisplayValues,
   TransactionToken,
   TransactionType,
-} from '@src/background/services/transactions/models';
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { ContractCall, ContractParser } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { findToken } from './utils/findToken';
@@ -12,16 +12,22 @@ import { TransactionDescription } from 'ethers';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { TokenType } from '@src/background/services/balances/models';
 
-export interface SwapExactTokensForAVAXData {
-  amountOutMin: bigint;
+export interface SwapExactTokensForTokenData {
+  amountInMin: bigint;
   amountIn: bigint;
+  amountInMax: bigint;
+
+  amountOutMin: bigint;
+  amountOut: bigint;
+  amountOutMax: bigint;
+
   contractCall: ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS;
   deadline: string;
   path: string[];
   to: string;
 }
 
-export async function swapExactTokensForAvax(
+export async function swapExactTokensForTokenHandler(
   network: Network,
   /**
    * The from on request represents the wallet and the to represents the contract
@@ -31,58 +37,58 @@ export async function swapExactTokensForAvax(
    * Data is the values sent to the above contract and this is the instructions on how to
    * execute
    */
-  data: SwapExactTokensForAVAXData,
+  data: SwapExactTokensForTokenData,
   txDetails: TransactionDescription | null
 ): Promise<TransactionDisplayValues> {
   const firstTokenInPath = await findToken(
     data.path[0]?.toLowerCase() || '',
     network
   );
-  const networkTokenWithBalance = await findToken(
-    network.networkToken.symbol,
+  const lastTokenInPath = await findToken(
+    data.path[data.path.length - 1]?.toLowerCase() || '',
     network
   );
 
   const sendTokenList: TransactionToken[] = [];
-
+  const inAmount = data.amountIn || data.amountInMin || data.amountInMax;
   sendTokenList.push({
     address:
-      firstTokenInPath.type === TokenType.NATIVE
-        ? firstTokenInPath.symbol
-        : firstTokenInPath.address,
+      firstTokenInPath.type === TokenType.ERC20
+        ? firstTokenInPath.address
+        : firstTokenInPath.symbol,
     decimals: firstTokenInPath.decimals,
     symbol: firstTokenInPath.symbol,
     name: firstTokenInPath.name,
     logoUri: firstTokenInPath.logoUri,
 
-    amount: data.amountIn ? BigInt(data.amountIn) : undefined,
+    amount: inAmount ? BigInt(inAmount) : undefined,
     usdValue:
-      data.amountIn && firstTokenInPath.priceUSD
+      inAmount && firstTokenInPath.priceUSD
         ? Number(firstTokenInPath.priceUSD) *
-          bigintToBig(data.amountIn, firstTokenInPath.decimals).toNumber()
+          bigintToBig(inAmount, firstTokenInPath.decimals).toNumber()
         : undefined,
     usdPrice: firstTokenInPath.priceUSD,
   });
 
   const receiveTokenList: TransactionToken[] = [];
-
+  const outAmout = data.amountOut || data.amountOutMin || data.amountOutMax;
   receiveTokenList.push({
-    address: networkTokenWithBalance.symbol,
-    decimals: networkTokenWithBalance.decimals,
-    symbol: networkTokenWithBalance.symbol,
-    name: networkTokenWithBalance.name,
-    logoUri: networkTokenWithBalance.logoUri,
+    address:
+      lastTokenInPath.type === TokenType.ERC20
+        ? lastTokenInPath.address
+        : lastTokenInPath.symbol,
+    decimals: lastTokenInPath.decimals,
+    symbol: lastTokenInPath.symbol,
+    name: lastTokenInPath.name,
+    logoUri: lastTokenInPath.logoUri,
 
-    amount: data.amountOutMin ? BigInt(data.amountOutMin) : undefined,
+    amount: outAmout ? BigInt(outAmout) : undefined,
     usdValue:
-      data.amountOutMin && networkTokenWithBalance.priceUSD
-        ? networkTokenWithBalance.priceUSD *
-          bigintToBig(
-            data.amountOutMin,
-            networkTokenWithBalance.decimals
-          ).toNumber()
+      outAmout && lastTokenInPath.priceUSD
+        ? Number(lastTokenInPath.priceUSD) *
+          bigintToBig(outAmout, lastTokenInPath.decimals).toNumber()
         : undefined,
-    usdPrice: networkTokenWithBalance.priceUSD,
+    usdPrice: lastTokenInPath.priceUSD,
   });
 
   const result: TransactionDisplayValues = await parseBasicDisplayValues(
@@ -113,8 +119,17 @@ export async function swapExactTokensForAvax(
     ...result.balanceChange.receiveTokenList,
     ...receiveTokenList,
   ];
+
   return result;
 }
 
-export const SwapExactTokensForAvaxParser: ContractParser<SwapExactTokensForAVAXData> =
-  [ContractCall.SWAP_EXACT_TOKENS_FOR_AVAX, swapExactTokensForAvax];
+export const SwapExactTokensForTokenParser: ContractParser<SwapExactTokensForTokenData> =
+  [ContractCall.SWAP_EXACT_TOKENS_FOR_TOKENS, swapExactTokensForTokenHandler];
+
+/**
+ * This is for swaps from a token into a stable coin, same logic
+ * its just telling the contract that the latter token needs to be
+ * exact amount
+ */
+export const SwapTokensForExactTokensParser: ContractParser<SwapExactTokensForTokenData> =
+  [ContractCall.SWAP_TOKENS_FOR_EXACT_TOKENS, swapExactTokensForTokenHandler];

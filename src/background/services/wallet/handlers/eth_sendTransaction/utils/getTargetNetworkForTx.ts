@@ -1,13 +1,12 @@
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
-import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
-import { Transaction } from '../models';
-import { FeatureGates } from '../../featureFlags/models';
-import { EthSendTransactionParams } from '../handlers/eth_sendTransaction';
+import { FeatureFlagService } from '@src/background/services/featureFlags/FeatureFlagService';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { EthSendTransactionParams } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 
 const getTargetNetworkForTx = async (
-  tx: Transaction | EthSendTransactionParams,
+  tx: EthSendTransactionParams,
   networkService: NetworkService,
   featureFlagService: FeatureFlagService
 ) => {

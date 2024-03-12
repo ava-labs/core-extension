@@ -1,5 +1,5 @@
 import { TokenType } from '../../balances/models';
-import { TransactionNft } from '../../transactions/models';
+import { TransactionNft } from '../../wallet/handlers/eth_sendTransaction/models';
 import { DebankNFTItem } from '../models';
 
 export const mapNftToTransactionNft = (t: DebankNFTItem): TransactionNft => ({

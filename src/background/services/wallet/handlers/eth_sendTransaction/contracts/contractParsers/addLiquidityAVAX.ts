@@ -3,7 +3,7 @@ import {
   TransactionDisplayValues,
   TransactionToken,
   TransactionType,
-} from '@src/background/services/transactions/models';
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { ContractCall, ContractParser } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { Network } from '@avalabs/chains-sdk';

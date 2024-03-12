@@ -508,6 +508,48 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(storageService.save).toHaveBeenCalledWith(ACTIONS_STORAGE_KEY, {
           1: {
             ...mockAction,
+            displayData: {},
+            result: ['ADDRESS'],
+            error: 'error',
+          },
+        });
+      });
+      it('updates action with displayData', async () => {
+        const eventListener = jest.fn();
+        actionsService.addListener(
+          ActionsEvent.ACTION_COMPLETED,
+          eventListener
+        );
+
+        (storageService.load as jest.Mock).mockResolvedValue({
+          1: {
+            ...mockAction,
+            displayData: {
+              prop: 'oldvalue',
+              prop2: 'somevalue',
+            },
+          },
+        });
+
+        await actionsService.updateAction({
+          status: ActionStatus.PENDING,
+          id: 1,
+          result: ['ADDRESS'],
+          error: 'error',
+          displayData: {
+            prop: 'value',
+          },
+        });
+
+        expect(eventListener).not.toHaveBeenCalled();
+        expect(storageService.save).toHaveBeenCalledTimes(1);
+        expect(storageService.save).toHaveBeenCalledWith(ACTIONS_STORAGE_KEY, {
+          1: {
+            ...mockAction,
+            displayData: {
+              prop: 'value',
+              prop2: 'somevalue',
+            },
             result: ['ADDRESS'],
             error: 'error',
           },

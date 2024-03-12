@@ -10,9 +10,11 @@ const useAvalancheTxHeader = (tx: Avalanche.Tx) => {
   const { t } = useTranslation();
 
   switch (tx.type) {
+    case Avalanche.TxType.AddPermissionlessValidator:
     case Avalanche.TxType.AddValidator:
       return t('Add Validator');
 
+    case Avalanche.TxType.AddPermissionlessDelegator:
     case Avalanche.TxType.AddDelegator:
       return t('Add Delegator');
 
@@ -36,12 +38,6 @@ const useAvalancheTxHeader = (tx: Avalanche.Tx) => {
 
     case Avalanche.TxType.Base:
       return t('Approve Transaction');
-
-    case Avalanche.TxType.AddPermissionlessValidator:
-      return t('Add Validator');
-
-    case Avalanche.TxType.AddPermissionlessDelegator:
-      return t('Add Delegator');
 
     default:
       return t('Unknown Transaction');

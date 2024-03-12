@@ -10,12 +10,12 @@ export enum ActionStatus {
   ERROR = 'error',
   ERROR_USER_CANCELED = 'error-user-canceled',
 }
-export interface Action extends JsonRpcRequest<any> {
+export interface Action<DisplayData = any> extends JsonRpcRequest<any> {
   time: number;
   status: ActionStatus;
   result?: any;
   error?: string;
-  displayData: any;
+  displayData: DisplayData;
   method: string;
   site?: DomainMetadata;
   tabId?: number;
@@ -29,9 +29,10 @@ export interface Actions {
   [id: string]: Action;
 }
 
-export interface ActionUpdate {
+export interface ActionUpdate<DisplayData = any> {
   id: any;
   status: ActionStatus;
+  displayData?: DisplayData;
   result?: any;
   error?: string;
   tabId?: number;

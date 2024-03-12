@@ -2,7 +2,7 @@ import {
   EthSendTransactionParamsWithGas,
   TransactionDisplayValues,
   TransactionType,
-} from '@src/background/services/transactions/models';
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { ethers } from 'ethers';
 import { NetworkContractToken } from '@avalabs/chains-sdk';

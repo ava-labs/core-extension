@@ -19,8 +19,7 @@ import { WalletGetPermissionsHandler } from '@src/background/services/permission
 import { WalletRequestPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_requestPermissions';
 import { WalletWatchAssetHandler } from '@src/background/services/settings/events/wallet_watchAsset';
 import { WalletGetEthereumChainHandler } from '@src/background/services/network/handlers/wallet_getEthereumChain';
-import { TransactionCompletedEvents } from '@src/background/services/transactions/events/transactionCompletedEvents';
-import { EthSendTransactionHandler } from '@src/background/services/transactions/handlers/eth_sendTransaction';
+import { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
 import { AvalancheSelectWalletHandler } from '@src/background/services/web3/handlers/avalanche_selectWallet';
 import { ConnectRequestHandler } from '@src/background/services/web3/handlers/connect';
 import { AvalancheGetProviderState } from '@src/background/services/web3/handlers/avalanche_getProviderState';
@@ -93,6 +92,5 @@ export class DappRequestHandlerRegistry {}
   { token: 'DAppEventEmitter', useToken: AccountsChangedEvents },
   { token: 'DAppEventEmitter', useToken: ChainChangedEvents },
   { token: 'DAppEventEmitter', useToken: ActionCompletedEvents },
-  { token: 'DAppEventEmitter', useToken: TransactionCompletedEvents },
 ])
 export class DappEventEmitterRegistry {}

@@ -12,7 +12,6 @@ import {
   ApprovalSectionBody,
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
-import { Transaction } from '@src/background/services/transactions/models';
 import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 import {
   TransactionTokenCard,
@@ -20,14 +19,16 @@ import {
 } from './TransactionTokenCard';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
+import { Action } from '@src/background/services/actions/models';
+import { Transaction } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 
 type TxBalanceChangeProps = {
-  transaction: Transaction | null;
+  transaction: Action<Transaction>;
 };
 
 export const TxBalanceChange = ({ transaction }: TxBalanceChangeProps) => {
   const { t } = useTranslation();
-  const balanceChange = transaction?.displayValues?.balanceChange;
+  const balanceChange = transaction.displayData?.displayValues?.balanceChange;
 
   const hasSentItems =
     (balanceChange?.sendTokenList.length ?? 0) > 0 ||
@@ -39,12 +40,12 @@ export const TxBalanceChange = ({ transaction }: TxBalanceChangeProps) => {
 
   const showNonPreExecInfoWarning =
     (hasSentItems || hasReceivedItems) &&
-    !transaction?.displayValues?.preExecSuccess;
+    !transaction.displayData?.displayValues?.preExecSuccess;
 
   const showNoDataWarning =
     !hasSentItems &&
     !hasReceivedItems &&
-    !transaction?.displayValues?.preExecSuccess;
+    !transaction.displayData?.displayValues?.preExecSuccess;
 
   return (
     <ApprovalSection>
@@ -67,11 +68,11 @@ export const TxBalanceChange = ({ transaction }: TxBalanceChangeProps) => {
       />
       <ApprovalSectionBody>
         <Stack gap={2}>
-          {transaction?.displayValues?.abi && (
+          {transaction.displayData?.displayValues?.abi && (
             <>
               <TxDetailsRow label={t('Transaction Type')}>
                 <Typography variant="caption">
-                  {transaction.displayValues.abi.func}
+                  {transaction.displayData.displayValues.abi.func}
                 </Typography>
               </TxDetailsRow>
               {(hasReceivedItems || hasSentItems) && <Divider />}

@@ -1,15 +1,14 @@
-import { Transaction } from '../models';
-import { NetworkFee } from '../../networkFee/models';
+import { NetworkFee } from '@src/background/services/networkFee/models';
+import { EthSendTransactionParamsWithGas } from '../models';
 
 export function txToCustomEvmTx(
-  tx?: Transaction,
+  txParams?: EthSendTransactionParamsWithGas,
   networkFee?: NetworkFee | null
 ) {
-  if (!tx) {
+  if (!txParams) {
     throw new Error('transaction is malformed');
   }
 
-  const txParams = tx.txParams;
   const {
     gas,
     to,

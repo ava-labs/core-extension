@@ -65,15 +65,12 @@ import { UpdateShowNoBalanceHandler } from '@src/background/services/settings/ha
 import { UpdateThemeHandler } from '@src/background/services/settings/handlers/updateTheme';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
 import { GetSwapRateHandler } from '@src/background/services/swap/handlers/getSwapRate';
-import { TransactionFinalizedUpdateEvents } from '@src/background/services/transactions/events/transactionFinalizedUpdate';
-import { GetTransactionHandler } from '@src/background/services/transactions/handlers/getTransaction';
 import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
 import { GetWalletDetailsHandler } from '@src/background/services/wallet/handlers/getWalletDetails';
 import { registry } from 'tsyringe';
 import { UpdateCurrencyHandler } from '../../services/settings/handlers/updateCurrencySelection';
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
 import { PerformSwapHandler } from '../../services/swap/handlers/performSwap';
-import { UpdateTransactionHandler } from '../../services/transactions/handlers/updateTransaction';
 import { NetworksUpdatedEvents } from '@src/background/services/network/events/networksUpdatedEvent';
 import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
@@ -243,8 +240,6 @@ import { ImportLedgerHandler } from '@src/background/services/wallet/handlers/im
   { token: 'ExtensionRequestHandler', useToken: ResetExtensionStateHandler },
   { token: 'ExtensionRequestHandler', useToken: GetSwapRateHandler },
   { token: 'ExtensionRequestHandler', useToken: PerformSwapHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetTransactionHandler },
-  { token: 'ExtensionRequestHandler', useToken: UpdateTransactionHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
   { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
@@ -358,10 +353,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: AccountsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: AnalyticsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: BridgeConfigUpdatedEvents },
-  {
-    token: 'ExtensionEventEmitter',
-    useToken: TransactionFinalizedUpdateEvents,
-  },
   { token: 'ExtensionEventEmitter', useToken: OnboardingUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: SendTxDetailsEvents },
   { token: 'ExtensionEventEmitter', useToken: NetworkFeeUpdateEvents },

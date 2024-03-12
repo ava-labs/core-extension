@@ -2,7 +2,7 @@ import { Network } from '@avalabs/chains-sdk';
 import {
   EthSendTransactionParamsWithGas,
   TransactionDisplayValues,
-} from '@src/background/services/transactions/models';
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { Result, TransactionDescription } from 'ethers';
 
 export type ContractParserHandler<ParsedData = Result | undefined> = (

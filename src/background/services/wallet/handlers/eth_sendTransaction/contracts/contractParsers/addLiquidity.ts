@@ -8,7 +8,7 @@ import {
   TransactionDisplayValues,
   TransactionToken,
   TransactionType,
-} from '@src/background/services/transactions/models';
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { TransactionDescription } from 'ethers';
 import { TokenType } from '@src/background/services/balances/models';
 

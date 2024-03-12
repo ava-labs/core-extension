@@ -1,6 +1,6 @@
 import { Network } from '@avalabs/chains-sdk';
-import { EthSendTransactionParams } from '../../transactions/handlers/eth_sendTransaction';
 import { DebankTransactionData } from '../models';
+import { EthSendTransactionParams } from '../../wallet/handlers/eth_sendTransaction/models';
 
 export function txParamsToTransactionData(
   network: Network,

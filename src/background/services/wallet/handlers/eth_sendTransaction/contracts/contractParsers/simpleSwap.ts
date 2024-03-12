@@ -9,7 +9,7 @@ import {
   TransactionDisplayValues,
   TransactionToken,
   TransactionType,
-} from '@src/background/services/transactions/models';
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { isNetworkToken } from './utils/helpers';
 export interface SimpleSwapData {

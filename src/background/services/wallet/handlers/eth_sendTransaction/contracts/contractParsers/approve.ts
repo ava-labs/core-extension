@@ -3,7 +3,7 @@ import {
   EthSendTransactionParamsWithGas,
   TransactionDisplayValues,
   TransactionType,
-} from '@src/background/services/transactions/models';
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { ContractCall, ContractParser } from './models';
 import { findToken } from './utils/findToken';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
