@@ -134,25 +134,77 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         error: new Error('Account not found'),
       });
     });
+    it('should call the approval window with the new active account from the active wallet', async () => {
+      const accounts = [
+        {
+          id: '0001',
+          addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          type: AccountType.PRIMARY,
+          walletId: 1,
+          index: 0,
+        },
+        {
+          id: '0002',
+          addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          type: AccountType.PRIMARY,
+          walletId: 2,
+          index: 0,
+        },
+        {
+          id: '0003',
+          addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          type: AccountType.PRIMARY,
+          walletId: 2,
+          index: 1,
+        },
+      ];
+
+      accountServiceMock.getAccountList.mockReturnValue(accounts);
+      accountServiceMock.activeAccount = accounts[2];
+
+      const handler = new AvalancheSelectAccountHandler(
+        accountServiceMock,
+        permissionsServiceMock
+      );
+      handler.openApprovalWindow = jest.fn();
+
+      const request = {
+        id: '123',
+        method: DAppProviderRequest.ACCOUNT_SELECT,
+        params: [0],
+        site: { tabId: 1 },
+      } as any;
+      await handler.handleAuthenticated(request);
+      expect(handler.openApprovalWindow).toHaveBeenCalledWith(
+        {
+          ...request,
+          tabId: 1,
+          selectedAccount: accounts[1],
+        },
+        'switchAccount'
+      );
+    });
   });
 
-  it('handleUnauthenticated', async () => {
-    const handler = new AvalancheSelectAccountHandler(
-      accountServiceMock,
-      permissionsServiceMock
-    );
-    const request = {
-      id: '123',
-      method: DAppProviderRequest.ACCOUNT_SELECT,
-      params: [1],
-    } as any;
+  describe('handleUnauthenticated', () => {
+    it('should return an error', async () => {
+      const handler = new AvalancheSelectAccountHandler(
+        accountServiceMock,
+        permissionsServiceMock
+      );
+      const request = {
+        id: '123',
+        method: DAppProviderRequest.ACCOUNT_SELECT,
+        params: [1],
+      } as any;
 
-    const result = await handler.handleUnauthenticated(request);
-    expect(result).toEqual({
-      ...request,
-      error: new Error(
-        'The requested account and/or method has not been authorized by the user.'
-      ),
+      const result = await handler.handleUnauthenticated(request);
+      expect(result).toEqual({
+        ...request,
+        error: new Error(
+          'The requested account and/or method has not been authorized by the user.'
+        ),
+      });
     });
   });
 
