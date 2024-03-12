@@ -9,6 +9,8 @@ import {
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { Account } from '@src/background/services/accounts/models';
+import { isPrimaryAccount } from '@src/background/services/accounts/utils/typeGuards';
 
 interface AccountManagerContextProps {
   children?: React.ReactNode;
@@ -17,7 +19,7 @@ interface AccountManagerContextProps {
 export const AccountManagerContext = createContext<{
   exitManageMode(): void;
   isManageMode: boolean;
-  isAccountSelectable(accountId: string): boolean;
+  isAccountSelectable(account: Account): boolean;
   selectedAccounts: string[];
   selectAccount(accountId: string): void;
   deselectAccount(accountId: string, deselectPrevious?: boolean): void;
@@ -34,8 +36,6 @@ export const AccountManagerContext = createContext<{
   toggleManageMode() {},
 });
 
-// TODO: make it work with multiple wallets.
-// New data structure will be needed where we split the selected accounts by their respective wallets.
 export const AccountManagerProvider = ({
   children,
 }: AccountManagerContextProps) => {
@@ -44,47 +44,39 @@ export const AccountManagerProvider = ({
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [isManageMode, setIsManageMode] = useState(false);
 
-  const primaryAccounts = Object.values(accounts.primary).flat();
   const isAccountSelectable = useCallback(
-    (accountId: string) => {
-      // Only allow removing primary accounts when the backend starts supporting it.
-      if (!featureFlags[FeatureGates.PRIMARY_ACCOUNT_REMOVAL]) {
-        return accountId in accounts.imported;
+    (account: Account) => {
+      if (
+        !featureFlags[FeatureGates.PRIMARY_ACCOUNT_REMOVAL] ||
+        !isPrimaryAccount(account)
+      ) {
+        return account.id in accounts.imported;
       }
 
-      const index = primaryAccounts.findIndex(({ id }) => id === accountId);
-      const account = accounts.primary[index];
+      const { id: accountId, walletId } = account;
 
-      // Account does not exist or is an imported account.
-      if (!account) {
-        // Imported accounts can always be removed.
-        return accountId in accounts.imported;
+      if (selectedAccounts.includes(accountId)) {
+        return true;
       }
 
-      // We do not allow removing the the very first account, but
-      // ask the user to remove the whole wallet instead.
-      if (index === 0) {
+      const walletPrimaryAccounts = accounts.primary[walletId];
+
+      if (!walletPrimaryAccounts) {
         return false;
       }
 
-      // Primary accounts can only be selected for removal if they're the last
-      // derived account for the given wallet...
-      // if (index === accounts.primary.length - 1) {
-      //   return true;
-      // }
+      const allAccountsCount = Object.values(accounts.primary).flat().length;
+      if (allAccountsCount - 1 === selectedAccounts.length) {
+        return false;
+      }
 
-      // or when all of the following accounts are already selected.
-      return primaryAccounts
-        .slice(index + 1)
+      return walletPrimaryAccounts
+        .slice(walletPrimaryAccounts.indexOf(account) + 1)
         .every(({ id }) => selectedAccounts.includes(id));
+
+      return false;
     },
-    [
-      featureFlags,
-      primaryAccounts,
-      accounts.primary,
-      accounts.imported,
-      selectedAccounts,
-    ]
+    [featureFlags, selectedAccounts, accounts.primary, accounts.imported]
   );
 
   const selectAccount = useCallback((accountId: string) => {

@@ -2036,4 +2036,21 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
     });
   });
+
+  describe('deletePrimaryWallets()', () => {
+    it('should call the secretsService with the right ids', async () => {
+      const ids = ['wallet-id', 'wallet-id-2'];
+      await walletService.deletePrimaryWallets(ids);
+      expect(secretsService.deletePrimaryWallets).toHaveBeenCalledWith(ids);
+    });
+  });
+  describe('getWalletType()', () => {
+    it('should call the secretsService with the right id', async () => {
+      const id = 'wallet-id';
+      await walletService.getWalletType(id);
+      expect(secretsService.getWalletAccountsSecretsById).toHaveBeenCalledWith(
+        id
+      );
+    });
+  });
 });

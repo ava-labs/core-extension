@@ -1093,6 +1093,10 @@ export class WalletService implements OnLock, OnUnlock {
     });
   }
 
+  async deletePrimaryWallets(ids: string[]) {
+    await this.secretService.deletePrimaryWallets(ids);
+  }
+
   private async parseWalletPolicyDetails() {
     const policyInfo = await this.secretService.getBtcWalletPolicyDetails();
 
@@ -1113,5 +1117,12 @@ export class WalletService implements OnLock, OnUnlock {
       hmac,
       policy,
     };
+  }
+
+  async getWalletType(id: string) {
+    const walletSecrets = await this.secretService.getWalletAccountsSecretsById(
+      id
+    );
+    return walletSecrets?.secretType;
   }
 }

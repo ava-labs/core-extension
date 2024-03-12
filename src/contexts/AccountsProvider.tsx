@@ -132,7 +132,7 @@ export function AccountsContextProvider({ children }: { children: any }) {
     (id: string) => {
       return accounts.active?.id === id;
     },
-    [accounts.active]
+    [accounts]
   );
 
   return (

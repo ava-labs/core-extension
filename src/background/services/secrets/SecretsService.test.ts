@@ -706,6 +706,39 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
   });
 
+  describe('deletePrimaryWallets()', () => {
+    beforeEach(() => {
+      mockMnemonicWallet();
+    });
+    it('should delete the provided wallet id', async () => {
+      const result = await secretsService.deletePrimaryWallets([
+        'active-wallet-id',
+      ]);
+      expect(result).toBe(1);
+      expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
+        wallets: [],
+      });
+    });
+    it('should delete nothing because the given id is not a primary wallet', async () => {
+      const result = await secretsService.deletePrimaryWallets([
+        'fake-wallet-id',
+      ]);
+      expect(result).toBe(0);
+      expect(storageService.save).toHaveBeenCalledWith(WALLET_STORAGE_KEY, {
+        wallets: [
+          {
+            derivationPath: DerivationPath.BIP44,
+            id: 'active-wallet-id',
+            mnemonic: 'mnemonic',
+            secretType: SecretType.Mnemonic,
+            xpub: 'xpub',
+            xpubXP: 'xpubXP',
+          },
+        ],
+      });
+    });
+  });
+
   describe('when a WalletConnect-imported account is active', () => {
     const secrets = {
       secretType: SecretType.WalletConnect,

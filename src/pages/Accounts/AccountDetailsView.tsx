@@ -118,7 +118,7 @@ export const AccountDetailsView = () => {
     return <NoAccountsFound origin={Origin.Url} />;
   }
 
-  const isDeletable = isAccountSelectable(accountId);
+  const isDeletable = isAccountSelectable(account);
   const address =
     network && isBitcoinNetwork(network)
       ? account?.addressBTC ?? account?.addressC
