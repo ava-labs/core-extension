@@ -1,9 +1,17 @@
+import { CubeSigner, SignerSession } from '@cubist-labs/cubesigner-sdk';
+
+import { SecretsService } from '../secrets/SecretsService';
+
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { MfaRequestData, MfaRequestType, SeedlessEvents } from './models';
+
+jest.mock('@cubist-labs/cubesigner-sdk');
 
 const tabId = 852;
 
 describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
+  const secretsService = jest.mocked<SecretsService>({} as any);
+
   beforeEach(() => {
     jest.resetAllMocks();
   });
@@ -12,7 +20,7 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
     let service: SeedlessMfaService;
 
     beforeEach(async () => {
-      service = new SeedlessMfaService();
+      service = new SeedlessMfaService(secretsService);
     });
 
     describe('when extension is locked', () => {
@@ -104,6 +112,31 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
         mfaId: '1234',
         tabId: 1337,
       });
+    });
+  });
+
+  describe('.getRecoveryMethods()', () => {
+    let session: SignerSession;
+    let service: SeedlessMfaService;
+
+    beforeEach(async () => {});
+
+    beforeEach(() => {
+      service = new SeedlessMfaService(secretsService);
+
+      session = {
+        user: jest.fn(),
+      } as any;
+
+      jest.mocked(CubeSigner.loadSignerSession).mockResolvedValueOnce(session);
+    });
+
+    it('fetches information about configured mfa methods', async () => {
+      jest.mocked(session.user).mockResolvedValueOnce({
+        mfa: [{ type: 'totp' }],
+      } as any);
+
+      expect(await service.getRecoveryMethods()).toEqual([{ type: 'totp' }]);
     });
   });
 });

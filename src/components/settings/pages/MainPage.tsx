@@ -29,9 +29,11 @@ import {
   Chip,
   ComputerIcon,
   Badge,
+  Box,
 } from '@avalabs/k2-components';
 import browser from 'webextension-polyfill';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
 
 export function MainPage({
   navigateTo,
@@ -47,6 +49,7 @@ export function MainPage({
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const { capture } = useAnalyticsContext();
+  const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
 
   const extensionVersion = browser.runtime.getManifest().version;
 
@@ -87,6 +90,44 @@ export function MainPage({
         </IconButton>
       </Stack>
       <List>
+        {isMfaSetupPromptVisible && (
+          <>
+            <ListItem sx={{ p: 0 }}>
+              <ListItemButton
+                sx={{
+                  justifyContent: 'space-between',
+                  py: 1,
+                  px: 2,
+                  m: 0,
+                  '&:hover': { borderRadius: 0 },
+                }}
+                data-testid="seedless-mfa-prompt-button"
+                onClick={() => navigateTo(SettingsPages.RECOVERY_METHODS)}
+              >
+                <ListItemIcon sx={{ justifyContent: 'center', minWidth: 12 }}>
+                  <Box
+                    sx={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                      backgroundColor: 'secondary.main',
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  sx={{ ml: 1, my: 0 }}
+                  primaryTypographyProps={{ variant: 'body2' }}
+                >
+                  {t('Finish Setting Up Recovery Methods')}
+                </ListItemText>
+                <ListItemIcon>
+                  <ChevronRightIcon size={24} />
+                </ListItemIcon>
+              </ListItemButton>
+            </ListItem>
+            <Divider />
+          </>
+        )}
         <ListItem sx={{ p: 0 }}>
           <ListItemButton
             sx={{
@@ -109,7 +150,7 @@ export function MainPage({
               <ComputerIcon size={24} />
             </ListItemIcon>
             <ListItemText
-              sx={{ ml: 1, my: 0, color: 'secondary.main' }}
+              sx={{ ml: 1, my: 0 }}
               primaryTypographyProps={{ variant: 'body2' }}
             >
               {t('Core Web')}

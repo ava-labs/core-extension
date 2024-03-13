@@ -10,8 +10,25 @@ export enum SeedlessEvents {
 }
 
 export enum MfaRequestType {
-  Totp = 'Totp',
-  Fido = 'Fido',
+  Totp = 'totp',
+  Fido = 'fido',
+}
+
+type RecoveryMethodTotp = {
+  type: MfaRequestType.Totp;
+};
+type RecoveryMethodFido = {
+  id: string;
+  name: string;
+  type: MfaRequestType.Fido;
+};
+
+export type RecoveryMethod = RecoveryMethodFido | RecoveryMethodTotp;
+
+export enum RecoveryMethodType {
+  Passkey = 'Passkey',
+  Yubikey = 'Yubikey',
+  Authenticator = 'Authenticator',
 }
 
 export type MfaRequestData = MfaTotpRequest | MfaFidoRequest;

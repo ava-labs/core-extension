@@ -29,6 +29,8 @@ import {
   ExportState,
   useSeedlessMnemonicExport,
 } from '@src/hooks/useSeedlessMnemonicExport';
+import { RecoveryMethods } from './pages/RecoveryMethods/RecoveryMethods';
+import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
 
 const AnimatedContainer = styled(Stack)`
   height: 100%;
@@ -96,6 +98,7 @@ export function SettingsMenu() {
   ]);
   const [isBackAnimation, setIsBackAnimation] = useState<boolean>(false);
   const { state: seedlessExportState } = useSeedlessMnemonicExport();
+  const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
 
   const showSeedlessExportDot =
     seedlessExportState === ExportState.ReadyToExport;
@@ -169,6 +172,9 @@ export function SettingsMenu() {
     case SettingsPages.EXPORT_RECOVERY_PHRASE:
       pageElement = <ExportRecoveryPhrase {...pageProps} />;
       break;
+    case SettingsPages.RECOVERY_METHODS:
+      pageElement = <RecoveryMethods {...pageProps} />;
+      break;
     case SettingsPages.CONNECTED_SITES:
       pageElement = <ConnectedSites {...pageProps} />;
       break;
@@ -221,7 +227,7 @@ export function SettingsMenu() {
               style: { minWidth: 0, width: 16, height: 16 },
             },
           }}
-          invisible={!showSeedlessExportDot}
+          invisible={!showSeedlessExportDot && !isMfaSetupPromptVisible}
         >
           <MenuIcon size={24} />
         </Badge>

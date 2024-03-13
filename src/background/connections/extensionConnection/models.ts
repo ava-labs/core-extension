@@ -133,6 +133,7 @@ export enum ExtensionRequest {
   SEEDLESS_GET_RECOVERY_PHRASE_EXPORT_STATE = 'seedless_get_recovery_phrase_export_state',
   SEEDLESS_COMPLETE_RECOVERY_PHRASE_EXPORT = 'seedless_complete_recovery_phrase_export',
   SEEDLESS_SUBMIT_MFA_RESPONSE = 'seedless_submit_mfa_response',
+  SEEDLESS_GET_RECOVERY_METHODS = 'seedless_get_recovery_methods',
 
   UNIFIED_BRIDGE_GET_FEE = 'unified_bridge_get_fee',
   UNIFIED_BRIDGE_ESTIMATE_GAS = 'unified_bridge_estimate_gas',

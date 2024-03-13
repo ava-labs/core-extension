@@ -128,6 +128,7 @@ import { EstimateGasForBridgeTxHandler } from '@src/background/services/bridge/h
 import { UnifiedBridgeEstimateGas } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeEstimateGas';
 import { ImportSeedPhraseHandler } from '@src/background/services/wallet/handlers/importSeedPhrase';
 import { ImportLedgerHandler } from '@src/background/services/wallet/handlers/importLedger';
+import { GetRecoveryMethodsHandler } from '@src/background/services/seedless/handlers/getRecoveryMethods';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -345,6 +346,10 @@ import { ImportLedgerHandler } from '@src/background/services/wallet/handlers/im
   {
     token: 'ExtensionRequestHandler',
     useToken: ImportLedgerHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetRecoveryMethodsHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}
