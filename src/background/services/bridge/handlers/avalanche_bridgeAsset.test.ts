@@ -38,6 +38,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     transferBtcAsset: jest.fn(),
     transferAsset: jest.fn(),
     createTransaction: jest.fn(),
+    estimateGas: jest.fn(),
     bridgeConfig: mockBridgeConfig,
   } as any;
 
@@ -289,6 +290,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     });
 
     it('returns expected result', async () => {
+      const estimatedGas = 12340n;
+
+      jest
+        .mocked(bridgeServiceMock.estimateGas)
+        .mockResolvedValue(estimatedGas);
+
       const currentBlockchain = Blockchain.AVALANCHE;
       const amountStr = '0.1';
 
@@ -305,6 +312,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
           currentBlockchain,
           amountStr,
           asset: evmAsset,
+          gasLimit: estimatedGas,
         },
         tabId: mockRequest.site.tabId,
       };
@@ -315,7 +323,10 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         ...mockRequest,
         result: DEFERRED_RESPONSE,
       });
-      expect(openApprovalWindowSpy).toBeCalledWith(expectedAction, `approve`);
+      expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        expectedAction,
+        `approve`
+      );
     });
 
     it('finds networks and token with balance for asset', async () => {
@@ -398,7 +409,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     });
   });
 
-  describe('handleAuthenticated', () => {
+  describe('handleUnauthenticated', () => {
     it('return expected error', () => {
       const mockRequest = {
         id: 852,
@@ -415,6 +426,54 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
   });
 
   describe('onActionApproved', () => {
+    it('uses custom gas settings if provided', async () => {
+      networkServiceMock.isMainnet.mockReturnValue(false);
+
+      const mockOnSuccess = jest.fn();
+      const mockOnError = jest.fn();
+      const amount = bnToBig(
+        stringToBN(
+          ethAction.displayData.amountStr,
+          ethAction.displayData.asset.denomination
+        ),
+        ethAction.displayData.asset.denomination
+      );
+
+      const action = {
+        ...ethAction,
+        displayData: {
+          ...ethAction.displayData,
+          gasSettings: {
+            maxFeePerGas: 1337,
+            maxPriorityFeePerGas: 42,
+          },
+        },
+      };
+
+      const now = Date.now();
+      jest.spyOn(Date, 'now').mockReturnValue(now);
+
+      await handler.onActionApproved(
+        action,
+        {},
+        mockOnSuccess,
+        mockOnError,
+        frontendTabId
+      );
+
+      expect(bridgeServiceMock.transferAsset).toHaveBeenCalledTimes(1);
+      expect(bridgeServiceMock.transferAsset).toHaveBeenCalledWith(
+        ethAction.displayData.currentBlockchain,
+        amount,
+        ethAction.displayData.asset,
+        {
+          maxFeePerGas: 1337,
+          maxPriorityFeePerGas: 42,
+        },
+        frontendTabId
+      );
+    });
+
     it('transferBtcAsset is called when network is Bitcoin', async () => {
       networkServiceMock.isMainnet.mockReturnValue(true);
 

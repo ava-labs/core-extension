@@ -1,4 +1,11 @@
-import { BridgeTransaction, WrapStatus } from '@avalabs/bridge-sdk';
+import {
+  Asset,
+  Blockchain,
+  BridgeTransaction,
+  WrapStatus,
+} from '@avalabs/bridge-sdk';
+import { Network } from '@avalabs/chains-sdk';
+import { TokenWithBalance } from '../balances/models';
 
 export enum TransferEventType {
   WRAP_STATUS = 'wrap_status',
@@ -57,4 +64,15 @@ export type CustomGasSettings = {
   maxFeePerGas?: bigint;
   maxPriorityFeePerGas?: bigint;
   gasLimit?: bigint;
+};
+
+export type BridgeActionDisplayData = {
+  currentBlockchain: Blockchain;
+  sourceNetwork: Network;
+  targetNetwork: Network;
+  amountStr: string;
+  asset: Asset;
+  token: TokenWithBalance;
+  gasLimit: bigint;
+  gasSettings?: CustomGasSettings;
 };

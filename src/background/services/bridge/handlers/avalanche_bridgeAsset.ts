@@ -9,6 +9,7 @@ import {
   getAssets,
   isNativeAsset,
 } from '@avalabs/bridge-sdk';
+import Big from 'big.js';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
@@ -22,10 +23,17 @@ import { blockchainToNetwork } from '@src/pages/Bridge/utils/blockchainConversio
 import { findTokenForAsset } from '@src/pages/Bridge/utils/findTokenForAsset';
 import { isBitcoinNetwork } from '../../network/utils/isBitcoinNetwork';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
+import { BridgeActionDisplayData } from '../models';
+
+type BridgeActionParams = [
+  currentBlockchain: Blockchain,
+  amountStr: string,
+  asset: Asset
+];
 
 // this is used for core web
 @injectable()
-export class AvalancheBridgeAsset extends DAppRequestHandler {
+export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams> {
   methods = [DAppProviderRequest.AVALANCHE_BRIDGE_ASSET];
 
   constructor(
@@ -39,7 +47,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
   }
 
   handleAuthenticated = async (request) => {
-    const params = request.params || [];
+    const params: BridgeActionParams = request.params || [];
     const currentBlockchain = params[0];
 
     if (!currentBlockchain) {
@@ -64,7 +72,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
     const assetSymbol =
       currentBlockchain === Blockchain.BITCOIN ? 'BTC' : params[2]?.symbol;
 
-    const asset: Asset | undefined = assetSymbol && assets?.[assetSymbol];
+    const asset: Asset | undefined =
+      assetSymbol && assets ? assets[assetSymbol] : undefined;
 
     if (!asset) {
       return {
@@ -141,7 +150,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
         )
       );
 
-    const action = {
+    const action: Action<BridgeActionDisplayData> = {
       ...request,
       displayData: {
         currentBlockchain,
@@ -150,6 +159,11 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
         amountStr,
         asset,
         token,
+        gasLimit: await this.bridgeService.estimateGas(
+          currentBlockchain,
+          new Big(amountStr),
+          asset
+        ),
       },
       tabId: request.site.tabId,
     };
@@ -189,7 +203,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
   };
 
   onActionApproved = async (
-    pendingAction: Action,
+    pendingAction: Action<BridgeActionDisplayData>,
     _result, // Unused
     onSuccess,
     onError,
@@ -259,8 +273,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler {
         const result = await this.bridgeService.transferAsset(
           currentBlockchain,
           amount,
-          asset,
-          undefined,
+          asset as Exclude<Asset, BitcoinConfigAsset>,
+          pendingAction.displayData.gasSettings,
           frontendTabId
         );
         if (result) {
