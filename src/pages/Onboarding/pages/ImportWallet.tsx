@@ -63,14 +63,17 @@ export const ImportWallet = () => {
   const onPhraseChanged = useCallback(() => {
     const phrase = [...words].join(' ');
 
+    if (wordsLength !== words.length) {
+      return;
+    }
+
     if (!isPhraseValid(phrase)) {
       setError(t('Invalid mnemonic phrase'));
-    } else {
-      setRecoveryPhrase(phrase);
-      setError('');
-      onNext();
+      return;
     }
-  }, [isPhraseValid, onNext, t, words]);
+    setRecoveryPhrase(phrase);
+    setError('');
+  }, [isPhraseValid, t, words, wordsLength]);
 
   useEffect(() => {
     onPhraseChanged();
@@ -106,13 +109,18 @@ export const ImportWallet = () => {
 
               setWords(newWords);
             }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                onNext();
+              }
+            }}
             value={words[i] || ''}
           />
         </Stack>
       );
     }
     return fields;
-  }, [words, wordsLength]);
+  }, [onNext, words, wordsLength]);
 
   return (
     <Stack
