@@ -1,5 +1,10 @@
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import { MfaRequestData, SeedlessEvents } from '../models';
+import {
+  MfaChoiceRequest,
+  MfaRequestData,
+  RecoveryMethod,
+  SeedlessEvents,
+} from '../models';
 
 export function isSeedlessTokenEvent(
   evt: ExtensionConnectionEvent
@@ -17,4 +22,16 @@ export function isSeedlessMfaEvent(
     evt?.name === SeedlessEvents.MfaRequest ||
     evt?.name === SeedlessEvents.MfaFailure
   );
+}
+
+export function isSeedlessMfaMethodsUpdatedEvent(
+  evt: ExtensionConnectionEvent
+): evt is ExtensionConnectionEvent<RecoveryMethod[]> {
+  return evt?.name === SeedlessEvents.MfaMethodsUpdated;
+}
+
+export function isSeedlessMfaChoiceRequest(
+  evt: ExtensionConnectionEvent
+): evt is ExtensionConnectionEvent<MfaChoiceRequest> {
+  return evt?.name === SeedlessEvents.MfaChoiceRequest;
 }

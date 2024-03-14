@@ -134,6 +134,9 @@ export enum ExtensionRequest {
   SEEDLESS_COMPLETE_RECOVERY_PHRASE_EXPORT = 'seedless_complete_recovery_phrase_export',
   SEEDLESS_SUBMIT_MFA_RESPONSE = 'seedless_submit_mfa_response',
   SEEDLESS_GET_RECOVERY_METHODS = 'seedless_get_recovery_methods',
+  SEEDLESS_INIT_AUTHENTICATOR_CHANGE = 'seedless_init_authenticator_change',
+  SEEDLESS_COMPLETE_AUTHENTICATOR_CHANGE = 'seedless_complete_authenticator_change',
+  SEEDLESS_CHOOSE_MFA_METHOD = 'seedless_choose_mfa_method',
 
   UNIFIED_BRIDGE_GET_FEE = 'unified_bridge_get_fee',
   UNIFIED_BRIDGE_ESTIMATE_GAS = 'unified_bridge_estimate_gas',

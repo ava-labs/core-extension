@@ -27,6 +27,7 @@ import { getSignerToken } from '@src/utils/seedless/getSignerToken';
 import { RecoveryMethodTypes } from '../pages/Seedless/models';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
 import { FIDOApiEndpoint, KeyType } from '@src/utils/seedless/fido/types';
+import { TOTP_ISSUER } from '@src/background/services/seedless/models';
 
 type OidcTokenGetter = () => Promise<string>;
 type GetAuthButtonCallbackOptions = {
@@ -34,8 +35,6 @@ type GetAuthButtonCallbackOptions = {
   getOidcToken: OidcTokenGetter;
   provider: SeedlessAuthProvider;
 };
-
-const TOTP_ISSUER: string = 'Core';
 
 const recoveryMethodToFidoKeyType = (method: RecoveryMethodTypes): KeyType => {
   switch (method) {

@@ -1,6 +1,6 @@
 import { Button, Stack, TextField, Typography } from '@avalabs/k2-components';
+import { AuthErrorCode } from '@src/background/services/seedless/models';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
-import { AuthErrorCode } from '@src/hooks/useSeedlessAuth';
 import { useTotpErrorMessage } from '@src/hooks/useTotpErrorMessage';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -63,9 +63,7 @@ export const TOTPChallenge = ({ error, isLoading, onSubmit }: Props) => {
           helperText={errorMessage}
         />
       </Stack>
-      <Stack
-        sx={{ flexGrow: 1, justifyContent: 'flex-end', pt: 3, pb: 1, px: 2 }}
-      >
+      <Stack sx={{ flexGrow: 1, justifyContent: 'flex-end', py: 3, px: 2 }}>
         <Button
           color="primary"
           size="large"

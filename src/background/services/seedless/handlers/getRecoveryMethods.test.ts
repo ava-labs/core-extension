@@ -5,6 +5,7 @@ import { SecretType } from '../../secrets/models';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 import { GetRecoveryMethodsHandler } from './getRecoveryMethods';
+import { MfaRequestType } from '../models';
 
 describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {
   const seedlessMfaService = jest.mocked<SeedlessMfaService>({
@@ -64,11 +65,11 @@ describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {
       secretType: SecretType.Seedless,
     } as any);
     seedlessMfaService.getRecoveryMethods.mockResolvedValueOnce([
-      { type: 'totp' },
+      { type: MfaRequestType.Totp },
     ]);
 
     const result = await handle();
 
-    expect(result.result).toEqual([{ type: 'totp' }]);
+    expect(result.result).toEqual([{ type: MfaRequestType.Totp }]);
   });
 });

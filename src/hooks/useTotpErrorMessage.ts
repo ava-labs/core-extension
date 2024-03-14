@@ -1,4 +1,4 @@
-import { AuthErrorCode } from '@src/hooks/useSeedlessAuth';
+import { AuthErrorCode } from '@src/background/services/seedless/models';
 import { useTranslation } from 'react-i18next';
 
 export const useTotpErrorMessage = (code?: AuthErrorCode): string => {

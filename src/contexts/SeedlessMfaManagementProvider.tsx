@@ -6,27 +6,42 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { filter } from 'rxjs';
 
-import { RecoveryMethod } from '@src/background/services/seedless/models';
-import { GetRecoveryMethodsHandler } from '@src/background/services/seedless/handlers/getRecoveryMethods';
+import { SecretType } from '@src/background/services/secrets/models';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import {
+  RecoveryMethod,
+  TotpResetChallenge,
+} from '@src/background/services/seedless/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { GetRecoveryMethodsHandler } from '@src/background/services/seedless/handlers/getRecoveryMethods';
+import { InitAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/initAuthenticatorChange';
+import { CompleteAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/completeAuthenticatorChange';
+import { isSeedlessMfaMethodsUpdatedEvent } from '@src/background/services/seedless/events/eventFilters';
+import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 
 import { useConnectionContext } from './ConnectionProvider';
 import { useWalletContext } from './WalletProvider';
-import { SecretType } from '@src/background/services/secrets/models';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 
 interface SeedlessMfaManagementContextProps {
   children?: React.ReactNode;
 }
 
 export const SeedlessMfaManagementContext = createContext<{
+  initAuthenticatorChange(): Promise<TotpResetChallenge>;
+  completeAuthenticatorChange(totpId: string, code: string): Promise<void>;
   isLoadingRecoveryMethods: boolean;
   recoveryMethods: RecoveryMethod[];
   isMfaSetupPromptVisible: boolean;
 }>({
+  initAuthenticatorChange() {
+    throw 'Not ready';
+  },
+  completeAuthenticatorChange() {
+    throw 'Not ready';
+  },
   isLoadingRecoveryMethods: false,
   recoveryMethods: [],
   isMfaSetupPromptVisible: false,
@@ -35,7 +50,7 @@ export const SeedlessMfaManagementContext = createContext<{
 export const SeedlessMfaManagementProvider = ({
   children,
 }: SeedlessMfaManagementContextProps) => {
-  const { request } = useConnectionContext();
+  const { events, request } = useConnectionContext();
   const { walletDetails } = useWalletContext();
   const { featureFlags } = useFeatureFlagContext();
   const areMfaSettingsAvailable =
@@ -88,17 +103,46 @@ export const SeedlessMfaManagementProvider = ({
     }
   }, [request]);
 
+  const initAuthenticatorChange = useCallback(
+    () =>
+      request<InitAuthenticatorChangeHandler>({
+        method: ExtensionRequest.SEEDLESS_INIT_AUTHENTICATOR_CHANGE,
+      }),
+    [request]
+  );
+
+  const completeAuthenticatorChange = useCallback(
+    (totpId: string, code: string) =>
+      request<CompleteAuthenticatorChangeHandler>({
+        method: ExtensionRequest.SEEDLESS_COMPLETE_AUTHENTICATOR_CHANGE,
+        params: [totpId, code],
+      }),
+    [request]
+  );
+
   useEffect(() => {
     if (walletDetails?.type !== SecretType.Seedless) {
       return;
     }
 
     loadRecoveryMethods();
-  }, [loadRecoveryMethods, walletDetails?.type]);
+
+    const eventsSubscription = events()
+      .pipe(filter(isSeedlessMfaMethodsUpdatedEvent))
+      .subscribe(async (event) => {
+        setRecoveryMethods(event.value);
+      });
+
+    return () => {
+      eventsSubscription.unsubscribe();
+    };
+  }, [events, loadRecoveryMethods, walletDetails?.type]);
 
   return (
     <SeedlessMfaManagementContext.Provider
       value={{
+        completeAuthenticatorChange,
+        initAuthenticatorChange,
         isLoadingRecoveryMethods,
         isMfaSetupPromptVisible,
         recoveryMethods,

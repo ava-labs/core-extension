@@ -20,6 +20,7 @@ import { OidcTokenGetter } from '@src/utils/seedless/getOidcTokenProvider';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
 import { FIDOApiEndpoint } from '@src/utils/seedless/fido/types';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { AuthErrorCode } from '@src/background/services/seedless/models';
 
 export enum AuthStep {
   NotInitialized,
@@ -27,23 +28,6 @@ export enum AuthStep {
   Complete,
   TotpChallenge,
   FidoChallenge,
-}
-
-export enum AuthErrorCode {
-  InvalidTotpCode = 'invalid-totp-code',
-  TotpVerificationError = 'totp-verification-error',
-  NoMfaDetails = 'no-mfa-details',
-  UnknownError = 'unknown-error',
-  UnsupportedProvider = 'unsupported-provider',
-  FailedToFetchOidcToken = 'failed-to-fetch-oidc-token',
-  MismatchingEmail = 'mismatching-email',
-  MissingUserId = 'missing-user-id',
-  MismatchingUserId = 'mismatching-user-id',
-  UnsupportedMfaMethod = 'unsupported-mfa-method',
-  FidoChallengeNotApproved = 'fido-challenge-not-approved',
-  FidoChallengeFailed = 'fido-challenge-failed',
-  NoMfaMethodsConfigured = 'no-mfa-methods-configured',
-  WrongMfaResponseAttempt = 'wrong-mfa-response-attempt',
 }
 
 export type UseSeedlessAuthOptions = {

@@ -3,11 +3,7 @@ import { Button, Stack } from '@avalabs/k2-components';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import {
-  AuthErrorCode,
-  AuthStep,
-  useSeedlessAuth,
-} from '@src/hooks/useSeedlessAuth';
+import { AuthStep, useSeedlessAuth } from '@src/hooks/useSeedlessAuth';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { UpdateSignerTokenHandler } from '@src/background/services/seedless/handlers/updateSignerToken';
 import { useWalletContext } from '@src/contexts/WalletProvider';
@@ -18,6 +14,7 @@ import { TOTPChallenge } from '@src/components/common/seedless/components/TOTPCh
 import { AuthenticationError } from '@src/components/common/seedless/components/AuthenticationError';
 import { WaitingForAuthentication } from '@src/components/common/seedless/components/WaitingForAuthentication';
 import { FIDOChallenge } from '@src/components/common/seedless/components/FIDOChallenge';
+import { AuthErrorCode } from '@src/background/services/seedless/models';
 
 const FATAL_ERRORS = [
   AuthErrorCode.NoMfaDetails,

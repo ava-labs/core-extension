@@ -129,6 +129,9 @@ import { UnifiedBridgeEstimateGas } from '@src/background/services/unifiedBridge
 import { ImportSeedPhraseHandler } from '@src/background/services/wallet/handlers/importSeedPhrase';
 import { ImportLedgerHandler } from '@src/background/services/wallet/handlers/importLedger';
 import { GetRecoveryMethodsHandler } from '@src/background/services/seedless/handlers/getRecoveryMethods';
+import { InitAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/initAuthenticatorChange';
+import { CompleteAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/completeAuthenticatorChange';
+import { ChooseMfaMethodHandler } from '@src/background/services/seedless/handlers/chooseMfaMethod';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -350,6 +353,18 @@ import { GetRecoveryMethodsHandler } from '@src/background/services/seedless/han
   {
     token: 'ExtensionRequestHandler',
     useToken: GetRecoveryMethodsHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: InitAuthenticatorChangeHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: CompleteAuthenticatorChangeHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: ChooseMfaMethodHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

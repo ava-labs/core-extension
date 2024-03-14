@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { AlertCircleIcon, Stack, Typography } from '@avalabs/k2-components';
-import { AuthErrorCode } from '@src/hooks/useSeedlessAuth';
+import { AuthErrorCode } from '@src/background/services/seedless/models';
 
 type Props = {
   error: AuthErrorCode;

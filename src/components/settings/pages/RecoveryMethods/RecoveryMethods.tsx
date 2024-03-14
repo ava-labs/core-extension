@@ -30,6 +30,9 @@ export function RecoveryMethods({
   const { isLoadingRecoveryMethods, recoveryMethods } = useSeedlessMfaManager();
 
   const hasMfaConfigured = recoveryMethods.length > 0;
+  const hasTotpConfigured = Boolean(
+    recoveryMethods.find(({ type }) => type === 'totp')
+  );
 
   const [screen, setScreen] = useState(RecoveryMethodScreen.List);
 
@@ -56,6 +59,7 @@ export function RecoveryMethods({
         {screen === RecoveryMethodScreen.Authenticator && (
           <AuthenticatorDetails
             onBackClick={() => setScreen(RecoveryMethodScreen.List)}
+            autoInitialize={!hasTotpConfigured}
           />
         )}
         {screen === RecoveryMethodScreen.AddNew && (
