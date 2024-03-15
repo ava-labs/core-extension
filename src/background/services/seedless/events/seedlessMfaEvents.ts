@@ -25,6 +25,24 @@ export class SeedlessMfaEvents implements ExtensionEventEmitter {
         value,
       });
     });
+    this.seedlessMfaService.addListener(
+      SeedlessEvents.MfaChoiceRequest,
+      (value) => {
+        this.eventEmitter.emit('update', {
+          name: SeedlessEvents.MfaChoiceRequest,
+          value,
+        });
+      }
+    );
+    this.seedlessMfaService.addListener(
+      SeedlessEvents.MfaMethodsUpdated,
+      (value) => {
+        this.eventEmitter.emit('update', {
+          name: SeedlessEvents.MfaMethodsUpdated,
+          value,
+        });
+      }
+    );
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {

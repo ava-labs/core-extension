@@ -27,6 +27,8 @@ import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedl
 import { AnalyticsConsent } from '@src/background/services/settings/models';
 import { useAnalyticsConsentCallbacks } from '@src/hooks/useAnalyticsConsentCallbacks';
 import { SecretType } from '@src/background/services/secrets/models';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 export function SecurityAndPrivacy({
   goBack,
@@ -41,6 +43,9 @@ export function SecurityAndPrivacy({
   const { capture, stopDataCollection } = useAnalyticsContext();
   const { request } = useConnectionContext();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const { featureFlags } = useFeatureFlagContext();
+  const areMfaSettingsAvailable =
+    featureFlags[FeatureGates.SEEEDLESS_MFA_SETTINGS];
 
   const logoutDialogContent = (
     <Stack sx={{ justifyContent: 'center' }}>
@@ -145,6 +150,33 @@ export function SecurityAndPrivacy({
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
+        {walletDetails?.type === SecretType.Seedless &&
+          areMfaSettingsAvailable && (
+            <ListItem sx={{ p: 0 }}>
+              <ListItemButton
+                sx={{
+                  justifyContent: 'space-between',
+                  py: 1,
+                  px: 2,
+                  m: 0,
+                  '&:hover': { borderRadius: 0 },
+                }}
+                data-testid="recovery-methods"
+                onClick={() => {
+                  capture('RecoveryMethodsClicked');
+                  navigateTo(SettingsPages.RECOVERY_METHODS);
+                }}
+              >
+                <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
+                  {t('Recovery Methods')}
+                </ListItemText>
+
+                <ListItemIcon>
+                  <ChevronRightIcon size={24} />
+                </ListItemIcon>
+              </ListItemButton>
+            </ListItem>
+          )}
         {walletDetails?.type === SecretType.Mnemonic && (
           <ListItem sx={{ p: 0 }}>
             <ListItemButton

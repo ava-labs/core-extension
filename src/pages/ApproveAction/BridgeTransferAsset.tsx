@@ -1,4 +1,5 @@
-import { Action } from '@src/background/services/actions/models';
+import { Action, ActionStatus } from '@src/background/services/actions/models';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography, Divider } from '@avalabs/k2-components';
 import {
@@ -11,15 +12,72 @@ import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { TokenAmount } from '@src/components/common/TokenAmount';
 import Big from 'big.js';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
+import {
+  BridgeActionDisplayData,
+  CustomGasSettings,
+} from '@src/background/services/bridge/models';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useApproveAction } from '@src/hooks/useApproveAction';
 
-export function BridgeTransferAsset({ action }: { action: Action }) {
+export function BridgeTransferAsset({
+  action,
+}: {
+  action: Action<BridgeActionDisplayData>;
+}) {
   const { t } = useTranslation();
   const { currencyFormatter } = useSettingsContext();
+  const { capture } = useAnalyticsContext();
+  const { network } = useNetworkContext();
+  const { networkFee } = useNetworkFeeContext();
+  const requestId = useGetRequestId();
+  const { updateAction } = useApproveAction(requestId);
   const { displayData } = action;
+  const [gasSettings, setGasSettings] = useState<CustomGasSettings>({});
+  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
+    GasFeeModifier.INSTANT
+  );
 
   const fiatValue: Big | undefined =
-    displayData.token?.priceUSD &&
-    new Big(displayData.amountStr).times(displayData.token.priceUSD);
+    typeof displayData.token?.priceUSD === 'number'
+      ? new Big(displayData.amountStr).times(displayData.token.priceUSD)
+      : undefined;
+
+  const onGasSettingsChanged = useCallback(
+    (newSettings: CustomGasSettings) => {
+      setGasSettings((currSettings) => {
+        const hasNewMaxFee =
+          typeof newSettings.maxFeePerGas !== 'undefined' &&
+          newSettings.maxFeePerGas !== currSettings.maxFeePerGas;
+
+        const hasNewMaxTip =
+          typeof newSettings.maxPriorityFeePerGas !== 'undefined' &&
+          newSettings.maxPriorityFeePerGas !==
+            currSettings.maxPriorityFeePerGas;
+
+        if (hasNewMaxFee || hasNewMaxTip) {
+          updateAction({
+            id: action.actionId,
+            status: ActionStatus.PENDING,
+            displayData: {
+              gasSettings: newSettings,
+            },
+          });
+
+          return {
+            ...currSettings,
+            ...newSettings,
+          };
+        }
+
+        return currSettings;
+      });
+    },
+    [setGasSettings, action.actionId, updateAction]
+  );
 
   return (
     <Stack sx={{ flexGrow: 1, width: 1 }}>
@@ -60,7 +118,7 @@ export function BridgeTransferAsset({ action }: { action: Action }) {
           </TxDetailsRow>
         </ApprovalSectionBody>
       </ApprovalSection>
-      <ApprovalSection sx={{ mt: 3 }}>
+      <ApprovalSection sx={{ my: 2 }}>
         <ApprovalSectionHeader
           label={t('Balance Change')}
         ></ApprovalSectionHeader>
@@ -76,6 +134,32 @@ export function BridgeTransferAsset({ action }: { action: Action }) {
           />
         </ApprovalSectionBody>
       </ApprovalSection>
+
+      <CustomFees
+        isLimitReadonly
+        maxFeePerGas={gasSettings.maxFeePerGas || 0n}
+        limit={Number(action.displayData.gasLimit) || 0}
+        onChange={(settings) => {
+          onGasSettingsChanged({
+            maxFeePerGas: settings.maxFeePerGas,
+            maxPriorityFeePerGas: settings.maxPriorityFeePerGas,
+            // do not allow changing gasLimit via the UI
+          });
+
+          if (settings.feeType) {
+            setSelectedGasFee(settings.feeType);
+          }
+        }}
+        onModifierChangeCallback={(modifier: GasFeeModifier | undefined) => {
+          if (modifier) {
+            setSelectedGasFee(modifier);
+          }
+          capture('BridgeFeeOptionChanged', { modifier });
+        }}
+        selectedGasFeeModifier={selectedGasFee}
+        network={network}
+        networkFee={networkFee}
+      />
     </Stack>
   );
 }

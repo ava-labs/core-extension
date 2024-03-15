@@ -64,9 +64,13 @@ export const AccountItem = forwardRef(
     const [isBalanceLoading, setIsBalanceLoading] = useState(false);
 
     const isActive = isActiveAccount(account.id);
+
     const isImportedAccount = account.type !== AccountType.PRIMARY;
     const isSelected = selectedAccounts.includes(account.id);
-    const isSelectable = isManageMode && isAccountSelectable(account.id);
+    const isSelectable =
+      walletType === SecretType.Seedless
+        ? false
+        : isManageMode && isAccountSelectable(account);
     const balanceTotalUSD = useBalanceTotalInCurrency(account);
     const isBitcoinActive = network && isBitcoinNetwork(network);
     const address = isBitcoinActive ? account.addressBTC : account.addressC;
@@ -116,16 +120,22 @@ export const AccountItem = forwardRef(
         return '';
       }
 
-      if (account.type === AccountType.PRIMARY && account.index === 0) {
-        return t(
-          'Removing the first account is not possible. Please remove the entire wallet instead.'
-        );
+      if (walletType === SecretType.Seedless) {
+        return t('You cannot delete a seedless account.');
+      }
+
+      if (
+        !isSelectable &&
+        account.type === AccountType.PRIMARY &&
+        account.index === 0
+      ) {
+        return t('Removing the last account is not possible.');
       }
 
       return t(
         'To remove this account, you must also remove all accounts that follow.'
       );
-    }, [account, isSelectable, t]);
+    }, [account, isSelectable, t, walletType]);
 
     const getBalance = useCallback(async () => {
       setIsBalanceLoading(true);

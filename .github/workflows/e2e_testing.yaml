@@ -9,7 +9,7 @@ on:
     types: [opened, reopened, 'synchronize', 'ready_for_review']
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-16-cores
     if: ${{ !github.event.pull_request.draft }}
     environment: alpha
     steps:
@@ -67,7 +67,7 @@ jobs:
   e2e:
     needs: build
     name: Run E2E Smoke Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-16-cores
     environment: e2e
     env:
       RUNNER: CI

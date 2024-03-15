@@ -1,25 +1,26 @@
-import {
-  Transaction,
-  TransactionType,
-} from '@src/background/services/transactions/models';
 import { ApproveSendDetails } from './ApproveSendDetails';
 import { ApproveTokenDetails } from './ApproveTokenDetails';
 import { ApproveNftDetails } from './ApproveNftDetails';
 import { ApproveNftCollectionDetails } from './ApproveNftCollectionDetails';
 import { ApproveContractCallDetails } from './ApproveContractCallDetails';
+import {
+  Transaction,
+  TransactionType,
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import { Action } from '@src/background/services/actions/models';
 
 export const TransactionActionInfo = ({
   transaction,
 }: {
-  transaction: Transaction | null;
+  transaction: Action<Transaction> | null;
 }) => {
-  if (!transaction?.displayValues?.actions.length) {
+  if (!transaction?.displayData?.displayValues?.actions.length) {
     return null;
   }
 
   return (
     <>
-      {transaction.displayValues.actions.map((action, index) => {
+      {transaction.displayData.displayValues.actions.map((action, index) => {
         switch (action.type) {
           case TransactionType.SEND_NFT:
           case TransactionType.SEND_TOKEN:

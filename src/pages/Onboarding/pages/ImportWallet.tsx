@@ -49,28 +49,38 @@ export const ImportWallet = () => {
     setWordsLength(selectedLength);
     setWords((currentWords) => {
       const cutWords = [...currentWords];
+      const limit =
+        selectedLength > currentWords.length
+          ? currentWords.length
+          : selectedLength;
+
       return [...currentWords.slice(0, selectedLength), ...cutWords].slice(
         0,
-        selectedLength
+        limit
       );
     });
   }, []);
 
-  const isPhraseValid = useCallback((phrase: string) => {
-    return phrase && isPhraseCorrect(phrase);
-  }, []);
+  const isPhraseValid = useCallback(
+    (phrase: string) => {
+      if (wordsLength !== words.length) {
+        return false;
+      }
+      return phrase && isPhraseCorrect(phrase);
+    },
+    [words.length, wordsLength]
+  );
 
   const onPhraseChanged = useCallback(() => {
     const phrase = [...words].join(' ');
 
     if (!isPhraseValid(phrase)) {
       setError(t('Invalid mnemonic phrase'));
-    } else {
-      setRecoveryPhrase(phrase);
-      setError('');
-      onNext();
+      return;
     }
-  }, [isPhraseValid, onNext, t, words]);
+    setRecoveryPhrase(phrase);
+    setError('');
+  }, [isPhraseValid, t, words]);
 
   useEffect(() => {
     onPhraseChanged();
@@ -106,13 +116,18 @@ export const ImportWallet = () => {
 
               setWords(newWords);
             }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                onNext();
+              }
+            }}
             value={words[i] || ''}
           />
         </Stack>
       );
     }
     return fields;
-  }, [words, wordsLength]);
+  }, [onNext, words, wordsLength]);
 
   return (
     <Stack

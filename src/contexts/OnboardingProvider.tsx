@@ -68,7 +68,7 @@ const OnboardingContext = createContext<{
   setSeedlessSignerToken: Dispatch<
     SetStateAction<SignerSessionData | undefined>
   >;
-  setUserEmail: Dispatch<SetStateAction<string | undefined>>;
+  setUserId: Dispatch<SetStateAction<string | undefined>>;
   resetStates: () => void;
   setIsNewAccount: Dispatch<SetStateAction<boolean>>;
   isNewAccount: boolean;
@@ -104,7 +104,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const [authProvider, setAuthProvider] = useState<SeedlessAuthProvider>();
 
-  const [userEmail, setUserEmail] = useState<string>();
+  const [userId, setUserId] = useState<string>();
 
   const { t } = useTranslation();
 
@@ -134,7 +134,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setOidcToken('');
     setSeedlessSignerToken(undefined);
     setWalletType(undefined);
-    setUserEmail(undefined);
+    setUserId(undefined);
     setIsNewAccount(false);
     setWalletName(undefined);
   }, []);
@@ -228,7 +228,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
             masterFingerprint,
             seedlessSignerToken,
             authProvider,
-            userEmail,
+            userId,
             walletName: walletName,
           },
         ],
@@ -262,7 +262,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       masterFingerprint,
       seedlessSignerToken,
       authProvider,
-      userEmail,
+      userId,
       walletName,
       capture,
       walletType,
@@ -299,7 +299,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         oidcToken,
         setSeedlessSignerToken,
         setAuthProvider,
-        setUserEmail,
+        setUserId,
         resetStates,
         setIsNewAccount,
         isNewAccount,

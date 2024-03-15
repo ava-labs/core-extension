@@ -17,6 +17,10 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { AddressDropdownList } from './AddressDropdownList';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import {
+  AddressDropdownListMyAccounts,
+  MyAccountContacts,
+} from './AddressDropdownListMyAccounts';
 
 interface ContactSelectProps {
   selectedContact?: Contact;
@@ -47,7 +51,9 @@ export const ContactSelect = ({
   const { t } = useTranslation();
   const identifyAddress = useIdentifyAddress();
   const { getTransactionHistory } = useWalletContext();
-  const { allAccounts } = useAccountsContext();
+  const {
+    accounts: { imported: importedAccounts, primary: primaryAccounts },
+  } = useAccountsContext();
   const { contacts } = useContactsContext();
   const { network } = useNetworkContext();
   const [selectedTab, setSelectedTab] = useState(TabId.ADDRESS_BOOK);
@@ -73,14 +79,46 @@ export const ContactSelect = ({
   }, [getTransactionHistory, identifyAddress]);
 
   const formattedAccounts = useMemo(() => {
-    return allAccounts.map(({ addressC, name, addressBTC }) => ({
-      id: '',
-      address: network?.vmName == NetworkVMType.EVM ? addressC : '',
-      addressBTC: network?.vmName === NetworkVMType.BITCOIN ? addressBTC : '',
-      name,
-      isKnown: true,
-    }));
-  }, [allAccounts, network]);
+    const formattedPrimary: MyAccountContacts = {};
+
+    Object.keys(primaryAccounts).forEach((walletId) => {
+      const walletAccount = primaryAccounts[walletId];
+      if (!walletAccount || !walletAccount.length) {
+        return;
+      }
+      const result = walletAccount.map(({ addressC, name, addressBTC }) => ({
+        id: '',
+        address: network?.vmName == NetworkVMType.EVM ? addressC : '',
+        addressBTC: network?.vmName === NetworkVMType.BITCOIN ? addressBTC : '',
+        name,
+        isKnown: true,
+      }));
+      formattedPrimary[walletId] = result;
+    });
+
+    const importedAccountToPrep = Object.values(importedAccounts);
+    if (!importedAccountToPrep.length) {
+      return formattedPrimary;
+    }
+
+    const formattedImported = importedAccountToPrep?.map(
+      ({ addressC, name, addressBTC }) => ({
+        id: '',
+        address: network?.vmName == NetworkVMType.EVM ? addressC : '',
+        addressBTC:
+          network?.vmName === NetworkVMType.BITCOIN && addressBTC
+            ? addressBTC
+            : '',
+        name,
+        isKnown: true,
+      })
+    );
+
+    return {
+      ...formattedPrimary,
+      ...(formattedImported.length ? { imported: formattedImported } : {}),
+    };
+  }, [importedAccounts, network?.vmName, primaryAccounts]);
 
   const formattedContacts = useMemo(() => {
     return contacts
@@ -184,7 +222,7 @@ export const ContactSelect = ({
             height: selectedTab === TabId.MY_ACCOUNTS ? '100%' : 0,
           }}
         >
-          <AddressDropdownList
+          <AddressDropdownListMyAccounts
             contacts={formattedAccounts}
             onChange={(contact) => onChange(contact, 'accounts')}
             selectedContact={selectedContact}

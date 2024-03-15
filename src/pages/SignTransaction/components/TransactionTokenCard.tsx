@@ -10,7 +10,7 @@ import { balanceToDisplayValue } from '@avalabs/utils-sdk';
 import {
   TransactionNft,
   TransactionToken,
-} from '@src/background/services/transactions/models';
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { useConvertedCurrencyFormatter } from '@src/pages/DeFi/hooks/useConvertedCurrencyFormatter';
 import { BN } from 'bn.js';
 import { useEffect, useRef, useState } from 'react';

@@ -4,9 +4,10 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { AccountsService } from '../AccountsService';
-import { Account, AccountType, WalletId } from '../models';
+import { Account, WalletId } from '../models';
 import { Action } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
+import { isPrimaryAccount } from '../utils/typeGuards';
 
 @injectable()
 export class AvalancheSelectAccountHandler extends DAppRequestHandler {
@@ -25,12 +26,29 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
     // until core web sends only IDs...
     const allAccounts = this.accountsService.getAccountList();
 
-    const selectedAccount = allAccounts.find((account) =>
-      account.type === AccountType.PRIMARY
+    const activeAccount = this.accountsService.activeAccount;
+
+    const activeWalletId = isPrimaryAccount(activeAccount)
+      ? activeAccount.walletId
+      : null;
+
+    const activeWalletAccounts = activeWalletId
+      ? allAccounts.filter(
+          (account) =>
+            isPrimaryAccount(account) && account.walletId === activeWalletId
+        )
+      : undefined;
+
+    const predicate = (account: Account) => {
+      const result = isPrimaryAccount(account)
         ? account.index === selectedIndexOrID ||
           account.id === selectedIndexOrID
-        : account.id === selectedIndexOrID
-    );
+        : account.id === selectedIndexOrID;
+
+      return result;
+    };
+    const selectedAccount =
+      activeWalletAccounts?.find(predicate) || allAccounts.find(predicate);
 
     if (!selectedAccount) {
       return {
@@ -59,12 +77,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
     };
   };
 
-  onActionApproved = async (
-    pendingAction: Action,
-    result,
-    onSuccess,
-    onError
-  ) => {
+  onActionApproved = async (pendingAction: Action, _, onSuccess, onError) => {
     try {
       const { selectedAccount } = pendingAction as Action & {
         selectedAccount: Account;

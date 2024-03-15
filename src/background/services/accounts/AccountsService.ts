@@ -20,7 +20,7 @@ import { NetworkService } from '../network/NetworkService';
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { PermissionsService } from '../permissions/PermissionsService';
 import { isProductionBuild } from '@src/utils/environment';
-import { DerivedAddresses } from '../secrets/models';
+import { DerivedAddresses, SecretType } from '../secrets/models';
 import { isPrimaryAccount } from './utils/typeGuards';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 
@@ -58,7 +58,6 @@ export class AccountsService implements OnLock, OnUnlock {
       } else if (accounts.active) {
         this._accounts.active = accounts.imported[accounts.active.id];
       }
-
       this.saveAccounts(this._accounts);
     }
 
@@ -483,49 +482,90 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   async deleteAccounts(ids: string[]) {
-    const newAccounts = ids.reduce(
-      (accounts, id) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { [id]: _, ...otherAccounts } = accounts;
-        return otherAccounts;
-      },
-      { ...this.accounts.imported }
-    );
-
     const { active } = this.accounts;
 
-    const mainPrimaryAcountWalletId = Object.keys(
-      this.accounts.primary
-    ).flat()[0];
+    const walletIds = Object.keys(this.accounts.primary);
+    const accountsCount = Object.values(this.accounts.primary).flat().length;
+    const importedAccountIds = ids.filter((id) => id in this.accounts.imported);
+    const primaryAccountIds = ids.filter(
+      (id) => !(id in this.accounts.imported)
+    );
 
-    try {
-      if (!mainPrimaryAcountWalletId) {
-        throw new Error();
-      }
-
-      const firstPrimaryAccount = this.accounts.primary[
-        mainPrimaryAcountWalletId
-      ]?.find(() => true);
-
-      if (!firstPrimaryAccount) {
-        throw new Error();
-      }
-
-      const newActive =
-        active && ids.includes(active.id)
-          ? firstPrimaryAccount
-          : this.accounts.active;
-
-      await this.walletService.deleteImportedWallets(ids);
-
-      this.accounts = {
-        ...this.accounts,
-        imported: newAccounts,
-        active: newActive,
-      };
-    } catch (e) {
-      throw new Error('There is no account to set as active');
+    if (accountsCount === primaryAccountIds.length) {
+      throw new Error('You cannot delete all of your primary accounts');
     }
+
+    let newPrimaryAccounts: Record<WalletId, PrimaryAccount[]> = {};
+
+    for (const i in walletIds) {
+      const walletId = walletIds[i];
+      if (walletId === undefined) {
+        continue;
+      }
+
+      const walletAccounts = this.accounts.primary[walletId];
+      if (!walletAccounts) {
+        continue;
+      }
+      const walletType = await this.walletService.getWalletType(walletId);
+
+      const filteredWalletAccounts = walletAccounts.filter((account) => {
+        return !primaryAccountIds.includes(account.id);
+      });
+
+      if (
+        filteredWalletAccounts.length !== walletAccounts.length &&
+        walletType === SecretType.Seedless
+      ) {
+        throw new Error('You cannot delete a seedless account!');
+      }
+
+      if (!filteredWalletAccounts.length && walletIds.length > 1) {
+        await this.walletService.deletePrimaryWallets([walletId]);
+        continue;
+      }
+
+      newPrimaryAccounts = {
+        ...newPrimaryAccounts,
+        [walletId]: filteredWalletAccounts,
+      };
+    }
+
+    let newImportedAccounts: Record<string, ImportedAccount> = {};
+    for (const [walletId, values] of Object.entries(this.accounts.imported)) {
+      if (!importedAccountIds.includes(walletId)) {
+        newImportedAccounts = {
+          ...newImportedAccounts,
+          [walletId]: values,
+        };
+      }
+    }
+
+    const activeWalletid = isPrimaryAccount(active) ? active.walletId : null;
+    const [activeWalletFirstAccount] =
+      (activeWalletid && newPrimaryAccounts[activeWalletid]) || [];
+
+    const firstPrimaryAccount =
+      activeWalletFirstAccount || Object.values(newPrimaryAccounts).flat()[0];
+
+    const newActiveAccount =
+      active && ids.includes(active.id)
+        ? firstPrimaryAccount
+        : this.accounts.active;
+
+    if (!newActiveAccount) {
+      throw new Error('There is no new active account!');
+    }
+
+    await this.walletService.deleteImportedWallets(ids);
+
+    this.accounts = {
+      primary: newPrimaryAccounts,
+      imported: newImportedAccounts,
+      active: newActiveAccount,
+    };
+
+    return ids.length;
   }
 
   addListener<T = unknown>(event: AccountsEvents, callback: (data: T) => void) {

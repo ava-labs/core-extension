@@ -3,7 +3,6 @@ import { SettingsPageProps, SettingsPages } from '../models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Logo } from '@src/components/icons/Logo';
 import { BrandName } from '@src/components/icons/BrandName';
-import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@src/hooks/useLanguages';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
@@ -30,9 +29,11 @@ import {
   Chip,
   ComputerIcon,
   Badge,
+  Box,
 } from '@avalabs/k2-components';
 import browser from 'webextension-polyfill';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
 
 export function MainPage({
   navigateTo,
@@ -48,6 +49,7 @@ export function MainPage({
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const { capture } = useAnalyticsContext();
+  const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
 
   const extensionVersion = browser.runtime.getManifest().version;
 
@@ -78,9 +80,6 @@ export function MainPage({
         <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
           <Logo height={29} />
           <BrandName height={17} margin="0 0 0 8px" />
-          <Stack sx={{ width: 'auto', ml: 2 }}>
-            <BetaLabel />
-          </Stack>
         </Stack>
         <IconButton
           data-testid="close-settings-menu-button"
@@ -91,6 +90,44 @@ export function MainPage({
         </IconButton>
       </Stack>
       <List>
+        {isMfaSetupPromptVisible && (
+          <>
+            <ListItem sx={{ p: 0 }}>
+              <ListItemButton
+                sx={{
+                  justifyContent: 'space-between',
+                  py: 1,
+                  px: 2,
+                  m: 0,
+                  '&:hover': { borderRadius: 0 },
+                }}
+                data-testid="seedless-mfa-prompt-button"
+                onClick={() => navigateTo(SettingsPages.RECOVERY_METHODS)}
+              >
+                <ListItemIcon sx={{ justifyContent: 'center', minWidth: 12 }}>
+                  <Box
+                    sx={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                      backgroundColor: 'secondary.main',
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  sx={{ ml: 1, my: 0 }}
+                  primaryTypographyProps={{ variant: 'body2' }}
+                >
+                  {t('Finish Setting Up Recovery Methods')}
+                </ListItemText>
+                <ListItemIcon>
+                  <ChevronRightIcon size={24} />
+                </ListItemIcon>
+              </ListItemButton>
+            </ListItem>
+            <Divider />
+          </>
+        )}
         <ListItem sx={{ p: 0 }}>
           <ListItemButton
             sx={{
@@ -113,7 +150,7 @@ export function MainPage({
               <ComputerIcon size={24} />
             </ListItemIcon>
             <ListItemText
-              sx={{ ml: 1, my: 0, color: 'secondary.main' }}
+              sx={{ ml: 1, my: 0 }}
               primaryTypographyProps={{ variant: 'body2' }}
             >
               {t('Core Web')}

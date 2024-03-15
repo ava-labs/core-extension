@@ -19,6 +19,7 @@ import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
 import { isProductionBuild } from '@src/utils/environment';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
+import { SecretType } from '../secrets/models';
 
 jest.mock('../storage/StorageService');
 jest.mock('../wallet/WalletService');
@@ -1024,6 +1025,7 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('changes the active account if deleted', async () => {
       const mockedAccounts = mockAccounts(true, false, '0x1');
+
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       const eventListener = jest.fn();
 
@@ -1047,6 +1049,41 @@ describe('background/services/accounts/AccountsService', () => {
       expect(result).toStrictEqual(expectedAccounts);
       expect(eventListener).toHaveBeenCalledTimes(1);
       expect(eventListener).toHaveBeenCalledWith(expectedAccounts);
+    });
+
+    it('should throw an error because of all the primary accounts cannot be deleted', async () => {
+      const mockedAccounts = mockAccounts(true);
+      (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
+      await accountsService.onUnlock();
+      expect(
+        async () =>
+          await accountsService.deleteAccounts(['uuid1', 'uuid2', 'uuid3'])
+      ).rejects.toThrow('You cannot delete all of your primary accounts');
+    });
+
+    it('should throw an error because a seedles account cannot be deleted', async () => {
+      const mockedAccounts = mockAccounts(true);
+      (walletService.getWalletType as jest.Mock).mockReturnValue(
+        SecretType.Seedless
+      );
+
+      console.log('mockedAccounts: ', mockedAccounts);
+      (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
+      await accountsService.onUnlock();
+      expect(
+        async () => await accountsService.deleteAccounts(['uuid1'])
+      ).rejects.toThrow('You cannot delete a seedless account!');
+    });
+    it('should delete a primary account', async () => {
+      const mockedAccounts = mockAccounts(true);
+      (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
+      await accountsService.onUnlock();
+      const result = await accountsService.deleteAccounts(['uuid1']);
+      expect(result).toBe(1);
+
+      const accounts = accountsService.getAccounts();
+      const primaryAccounts = accounts.primary[walletId];
+      expect(primaryAccounts && primaryAccounts.length).toBe(1);
     });
   });
 });

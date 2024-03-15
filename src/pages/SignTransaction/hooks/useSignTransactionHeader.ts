@@ -1,10 +1,12 @@
 import {
   Transaction,
   TransactionType,
-} from '@src/background/services/transactions/models';
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { useTranslation } from 'react-i18next';
 
-export const useSignTransactionHeader = (transaction: Transaction | null) => {
+export const useSignTransactionHeader = (
+  transaction: Transaction | undefined
+) => {
   const { t } = useTranslation();
 
   const transactionTypes = transaction?.displayValues?.actions.map(
@@ -36,12 +38,11 @@ export const useSignTransactionHeader = (transaction: Transaction | null) => {
       return t('Cancel Transaction Approval');
     case TransactionType.DEPLOY_CONTRACT:
       return t('Contract Deployment Approval');
-    case TransactionType.CALL:
-      return t('Transaction Approval');
     case TransactionType.ADD_LIQUIDITY:
       return t('Pool Approval');
     case TransactionType.SWAP:
       return t('Swap Approval');
+    case TransactionType.CALL:
     default:
       return t('Transaction Approval');
   }

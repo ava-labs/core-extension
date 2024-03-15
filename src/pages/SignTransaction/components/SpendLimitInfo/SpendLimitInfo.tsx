@@ -1,20 +1,21 @@
 import {
   Transaction,
   TransactionType,
-} from '@src/background/services/transactions/models';
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { TokenSpendLimit } from './TokenSpendLimit';
 import { NftSpendLimit } from './NftSpendLimit';
 import { NftCollectionSpendLimit } from './NftCollectionSpendLimit';
+import { Action } from '@src/background/services/actions/models';
 
 export const SpendLimitInfo = ({
   transaction,
   updateTransaction,
 }: {
-  transaction: Transaction | null;
-  updateTransaction: (update: any) => Promise<string | Transaction>;
+  transaction: Action<Transaction> | null;
+  updateTransaction: (update: any) => Promise<true>;
 }) => {
-  const approveTransactions = transaction?.displayValues?.actions.filter(
-    (action) =>
+  const approveTransactions =
+    transaction?.displayData?.displayValues?.actions.filter((action) =>
       [
         TransactionType.APPROVE_TOKEN,
         TransactionType.REVOKE_TOKEN_APPROVAL,
@@ -23,7 +24,7 @@ export const SpendLimitInfo = ({
         TransactionType.APPROVE_NFT_COLLECTION,
         TransactionType.REVOKE_NFT_COLLECTION_APPROVAL,
       ].includes(action.type)
-  );
+    );
 
   if (!approveTransactions?.length || !transaction) {
     return null;

@@ -216,6 +216,8 @@ describe('background/services/wallet/WalletService.ts', () => {
       pubKeys: [{ evm: 'evm', xp: 'xp' }],
       walletId: WALLET_ID,
       name: 'seedles',
+      userId: '123',
+      userEmail: 'a@b.c',
       ...additionalData,
       account: {
         type: AccountType.PRIMARY,
@@ -233,6 +235,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         name: data.name,
         authProvider: data.authProvider,
         userEmail: data.userEmail,
+        userId: data.userId,
       },
     ]);
 
@@ -2030,6 +2033,23 @@ describe('background/services/wallet/WalletService.ts', () => {
         getDefaultFujiProviderMock(),
         'X',
         false
+      );
+    });
+  });
+
+  describe('deletePrimaryWallets()', () => {
+    it('should call the secretsService with the right ids', async () => {
+      const ids = ['wallet-id', 'wallet-id-2'];
+      await walletService.deletePrimaryWallets(ids);
+      expect(secretsService.deletePrimaryWallets).toHaveBeenCalledWith(ids);
+    });
+  });
+  describe('getWalletType()', () => {
+    it('should call the secretsService with the right id', async () => {
+      const id = 'wallet-id';
+      await walletService.getWalletType(id);
+      expect(secretsService.getWalletAccountsSecretsById).toHaveBeenCalledWith(
+        id
       );
     });
   });

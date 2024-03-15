@@ -1,7 +1,7 @@
 import Big from 'big.js';
-import { TransactionToken } from '../../transactions/models';
 import { DebankTokenItem } from '../models';
 import { bigToBigInt } from '@avalabs/utils-sdk';
+import { TransactionToken } from '../../wallet/handlers/eth_sendTransaction/models';
 
 export const mapTokenItemToTransactionToken = (
   t: DebankTokenItem

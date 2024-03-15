@@ -48,10 +48,10 @@ export class BalancesServiceEVM {
       balance,
       balanceDisplayValue: balanceToDisplayValue(balance, 18),
       priceUSD: tokenPrice,
-      balanceUSD: big.mul(tokenPrice ?? 0).toNumber(),
-      balanceUsdDisplayValue: tokenPrice
-        ? big.mul(tokenPrice).toFixed(2)
-        : undefined,
+      balanceUSD:
+        tokenPrice === undefined ? undefined : big.mul(tokenPrice).toNumber(),
+      balanceUsdDisplayValue:
+        tokenPrice === undefined ? undefined : big.mul(tokenPrice).toFixed(2),
     };
   }
 
@@ -112,7 +112,9 @@ export class BalancesServiceEVM {
 
       const balanceNum = bnToBig(token.balance, token.decimals);
       const balanceUSD =
-        priceUSD && balanceNum ? balanceNum.times(priceUSD).toNumber() : 0;
+        priceUSD === undefined
+          ? undefined
+          : balanceNum.times(priceUSD).toNumber();
       const balanceDisplayValue = balanceToDisplayValue(
         token.balance,
         token.decimals
@@ -126,11 +128,7 @@ export class BalancesServiceEVM {
           balanceDisplayValue,
           priceUSD,
           balanceUSD,
-          balanceUsdDisplayValue: priceUSD
-            ? isNaN(balanceUSD)
-              ? ''
-              : balanceUSD.toFixed(2)
-            : '0',
+          balanceUsdDisplayValue: balanceUSD?.toFixed(2),
         },
       };
     }, {} as Record<string, TokenWithBalance>);

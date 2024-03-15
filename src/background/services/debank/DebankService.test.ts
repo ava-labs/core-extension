@@ -11,7 +11,7 @@ import fixture_userAllComplexProtocolList from './fixtures/user_all_complex_prot
 import {
   EthSendTransactionParamsWithGas,
   TransactionType,
-} from '../transactions/models';
+} from '../wallet/handlers/eth_sendTransaction/models';
 import { debankActionsToTransactionActions } from './utils/debankActionsToTransactionActions';
 
 jest.mock('../featureFlags/FeatureFlagService');

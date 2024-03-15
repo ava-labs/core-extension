@@ -34,7 +34,6 @@ export const AccountListPrimary = ({
     accounts: { active },
   } = useAccountsContext();
   const { walletDetails: activeWalletDetails, wallets } = useWalletContext();
-
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const activeAccountRef = useRef<HTMLDivElement>(null);
 
@@ -84,6 +83,7 @@ export const AccountListPrimary = ({
                     ref={active?.id === account.id ? activeAccountRef : null}
                     account={account}
                     selectionMode={selectionMode}
+                    walletType={walletDetails?.type}
                   />
                 ))}
               </Stack>

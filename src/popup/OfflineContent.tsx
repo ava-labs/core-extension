@@ -1,6 +1,5 @@
 import { Stack, Typography, styled } from '@avalabs/k2-components';
 
-import { BetaLabel } from '@src/components/icons/BetaLabel';
 import { BrandName } from '@src/components/icons/BrandName';
 import { Logo } from '@src/components/icons/Logo';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
@@ -43,9 +42,6 @@ export function OfflineContent({ message }) {
       </AnimatedLogo>
       <Stack sx={{ alignItems: 'end' }}>
         <BrandName height={42} />
-        <Stack sx={{ my: 0.75 }}>
-          <BetaLabel />
-        </Stack>
       </Stack>
       {message && (
         <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>

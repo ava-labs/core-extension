@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { TokenList } from './TokenList';
 import { usePendingBridgeTransactions } from '@src/pages/Bridge/hooks/usePendingBridgeTransactions';
 import {
+  AlertTriangleIcon,
   Badge,
   Box,
   ChevronLeftIcon,
@@ -10,6 +11,7 @@ import {
   Tab,
   TabPanel,
   Tabs,
+  Tooltip,
   Typography,
   styled,
 } from '@avalabs/k2-components';
@@ -18,10 +20,11 @@ import { TokenIcon } from '@src/components/common/TokenIcon';
 import { getNetworkBalance } from './NetworkWidget/NetworksWidget';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { WalletRecentTxs } from '@src/pages/Wallet/WalletRecentTxs';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useTokenPriceMissing } from '@src/hooks/useTokenPriceIsMissing';
 
 const LogoContainer = styled('div')`
   margin: 0 15px 0 8px;
@@ -41,6 +44,7 @@ export function Assets() {
   const activeNetworkAssetList = useTokensWithBalances();
   const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
   const { capture } = useAnalyticsContext();
+  const { isPriceMissingFromNetwork } = useTokenPriceMissing();
 
   const [activeTab, setActiveTab] = useState<number>(AssetsTabs.TOKENS);
 
@@ -52,6 +56,13 @@ export function Assets() {
       capture('AssetsPageActivityClicked');
     }
   }
+
+  const missingSomeTokenPrices = useMemo(() => {
+    if (!network?.chainId) {
+      return;
+    }
+    return isPriceMissingFromNetwork(network?.chainId);
+  }, [isPriceMissingFromNetwork, network]);
 
   return (
     <Stack sx={{ flexGrow: 1 }}>
@@ -82,9 +93,24 @@ export function Assets() {
           </LogoContainer>
           <Stack>
             <Typography variant="h4">{network?.chainName}</Typography>
-            <Typography variant="body1">
-              {currencyFormatter(activeNetworkBalance)}
-            </Typography>
+            <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
+              {missingSomeTokenPrices && (
+                <Tooltip
+                  title={t(
+                    'The prices of some tokens are missing. The balance might not be accurate currently.'
+                  )}
+                  placement="bottom"
+                >
+                  <AlertTriangleIcon
+                    size={16}
+                    sx={{ color: 'warning.main', mr: 1 }}
+                  />
+                </Tooltip>
+              )}
+              <Typography variant="body1">
+                {currencyFormatter(activeNetworkBalance)}
+              </Typography>
+            </Stack>
           </Stack>
         </Stack>
       </Stack>

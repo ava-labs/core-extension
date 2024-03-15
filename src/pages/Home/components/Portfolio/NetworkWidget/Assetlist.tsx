@@ -149,7 +149,7 @@ export function Assetlist({ assetList }: AssetListProps) {
                   </BalanceField>
                 </>
               )}
-              {token.balanceUSD === 0 && (
+              {!token.balanceUSD && (
                 <Typography variant="caption">
                   {token.balance && token.unconfirmedBalance
                     ? balanceToDisplayValue(

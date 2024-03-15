@@ -27,6 +27,7 @@ import { getSignerToken } from '@src/utils/seedless/getSignerToken';
 import { RecoveryMethodTypes } from '../pages/Seedless/models';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
 import { FIDOApiEndpoint, KeyType } from '@src/utils/seedless/fido/types';
+import { TOTP_ISSUER } from '@src/background/services/seedless/models';
 
 type OidcTokenGetter = () => Promise<string>;
 type GetAuthButtonCallbackOptions = {
@@ -34,8 +35,6 @@ type GetAuthButtonCallbackOptions = {
   getOidcToken: OidcTokenGetter;
   provider: SeedlessAuthProvider;
 };
-
-const TOTP_ISSUER: string = 'Core';
 
 const recoveryMethodToFidoKeyType = (method: RecoveryMethodTypes): KeyType => {
   switch (method) {
@@ -56,7 +55,7 @@ export function useSeedlessActions() {
     setOidcToken,
     setSeedlessSignerToken,
     oidcToken,
-    setUserEmail,
+    setUserId,
     setIsNewAccount,
   } = useOnboardingContext();
   const history = useHistory();
@@ -85,7 +84,7 @@ export function useSeedlessActions() {
           return;
         }
       }
-      setUserEmail(identity.email);
+      setUserId(identity.identity?.sub);
 
       if ((identity.user_info?.configured_mfa ?? []).length === 0) {
         history.push(OnboardingURLs.RECOVERY_METHODS);
@@ -93,7 +92,7 @@ export function useSeedlessActions() {
         history.push(OnboardingURLs.RECOVERY_METHODS_LOGIN);
       }
     },
-    [setOidcToken, setUserEmail, setIsNewAccount, t, history]
+    [setOidcToken, setUserId, setIsNewAccount, t, history]
   );
 
   const signIn = useCallback(

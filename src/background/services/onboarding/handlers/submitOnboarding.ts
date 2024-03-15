@@ -39,7 +39,7 @@ type HandlerType = ExtensionRequestHandler<
       masterFingerprint: string | undefined;
       seedlessSignerToken: SignerSessionData | undefined;
       authProvider: SeedlessAuthProvider | undefined;
-      userEmail: string | undefined;
+      userId: string | undefined;
       walletName: string | undefined;
     }
   ]
@@ -73,7 +73,7 @@ export class SubmitOnboardingHandler implements HandlerType {
       masterFingerprint,
       seedlessSignerToken,
       authProvider,
-      userEmail,
+      userId,
       walletName,
     } = (request.params ?? [])[0] ?? {};
 
@@ -108,10 +108,10 @@ export class SubmitOnboardingHandler implements HandlerType {
       };
     }
 
-    if (seedlessSignerToken && !userEmail) {
+    if (seedlessSignerToken && !userId) {
       return {
         ...request,
-        error: 'User email is required to create a seedless wallet',
+        error: 'User ID is required to create a seedless wallet',
       };
     }
 
@@ -143,7 +143,7 @@ export class SubmitOnboardingHandler implements HandlerType {
 
     let walletId = '';
     let secretType: SecretType | null = null;
-    if (!walletId && seedlessSignerToken && userEmail) {
+    if (!walletId && seedlessSignerToken && userId) {
       secretType = SecretType.Seedless;
       const memorySessionStorage = new MemorySessionStorage(
         seedlessSignerToken
@@ -157,7 +157,7 @@ export class SubmitOnboardingHandler implements HandlerType {
         secretType,
         pubKeys: (await seedlessWallet.getPublicKeys()) ?? [],
         seedlessSignerToken: await memorySessionStorage.retrieve(),
-        userEmail,
+        userId,
         authProvider: authProvider ?? SeedlessAuthProvider.Google,
         derivationPath: DerivationPath.BIP44,
         name: walletName,

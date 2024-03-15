@@ -14,8 +14,8 @@ import { Trans, useTranslation } from 'react-i18next';
 import { BNInput } from '@src/components/common/BNInput';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { DomainMetadata } from '@src/background/models';
-import { TransactionToken } from '@src/background/services/transactions/models';
 import { Limit, SpendLimit } from './TokenSpendLimit';
+import { TransactionToken } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 
 const SpendLimitOption = ({ label, value, checked, ...props }) => (
   <FormControlLabel

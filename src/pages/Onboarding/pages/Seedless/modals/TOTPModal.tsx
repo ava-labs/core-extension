@@ -46,7 +46,7 @@ export function TOTPModal({ onFinish, onCancel }: TOTPModalProps) {
 
   useEffect(() => {
     if (step === AuthStep.NotInitialized) {
-      authenticate();
+      authenticate({});
     }
   }, [authenticate, step]);
 

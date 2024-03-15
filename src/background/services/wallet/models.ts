@@ -92,6 +92,7 @@ export type WalletDetails =
       derivationPath: DerivationPath;
       authProvider?: never;
       userEmail?: never;
+      userId?: never;
     }
   | {
       id: string;
@@ -99,7 +100,8 @@ export type WalletDetails =
       name?: string;
       derivationPath: DerivationPath;
       authProvider: SeedlessAuthProvider;
-      userEmail: string;
+      userEmail?: string;
+      userId?: string;
     };
 
 export type WalletsInfo = {

@@ -10,6 +10,7 @@ import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
+import { useTokenPriceMissing } from '@src/hooks/useTokenPriceIsMissing';
 import { useTranslation } from 'react-i18next';
 
 export function WalletBalances() {
@@ -21,6 +22,8 @@ export function WalletBalances() {
   const { isTokensCached, totalBalance } = useBalancesContext();
 
   const { t } = useTranslation();
+  const { favoriteNetworksMissingPrice, activeNetworkMissingPrice } =
+    useTokenPriceMissing();
 
   const balanceTotalUSD = useBalanceTotalInCurrency(activeAccount);
 
@@ -65,6 +68,20 @@ export function WalletBalances() {
               />
             </Tooltip>
           )}
+          {!isTokensCached &&
+            (favoriteNetworksMissingPrice || activeNetworkMissingPrice) && (
+              <Tooltip
+                title={t(
+                  'The prices of some tokens are missing. The balance might not be accurate currently.'
+                )}
+                placement="bottom"
+              >
+                <AlertTriangleIcon
+                  size={19}
+                  sx={{ color: 'warning.main', mr: 1 }}
+                />
+              </Tooltip>
+            )}
           <Typography
             data-testid="wallet-balance"
             variant="h3"

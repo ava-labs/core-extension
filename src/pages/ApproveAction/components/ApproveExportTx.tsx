@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { bigToLocaleString } from '@avalabs/utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Avalanche } from '@avalabs/wallets-sdk';
-import { AvalancheChainStrings } from '@src/background/services/transactions/models';
+import { AvalancheChainStrings } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { bigintToBig } from '@src/utils/bigintToBig';
 
 export function ExportTxView({

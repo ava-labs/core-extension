@@ -7,8 +7,7 @@ import {
 import {
   Transaction,
   TransactionToken,
-  txParamsUpdate,
-} from '@src/background/services/transactions/models';
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { useCallback, useState } from 'react';
 import { CustomSpendLimit } from './CustomSpendLimit';
 import { TransactionTokenCard } from '../TransactionTokenCard';
@@ -16,6 +15,11 @@ import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { MaxUint256 } from 'ethers';
 import Web3 from 'web3';
 import { TokenIcon } from '@src/components/common/TokenIcon';
+import {
+  Action,
+  ActionStatus,
+  ActionUpdate,
+} from '@src/background/services/actions/models';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',
@@ -44,8 +48,8 @@ export function TokenSpendLimit({
     };
   };
   token: TransactionToken;
-  transaction: Transaction;
-  updateTransaction: (update: txParamsUpdate) => Promise<string | Transaction>;
+  transaction: Action<Transaction>;
+  updateTransaction: (update: ActionUpdate<Transaction>) => Promise<boolean>;
 }) {
   const { t } = useTranslation();
   const [showCustomSpendLimit, setShowCustomSpendLimit] = useState(false);
@@ -80,8 +84,15 @@ export function TokenSpendLimit({
         contract.methods.approve(spender.address, limitAmount).encodeABI();
 
       updateTransaction({
-        id: transaction?.id,
-        params: { data: hashedCustomSpend },
+        id: transaction?.actionId,
+        status: ActionStatus.PENDING,
+        displayData: {
+          ...transaction.displayData,
+          txParams: {
+            ...transaction.displayData.txParams,
+            data: hashedCustomSpend,
+          },
+        },
       });
     },
     [
@@ -89,7 +100,8 @@ export function TokenSpendLimit({
       token.amount,
       spender.address,
       updateTransaction,
-      transaction?.id,
+      transaction?.actionId,
+      transaction.displayData,
     ]
   );
 

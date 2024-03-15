@@ -55,6 +55,7 @@ import { AccountManagerProvider } from '@src/pages/Accounts/providers/AccountMan
 import { AccountDetailsView } from '@src/pages/Accounts/AccountDetailsView';
 import { UnifiedBridgeProvider } from '@src/contexts/UnifiedBridgeProvider';
 import { AnalyticsOptInDialog } from '@src/components/dialogs/AnalyticsOptInDialog';
+import { SeedlessMfaManagementProvider } from '@src/contexts/SeedlessMfaManagementProvider';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
@@ -329,480 +330,482 @@ export function Popup() {
                                 <ContactsContextProvider>
                                   <PermissionContextProvider>
                                     <WalletConnectContextProvider>
-                                      <WalletLoading>
-                                        <TestnetBanner />
-                                        <AnalyticsOptInDialog />
-                                        <Stack
-                                          sx={{
-                                            flexGrow: 1,
-                                            width: dimensions.width,
-                                            maxHeight: 'auto',
-                                            overflow: 'auto',
-                                            alignItems: 'center',
-                                            margin: 'auto',
-                                          }}
-                                        >
-                                          {!pagesWithoutHeader.some((path) =>
-                                            location.pathname.startsWith(path)
-                                          ) && (
-                                            <Stack sx={{ width: 1 }}>
-                                              {!isConfirm && <Header />}
-                                            </Stack>
-                                          )}{' '}
+                                      <SeedlessMfaManagementProvider>
+                                        <WalletLoading>
+                                          <TestnetBanner />
+                                          <AnalyticsOptInDialog />
                                           <Stack
-                                            direction="row"
                                             sx={{
                                               flexGrow: 1,
-                                              justifyContent: 'center',
-                                              py: isMiniMode ? 0 : 2,
-                                              maxWidth: '100%',
-                                              maxHeight: '100%',
-                                              width: appWidth,
+                                              width: dimensions.width,
+                                              maxHeight: 'auto',
+                                              overflow: 'auto',
+                                              alignItems: 'center',
+                                              margin: 'auto',
                                             }}
                                           >
-                                            <Switch>
-                                              <Route path="/token/add">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <AddToken />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/home">
-                                                <Home />
-                                              </Route>
-                                              <Route path="/sign/transaction">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <SignTxErrorBoundary variant="OpenError">
-                                                    <SignTransactionPage />
-                                                  </SignTxErrorBoundary>
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/ledger/connect">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <LedgerConnect />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/sign">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <SignMessage />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/approve/select-wallet">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <SelectWallet />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/approve/createContact">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <UpdateContacts method="create" />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/approve/updateContact">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <UpdateContacts method="update" />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/approve/removeContact">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <UpdateContacts method="remove" />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/approve/watch-asset">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <WatchAssetApprovalPopup />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/approve/set-developer-mode">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <SetDeveloperMode />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/approve/avalancheSignTx">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <AvalancheSignTx />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/approve/bitcoinSignTx">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <BitcoinSignTx />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/approve">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <ApproveAction />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/permissions">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <PermissionsPage />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/token">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <TokenFlowPage />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/collectible/send">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <CollectibleSend />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/collectible">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <CollectibleDetails />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/receive">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <Receive />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/send">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <SendPage />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/swap">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <Swap />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/bridge/transaction-status/:sourceBlockchain/:txHash/:txTimestamp">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <BridgeTransactionStatus />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/bridge">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <Bridge />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/manage-tokens/add">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <AddToken />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/manage-tokens">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <ManageTokensPage />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/switchAccount">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <SwitchAccount />
-                                                </Suspense>
-                                              </Route>
-                                              <Route exact path="/networks">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <Networks />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/networks/add">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <AddNetwork />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/networks/details/:networkId">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <NetworkDetails />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/networks/edit/:networkId">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress
-                                                      size={100}
-                                                    />
-                                                  }
-                                                >
-                                                  <EditNetwork />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/networks/add-popup">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <AddCustomNetworkPopup />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/network/switch">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <SwitchActiveNetwork />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/accounts" exact>
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <AccountManagerProvider>
-                                                    <Accounts />
-                                                  </AccountManagerProvider>
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/accounts/add-wallet/seedphrase">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <AddWalletWithSeedPhrase />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/accounts/add-wallet/keystore">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <AddWalletWithKeystoreFile />
-                                                </Suspense>
-                                              </Route>
+                                            {!pagesWithoutHeader.some((path) =>
+                                              location.pathname.startsWith(path)
+                                            ) && (
+                                              <Stack sx={{ width: 1 }}>
+                                                {!isConfirm && <Header />}
+                                              </Stack>
+                                            )}{' '}
+                                            <Stack
+                                              direction="row"
+                                              sx={{
+                                                flexGrow: 1,
+                                                justifyContent: 'center',
+                                                py: isMiniMode ? 0 : 2,
+                                                maxWidth: '100%',
+                                                maxHeight: '100%',
+                                                width: appWidth,
+                                              }}
+                                            >
+                                              <Switch>
+                                                <Route path="/token/add">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <AddToken />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/home">
+                                                  <Home />
+                                                </Route>
+                                                <Route path="/sign/transaction">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SignTxErrorBoundary variant="OpenError">
+                                                      <SignTransactionPage />
+                                                    </SignTxErrorBoundary>
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/ledger/connect">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <LedgerConnect />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/sign">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SignMessage />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/approve/select-wallet">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SelectWallet />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/approve/createContact">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <UpdateContacts method="create" />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/approve/updateContact">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <UpdateContacts method="update" />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/approve/removeContact">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <UpdateContacts method="remove" />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/approve/watch-asset">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <WatchAssetApprovalPopup />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/approve/set-developer-mode">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SetDeveloperMode />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/approve/avalancheSignTx">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <AvalancheSignTx />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/approve/bitcoinSignTx">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <BitcoinSignTx />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/approve">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <ApproveAction />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/permissions">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <PermissionsPage />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/token">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <TokenFlowPage />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/collectible/send">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <CollectibleSend />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/collectible">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <CollectibleDetails />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/receive">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <Receive />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/send">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SendPage />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/swap">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <Swap />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/bridge/transaction-status/:sourceBlockchain/:txHash/:txTimestamp">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <BridgeTransactionStatus />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/bridge">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <Bridge />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/manage-tokens/add">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <AddToken />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/manage-tokens">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <ManageTokensPage />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/switchAccount">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SwitchAccount />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route exact path="/networks">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <Networks />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/networks/add">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <AddNetwork />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/networks/details/:networkId">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <NetworkDetails />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/networks/edit/:networkId">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress
+                                                        size={100}
+                                                      />
+                                                    }
+                                                  >
+                                                    <EditNetwork />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/networks/add-popup">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <AddCustomNetworkPopup />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/network/switch">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SwitchActiveNetwork />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/accounts" exact>
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <AccountManagerProvider>
+                                                      <Accounts />
+                                                    </AccountManagerProvider>
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/accounts/add-wallet/seedphrase">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <AddWalletWithSeedPhrase />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/accounts/add-wallet/keystore">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <AddWalletWithKeystoreFile />
+                                                  </Suspense>
+                                                </Route>
 
-                                              <Route path="/accounts/add-wallet/ledger">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <AddWalletWithLedger />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/accounts/:accountId">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <AccountManagerProvider>
-                                                    <AccountDetailsView />
-                                                  </AccountManagerProvider>
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/export-private-key">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <ExportPrivateKey />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/import-private-key">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <ImportPrivateKeyPage />
-                                                </Suspense>
-                                              </Route>
-                                              <Route path="/assets">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <Assets />
-                                                </Suspense>
-                                              </Route>
+                                                <Route path="/accounts/add-wallet/ledger">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <AddWalletWithLedger />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/accounts/:accountId">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <AccountManagerProvider>
+                                                      <AccountDetailsView />
+                                                    </AccountManagerProvider>
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/export-private-key">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <ExportPrivateKey />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/import-private-key">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <ImportPrivateKeyPage />
+                                                  </Suspense>
+                                                </Route>
+                                                <Route path="/assets">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <Assets />
+                                                  </Suspense>
+                                                </Route>
 
-                                              <Route path="/defi/:protocolId">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress
-                                                      size={100}
-                                                    />
-                                                  }
-                                                >
-                                                  <DefiProtocolDetails />
-                                                </Suspense>
-                                              </Route>
+                                                <Route path="/defi/:protocolId">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress
+                                                        size={100}
+                                                      />
+                                                    }
+                                                  >
+                                                    <DefiProtocolDetails />
+                                                  </Suspense>
+                                                </Route>
 
-                                              <Route path="/import-with-walletconnect">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress
-                                                      size={100}
-                                                    />
-                                                  }
-                                                >
-                                                  <ImportWithWalletConnect />
-                                                </Suspense>
-                                              </Route>
+                                                <Route path="/import-with-walletconnect">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress
+                                                        size={100}
+                                                      />
+                                                    }
+                                                  >
+                                                    <ImportWithWalletConnect />
+                                                  </Suspense>
+                                                </Route>
 
-                                              <Route path="/fireblocks/import-with-walletconnect">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress
-                                                      size={100}
-                                                    />
-                                                  }
-                                                >
-                                                  <ImportFireblocksWithWalletConnect />
-                                                </Suspense>
-                                              </Route>
+                                                <Route path="/fireblocks/import-with-walletconnect">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress
+                                                        size={100}
+                                                      />
+                                                    }
+                                                  >
+                                                    <ImportFireblocksWithWalletConnect />
+                                                  </Suspense>
+                                                </Route>
 
-                                              <Route path="/fireblocks/connect-bitcoin/:accountId">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress
-                                                      size={100}
-                                                    />
-                                                  }
-                                                >
-                                                  <ConnectBitcoinWallet />
-                                                </Suspense>
-                                              </Route>
+                                                <Route path="/fireblocks/connect-bitcoin/:accountId">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress
+                                                        size={100}
+                                                      />
+                                                    }
+                                                  >
+                                                    <ConnectBitcoinWallet />
+                                                  </Suspense>
+                                                </Route>
 
-                                              <Route path="/seedless-auth">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <SeedlessAuthPopup />
-                                                </Suspense>
-                                              </Route>
+                                                <Route path="/seedless-auth">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SeedlessAuthPopup />
+                                                  </Suspense>
+                                                </Route>
 
-                                              <Route path="/seedless-export">
-                                                <Suspense
-                                                  fallback={
-                                                    <CircularProgress />
-                                                  }
-                                                >
-                                                  <SeedlessExportPopup />
-                                                </Suspense>
-                                              </Route>
+                                                <Route path="/seedless-export">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SeedlessExportPopup />
+                                                  </Suspense>
+                                                </Route>
 
-                                              <Route path="/">
-                                                <Redirect to="/home" />
-                                              </Route>
-                                            </Switch>
-                                            <LedgerIncorrectDevice />
-                                            <LedgerRegisterBtcWalletPolicy />
-                                            <SeedlessAuthPrompt />
+                                                <Route path="/">
+                                                  <Redirect to="/home" />
+                                                </Route>
+                                              </Switch>
+                                              <LedgerIncorrectDevice />
+                                              <LedgerRegisterBtcWalletPolicy />
+                                              <SeedlessAuthPrompt />
+                                            </Stack>
                                           </Stack>
-                                        </Stack>
-                                      </WalletLoading>
+                                        </WalletLoading>
+                                      </SeedlessMfaManagementProvider>
                                     </WalletConnectContextProvider>
                                   </PermissionContextProvider>
                                 </ContactsContextProvider>

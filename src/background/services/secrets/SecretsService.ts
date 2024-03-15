@@ -81,6 +81,7 @@ export class SecretsService {
           derivationPath: wallet.derivationPath,
           authProvider: wallet.authProvider,
           userEmail: wallet.userEmail,
+          userId: wallet.userId,
         };
       }
 
@@ -274,6 +275,18 @@ export class SecretsService {
     });
 
     return deleted;
+  }
+
+  async deletePrimaryWallets(ids: string[]): Promise<number> {
+    const { wallets, ...importedSecrets } = await this.#loadSecrets(true);
+
+    const newWallets = wallets.filter((wallet) => !ids.includes(wallet.id));
+    await this.storageService.save<WalletSecretInStorage>(WALLET_STORAGE_KEY, {
+      ...importedSecrets,
+      wallets: newWallets,
+    });
+
+    return wallets.length - newWallets.length;
   }
 
   async saveImportedWallet(id: string, data: ImportedAccountSecrets) {

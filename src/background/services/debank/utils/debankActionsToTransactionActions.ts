@@ -1,5 +1,8 @@
 import { TokenType } from '../../balances/models';
-import { TransactionAction, TransactionType } from '../../transactions/models';
+import {
+  TransactionAction,
+  TransactionType,
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { TxAction } from '../models';
 import { mapNftToTransactionNft } from './mapNftToTransactionNft';
 import { mapTokenItemToTransactionToken } from './mapTokenItemToTransactionToken';

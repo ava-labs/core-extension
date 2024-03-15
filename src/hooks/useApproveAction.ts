@@ -7,9 +7,9 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 import { useCallback, useEffect, useState } from 'react';
 
-export function useApproveAction(actionId: string) {
+export function useApproveAction<DisplayData = any>(actionId: string) {
   const { request } = useConnectionContext();
-  const [action, setAction] = useState<Action>();
+  const [action, setAction] = useState<Action<DisplayData>>();
   const [error] = useState<string>('');
 
   const updateAction = useCallback(
@@ -23,13 +23,23 @@ export function useApproveAction(actionId: string) {
         return {
           ...prevActionData,
           status: params.status,
+          displayData: {
+            ...prevActionData.displayData,
+            ...params.displayData,
+          },
         };
       });
+
+      const shouldCloseAfterUpdate = params.status !== ActionStatus.PENDING;
 
       return request<UpdateActionHandler>({
         method: ExtensionRequest.ACTION_UPDATE,
         params: [params, shouldWaitForResponse],
-      }).finally(() => globalThis.close());
+      }).finally(() => {
+        if (shouldCloseAfterUpdate) {
+          globalThis.close();
+        }
+      });
     },
     [request]
   );

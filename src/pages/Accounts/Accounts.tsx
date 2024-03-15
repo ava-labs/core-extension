@@ -116,18 +116,23 @@ export function Accounts() {
   };
 
   const onAccountDeleteSuccess = async () => {
-    capture('ImportedAccountDeleteSucceeded');
+    capture('AccountDeleteSucceeded');
     toast.success(t('Account(s) Deleted!'), { duration: 2000 });
-    exitManageMode();
-    setIsConfirmDialogOpen(false);
-    setIsDeleting(false);
   };
 
-  const onAccountDelete = () => {
+  const onAccountDelete = async () => {
     setIsDeleting(true);
-    deleteAccounts(Array.from(selectedAccounts)).then(() => {
+    try {
+      await deleteAccounts(Array.from(selectedAccounts));
       onAccountDeleteSuccess();
-    });
+    } catch (e) {
+      toast.error(t('Account(s) removal has failed!'), { duration: 2000 });
+      capture('AccountDeleteFailed');
+    } finally {
+      exitManageMode();
+      setIsConfirmDialogOpen(false);
+      setIsDeleting(false);
+    }
   };
 
   const hasImportedAccounts = Object.keys(importedAccounts).length > 0;

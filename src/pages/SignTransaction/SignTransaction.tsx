@@ -10,7 +10,6 @@ import {
   Typography,
 } from '@avalabs/k2-components';
 import { BN } from 'bn.js';
-import { TxStatus } from '@src/background/services/transactions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useMemo, useState } from 'react';
 import { useGetTransaction } from './hooks/useGetTransaction';
@@ -45,6 +44,7 @@ import {
 import { NetworkDetails, WebsiteDetails } from './components/ApprovalTxDetails';
 import { getToAddressesFromTransaction } from './utils/getToAddressesFromTransaction';
 import { SpendLimitInfo } from './components/SpendLimitInfo/SpendLimitInfo';
+import { ActionStatus } from '@src/background/services/actions/models';
 
 export function SignTransactionPage() {
   const { t } = useTranslation();
@@ -71,7 +71,7 @@ export function SignTransactionPage() {
     TransactionProgressState.NOT_APPROVED
   );
   const tokens = useTokensWithBalances(false, network?.chainId);
-  const header = useSignTransactionHeader(transaction);
+  const header = useSignTransactionHeader(transaction?.displayData);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
@@ -86,9 +86,9 @@ export function SignTransactionPage() {
   const hasEnoughForNetworkFee = useMemo(() => {
     return nativeTokenWithBalance?.balance.gte(
       new BN(
-        (transaction?.displayValues?.gas.maxFeePerGas
-          ? transaction?.displayValues?.gas.maxFeePerGas *
-            BigInt(transaction?.displayValues?.gas.gasLimit || 0n)
+        (transaction?.displayData?.displayValues?.gas.maxFeePerGas
+          ? transaction.displayData?.displayValues?.gas.maxFeePerGas *
+            BigInt(transaction.displayData?.displayValues?.gas.gasLimit || 0n)
           : 0n
         ).toString()
       )
@@ -96,14 +96,13 @@ export function SignTransactionPage() {
   }, [nativeTokenWithBalance, transaction]);
 
   const cancelHandler = useCallback(() => {
-    if (transaction?.id) {
+    if (transaction?.actionId) {
       updateTransaction({
-        status: TxStatus.ERROR_USER_CANCELED,
-        id: transaction?.id,
+        status: ActionStatus.ERROR_USER_CANCELED,
+        id: transaction?.actionId,
       });
-      window.close();
     }
-  }, [transaction?.id, updateTransaction]);
+  }, [transaction?.actionId, updateTransaction]);
 
   useWindowGetsClosedOrHidden(cancelHandler);
 
@@ -113,12 +112,14 @@ export function SignTransactionPage() {
 
   const submit = useCallback(async () => {
     setTransactionProgressState(TransactionProgressState.PENDING);
-
-    await updateTransaction({
-      status: TxStatus.SUBMITTING,
-      id: transaction?.id,
-    }).finally(() => window.close());
-  }, [transaction?.id, updateTransaction]);
+    await updateTransaction(
+      {
+        status: ActionStatus.SUBMITTING,
+        id: transaction?.actionId,
+      },
+      true
+    );
+  }, [transaction?.actionId, updateTransaction]);
 
   const { handleApproval, handleRejection, isApprovalOverlayVisible } =
     useApprovalHelpers({
@@ -144,7 +145,7 @@ export function SignTransactionPage() {
   if (showRawTransactionData) {
     return (
       <RawTransactionData
-        data={transaction?.txParams?.data}
+        data={transaction.displayData?.txParams?.data}
         onClose={() => setShowRawTransactionData(false)}
       />
     );
@@ -158,7 +159,7 @@ export function SignTransactionPage() {
             <LedgerApprovalOverlay
               fee={fee}
               feeSymbol={network?.networkToken.symbol}
-              {...getToAddressesFromTransaction(transaction)}
+              {...getToAddressesFromTransaction(transaction.displayData)}
             />
           )}
 
@@ -298,12 +299,11 @@ export function SignTransactionPage() {
             size="large"
             fullWidth
             onClick={() => {
-              transaction?.id &&
+              transaction?.actionId &&
                 updateTransaction({
-                  status: TxStatus.ERROR_USER_CANCELED,
-                  id: transaction?.id,
+                  status: ActionStatus.ERROR_USER_CANCELED,
+                  id: transaction?.actionId,
                 });
-              window.close();
             }}
           >
             {t('Reject')}
@@ -328,8 +328,8 @@ export function SignTransactionPage() {
           <TransactionErrorDialog
             onConfirm={async () => {
               updateTransaction({
-                status: TxStatus.ERROR,
-                id: transaction?.id,
+                status: ActionStatus.ERROR,
+                id: transaction?.actionId,
                 error: 'Invalid param: chainId',
               });
               setHasTransactionError(false);

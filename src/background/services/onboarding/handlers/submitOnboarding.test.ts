@@ -159,7 +159,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
     });
   });
 
-  it('returns error if seedless is attempted without specifying the email address', async () => {
+  it('returns error if seedless is attempted without specifying the user ID', async () => {
     const handler = getHandler();
     const request = getRequest([
       {
@@ -173,7 +173,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
 
     expect(result).toEqual({
       ...request,
-      error: 'User email is required to create a seedless wallet',
+      error: 'User ID is required to create a seedless wallet',
     });
   });
 
@@ -237,7 +237,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
         accountName: 'test-acc',
         walletName: 'wallet-name',
         seedlessSignerToken: {},
-        userEmail: 'a@b.c',
+        userId: '123',
         authProvider: SeedlessAuthProvider.Google,
         analyticsConsent: true,
       },
@@ -259,7 +259,7 @@ describe('src/background/services/onboarding/handlers/submitOnboarding.ts', () =
     expect(walletServiceMock.init).toHaveBeenCalledWith({
       seedlessSignerToken: undefined,
       authProvider: SeedlessAuthProvider.Google,
-      userEmail: 'a@b.c',
+      userId: '123',
       pubKeys: [],
       derivationPath: DerivationPath.BIP44,
       secretType: SecretType.Seedless,
