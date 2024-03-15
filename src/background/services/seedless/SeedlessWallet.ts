@@ -34,6 +34,7 @@ import { CoreApiError, MfaRequestType } from './models';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { isFailedMfaError, isTokenExpiredError } from './utils';
 import { SeedlessMfaService } from './SeedlessMfaService';
+import { toUtf8 } from 'ethereumjs-util';
 
 type ConstructorOpts = {
   networkService: NetworkService;
@@ -521,12 +522,13 @@ export class SeedlessWallet {
       const addressAVM = await xpProvider
         .getAddress(Buffer.from(this.#addressPublicKey.xp, 'hex'), 'X')
         .slice(2); // remove chain prefix
+      const message = toUtf8(messageParams.data);
 
       return Buffer.from(
         strip0x(
           await this.#signBlob(
             addressAVM,
-            `0x${Avalanche.digestMessage(messageParams.data).toString('hex')}`
+            `0x${Avalanche.digestMessage(message).toString('hex')}`
           )
         ),
         'hex'
