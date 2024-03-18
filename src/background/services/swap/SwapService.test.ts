@@ -114,7 +114,7 @@ describe('background/services/swap/SwapService.ts', () => {
       networkServiceMock.isMainnet.mockReturnValueOnce(false);
       await expect(
         swapService.getSwapRate(...getParams({}).paramsAsTuple)
-      ).rejects.toThrowError('Fuji network is not supported by Paraswap');
+      ).rejects.toThrow('Fuji network is not supported by Paraswap');
     });
 
     it('throws if there is no active account', async () => {
@@ -128,7 +128,7 @@ describe('background/services/swap/SwapService.ts', () => {
         swapServiceWithoutActiveAccount.getSwapRate(
           ...getParams({}).paramsAsTuple
         )
-      ).rejects.toThrowError('Account address missing');
+      ).rejects.toThrow('Account address missing');
     });
 
     it('throws error when swap feature is unavailable', async () => {
@@ -142,7 +142,7 @@ describe('background/services/swap/SwapService.ts', () => {
         swapServiceWithoutActiveAccount.getSwapRate(
           ...getParams({}).paramsAsTuple
         )
-      ).rejects.toThrowError('Feature (swap-feature) is currently unavailable');
+      ).rejects.toThrow('Feature (swap-feature) is currently unavailable');
     });
 
     it('returns the correct route', async () => {
@@ -259,9 +259,9 @@ describe('background/services/swap/SwapService.ts', () => {
         featureFlagServiceMock(false) as any
       );
 
-      await expect(
-        unavailableSwapService.getParaswapSpender()
-      ).rejects.toThrowError('Feature (swap-feature) is currently unavailable');
+      await expect(unavailableSwapService.getParaswapSpender()).rejects.toThrow(
+        'Feature (swap-feature) is currently unavailable'
+      );
     });
   });
 
@@ -317,7 +317,7 @@ describe('background/services/swap/SwapService.ts', () => {
 
       await expect(
         swapServiceWithoutActiveAccount.buildTx(...paramsAsTuple)
-      ).rejects.toThrowError('Feature (swap-feature) is currently unavailable');
+      ).rejects.toThrow('Feature (swap-feature) is currently unavailable');
     });
 
     it('returns the correct transaction', async () => {

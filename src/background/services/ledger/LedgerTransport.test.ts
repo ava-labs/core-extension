@@ -28,7 +28,7 @@ describe('src/background/services/ledger/LedgerTransport.ts', () => {
     const data = Buffer.alloc(dataLength);
     await expect(
       ledgerTransport.send(1, 2, 3, 4, data, [StatusCodes.OK])
-    ).rejects.toThrowError(
+    ).rejects.toThrow(
       expect.objectContaining({
         id: 'DataLengthTooBig',
         name: 'TransportError',
@@ -46,7 +46,7 @@ describe('src/background/services/ledger/LedgerTransport.ts', () => {
       error: '111',
     } as DeviceResponseData);
 
-    await expect(prom).rejects.toThrowError(
+    await expect(prom).rejects.toThrow(
       expect.objectContaining({
         name: 'TransportStatusError',
         message: 'Ledger device: UNKNOWN_ERROR (0x111)',

@@ -322,7 +322,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
       statusText: 'Invalid Request',
     } as Response);
 
-    await expect(service.request({ path: '/anything' })).rejects.toThrowError(
+    await expect(service.request({ path: '/anything' })).rejects.toThrow(
       ethErrors.rpc.internal({
         data: {
           reason: FireblocksErrorCode.Unknown,
@@ -370,7 +370,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
     const error = new Error('Timeout');
     jest.mocked(global.fetch).mockRejectedValueOnce(error);
 
-    await expect(service.request({ path: '/anything' })).rejects.toThrowError(
+    await expect(service.request({ path: '/anything' })).rejects.toThrow(
       ethErrors.rpc.internal({
         data: {
           reason: CommonError.NetworkError,

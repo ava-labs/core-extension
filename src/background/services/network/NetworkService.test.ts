@@ -113,13 +113,13 @@ describe('background/services/network/NetworkService', () => {
     });
     it('should throw an error because of the chainlist failed to load', async () => {
       jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(undefined);
-      expect(service.saveCustomNetwork(customNetwork)).rejects.toThrowError(
+      expect(service.saveCustomNetwork(customNetwork)).rejects.toThrow(
         'chainlist failed to load'
       );
     });
     it('should throw an error because of duplicated ID', async () => {
       const newCustomNetwork = { ...customNetwork, chainId: 43114 };
-      expect(service.saveCustomNetwork(newCustomNetwork)).rejects.toThrowError(
+      expect(service.saveCustomNetwork(newCustomNetwork)).rejects.toThrow(
         'chain ID already exists'
       );
     });
@@ -355,7 +355,7 @@ describe('background/services/network/NetworkService', () => {
           ...mockEVMNetwork,
           vmName: 'CRAPPYVM' as unknown as NetworkVMType,
         });
-      }).toThrowError(new Error('unsupported network'));
+      }).toThrow(new Error('unsupported network'));
     });
   });
 });

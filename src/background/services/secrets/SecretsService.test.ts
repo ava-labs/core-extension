@@ -411,9 +411,9 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     it('throws error if no secrets are saved', async () => {
       storageService.load.mockResolvedValue(null);
 
-      await expect(
-        secretsService.getActiveAccountSecrets()
-      ).rejects.toThrowError('Wallet is not initialized');
+      await expect(secretsService.getActiveAccountSecrets()).rejects.toThrow(
+        'Wallet is not initialized'
+      );
     });
 
     describe('when no account is active', () => {
@@ -945,13 +945,13 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     it('throws if wallet type is not Ledger', async () => {
       mockMnemonicWallet();
 
-      await expect(storeBtcWalletPolicyDetails()).rejects.toThrowError(
+      await expect(storeBtcWalletPolicyDetails()).rejects.toThrow(
         'Error while saving wallet policy details: incorrect wallet type.'
       );
     });
 
     it('throws if storage is empty', async () => {
-      await expect(storeBtcWalletPolicyDetails()).rejects.toThrowError(
+      await expect(storeBtcWalletPolicyDetails()).rejects.toThrow(
         'Wallet is not initialized'
       );
     });
@@ -962,7 +962,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           pubKeys: [],
         });
 
-        await expect(storeBtcWalletPolicyDetails()).rejects.toThrowError(
+        await expect(storeBtcWalletPolicyDetails()).rejects.toThrow(
           'Error while saving wallet policy details: missing record for the provided index.'
         );
       });
@@ -976,7 +976,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           ],
         });
 
-        await expect(storeBtcWalletPolicyDetails()).rejects.toThrowError(
+        await expect(storeBtcWalletPolicyDetails()).rejects.toThrow(
           'Error while saving wallet policy details: policy details already stored.'
         );
       });
@@ -1022,7 +1022,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           btcWalletPolicyDetails: {},
         });
 
-        await expect(storeBtcWalletPolicyDetails()).rejects.toThrowError(
+        await expect(storeBtcWalletPolicyDetails()).rejects.toThrow(
           'Error while saving wallet policy details: policy details already stored.'
         );
       });

@@ -6,7 +6,7 @@ import { PubKeyType } from '@src/background/services/wallet/models';
 describe('getSecretsType()', () => {
   it('should throw an error', () => {
     const walletType = () => getSecretsType({});
-    expect(walletType).toThrowError(
+    expect(walletType).toThrow(
       'Cannot get the secret type for a primary account'
     );
   });

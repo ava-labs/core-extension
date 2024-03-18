@@ -17,7 +17,7 @@ describe('src/utils/seedless/authenticateWithApple', () => {
   });
 
   it('should throw an error when the Ouath is not configured', () => {
-    expect(authenticateWithApple()).rejects.toThrowError(
+    expect(authenticateWithApple()).rejects.toThrow(
       'Apple OAuth not configured'
     );
   });

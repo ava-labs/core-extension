@@ -5,7 +5,7 @@ import getDerivationPath from './getDerivationPath';
 
 describe('src/background/services/wallet/utils/getDerivationPath.ts', () => {
   it('throws if none of the secrets were provided', () => {
-    expect(() => getDerivationPath({})).toThrowError(
+    expect(() => getDerivationPath({})).toThrow(
       'Unable to get derivation type for wallet'
     );
   });

@@ -101,7 +101,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
     it('does not allow bridging BTC', async () => {
       await expect(
         service.transferBtcAsset(new Big(1000), undefined, 1234)
-      ).rejects.toThrowError(
+      ).rejects.toThrow(
         'WalletConnect accounts are not supported by Bridge yet'
       );
     });
@@ -145,7 +145,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
 
       await expect(
         service.transferBtcAsset(new Big(1000), undefined, 1234)
-      ).rejects.toThrowError(
+      ).rejects.toThrow(
         ethErrors.rpc.transactionRejected({
           data: { reason: FireblocksErrorCode.Blocked },
         })
@@ -157,7 +157,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
 
       await expect(
         service.transferBtcAsset(new Big(1000), undefined, 1234)
-      ).rejects.toThrowError(
+      ).rejects.toThrow(
         ethErrors.rpc.internal({ data: { reason: CommonError.Unknown } })
       );
     });

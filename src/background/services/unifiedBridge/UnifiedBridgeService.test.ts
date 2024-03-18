@@ -330,7 +330,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
             targetChainId: 5,
             tabId: 1234,
           })
-        ).rejects.toThrowError(
+        ).rejects.toThrow(
           ethErrors.rpc.internal({
             data: { reason: CommonError.UnknownNetworkFee },
           })

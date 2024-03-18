@@ -19,7 +19,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           networks.bitcoin,
           {} as any
         )
-    ).toThrowError('Invalid public key');
+    ).toThrow('Invalid public key');
 
     expect(
       () =>
@@ -161,7 +161,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         throw new Error('nope');
       });
 
-      await expect(signer.sign()).rejects.toThrowError('nope');
+      await expect(signer.sign()).rejects.toThrow('nope');
     });
 
     it('signs the specified input through signer session', async () => {
@@ -196,7 +196,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         }),
       });
 
-      await expect(signer.sign()).rejects.toThrowError(
+      await expect(signer.sign()).rejects.toThrow(
         /Unexpected signature length/
       );
     });

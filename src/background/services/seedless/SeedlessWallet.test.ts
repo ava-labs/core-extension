@@ -89,9 +89,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('modifies error message to prevent leaking sensitive data', async () => {
-        await expect(executeSigning()).rejects.toThrowError(
-          'Session has expired'
-        );
+        await expect(executeSigning()).rejects.toThrow('Session has expired');
       });
     });
   };
@@ -112,9 +110,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     });
 
     it('fails the requests', async () => {
-      await expect(wallet.getPublicKeys()).rejects.toThrowError(
-        connectionError
-      );
+      await expect(wallet.getPublicKeys()).rejects.toThrow(connectionError);
     });
   });
 
@@ -129,7 +125,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.getPublicKeys()).rejects.toThrowError(
+        await expect(wallet.getPublicKeys()).rejects.toThrow(
           'Accounts not created'
         );
       });
@@ -145,7 +141,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.getPublicKeys()).rejects.toThrowError(
+        await expect(wallet.getPublicKeys()).rejects.toThrow(
           'Accounts keys missing'
         );
       });
@@ -232,7 +228,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTransaction({} as any)).rejects.toThrowError(
+        await expect(wallet.signTransaction({} as any)).rejects.toThrow(
           'Public key not available'
         );
       });
@@ -250,7 +246,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTransaction({} as any)).rejects.toThrowError(
+        await expect(wallet.signTransaction({} as any)).rejects.toThrow(
           'Unknown network'
         );
       });
@@ -270,7 +266,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTransaction({} as any)).rejects.toThrowError(
+        await expect(wallet.signTransaction({} as any)).rejects.toThrow(
           'Wrong provider obtained for EVM transaction'
         );
       });
@@ -344,7 +340,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         });
 
         it('raises an error', async () => {
-          await expect(wallet.signTransaction({} as any)).rejects.toThrowError(
+          await expect(wallet.signTransaction({} as any)).rejects.toThrow(
             new Error('Some API error')
           );
         });
@@ -374,7 +370,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signAvalancheTx({} as any)).rejects.toThrowError(
+        await expect(wallet.signAvalancheTx({} as any)).rejects.toThrow(
           'Public key not available'
         );
       });
@@ -571,7 +567,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       it('raises an error', async () => {
         await expect(
           wallet.signMessage(MessageType.ETH_SIGN, getMessage())
-        ).rejects.toThrowError('Public key not available');
+        ).rejects.toThrow('Public key not available');
       });
     });
 
@@ -587,7 +583,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       it('raises an error', async () => {
         await expect(
           wallet.signMessage(MessageType.ETH_SIGN, getMessage())
-        ).rejects.toThrowError('Network not available');
+        ).rejects.toThrow('Network not available');
       });
     });
 
@@ -701,7 +697,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       it('raises an error for unknown message types', async () => {
         await expect(
           wallet.signMessage('Some unknown type' as MessageType, {} as any)
-        ).rejects.toThrowError('Unknown message type');
+        ).rejects.toThrow('Unknown message type');
       });
     });
 
@@ -734,19 +730,22 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
         await expect(
           wallet.signMessage(MessageType.AVALANCHE_SIGN, getMessage())
-        ).rejects.toThrowError('X/P public key not available');
+        ).rejects.toThrow('X/P public key not available');
       });
 
       it('calls signBlob() method with proper payload', async () => {
-        const data = 'yaaaaay!';
+        const message = 'yaaaaay!';
+        const hexMessage = Buffer.from(message, 'utf-8').toString('hex');
         const msg = getMessage({
-          data,
+          data: hexMessage,
         });
-        const encodedData = Buffer.from(`AVA-Signed:${data}`, 'utf-8');
+        const encodedData = Buffer.from(`AVA-Signed:${message}`, 'utf-8');
 
         jest.mocked(Avalanche.digestMessage).mockReturnValue(encodedData);
 
         await wallet.signMessage(MessageType.AVALANCHE_SIGN, msg);
+
+        expect(Avalanche.digestMessage).toHaveBeenCalledWith(message);
 
         expect(session.signBlob).toHaveBeenCalledWith(
           expect.anything(),
@@ -810,7 +809,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     });
 
     it('raises an error for invalid account index', async () => {
-      await expect(wallet.addAccount(-1)).rejects.toThrowError(
+      await expect(wallet.addAccount(-1)).rejects.toThrow(
         /Account index must be greater than or equal to 1/
       );
     });
@@ -821,7 +820,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.addAccount(1)).rejects.toThrowError(
+        await expect(wallet.addAccount(1)).rejects.toThrow(
           /Core Seedless API is unreachable/
         );
       });
@@ -840,7 +839,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.addAccount(1)).rejects.toThrowError(
+        await expect(wallet.addAccount(1)).rejects.toThrow(
           /Cannot establish the mnemonic id/
         );
       });
@@ -872,7 +871,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         session.proveIdentity.mockResolvedValue({} as any);
-        await expect(wallet.addAccount(1)).rejects.toThrowError(
+        await expect(wallet.addAccount(1)).rejects.toThrow(
           /Adding new account failed/
         );
       });
@@ -920,7 +919,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTx([], [])).rejects.toThrowError(
+        await expect(wallet.signTx([], [])).rejects.toThrow(
           'Invalid network: Attempting to sign BTC transaction on non Bitcoin network'
         );
       });
@@ -938,7 +937,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTx([], [])).rejects.toThrowError(
+        await expect(wallet.signTx([], [])).rejects.toThrow(
           'Invalid network: Attempting to sign BTC transaction on non Bitcoin network'
         );
       });
@@ -958,7 +957,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTx([], [])).rejects.toThrowError(
+        await expect(wallet.signTx([], [])).rejects.toThrow(
           'Wrong provider obtained for BTC transaction'
         );
       });
@@ -980,7 +979,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTx([1] as any, [])).rejects.toThrowError(
+        await expect(wallet.signTx([1] as any, [])).rejects.toThrow(
           'Public key not available'
         );
       });

@@ -159,7 +159,7 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
       });
 
       it('fails', async () => {
-        await expect(service.initAuthenticatorChange()).rejects.toThrowError(
+        await expect(service.initAuthenticatorChange()).rejects.toThrow(
           'Invalid session data'
         );
       });
@@ -229,7 +229,7 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
       it('fails', async () => {
         await expect(
           service.completeAuthenticatorChange('totpId', '123456')
-        ).rejects.toThrowError('Invalid session data');
+        ).rejects.toThrow('Invalid session data');
       });
     });
 

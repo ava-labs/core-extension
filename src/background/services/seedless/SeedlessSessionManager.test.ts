@@ -108,7 +108,7 @@ describe('src/background/services/seedless/SeedlessSessionManager', () => {
       it('fails quietly', async () => {
         const manager = new SeedlessSessionManager({} as any);
 
-        await expect(manager.refreshSession()).resolves.not.toThrowError();
+        await expect(manager.refreshSession()).resolves.not.toThrow();
       });
 
       it('emits no events', async () => {

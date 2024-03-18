@@ -38,7 +38,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       networkServiceMock
     );
 
-    await expect(handler.handle(request)).rejects.toThrowError(
+    await expect(handler.handle(request)).rejects.toThrow(
       'no account selected'
     );
   });
@@ -55,7 +55,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       networkServiceMock
     );
 
-    await expect(handler.handle(request)).rejects.toThrowError(
+    await expect(handler.handle(request)).rejects.toThrow(
       'incorrect account type'
     );
   });
@@ -75,7 +75,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       networkServiceMock
     );
 
-    await expect(handler.handle(request)).rejects.toThrowError(
+    await expect(handler.handle(request)).rejects.toThrow(
       'unknown derivation path'
     );
   });
