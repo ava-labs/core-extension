@@ -205,10 +205,6 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const submit = useCallback(
     (postSubmitHandler: () => void) => {
-      if (submitInProgress) {
-        return;
-      }
-
       if (!mnemonic && !xpub && !password) {
         return;
       }
@@ -244,13 +240,13 @@ export function OnboardingContextProvider({ children }: { children: any }) {
           toast.error(t('Something went wrong. Please try again.'), {
             duration: 3000,
           });
+          setAnalyticsConsent(undefined);
         })
         .finally(() => {
           setSubmitInProgress(false);
         });
     },
     [
-      submitInProgress,
       mnemonic,
       xpub,
       password,

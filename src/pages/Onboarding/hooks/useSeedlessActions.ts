@@ -225,6 +225,15 @@ export function useSeedlessActions() {
     return true;
   }, [oidcToken, setSeedlessSignerToken]);
 
+  const loginWithoutMFA = async () => {
+    if (!oidcToken) {
+      throw new Error('There is no token to log in');
+    }
+    const authResponse = await requestOidcAuth(oidcToken);
+    const signerToken = await getSignerToken(authResponse);
+    setSeedlessSignerToken(signerToken);
+  };
+
   const addFIDODevice = useCallback(
     async (name: string, selectedMethod: RecoveryMethodTypes) => {
       if (!oidcToken) {
@@ -273,5 +282,6 @@ export function useSeedlessActions() {
     verifyRegistrationCode,
     addFIDODevice,
     loginWithFIDO,
+    loginWithoutMFA,
   };
 }

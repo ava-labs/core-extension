@@ -8,7 +8,7 @@ interface PageNavProps {
   backText?: string;
   onNext: () => void;
   nextText?: string;
-  disableNext: boolean;
+  disableNext?: boolean;
   expand?: boolean;
   steps: number;
   activeStep: number;
