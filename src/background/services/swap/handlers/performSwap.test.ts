@@ -5,6 +5,15 @@ import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { ChainId } from '@avalabs/chains-sdk';
 import BN from 'bn.js';
 import { ethers } from 'ethers';
+import browser from 'webextension-polyfill';
+import { findToken } from '@src/background/utils/findToken';
+
+jest.mock('@src/background/utils/findToken');
+jest.mock('i18next', () => ({
+  t(key) {
+    return key;
+  },
+}));
 
 describe('background/services/swap/handlers/performSwap.ts', () => {
   let contractSpy: jest.SpyInstance<ethers.Contract>;
@@ -15,6 +24,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
   const providerMock = {
     send: jest.fn(),
     getTransactionCount: jest.fn(),
+    waitForTransaction: jest.fn().mockResolvedValue({ status: 1 }),
   };
   const activeNetworkMock = {
     isTestnet: false,
@@ -43,13 +53,17 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
   const accountsServiceMock = {
     activeAccount: { ...activeAccountMock },
   };
+  const analyticsService = {
+    captureEncryptedEvent: jest.fn(),
+  };
 
   const performSwapHandler = new PerformSwapHandler(
     swapServiceMock as any,
     networkServiceMock as any,
     walletServiceMock as any,
     networkFeeServiceMock as any,
-    accountsServiceMock as any
+    accountsServiceMock as any,
+    analyticsService as any
   );
 
   const tabId = 862;
@@ -370,6 +384,13 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
         to: 'toAddress',
         data: 'data',
       });
+      jest.mocked(findToken).mockImplementation(async (addr) => {
+        if (addr === '0x0000') {
+          return { symbol: 'SRC' } as any;
+        }
+
+        return { symbol: 'DEST' } as any;
+      });
     });
 
     describe('with approval for non-native tokens on the network', () => {
@@ -381,6 +402,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
         networkServiceMock.sendTransaction
           .mockResolvedValueOnce(approveTxHash)
           .mockResolvedValueOnce(swapTxHash);
+        providerMock.waitForTransaction.mockResolvedValue({ status: 1 });
       });
 
       it('swaps when the route is SELL', async () => {
@@ -562,6 +584,7 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
           data: 'data',
         });
         networkServiceMock.sendTransaction.mockResolvedValue(swapTxHash);
+        providerMock.waitForTransaction.mockResolvedValue({ status: 1 });
       });
 
       it('swaps when the route is SELL', async () => {
@@ -677,6 +700,65 @@ describe('background/services/swap/handlers/performSwap.ts', () => {
       beforeEach(() => {
         allowanceMock.mockResolvedValue(10001n);
         networkServiceMock.sendTransaction.mockResolvedValue(swapTxHash);
+        providerMock.waitForTransaction.mockResolvedValue({ status: 1 });
+      });
+
+      it('triggers a notification upon success', async () => {
+        const { request } = getRequest();
+
+        await performSwapHandler.handle(request);
+        await new Promise(process.nextTick);
+
+        expect(browser.notifications.create).toHaveBeenCalledWith(
+          {
+            iconUrl: '../../../../images/icon-256.png',
+            message:
+              'Successfully swapped {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}',
+            priority: 2,
+            title: 'Swap transaction succeeded! 🎉',
+            type: 'basic',
+          },
+          expect.anything()
+        );
+      });
+
+      it('triggers a notification upon failure', async () => {
+        providerMock.waitForTransaction.mockResolvedValue({ status: 0 });
+        const { request } = getRequest();
+
+        await performSwapHandler.handle(request);
+        await new Promise(process.nextTick);
+
+        expect(browser.notifications.create).toHaveBeenCalledWith(
+          {
+            iconUrl: '../../../../images/icon-256.png',
+            message:
+              'Could not swap {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}',
+            priority: 2,
+            title: 'Swap transaction failed! ❌',
+            type: 'basic',
+          },
+          expect.anything()
+        );
+      });
+
+      it('reports tx hash to posthog', async () => {
+        const { request } = getRequest();
+
+        await performSwapHandler.handle(request);
+
+        await new Promise(process.nextTick);
+
+        expect(analyticsService.captureEncryptedEvent).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'SwapSuccessful',
+            properties: {
+              txHash: swapTxHash,
+              address: activeAccountMock.addressC,
+              chainId: ChainId.AVALANCHE_MAINNET_ID,
+            },
+          })
+        );
       });
 
       it('swaps when the route is SELL', async () => {

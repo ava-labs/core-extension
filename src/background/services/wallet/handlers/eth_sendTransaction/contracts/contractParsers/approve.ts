@@ -5,7 +5,7 @@ import {
   TransactionType,
 } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { ContractCall, ContractParser } from './models';
-import { findToken } from './utils/findToken';
+import { findToken } from '../../../../../../utils/findToken';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { TransactionDescription } from 'ethers';
 import { bigintToBig } from '@src/utils/bigintToBig';

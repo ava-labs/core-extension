@@ -7,7 +7,7 @@ import {
   TransactionToken,
 } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { bigintToBig } from '@src/utils/bigintToBig';
-import { findToken } from './findToken';
+import { findToken } from '../../../../../../../utils/findToken';
 
 export async function parseBasicDisplayValues(
   network: Network,
