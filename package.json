@@ -70,7 +70,7 @@
     "i18next": "21.9.2",
     "i18next-http-backend": "1.4.4",
     "joi": "17.7.0",
-    "jose": "4.14.6",
+    "jose": "4.15.5",
     "json-rpc-engine": "6.1.0",
     "ledger-bitcoin": "0.2.0",
     "lodash": "4.17.21",
