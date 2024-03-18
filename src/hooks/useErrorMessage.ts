@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { errorCodes } from 'eth-rpc-errors';
 
 import { FireblocksErrorCode } from '@src/background/services/fireblocks/models';
-import { CommonError, isWrappedError } from '@src/utils/errors';
+import { CommonError, RpcErrorCode, isWrappedError } from '@src/utils/errors';
 import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
 import { KeystoreError } from '@src/utils/keystore/models';
 import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
@@ -135,6 +135,15 @@ export const useErrorMessage = () => {
     [t]
   );
 
+  const rpcErrors: Record<RpcErrorCode, ErrorTranslation> = useMemo(
+    () => ({
+      [RpcErrorCode.InsufficientFunds]: {
+        title: t('Insufficient funds'),
+        hint: t('You do not have enough funds to cover the network fees.'),
+      },
+    }),
+    [t]
+  );
   const keystoreErrors: Record<KeystoreError, ErrorTranslation> = useMemo(
     () => ({
       [KeystoreError.InvalidPassword]: {
@@ -176,14 +185,16 @@ export const useErrorMessage = () => {
       ...standardRpcErrors,
       ...keystoreErrors,
       ...seedphraseImportError,
+      ...rpcErrors,
     }),
     [
       fireblocksErrors,
+      unifiedBridgeErrors,
       commonErrors,
       standardRpcErrors,
-      unifiedBridgeErrors,
       keystoreErrors,
       seedphraseImportError,
+      rpcErrors,
     ]
   );
 
@@ -201,7 +212,7 @@ export const useErrorMessage = () => {
         typeof error === 'object' &&
         error !== null &&
         'code' in error &&
-        typeof error.code === 'number'
+        (typeof error.code === 'number' || typeof error.code === 'string')
       ) {
         message = messages[error.code];
       }

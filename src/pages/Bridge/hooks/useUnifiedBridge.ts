@@ -27,7 +27,8 @@ import { CustomGasSettings } from '@src/background/services/bridge/models';
 export function useUnifiedBridge(
   amount: Big,
   targetChainId: number,
-  currentAssetAddress?: string
+  currentAssetAddress?: string,
+  gasSetting?: CustomGasSettings
 ): BridgeAdapter {
   const {
     currentAsset,
@@ -61,7 +62,7 @@ export function useUnifiedBridge(
     });
   }, [network, assetsWithBalances, currentAssetAddress, currentAsset]);
 
-  const hasEnoughForNetworkFee = useHasEnoughForGas();
+  const hasEnoughForNetworkFee = useHasEnoughForGas(gasSetting?.gasLimit);
 
   const [txHash, setTxHash] = useState<string>();
 

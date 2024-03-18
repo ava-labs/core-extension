@@ -13,7 +13,8 @@ import { CustomGasSettings } from '@src/background/services/bridge/models';
 export function useAvalancheBridge(
   amount: Big,
   bridgeFee: Big,
-  minimum: Big
+  minimum: Big,
+  gasSetting?: CustomGasSettings
 ): BridgeAdapter {
   const {
     targetBlockchain,
@@ -34,7 +35,7 @@ export function useAvalancheBridge(
   const sourceBalance = selectedAssetWithBalances[0];
 
   const { assetsWithBalances } = useAssetBalancesEVM(Blockchain.AVALANCHE);
-  const hasEnoughForNetworkFee = useHasEnoughForGas();
+  const hasEnoughForNetworkFee = useHasEnoughForGas(gasSetting?.gasLimit);
 
   const maximum = sourceBalance?.balance || BIG_ZERO;
   const receiveAmount = amount.gt(minimum) ? amount.minus(bridgeFee) : BIG_ZERO;

@@ -13,6 +13,10 @@ export enum CommonError {
   UnknownNetworkFee = 'unknown-network-fee',
 }
 
+export enum RpcErrorCode {
+  InsufficientFunds = 'INSUFFICIENT_FUNDS',
+}
+
 export type ErrorCode =
   | FireblocksErrorCode
   | CommonError
