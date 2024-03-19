@@ -85,6 +85,7 @@ export const KeystoreFileUpload = ({
             fullWidth
             component="label"
             htmlFor="browse-files"
+            data-testid="browse-files"
           >
             {t('Browse Files')}
           </Button>
