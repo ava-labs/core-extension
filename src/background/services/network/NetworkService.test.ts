@@ -63,12 +63,12 @@ const mockNetwork = (vmName: NetworkVMType, isTestnet?: boolean) => ({
 describe('background/services/network/NetworkService', () => {
   const env = process.env;
 
-  const storageServiceMock = {
+  const storageServiceMock = jest.mocked<StorageService>({
     load: jest.fn(),
     loadUnencrypted: jest.fn(),
     save: jest.fn(),
     saveUnencrypted: jest.fn(),
-  } as any;
+  } as any);
   const service = new NetworkService(storageServiceMock);
 
   beforeAll(() => {
@@ -106,13 +106,54 @@ describe('background/services/network/NetworkService', () => {
     process.env = env;
   });
 
+  describe('.updateNetworkOverrides()', () => {
+    beforeEach(() => {
+      storageServiceMock.load.mockResolvedValue({});
+      storageServiceMock.save.mockResolvedValue();
+    });
+
+    it('updates the active network if it was the one updated', async () => {
+      const activeNetwork = {
+        chainId: 1337,
+        rpcUrl: 'http://default.rpc',
+      } as const;
+
+      const networkService = new NetworkService(storageServiceMock);
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      jest.spyOn(networkService._rawNetworks, 'promisify').mockResolvedValue({
+        1337: activeNetwork,
+      });
+      jest.spyOn(networkService.allNetworks, 'promisify').mockResolvedValue({
+        1337: activeNetwork,
+      } as any);
+
+      await networkService.setNetwork(activeNetwork.chainId);
+
+      await networkService.updateNetworkOverrides({
+        chainId: 1337,
+        rpcUrl: 'http://custom.rpc',
+      } as any);
+
+      expect(networkService.activeNetwork).toEqual({
+        chainId: 1337,
+        rpcUrl: 'http://custom.rpc',
+      });
+    });
+  });
+
   describe('saveCustomNetwork()', () => {
     let customNetwork;
     beforeEach(() => {
       customNetwork = mockNetwork(NetworkVMType.EVM, false);
     });
     it('should throw an error because of the chainlist failed to load', async () => {
-      jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(undefined);
+      jest
+        // eslint-disable-next-line
+        // @ts-expect-error
+        .spyOn(service._rawNetworks, 'promisify')
+        .mockResolvedValue(Promise.resolve(undefined));
       expect(service.saveCustomNetwork(customNetwork)).rejects.toThrow(
         'chainlist failed to load'
       );
@@ -212,6 +253,113 @@ describe('background/services/network/NetworkService', () => {
     await service.onLock();
     const activeNetwork = service.activeNetwork;
     expect(activeNetwork).toEqual(mockEVMNetwork);
+  });
+
+  describe('when config overrides are present', () => {
+    const originalChainList = {
+      '1': {
+        chainId: 1,
+        rpcUrl: 'http://avax.network/rpc',
+      },
+      '1337': {
+        chainId: 1337,
+        rpcUrl: 'http://default.rpc',
+      },
+    } as const;
+
+    beforeEach(() => {
+      storageServiceMock.load.mockResolvedValue({
+        '1337': {
+          rpcUrl: 'http://my.custom.rpc',
+        },
+      });
+    });
+
+    it('applies config overrides to .allNetworks signal', async () => {
+      const networkService = new NetworkService(storageServiceMock);
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch(originalChainList);
+
+      const networksPromise = await networkService.allNetworks.promisify();
+
+      expect(await networksPromise).toEqual({
+        ...originalChainList,
+        '1337': {
+          ...originalChainList['1337'],
+          rpcUrl: 'http://my.custom.rpc',
+        },
+      });
+    });
+
+    it('applies config overrides to .activeNetworks signal', async () => {
+      const networkService = new NetworkService(storageServiceMock);
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch(originalChainList);
+
+      const networksPromise = await networkService.activeNetworks.promisify();
+
+      expect(await networksPromise).toEqual({
+        ...originalChainList,
+        '1337': {
+          ...originalChainList['1337'],
+          rpcUrl: 'http://my.custom.rpc',
+        },
+      });
+    });
+  });
+
+  it('filters networks by .isTestnet for .activeNetworks signal', async () => {
+    const networkService = new NetworkService(storageServiceMock);
+
+    jest.spyOn(networkService, 'activeNetwork', 'get').mockReturnValue({
+      isTestnet: false,
+    } as any);
+
+    const allNetworks = {
+      '1': {
+        chainId: 1,
+        isTestnet: false,
+      },
+      '1337': {
+        chainId: 1337,
+        isTestnet: true,
+      },
+    } as any;
+
+    // eslint-disable-next-line
+    // @ts-expect-error
+    networkService._allNetworks.dispatch(allNetworks);
+
+    const mainnetNetworksPromise =
+      await networkService.activeNetworks.promisify();
+
+    expect(await mainnetNetworksPromise).toEqual({
+      '1': {
+        chainId: 1,
+        isTestnet: false,
+      },
+    });
+
+    jest.spyOn(networkService, 'activeNetwork', 'get').mockReturnValue({
+      isTestnet: true,
+    } as any);
+    // eslint-disable-next-line
+    // @ts-expect-error
+    networkService._allNetworks.dispatch(allNetworks);
+
+    const testnetNetworksPromise =
+      await networkService.activeNetworks.promisify();
+
+    expect(await testnetNetworksPromise).toEqual({
+      '1337': {
+        chainId: 1337,
+        isTestnet: true,
+      },
+    });
   });
 
   describe('getProviderForNetwork', () => {
