@@ -61,6 +61,7 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
       },
     };
     jest.mocked(openPopup).mockResolvedValueOnce(popup);
+    jest.mocked(windows.remove).mockResolvedValue();
   });
 
   afterEach(() => {

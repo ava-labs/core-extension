@@ -15,6 +15,7 @@ import {
   NativeAsset,
   setBridgeEnvironment,
   trackBridgeTransaction as trackBridgeTransactionSDK,
+  TrackerSubscription,
   transferAsset as transferAssetSDK,
   WrapStatus,
 } from '@avalabs/bridge-sdk';
@@ -53,6 +54,7 @@ export class BridgeService implements OnLock, OnStorageReady {
   private eventEmitter = new EventEmitter();
   private _bridgeState: BridgeState = DefaultBridgeState;
   private config?: BridgeConfig;
+  #subscriptions = new Map<string, TrackerSubscription>();
 
   public get bridgeState(): BridgeState {
     return this._bridgeState;
@@ -95,6 +97,12 @@ export class BridgeService implements OnLock, OnStorageReady {
   onLock() {
     this._bridgeState = DefaultBridgeState;
     this.config = undefined;
+
+    // Stop tracking when extension gets locked to avoid storage errors.
+    this.#subscriptions.forEach((sub, key) => {
+      sub.unsubscribe();
+      this.#subscriptions.delete(key);
+    });
   }
 
   async setIsDevEnv(enabled: boolean) {
@@ -127,7 +135,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     const ethereumProvider = await this.networkService.getEthereumProvider();
     const bitcoinProvider = await this.networkService.getBitcoinProvider();
 
-    trackBridgeTransactionSDK({
+    const subscription = trackBridgeTransactionSDK({
       bridgeTransaction,
       onBridgeTransactionUpdate: this.saveBridgeTransaction.bind(this),
       config,
@@ -135,6 +143,8 @@ export class BridgeService implements OnLock, OnStorageReady {
       ethereumProvider,
       bitcoinProvider,
     });
+
+    this.#subscriptions.set(bridgeTransaction.sourceTxHash, subscription);
   }
 
   private async saveBridgeTransaction(bridgeTransaction: BridgeTransaction) {
@@ -164,6 +174,9 @@ export class BridgeService implements OnLock, OnStorageReady {
       [sourceTxHash]: _removed,
       ...bridgeTransactions
     } = this.bridgeState.bridgeTransactions;
+
+    this.#subscriptions.get(sourceTxHash)?.unsubscribe();
+    this.#subscriptions.delete(sourceTxHash);
 
     this._bridgeState = { ...this.bridgeState, bridgeTransactions };
     await this.storageService.save(BRIDGE_STORAGE_KEY, this.bridgeState);

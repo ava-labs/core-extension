@@ -46,7 +46,10 @@ export async function launchFidoFlow(
   // Make sure to close the popup if the calling window gets closed
   window.addEventListener('beforeunload', () => {
     if (popup?.id) {
-      windows.remove(popup.id);
+      windows.remove(popup.id).catch(() => {
+        // Do nothing, we can't really do anything about it and
+        // the most likely reason of error is that it was already closed.
+      });
     }
   });
 
@@ -67,7 +70,10 @@ export async function launchFidoFlow(
         // Popup can now be closed safely
         closeSubscription.unsubscribe();
         if (popup?.id) {
-          windows.remove(popup.id);
+          windows.remove(popup.id).then(() => {
+            // Do nothing, we can't really do anything about it and
+            // the most likely reason of error is that it was already closed.
+          });
         }
         window.removeEventListener('message', onResponse);
 
