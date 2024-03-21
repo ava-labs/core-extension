@@ -1,23 +1,30 @@
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Button, PlusIcon, Skeleton } from '@avalabs/k2-components';
+import browser from 'webextension-polyfill';
 
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
-import { RecoveryMethodType } from '@src/background/services/seedless/models';
+import {
+  RecoveryMethodFido,
+  RecoveryMethodType,
+} from '@src/background/services/seedless/models';
+import { KeyType } from '@src/utils/seedless/fido/types';
 
 import { SettingsHeader } from '../../SettingsHeader';
 import { SettingsPageProps } from '../../models';
 
-import { AuthenticatorDetails } from './AuthenticatorDetails';
 import { RecoveryMethod } from './RecoveryMethod';
 import { RecoveryMethodsList } from './RecoveryMethodsList';
 import { AddNewRecoveryMethod } from './AddNewRecoveryMethod';
+import { AuthenticatorDetails } from './AuthenticatorDetails';
+import { FIDODetails } from './FIDODetails';
 
 enum RecoveryMethodScreen {
   List = 'list',
   AddNew = 'add-new',
   Authenticator = 'authenticator',
+  FidoDetails = 'fido-details',
 }
 
 export function RecoveryMethods({
@@ -27,20 +34,48 @@ export function RecoveryMethods({
 }: SettingsPageProps) {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  const { isLoadingRecoveryMethods, recoveryMethods } = useSeedlessMfaManager();
+  const {
+    isLoadingRecoveryMethods,
+    recoveryMethods,
+    hasFidoConfigured,
+    hasMfaConfigured,
+    hasTotpConfigured,
+  } = useSeedlessMfaManager();
 
-  const hasMfaConfigured = recoveryMethods.length > 0;
-  const hasTotpConfigured = Boolean(
-    recoveryMethods.find(({ type }) => type === 'totp')
-  );
+  const [fidoDetails, setFidoDetails] = useState<RecoveryMethodFido>();
 
   const [screen, setScreen] = useState(RecoveryMethodScreen.List);
 
-  const onMethodClick = useCallback(async (method: RecoveryMethodType) => {
-    if (method === RecoveryMethodType.Authenticator) {
-      setScreen(RecoveryMethodScreen.Authenticator);
-    }
+  const startRecoveryMethodSetup = useCallback(async (type?: KeyType) => {
+    const url = type
+      ? `update-recovery-methods?keyType=${type}`
+      : 'update-recovery-methods';
+
+    // Open in a full screen tab to avoid popup hell
+    browser.tabs.create({ url: `/confirm.html#/${url}` });
   }, []);
+
+  const onMethodClick = useCallback(
+    async (method: RecoveryMethodType) => {
+      if (method === RecoveryMethodType.Authenticator && !hasFidoConfigured) {
+        // If user is trying to configure TOTP and does not have FIDO configured,
+        // we can show everything inside the regular extension window.
+        setScreen(RecoveryMethodScreen.Authenticator);
+      } else {
+        // Otherwise, we need to open a fullscreen flow (FIDO verification happens within a popup,
+        // which would make the regular extension window close).
+
+        if (method === RecoveryMethodType.Authenticator) {
+          await startRecoveryMethodSetup();
+        } else if (method === RecoveryMethodType.Passkey) {
+          await startRecoveryMethodSetup(KeyType.Passkey);
+        } else {
+          await startRecoveryMethodSetup(KeyType.Yubikey);
+        }
+      }
+    },
+    [startRecoveryMethodSetup, hasFidoConfigured]
+  );
 
   return (
     <Stack
@@ -62,10 +97,20 @@ export function RecoveryMethods({
             autoInitialize={!hasTotpConfigured}
           />
         )}
+        {screen === RecoveryMethodScreen.FidoDetails && fidoDetails && (
+          <FIDODetails
+            details={fidoDetails}
+            onBackClick={() => {
+              setScreen(RecoveryMethodScreen.List);
+              setFidoDetails(undefined);
+            }}
+          />
+        )}
         {screen === RecoveryMethodScreen.AddNew && (
           <AddNewRecoveryMethod
             onBackClick={() => setScreen(RecoveryMethodScreen.List)}
             onMethodClick={onMethodClick}
+            excludeTotp={hasTotpConfigured}
           />
         )}
         {screen === RecoveryMethodScreen.List && (
@@ -90,7 +135,6 @@ export function RecoveryMethods({
                             capture('ConfigureTotpClicked');
                             setScreen(RecoveryMethodScreen.Authenticator);
                           }}
-                          sx={{ alignItems: 'center' }}
                         />
                       );
                     }
@@ -101,9 +145,9 @@ export function RecoveryMethods({
                         methodName={method.name}
                         onClick={() => {
                           capture('ConfigureFidoClicked');
-                          // TODO: navigation
+                          setFidoDetails(method);
+                          setScreen(RecoveryMethodScreen.FidoDetails);
                         }}
-                        sx={{ alignItems: 'center' }}
                       />
                     );
                   })

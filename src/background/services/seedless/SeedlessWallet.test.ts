@@ -8,6 +8,7 @@ import {
   createPsbt,
 } from '@avalabs/wallets-sdk';
 import * as cs from '@cubist-labs/cubesigner-sdk';
+import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
 import { networks } from 'bitcoinjs-lib';
 import { JsonRpcProvider, getBytes, hashMessage } from 'ethers';
 
@@ -41,6 +42,7 @@ import { SeedlessMfaService } from './SeedlessMfaService';
 import { MfaRequestType } from './models';
 
 jest.mock('@cubist-labs/cubesigner-sdk');
+jest.mock('@cubist-labs/cubesigner-sdk-ethers-v6');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('../network/NetworkService');
 jest.mock('./SeedlessBtcSigner');
@@ -286,7 +288,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           signTransaction: jest.fn().mockReturnValue(expectedResult),
         };
         signerConstructorSpy = jest.fn().mockReturnValueOnce(signer);
-        jest.mocked(cs.ethers.Signer).mockImplementation(signerConstructorSpy);
+        jest.mocked(Signer).mockImplementation(signerConstructorSpy);
 
         wallet = new SeedlessWallet({
           networkService,
@@ -334,9 +336,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
               .mockRejectedValue(new Error('Some API error')),
           };
           signerConstructorSpy = jest.fn().mockReturnValueOnce(signer);
-          jest
-            .mocked(cs.ethers.Signer)
-            .mockImplementation(signerConstructorSpy);
+          jest.mocked(Signer).mockImplementation(signerConstructorSpy);
         });
 
         it('raises an error', async () => {

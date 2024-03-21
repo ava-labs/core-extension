@@ -1,5 +1,5 @@
 import { TotpChallenge } from '@cubist-labs/cubesigner-sdk';
-import { DecodedFIDOResult } from '@src/utils/seedless/fido/types';
+import { DecodedFIDOResult, KeyType } from '@src/utils/seedless/fido/types';
 
 export const TOTP_ISSUER = 'Core' as const;
 
@@ -10,6 +10,7 @@ export enum SeedlessEvents {
   TokenRefreshed = 'token-refreshed',
   MfaRequest = 'mfa-request',
   MfaFailure = 'mfa-failure',
+  MfaClear = 'mfa-clear',
   MfaMethodsUpdated = 'mfa-methods-updated',
   MfaChoiceRequest = 'mfa-choice-request',
 }
@@ -17,17 +18,26 @@ export enum SeedlessEvents {
 export enum MfaRequestType {
   Totp = 'totp',
   Fido = 'fido',
+  FidoRegister = 'FidoRegister',
 }
 
-type RecoveryMethodTotp = {
+export enum SeedlessError {
+  NoMfaMethodAvailable = 'no-mfa-method-available',
+}
+
+export type RecoveryMethodTotp = {
   type: MfaRequestType.Totp;
 };
-type RecoveryMethodFido = {
+export type RecoveryMethodFido = {
   id: string;
   name: string;
   type: MfaRequestType.Fido;
 };
 
+export type GetRecoveryMethodsOptions = {
+  excludeFido?: boolean;
+  excludeTotp?: boolean;
+};
 export type RecoveryMethod = RecoveryMethodFido | RecoveryMethodTotp;
 
 export enum RecoveryMethodType {
@@ -55,6 +65,11 @@ export enum AuthErrorCode {
   WrongMfaResponseAttempt = 'wrong-mfa-response-attempt',
 }
 
+export enum FidoDeviceType {
+  Passkey = 'Passkey',
+  Yubikey = 'Yubikey',
+}
+
 export type MfaRequestData = MfaTotpRequest | MfaFidoRequest;
 
 export type MfaChoiceRequest = {
@@ -68,12 +83,21 @@ export type MfaChoiceResponse = {
   chosenMethod: RecoveryMethod;
 };
 
-export type MfaFidoRequest = {
-  type: MfaRequestType.Fido;
-  options?: any;
-  mfaId: string;
-  tabId?: number;
-};
+export type MfaFidoRequest =
+  | {
+      type: MfaRequestType.Fido;
+      options?: any;
+      mfaId: string;
+      tabId?: number;
+    }
+  | {
+      type: MfaRequestType.FidoRegister;
+      options?: any;
+      keyType: KeyType;
+      mfaId: string;
+      tabId?: number;
+    };
+
 export type MfaTotpRequest = {
   type: MfaRequestType.Totp;
   mfaId: string;
@@ -85,6 +109,7 @@ export type MfaFailureData = {
   mfaId: string;
   tabId?: number;
 };
+export type MfaClearData = MfaFailureData;
 
 export type MfaResponseData =
   | {

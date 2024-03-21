@@ -5,7 +5,6 @@ import {
   Card,
   CardActionArea,
   CopyIcon,
-  Divider,
   QRCodeIcon,
   Skeleton,
   Stack,
@@ -93,29 +92,7 @@ export const AuthenticatorVerifyScreen = ({
               )}
             </Stack>
             <Stack sx={{ width: 1, mt: 2 }}>
-              <Divider
-                orientation="horizontal"
-                variant="middle"
-                sx={{
-                  borderColor: 'grey.800',
-                  borderBottomWidth: 2,
-                  mx: 2,
-                  width: '-webkit-fill-available',
-                }}
-              />
-              <Typography
-                variant="h5"
-                color="text.tertiary"
-                sx={{
-                  background: theme.palette.background.default,
-                  transform: 'translateY(-16px)',
-                  px: 3,
-                  alignSelf: 'center',
-                }}
-                component="span"
-              >
-                {t('Or')}
-              </Typography>
+              <DividerWithLabel>{t('Or')}</DividerWithLabel>
             </Stack>
             <Button variant="text" onClick={() => setScreen(Screen.Manual)}>
               {t('Enter Code Manually')}
@@ -270,3 +247,34 @@ export const AuthenticatorVerifyScreen = ({
     </>
   );
 };
+
+const DividerWithLabel = (props) => (
+  <Typography
+    variant="h5"
+    color="text.tertiary"
+    sx={{
+      transform: 'translateY(-16px)',
+      px: 3,
+      alignSelf: 'center',
+      position: 'relative',
+
+      '&::after, &::before': {
+        content: '""',
+        position: 'absolute',
+        width: '120px',
+        borderBottom: '2px solid',
+        borderBottomColor: 'grey.800',
+      },
+      '&::after': {
+        right: 0,
+        transform: 'translate(100%, 14px)',
+      },
+      '&::before': {
+        left: 0,
+        transform: 'translate(-100%, 14px)',
+      },
+    }}
+    component="span"
+    {...props}
+  />
+);

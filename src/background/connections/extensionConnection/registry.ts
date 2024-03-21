@@ -132,6 +132,9 @@ import { GetRecoveryMethodsHandler } from '@src/background/services/seedless/han
 import { InitAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/initAuthenticatorChange';
 import { CompleteAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/completeAuthenticatorChange';
 import { ChooseMfaMethodHandler } from '@src/background/services/seedless/handlers/chooseMfaMethod';
+import { AddFidoDeviceHandler } from '@src/background/services/seedless/handlers/addFidoDevice';
+import { RemoveFidoDeviceHandler } from '@src/background/services/seedless/handlers/removeFidoDevice';
+import { RemoveTotpHandler } from '@src/background/services/seedless/handlers/removeTotp';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -365,6 +368,18 @@ import { ChooseMfaMethodHandler } from '@src/background/services/seedless/handle
   {
     token: 'ExtensionRequestHandler',
     useToken: ChooseMfaMethodHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: AddFidoDeviceHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: RemoveFidoDeviceHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: RemoveTotpHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

@@ -66,8 +66,6 @@ export const useSeedlessMfa = () => {
         });
       } catch {
         setError(AuthErrorCode.TotpVerificationError);
-      } finally {
-        setIsVerifying(false);
       }
     },
     [request, mfaChallenge]
@@ -79,7 +77,10 @@ export const useSeedlessMfa = () => {
         return;
       }
 
-      if (mfaChallenge.type !== MfaRequestType.Fido) {
+      if (
+        mfaChallenge.type !== MfaRequestType.Fido &&
+        mfaChallenge.type !== MfaRequestType.FidoRegister
+      ) {
         setError(AuthErrorCode.WrongMfaResponseAttempt);
         return;
       }
@@ -89,11 +90,16 @@ export const useSeedlessMfa = () => {
 
       try {
         const answer = await launchFidoFlow(
-          FIDOApiEndpoint.Authenticate,
-          mfaChallenge.options
+          mfaChallenge.type === MfaRequestType.Fido
+            ? FIDOApiEndpoint.Authenticate
+            : FIDOApiEndpoint.Register,
+          mfaChallenge.options,
+          mfaChallenge.type === MfaRequestType.FidoRegister
+            ? mfaChallenge.keyType
+            : undefined
         );
 
-        request<SubmitMfaResponseHandler>({
+        await request<SubmitMfaResponseHandler>({
           method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
           params: [
             {
@@ -142,7 +148,8 @@ export const useSeedlessMfa = () => {
               error={error}
             />
           )}
-          {mfaChallenge?.type === MfaRequestType.Fido && (
+          {(mfaChallenge?.type === MfaRequestType.Fido ||
+            mfaChallenge?.type === MfaRequestType.FidoRegister) && (
             <>
               <DialogTitle>{t('Waiting for Confirmation')}</DialogTitle>
               <DialogContent>
@@ -165,18 +172,23 @@ export const useSeedlessMfa = () => {
               )}
             </Typography>
           </DialogContent>
-          <DialogActions sx={{ px: 1 }}>
-            {mfaChoice?.availableMethods.map((method) => (
-              <RecoveryMethod
-                key={method.type === 'fido' ? method.id : 'authenticator'}
-                asCard
-                methodName={
-                  method.type === 'fido' ? method.name : t('Authenticator')
-                }
-                onClick={() => chooseMfaMethod(method)}
-              />
-            ))}
-          </DialogActions>
+          {mfaChoice?.availableMethods?.length && (
+            <DialogActions sx={{ px: 1 }}>
+              {mfaChoice.availableMethods.map((method) => (
+                <RecoveryMethod
+                  key={method.type === 'fido' ? method.id : 'authenticator'}
+                  methodName={
+                    method.type === 'fido' ? method.name : t('Authenticator')
+                  }
+                  onClick={() => chooseMfaMethod(method)}
+                  asCard
+                  sx={{
+                    justifyContent: 'space-between',
+                  }}
+                />
+              ))}
+            </DialogActions>
+          )}
         </Dialog>
       </>
     ),
@@ -220,6 +232,13 @@ export const useSeedlessMfa = () => {
 
         if (event.name === SeedlessEvents.MfaRequest) {
           setMfaChallenge(event.value);
+          return;
+        }
+
+        if (event.name === SeedlessEvents.MfaClear) {
+          setMfaChallenge(undefined);
+          setError(undefined);
+          setMfaChoice(undefined);
           return;
         }
 

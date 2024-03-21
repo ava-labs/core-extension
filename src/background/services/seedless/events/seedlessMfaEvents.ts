@@ -34,6 +34,12 @@ export class SeedlessMfaEvents implements ExtensionEventEmitter {
         });
       }
     );
+    this.seedlessMfaService.addListener(SeedlessEvents.MfaClear, (value) => {
+      this.eventEmitter.emit('update', {
+        name: SeedlessEvents.MfaClear,
+        value,
+      });
+    });
     this.seedlessMfaService.addListener(
       SeedlessEvents.MfaMethodsUpdated,
       (value) => {

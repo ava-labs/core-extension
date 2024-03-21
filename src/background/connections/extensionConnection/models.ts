@@ -137,6 +137,9 @@ export enum ExtensionRequest {
   SEEDLESS_INIT_AUTHENTICATOR_CHANGE = 'seedless_init_authenticator_change',
   SEEDLESS_COMPLETE_AUTHENTICATOR_CHANGE = 'seedless_complete_authenticator_change',
   SEEDLESS_CHOOSE_MFA_METHOD = 'seedless_choose_mfa_method',
+  SEEDLESS_ADD_FIDO_DEVICE = 'seedless_add_fido_device',
+  SEEDLESS_REMOVE_FIDO_DEVICE = 'seedless_remove_fido_device',
+  SEEDLESS_REMOVE_TOTP = 'seedless_remove_totp',
 
   UNIFIED_BRIDGE_GET_FEE = 'unified_bridge_get_fee',
   UNIFIED_BRIDGE_ESTIMATE_GAS = 'unified_bridge_estimate_gas',

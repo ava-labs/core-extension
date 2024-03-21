@@ -20,7 +20,8 @@ export function isSeedlessMfaEvent(
 ): evt is ExtensionConnectionEvent<MfaRequestData> {
   return (
     evt?.name === SeedlessEvents.MfaRequest ||
-    evt?.name === SeedlessEvents.MfaFailure
+    evt?.name === SeedlessEvents.MfaFailure ||
+    evt?.name === SeedlessEvents.MfaClear
   );
 }
 

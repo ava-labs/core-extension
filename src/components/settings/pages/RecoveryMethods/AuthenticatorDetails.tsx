@@ -12,8 +12,12 @@ import {
   DialogActions,
   toast,
   CircularProgress,
+  AlertCircleIcon,
+  TrashIcon,
+  Tooltip,
 } from '@avalabs/k2-components';
 import { useCallback, useEffect, useState } from 'react';
+import browser from 'webextension-polyfill';
 
 import { Overlay } from '@src/components/common/Overlay';
 import { PageTitle } from '@src/components/common/PageTitle';
@@ -24,9 +28,6 @@ import {
   AuthErrorCode,
   TotpResetChallenge,
 } from '@src/background/services/seedless/models';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@src/monitoring/sentryCaptureException';
 
 import { AuthenticatorVerifyScreen } from './AuthenticatorVerifyScreen';
 
@@ -34,15 +35,31 @@ enum State {
   Initial = 'initial',
   Initiated = 'initiated',
   ConfirmChange = 'confirm-change',
+  ConfirmRemoval = 'confirm-removal',
   Pending = 'pending',
   Completing = 'completing',
   VerifyCode = 'verify-code',
+  Failure = 'failure',
 }
 
-export function AuthenticatorDetails({ onBackClick, autoInitialize }) {
+type Props = {
+  onBackClick?: () => void;
+  onUpdated?: () => void;
+  autoInitialize?: boolean;
+};
+
+export function AuthenticatorDetails({
+  onBackClick,
+  onUpdated,
+  autoInitialize,
+}: Props) {
   const { t } = useTranslation();
-  const { initAuthenticatorChange, completeAuthenticatorChange } =
-    useSeedlessMfaManager();
+  const {
+    initAuthenticatorChange,
+    completeAuthenticatorChange,
+    hasFidoConfigured,
+    hasTotpConfigured,
+  } = useSeedlessMfaManager();
   const { renderMfaPrompt } = useSeedlessMfa();
 
   const [state, setState] = useState(State.Initial);
@@ -51,11 +68,25 @@ export function AuthenticatorDetails({ onBackClick, autoInitialize }) {
   const [error, setError] = useState<AuthErrorCode>();
 
   const initChange = useCallback(async () => {
+    if (hasFidoConfigured) {
+      browser.tabs.create({ url: '/confirm.html#/update-recovery-methods' });
+      return;
+    }
+
     setState(State.Initiated);
-    const challenge = await initAuthenticatorChange();
-    setTotpChallenge(challenge);
-    setState(State.Pending);
-  }, [initAuthenticatorChange]);
+    try {
+      const challenge = await initAuthenticatorChange();
+      setTotpChallenge(challenge);
+      setState(State.Pending);
+    } catch {
+      setTotpChallenge(undefined);
+      setState(State.Failure);
+    }
+  }, [initAuthenticatorChange, hasFidoConfigured]);
+
+  const openRemoveTotpPopup = useCallback(async () => {
+    browser.tabs.create({ url: '/confirm.html#/remove-totp' });
+  }, []);
 
   const completeChange = useCallback(
     async (totpId: string, code: string) => {
@@ -63,8 +94,13 @@ export function AuthenticatorDetails({ onBackClick, autoInitialize }) {
 
       try {
         await completeAuthenticatorChange(totpId, code);
-        setState(State.Initial);
-        toast.success(t('Authenticator changed'));
+
+        if (onUpdated) {
+          onUpdated();
+        } else {
+          setState(State.Initial);
+          toast.success(t('Authenticator updated'));
+        }
       } catch (err) {
         // If invalid code, try again
         if (err === AuthErrorCode.InvalidTotpCode) {
@@ -72,31 +108,80 @@ export function AuthenticatorDetails({ onBackClick, autoInitialize }) {
           setError(err);
           return;
         }
-
-        toast.error(t('Something went wrong.'));
-        setError(AuthErrorCode.TotpVerificationError);
+        setState(State.Failure);
       }
     },
-    [completeAuthenticatorChange, t]
+    [completeAuthenticatorChange, onUpdated, t]
   );
 
   useEffect(() => {
-    if (autoInitialize) {
-      initChange().catch((err) => {
-        sentryCaptureException(err, SentryExceptionTypes.SEEDLESS);
-        onBackClick();
-      });
+    if (autoInitialize && state === State.Initial) {
+      initChange();
     }
-  }, [autoInitialize, initChange, onBackClick]);
+  }, [autoInitialize, initChange, onBackClick, state]);
 
   return (
     <Overlay isBackgroundFilled>
-      <Stack sx={{ width: 1, height: 1, pt: 1.5, gap: 2 }}>
+      <Stack
+        sx={{
+          width: 375,
+          height: 600,
+          pt: 1.5,
+          gap: 2,
+          alignSelf: 'center',
+          backgroundColor: autoInitialize ? 'background.paper' : 'transparent',
+          borderRadius: 1,
+        }}
+      >
+        {state === State.Failure && (
+          <Stack
+            sx={{
+              width: 1,
+              height: 1,
+              px: 3,
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            <AlertCircleIcon size={72} />
+            <Stack sx={{ textAlign: 'center', gap: 0.5 }}>
+              <Typography variant="h5" sx={{ mb: 2 }}>
+                {t('Something Went Wrong')}
+              </Typography>
+              <Typography variant="body2">
+                {t('We encountered an unexpected issue.')}
+              </Typography>
+              <Typography variant="body2">{t('Please try again.')}</Typography>
+            </Stack>
+
+            <Button
+              fullWidth
+              onClick={initChange}
+              data-testid="btn-try-again"
+              sx={{ mt: 4 }}
+            >
+              {t('Try again')}
+            </Button>
+            <Button
+              fullWidth
+              variant="text"
+              onClick={onBackClick ?? window.close}
+              data-testid="btn-go-back"
+            >
+              {onBackClick ? t('Go Back') : t('Close')}
+            </Button>
+          </Stack>
+        )}
         {(state === State.Initial ||
           state === State.Initiated ||
-          state === State.ConfirmChange) && (
+          state === State.ConfirmChange ||
+          state === State.ConfirmRemoval) && (
           <>
-            <PageTitle onBackClick={onBackClick}>
+            <PageTitle
+              onBackClick={onBackClick}
+              showBackButton={Boolean(onBackClick)}
+            >
               {t('Authenticator App')}
             </PageTitle>
             {autoInitialize ? (
@@ -127,34 +212,88 @@ export function AuthenticatorDetails({ onBackClick, autoInitialize }) {
                 py: 3,
               }}
             >
-              <Button
-                color="secondary"
-                size="large"
-                onClick={() => setState(State.ConfirmChange)}
-                disabled={
-                  state === State.Initiated || state === State.ConfirmChange
-                }
-                isLoading={
-                  state === State.Initiated || state === State.ConfirmChange
-                }
-              >
-                {t('Change Authenticator App')}
-              </Button>
+              {hasTotpConfigured && (
+                <>
+                  <Button
+                    color="secondary"
+                    size="large"
+                    fullWidth
+                    onClick={() => setState(State.ConfirmChange)}
+                    disabled={
+                      state === State.Initiated || state === State.ConfirmChange
+                    }
+                    isLoading={
+                      state === State.Initiated || state === State.ConfirmChange
+                    }
+                  >
+                    {t('Change Authenticator App')}
+                  </Button>
+                  <Tooltip
+                    sx={{ width: 1 }}
+                    title={
+                      hasFidoConfigured
+                        ? ''
+                        : t(
+                            'To remove the authenticator app, you first need to configure a different recovery method.'
+                          )
+                    }
+                  >
+                    <Button
+                      variant="text"
+                      color="error"
+                      size="large"
+                      fullWidth
+                      sx={{ mt: 1.5 }}
+                      startIcon={<TrashIcon />}
+                      onClick={() => setState(State.ConfirmRemoval)}
+                      disabled={
+                        !hasFidoConfigured ||
+                        state === State.ConfirmRemoval ||
+                        state === State.Initiated
+                      }
+                      isLoading={
+                        state === State.ConfirmRemoval ||
+                        state === State.Initiated
+                      }
+                    >
+                      {t('Remove')}
+                    </Button>
+                  </Tooltip>
+                </>
+              )}
             </Stack>
             {state === State.Initiated && renderMfaPrompt()}
             <Dialog
-              open={state === State.ConfirmChange}
+              open={
+                state === State.ConfirmChange || state === State.ConfirmRemoval
+              }
               PaperProps={{ sx: { m: 2, textAlign: 'center' } }}
             >
-              <DialogTitle>{t('Change Authenticator?')}</DialogTitle>
+              <DialogTitle>
+                {state === State.ConfirmChange
+                  ? t('Change Authenticator?')
+                  : t('Remove Authenticator?')}
+              </DialogTitle>
               <DialogContent>
-                {t(
-                  'You will no longer be able to use this authenticator once you switch. You can always re-add an authenticator app.'
-                )}
+                {state === State.ConfirmChange
+                  ? t(
+                      'You will no longer be able to use this authenticator once you switch. You can always re-add an authenticator app.'
+                    )
+                  : t(
+                      'You will no longer be able to use this authenticator once you remove it. You can always re-add it later.'
+                    )}
               </DialogContent>
               <DialogActions>
-                <Button key="change" size="large" onClick={initChange}>
-                  {t('Change')}
+                <Button
+                  key="change"
+                  size="large"
+                  onClick={
+                    state === State.ConfirmChange
+                      ? initChange
+                      : openRemoveTotpPopup
+                  }
+                >
+                  {state === State.ConfirmChange ? t('Change') : t('Remove')}
                 </Button>
                 <Button
                   key="cancel"

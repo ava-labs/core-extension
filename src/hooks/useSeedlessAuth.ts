@@ -1,10 +1,8 @@
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import {
-  CubeSigner,
   MfaRequestInfo,
   SignerSession,
   SignerSessionData,
-  envs,
 } from '@cubist-labs/cubesigner-sdk';
 
 import sentryCaptureException, {
@@ -13,6 +11,7 @@ import sentryCaptureException, {
 
 import { getSignerToken } from '@src/utils/seedless/getSignerToken';
 import {
+  getOidcClient,
   getSignerSession,
   requestOidcAuth,
 } from '@src/utils/seedless/getCubeSigner';
@@ -56,14 +55,8 @@ export const useSeedlessAuth = ({
   const { capture } = useAnalyticsContext();
 
   const getUserDetails = useCallback(async (idToken) => {
-    const cubesigner = new CubeSigner({
-      orgId: process.env.SEEDLESS_ORG_ID || '',
-      env: envs[process.env.CUBESIGNER_ENV || ''],
-    });
-    const identity = await cubesigner.oidcProveIdentity(
-      idToken,
-      process.env.SEEDLESS_ORG_ID || ''
-    );
+    const client = getOidcClient(idToken);
+    const identity = await client.identityProve();
     const mfaMethods = identity.user_info?.configured_mfa ?? [];
     const [mfaMethod] = mfaMethods;
 
@@ -71,7 +64,7 @@ export const useSeedlessAuth = ({
     const deviceName = mfaMethod?.type === 'fido' ? mfaMethod.name : '';
 
     return {
-      email: identity.email,
+      email: identity.email ?? '',
       userId: identity.identity?.sub,
       mfaType,
       deviceName,

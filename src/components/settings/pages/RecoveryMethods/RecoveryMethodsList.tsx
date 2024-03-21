@@ -6,7 +6,11 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 import { RecoveryMethod } from './RecoveryMethod';
 
-export const RecoveryMethodsList = ({ onMethodClick, asCards = false }) => {
+export const RecoveryMethodsList = ({
+  onMethodClick,
+  asCards = false,
+  excludeTotp = false,
+}) => {
   const { capture } = useAnalyticsContext();
 
   return (
@@ -21,16 +25,20 @@ export const RecoveryMethodsList = ({ onMethodClick, asCards = false }) => {
         methodName={t('Passkey')}
         methodDescription={t('Add a Passkey as a recovery method.')}
       />
-      <RecoveryMethod
-        asCard={asCards}
-        onClick={() => {
-          capture('AddAuthenticatorClicked');
-          onMethodClick(RecoveryMethodType.Authenticator);
-        }}
-        methodIcon={<QRCodeIcon size={24} sx={{ width: 28 }} />}
-        methodName={t('Authenticator')}
-        methodDescription={t('Use an authenticator app as a recovery method.')}
-      />
+      {!excludeTotp && (
+        <RecoveryMethod
+          asCard={asCards}
+          onClick={() => {
+            capture('AddAuthenticatorClicked');
+            onMethodClick(RecoveryMethodType.Authenticator);
+          }}
+          methodIcon={<QRCodeIcon size={24} sx={{ width: 28 }} />}
+          methodName={t('Authenticator')}
+          methodDescription={t(
+            'Use an authenticator app as a recovery method.'
+          )}
+        />
+      )}
       <RecoveryMethod
         asCard={asCards}
         onClick={() => {

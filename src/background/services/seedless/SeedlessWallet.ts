@@ -1,4 +1,5 @@
 import * as cs from '@cubist-labs/cubesigner-sdk';
+import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
 import { strip0x } from '@avalabs/utils-sdk';
 import { Network } from '@avalabs/chains-sdk';
 import {
@@ -263,6 +264,7 @@ export class SeedlessWallet {
         return this.#approveWithMfa(request, tabId);
       }
 
+      this.#mfaService.clearMfaChallenge(request.mfaId(), tabId);
       this.#handleError(err);
     }
   }
@@ -407,7 +409,7 @@ export class SeedlessWallet {
     }
 
     try {
-      const signer = new cs.ethers.Signer(
+      const signer = new Signer(
         getEvmAddressFromPubKey(Buffer.from(this.#addressPublicKey.evm, 'hex')),
         await this.#getSession(),
         provider
