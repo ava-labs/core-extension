@@ -20,6 +20,8 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 import { merge } from 'lodash';
+import { Erc1155Token, Erc721Token } from '@avalabs/glacier-sdk';
+
 import { useAccountsContext } from './AccountsProvider';
 import { useNetworkContext } from './NetworkProvider';
 import { balancesUpdatedEventListener } from '@src/background/services/balances/events/balancesUpdatedEventListener';
@@ -27,6 +29,10 @@ import { Account } from '@src/background/services/accounts/models';
 import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
 import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
 import { getAccountKey } from '@src/utils/getAccountKey';
+import { RefreshNftMetadataHandler } from '@src/background/services/balances/handlers/refreshNftMetadata';
+import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
+import { getSmallImageForNFT } from '@src/background/services/balances/nft/utils/getSmallImageForNFT';
+import { parseRawAttributesString } from '@src/utils/nfts/metadataParser';
 
 interface NftState {
   loading: boolean;
@@ -61,7 +67,15 @@ type BalanceAction =
 const BalancesContext = createContext<{
   tokens: BalancesState;
   nfts: NftState;
-  updateNftBalances?: (pageToken: NftPageTokens, callback?: () => void) => void;
+  refreshNftMetadata(
+    address: string,
+    chainId: string,
+    tokenId: string
+  ): Promise<void>;
+  updateNftBalances?: (
+    pageToken?: NftPageTokens,
+    callback?: () => void
+  ) => void;
   updateBalanceOnAllNetworks: (accounts: Account[]) => Promise<void>;
   registerSubscriber: () => void;
   unregisterSubscriber: () => void;
@@ -71,6 +85,7 @@ const BalancesContext = createContext<{
 }>({
   tokens: { loading: true },
   nfts: { loading: false },
+  async refreshNftMetadata() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   async updateBalanceOnAllNetworks() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   unregisterSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
@@ -260,6 +275,25 @@ export function BalancesProvider({ children }: { children: any }) {
     [network, request]
   );
 
+  const refreshNftMetadata = useCallback(
+    async (address: string, chainId: string, tokenId: string) => {
+      const result = await request<RefreshNftMetadataHandler>({
+        method: ExtensionRequest.NFT_REFRESH_METADATA,
+        params: [address, chainId, tokenId],
+      });
+
+      if (result.metadata) {
+        setNfts((_nfts) => ({
+          ...nfts,
+          items: (_nfts.items ?? []).map(
+            updateMatchingNftMetadata(address, tokenId, result)
+          ),
+        }));
+      }
+    },
+    [request, nfts]
+  );
+
   const getTotalBalance = useCallback(
     (addressC?: string) => {
       if (
@@ -283,6 +317,7 @@ export function BalancesProvider({ children }: { children: any }) {
       value={{
         tokens,
         nfts,
+        refreshNftMetadata,
         updateNftBalances,
         updateBalanceOnAllNetworks,
         registerSubscriber,
@@ -300,3 +335,33 @@ export function BalancesProvider({ children }: { children: any }) {
 export function useBalancesContext() {
   return useContext(BalancesContext);
 }
+
+const updateMatchingNftMetadata =
+  (
+    address: string,
+    tokenId: string,
+    newTokenData: Erc721Token | Erc1155Token
+  ) =>
+  (item: NftTokenWithBalance) => {
+    if (item.address !== address || item.tokenId !== tokenId) {
+      return item;
+    }
+
+    const isErc721 = newTokenData.ercType === Erc721Token.ercType.ERC_721;
+
+    const imageProps = newTokenData.metadata.imageUri
+      ? {
+          logoUri: ipfsResolverWithFallback(newTokenData.metadata.imageUri),
+          logoSmall: getSmallImageForNFT(newTokenData.metadata.imageUri),
+        }
+      : {};
+
+    return {
+      ...item,
+      updatedAt: newTokenData.metadata.metadataLastUpdatedTimestamp,
+      attributes: isErc721
+        ? parseRawAttributesString(newTokenData.metadata.attributes)
+        : parseRawAttributesString(newTokenData.metadata.properties),
+      ...imageProps,
+    };
+  };

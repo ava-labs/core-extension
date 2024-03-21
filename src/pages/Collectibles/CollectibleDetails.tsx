@@ -1,14 +1,19 @@
 import {
   Button,
   Divider,
+  RefreshIcon,
+  Skeleton,
   Stack,
+  ToastCard,
+  Tooltip,
   Typography,
   TypographyProps,
+  toast,
 } from '@avalabs/k2-components';
 
 import { PageTitle } from '@src/components/common/PageTitle';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import { CollectibleMedia } from './components/CollectibleMedia';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
@@ -18,6 +23,8 @@ import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
 import { TokenType } from '@src/background/services/balances/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useErrorMessage } from '@src/hooks/useErrorMessage';
 
 type AttributeTypographyProps = Exclude<TypographyProps, 'variant' | 'sx'>;
 
@@ -37,12 +44,61 @@ export function CollectibleDetails() {
   const { t } = useTranslation();
   const setCollectibleParams = useSetCollectibleParams();
   const { nft } = useCollectibleFromParams();
+  const { refreshNftMetadata } = useBalancesContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
 
   const sendRef = useRef<HTMLButtonElement>(null);
 
   const [showThumbnail, setShowThumbnail] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [wasRefreshed, setWasRefreshed] = useState(false);
+  const getTranslatedError = useErrorMessage();
+
+  const canRefreshMetadata = useMemo(() => {
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    const refreshBackoff = 3600;
+
+    if (!nft || wasRefreshed) {
+      return false;
+    }
+
+    return !nft.updatedAt || currentTimestamp > nft.updatedAt + refreshBackoff;
+  }, [nft, wasRefreshed]);
+
+  const refreshMetadata = useCallback(async () => {
+    if (!nft || !network) {
+      return;
+    }
+
+    setIsRefreshing(true);
+
+    try {
+      await refreshNftMetadata(
+        nft.address,
+        String(network.chainId),
+        nft.tokenId
+      );
+      toast.success(t('NFT metadata was refreshed successfully!'));
+      setWasRefreshed(true);
+    } catch (err: any) {
+      const { title, hint } = getTranslatedError(err);
+
+      toast.custom(
+        <ToastCard variant="error">
+          <Typography variant="subtitle2">{title}</Typography>
+          {hint && (
+            <Typography variant="caption" color="text.primary">
+              {hint}
+            </Typography>
+          )}
+        </ToastCard>,
+        { duration: 5000 }
+      );
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [getTranslatedError, network, nft, refreshNftMetadata, t]);
 
   if (!nft) {
     return <Redirect to={`/home?activeTab=${PortfolioTabs.COLLECTIBLES}`} />;
@@ -55,9 +111,37 @@ export function CollectibleDetails() {
         height: '100%',
       }}
     >
-      <PageTitle thumbnailImage={showThumbnail ? nft?.logoUri : ''}>
-        {nft?.name}
-      </PageTitle>
+      <Stack
+        direction="row"
+        sx={{ mt: 2.5, mb: 0.5, pr: 1, alignItems: 'center' }}
+      >
+        <PageTitle
+          margin="0"
+          thumbnailImage={showThumbnail ? nft?.logoUri : ''}
+        >
+          {nft?.name}
+        </PageTitle>
+        <Tooltip
+          title={
+            canRefreshMetadata
+              ? ''
+              : t('Refresh is only available once per hour.')
+          }
+        >
+          <Button
+            variant="text"
+            size="large"
+            color="primary"
+            disabled={!canRefreshMetadata || isRefreshing}
+            sx={{ p: 0 }}
+            onClick={refreshMetadata}
+            disableRipple
+            data-testid="refresh-nft-metadata"
+          >
+            <RefreshIcon size={24} />
+          </Button>
+        </Tooltip>
+      </Stack>
       <Scrollbars
         style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
         onScrollFrame={({ scrollTop }) => {
@@ -74,18 +158,22 @@ export function CollectibleDetails() {
             px: 2,
           }}
         >
-          <CollectibleMedia
-            width="343px"
-            height="auto"
-            url={nft?.logoUri}
-            hover={false}
-            margin="8px 0"
-            controls={true}
-            showPlayIcon={false}
-            showBalance={TokenType.ERC1155 === nft.type}
-            balance={nft.balance}
-            showExpandOption={true}
-          />
+          {isRefreshing ? (
+            <Skeleton variant="rectangular" width="100%" height="300px" />
+          ) : (
+            <CollectibleMedia
+              width="343px"
+              height="auto"
+              url={nft?.logoUri}
+              hover={false}
+              margin="8px 0"
+              controls={true}
+              showPlayIcon={false}
+              showBalance={TokenType.ERC1155 === nft.type}
+              balance={nft.balance}
+              showExpandOption={true}
+            />
+          )}
           <Button
             size="large"
             sx={{

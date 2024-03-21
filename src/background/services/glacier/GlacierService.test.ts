@@ -1,10 +1,18 @@
 import { Glacier } from '@avalabs/glacier-sdk';
 import { GlacierService } from './GlacierService';
 
+import { wait } from '@avalabs/utils-sdk';
+
 jest.mock('@avalabs/glacier-sdk');
+jest.mock('@avalabs/utils-sdk', () => ({
+  ...jest.requireActual('@avalabs/utils-sdk'),
+  wait: jest.fn(),
+}));
 
 const healthCheckMock = jest.fn();
 const supportedChainsMock = jest.fn();
+const reindexNft = jest.fn();
+const getTokenDetails = jest.fn();
 
 const waitForFirstHealthCheck = async () => {
   jest.runOnlyPendingTimers();
@@ -25,7 +33,12 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
       evmChains: {
         supportedChains: supportedChainsMock,
       },
+      nfTs: {
+        reindexNft,
+        getTokenDetails,
+      },
     });
+    jest.mocked(wait).mockResolvedValue();
   });
 
   afterEach(() => {
@@ -39,6 +52,102 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
       jest.advanceTimersByTime(5000);
       expect(healthCheckMock).toHaveBeenCalledTimes(i + 1);
     }
+  });
+
+  describe('reindexNft', () => {
+    it('schedules reindexing of the given NFT', async () => {
+      getTokenDetails.mockResolvedValue({
+        metadata: {
+          metadataLastUpdatedTimestamp: Infinity,
+        },
+      });
+
+      const glacierService = new GlacierService();
+      await glacierService.refreshNftMetadata('address', 'chainId', 'tokenId');
+
+      expect(reindexNft).toHaveBeenCalledWith({
+        address: 'address',
+        chainId: 'chainId',
+        tokenId: 'tokenId',
+      });
+    });
+
+    it('waits 2 seconds before first fetch', async () => {
+      const mockedTimestamp = 1_000_000;
+      jest.spyOn(Date, 'now').mockReturnValue(mockedTimestamp * 1000);
+
+      getTokenDetails.mockResolvedValue({
+        metadata: {
+          metadataLastUpdatedTimestamp: mockedTimestamp + 1000000,
+        },
+      });
+
+      const glacierService = new GlacierService();
+
+      glacierService.refreshNftMetadata('address', 'chainId', 'tokenId');
+
+      expect(getTokenDetails).not.toHaveBeenCalled();
+
+      jest.advanceTimersByTime(2500);
+      jest.runOnlyPendingTimers();
+      await new Promise(jest.requireActual('timers').setImmediate);
+
+      expect(getTokenDetails).toHaveBeenCalledTimes(1);
+    });
+
+    it('polls NFT details until watching for updates', async () => {
+      const mockedTimestamp = 1_000_000;
+      jest.spyOn(Date, 'now').mockReturnValue(mockedTimestamp * 1000);
+
+      getTokenDetails
+        .mockResolvedValueOnce({
+          metadata: {
+            metadataLastUpdatedTimestamp: undefined,
+          },
+        })
+        .mockResolvedValueOnce({
+          metadata: {
+            metadataLastUpdatedTimestamp: undefined,
+          },
+        })
+        .mockResolvedValue({
+          metadata: {
+            metadataLastUpdatedTimestamp: mockedTimestamp + 1000000,
+          },
+        });
+
+      const glacierService = new GlacierService();
+
+      await glacierService.refreshNftMetadata('address', 'chainId', 'tokenId');
+
+      expect(getTokenDetails).toHaveBeenCalledTimes(3);
+    });
+
+    it('stops polling after 10 attempts', async () => {
+      const mockedTimestamp = 1_000_000;
+      jest.spyOn(Date, 'now').mockReturnValue(mockedTimestamp * 1000);
+
+      getTokenDetails.mockResolvedValue({
+        metadata: {
+          metadataLastUpdatedTimestamp: mockedTimestamp - 1_000,
+        },
+      });
+
+      const glacierService = new GlacierService();
+
+      // expect(...).rejects.toThrow() does not work here for whatever reason.
+      try {
+        await glacierService.refreshNftMetadata(
+          'address',
+          'chainId',
+          'tokenId'
+        );
+      } catch (err) {
+        expect(err).toEqual('request-timeout');
+      }
+
+      expect(getTokenDetails).toHaveBeenCalledTimes(10);
+    });
   });
 
   describe('isNetworkSupported', () => {

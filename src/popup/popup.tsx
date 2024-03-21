@@ -262,6 +262,7 @@ const pagesWithoutHeader = [
   '/bridge/transaction-status',
   '/bridge/transaction-details',
   '/send/confirm',
+  '/collectible',
   '/collectible/send/confirm',
   '/accounts',
   '/import-private-key',

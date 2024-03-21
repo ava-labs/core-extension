@@ -12,6 +12,7 @@ export enum CommonError {
   NoActiveNetwork = 'no-active-network',
   UnknownNetwork = 'unknown-network',
   UnknownNetworkFee = 'unknown-network-fee',
+  RequestTimeout = 'request-timeout',
 }
 
 export enum RpcErrorCode {

@@ -131,6 +131,10 @@ export const useErrorMessage = () => {
       [CommonError.UnknownNetworkFee]: {
         title: t('Unknown network fee'),
       },
+      [CommonError.RequestTimeout]: {
+        title: t('Request timed out'),
+        hint: t('This is taking longer than expected. Please try again later.'),
+      },
     }),
     [t]
   );

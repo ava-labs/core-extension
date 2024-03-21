@@ -71,6 +71,7 @@ export interface NftTokenWithBalance extends TokenBalanceData {
   tokenId: string;
   attributes: TokenAttribute[];
   collectionName: string;
+  updatedAt?: number;
 }
 
 export interface NftPageTokens {

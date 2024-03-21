@@ -132,6 +132,7 @@ import { GetRecoveryMethodsHandler } from '@src/background/services/seedless/han
 import { InitAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/initAuthenticatorChange';
 import { CompleteAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/completeAuthenticatorChange';
 import { ChooseMfaMethodHandler } from '@src/background/services/seedless/handlers/chooseMfaMethod';
+import { RefreshNftMetadataHandler } from '@src/background/services/balances/handlers/refreshNftMetadata';
 import { AddFidoDeviceHandler } from '@src/background/services/seedless/handlers/addFidoDevice';
 import { RemoveFidoDeviceHandler } from '@src/background/services/seedless/handlers/removeFidoDevice';
 import { RemoveTotpHandler } from '@src/background/services/seedless/handlers/removeTotp';
@@ -380,6 +381,10 @@ import { RemoveTotpHandler } from '@src/background/services/seedless/handlers/re
   {
     token: 'ExtensionRequestHandler',
     useToken: RemoveTotpHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: RefreshNftMetadataHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

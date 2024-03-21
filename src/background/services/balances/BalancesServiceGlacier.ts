@@ -20,8 +20,6 @@ import {
   NftTokenWithBalance,
   NftMetadata,
   NftPageTokens,
-  TokenAttribute,
-  RawTokenAttribute,
 } from './models';
 import { BN } from 'bn.js';
 import { Account } from '../accounts/models';
@@ -29,6 +27,10 @@ import { getSmallImageForNFT } from './nft/utils/getSmallImageForNFT';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import * as Sentry from '@sentry/browser';
 import { getNftMetadata } from '@src/utils/getNftMetadata';
+import {
+  parseAttributes,
+  parseRawAttributesString,
+} from '@src/utils/nfts/metadataParser';
 import {
   is1155Response,
   isErc721TokenBalance,
@@ -388,57 +390,12 @@ export class BalancesServiceGlacier {
       });
   }
 
-  #parseRawAttributesString(rawAttributesString?: string) {
-    if (rawAttributesString === undefined) return [];
-    const rawAttributes: RawTokenAttribute[] = rawAttributesString
-      ? JSON.parse(rawAttributesString)
-      : [];
-
-    const parsedAttributes = rawAttributes.reduce(
-      (acc: TokenAttribute[], attr) => [
-        ...acc,
-        {
-          name: attr.name ?? attr.trait_type,
-          value: attr.value,
-        },
-      ],
-      []
-    );
-
-    return parsedAttributes;
-  }
-
-  #parseRawAttributesArray(
-    rawAttributesArray:
-      | { trait_type?: string; name?: string; value: string }[]
-      | undefined
-  ) {
-    if (rawAttributesArray === undefined) return [];
-
-    const parsedAttributes = rawAttributesArray.map((attr) => {
-      return {
-        name: attr.name ?? attr.trait_type,
-        value: attr.value,
-      };
-    });
-
-    return parsedAttributes;
-  }
-
-  #parseAttributes(attributes) {
-    return Array.isArray(attributes)
-      ? this.#parseRawAttributesArray(attributes)
-      : attributes === 'string'
-      ? this.#parseRawAttributesString(attributes)
-      : attributes;
-  }
-
   private convertNftToTokenWithBalanceWithMetadata(
     token: Erc721TokenBalance | Erc1155TokenBalance,
     metadata: NftMetadata
   ): NftTokenWithBalance {
     const is721 = isErc721TokenBalance(token);
-    const attributes = this.#parseAttributes(metadata.attributes);
+    const attributes = parseAttributes(metadata.attributes);
 
     return {
       /**
@@ -452,6 +409,7 @@ export class BalancesServiceGlacier {
       logoUri: ipfsResolverWithFallback(metadata.image),
       logoSmall: metadata.image ? getSmallImageForNFT(metadata.image) : '',
       description: metadata.description ?? '',
+      updatedAt: token.metadata.metadataLastUpdatedTimestamp,
       attributes,
       balance: is721 ? new BN(0) : new BN(token.balance),
       name: is721 ? token.name : metadata.name ?? 'Unknown',
@@ -466,7 +424,7 @@ export class BalancesServiceGlacier {
 
     const rawAttributesString =
       token.metadata[is721 ? 'attributes' : 'properties'];
-    const attributes = this.#parseRawAttributesString(rawAttributesString);
+    const attributes = parseRawAttributesString(rawAttributesString);
 
     return {
       /**
@@ -476,6 +434,7 @@ export class BalancesServiceGlacier {
        */
       collectionName: is721 ? token.name : token.metadata.name ?? 'Unknown',
       ...token,
+      updatedAt: token.metadata.metadataLastUpdatedTimestamp,
       type: is721 ? TokenType.ERC721 : TokenType.ERC1155,
       logoUri: ipfsResolverWithFallback(token.metadata.imageUri),
       logoSmall: token.metadata.imageUri
