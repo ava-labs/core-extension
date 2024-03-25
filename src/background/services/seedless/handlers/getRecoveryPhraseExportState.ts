@@ -10,6 +10,7 @@ import { SeedlessTokenStorage } from '../SeedlessTokenStorage';
 import { NetworkService } from '../../network/NetworkService';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { UserExportInitResponse } from '@cubist-labs/cubesigner-sdk';
+import { isExportRequestOutdated } from '../utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_GET_RECOVERY_PHRASE_EXPORT_STATE,
@@ -44,9 +45,17 @@ export class GetRecoveryPhraseExportStateHandler implements HandlerType {
     });
 
     try {
+      const exportRequest = await wallet.getMnemonicExportState();
+
+      // Cancel outdated requests, but still return them
+      // to the UI so we can show a proper message.
+      if (exportRequest && isExportRequestOutdated(exportRequest)) {
+        await wallet.cancelMnemonicExport();
+      }
+
       return {
         ...request,
-        result: await wallet.getMnemonicExportState(),
+        result: exportRequest,
       };
     } catch (err: any) {
       return {

@@ -116,6 +116,64 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
     });
   });
 
+  describe('.approveWithMfa()', () => {
+    let service: SeedlessMfaService;
+
+    beforeEach(async () => {
+      service = new SeedlessMfaService(secretsService);
+    });
+
+    it('retries if MFA verification fails', async () => {
+      const badCode = '133731';
+      const wrongCodeError = new Error('Invalid TOTP code');
+      (wrongCodeError as any).status = 403;
+
+      const originalRequest = {
+        mfaId() {
+          return 'abcd';
+        },
+        data() {
+          return { x: 'y' };
+        },
+        approveTotp: jest
+          .fn()
+          .mockRejectedValueOnce(wrongCodeError)
+          .mockResolvedValueOnce({ x: 'y' }),
+      } as any;
+
+      // Mock user providing bad code at first
+      jest.spyOn(service, 'requestMfa').mockResolvedValueOnce(badCode as any);
+      jest.spyOn(service, 'emitMfaError');
+      // Mock Cubist "wrong totp code" response:
+      jest
+        .mocked(originalRequest.approveTotp)
+        .mockRejectedValueOnce(wrongCodeError);
+
+      service.approveWithMfa(MfaRequestType.Totp, originalRequest, 123);
+
+      await new Promise(process.nextTick);
+
+      expect(service.requestMfa).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          mfaId: 'abcd',
+          type: MfaRequestType.Totp,
+          tabId: 123,
+        })
+      );
+
+      expect(service.emitMfaError).toHaveBeenCalledWith('abcd', 123);
+      expect(service.requestMfa).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          mfaId: 'abcd',
+          type: MfaRequestType.Totp,
+          tabId: 123,
+        })
+      );
+    });
+  });
+
   describe('.getRecoveryMethods()', () => {
     let session: SignerSession;
     let service: SeedlessMfaService;

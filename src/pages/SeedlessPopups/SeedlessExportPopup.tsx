@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
-  AlertCircleIcon,
   Button,
   Dialog,
   DialogActions,
@@ -16,27 +15,20 @@ import {
   useSeedlessMnemonicExport,
 } from '@src/hooks/useSeedlessMnemonicExport';
 import { useSeedlessMfa } from '@src/hooks/useSeedlessMfa';
-import { TOTPChallenge } from '@src/components/common/seedless/components/TOTPChallenge';
-import { FIDOChallenge } from '@src/components/common/seedless/components/FIDOChallenge';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { ExportPending } from '@src/components/common/seedless/components/ExportPending';
 import { PhraseReadyToExport } from '@src/components/common/seedless/components/PhraseReadyToExport';
-import { MfaRequestType } from '@src/background/services/seedless/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedlessAnalytics';
+import { ExportError } from '@src/components/common/seedless/components/ExportError';
 
 export const SeedlessExportPopup = () => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  const {
-    mfaChallenge,
-    submitTotp,
-    submitFido,
-    isVerifying,
-    error: mfaError,
-  } = useSeedlessMfa();
+  const { renderMfaPrompt } = useSeedlessMfa();
   const {
     state,
+    error,
     initExport,
     cancelExport,
     completeExport,
@@ -49,34 +41,14 @@ export const SeedlessExportPopup = () => {
     capture(SeedlessExportAnalytics.Resigned).finally(window.close);
   }, [capture]);
 
-  const showMfaChallenge =
-    Boolean(mfaChallenge) &&
-    (state === ExportState.Initiating || state === ExportState.Exporting);
-
   return (
     <>
       {state === ExportState.Error && (
-        <Stack sx={{ width: 1, height: 1, p: 2 }}>
-          <Stack
-            sx={{
-              flexGrow: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
-            <AlertCircleIcon size={48} color="error.light" />
-            <Typography variant="h5">
-              {t('Sorry, an unknown error occurred.')}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {t('Please try again later or contact Core support.')}
-            </Typography>
-          </Stack>
-          <Button color="primary" size="large" onClick={window.close} fullWidth>
-            {t('Close')}
-          </Button>
-        </Stack>
+        <ExportError
+          error={error}
+          onRetry={initExport}
+          onClose={window.close}
+        />
       )}
       {state !== ExportState.Error && (
         <>
@@ -110,30 +82,9 @@ export const SeedlessExportPopup = () => {
               />
             )}
           </Stack>
-          <Dialog
-            open={showMfaChallenge}
-            PaperProps={{ sx: { m: 2, textAlign: 'center' } }}
-          >
-            {mfaChallenge?.type === MfaRequestType.Totp && (
-              <TOTPChallenge
-                onSubmit={submitTotp}
-                isLoading={isVerifying}
-                error={mfaError}
-              />
-            )}
-            {mfaChallenge?.type === MfaRequestType.Fido && (
-              <>
-                <DialogTitle>{t('Waiting for Confirmation')}</DialogTitle>
-                <DialogContent>
-                  <FIDOChallenge
-                    completeFidoChallenge={submitFido}
-                    isLoading={isVerifying}
-                    error={mfaError}
-                  />
-                </DialogContent>
-              </>
-            )}
-          </Dialog>
+          {(state === ExportState.Initiating ||
+            state === ExportState.Exporting) &&
+            renderMfaPrompt()}
           <Dialog
             open={state === ExportState.NotInitiated}
             PaperProps={{ sx: { m: 2, textAlign: 'center' } }}

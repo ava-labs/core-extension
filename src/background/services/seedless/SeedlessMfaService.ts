@@ -30,7 +30,8 @@ import {
 } from './models';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SecretsService } from '../secrets/SecretsService';
-import { isFailedMfaError } from './utils';
+import { isFailedMfaError, mapMfasToRecoveryMethods } from './utils';
+import { PartialBy } from '@src/background/models';
 
 @singleton()
 export class SeedlessMfaService implements OnUnlock, OnLock {
@@ -74,9 +75,19 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
   }
 
   async askForMfaMethod(
-    mfaChoiceRequest: MfaChoiceRequest
+    mfaChoiceRequest: PartialBy<MfaChoiceRequest, 'availableMethods'>
   ): Promise<RecoveryMethod> {
-    this.#choiceRequest$.next(mfaChoiceRequest);
+    const methods =
+      mfaChoiceRequest.availableMethods ?? (await this.getRecoveryMethods());
+
+    if (methods.length === 1) {
+      return methods[0]!;
+    }
+
+    this.#choiceRequest$.next({
+      ...mfaChoiceRequest,
+      availableMethods: methods,
+    });
 
     // Wait for the user to respond to our request for MFA choice
     return firstValueFrom(
@@ -94,18 +105,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     const session = await this.#getSession();
     const user = await session.user();
 
-    const methods = user.mfa.map<RecoveryMethod>((method) => {
-      if (method.type === 'fido') {
-        return {
-          ...method,
-          type: MfaRequestType.Fido,
-        };
-      }
-
-      return {
-        type: MfaRequestType.Totp,
-      };
-    });
+    const methods = user.mfa.map(mapMfasToRecoveryMethods);
 
     if (excludeTotp || excludeFido) {
       return methods.filter((method) => {
@@ -141,7 +141,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
               tabId,
             });
 
-      const mfaResponse = await this.#approveWithMfa(
+      const mfaResponse = await this.approveWithMfa(
         method?.type === 'totp' ? MfaRequestType.Totp : MfaRequestType.Fido,
         addFidoRequest,
         tabId
@@ -179,7 +179,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
               tabId,
             });
 
-      const result = await this.#approveWithMfa(
+      const result = await this.approveWithMfa(
         method?.type === 'totp' ? MfaRequestType.Totp : MfaRequestType.Fido,
         response,
         tabId
@@ -216,7 +216,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
         throw SeedlessError.NoMfaMethodAvailable;
       }
 
-      await this.#approveWithMfa(MfaRequestType.Fido, request, tabId);
+      await this.approveWithMfa(MfaRequestType.Fido, request, tabId);
     }
 
     await this.#emitMfaMethods();
@@ -237,7 +237,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
         throw SeedlessError.NoMfaMethodAvailable;
       }
 
-      await this.#approveWithMfa(MfaRequestType.Totp, request, tabId);
+      await this.approveWithMfa(MfaRequestType.Totp, request, tabId);
     }
 
     await this.#emitMfaMethods();
@@ -267,7 +267,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     }
   }
 
-  async #approveWithMfa<T>(
+  async approveWithMfa<T>(
     type: MfaRequestType,
     request: CubeSignerResponse<T>,
     tabId?: number
@@ -280,7 +280,14 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
           tabId,
         });
 
-        return await request.approveTotp(await this.#getSession(), code);
+        const result = await request.approveTotp(
+          await this.#getSession(),
+          code
+        );
+
+        this.clearMfaChallenge(request.mfaId(), tabId);
+
+        return result;
       } else if (type === MfaRequestType.Fido) {
         const session = await this.#getSession();
         const challenge = await session.fidoApproveStart(request.mfaId());
@@ -298,11 +305,15 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
           throw new Error('Fido challenge not approved');
         }
 
-        return await request.signWithMfaApproval({
+        const result = await request.signWithMfaApproval({
           mfaId: request.mfaId(),
           mfaOrgId: process.env.SEEDLESS_ORG_ID || '',
           mfaConf: mfaInfo.receipt.confirmation,
         });
+
+        this.clearMfaChallenge(request.mfaId(), tabId);
+
+        return result;
       } else {
         throw new Error('Unsupported MFA type');
       }
@@ -312,7 +323,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
         // Emit error & retry
         await this.emitMfaError(request.mfaId(), tabId);
 
-        return this.#approveWithMfa(type, request, tabId);
+        return this.approveWithMfa(type, request, tabId);
       }
 
       this.clearMfaChallenge(request.mfaId(), tabId);
@@ -348,8 +359,9 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     this.#challengeResponse$.next(mfaResponse);
   }
 
-  async submitChosenMethod(method: MfaChoiceResponse) {
-    this.#choiceResponse$.next(method);
+  async submitChosenMethod(response: MfaChoiceResponse, tabId?: number) {
+    this.#choiceResponse$.next(response);
+    this.clearMfaChallenge(response.mfaId, tabId);
   }
 
   addListener(

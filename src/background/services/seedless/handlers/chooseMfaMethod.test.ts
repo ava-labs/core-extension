@@ -16,6 +16,7 @@ describe('src/background/services/seedless/handlers/chooseMfaMethod', () => {
       method: ExtensionRequest.SEEDLESS_CHOOSE_MFA_METHOD,
       id: 'abcd-1234',
       params: [choice],
+      tabId: 1234,
     });
   };
 
@@ -42,6 +43,9 @@ describe('src/background/services/seedless/handlers/chooseMfaMethod', () => {
     const choice = { mfaId: 'mfa-123', chosenMethod: { type: 'totp' } };
 
     await handle(choice);
-    expect(seedlessMfaService.submitChosenMethod).toHaveBeenCalledWith(choice);
+    expect(seedlessMfaService.submitChosenMethod).toHaveBeenCalledWith(
+      choice,
+      1234
+    );
   });
 });

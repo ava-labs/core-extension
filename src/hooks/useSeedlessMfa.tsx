@@ -19,18 +19,12 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
 
 import { FIDOApiEndpoint } from '@src/utils/seedless/fido/types';
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Typography,
-} from '@avalabs/k2-components';
+import { Dialog, DialogContent, DialogTitle } from '@avalabs/k2-components';
 import { TOTPChallenge } from '@src/components/common/seedless/components/TOTPChallenge';
 import { FIDOChallenge } from '@src/components/common/seedless/components/FIDOChallenge';
 import { useTranslation } from 'react-i18next';
-import { RecoveryMethod } from '@src/components/settings/pages/RecoveryMethods/RecoveryMethod';
 import { ChooseMfaMethodHandler } from '@src/background/services/seedless/handlers/chooseMfaMethod';
+import { MfaChoicePrompt } from '@src/components/common/seedless/components/MfaChoicePrompt';
 
 export const useSeedlessMfa = () => {
   const { t } = useTranslation();
@@ -163,33 +157,7 @@ export const useSeedlessMfa = () => {
           )}
         </Dialog>
 
-        <Dialog open={Boolean(mfaChoice)} PaperProps={{ sx: { m: 2 } }}>
-          <DialogTitle>{t('Choose Verification Method')}</DialogTitle>
-          <DialogContent>
-            <Typography variant="body1">
-              {t(
-                'Select one of the available verification methods below to proceed.'
-              )}
-            </Typography>
-          </DialogContent>
-          {mfaChoice?.availableMethods?.length && (
-            <DialogActions sx={{ px: 1 }}>
-              {mfaChoice.availableMethods.map((method) => (
-                <RecoveryMethod
-                  key={method.type === 'fido' ? method.id : 'authenticator'}
-                  methodName={
-                    method.type === 'fido' ? method.name : t('Authenticator')
-                  }
-                  onClick={() => chooseMfaMethod(method)}
-                  asCard
-                  sx={{
-                    justifyContent: 'space-between',
-                  }}
-                />
-              ))}
-            </DialogActions>
-          )}
-        </Dialog>
+        <MfaChoicePrompt mfaChoice={mfaChoice} onChosen={chooseMfaMethod} />
       </>
     ),
     [

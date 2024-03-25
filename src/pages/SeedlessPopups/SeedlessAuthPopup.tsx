@@ -15,6 +15,7 @@ import { AuthenticationError } from '@src/components/common/seedless/components/
 import { WaitingForAuthentication } from '@src/components/common/seedless/components/WaitingForAuthentication';
 import { FIDOChallenge } from '@src/components/common/seedless/components/FIDOChallenge';
 import { AuthErrorCode } from '@src/background/services/seedless/models';
+import { MfaChoicePrompt } from '@src/components/common/seedless/components/MfaChoicePrompt';
 
 const FATAL_ERRORS = [
   AuthErrorCode.NoMfaDetails,
@@ -60,6 +61,8 @@ export const SeedlessAuthPopup = () => {
 
   const {
     authenticate,
+    methods,
+    chooseMfaMethod,
     verifyTotpCode,
     completeFidoChallenge,
     error,
@@ -88,6 +91,12 @@ export const SeedlessAuthPopup = () => {
 
   return (
     <>
+      {methods.length > 1 && step === AuthStep.ChooseMfaMethod && (
+        <MfaChoicePrompt
+          mfaChoice={{ availableMethods: methods }}
+          onChosen={chooseMfaMethod}
+        />
+      )}
       {!isFatalError && step === AuthStep.TotpChallenge && (
         <TOTPChallenge
           error={error}

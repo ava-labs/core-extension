@@ -33,7 +33,7 @@ export class ChooseMfaMethodHandler implements HandlerType {
       return { ...request, error: 'MFA method choice is required' };
     }
 
-    await this.seedlessMfaService.submitChosenMethod(response);
+    await this.seedlessMfaService.submitChosenMethod(response, request.tabId);
 
     return {
       ...request,

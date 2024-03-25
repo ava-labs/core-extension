@@ -14,7 +14,7 @@ import { KeyType } from '@src/utils/seedless/fido/types';
 import { SettingsHeader } from '../../SettingsHeader';
 import { SettingsPageProps } from '../../models';
 
-import { RecoveryMethod } from './RecoveryMethod';
+import { RecoveryMethod } from '../../../common/seedless/components/RecoveryMethod';
 import { RecoveryMethodsList } from './RecoveryMethodsList';
 import { AddNewRecoveryMethod } from './AddNewRecoveryMethod';
 import { AuthenticatorDetails } from './AuthenticatorDetails';

@@ -4,7 +4,7 @@ import { KeyIcon, QRCodeIcon, UsbIcon } from '@avalabs/k2-components';
 import { RecoveryMethodType } from '@src/background/services/seedless/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
-import { RecoveryMethod } from './RecoveryMethod';
+import { RecoveryMethod } from '../../../common/seedless/components/RecoveryMethod';
 
 export const RecoveryMethodsList = ({
   onMethodClick,
