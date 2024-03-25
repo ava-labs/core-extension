@@ -205,6 +205,10 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const submit = useCallback(
     (postSubmitHandler: () => void) => {
+      if (submitInProgress) {
+        return;
+      }
+
       if (!mnemonic && !xpub && !password) {
         return;
       }
@@ -247,6 +251,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         });
     },
     [
+      submitInProgress,
       mnemonic,
       xpub,
       password,
