@@ -44,7 +44,7 @@ export class HistoryServiceBTC {
       isIncoming: !tx.isSender,
       isOutgoing: tx.isSender,
       isContractCall: false,
-      timestamp: new Date(tx.receivedTime).toISOString(),
+      timestamp: new Date(tx.receivedTime * 1000).toISOString(),
       hash: tx.hash,
       isSender: tx.isSender,
       from: tx.isSender ? userAddress : txAddress,
