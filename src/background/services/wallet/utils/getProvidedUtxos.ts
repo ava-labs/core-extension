@@ -1,9 +1,4 @@
-import {
-  Utxo,
-  VM,
-  getManagerForVM,
-  hexToBuffer,
-} from '@avalabs/avalanchejs-v2';
+import { Utxo, VM, utils } from '@avalabs/avalanchejs';
 
 type Param = {
   utxoHexes?: string[];
@@ -12,9 +7,9 @@ type Param = {
 
 const getProvidedUtxos = ({ utxoHexes = [], vm }: Param) => {
   try {
-    const codec = getManagerForVM(vm).getDefaultCodec();
+    const codec = utils.getManagerForVM(vm).getDefaultCodec();
     return utxoHexes.map((utxoHex) => {
-      const utxoBytes = hexToBuffer(utxoHex);
+      const utxoBytes = utils.hexToBuffer(utxoHex);
       return Utxo.fromBytes(utxoBytes, codec)[0];
     });
   } catch (err) {

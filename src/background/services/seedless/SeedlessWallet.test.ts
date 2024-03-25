@@ -1,9 +1,9 @@
-import { hexToBuffer } from '@avalabs/avalanchejs-v2';
+import { utils } from '@avalabs/avalanchejs';
 import { ChainId, Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { strip0x } from '@avalabs/utils-sdk';
 import {
   Avalanche,
-  BlockCypherProvider,
+  BitcoinProvider,
   getEvmAddressFromPubKey,
   createPsbt,
 } from '@avalabs/wallets-sdk';
@@ -437,7 +437,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         await wallet.signAvalancheTx(txRequest as any);
 
         expect(txRequest.tx.addSignature).toHaveBeenCalledWith(
-          hexToBuffer(signature)
+          utils.hexToBuffer(signature)
         );
       });
 
@@ -526,7 +526,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         await wallet.signAvalancheTx(txRequest as any);
 
         expect(txRequest.tx.addSignature).toHaveBeenCalledWith(
-          hexToBuffer(signature)
+          utils.hexToBuffer(signature)
         );
       });
 
@@ -969,7 +969,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       beforeEach(() => {
         mockPsbt();
         networkService.getProviderForNetwork.mockReturnValue(
-          new BlockCypherProvider()
+          new BitcoinProvider()
         );
         wallet = new SeedlessWallet({
           networkService,
@@ -994,13 +994,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       };
 
       beforeEach(() => {
-        const blockcypherProvider = new BlockCypherProvider();
+        const bitcoinProvider = new BitcoinProvider();
         jest
-          .spyOn(blockcypherProvider, 'getNetwork')
+          .spyOn(bitcoinProvider, 'getNetwork')
           .mockReturnValue(networks.bitcoin);
-        networkService.getProviderForNetwork.mockReturnValue(
-          blockcypherProvider
-        );
+        networkService.getProviderForNetwork.mockReturnValue(bitcoinProvider);
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,

@@ -2,9 +2,9 @@ import { AvalancheSignMessageHandler } from '@src/background/services/messages/h
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { Action } from '@src/background/services/actions/models';
-import { utils } from '@avalabs/avalanchejs-v2';
+import { utils } from '@avalabs/avalanchejs';
 
-jest.mock('@avalabs/avalanchejs-v2');
+jest.mock('@avalabs/avalanchejs');
 
 describe('avalanche_signMessage', function () {
   const msg = 'test';

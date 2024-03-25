@@ -3,13 +3,16 @@ import {
   Blockchain,
   btcToSatoshi,
   getBtcAsset,
-  getBtcTransaction,
+  getBtcTransactionDetails,
   satoshiToBtc,
   useBridgeConfig,
   useBridgeSDK,
 } from '@avalabs/bridge-sdk';
 import { ChainId } from '@avalabs/chains-sdk';
-import { BitcoinInputUTXO, getMaxTransferAmount } from '@avalabs/wallets-sdk';
+import {
+  BitcoinInputUTXOWithOptionalScript,
+  getMaxTransferAmount,
+} from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
@@ -65,7 +68,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const [btcBalance, setBtcBalance] = useState<AssetBalance>();
   const [btcBalanceAvalanche, setBtcBalanceAvalanche] =
     useState<AssetBalance>();
-  const [utxos, setUtxos] = useState<BitcoinInputUTXO[]>();
+  const [utxos, setUtxos] = useState<BitcoinInputUTXOWithOptionalScript[]>();
   const [feeRates, setFeeRates] = useState<NetworkFee | null>();
 
   const feeRate: number = useMemo(() => {
@@ -171,7 +174,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     }
 
     try {
-      const btcTx = getBtcTransaction(
+      const btcTx = getBtcTransactionDetails(
         config,
         activeAccount.addressBTC,
         utxos,

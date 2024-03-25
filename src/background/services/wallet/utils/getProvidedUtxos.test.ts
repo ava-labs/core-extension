@@ -1,4 +1,4 @@
-import { PVM } from '@avalabs/avalanchejs-v2';
+import { PVM } from '@avalabs/avalanchejs';
 import getProvidedUtxos from './getProvidedUtxos';
 
 describe('getProvidedUtxos', () => {

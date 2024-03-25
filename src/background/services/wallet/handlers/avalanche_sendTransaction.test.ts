@@ -7,7 +7,7 @@ import {
   AVM,
   utils,
   EVM,
-} from '@avalabs/avalanchejs-v2';
+} from '@avalabs/avalanchejs';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { Action } from '../../actions/models';
@@ -16,7 +16,7 @@ import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { ChainId } from '@avalabs/chains-sdk';
 import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData';
 
-jest.mock('@avalabs/avalanchejs-v2');
+jest.mock('@avalabs/avalanchejs');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('../utils/getProvidedUtxos');
 jest.mock('../../analytics/utils/encryptAnalyticsData');

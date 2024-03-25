@@ -27,7 +27,7 @@ import {
 import { ReadableSignal, Signal, ValueCache } from 'micro-signals';
 import {
   Avalanche,
-  BlockCypherProvider,
+  BitcoinProvider,
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
 import { resolve, wait } from '@avalabs/utils-sdk';
@@ -349,20 +349,28 @@ export class NetworkService implements OnLock, OnStorageReady {
     return network;
   }
 
-  async getBitcoinProvider(): Promise<BlockCypherProvider> {
+  async getBitcoinProvider(): Promise<BitcoinProvider> {
     const network = await this.getBitcoinNetwork();
-    return this.getProviderForNetwork(network) as BlockCypherProvider;
+    return this.getProviderForNetwork(network) as BitcoinProvider;
   }
 
   getProviderForNetwork(
     network: Network,
     useMulticall = false
-  ): BlockCypherProvider | JsonRpcBatchInternal | Avalanche.JsonRpcProvider {
+  ): BitcoinProvider | JsonRpcBatchInternal | Avalanche.JsonRpcProvider {
     if (network.vmName === NetworkVMType.BITCOIN) {
-      return new BlockCypherProvider(
+      return new BitcoinProvider(
         !network.isTestnet,
-        process.env.GLACIER_API_KEY,
-        `${process.env.PROXY_URL}/proxy/blockcypher`
+        undefined,
+        `${process.env.PROXY_URL}/proxy/nownodes/${
+          network.isTestnet ? 'btcbook-testnet' : 'btcbook'
+        }`,
+        `${process.env.PROXY_URL}/proxy/nownodes/${
+          network.isTestnet ? 'btc-testnet' : 'btc'
+        }`,
+        process.env.GLACIER_API_KEY
+          ? { token: process.env.GLACIER_API_KEY }
+          : {}
       );
     } else if (network.vmName === NetworkVMType.EVM) {
       const provider = new JsonRpcBatchInternal(
@@ -415,8 +423,8 @@ export class NetworkService implements OnLock, OnStorageReady {
       return (await provider.broadcastTransaction(signedTx)).hash;
     }
 
-    if (provider instanceof BlockCypherProvider) {
-      return (await provider.issueRawTx(signedTx)).hash;
+    if (provider instanceof BitcoinProvider) {
+      return await provider.issueRawTx(signedTx);
     }
 
     throw new Error('No provider found');

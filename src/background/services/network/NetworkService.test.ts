@@ -1,11 +1,12 @@
 import {
   BITCOIN_NETWORK,
+  BITCOIN_TEST_NETWORK,
   ChainId,
   getChainsAndTokens,
   NetworkVMType,
 } from '@avalabs/chains-sdk';
 import {
-  BlockCypherProvider,
+  BitcoinProvider,
   JsonRpcBatchInternal,
   Avalanche,
 } from '@avalabs/wallets-sdk';
@@ -17,13 +18,13 @@ import { NETWORK_LIST_STORAGE_KEY } from './models';
 import { Signal } from 'micro-signals';
 
 jest.mock('@avalabs/wallets-sdk', () => {
-  const BlockCypherProviderMock = jest.fn();
+  const BitcoinProviderMock = jest.fn();
   const JsonRpcBatchInternalMock = jest.fn();
   const getDefaultFujiProviderMock = jest.fn();
   const getDefaultMainnetProviderMock = jest.fn();
   return {
     ...jest.requireActual('@avalabs/wallets-sdk'),
-    BlockCypherProvider: BlockCypherProviderMock,
+    BitcoinProvider: BitcoinProviderMock,
     JsonRpcBatchInternal: JsonRpcBatchInternalMock,
     Avalanche: {
       JsonRpcProvider: {
@@ -364,7 +365,7 @@ describe('background/services/network/NetworkService', () => {
 
   describe('getProviderForNetwork', () => {
     const mockJsonRpcBatchInternalInstance = {};
-    const mockBlockCypherProviderInstance = {};
+    const mockBitcoinProviderInstance = {};
     const mockFujiProviderInstance = {};
     const mockMainnetProviderInstance = {};
 
@@ -375,8 +376,8 @@ describe('background/services/network/NetworkService', () => {
       (JsonRpcBatchInternal as unknown as jest.Mock).mockReturnValue(
         mockJsonRpcBatchInternalInstance
       );
-      (BlockCypherProvider as jest.Mock).mockReturnValue(
-        mockBlockCypherProviderInstance
+      (BitcoinProvider as jest.Mock).mockReturnValue(
+        mockBitcoinProviderInstance
       );
       (
         Avalanche.JsonRpcProvider.getDefaultFujiProvider as jest.Mock
@@ -444,15 +445,32 @@ describe('background/services/network/NetworkService', () => {
       );
     });
 
-    it('returns blockcypher provider for BTC networks', () => {
+    it('returns bitcoin provider for BTC testnet', () => {
+      const provider =
+        networkService.getProviderForNetwork(BITCOIN_TEST_NETWORK);
+
+      expect(provider).toBe(mockBitcoinProviderInstance);
+      expect(BitcoinProvider).toHaveBeenCalledTimes(1);
+      expect(BitcoinProvider).toHaveBeenCalledWith(
+        false,
+        undefined,
+        `${process.env.PROXY_URL}/proxy/nownodes/btcbook-testnet`,
+        `${process.env.PROXY_URL}/proxy/nownodes/btc-testnet`,
+        { token: process.env.GLACIER_API_KEY }
+      );
+    });
+
+    it('returns bitcoin provider for BTC mainnet', () => {
       const provider = networkService.getProviderForNetwork(BITCOIN_NETWORK);
 
-      expect(provider).toBe(mockBlockCypherProviderInstance);
-      expect(BlockCypherProvider).toHaveBeenCalledTimes(1);
-      expect(BlockCypherProvider).toHaveBeenCalledWith(
+      expect(provider).toBe(mockBitcoinProviderInstance);
+      expect(BitcoinProvider).toHaveBeenCalledTimes(1);
+      expect(BitcoinProvider).toHaveBeenCalledWith(
         true,
-        process.env.GLACIER_API_KEY,
-        `${process.env.PROXY_URL}/proxy/blockcypher`
+        undefined,
+        `${process.env.PROXY_URL}/proxy/nownodes/btcbook`,
+        `${process.env.PROXY_URL}/proxy/nownodes/btc`,
+        { token: process.env.GLACIER_API_KEY }
       );
     });
 

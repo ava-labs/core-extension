@@ -4,7 +4,7 @@ import {
   DerivationPath,
 } from '@avalabs/wallets-sdk';
 import { FireblocksApiData, ImportType } from '../accounts/models';
-import { UnsignedTx } from '@avalabs/avalanchejs-v2';
+import { UnsignedTx } from '@avalabs/avalanchejs';
 import { TransactionRequest } from 'ethers';
 import {
   ImportedAccountSecrets,

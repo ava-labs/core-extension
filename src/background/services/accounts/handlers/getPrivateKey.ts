@@ -4,7 +4,7 @@ import { injectable } from 'tsyringe';
 import { SecretsService } from '../../secrets/SecretsService';
 import { getWalletFromMnemonic } from '@avalabs/wallets-sdk';
 import { AccountType, GetPrivateKeyErrorTypes } from '../models';
-import { add0x } from '@avalabs/avalanchejs-v2';
+import { utils } from '@avalabs/avalanchejs';
 import { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
 
@@ -72,7 +72,7 @@ export class GetPrivateKeyHandler implements HandlerType {
         if (account?.secretType === SecretType.PrivateKey) {
           return {
             ...request,
-            result: add0x(account.secret),
+            result: utils.add0x(account.secret),
           };
         } else {
           return {

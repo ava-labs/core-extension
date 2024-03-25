@@ -1,4 +1,4 @@
-import { AVM, EVM, PVM, VM } from '@avalabs/avalanchejs-v2';
+import { AVM, EVM, PVM, VM } from '@avalabs/avalanchejs';
 import { Account } from '../../accounts/models';
 
 const getAddressByVM = (vm: VM, account?: Account) => {

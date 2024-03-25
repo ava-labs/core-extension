@@ -8,6 +8,7 @@ import { Account } from '../accounts/models';
 import { SettingsService } from '../settings/SettingsService';
 import { TokenType, TokenWithBalance } from './models';
 import * as Sentry from '@sentry/browser';
+import { BitcoinProvider } from '@avalabs/wallets-sdk';
 
 @singleton()
 export class BalancesServiceBTC {
@@ -18,8 +19,7 @@ export class BalancesServiceBTC {
   ) {}
 
   getServiceForProvider(provider: any) {
-    // TODO: this should get move to the wallets sdk and every btc provider tried in here
-    if (!!provider && !!provider.blockCypher) return this;
+    if (provider instanceof BitcoinProvider) return this;
   }
 
   async getBalances(
@@ -61,7 +61,7 @@ export class BalancesServiceBTC {
             balance: balanceSatoshis,
             utxos,
             balanceUnconfirmed: balanceSatoshisUnconfirmed,
-          } = await provider.getUtxoBalance(account.addressBTC);
+          } = await provider.getUtxoBalance(account.addressBTC, false);
 
           const balanceBig = satoshiToBtc(balanceSatoshis);
           const balance = bigToBN(balanceBig, denomination);

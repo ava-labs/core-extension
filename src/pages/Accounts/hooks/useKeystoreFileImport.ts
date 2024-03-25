@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import { useCallback } from 'react';
-import { base58check } from '@avalabs/avalanchejs-v2';
+import { utils } from '@avalabs/avalanchejs';
 
 import {
   extractKeysFromDecryptedFile,
@@ -59,7 +59,7 @@ export const useKeystoreFileImport = () => {
           // Keystore files have the private keys base58check-encoded, but
           // we need them in hex format.
           const privateKey = Buffer.from(
-            base58check.decode(key.replace('PrivateKey-', ''))
+            utils.base58check.decode(key.replace('PrivateKey-', ''))
           ).toString('hex');
 
           await importPrivateKey(privateKey);

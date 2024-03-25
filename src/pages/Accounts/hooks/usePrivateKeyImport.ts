@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { strip0x } from '@avalabs/avalanchejs-v2';
+import { utils } from '@avalabs/avalanchejs';
 
 import sentryCaptureException, {
   SentryExceptionTypes,
@@ -19,7 +19,7 @@ export const usePrivateKeyImport = () => {
       try {
         const accountId = await addAccount('', {
           importType: ImportType.PRIVATE_KEY,
-          data: strip0x(privateKey),
+          data: utils.strip0x(privateKey),
         });
 
         return accountId;

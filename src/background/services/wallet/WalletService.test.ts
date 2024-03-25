@@ -22,7 +22,7 @@ import {
 import {
   BitcoinLedgerWallet,
   BitcoinWallet,
-  BlockCypherProvider,
+  BitcoinProvider,
   DerivationPath,
   getPubKeyFromTransport,
   getAddressFromXPub,
@@ -47,7 +47,7 @@ import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { Action, ActionStatus } from '../actions/models';
-import { UnsignedTx } from '@avalabs/avalanchejs-v2';
+import { UnsignedTx } from '@avalabs/avalanchejs';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
 import { Account, AccountType, ImportType } from '../accounts/models';
@@ -615,14 +615,14 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs BTC transactions correctly using BitcoinKeystoneWallet', async () => {
-      const blockCypherProviderMock = new BlockCypherProvider(false);
+      const bitcoinProviderMock = new BitcoinProvider(false);
       const buffer = Buffer.from('0x1');
       const tx = new Transaction();
       tx.toHex = jest.fn().mockReturnValue(buffer.toString('hex'));
       btcKeystoneWalletMock.signTx = jest.fn().mockResolvedValueOnce(tx);
       getWalletSpy.mockResolvedValueOnce(btcKeystoneWalletMock);
       (networkService.getBitcoinProvider as jest.Mock).mockResolvedValueOnce(
-        blockCypherProviderMock
+        bitcoinProviderMock
       );
       const { signedTx } = await walletService.sign(
         btcTxMock,
@@ -637,14 +637,14 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('signs btc tx correctly using BitcoinLedgerWallet', async () => {
-      const blockCypherProviderMock = new BlockCypherProvider(false);
+      const bitcoinProviderMock = new BitcoinProvider(false);
       const buffer = Buffer.from('0x1');
       const tx = new Transaction();
       tx.toHex = jest.fn().mockReturnValue(buffer.toString('hex'));
       btcLedgerWalletMock.signTx = jest.fn().mockResolvedValueOnce(tx);
       getWalletSpy.mockResolvedValueOnce(btcLedgerWalletMock);
       (networkService.getBitcoinProvider as jest.Mock).mockResolvedValueOnce(
-        blockCypherProviderMock
+        bitcoinProviderMock
       );
       (prepareBtcTxForLedger as jest.Mock).mockReturnValueOnce(btcTxMock);
 
@@ -655,7 +655,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
       expect(prepareBtcTxForLedger).toHaveBeenCalledWith(
         btcTxMock,
-        blockCypherProviderMock
+        bitcoinProviderMock
       );
       expect(btcLedgerWalletMock.signTx).toHaveBeenCalledWith(
         btcTxMock.inputs,

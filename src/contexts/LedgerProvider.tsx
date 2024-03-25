@@ -45,7 +45,7 @@ import { CloseLedgerTransportHandler } from '@src/background/services/ledger/han
 import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
-import { VM } from '@avalabs/avalanchejs-v2';
+import { VM } from '@avalabs/avalanchejs';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',

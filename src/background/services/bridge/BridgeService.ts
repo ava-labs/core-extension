@@ -10,7 +10,7 @@ import {
   estimateGas,
   EthereumConfigAsset,
   fetchConfig,
-  getBtcTransaction,
+  getBtcTransactionDetails,
   getMinimumConfirmations,
   NativeAsset,
   setBridgeEnvironment,
@@ -234,7 +234,7 @@ export class BridgeService implements OnLock, OnStorageReady {
 
     const utxos = token?.utxos ?? [];
 
-    const { inputs, outputs } = getBtcTransaction(
+    const { inputs, outputs } = getBtcTransactionDetails(
       this.config.config,
       addressBtc,
       utxos,
@@ -242,8 +242,10 @@ export class BridgeService implements OnLock, OnStorageReady {
       Number(feeRate)
     );
 
+    const inputsWithScripts = await provider.getScriptsForUtxos(inputs);
+
     const signResult = await this.walletService
-      .sign({ inputs, outputs }, tabId, btcNetwork)
+      .sign({ inputs: inputsWithScripts, outputs }, tabId, btcNetwork)
       .catch(wrapError('Failed to sign transaction'));
 
     // If we received a signed tx, we need to issue it ourselves.
@@ -256,21 +258,30 @@ export class BridgeService implements OnLock, OnStorageReady {
         throw new Error('Failed to send transaction.');
       }
 
+      const [tx, txError] = await resolve(provider.waitForTx(sendResult));
+
+      if (!tx || txError) {
+        throw new Error('Failed to fetch transaction details.');
+      }
+
       return {
-        hash: sendResult.hash,
-        gasLimit: BigInt(sendResult.fees),
+        hash: tx.hash,
+        gasLimit: BigInt(tx.fees),
         value: BigInt(amountInSatoshis),
-        confirmations: sendResult.confirmations,
+        confirmations: tx.confirmations,
         from: addressBtc,
       };
     }
 
     // If we received the tx hash, we can look it up for details.
     if (typeof signResult.txHash === 'string') {
-      const tx = await provider
-        .getBlockCypher()
-        .waitForTx(signResult.txHash)
-        .catch(wrapError('Transaction not found'));
+      const [tx, txError] = await resolve(
+        provider.waitForTx(signResult.txHash)
+      );
+
+      if (!tx || txError) {
+        throw new Error('Transaction not found');
+      }
 
       return {
         hash: tx.hash,
@@ -319,7 +330,7 @@ export class BridgeService implements OnLock, OnStorageReady {
       // which is what we need to have the dynamic fee calculations in the UI.
       // Think of the byteLength as gasLimit for EVM transactions.
       const feeRate = 1;
-      const { fee: byteLength } = getBtcTransaction(
+      const { fee: byteLength } = getBtcTransactionDetails(
         this.config.config,
         addressBtc,
         utxos,

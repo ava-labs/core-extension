@@ -13,12 +13,12 @@ import {
   Avalanche,
   BitcoinInputUTXO,
   BitcoinOutputUTXO,
-  BlockCypherProvider,
+  BitcoinProvider,
   createPsbt,
   getEvmAddressFromPubKey,
 } from '@avalabs/wallets-sdk';
 import { sha256 } from '@noble/hashes/sha256';
-import { hexToBuffer } from '@avalabs/avalanchejs-v2';
+import { utils } from '@avalabs/avalanchejs';
 import {
   SignTypedDataVersion,
   TypedDataUtils,
@@ -408,7 +408,7 @@ export class SeedlessWallet {
         ),
       });
 
-      request.tx.addSignature(hexToBuffer(response.data().signature));
+      request.tx.addSignature(utils.hexToBuffer(response.data().signature));
 
       return request.tx;
     } catch (err) {
@@ -428,7 +428,7 @@ export class SeedlessWallet {
 
     const provider = this.#networkService.getProviderForNetwork(this.#network);
 
-    if (!(provider instanceof BlockCypherProvider)) {
+    if (!(provider instanceof BitcoinProvider)) {
       throw new Error('Wrong provider obtained for BTC transaction');
     }
 

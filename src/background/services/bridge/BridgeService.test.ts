@@ -1,10 +1,10 @@
 import {
   Blockchain,
   estimateGas,
-  getBtcTransaction,
+  getBtcTransactionDetails,
 } from '@avalabs/bridge-sdk';
 import { BITCOIN_NETWORK, ChainId } from '@avalabs/chains-sdk';
-import { BlockCypherProvider } from '@avalabs/wallets-sdk';
+import { BitcoinProvider } from '@avalabs/wallets-sdk';
 import Big from 'big.js';
 
 import { AccountsService } from '../accounts/AccountsService';
@@ -26,7 +26,7 @@ jest.mock('@avalabs/bridge-sdk', () => {
 
   return {
     ...jest.requireActual('@avalabs/bridge-sdk'),
-    getBtcTransaction: jest.fn(),
+    getBtcTransactionDetails: jest.fn(),
     estimateGas: jest.fn(),
     fetchConfig: jest.fn().mockResolvedValue({ config: mockConfig }),
   };
@@ -74,6 +74,12 @@ const networkBalancesService = {
   },
 } as unknown as BalanceAggregatorService;
 
+const utxos = [{ index: 1 }, { index: 2 }];
+const utxosWithScript = [
+  { index: 1, script: 'script1' },
+  { index: 2, script: 'script2' },
+];
+
 describe('src/background/services/bridge/BridgeService.ts', () => {
   describe('when active account is a WalletConnect account', () => {
     const accountsService = {
@@ -108,6 +114,10 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
   });
 
   describe('when transaction signing fails', () => {
+    const provider = {
+      getScriptsForUtxos: jest.fn().mockResolvedValue([]),
+    } as unknown as BitcoinProvider;
+
     const accountsService = {
       activeAccount: {
         addressC: '1234-abcd',
@@ -119,7 +129,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
     let service: BridgeService;
 
     beforeEach(async () => {
-      jest.mocked(getBtcTransaction).mockReturnValue({
+      jest.mocked(getBtcTransactionDetails).mockReturnValue({
         inputs: [],
         outputs: [],
       } as any);
@@ -133,6 +143,9 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
         networkFeeService,
         networkBalancesService
       );
+
+      networkService.getProviderForNetwork.mockReturnValue(provider);
+
       await service.onStorageReady();
     });
 
@@ -180,8 +193,10 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
     };
 
     const provider = {
-      issueRawTx: jest.fn().mockResolvedValue(txIssueResult),
-    } as unknown as BlockCypherProvider;
+      issueRawTx: jest.fn().mockResolvedValue(txIssueResult.hash),
+      getScriptsForUtxos: jest.fn().mockResolvedValue(utxosWithScript),
+      waitForTx: jest.fn().mockResolvedValue(txIssueResult),
+    } as unknown as BitcoinProvider;
 
     const signedTx = '0x1234567890';
 
@@ -197,6 +212,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
         networkFeeService,
         networkBalancesService
       );
+
       await service.onStorageReady();
 
       networkFeeService.getNetworkFee.mockResolvedValue({
@@ -205,8 +221,8 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
 
       networkService.getProviderForNetwork.mockReturnValue(provider);
 
-      jest.mocked(getBtcTransaction).mockReturnValue({
-        inputs: [],
+      jest.mocked(getBtcTransactionDetails).mockReturnValue({
+        inputs: utxos,
         outputs: [],
       } as any);
 
@@ -217,13 +233,25 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
       const { hash, confirmations, from, gasLimit, value } =
         await service.transferBtcAsset(new Big(0.0001), undefined, 1234);
 
+      expect(provider.getScriptsForUtxos).toHaveBeenCalledWith(utxos);
       expect(provider.issueRawTx).toHaveBeenCalledWith(signedTx);
+      expect(provider.waitForTx).toHaveBeenCalledWith(txIssueResult.hash);
+
+      expect(walletService.sign).toHaveBeenCalledWith(
+        {
+          inputs: utxosWithScript,
+          outputs: [],
+        },
+        1234,
+        BITCOIN_NETWORK
+      );
 
       expect({ hash, confirmations, from }).toStrictEqual({
         hash: txIssueResult.hash,
         confirmations: txIssueResult.confirmations,
         from: addressBTC,
       });
+
       // We need to compare gasLimit & value outside of the object
       // and as regular numbers, otherwise Jest is trying to serialize
       // the BigInts and fails.
@@ -249,12 +277,10 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
       confirmations: 1,
     };
 
-    const blockcypherMock = {
-      waitForTx: jest.fn().mockResolvedValue(txLookupResult),
-    };
     const provider = {
-      getBlockCypher: () => blockcypherMock,
-    } as unknown as BlockCypherProvider;
+      getScriptsForUtxos: jest.fn().mockResolvedValue(utxosWithScript),
+      waitForTx: jest.fn().mockResolvedValue(txLookupResult),
+    } as unknown as BitcoinProvider;
 
     const txHash = '0x1234567890';
 
@@ -278,7 +304,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
 
       networkService.getProviderForNetwork.mockReturnValue(provider);
 
-      jest.mocked(getBtcTransaction).mockReturnValue({
+      jest.mocked(getBtcTransactionDetails).mockReturnValue({
         inputs: [],
         outputs: [],
       } as any);
@@ -290,13 +316,14 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
       const { hash, confirmations, from, gasLimit, value } =
         await service.transferBtcAsset(new Big(0.0001), undefined, 1234);
 
-      expect(blockcypherMock.waitForTx).toHaveBeenCalledWith(txHash);
+      expect(provider.waitForTx).toHaveBeenCalledWith(txHash);
 
       expect({ hash, confirmations, from }).toStrictEqual({
         hash: txLookupResult.hash,
         confirmations: txLookupResult.confirmations,
         from: addressBTC,
       });
+
       // We need to compare gasLimit & value outside of the object
       // and as regular numbers, otherwise Jest is trying to serialize
       // the BigInts and fails.
@@ -332,7 +359,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
 
     describe('when bridging from Bitcoin', () => {
       beforeEach(() => {
-        jest.mocked(getBtcTransaction).mockReturnValue({
+        jest.mocked(getBtcTransactionDetails).mockReturnValue({
           inputs: [],
           outputs: [],
           fee: 10000,

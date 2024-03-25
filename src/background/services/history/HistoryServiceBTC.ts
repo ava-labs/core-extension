@@ -1,6 +1,6 @@
 import { Blockchain } from '@avalabs/bridge-sdk';
 import { BITCOIN_NETWORK, Network, NetworkVMType } from '@avalabs/chains-sdk';
-import { BitcoinHistoryTx, BlockCypherProvider } from '@avalabs/wallets-sdk';
+import { BitcoinHistoryTx, BitcoinProvider } from '@avalabs/wallets-sdk';
 import { getExplorerAddress } from '@src/utils/getExplorerAddress';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
@@ -80,7 +80,7 @@ export class HistoryServiceBTC {
     }
     const provider = this.networkService.getProviderForNetwork(
       network
-    ) as BlockCypherProvider;
+    ) as BitcoinProvider;
 
     try {
       const txHistory: BitcoinHistoryTx[] = await provider.getTxHistory(

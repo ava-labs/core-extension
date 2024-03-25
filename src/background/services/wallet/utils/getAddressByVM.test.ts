@@ -1,4 +1,4 @@
-import { AVM, EVM, PVM } from '@avalabs/avalanchejs-v2';
+import { AVM, EVM, PVM } from '@avalabs/avalanchejs';
 import { Account } from '../../accounts/models';
 import getAddressByVM from './getAddressByVM';
 
