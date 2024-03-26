@@ -1,4 +1,4 @@
-import { Button, Stack, useTheme } from '@avalabs/k2-components';
+import { Button, Stack, Tooltip, useTheme } from '@avalabs/k2-components';
 import { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageTracker } from './PageTracker';
@@ -9,6 +9,7 @@ interface PageNavProps {
   onNext: () => void;
   nextText?: string;
   disableNext?: boolean;
+  nextDisabledReason?: string;
   expand?: boolean;
   steps: number;
   activeStep: number;
@@ -20,6 +21,7 @@ export function PageNav({
   onNext,
   nextText,
   disableNext,
+  nextDisabledReason,
   steps,
   activeStep,
   children,
@@ -58,18 +60,20 @@ export function PageNav({
         >
           {backText ? backText : t('Back')}
         </Button>
-        <Button
-          data-testid="page-nav-next-button"
-          disabled={disableNext}
-          onClick={async () => {
-            onNext();
-          }}
-          sx={{
-            width: theme.spacing(21),
-          }}
-        >
-          {nextText ? nextText : t('Next')}
-        </Button>
+        <Tooltip title={nextDisabledReason} sx={{ cursor: 'not-allowed' }}>
+          <Button
+            data-testid="page-nav-next-button"
+            disabled={disableNext}
+            onClick={async () => {
+              onNext();
+            }}
+            sx={{
+              width: theme.spacing(21),
+            }}
+          >
+            {nextText ? nextText : t('Next')}
+          </Button>
+        </Tooltip>
       </Stack>
       {expand && children && (
         <Stack sx={{ height: theme.spacing(4) }}>{children}</Stack>

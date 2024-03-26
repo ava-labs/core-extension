@@ -58,6 +58,7 @@ export function useSeedlessActions() {
     oidcToken,
     setUserId,
     setIsNewAccount,
+    setIsSeedlessMfaRequired,
   } = useOnboardingContext();
   const history = useHistory();
   const { t } = useTranslation();
@@ -84,7 +85,20 @@ export function useSeedlessActions() {
           toast.error(t('Seedless login error'));
           return;
         }
+      } else {
+        // If the user already has an account, it's possible that the
+        // account was created before we made MFA optional, but the user
+        // then resigned from following through (e.g. didn't know how to
+        // use MFA yet). So now we're in a situation where we need to use
+        // the user's OIDC token to get the information about their
+        // CubeSigner account and see if it has an MFA policy set.
+        const oidcAuth = await requestOidcAuth(idToken);
+        const mfaSessionInfo = oidcAuth.mfaSessionInfo();
+
+        // We set the policy to undefined when MFA is optional.
+        setIsSeedlessMfaRequired(typeof mfaSessionInfo !== 'undefined');
       }
+
       setUserId(identity.identity?.sub);
 
       if ((identity.user_info?.configured_mfa ?? []).length === 0) {
@@ -93,7 +107,14 @@ export function useSeedlessActions() {
         history.push(OnboardingURLs.RECOVERY_METHODS_LOGIN);
       }
     },
-    [setOidcToken, setUserId, setIsNewAccount, t, history]
+    [
+      setOidcToken,
+      setUserId,
+      setIsNewAccount,
+      setIsSeedlessMfaRequired,
+      t,
+      history,
+    ]
   );
 
   const signIn = useCallback(
@@ -122,7 +143,7 @@ export function useSeedlessActions() {
     }
     requestOidcAuth(oidcToken)
       .then(async (c) => {
-        const mfaSessionInfo = c.mfaSessionInfo();
+        const mfaSessionInfo = c.requiresMfa() ? c.mfaSessionInfo() : c.data();
         if (!mfaSessionInfo) {
           console.error('No MFA info');
           return;
