@@ -238,7 +238,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
               },
             ]
           )
-        ).rejects.toThrowError(
+        ).rejects.toThrow(
           ethErrors.rpc.internal({ data: { reason: CommonError.NetworkError } })
         );
       });
@@ -270,7 +270,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
               },
             ]
           )
-        ).rejects.toThrowError(
+        ).rejects.toThrow(
           ethErrors.rpc.transactionRejected({ data: { reason: errorCode } })
         );
       });

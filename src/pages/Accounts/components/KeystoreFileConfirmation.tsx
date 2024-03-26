@@ -85,7 +85,9 @@ export const KeystoreFileConfirmation = ({
             }}
           >
             <Typography variant="body2">{t('Seed Phrases')}</Typography>
-            <Typography variant="h5">{fileInfo.seedPhrasesCount}</Typography>
+            <Typography variant="h5" data-testid="seed-phrase-count">
+              {fileInfo.seedPhrasesCount}
+            </Typography>
           </Stack>
 
           <Stack
@@ -98,7 +100,9 @@ export const KeystoreFileConfirmation = ({
             }}
           >
             <Typography variant="body2">{t('Private Keys')}</Typography>
-            <Typography variant="h5">{fileInfo.privateKeysCount}</Typography>
+            <Typography variant="h5" data-testid="private-key-count">
+              {fileInfo.privateKeysCount}
+            </Typography>
           </Stack>
         </Stack>
       </Card>
@@ -109,6 +113,7 @@ export const KeystoreFileConfirmation = ({
           onClick={onConfirm}
           disabled={isLoading}
           isLoading={isLoading}
+          data-testid="import-keystore-file"
         >
           {t('Import Keystore File')}
         </Button>
@@ -118,6 +123,7 @@ export const KeystoreFileConfirmation = ({
           fullWidth
           disabled={isLoading}
           onClick={onCancel}
+          data-testid="cancel-button"
         >
           {t('Cancel')}
         </Button>

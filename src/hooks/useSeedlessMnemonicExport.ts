@@ -112,8 +112,12 @@ export const useSeedlessMnemonicExport = () => {
       setState(ExportState.NotInitiated);
       return;
     }
-
-    if (state === ExportState.Exporting || state === ExportState.Exported) {
+    if (
+      state === ExportState.ReadyToExport ||
+      state === ExportState.Exporting ||
+      state === ExportState.Exported
+    ) {
+      setProgress(100);
       return;
     }
 
@@ -137,13 +141,6 @@ export const useSeedlessMnemonicExport = () => {
       setState(ExportState.Error);
       setError(ExportErrorCode.RequestOutdated);
     }
-    setState(
-      isInProgress
-        ? ExportState.Pending
-        : isReadyToDecrypt
-        ? ExportState.ReadyToExport
-        : ExportState.NotInitiated
-    );
 
     // capped between 0 and 100
     setProgress(

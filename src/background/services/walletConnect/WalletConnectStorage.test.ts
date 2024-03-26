@@ -121,7 +121,7 @@ describe('src/background/services/walletConnect/WalletConnectStorage.ts', () => 
     const storageEngine = getMockedStorageService(true);
     const service = new WalletConnectStorage(storageEngine);
 
-    expect(() => service.getItem('dummy-key')).rejects.toThrowError(
+    expect(() => service.getItem('dummy-key')).rejects.toThrow(
       'Missing encryption key'
     );
   });

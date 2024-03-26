@@ -14,7 +14,7 @@ enum SeedlessRegistartionResponseTextStatus {
 export async function approveSeedlessRegistration(
   identityProof: IdentityProof
 ): Promise<SeedlessRegistartionResult> {
-  return fetch(process.env.SEEDLESS_URL + '/v1/register', {
+  return fetch(process.env.SEEDLESS_URL + '/v1/register?mfa-required=false', {
     method: 'POST',
     body: JSON.stringify(identityProof),
     headers: {

@@ -11,7 +11,7 @@ import { useImportSeedphrase } from './useImportSeedphrase';
 import { usePrivateKeyImport } from './usePrivateKeyImport';
 import { useKeystoreFileImport } from './useKeystoreFileImport';
 import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
-import { base58check } from '@avalabs/avalanchejs-v2';
+import { utils } from '@avalabs/avalanchejs';
 
 jest.mock('@src/contexts/AnalyticsProvider');
 jest.mock('./useImportSeedphrase');
@@ -134,7 +134,7 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
 
       const rawKey = KEYSTORE_V6_PKEY.expectedPhrases[0].key;
       const expectedKey = Buffer.from(
-        base58check.decode(rawKey.replace('PrivateKey-', ''))
+        utils.base58check.decode(rawKey.replace('PrivateKey-', ''))
       ).toString('hex');
 
       expect(importPrivateKey).toHaveBeenCalledTimes(1);

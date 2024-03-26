@@ -1,13 +1,14 @@
-import { hexToBuffer } from '@avalabs/avalanchejs-v2';
+import { utils } from '@avalabs/avalanchejs';
 import { ChainId, Network, NetworkVMType } from '@avalabs/chains-sdk';
 import { strip0x } from '@avalabs/utils-sdk';
 import {
   Avalanche,
-  BlockCypherProvider,
+  BitcoinProvider,
   getEvmAddressFromPubKey,
   createPsbt,
 } from '@avalabs/wallets-sdk';
 import * as cs from '@cubist-labs/cubesigner-sdk';
+import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
 import { networks } from 'bitcoinjs-lib';
 import { JsonRpcProvider, getBytes, hashMessage } from 'ethers';
 
@@ -41,6 +42,7 @@ import { SeedlessMfaService } from './SeedlessMfaService';
 import { MfaRequestType } from './models';
 
 jest.mock('@cubist-labs/cubesigner-sdk');
+jest.mock('@cubist-labs/cubesigner-sdk-ethers-v6');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('../network/NetworkService');
 jest.mock('./SeedlessBtcSigner');
@@ -58,7 +60,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
   } as any);
   const mfaService = jest.mocked<SeedlessMfaService>({
     requestMfa: jest.fn(),
+    askForMfaMethod: jest.fn(),
     emitMfaError: jest.fn(),
+    approveWithMfa: jest.fn(),
   } as any);
 
   let wallet: SeedlessWallet;
@@ -89,9 +93,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('modifies error message to prevent leaking sensitive data', async () => {
-        await expect(executeSigning()).rejects.toThrowError(
-          'Session has expired'
-        );
+        await expect(executeSigning()).rejects.toThrow('Session has expired');
       });
     });
   };
@@ -112,9 +114,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     });
 
     it('fails the requests', async () => {
-      await expect(wallet.getPublicKeys()).rejects.toThrowError(
-        connectionError
-      );
+      await expect(wallet.getPublicKeys()).rejects.toThrow(connectionError);
     });
   });
 
@@ -129,7 +129,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.getPublicKeys()).rejects.toThrowError(
+        await expect(wallet.getPublicKeys()).rejects.toThrow(
           'Accounts not created'
         );
       });
@@ -145,7 +145,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.getPublicKeys()).rejects.toThrowError(
+        await expect(wallet.getPublicKeys()).rejects.toThrow(
           'Accounts keys missing'
         );
       });
@@ -232,7 +232,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTransaction({} as any)).rejects.toThrowError(
+        await expect(wallet.signTransaction({} as any)).rejects.toThrow(
           'Public key not available'
         );
       });
@@ -250,7 +250,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTransaction({} as any)).rejects.toThrowError(
+        await expect(wallet.signTransaction({} as any)).rejects.toThrow(
           'Unknown network'
         );
       });
@@ -270,7 +270,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTransaction({} as any)).rejects.toThrowError(
+        await expect(wallet.signTransaction({} as any)).rejects.toThrow(
           'Wrong provider obtained for EVM transaction'
         );
       });
@@ -290,7 +290,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           signTransaction: jest.fn().mockReturnValue(expectedResult),
         };
         signerConstructorSpy = jest.fn().mockReturnValueOnce(signer);
-        jest.mocked(cs.ethers.Signer).mockImplementation(signerConstructorSpy);
+        jest.mocked(Signer).mockImplementation(signerConstructorSpy);
 
         wallet = new SeedlessWallet({
           networkService,
@@ -338,13 +338,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
               .mockRejectedValue(new Error('Some API error')),
           };
           signerConstructorSpy = jest.fn().mockReturnValueOnce(signer);
-          jest
-            .mocked(cs.ethers.Signer)
-            .mockImplementation(signerConstructorSpy);
+          jest.mocked(Signer).mockImplementation(signerConstructorSpy);
         });
 
         it('raises an error', async () => {
-          await expect(wallet.signTransaction({} as any)).rejects.toThrowError(
+          await expect(wallet.signTransaction({} as any)).rejects.toThrow(
             new Error('Some API error')
           );
         });
@@ -374,7 +372,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signAvalancheTx({} as any)).rejects.toThrowError(
+        await expect(wallet.signAvalancheTx({} as any)).rejects.toThrow(
           'Public key not available'
         );
       });
@@ -439,7 +437,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         await wallet.signAvalancheTx(txRequest as any);
 
         expect(txRequest.tx.addSignature).toHaveBeenCalledWith(
-          hexToBuffer(signature)
+          utils.hexToBuffer(signature)
         );
       });
 
@@ -528,7 +526,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         await wallet.signAvalancheTx(txRequest as any);
 
         expect(txRequest.tx.addSignature).toHaveBeenCalledWith(
-          hexToBuffer(signature)
+          utils.hexToBuffer(signature)
         );
       });
 
@@ -571,7 +569,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       it('raises an error', async () => {
         await expect(
           wallet.signMessage(MessageType.ETH_SIGN, getMessage())
-        ).rejects.toThrowError('Public key not available');
+        ).rejects.toThrow('Public key not available');
       });
     });
 
@@ -587,7 +585,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       it('raises an error', async () => {
         await expect(
           wallet.signMessage(MessageType.ETH_SIGN, getMessage())
-        ).rejects.toThrowError('Network not available');
+        ).rejects.toThrow('Network not available');
       });
     });
 
@@ -701,7 +699,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       it('raises an error for unknown message types', async () => {
         await expect(
           wallet.signMessage('Some unknown type' as MessageType, {} as any)
-        ).rejects.toThrowError('Unknown message type');
+        ).rejects.toThrow('Unknown message type');
       });
     });
 
@@ -734,19 +732,22 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
         await expect(
           wallet.signMessage(MessageType.AVALANCHE_SIGN, getMessage())
-        ).rejects.toThrowError('X/P public key not available');
+        ).rejects.toThrow('X/P public key not available');
       });
 
       it('calls signBlob() method with proper payload', async () => {
-        const data = 'yaaaaay!';
+        const message = 'yaaaaay!';
+        const hexMessage = Buffer.from(message, 'utf-8').toString('hex');
         const msg = getMessage({
-          data,
+          data: hexMessage,
         });
-        const encodedData = Buffer.from(`AVA-Signed:${data}`, 'utf-8');
+        const encodedData = Buffer.from(`AVA-Signed:${message}`, 'utf-8');
 
         jest.mocked(Avalanche.digestMessage).mockReturnValue(encodedData);
 
         await wallet.signMessage(MessageType.AVALANCHE_SIGN, msg);
+
+        expect(Avalanche.digestMessage).toHaveBeenCalledWith(message);
 
         expect(session.signBlob).toHaveBeenCalledWith(
           expect.anything(),
@@ -810,7 +811,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     });
 
     it('raises an error for invalid account index', async () => {
-      await expect(wallet.addAccount(-1)).rejects.toThrowError(
+      await expect(wallet.addAccount(-1)).rejects.toThrow(
         /Account index must be greater than or equal to 1/
       );
     });
@@ -821,7 +822,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.addAccount(1)).rejects.toThrowError(
+        await expect(wallet.addAccount(1)).rejects.toThrow(
           /Core Seedless API is unreachable/
         );
       });
@@ -840,7 +841,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.addAccount(1)).rejects.toThrowError(
+        await expect(wallet.addAccount(1)).rejects.toThrow(
           /Cannot establish the mnemonic id/
         );
       });
@@ -872,7 +873,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         session.proveIdentity.mockResolvedValue({} as any);
-        await expect(wallet.addAccount(1)).rejects.toThrowError(
+        await expect(wallet.addAccount(1)).rejects.toThrow(
           /Adding new account failed/
         );
       });
@@ -920,7 +921,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTx([], [])).rejects.toThrowError(
+        await expect(wallet.signTx([], [])).rejects.toThrow(
           'Invalid network: Attempting to sign BTC transaction on non Bitcoin network'
         );
       });
@@ -938,7 +939,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTx([], [])).rejects.toThrowError(
+        await expect(wallet.signTx([], [])).rejects.toThrow(
           'Invalid network: Attempting to sign BTC transaction on non Bitcoin network'
         );
       });
@@ -958,7 +959,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTx([], [])).rejects.toThrowError(
+        await expect(wallet.signTx([], [])).rejects.toThrow(
           'Wrong provider obtained for BTC transaction'
         );
       });
@@ -968,7 +969,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       beforeEach(() => {
         mockPsbt();
         networkService.getProviderForNetwork.mockReturnValue(
-          new BlockCypherProvider()
+          new BitcoinProvider()
         );
         wallet = new SeedlessWallet({
           networkService,
@@ -980,7 +981,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       it('raises an error', async () => {
-        await expect(wallet.signTx([1] as any, [])).rejects.toThrowError(
+        await expect(wallet.signTx([1] as any, [])).rejects.toThrow(
           'Public key not available'
         );
       });
@@ -993,13 +994,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       };
 
       beforeEach(() => {
-        const blockcypherProvider = new BlockCypherProvider();
+        const bitcoinProvider = new BitcoinProvider();
         jest
-          .spyOn(blockcypherProvider, 'getNetwork')
+          .spyOn(bitcoinProvider, 'getNetwork')
           .mockReturnValue(networks.bitcoin);
-        networkService.getProviderForNetwork.mockReturnValue(
-          blockcypherProvider
-        );
+        networkService.getProviderForNetwork.mockReturnValue(bitcoinProvider);
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
@@ -1098,6 +1097,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         fidoApproveStart: jest.fn(),
       } as any;
 
+      mfaService.approveWithMfa.mockResolvedValue({
+        data: () => 'data',
+      } as any);
+
       jest
         .mocked(cs.SignerSession.loadSignerSession)
         .mockResolvedValue(session);
@@ -1176,12 +1179,6 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       describe('when MFA is required', () => {
-        const result = {
-          key_id: 'Key#Mnemonic_abcd1234',
-          valid_epoch: 123456789,
-          exp_epoch: 987654321,
-        } as any;
-
         const mfaId = 'mfa-1234';
 
         const originalRequest = {
@@ -1191,160 +1188,45 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           mfaId() {
             return mfaId;
           },
-          approveTotp: jest.fn(),
-          signWithMfaApproval: jest.fn(),
         } as any;
 
         beforeEach(() => {
           session.userExportInit.mockResolvedValue(originalRequest);
-          originalRequest.approveTotp.mockResolvedValue({
-            data() {
-              return result;
-            },
-          });
-          originalRequest.signWithMfaApproval.mockResolvedValue({
-            data() {
-              return result;
-            },
-          });
         });
 
         describe('when user has FIDO device setup', () => {
-          const mfaInfo = {
-            receipt: {
-              confirmation: 'confirmation',
-            },
-          };
-          let challenge;
-
-          const fidoResponse = {
-            response: {
-              signature: 'signature',
-            },
-          } as any;
-
           beforeEach(() => {
-            challenge = {
-              options: { publicKey: 'asd' },
-              answer: jest.fn().mockResolvedValue(mfaInfo),
-            } as any;
-            session.proveIdentity.mockResolvedValueOnce({
-              user_info: {
-                configured_mfa: [
-                  {
-                    type: 'fido',
-                  },
-                ],
-              },
+            mfaService.askForMfaMethod.mockResolvedValueOnce({
+              type: MfaRequestType.Fido,
             } as any);
-            session.fidoApproveStart.mockResolvedValue(challenge);
           });
 
           it('prompts a FIDO challenge', async () => {
             await wallet.initMnemonicExport(123);
 
-            expect(mfaService.requestMfa).toHaveBeenCalledWith(
-              expect.objectContaining({
-                mfaId,
-                type: MfaRequestType.Fido,
-                options: challenge.options,
-                tabId: 123,
-              })
-            );
-          });
-
-          it('calls Challenge.answer() with the users response', async () => {
-            mfaService.requestMfa.mockResolvedValueOnce(fidoResponse);
-
-            await wallet.initMnemonicExport();
-
-            expect(challenge.answer).toHaveBeenCalledWith(fidoResponse);
-          });
-
-          it('signs the original request with MFA receipt', async () => {
-            await wallet.initMnemonicExport();
-
-            expect(originalRequest.signWithMfaApproval).toHaveBeenCalledWith(
-              expect.objectContaining({
-                mfaConf: mfaInfo.receipt.confirmation,
-              })
+            expect(mfaService.approveWithMfa).toHaveBeenCalledWith(
+              MfaRequestType.Fido,
+              originalRequest,
+              123
             );
           });
         });
 
         describe('when user has TOTP authenticator configured', () => {
-          const code = '132465';
-
           beforeEach(() => {
-            session.proveIdentity.mockResolvedValue({
-              user_info: {
-                configured_mfa: [
-                  {
-                    type: 'totp',
-                  },
-                ],
-              },
+            mfaService.askForMfaMethod.mockResolvedValueOnce({
+              type: MfaRequestType.Totp,
             } as any);
           });
 
           it('prompts a TOTP challenge', async () => {
             await wallet.initMnemonicExport(123);
 
-            expect(mfaService.requestMfa).toHaveBeenCalledWith(
-              expect.objectContaining({
-                mfaId,
-                type: MfaRequestType.Totp,
-                tabId: 123,
-              })
+            expect(mfaService.approveWithMfa).toHaveBeenCalledWith(
+              MfaRequestType.Totp,
+              originalRequest,
+              123
             );
-          });
-
-          it('approves the original request with obtained TOTP code', async () => {
-            mfaService.requestMfa.mockResolvedValueOnce(code as any);
-
-            await wallet.initMnemonicExport();
-
-            expect(originalRequest.approveTotp).toHaveBeenCalledWith(
-              session,
-              code
-            );
-          });
-
-          describe('and user provides a wrong TOTP code', () => {
-            const badCode = '133731';
-            const wrongCodeError = new Error('Invalid TOTP code');
-            (wrongCodeError as any).status = 403;
-
-            beforeEach(() => {
-              // Mock user providing bad code at first
-              mfaService.requestMfa.mockResolvedValueOnce(badCode as any);
-              // Mock Cubist "wrong totp code" response:
-              jest
-                .mocked(originalRequest.approveTotp)
-                .mockRejectedValueOnce(wrongCodeError);
-            });
-
-            it('prompts another TOTP code', async () => {
-              await wallet.initMnemonicExport(123);
-
-              expect(mfaService.requestMfa).toHaveBeenNthCalledWith(
-                1,
-                expect.objectContaining({
-                  mfaId,
-                  type: MfaRequestType.Totp,
-                  tabId: 123,
-                })
-              );
-              expect(mfaService.emitMfaError).toHaveBeenCalledWith(mfaId, 123);
-              expect(mfaService.requestMfa).toHaveBeenNthCalledWith(
-                2,
-                expect.objectContaining({
-                  mfaId,
-                  type: MfaRequestType.Totp,
-                  tabId: 123,
-                })
-              );
-            });
           });
         });
       });

@@ -26,7 +26,7 @@ import { KeyboardEvent, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AccountsTab } from '../Accounts/Accounts';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
-import { strip0x } from '@avalabs/avalanchejs-v2';
+import { utils } from '@avalabs/avalanchejs';
 import { usePrivateKeyImport } from '../Accounts/hooks/usePrivateKeyImport';
 
 type DerivedAddresses = {
@@ -72,7 +72,7 @@ export function ImportPrivateKey() {
       setError(t('Invalid key. Please re-enter the key.'));
     }
 
-    const strippedPk = strip0x(privateKey);
+    const strippedPk = utils.strip0x(privateKey);
 
     if (strippedPk.length === 64) {
       try {

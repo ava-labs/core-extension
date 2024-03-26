@@ -24,6 +24,7 @@ export enum ExtensionRequest {
   BALANCES_STOP_POLLING = 'balances_stop_polling',
   NETWORK_BALANCES_UPDATE = 'network_balances_update',
   NFT_BALANCES_GET = 'nft_balances_get',
+  NFT_REFRESH_METADATA = 'nft_refresh_metadata',
   TOKEN_PRICE_GET = 'token_price_get',
   BALANCE_AVAX_GET = 'balance_avax_get',
 
@@ -137,6 +138,9 @@ export enum ExtensionRequest {
   SEEDLESS_INIT_AUTHENTICATOR_CHANGE = 'seedless_init_authenticator_change',
   SEEDLESS_COMPLETE_AUTHENTICATOR_CHANGE = 'seedless_complete_authenticator_change',
   SEEDLESS_CHOOSE_MFA_METHOD = 'seedless_choose_mfa_method',
+  SEEDLESS_ADD_FIDO_DEVICE = 'seedless_add_fido_device',
+  SEEDLESS_REMOVE_FIDO_DEVICE = 'seedless_remove_fido_device',
+  SEEDLESS_REMOVE_TOTP = 'seedless_remove_totp',
 
   UNIFIED_BRIDGE_GET_FEE = 'unified_bridge_get_fee',
   UNIFIED_BRIDGE_ESTIMATE_GAS = 'unified_bridge_estimate_gas',

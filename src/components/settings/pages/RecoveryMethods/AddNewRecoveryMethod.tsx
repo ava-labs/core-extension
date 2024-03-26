@@ -6,7 +6,11 @@ import { PageTitle } from '@src/components/common/PageTitle';
 
 import { RecoveryMethodsList } from './RecoveryMethodsList';
 
-export function AddNewRecoveryMethod({ onBackClick, onMethodClick }) {
+export function AddNewRecoveryMethod({
+  onBackClick,
+  onMethodClick,
+  excludeTotp,
+}) {
   const { t } = useTranslation();
 
   return (
@@ -15,7 +19,11 @@ export function AddNewRecoveryMethod({ onBackClick, onMethodClick }) {
         <PageTitle onBackClick={onBackClick}>{t('Recovery Methods')}</PageTitle>
 
         <Stack sx={{ width: 1, px: 2, gap: 3 }}>
-          <RecoveryMethodsList onMethodClick={onMethodClick} asCards />
+          <RecoveryMethodsList
+            onMethodClick={onMethodClick}
+            asCards
+            excludeTotp={excludeTotp}
+          />
         </Stack>
       </Stack>
     </Overlay>

@@ -4,7 +4,7 @@ import {
   Credential,
   UnsignedTx,
   avaxSerial,
-} from '@avalabs/avalanchejs-v2';
+} from '@avalabs/avalanchejs';
 import { Avalanche } from '@avalabs/wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
@@ -14,7 +14,7 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { Action } from '../../actions/models';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 
-jest.mock('@avalabs/avalanchejs-v2');
+jest.mock('@avalabs/avalanchejs');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('../utils/getProvidedUtxos');
 

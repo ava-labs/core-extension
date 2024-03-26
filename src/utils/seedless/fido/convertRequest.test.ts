@@ -84,6 +84,6 @@ describe('src/utils/seedless/fido/convertRequest', () => {
   it('raises an error for unknown API endpoints', () => {
     expect(() =>
       convertRequest('IDontKnow' as FIDOApiEndpoint, {} as any)
-    ).toThrowError('Unsupported FIDO identity endpoint');
+    ).toThrow('Unsupported FIDO identity endpoint');
   });
 });

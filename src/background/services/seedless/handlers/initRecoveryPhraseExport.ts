@@ -10,6 +10,7 @@ import { SeedlessTokenStorage } from '../SeedlessTokenStorage';
 import { NetworkService } from '../../network/NetworkService';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { UserExportInitResponse } from '@cubist-labs/cubesigner-sdk';
+import { isExportRequestOutdated } from '../utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_INIT_RECOVERY_PHRASE_EXPORT,
@@ -46,10 +47,15 @@ export class InitRecoveryPhraseExportHandler implements HandlerType {
     const exportInProgress = await wallet.getMnemonicExportState();
 
     if (exportInProgress) {
-      return {
-        ...request,
-        error: 'Recovery phrase export is already in progress',
-      };
+      if (!isExportRequestOutdated(exportInProgress)) {
+        return {
+          ...request,
+          error: 'Recovery phrase export is already in progress',
+        };
+      }
+
+      // Cancel outdated requests if applicable
+      await wallet.cancelMnemonicExport();
     }
 
     try {

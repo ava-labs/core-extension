@@ -26,6 +26,7 @@ import {
   getGasFeeToDisplay,
 } from '@src/components/common/CustomFees';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useCallback, useState } from 'react';
 
 export interface ReviewOrderProps {
   fromToken: TokenWithBalance;
@@ -88,6 +89,18 @@ export function ReviewOrder({
   useLedgerDisconnectedDialog(onClose);
   const GasFeeModifierTranslation =
     useGasFeeModifierTranslation(selectedGasFee);
+
+  const [isSwapping, setIsSwapping] = useState(false);
+
+  const handleConfirm = useCallback(async () => {
+    setIsSwapping(true);
+
+    try {
+      await onConfirm();
+    } finally {
+      setIsSwapping(false);
+    }
+  }, [onConfirm]);
 
   return (
     <Overlay
@@ -225,8 +238,10 @@ export function ReviewOrder({
             <Button
               data-testid="swap-now-button"
               size="large"
-              onClick={onConfirm}
+              onClick={handleConfirm}
               fullWidth
+              isLoading={isSwapping}
+              disabled={isSwapping}
             >
               {t('Swap Now')}
             </Button>

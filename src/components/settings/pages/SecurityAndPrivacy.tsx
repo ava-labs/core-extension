@@ -19,6 +19,7 @@ import {
   ListItemText,
   Stack,
   Switch,
+  Tooltip,
   Typography,
 } from '@avalabs/k2-components';
 import { useState } from 'react';
@@ -29,6 +30,7 @@ import { useAnalyticsConsentCallbacks } from '@src/hooks/useAnalyticsConsentCall
 import { SecretType } from '@src/background/services/secrets/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
 
 export function SecurityAndPrivacy({
   goBack,
@@ -38,6 +40,7 @@ export function SecurityAndPrivacy({
 }: SettingsPageProps) {
   const { t } = useTranslation();
   const { walletDetails } = useWalletContext();
+  const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
   const { analyticsConsent } = useSettingsContext();
   const { onApproval, onRejection } = useAnalyticsConsentCallbacks('settings');
   const { capture, stopDataCollection } = useAnalyticsContext();
@@ -202,38 +205,52 @@ export function SecurityAndPrivacy({
         )}
         {walletDetails?.type === SecretType.Seedless && (
           <ListItem sx={{ p: 0 }}>
-            <ListItemButton
+            <Tooltip
               sx={{
                 justifyContent: 'space-between',
-                py: 1,
-                px: 2,
-                m: 0,
-                '&:hover': { borderRadius: 0 },
+                width: 1,
+                cursor: 'not-allowed',
               }}
-              data-testid="seedless-export-recovery-phrase-menu-item"
-              onClick={() => {
-                capture(SeedlessExportAnalytics.MenuItemClicked);
-                navigateTo(SettingsPages.EXPORT_RECOVERY_PHRASE);
-              }}
+              title={
+                isMfaSetupPromptVisible
+                  ? t('Please configure multi-factor authentication first.')
+                  : ''
+              }
             >
-              <Badge
-                color="secondary"
-                variant="dot"
-                invisible={
-                  !showNotificationDotOn.includes(
-                    SettingsPages.EXPORT_RECOVERY_PHRASE
-                  )
-                }
+              <ListItemButton
+                sx={{
+                  justifyContent: 'space-between',
+                  py: 1,
+                  px: 2,
+                  m: 0,
+                  '&:hover': { borderRadius: 0 },
+                }}
+                data-testid="seedless-export-recovery-phrase-menu-item"
+                onClick={() => {
+                  capture(SeedlessExportAnalytics.MenuItemClicked);
+                  navigateTo(SettingsPages.EXPORT_RECOVERY_PHRASE);
+                }}
+                disabled={isMfaSetupPromptVisible}
               >
-                <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
-                  {t('Export Recovery Phrase')}
-                </ListItemText>
-              </Badge>
+                <Badge
+                  color="secondary"
+                  variant="dot"
+                  invisible={
+                    !showNotificationDotOn.includes(
+                      SettingsPages.EXPORT_RECOVERY_PHRASE
+                    )
+                  }
+                >
+                  <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
+                    {t('Export Recovery Phrase')}
+                  </ListItemText>
+                </Badge>
 
-              <ListItemIcon>
-                <ChevronRightIcon size={24} />
-              </ListItemIcon>
-            </ListItemButton>
+                <ListItemIcon>
+                  <ChevronRightIcon size={24} />
+                </ListItemIcon>
+              </ListItemButton>
+            </Tooltip>
           </ListItem>
         )}
         <ListItem data-testid="participate-core-analytics-menu-item">

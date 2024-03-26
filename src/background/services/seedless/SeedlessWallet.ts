@@ -1,4 +1,5 @@
 import * as cs from '@cubist-labs/cubesigner-sdk';
+import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
 import { strip0x } from '@avalabs/utils-sdk';
 import { Network } from '@avalabs/chains-sdk';
 import {
@@ -12,12 +13,12 @@ import {
   Avalanche,
   BitcoinInputUTXO,
   BitcoinOutputUTXO,
-  BlockCypherProvider,
+  BitcoinProvider,
   createPsbt,
   getEvmAddressFromPubKey,
 } from '@avalabs/wallets-sdk';
 import { sha256 } from '@noble/hashes/sha256';
-import { hexToBuffer } from '@avalabs/avalanchejs-v2';
+import { utils } from '@avalabs/avalanchejs';
 import {
   SignTypedDataVersion,
   TypedDataUtils,
@@ -30,9 +31,9 @@ import { MessageParams, MessageType } from '../messages/models';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { Transaction } from 'bitcoinjs-lib';
 import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
-import { CoreApiError, MfaRequestType } from './models';
+import { CoreApiError } from './models';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
-import { isFailedMfaError, isTokenExpiredError } from './utils';
+import { isTokenExpiredError } from './utils';
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { toUtf8 } from 'ethereumjs-util';
 
@@ -174,6 +175,10 @@ export class SeedlessWallet {
   }
 
   async initMnemonicExport(tabId?: number): Promise<cs.UserExportInitResponse> {
+    if (!this.#mfaService) {
+      throw new Error('MFA Service is not available');
+    }
+
     const session = await this.#getSession();
     const mnemonicId = await this.#getMnemonicId(true);
 
@@ -184,24 +189,22 @@ export class SeedlessWallet {
       throw new Error('Expected MFA to be required');
     }
 
-    const result = await this.#approveWithMfa(initRequest, tabId);
+    const method = await this.#mfaService.askForMfaMethod({
+      mfaId: initRequest.mfaId(),
+      tabId,
+    });
 
-    return result.data();
-  }
-
-  async #getMfaType(): Promise<MfaRequestType> | never {
-    const session = await this.#getSession();
-    const identity = await session.proveIdentity();
-
-    const mfaType = identity.user_info?.configured_mfa?.[0]?.type;
-
-    if (mfaType === 'fido') {
-      return MfaRequestType.Fido;
-    } else if (mfaType === 'totp') {
-      return MfaRequestType.Totp;
+    if (!method) {
+      throw new Error('No MFA method was chosen');
     }
 
-    throw new Error(`Unsupported MFA type: ${mfaType}`);
+    const result = await this.#mfaService.approveWithMfa(
+      method?.type,
+      initRequest,
+      tabId
+    );
+
+    return result.data();
   }
 
   async cancelMnemonicExport(): Promise<void> {
@@ -211,66 +214,14 @@ export class SeedlessWallet {
     await session.userExportDelete(mnemonicId);
   }
 
-  async #approveWithMfa<T>(
-    request: cs.CubeSignerResponse<T>,
-    tabId?: number
-  ): Promise<cs.CubeSignerResponse<T>> {
-    if (!this.#mfaService) {
-      throw new Error('MFA is required, but MFA service is not available');
-    }
-
-    try {
-      const type = await this.#getMfaType();
-
-      if (type === MfaRequestType.Totp) {
-        const code = await this.#mfaService.requestMfa({
-          mfaId: request.mfaId(),
-          type,
-          tabId,
-        });
-        return await request.approveTotp(await this.#getSession(), code);
-      } else if (type === MfaRequestType.Fido) {
-        const session = await this.#getSession();
-        const challenge = await session.fidoApproveStart(request.mfaId());
-
-        const fidoAnswer = await this.#mfaService.requestMfa({
-          mfaId: request.mfaId(),
-          type,
-          options: challenge.options,
-          tabId,
-        });
-
-        const mfaInfo = await challenge.answer(fidoAnswer);
-
-        if (!mfaInfo.receipt) {
-          throw new Error('Fido challenge not approved');
-        }
-
-        return await request.signWithMfaApproval({
-          mfaId: request.mfaId(),
-          mfaOrgId: process.env.SEEDLESS_ORG_ID || '',
-          mfaConf: mfaInfo.receipt.confirmation,
-        });
-      } else {
-        throw new Error('Unsupported MFA type');
-      }
-    } catch (err) {
-      // Only repeat the prompt if it was an MFA failure
-      if (isFailedMfaError(err)) {
-        // Emit error & retry
-        await this.#mfaService.emitMfaError(request.mfaId(), tabId);
-
-        return this.#approveWithMfa(request, tabId);
-      }
-
-      this.#handleError(err);
-    }
-  }
-
   async completeMnemonicExport(
     publicKey: CryptoKey,
     tabId?: number
   ): Promise<cs.UserExportCompleteResponse> {
+    if (!this.#mfaService) {
+      throw new Error('MFA Service is not available');
+    }
+
     const session = await this.#getSession();
     const mnemonicId = await this.#getMnemonicId(true);
 
@@ -280,7 +231,20 @@ export class SeedlessWallet {
       throw new Error('Expected MFA to be required');
     }
 
-    const result = await this.#approveWithMfa(request, tabId);
+    const method = await this.#mfaService.askForMfaMethod({
+      mfaId: request.mfaId(),
+      tabId,
+    });
+
+    if (!method) {
+      throw new Error('No MFA method was chosen');
+    }
+
+    const result = await this.#mfaService.approveWithMfa(
+      method?.type,
+      request,
+      tabId
+    );
 
     return result.data();
   }
@@ -407,7 +371,7 @@ export class SeedlessWallet {
     }
 
     try {
-      const signer = new cs.ethers.Signer(
+      const signer = new Signer(
         getEvmAddressFromPubKey(Buffer.from(this.#addressPublicKey.evm, 'hex')),
         await this.#getSession(),
         provider
@@ -444,7 +408,7 @@ export class SeedlessWallet {
         ),
       });
 
-      request.tx.addSignature(hexToBuffer(response.data().signature));
+      request.tx.addSignature(utils.hexToBuffer(response.data().signature));
 
       return request.tx;
     } catch (err) {
@@ -464,7 +428,7 @@ export class SeedlessWallet {
 
     const provider = this.#networkService.getProviderForNetwork(this.#network);
 
-    if (!(provider instanceof BlockCypherProvider)) {
+    if (!(provider instanceof BitcoinProvider)) {
       throw new Error('Wrong provider obtained for BTC transaction');
     }
 

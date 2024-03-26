@@ -31,6 +31,7 @@ describe('src/background/services/seedless/handlers/initRecoveryPhraseExport', (
   const wallet = jest.mocked<SeedlessWallet>({
     getMnemonicExportState: jest.fn(),
     initMnemonicExport: jest.fn(),
+    cancelMnemonicExport: jest.fn(),
   } as any);
 
   beforeEach(() => {

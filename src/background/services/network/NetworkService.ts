@@ -24,10 +24,10 @@ import {
   Network,
   NetworkVMType,
 } from '@avalabs/chains-sdk';
-import { Signal, ValueCache } from 'micro-signals';
+import { ReadableSignal, Signal, ValueCache } from 'micro-signals';
 import {
   Avalanche,
-  BlockCypherProvider,
+  BitcoinProvider,
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
 import { resolve, wait } from '@avalabs/utils-sdk';
@@ -52,37 +52,29 @@ export class NetworkService implements OnLock, OnStorageReady {
   public developerModeChanged = new Signal<boolean | undefined>();
   public favoriteNetworksUpdated = new Signal<number[]>();
 
-  public allNetworks = this._allNetworks
-    .cache(new ValueCache<ChainList>())
-    .readOnly();
+  // Provides a way to read the most recently dispatched _allNetworks
+  // signal which is supposed to contain the "raw" chainlist (without
+  // config overrides applied to it).
+  private _rawNetworks = this._allNetworks.cache(new ValueCache<ChainList>());
 
-  public activeNetworks = this._allNetworks
-    .cache(new ValueCache<ChainList>())
-    .filter((value) => !!value)
-    .map<Promise<ChainList>>(async (chainList) => {
-      /**
-       * Apply the config overrides for default networks.
-       * We do it here to avoid storing the entire list with
-       * the overrides already applied in the local storage.
-       **/
-      const overrides = await this.storageService.load(
-        NETWORK_OVERRIDES_STORAGE_KEY
-      );
-      const chainListWithOverrides = merge({}, chainList, overrides);
+  public allNetworks: ReadableSignal<Promise<ChainList>>;
+  public activeNetworks: ReadableSignal<Promise<ChainList>>;
 
-      /**
-       * Basically if in testnet mode we only want to return the testnet
-       * networks. Otherwise we want only mainnet networks
-       */
-      return Object.values(chainListWithOverrides || {})
-        .filter((network) =>
-          this.activeNetwork?.isTestnet ? network.isTestnet : !network.isTestnet
-        )
-        .reduce((acc: ChainList, network) => {
-          return { ...acc, [network.chainId]: network };
-        }, {});
-    })
-    .readOnly();
+  constructor(private storageService: StorageService) {
+    this._initChainList();
+
+    this.allNetworks = this._allNetworks
+      .cache(new ValueCache<ChainList>())
+      .map(this.#applyOverrides)
+      .readOnly();
+
+    this.activeNetworks = this._allNetworks
+      .cache(new ValueCache<ChainList>())
+      .filter((value) => !!value)
+      .map(this.#filterBasedOnDevMode)
+      .map(this.#applyOverrides)
+      .readOnly();
+  }
 
   public get activeNetwork() {
     return this._activeNetwork;
@@ -90,7 +82,12 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   private set activeNetwork(network: Network | undefined) {
     const previousNetwork = this._activeNetwork;
-    const activeNetworkChanged = previousNetwork?.chainId !== network?.chainId;
+
+    // Chain ID comparison is not enough here, the active network may
+    // need an update even though the chain ID didn't change (for example,
+    // a custom URL is configured for the active network).
+    const activeNetworkChanged =
+      JSON.stringify(previousNetwork) !== JSON.stringify(network);
 
     if (!activeNetworkChanged) {
       return;
@@ -156,10 +153,6 @@ export class NetworkService implements OnLock, OnStorageReady {
     );
     this.updateNetworkState();
     return this._favoriteNetworks;
-  }
-
-  constructor(private storageService: StorageService) {
-    this._initChainList();
   }
 
   public isMainnet(): boolean {
@@ -356,20 +349,28 @@ export class NetworkService implements OnLock, OnStorageReady {
     return network;
   }
 
-  async getBitcoinProvider(): Promise<BlockCypherProvider> {
+  async getBitcoinProvider(): Promise<BitcoinProvider> {
     const network = await this.getBitcoinNetwork();
-    return this.getProviderForNetwork(network) as BlockCypherProvider;
+    return this.getProviderForNetwork(network) as BitcoinProvider;
   }
 
   getProviderForNetwork(
     network: Network,
     useMulticall = false
-  ): BlockCypherProvider | JsonRpcBatchInternal | Avalanche.JsonRpcProvider {
+  ): BitcoinProvider | JsonRpcBatchInternal | Avalanche.JsonRpcProvider {
     if (network.vmName === NetworkVMType.BITCOIN) {
-      return new BlockCypherProvider(
+      return new BitcoinProvider(
         !network.isTestnet,
-        process.env.GLACIER_API_KEY,
-        `${process.env.PROXY_URL}/proxy/blockcypher`
+        undefined,
+        `${process.env.PROXY_URL}/proxy/nownodes/${
+          network.isTestnet ? 'btcbook-testnet' : 'btcbook'
+        }`,
+        `${process.env.PROXY_URL}/proxy/nownodes/${
+          network.isTestnet ? 'btc-testnet' : 'btc'
+        }`,
+        process.env.GLACIER_API_KEY
+          ? { token: process.env.GLACIER_API_KEY }
+          : {}
       );
     } else if (network.vmName === NetworkVMType.EVM) {
       const provider = new JsonRpcBatchInternal(
@@ -422,8 +423,8 @@ export class NetworkService implements OnLock, OnStorageReady {
       return (await provider.broadcastTransaction(signedTx)).hash;
     }
 
-    if (provider instanceof BlockCypherProvider) {
-      return (await provider.issueRawTx(signedTx)).hash;
+    if (provider instanceof BitcoinProvider) {
+      return await provider.issueRawTx(signedTx);
     }
 
     throw new Error('No provider found');
@@ -448,7 +449,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async saveCustomNetwork(customNetwork: CustomNetworkPayload) {
     const chainId = parseInt(customNetwork.chainId.toString(16), 16);
-    const chainlist = await this.allNetworks.promisify();
+    const chainlist = await this._rawNetworks.promisify();
 
     if (!chainlist) {
       throw new Error('chainlist failed to load');
@@ -494,14 +495,29 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     const newOverrides = {
       ...existingOverrides,
-      [chainId]: overrides,
+      [chainId]: Object.keys(overrides).length > 0 ? overrides : undefined,
     };
 
     await this.storageService.save(NETWORK_OVERRIDES_STORAGE_KEY, newOverrides);
 
     // Dispatch _allNetworks signal to trigger an update of overrides.
-    const chainlist = await this.allNetworks.promisify();
-    this._allNetworks.dispatch(chainlist);
+    const chainlist = await this._rawNetworks.promisify();
+    this._allNetworks.dispatch({ ...chainlist });
+
+    // If we're editing the active network, apply the changes to it as well.
+    if (chainlist && this.activeNetwork?.chainId === network.chainId) {
+      // We're getting the pure network config from _allNetworks signal,
+      // as that's where we have the network in it's default state.
+      const pureActiveNetwork = chainlist[network.chainId];
+
+      // Only then we apply the new overrides
+      if (pureActiveNetwork) {
+        this.activeNetwork = {
+          ...pureActiveNetwork,
+          ...overrides,
+        };
+      }
+    }
   }
 
   async removeCustomNetwork(chainID: number) {
@@ -510,7 +526,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     // Remove chain ID from customNetworks list and from allNetworks list.
     delete this._customNetworks[chainID];
-    const chainlist = await this.allNetworks.promisify();
+    const chainlist = await this._rawNetworks.promisify();
     if (chainlist && chainlist[chainID]) {
       delete chainlist[chainID];
     }
@@ -529,4 +545,56 @@ export class NetworkService implements OnLock, OnStorageReady {
     // Update storage
     this.updateNetworkState();
   }
+
+  /**
+   * Basically if in testnet mode we only want to return the testnet
+   * networks. Otherwise we want only mainnet networks.
+   */
+  #filterBasedOnDevMode = (chainList?: ChainList) => {
+    return Object.values(chainList ?? {})
+      .filter(
+        (network) =>
+          Boolean(this.activeNetwork?.isTestnet) === Boolean(network.isTestnet)
+      )
+      .reduce(
+        (acc, network) => ({
+          ...acc,
+          [network.chainId]: network,
+        }),
+        {}
+      );
+  };
+
+  #applyOverrides = async (chainList?: ChainList) => {
+    let overrides: Record<string, NetworkOverrides> | undefined;
+
+    if (!chainList) {
+      return {};
+    }
+
+    try {
+      overrides = await this.storageService.load(NETWORK_OVERRIDES_STORAGE_KEY);
+    } catch {
+      // This can be called before storage is decrypted, in that case
+      // no overrides will be applied.
+      return merge({}, chainList);
+    }
+
+    if (!overrides) {
+      return merge({}, chainList);
+    }
+
+    const applicableOverrides = Object.fromEntries(
+      Object.entries(overrides)
+        // Filter out empty overrides
+        .filter(
+          ([, networkOverrides]) => Object.keys(networkOverrides).length > 0
+        )
+        // Filter out overrides that do not apply in the current context,
+        // for example if the chain list does not contain the network in question.
+        .filter(([chainId]) => chainId in chainList)
+    );
+
+    return merge({}, chainList, applicableOverrides) as ChainList;
+  };
 }

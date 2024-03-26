@@ -9,7 +9,7 @@ import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { Network } from '@avalabs/chains-sdk';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { TransactionDescription } from 'ethers';
-import { findToken } from './utils/findToken';
+import { findToken } from '../../../../../../utils/findToken';
 import { TokenType } from '@src/background/services/balances/models';
 
 export interface AddLiquidityAvaxData {

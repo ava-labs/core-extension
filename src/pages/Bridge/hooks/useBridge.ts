@@ -108,9 +108,14 @@ export function useBridge(currentAssetAddress?: string): Bridge {
   }, [isDeveloperMode, targetBlockchain]);
 
   const btc = useBtcBridge(amount);
-  const eth = useEthBridge(amount, bridgeFee, minimum);
+  const eth = useEthBridge(amount, bridgeFee, minimum, gasSettings);
   const avalanche = useAvalancheBridge(amount, bridgeFee, minimum);
-  const unified = useUnifiedBridge(amount, targetChainId, currentAssetAddress);
+  const unified = useUnifiedBridge(
+    amount,
+    targetChainId,
+    currentAssetAddress,
+    gasSettings
+  );
 
   const defaults = useMemo(
     () => ({

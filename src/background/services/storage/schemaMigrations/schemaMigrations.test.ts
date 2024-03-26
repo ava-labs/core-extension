@@ -171,7 +171,7 @@ describe('background/services/storage/migrations/migrations', () => {
 
       await expect(
         migrateToLatest(outDatedKeyWithInvalidSchema, data)
-      ).rejects.toThrowError(
+      ).rejects.toThrow(
         `Error while upgrading ${outDatedKeyWithInvalidSchema} to version 2`
       );
       expect(

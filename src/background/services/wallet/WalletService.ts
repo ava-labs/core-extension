@@ -50,7 +50,7 @@ import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { FireblocksBTCSigner } from '../fireblocks/FireblocksBTCSigner';
 import { Action } from '../actions/models';
-import { UnsignedTx } from '@avalabs/avalanchejs-v2';
+import { UnsignedTx } from '@avalabs/avalanchejs';
 import { toUtf8 } from 'ethereumjs-util';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';

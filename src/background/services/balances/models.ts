@@ -1,5 +1,5 @@
 import { NetworkContractToken, NetworkToken } from '@avalabs/chains-sdk';
-import { BitcoinInputUTXO } from '@avalabs/wallets-sdk';
+import { BitcoinInputUTXOWithOptionalScript } from '@avalabs/wallets-sdk';
 import BN from 'bn.js';
 
 export const BALANCES_CACHE_KEY = 'balances-service-cache';
@@ -15,8 +15,8 @@ interface TokenBalanceData {
   balanceDisplayValue?: string;
   balanceUsdDisplayValue?: string;
   priceUSD?: number;
-  utxos?: BitcoinInputUTXO[];
-  utxosUnconfirmed?: BitcoinInputUTXO[];
+  utxos?: BitcoinInputUTXOWithOptionalScript[];
+  utxosUnconfirmed?: BitcoinInputUTXOWithOptionalScript[];
   unconfirmedBalance?: BN;
   unconfirmedBalanceDisplayValue?: string;
   unconfirmedBalanceUsdDisplayValue?: string;
@@ -71,6 +71,7 @@ export interface NftTokenWithBalance extends TokenBalanceData {
   tokenId: string;
   attributes: TokenAttribute[];
   collectionName: string;
+  updatedAt?: number;
 }
 
 export interface NftPageTokens {

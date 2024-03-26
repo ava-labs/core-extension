@@ -23,13 +23,16 @@ describe('src/pages/Onboarding/utils/approveSeedlessRegistration', () => {
   it('should call the register API with the right arguments', async () => {
     global.fetch = jest.fn().mockResolvedValueOnce({ json: jest.fn() });
     await approveSeedlessRegistration({} as IdentityProof);
-    expect(global.fetch).toHaveBeenCalledWith('https://seedless/v1/register', {
-      body: '{}',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-    });
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://seedless/v1/register?mfa-required=false',
+      {
+        body: '{}',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+      }
+    );
   });
   it('should return `ERROR`', async () => {
     global.fetch = jest.fn().mockResolvedValueOnce({ json: jest.fn() });

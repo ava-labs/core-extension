@@ -81,6 +81,9 @@ module.exports = {
       'bn.js': path.resolve('./node_modules/bn.js'),
       path: require.resolve('path-browserify'),
       '@hpke/core': path.resolve('./node_modules/@hpke/core/esm/core/mod.js'),
+      '@cubist-labs/cubesigner-sdk': path.resolve(
+        './node_modules/@cubist-labs/cubesigner-sdk/dist/cjs/src/index.js'
+      ),
     },
     // We're using different node.js modules in our code,
     // this prevents WebPack from failing on them or embedding

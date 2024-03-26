@@ -19,18 +19,12 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
 
 import { FIDOApiEndpoint } from '@src/utils/seedless/fido/types';
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Typography,
-} from '@avalabs/k2-components';
+import { Dialog, DialogContent, DialogTitle } from '@avalabs/k2-components';
 import { TOTPChallenge } from '@src/components/common/seedless/components/TOTPChallenge';
 import { FIDOChallenge } from '@src/components/common/seedless/components/FIDOChallenge';
 import { useTranslation } from 'react-i18next';
-import { RecoveryMethod } from '@src/components/settings/pages/RecoveryMethods/RecoveryMethod';
 import { ChooseMfaMethodHandler } from '@src/background/services/seedless/handlers/chooseMfaMethod';
+import { MfaChoicePrompt } from '@src/components/common/seedless/components/MfaChoicePrompt';
 
 export const useSeedlessMfa = () => {
   const { t } = useTranslation();
@@ -66,8 +60,6 @@ export const useSeedlessMfa = () => {
         });
       } catch {
         setError(AuthErrorCode.TotpVerificationError);
-      } finally {
-        setIsVerifying(false);
       }
     },
     [request, mfaChallenge]
@@ -79,7 +71,10 @@ export const useSeedlessMfa = () => {
         return;
       }
 
-      if (mfaChallenge.type !== MfaRequestType.Fido) {
+      if (
+        mfaChallenge.type !== MfaRequestType.Fido &&
+        mfaChallenge.type !== MfaRequestType.FidoRegister
+      ) {
         setError(AuthErrorCode.WrongMfaResponseAttempt);
         return;
       }
@@ -89,11 +84,16 @@ export const useSeedlessMfa = () => {
 
       try {
         const answer = await launchFidoFlow(
-          FIDOApiEndpoint.Authenticate,
-          mfaChallenge.options
+          mfaChallenge.type === MfaRequestType.Fido
+            ? FIDOApiEndpoint.Authenticate
+            : FIDOApiEndpoint.Register,
+          mfaChallenge.options,
+          mfaChallenge.type === MfaRequestType.FidoRegister
+            ? mfaChallenge.keyType
+            : undefined
         );
 
-        request<SubmitMfaResponseHandler>({
+        await request<SubmitMfaResponseHandler>({
           method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
           params: [
             {
@@ -142,7 +142,8 @@ export const useSeedlessMfa = () => {
               error={error}
             />
           )}
-          {mfaChallenge?.type === MfaRequestType.Fido && (
+          {(mfaChallenge?.type === MfaRequestType.Fido ||
+            mfaChallenge?.type === MfaRequestType.FidoRegister) && (
             <>
               <DialogTitle>{t('Waiting for Confirmation')}</DialogTitle>
               <DialogContent>
@@ -156,28 +157,7 @@ export const useSeedlessMfa = () => {
           )}
         </Dialog>
 
-        <Dialog open={Boolean(mfaChoice)} PaperProps={{ sx: { m: 2 } }}>
-          <DialogTitle>{t('Choose Verification Method')}</DialogTitle>
-          <DialogContent>
-            <Typography variant="body1">
-              {t(
-                'Select one of the available verification methods below to proceed.'
-              )}
-            </Typography>
-          </DialogContent>
-          <DialogActions sx={{ px: 1 }}>
-            {mfaChoice?.availableMethods.map((method) => (
-              <RecoveryMethod
-                key={method.type === 'fido' ? method.id : 'authenticator'}
-                asCard
-                methodName={
-                  method.type === 'fido' ? method.name : t('Authenticator')
-                }
-                onClick={() => chooseMfaMethod(method)}
-              />
-            ))}
-          </DialogActions>
-        </Dialog>
+        <MfaChoicePrompt mfaChoice={mfaChoice} onChosen={chooseMfaMethod} />
       </>
     ),
     [
@@ -220,6 +200,13 @@ export const useSeedlessMfa = () => {
 
         if (event.name === SeedlessEvents.MfaRequest) {
           setMfaChallenge(event.value);
+          return;
+        }
+
+        if (event.name === SeedlessEvents.MfaClear) {
+          setMfaChallenge(undefined);
+          setError(undefined);
+          setMfaChoice(undefined);
           return;
         }
 

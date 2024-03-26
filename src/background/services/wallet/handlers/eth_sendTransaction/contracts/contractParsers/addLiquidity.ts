@@ -1,6 +1,6 @@
 import { ContractCall, ContractParser } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { findToken } from './utils/findToken';
+import { findToken } from '../../../../../../utils/findToken';
 import { Network } from '@avalabs/chains-sdk';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import {

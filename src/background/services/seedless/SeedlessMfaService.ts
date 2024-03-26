@@ -1,15 +1,21 @@
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
-import { CubeSigner, CubeSignerResponse } from '@cubist-labs/cubesigner-sdk';
+import {
+  AddFidoChallenge,
+  CubeSignerResponse,
+  SignerSession,
+} from '@cubist-labs/cubesigner-sdk';
 import { filter, firstValueFrom, map, Subject, Subscription } from 'rxjs';
 
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
-import { DecodedFIDOResult } from '@src/utils/seedless/fido/types';
+import { DecodedFIDOResult, KeyType } from '@src/utils/seedless/fido/types';
 
 import {
   AuthErrorCode,
+  GetRecoveryMethodsOptions,
   MfaChoiceRequest,
   MfaChoiceResponse,
+  MfaClearData,
   MfaFailureData,
   MfaFidoRequest,
   MfaRequestData,
@@ -17,13 +23,15 @@ import {
   MfaResponseData,
   MfaTotpRequest,
   RecoveryMethod,
+  SeedlessError,
   SeedlessEvents,
   TOTP_ISSUER,
   TotpResetChallenge,
 } from './models';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SecretsService } from '../secrets/SecretsService';
-import { isFailedMfaError } from './utils';
+import { isFailedMfaError, mapMfasToRecoveryMethods } from './utils';
+import { PartialBy } from '@src/background/models';
 
 @singleton()
 export class SeedlessMfaService implements OnUnlock, OnLock {
@@ -44,7 +52,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
   }
 
   async #getSession() {
-    const session = await CubeSigner.loadSignerSession(this.#storage);
+    const session = SignerSession.loadSignerSession(this.#storage);
 
     return session;
   }
@@ -67,9 +75,19 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
   }
 
   async askForMfaMethod(
-    mfaChoiceRequest: MfaChoiceRequest
+    mfaChoiceRequest: PartialBy<MfaChoiceRequest, 'availableMethods'>
   ): Promise<RecoveryMethod> {
-    this.#choiceRequest$.next(mfaChoiceRequest);
+    const methods =
+      mfaChoiceRequest.availableMethods ?? (await this.getRecoveryMethods());
+
+    if (methods.length === 1) {
+      return methods[0]!;
+    }
+
+    this.#choiceRequest$.next({
+      ...mfaChoiceRequest,
+      availableMethods: methods,
+    });
 
     // Wait for the user to respond to our request for MFA choice
     return firstValueFrom(
@@ -80,22 +98,70 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     );
   }
 
-  async getRecoveryMethods(): Promise<RecoveryMethod[]> {
+  async getRecoveryMethods({
+    excludeFido,
+    excludeTotp,
+  }: GetRecoveryMethodsOptions = {}): Promise<RecoveryMethod[]> {
     const session = await this.#getSession();
     const user = await session.user();
 
-    return user.mfa.map((method) => {
-      if (method.type === 'fido') {
-        return {
-          ...method,
-          type: MfaRequestType.Fido,
-        };
-      }
+    const methods = user.mfa.map(mapMfasToRecoveryMethods);
 
-      return {
-        type: MfaRequestType.Totp,
-      };
+    if (excludeTotp || excludeFido) {
+      return methods.filter((method) => {
+        if (method.type === MfaRequestType.Totp && excludeTotp) {
+          return false;
+        }
+
+        if (method.type === MfaRequestType.Fido && excludeFido) {
+          return false;
+        }
+
+        return true;
+      });
+    }
+
+    return methods;
+  }
+
+  async addFidoDevice(name: string, keyType: KeyType, tabId?: number) {
+    const session = await this.#getSession();
+    const addFidoRequest = await session.addFidoStart(name);
+
+    let addFidoChallenge: AddFidoChallenge;
+
+    if (addFidoRequest.requiresMfa()) {
+      const methods = await this.getRecoveryMethods();
+      const method =
+        methods.length === 1
+          ? methods[0]
+          : await this.askForMfaMethod({
+              mfaId: addFidoRequest.mfaId(),
+              availableMethods: methods,
+              tabId,
+            });
+
+      const mfaResponse = await this.approveWithMfa(
+        method?.type === 'totp' ? MfaRequestType.Totp : MfaRequestType.Fido,
+        addFidoRequest,
+        tabId
+      );
+
+      addFidoChallenge = mfaResponse.data();
+    } else {
+      addFidoChallenge = addFidoRequest.data();
+    }
+
+    const fidoAnswer = await this.requestMfa({
+      mfaId: addFidoChallenge.challengeId,
+      type: MfaRequestType.FidoRegister,
+      keyType,
+      options: addFidoChallenge.options,
+      tabId,
     });
+
+    await addFidoChallenge.answer(fidoAnswer);
+    await this.#emitMfaMethods();
   }
 
   async initAuthenticatorChange(tabId?: number): Promise<TotpResetChallenge> {
@@ -113,7 +179,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
               tabId,
             });
 
-      const result = await this.#approveWithMfa(
+      const result = await this.approveWithMfa(
         method?.type === 'totp' ? MfaRequestType.Totp : MfaRequestType.Fido,
         response,
         tabId
@@ -135,18 +201,63 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     };
   }
 
+  async removeTotp(tabId?: number) {
+    const session = await this.#getSession();
+
+    const request = await session.deleteTotp();
+
+    if (request.requiresMfa()) {
+      // To remove a TOTP method, FIDO verification is required.
+      const methods = await this.getRecoveryMethods({ excludeTotp: true });
+
+      // We should have non-TOTP methods available here. Technically CubeSigner
+      // checks for that, but let's make sure on our end as well.
+      if (!methods.length) {
+        throw SeedlessError.NoMfaMethodAvailable;
+      }
+
+      await this.approveWithMfa(MfaRequestType.Fido, request, tabId);
+    }
+
+    await this.#emitMfaMethods();
+  }
+
+  async removeFidoDevice(id: string, tabId?: number) {
+    const session = await this.#getSession();
+
+    const request = await session.deleteFido(id);
+
+    if (request.requiresMfa()) {
+      // To remove a FIDO device, a TOTP verification is required.
+      const [method] = await this.getRecoveryMethods({ excludeFido: true });
+
+      // TOTP should be the only one available here. Technically CubeSigner guards from this not
+      // being the case, but better make sure.
+      if (!method) {
+        throw SeedlessError.NoMfaMethodAvailable;
+      }
+
+      await this.approveWithMfa(MfaRequestType.Totp, request, tabId);
+    }
+
+    await this.#emitMfaMethods();
+  }
+
+  async #emitMfaMethods() {
+    this.#eventEmitter.emit(
+      SeedlessEvents.MfaMethodsUpdated,
+      await this.getRecoveryMethods()
+    );
+  }
+
   async completeAuthenticatorChange(totpId: string, code: string) {
     const session = await this.#getSession();
 
     try {
       await session.resetTotpComplete(totpId, code);
-
-      this.#eventEmitter.emit(
-        SeedlessEvents.MfaMethodsUpdated,
-        await this.getRecoveryMethods()
-      );
+      await this.#emitMfaMethods();
     } catch (err) {
-      // Only repeat the prompt if it was an MFA failure
+      // Only repeat the prompt if the user provided a wrong code from the new authenticator app
       if (isFailedMfaError(err)) {
         // Emit error & retry
         throw AuthErrorCode.InvalidTotpCode;
@@ -156,7 +267,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     }
   }
 
-  async #approveWithMfa<T>(
+  async approveWithMfa<T>(
     type: MfaRequestType,
     request: CubeSignerResponse<T>,
     tabId?: number
@@ -169,7 +280,14 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
           tabId,
         });
 
-        return await request.approveTotp(await this.#getSession(), code);
+        const result = await request.approveTotp(
+          await this.#getSession(),
+          code
+        );
+
+        this.clearMfaChallenge(request.mfaId(), tabId);
+
+        return result;
       } else if (type === MfaRequestType.Fido) {
         const session = await this.#getSession();
         const challenge = await session.fidoApproveStart(request.mfaId());
@@ -187,11 +305,15 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
           throw new Error('Fido challenge not approved');
         }
 
-        return await request.signWithMfaApproval({
+        const result = await request.signWithMfaApproval({
           mfaId: request.mfaId(),
           mfaOrgId: process.env.SEEDLESS_ORG_ID || '',
           mfaConf: mfaInfo.receipt.confirmation,
         });
+
+        this.clearMfaChallenge(request.mfaId(), tabId);
+
+        return result;
       } else {
         throw new Error('Unsupported MFA type');
       }
@@ -201,9 +323,10 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
         // Emit error & retry
         await this.emitMfaError(request.mfaId(), tabId);
 
-        return this.#approveWithMfa(type, request, tabId);
+        return this.approveWithMfa(type, request, tabId);
       }
 
+      this.clearMfaChallenge(request.mfaId(), tabId);
       throw err;
     }
   }
@@ -228,12 +351,17 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     this.#eventEmitter.emit(SeedlessEvents.MfaFailure, { mfaId, tabId });
   }
 
+  clearMfaChallenge(mfaId: string, tabId?: number) {
+    this.#eventEmitter.emit(SeedlessEvents.MfaClear, { mfaId, tabId });
+  }
+
   async submitMfaResponse(mfaResponse: MfaResponseData) {
     this.#challengeResponse$.next(mfaResponse);
   }
 
-  async submitChosenMethod(method: MfaChoiceResponse) {
-    this.#choiceResponse$.next(method);
+  async submitChosenMethod(response: MfaChoiceResponse, tabId?: number) {
+    this.#choiceResponse$.next(response);
+    this.clearMfaChallenge(response.mfaId, tabId);
   }
 
   addListener(
@@ -253,7 +381,12 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     callback: (data: RecoveryMethod[]) => void
   );
   addListener(
+    event: SeedlessEvents.MfaClear,
+    callback: (data: MfaClearData) => void
+  );
+  addListener(
     event:
+      | SeedlessEvents.MfaClear
       | SeedlessEvents.MfaFailure
       | SeedlessEvents.MfaRequest
       | SeedlessEvents.MfaChoiceRequest

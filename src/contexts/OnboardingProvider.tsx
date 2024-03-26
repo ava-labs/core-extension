@@ -72,6 +72,8 @@ const OnboardingContext = createContext<{
   resetStates: () => void;
   setIsNewAccount: Dispatch<SetStateAction<boolean>>;
   isNewAccount: boolean;
+  isSeedlessMfaRequired: boolean;
+  setIsSeedlessMfaRequired: Dispatch<SetStateAction<boolean>>;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -119,6 +121,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const [walletType, setWalletType] = useState<string>();
   const [isNewAccount, setIsNewAccount] = useState(false);
+  const [isSeedlessMfaRequired, setIsSeedlessMfaRequired] = useState(false);
 
   const { capture } = useAnalyticsContext();
 
@@ -137,6 +140,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setUserId(undefined);
     setIsNewAccount(false);
     setWalletName(undefined);
+    setIsSeedlessMfaRequired(false);
   }, []);
 
   useEffect(() => {
@@ -244,6 +248,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
           toast.error(t('Something went wrong. Please try again.'), {
             duration: 3000,
           });
+          setAnalyticsConsent(undefined);
         })
         .finally(() => {
           setSubmitInProgress(false);
@@ -303,6 +308,8 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         resetStates,
         setIsNewAccount,
         isNewAccount,
+        isSeedlessMfaRequired,
+        setIsSeedlessMfaRequired,
       }}
     >
       {/*

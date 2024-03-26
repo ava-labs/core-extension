@@ -50,7 +50,12 @@ export const KeystoreFileError = ({
             </Typography>
           </Stack>
 
-          <Button size="medium" fullWidth onClick={onTryAgain}>
+          <Button
+            size="medium"
+            fullWidth
+            onClick={onTryAgain}
+            data-testid="try-again-button"
+          >
             {t('Try Again')}
           </Button>
         </Stack>

@@ -23,13 +23,11 @@ import {
   TokenWithBalance,
 } from '@src/background/services/balances/models';
 import BN from 'bn.js';
-import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useTranslation } from 'react-i18next';
 import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwapError } from './components/SwapError';
 import { calculateRate } from './utils';
 import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
-import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import {
   Stack,
   toast,
@@ -167,7 +165,7 @@ export function Swap() {
 
     const slippage = slippageTolerance || '0';
 
-    const [result, error] = await resolve(
+    const [, error] = await resolve(
       swap(
         fromTokenAddress,
         toTokenAddress,
@@ -192,17 +190,6 @@ export function Swap() {
       return;
     }
 
-    captureEncrypted('SwapSuccessful', {
-      address: activeAddress,
-      txHash: result.swapTxHash,
-      chainId: network?.chainId,
-    });
-
-    toastCardWithLink({
-      title: t('Swap Successful'),
-      url: network && getExplorerAddressByNetwork(network, result.swapTxHash),
-      label: t('View in Explorer'),
-    });
     history.push('/home');
   }
 

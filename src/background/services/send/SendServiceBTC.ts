@@ -164,16 +164,21 @@ export class SendServiceBTC implements SendServiceHelper {
     balance: number;
     utxos: BitcoinInputUTXO[];
   }> {
+    const provider = await this.networkService.getBitcoinProvider();
     const token =
       this.networkBalancesService.balances[
-        (await this.networkService.isMainnet())
+        this.networkService.isMainnet()
           ? ChainId.BITCOIN
           : ChainId.BITCOIN_TESTNET
       ]?.[this.address]?.['BTC'];
 
+    const utxosWithScripts = await provider.getScriptsForUtxos(
+      token?.utxos || []
+    );
+
     return {
       balance: token?.balance.toNumber() || 0,
-      utxos: token?.utxos || [],
+      utxos: utxosWithScripts,
     };
   }
 

@@ -1,11 +1,12 @@
 import {
   BITCOIN_NETWORK,
+  BITCOIN_TEST_NETWORK,
   ChainId,
   getChainsAndTokens,
   NetworkVMType,
 } from '@avalabs/chains-sdk';
 import {
-  BlockCypherProvider,
+  BitcoinProvider,
   JsonRpcBatchInternal,
   Avalanche,
 } from '@avalabs/wallets-sdk';
@@ -17,13 +18,13 @@ import { NETWORK_LIST_STORAGE_KEY } from './models';
 import { Signal } from 'micro-signals';
 
 jest.mock('@avalabs/wallets-sdk', () => {
-  const BlockCypherProviderMock = jest.fn();
+  const BitcoinProviderMock = jest.fn();
   const JsonRpcBatchInternalMock = jest.fn();
   const getDefaultFujiProviderMock = jest.fn();
   const getDefaultMainnetProviderMock = jest.fn();
   return {
     ...jest.requireActual('@avalabs/wallets-sdk'),
-    BlockCypherProvider: BlockCypherProviderMock,
+    BitcoinProvider: BitcoinProviderMock,
     JsonRpcBatchInternal: JsonRpcBatchInternalMock,
     Avalanche: {
       JsonRpcProvider: {
@@ -63,12 +64,12 @@ const mockNetwork = (vmName: NetworkVMType, isTestnet?: boolean) => ({
 describe('background/services/network/NetworkService', () => {
   const env = process.env;
 
-  const storageServiceMock = {
+  const storageServiceMock = jest.mocked<StorageService>({
     load: jest.fn(),
     loadUnencrypted: jest.fn(),
     save: jest.fn(),
     saveUnencrypted: jest.fn(),
-  } as any;
+  } as any);
   const service = new NetworkService(storageServiceMock);
 
   beforeAll(() => {
@@ -106,20 +107,61 @@ describe('background/services/network/NetworkService', () => {
     process.env = env;
   });
 
+  describe('.updateNetworkOverrides()', () => {
+    beforeEach(() => {
+      storageServiceMock.load.mockResolvedValue({});
+      storageServiceMock.save.mockResolvedValue();
+    });
+
+    it('updates the active network if it was the one updated', async () => {
+      const activeNetwork = {
+        chainId: 1337,
+        rpcUrl: 'http://default.rpc',
+      } as const;
+
+      const networkService = new NetworkService(storageServiceMock);
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      jest.spyOn(networkService._rawNetworks, 'promisify').mockResolvedValue({
+        1337: activeNetwork,
+      });
+      jest.spyOn(networkService.allNetworks, 'promisify').mockResolvedValue({
+        1337: activeNetwork,
+      } as any);
+
+      await networkService.setNetwork(activeNetwork.chainId);
+
+      await networkService.updateNetworkOverrides({
+        chainId: 1337,
+        rpcUrl: 'http://custom.rpc',
+      } as any);
+
+      expect(networkService.activeNetwork).toEqual({
+        chainId: 1337,
+        rpcUrl: 'http://custom.rpc',
+      });
+    });
+  });
+
   describe('saveCustomNetwork()', () => {
     let customNetwork;
     beforeEach(() => {
       customNetwork = mockNetwork(NetworkVMType.EVM, false);
     });
     it('should throw an error because of the chainlist failed to load', async () => {
-      jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(undefined);
-      expect(service.saveCustomNetwork(customNetwork)).rejects.toThrowError(
+      jest
+        // eslint-disable-next-line
+        // @ts-expect-error
+        .spyOn(service._rawNetworks, 'promisify')
+        .mockResolvedValue(Promise.resolve(undefined));
+      expect(service.saveCustomNetwork(customNetwork)).rejects.toThrow(
         'chainlist failed to load'
       );
     });
     it('should throw an error because of duplicated ID', async () => {
       const newCustomNetwork = { ...customNetwork, chainId: 43114 };
-      expect(service.saveCustomNetwork(newCustomNetwork)).rejects.toThrowError(
+      expect(service.saveCustomNetwork(newCustomNetwork)).rejects.toThrow(
         'chain ID already exists'
       );
     });
@@ -214,9 +256,116 @@ describe('background/services/network/NetworkService', () => {
     expect(activeNetwork).toEqual(mockEVMNetwork);
   });
 
+  describe('when config overrides are present', () => {
+    const originalChainList = {
+      '1': {
+        chainId: 1,
+        rpcUrl: 'http://avax.network/rpc',
+      },
+      '1337': {
+        chainId: 1337,
+        rpcUrl: 'http://default.rpc',
+      },
+    } as const;
+
+    beforeEach(() => {
+      storageServiceMock.load.mockResolvedValue({
+        '1337': {
+          rpcUrl: 'http://my.custom.rpc',
+        },
+      });
+    });
+
+    it('applies config overrides to .allNetworks signal', async () => {
+      const networkService = new NetworkService(storageServiceMock);
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch(originalChainList);
+
+      const networksPromise = await networkService.allNetworks.promisify();
+
+      expect(await networksPromise).toEqual({
+        ...originalChainList,
+        '1337': {
+          ...originalChainList['1337'],
+          rpcUrl: 'http://my.custom.rpc',
+        },
+      });
+    });
+
+    it('applies config overrides to .activeNetworks signal', async () => {
+      const networkService = new NetworkService(storageServiceMock);
+
+      // eslint-disable-next-line
+      // @ts-expect-error
+      networkService._allNetworks.dispatch(originalChainList);
+
+      const networksPromise = await networkService.activeNetworks.promisify();
+
+      expect(await networksPromise).toEqual({
+        ...originalChainList,
+        '1337': {
+          ...originalChainList['1337'],
+          rpcUrl: 'http://my.custom.rpc',
+        },
+      });
+    });
+  });
+
+  it('filters networks by .isTestnet for .activeNetworks signal', async () => {
+    const networkService = new NetworkService(storageServiceMock);
+
+    jest.spyOn(networkService, 'activeNetwork', 'get').mockReturnValue({
+      isTestnet: false,
+    } as any);
+
+    const allNetworks = {
+      '1': {
+        chainId: 1,
+        isTestnet: false,
+      },
+      '1337': {
+        chainId: 1337,
+        isTestnet: true,
+      },
+    } as any;
+
+    // eslint-disable-next-line
+    // @ts-expect-error
+    networkService._allNetworks.dispatch(allNetworks);
+
+    const mainnetNetworksPromise =
+      await networkService.activeNetworks.promisify();
+
+    expect(await mainnetNetworksPromise).toEqual({
+      '1': {
+        chainId: 1,
+        isTestnet: false,
+      },
+    });
+
+    jest.spyOn(networkService, 'activeNetwork', 'get').mockReturnValue({
+      isTestnet: true,
+    } as any);
+    // eslint-disable-next-line
+    // @ts-expect-error
+    networkService._allNetworks.dispatch(allNetworks);
+
+    const testnetNetworksPromise =
+      await networkService.activeNetworks.promisify();
+
+    expect(await testnetNetworksPromise).toEqual({
+      '1337': {
+        chainId: 1337,
+        isTestnet: true,
+      },
+    });
+  });
+
   describe('getProviderForNetwork', () => {
     const mockJsonRpcBatchInternalInstance = {};
-    const mockBlockCypherProviderInstance = {};
+    const mockBitcoinProviderInstance = {};
     const mockFujiProviderInstance = {};
     const mockMainnetProviderInstance = {};
 
@@ -227,8 +376,8 @@ describe('background/services/network/NetworkService', () => {
       (JsonRpcBatchInternal as unknown as jest.Mock).mockReturnValue(
         mockJsonRpcBatchInternalInstance
       );
-      (BlockCypherProvider as jest.Mock).mockReturnValue(
-        mockBlockCypherProviderInstance
+      (BitcoinProvider as jest.Mock).mockReturnValue(
+        mockBitcoinProviderInstance
       );
       (
         Avalanche.JsonRpcProvider.getDefaultFujiProvider as jest.Mock
@@ -296,15 +445,32 @@ describe('background/services/network/NetworkService', () => {
       );
     });
 
-    it('returns blockcypher provider for BTC networks', () => {
+    it('returns bitcoin provider for BTC testnet', () => {
+      const provider =
+        networkService.getProviderForNetwork(BITCOIN_TEST_NETWORK);
+
+      expect(provider).toBe(mockBitcoinProviderInstance);
+      expect(BitcoinProvider).toHaveBeenCalledTimes(1);
+      expect(BitcoinProvider).toHaveBeenCalledWith(
+        false,
+        undefined,
+        `${process.env.PROXY_URL}/proxy/nownodes/btcbook-testnet`,
+        `${process.env.PROXY_URL}/proxy/nownodes/btc-testnet`,
+        { token: process.env.GLACIER_API_KEY }
+      );
+    });
+
+    it('returns bitcoin provider for BTC mainnet', () => {
       const provider = networkService.getProviderForNetwork(BITCOIN_NETWORK);
 
-      expect(provider).toBe(mockBlockCypherProviderInstance);
-      expect(BlockCypherProvider).toHaveBeenCalledTimes(1);
-      expect(BlockCypherProvider).toHaveBeenCalledWith(
+      expect(provider).toBe(mockBitcoinProviderInstance);
+      expect(BitcoinProvider).toHaveBeenCalledTimes(1);
+      expect(BitcoinProvider).toHaveBeenCalledWith(
         true,
-        process.env.GLACIER_API_KEY,
-        `${process.env.PROXY_URL}/proxy/blockcypher`
+        undefined,
+        `${process.env.PROXY_URL}/proxy/nownodes/btcbook`,
+        `${process.env.PROXY_URL}/proxy/nownodes/btc`,
+        { token: process.env.GLACIER_API_KEY }
       );
     });
 
@@ -355,7 +521,7 @@ describe('background/services/network/NetworkService', () => {
           ...mockEVMNetwork,
           vmName: 'CRAPPYVM' as unknown as NetworkVMType,
         });
-      }).toThrowError(new Error('unsupported network'));
+      }).toThrow(new Error('unsupported network'));
     });
   });
 });

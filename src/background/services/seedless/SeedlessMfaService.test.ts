@@ -1,9 +1,10 @@
-import { CubeSigner, SignerSession } from '@cubist-labs/cubesigner-sdk';
+import { SignerSession } from '@cubist-labs/cubesigner-sdk';
 
 import { SecretsService } from '../secrets/SecretsService';
 
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { MfaRequestData, MfaRequestType, SeedlessEvents } from './models';
+import { KeyType } from '@src/utils/seedless/fido/types';
 
 jest.mock('@cubist-labs/cubesigner-sdk');
 
@@ -115,6 +116,64 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
     });
   });
 
+  describe('.approveWithMfa()', () => {
+    let service: SeedlessMfaService;
+
+    beforeEach(async () => {
+      service = new SeedlessMfaService(secretsService);
+    });
+
+    it('retries if MFA verification fails', async () => {
+      const badCode = '133731';
+      const wrongCodeError = new Error('Invalid TOTP code');
+      (wrongCodeError as any).status = 403;
+
+      const originalRequest = {
+        mfaId() {
+          return 'abcd';
+        },
+        data() {
+          return { x: 'y' };
+        },
+        approveTotp: jest
+          .fn()
+          .mockRejectedValueOnce(wrongCodeError)
+          .mockResolvedValueOnce({ x: 'y' }),
+      } as any;
+
+      // Mock user providing bad code at first
+      jest.spyOn(service, 'requestMfa').mockResolvedValueOnce(badCode as any);
+      jest.spyOn(service, 'emitMfaError');
+      // Mock Cubist "wrong totp code" response:
+      jest
+        .mocked(originalRequest.approveTotp)
+        .mockRejectedValueOnce(wrongCodeError);
+
+      service.approveWithMfa(MfaRequestType.Totp, originalRequest, 123);
+
+      await new Promise(process.nextTick);
+
+      expect(service.requestMfa).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          mfaId: 'abcd',
+          type: MfaRequestType.Totp,
+          tabId: 123,
+        })
+      );
+
+      expect(service.emitMfaError).toHaveBeenCalledWith('abcd', 123);
+      expect(service.requestMfa).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          mfaId: 'abcd',
+          type: MfaRequestType.Totp,
+          tabId: 123,
+        })
+      );
+    });
+  });
+
   describe('.getRecoveryMethods()', () => {
     let session: SignerSession;
     let service: SeedlessMfaService;
@@ -126,7 +185,9 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
         user: jest.fn(),
       } as any;
 
-      jest.mocked(CubeSigner.loadSignerSession).mockResolvedValueOnce(session);
+      jest
+        .mocked(SignerSession.loadSignerSession)
+        .mockResolvedValueOnce(session);
     });
 
     it('fetches information about configured mfa methods', async () => {
@@ -154,19 +215,21 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
     describe('for non-seedless wallets', () => {
       beforeEach(() => {
         jest
-          .mocked(CubeSigner.loadSignerSession)
+          .mocked(SignerSession.loadSignerSession)
           .mockRejectedValueOnce(new Error('Invalid session data'));
       });
 
       it('fails', async () => {
-        await expect(service.initAuthenticatorChange()).rejects.toThrowError(
+        await expect(service.initAuthenticatorChange()).rejects.toThrow(
           'Invalid session data'
         );
       });
     });
 
     it('initiates TOTP reset', async () => {
-      jest.mocked(CubeSigner.loadSignerSession).mockResolvedValueOnce(session);
+      jest
+        .mocked(SignerSession.loadSignerSession)
+        .mockResolvedValueOnce(session);
 
       try {
         await service.initAuthenticatorChange();
@@ -194,7 +257,7 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
       } as any;
 
       session.resetTotpStart.mockResolvedValue(totpChallenge);
-      jest.mocked(CubeSigner.loadSignerSession).mockResolvedValue(session);
+      jest.mocked(SignerSession.loadSignerSession).mockResolvedValue(session);
       jest.spyOn(service, 'requestMfa').mockResolvedValue('123456' as any);
 
       const result = await service.initAuthenticatorChange();
@@ -222,19 +285,19 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
     describe('for non-seedless wallets', () => {
       beforeEach(() => {
         jest
-          .mocked(CubeSigner.loadSignerSession)
+          .mocked(SignerSession.loadSignerSession)
           .mockRejectedValueOnce(new Error('Invalid session data'));
       });
 
       it('fails', async () => {
         await expect(
           service.completeAuthenticatorChange('totpId', '123456')
-        ).rejects.toThrowError('Invalid session data');
+        ).rejects.toThrow('Invalid session data');
       });
     });
 
     it('completes the TOTP reset', async () => {
-      jest.mocked(CubeSigner.loadSignerSession).mockResolvedValue(session);
+      jest.mocked(SignerSession.loadSignerSession).mockResolvedValue(session);
 
       await service.completeAuthenticatorChange('totpId', '123456');
 
@@ -245,7 +308,7 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
     });
 
     it('emits the updated recovery methods', async () => {
-      jest.mocked(CubeSigner.loadSignerSession).mockResolvedValue(session);
+      jest.mocked(SignerSession.loadSignerSession).mockResolvedValue(session);
 
       const mfaMethods = [
         { type: 'totp' },
@@ -261,6 +324,214 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
       await service.completeAuthenticatorChange('totpId', '123456');
 
       expect(listener).toHaveBeenCalledWith(mfaMethods);
+    });
+  });
+
+  describe('.addFidoDevice()', () => {
+    let session: jest.Mocked<SignerSession>;
+    let service: SeedlessMfaService;
+
+    beforeEach(() => {
+      service = new SeedlessMfaService(secretsService);
+
+      session = {
+        addFidoStart: jest.fn(),
+        user: jest.fn().mockResolvedValue({ mfa: [{ type: 'totp' }] }),
+      } as any;
+    });
+
+    it('initiates FIDO setup flow', async () => {
+      jest
+        .mocked(SignerSession.loadSignerSession)
+        .mockResolvedValueOnce(session);
+
+      try {
+        await service.addFidoDevice('yubi', KeyType.Yubikey);
+      } catch {
+        expect(session.addFidoStart).toHaveBeenCalledWith('yubi');
+      }
+    });
+
+    it('performs MFA verification if required', async () => {
+      session.addFidoStart.mockResolvedValue({
+        requiresMfa() {
+          return true;
+        },
+        mfaId() {
+          return 'mfa-id';
+        },
+        approveTotp: () => ({
+          data: () => ({
+            answer: jest.fn(),
+          }),
+        }),
+      } as any);
+      jest.mocked(SignerSession.loadSignerSession).mockResolvedValue(session);
+      jest.spyOn(service, 'requestMfa').mockResolvedValue('123456' as any);
+
+      await service.addFidoDevice('yubi', KeyType.Yubikey, 123);
+
+      expect(service.requestMfa).toHaveBeenCalledWith({
+        mfaId: 'mfa-id',
+        type: MfaRequestType.Totp,
+        tabId: 123,
+      });
+    });
+
+    it('initiates a FIDO challenge for the new device', async () => {
+      const fidoChallenge = {
+        challengeId: 'challenge-id',
+        options: { a: 'b' },
+        answer: jest.fn(),
+      };
+      const fidoAnswer = { c: 'd' };
+
+      session.addFidoStart.mockResolvedValue({
+        requiresMfa() {
+          return false;
+        },
+        data() {
+          return fidoChallenge;
+        },
+      } as any);
+      jest.mocked(SignerSession.loadSignerSession).mockResolvedValue(session);
+      jest
+        .spyOn(service, 'requestMfa')
+        .mockResolvedValueOnce(fidoAnswer as any);
+
+      await service.addFidoDevice('yubi', KeyType.Yubikey, 123);
+
+      expect(service.requestMfa).toHaveBeenCalledWith({
+        mfaId: fidoChallenge.challengeId,
+        type: MfaRequestType.FidoRegister,
+        keyType: KeyType.Yubikey,
+        options: fidoChallenge.options,
+        tabId: 123,
+      });
+      expect(fidoChallenge.answer).toHaveBeenCalledWith(fidoAnswer);
+    });
+  });
+
+  describe('.removeFidoDevice()', () => {
+    let session: jest.Mocked<SignerSession>;
+    let service: SeedlessMfaService;
+
+    beforeEach(() => {
+      service = new SeedlessMfaService(secretsService);
+
+      session = {
+        deleteFido: jest.fn(),
+        user: jest.fn().mockResolvedValue({ mfa: [{ type: 'totp' }] }),
+      } as any;
+    });
+
+    it('initiates FIDO removal', async () => {
+      jest
+        .mocked(SignerSession.loadSignerSession)
+        .mockResolvedValueOnce(session);
+
+      try {
+        await service.removeFidoDevice('abcd-1234', 1234);
+      } catch {
+        expect(session.deleteFido).toHaveBeenCalledWith('abcd-1234');
+      }
+    });
+
+    it('performs MFA verification if required', async () => {
+      session.deleteFido.mockResolvedValue({
+        requiresMfa() {
+          return true;
+        },
+        mfaId() {
+          return 'mfa-id';
+        },
+        approveTotp: jest.fn(),
+      } as any);
+      jest.mocked(SignerSession.loadSignerSession).mockResolvedValue(session);
+      jest.spyOn(service, 'requestMfa').mockResolvedValue('123456' as any);
+
+      await service.removeFidoDevice('yubi-1234', 123);
+
+      expect(service.requestMfa).toHaveBeenCalledWith({
+        mfaId: 'mfa-id',
+        type: MfaRequestType.Totp,
+        tabId: 123,
+      });
+    });
+  });
+
+  describe('.removeTotp()', () => {
+    let session: jest.Mocked<SignerSession>;
+    let service: SeedlessMfaService;
+
+    beforeEach(() => {
+      service = new SeedlessMfaService(secretsService);
+
+      session = {
+        deleteTotp: jest.fn(),
+        fidoApproveStart: jest.fn(),
+        user: jest.fn().mockResolvedValue({
+          mfa: [{ type: 'fido', id: 'yubi-1234', name: 'yubi' }],
+        }),
+      } as any;
+    });
+
+    it('initiates TOTP removal', async () => {
+      jest
+        .mocked(SignerSession.loadSignerSession)
+        .mockResolvedValueOnce(session);
+
+      try {
+        await service.removeTotp(1234);
+      } catch {
+        expect(session.deleteTotp).toHaveBeenCalled();
+      }
+    });
+
+    it('performs MFA verification if required', async () => {
+      const fidoAnswer = {
+        receipt: {
+          confirmation: '1234',
+        },
+      };
+      const fidoChallenge = {
+        challengeId: 'challenge-id',
+        options: { a: 'b' },
+        answer: jest.fn().mockResolvedValueOnce(fidoAnswer),
+      };
+      const signWithMfaApproval = jest.fn();
+      session.fidoApproveStart.mockResolvedValue(fidoChallenge as any);
+      session.deleteTotp.mockResolvedValue({
+        requiresMfa() {
+          return true;
+        },
+        mfaId() {
+          return 'mfa-id';
+        },
+        approveTotp: () => ({
+          data: () => ({
+            answer: jest.fn(),
+          }),
+        }),
+        signWithMfaApproval,
+      } as any);
+      jest.mocked(SignerSession.loadSignerSession).mockResolvedValue(session);
+      jest.spyOn(service, 'requestMfa').mockResolvedValue('123456' as any);
+
+      await service.removeTotp(123);
+
+      expect(service.requestMfa).toHaveBeenCalledWith({
+        mfaId: 'mfa-id',
+        type: MfaRequestType.Fido,
+        options: fidoChallenge.options,
+        tabId: 123,
+      });
+      expect(signWithMfaApproval).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mfaId: 'mfa-id',
+          mfaConf: fidoAnswer.receipt.confirmation,
+        })
+      );
     });
   });
 });

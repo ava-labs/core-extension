@@ -253,6 +253,7 @@ export function AddWalletWithKeystoreFile() {
               isLoading={isReading}
               fullWidth
               onClick={readKeystoreFile}
+              data-testid="continue-upload"
             >
               {t('Continue Upload')}
             </Button>
@@ -262,6 +263,7 @@ export function AddWalletWithKeystoreFile() {
               size="large"
               fullWidth
               onClick={restart}
+              data-testid="back-button"
             >
               {t('Back')}
             </Button>

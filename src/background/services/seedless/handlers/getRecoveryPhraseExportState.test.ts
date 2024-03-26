@@ -30,6 +30,7 @@ describe('src/background/services/seedless/handlers/ge', () => {
 
   const wallet = jest.mocked<SeedlessWallet>({
     getMnemonicExportState: jest.fn(),
+    cancelMnemonicExport: jest.fn(),
   } as any);
 
   beforeEach(() => {
@@ -80,12 +81,36 @@ describe('src/background/services/seedless/handlers/ge', () => {
     expect(result.result).toEqual(undefined);
   });
 
-  it('returns export information if there is a pending export', async () => {
+  it('cancels outdated export requests', async () => {
+    const now = 1_000_000_000;
+
+    jest.spyOn(Date, 'now').mockReturnValue(now);
+
     const pendingExportMock = {
       key_id: 'Key#Mnemonic_ABCD1234',
       org_id: 'Org#XYZ-123',
-      valid_epoch: 1701990000,
-      exp_epoch: 1702162800,
+      valid_epoch: now / 1000 - 11_000,
+      exp_epoch: now / 1000 - 1000,
+    };
+
+    wallet.getMnemonicExportState.mockResolvedValueOnce(pendingExportMock);
+
+    const result = await handle();
+
+    expect(wallet.cancelMnemonicExport).toHaveBeenCalled();
+    expect(result.result).toEqual(pendingExportMock);
+  });
+
+  it('returns export information if there is a pending export', async () => {
+    const now = 1_000_000_000;
+
+    jest.spyOn(Date, 'now').mockReturnValue(now);
+
+    const pendingExportMock = {
+      key_id: 'Key#Mnemonic_ABCD1234',
+      org_id: 'Org#XYZ-123',
+      valid_epoch: now / 1000 + 1000,
+      exp_epoch: now / 1000 + 11_000,
     };
 
     wallet.getMnemonicExportState.mockResolvedValueOnce(pendingExportMock);

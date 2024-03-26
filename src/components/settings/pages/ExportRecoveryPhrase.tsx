@@ -30,6 +30,7 @@ import { SettingsPageProps } from '../models';
 
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { ExportPending } from '@src/components/common/seedless/components/ExportPending';
+import { ExportError } from '@src/components/common/seedless/components/ExportError';
 
 const ListItemBadge = styled(Chip)`
   font-size: 16px;
@@ -45,7 +46,7 @@ export function ExportRecoveryPhrase({
 }: SettingsPageProps) {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  const { state, progress, timeLeft, cancelExport } =
+  const { error, state, progress, timeLeft, cancelExport } =
     useSeedlessMnemonicExport();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
@@ -84,6 +85,9 @@ export function ExportRecoveryPhrase({
           isCancelling={state === ExportState.Cancelling}
           cancelExport={cancelExport}
         />
+      )}
+      {state === ExportState.Error && (
+        <ExportError error={error} onRetry={handleNextClick} onClose={goBack} />
       )}
       {state === ExportState.ReadyToExport && (
         <Stack

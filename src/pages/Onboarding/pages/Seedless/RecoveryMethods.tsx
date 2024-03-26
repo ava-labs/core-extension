@@ -23,6 +23,7 @@ import { FIDOModal } from './modals/FIDOModal';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { InlineBold } from '@src/components/common/InlineBold';
 import { RecoveryMethodTypes } from './models';
+import { useSeedlessActions } from '../../hooks/useSeedlessActions';
 
 export function RecoveryMethods() {
   const history = useHistory();
@@ -32,7 +33,8 @@ export function RecoveryMethods() {
     useState<RecoveryMethodTypes | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
-  const { oidcToken } = useOnboardingContext();
+  const { oidcToken, isSeedlessMfaRequired } = useOnboardingContext();
+  const { loginWithoutMFA } = useSeedlessActions();
 
   useEffect(() => {
     if (!oidcToken) {
@@ -113,12 +115,19 @@ export function RecoveryMethods() {
           onBack={() => {
             history.goBack();
           }}
-          onNext={() => {
-            setIsModalOpen(true);
+          nextText={t('Set Up Later')}
+          disableNext={isSeedlessMfaRequired}
+          nextDisabledReason={
+            isSeedlessMfaRequired
+              ? t('MFA configuration is required for your account.')
+              : undefined
+          }
+          onNext={async () => {
+            await loginWithoutMFA();
+            history.push(OnboardingURLs.CREATE_PASSWORD);
           }}
           activeStep={0}
           steps={3}
-          disableNext={!selectedMethod}
         />
       </Stack>
       {isModalOpen && selectedMethod === RecoveryMethodTypes.TOTP && (

@@ -22,7 +22,8 @@ import { CustomGasSettings } from '@src/background/services/bridge/models';
 export function useEthBridge(
   amount: Big,
   bridgeFee: Big,
-  minimum: Big
+  minimum: Big,
+  gasSetting?: CustomGasSettings
 ): BridgeAdapter {
   const {
     currentAsset,
@@ -57,7 +58,7 @@ export function useEthBridge(
     ({ asset }) => asset.symbol === currentAsset
   );
 
-  const hasEnoughForNetworkFee = useHasEnoughForGas();
+  const hasEnoughForNetworkFee = useHasEnoughForGas(gasSetting?.gasLimit);
 
   const [wrapStatus, setWrapStatus] = useState<WrapStatus>(WrapStatus.INITIAL);
   const [txHash, setTxHash] = useState<string>();

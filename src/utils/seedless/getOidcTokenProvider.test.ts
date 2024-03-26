@@ -5,7 +5,7 @@ import { getOidcTokenProvider } from './getOidcTokenProvider';
 
 describe('src/utils/seedless/getOidcTokenProvider', () => {
   it('should get unsupported error', () => {
-    expect(() => getOidcTokenProvider()).toThrowError(
+    expect(() => getOidcTokenProvider()).toThrow(
       'Unsupported provider: unknown'
     );
   });

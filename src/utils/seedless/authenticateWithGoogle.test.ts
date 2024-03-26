@@ -7,9 +7,7 @@ jest.mock('../../pages/Onboarding/utils/launchWebAuthFlow', () => ({
 
 describe('src/utils/seedless/authenticateWithGoogle', () => {
   it('should throw an error when the Ouath is not configured', () => {
-    expect(authenticateWithGoogle()).rejects.toThrowError(
-      'Oauth not configured'
-    );
+    expect(authenticateWithGoogle()).rejects.toThrow('Oauth not configured');
   });
 
   it('should return with an OIDC token', () => {

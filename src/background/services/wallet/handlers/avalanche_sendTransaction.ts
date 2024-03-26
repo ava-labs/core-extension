@@ -11,7 +11,7 @@ import {
   utils,
   avaxSerial,
   VM,
-} from '@avalabs/avalanchejs-v2';
+} from '@avalabs/avalanchejs';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';

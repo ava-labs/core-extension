@@ -11,6 +11,7 @@ import { filter } from 'rxjs';
 import { SecretType } from '@src/background/services/secrets/models';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import {
+  MfaRequestType,
   RecoveryMethod,
   TotpResetChallenge,
 } from '@src/background/services/seedless/models';
@@ -20,10 +21,14 @@ import { InitAuthenticatorChangeHandler } from '@src/background/services/seedles
 import { CompleteAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/completeAuthenticatorChange';
 import { isSeedlessMfaMethodsUpdatedEvent } from '@src/background/services/seedless/events/eventFilters';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
+import { KeyType } from '@src/utils/seedless/fido/types';
+import { AddFidoDeviceHandler } from '@src/background/services/seedless/handlers/addFidoDevice';
+import { RemoveFidoDeviceHandler } from '@src/background/services/seedless/handlers/removeFidoDevice';
 
 import { useConnectionContext } from './ConnectionProvider';
 import { useWalletContext } from './WalletProvider';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
+import { RemoveTotpHandler } from '@src/background/services/seedless/handlers/removeTotp';
 
 interface SeedlessMfaManagementContextProps {
   children?: React.ReactNode;
@@ -32,9 +37,15 @@ interface SeedlessMfaManagementContextProps {
 export const SeedlessMfaManagementContext = createContext<{
   initAuthenticatorChange(): Promise<TotpResetChallenge>;
   completeAuthenticatorChange(totpId: string, code: string): Promise<void>;
+  addFidoDevice(name: string, keyType: KeyType): Promise<void>;
+  removeFidoDevice(id: string): Promise<void>;
+  removeTotp(): Promise<void>;
   isLoadingRecoveryMethods: boolean;
   recoveryMethods: RecoveryMethod[];
   isMfaSetupPromptVisible: boolean;
+  hasMfaConfigured: boolean;
+  hasTotpConfigured: boolean;
+  hasFidoConfigured: boolean;
 }>({
   initAuthenticatorChange() {
     throw 'Not ready';
@@ -42,9 +53,21 @@ export const SeedlessMfaManagementContext = createContext<{
   completeAuthenticatorChange() {
     throw 'Not ready';
   },
+  addFidoDevice() {
+    throw 'Not ready';
+  },
+  removeFidoDevice() {
+    throw 'Not ready';
+  },
+  removeTotp() {
+    throw 'Not ready';
+  },
   isLoadingRecoveryMethods: false,
   recoveryMethods: [],
   isMfaSetupPromptVisible: false,
+  hasMfaConfigured: false,
+  hasTotpConfigured: false,
+  hasFidoConfigured: false,
 });
 
 export const SeedlessMfaManagementProvider = ({
@@ -120,6 +143,32 @@ export const SeedlessMfaManagementProvider = ({
     [request]
   );
 
+  const addFidoDevice = useCallback(
+    (name: string, keyType: KeyType) =>
+      request<AddFidoDeviceHandler>({
+        method: ExtensionRequest.SEEDLESS_ADD_FIDO_DEVICE,
+        params: [name, keyType],
+      }),
+    [request]
+  );
+
+  const removeFidoDevice = useCallback(
+    (id: string) =>
+      request<RemoveFidoDeviceHandler>({
+        method: ExtensionRequest.SEEDLESS_REMOVE_FIDO_DEVICE,
+        params: [id],
+      }),
+    [request]
+  );
+
+  const removeTotp = useCallback(
+    () =>
+      request<RemoveTotpHandler>({
+        method: ExtensionRequest.SEEDLESS_REMOVE_TOTP,
+      }),
+    [request]
+  );
+
   useEffect(() => {
     if (walletDetails?.type !== SecretType.Seedless) {
       return;
@@ -141,11 +190,21 @@ export const SeedlessMfaManagementProvider = ({
   return (
     <SeedlessMfaManagementContext.Provider
       value={{
+        addFidoDevice,
+        removeFidoDevice,
+        removeTotp,
         completeAuthenticatorChange,
         initAuthenticatorChange,
         isLoadingRecoveryMethods,
         isMfaSetupPromptVisible,
         recoveryMethods,
+        hasMfaConfigured: recoveryMethods.length > 0,
+        hasTotpConfigured: recoveryMethods.some(
+          ({ type }) => type === MfaRequestType.Totp
+        ),
+        hasFidoConfigured: recoveryMethods.some(
+          ({ type }) => type === MfaRequestType.Fido
+        ),
       }}
     >
       {children}

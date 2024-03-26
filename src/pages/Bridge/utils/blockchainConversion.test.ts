@@ -247,7 +247,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
           mockedNetworks,
           bridgeConfigMock
         )
-      ).toThrowError('Blockchain not supported');
+      ).toThrow('Blockchain not supported');
     });
   });
 

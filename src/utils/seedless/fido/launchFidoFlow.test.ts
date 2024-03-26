@@ -61,6 +61,7 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
       },
     };
     jest.mocked(openPopup).mockResolvedValueOnce(popup);
+    jest.mocked(windows.remove).mockResolvedValue();
   });
 
   afterEach(() => {
@@ -72,15 +73,13 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
 
     await expect(
       launchFidoFlow(FIDOApiEndpoint.Authenticate, {} as any)
-    ).rejects.toThrowError(
-      new Error('FIDO Identity Service URL is not configured')
-    );
+    ).rejects.toThrow(new Error('FIDO Identity Service URL is not configured'));
   });
 
   it('throws an error if keyType is not provided for Register request', async () => {
     await expect(
       launchFidoFlow(FIDOApiEndpoint.Register, {} as any)
-    ).rejects.toThrowError(
+    ).rejects.toThrow(
       new Error('FIDO key type not defined for registration request')
     );
   });
@@ -92,7 +91,7 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
 
     await expect(
       launchFidoFlow('this-does-not-work' as FIDOApiEndpoint, {} as any)
-    ).rejects.toThrowError(new Error('Unsupported FIDO identity endpoint'));
+    ).rejects.toThrow(new Error('Unsupported FIDO identity endpoint'));
   });
 
   it('opens popup with the right URL & opener options', async () => {
@@ -136,7 +135,7 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
 
     await callback();
 
-    await expect(promise).rejects.toThrowError('Popup closed');
+    await expect(promise).rejects.toThrow('Popup closed');
   });
 
   it('waits for a valid response from valid origin', async () => {

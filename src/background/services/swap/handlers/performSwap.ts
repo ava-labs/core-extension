@@ -1,9 +1,11 @@
 import { ChainId } from '@avalabs/chains-sdk';
+import browser from 'webextension-polyfill';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import { resolve } from '@src/utils/promiseResolver';
+import { findToken } from '@src/background/utils/findToken';
 import Big from 'big.js';
 import { BN } from 'bn.js';
 import { ethers } from 'ethers';
@@ -15,6 +17,8 @@ import { NetworkService } from '../../network/NetworkService';
 import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
 import { WalletService } from '../../wallet/WalletService';
 import { SwapService } from '../SwapService';
+import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
+import i18next from 'i18next';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SWAP_PERFORM,
@@ -45,7 +49,8 @@ export class PerformSwapHandler implements HandlerType {
     private networkService: NetworkService,
     private walletService: WalletService,
     private networkFeeService: NetworkFeeService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private analyticsPosthogService: AnalyticsServicePosthog
   ) {}
 
   handle: HandlerType['handle'] = async (request) => {
@@ -330,6 +335,57 @@ export class PerformSwapHandler implements HandlerType {
         error: `Tx Error: ${txError}`,
       };
     }
+
+    provider.waitForTransaction(swapTxHash).then(async (tx) => {
+      const isSuccessful = tx && tx.status === 1;
+
+      this.analyticsPosthogService.captureEncryptedEvent({
+        name: isSuccessful ? 'SwapSuccessful' : 'SwapFailed',
+        windowId: crypto.randomUUID(),
+        properties: {
+          address: userAddress,
+          txHash: swapTxHash,
+          chainId: ChainId.AVALANCHE_MAINNET_ID,
+        },
+      });
+
+      const srcAsset = await findToken(srcToken);
+      const destAsset = await findToken(destToken);
+      const srcAssetAmount = new Big(srcAmount)
+        .div(10 ** srcDecimals)
+        .toString();
+      const destAssetAmount = new Big(destAmount)
+        .div(10 ** destDecimals)
+        .toString();
+
+      browser.notifications.create({
+        type: 'basic',
+        title: isSuccessful
+          ? i18next.t('Swap transaction succeeded! 🎉')
+          : i18next.t('Swap transaction failed! ❌'),
+        iconUrl: '../../../../images/icon-256.png',
+        priority: 2,
+        message: isSuccessful
+          ? i18next.t(
+              'Successfully swapped {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}',
+              {
+                srcAmount: srcAssetAmount,
+                destAmount: destAssetAmount,
+                srcToken: srcAsset.symbol,
+                destToken: destAsset.symbol,
+              }
+            )
+          : i18next.t(
+              'Could not swap {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}',
+              {
+                srcToken: srcAsset.symbol,
+                destToken: destAsset.symbol,
+                srcAmount: srcAssetAmount,
+                destAmount: destAssetAmount,
+              }
+            ),
+      });
+    });
 
     return {
       ...request,

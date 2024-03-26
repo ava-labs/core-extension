@@ -38,6 +38,9 @@ global.chrome = {
       version: '0.0.0',
     }),
   },
+  notifications: {
+    create: jest.fn(),
+  },
   windows: {
     onRemoved: {
       addListener: jest.fn(),

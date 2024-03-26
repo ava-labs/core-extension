@@ -106,16 +106,26 @@ export const PhraseReadyToExport = ({
           </Button>
         </Box>
       </Stack>
-      <Button
-        color="primary"
-        size="large"
-        fullWidth
-        disabled={!mnemonic}
-        onClick={handleCopy}
-        data-testid="seedless-export-recovery-phrase-copy-mnemonic"
-      >
-        {t('Copy Recovery Phrase')}
-      </Button>
+      <Stack sx={{ gap: 1, width: 1 }}>
+        <Button
+          color="primary"
+          size="large"
+          fullWidth
+          disabled={!mnemonic}
+          onClick={handleCopy}
+          data-testid="seedless-export-recovery-phrase-copy-mnemonic"
+        >
+          {t('Copy Recovery Phrase')}
+        </Button>
+        <Button
+          variant="text"
+          size="large"
+          fullWidth
+          onClick={() => setShowCloseWarning(true)}
+        >
+          {t('Close')}
+        </Button>
+      </Stack>
       <Dialog open={showCloseWarning}>
         <DialogTitle>{t('Confirm Close?')}</DialogTitle>
         <DialogContent>

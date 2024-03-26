@@ -242,12 +242,27 @@ const AddWalletWithKeystoreFile = lazy(() => {
   }));
 });
 
+const SeedlessUpdateRecoveryMethod = lazy(() => {
+  return import('../pages/SeedlessPopups/SeedlessUpdateRecoveryMethod').then(
+    (m) => ({
+      default: m.SeedlessUpdateRecoveryMethod,
+    })
+  );
+});
+
+const SeedlessRemoveTotp = lazy(() => {
+  return import('../pages/SeedlessPopups/SeedlessRemoveTotp').then((m) => ({
+    default: m.SeedlessRemoveTotp,
+  }));
+});
+
 const pagesWithoutHeader = [
   '/tokens/manage',
   '/bridge/confirm',
   '/bridge/transaction-status',
   '/bridge/transaction-details',
   '/send/confirm',
+  '/collectible',
   '/collectible/send/confirm',
   '/accounts',
   '/import-private-key',
@@ -792,6 +807,36 @@ export function Popup() {
                                                     }
                                                   >
                                                     <SeedlessExportPopup />
+                                                  </Suspense>
+                                                </Route>
+
+                                                <Route path="/seedless-export">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SeedlessExportPopup />
+                                                  </Suspense>
+                                                </Route>
+
+                                                <Route path="/update-recovery-methods">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SeedlessUpdateRecoveryMethod />
+                                                  </Suspense>
+                                                </Route>
+
+                                                <Route path="/remove-totp">
+                                                  <Suspense
+                                                    fallback={
+                                                      <CircularProgress />
+                                                    }
+                                                  >
+                                                    <SeedlessRemoveTotp />
                                                   </Suspense>
                                                 </Route>
 

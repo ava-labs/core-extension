@@ -67,9 +67,10 @@ export class BridgeTransferAssetHandler implements HandlerType {
     } catch (err) {
       return {
         ...request,
-        error: isWrappedError(err)
-          ? err
-          : ethErrors.rpc.internal({ data: { reason: CommonError.Unknown } }),
+        error:
+          isWrappedError(err) || typeof err === 'string'
+            ? err
+            : ethErrors.rpc.internal({ data: { reason: CommonError.Unknown } }),
       };
     }
   };

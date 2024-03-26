@@ -1,10 +1,8 @@
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import {
-  CubeSigner,
   MfaRequestInfo,
   SignerSession,
   SignerSessionData,
-  envs,
 } from '@cubist-labs/cubesigner-sdk';
 
 import sentryCaptureException, {
@@ -13,6 +11,7 @@ import sentryCaptureException, {
 
 import { getSignerToken } from '@src/utils/seedless/getSignerToken';
 import {
+  getOidcClient,
   getSignerSession,
   requestOidcAuth,
 } from '@src/utils/seedless/getCubeSigner';
@@ -20,7 +19,12 @@ import { OidcTokenGetter } from '@src/utils/seedless/getOidcTokenProvider';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
 import { FIDOApiEndpoint } from '@src/utils/seedless/fido/types';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { AuthErrorCode } from '@src/background/services/seedless/models';
+import {
+  AuthErrorCode,
+  MfaRequestType,
+  RecoveryMethod,
+} from '@src/background/services/seedless/models';
+import { mapMfasToRecoveryMethods } from '@src/background/services/seedless/utils';
 
 export enum AuthStep {
   NotInitialized,
@@ -28,6 +32,7 @@ export enum AuthStep {
   Complete,
   TotpChallenge,
   FidoChallenge,
+  ChooseMfaMethod,
 }
 
 export type UseSeedlessAuthOptions = {
@@ -54,27 +59,29 @@ export const useSeedlessAuth = ({
   const [userId, setUserId] = useState<string>();
   const [mfaDeviceName, setMfaDeviceName] = useState('');
   const { capture } = useAnalyticsContext();
+  const [methods, setMethods] = useState<RecoveryMethod[]>([]);
+
+  const chooseMfaMethod = useCallback((method: RecoveryMethod) => {
+    if (method.type === MfaRequestType.Fido) {
+      setStep(AuthStep.FidoChallenge);
+      setMfaDeviceName(method.name);
+    } else if (method.type === MfaRequestType.Totp) {
+      setStep(AuthStep.TotpChallenge);
+      setMfaDeviceName('');
+    } else {
+      setError(AuthErrorCode.UnsupportedMfaMethod);
+    }
+  }, []);
 
   const getUserDetails = useCallback(async (idToken) => {
-    const cubesigner = new CubeSigner({
-      orgId: process.env.SEEDLESS_ORG_ID || '',
-      env: envs[process.env.CUBESIGNER_ENV || ''],
-    });
-    const identity = await cubesigner.oidcProveIdentity(
-      idToken,
-      process.env.SEEDLESS_ORG_ID || ''
-    );
+    const client = getOidcClient(idToken);
+    const identity = await client.identityProve();
     const mfaMethods = identity.user_info?.configured_mfa ?? [];
-    const [mfaMethod] = mfaMethods;
-
-    const mfaType = mfaMethod?.type;
-    const deviceName = mfaMethod?.type === 'fido' ? mfaMethod.name : '';
 
     return {
-      email: identity.email,
+      email: identity.email ?? '',
       userId: identity.identity?.sub,
-      mfaType,
-      deviceName,
+      mfaMethods,
     };
   }, []);
 
@@ -104,8 +111,7 @@ export const useSeedlessAuth = ({
         const {
           email: obtainedEmail,
           userId: obtainedUserId,
-          mfaType,
-          deviceName,
+          mfaMethods,
         } = await getUserDetails(idToken);
 
         setEmail(obtainedEmail);
@@ -150,19 +156,26 @@ export const useSeedlessAuth = ({
           setMfaId(authResponse.mfaId());
           setSession(await getSignerSession(mfaSessionInfo));
 
-          if (!mfaType) {
+          if (!mfaMethods.length) {
             setError(AuthErrorCode.NoMfaMethodsConfigured);
             return false;
           }
 
-          if (mfaType === 'totp') {
-            setStep(AuthStep.TotpChallenge);
-          } else if (mfaType === 'fido') {
-            setStep(AuthStep.FidoChallenge);
-            setMfaDeviceName(deviceName);
+          if (mfaMethods.length === 1) {
+            const method = mfaMethods[0]!;
+
+            if (method.type === 'totp') {
+              setStep(AuthStep.TotpChallenge);
+            } else if (method.type === 'fido') {
+              setStep(AuthStep.FidoChallenge);
+              setMfaDeviceName(method.name);
+            } else {
+              setError(AuthErrorCode.UnsupportedMfaMethod);
+              return false;
+            }
           } else {
-            setError(AuthErrorCode.UnsupportedMfaMethod);
-            return false;
+            setStep(AuthStep.ChooseMfaMethod);
+            setMethods(mfaMethods.map(mapMfasToRecoveryMethods));
           }
         } else {
           setError(AuthErrorCode.NoMfaDetails);
@@ -345,6 +358,8 @@ export const useSeedlessAuth = ({
     oidcToken,
     step,
     email,
+    methods,
+    chooseMfaMethod,
     authenticate,
     verifyTotpCode,
     completeFidoChallenge,

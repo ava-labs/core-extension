@@ -10,7 +10,7 @@ import {
   MessageParams,
   MessageType,
 } from '@src/background/services/messages/models';
-import { utils } from '@avalabs/avalanchejs-v2';
+import { utils } from '@avalabs/avalanchejs';
 
 @injectable()
 export class AvalancheSignMessageHandler extends DAppRequestHandler {

@@ -35,9 +35,9 @@ describe('src/background/services/wallet/utils/ensureMessageFormatIsValid.test.t
     it('throws validation error when types is missing from the payload', () => {
       const payload = getPayload('types');
 
-      expect(() =>
-        ensureMessageFormatIsValid(messageType, payload, 1)
-      ).toThrowError('"types" is required');
+      expect(() => ensureMessageFormatIsValid(messageType, payload, 1)).toThrow(
+        '"types" is required'
+      );
     });
 
     it('throws validation error when types.EIP712Domain is missing from the payload', () => {
@@ -45,43 +45,43 @@ describe('src/background/services/wallet/utils/ensureMessageFormatIsValid.test.t
 
       expect(() =>
         ensureMessageFormatIsValid(messageType, { ...payload, types: {} }, 1)
-      ).toThrowError('"types.EIP712Domain" is required');
+      ).toThrow('"types.EIP712Domain" is required');
     });
 
     it('throws validation error when primaryType is missing from the payload', () => {
       const payload = getPayload('primaryType');
 
-      expect(() =>
-        ensureMessageFormatIsValid(messageType, payload, 1)
-      ).toThrowError('"primaryType" is required');
+      expect(() => ensureMessageFormatIsValid(messageType, payload, 1)).toThrow(
+        '"primaryType" is required'
+      );
     });
 
     it('throws validation error when domain is missing from the payload', () => {
       const payload = getPayload('domain');
 
-      expect(() =>
-        ensureMessageFormatIsValid(messageType, payload, 1)
-      ).toThrowError('"domain" is required');
+      expect(() => ensureMessageFormatIsValid(messageType, payload, 1)).toThrow(
+        '"domain" is required'
+      );
     });
 
     it('throws validation error when message is missing from the payload', () => {
       const payload = getPayload('message');
 
-      expect(() =>
-        ensureMessageFormatIsValid(messageType, payload, 1)
-      ).toThrowError('"message" is required');
+      expect(() => ensureMessageFormatIsValid(messageType, payload, 1)).toThrow(
+        '"message" is required'
+      );
     });
 
     it('throws validation error when the chain id does not match the active one', () => {
       const payload = getPayload();
       const payloadWithHexChainId = getPayload(undefined, true);
 
-      expect(() =>
-        ensureMessageFormatIsValid(messageType, payload, 1)
-      ).toThrowError('target chainId does not match the currently active one');
+      expect(() => ensureMessageFormatIsValid(messageType, payload, 1)).toThrow(
+        'target chainId does not match the currently active one'
+      );
       expect(() =>
         ensureMessageFormatIsValid(messageType, payloadWithHexChainId, 1)
-      ).toThrowError('target chainId does not match the currently active one');
+      ).toThrow('target chainId does not match the currently active one');
     });
 
     it('returns without error when payload is valid', () => {

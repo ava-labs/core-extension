@@ -173,6 +173,7 @@ export function RecoveryMethodsLogin() {
                   }
                   onClick={() => {
                     setSelectedMethod(mfaDevice.type);
+                    setIsModalOpen(true);
                   }}
                 />
               );
