@@ -33,7 +33,8 @@ export function RecoveryMethods() {
     useState<RecoveryMethodTypes | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
-  const { oidcToken, isSeedlessMfaRequired } = useOnboardingContext();
+  const { oidcToken, isSeedlessMfaRequired: isSeedlessMfaRequiredForAccount } =
+    useOnboardingContext();
   const { loginWithoutMFA } = useSeedlessActions();
 
   useEffect(() => {
@@ -116,9 +117,14 @@ export function RecoveryMethods() {
             history.goBack();
           }}
           nextText={t('Set Up Later')}
-          disableNext={isSeedlessMfaRequired}
+          disableNext={
+            !featureFlags[FeatureGates.SEEDLESS_OPTIONAL_MFA] ||
+            isSeedlessMfaRequiredForAccount
+          }
           nextDisabledReason={
-            isSeedlessMfaRequired
+            !featureFlags[FeatureGates.SEEDLESS_OPTIONAL_MFA]
+              ? t('Coming soon!')
+              : isSeedlessMfaRequiredForAccount
               ? t('MFA configuration is required for your account.')
               : undefined
           }

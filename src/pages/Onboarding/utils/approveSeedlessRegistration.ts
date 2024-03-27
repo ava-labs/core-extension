@@ -12,15 +12,20 @@ enum SeedlessRegistartionResponseTextStatus {
 }
 
 export async function approveSeedlessRegistration(
-  identityProof: IdentityProof
+  identityProof: IdentityProof,
+  isMfaRequired: boolean
 ): Promise<SeedlessRegistartionResult> {
-  return fetch(process.env.SEEDLESS_URL + '/v1/register?mfa-required=false', {
-    method: 'POST',
-    body: JSON.stringify(identityProof),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+  return fetch(
+    process.env.SEEDLESS_URL +
+      `/v1/register?mfa-required=${isMfaRequired ? 'true' : 'false'}`,
+    {
+      method: 'POST',
+      body: JSON.stringify(identityProof),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
     .then(async (response) => {
       const { message }: { message: SeedlessRegistartionResponseTextStatus } =
         await response.json();
