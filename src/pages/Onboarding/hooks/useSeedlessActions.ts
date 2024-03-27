@@ -27,6 +27,8 @@ import { getSignerToken } from '@src/utils/seedless/getSignerToken';
 import { RecoveryMethodTypes } from '../pages/Seedless/models';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
 import { FIDOApiEndpoint, KeyType } from '@src/utils/seedless/fido/types';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 type OidcTokenGetter = () => Promise<string>;
 type GetAuthButtonCallbackOptions = {
@@ -65,6 +67,7 @@ export function useSeedlessActions() {
   const [totpChallenge, setTotpChallenge] = useState<TotpChallenge>();
   const [mfaSession, setMfaSession] = useState<SignerSession | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const { featureFlags } = useFeatureFlagContext();
 
   useEffect(() => {
     errorMessage && toast.error(errorMessage);
@@ -79,7 +82,10 @@ export function useSeedlessActions() {
 
       if (!identity.user_info) {
         setIsNewAccount(true);
-        const result = await approveSeedlessRegistration(identity);
+        const result = await approveSeedlessRegistration(
+          identity,
+          !featureFlags[FeatureGates.SEEDLESS_OPTIONAL_MFA]
+        );
 
         if (result !== SeedlessRegistartionResult.APPROVED) {
           toast.error(t('Seedless login error'));
@@ -114,6 +120,7 @@ export function useSeedlessActions() {
       setIsSeedlessMfaRequired,
       t,
       history,
+      featureFlags,
     ]
   );
 

@@ -22,7 +22,7 @@ describe('src/pages/Onboarding/utils/approveSeedlessRegistration', () => {
 
   it('should call the register API with the right arguments', async () => {
     global.fetch = jest.fn().mockResolvedValueOnce({ json: jest.fn() });
-    await approveSeedlessRegistration({} as IdentityProof);
+    await approveSeedlessRegistration({} as IdentityProof, false);
     expect(global.fetch).toHaveBeenCalledWith(
       'https://seedless/v1/register?mfa-required=false',
       {
@@ -36,21 +36,30 @@ describe('src/pages/Onboarding/utils/approveSeedlessRegistration', () => {
   });
   it('should return `ERROR`', async () => {
     global.fetch = jest.fn().mockResolvedValueOnce({ json: jest.fn() });
-    const result = await approveSeedlessRegistration({} as IdentityProof);
+    const result = await approveSeedlessRegistration(
+      {} as IdentityProof,
+      false
+    );
     expect(result).toBe(SeedlessRegistartionResult.ERROR);
   });
   it('should return an `ALREADY_REGISTERED` message', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       json: jest.fn().mockResolvedValue({ message: 'ALREADY_REGISTERED' }),
     });
-    const result = await approveSeedlessRegistration({} as IdentityProof);
+    const result = await approveSeedlessRegistration(
+      {} as IdentityProof,
+      false
+    );
     expect(result).toBe(SeedlessRegistartionResult.ALREADY_REGISTERED);
   });
   it('should return an `APPROVED` message', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       json: jest.fn().mockResolvedValue({ message: 'ok' }),
     });
-    const result = await approveSeedlessRegistration({} as IdentityProof);
+    const result = await approveSeedlessRegistration(
+      {} as IdentityProof,
+      false
+    );
     expect(result).toBe(SeedlessRegistartionResult.APPROVED);
   });
 });
