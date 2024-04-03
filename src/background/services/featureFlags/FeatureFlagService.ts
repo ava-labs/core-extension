@@ -16,6 +16,7 @@ import { StorageService } from '../storage/StorageService';
 import { formatAndLog } from '../../../utils/logging';
 import { getFeatureFlags } from './utils/getFeatureFlags';
 import { coerce, satisfies, validRange } from 'semver';
+import { isProductionBuild } from '@src/utils/environment';
 
 @singleton()
 export class FeatureFlagService {
@@ -163,9 +164,12 @@ export class FeatureFlagService {
       }
     };
 
-    this.#featureFlagIntervalId = setInterval(() => {
-      getAndDispatchFlags();
-    }, 5000);
+    this.#featureFlagIntervalId = setInterval(
+      () => {
+        getAndDispatchFlags();
+      },
+      isProductionBuild() ? 30_000 : 5_000
+    );
 
     getAndDispatchFlags();
   }

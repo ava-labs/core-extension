@@ -11,10 +11,6 @@ export async function getFeatureFlags(
     throw new Error('Invalid token');
   }
 
-  if (!posthogUrl) {
-    throw new Error('Invalid Posthog URL');
-  }
-
   const json_data = JSON.stringify({
     token,
     distinct_id: userId,
@@ -30,16 +26,41 @@ export async function getFeatureFlags(
     ver,
   });
 
-  const response: {
-    featureFlags: { [key in FeatureGates]: boolean };
-    featureFlagPayloads: Partial<Record<FeatureGates, string>>;
-  } = await (
-    await fetch(`${posthogUrl}/decide/?${params}`, {
-      method: 'POST',
-      body: 'data=' + encodeURIComponent(data),
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    })
-  ).json();
+  const fetchWithPosthogFallback = async () => {
+    const fetcher = async (url: string) => {
+      const response: {
+        featureFlags: { [key in FeatureGates]: boolean };
+        featureFlagPayloads: Partial<Record<FeatureGates, string>>;
+      } = await (
+        await fetch(`${url}/decide?${params}`, {
+          method: 'POST',
+          body: 'data=' + encodeURIComponent(data),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        })
+      ).json();
+
+      return response;
+    };
+
+    try {
+      const response = await fetcher(`${process.env.PROXY_URL}/proxy/posthog`);
+
+      if (!response.featureFlags) {
+        throw new Error('Failed to fetch cached data.');
+      }
+
+      return response;
+    } catch {
+      if (!posthogUrl) {
+        throw new Error('Invalid Posthog URL');
+      }
+
+      const response = await fetcher(posthogUrl);
+      return response;
+    }
+  };
+
+  const response = await fetchWithPosthogFallback();
 
   // Posthog API does not return disabled flags on their `/decide` api endpoint
   // Define disabled state values for the flags

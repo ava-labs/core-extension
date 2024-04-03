@@ -115,8 +115,32 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
       '',
       'https://app.posthog.com'
     );
+  });
+
+  it('polls every 5 seconds in non-prod build', async () => {
+    new FeatureFlagService(
+      analyticsServiceMock,
+      lockServiceMock,
+      storageServiceMock
+    );
+    await new Promise(process.nextTick);
+
     expect(setInterval).toHaveBeenCalledTimes(1);
-    expect(setInterval).toHaveBeenCalledWith(expect.anything(), 5000);
+    expect(setInterval).toHaveBeenCalledWith(expect.anything(), 5_000);
+  });
+
+  it('polls every 30 seconds in prod build', async () => {
+    process.env = { ...env, POSTHOG_KEY: 'posthogkey', RELEASE: 'production' };
+
+    new FeatureFlagService(
+      analyticsServiceMock,
+      lockServiceMock,
+      storageServiceMock
+    );
+    await new Promise(process.nextTick);
+
+    expect(setInterval).toHaveBeenCalledTimes(1);
+    expect(setInterval).toHaveBeenCalledWith(expect.anything(), 30_000);
   });
 
   it('fetches feature flags when instantiated', async () => {
