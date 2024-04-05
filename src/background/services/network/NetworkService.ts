@@ -214,15 +214,15 @@ export class NetworkService implements OnLock, OnStorageReady {
       throw new Error('chainlist failed to load');
     }
 
-    const allNetworks = {
+    this._customNetworks = network?.customNetworks || {};
+    this._allNetworks.dispatch({
       ...chainlist,
       ...network?.customNetworks,
-    };
-    this._customNetworks = network?.customNetworks || {};
-    this._allNetworks.dispatch(allNetworks);
+    });
 
     // Fall back to Avalanche network if we don't know what previous network was,
     // or if that network is no longer available in the network list.
+    const allNetworks = await this.allNetworks.promisify();
     const previouslyActiveNetwork = network?.activeNetworkId
       ? allNetworks[network.activeNetworkId]
       : null;
