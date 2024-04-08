@@ -13,7 +13,10 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
   const [error] = useState<string>('');
 
   const updateAction = useCallback(
-    async (params: ActionUpdate, shouldWaitForResponse?: boolean) => {
+    async (
+      params: ActionUpdate<Partial<DisplayData>>,
+      shouldWaitForResponse?: boolean
+    ) => {
       // We need to update the status a bit faster for smoother UX.
       // use function to avoid `action` as a dependency and thus infinite loops
       setAction((prevActionData) => {

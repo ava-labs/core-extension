@@ -10,7 +10,6 @@ import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { Network } from '@avalabs/chains-sdk';
 import { networksUpdatedEventListener } from '@src/background/services/network/events/networksUpdatedEventListener';
 import { useAnalyticsContext } from './AnalyticsProvider';
 import { SetSelectedNetworkHandler } from '@src/background/services/network/handlers/setSelectedNetwork';
@@ -21,7 +20,10 @@ import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/h
 import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
-import { NetworkOverrides } from '@src/background/services/network/models';
+import {
+  Network,
+  NetworkOverrides,
+} from '@src/background/services/network/models';
 
 const NetworkContext = createContext<{
   network?: Network | undefined;

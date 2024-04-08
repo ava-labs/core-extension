@@ -13,8 +13,11 @@ import {
 import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
 import { StorageService } from '../storage/StorageService';
 import { NetworkService } from './NetworkService';
-import { Network } from 'ethers';
-import { NETWORK_LIST_STORAGE_KEY } from './models';
+import { FetchRequest, Network } from 'ethers';
+import {
+  NETWORK_LIST_STORAGE_KEY,
+  NETWORK_OVERRIDES_STORAGE_KEY,
+} from './models';
 import { Signal } from 'micro-signals';
 
 jest.mock('@avalabs/wallets-sdk', () => {
@@ -35,6 +38,11 @@ jest.mock('@avalabs/wallets-sdk', () => {
   };
 });
 
+jest.mock('ethers', () => ({
+  ...jest.requireActual('ethers'),
+  FetchRequest: jest.fn(),
+}));
+
 jest.mock('@src/utils/addGlacierAPIKeyIfNeeded', () => ({
   addGlacierAPIKeyIfNeeded: jest.fn(),
 }));
@@ -44,7 +52,11 @@ jest.mock('@avalabs/chains-sdk', () => ({
   getChainsAndTokens: jest.fn(),
 }));
 
-const mockNetwork = (vmName: NetworkVMType, isTestnet?: boolean) => ({
+const mockNetwork = (
+  vmName: NetworkVMType,
+  isTestnet?: boolean,
+  overrides = {}
+) => ({
   chainName: 'test chain',
   chainId: 123,
   vmName,
@@ -59,6 +71,7 @@ const mockNetwork = (vmName: NetworkVMType, isTestnet?: boolean) => ({
   logoUri: '',
   primaryColor: 'blue',
   isTestnet: isTestnet ?? true,
+  ...overrides,
 });
 
 describe('background/services/network/NetworkService', () => {
@@ -101,6 +114,8 @@ describe('background/services/network/NetworkService', () => {
         isTestnet: false,
       },
     });
+
+    jest.mocked(FetchRequest).mockImplementation((url) => ({ url } as any));
   });
 
   afterAll(() => {
@@ -111,6 +126,30 @@ describe('background/services/network/NetworkService', () => {
     beforeEach(() => {
       storageServiceMock.load.mockResolvedValue({});
       storageServiceMock.save.mockResolvedValue();
+    });
+
+    it('saves custom RPC headers', async () => {
+      const overrides = {
+        chainId: 1337,
+        customRpcHeaders: {
+          'X-Glacier-Api-Key': 'my-elite-api-key',
+        },
+      } as any;
+
+      const networkService = new NetworkService(storageServiceMock);
+
+      await networkService.updateNetworkOverrides(overrides);
+
+      expect(storageServiceMock.save).toHaveBeenCalledWith(
+        NETWORK_OVERRIDES_STORAGE_KEY,
+        {
+          1337: {
+            customRpcHeaders: {
+              'X-Glacier-Api-Key': 'my-elite-api-key',
+            },
+          },
+        }
+      );
     });
 
     it('updates the active network if it was the one updated', async () => {
@@ -394,11 +433,39 @@ describe('background/services/network/NetworkService', () => {
       expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
       expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
         40,
-        mockEVMNetwork.rpcUrl,
+        expect.objectContaining({ url: mockEVMNetwork.rpcUrl }),
         new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
       );
       expect((provider as JsonRpcBatchInternal).pollingInterval).toEqual(2000);
       expect(provider).toBe(mockJsonRpcBatchInternalInstance);
+    });
+
+    it('applies custom headers if they are configured', async () => {
+      const fetchConfig = {
+        setHeader: jest.fn(),
+      };
+      jest.mocked(FetchRequest).mockReturnValue(fetchConfig as any);
+
+      const mockEVMNetwork = mockNetwork(NetworkVMType.EVM, false, {
+        customRpcHeaders: {
+          'X-Glacier-Api-Key': 'my-elite-key',
+        },
+      });
+
+      networkService.getProviderForNetwork(mockEVMNetwork);
+
+      expect(fetchConfig.setHeader).toHaveBeenCalledTimes(1);
+      expect(fetchConfig.setHeader).toHaveBeenCalledWith(
+        'X-Glacier-Api-Key',
+        'my-elite-key'
+      );
+
+      expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
+      expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
+        40,
+        fetchConfig,
+        new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
+      );
     });
 
     it('uses multicall when requested', () => {
@@ -420,7 +487,7 @@ describe('background/services/network/NetworkService', () => {
           maxCalls: 40,
           multiContractAddress: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
         },
-        mockEVMNetwork.rpcUrl,
+        expect.objectContaining({ url: mockEVMNetwork.rpcUrl }),
         new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
       );
     });
@@ -440,7 +507,7 @@ describe('background/services/network/NetworkService', () => {
       expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
       expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
         40,
-        'https://urlwithglacierkey.example',
+        expect.objectContaining({ url: 'https://urlwithglacierkey.example' }),
         new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
       );
     });

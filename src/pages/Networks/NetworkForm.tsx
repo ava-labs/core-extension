@@ -1,4 +1,3 @@
-import { Network } from '@avalabs/chains-sdk';
 import {
   forwardRef,
   useCallback,
@@ -17,6 +16,11 @@ import {
 
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { TextFieldLabel } from '@src/components/common/TextFieldLabel';
+import {
+  CustomRpcHeaders,
+  Network,
+} from '@src/background/services/network/models';
+import { NetworkRpcHeadersManager } from './NetworkRpcHeadersManager';
 
 export interface NetworkFormActions {
   resetFormErrors: () => void;
@@ -33,6 +37,7 @@ interface NetworkFormProps {
   showErrors?: boolean;
   action?: NetworkFormAction;
   isCustomNetwork?: boolean;
+  handleRpcHeadersChange?: (headers: CustomRpcHeaders) => void;
   handleResetUrl?: () => void;
 }
 
@@ -66,6 +71,7 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
     {
       customNetwork,
       handleChange,
+      handleRpcHeadersChange,
       readOnly = false,
       showErrors = false,
       action,
@@ -196,9 +202,9 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
             data-testid="network-rpc-url"
             value={customNetwork.rpcUrl}
             placeholder="http(s)://URL"
-            fullWidth
             InputProps={{
               readOnly,
+              fullWidth: true,
               endAdornment: canResetRpcUrl ? (
                 <InputAdornment position="end">
                   <Button variant="text" size="small" onClick={handleResetUrl}>
@@ -359,6 +365,14 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
                 readOnly ||
                 (!isCustomNetwork && action === NetworkFormAction.Edit),
             }}
+          />
+        </InputContainer>
+        <InputContainer>
+          <TextFieldLabel label={t('Custom RPC Headers')} />
+          <NetworkRpcHeadersManager
+            isReadOnly={readOnly}
+            network={customNetwork}
+            onChange={handleRpcHeadersChange}
           />
         </InputContainer>
       </Stack>

@@ -334,24 +334,90 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       id: 1234,
       actionId: 'uuid',
       displayData: {
-        chainId: 43112,
-        chainName: 'Avalanche',
-        vmName: NetworkVMType.EVM,
-        primaryColor: 'black',
-        rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
-        logoUri: 'logo.png',
-        explorerUrl: 'https://snowtrace.io/',
-        networkToken: {
-          symbol: 'AVAX',
-          decimals: 18,
-          description: '',
-          name: 'AVAX',
+        network: {
+          chainId: 43112,
+          chainName: 'Avalanche',
+          vmName: NetworkVMType.EVM,
+          primaryColor: 'black',
+          rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
           logoUri: 'logo.png',
+          explorerUrl: 'https://snowtrace.io/',
+          networkToken: {
+            symbol: 'AVAX',
+            decimals: 18,
+            description: '',
+            name: 'AVAX',
+            logoUri: 'logo.png',
+          },
+          isTestnet: false,
         },
-        isTestnet: false,
+        options: {
+          requiresGlacierApiKey: false,
+        },
       },
       tabId: undefined,
       popupWindowId: 123,
+    });
+  });
+
+  describe('when glacier API key is required', () => {
+    it('opens the proper approval window', async () => {
+      const request = {
+        id: 1234,
+        method: DAppProviderRequest.WALLET_ADD_CHAIN,
+        params: [
+          {
+            chainId: '0xa868', // 43112
+            chainName: 'Avalanche',
+            nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
+            rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+            blockExplorerUrls: ['https://snowtrace.io/'],
+            iconUrls: ['logo.png'],
+            requiresGlacierApiKey: true,
+          },
+        ],
+      };
+      const result = await handler.handleUnauthenticated(request);
+
+      expect(result).toEqual({
+        ...request,
+        result: DEFERRED_RESPONSE,
+      });
+
+      expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
+      expect(openExtensionNewWindow).toHaveBeenCalledWith(
+        'networks/add-popup?actionId=uuid'
+      );
+      expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
+      expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
+        ...request,
+        id: 1234,
+        actionId: 'uuid',
+        displayData: {
+          network: {
+            chainId: 43112,
+            chainName: 'Avalanche',
+            vmName: NetworkVMType.EVM,
+            primaryColor: 'black',
+            rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+            logoUri: 'logo.png',
+            explorerUrl: 'https://snowtrace.io/',
+            networkToken: {
+              symbol: 'AVAX',
+              decimals: 18,
+              description: '',
+              name: 'AVAX',
+              logoUri: 'logo.png',
+            },
+            isTestnet: false,
+          },
+          options: {
+            requiresGlacierApiKey: true,
+          },
+        },
+        tabId: undefined,
+        popupWindowId: 123,
+      });
     });
   });
 
@@ -387,21 +453,26 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       id: 1234,
       actionId: 'uuid',
       displayData: {
-        chainId: 43112,
-        chainName: 'Avalanche',
-        vmName: NetworkVMType.EVM,
-        primaryColor: 'black',
-        rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
-        logoUri: 'logo.png',
-        explorerUrl: 'https://snowtrace.io/',
-        networkToken: {
-          symbol: 'AVAX',
-          decimals: 18,
-          description: '',
-          name: 'AVAX',
+        network: {
+          chainId: 43112,
+          chainName: 'Avalanche',
+          vmName: NetworkVMType.EVM,
+          primaryColor: 'black',
+          rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
           logoUri: 'logo.png',
+          explorerUrl: 'https://snowtrace.io/',
+          networkToken: {
+            symbol: 'AVAX',
+            decimals: 18,
+            description: '',
+            name: 'AVAX',
+            logoUri: 'logo.png',
+          },
+          isTestnet: false,
         },
-        isTestnet: false,
+        options: {
+          requiresGlacierApiKey: false,
+        },
       },
       tabId: undefined,
       popupWindowId: 123,
@@ -442,7 +513,9 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       id: 1234,
       actionId: 'uuid',
       displayData: expect.objectContaining({
-        isTestnet: true,
+        network: expect.objectContaining({
+          isTestnet: true,
+        }),
       }),
       tabId: undefined,
       popupWindowId: 123,
@@ -482,21 +555,26 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       id: 1234,
       actionId: 'uuid',
       displayData: {
-        chainId: 43112,
-        chainName: 'Avalanche',
-        vmName: NetworkVMType.EVM,
-        primaryColor: 'black',
-        rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
-        logoUri: 'logo.png',
-        explorerUrl: 'https://snowtrace.io/',
-        networkToken: {
-          symbol: 'AVAX',
-          decimals: 18,
-          description: '',
-          name: 'AVAX',
+        network: {
+          chainId: 43112,
+          chainName: 'Avalanche',
+          vmName: NetworkVMType.EVM,
+          primaryColor: 'black',
+          rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
           logoUri: 'logo.png',
+          explorerUrl: 'https://snowtrace.io/',
+          networkToken: {
+            symbol: 'AVAX',
+            decimals: 18,
+            description: '',
+            name: 'AVAX',
+            logoUri: 'logo.png',
+          },
+          isTestnet: true,
         },
-        isTestnet: true,
+        options: {
+          requiresGlacierApiKey: false,
+        },
       },
       tabId: undefined,
       popupWindowId: 123,
@@ -519,18 +597,20 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
       displayData: {
-        chainId: 43112,
-        chainName: 'Avalanche',
-        vmName: NetworkVMType.EVM,
-        rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
-        logoUri: 'logo.png',
-        explorerUrl: 'https://snowtrace.io/',
-        networkToken: {
-          symbol: 'AVAX',
-          decimals: 18,
-          description: '',
-          name: 'AVAX',
+        network: {
+          chainId: 43112,
+          chainName: 'Avalanche',
+          vmName: NetworkVMType.EVM,
+          rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
           logoUri: 'logo.png',
+          explorerUrl: 'https://snowtrace.io/',
+          networkToken: {
+            symbol: 'AVAX',
+            decimals: 18,
+            description: '',
+            name: 'AVAX',
+            logoUri: 'logo.png',
+          },
         },
       },
       time: 123123,
@@ -538,6 +618,50 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       jsonrpc: '2.0',
       tabId: undefined,
     };
+
+    describe('when glacier API key is provided', () => {
+      const preppedAction = {
+        ...mockPendingAction,
+        displayData: {
+          network: {
+            ...mockPendingAction.displayData.network,
+            customRpcHeaders: {
+              'X-Glacier-Api-Key': 'test-1234',
+            },
+          },
+          options: {
+            requiresGlacierApiKey: true,
+          },
+        },
+      };
+
+      it('saves the API key header in network config overrides', async () => {
+        (
+          mockNetworkService.updateNetworkOverrides as jest.Mock
+        ).mockResolvedValue(undefined);
+
+        await handler.onActionApproved(
+          preppedAction,
+          undefined,
+          () => {},
+          () => {}
+        );
+
+        expect(mockNetworkService.updateNetworkOverrides).toHaveBeenCalledWith(
+          expect.objectContaining({
+            customRpcHeaders: {
+              'X-Glacier-Api-Key': 'test-1234',
+            },
+          })
+        );
+
+        expect(mockNetworkService.updateNetworkOverrides).toHaveBeenCalledWith(
+          expect.not.objectContaining({
+            rpcUrl: expect.any(String), // RPC is not supposed to be passed here
+          })
+        );
+      });
+    });
 
     it('saves custom network on approval', async () => {
       (mockNetworkService.saveCustomNetwork as jest.Mock).mockResolvedValue(
@@ -557,7 +681,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       expect(mockNetworkService.setNetwork).not.toHaveBeenCalled();
       expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledTimes(1);
       expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledWith({
-        ...mockPendingAction.displayData,
+        ...mockPendingAction.displayData.network,
       });
 
       expect(successHandler).toHaveBeenCalledTimes(1);
@@ -597,8 +721,13 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         {
           ...mockPendingAction,
           displayData: {
-            ...mockPendingAction.displayData,
-            chainId: 43113,
+            network: {
+              ...mockPendingAction.displayData.network,
+              chainId: 43113,
+            },
+            options: {
+              requiresGlacierApiKey: false,
+            },
           },
         },
         undefined,
@@ -627,8 +756,13 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         {
           ...mockPendingAction,
           displayData: {
-            ...mockPendingAction.displayData,
-            chainId: 43113,
+            network: {
+              ...mockPendingAction.displayData.network,
+              chainId: 43113,
+            },
+            options: {
+              requiresGlacierApiKey: false,
+            },
           },
         },
         undefined,
