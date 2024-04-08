@@ -10,7 +10,9 @@ async function fetchWithTimeout(uri: string, timeout = 5000) {
 
 export async function getNftMetadata(tokenUri: string) {
   let data: NftMetadata = {};
-  if (tokenUri.startsWith('data:application/json;base64,')) {
+  if (!tokenUri) {
+    return {};
+  } else if (tokenUri.startsWith('data:application/json;base64,')) {
     const value = tokenUri.substring(29);
     try {
       const json = Buffer.from(value, 'base64').toString();
