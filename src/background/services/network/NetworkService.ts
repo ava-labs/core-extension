@@ -392,8 +392,6 @@ export class NetworkService implements OnLock, OnStorageReady {
               multiContractAddress: network.utilityAddresses?.multicall,
             }
           : 40,
-        // eslint-disable-next-line
-        // @ts-expect-error JsonRpcBatchInternal also allows FetchRequest as a 2nd constructor param
         fetchConfig,
         new EthersNetwork(network.chainName, network.chainId)
       );
