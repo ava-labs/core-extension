@@ -19,6 +19,7 @@ import {
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+import browser from 'webextension-polyfill';
 
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
@@ -87,8 +88,14 @@ export const AccountsActionButton = ({
 
   const goToAddLedgerScreen = useCallback(() => {
     capture('AddWalletWithLedger_Clicked');
-    history.push('/accounts/add-wallet/ledger');
-  }, [history, capture]);
+
+    // Open in a full screen tab to avoid popup hell
+    browser.tabs.create({
+      url: `/fullscreen.html#/accounts/add-wallet/ledger`,
+    });
+
+    // history.push('/accounts/add-wallet/ledger');
+  }, [capture]);
 
   const goToWalletConnectScreen = useCallback(() => {
     capture('ImportWithWalletConnect_Clicked');

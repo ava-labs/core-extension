@@ -26,6 +26,7 @@ import { CreatePassword } from './pages/CreatePassword';
 import { AnalyticsConsent } from './pages/AnalyticsConsent';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
+import { AppBackground } from '@src/components/common/AppBackground';
 import { LedgerTrouble } from './pages/Ledger/LedgerTrouble';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Welcome } from './pages/Welcome/Welcome';
@@ -44,11 +45,6 @@ const ContentPart = styled(Stack)`
 const OnboardingStep = styled(Stack)`
   align-items: center;
   flex: 1;
-`;
-
-const AppBackground = styled(Stack)`
-  height: 100%;
-  background: url('/images/onboarding-background.svg') no-repeat center/cover;
 `;
 
 export function Onboarding() {
