@@ -114,9 +114,11 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     }
 
     if (chainRequestedIsSupported) {
-      const actionData: Action<Network> = {
+      const actionData: Action<{ network: Network }> = {
         ...request,
-        displayData: customNetwork,
+        displayData: {
+          network: customNetwork,
+        },
         tabId: request.site?.tabId,
       };
 
