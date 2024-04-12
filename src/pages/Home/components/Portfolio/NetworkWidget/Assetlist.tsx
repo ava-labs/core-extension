@@ -44,14 +44,6 @@ const HideAnimation = keyframes`
 }
 `;
 
-const BalanceUSDField = styled(Typography)`
-  font-weight: bold;
-`;
-const BalanceField = styled(Typography)`
-  font-weight: bold;
-  display: none;
-`;
-
 const AssetlistRow = styled(Stack)`
   &:hover {
     background-color: ${({ theme }) => `${theme.palette.common.white}40`};
@@ -117,39 +109,6 @@ export function Assetlist({ assetList }: AssetListProps) {
                   <TokenEllipsis maxLength={12} text={token.name} />
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  <TokenEllipsis maxLength={8} text={token.symbol} />
-                </Typography>
-              </Stack>
-            </Stack>
-            <BalanceColumn className="balance-column">
-              {!!token.balanceUSD && (
-                <>
-                  <BalanceUSDField
-                    className="balance-usd"
-                    data-testid="token-row-currency-balance"
-                    variant="caption"
-                  >
-                    {currencyFormatter(
-                      token.balanceUSD + (token.unconfirmedBalanceUSD || 0)
-                    )}
-                  </BalanceUSDField>
-                  <BalanceField
-                    className="balance"
-                    data-testid="token-row-token-balance"
-                    variant="caption"
-                  >
-                    {token.balance && token.unconfirmedBalance
-                      ? balanceToDisplayValue(
-                          token.balance.add(token.unconfirmedBalance),
-                          token.decimals
-                        )
-                      : token.balanceDisplayValue}{' '}
-                    <InlineTokenEllipsis maxLength={8} text={token.symbol} />
-                  </BalanceField>
-                </>
-              )}
-              {!token.balanceUSD && (
-                <Typography variant="caption">
                   {token.balance && token.unconfirmedBalance
                     ? balanceToDisplayValue(
                         token.balance.add(token.unconfirmedBalance),
@@ -157,6 +116,19 @@ export function Assetlist({ assetList }: AssetListProps) {
                       )
                     : token.balanceDisplayValue}{' '}
                   <InlineTokenEllipsis maxLength={8} text={token.symbol} />
+                </Typography>
+              </Stack>
+            </Stack>
+            <BalanceColumn className="balance-column">
+              {typeof token.balanceUSD === 'number' && (
+                <Typography
+                  data-testid="token-row-currency-balance"
+                  variant="caption"
+                  sx={{ fontWeight: 'bold' }}
+                >
+                  {currencyFormatter(
+                    token.balanceUSD + (token.unconfirmedBalanceUSD || 0)
+                  )}
                 </Typography>
               )}
               <Stack>
