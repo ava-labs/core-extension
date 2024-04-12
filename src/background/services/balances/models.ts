@@ -21,6 +21,10 @@ interface TokenBalanceData {
   unconfirmedBalanceDisplayValue?: string;
   unconfirmedBalanceUsdDisplayValue?: string;
   unconfirmedBalanceUSD?: number;
+  priceChanges?: {
+    percentage?: number;
+    value?: number;
+  };
 }
 
 export enum TokenType {
@@ -120,11 +124,19 @@ export interface Balances {
 export const CLOUDFLARE_IPFS_URL = 'https://cloudflare-ipfs.com';
 
 export interface CachedBalancesInfo {
-  totalBalance?: TotalBalance | null;
+  totalBalance?: TotalBalance;
   balances?: Balances;
   lastUpdated?: number;
 }
 
-export interface TotalBalance {
-  [address: string | number]: number | null;
+export type TotalBalance = {
+  [address: string | number]: {
+    sum: number | null;
+    priceChange: TotalPriceChange;
+  };
+};
+
+export interface TotalPriceChange {
+  value: number;
+  percentage: number[];
 }

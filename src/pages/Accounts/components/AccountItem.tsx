@@ -72,6 +72,7 @@ export const AccountItem = forwardRef(
         ? false
         : isManageMode && isAccountSelectable(account);
     const balanceTotalUSD = useBalanceTotalInCurrency(account);
+    const totalBalance = (balanceTotalUSD && balanceTotalUSD.sum) ?? null;
     const isBitcoinActive = network && isBitcoinNetwork(network);
     const address = isBitcoinActive ? account.addressBTC : account.addressC;
 
@@ -208,7 +209,7 @@ export const AccountItem = forwardRef(
                 <Stack direction="row" sx={{ alignItems: 'center' }}>
                   <AccountBalance
                     refreshBalance={getBalance}
-                    balanceTotalUSD={balanceTotalUSD}
+                    balanceTotalUSD={totalBalance}
                     isBalanceLoading={isBalanceLoading}
                     accountType={account.type}
                   />

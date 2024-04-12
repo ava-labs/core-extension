@@ -8,7 +8,9 @@ import { Account } from '../accounts/models';
 import { SettingsService } from '../settings/SettingsService';
 import { TokenType, TokenWithBalance } from './models';
 import * as Sentry from '@sentry/browser';
+import { TokensPriceShortData } from '../tokens/models';
 import { BitcoinProvider } from '@avalabs/wallets-sdk';
+import { getPriceChangeValues } from './utils/getPriceChangeValues';
 
 @singleton()
 export class BalancesServiceBTC {
@@ -24,7 +26,8 @@ export class BalancesServiceBTC {
 
   async getBalances(
     accounts: Account[],
-    network: Network
+    network: Network,
+    priceChanges?: TokensPriceShortData
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalancesServiceBTC: getBalances',
@@ -82,10 +85,12 @@ export class BalancesServiceBTC {
               ? undefined
               : unconfirmedBalanceBig.times(tokenPrice).toNumber();
 
+          const symbol = network.networkToken.symbol;
+
           return {
             address: account.addressBTC,
             balances: {
-              [network.networkToken.symbol]: {
+              [symbol]: {
                 ...network.networkToken,
                 type: TokenType.NATIVE,
                 balance,
@@ -112,6 +117,11 @@ export class BalancesServiceBTC {
                 unconfirmedBalanceUSD,
                 logoUri:
                   'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
+                priceChanges: getPriceChangeValues(
+                  symbol,
+                  balanceUSD,
+                  priceChanges
+                ),
               },
             },
           };

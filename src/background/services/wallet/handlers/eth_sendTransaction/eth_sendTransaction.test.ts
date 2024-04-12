@@ -132,6 +132,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     {} as any,
     {} as any,
     {} as any,
+    {} as any,
     {} as any
   );
   const accountsService = new AccountsService(

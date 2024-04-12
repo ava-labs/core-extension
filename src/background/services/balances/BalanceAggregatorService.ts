@@ -19,6 +19,15 @@ import { CachedBalancesInfo } from './models';
 import { AccountsService } from '../accounts/AccountsService';
 import { getAccountKey } from '@src/utils/getAccountKey';
 import { merge } from 'lodash';
+import {
+  PriceChangesData,
+  TOKENS_PRICE_DATA,
+  TokensPriceChangeData,
+  TokensPriceShortData,
+  priceChangeRefreshRate,
+} from '../tokens/models';
+import { resolve } from '@avalabs/utils-sdk';
+import { SettingsService } from '../settings/SettingsService';
 
 @singleton()
 export class BalanceAggregatorService implements OnLock {
@@ -92,7 +101,8 @@ export class BalanceAggregatorService implements OnLock {
     private networkService: NetworkService,
     private lockService: LockService,
     private storageService: StorageService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private settingsService: SettingsService
   ) {
     this.accountsService.addListener<Account | undefined>(
       AccountsEvents.ACTIVE_ACCOUNT_CHANGED,
@@ -174,11 +184,14 @@ export class BalanceAggregatorService implements OnLock {
       await this.networkService.activeNetworks.promisify()
     ).filter((network) => chainIds.includes(network.chainId));
 
+    const priceChangesData = await this.getPriceChangesData();
+
     await Promise.allSettled(
       networks.map(async (network) => {
         const balances = await this.balancesService.getBalancesForNetwork(
           network,
-          accounts
+          accounts,
+          priceChangesData
         );
 
         if (
@@ -202,6 +215,60 @@ export class BalanceAggregatorService implements OnLock {
 
     sentryTracker.finish();
   }
+
+  getPriceChangesData = async () => {
+    const selectedCurrency = (await this.settingsService.getSettings())
+      .currency;
+    const changesData =
+      await this.storageService.loadUnencrypted<TokensPriceChangeData>(
+        `${TOKENS_PRICE_DATA}-${selectedCurrency}`
+      );
+
+    const lastUpdated = changesData?.lastUpdatedAt;
+
+    let priceChangesData = changesData?.priceChanges || {};
+
+    if (
+      !priceChangesData ||
+      !Object.keys(priceChangesData).length ||
+      (lastUpdated && lastUpdated + priceChangeRefreshRate < Date.now())
+    ) {
+      const [priceChangesResult] = await resolve(
+        fetch(
+          `${process.env.PROXY_URL}/watchlist/tokens?currency=${selectedCurrency}`
+        )
+      );
+
+      if (!priceChangesResult) {
+        return;
+      }
+      const priceChanges: PriceChangesData[] = await priceChangesResult.json();
+      const tokensData: TokensPriceShortData = priceChanges.reduce(
+        (acc: TokensPriceShortData, data: PriceChangesData) => {
+          return {
+            ...acc,
+            [data.symbol]: {
+              priceChange: data.price_change_24h,
+              priceChangePercentage: data.price_change_percentage_24h,
+            },
+          };
+        },
+        {}
+      );
+
+      priceChangesData = { ...tokensData };
+
+      this.storageService.saveUnencrypted<TokensPriceChangeData>(
+        `${TOKENS_PRICE_DATA}-${selectedCurrency}`,
+        {
+          priceChanges: tokensData,
+          lastUpdatedAt: Date.now(),
+          currency: selectedCurrency,
+        }
+      );
+    }
+    return priceChangesData;
+  };
 
   async getBatchedUpdatedBalancesForNetworks(
     chainIds: number[],
@@ -277,7 +344,7 @@ export class BalanceAggregatorService implements OnLock {
         address: account.addressC,
         isTestnet: this.networkService.activeNetwork?.isTestnet,
       });
-      const totalBalance = {
+      const totalBalance: TotalBalance = {
         [accountKey]: calculateTotalBalance(
           this.networkService.activeNetwork,
           account,

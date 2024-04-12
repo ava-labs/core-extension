@@ -12,6 +12,8 @@ import accounts_v3 from './migrations/accounts_v3';
 import wallet_v4 from './migrations/wallet_v4';
 import { SETTINGS_STORAGE_KEY } from '../../settings/models';
 import settings_v2 from './migrations/settings_v2';
+import { BALANCES_CACHE_KEY } from '../../balances/models';
+import balances_v2 from './migrations/balances_v2';
 
 export type Migration = {
   previousSchema: Joi.Schema;
@@ -84,6 +86,15 @@ export const SCHEMA_MAP = {
       {
         version: 2,
         migration: settings_v2,
+      },
+    ],
+  },
+  [BALANCES_CACHE_KEY]: {
+    latestVersion: 2,
+    migrations: [
+      {
+        version: 2,
+        migration: balances_v2,
       },
     ],
   },

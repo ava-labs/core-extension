@@ -8,6 +8,10 @@ interface TokenListItemProps {
   children: any;
   balanceUSD?: string;
   onClick(): void;
+  priceChanges?: {
+    percentage?: number | undefined;
+    value?: number | undefined;
+  };
 }
 
 export function TokenListItem({
@@ -17,6 +21,7 @@ export function TokenListItem({
   children,
   balanceUSD,
   onClick,
+  priceChanges,
 }: TokenListItemProps) {
   const { currencyFormatter } = useSettingsContext();
   return (
@@ -27,6 +32,7 @@ export function TokenListItem({
       balanceDisplayValue={balanceDisplayValue}
       balanceUSD={balanceUSD}
       currencyFormatter={currencyFormatter}
+      priceChanges={priceChanges}
     >
       {children}
     </TokenCardWithBalance>

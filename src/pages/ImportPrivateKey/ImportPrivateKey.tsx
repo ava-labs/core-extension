@@ -175,8 +175,8 @@ export function ImportPrivateKey() {
           <Typography variant="body2">
             {isBalanceLoading ? (
               <CircularProgress size={16} />
-            ) : balance !== null ? (
-              currencyFormatter(balance).replace(currency, '')
+            ) : balance !== null && balance?.sum ? (
+              currencyFormatter(balance?.sum).replace(currency, '')
             ) : (
               '-'
             )}

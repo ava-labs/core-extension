@@ -5,6 +5,7 @@ import {
   Typography,
   Skeleton,
 } from '@avalabs/k2-components';
+import { PAndL } from '@src/components/common/ProfitAndLoss';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -27,8 +28,24 @@ export function WalletBalances() {
 
   const balanceTotalUSD = useBalanceTotalInCurrency(activeAccount);
 
+  const balanceTotalUSDSum = balanceTotalUSD?.sum;
+
+  const totalBalanceSum = totalBalance?.sum || null;
+  const totalBalanceChanges = totalBalance?.priceChange;
+
+  const totalBalanceChange = totalBalance
+    ? {
+        value: totalBalanceChanges?.value,
+        percentage: balanceTotalUSDSum
+          ? (totalBalance?.priceChange.value / balanceTotalUSDSum) * 100
+          : undefined,
+      }
+    : {};
+
   const balanceTotal =
-    balanceTotalUSD !== null ? balanceTotalUSD : totalBalance ?? null;
+    balanceTotalUSDSum !== null && balanceTotalUSDSum !== undefined
+      ? balanceTotalUSDSum
+      : totalBalanceSum ?? null;
 
   useLiveBalance(); // Make sure we show the latest balances.
 
@@ -53,45 +70,55 @@ export function WalletBalances() {
           }}
         />
       ) : (
-        <Stack
-          sx={{
-            flexDirection: 'row',
-            alignItems: 'baseline',
-            gap: 1.25,
-          }}
-        >
-          {isTokensCached && (
-            <Tooltip title={t('Balances loading...')} placement="bottom">
-              <AlertTriangleIcon
-                size={19}
-                sx={{ color: 'warning.main', mr: 1 }}
-              />
-            </Tooltip>
-          )}
-          {!isTokensCached &&
-            (favoriteNetworksMissingPrice || activeNetworkMissingPrice) && (
-              <Tooltip
-                title={t(
-                  'The prices of some tokens are missing. The balance might not be accurate currently.'
-                )}
-                placement="bottom"
-              >
+        <Stack>
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'baseline',
+              gap: 1.25,
+            }}
+          >
+            {isTokensCached && (
+              <Tooltip title={t('Balances loading...')} placement="bottom">
                 <AlertTriangleIcon
                   size={19}
                   sx={{ color: 'warning.main', mr: 1 }}
                 />
               </Tooltip>
             )}
-          <Typography
-            data-testid="wallet-balance"
-            variant="h3"
-            sx={{ fontWeight: 'fontWeightBold' }}
-          >
-            {currencyFormatter(balanceTotal).replace(currency, '')}
-          </Typography>
-          <Typography variant="body1" sx={{ opacity: '60%' }}>
-            {currency}
-          </Typography>
+            {!isTokensCached &&
+              (favoriteNetworksMissingPrice || activeNetworkMissingPrice) && (
+                <Tooltip
+                  title={t(
+                    'The prices of some tokens are missing. The balance might not be accurate currently.'
+                  )}
+                  placement="bottom"
+                >
+                  <AlertTriangleIcon
+                    size={19}
+                    sx={{ color: 'warning.main', mr: 1 }}
+                  />
+                </Tooltip>
+              )}
+            <Typography
+              data-testid="wallet-balance"
+              variant="h3"
+              sx={{ fontWeight: 'fontWeightBold' }}
+            >
+              {currencyFormatter(balanceTotal).replace(currency, '')}
+            </Typography>
+            <Typography variant="body1" sx={{ opacity: '60%' }}>
+              {currency}
+            </Typography>
+          </Stack>
+          <Stack sx={{ alignItems: 'center' }}>
+            <PAndL
+              value={totalBalanceChange.value}
+              percentage={totalBalanceChange.percentage}
+              size="big"
+              showPercentage
+            />
+          </Stack>
         </Stack>
       )}
     </Stack>

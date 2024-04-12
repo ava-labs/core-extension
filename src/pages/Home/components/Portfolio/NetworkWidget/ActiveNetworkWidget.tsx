@@ -6,69 +6,56 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Trans, useTranslation } from 'react-i18next';
-import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { ChainId } from '@avalabs/chains-sdk';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import {
   BridgeIcon,
   Button,
   Chip,
   Divider,
-  ExternalLinkIcon,
-  IconButton,
   Skeleton,
   Stack,
   Tooltip,
   Typography,
-  styled,
   AlertTriangleIcon,
   Badge,
+  CheckIcon,
 } from '@avalabs/k2-components';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { NetworkLogoK2 } from '@src/components/common/NetworkLogoK2';
-import { openNewTab } from '@src/utils/extensionUtils';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { usePendingBridgeTransactions } from '@src/pages/Bridge/hooks/usePendingBridgeTransactions';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { BN } from 'bn.js';
+import { PAndL } from '@src/components/common/ProfitAndLoss';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
   activeNetworkBalance: number;
+  activeNetworkPriceChanges?: { value: number; percentage: number[] };
 }
-
-const LogoContainer = styled('div')`
-  margin-top: 4px;
-  margin-right: 16px;
-`;
 
 export function ActiveNetworkWidget({
   assetList,
   activeNetworkBalance,
+  activeNetworkPriceChanges,
 }: ActiveNetworkWidgetProps) {
   const { t } = useTranslation();
   const history = useHistory();
   const { network, isCustomNetwork } = useNetworkContext();
 
   const { currencyFormatter } = useSettingsContext();
-  const {
-    accounts: { active: activeAccount },
-  } = useAccountsContext();
   const { isTokensCached } = useBalancesContext();
   const { capture } = useAnalyticsContext();
 
   const bridgeTransactions = usePendingBridgeTransactions();
+  const changePercentage = activeNetworkPriceChanges
+    ? (activeNetworkPriceChanges?.value / activeNetworkBalance) * 100
+    : undefined;
 
   if (!network || !assetList?.length) {
     return <Skeleton variant="rounded" sx={{ width: 343, height: 190 }} />;
   }
-
-  const showCoreWebLink =
-    network.chainId === ChainId.BITCOIN || isCustomNetwork(network.chainId)
-      ? false
-      : true;
 
   const handleCardClick = (e) => {
     e.stopPropagation();
@@ -91,49 +78,77 @@ export function ActiveNetworkWidget({
         display="block"
         onClick={handleCardClick}
       >
-        <Stack sx={{ height: '100%' }}>
+        <Stack sx={{ height: '100%', rowGap: 1 }}>
           <Stack
             direction="row"
-            justifyContent="space-between"
-            alignItems="stretch"
-            sx={{
-              width: '100%',
-              height: '100%',
-            }}
+            sx={{ justifyContent: 'space-between', width: '100%' }}
           >
-            <Stack direction="row">
-              <LogoContainer>
-                <Badge
-                  badgeContent={
-                    Object.values(bridgeTransactions).length ? (
-                      <Tooltip
-                        title={
-                          <Trans i18nKey="Bridge in progress. <br/> Click for details." />
-                        }
-                        sx={{ cursor: 'pointer' }}
-                      >
-                        <>{Object.values(bridgeTransactions).length}</>
-                      </Tooltip>
-                    ) : null
-                  }
-                  color="secondary"
-                >
-                  <TokenIcon
-                    width="40px"
-                    height="40px"
-                    src={network.logoUri}
-                    name={network.chainName}
+            <Badge
+              badgeContent={
+                Object.values(bridgeTransactions).length ? (
+                  <Tooltip
+                    title={
+                      <Trans i18nKey="Bridge in progress. <br/> Click for details." />
+                    }
+                    sx={{ cursor: 'pointer' }}
                   >
-                    <NetworkLogoK2 height="40px" src={network.logoUri} />
-                  </TokenIcon>
-                </Badge>
-              </LogoContainer>
-              <Stack justifyContent="center" sx={{ rowGap: 0.5 }}>
-                <Typography data-testid="active-network-name" variant="h6">
-                  {network?.chainName}
+                    <>{Object.values(bridgeTransactions).length}</>
+                  </Tooltip>
+                ) : null
+              }
+              color="secondary"
+            >
+              <TokenIcon
+                width="40px"
+                height="40px"
+                src={network.logoUri}
+                name={network.chainName}
+              >
+                <NetworkLogoK2 height="40px" src={network.logoUri} />
+              </TokenIcon>
+            </Badge>
+            <Chip
+              label={t('Active')}
+              size="small"
+              sx={{
+                height: '20px',
+                cursor: 'pointer',
+                color: 'success.main',
+              }}
+              icon={<CheckIcon color="success.main" />}
+            />
+          </Stack>
+          <Stack justifyContent="center" sx={{ rowGap: 0.5 }}>
+            <Stack
+              sx={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Typography
+                data-testid="active-network-name"
+                variant="h5"
+                sx={{ color: 'grey.300' }}
+              >
+                {network?.chainName}
+              </Typography>
+              <Stack sx={{ textAlign: 'end' }}>
+                <Typography
+                  data-testid="active-network-total-balance"
+                  variant="h6"
+                >
+                  {currencyFormatter(activeNetworkBalance)}
                 </Typography>
+
                 {!isCustomNetwork(network.chainId) && (
-                  <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Stack
+                    sx={{
+                      flexDirection: 'row',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                    }}
+                  >
                     {isTokensCached && (
                       <Tooltip
                         title={t('Balances loading...')}
@@ -145,50 +160,15 @@ export function ActiveNetworkWidget({
                         />
                       </Tooltip>
                     )}
-                    <Typography
-                      data-testid="active-network-total-balance"
-                      variant="h6"
-                    >
-                      {currencyFormatter(activeNetworkBalance)}
-                    </Typography>
+
+                    <PAndL
+                      value={activeNetworkPriceChanges?.value}
+                      percentage={changePercentage}
+                      size="big"
+                    />
                   </Stack>
                 )}
               </Stack>
-            </Stack>
-            <Stack alignItems="flex-end" sx={{ rowGap: 1, width: '70px' }}>
-              <Chip
-                label={t('Active')}
-                size="small"
-                color="primary"
-                sx={{
-                  height: '20px',
-                  cursor: 'pointer',
-                }}
-              />
-              {showCoreWebLink ? (
-                <Tooltip placement="left" title={t('View in Core Web')}>
-                  <IconButton
-                    data-testid="core-web-link-icon"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      const url = getCoreWebUrl(
-                        activeAccount?.addressC,
-                        network.chainId
-                      );
-
-                      if (url) {
-                        openNewTab({
-                          url,
-                        });
-                      }
-                    }}
-                  >
-                    <ExternalLinkIcon />
-                  </IconButton>
-                </Tooltip>
-              ) : null}
             </Stack>
           </Stack>
         </Stack>
@@ -210,7 +190,7 @@ export function ActiveNetworkWidget({
             sx={{
               mt: 2,
             }}
-            onClick={(e) => {
+            onClick={(e: MouseEvent) => {
               e.stopPropagation();
               history.push('/bridge');
             }}

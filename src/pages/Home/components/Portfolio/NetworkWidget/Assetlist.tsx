@@ -20,6 +20,7 @@ import {
 } from '@avalabs/k2-components';
 import { TokenEllipsis } from '@src/components/common/TokenEllipsis';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
+import { PAndL } from '@src/components/common/ProfitAndLoss';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
@@ -43,8 +44,11 @@ const HideAnimation = keyframes`
 }
 `;
 
-const BalanceUSDField = styled(Typography)``;
+const BalanceUSDField = styled(Typography)`
+  font-weight: bold;
+`;
 const BalanceField = styled(Typography)`
+  font-weight: bold;
   display: none;
 `;
 
@@ -103,24 +107,19 @@ export function Assetlist({ assetList }: AssetListProps) {
           >
             <Stack direction="row" alignItems="center">
               <TokenIcon
-                width="16px"
-                height="16px"
+                width="24px"
+                height="24px"
                 src={token.logoUri}
                 name={token.name}
               />
-              <Typography
-                data-testid="token-row-name"
-                variant="caption"
-                sx={{ ml: 1 }}
-              >
-                <TokenEllipsis maxLength={12} text={token.name} />
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{ ml: 0.5, color: 'text.secondary' }}
-              >
-                <TokenEllipsis maxLength={8} text={token.symbol} />
-              </Typography>
+              <Stack sx={{ ml: 1 }}>
+                <Typography data-testid="token-row-name" variant="button">
+                  <TokenEllipsis maxLength={12} text={token.name} />
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  <TokenEllipsis maxLength={8} text={token.symbol} />
+                </Typography>
+              </Stack>
             </Stack>
             <BalanceColumn className="balance-column">
               {!!token.balanceUSD && (
@@ -160,6 +159,16 @@ export function Assetlist({ assetList }: AssetListProps) {
                   <InlineTokenEllipsis maxLength={8} text={token.symbol} />
                 </Typography>
               )}
+              <Stack>
+                {token.priceChanges &&
+                token.priceChanges.value &&
+                token.priceChanges.percentage ? (
+                  <PAndL
+                    value={token.priceChanges.value}
+                    percentage={token.priceChanges.percentage}
+                  />
+                ) : null}
+              </Stack>
             </BalanceColumn>
           </AssetlistRow>
         );

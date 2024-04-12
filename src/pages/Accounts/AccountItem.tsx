@@ -81,6 +81,7 @@ export const AccountItem = forwardRef(
     const { isDeveloperMode } = useNetworkContext();
     const [isBalanceLoading, setIsBalanceLoading] = useState(false);
     const balanceTotalUSD = useBalanceTotalInCurrency(account);
+    const totalBalance = (balanceTotalUSD && balanceTotalUSD.sum) ?? null;
     const { capture } = useAnalyticsContext();
     const { t } = useTranslation();
 
@@ -229,7 +230,7 @@ export const AccountItem = forwardRef(
               </Stack>
               <AccountBalance
                 refreshBalance={getBalance}
-                balanceTotalUSD={balanceTotalUSD}
+                balanceTotalUSD={totalBalance}
                 isBalanceLoading={isBalanceLoading}
                 accountType={account.type}
               />
