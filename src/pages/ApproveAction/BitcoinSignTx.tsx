@@ -95,7 +95,7 @@ export function BitcoinSignTx() {
   }, [requestId, updateAction, isUsingLedgerWallet, isUsingKeystoneWallet]);
 
   // Make the user switch to the correct app or close the window
-  useLedgerDisconnectedDialog(window.close, LedgerAppType.BITCOIN);
+  useLedgerDisconnectedDialog(handleRejection, LedgerAppType.BITCOIN);
 
   if (!action) {
     return <LoadingOverlay />;
