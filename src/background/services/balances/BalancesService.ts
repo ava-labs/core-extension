@@ -8,6 +8,7 @@ import { Account } from '../accounts/models';
 import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
 import { BalancesServiceGlacier } from './BalancesServiceGlacier';
 import { GlacierService } from '../glacier/GlacierService';
+import { TokensPriceShortData } from '../tokens/models';
 
 @singleton()
 export class BalancesService {
@@ -33,21 +34,26 @@ export class BalancesService {
 
   async getBalancesForNetwork(
     network: Network,
-    accounts: Account[]
+    accounts: Account[],
+    priceChanges?: TokensPriceShortData
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const isSupportedNetwork = await this.glacierService.isNetworkSupported(
       network.chainId
     );
 
     if (isSupportedNetwork) {
-      return await this.balanceServiceGlacier.getBalances(accounts, network);
+      return await this.balanceServiceGlacier.getBalances(
+        accounts,
+        network,
+        priceChanges
+      );
     }
 
     // if the above fails in anyway we simply fallback to making the calls oursleves
 
     const getBalanceForProvider = (provider) => {
       const balanceService = this.getBalanceServiceByProvider(provider);
-      return balanceService.getBalances(accounts, network);
+      return balanceService.getBalances(accounts, network, priceChanges);
     };
 
     const btcNetworks = [ChainId.BITCOIN, ChainId.BITCOIN_TESTNET];

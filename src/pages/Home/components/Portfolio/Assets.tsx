@@ -13,11 +13,13 @@ import {
   Tabs,
   Tooltip,
   Typography,
-  styled,
 } from '@avalabs/k2-components';
 import { Redirect, useHistory } from 'react-router-dom';
 import { TokenIcon } from '@src/components/common/TokenIcon';
-import { getNetworkBalance } from './NetworkWidget/NetworksWidget';
+import {
+  getNetworkBalance,
+  getNetworkTokensPriceChanges,
+} from './NetworkWidget/NetworksWidget';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useMemo, useState } from 'react';
@@ -25,10 +27,7 @@ import { WalletRecentTxs } from '@src/pages/Wallet/WalletRecentTxs';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTokenPriceMissing } from '@src/hooks/useTokenPriceIsMissing';
-
-const LogoContainer = styled('div')`
-  margin: 0 15px 0 8px;
-`;
+import { PAndL } from '@src/components/common/ProfitAndLoss';
 
 enum AssetsTabs {
   TOKENS,
@@ -43,12 +42,19 @@ export function Assets() {
   const { currencyFormatter } = useSettingsContext();
   const activeNetworkAssetList = useTokensWithBalances();
   const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
+  const activeNetworkPriceChanges = getNetworkTokensPriceChanges(
+    activeNetworkAssetList
+  );
+
+  const changePercentage =
+    (activeNetworkPriceChanges.value / activeNetworkBalance) * 100;
+
   const { capture } = useAnalyticsContext();
   const { isPriceMissingFromNetwork } = useTokenPriceMissing();
 
   const [activeTab, setActiveTab] = useState<number>(AssetsTabs.TOKENS);
 
-  function handleChange(event: React.SyntheticEvent, newValue: number) {
+  function handleChange(_: React.SyntheticEvent, newValue: number) {
     setActiveTab(newValue);
     if (newValue === AssetsTabs.TOKENS) {
       capture('AssetsPageAssetsClicked');
@@ -77,22 +83,30 @@ export function Assets() {
           px: 2,
         }}
       >
-        <Stack direction="row" alignItems="center">
+        <Stack direction="row" alignItems="flex-start">
           <ChevronLeftIcon
             onClick={() => history.push('/home')}
             size={30}
-            sx={{ cursor: 'pointer' }}
+            sx={{ cursor: 'pointer', mr: 1 }}
           />
-          <LogoContainer>
-            <TokenIcon
-              width="40px"
-              height="40px"
-              src={network?.logoUri}
-              name={network?.chainName}
-            />
-          </LogoContainer>
           <Stack>
-            <Typography variant="h4">{network?.chainName}</Typography>
+            <Stack
+              sx={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <TokenIcon
+                width="24px"
+                height="24px"
+                src={network?.logoUri}
+                name={network?.chainName}
+              />
+              <Typography variant="h5" sx={{ ml: 1 }}>
+                {network?.chainName}
+              </Typography>
+            </Stack>
+
             <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
               {missingSomeTokenPrices && (
                 <Tooltip
@@ -107,10 +121,15 @@ export function Assets() {
                   />
                 </Tooltip>
               )}
-              <Typography variant="body1">
+              <Typography variant="h4">
                 {currencyFormatter(activeNetworkBalance)}
               </Typography>
             </Stack>
+            <PAndL
+              value={activeNetworkPriceChanges.value}
+              percentage={changePercentage}
+              showPercentage
+            />
           </Stack>
         </Stack>
       </Stack>

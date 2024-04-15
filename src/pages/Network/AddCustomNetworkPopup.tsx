@@ -1,29 +1,96 @@
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useApproveAction } from '../../hooks/useApproveAction';
-import { Network } from '@avalabs/chains-sdk';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useTranslation } from 'react-i18next';
 import {
+  Alert,
+  AlertContent,
+  AlertTitle,
   Button,
   Card,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   GlobeIcon,
   Stack,
+  TextField,
   Typography,
 } from '@avalabs/k2-components';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
+import { buildGlacierAuthHeaders } from '@src/background/services/network/utils/buildGlacierAuthHeaders';
+import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';
+import { AddEthereumChainDisplayData } from '@src/background/services/network/models';
 
 export function AddCustomNetworkPopup() {
   const { t } = useTranslation();
   const requestId = useGetRequestId();
   const {
     action: request,
-    updateAction: updateMessage,
+    updateAction,
     cancelHandler,
-  } = useApproveAction(requestId);
+  } = useApproveAction<AddEthereumChainDisplayData>(requestId);
+
+  const [apiKey, setApiKey] = useState('');
+  const [isApiModalVisible, setIsApiModalVisible] = useState(false);
+  const [isSavingApiKey, setIsSavingApiKey] = useState(false);
+
+  const handleApproval = useCallback(
+    async () =>
+      updateAction({
+        status: ActionStatus.SUBMITTING,
+        id: requestId,
+      }),
+    [requestId, updateAction]
+  );
+
+  const saveApiKey = useCallback(async () => {
+    if (isSavingApiKey) {
+      return;
+    }
+
+    if (!request || !request.displayData) {
+      throw new Error('Network config not available');
+    }
+
+    if (!apiKey) {
+      throw new Error('API Key was not provided');
+    }
+
+    setIsSavingApiKey(true);
+
+    try {
+      await updateAction({
+        status: ActionStatus.PENDING,
+        id: requestId,
+        displayData: {
+          ...request.displayData,
+          network: {
+            ...request.displayData.network,
+            customRpcHeaders: buildGlacierAuthHeaders(apiKey),
+          },
+        },
+      });
+    } finally {
+      setIsSavingApiKey(false);
+    }
+
+    await handleApproval();
+  }, [
+    apiKey,
+    request,
+    requestId,
+    updateAction,
+    handleApproval,
+    isSavingApiKey,
+  ]);
+
+  const shouldPromptForApiKey =
+    request?.displayData.options.requiresGlacierApiKey && !apiKey;
 
   useEffect(() => {
     window.addEventListener('unload', cancelHandler);
@@ -32,6 +99,11 @@ export function AddCustomNetworkPopup() {
       window.removeEventListener('unload', cancelHandler);
     };
   }, [cancelHandler]);
+
+  const keyboardShortcuts = useKeyboardShortcuts({
+    Enter: saveApiKey,
+    Esc: () => setIsApiModalVisible(false),
+  });
 
   if (!request || !request.displayData) {
     return (
@@ -48,7 +120,8 @@ export function AddCustomNetworkPopup() {
     );
   }
 
-  const customNetwork: Network = request.displayData;
+  const customNetwork = request.displayData.network;
+
   return (
     <>
       <Stack sx={{ flexGrow: 1, width: 1, px: 2, py: 1 }}>
@@ -62,7 +135,7 @@ export function AddCustomNetworkPopup() {
           sx={{
             alignItems: 'center',
             justifyContent: 'center',
-            mb: 3,
+            mb: 2,
           }}
         >
           <SiteAvatar sx={{ mb: 2 }}>
@@ -79,6 +152,17 @@ export function AddCustomNetworkPopup() {
             {request?.site?.domain}
           </Typography>
         </Stack>
+
+        {request.displayData.options.requiresGlacierApiKey && (
+          <Alert color="info" sx={{ mb: 2 }}>
+            <AlertTitle>{t('Glacier API key is required')}</AlertTitle>
+            <AlertContent>
+              {t(
+                'In order for this network to be fully functional, you need to provide your Glacier API key. You will be prompted to do so upon approval.'
+              )}
+            </AlertContent>
+          </Alert>
+        )}
 
         <Card sx={{ flexGrow: 1 }}>
           <Scrollbars>
@@ -180,16 +264,76 @@ export function AddCustomNetworkPopup() {
               request.status === ActionStatus.SUBMITTING || !!request.error
             }
             onClick={() => {
-              updateMessage({
-                status: ActionStatus.SUBMITTING,
-                id: requestId,
-              });
+              if (shouldPromptForApiKey) {
+                setIsApiModalVisible(true);
+              } else {
+                handleApproval();
+              }
             }}
           >
             {t('Approve')}
           </Button>
         </Stack>
       </Stack>
+      <Dialog
+        open={isApiModalVisible}
+        PaperProps={{ sx: { mx: 2 } }}
+        onClose={() => setIsApiModalVisible(false)}
+        showCloseIcon
+      >
+        <DialogTitle>{t('Provide API Key')}</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            {t(
+              'This network requires additional authentication to be fully functional.'
+            )}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            {t(
+              'The API key can also be configured in the network settings later on.'
+            )}
+          </Typography>
+          <TextField
+            type="password"
+            placeholder={t('Glacier API Key')}
+            sx={{ mt: 2 }}
+            onChange={(ev) => setApiKey(ev.target.value)}
+            {...keyboardShortcuts}
+          />
+        </DialogContent>
+        <DialogActions sx={{ gap: 1 }}>
+          <Button
+            key="save"
+            size="large"
+            data-testid="api-key-save"
+            disabled={
+              request.status === ActionStatus.SUBMITTING ||
+              !!request.error ||
+              !apiKey ||
+              isSavingApiKey
+            }
+            isLoading={
+              isSavingApiKey || request.status === ActionStatus.SUBMITTING
+            }
+            onClick={saveApiKey}
+          >
+            {t('Save')}
+          </Button>
+          <Button
+            key="skip"
+            variant="text"
+            data-testid="api-key-skip"
+            disabled={
+              isSavingApiKey ||
+              request.status === ActionStatus.SUBMITTING ||
+              !!request.error
+            }
+            onClick={() => handleApproval()}
+          >
+            {t('I will configure it later')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

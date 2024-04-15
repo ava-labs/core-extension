@@ -1,5 +1,5 @@
 import { singleton } from 'tsyringe';
-import { merge, pick } from 'lodash';
+import { merge, omit, pick } from 'lodash';
 import {
   OnLock,
   OnStorageReady,
@@ -12,6 +12,8 @@ import {
   NetworkOverrides,
   NETWORK_OVERRIDES_STORAGE_KEY,
   CustomNetworkPayload,
+  ChainList,
+  Network,
 } from './models';
 import {
   AVALANCHE_XP_NETWORK,
@@ -19,9 +21,7 @@ import {
   BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
   ChainId,
-  ChainList,
   getChainsAndTokens,
-  Network,
   NetworkVMType,
 } from '@avalabs/chains-sdk';
 import { ReadableSignal, Signal, ValueCache } from 'micro-signals';
@@ -32,7 +32,7 @@ import {
 } from '@avalabs/wallets-sdk';
 import { resolve, wait } from '@avalabs/utils-sdk';
 import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
-import { Network as EthersNetwork } from 'ethers';
+import { Network as EthersNetwork, FetchRequest } from 'ethers';
 import { SigningResult } from '../wallet/models';
 import { getExponentialBackoffDelay } from '@src/utils/exponentialBackoff';
 
@@ -214,15 +214,15 @@ export class NetworkService implements OnLock, OnStorageReady {
       throw new Error('chainlist failed to load');
     }
 
-    const allNetworks = {
-      ...chainlist,
-      ...network?.customNetworks,
-    };
     this._customNetworks = network?.customNetworks || {};
-    this._allNetworks.dispatch(allNetworks);
+    this._allNetworks.dispatch({
+      ...chainlist,
+      ...this._customNetworks,
+    });
 
     // Fall back to Avalanche network if we don't know what previous network was,
     // or if that network is no longer available in the network list.
+    const allNetworks = await this.allNetworks.promisify();
     const previouslyActiveNetwork = network?.activeNetworkId
       ? allNetworks[network.activeNetworkId]
       : null;
@@ -373,6 +373,18 @@ export class NetworkService implements OnLock, OnStorageReady {
           : {}
       );
     } else if (network.vmName === NetworkVMType.EVM) {
+      const fetchConfig = new FetchRequest(
+        addGlacierAPIKeyIfNeeded(network.rpcUrl)
+      );
+
+      if (network.customRpcHeaders) {
+        const headers = Object.entries(network.customRpcHeaders);
+
+        for (const [name, value] of headers) {
+          fetchConfig.setHeader(name, value);
+        }
+      }
+
       const provider = new JsonRpcBatchInternal(
         useMulticall
           ? {
@@ -380,7 +392,7 @@ export class NetworkService implements OnLock, OnStorageReady {
               multiContractAddress: network.utilityAddresses?.multicall,
             }
           : 40,
-        addGlacierAPIKeyIfNeeded(network.rpcUrl),
+        fetchConfig,
         new EthersNetwork(network.chainName, network.chainId)
       );
 
@@ -465,7 +477,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     this._customNetworks = {
       ...this._customNetworks,
-      [chainId]: customNetwork,
+      [chainId]: omit(customNetwork, 'customRpcHeaders'), // should be saved in overrides
     };
 
     this._allNetworks.dispatch({
@@ -483,7 +495,10 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async updateNetworkOverrides(network: NetworkOverrides) {
-    const overridableProperties = ['rpcUrl'];
+    const overridableProperties: Array<keyof NetworkOverrides> = [
+      'rpcUrl',
+      'customRpcHeaders',
+    ];
 
     const overrides = pick(network, overridableProperties);
 
@@ -523,6 +538,18 @@ export class NetworkService implements OnLock, OnStorageReady {
   async removeCustomNetwork(chainID: number) {
     const networkToRemove = this._customNetworks[chainID];
     const wasTestnet = networkToRemove?.isTestnet;
+
+    const overrides = await this.storageService.load(
+      NETWORK_OVERRIDES_STORAGE_KEY
+    );
+
+    if (overrides && overrides[chainID]) {
+      // Remove overrides for deleted network if they were configured
+      await this.storageService.save(
+        NETWORK_OVERRIDES_STORAGE_KEY,
+        omit(overrides, chainID)
+      );
+    }
 
     // Remove chain ID from customNetworks list and from allNetworks list.
     delete this._customNetworks[chainID];

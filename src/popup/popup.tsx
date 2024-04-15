@@ -277,6 +277,9 @@ export function Popup() {
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
+  const isFullscreen = useIsSpecificContextContainer(
+    ContextContainer.FULLSCREEN
+  );
   const history = useHistory();
   const location = useLocation();
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
@@ -285,8 +288,8 @@ export function Popup() {
   const { featureFlags } = useFeatureFlagContext();
 
   const appWidth = useMemo(
-    () => (isMiniMode || isConfirm ? '100%' : '1280px'),
-    [isMiniMode, isConfirm]
+    () => (isMiniMode || isConfirm || isFullscreen ? '100%' : '1280px'),
+    [isMiniMode, isConfirm, isFullscreen]
   );
 
   useEffect(() => {

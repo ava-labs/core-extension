@@ -4,6 +4,7 @@ import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 import { NetworkOverrides } from '../models';
+import { isValidHttpHeader } from '../utils/isValidHttpHeader';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_UPDATE_DEFAULT,
@@ -37,6 +38,19 @@ export class UpdateDefaultNetworkHandler implements HandlerType {
         return {
           ...request,
           error: 'ChainID does not match the rpc url',
+        };
+      }
+    }
+
+    if (network.customRpcHeaders) {
+      const areHeadersValid = Object.entries(network.customRpcHeaders).every(
+        ([name, value]) => isValidHttpHeader(name, value)
+      );
+
+      if (!areHeadersValid) {
+        return {
+          ...request,
+          error: 'Invalid RPC headers configuration',
         };
       }
     }

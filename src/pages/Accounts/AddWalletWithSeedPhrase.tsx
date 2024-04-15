@@ -34,6 +34,7 @@ import { isPhraseCorrect } from '@src/utils/seedPhraseValidation';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
+import { Overlay } from '@src/components/common/Overlay';
 
 const EMPTY_ADDRESSES = Array(3).fill('');
 
@@ -160,11 +161,13 @@ export function AddWalletWithSeedPhrase() {
   return (
     <>
       {step === Step.Name && (
-        <NameYourWallet
-          isImporting={isImporting}
-          onSave={handleImport}
-          onBackClick={() => setStep(Step.Import)}
-        />
+        <Overlay>
+          <NameYourWallet
+            isImporting={isImporting}
+            onSave={handleImport}
+            onBackClick={() => setStep(Step.Import)}
+          />
+        </Overlay>
       )}
       <Stack
         sx={{

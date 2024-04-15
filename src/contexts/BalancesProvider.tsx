@@ -5,6 +5,7 @@ import {
   NftTokenWithBalance,
   TokenType,
   TotalBalance,
+  TotalPriceChange,
 } from '@src/background/services/balances/models';
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
@@ -33,6 +34,7 @@ import { RefreshNftMetadataHandler } from '@src/background/services/balances/han
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { getSmallImageForNFT } from '@src/background/services/balances/nft/utils/getSmallImageForNFT';
 import { parseRawAttributesString } from '@src/utils/nfts/metadataParser';
+import { TokensPriceShortData } from '@src/background/services/tokens/models';
 
 interface NftState {
   loading: boolean;
@@ -44,8 +46,14 @@ export interface BalancesState {
   loading: boolean;
   balances?: Balances;
   cached?: boolean;
-  totalBalance?: TotalBalance | null;
+  totalBalance?: TotalBalance;
   lastUpdated?: number;
+}
+
+export interface TokensPriceData {
+  currency: string;
+  lastUpdatedAt: number;
+  tokensData: TokensPriceShortData;
 }
 
 enum BalanceActionType {
@@ -58,7 +66,7 @@ type BalanceAction =
       type: BalanceActionType.UPDATE_BALANCES;
       payload: {
         balances?: Balances;
-        totalBalance?: TotalBalance | null;
+        totalBalance?: TotalBalance;
         lastUpdated?: number;
         isBalancesCached?: boolean;
       };
@@ -80,8 +88,13 @@ const BalancesContext = createContext<{
   registerSubscriber: () => void;
   unregisterSubscriber: () => void;
   isTokensCached: boolean;
-  totalBalance: number | null;
-  getTotalBalance: (addressC?: string) => number | null;
+  totalBalance?: { sum: number | null; priceChange: TotalPriceChange };
+  getTotalBalance: (addressC?: string) =>
+    | {
+        sum: number | null;
+        priceChange: TotalPriceChange;
+      }
+    | undefined;
 }>({
   tokens: { loading: true },
   nfts: { loading: false },
@@ -90,9 +103,9 @@ const BalancesContext = createContext<{
   registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   unregisterSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   isTokensCached: true,
-  totalBalance: null,
+  totalBalance: undefined,
   getTotalBalance() {
-    return null;
+    return undefined;
   },
 });
 
@@ -156,6 +169,7 @@ export function BalancesProvider({ children }: { children: any }) {
       )
       .subscribe((balancesData) => {
         const { balances, isBalancesCached, totalBalance } = balancesData;
+
         dispatch({
           type: BalanceActionType.UPDATE_BALANCES,
           payload: { balances, isBalancesCached, totalBalance },
@@ -176,6 +190,7 @@ export function BalancesProvider({ children }: { children: any }) {
       method: ExtensionRequest.BALANCES_GET,
     }).then((balancesData) => {
       const { balances, isBalancesCached, totalBalance } = balancesData;
+
       dispatch({
         type: BalanceActionType.UPDATE_BALANCES,
         payload: { balances, isBalancesCached, totalBalance },
@@ -189,6 +204,7 @@ export function BalancesProvider({ children }: { children: any }) {
         method: ExtensionRequest.BALANCES_START_POLLING,
       }).then((balancesData) => {
         const { balances, isBalancesCached, totalBalance } = balancesData;
+
         dispatch({
           type: BalanceActionType.UPDATE_BALANCES,
           payload: { balances, isBalancesCached, totalBalance },
@@ -305,9 +321,19 @@ export function BalancesProvider({ children }: { children: any }) {
           address: addressC || activeAccount?.addressC,
           isTestnet: network?.isTestnet,
         });
-        return tokens.totalBalance[accountKey] ?? null;
+        const totalBalance = tokens.totalBalance[accountKey];
+        if (typeof totalBalance === 'number' || totalBalance === null) {
+          return {
+            sum: totalBalance,
+            priceChange: {
+              value: 0,
+              percentage: [],
+            },
+          };
+        }
+        return totalBalance ?? undefined;
       }
-      return null;
+      return undefined;
     },
     [activeAccount?.addressC, network?.isTestnet, tokens.totalBalance]
   );

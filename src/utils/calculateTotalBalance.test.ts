@@ -74,11 +74,17 @@ describe('utils/calculateTotalBalance', () => {
       [ChainId.AVALANCHE_MAINNET_ID, ChainId.DFK],
       balances
     );
-    expect(balance).toBe(6);
+    expect(balance).toEqual({
+      priceChange: { percentage: [], value: 0 },
+      sum: 6,
+    });
   });
 
   it('should return null because of missing arguments', () => {
     const balance = calculateTotalBalance();
-    expect(balance).toBe(null);
+    expect(balance).toEqual({
+      priceChange: { percentage: [], value: 0 },
+      sum: null,
+    });
   });
 });

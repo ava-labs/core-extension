@@ -35,7 +35,7 @@ export function SwitchActiveNetwork() {
   } = useApproveAction(requestId);
 
   const isLoading = !request || !request.displayData;
-  const network: Network = request?.displayData;
+  const network: Network = request?.displayData?.network;
   const willSwitchToPrimaryAccount = useWillSwitchToPrimaryAccount(
     Boolean(network?.isTestnet)
   );

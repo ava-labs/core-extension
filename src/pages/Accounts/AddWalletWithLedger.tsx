@@ -1,14 +1,16 @@
 import {
   Button,
+  CheckIcon,
   ExternalLinkIcon,
+  Grid,
   Stack,
   Typography,
   toast,
+  useTheme,
 } from '@avalabs/k2-components';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
-import { useHistory } from 'react-router-dom';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
 import { PubKeyType } from '@src/background/services/wallet/models';
@@ -29,15 +31,19 @@ import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
+import { useLedgerContext } from '@src/contexts/LedgerProvider';
+import { Overlay } from '@src/components/common/Overlay';
+import { AppBackground } from '@src/components/common/AppBackground';
 
 enum Step {
   Import,
   Name,
   Troubleshoot,
+  Completed,
 }
 
 export function AddWalletWithLedger() {
-  const history = useHistory();
+  const theme = useTheme();
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const getErrorMessage = useErrorMessage();
@@ -52,7 +58,15 @@ export function AddWalletWithLedger() {
     DerivationPath.BIP44
   );
 
-  function onSuccess(data: LedgerConnectorData) {
+  const { popDeviceSelection } = useLedgerContext();
+
+  useEffect(() => {
+    popDeviceSelection();
+    // Do this exactly once, all retries should be initiated by the user
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function onSuccess(data: LedgerConnectorData) {
     setXpub(data.xpub);
     setXpubXP(data.xpubXP);
     setPublicKeys(data.publicKeys);
@@ -89,7 +103,7 @@ export function AddWalletWithLedger() {
       try {
         capture('LedgerImportStarted');
 
-        const result = await importLedger({
+        await importLedger({
           xpub,
           xpubXP,
           pubKeys: publicKeys,
@@ -101,9 +115,7 @@ export function AddWalletWithLedger() {
         });
 
         capture('SeedphraseImportSuccess');
-
-        toast.success(t('{{walletName}} Added', { walletName: result.name }));
-        history.replace('/accounts');
+        setStep(Step.Completed);
       } catch (err) {
         capture('LedgerImportFailure');
         sentryCaptureException(
@@ -114,80 +126,202 @@ export function AddWalletWithLedger() {
         toast.error(title);
       }
     },
-    [
-      capture,
-      getErrorMessage,
-      history,
-      importLedger,
-      pathSpec,
-      publicKeys,
-      t,
-      xpub,
-      xpubXP,
-    ]
+    [capture, getErrorMessage, importLedger, pathSpec, publicKeys, xpub, xpubXP]
+  );
+
+  // This will create a fake background that overlay is going to blur for design.
+  const BackgroundPlaceholder = () => (
+    <Grid container spacing={2}>
+      <Grid item xs={6} md={6} sx={{ px: 20 }}>
+        <Stack
+          sx={{
+            height: 724,
+            width: 550,
+            justifyContent: 'space-between',
+            pt: 10,
+            pl: 15,
+          }}
+        >
+          <Stack
+            sx={{
+              pt: 15,
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="h2">
+              {'The best way to connect to crypto'}
+            </Typography>
+            <Typography variant="h2" sx={{ color: 'secondary.main' }}>
+              {'Core Extension'}
+            </Typography>
+          </Stack>
+
+          <Stack
+            sx={{
+              p: 10,
+              justifyContent: 'center',
+            }}
+          >
+            <Button sx={{ width: 300 }}>{t('Next')}</Button>
+          </Stack>
+        </Stack>
+      </Grid>
+      <Grid
+        item
+        xs={6}
+        md={6}
+        sx={{
+          backgroundColor: 'background.paper',
+        }}
+      >
+        <AppBackground />
+      </Grid>
+    </Grid>
   );
 
   return (
-    <Stack
-      sx={{
-        width: '100%',
-        height: '100%',
-        justifyContent: 'space-between',
-      }}
-    >
-      {step === Step.Troubleshoot && (
-        <Stack justifyContent="space-between" sx={{ height: '100%' }}>
-          <Stack alignItems="flex-start" sx={{ mt: 2.5, mb: 0.5 }}>
-            <PageTitle onBackClick={() => setStep(Step.Import)}>
-              {t('Trouble Connecting')}
-            </PageTitle>
-            <Stack sx={{ px: 2 }}>
-              <LedgerTroubleSteps
-                fontVariant={LedgerTroubleStepsFontVariant.large}
+    <>
+      <BackgroundPlaceholder />
+      <Overlay isBackgroundFilled={false}>
+        {step === Step.Completed && (
+          <Stack
+            sx={{
+              width: 393,
+              height: 386,
+              textAlign: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: 'background.paper',
+              borderRadius: 1,
+              px: 2,
+              py: 4,
+            }}
+          >
+            <Stack
+              sx={{
+                height: 140,
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <CheckIcon size={32} />
+              <Typography variant="h3">
+                {t('Wallet Added Successfully')}
+              </Typography>
+            </Stack>
+
+            <Stack
+              sx={{
+                height: 124,
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {t(
+                  'Please close this tab and open the Core Browser Extension to see the newly imported wallet.'
+                )}
+              </Typography>
+              <Button onClick={window.close} sx={{ width: '50%' }}>
+                {t('Close')}
+              </Button>
+            </Stack>
+          </Stack>
+        )}
+
+        {step === Step.Troubleshoot && (
+          <Stack
+            sx={{
+              height: 724,
+              width: 432,
+              borderRadius: 1,
+              justifyContent: 'space-between',
+              backgroundColor: 'background.paper',
+            }}
+          >
+            <Stack justifyContent="space-between" sx={{ height: '100%' }}>
+              <Stack alignItems="flex-start" sx={{ mt: 2.5, mb: 0.5 }}>
+                <PageTitle onBackClick={() => setStep(Step.Import)}>
+                  {t('Trouble Connecting')}
+                </PageTitle>
+                <Stack sx={{ px: 2 }}>
+                  <LedgerTroubleSteps
+                    fontVariant={LedgerTroubleStepsFontVariant.large}
+                  />
+                </Stack>
+              </Stack>
+
+              <Stack sx={{ p: 2 }}>
+                <Button onClick={() => setStep(Step.Import)}>
+                  {t('Back')}
+                </Button>
+                <LedgerLiveSupportButton />
+              </Stack>
+            </Stack>
+          </Stack>
+        )}
+        {step === Step.Name && (
+          <Stack
+            sx={{
+              height: 724,
+              width: 432,
+              borderRadius: 1,
+              justifyContent: 'space-between',
+              backgroundColor: 'background.paper',
+            }}
+          >
+            <Stack
+              justifyContent="space-between"
+              sx={{ height: '100%', width: '100%' }}
+            >
+              <NameYourWallet
+                isImporting={isImporting}
+                onSave={handleImport}
+                onBackClick={() => setStep(Step.Import)}
+                backgroundColor={theme.palette.background.default}
               />
             </Stack>
           </Stack>
-
-          <Stack sx={{ p: 2 }}>
-            <Button onClick={() => setStep(Step.Import)}>{t('Back')}</Button>
-            <LedgerLiveSupportButton />
-          </Stack>
-        </Stack>
-      )}
-      {step === Step.Name && (
-        <NameYourWallet
-          isImporting={isImporting}
-          onSave={handleImport}
-          onBackClick={() => setStep(Step.Import)}
-        />
-      )}
-      {step === Step.Import && (
-        <Stack justifyContent="space-between" sx={{ height: 600, pt: 1 }}>
-          <Stack>
-            <Stack direction="row" alignItems="flex-start" sx={{ mb: 1 }}>
-              <PageTitle onBackClick={() => history.replace('/accounts')}>
-                {t('Add Wallet with Ledger')}
-              </PageTitle>
-            </Stack>
-
-            <LedgerConnector
-              onSuccess={onSuccess}
-              onTroubleshoot={() => setStep(Step.Troubleshoot)}
-            />
-          </Stack>
-          <Stack sx={{ p: 2 }}>
-            <Button
-              disabled={!hasPublicKeys}
-              onClick={() => setStep(Step.Name)}
+        )}
+        {step === Step.Import && (
+          <Stack
+            sx={{
+              height: 724,
+              width: 432,
+              borderRadius: 1,
+              justifyContent: 'space-between',
+              backgroundColor: 'background.paper',
+            }}
+          >
+            <Stack
+              justifyContent="space-between"
+              sx={{ height: '100%', pt: 1 }}
             >
-              {t('Next')}
-            </Button>
-            <LedgerLiveSupportButton />
-          </Stack>
-        </Stack>
-      )}
+              <Stack>
+                <Stack direction="row" alignItems="flex-start" sx={{ mb: 1 }}>
+                  <PageTitle showBackButton={false}>
+                    {t('Add Wallet with Ledger')}
+                  </PageTitle>
+                </Stack>
 
-      <LedgerWrongVersionOverlay onClose={() => history.goBack()} />
-    </Stack>
+                <LedgerConnector
+                  onSuccess={onSuccess}
+                  onTroubleshoot={() => setStep(Step.Troubleshoot)}
+                />
+              </Stack>
+              <Stack sx={{ p: 2, mb: 2, rowGap: 1 }}>
+                <Button
+                  disabled={!hasPublicKeys}
+                  onClick={() => setStep(Step.Name)}
+                >
+                  {t('Next')}
+                </Button>
+                <LedgerLiveSupportButton />
+              </Stack>
+            </Stack>
+          </Stack>
+        )}
+      </Overlay>
+      <LedgerWrongVersionOverlay />
+    </>
   );
 }

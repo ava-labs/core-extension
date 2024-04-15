@@ -88,6 +88,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
           symbol={token.symbol}
           balanceDisplayValue={token.balanceDisplayValue}
           balanceUSD={token.balanceUSD?.toString()}
+          priceChanges={token.priceChanges}
         >
           <TokenIcon
             width="32px"

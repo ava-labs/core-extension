@@ -46,6 +46,9 @@ import {
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { AccountType } from '@src/background/services/accounts/models';
+import { truncateAddress } from '@src/utils/truncateAddress';
 
 export function SignMessage() {
   const { t } = useTranslation();
@@ -66,6 +69,10 @@ export function SignMessage() {
   const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
     FunctionNames.SIGN
   );
+  const {
+    accounts: { active: activeAccount, primary: primaryAccounts },
+  } = useAccountsContext();
+
   const [showNotSupportedDialog, setShowNotSupportedDialog] = useState(false);
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [messageAlertClosed, setMessageAlertClosed] = useState(false);
@@ -78,6 +85,29 @@ export function SignMessage() {
       action.method !== DAppProviderRequest.AVALANCHE_SIGN_MESSAGE
     );
   }, [isUsingLedgerWallet, action]);
+
+  const signingAccountAddress = useMemo(() => {
+    if (!action || !activeAccount) {
+      return;
+    }
+    const accountIndex = action.displayData.messageParams.accountIndex;
+    if (
+      accountIndex === undefined ||
+      activeAccount.type !== AccountType.PRIMARY
+    ) {
+      return action.method === DAppProviderRequest.AVALANCHE_SIGN_MESSAGE
+        ? activeAccount.addressAVM?.slice(2)
+        : activeAccount.addressC;
+    }
+
+    const accountToUse = primaryAccounts[activeAccount.walletId]?.find(
+      (account) => account.index === accountIndex
+    );
+
+    return action.method === DAppProviderRequest.AVALANCHE_SIGN_MESSAGE
+      ? accountToUse?.addressAVM?.slice(2)
+      : accountToUse?.addressC;
+  }, [action, activeAccount, primaryAccounts]);
 
   const signMessage = useCallback(async () => {
     await updateMessage(
@@ -237,13 +267,13 @@ export function SignMessage() {
             </Typography>
           </Stack>
 
-          <Stack sx={{ alignItems: 'center', pt: 2, pb: 3 }}>
+          <Stack sx={{ alignItems: 'center', pb: 1 }}>
             <SiteAvatar>
               <TokenIcon height="48px" width="48px" src={action.site?.icon}>
                 <GlobeIcon size={48} />
               </TokenIcon>
             </SiteAvatar>
-            <Typography variant="h5" sx={{ mt: 1 }}>
+            <Typography variant="h5">
               {action.site?.name ?? t('Unknown')}
             </Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
@@ -252,6 +282,37 @@ export function SignMessage() {
                 values={{ domain: action.site?.domain || 'A site' }}
               />
             </Typography>
+            {signingAccountAddress && (
+              <Stack
+                sx={{
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mt: 1,
+                  px: 2,
+                  flexDirection: 'row',
+                  width: '100%',
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: 'text.secondary',
+                    fontWeight: 'fontWeightSemibold',
+                  }}
+                >
+                  {t('Active Wallet:')}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    pl: 1,
+                    fontWeight: 'fontWeightSemibold',
+                  }}
+                >
+                  {truncateAddress(signingAccountAddress)}
+                </Typography>
+              </Stack>
+            )}
           </Stack>
 
           {/* Actions  */}
@@ -383,7 +444,7 @@ export function SignMessage() {
               onClick={handleApproval}
               fullWidth
             >
-              {t('Sign')}
+              {t('Approve')}
             </Button>
           </Stack>
         </SignTxErrorBoundary>

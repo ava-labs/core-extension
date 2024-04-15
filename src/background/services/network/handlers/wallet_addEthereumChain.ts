@@ -1,11 +1,15 @@
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
-import { AddEthereumChainParameter } from '../models';
+import {
+  AddEthereumChainDisplayData,
+  AddEthereumChainParameter,
+  Network,
+} from '../models';
 import { NetworkService } from '../NetworkService';
 
 /**
@@ -21,6 +25,16 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
 
   handleUnauthenticated = async (request) => {
     const requestedChain: AddEthereumChainParameter = request.params?.[0];
+
+    if (!requestedChain) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message: 'Chain config missing',
+        }),
+      };
+    }
+
     const chains = await this.networkService.allNetworks.promisify();
     const currentActiveNetwork = this.networkService.activeNetwork;
     const supportedChainIds = Object.keys(chains ?? {});
@@ -100,9 +114,11 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     }
 
     if (chainRequestedIsSupported) {
-      const actionData = {
+      const actionData: Action<{ network: Network }> = {
         ...request,
-        displayData: customNetwork,
+        displayData: {
+          network: customNetwork,
+        },
         tabId: request.site?.tabId,
       };
 
@@ -124,9 +140,14 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       };
     }
 
-    const actionData = {
+    const actionData: Action<AddEthereumChainDisplayData> = {
       ...request,
-      displayData: customNetwork,
+      displayData: {
+        network: customNetwork,
+        options: {
+          requiresGlacierApiKey: Boolean(requestedChain.requiresGlacierApiKey),
+        },
+      },
       tabId: request.site?.tabId,
     };
     await this.openApprovalWindow(actionData, `networks/add-popup`);
@@ -139,7 +160,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
   };
 
   onActionApproved = async (
-    pendingAction: Action,
+    pendingAction: Action<AddEthereumChainDisplayData>,
     _result,
     onSuccess,
     onError
@@ -152,12 +173,19 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       }
 
       const supportedChainIds = Object.keys(chains);
-      if (
-        supportedChainIds.includes(pendingAction.displayData.chainId.toString())
-      ) {
-        await this.networkService.setNetwork(pendingAction.displayData.chainId);
+
+      const { network } = pendingAction.displayData;
+
+      if (network.customRpcHeaders) {
+        // eslint-disable-next-line
+        const { rpcUrl, ...overrides } = network; // we do not want to apply rpcUrl override from here
+        await this.networkService.updateNetworkOverrides(overrides);
+      }
+
+      if (supportedChainIds.includes(network.chainId.toString())) {
+        await this.networkService.setNetwork(network.chainId);
       } else {
-        await this.networkService.saveCustomNetwork(pendingAction.displayData);
+        await this.networkService.saveCustomNetwork(network);
       }
       onSuccess(null);
     } catch (e) {

@@ -15,6 +15,7 @@ import { LockService } from '../lock/LockService';
 import { AccountsService } from '../accounts/AccountsService';
 import { StorageService } from '../storage/StorageService';
 import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
+import { SettingsService } from '../settings/SettingsService';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');
@@ -23,6 +24,12 @@ jest.mock('../storage/StorageService');
 jest.mock('../../../utils/calculateTotalBalance');
 
 describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
+  global.fetch = jest.fn().mockImplementation(
+    () =>
+      new Promise((res) => {
+        return res;
+      })
+  );
   const balancesServiceMock = {
     getBalancesForNetwork: jest.fn(),
   } as any;
@@ -31,6 +38,10 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     loadBalance: jest.fn(),
     saveBalances: jest.fn(),
   } as any;
+
+  const settingsServiceMock = {
+    getSettings: () => ({ currency: 'USD' }),
+  } as unknown as SettingsService;
 
   const lockService = new LockService({} as any, {} as any);
 
@@ -218,7 +229,13 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     (Sentry.startTransaction as jest.Mock).mockReturnValue({
       finish: jest.fn(),
     });
-    (calculateTotalBalance as jest.Mock).mockReturnValue(1);
+    (calculateTotalBalance as jest.Mock).mockReturnValue({
+      sum: 1,
+      priceChange: {
+        percentage: [],
+        value: 0,
+      },
+    });
     cacheServiceMock.loadBalance.mockImplementation(() => Promise.resolve()),
       networkServiceMock.activeNetworks.promisify.mockReturnValue(accounts);
     balancesServiceMock.getBalancesForNetwork.mockImplementation(
@@ -243,7 +260,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         networkServiceMock,
         lockService,
         storageService,
-        accountsServiceMock
+        accountsServiceMock,
+        settingsServiceMock
       );
     });
 
@@ -252,7 +270,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(1);
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledWith(
         network1,
-        [account1]
+        [account1],
+        undefined
       );
     });
 
@@ -348,7 +367,15 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           [network2.chainId]: balanceForNetwork2,
         },
         isBalancesCached: false,
-        totalBalance: { [account1.addressC]: 1 },
+        totalBalance: {
+          [account1.addressC]: {
+            sum: 1,
+            priceChange: {
+              percentage: [],
+              value: 0,
+            },
+          },
+        },
       });
     });
 
@@ -378,7 +405,15 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           [network2.chainId]: balanceForNetwork2,
         },
         isBalancesCached: false,
-        totalBalance: { [account1.addressC]: 1 },
+        totalBalance: {
+          [account1.addressC]: {
+            sum: 1,
+            priceChange: {
+              percentage: [],
+              value: 0,
+            },
+          },
+        },
       });
     });
 
@@ -437,7 +472,15 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           [network2.chainId]: balanceForTwoAccounts,
         },
         isBalancesCached: false,
-        totalBalance: { [account1.addressC]: 1 },
+        totalBalance: {
+          [account1.addressC]: {
+            sum: 1,
+            priceChange: {
+              value: 0,
+              percentage: [],
+            },
+          },
+        },
       });
     });
 
@@ -475,12 +518,28 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           [network2.chainId]: balanceForTwoAccounts,
         },
         isBalancesCached: false,
-        totalBalance: { [account1.addressC]: 1 },
+        totalBalance: {
+          [account1.addressC]: {
+            sum: 1,
+            priceChange: {
+              value: 0,
+              percentage: [],
+            },
+          },
+        },
       });
       expect(eventListener).toHaveBeenNthCalledWith(2, {
         balances: expected2,
         isBalancesCached: false,
-        totalBalance: { [account1.addressC]: 1 },
+        totalBalance: {
+          [account1.addressC]: {
+            sum: 1,
+            priceChange: {
+              value: 0,
+              percentage: [],
+            },
+          },
+        },
       });
     });
 
@@ -515,14 +574,30 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           [network2.chainId]: bitcoinTokenBalance,
         },
         isBalancesCached: false,
-        totalBalance: { [account1.addressC]: 1 },
+        totalBalance: {
+          [account1.addressC]: {
+            sum: 1,
+            priceChange: {
+              value: 0,
+              percentage: [],
+            },
+          },
+        },
       });
       expect(eventListener).toHaveBeenNthCalledWith(2, {
         balances: {
           [network2.chainId]: updated,
         },
         isBalancesCached: false,
-        totalBalance: { [account1.addressC]: 1 },
+        totalBalance: {
+          [account1.addressC]: {
+            sum: 1,
+            priceChange: {
+              value: 0,
+              percentage: [],
+            },
+          },
+        },
       });
     });
 
@@ -556,12 +631,28 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       expect(eventListener).toHaveBeenNthCalledWith(1, {
         balances: expected,
         isBalancesCached: false,
-        totalBalance: { [account1.addressC]: 1 },
+        totalBalance: {
+          [account1.addressC]: {
+            sum: 1,
+            priceChange: {
+              value: 0,
+              percentage: [],
+            },
+          },
+        },
       });
       expect(eventListener).toHaveBeenNthCalledWith(2, {
         balances: expected2,
         isBalancesCached: false,
-        totalBalance: { [account1.addressC]: 1 },
+        totalBalance: {
+          [account1.addressC]: {
+            sum: 1,
+            priceChange: {
+              value: 0,
+              percentage: [],
+            },
+          },
+        },
       });
     });
 
@@ -592,7 +683,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         } as any,
         lockService,
         storageService,
-        accountsServiceMock
+        accountsServiceMock,
+        settingsServiceMock
       );
 
       const balances = { [network2.chainId]: balanceForNetwork1 };
@@ -610,7 +702,15 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
 
       it('should load the data from cache when there is no balance yet', async () => {
         const setBalances = { [network2.chainId]: balanceForNetwork1 };
-        const setTotalBalance = { [account1.addressC]: 2 };
+        const setTotalBalance = {
+          [account1.addressC]: {
+            sum: 2,
+            priceChanges: {
+              value: 0.4,
+              percentage: [0.25],
+            },
+          },
+        };
         (storageService.load as jest.Mock).mockResolvedValue({
           lastUpdated: 1,
           totalBalance: setTotalBalance,
@@ -671,7 +771,15 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         const totalBalance = service.totalBalance;
 
         expect(balances).toEqual(setBalances2);
-        expect(totalBalance).toEqual({ [account1.addressC]: 1 });
+        expect(totalBalance).toEqual({
+          [account1.addressC]: {
+            sum: 1,
+            priceChange: {
+              value: 0,
+              percentage: [],
+            },
+          },
+        });
       });
     });
   });
@@ -683,7 +791,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         networkServiceMock,
         lockService,
         storageService,
-        accountsServiceMock
+        accountsServiceMock,
+        settingsServiceMock
       );
 
       const eventListener = jest.fn();
@@ -706,7 +815,22 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       expect(eventListener).toBeCalledWith({
         balances: expected,
         isBalancesCached: false,
-        totalBalance: { [account1.addressC]: 1, [account2.addressC]: 1 },
+        totalBalance: {
+          [account1.addressC]: {
+            sum: 1,
+            priceChange: {
+              value: 0,
+              percentage: [],
+            },
+          },
+          [account2.addressC]: {
+            sum: 1,
+            priceChange: {
+              value: 0,
+              percentage: [],
+            },
+          },
+        },
       });
     });
   });
@@ -718,7 +842,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         networkServiceMock,
         lockService,
         storageService,
-        accountsServiceMock
+        accountsServiceMock,
+        settingsServiceMock
       );
       await service.updateBalancesForNetworks([network1.chainId], [account1]);
       const expected = { [network1.chainId]: balanceForNetwork1 };

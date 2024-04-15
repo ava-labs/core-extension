@@ -20,6 +20,7 @@ import {
 } from '@avalabs/k2-components';
 import { TokenEllipsis } from '@src/components/common/TokenEllipsis';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
+import { PAndL } from '@src/components/common/ProfitAndLoss';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
@@ -41,11 +42,6 @@ const HideAnimation = keyframes`
 100% {
   opacity: 0;
 }
-`;
-
-const BalanceUSDField = styled(Typography)``;
-const BalanceField = styled(Typography)`
-  display: none;
 `;
 
 const AssetlistRow = styled(Stack)`
@@ -103,54 +99,16 @@ export function Assetlist({ assetList }: AssetListProps) {
           >
             <Stack direction="row" alignItems="center">
               <TokenIcon
-                width="16px"
-                height="16px"
+                width="24px"
+                height="24px"
                 src={token.logoUri}
                 name={token.name}
               />
-              <Typography
-                data-testid="token-row-name"
-                variant="caption"
-                sx={{ ml: 1 }}
-              >
-                <TokenEllipsis maxLength={12} text={token.name} />
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{ ml: 0.5, color: 'text.secondary' }}
-              >
-                <TokenEllipsis maxLength={8} text={token.symbol} />
-              </Typography>
-            </Stack>
-            <BalanceColumn className="balance-column">
-              {!!token.balanceUSD && (
-                <>
-                  <BalanceUSDField
-                    className="balance-usd"
-                    data-testid="token-row-currency-balance"
-                    variant="caption"
-                  >
-                    {currencyFormatter(
-                      token.balanceUSD + (token.unconfirmedBalanceUSD || 0)
-                    )}
-                  </BalanceUSDField>
-                  <BalanceField
-                    className="balance"
-                    data-testid="token-row-token-balance"
-                    variant="caption"
-                  >
-                    {token.balance && token.unconfirmedBalance
-                      ? balanceToDisplayValue(
-                          token.balance.add(token.unconfirmedBalance),
-                          token.decimals
-                        )
-                      : token.balanceDisplayValue}{' '}
-                    <InlineTokenEllipsis maxLength={8} text={token.symbol} />
-                  </BalanceField>
-                </>
-              )}
-              {!token.balanceUSD && (
-                <Typography variant="caption">
+              <Stack sx={{ ml: 1 }}>
+                <Typography data-testid="token-row-name" variant="button">
+                  <TokenEllipsis maxLength={12} text={token.name} />
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {token.balance && token.unconfirmedBalance
                     ? balanceToDisplayValue(
                         token.balance.add(token.unconfirmedBalance),
@@ -159,7 +117,30 @@ export function Assetlist({ assetList }: AssetListProps) {
                     : token.balanceDisplayValue}{' '}
                   <InlineTokenEllipsis maxLength={8} text={token.symbol} />
                 </Typography>
+              </Stack>
+            </Stack>
+            <BalanceColumn className="balance-column">
+              {typeof token.balanceUSD === 'number' && (
+                <Typography
+                  data-testid="token-row-currency-balance"
+                  variant="caption"
+                  sx={{ fontWeight: 'bold' }}
+                >
+                  {currencyFormatter(
+                    token.balanceUSD + (token.unconfirmedBalanceUSD || 0)
+                  )}
+                </Typography>
               )}
+              <Stack>
+                {token.priceChanges &&
+                token.priceChanges.value &&
+                token.priceChanges.percentage ? (
+                  <PAndL
+                    value={token.priceChanges.value}
+                    percentage={token.priceChanges.percentage}
+                  />
+                ) : null}
+              </Stack>
             </BalanceColumn>
           </AssetlistRow>
         );

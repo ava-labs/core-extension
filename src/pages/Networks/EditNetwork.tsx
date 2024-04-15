@@ -1,5 +1,4 @@
-import { Network } from '@avalabs/chains-sdk';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,6 +13,10 @@ import {
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import {
+  CustomRpcHeaders,
+  Network,
+} from '@src/background/services/network/models';
 
 import {
   NetworkForm,
@@ -51,15 +54,12 @@ export const EditNetwork = () => {
     setNetworkState(networkData);
   }, [networks, setNetworkState, selectedChainId]);
 
-  if (!networkState) {
-    return null;
-  }
-
-  const goBack = () => {
+  const goBack = useCallback(() => {
     history.length <= 2
       ? history.replace(`/networks/details/${networkId}`)
       : history.goBack();
-  };
+  }, [history, networkId]);
+
   const isCustom = networkState && isCustomNetwork(networkState.chainId);
 
   const handleChange = (newNetworkState: Network, isValid: boolean) => {
@@ -75,16 +75,17 @@ export const EditNetwork = () => {
     setErrorMessage('');
     goBack();
   };
-  const onUpdateURLSuccess = () => {
+  const onUpdateURLSuccess = useCallback(() => {
     capture('DefaultNetworkRPCEdited');
     toast.success(t('RPC URL Updated!'), { duration: 2000 });
     setErrorMessage('');
-  };
-  const onResetURLSuccess = () => {
+  }, [capture, t]);
+
+  const onResetURLSuccess = useCallback(() => {
     capture('DefaultNetworkRPCReset');
     toast.success(t('RPC URL Reset!'), { duration: 2000 });
     setErrorMessage('');
-  };
+  }, [capture, t]);
 
   const handleEdit = () => {
     if (!isCustom) {
@@ -107,7 +108,10 @@ export const EditNetwork = () => {
     scrollbarRef?.current?.scrollToTop();
   };
 
-  const resetRpcUrl = () => {
+  const resetRpcUrl = useCallback(() => {
+    if (!networkState) {
+      return;
+    }
     //  We're resetting the RPC url, so we want to send it as undefined to the backend.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { rpcUrl, ...networkWithoutRpcUrl } = networkState;
@@ -124,34 +128,72 @@ export const EditNetwork = () => {
       .finally(() => {
         setIsSaving(false);
       });
-  };
+  }, [goBack, networkState, onResetURLSuccess, updateDefaultNetwork]);
+
+  const updateHeaders = useCallback(
+    (headers: CustomRpcHeaders) => {
+      if (!networkState) {
+        return;
+      }
+
+      setIsSaving(true);
+
+      updateDefaultNetwork({
+        ...networkState,
+        customRpcHeaders: headers,
+      })
+        .then(() => {
+          goBack();
+          toast.success(t('RPC Headers Updated'), { duration: 2000 });
+          setErrorMessage('');
+        })
+        .catch(onError)
+        .finally(() => {
+          setIsSaving(false);
+        });
+    },
+    [goBack, networkState, t, updateDefaultNetwork]
+  );
 
   const hideDialogs = () => {
     setIsResetRpcUrlDialog(false);
     setIsUpdateRpcUrlDialog(false);
   };
 
-  const handleDialogPrimaryClick = (dialog: NetworkDetailsDialogOptions) => {
-    setIsSaving(true);
-    switch (dialog) {
-      case NetworkDetailsDialogOptions.RESET_RPC_URL_DIALOG:
-        resetRpcUrl();
-        break;
-      case NetworkDetailsDialogOptions.UPDATE_RPC_URL_DIALOG:
-        updateDefaultNetwork(networkState)
-          .then(() => {
-            goBack();
-            onUpdateURLSuccess();
-          })
-          .catch((e) => {
-            hideDialogs();
-            onError(e);
-          });
-        break;
-      default:
-        return null;
-    }
-  };
+  const handleDialogPrimaryClick = useCallback(
+    (dialog: NetworkDetailsDialogOptions) => {
+      if (!networkState) {
+        return;
+      }
+
+      setIsSaving(true);
+      switch (dialog) {
+        case NetworkDetailsDialogOptions.RESET_RPC_URL_DIALOG:
+          resetRpcUrl();
+          break;
+        case NetworkDetailsDialogOptions.UPDATE_RPC_URL_DIALOG:
+          updateDefaultNetwork(networkState)
+            .then(() => {
+              goBack();
+              onUpdateURLSuccess();
+            })
+            .catch((e) => {
+              hideDialogs();
+              onError(e);
+            });
+          break;
+        default:
+          return null;
+      }
+    },
+    [
+      goBack,
+      networkState,
+      onUpdateURLSuccess,
+      resetRpcUrl,
+      updateDefaultNetwork,
+    ]
+  );
 
   const onUpdateRpcUrl = () => {
     setIsUpdateRpcUrlDialog(true);
@@ -160,6 +202,10 @@ export const EditNetwork = () => {
   const handleResetUrl = () => {
     setIsResetRpcUrlDialog(true);
   };
+
+  if (!networkState) {
+    return null;
+  }
 
   return (
     <Stack sx={{ width: 1 }}>
@@ -177,6 +223,7 @@ export const EditNetwork = () => {
               <NetworkForm
                 customNetwork={networkState}
                 handleChange={handleChange}
+                handleRpcHeadersChange={updateHeaders}
                 action={NetworkFormAction.Edit}
                 isCustomNetwork={isCustom}
                 handleResetUrl={handleResetUrl}

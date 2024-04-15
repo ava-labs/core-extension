@@ -11,6 +11,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Avalanche } from '@avalabs/wallets-sdk';
 import { AvalancheChainStrings } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { bigintToBig } from '@src/utils/bigintToBig';
+import { PVM } from '@avalabs/avalanchejs';
 
 export function BaseTxView({
   tx,
@@ -23,6 +24,8 @@ export function BaseTxView({
   const { currencyFormatter } = useSettingsContext();
   const { chain, txFee, outputs, memo } = tx;
 
+  const defaultDenomination = chain === PVM ? 9 : 0;
+
   const isDateFuture = (date: bigint) => {
     const now = Avalanche.getUnixNow();
     return date > now;
@@ -30,6 +33,12 @@ export function BaseTxView({
 
   const unixToLocaleString = (date: bigint) => {
     return new Date(Number(date.toString()) * 1000).toLocaleString();
+  };
+
+  const getDisplayAmount = (value: bigint, decimals: number) => {
+    return Number(
+      bigIntToString(value, decimals).replace(/,/g, '') // Remove thousand separators which makes Number to return NaN
+    );
   };
 
   return (
@@ -120,11 +129,10 @@ export function BaseTxView({
                         fontWeight: 'fontWeightSemibold',
                       }}
                     >
-                      {Number(
-                        bigIntToString(
-                          out.amount,
-                          out.assetDescription?.denomination || 0
-                        )
+                      {getDisplayAmount(
+                        out.amount,
+                        out.assetDescription?.denomination ||
+                          defaultDenomination
                       )}
                     </Typography>
                     {out.isAvax && (
@@ -136,11 +144,10 @@ export function BaseTxView({
                         }}
                       >
                         {currencyFormatter(
-                          Number(
-                            bigIntToString(
-                              out.amount,
-                              out.assetDescription?.denomination || 0
-                            )
+                          getDisplayAmount(
+                            out.amount,
+                            out.assetDescription?.denomination ||
+                              defaultDenomination
                           ) * avaxPrice
                         )}
                       </Typography>
@@ -283,39 +290,41 @@ export function BaseTxView({
       </Stack>
 
       {/* memo */}
-      <Stack>
-        <Typography
-          variant="body2"
-          sx={{
-            fontWeight: 'fontWeightSemibold',
-            mt: 3,
-            mb: 1,
-            mx: 0,
-          }}
-        >
-          {t('Memo')}
-        </Typography>
-        <Card
-          sx={{
-            width: 1,
-          }}
-        >
-          <CardContent
+      {chain !== PVM && (
+        <Stack>
+          <Typography
+            variant="body2"
             sx={{
-              p: 2,
+              fontWeight: 'fontWeightSemibold',
+              mt: 3,
+              mb: 1,
+              mx: 0,
             }}
           >
-            <Typography
-              variant="caption"
+            {t('Memo')}
+          </Typography>
+          <Card
+            sx={{
+              width: 1,
+            }}
+          >
+            <CardContent
               sx={{
-                color: 'text.secondary',
+                p: 2,
               }}
             >
-              {memo}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Stack>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
+                {memo}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Stack>
+      )}
     </Stack>
   );
 }

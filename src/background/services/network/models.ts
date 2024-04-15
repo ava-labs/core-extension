@@ -1,4 +1,4 @@
-import { Network } from '@avalabs/chains-sdk';
+import { Network as _Network } from '@avalabs/chains-sdk';
 import { PartialBy } from '@src/background/models';
 
 export enum NetworkEvents {
@@ -28,10 +28,31 @@ export interface AddEthereumChainParameter {
   };
   rpcUrls?: string[];
   isTestnet?: boolean;
+  requiresGlacierApiKey?: boolean;
 }
 
-export type NetworkOverrides = PartialBy<Network, 'rpcUrl'>;
+export type Network = _Network & AdvancedNetworkConfig;
+
+export type ChainList = Record<string, Network>;
+
+export type NetworkOverrides = PartialBy<Network, 'rpcUrl'> &
+  AdvancedNetworkConfig;
+
+export type CustomRpcHeaders = Record<string, string>;
+
+export type AdvancedNetworkConfig = {
+  customRpcHeaders?: CustomRpcHeaders;
+};
 
 export type CustomNetworkPayload = Network & {
   chainId: number | string; // Chain ID may come in hex-encoded through wallet_addEthereumChain call.
 };
+
+export type AddEthereumChainDisplayData = {
+  network: Network;
+  options: {
+    requiresGlacierApiKey: boolean;
+  };
+};
+
+export const PLACEHOLDER_RPC_HEADERS = { '': '' };

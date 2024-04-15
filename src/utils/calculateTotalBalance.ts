@@ -1,6 +1,9 @@
 import { Network } from '@avalabs/chains-sdk';
 import { Account } from '@src/background/services/accounts/models';
-import { Balances } from '@src/background/services/balances/models';
+import {
+  Balances,
+  TotalPriceChange,
+} from '@src/background/services/balances/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { hasAccountBalances } from './hasAccountBalances';
 
@@ -11,7 +14,13 @@ export function calculateTotalBalance(
   balances?: Balances
 ) {
   if (!account || !balances || !network) {
-    return null;
+    return {
+      sum: null,
+      priceChange: {
+        value: 0,
+        percentage: [],
+      },
+    };
   }
 
   const chainIdsToSum = new Set([network.chainId, ...(networkIds ?? [])]);
@@ -19,24 +28,72 @@ export function calculateTotalBalance(
   const hasBalances = hasAccountBalances(balances, account);
 
   if (!hasBalances) {
-    return null;
+    return {
+      sum: null,
+      priceChange: {
+        value: 0,
+        percentage: [],
+      },
+    };
   }
 
-  const sum = Array.from(chainIdsToSum).reduce((total, networkItem) => {
-    const address = getAddressForChain(networkItem, account);
+  const sum = Array.from(chainIdsToSum).reduce(
+    (
+      total: {
+        sum: number;
+        priceChange: TotalPriceChange;
+      },
+      networkItem
+    ) => {
+      const address = getAddressForChain(networkItem, account);
 
-    if (!address) {
-      return total;
-    }
+      if (!address) {
+        return total;
+      }
 
-    return (
-      total +
-      (Object.values(balances?.[networkItem]?.[address] ?? {})?.reduce(
-        (sumTotal, token) => sumTotal + (token.balanceUSD ?? 0),
-        0
-      ) || 0)
-    );
-  }, 0);
+      const sumValues = Object.values(
+        balances?.[networkItem]?.[address] ?? {}
+      )?.reduce(
+        (
+          sumTotal: {
+            sum: number;
+            priceChange: TotalPriceChange;
+          },
+          token
+        ) => {
+          const percentage = token.priceChanges?.percentage
+            ? [
+                ...sumTotal.priceChange.percentage,
+                token.priceChanges?.percentage,
+              ]
+            : [...sumTotal.priceChange.percentage];
+
+          return {
+            sum: sumTotal.sum + (token.balanceUSD ?? 0),
+            priceChange: {
+              value:
+                sumTotal.priceChange.value + (token.priceChanges?.value ?? 0),
+              percentage,
+            },
+          };
+        },
+        { sum: 0, priceChange: { value: 0, percentage: [] } }
+      ) || { sum: 0, priceChange: { value: 0, percentage: [] } };
+
+      return {
+        ...total,
+        sum: total.sum + sumValues.sum,
+        priceChange: {
+          value: sumValues.priceChange.value + total.priceChange.value,
+          percentage: [
+            ...sumValues.priceChange.percentage,
+            ...total.priceChange.percentage,
+          ],
+        },
+      };
+    },
+    { sum: 0, priceChange: { value: 0, percentage: [] } }
+  );
 
   return sum;
 }

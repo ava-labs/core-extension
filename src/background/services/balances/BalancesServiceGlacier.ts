@@ -35,24 +35,28 @@ import {
   is1155Response,
   isErc721TokenBalance,
 } from './nft/utils/nftTypesUtils';
+import { TokensPriceShortData } from '../tokens/models';
+import { getPriceChangeValues } from './utils/getPriceChangeValues';
 
 @singleton()
 export class BalancesServiceGlacier {
   private glacierSdkInstance = new Glacier({ BASE: process.env.GLACIER_URL });
   constructor(
-    private settingsService: SettingsService,
-    private tokensManagerService: TokenManagerService
+    private tokensManagerService: TokenManagerService,
+    private settingsService: SettingsService
   ) {}
 
   async getBalances(
     accounts: Account[],
-    network: Network
+    network: Network,
+    priceChanges?: TokensPriceShortData
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalancesServiceGlacier: getBalances',
     });
-    const selectedCurrency: any = (await this.settingsService.getSettings())
+    const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
+
     const results = await Promise.allSettled(
       accounts.map(async (acc) => {
         const address = acc.addressC;
@@ -65,15 +69,41 @@ export class BalancesServiceGlacier {
           this.getErc20BalanceForNetwork(network, address, selectedCurrency),
         ])
           .then(([nativeBalance, erc20Balances]) => {
-            let balances: Record<string, TokenWithBalance> =
-              nativeBalance.status === 'fulfilled'
-                ? { [nativeBalance.value.symbol]: nativeBalance.value }
-                : {};
+            let balances: Record<string, TokenWithBalance> = {};
+
+            if (nativeBalance.status === 'fulfilled') {
+              balances = {
+                [nativeBalance.value.symbol]: {
+                  ...nativeBalance.value,
+                  priceChanges: getPriceChangeValues(
+                    nativeBalance.value.symbol,
+                    nativeBalance.value.balanceUSD,
+                    priceChanges
+                  ),
+                },
+              };
+            }
 
             if (erc20Balances.status === 'fulfilled') {
-              balances = { ...balances, ...erc20Balances.value };
+              let erc20BalancesValues = {};
+              for (const erc20Token in erc20Balances.value) {
+                erc20BalancesValues = {
+                  ...erc20BalancesValues,
+                  [erc20Token]: {
+                    ...erc20Balances.value[erc20Token],
+                    priceChanges: getPriceChangeValues(
+                      erc20Balances.value[erc20Token].symbol,
+                      erc20Balances.value[erc20Token].balanceUSD,
+                      priceChanges
+                    ),
+                  },
+                };
+              }
+              balances = { ...balances, ...erc20BalancesValues };
             }
-            return { [address]: balances };
+            return {
+              [address]: balances,
+            };
           })
           .catch(() => {
             return {};
@@ -90,10 +120,10 @@ export class BalancesServiceGlacier {
         )
         .map((item) => item.value);
     });
-
     const result = results.reduce((acc, account) => {
       return { ...account, ...acc };
     }, {});
+
     sentryTracker.finish();
     return result;
   }

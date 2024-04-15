@@ -48,7 +48,10 @@ export const AccountsDropdown = ({
   const { updateBalanceOnAllNetworks } = useBalancesContext();
   const { currency, currencyFormatter } = useSettingsContext();
   const accountBalance = useBalanceTotalInCurrency(selectedAccount);
-  const hasAccountBalance = accountBalance !== null;
+
+  const balanceSum = accountBalance?.sum || 0;
+  const hasAccountBalance =
+    accountBalance && accountBalance !== null && accountBalance.sum !== null;
 
   // Set active account as default
   useEffect(() => {
@@ -106,8 +109,7 @@ export const AccountsDropdown = ({
       {isBalanceLoading && <Skeleton variant="text" width={120} />}
       {!isBalanceLoading && hasAccountBalance && (
         <Typography variant="caption" color={theme.palette.text.secondary}>
-          {t('Balance')}:{' '}
-          {currencyFormatter(accountBalance).replace(currency, '')}
+          {t('Balance')}: {currencyFormatter(balanceSum).replace(currency, '')}
         </Typography>
       )}
     </Stack>

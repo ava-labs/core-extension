@@ -49,7 +49,9 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
     if (supportedNetwork?.chainId) {
       const actionData = {
         ...request,
-        displayData: supportedNetwork,
+        displayData: {
+          network: supportedNetwork,
+        },
         tabId: request.site.tabId,
       };
 
@@ -80,7 +82,7 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
   ) => {
     try {
       await this.networkService.setNetwork(
-        Number(pendingAction.displayData.chainId)
+        Number(pendingAction.displayData.network.chainId)
       );
       onSuccess(null);
     } catch (e) {

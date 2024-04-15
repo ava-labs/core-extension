@@ -1,5 +1,7 @@
 import { Card, Stack, Tooltip, Typography } from '@avalabs/k2-components';
 import { useEffect, useRef, useState } from 'react';
+import { PAndL } from './ProfitAndLoss';
+import { TokenWithBalance } from '@src/background/services/balances/models';
 
 interface TokenCardProps {
   name: string;
@@ -10,6 +12,7 @@ interface TokenCardProps {
   onClick?(): void;
   currencyFormatter?: (balanceUSD: number) => string;
   currency?: string;
+  priceChanges?: TokenWithBalance['priceChanges'];
 }
 
 export function TokenCardWithBalance({
@@ -21,6 +24,7 @@ export function TokenCardWithBalance({
   children,
   currencyFormatter,
   currency,
+  priceChanges,
 }: TokenCardProps) {
   const [hasNameOverflow, setHasNameOverflow] = useState(false);
 
@@ -100,19 +104,35 @@ export function TokenCardWithBalance({
             )}
           </Stack>
 
-          <Stack direction="row" alignItems="flex-end">
-            <Typography variant="body2">
-              {balanceDisplayValue?.toLocaleString()}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                ml: balanceDisplayValue !== undefined ? 0.4 : 0,
-                color: 'text.secondary',
-              }}
-            >
-              {symbol}
-            </Typography>
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Stack sx={{ alignItems: 'flex-end', flexDirection: 'row' }}>
+              <Typography variant="body2">
+                {balanceDisplayValue?.toLocaleString()}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  ml: balanceDisplayValue !== undefined ? 0.4 : 0,
+                  color: 'text.secondary',
+                }}
+              >
+                {symbol}
+              </Typography>
+            </Stack>
+            {priceChanges && (
+              <Stack>
+                <PAndL
+                  value={priceChanges.value}
+                  percentage={priceChanges.percentage}
+                />
+              </Stack>
+            )}
           </Stack>
         </Stack>
       </Stack>

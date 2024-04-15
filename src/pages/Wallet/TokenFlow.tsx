@@ -12,6 +12,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { balanceToDisplayValue } from '@avalabs/utils-sdk';
 import {
   ArrowUpRightIcon,
+  Box,
   BridgeIcon,
   Button,
   BuyIcon,
@@ -30,6 +31,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
+import { PAndL } from '@src/components/common/ProfitAndLoss';
 
 export function TokenFlow() {
   const { t } = useTranslation();
@@ -99,29 +101,31 @@ export function TokenFlow() {
             </Typography>
             <Typography
               data-testid="token-details-currency-balance"
-              variant="body2"
+              variant="h6"
             >
               {balanceCurrencyValue
                 ? currencyFormatter(Number(balanceCurrencyValue))
                 : currencyFormatter(0)}
             </Typography>
           </Stack>
-
-          <Typography
-            data-testid="token-details-balance"
-            variant="body2"
-            sx={{
-              color: 'text.secondary',
-            }}
-          >
-            {token.balance && token.unconfirmedBalance
-              ? balanceToDisplayValue(
-                  token.balance.add(token.unconfirmedBalance),
-                  token.decimals
-                )
-              : token.balanceDisplayValue || '0.00'}{' '}
-            {token.symbol}
-          </Typography>
+          <Stack sx={{ justifyContent: 'space-between', flexDirection: 'row' }}>
+            <Typography data-testid="token-details-balance" variant="body2">
+              {token.balance && token.unconfirmedBalance
+                ? balanceToDisplayValue(
+                    token.balance.add(token.unconfirmedBalance),
+                    token.decimals
+                  )
+                : token.balanceDisplayValue || '0.00'}{' '}
+              <Box sx={{ color: 'text.secondary', display: 'inline' }}>
+                {token.symbol}
+              </Box>
+            </Typography>
+            <PAndL
+              value={token.priceChanges?.value}
+              percentage={token.priceChanges?.percentage}
+              showPercentage
+            />
+          </Stack>
         </Stack>
       </Stack>
       <Stack
