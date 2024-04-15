@@ -182,7 +182,7 @@ export function SignMessage() {
     return null;
   };
 
-  useLedgerDisconnectedDialog(window.close, LedgerAppType.AVALANCHE);
+  useLedgerDisconnectedDialog(() => handleRejection(), LedgerAppType.AVALANCHE);
 
   const notSupportedDialog = (
     <Stack sx={{ justifyContent: 'center', width: '100%' }}>

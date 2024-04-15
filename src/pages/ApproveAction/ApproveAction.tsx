@@ -69,7 +69,11 @@ export function ApproveAction() {
       onReject: cancelHandler,
     });
 
-  useLedgerDisconnectedDialog(window.close, LedgerAppType.AVALANCHE, network);
+  useLedgerDisconnectedDialog(
+    () => handleRejection(),
+    LedgerAppType.AVALANCHE,
+    network
+  );
 
   if (!action) {
     return (

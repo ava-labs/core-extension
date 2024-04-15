@@ -77,8 +77,6 @@ export function SignTransactionPage() {
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isUsingFireblocksAccount = useIsUsingFireblocksAccount();
 
-  useLedgerDisconnectedDialog(window.close, undefined, network);
-
   const nativeTokenWithBalance = useMemo(
     () => tokens.find(({ type }) => type === TokenType.NATIVE),
     [tokens]
@@ -104,6 +102,7 @@ export function SignTransactionPage() {
     }
   }, [transaction?.actionId, updateTransaction]);
 
+  useLedgerDisconnectedDialog(cancelHandler, undefined, network);
   useWindowGetsClosedOrHidden(cancelHandler);
 
   const isReadyForApproval =

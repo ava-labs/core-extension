@@ -37,6 +37,7 @@ import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
+import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -64,7 +65,12 @@ export function AvalancheSignTx() {
     }
   }, [txData?.isValidAvaxBurnedAmount]);
 
-  useLedgerDisconnectedDialog(window.close, LedgerAppType.AVALANCHE, network);
+  useLedgerDisconnectedDialog(
+    () => handleRejection(),
+    LedgerAppType.AVALANCHE,
+    network
+  );
+  useWindowGetsClosedOrHidden(() => handleRejection());
 
   const signTx = useCallback(async () => {
     await updateAction(
