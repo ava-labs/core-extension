@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { Card, Stack, Typography } from '@avalabs/k2-components';
+import { Stack, Typography } from '@avalabs/k2-components';
 import { positionValues } from 'react-custom-scrollbars-2';
 import { MessageParams } from '@src/background/services/messages/models';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { ForwardedRef, forwardRef } from 'react';
+import { ScrollableMessageCard } from './ScrollableMessageCard';
 
 /**
  * @link https://docs.metamask.io/guide/signing-data.html#sign-typed-data-v3
@@ -75,15 +75,9 @@ export const SignDataV3 = forwardRef(function SignDataV3(
   return (
     <Stack sx={{ width: 1, gap: 1 }}>
       <Typography variant="caption">{t('Message:')}</Typography>
-      <Card sx={{ height: 250, py: 2 }}>
-        <Scrollbars
-          style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
-          onUpdate={updateHandler}
-        >
-          {renderRow(dataWithoutTypes)}
-          <div ref={ref} style={{ height: '1px' }} />
-        </Scrollbars>
-      </Card>
+      <ScrollableMessageCard ref={ref} scrollUpdateHandler={updateHandler}>
+        {renderRow(dataWithoutTypes)}
+      </ScrollableMessageCard>
     </Stack>
   );
 });

@@ -14,13 +14,14 @@ import { TypedDataEncoder } from 'ethers';
 @injectable()
 export class PersonalSignHandler extends DAppRequestHandler {
   methods = [
-    MessageType.ETH_SIGN,
-    MessageType.SIGN_TYPED_DATA,
+    DAppProviderRequest.ETH_SIGN,
+    DAppProviderRequest.ETH_SIGN_TYPED_DATA,
     DAppProviderRequest.ETH_SIGN_TYPED_DATA_V1,
     DAppProviderRequest.ETH_SIGN_TYPED_DATA_V3,
     DAppProviderRequest.ETH_SIGN_TYPED_DATA_V4,
-    MessageType.PERSONAL_SIGN,
+    DAppProviderRequest.PERSONAL_SIGN,
   ];
+
   constructor(
     private walletService: WalletService,
     private networkService: NetworkService
@@ -122,7 +123,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
   ) => {
     try {
       const result = await this.walletService.signMessage(
-        pendingAction.method as MessageType,
+        pendingAction.method as unknown as MessageType,
         pendingAction
       );
       onSuccess(result);

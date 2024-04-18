@@ -19,6 +19,7 @@ import { filterStaleActions } from './utils';
 @singleton()
 export class ActionsService implements OnStorageReady {
   private eventEmitter = new EventEmitter();
+
   constructor(
     @injectAll('DAppRequestHandler')
     private dAppRequestHandlers: DAppRequestHandler[],

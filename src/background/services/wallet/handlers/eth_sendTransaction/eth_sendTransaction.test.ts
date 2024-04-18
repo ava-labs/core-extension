@@ -31,6 +31,7 @@ import { Action, ActionStatus } from '@src/background/services/actions/models';
 import browser from 'webextension-polyfill';
 import { txToCustomEvmTx } from './utils/txToCustomEvmTx';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 
 jest.mock('@src/background/services/analytics/AnalyticsServicePosthog');
 jest.mock('@src/background/services/debank');
@@ -693,12 +694,12 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
   describe('onActionApproved', () => {
     const mockAction: Action<Transaction> = {
       actionId: 'actiondId',
-      method: 'eth_sendTransaction',
+      method: DAppProviderRequest.ETH_SEND_TX,
       status: ActionStatus.PENDING,
       time: 123123,
       displayData: {
         chainId: '0xa86a', // 43114
-        method: 'eth_sendTransaction',
+        method: DAppProviderRequest.ETH_SEND_TX,
         txParams: {
           to: '0x32131',
           from: '0x123123123',

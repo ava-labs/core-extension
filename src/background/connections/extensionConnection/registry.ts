@@ -136,6 +136,7 @@ import { RefreshNftMetadataHandler } from '@src/background/services/balances/han
 import { AddFidoDeviceHandler } from '@src/background/services/seedless/handlers/addFidoDevice';
 import { RemoveFidoDeviceHandler } from '@src/background/services/seedless/handlers/removeFidoDevice';
 import { RemoveTotpHandler } from '@src/background/services/seedless/handlers/removeTotp';
+import { ApprovalEvents } from '@src/background/services/approvals/events/approvalEvents';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -417,5 +418,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: SeedlessTokenEvents },
   { token: 'ExtensionEventEmitter', useToken: SeedlessMfaEvents },
   { token: 'ExtensionEventEmitter', useToken: UnifiedBridgeEvents },
+  { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

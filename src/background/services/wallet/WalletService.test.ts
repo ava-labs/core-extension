@@ -848,7 +848,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       time: 123,
       status: ActionStatus.SUBMITTING,
       displayData: { messageParams: { data: {} } },
-      method: 'method',
+      method: 'method' as any,
       actionId: 'action ID',
     };
 
@@ -1162,7 +1162,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         time: 123,
         status: ActionStatus.SUBMITTING,
         displayData: { messageParams: { data: 'test', accountIndex: 1 } },
-        method: 'method',
+        method: 'method' as any,
         actionId: 'action ID',
       };
       const getWalletSpy = jest

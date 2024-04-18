@@ -61,14 +61,24 @@ export function useGetTransaction(requestId: string) {
           : action.displayData.txParams.maxPriorityFeePerGas,
       },
     };
-    updateAction({
-      id: action.actionId,
-      status: ActionStatus.PENDING,
-      displayData: updatedDisplayData,
-    });
+
+    // Only keep updating if the action wasn't already submitted/cancelled
+    if (action.status === ActionStatus.PENDING) {
+      updateAction({
+        id: action.actionId,
+        status: ActionStatus.PENDING,
+        displayData: updatedDisplayData,
+      });
+    }
     // keeping `action` out of here to prevent infinite loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customGas, network?.networkToken.decimals, tokenPrice, updateAction]);
+  }, [
+    customGas,
+    network?.networkToken.decimals,
+    tokenPrice,
+    updateAction,
+    action?.status,
+  ]);
 
   const setCustomFee = useCallback(
     (values: {

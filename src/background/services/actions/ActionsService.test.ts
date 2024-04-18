@@ -20,7 +20,7 @@ jest.mock('./utils', () => ({
 
 describe('background/services/actions/ActionsService.ts', () => {
   const handlerWithCallback: DAppRequestHandler = {
-    methods: ['handler_with_callback'],
+    methods: ['handler_with_callback'] as any,
     onActionApproved: jest.fn(),
     handleAuthenticated: jest.fn(),
     handleUnauthenticated: jest.fn(),
@@ -28,7 +28,7 @@ describe('background/services/actions/ActionsService.ts', () => {
   };
 
   const handlerWithoutCallback: DAppRequestHandler = {
-    methods: ['handler_without_callback'],
+    methods: ['handler_without_callback'] as any,
     handleAuthenticated: jest.fn(),
     handleUnauthenticated: jest.fn(),
     openApprovalWindow: jest.fn(),
@@ -47,7 +47,7 @@ describe('background/services/actions/ActionsService.ts', () => {
     time: 123123123,
     status: ActionStatus.PENDING,
     displayData: {},
-    method: 'handler_with_callback',
+    method: 'handler_with_callback' as any,
     jsonrpc: '2.0',
     actionId: 'uuid',
   };

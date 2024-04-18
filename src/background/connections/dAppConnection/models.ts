@@ -1,4 +1,5 @@
 import { Maybe } from '@avalabs/utils-sdk';
+import { DomainMetadata } from '@src/background/models';
 import { EthereumProviderError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 
@@ -56,6 +57,8 @@ export interface JsonRpcRequest<Params = unknown[]> {
   readonly id?: string;
   readonly method: string;
   readonly params?: Params;
+  readonly site?: DomainMetadata;
+  readonly tabId?: number;
 }
 export interface JsonRpcSuccess<T = unknown> {
   result: Maybe<T>;

@@ -1,5 +1,11 @@
 import { ReactNode } from 'react';
-import { Backdrop, SxProps, Theme, useTheme } from '@avalabs/k2-components';
+import {
+  Backdrop,
+  BackdropProps,
+  SxProps,
+  Theme,
+  useTheme,
+} from '@avalabs/k2-components';
 
 interface OverlayProps {
   children: ReactNode;
@@ -7,7 +13,12 @@ interface OverlayProps {
   sx?: SxProps<Theme>;
 }
 
-export const Overlay = ({ children, isBackgroundFilled, sx }: OverlayProps) => {
+export const Overlay = ({
+  children,
+  isBackgroundFilled,
+  sx,
+  ...props
+}: OverlayProps & Omit<BackdropProps, 'open'>) => {
   const theme = useTheme();
   const backgroundStyles = isBackgroundFilled
     ? {
@@ -29,6 +40,7 @@ export const Overlay = ({ children, isBackgroundFilled, sx }: OverlayProps) => {
         },
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
+      {...props}
     >
       {children}
     </Backdrop>

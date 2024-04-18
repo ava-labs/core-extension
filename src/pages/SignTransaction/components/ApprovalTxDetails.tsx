@@ -82,6 +82,11 @@ type WebsiteDetailsProps = {
 export const WebsiteDetails = ({ site }: WebsiteDetailsProps) => {
   const { t } = useTranslation();
 
+  // Do not show if request originated from the extension itself
+  if (site.domain === location.hostname) {
+    return null;
+  }
+
   return (
     <TxDetailsRow label={t('Website')}>
       <Link

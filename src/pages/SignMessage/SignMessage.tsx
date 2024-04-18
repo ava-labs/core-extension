@@ -40,7 +40,6 @@ import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAc
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
 import { FireblocksApprovalOverlay } from '../SignTransaction/components/FireblocksApproval/FireblocksApprovalOverlay';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import {
   FunctionNames,
   useIsFunctionAvailable,
@@ -64,7 +63,6 @@ export function SignMessage() {
   // We also disable the "Sign" button
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
-  const { isDeveloperMode } = useNetworkContext();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
   const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
     FunctionNames.SIGN
@@ -227,21 +225,13 @@ export function SignMessage() {
   }
 
   return (
-    <>
-      <Stack sx={{ px: 2, width: 1 }}>
-        {renderDeviceApproval()}
+    <Stack sx={{ px: 2, width: 1, height: 1 }}>
+      {renderDeviceApproval()}
 
-        <SignTxErrorBoundary variant="RenderError">
-          {!action.displayData.isMessageValid && !messageAlertClosed ? (
-            <Stack
-              sx={{
-                mx: 2,
-                mt: isDeveloperMode ? 5 : 2,
-                position: 'absolute',
-                left: 0,
-                top: 0,
-              }}
-            >
+      <SignTxErrorBoundary variant="RenderError">
+        <Stack sx={{ width: 1, height: 1, flexGrow: 1 }}>
+          <Scrollbars>
+            {!action.displayData.isMessageValid && !messageAlertClosed ? (
               <Alert
                 sx={{
                   backgroundColor: 'common.black',
@@ -258,146 +248,151 @@ export function SignMessage() {
                   </AlertContent>
                 </Tooltip>
               </Alert>
-            </Stack>
-          ) : null}
+            ) : null}
 
-          <Stack sx={{ py: 1.5 }}>
-            <Typography variant="h4">
-              {action.error ? t('Signing Failed') : t('Sign Message')}
-            </Typography>
-          </Stack>
-
-          <Stack sx={{ alignItems: 'center', pb: 1 }}>
-            <SiteAvatar>
-              <TokenIcon height="48px" width="48px" src={action.site?.icon}>
-                <GlobeIcon size={48} />
-              </TokenIcon>
-            </SiteAvatar>
-            <Typography variant="h5">
-              {action.site?.name ?? t('Unknown')}
-            </Typography>
-            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-              <Trans
-                i18nKey="{{domain}} requests you to <br />sign the following message"
-                values={{ domain: action.site?.domain || 'A site' }}
-              />
-            </Typography>
-            {signingAccountAddress && (
-              <Stack
-                sx={{
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  mt: 1,
-                  px: 2,
-                  flexDirection: 'row',
-                  width: '100%',
-                }}
-              >
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: 'text.secondary',
-                    fontWeight: 'fontWeightSemibold',
-                  }}
-                >
-                  {t('Active Wallet:')}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    pl: 1,
-                    fontWeight: 'fontWeightSemibold',
-                  }}
-                >
-                  {truncateAddress(signingAccountAddress)}
-                </Typography>
-              </Stack>
-            )}
-          </Stack>
-
-          {/* Actions  */}
-          {
-            {
-              [MessageType.ETH_SIGN]: (
-                <EthSign
-                  message={action.displayData.messageParams}
-                  updateHandler={updateHandler}
-                  ref={endContentRef}
-                />
-              ),
-              [MessageType.PERSONAL_SIGN]: (
-                <PersonalSign
-                  message={action.displayData.messageParams}
-                  updateHandler={updateHandler}
-                  ref={endContentRef}
-                />
-              ),
-              [MessageType.AVALANCHE_SIGN]: (
-                <PersonalSign
-                  message={action.displayData.messageParams}
-                  updateHandler={updateHandler}
-                  ref={endContentRef}
-                />
-              ),
-              [MessageType.SIGN_TYPED_DATA]: (
-                <SignData
-                  message={action.displayData.messageParams}
-                  updateHandler={updateHandler}
-                  ref={endContentRef}
-                />
-              ),
-              [MessageType.SIGN_TYPED_DATA_V1]: (
-                <SignData
-                  message={action.displayData.messageParams}
-                  updateHandler={updateHandler}
-                  ref={endContentRef}
-                />
-              ),
-              [MessageType.SIGN_TYPED_DATA_V3]: (
-                <SignDataV3
-                  message={action.displayData.messageParams}
-                  updateHandler={updateHandler}
-                  ref={endContentRef}
-                />
-              ),
-              [MessageType.SIGN_TYPED_DATA_V4]: (
-                <SignDataV4
-                  message={action.displayData.messageParams}
-                  updateHandler={updateHandler}
-                  ref={endContentRef}
-                />
-              ),
-              ['unknown']: (
-                <Typography color="error.main" sx={{ my: 1 }}>
-                  {t('Unknown sign type')}
-                </Typography>
-              ),
-            }[action.method || 'unknown']
-          }
-
-          {action.error && (
-            <Stack sx={{ mt: 2, width: 1 }}>
-              <Typography variant="caption" color="error.main" sx={{ mb: 1 }}>
-                {t('Error:')}
+            <Stack sx={{ py: 1.5 }}>
+              <Typography variant="h4">
+                {action.error ? t('Signing Failed') : t('Sign Message')}
               </Typography>
-              <Card sx={{ height: 105 }}>
-                <Scrollbars
-                  style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
-                >
-                  <Stack sx={{ px: 2 }}>
+            </Stack>
+
+            {/* No need to show domain metadata when request comes from the extension itself */}
+            {action.site?.domain !== location.hostname && (
+              <Stack sx={{ alignItems: 'center', pb: 1 }}>
+                <SiteAvatar>
+                  <TokenIcon height="48px" width="48px" src={action.site?.icon}>
+                    <GlobeIcon size={48} />
+                  </TokenIcon>
+                </SiteAvatar>
+                <Typography variant="h5">
+                  {action.site?.name ?? t('Unknown')}
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  <Trans
+                    i18nKey="{{domain}} requests you to <br />sign the following message"
+                    values={{ domain: action.site?.domain || 'A site' }}
+                  />
+                </Typography>
+                {signingAccountAddress && (
+                  <Stack
+                    sx={{
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      mt: 1,
+                      px: 2,
+                      flexDirection: 'row',
+                      width: '100%',
+                    }}
+                  >
                     <Typography
-                      variant="caption"
-                      sx={{ wordBreak: 'break-all' }}
+                      variant="body1"
+                      sx={{
+                        color: 'text.secondary',
+                        fontWeight: 'fontWeightSemibold',
+                      }}
                     >
-                      {action.error}
+                      {t('Active Wallet:')}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        pl: 1,
+                        fontWeight: 'fontWeightSemibold',
+                      }}
+                    >
+                      {truncateAddress(signingAccountAddress)}
                     </Typography>
                   </Stack>
-                </Scrollbars>
-              </Card>
-            </Stack>
-          )}
+                )}
+              </Stack>
+            )}
 
-          {disableSubmitButton && (
+            {/* Actions  */}
+            {
+              {
+                [MessageType.ETH_SIGN]: (
+                  <EthSign
+                    message={action.displayData.messageParams}
+                    updateHandler={updateHandler}
+                    ref={endContentRef}
+                  />
+                ),
+                [MessageType.PERSONAL_SIGN]: (
+                  <PersonalSign
+                    message={action.displayData.messageParams}
+                    updateHandler={updateHandler}
+                    ref={endContentRef}
+                  />
+                ),
+                [MessageType.AVALANCHE_SIGN]: (
+                  <PersonalSign
+                    message={action.displayData.messageParams}
+                    updateHandler={updateHandler}
+                    ref={endContentRef}
+                  />
+                ),
+                [MessageType.SIGN_TYPED_DATA]: (
+                  <SignData
+                    message={action.displayData.messageParams}
+                    updateHandler={updateHandler}
+                    ref={endContentRef}
+                  />
+                ),
+                [MessageType.SIGN_TYPED_DATA_V1]: (
+                  <SignData
+                    message={action.displayData.messageParams}
+                    updateHandler={updateHandler}
+                    ref={endContentRef}
+                  />
+                ),
+                [MessageType.SIGN_TYPED_DATA_V3]: (
+                  <SignDataV3
+                    message={action.displayData.messageParams}
+                    updateHandler={updateHandler}
+                    ref={endContentRef}
+                  />
+                ),
+                [MessageType.SIGN_TYPED_DATA_V4]: (
+                  <SignDataV4
+                    message={action.displayData.messageParams}
+                    updateHandler={updateHandler}
+                    ref={endContentRef}
+                  />
+                ),
+                ['unknown']: (
+                  <Typography color="error.main" sx={{ my: 1 }}>
+                    {t('Unknown sign type')}
+                  </Typography>
+                ),
+              }[action.method || 'unknown']
+            }
+
+            {action.error && (
+              <Stack sx={{ mt: 2, width: 1 }}>
+                <Typography variant="caption" color="error.main" sx={{ mb: 1 }}>
+                  {t('Error:')}
+                </Typography>
+                <Card sx={{ height: 105 }}>
+                  <Scrollbars
+                    style={{
+                      flexGrow: 1,
+                      maxHeight: 'unset',
+                      height: '100%',
+                    }}
+                  >
+                    <Stack sx={{ px: 2 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{ wordBreak: 'break-all' }}
+                      >
+                        {action.error}
+                      </Typography>
+                    </Stack>
+                  </Scrollbars>
+                </Card>
+              </Stack>
+            )}
+
             <Stack
               direction="row"
               sx={{
@@ -411,50 +406,51 @@ export function SignMessage() {
               <InfoCircleIcon size={14} />
               <Typography variant="overline">
                 {t(
-                  'Scroll to the bottom of the message to be able to continue'
+                  'Scroll the message contents above to the very bottom to be able to continue'
                 )}
               </Typography>
             </Stack>
-          )}
+          </Scrollbars>
+        </Stack>
 
-          {/* Action Buttons */}
-          <Stack
-            direction="row"
-            sx={{
-              flexGrow: 1,
-              alignItems: 'flex-end',
-              width: 1,
-              justifyContent: 'space-between',
-              pb: 1,
-              gap: 1,
-            }}
+        {/* Action Buttons */}
+        <Stack
+          direction="row"
+          sx={{
+            flexGrow: 1,
+            alignItems: 'flex-end',
+            width: 1,
+            justifyContent: 'space-between',
+            pb: 1,
+            pt: 2,
+            gap: 1,
+          }}
+        >
+          <Button
+            color="secondary"
+            size="large"
+            fullWidth
+            onClick={handleRejection}
           >
-            <Button
-              color="secondary"
-              size="large"
-              fullWidth
-              onClick={handleRejection}
-            >
-              {t('Reject')}
-            </Button>
-            <Button
-              color="primary"
-              size="large"
-              disabled={disabledForLedger || disableSubmitButton}
-              onClick={handleApproval}
-              fullWidth
-            >
-              {t('Approve')}
-            </Button>
-          </Stack>
-        </SignTxErrorBoundary>
-      </Stack>
+            {t('Reject')}
+          </Button>
+          <Button
+            color="primary"
+            size="large"
+            disabled={disabledForLedger || disableSubmitButton}
+            onClick={handleApproval}
+            fullWidth
+          >
+            {t('Approve')}
+          </Button>
+        </Stack>
+      </SignTxErrorBoundary>
       <Dialog
         onClose={() => window.close()}
         open={showNotSupportedDialog}
         content={notSupportedDialog}
         bgColorDefault
       />
-    </>
+    </Stack>
   );
 }
