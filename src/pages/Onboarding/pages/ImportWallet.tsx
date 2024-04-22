@@ -95,6 +95,17 @@ export const ImportWallet = () => {
         <Stack sx={{ width: '135px' }} key={i}>
           <TextField
             size="small"
+            type="password"
+            autoComplete="off"
+            InputProps={{
+              endAdornment: null,
+            }}
+            onFocus={(ev) => {
+              ev.target.setAttribute('type', 'text');
+            }}
+            onBlur={(ev) => {
+              ev.target.setAttribute('type', 'password');
+            }}
             autoFocus={i === 0}
             placeholder={`${i + 1}.`}
             onPaste={(e) => {

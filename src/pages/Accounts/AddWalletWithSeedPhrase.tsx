@@ -193,6 +193,7 @@ export function AddWalletWithSeedPhrase() {
             }}
             onChange={onPhraseChanged}
             InputProps={{
+              autoComplete: 'off',
               sx: {
                 p: 1,
               },
