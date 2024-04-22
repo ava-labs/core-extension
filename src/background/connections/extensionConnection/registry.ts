@@ -48,7 +48,6 @@ import { NetworkFeeUpdateEvents } from '@src/background/services/networkFee/even
 import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handlers/getNetworkFee';
 import { OnboardingUpdatedEvents } from '@src/background/services/onboarding/events/onboardingUpdatedEvent';
 import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
-import { SubmitOnboardingHandler } from '@src/background/services/onboarding/handlers/submitOnboarding';
 import { PermissionStateUpdateEvents } from '@src/background/services/permissions/events/permissionsStateUpdates';
 import { PermissionsAddDomainHandler } from '@src/background/services/permissions/handlers/addPermissionsForDomain';
 import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
@@ -136,6 +135,10 @@ import { RefreshNftMetadataHandler } from '@src/background/services/balances/han
 import { AddFidoDeviceHandler } from '@src/background/services/seedless/handlers/addFidoDevice';
 import { RemoveFidoDeviceHandler } from '@src/background/services/seedless/handlers/removeFidoDevice';
 import { RemoveTotpHandler } from '@src/background/services/seedless/handlers/removeTotp';
+import { MnemonicOnboardingHandler } from '@src/background/services/onboarding/handlers/mnemonicOnboardingHandler';
+import { SeedlessOnboardingHandler } from '@src/background/services/onboarding/handlers/seedlessOnboardingHandler';
+import { KeystoneOnboardingHandler } from '@src/background/services/onboarding/handlers/keystoneOnboardingHandler';
+import { LedgerOnboardingHandler } from '@src/background/services/onboarding/handlers/ledgerOnboardingHandler';
 import { ApprovalEvents } from '@src/background/services/approvals/events/approvalEvents';
 
 /**
@@ -225,7 +228,10 @@ import { ApprovalEvents } from '@src/background/services/approvals/events/approv
   },
   { token: 'ExtensionRequestHandler', useToken: GetNetworkFeeHandler },
   { token: 'ExtensionRequestHandler', useToken: GetIsOnboardedHandler },
-  { token: 'ExtensionRequestHandler', useToken: SubmitOnboardingHandler },
+  { token: 'ExtensionRequestHandler', useToken: MnemonicOnboardingHandler },
+  { token: 'ExtensionRequestHandler', useToken: SeedlessOnboardingHandler },
+  { token: 'ExtensionRequestHandler', useToken: KeystoneOnboardingHandler },
+  { token: 'ExtensionRequestHandler', useToken: LedgerOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: PermissionsAddDomainHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAllPermissionsHandler },
   {

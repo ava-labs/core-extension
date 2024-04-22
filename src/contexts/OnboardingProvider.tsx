@@ -1,7 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { onboardingUpdatedEventListener } from '@src/background/services/onboarding/events/listeners';
 import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
-import { SubmitOnboardingHandler } from '@src/background/services/onboarding/handlers/submitOnboarding';
 import {
   OnboardingPhase,
   OnboardingState,
@@ -33,6 +32,11 @@ import { toast } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { useAnalyticsContext } from './AnalyticsProvider';
+import { MnemonicOnboardingHandler } from '@src/background/services/onboarding/handlers/mnemonicOnboardingHandler';
+import { SeedlessOnboardingHandler } from '@src/background/services/onboarding/handlers/seedlessOnboardingHandler';
+import { KeystoneOnboardingHandler } from '@src/background/services/onboarding/handlers/keystoneOnboardingHandler';
+import { LedgerOnboardingHandler } from '@src/background/services/onboarding/handlers/ledgerOnboardingHandler';
+import { WalletType } from '@avalabs/types';
 
 const Onboarding = lazy(() =>
   import('../pages/Onboarding/Onboarding').then((m) => ({
@@ -74,6 +78,7 @@ const OnboardingContext = createContext<{
   isNewAccount: boolean;
   isSeedlessMfaRequired: boolean;
   setIsSeedlessMfaRequired: Dispatch<SetStateAction<boolean>>;
+  setOnboardingWalletType: Dispatch<SetStateAction<WalletType | undefined>>;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -120,8 +125,13 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     useState<OnboardingPhase | null>(null);
 
   const [walletType, setWalletType] = useState<string>();
+
   const [isNewAccount, setIsNewAccount] = useState(false);
   const [isSeedlessMfaRequired, setIsSeedlessMfaRequired] = useState(false);
+
+  const [onboardingWalletType, setOnboardingWalletType] = useState<
+    WalletType | undefined
+  >(undefined);
 
   const { capture } = useAnalyticsContext();
 
@@ -141,6 +151,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setIsNewAccount(false);
     setWalletName(undefined);
     setIsSeedlessMfaRequired(false);
+    setOnboardingWalletType(undefined);
   }, []);
 
   useEffect(() => {
@@ -207,36 +218,133 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     []
   );
 
+  const submitMnemonic = useCallback(() => {
+    return request<MnemonicOnboardingHandler>({
+      method: ExtensionRequest.MNEMONIC_ONBOARDING_SUBMIT,
+      params: [
+        {
+          mnemonic,
+          password,
+          accountName,
+          analyticsConsent: !!analyticsConsent,
+          walletName: walletName,
+        },
+      ],
+    });
+  }, [accountName, analyticsConsent, mnemonic, password, request, walletName]);
+
+  const submitSeedless = useCallback(() => {
+    if (!seedlessSignerToken || !userId || !authProvider) {
+      throw new Error('Seedless wallet initialization failed');
+    }
+    return request<SeedlessOnboardingHandler>({
+      method: ExtensionRequest.SEEDLESS_ONBOARDING_SUBMIT,
+      params: [
+        {
+          seedlessSignerToken,
+          userId,
+          authProvider,
+          password,
+          accountName,
+          analyticsConsent: !!analyticsConsent,
+          walletName: walletName,
+        },
+      ],
+    });
+  }, [
+    accountName,
+    analyticsConsent,
+    authProvider,
+    password,
+    request,
+    seedlessSignerToken,
+    userId,
+    walletName,
+  ]);
+
+  const submitLedger = useCallback(() => {
+    return request<LedgerOnboardingHandler>({
+      method: ExtensionRequest.LEDGER_ONBOARDING_SUBMIT,
+      params: [
+        {
+          xpub,
+          xpubXP,
+          pubKeys: publicKeys,
+          password,
+          accountName,
+          analyticsConsent: !!analyticsConsent,
+          walletName: walletName,
+        },
+      ],
+    });
+  }, [
+    accountName,
+    analyticsConsent,
+    password,
+    publicKeys,
+    request,
+    walletName,
+    xpub,
+    xpubXP,
+  ]);
+
+  const submitKeystone = useCallback(() => {
+    return request<KeystoneOnboardingHandler>({
+      method: ExtensionRequest.KEYSTONE_ONBOARDING_SUBMIT,
+      params: [
+        {
+          masterFingerprint,
+          xpub,
+          password,
+          accountName,
+          analyticsConsent: !!analyticsConsent,
+          walletName: walletName,
+        },
+      ],
+    });
+  }, [
+    accountName,
+    analyticsConsent,
+    masterFingerprint,
+    password,
+    request,
+    walletName,
+    xpub,
+  ]);
+
   const submit = useCallback(
     (postSubmitHandler: () => void) => {
       if (submitInProgress) {
         return;
       }
-
       if (!mnemonic && !xpub && !password) {
         return;
       }
 
+      let handler: (() => Promise<true>) | undefined = undefined;
+
+      if (!handler && onboardingWalletType === WalletType.Mnemonic) {
+        handler = submitMnemonic;
+      }
+
+      if (!handler && onboardingWalletType === WalletType.Seedless) {
+        handler = submitSeedless;
+      }
+
+      if (!handler && onboardingWalletType === WalletType.Keystone) {
+        handler = submitKeystone;
+      }
+
+      if (!handler && onboardingWalletType === WalletType.Ledger) {
+        handler = submitLedger;
+      }
+
+      if (!handler) {
+        return;
+      }
+
       setSubmitInProgress(true);
-      request<SubmitOnboardingHandler>({
-        method: ExtensionRequest.ONBOARDING_SUBMIT,
-        params: [
-          {
-            mnemonic,
-            xpub,
-            xpubXP,
-            password,
-            accountName,
-            analyticsConsent: !!analyticsConsent,
-            pubKeys: publicKeys,
-            masterFingerprint,
-            seedlessSignerToken,
-            authProvider,
-            userId,
-            walletName: walletName,
-          },
-        ],
-      })
+      handler()
         .then(() => {
           capture('OnboardingSubmitSucceeded', { walletType });
           resetStates();
@@ -255,24 +363,19 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         });
     },
     [
-      submitInProgress,
-      mnemonic,
-      xpub,
-      password,
-      request,
-      xpubXP,
-      accountName,
-      analyticsConsent,
-      publicKeys,
-      masterFingerprint,
-      seedlessSignerToken,
-      authProvider,
-      userId,
-      walletName,
       capture,
-      walletType,
+      mnemonic,
+      onboardingWalletType,
+      password,
       resetStates,
+      submitInProgress,
+      submitKeystone,
+      submitLedger,
+      submitMnemonic,
+      submitSeedless,
       t,
+      walletType,
+      xpub,
     ]
   );
 
@@ -310,6 +413,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         isNewAccount,
         isSeedlessMfaRequired,
         setIsSeedlessMfaRequired,
+        setOnboardingWalletType,
       }}
     >
       {/*

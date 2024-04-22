@@ -20,10 +20,12 @@ import { useHistory } from 'react-router-dom';
 import { WordsLengthSelector } from '../components/WordsLengthSelector';
 import splitSeedPhrase from '../utils/splitSeedPhrase';
 import { isPhraseCorrect } from '@src/utils/seedPhraseValidation';
+import { WalletType } from '@avalabs/types';
 
 export const ImportWallet = () => {
   const { capture } = useAnalyticsContext();
-  const { setMnemonic, setOnboardingPhase } = useOnboardingContext();
+  const { setMnemonic, setOnboardingPhase, setOnboardingWalletType } =
+    useOnboardingContext();
   const [recoveryPhrase, setRecoveryPhrase] = useState<string>('');
   const [error, setError] = useState<string>('');
   const { t } = useTranslation();
@@ -42,8 +44,9 @@ export const ImportWallet = () => {
 
   useEffect(() => {
     setOnboardingPhase(OnboardingPhase.IMPORT_WALLET);
+    setOnboardingWalletType(WalletType.Mnemonic);
     capture(ONBOARDING_EVENT_NAMES.import_wallet);
-  }, [capture, setOnboardingPhase]);
+  }, [capture, setOnboardingPhase, setOnboardingWalletType]);
 
   const sliceWords = useCallback((selectedLength: number) => {
     setWordsLength(selectedLength);

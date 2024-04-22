@@ -24,6 +24,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { InlineBold } from '@src/components/common/InlineBold';
 import { RecoveryMethodTypes } from './models';
 import { useSeedlessActions } from '../../hooks/useSeedlessActions';
+import { WalletType } from '@avalabs/types';
 
 export function RecoveryMethods() {
   const history = useHistory();
@@ -33,8 +34,11 @@ export function RecoveryMethods() {
     useState<RecoveryMethodTypes | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
-  const { oidcToken, isSeedlessMfaRequired: isSeedlessMfaRequiredForAccount } =
-    useOnboardingContext();
+  const {
+    oidcToken,
+    isSeedlessMfaRequired: isSeedlessMfaRequiredForAccount,
+    setOnboardingWalletType,
+  } = useOnboardingContext();
   const { loginWithoutMFA } = useSeedlessActions();
 
   useEffect(() => {
@@ -45,10 +49,11 @@ export function RecoveryMethods() {
   }, [history, oidcToken, t]);
 
   useEffect(() => {
+    setOnboardingWalletType(WalletType.Seedless);
     if (selectedMethod) {
       setIsModalOpen(true);
     }
-  }, [selectedMethod]);
+  }, [selectedMethod, setOnboardingWalletType]);
 
   return (
     <>
