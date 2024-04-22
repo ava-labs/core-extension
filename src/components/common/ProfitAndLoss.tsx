@@ -8,6 +8,8 @@ interface PandLProps {
   size?: 'big';
 }
 
+const DEFAULT_DECIMALS = 2;
+
 export const PAndL = ({
   value,
   percentage,
@@ -20,29 +22,14 @@ export const PAndL = ({
   }
   const trend = percentage > 0 ? Trend.Up : Trend.Down;
 
-  let decimals = 2;
-  const percentageString = percentage.toString();
-
-  const maxDecimals = 10;
-  for (let i = 0; i <= percentageString.length && i <= maxDecimals; i++) {
-    if (
-      percentageString[i] !== '0' &&
-      percentageString[i] !== '.' &&
-      percentageString[i] !== '-'
-    ) {
-      break;
-    }
-    decimals = i;
-    if (i === maxDecimals && percentageString[i] !== '0') {
-      decimals = 2;
-    }
-  }
   return (
     <Stack>
       <ProfitAndLoss
         value={currencyFormatter(value)}
         percentage={
-          showPercentage ? `${percentage.toFixed(decimals)}%` : undefined
+          showPercentage
+            ? `${percentage.toFixed(DEFAULT_DECIMALS)}%`
+            : undefined
         }
         trend={trend}
         size={size}
