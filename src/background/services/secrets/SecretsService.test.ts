@@ -37,6 +37,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
   const networkService = jest.mocked(new NetworkService(storageService));
   const activeAccount = {
     type: AccountType.PRIMARY,
+    walletId: ACTIVE_WALLET_ID,
   } as PrimaryAccount;
 
   let secretsService: SecretsService;
@@ -223,13 +224,17 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     it('should return the wallet object', async () => {
+      const walletSecrets = {
+        key: 'some-unknown-secret',
+        id: ACTIVE_WALLET_ID,
+      };
       storageService.load.mockResolvedValue({
-        wallets: [{ key: 'some-unknown-secret' }],
+        wallets: [walletSecrets],
       });
 
-      await expect(secretsService.getPrimaryAccountSecrets()).resolves.toEqual({
-        key: 'some-unknown-secret',
-      });
+      await expect(secretsService.getPrimaryAccountSecrets()).resolves.toEqual(
+        walletSecrets
+      );
     });
   });
 
@@ -426,11 +431,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         });
       });
 
-      it('returns the primary secrets with no account attached', async () => {
-        const result = await secretsService.getActiveAccountSecrets();
-
-        expect('account' in result).toBe(false);
-        expect(result.secretType).toBe(SecretType.LedgerLive);
+      it('should throw an error because there is no active account', async () => {
+        expect(
+          async () => await secretsService.getActiveAccountSecrets()
+        ).rejects.toThrow();
       });
     });
 
@@ -438,6 +442,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       const account = {
         type: AccountType.PRIMARY,
         index: 0,
+        walletId: ACTIVE_WALLET_ID,
       };
 
       beforeEach(() => {
@@ -848,7 +853,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             } as PubKeyType,
           ],
         },
-        { type: AccountType.PRIMARY, index: 1 }
+        { type: AccountType.PRIMARY, index: 1, walletId: ACTIVE_WALLET_ID }
       );
 
       await expect(secretsService.getBtcWalletPolicyDetails()).resolves.toEqual(
@@ -928,7 +933,11 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
     beforeEach(() => {
       jest.mocked(container.resolve).mockReturnValue({
-        activeAccount: { type: AccountType.PRIMARY, index: 0 },
+        activeAccount: {
+          type: AccountType.PRIMARY,
+          index: 0,
+          walletId: ACTIVE_WALLET_ID,
+        },
         getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
       });
     });
