@@ -147,12 +147,7 @@ export class SecretsService {
   }
 
   getActiveWalletSecrets(walletKeys: WalletSecretInStorage) {
-    console.log('walletKeys: ', walletKeys);
     const accountsService = container.resolve(AccountsService);
-    console.log(
-      'accountsService.activeAccount: ',
-      accountsService.activeAccount
-    );
 
     const activeWalletId = isPrimaryAccount(accountsService.activeAccount)
       ? accountsService.activeAccount.walletId
@@ -216,15 +211,12 @@ export class SecretsService {
 
   async getActiveAccountSecrets() {
     const walletKeys = await this.#loadSecrets(true);
-    console.log('walletKeys: ', walletKeys);
 
     // But later on, we rely on the active account only.
     // To resolve circular dependencies we are  getting accounts service on the fly instead of via constructor
     const accountsService = container.resolve(AccountsService);
-    console.log('accountsService: ', accountsService);
 
     const { activeAccount } = accountsService;
-    console.log('activeAccount: ', activeAccount);
 
     if (!activeAccount || activeAccount.type === AccountType.PRIMARY) {
       const activeWalletSecrets = this.getActiveWalletSecrets(walletKeys);
