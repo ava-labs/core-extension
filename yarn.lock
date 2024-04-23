@@ -45,14 +45,14 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bridge-sdk@2.8.0-alpha.180":
-  version "2.8.0-alpha.180"
-  resolved "https://registry.yarnpkg.com/@avalabs/bridge-sdk/-/bridge-sdk-2.8.0-alpha.180.tgz#9fc44e1a3c71594c595242976e3c44f1cc7a6837"
-  integrity sha512-H7xMX/yq9kLOJfTclGvw6ncAK3LnyezaZsigPSSV2J+fI+bsgKklIAadgMF4Tmgu3pe2TPUe3mBAeP/T82a1cw==
+"@avalabs/bridge-sdk@2.8.0-alpha.183":
+  version "2.8.0-alpha.183"
+  resolved "https://registry.yarnpkg.com/@avalabs/bridge-sdk/-/bridge-sdk-2.8.0-alpha.183.tgz#cb72cc2c15e2949018f53aa1f68f77114bbf124b"
+  integrity sha512-lsuNdqTzS1jxTUaje3TJfVC6QbjFVhOB7afuPUrMlHyfU1SlA/XGTCU5Tch0GWLKsTFxmRsFRHOi6qqMAw7Z5g==
   dependencies:
-    "@avalabs/coingecko-sdk" "2.8.0-alpha.180"
-    "@avalabs/utils-sdk" "2.8.0-alpha.180"
-    "@avalabs/wallets-sdk" "2.8.0-alpha.180"
+    "@avalabs/coingecko-sdk" "2.8.0-alpha.183"
+    "@avalabs/utils-sdk" "2.8.0-alpha.183"
+    "@avalabs/wallets-sdk" "2.8.0-alpha.183"
 
 "@avalabs/bridge-unified@2.1.0":
   version "2.1.0"
@@ -63,38 +63,38 @@
     lodash "4.17.21"
     viem "1.19.8"
 
-"@avalabs/chains-sdk@2.8.0-alpha.180":
-  version "2.8.0-alpha.180"
-  resolved "https://registry.yarnpkg.com/@avalabs/chains-sdk/-/chains-sdk-2.8.0-alpha.180.tgz#945100991f23f67f875dae1ad7c2ecdc938a196c"
-  integrity sha512-d/gMT75ad9pItaVVx2EbzkuRomGx/blDLMhtsb7qMA3UYY9sE/s2w0Kx2mTfg2vG4qju/kYLBmizlrfztBK25Q==
+"@avalabs/chains-sdk@2.8.0-alpha.183":
+  version "2.8.0-alpha.183"
+  resolved "https://registry.yarnpkg.com/@avalabs/chains-sdk/-/chains-sdk-2.8.0-alpha.183.tgz#18cd898a00250d1156b6615990bbbd3264e85672"
+  integrity sha512-ziYLW7lGeK+17trxUF+CchkgGA1PczQPUuCgN8OVCAC7feav5p6J2Rmv7739wCyCXduspLeWj6BWkRdg4da6TA==
   dependencies:
-    "@avalabs/utils-sdk" "2.8.0-alpha.180"
+    "@avalabs/utils-sdk" "2.8.0-alpha.183"
 
-"@avalabs/coingecko-sdk@2.8.0-alpha.180":
-  version "2.8.0-alpha.180"
-  resolved "https://registry.yarnpkg.com/@avalabs/coingecko-sdk/-/coingecko-sdk-2.8.0-alpha.180.tgz#ddc6854d5fd526d3eb3ecfba7af7eb4ee61f08eb"
-  integrity sha512-CbAzACU5opWNUnwOC2ofx9fegmlmylpv3XGYX5Yco1LSefxj/dii50JwBi6Af6zK4VK1KausEJksBwxEqIQnCg==
+"@avalabs/coingecko-sdk@2.8.0-alpha.183":
+  version "2.8.0-alpha.183"
+  resolved "https://registry.yarnpkg.com/@avalabs/coingecko-sdk/-/coingecko-sdk-2.8.0-alpha.183.tgz#60eb1c1964ebb6a186beb179eab8f14d12bb0805"
+  integrity sha512-iSqK1CT5NPianzFrXGb1yF/qNZQi1wwBIZpukGi4n/hAxQe2/N6NpzAoe5gcXk2DdYiq3PvnTKE3+UpzF1BE/g==
   dependencies:
-    "@avalabs/utils-sdk" "2.8.0-alpha.180"
+    "@avalabs/utils-sdk" "2.8.0-alpha.183"
 
-"@avalabs/covalent-sdk@2.8.0-alpha.180":
-  version "2.8.0-alpha.180"
-  resolved "https://registry.yarnpkg.com/@avalabs/covalent-sdk/-/covalent-sdk-2.8.0-alpha.180.tgz#aaf62352d166bacbbff9393c13c39ee459c16c96"
-  integrity sha512-lWquga5OGtOUt7pnQlKKZ0u4FR61SywVOB4nz8LZXTuBSko8mwlLintkFrRzE2mI3Q9KsNXiZz/zj6PVyIUJWA==
+"@avalabs/covalent-sdk@2.8.0-alpha.183":
+  version "2.8.0-alpha.183"
+  resolved "https://registry.yarnpkg.com/@avalabs/covalent-sdk/-/covalent-sdk-2.8.0-alpha.183.tgz#7f03008f1b34e7de8c3b5056e99af7cff18b311c"
+  integrity sha512-RYNK9UTfwJZu+ylV7k47Oi0VUcx6N3e575S0U7JUDSnv6xYeXQgtisNNQYmMhHumcu6NRVtKh37+m1S7RY8E8A==
   dependencies:
-    "@avalabs/utils-sdk" "2.8.0-alpha.180"
+    "@avalabs/utils-sdk" "2.8.0-alpha.183"
 
-"@avalabs/etherscan-sdk@2.8.0-alpha.180":
-  version "2.8.0-alpha.180"
-  resolved "https://registry.yarnpkg.com/@avalabs/etherscan-sdk/-/etherscan-sdk-2.8.0-alpha.180.tgz#b5c7a3e81c525e0a0122f2046bd1714c3d0fcd07"
-  integrity sha512-pYx9JBH+yJ3wYs6OzIAqQROa2otvOyH1UqSIl5u0kKE08bH27luqNWi3AB5Wgt9+p8HtMWCSQzsfdo7m5EGx9A==
+"@avalabs/etherscan-sdk@2.8.0-alpha.183":
+  version "2.8.0-alpha.183"
+  resolved "https://registry.yarnpkg.com/@avalabs/etherscan-sdk/-/etherscan-sdk-2.8.0-alpha.183.tgz#08b09645716f1ba4a340a8e25bc3d362b6bf4a1d"
+  integrity sha512-gvEg+IhHDRPva5tVyRDALlR6X/goqZUNcZVQghtMyfGuV6PzP/e9cgqaBH1yUMxsdlmVFzBVVeno8SnLxYrYWQ==
   dependencies:
-    "@avalabs/utils-sdk" "2.8.0-alpha.180"
+    "@avalabs/utils-sdk" "2.8.0-alpha.183"
 
-"@avalabs/glacier-sdk@2.8.0-alpha.180":
-  version "2.8.0-alpha.180"
-  resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-2.8.0-alpha.180.tgz#a00f01c6874dcc7dfc30301fc84e4496cf6c6df4"
-  integrity sha512-WTARr2hrso7NAo1q3J2neLaygv7i/U9sacmWhuk7PTPqEdkLvWpsLwEIyzzkMAO8g4iBmJ1Uc77HGfNigOwf/Q==
+"@avalabs/glacier-sdk@2.8.0-alpha.183":
+  version "2.8.0-alpha.183"
+  resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-2.8.0-alpha.183.tgz#856be5e05e217a189a43d22cd5fc4dda721c36b1"
+  integrity sha512-zkhVGcARys5XmlrYCt5VWNgspl4Y/UNRxw8vqZqEIGVhB0YnM1iCWS3L/ia50llA2O64udVjo5OoKmtHY/oXXg==
 
 "@avalabs/hw-app-avalanche@0.13.0":
   version "0.13.0"
@@ -130,43 +130,43 @@
     react-hotkeys-hook "4.4.3"
     uuid "9.0.1"
 
-"@avalabs/snowtrace-sdk@2.8.0-alpha.180":
-  version "2.8.0-alpha.180"
-  resolved "https://registry.yarnpkg.com/@avalabs/snowtrace-sdk/-/snowtrace-sdk-2.8.0-alpha.180.tgz#c0c032cc29f6b57900bdef18a9571f51dc31398d"
-  integrity sha512-XA6Tpt+s9R5/vFTyWWWv0Gi6Y3mqQJsCuPef5TR2TolMrMuCmmyRRIIK7ejWRi8XlWR/8zOrw+7cFHaDUvMaSA==
+"@avalabs/snowtrace-sdk@2.8.0-alpha.183":
+  version "2.8.0-alpha.183"
+  resolved "https://registry.yarnpkg.com/@avalabs/snowtrace-sdk/-/snowtrace-sdk-2.8.0-alpha.183.tgz#fa06b0bbf6193414155cbb60e3880b8d8e9e3513"
+  integrity sha512-f5MJ3PcbJN5lesoV03Lju3zRyiLAT6AO5WZrNGYFMXkuUjwv2DgrM1uD1rcOOBdKjCxjy1edhVW5ehBIhnIYLg==
   dependencies:
-    "@avalabs/utils-sdk" "2.8.0-alpha.180"
+    "@avalabs/utils-sdk" "2.8.0-alpha.183"
 
-"@avalabs/token-prices-sdk@2.8.0-alpha.180":
-  version "2.8.0-alpha.180"
-  resolved "https://registry.yarnpkg.com/@avalabs/token-prices-sdk/-/token-prices-sdk-2.8.0-alpha.180.tgz#02747965d28c2ee17831e4a1aa5ef8d6454b0ccc"
-  integrity sha512-QFlp6FSbnX/v5oQeFKaIaIK9RLj3wuqrNacXyh3p/ygg+aQuYomogb/CThbBm5C7avwOVPSmCByPtF9DMTW/gg==
+"@avalabs/token-prices-sdk@2.8.0-alpha.183":
+  version "2.8.0-alpha.183"
+  resolved "https://registry.yarnpkg.com/@avalabs/token-prices-sdk/-/token-prices-sdk-2.8.0-alpha.183.tgz#20daa271e998465760a258f0b6a8c2464a7b1b24"
+  integrity sha512-Cb9Gz2303qR+TsHpWDAwqyG+qT+xxoV3mS6s52QdklTpKomqwZMbhWNxGLezbp0+DT8JKDIQRdkk+OjWQ37+qw==
   dependencies:
-    "@avalabs/coingecko-sdk" "2.8.0-alpha.180"
-    "@avalabs/utils-sdk" "2.8.0-alpha.180"
+    "@avalabs/coingecko-sdk" "2.8.0-alpha.183"
+    "@avalabs/utils-sdk" "2.8.0-alpha.183"
 
-"@avalabs/types@2.8.0-alpha.180":
-  version "2.8.0-alpha.180"
-  resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-2.8.0-alpha.180.tgz#56c38ed4d5959476fc58934ac6513211d9f31430"
-  integrity sha512-QAf8pHTn2RNwca26vQ8EIG2lp9P2plWXk7NCXb0gkwGJD9r7kdldIFoO3ntpUDmfnGVvRmMZ+47pax3aigemPA==
+"@avalabs/types@2.8.0-alpha.183":
+  version "2.8.0-alpha.183"
+  resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-2.8.0-alpha.183.tgz#ef3af0f78c4e6cfa1910c54b4857ab9d6849fa97"
+  integrity sha512-zxPYjYYHLpIQfjy+arvxdHysug+fhtTO5bnjMDhgs22H63m+Nqh3RPp6q0tUPfDP5liXBRXwjDiVzUdlSn9UCQ==
 
-"@avalabs/utils-sdk@2.8.0-alpha.180":
-  version "2.8.0-alpha.180"
-  resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-2.8.0-alpha.180.tgz#e25ffd37179a9e1a9ff34be355f6019aab43559d"
-  integrity sha512-/yRsFX+/yzQKarXKp8Kw3e2IlgI5gvthBYvao0ZWF4rkikL+1kjWLAAEaxnuQNpXUhnm5g0zuXQodu/uEHS7bA==
+"@avalabs/utils-sdk@2.8.0-alpha.183":
+  version "2.8.0-alpha.183"
+  resolved "https://registry.yarnpkg.com/@avalabs/utils-sdk/-/utils-sdk-2.8.0-alpha.183.tgz#e2ef7ad19c552e9c2e80201d865d7668c9ad3d9f"
+  integrity sha512-rhNuwjaHQhD80/ueS38WoMaW+Ph1UFWodnqPDVANjR0z2L56btLWdzRZNjyyaaLIipy2TXbbkLm74LIV0AxyWg==
   dependencies:
     "@avalabs/avalanchejs" "4.0.5"
     "@hpke/core" "1.2.5"
     is-ipfs "6.0.2"
 
-"@avalabs/wallets-sdk@2.8.0-alpha.180":
-  version "2.8.0-alpha.180"
-  resolved "https://registry.yarnpkg.com/@avalabs/wallets-sdk/-/wallets-sdk-2.8.0-alpha.180.tgz#28aa6ea0b92321029dd14de339647a501772db6d"
-  integrity sha512-qDxIOe7Vs7eiXF5WZtnMsV4/YILfyckDVkicXiF6H3VLKVLBWaYV/PCEKmttv8dW4s7dOYG9MNzf7ZxshnJjsQ==
+"@avalabs/wallets-sdk@2.8.0-alpha.183":
+  version "2.8.0-alpha.183"
+  resolved "https://registry.yarnpkg.com/@avalabs/wallets-sdk/-/wallets-sdk-2.8.0-alpha.183.tgz#4ee47cef7423b7426c8afdd9654caa1c89a5dc24"
+  integrity sha512-1LmprNY5+BfXjdVY19OChNQSbIEwjnk01tdYDBe57zWKhSECVdYXpAy59KSFFPXQPxW7nwDUY6JohVpTCMb/wQ==
   dependencies:
     "@avalabs/avalanchejs" "4.0.5"
-    "@avalabs/chains-sdk" "2.8.0-alpha.180"
-    "@avalabs/glacier-sdk" "2.8.0-alpha.180"
+    "@avalabs/chains-sdk" "2.8.0-alpha.183"
+    "@avalabs/glacier-sdk" "2.8.0-alpha.183"
     "@avalabs/hw-app-avalanche" "0.13.0"
     "@ledgerhq/hw-app-btc" "10.0.8"
     "@ledgerhq/hw-app-eth" "6.32.1"
