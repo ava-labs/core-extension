@@ -8,6 +8,7 @@ import { Account } from '../accounts/models';
 import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
 import { BalancesServiceGlacier } from './BalancesServiceGlacier';
 import { GlacierService } from '../glacier/GlacierService';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { TokensPriceShortData } from '../tokens/models';
 
 @singleton()
@@ -65,10 +66,7 @@ export class BalancesService {
       const provider = await this.networkService.getEthereumProvider();
       return getBalanceForProvider(provider);
     } else if (network.vmName === NetworkVMType.EVM) {
-      const provider = await this.networkService.getProviderForNetwork(
-        network,
-        true
-      );
+      const provider = getProviderForNetwork(network, true);
       return getBalanceForProvider(provider);
     } else {
       throw new Error('unsupported network');

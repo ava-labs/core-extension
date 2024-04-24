@@ -1,5 +1,8 @@
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { NetworkFeeService } from './NetworkFeeService';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+
+jest.mock('@src/utils/network/getProviderForNetwork');
 
 describe('src/background/services/networkFee/NetworkFeeService', () => {
   beforeEach(() => {
@@ -16,7 +19,7 @@ describe('src/background/services/networkFee/NetworkFeeService', () => {
     } as any;
 
     beforeEach(() => {
-      networkService.getProviderForNetwork.mockReturnValue(provider);
+      jest.mocked(getProviderForNetwork).mockReturnValue(provider as any);
     });
 
     it('provides base information and three rate presets', async () => {

@@ -24,6 +24,9 @@ import {
   Network,
   NetworkOverrides,
 } from '@src/background/services/network/models';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { ChainId } from '@avalabs/chains-sdk';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 const NetworkContext = createContext<{
   network?: Network | undefined;
@@ -42,6 +45,7 @@ const NetworkContext = createContext<{
   isCustomNetwork(chainId: number): boolean;
   isChainIdExist(chainId: number): boolean;
   getNetwork(chainId: number): Network | undefined;
+  avalancheProvider?: JsonRpcBatchInternal;
 }>({} as any);
 
 /**
@@ -100,6 +104,20 @@ export function NetworkContextProvider({ children }: { children: any }) {
     },
     [networks]
   );
+
+  const avalancheProvider = useMemo(() => {
+    const avaxNetwork = getNetwork(
+      network?.isTestnet
+        ? ChainId.AVALANCHE_TESTNET_ID
+        : ChainId.AVALANCHE_MAINNET_ID
+    );
+
+    if (!avaxNetwork) {
+      return;
+    }
+
+    return getProviderForNetwork(avaxNetwork) as JsonRpcBatchInternal;
+  }, [network?.isTestnet, getNetwork]);
 
   const getNetworkState = useCallback(() => {
     return request<GetNetworksStateHandler>({
@@ -218,6 +236,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
         isCustomNetwork,
         isChainIdExist,
         getNetwork,
+        avalancheProvider,
       }}
     >
       {children}

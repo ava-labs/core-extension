@@ -10,6 +10,7 @@ import { SettingsService } from '../settings/SettingsService';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import xss from 'xss';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 @singleton()
 export class TokenManagerService {
@@ -39,7 +40,7 @@ export class TokenManagerService {
       throw new Error('No network');
     }
 
-    const provider = await this.networkService.getProviderForNetwork(network);
+    const provider = await getProviderForNetwork(network);
     if (!provider || !(provider instanceof JsonRpcBatchInternal)) {
       throw new Error('No provider');
     }

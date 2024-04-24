@@ -7,8 +7,10 @@ import { FeatureGates } from '../featureFlags/models';
 import { chainIdToCaip } from '@src/utils/caipConversion';
 import { ethErrors } from 'eth-rpc-errors';
 import { CommonError } from '@src/utils/errors';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 jest.mock('@avalabs/bridge-unified');
+jest.mock('@src/utils/network/getProviderForNetwork');
 
 describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
   let service: UnifiedBridgeService;
@@ -232,12 +234,12 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
           .mockResolvedValueOnce(estimatedGasLimits[0])
           .mockResolvedValueOnce(estimatedGasLimits[1]);
 
-        networkService.getProviderForNetwork.mockResolvedValue({
+        jest.mocked(getProviderForNetwork).mockReturnValue({
           getTransactionCount: jest
             .fn()
             .mockResolvedValueOnce(5)
             .mockResolvedValueOnce(6),
-        });
+        } as any);
 
         walletService.sign
           .mockResolvedValueOnce({ signedTx: 'approval-tx-hex' })
@@ -350,12 +352,12 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
       });
 
       it('calls .transferAsset() with proper params', async () => {
-        networkService.getProviderForNetwork.mockResolvedValue({
+        jest.mocked(getProviderForNetwork).mockReturnValue({
           getTransactionCount: jest
             .fn()
             .mockResolvedValueOnce(5)
             .mockResolvedValueOnce(6),
-        });
+        } as any);
 
         walletService.sign
           .mockResolvedValueOnce({ signedTx: 'approval-tx-hex' })

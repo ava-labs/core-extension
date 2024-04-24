@@ -57,18 +57,6 @@ export const isProposalExpiredError = (err: any) =>
 export const isNoMatchingKeyError = (err: any) =>
   err instanceof Error && err.message.includes('No matching key');
 
-export const isUserRejectionError = (err: any) => {
-  if (!err) {
-    return false;
-  }
-
-  if (typeof err === 'object') {
-    return err.message.startsWith('User rejected') || err.code === 4001;
-  }
-
-  return false;
-};
-
 export enum WalletConnectErrorCode {
   NoAccountsConnected = 'no-accounts-connected',
   NoClient = 'client-not-initialized',

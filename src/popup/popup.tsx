@@ -11,7 +11,7 @@ import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
 import { PermissionContextProvider } from '@src/contexts/PermissionsProvider';
-import { SwapContextProvider } from '@src/contexts/SwapProvider';
+import { SwapContextProvider } from '@src/contexts/SwapProvider/SwapProvider';
 import { WalletContextProvider } from '@src/contexts/WalletProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import {

@@ -22,7 +22,6 @@ import {
   BITCOIN_TEST_NETWORK,
   ChainId,
   getChainsAndTokens,
-  NetworkVMType,
 } from '@avalabs/chains-sdk';
 import { ReadableSignal, Signal, ValueCache } from 'micro-signals';
 import {
@@ -31,10 +30,10 @@ import {
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
 import { resolve, wait } from '@avalabs/utils-sdk';
-import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
-import { Network as EthersNetwork, FetchRequest } from 'ethers';
+import { Network as EthersNetwork } from 'ethers';
 import { SigningResult } from '../wallet/models';
 import { getExponentialBackoffDelay } from '@src/utils/exponentialBackoff';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -315,7 +314,7 @@ export class NetworkService implements OnLock, OnStorageReady {
    */
   async getAvalancheProvider(): Promise<JsonRpcBatchInternal> {
     const network = await this.getAvalancheNetwork();
-    return this.getProviderForNetwork(network) as JsonRpcBatchInternal;
+    return getProviderForNetwork(network) as JsonRpcBatchInternal;
   }
 
   /**
@@ -323,7 +322,7 @@ export class NetworkService implements OnLock, OnStorageReady {
    */
   async getAvalanceProviderXP(): Promise<Avalanche.JsonRpcProvider> {
     const network = this.getAvalancheNetworkXP();
-    return this.getProviderForNetwork(network) as Avalanche.JsonRpcProvider;
+    return getProviderForNetwork(network) as Avalanche.JsonRpcProvider;
   }
 
   async getEthereumNetwork(): Promise<Network> {
@@ -337,7 +336,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async getEthereumProvider() {
     const network = await this.getEthereumNetwork();
-    return this.getProviderForNetwork(network) as JsonRpcBatchInternal;
+    return getProviderForNetwork(network) as JsonRpcBatchInternal;
   }
 
   async getBitcoinNetwork(): Promise<Network> {
@@ -351,64 +350,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async getBitcoinProvider(): Promise<BitcoinProvider> {
     const network = await this.getBitcoinNetwork();
-    return this.getProviderForNetwork(network) as BitcoinProvider;
-  }
-
-  getProviderForNetwork(
-    network: Network,
-    useMulticall = false
-  ): BitcoinProvider | JsonRpcBatchInternal | Avalanche.JsonRpcProvider {
-    if (network.vmName === NetworkVMType.BITCOIN) {
-      return new BitcoinProvider(
-        !network.isTestnet,
-        undefined,
-        `${process.env.PROXY_URL}/proxy/nownodes/${
-          network.isTestnet ? 'btcbook-testnet' : 'btcbook'
-        }`,
-        `${process.env.PROXY_URL}/proxy/nownodes/${
-          network.isTestnet ? 'btc-testnet' : 'btc'
-        }`,
-        process.env.GLACIER_API_KEY
-          ? { token: process.env.GLACIER_API_KEY }
-          : {}
-      );
-    } else if (network.vmName === NetworkVMType.EVM) {
-      const fetchConfig = new FetchRequest(
-        addGlacierAPIKeyIfNeeded(network.rpcUrl)
-      );
-
-      if (network.customRpcHeaders) {
-        const headers = Object.entries(network.customRpcHeaders);
-
-        for (const [name, value] of headers) {
-          fetchConfig.setHeader(name, value);
-        }
-      }
-
-      const provider = new JsonRpcBatchInternal(
-        useMulticall
-          ? {
-              maxCalls: 40,
-              multiContractAddress: network.utilityAddresses?.multicall,
-            }
-          : 40,
-        fetchConfig,
-        new EthersNetwork(network.chainName, network.chainId)
-      );
-
-      provider.pollingInterval = 2000;
-
-      return provider;
-    } else if (
-      network.vmName === NetworkVMType.AVM ||
-      network.vmName === NetworkVMType.PVM
-    ) {
-      return network.isTestnet
-        ? Avalanche.JsonRpcProvider.getDefaultFujiProvider()
-        : Avalanche.JsonRpcProvider.getDefaultMainnetProvider();
-    } else {
-      throw new Error('unsupported network');
-    }
+    return getProviderForNetwork(network) as BitcoinProvider;
   }
 
   /**
@@ -430,7 +372,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     if (!activeNetwork) {
       throw new Error('No active network');
     }
-    const provider = this.getProviderForNetwork(activeNetwork);
+    const provider = getProviderForNetwork(activeNetwork);
     if (provider instanceof JsonRpcBatchInternal) {
       return (await provider.broadcastTransaction(signedTx)).hash;
     }

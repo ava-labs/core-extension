@@ -63,13 +63,11 @@ import { SetAnalyticsConsentHandler } from '@src/background/services/settings/ha
 import { UpdateShowNoBalanceHandler } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
 import { UpdateThemeHandler } from '@src/background/services/settings/handlers/updateTheme';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
-import { GetSwapRateHandler } from '@src/background/services/swap/handlers/getSwapRate';
 import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
 import { GetWalletDetailsHandler } from '@src/background/services/wallet/handlers/getWalletDetails';
 import { registry } from 'tsyringe';
 import { UpdateCurrencyHandler } from '../../services/settings/handlers/updateCurrencySelection';
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
-import { PerformSwapHandler } from '../../services/swap/handlers/performSwap';
 import { NetworksUpdatedEvents } from '@src/background/services/network/events/networksUpdatedEvent';
 import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
@@ -253,8 +251,6 @@ import { ApprovalEvents } from '@src/background/services/approvals/events/approv
   { token: 'ExtensionRequestHandler', useToken: UpdateThemeHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateTokensVisiblityHandler },
   { token: 'ExtensionRequestHandler', useToken: ResetExtensionStateHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetSwapRateHandler },
-  { token: 'ExtensionRequestHandler', useToken: PerformSwapHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
   { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },

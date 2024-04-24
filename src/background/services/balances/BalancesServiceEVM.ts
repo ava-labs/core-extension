@@ -18,6 +18,7 @@ import BN from 'bn.js';
 import { Account } from '../accounts/models';
 import * as Sentry from '@sentry/browser';
 import { bigintToBig } from '@src/utils/bigintToBig';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 @singleton()
 export class BalancesServiceEVM {
@@ -141,7 +142,7 @@ export class BalancesServiceEVM {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalancesServiceEVM: getBalances',
     });
-    const provider = this.networkService.getProviderForNetwork(network, true);
+    const provider = getProviderForNetwork(network, true);
     const customTokens =
       await this.tokensManagerService.getCustomTokensForNetwork(network);
     const activeTokenList = [...customTokens, ...(network.tokens || [])];

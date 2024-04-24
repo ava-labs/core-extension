@@ -28,10 +28,10 @@ import {
   WalletConnectTransport,
   isNoMatchingKeyError,
   isProposalExpiredError,
-  isUserRejectionError,
 } from './models';
 import { buildSessionProposal } from './utils';
 import { WalletConnectAddresses } from '../accounts/models';
+import { isUserRejectionError } from '@src/utils/errors';
 
 @singleton()
 export class WalletConnectService implements WalletConnectTransport {

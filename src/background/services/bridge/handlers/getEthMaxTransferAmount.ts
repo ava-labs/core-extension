@@ -14,6 +14,7 @@ import { BridgeService } from '../BridgeService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { AccountsService } from '../../accounts/AccountsService';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
@@ -60,7 +61,7 @@ export class GetEthMaxTransferAmountHandler implements HandlerType {
 
     try {
       const config = this.bridgeService.bridgeConfig.config;
-      const provider = this.networkService.getProviderForNetwork(activeNetwork);
+      const provider = getProviderForNetwork(activeNetwork);
 
       if (!config || !(provider instanceof JsonRpcBatchInternal) || !token) {
         return {

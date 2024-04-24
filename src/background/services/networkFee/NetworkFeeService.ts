@@ -5,6 +5,7 @@ import {
 } from '@avalabs/wallets-sdk';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { isSwimmer } from '@src/utils/isSwimmerNetwork';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
@@ -74,7 +75,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
     if (!network) {
       return null;
     }
-    const provider = this.networkService.getProviderForNetwork(network);
+    const provider = getProviderForNetwork(network);
 
     if (network.vmName === NetworkVMType.EVM) {
       return this.getEip1559NetworkFeeRates(
@@ -150,7 +151,7 @@ export class NetworkFeeService implements OnUnlock, OnLock {
       return null;
     }
 
-    const provider = this.networkService.getProviderForNetwork(network);
+    const provider = getProviderForNetwork(network);
     const nonce = await (provider as JsonRpcBatchInternal).getTransactionCount(
       from
     );

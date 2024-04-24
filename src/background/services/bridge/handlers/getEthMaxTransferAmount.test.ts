@@ -9,6 +9,7 @@ import Big from 'big.js';
 import { BN } from 'bn.js';
 import { TokenType, TokenWithBalance } from '../../balances/models';
 import { GetEthMaxTransferAmountHandler } from './getEthMaxTransferAmount';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 jest.mock('@avalabs/bridge-sdk', () => {
   const originalModule = jest.requireActual('@avalabs/bridge-sdk');
@@ -18,6 +19,8 @@ jest.mock('@avalabs/bridge-sdk', () => {
     getMaxTransferAmount: jest.fn(),
   };
 });
+
+jest.mock('@src/utils/network/getProviderForNetwork');
 
 describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
   const activeNetworkMock = {
@@ -64,7 +67,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
     jest.resetAllMocks();
 
     networkServiceMock.activeNetwork = activeNetworkMock;
-    networkServiceMock.getProviderForNetwork.mockReturnValue(mockProvider);
+    jest.mocked(getProviderForNetwork).mockReturnValue(mockProvider);
   });
 
   it('returns error when network is not set', async () => {
@@ -162,7 +165,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
     );
 
     // make sure provider is not a JsonRpcBatchInternal
-    networkServiceMock.getProviderForNetwork.mockReturnValue({} as any);
+    jest.mocked(getProviderForNetwork).mockReturnValue({} as any);
     const request = {
       id: '1',
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,

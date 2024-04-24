@@ -1,6 +1,7 @@
 import { Avalanche, BitcoinProvider } from '@avalabs/wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../../network/NetworkService';
 import { BalancesServiceEVM } from '../BalancesServiceEVM';
@@ -25,8 +26,7 @@ export class GetAvaxBalanceHandler implements HandlerType {
     const params = request.params || [];
     const [address] = params;
     const avalancheNetwork = await this.networkService.getAvalancheNetwork();
-    const provider =
-      this.networkService.getProviderForNetwork(avalancheNetwork);
+    const provider = getProviderForNetwork(avalancheNetwork);
     if (
       provider instanceof BitcoinProvider ||
       provider instanceof Avalanche.JsonRpcProvider

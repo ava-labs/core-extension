@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { OptimalRate, SwapSide } from 'paraswap-core';
-import { useSwapContext } from '@src/contexts/SwapProvider';
+import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
 import { Amount, DestinationInput, isAPIError } from '../utils';
 import { useTranslation } from 'react-i18next';
 import BN from 'bn.js';
@@ -67,14 +67,14 @@ export function useSwap() {
             const swapSide =
               destinationInputField === 'to' ? SwapSide.SELL : SwapSide.BUY;
             setIsSwapLoading(true);
-            getRate(
-              fromTokenAddress,
-              fromTokenDecimals,
-              toTokenAddress,
-              toTokenDecimals,
-              amountString,
-              swapSide
-            )
+            getRate({
+              srcToken: fromTokenAddress,
+              srcDecimals: fromTokenDecimals,
+              destToken: toTokenAddress,
+              destDecimals: toTokenDecimals,
+              srcAmount: amountString,
+              swapSide,
+            })
               .then((result) => {
                 /**
                  * This can be an error, the bacground tries 10x but if the

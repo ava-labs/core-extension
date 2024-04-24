@@ -31,8 +31,10 @@ import { Action, ActionStatus } from '@src/background/services/actions/models';
 import browser from 'webextension-polyfill';
 import { txToCustomEvmTx } from './utils/txToCustomEvmTx';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 
+jest.mock('@src/utils/network/getProviderForNetwork');
 jest.mock('@src/background/services/analytics/AnalyticsServicePosthog');
 jest.mock('@src/background/services/debank');
 jest.mock('@src/background/services/tokens/TokenManagerService');
@@ -206,10 +208,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     const provider = new JsonRpcBatchInternal(123);
     jest.spyOn(provider, 'getCode').mockResolvedValue('0x');
     jest.spyOn(provider, 'getTransactionCount').mockResolvedValue(3); // dummy nonce
-    jest.spyOn(provider, 'estimateGas').mockResolvedValue(21000n), // dummy gas limit
-      jest
-        .mocked(networkService)
-        .getProviderForNetwork.mockReturnValue(provider);
+    jest.spyOn(provider, 'estimateGas').mockResolvedValue(21000n); // dummy gas limit
+    jest.mocked(getProviderForNetwork).mockReturnValue(provider);
     jest.mocked(networkFeeService).getNetworkFee.mockResolvedValue(mockedFees);
     jest.mocked(networkFeeService).estimateGasLimit.mockResolvedValue(1234);
     jest.mocked(tokenManagerService).getTokensByChainId.mockResolvedValue([]);

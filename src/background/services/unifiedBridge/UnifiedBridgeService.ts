@@ -43,6 +43,8 @@ import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
 import { FeeRate } from '../networkFee/models';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 
 @singleton()
 export class UnifiedBridgeService implements OnStorageReady {
@@ -260,9 +262,9 @@ export class UnifiedBridgeService implements OnStorageReady {
     const sourceChain = await this.#buildChain(sourceChainId);
     const targetChain = await this.#buildChain(targetChainId);
 
-    const provider = (await this.networkService.getProviderForNetwork(
+    const provider = getProviderForNetwork(
       activeNetwork
-    )) as JsonRpcApiProvider;
+    ) as JsonRpcBatchInternal;
 
     const fromAddress = activeAccount.addressC as `0x${string}`;
 

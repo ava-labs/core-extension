@@ -2,28 +2,16 @@ import { TokenWithBalance } from '@src/background/services/balances/models';
 import { t } from 'i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import {
-  Amount,
-  DestinationInput,
-  getMaxValueWithGas,
-  getTokenAddress,
-} from '../utils';
+import { Amount, DestinationInput, getTokenAddress } from '../utils';
 import { stringToBN } from '@avalabs/utils-sdk';
-import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import BN from 'bn.js';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
-import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { SwapError, useSwap } from './useSwap';
+import { useSwap } from './useSwap';
 
 export function useSwapStateFunctions() {
-  const { networkFee } = useNetworkFeeContext();
-
-  const { network } = useNetworkContext();
   const tokensWBalances = useTokensWithBalances();
   const { setNavigationHistoryData } = usePageHistory();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
@@ -38,14 +26,6 @@ export function useSwapStateFunctions() {
 
   const [destinationInputField, setDestinationInputField] =
     useState<DestinationInput>('');
-  const [customGasPrice, setCustomGasPrice] = useState<bigint | undefined>(
-    networkFee?.low.maxFee
-  );
-
-  const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
-    GasFeeModifier.NORMAL
-  );
-  const [gasLimit, setGasLimit] = useState<number>(0);
 
   const [selectedFromToken, setSelectedFromToken] =
     useState<TokenWithBalance>();
@@ -53,13 +33,11 @@ export function useSwapStateFunctions() {
   const [isReversed, setIsReversed] = useState(false);
   const [swapWarning, setSwapWarning] = useState('');
   const [defaultFromValue, setFromDefaultValue] = useState<BN>();
-  const [error, setError] = useState<SwapError>({ message: '' });
   const [fromTokenValue, setFromTokenValue] = useState<Amount>();
   const [toTokenValue, setToTokenValue] = useState<Amount>();
   const [maxFromValue, setMaxFromValue] = useState<BN | undefined>();
   const isHistoryLoaded = useRef<boolean>(false);
 
-  const avaxPrice = useNativeTokenPrice(network);
   const {
     setValuesDebouncedSubject,
     swapError,
@@ -138,41 +116,6 @@ export function useSwapStateFunctions() {
       isHistoryLoaded.current = true;
     }
   }, [calculateTokenValueToInput, pageHistory]);
-
-  const onGasChange = useCallback(
-    (values: {
-      customGasLimit?: number | undefined;
-      maxFeePerGas: bigint;
-      maxPriorityFeePerGas?: bigint | undefined;
-      feeType: GasFeeModifier;
-      error?: boolean;
-    }) => {
-      if (values.customGasLimit) {
-        setGasLimit(values.customGasLimit);
-      }
-      setCustomGasPrice(values.maxFeePerGas);
-      setSelectedGasFee(values.feeType);
-      if (!selectedFromToken) {
-        return;
-      }
-
-      const max = getMaxValueWithGas({
-        customGasPrice: values.maxFeePerGas,
-        gasLimit: values.customGasLimit || swapGasLimit,
-        avaxPrice,
-        tokenDecimals: network?.networkToken.decimals,
-        selectedFromToken,
-      });
-
-      max && setMaxFromValue(max);
-      if (values.error) {
-        setError({ message: t('Insufficient balance to cover gas costs') });
-        return;
-      }
-      setError({ message: '' });
-    },
-    [avaxPrice, network?.networkToken.decimals, selectedFromToken, swapGasLimit]
-  );
 
   const resetValues = () => {
     setFromTokenValue(undefined);
@@ -308,24 +251,21 @@ export function useSwapStateFunctions() {
 
   return {
     calculateTokenValueToInput,
-    onGasChange,
     reverseTokens,
     onTokenChange,
     onFromInputAmountChange,
     onToInputAmountChange,
     setValuesDebouncedSubject,
-    customGasPrice,
-    gasLimit: swapGasLimit || gasLimit,
     selectedFromToken,
+    swapGasLimit,
     selectedToToken,
     destinationInputField,
     fromTokenValue,
-    swapError: swapError.message ? swapError : error,
+    swapError: swapError.message ? swapError : null,
     isLoading: isSwapLoading,
     defaultFromValue,
     swapWarning,
     isReversed,
-    selectedGasFee,
     toTokenValue,
     maxFromValue,
     optimalRate,

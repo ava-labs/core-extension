@@ -44,3 +44,15 @@ export function wrapError(
     });
   };
 }
+
+export const isUserRejectionError = (err: any) => {
+  if (!err) {
+    return false;
+  }
+
+  if (typeof err === 'object') {
+    return err.message.startsWith('User rejected') || err.code === 4001;
+  }
+
+  return false;
+};

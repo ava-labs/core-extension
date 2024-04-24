@@ -16,6 +16,9 @@ import { merge } from 'lodash';
 
 const bnZero = new BN(0);
 
+const nativeTokensFirst = (tokens: TokenWithBalance[]): TokenWithBalance[] =>
+  [...tokens].sort((t) => (t.type === TokenType.NATIVE ? -1 : 1));
+
 export function useTokensWithBalances(
   forceShowTokensWithoutBalances?: boolean,
   chainId?: number
@@ -113,7 +116,7 @@ export function useTokensWithBalances(
         networkBalances
       );
 
-      return Object.values(merged);
+      return nativeTokensFirst(Object.values(merged));
     }
 
     const unfilteredTokens = Object.values(networkBalances);
@@ -132,7 +135,9 @@ export function useTokensWithBalances(
       return token.balance.gt(bnZero);
     });
 
-    return filteredTokens.length ? filteredTokens : defaultResult;
+    return filteredTokens.length
+      ? nativeTokensFirst(filteredTokens)
+      : defaultResult;
   }, [
     selectedChainId,
     activeAccount,

@@ -32,6 +32,7 @@ import { Network } from '@avalabs/chains-sdk';
 import { WalletService } from '@src/background/services/wallet/WalletService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { AnalyticsServicePosthog } from '@src/background/services/analytics/AnalyticsServicePosthog';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 @injectable()
 export class EthSendTransactionHandler extends DAppRequestHandler<EthSendTransactionParams> {
@@ -71,7 +72,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<EthSendTransac
       throw Error('no network selected');
     }
 
-    const provider = this.networkService.getProviderForNetwork(network, true);
+    const provider = getProviderForNetwork(network, true);
     if (!provider || !(provider instanceof JsonRpcApiProvider)) {
       throw Error('provider not available');
     }
@@ -186,11 +187,10 @@ export class EthSendTransactionHandler extends DAppRequestHandler<EthSendTransac
         throw new Error('network not found');
       }
 
-      const nonce = await (
-        this.networkService.getProviderForNetwork(
-          network
-        ) as JsonRpcBatchInternal
-      ).getTransactionCount(pendingAction.displayData.txParams.from);
+      const provider = getProviderForNetwork(network) as JsonRpcBatchInternal;
+      const nonce = await provider.getTransactionCount(
+        pendingAction.displayData.txParams.from
+      );
 
       const {
         maxFeePerGas,
