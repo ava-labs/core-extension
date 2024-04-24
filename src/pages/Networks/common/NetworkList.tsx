@@ -100,6 +100,7 @@ export function NetworkList({ networkList }: NetworkListProps) {
                         </AnimatedGlobeIconContainer>
                       )}
                     </CSSTransition>
+
                     <NetworkLogo
                       src={networkItem.logoUri}
                       width="32px"

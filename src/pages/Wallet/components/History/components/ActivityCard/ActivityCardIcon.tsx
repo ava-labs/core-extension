@@ -17,7 +17,10 @@ import {
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityCardProp } from './ActivityCard';
+
+export interface ActivityCardProp {
+  historyItem: TxHistoryItem;
+}
 
 export function ActivityCardIcon({ historyItem }: ActivityCardProp) {
   const [txIcon, setTxIcon] = useState<JSX.Element>();

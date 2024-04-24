@@ -10,6 +10,7 @@ import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ChainId } from '@avalabs/chains-sdk';
 import { networksUpdatedEventListener } from '@src/background/services/network/events/networksUpdatedEventListener';
 import { useAnalyticsContext } from './AnalyticsProvider';
 import { SetSelectedNetworkHandler } from '@src/background/services/network/handlers/setSelectedNetwork';
@@ -20,12 +21,11 @@ import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/h
 import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import {
   Network,
   NetworkOverrides,
 } from '@src/background/services/network/models';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
-import { ChainId } from '@avalabs/chains-sdk';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 const NetworkContext = createContext<{

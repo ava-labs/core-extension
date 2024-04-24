@@ -10,6 +10,8 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import useIsUsingSeedlessAccount from './useIsUsingSeedlessAccount';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 export enum FunctionNames {
   BRIDGE = 'Bridge',
@@ -70,7 +72,11 @@ const disableForAccountsWithoutBtcSupport = (
 
 const disabledFeatures: Record<string, BlacklistConfig> = {
   ManageTokens: {
-    networks: [ChainId.BITCOIN],
+    networks: [
+      ChainId.BITCOIN,
+      ChainId.AVALANCHE_TEST_XP,
+      ChainId.AVALANCHE_XP,
+    ],
     complexChecks: [],
   },
   Send: {
@@ -79,6 +85,8 @@ const disabledFeatures: Record<string, BlacklistConfig> = {
   },
   Bridge: {
     networks: [
+      ChainId.AVALANCHE_TEST_XP,
+      ChainId.AVALANCHE_XP,
       ChainId.DFK,
       ChainId.DFK_TESTNET,
       ChainId.SWIMMER,
@@ -89,7 +97,7 @@ const disabledFeatures: Record<string, BlacklistConfig> = {
 };
 
 // The list we want to ENABLE features on certain networks (whitelist)
-const enabledFeatues = {
+const enabledFeatures = {
   COLLECTIBLES: [
     ChainId.AVALANCHE_MAINNET_ID,
     ChainId.AVALANCHE_TESTNET_ID,
@@ -121,6 +129,8 @@ export const useIsFunctionAvailable = (
   const { network } = useNetworkContext();
   const isUsingSeedlessAccount = useIsUsingSeedlessAccount();
   const { featureFlags } = useFeatureFlagContext();
+  const { isLedgerWallet } = useWalletContext();
+
   const {
     accounts: { active },
   } = useAccountsContext();
@@ -135,6 +145,14 @@ export const useIsFunctionAvailable = (
       return false;
     }
 
+    if (functionToCheck === FunctionNames.SEND && isPchainNetwork(network)) {
+      //The Avalanche Ledger app doesn’t support send on pchain yet
+      if (isLedgerWallet) {
+        return false;
+      }
+      return !!active?.addressPVM && featureFlags[FeatureGates.SEND_P_CHAIN];
+    }
+
     const featureFlagToCheck = FeatureFlagMap[functionToCheck];
 
     return featureFlagToCheck ? featureFlags[featureFlagToCheck] : true;
@@ -144,10 +162,19 @@ export const useIsFunctionAvailable = (
     if (!network || !active) {
       return false;
     }
+    if (
+      name === FunctionNames.SEND &&
+      isPchainNetwork(network) &&
+      (isLedgerWallet || !active.addressPVM)
+    ) {
+      //The Avalanche Ledger app doesn’t support send on pchain yet
+      //The account without addressPVM cannot send on pchain
+      return false;
+    }
     // Check whitelist
     if (
-      enabledFeatues[name] &&
-      !enabledFeatues[name].includes(network.chainId)
+      enabledFeatures[name] &&
+      !enabledFeatures[name].includes(network.chainId)
     ) {
       return false;
     }

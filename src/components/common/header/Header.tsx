@@ -24,6 +24,7 @@ import { AccountSelectorButton } from '../account/AccountSelectorButton';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { AccountType } from '@src/background/services/accounts/models';
 import { WalletChip } from '../WalletChip';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 
 export function Header() {
   const domain = useCurrentDomain();
@@ -45,6 +46,8 @@ export function Header() {
   const address =
     network?.vmName === NetworkVMType.BITCOIN
       ? activeAccount?.addressBTC
+      : isPchainNetwork(network)
+      ? activeAccount?.addressPVM
       : activeAccount?.addressC;
   const theme = useTheme();
 

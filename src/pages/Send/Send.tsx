@@ -45,6 +45,9 @@ import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { useSendContext } from '@src/contexts/SendProvider';
+import { addressXpToAddressPvm } from '@src/utils/addressXPToaddressPVM';
 
 const DEFAULT_DECIMALS = 9;
 
@@ -62,6 +65,7 @@ export function SendPage() {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+  const { getNetworkFee } = useSendContext();
 
   const tokensWBalances = useTokensWithBalances(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
@@ -119,6 +123,19 @@ export function SendPage() {
     }
   }, [network?.vmName, currentNetwork, setSendDataInParams]);
 
+  useEffect(() => {
+    if (isPchainNetwork(network) && selectedToken && network) {
+      const fee = getNetworkFee();
+      const maxAmount = selectedToken?.balance.sub(fee);
+
+      updateSendState({
+        maxAmount: maxAmount ?? new BN(0),
+        token: selectedToken,
+        loading: false,
+      });
+    }
+  }, [getNetworkFee, network, selectedToken, updateSendState]);
+
   const onContactChanged = (contact: Contact, selectedTab?: string) => {
     let addressToUse = '';
     if (network?.vmName === NetworkVMType.EVM) {
@@ -131,7 +148,9 @@ export function SendPage() {
       // this is because the contact is set in the params and only uses 'address'
       addressToUse = contact.addressBTC || contact.address;
     }
-
+    if (isPchainNetwork(network)) {
+      addressToUse = addressXpToAddressPvm(contact);
+    }
     setSendDataInParams({
       token: selectedToken,
       address: addressToUse,
@@ -150,7 +169,9 @@ export function SendPage() {
           options: { replace: true },
         });
       }
+
       updateSendState({ token });
+
       sendTokenSelectedAnalytics('Send');
     },
     [
@@ -203,7 +224,10 @@ export function SendPage() {
 
   // restore page history
   useEffect(() => {
-    const inputAddress = contactInput?.address || contactInput?.addressBTC;
+    const inputAddress =
+      contactInput?.address ||
+      contactInput?.addressBTC ||
+      addressXpToAddressPvm(contactInput);
     const stateUpdate = {
       address: inputAddress || pageHistory.address,
     };
@@ -224,6 +248,7 @@ export function SendPage() {
   }, [
     amountInput,
     amountInputDisplay,
+    contactInput,
     contactInput?.address,
     contactInput?.addressBTC,
     pageHistory,
@@ -313,10 +338,12 @@ export function SendPage() {
         history.goBack();
       },
       pendingMessage: t('Transaction pending...'),
+      showPending: isPchainNetwork(network) ? false : true,
     });
 
   const [isAddressBookOpen, setIsAddressBookOpen] = useState(false);
   const onAddressBookToggled = useCallback((visible) => {
+    0;
     setIsAddressBookOpen(visible);
   }, []);
 
@@ -434,14 +461,18 @@ export function SendPage() {
                     variant="contained"
                     size="large"
                     onClick={() => {
-                      setSendDataInParams({
-                        token: selectedToken,
-                        address:
-                          network?.vmName === NetworkVMType.BITCOIN
-                            ? contactInput?.addressBTC
-                            : contactInput?.address,
-                        options: { path: '/send/confirm' },
-                      });
+                      if (isPchainNetwork(network)) {
+                        handleApproval();
+                      } else {
+                        setSendDataInParams({
+                          token: selectedToken,
+                          address:
+                            network?.vmName === NetworkVMType.BITCOIN
+                              ? contactInput?.addressBTC
+                              : contactInput?.address,
+                          options: { path: '/send/confirm' },
+                        });
+                      }
                     }}
                     disabled={!sendState.canSubmit || sendState.isValidating}
                     isLoading={sendState.isValidating}

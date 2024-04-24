@@ -3,7 +3,6 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { ChainId } from '@avalabs/chains-sdk';
 import {
   TokenType,
   TokenWithBalance,
@@ -13,6 +12,8 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { GetTokensListHandler } from '@src/background/services/tokens/handlers/getTokenList';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { merge } from 'lodash';
+import { isBitcoinChainId } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { isPchainNetworkId } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 
 const bnZero = new BN(0);
 
@@ -97,11 +98,11 @@ export function useTokensWithBalances(
       return [];
     }
 
-    const address =
-      selectedChainId === ChainId.BITCOIN ||
-      selectedChainId === ChainId.BITCOIN_TESTNET
-        ? activeAccount.addressBTC
-        : activeAccount.addressC;
+    const address = isBitcoinChainId(selectedChainId)
+      ? activeAccount.addressBTC
+      : isPchainNetworkId(selectedChainId)
+      ? activeAccount.addressPVM
+      : activeAccount.addressC;
 
     if (!address) {
       return [];

@@ -31,6 +31,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
 
 export function TokenFlow() {
@@ -54,6 +55,11 @@ export function TokenFlow() {
     return isBitcoinNetwork(network);
   }, [network]);
 
+  const isPchain = useMemo(() => {
+    if (!network) return false;
+    return isPchainNetwork(network);
+  }, [network]);
+
   useEffect(() => {
     setShowSend(token?.balance.gt(new BN(0)));
   }, [token]);
@@ -74,7 +80,9 @@ export function TokenFlow() {
     <Stack sx={{ width: '100%', position: 'relative' }}>
       <PageTitle
         onBackClick={() => {
-          isBitcoin ? history.replace('/home') : history.replace('/assets');
+          isBitcoin || isPchain
+            ? history.replace('/home')
+            : history.replace('/assets');
         }}
       >
         {t('Token Details')}

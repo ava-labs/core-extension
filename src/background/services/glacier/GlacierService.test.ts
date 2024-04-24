@@ -1,4 +1,10 @@
-import { Glacier } from '@avalabs/glacier-sdk';
+import {
+  BlockchainId,
+  Glacier,
+  Network,
+  PrimaryNetwork,
+  PrimaryNetworkChainName,
+} from '@avalabs/glacier-sdk';
 import { GlacierService } from './GlacierService';
 
 import { wait } from '@avalabs/utils-sdk';
@@ -13,6 +19,24 @@ const healthCheckMock = jest.fn();
 const supportedChainsMock = jest.fn();
 const reindexNft = jest.fn();
 const getTokenDetails = jest.fn();
+const getBalancesByAddresses = jest.fn();
+
+const pchainBalance = {
+  balances: {
+    unlockedUnstaked: [],
+    unlockedStaked: [],
+    lockedPlatform: [],
+    lockedStakeable: [],
+    lockedStaked: [],
+    pendingStaked: [],
+    atomicMemoryUnlocked: [],
+    atomicMemoryLocked: [],
+  },
+  chainInfo: {
+    chainName: PrimaryNetworkChainName.P_CHAIN,
+    network: PrimaryNetwork.FUJI,
+  },
+};
 
 const waitForFirstHealthCheck = async () => {
   jest.runOnlyPendingTimers();
@@ -36,6 +60,10 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
       nfTs: {
         reindexNft,
         getTokenDetails,
+      },
+      primaryNetworkBalances: {
+        getBalancesByAddresses:
+          getBalancesByAddresses.mockResolvedValue(pchainBalance),
       },
     });
     jest.mocked(wait).mockResolvedValue();
@@ -201,6 +229,19 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
 
       expect([result_1, result_2, result_3]).toStrictEqual([true, true, true]);
       expect(supportedChainsMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getChainBalance', () => {
+    it('should return response from getBalancesByAddresses', async () => {
+      const glacierService = new GlacierService();
+      const result = await glacierService.getChainBalance({
+        blockchainId: BlockchainId.P_CHAIN,
+        network: Network.FUJI,
+        addresses: 'address',
+      });
+
+      expect(result).toEqual(pchainBalance);
     });
   });
 });

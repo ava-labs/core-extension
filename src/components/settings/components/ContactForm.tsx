@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Contact } from '@avalabs/types';
-import { isValidAddress, isValidBtcAddress } from '@src/utils/isAddressValid';
+import {
+  isValidAddress,
+  isValidBtcAddress,
+  isValidXPAddress,
+} from '@src/utils/isAddressValid';
 import { useTranslation } from 'react-i18next';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { Stack, TextField } from '@avalabs/k2-components';
@@ -21,6 +25,7 @@ export const ContactForm = ({
   const [nameError, setNameError] = useState<string>();
   const [addressError, setAddressError] = useState<string>();
   const [addressBtcError, setAddressBtcError] = useState<string>();
+  const [addressXpError, setAddressXpError] = useState<string>();
   const { contacts } = useContactsContext();
 
   const FormErrors = {
@@ -29,6 +34,8 @@ export const ContactForm = ({
       'Not a valid Avalanche (C-Chain) address. C-Chain addresses being with 0x'
     ),
     ADDRESS_BTC_ERROR: t('Not a valid Bitcoin address'),
+    ADDRESS_XP_ERROR: t('Not a valid X/P-Chain address'),
+    ADDRESS_XP_PREFIX_ERROR: t('Please remove address prefix. (P- or X-)'),
     ADDRESS_REQUIRED_ERROR: t('At least one address required'),
     ADDRESS_EXISTS: t('This address already exists in the address book'),
   };
@@ -38,16 +45,18 @@ export const ContactForm = ({
       const nameExists = !!updatedContact.name;
       const addressExists = !!updatedContact.address;
       const btcExists = !!updatedContact.addressBTC;
+      const xpExists = !!updatedContact.addressXP;
       let valid = true;
       // no name -> error
       if (!nameExists && showErrors) {
         setNameError(FormErrors.NAME_ERROR);
         valid = false;
       }
-      // no address or btc address -> error
-      if (!addressExists && !btcExists && showErrors) {
+      // no address, btc address, pvm address -> error
+      if (!addressExists && !btcExists && !xpExists && showErrors) {
         setAddressError(FormErrors.ADDRESS_REQUIRED_ERROR);
         setAddressBtcError(FormErrors.ADDRESS_REQUIRED_ERROR);
+        setAddressXpError(FormErrors.ADDRESS_REQUIRED_ERROR);
         return false;
       }
       // no valid address -> error
@@ -63,7 +72,22 @@ export const ContactForm = ({
         setAddressBtcError(FormErrors.ADDRESS_BTC_ERROR);
         valid = false;
       }
-      if (!nameExists || (!btcExists && !addressExists)) {
+      // Invalid PVM address -> error
+
+      if (updatedContact.addressXP) {
+        if (
+          updatedContact.addressXP.startsWith('P-') ||
+          updatedContact.addressXP.startsWith('X-')
+        ) {
+          setAddressXpError(FormErrors.ADDRESS_XP_PREFIX_ERROR);
+          valid = false;
+        } else if (!isValidXPAddress(updatedContact.addressXP)) {
+          setAddressXpError(FormErrors.ADDRESS_XP_ERROR);
+          valid = false;
+        }
+      }
+
+      if (!nameExists || (!btcExists && !addressExists && !xpExists)) {
         valid = false;
       }
 
@@ -92,13 +116,15 @@ export const ContactForm = ({
       return valid;
     },
     [
-      FormErrors.ADDRESS_BTC_ERROR,
-      FormErrors.ADDRESS_ERROR,
-      FormErrors.ADDRESS_EXISTS,
-      FormErrors.ADDRESS_REQUIRED_ERROR,
-      FormErrors.NAME_ERROR,
-      contacts,
       showErrors,
+      contacts,
+      FormErrors.NAME_ERROR,
+      FormErrors.ADDRESS_REQUIRED_ERROR,
+      FormErrors.ADDRESS_ERROR,
+      FormErrors.ADDRESS_BTC_ERROR,
+      FormErrors.ADDRESS_XP_PREFIX_ERROR,
+      FormErrors.ADDRESS_XP_ERROR,
+      FormErrors.ADDRESS_EXISTS,
     ]
   );
 
@@ -113,24 +139,22 @@ export const ContactForm = ({
     setNameError('');
     setAddressError('');
     setAddressBtcError('');
+    setAddressXpError('');
   };
 
   const handleUpdate = (name: keyof Contact, value: string) => {
     resetErrors();
-    handleChange(
-      {
-        ...contact,
-        [name]: value,
-      },
-      validateForm({
-        ...contact,
-        [name]: value,
-      })
-    );
+
+    const newContact = {
+      ...contact,
+      [name]: value,
+    };
+
+    handleChange(newContact, validateForm(newContact));
   };
 
   return (
-    <Stack sx={{ width: '100%' }}>
+    <Stack sx={{ width: '100%', rowGap: 4 }}>
       <TextField
         data-testid="address-name-input"
         autoFocus={autoFocus}
@@ -147,24 +171,22 @@ export const ContactForm = ({
         size="small"
       />
 
-      <Stack sx={{ py: 4 }}>
-        <TextField
-          data-testid="ava-address-textarea"
-          size="small"
-          onChange={(e) => {
-            e.stopPropagation();
-            handleUpdate('address', e.target.value);
-          }}
-          value={contact.address}
-          label={t('Avalanche (C-Chain) Address')}
-          error={!!addressError}
-          helperText={addressError}
-          placeholder={t(`Enter Avalanche (C-Chain) address`)}
-          fullWidth
-          multiline
-          rows={2}
-        />
-      </Stack>
+      <TextField
+        data-testid="ava-address-textarea"
+        size="small"
+        onChange={(e) => {
+          e.stopPropagation();
+          handleUpdate('address', e.target.value);
+        }}
+        value={contact.address}
+        label={t('Avalanche (C-Chain) Address')}
+        error={!!addressError}
+        helperText={addressError}
+        placeholder={t(`Enter Avalanche (C-Chain) address`)}
+        fullWidth
+        multiline
+        rows={2}
+      />
 
       <TextField
         data-testid="btc-address-textarea"
@@ -178,6 +200,23 @@ export const ContactForm = ({
         error={!!addressBtcError}
         helperText={addressBtcError}
         placeholder={t(`Enter Bitcoin address`)}
+        fullWidth
+        multiline
+        rows={2}
+      />
+
+      <TextField
+        data-testid="xp-address-textarea"
+        size="small"
+        onChange={(e) => {
+          e.stopPropagation();
+          handleUpdate('addressXP', e.target.value);
+        }}
+        value={contact.addressXP}
+        label={t('Avalanche (X/P-Chain) Address')}
+        error={!!addressXpError}
+        helperText={addressXpError}
+        placeholder={t(`Enter X/P-Chain address`)}
         fullWidth
         multiline
         rows={2}

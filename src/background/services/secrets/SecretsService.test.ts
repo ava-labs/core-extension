@@ -34,7 +34,9 @@ jest.mock('tsyringe', () => {
 const ACTIVE_WALLET_ID = 'active-wallet-id';
 describe('src/background/services/secrets/SecretsService.ts', () => {
   const storageService = jest.mocked(new StorageService({} as CallbackManager));
-  const networkService = jest.mocked(new NetworkService(storageService));
+  const networkService = jest.mocked(
+    new NetworkService(storageService, {} as any)
+  );
   const activeAccount = {
     type: AccountType.PRIMARY,
     walletId: ACTIVE_WALLET_ID,

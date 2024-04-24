@@ -52,7 +52,9 @@ export function NetworkList() {
     const networkAddress =
       (vmName === NetworkVMType.EVM
         ? activeAccount?.addressC
-        : activeAccount?.addressBTC) || '';
+        : vmName === NetworkVMType.BITCOIN
+        ? activeAccount?.addressBTC
+        : activeAccount?.addressPVM) || '';
     const networkBalances = tokens.balances?.[chainId];
     const networkAssetList = networkBalances
       ? tokensWithBalances(Object.values(networkBalances[networkAddress] ?? {}))

@@ -5,6 +5,7 @@ import {
   Typography,
   AvalancheColorIcon,
   BitcoinColorIcon,
+  XAndPChainsIcon,
 } from '@avalabs/k2-components';
 
 export const ContactInfo = ({ contact }: { contact: Contact }) => {
@@ -62,6 +63,25 @@ export const ContactInfo = ({ contact }: { contact: Contact }) => {
               size={16}
             />
             <SimpleAddress address={contact.addressBTC} />
+          </Stack>
+        )}
+        {contact.addressXP && (
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              width: '120px',
+              mt: 1,
+            }}
+            data-testid="contact-li-copy-xp-address"
+          >
+            <XAndPChainsIcon
+              sx={{
+                mr: 0.5,
+              }}
+              size={16}
+            />
+            <SimpleAddress address={contact.addressXP} />
           </Stack>
         )}
       </Stack>

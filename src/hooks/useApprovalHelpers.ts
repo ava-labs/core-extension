@@ -10,12 +10,14 @@ type UseApprovalHelpersProps = {
   onApprove: () => Promise<unknown>;
   onReject: () => unknown;
   pendingMessage?: string;
+  showPending?: boolean;
 };
 
 export function useApprovalHelpers({
   onApprove,
   onReject,
   pendingMessage,
+  showPending,
 }: UseApprovalHelpersProps) {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
@@ -46,7 +48,7 @@ export function useApprovalHelpers({
       return;
     }
 
-    if (pendingMessage && !isUsingExternalSigner) {
+    if (pendingMessage && !isUsingExternalSigner && showPending) {
       const toastId = toast.loading(pendingMessage);
       pendingToastIdRef.current = toastId;
     }
@@ -62,6 +64,7 @@ export function useApprovalHelpers({
     isTwoStepApproval,
     isReadyToSign,
     pendingMessage,
+    showPending,
     onApprove,
   ]);
 

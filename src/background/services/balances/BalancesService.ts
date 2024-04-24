@@ -1,6 +1,7 @@
 import { BalancesServiceEVM } from '@src/background/services/balances/BalancesServiceEVM';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { BalancesServiceBTC } from '@src/background/services/balances/BalancesServiceBTC';
+import { BalancesServicePVM } from '@src/background/services/balances/BalancesServicePVM';
 import { singleton } from 'tsyringe';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { Network, ChainId, NetworkVMType } from '@avalabs/chains-sdk';
@@ -9,6 +10,7 @@ import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
 import { BalancesServiceGlacier } from './BalancesServiceGlacier';
 import { GlacierService } from '../glacier/GlacierService';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
 import { TokensPriceShortData } from '../tokens/models';
 
 @singleton()
@@ -16,6 +18,7 @@ export class BalancesService {
   constructor(
     private balancesServiceEVM: BalancesServiceEVM,
     private balancesServiceBTC: BalancesServiceBTC,
+    private balancesServicePVM: BalancesServicePVM,
     private networkService: NetworkService,
     private balanceServiceGlacier: BalancesServiceGlacier,
     private glacierService: GlacierService
@@ -38,6 +41,14 @@ export class BalancesService {
     accounts: Account[],
     priceChanges?: TokensPriceShortData
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
+    if (isPchainNetwork(network)) {
+      const pChainBalances = await this.balancesServicePVM.getBalances({
+        accounts,
+        network,
+      });
+      return pChainBalances;
+    }
+
     const isSupportedNetwork = await this.glacierService.isNetworkSupported(
       network.chainId
     );

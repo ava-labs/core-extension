@@ -12,6 +12,8 @@ import {
   NETWORK_LIST_STORAGE_KEY,
   NETWORK_OVERRIDES_STORAGE_KEY,
 } from './models';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import { FeatureGates } from '../featureFlags/models';
 
 jest.mock('@avalabs/wallets-sdk', () => {
   const BitcoinProviderMock = jest.fn();
@@ -76,7 +78,17 @@ describe('background/services/network/NetworkService', () => {
     save: jest.fn(),
     saveUnencrypted: jest.fn(),
   } as any);
-  const service = new NetworkService(storageServiceMock);
+
+  const featureFlagsServiceMock = jest.mocked<FeatureFlagService>({
+    featureFlags: {
+      [FeatureGates.IN_APP_SUPPORT_P_CHAIN]: true,
+    },
+    addListener: jest.fn(),
+  } as any);
+  const service = new NetworkService(
+    storageServiceMock,
+    featureFlagsServiceMock
+  );
 
   beforeAll(() => {
     process.env = {
@@ -129,7 +141,10 @@ describe('background/services/network/NetworkService', () => {
         },
       } as any;
 
-      const networkService = new NetworkService(storageServiceMock);
+      const networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock
+      );
 
       await networkService.updateNetworkOverrides(overrides);
 
@@ -151,7 +166,10 @@ describe('background/services/network/NetworkService', () => {
         rpcUrl: 'http://default.rpc',
       } as const;
 
-      const networkService = new NetworkService(storageServiceMock);
+      const networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock
+      );
 
       // eslint-disable-next-line
       // @ts-expect-error
@@ -309,7 +327,10 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('applies config overrides to .allNetworks signal', async () => {
-      const networkService = new NetworkService(storageServiceMock);
+      const networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock
+      );
 
       // eslint-disable-next-line
       // @ts-expect-error
@@ -327,7 +348,10 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('applies config overrides to .activeNetworks signal', async () => {
-      const networkService = new NetworkService(storageServiceMock);
+      const networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock
+      );
 
       // eslint-disable-next-line
       // @ts-expect-error
@@ -346,7 +370,10 @@ describe('background/services/network/NetworkService', () => {
   });
 
   it('filters networks by .isTestnet for .activeNetworks signal', async () => {
-    const networkService = new NetworkService(storageServiceMock);
+    const networkService = new NetworkService(
+      storageServiceMock,
+      featureFlagsServiceMock
+    );
 
     jest.spyOn(networkService, 'activeNetwork', 'get').mockReturnValue({
       isTestnet: false,
@@ -391,6 +418,54 @@ describe('background/services/network/NetworkService', () => {
       '1337': {
         chainId: 1337,
         isTestnet: true,
+      },
+    });
+  });
+
+  it('filters pchain network by feature flag when dispatching allNetowrks signal', async () => {
+    const allNetworks = {
+      '1': {
+        chainId: 1,
+        isTestnet: false,
+      },
+      [ChainId.AVALANCHE_TEST_XP]: {
+        chainId: ChainId.AVALANCHE_TEST_XP,
+        vmName: NetworkVMType.PVM,
+        isTestnet: false,
+      },
+    } as any;
+    const networkService = new NetworkService(
+      storageServiceMock,
+      featureFlagsServiceMock
+    );
+
+    jest.spyOn(networkService, 'activeNetwork', 'get').mockReturnValue({
+      isTestnet: false,
+    } as any);
+
+    // Feature flag turned on. Should include Pchain
+
+    // eslint-disable-next-line
+    // @ts-expect-error
+    networkService._allNetworks.dispatch(allNetworks);
+
+    const result1 = await networkService.activeNetworks.promisify();
+    expect(await result1).toEqual(allNetworks);
+
+    featureFlagsServiceMock.featureFlags[FeatureGates.IN_APP_SUPPORT_P_CHAIN] =
+      false;
+
+    // Feature flag turned off. Should not include Pchain
+
+    // eslint-disable-next-line
+    // @ts-expect-error
+    networkService._allNetworks.dispatch(allNetworks);
+
+    const result2 = await networkService.activeNetworks.promisify();
+    expect(await result2).toEqual({
+      '1': {
+        chainId: 1,
+        isTestnet: false,
       },
     });
   });

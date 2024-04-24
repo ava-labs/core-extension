@@ -1,4 +1,12 @@
-import { Erc1155Token, Erc721Token, Glacier } from '@avalabs/glacier-sdk';
+import {
+  BlockchainId,
+  Erc1155Token,
+  Erc721Token,
+  Glacier,
+  Network,
+  PrimaryNetworkTxType,
+  SortOrder,
+} from '@avalabs/glacier-sdk';
 import { singleton } from 'tsyringe';
 import { resolve, wait } from '@avalabs/utils-sdk';
 
@@ -98,5 +106,32 @@ export class GlacierService {
     this.getSupportedNetworks().catch(() => {
       // Noop. It will be retried by .isSupportedNetwork calls upon unlocking if necessary.
     });
+  }
+
+  async getChainBalance(params: {
+    blockchainId: BlockchainId;
+    network: Network;
+    blockTimestamp?: number;
+    addresses?: string;
+  }) {
+    return await this.glacierSdkInstance.primaryNetworkBalances.getBalancesByAddresses(
+      params
+    );
+  }
+
+  async listLatestPrimaryNetworkTransactions(params: {
+    blockchainId: BlockchainId;
+    network: Network;
+    addresses?: string;
+    txTypes?: Array<PrimaryNetworkTxType>;
+    startTimestamp?: number;
+    endTimestamp?: number;
+    pageToken?: string;
+    pageSize?: number;
+    sortOrder?: SortOrder;
+  }) {
+    return await this.glacierSdkInstance.primaryNetworkTransactions.listLatestPrimaryNetworkTransactions(
+      params
+    );
   }
 }

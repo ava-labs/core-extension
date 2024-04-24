@@ -8,6 +8,7 @@ import {
   Button,
   Typography,
   Tooltip,
+  XAndPChainsIcon,
 } from '@avalabs/k2-components';
 import { ContactAddress } from './ContactAddress';
 
@@ -87,6 +88,12 @@ export const AddressDropdownListItem = ({
           <ContactAddress
             address={contact.addressBTC}
             networkIcon={<BitcoinColorIcon size={16} />}
+          />
+        )}
+        {contact.addressXP && (
+          <ContactAddress
+            address={contact.addressXP}
+            networkIcon={<XAndPChainsIcon size={16} />}
           />
         )}
       </Stack>

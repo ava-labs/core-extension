@@ -9,7 +9,6 @@ import {
   Avalanche,
 } from '@avalabs/wallets-sdk';
 import { FetchRequest, Network } from 'ethers';
-
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 import { getProviderForNetwork } from './getProviderForNetwork';
 

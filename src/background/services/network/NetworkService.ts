@@ -21,6 +21,7 @@ import {
   BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
   ChainId,
+  NetworkVMType,
   getChainsAndTokens,
 } from '@avalabs/chains-sdk';
 import { ReadableSignal, Signal, ValueCache } from 'micro-signals';
@@ -34,6 +35,13 @@ import { Network as EthersNetwork } from 'ethers';
 import { SigningResult } from '../wallet/models';
 import { getExponentialBackoffDelay } from '@src/utils/exponentialBackoff';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import {
+  FeatureFlagEvents,
+  FeatureFlags,
+  FeatureGates,
+} from '../featureFlags/models';
+import { isPchainNetwork } from './utils/isAvalanchePchainNetwork';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -59,7 +67,13 @@ export class NetworkService implements OnLock, OnStorageReady {
   public allNetworks: ReadableSignal<Promise<ChainList>>;
   public activeNetworks: ReadableSignal<Promise<ChainList>>;
 
-  constructor(private storageService: StorageService) {
+  // We'll re-initialize the network list when one of these flags is toggled.
+  #flagStates: Partial<FeatureFlags> = {};
+
+  constructor(
+    private storageService: StorageService,
+    private featureFlagService: FeatureFlagService
+  ) {
     this._initChainList();
 
     this.allNetworks = this._allNetworks
@@ -71,8 +85,19 @@ export class NetworkService implements OnLock, OnStorageReady {
       .cache(new ValueCache<ChainList>())
       .filter((value) => !!value)
       .map(this.#filterBasedOnDevMode)
+      .map(this.#filterBasedOnFeatureFlags)
       .map(this.#applyOverrides)
       .readOnly();
+  }
+
+  #getTrackedFeatureFlags(flags: FeatureFlags): Partial<FeatureFlags> {
+    const trackedFlags = [FeatureGates.IN_APP_SUPPORT_P_CHAIN];
+
+    return Object.fromEntries(
+      Object.entries(flags).filter(([flag]) =>
+        trackedFlags.includes(flag as FeatureGates)
+      )
+    );
   }
 
   public get activeNetwork() {
@@ -186,6 +211,30 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._fetchedChainListSignal.addOnce((chainlist) => {
       this.storageService.save(NETWORK_LIST_STORAGE_KEY, chainlist);
     });
+
+    // If the active network gets filtered-out, fall back to C-Chain
+    this.activeNetworks.add(async (chainListPromise) => {
+      const chainList = await chainListPromise;
+
+      if (this.activeNetwork && !chainList[this.activeNetwork.chainId]) {
+        this.activeNetwork =
+          chainList[ChainId.AVALANCHE_TESTNET_ID] ??
+          chainList[ChainId.AVALANCHE_MAINNET_ID];
+      }
+    });
+
+    this.featureFlagService.addListener(
+      FeatureFlagEvents.FEATURE_FLAG_UPDATED,
+      async (flags) => {
+        const newFlags = this.#getTrackedFeatureFlags(flags);
+
+        if (JSON.stringify(newFlags) !== JSON.stringify(this.#flagStates)) {
+          this.#flagStates = newFlags;
+          const chainlist = await this._rawNetworks.promisify();
+          this._allNetworks.dispatch({ ...chainlist });
+        }
+      }
+    );
   }
 
   async updateNetworkState() {
@@ -238,6 +287,28 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this.storageService.load<ChainList>(NETWORK_LIST_STORAGE_KEY);
   }
 
+  private _getPchainNetwork(isTestnet: boolean): Network {
+    const network = isTestnet
+      ? AVALANCHE_XP_TEST_NETWORK
+      : AVALANCHE_XP_NETWORK;
+    return {
+      ...network,
+      isTestnet,
+      vmName: NetworkVMType.PVM,
+      chainName: 'Avalanche (P-chain)',
+      logoUri:
+        'https://images.ctfassets.net/gcj8jwzm6086/42aMwoCLblHOklt6Msi6tm/1e64aa637a8cead39b2db96fe3225c18/pchain-square.svg', // from contentful
+      networkToken: {
+        ...network.networkToken,
+        logoUri:
+          'https://images.ctfassets.net/gcj8jwzm6086/5VHupNKwnDYJvqMENeV7iJ/3e4b8ff10b69bfa31e70080a4b142cd0/avalanche-avax-logo.svg', // from contentful
+      },
+      explorerUrl: isTestnet
+        ? 'https://subnets-test.avax.network/p-chain'
+        : 'https://subnets.avax.network/p-chain',
+    };
+  }
+
   private async _initChainList(): Promise<ChainList> {
     let chainlist: ChainList | null = null;
     let attempt = 1;
@@ -255,6 +326,8 @@ export class NetworkService implements OnLock, OnStorageReady {
           ...result,
           [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
           [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
+          [ChainId.AVALANCHE_TEST_XP]: this._getPchainNetwork(true),
+          [ChainId.AVALANCHE_XP]: this._getPchainNetwork(false),
         };
 
         if (!this.activeNetwork) {
@@ -525,6 +598,25 @@ export class NetworkService implements OnLock, OnStorageReady {
         (network) =>
           Boolean(this.activeNetwork?.isTestnet) === Boolean(network.isTestnet)
       )
+      .reduce(
+        (acc, network) => ({
+          ...acc,
+          [network.chainId]: network,
+        }),
+        {}
+      );
+  };
+
+  #filterBasedOnFeatureFlags = (chainList?: ChainList) => {
+    return Object.values(chainList ?? {})
+      .filter((network) => {
+        return (
+          !isPchainNetwork(network) ||
+          this.featureFlagService.featureFlags[
+            FeatureGates.IN_APP_SUPPORT_P_CHAIN
+          ]
+        );
+      })
       .reduce(
         (acc, network) => ({
           ...acc,

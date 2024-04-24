@@ -39,6 +39,7 @@ import Big from 'big.js';
 import { formatTokenAmount, satoshiToBtc } from '@avalabs/bridge-sdk';
 import { useTranslation } from 'react-i18next';
 import { TruncatedAddress } from './components/TruncatedAddress';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 
 const SummaryTokenIcon = styled(TokenIcon)`
   position: absolute;
@@ -294,6 +295,8 @@ export const SendConfirm = ({
                 address={
                   isBitcoin(network)
                     ? activeAccount?.addressBTC
+                    : isPchainNetwork(network)
+                    ? activeAccount.addressPVM
                     : activeAccount?.addressC
                 }
               />

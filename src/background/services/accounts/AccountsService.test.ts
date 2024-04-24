@@ -34,7 +34,10 @@ jest.mock('@src/utils/environment');
 const WALLET_ID = 'wallet-id';
 
 describe('background/services/accounts/AccountsService', () => {
-  const networkService = new NetworkService({} as any);
+  const networkService = new NetworkService(
+    {} as any,
+    { addListener: jest.fn() } as any
+  );
   const storageService = new StorageService({} as any);
   const ledgerService = new LedgerService();
   const keystoneService = new KeystoneService();

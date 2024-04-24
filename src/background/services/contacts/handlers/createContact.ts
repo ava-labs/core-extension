@@ -22,7 +22,7 @@ export class CreateContactHandler implements HandlerType {
     if (
       !contact ||
       !contact.name ||
-      (!contact.address && !contact.addressBTC) ||
+      (!contact.address && !contact.addressBTC && !contact.addressXP) ||
       !contact.id
     ) {
       return {

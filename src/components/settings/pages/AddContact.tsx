@@ -33,6 +33,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
     name: '',
     address: '',
     addressBTC: '',
+    addressXP: '',
   });
 
   const { createContact } = useContactsContext();
