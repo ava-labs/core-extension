@@ -14,6 +14,7 @@ export const TxDetailsRow: React.FC<TxDetailsRowProps> = ({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'baseline',
+        gap: 1,
       }}
     >
       <Typography variant="caption" color="text.secondary">
@@ -25,6 +26,8 @@ export const TxDetailsRow: React.FC<TxDetailsRowProps> = ({
           alignItems: 'center',
           gap: 1,
           minHeight: theme.spacing(2),
+          minWidth: '0px',
+          wordWrap: 'break-word',
         }}
       >
         {children}

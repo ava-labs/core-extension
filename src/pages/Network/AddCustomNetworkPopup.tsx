@@ -146,7 +146,12 @@ export function AddCustomNetworkPopup() {
 
           <Typography variant="h5">{customNetwork.chainName}</Typography>
           <Typography
-            sx={{ textAlign: 'center', color: 'text.secondary' }}
+            sx={{
+              textAlign: 'center',
+              maxWidth: 1,
+              wordWrap: 'break-word',
+              color: 'text.secondary',
+            }}
             variant="caption"
           >
             {request?.site?.domain}

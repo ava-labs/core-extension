@@ -267,10 +267,19 @@ export function SignMessage() {
                 <Typography variant="h5">
                   {action.site?.name ?? t('Unknown')}
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                    maxWidth: 1,
+                    wordWrap: 'break-word',
+                  }}
+                >
                   <Trans
-                    i18nKey="{{domain}} requests you to <br />sign the following message"
-                    values={{ domain: action.site?.domain || 'A site' }}
+                    i18nKey="{{domain}} requests you to sign the following message"
+                    values={{
+                      domain: action.site?.domain || 'A site',
+                    }}
                   />
                 </Typography>
                 {signingAccountAddress && (

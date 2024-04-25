@@ -67,11 +67,12 @@ export function SetDeveloperMode() {
           {request.displayData?.isTestmode ? t('Activate') : t('Deactivate')}{' '}
           {t('Testnet Mode?')}
         </Typography>
-        <Typography sx={{ textAlign: 'center' }} variant="body1">
+        <Typography
+          sx={{ textAlign: 'center', maxWidth: 1, wordWrap: 'break-word' }}
+          variant="body1"
+        >
           <Trans
-            i18nKey={
-              '{{domain}} is requesting to turn <br/>Testnet Mode {{mode}}'
-            }
+            i18nKey={'{{domain}} is requesting to turn Testnet Mode {{mode}}'}
             values={{
               mode: request.displayData?.isTestmode ? t('ON') : t('OFF'),
               domain: request.site?.domain || t('This website'),

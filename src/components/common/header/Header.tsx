@@ -75,7 +75,16 @@ export function Header() {
             >
               <ConnectionIndicatorK2 connected={isConnected}>
                 <Stack sx={{ gap: 0.5 }}>
-                  <Typography variant="subtitle2">{domain}</Typography>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      textAlign: 'center',
+                      maxWidth: 1,
+                      wordWrap: 'break-word',
+                    }}
+                  >
+                    {domain}
+                  </Typography>
                   {!isConnected && (
                     <Typography variant="body2" color="text.secondary">
                       {t(

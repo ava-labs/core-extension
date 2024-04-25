@@ -56,6 +56,7 @@ export function SwitchAccount() {
           justifyContent: 'center',
           textAlign: 'center',
           gap: 2,
+          maxWidth: 1,
         }}
       >
         <Avatar
@@ -73,7 +74,15 @@ export function SwitchAccount() {
           })}
         </Typography>
 
-        <Typography variant="body2">
+        <Typography
+          variant="body2"
+          sx={{
+            textAlign: 'center',
+            maxWidth: 1,
+            wordWrap: 'break-word',
+            color: 'text.secondary',
+          }}
+        >
           {t('{{domain}} is requesting to switch your active account.', {
             domain: request.site?.domain || 'This website',
           })}

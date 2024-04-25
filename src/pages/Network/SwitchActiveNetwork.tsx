@@ -63,6 +63,7 @@ export function SwitchActiveNetwork() {
               justifyContent: 'center',
               textAlign: 'center',
               gap: 3,
+              maxWidth: 1,
             }}
           >
             <SiteAvatar>
@@ -75,7 +76,15 @@ export function SwitchActiveNetwork() {
                 chainName: network?.chainName,
               })}
             </Typography>
-            <Typography variant="body1">
+            <Typography
+              variant="body1"
+              sx={{
+                textAlign: 'center',
+                maxWidth: 1,
+                wordWrap: 'break-word',
+                color: 'text.secondary',
+              }}
+            >
               {t(
                 '{{domain}} is requesting to switch your active network to {{chainName}}',
                 {

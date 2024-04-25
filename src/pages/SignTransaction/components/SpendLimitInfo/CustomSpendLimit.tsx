@@ -64,7 +64,7 @@ export function CustomSpendLimit({
       </PageTitle>
 
       <Stack sx={{ px: 2, gap: 3 }}>
-        <Stack sx={{ gap: 1.5 }}>
+        <Stack sx={{ gap: 1.5, maxWidth: 1 }}>
           <Typography
             sx={{
               fontSize: 'body2.fontSize',
@@ -73,7 +73,15 @@ export function CustomSpendLimit({
           >
             {t('Spending limit')}
           </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          <Typography
+            variant="body2"
+            sx={{
+              textAlign: 'center',
+              maxWidth: 1,
+              wordWrap: 'break-word',
+              color: 'text.secondary',
+            }}
+          >
             <Trans
               i18nKey="Set a limit that you will allow {{domain}} to automatically spend."
               values={{ domain: site?.domain ?? t('Unknown Site') }}

@@ -126,12 +126,22 @@ export function PermissionsPage() {
               <GlobeIcon size={48} color={theme.palette.text.secondary} />
             </TokenIcon>
           </SiteAvatar>
-          <Stack textAlign="center" gap={0.5}>
+          <Stack
+            sx={{
+              gap: 0.5,
+              textAlign: 'center',
+              maxWidth: 1,
+            }}
+          >
             <Typography variant="h5">
               {request.displayData.domainName}
             </Typography>
             <Typography
-              sx={{ fontSize: 12, color: theme.palette.text.secondary }}
+              sx={{
+                fontSize: 12,
+                color: theme.palette.text.secondary,
+                wordWrap: 'break-word',
+              }}
             >
               {request.displayData.domainUrl}
             </Typography>
