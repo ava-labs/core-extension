@@ -302,15 +302,17 @@ export function SignMessage() {
                     >
                       {t('Active Wallet:')}
                     </Typography>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        pl: 1,
-                        fontWeight: 'fontWeightSemibold',
-                      }}
-                    >
-                      {truncateAddress(signingAccountAddress)}
-                    </Typography>
+                    <Tooltip title={signingAccountAddress}>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          pl: 1,
+                          fontWeight: 'fontWeightSemibold',
+                        }}
+                      >
+                        {truncateAddress(signingAccountAddress)}
+                      </Typography>
+                    </Tooltip>
                   </Stack>
                 )}
               </Stack>
