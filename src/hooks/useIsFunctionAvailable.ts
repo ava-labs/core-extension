@@ -70,6 +70,31 @@ const disableForAccountsWithoutBtcSupport = (
   );
 };
 
+// Disables given feature on PVM network when:
+//  - active account has no XP address
+//  - active account is imported through WalletConnect (no XP support)
+//  - active account is imported from Fireblocks
+const disableForAccountsWithoutXPSupport = (
+  chain: ChainId,
+  account: Account
+) => {
+  const isPChain = [ChainId.AVALANCHE_XP, ChainId.AVALANCHE_TEST_XP].includes(
+    chain
+  );
+
+  if (!isPChain) {
+    return false;
+  }
+
+  const hasPAddress = Boolean(account.addressPVM);
+
+  return (
+    !hasPAddress ||
+    isWalletConnectAccount(account) ||
+    isFireblocksAccount(account)
+  );
+};
+
 const disabledFeatures: Record<string, BlacklistConfig> = {
   ManageTokens: {
     networks: [
@@ -79,9 +104,19 @@ const disabledFeatures: Record<string, BlacklistConfig> = {
     ],
     complexChecks: [],
   },
+  Receive: {
+    networks: [],
+    complexChecks: [
+      disableForAccountsWithoutBtcSupport,
+      disableForAccountsWithoutXPSupport,
+    ],
+  },
   Send: {
     networks: [],
-    complexChecks: [disableForAccountsWithoutBtcSupport],
+    complexChecks: [
+      disableForAccountsWithoutBtcSupport,
+      disableForAccountsWithoutXPSupport,
+    ],
   },
   Bridge: {
     networks: [
