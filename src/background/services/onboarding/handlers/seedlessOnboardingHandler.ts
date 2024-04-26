@@ -95,7 +95,9 @@ export class SeedlessOnboardingHandler implements HandlerType {
       };
     }
 
-    const secrets = await this.secretsService.getPrimaryAccountSecrets();
+    const secrets = await this.secretsService.getWalletAccountsSecretsById(
+      walletId
+    );
     if (secrets?.secretType === SecretType.Seedless) {
       // Adding accounts cannot be parallelized, they need to be added one-by-one.
       // Otherwise race conditions occur and addresses get mixed up.
@@ -108,7 +110,7 @@ export class SeedlessOnboardingHandler implements HandlerType {
     } else {
       return {
         ...request,
-        error: 'Keystone Wallet initialization failed.',
+        error: 'Seedless Wallet initialization failed.',
       };
     }
 

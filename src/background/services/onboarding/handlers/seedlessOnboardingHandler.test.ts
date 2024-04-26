@@ -67,7 +67,7 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
     addFavoriteNetwork: jest.fn(),
   } as unknown as NetworkService;
   const secretsServiceMock = {
-    getPrimaryAccountSecrets: jest.fn(),
+    getWalletAccountsSecretsById: jest.fn(),
   } as unknown as SecretsService;
 
   const accountMock = {
@@ -104,7 +104,7 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
 
   it('sets up seedless wallets correctly', async () => {
     jest
-      .mocked(secretsServiceMock.getPrimaryAccountSecrets)
+      .mocked(secretsServiceMock.getWalletAccountsSecretsById)
       .mockResolvedValueOnce({
         secretType: SecretType.Seedless,
         pubKeys: [
