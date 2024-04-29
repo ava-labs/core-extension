@@ -22,6 +22,7 @@ import { isValidPvmAddress } from '@src/utils/isAddressValid';
 import { useAnalyticsContext } from './AnalyticsProvider';
 import { isString } from 'lodash';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { resolve } from '@src/utils/promiseResolver';
 
 const MAX_LEDGER_OUTPUTS = 64;
 const PCHAIN_ALIAS = 'P';
@@ -174,11 +175,18 @@ export function SendContextProvider<T extends SendableToken = SendableToken>({
         error: undefined,
       };
       const { address, amount } = sendState;
-      const wallet = await getWallet();
+      const [walletError, wallet] = await resolve(getWallet());
+
+      if (walletError) {
+        return getErrorState(sendState, 'Unable to construct wallet');
+      }
 
       // using filtered UTXOs because there is size limit
-      const utxos = await getFilteredUtxos(wallet);
+      const [utxosError, utxos] = await resolve(getFilteredUtxos(wallet));
 
+      if (utxosError) {
+        return getErrorState(sendState, 'Unable to fetch UTXOs');
+      }
       // maxMount calculation
       const available = new BN(utxos?.balance.available.toString() ?? '0');
       const staticBaseTxFee = getNetworkFee();

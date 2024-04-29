@@ -125,14 +125,18 @@ export function SendPage() {
 
   useEffect(() => {
     if (isPchainNetwork(network) && selectedToken && network) {
-      const fee = getNetworkFee();
-      const maxAmount = selectedToken?.balance.sub(fee);
+      try {
+        const fee = getNetworkFee();
+        const maxAmount = selectedToken?.balance.sub(fee);
 
-      updateSendState({
-        maxAmount: maxAmount ?? new BN(0),
-        token: selectedToken,
-        loading: false,
-      });
+        updateSendState({
+          maxAmount: maxAmount ?? new BN(0),
+          token: selectedToken,
+          loading: false,
+        });
+      } catch {
+        // noop
+      }
     }
   }, [getNetworkFee, network, selectedToken, updateSendState]);
 
