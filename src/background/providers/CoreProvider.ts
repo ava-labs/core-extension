@@ -28,7 +28,10 @@ interface ProviderState {
 
 export class CoreProvider extends EventEmitter {
   #contentScriptConnection: AbstractConnection;
-  #requestRateLimiter = new RequestRatelimiter(['eth_requestAccounts']);
+  #requestRateLimiter = new RequestRatelimiter([
+    'eth_requestAccounts',
+    'avalanche_selectWallet',
+  ]);
   #providerReadyPromise = new ProviderReadyPromise();
 
   readonly info: ProviderInfo = {
