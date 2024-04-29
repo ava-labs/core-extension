@@ -3,7 +3,6 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useMemo, useState } from 'react';
 import { resolve } from '@src/utils/promiseResolver';
 import { TransactionDetails } from './components/TransactionDetails';
-import { TxInProgress } from '@src/components/common/TxInProgress';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
@@ -23,7 +22,6 @@ import { useTranslation } from 'react-i18next';
 import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwapError } from './components/SwapError';
 import { calculateRate } from './utils';
-import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
 import {
   Stack,
   toast,
@@ -36,7 +34,6 @@ import {
   IconButton,
 } from '@avalabs/k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
-import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isUserRejectionError } from '@src/utils/errors';
@@ -66,7 +63,6 @@ export function Swap() {
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
   const allTokensOnNetwork = useTokensWithBalances(true);
-  const { resetKeystoneRequest } = useKeystoneContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -194,15 +190,6 @@ export function Swap() {
       history.push('/home');
     }
   }
-
-  const { handleApproval, handleRejection, isApprovalOverlayVisible } =
-    useApprovalHelpers({
-      onApprove: performSwap,
-      onReject: () => {
-        resetKeystoneRequest();
-        capture('SwapCancelled');
-      },
-    });
 
   if (!isSwapSupported) {
     return (
@@ -387,7 +374,7 @@ export function Swap() {
                   destinationInputField,
                   slippageTolerance,
                 });
-                await handleApproval();
+                await performSwap();
               }}
               fullWidth
               size="large"
@@ -399,20 +386,6 @@ export function Swap() {
           </ReviewOrderButtonContainer>
         </Scrollbars>
       </Stack>
-
-      {isApprovalOverlayVisible && (
-        <TxInProgress
-          fee={(
-            ((networkFee?.low.maxFee || 0n) * BigInt(swapGasLimit)) /
-            10n ** BigInt(network?.networkToken.decimals ?? 18)
-          ).toString()}
-          feeSymbol={network?.networkToken.symbol}
-          amount={fromTokenValue?.amount}
-          symbol={selectedFromToken?.symbol}
-          onReject={handleRejection}
-          onSubmit={handleApproval}
-        />
-      )}
     </Stack>
   );
 }
