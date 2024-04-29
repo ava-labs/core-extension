@@ -40,6 +40,12 @@ const AddCustomNetworkPopup = lazy(() => {
   }));
 });
 
+const LedgerConnect = lazy(() => {
+  return import('../pages/Ledger/Connect').then((m) => ({
+    default: m.LedgerConnect,
+  }));
+});
+
 const SwitchActiveNetwork = lazy(() => {
   return import('../pages/Network/SwitchActiveNetwork').then((m) => ({
     default: m.SwitchActiveNetwork,
@@ -105,6 +111,11 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       </Route>
       <Route path="/sign">
         <SignMessage />
+      </Route>
+      <Route path="/ledger/connect">
+        <Suspense fallback={<CircularProgress />}>
+          <LedgerConnect />
+        </Suspense>
       </Route>
       <Route path="/approve/select-wallet">
         <SelectWallet />
