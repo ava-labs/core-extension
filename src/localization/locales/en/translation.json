@@ -721,7 +721,7 @@
   "Sending To": "Sending To",
   "Sent": "Sent",
   "Set Up Later": "Set Up Later",
-  "Set a limit that you will allow {{domain}} to automatically spend.": "Set a limit that you will allow {{domain}} to automatically spend.",
+  "Set a limit that you will allow <b>{{domain}}</b> to automatically spend.": "Set a limit that you will allow <b>{{domain}}</b> to automatically spend.",
   "Show Private Key": "Show Private Key",
   "Show Recovery": "Show Recovery",
   "Show Recovery Phrase": "Show Recovery Phrase",
