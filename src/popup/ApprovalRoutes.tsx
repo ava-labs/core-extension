@@ -22,6 +22,18 @@ const SignTransactionPage = lazy(() => {
   }));
 });
 
+const SeedlessAuthPopup = lazy(() => {
+  return import('../pages/SeedlessPopups/SeedlessAuthPopup').then((m) => ({
+    default: m.SeedlessAuthPopup,
+  }));
+});
+
+const SeedlessExportPopup = lazy(() => {
+  return import('../pages/SeedlessPopups/SeedlessExportPopup').then((m) => ({
+    default: m.SeedlessExportPopup,
+  }));
+});
+
 const WatchAssetApprovalPopup = lazy(() => {
   return import('../pages/ManageTokens/AddTokenApproval').then((m) => ({
     default: m.AddTokenApproval,
@@ -122,6 +134,16 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       </Route>
       <Route path="/approve/createContact">
         <UpdateContacts method="create" />
+      </Route>
+      <Route path="/seedless-auth">
+        <Suspense fallback={<CircularProgress />}>
+          <SeedlessAuthPopup />
+        </Suspense>
+      </Route>
+      <Route path="/seedless-export">
+        <Suspense fallback={<CircularProgress />}>
+          <SeedlessExportPopup />
+        </Suspense>
       </Route>
       <Route path="/approve/updateContact">
         <UpdateContacts method="update" />
