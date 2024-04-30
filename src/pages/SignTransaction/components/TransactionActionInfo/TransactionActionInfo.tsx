@@ -9,11 +9,12 @@ import {
   TransactionType,
 } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { Action } from '@src/background/services/actions/models';
+import { serializeToJSON } from '@src/background/serialization/serialize';
 
 const CALL_WITH_NO_DETAILS = JSON.stringify({ type: 'call' });
 
 const isCallWithNoDetails = (actions: TransactionAction[]) =>
-  actions.length === 1 && JSON.stringify(actions[0]) === CALL_WITH_NO_DETAILS;
+  actions.length === 1 && serializeToJSON(actions[0]) === CALL_WITH_NO_DETAILS;
 
 export const TransactionActionInfo = ({
   transaction,
