@@ -25,6 +25,7 @@ export enum FunctionNames {
   SEND = 'Send',
   SWAP = 'Swap',
   SIGN = 'Sign', // This is being used  by dApp approval process
+  TOKEN_DETAILS = 'TokenDetails',
 }
 
 const FeatureFlagMap: Record<string, FeatureGates> = {

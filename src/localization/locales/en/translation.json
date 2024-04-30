@@ -750,6 +750,7 @@
   "Sorry, an unknown error occurred.": "Sorry, an unknown error occurred.",
   "Sorry, we are having trouble logging you in.": "Sorry, we are having trouble logging you in.",
   "Sorry, {{functionName}} is unavailable on <br/>{{network}} network.": "Sorry, {{functionName}} is unavailable on <br/>{{network}} network.",
+  "Sorry, {{functionName}} on<br/>{{network}} network<br/>is not supported by this account.": "Sorry, {{functionName}} on<br/>{{network}} network<br/>is not supported by this account.",
   "Source Chain": "Source Chain",
   "Spanish": "Spanish",
   "Spend Limit": "Spend Limit",

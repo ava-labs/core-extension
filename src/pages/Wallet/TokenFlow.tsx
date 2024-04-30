@@ -33,6 +33,8 @@ import { openNewTab } from '@src/utils/extensionUtils';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
 
 export function TokenFlow() {
   const { t } = useTranslation();
@@ -41,6 +43,10 @@ export function TokenFlow() {
   const token = useTokenFromParams();
   const tokensWithBalances = useTokensWithBalances();
   const { capture } = useAnalyticsContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
+
   const [tokensWithBalancesAreReady, setTokensWithBalancesAreReady] =
     useState<boolean>();
   const [showSend, setShowSend] = useState<boolean>();
@@ -60,13 +66,33 @@ export function TokenFlow() {
     return isPchainNetwork(network);
   }, [network]);
 
+  const hasAccessToActiveNetwork = useMemo(() => {
+    if (isPchain && activeAccount && !activeAccount.addressPVM) {
+      return false;
+    }
+    return true;
+  }, [isPchain, activeAccount]);
+
   useEffect(() => {
     setShowSend(token?.balance.gt(new BN(0)));
   }, [token]);
 
   useEffect(() => {
-    setTokensWithBalancesAreReady(!!tokensWithBalances.length);
-  }, [tokensWithBalances]);
+    if (!hasAccessToActiveNetwork) {
+      setTokensWithBalancesAreReady(true);
+    } else {
+      setTokensWithBalancesAreReady(!!tokensWithBalances.length);
+    }
+  }, [activeAccount, hasAccessToActiveNetwork, isPchain, tokensWithBalances]);
+
+  if (!hasAccessToActiveNetwork) {
+    return (
+      <NotSupportedByWallet
+        functionName={FunctionNames.TOKEN_DETAILS}
+        network={network?.chainName || 'Testnet'}
+      />
+    );
+  }
 
   if (!token || tokensWithBalancesAreReady === undefined) {
     return <CircularProgress />;
