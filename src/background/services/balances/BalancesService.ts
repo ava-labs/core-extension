@@ -3,7 +3,10 @@ import { NetworkService } from '@src/background/services/network/NetworkService'
 import { BalancesServiceBTC } from '@src/background/services/balances/BalancesServiceBTC';
 import { BalancesServicePVM } from '@src/background/services/balances/BalancesServicePVM';
 import { singleton } from 'tsyringe';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  GlacierUnhealthyError,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import { Network, ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 import { Account } from '../accounts/models';
 import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
@@ -54,11 +57,19 @@ export class BalancesService {
     );
 
     if (isSupportedNetwork) {
-      return await this.balanceServiceGlacier.getBalances(
-        accounts,
-        network,
-        priceChanges
-      );
+      try {
+        return await this.balanceServiceGlacier.getBalances(
+          accounts,
+          network,
+          priceChanges
+        );
+      } catch (error) {
+        if (error instanceof GlacierUnhealthyError) {
+          this.glacierService.setGlacierToUnhealthy();
+        } else {
+          throw error;
+        }
+      }
     }
 
     // if the above fails in anyway we simply fallback to making the calls oursleves

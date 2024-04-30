@@ -8,7 +8,7 @@ import {
   SortOrder,
 } from '@avalabs/glacier-sdk';
 import { singleton } from 'tsyringe';
-import { resolve, wait } from '@avalabs/utils-sdk';
+import { wait } from '@avalabs/utils-sdk';
 
 import { CommonError } from '@src/utils/errors';
 
@@ -89,23 +89,16 @@ export class GlacierService {
      * This is for performance, basically we just cache the health of glacier every 5 seconds and
      * go off of that instead of every request
      */
-    setInterval(async () => {
-      const [healthStatus, healthStatusError] = await resolve(
-        this.glacierSdkInstance.healthCheck.healthCheck()
-      );
-
-      if (healthStatusError) {
-        this.isGlacierHealthy = false;
-        return;
-      }
-
-      const status = healthStatus?.status?.toString();
-      this.isGlacierHealthy = status === 'ok' ? true : false;
-    }, 5000);
-
     this.getSupportedNetworks().catch(() => {
       // Noop. It will be retried by .isSupportedNetwork calls upon unlocking if necessary.
     });
+  }
+
+  setGlacierToUnhealthy() {
+    this.isGlacierHealthy = false;
+    setTimeout(() => {
+      this.isGlacierHealthy = true;
+    }, 5 * 60 * 1000);
   }
 
   async getChainBalance(params: {

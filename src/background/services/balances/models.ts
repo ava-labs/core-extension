@@ -158,3 +158,7 @@ export interface TotalPriceChange {
   value: number;
   percentage: number[];
 }
+
+export class GlacierUnhealthyError extends Error {
+  message = 'Glacier is unhealthy. Try again later.';
+}

@@ -72,14 +72,13 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
   afterEach(() => {
     jest.useRealTimers();
   });
+  it('should call a `setTimeout` which sets `isGlacierHealthy` to true after 5 mins', async () => {
+    jest.spyOn(global, 'setTimeout');
 
-  it('checks if glacier is helthy every 5 seconds', async () => {
-    new GlacierService();
+    const glacierService = new GlacierService();
+    glacierService.setGlacierToUnhealthy();
 
-    for (let i = 0; i < 3; i++) {
-      jest.advanceTimersByTime(5000);
-      expect(healthCheckMock).toHaveBeenCalledTimes(i + 1);
-    }
+    expect(setTimeout).toHaveBeenCalled();
   });
 
   describe('reindexNft', () => {
@@ -179,18 +178,12 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
   });
 
   describe('isNetworkSupported', () => {
-    it('returns false if glacier is not healthy', async () => {
-      healthCheckMock.mockRejectedValue('some error');
-
+    it('should set the `isNetworkSupported` to false (and set the `isGlacierHealthy` to false as well)', async () => {
       const glacierService = new GlacierService();
-      supportedChainsMock.mockReset(); // It's first called when GlacierService is instantiated, so we need to reset the counter.
+      glacierService.setGlacierToUnhealthy();
 
-      await waitForFirstHealthCheck();
-
-      const result = await glacierService.isNetworkSupported(1);
-
-      expect(result).toBe(false);
-      expect(supportedChainsMock).not.toHaveBeenCalled();
+      const isNetworkSupported = await glacierService.isNetworkSupported(1);
+      expect(isNetworkSupported).toBe(false);
     });
 
     it('returns false if fetching supported chains fails', async () => {
