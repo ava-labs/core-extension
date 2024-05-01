@@ -175,14 +175,14 @@ export function SendContextProvider<T extends SendableToken = SendableToken>({
         error: undefined,
       };
       const { address, amount } = sendState;
-      const [walletError, wallet] = await resolve(getWallet());
+      const [wallet, walletError] = await resolve(getWallet());
 
       if (walletError) {
         return getErrorState(sendState, 'Unable to construct wallet');
       }
 
       // using filtered UTXOs because there is size limit
-      const [utxosError, utxos] = await resolve(getFilteredUtxos(wallet));
+      const [utxos, utxosError] = await resolve(getFilteredUtxos(wallet));
 
       if (utxosError) {
         return getErrorState(sendState, 'Unable to fetch UTXOs');
