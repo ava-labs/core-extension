@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useGetRequestId } from './useGetRequestId';
 
 jest.mock('react-router-dom', () => ({
-  useHistory: jest.fn(),
+  useLocation: jest.fn(),
 }));
 
 describe('hooks/useGetRequestId', () => {
@@ -12,10 +12,8 @@ describe('hooks/useGetRequestId', () => {
   });
 
   it('returns the id from parms', () => {
-    (useHistory as jest.Mock).mockReturnValue({
-      location: {
-        search: '?actionId=1234',
-      },
+    (useLocation as jest.Mock).mockReturnValue({
+      search: '?actionId=1234',
     });
 
     const { result } = renderHook(() => useGetRequestId());
@@ -23,10 +21,8 @@ describe('hooks/useGetRequestId', () => {
   });
 
   it('returns the id when not the first param', () => {
-    (useHistory as jest.Mock).mockReturnValue({
-      location: {
-        search: '?something=otherthing&actionId=1234',
-      },
+    (useLocation as jest.Mock).mockReturnValue({
+      search: '?something=otherthing&actionId=1234',
     });
 
     const { result } = renderHook(() => useGetRequestId());
@@ -34,10 +30,8 @@ describe('hooks/useGetRequestId', () => {
   });
 
   it('returns empty string when id not present', () => {
-    (useHistory as jest.Mock).mockReturnValue({
-      location: {
-        search: '?something=otherthing&notId=1234',
-      },
+    (useLocation as jest.Mock).mockReturnValue({
+      search: '?something=otherthing&notId=1234',
     });
 
     const { result } = renderHook(() => useGetRequestId());
@@ -45,18 +39,14 @@ describe('hooks/useGetRequestId', () => {
   });
 
   it('updates when the params change', () => {
-    (useHistory as jest.Mock).mockReturnValue({
-      location: {
-        search: '?actionId=1234',
-      },
+    (useLocation as jest.Mock).mockReturnValue({
+      search: '?actionId=1234',
     });
 
     const { result, rerender } = renderHook(() => useGetRequestId());
 
-    (useHistory as jest.Mock).mockReturnValue({
-      location: {
-        search: '?actionId=4567',
-      },
+    (useLocation as jest.Mock).mockReturnValue({
+      search: '?actionId=4567',
     });
     rerender();
 

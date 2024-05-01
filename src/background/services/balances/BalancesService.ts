@@ -1,13 +1,19 @@
 import { BalancesServiceEVM } from '@src/background/services/balances/BalancesServiceEVM';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { BalancesServiceBTC } from '@src/background/services/balances/BalancesServiceBTC';
+import { BalancesServicePVM } from '@src/background/services/balances/BalancesServicePVM';
 import { singleton } from 'tsyringe';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  GlacierUnhealthyError,
+  TokenWithBalance,
+} from '@src/background/services/balances/models';
 import { Network, ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 import { Account } from '../accounts/models';
 import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
 import { BalancesServiceGlacier } from './BalancesServiceGlacier';
 import { GlacierService } from '../glacier/GlacierService';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
 import { TokensPriceShortData } from '../tokens/models';
 
 @singleton()
@@ -15,6 +21,7 @@ export class BalancesService {
   constructor(
     private balancesServiceEVM: BalancesServiceEVM,
     private balancesServiceBTC: BalancesServiceBTC,
+    private balancesServicePVM: BalancesServicePVM,
     private networkService: NetworkService,
     private balanceServiceGlacier: BalancesServiceGlacier,
     private glacierService: GlacierService
@@ -37,16 +44,32 @@ export class BalancesService {
     accounts: Account[],
     priceChanges?: TokensPriceShortData
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
+    if (isPchainNetwork(network)) {
+      const pChainBalances = await this.balancesServicePVM.getBalances({
+        accounts,
+        network,
+      });
+      return pChainBalances;
+    }
+
     const isSupportedNetwork = await this.glacierService.isNetworkSupported(
       network.chainId
     );
 
     if (isSupportedNetwork) {
-      return await this.balanceServiceGlacier.getBalances(
-        accounts,
-        network,
-        priceChanges
-      );
+      try {
+        return await this.balanceServiceGlacier.getBalances(
+          accounts,
+          network,
+          priceChanges
+        );
+      } catch (error) {
+        if (error instanceof GlacierUnhealthyError) {
+          this.glacierService.setGlacierToUnhealthy();
+        } else {
+          throw error;
+        }
+      }
     }
 
     // if the above fails in anyway we simply fallback to making the calls oursleves
@@ -65,10 +88,7 @@ export class BalancesService {
       const provider = await this.networkService.getEthereumProvider();
       return getBalanceForProvider(provider);
     } else if (network.vmName === NetworkVMType.EVM) {
-      const provider = await this.networkService.getProviderForNetwork(
-        network,
-        true
-      );
+      const provider = getProviderForNetwork(network, true);
       return getBalanceForProvider(provider);
     } else {
       throw new Error('unsupported network');

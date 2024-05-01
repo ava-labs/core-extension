@@ -8,6 +8,7 @@ import { TokenType } from '../balances/models';
 import { NetworkService } from '../network/NetworkService';
 import { HistoryServiceBridgeHelper } from './HistoryServiceBridgeHelper';
 import { TransactionType, TxHistoryItem } from './models';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 @singleton()
 export class HistoryServiceBTC {
@@ -78,9 +79,7 @@ export class HistoryServiceBTC {
     if (!account) {
       return [];
     }
-    const provider = this.networkService.getProviderForNetwork(
-      network
-    ) as BitcoinProvider;
+    const provider = getProviderForNetwork(network) as BitcoinProvider;
 
     try {
       const txHistory: BitcoinHistoryTx[] = await provider.getTxHistory(

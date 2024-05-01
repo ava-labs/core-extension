@@ -20,6 +20,7 @@ import { TOTPModal } from './modals/TOTPModal';
 import { getOidcClient } from '@src/utils/seedless/getCubeSigner';
 import { FIDOModal } from './modals/FIDOModal';
 import { FIDOSteps, RecoveryMethodTypes } from './models';
+import { WalletType } from '@avalabs/types';
 
 export function RecoveryMethodsLogin() {
   const history = useHistory();
@@ -28,7 +29,7 @@ export function RecoveryMethodsLogin() {
     useState<RecoveryMethodTypes | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
-  const { oidcToken } = useOnboardingContext();
+  const { oidcToken, setOnboardingWalletType } = useOnboardingContext();
   const [configuredMfas, setConfiguredMfas] = useState<
     { type: RecoveryMethodTypes; name: string }[]
   >([]);
@@ -44,6 +45,7 @@ export function RecoveryMethodsLogin() {
   }, [history, oidcToken, t]);
 
   useEffect(() => {
+    setOnboardingWalletType(WalletType.Seedless);
     setIsLoading(true);
     const getMfas = async () => {
       if (!oidcToken) {
@@ -81,7 +83,7 @@ export function RecoveryMethodsLogin() {
       setIsLoading(false);
     };
     getMfas();
-  }, [oidcToken]);
+  }, [oidcToken, setOnboardingWalletType]);
 
   const onFinish = useCallback(() => {
     history.push(OnboardingURLs.CREATE_PASSWORD);

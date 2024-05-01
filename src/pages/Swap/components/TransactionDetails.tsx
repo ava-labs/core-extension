@@ -1,36 +1,23 @@
 import { useState } from 'react';
 import { SlippageToolTip } from './SlippageToolTip';
 import { useTranslation } from 'react-i18next';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import {
   Stack,
   Typography,
   useTheme,
   styled,
   ChevronUpIcon,
-  ChevronDownIcon,
   TextField,
+  Grow,
 } from '@avalabs/k2-components';
-import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
   toTokenSymbol: string;
   rate: number;
-  onGasChange(values: {
-    customGasLimit?: number;
-    maxFeePerGas: bigint;
-    maxPriorityFeePerGas?: bigint;
-    feeType: GasFeeModifier;
-  }): void;
-  gasLimit: number;
-  gasPrice: bigint;
   slippage: string;
   setSlippage: (slippage: string) => void;
   setIsOpen?: (isOpen: boolean) => void;
-  maxGasPrice?: string;
-  selectedGasFee?: GasFeeModifier;
   isTransactionDetailsOpen?: boolean;
 }
 
@@ -42,7 +29,6 @@ const isSlippageValid = (value: string) => {
 };
 
 const Container = styled('div')`
-  margin-top: 8px;
   margin-bottom: 32px;
 `;
 
@@ -66,19 +52,12 @@ export function TransactionDetails({
   fromTokenSymbol,
   toTokenSymbol,
   rate,
-  onGasChange,
-  gasLimit,
-  gasPrice,
   slippage,
   setSlippage,
   setIsOpen,
-  maxGasPrice,
-  selectedGasFee,
   isTransactionDetailsOpen,
 }: TransactionDetailsProps) {
   const { t } = useTranslation();
-  const { network } = useNetworkContext();
-  const { networkFee } = useNetworkFeeContext();
   const [isDetailsOpen, setIsDetailsOpen] = useState(
     isTransactionDetailsOpen || false
   );
@@ -103,15 +82,17 @@ export function TransactionDetails({
             </Typography>
           </Stack>
           <Stack sx={{ width: '24px' }}>
-            {isDetailsOpen ? (
-              <ChevronUpIcon size={21} />
-            ) : (
-              <ChevronDownIcon size={21} />
-            )}
+            <ChevronUpIcon
+              size={21}
+              sx={{
+                transition: 'transform ease .15s',
+                transform: isDetailsOpen ? 'rotateX(0deg)' : 'rotateX(180deg)',
+              }}
+            />
           </Stack>
         </DetailsRow>
       </TitleContainer>
-      {isDetailsOpen && (
+      <Grow in={isDetailsOpen}>
         <DetailsContainer>
           <DetailsRow>
             <Typography
@@ -163,23 +144,8 @@ export function TransactionDetails({
               />
             </Stack>
           </Stack>
-          <DetailsRow sx={{ mt: 5 }}>
-            <Stack sx={{ width: '100%' }}>
-              {gasLimit && gasPrice && (
-                <CustomFees
-                  maxFeePerGas={gasPrice}
-                  limit={gasLimit}
-                  onChange={onGasChange}
-                  maxGasPrice={maxGasPrice}
-                  selectedGasFeeModifier={selectedGasFee}
-                  network={network}
-                  networkFee={networkFee}
-                />
-              )}
-            </Stack>
-          </DetailsRow>
         </DetailsContainer>
-      )}
+      </Grow>
     </Container>
   );
 }

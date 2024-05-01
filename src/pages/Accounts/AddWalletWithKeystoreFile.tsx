@@ -77,7 +77,7 @@ export function AddWalletWithKeystoreFile() {
 
   const onFileSelected = useCallback(
     async (rawFile: File | null) => {
-      if (!rawFile || !rawFile.type.includes('json')) {
+      if (!rawFile) {
         setError(KeystoreError.InvalidVersion);
         setStep(Step.Error);
         return;

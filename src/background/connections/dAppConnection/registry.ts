@@ -2,7 +2,7 @@ import { AccountsChangedEvents } from '@src/background/services/accounts/events/
 import { AvalancheGetAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_getAccounts';
 import { AvalancheSelectAccountHandler } from '@src/background/services/accounts/handlers/avalanche_selectAccount';
 import { EthAccountsHandler } from '@src/background/services/accounts/handlers/eth_accounts';
-import { ActionCompletedEvents } from '@src/background/services/actions/events/actionCompletedEvents';
+import { ActionEvents } from '@src/background/services/actions/events/actionEvents';
 import { AvalancheBridgeAsset } from '@src/background/services/bridge/handlers/avalanche_bridgeAsset';
 import { AvalancheGetBridgeTransactionHandler } from '@src/background/services/bridge/handlers/avalanche_getBridgeState';
 import { AvalancheGetContactsHandler } from '@src/background/services/contacts/handlers/avalanche_getContacts';
@@ -91,6 +91,6 @@ export class DappRequestHandlerRegistry {}
 @registry([
   { token: 'DAppEventEmitter', useToken: AccountsChangedEvents },
   { token: 'DAppEventEmitter', useToken: ChainChangedEvents },
-  { token: 'DAppEventEmitter', useToken: ActionCompletedEvents },
+  { token: 'DAppEventEmitter', useToken: ActionEvents },
 ])
 export class DappEventEmitterRegistry {}

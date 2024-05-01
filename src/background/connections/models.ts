@@ -1,43 +1,44 @@
 /* eslint-disable no-prototype-builtins */
 
 import { Runtime } from 'webextension-polyfill';
-import { DomainMetadata } from '../models';
+import { ArrayElement, DomainMetadata } from '../models';
 import { ExtensionRequest } from './extensionConnection/models';
-import { JsonRpcRequest } from './dAppConnection/models';
+import { DAppProviderRequest, JsonRpcRequest } from './dAppConnection/models';
 import { ErrorData } from '@src/utils/errors';
-import { EthereumRpcError } from 'eth-rpc-errors';
+import { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
+import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
+import { DAppRequestHandler } from './dAppConnection/DAppRequestHandler';
 
 interface ExtensionConnectionMessageBase<
-  Method extends ExtensionRequest,
+  Method extends ExtensionRequest | DAppProviderRequest,
   Data
 > {
   id: string;
   method: Method;
   /**
-   * Domain and icon get added onto incoming requests at the permission
-   * level, its only present on requests from dApps. Look in
-   * dAppConnection -> providerController to see injection point
+   * Domain metadata gets added to incoming requests only
+   * for requests that go to DAppRequestHandler's.
    */
   site?: DomainMetadata;
   data?: Data;
   tabId?: number;
 }
 interface ExtensionConnectionMessageWithParams<
-  Method extends ExtensionRequest,
+  Method extends ExtensionRequest | DAppProviderRequest,
   Params,
   Data
 > extends ExtensionConnectionMessageBase<Method, Data> {
   params: Params;
 }
 interface ExtensionConnectionMessageWithoutParams<
-  Method extends ExtensionRequest,
+  Method extends ExtensionRequest | DAppProviderRequest,
   Data
 > extends ExtensionConnectionMessageBase<Method, Data> {
   params?: never;
 }
 
 export type ExtensionConnectionMessage<
-  Method extends ExtensionRequest = any,
+  Method extends ExtensionRequest | DAppProviderRequest = any,
   Params = any,
   Data = any
 > = Params extends undefined
@@ -45,7 +46,7 @@ export type ExtensionConnectionMessage<
   : ExtensionConnectionMessageWithParams<Method, Params, Data>;
 
 export type ExtensionConnectionMessageResponse<
-  Method extends ExtensionRequest = any,
+  Method extends ExtensionRequest | DAppProviderRequest = any,
   Result = any,
   Params = any,
   Data = any
@@ -57,7 +58,11 @@ export type ExtensionConnectionMessageResponse<
       }
     | {
         result?: never;
-        error: string | EthereumRpcError<ErrorData>;
+        error:
+          | string
+          | EthereumRpcError<ErrorData>
+          | EthereumProviderError<Params>
+          | SerializedEthereumRpcError;
       }
   );
 
@@ -91,7 +96,7 @@ export function isConnectionResponse(
  * string
  */
 export interface ExtensionRequestHandler<
-  Method extends ExtensionRequest,
+  Method extends ExtensionRequest | DAppProviderRequest,
   Result,
   // `= undefined` is needed here so calls to ConnectionProvider's `request`
   // function will complain when `params` are provided but not expected.
@@ -113,6 +118,8 @@ type ExtractHandlerTypes<Type> = Type extends ExtensionRequestHandler<
   infer D
 >
   ? { Method: M; Result: R; Params: P; Data: D }
+  : Type extends DAppRequestHandler<infer P, infer R>
+  ? { Method: ArrayElement<Type['methods']>; Params: P; Result: R; Data: never }
   : never;
 
 /**
@@ -121,9 +128,13 @@ type ExtractHandlerTypes<Type> = Type extends ExtensionRequestHandler<
  */
 export type RequestHandlerType = <
   // Reference to a class that implements ExtensionRequestHandler.
-  Handler extends ExtensionRequestHandler<Method, Result, Params, Data>,
+  Handler extends
+    | ExtensionRequestHandler<Method, Result, Params, Data>
+    | DAppRequestHandler<Result, Params>,
   // The following type arguments should NOT be provided, they are inferred.
-  Method extends ExtensionRequest = ExtractHandlerTypes<Handler>['Method'],
+  Method extends
+    | ExtensionRequest
+    | DAppProviderRequest = ExtractHandlerTypes<Handler>['Method'],
   Result = ExtractHandlerTypes<Handler>['Result'],
   Params = ExtractHandlerTypes<Handler>['Params'],
   Data = ExtractHandlerTypes<Handler>['Data']

@@ -18,6 +18,7 @@ export function getTranslatedFunctionName(name: FunctionNames) {
     [FunctionNames.BUY]: translate('Buy'),
     [FunctionNames.DEFI]: translate('DeFi'),
     [FunctionNames.KEYSTONE]: translate('Keystone'),
+    [FunctionNames.TOKEN_DETAILS]: translate('Token Details'),
   };
 
   return translations[name];

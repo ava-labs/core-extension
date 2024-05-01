@@ -6,6 +6,8 @@ import { HistoryServiceETH } from './HistoryServiceETH';
 import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
 import { GlacierService } from '../glacier/GlacierService';
 import { HistoryServiceGlacier } from './HistoryServiceGlacier';
+import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
+import { HistoryServicePVM } from './HistoryServicePVM';
 
 @singleton()
 export class HistoryService {
@@ -14,7 +16,8 @@ export class HistoryService {
     private btcHistoryService: HistoryServiceBTC,
     private ethHistoryService: HistoryServiceETH,
     private glacierHistoryService: HistoryServiceGlacier,
-    private glacierService: GlacierService
+    private glacierService: GlacierService,
+    private historyServicePVM: HistoryServicePVM
   ) {}
 
   async getTxHistory() {
@@ -33,6 +36,8 @@ export class HistoryService {
         return await this.btcHistoryService.getHistory(network);
       } else if (isEthereumNetwork(network)) {
         return await this.ethHistoryService.getHistory(network);
+      } else if (isPchainNetwork(network)) {
+        return await this.historyServicePVM.getHistory(network);
       }
     }
     return [];

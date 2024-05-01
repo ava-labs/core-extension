@@ -1,24 +1,19 @@
 import {
-  BITCOIN_NETWORK,
-  BITCOIN_TEST_NETWORK,
   ChainId,
   getChainsAndTokens,
   NetworkVMType,
 } from '@avalabs/chains-sdk';
-import {
-  BitcoinProvider,
-  JsonRpcBatchInternal,
-  Avalanche,
-} from '@avalabs/wallets-sdk';
-import { addGlacierAPIKeyIfNeeded } from '@src/utils/addGlacierAPIKeyIfNeeded';
+import { FetchRequest } from 'ethers';
+import { Signal } from 'micro-signals';
+
 import { StorageService } from '../storage/StorageService';
 import { NetworkService } from './NetworkService';
-import { FetchRequest, Network } from 'ethers';
 import {
   NETWORK_LIST_STORAGE_KEY,
   NETWORK_OVERRIDES_STORAGE_KEY,
 } from './models';
-import { Signal } from 'micro-signals';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import { FeatureGates } from '../featureFlags/models';
 
 jest.mock('@avalabs/wallets-sdk', () => {
   const BitcoinProviderMock = jest.fn();
@@ -43,7 +38,7 @@ jest.mock('ethers', () => ({
   FetchRequest: jest.fn(),
 }));
 
-jest.mock('@src/utils/addGlacierAPIKeyIfNeeded', () => ({
+jest.mock('@src/utils/network/addGlacierAPIKeyIfNeeded', () => ({
   addGlacierAPIKeyIfNeeded: jest.fn(),
 }));
 
@@ -83,7 +78,17 @@ describe('background/services/network/NetworkService', () => {
     save: jest.fn(),
     saveUnencrypted: jest.fn(),
   } as any);
-  const service = new NetworkService(storageServiceMock);
+
+  const featureFlagsServiceMock = jest.mocked<FeatureFlagService>({
+    featureFlags: {
+      [FeatureGates.IN_APP_SUPPORT_P_CHAIN]: true,
+    },
+    addListener: jest.fn(),
+  } as any);
+  const service = new NetworkService(
+    storageServiceMock,
+    featureFlagsServiceMock
+  );
 
   beforeAll(() => {
     process.env = {
@@ -136,7 +141,10 @@ describe('background/services/network/NetworkService', () => {
         },
       } as any;
 
-      const networkService = new NetworkService(storageServiceMock);
+      const networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock
+      );
 
       await networkService.updateNetworkOverrides(overrides);
 
@@ -158,7 +166,10 @@ describe('background/services/network/NetworkService', () => {
         rpcUrl: 'http://default.rpc',
       } as const;
 
-      const networkService = new NetworkService(storageServiceMock);
+      const networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock
+      );
 
       // eslint-disable-next-line
       // @ts-expect-error
@@ -316,7 +327,10 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('applies config overrides to .allNetworks signal', async () => {
-      const networkService = new NetworkService(storageServiceMock);
+      const networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock
+      );
 
       // eslint-disable-next-line
       // @ts-expect-error
@@ -334,7 +348,10 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('applies config overrides to .activeNetworks signal', async () => {
-      const networkService = new NetworkService(storageServiceMock);
+      const networkService = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock
+      );
 
       // eslint-disable-next-line
       // @ts-expect-error
@@ -353,7 +370,10 @@ describe('background/services/network/NetworkService', () => {
   });
 
   it('filters networks by .isTestnet for .activeNetworks signal', async () => {
-    const networkService = new NetworkService(storageServiceMock);
+    const networkService = new NetworkService(
+      storageServiceMock,
+      featureFlagsServiceMock
+    );
 
     jest.spyOn(networkService, 'activeNetwork', 'get').mockReturnValue({
       isTestnet: false,
@@ -402,193 +422,51 @@ describe('background/services/network/NetworkService', () => {
     });
   });
 
-  describe('getProviderForNetwork', () => {
-    const mockJsonRpcBatchInternalInstance = {};
-    const mockBitcoinProviderInstance = {};
-    const mockFujiProviderInstance = {};
-    const mockMainnetProviderInstance = {};
+  it('filters pchain network by feature flag when dispatching allNetowrks signal', async () => {
+    const allNetworks = {
+      '1': {
+        chainId: 1,
+        isTestnet: false,
+      },
+      [ChainId.AVALANCHE_TEST_XP]: {
+        chainId: ChainId.AVALANCHE_TEST_XP,
+        vmName: NetworkVMType.PVM,
+        isTestnet: false,
+      },
+    } as any;
+    const networkService = new NetworkService(
+      storageServiceMock,
+      featureFlagsServiceMock
+    );
 
-    const networkService = new NetworkService({} as unknown as StorageService);
+    jest.spyOn(networkService, 'activeNetwork', 'get').mockReturnValue({
+      isTestnet: false,
+    } as any);
 
-    beforeEach(() => {
-      (addGlacierAPIKeyIfNeeded as jest.Mock).mockImplementation((v) => v);
-      (JsonRpcBatchInternal as unknown as jest.Mock).mockReturnValue(
-        mockJsonRpcBatchInternalInstance
-      );
-      (BitcoinProvider as jest.Mock).mockReturnValue(
-        mockBitcoinProviderInstance
-      );
-      (
-        Avalanche.JsonRpcProvider.getDefaultFujiProvider as jest.Mock
-      ).mockReturnValue(mockFujiProviderInstance);
-      (
-        Avalanche.JsonRpcProvider.getDefaultMainnetProvider as jest.Mock
-      ).mockReturnValue(mockMainnetProviderInstance);
-    });
+    // Feature flag turned on. Should include Pchain
 
-    it('returns a json rpc provider for evm chains', () => {
-      const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
-      const provider = networkService.getProviderForNetwork(mockEVMNetwork);
+    // eslint-disable-next-line
+    // @ts-expect-error
+    networkService._allNetworks.dispatch(allNetworks);
 
-      expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
-      expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
-        40,
-        expect.objectContaining({ url: mockEVMNetwork.rpcUrl }),
-        new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
-      );
-      expect((provider as JsonRpcBatchInternal).pollingInterval).toEqual(2000);
-      expect(provider).toBe(mockJsonRpcBatchInternalInstance);
-    });
+    const result1 = await networkService.activeNetworks.promisify();
+    expect(await result1).toEqual(allNetworks);
 
-    it('applies custom headers if they are configured', async () => {
-      const fetchConfig = {
-        setHeader: jest.fn(),
-      };
-      jest.mocked(FetchRequest).mockReturnValue(fetchConfig as any);
+    featureFlagsServiceMock.featureFlags[FeatureGates.IN_APP_SUPPORT_P_CHAIN] =
+      false;
 
-      const mockEVMNetwork = mockNetwork(NetworkVMType.EVM, false, {
-        customRpcHeaders: {
-          'X-Glacier-Api-Key': 'my-elite-key',
-        },
-      });
+    // Feature flag turned off. Should not include Pchain
 
-      networkService.getProviderForNetwork(mockEVMNetwork);
+    // eslint-disable-next-line
+    // @ts-expect-error
+    networkService._allNetworks.dispatch(allNetworks);
 
-      expect(fetchConfig.setHeader).toHaveBeenCalledTimes(1);
-      expect(fetchConfig.setHeader).toHaveBeenCalledWith(
-        'X-Glacier-Api-Key',
-        'my-elite-key'
-      );
-
-      expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
-      expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
-        40,
-        fetchConfig,
-        new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
-      );
-    });
-
-    it('uses multicall when requested', () => {
-      const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
-      const provider = networkService.getProviderForNetwork(
-        {
-          ...mockEVMNetwork,
-          utilityAddresses: {
-            multicall: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-          },
-        },
-        true
-      );
-
-      expect(provider).toBe(mockJsonRpcBatchInternalInstance);
-      expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
-      expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
-        {
-          maxCalls: 40,
-          multiContractAddress: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        },
-        expect.objectContaining({ url: mockEVMNetwork.rpcUrl }),
-        new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
-      );
-    });
-
-    it('adds glacier api key for glacier urls', () => {
-      (addGlacierAPIKeyIfNeeded as jest.Mock).mockReturnValue(
-        'https://urlwithglacierkey.example'
-      );
-
-      const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
-      const provider = networkService.getProviderForNetwork(mockEVMNetwork);
-
-      expect(provider).toBe(mockJsonRpcBatchInternalInstance);
-      expect(addGlacierAPIKeyIfNeeded).toHaveBeenCalledWith(
-        mockEVMNetwork.rpcUrl
-      );
-      expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
-      expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
-        40,
-        expect.objectContaining({ url: 'https://urlwithglacierkey.example' }),
-        new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
-      );
-    });
-
-    it('returns bitcoin provider for BTC testnet', () => {
-      const provider =
-        networkService.getProviderForNetwork(BITCOIN_TEST_NETWORK);
-
-      expect(provider).toBe(mockBitcoinProviderInstance);
-      expect(BitcoinProvider).toHaveBeenCalledTimes(1);
-      expect(BitcoinProvider).toHaveBeenCalledWith(
-        false,
-        undefined,
-        `${process.env.PROXY_URL}/proxy/nownodes/btcbook-testnet`,
-        `${process.env.PROXY_URL}/proxy/nownodes/btc-testnet`,
-        { token: process.env.GLACIER_API_KEY }
-      );
-    });
-
-    it('returns bitcoin provider for BTC mainnet', () => {
-      const provider = networkService.getProviderForNetwork(BITCOIN_NETWORK);
-
-      expect(provider).toBe(mockBitcoinProviderInstance);
-      expect(BitcoinProvider).toHaveBeenCalledTimes(1);
-      expect(BitcoinProvider).toHaveBeenCalledWith(
-        true,
-        undefined,
-        `${process.env.PROXY_URL}/proxy/nownodes/btcbook`,
-        `${process.env.PROXY_URL}/proxy/nownodes/btc`,
-        { token: process.env.GLACIER_API_KEY }
-      );
-    });
-
-    it('returns fuji provider for X-chain test network', () => {
-      const mockAVMNetwork = mockNetwork(NetworkVMType.AVM);
-      const provider = networkService.getProviderForNetwork(mockAVMNetwork);
-
-      expect(provider).toBe(mockFujiProviderInstance);
-      expect(
-        Avalanche.JsonRpcProvider.getDefaultFujiProvider
-      ).toHaveBeenCalledTimes(1);
-    });
-
-    it('returns mainnet provider for X-chain network', () => {
-      const mockAVMNetwork = mockNetwork(NetworkVMType.AVM, false);
-      const provider = networkService.getProviderForNetwork(mockAVMNetwork);
-
-      expect(provider).toBe(mockMainnetProviderInstance);
-      expect(
-        Avalanche.JsonRpcProvider.getDefaultMainnetProvider
-      ).toHaveBeenCalledTimes(1);
-    });
-
-    it('returns fuji provider for P-chain test network', () => {
-      const mockAVMNetwork = mockNetwork(NetworkVMType.PVM);
-      const provider = networkService.getProviderForNetwork(mockAVMNetwork);
-
-      expect(provider).toBe(mockFujiProviderInstance);
-      expect(
-        Avalanche.JsonRpcProvider.getDefaultFujiProvider
-      ).toHaveBeenCalledTimes(1);
-    });
-
-    it('returns mainnet provider for P-chain network', () => {
-      const mockAVMNetwork = mockNetwork(NetworkVMType.PVM, false);
-      const provider = networkService.getProviderForNetwork(mockAVMNetwork);
-
-      expect(provider).toBe(mockMainnetProviderInstance);
-      expect(
-        Avalanche.JsonRpcProvider.getDefaultMainnetProvider
-      ).toHaveBeenCalledTimes(1);
-    });
-
-    it('returns error when VM is not supported', () => {
-      const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
-      expect(() => {
-        networkService.getProviderForNetwork({
-          ...mockEVMNetwork,
-          vmName: 'CRAPPYVM' as unknown as NetworkVMType,
-        });
-      }).toThrow(new Error('unsupported network'));
+    const result2 = await networkService.activeNetworks.promisify();
+    expect(await result2).toEqual({
+      '1': {
+        chainId: 1,
+        isTestnet: false,
+      },
     });
   });
 });

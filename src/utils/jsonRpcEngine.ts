@@ -1,7 +1,7 @@
 import { JsonRpcEngine } from 'json-rpc-engine';
 import { createFetchMiddleware } from 'eth-json-rpc-middleware';
 import { Network } from '@avalabs/chains-sdk';
-import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
+import { addGlacierAPIKeyIfNeeded } from './network/addGlacierAPIKeyIfNeeded';
 
 export async function engine(network: Network) {
   const fetchMiddleware = createFetchMiddleware({

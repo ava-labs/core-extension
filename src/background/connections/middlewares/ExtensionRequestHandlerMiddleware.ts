@@ -37,6 +37,7 @@ export function ExtensionRequestHandlerMiddleware(
       error
         ? sentryTracker.setStatus('intertal_error')
         : sentryTracker.setStatus('ok');
+
       return {
         ...(error ? error : result),
       };

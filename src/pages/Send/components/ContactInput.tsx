@@ -20,6 +20,9 @@ import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { isValidXPAddress } from '@src/utils/isAddressValid';
+import { addressXpToAddressPvm } from '@src/utils/addressXPToaddressPVM';
 
 const truncateName = (name: string) => {
   if (name.length < 28) return name;
@@ -73,6 +76,8 @@ export const ContactInput = ({
    */
   const contactAddress = isBitcoin(network)
     ? contact?.addressBTC
+    : isPchainNetwork(network)
+    ? addressXpToAddressPvm(contact)
     : contact?.address;
 
   const isValidAddress = (): boolean => {
@@ -82,6 +87,11 @@ export const ContactInput = ({
     if (network?.vmName === NetworkVMType.BITCOIN) {
       return contact && contact.addressBTC
         ? isBech32Address(contact.addressBTC)
+        : false;
+    }
+    if (isPchainNetwork(network)) {
+      return contact && contact.addressXP
+        ? isValidXPAddress(contact.addressXP)
         : false;
     }
     return false;

@@ -83,6 +83,7 @@ interface TokenSelectProps {
   hideErrorMessage?: boolean;
   skipHandleMaxAmount?: boolean;
   containerRef?: MutableRefObject<HTMLElement | null>;
+  withMaxButton?: boolean;
 }
 
 export function TokenSelect({
@@ -104,6 +105,7 @@ export function TokenSelect({
   bridgeTokensList,
   setIsOpen,
   containerRef,
+  withMaxButton = true,
 }: TokenSelectProps) {
   const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
@@ -330,6 +332,7 @@ export function TokenSelect({
             max={
               !isValueLoading ? maxAmount || selectedToken?.balance : undefined
             }
+            withMaxButton={withMaxButton}
           />
         </InputContainer>
         <Stack

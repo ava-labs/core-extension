@@ -21,6 +21,7 @@ import {
 } from '../balances/models';
 import { isNFT } from '../balances/nft/utils/isNFT';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 @singleton()
 export class SendServiceEVM implements SendServiceHelper {
@@ -125,7 +126,7 @@ export class SendServiceEVM implements SendServiceHelper {
   private async getProvider() {
     const network = this.networkService.activeNetwork;
     if (!network) throw new Error('No active network');
-    const provider = this.networkService.getProviderForNetwork(network);
+    const provider = getProviderForNetwork(network);
     if (!(provider instanceof JsonRpcBatchInternal))
       throw new Error('Not EVM provider');
     return provider;

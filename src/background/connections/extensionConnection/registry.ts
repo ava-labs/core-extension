@@ -48,7 +48,6 @@ import { NetworkFeeUpdateEvents } from '@src/background/services/networkFee/even
 import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handlers/getNetworkFee';
 import { OnboardingUpdatedEvents } from '@src/background/services/onboarding/events/onboardingUpdatedEvent';
 import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
-import { SubmitOnboardingHandler } from '@src/background/services/onboarding/handlers/submitOnboarding';
 import { PermissionStateUpdateEvents } from '@src/background/services/permissions/events/permissionsStateUpdates';
 import { PermissionsAddDomainHandler } from '@src/background/services/permissions/handlers/addPermissionsForDomain';
 import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
@@ -64,13 +63,11 @@ import { SetAnalyticsConsentHandler } from '@src/background/services/settings/ha
 import { UpdateShowNoBalanceHandler } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
 import { UpdateThemeHandler } from '@src/background/services/settings/handlers/updateTheme';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
-import { GetSwapRateHandler } from '@src/background/services/swap/handlers/getSwapRate';
 import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
 import { GetWalletDetailsHandler } from '@src/background/services/wallet/handlers/getWalletDetails';
 import { registry } from 'tsyringe';
 import { UpdateCurrencyHandler } from '../../services/settings/handlers/updateCurrencySelection';
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
-import { PerformSwapHandler } from '../../services/swap/handlers/performSwap';
 import { NetworksUpdatedEvents } from '@src/background/services/network/events/networksUpdatedEvent';
 import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
@@ -136,6 +133,11 @@ import { RefreshNftMetadataHandler } from '@src/background/services/balances/han
 import { AddFidoDeviceHandler } from '@src/background/services/seedless/handlers/addFidoDevice';
 import { RemoveFidoDeviceHandler } from '@src/background/services/seedless/handlers/removeFidoDevice';
 import { RemoveTotpHandler } from '@src/background/services/seedless/handlers/removeTotp';
+import { MnemonicOnboardingHandler } from '@src/background/services/onboarding/handlers/mnemonicOnboardingHandler';
+import { SeedlessOnboardingHandler } from '@src/background/services/onboarding/handlers/seedlessOnboardingHandler';
+import { KeystoneOnboardingHandler } from '@src/background/services/onboarding/handlers/keystoneOnboardingHandler';
+import { LedgerOnboardingHandler } from '@src/background/services/onboarding/handlers/ledgerOnboardingHandler';
+import { ApprovalEvents } from '@src/background/services/approvals/events/approvalEvents';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -224,7 +226,10 @@ import { RemoveTotpHandler } from '@src/background/services/seedless/handlers/re
   },
   { token: 'ExtensionRequestHandler', useToken: GetNetworkFeeHandler },
   { token: 'ExtensionRequestHandler', useToken: GetIsOnboardedHandler },
-  { token: 'ExtensionRequestHandler', useToken: SubmitOnboardingHandler },
+  { token: 'ExtensionRequestHandler', useToken: MnemonicOnboardingHandler },
+  { token: 'ExtensionRequestHandler', useToken: SeedlessOnboardingHandler },
+  { token: 'ExtensionRequestHandler', useToken: KeystoneOnboardingHandler },
+  { token: 'ExtensionRequestHandler', useToken: LedgerOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: PermissionsAddDomainHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAllPermissionsHandler },
   {
@@ -246,8 +251,6 @@ import { RemoveTotpHandler } from '@src/background/services/seedless/handlers/re
   { token: 'ExtensionRequestHandler', useToken: UpdateThemeHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateTokensVisiblityHandler },
   { token: 'ExtensionRequestHandler', useToken: ResetExtensionStateHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetSwapRateHandler },
-  { token: 'ExtensionRequestHandler', useToken: PerformSwapHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
   { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
@@ -417,5 +420,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: SeedlessTokenEvents },
   { token: 'ExtensionEventEmitter', useToken: SeedlessMfaEvents },
   { token: 'ExtensionEventEmitter', useToken: UnifiedBridgeEvents },
+  { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

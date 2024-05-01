@@ -2,6 +2,10 @@ export enum ExtensionRequest {
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
   ONBOARDING_SUBMIT = 'onboarding_submit',
   ONBOARDING_INITIAL_WALLET_OPEN = 'onboarding_initial_wallet_open',
+  MNEMONIC_ONBOARDING_SUBMIT = 'mnemonic_onboarding_submit',
+  SEEDLESS_ONBOARDING_SUBMIT = 'seedless_onboarding_submit',
+  KEYSTONE_ONBOARDING_SUBMIT = 'keystone_onboarding_submit',
+  LEDGER_ONBOARDING_SUBMIT = 'ledger_onboarding_submit',
 
   NETWORK_SET_SELECTED = 'network_setSelectedNetwork',
   NETWORK_SET_DEVELOPER_MODE = 'network_setDeveloperMode',

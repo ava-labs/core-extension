@@ -70,9 +70,12 @@ export function UpdateContacts({
         <Typography sx={{ pb: 2 }} variant="h4">
           {translatedMethod[method]} {t('Contact?')}
         </Typography>
-        <Typography sx={{ textAlign: 'center' }} variant="body1">
+        <Typography
+          sx={{ textAlign: 'center', maxWidth: 1, wordWrap: 'break-word' }}
+          variant="body1"
+        >
           <Trans
-            i18nKey={'{{domain}} is requesting to <br/>{{method}} a contact:'}
+            i18nKey={'{{domain}} is requesting to {{method}} a contact:'}
             values={{
               domain: request.site?.domain || t('This website'),
               method: translatedMethod[method].toLowerCase(),

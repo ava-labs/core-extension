@@ -15,6 +15,9 @@ import {
   switchMap,
 } from 'rxjs';
 import { getDefaultSendForm, SendStateWithActions } from '../models';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useSendContext } from '@src/contexts/SendProvider';
 
 export function useSend<
   T extends SendableToken = SendableToken
@@ -23,6 +26,8 @@ export function useSend<
   const [sendState, setSendState] = useState<SendState<T>>(getDefaultSendForm);
   const stateRef = useRef<SendState<T>>(sendState);
   const { request } = useConnectionContext();
+  const { network: activeNetwork } = useNetworkContext();
+  const { validateStateAndCalculateFees, send } = useSendContext();
 
   const resetSendState = useCallback(
     () => setSendState(getDefaultSendForm),
@@ -32,6 +37,19 @@ export function useSend<
   const setIsValidating = useCallback((isValidating) => {
     setSendState((state) => ({ ...state, isValidating }));
   }, []);
+
+  const validateAndAddFees = useCallback(
+    (newState: SendState<T>): Promise<SendState<T>> => {
+      if (isPchainNetwork(activeNetwork)) {
+        return validateStateAndCalculateFees(newState);
+      }
+      return request<SendValidateHandlerType<T>>({
+        method: ExtensionRequest.SEND_VALIDATE,
+        params: newState,
+      });
+    },
+    [activeNetwork, request, validateStateAndCalculateFees]
+  );
 
   useEffect(() => {
     const subscription = backgroundQueue.current
@@ -57,12 +75,7 @@ export function useSend<
             return hasNoChanges;
           }
         ),
-        switchMap((newState) =>
-          request<SendValidateHandlerType<T>>({
-            method: ExtensionRequest.SEND_VALIDATE,
-            params: newState,
-          })
-        )
+        switchMap(validateAndAddFees)
       )
       .subscribe((validatedState) => {
         stateRef.current = validatedState;
@@ -72,11 +85,13 @@ export function useSend<
     return () => {
       subscription.unsubscribe();
     };
-  }, [request, setIsValidating]);
+  }, [activeNetwork, request, setIsValidating, validateAndAddFees]);
 
   useEffect(() => {
     // Get initial maxAmount, fees, etc.
-    if (sendState.loading) updateSendState(sendState);
+    if (sendState.loading) {
+      updateSendState(sendState);
+    }
     // ONLY run once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -93,14 +108,16 @@ export function useSend<
   const submitSendState = useCallback(async () => {
     if (!sendState) return Promise.resolve('');
 
-    const txId = await request<SendSubmitHandler>({
-      method: ExtensionRequest.SEND_SUBMIT,
-      params: sendState,
-    });
+    const txId = isPchainNetwork(activeNetwork)
+      ? await send(sendState)
+      : await request<SendSubmitHandler>({
+          method: ExtensionRequest.SEND_SUBMIT,
+          params: sendState,
+        });
 
     setSendState((state) => ({ ...state, txId }));
     return txId;
-  }, [sendState, request]);
+  }, [sendState, activeNetwork, send, request]);
 
   return {
     sendState,

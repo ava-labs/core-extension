@@ -65,7 +65,12 @@ export function AddTokenApproval() {
 
           <Typography variant="h5">{customToken.name}</Typography>
           <Typography
-            sx={{ textAlign: 'center', color: 'text.secondary' }}
+            sx={{
+              textAlign: 'center',
+              maxWidth: 1,
+              wordWrap: 'break-word',
+              color: 'text.secondary',
+            }}
             variant="caption"
           >
             {request?.site?.domain}

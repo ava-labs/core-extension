@@ -25,7 +25,9 @@ const ContentContainer = (props: StackProps) => (
     sx={{
       position: 'absolute',
       display: 'none',
-      left: -25,
+      minWidth: 260,
+      maxWidth: 320,
+      transform: 'translate(-25%)',
       zIndex: 1,
       top: 0,
     }}
@@ -117,7 +119,7 @@ export function ConnectionIndicatorK2({
                 position: 'absolute',
                 bottom: '100%',
                 marginBottom: '-1px',
-                left: '25px',
+                left: '25%',
               }}
             >
               <path

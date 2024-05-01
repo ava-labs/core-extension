@@ -1,4 +1,5 @@
 import { NetworkContractToken, NetworkToken } from '@avalabs/chains-sdk';
+import { PChainBalance as GlacierPchainBalance } from '@avalabs/glacier-sdk';
 import { BitcoinInputUTXOWithOptionalScript } from '@avalabs/wallets-sdk';
 import BN from 'bn.js';
 
@@ -21,6 +22,7 @@ interface TokenBalanceData {
   unconfirmedBalanceDisplayValue?: string;
   unconfirmedBalanceUsdDisplayValue?: string;
   unconfirmedBalanceUSD?: number;
+  pchainBalance?: PchainBalance;
   priceChanges?: {
     percentage?: number;
     value?: number;
@@ -32,6 +34,22 @@ export enum TokenType {
   ERC20 = 'ERC20',
   ERC721 = 'ERC721',
   ERC1155 = 'ERC1155',
+}
+
+export interface PchainBalance {
+  available?: BN;
+  availableUSD?: number;
+  availableDisplayValue?: string;
+  availableUsdDisplayValue?: string;
+  utxos?: GlacierPchainBalance;
+  lockedStaked: number;
+  lockedStakeable: number;
+  lockedPlatform: number;
+  atomicMemoryLocked: number;
+  atomicMemoryUnlocked: number;
+  unlockedUnstaked: number;
+  unlockedStaked: number;
+  pendingStaked: number;
 }
 
 export interface TokenWithBalanceERC20
@@ -139,4 +157,8 @@ export type TotalBalance = {
 export interface TotalPriceChange {
   value: number;
   percentage: number[];
+}
+
+export class GlacierUnhealthyError extends Error {
+  message = 'Glacier is unhealthy. Try again later.';
 }

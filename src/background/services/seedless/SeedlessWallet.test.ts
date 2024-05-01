@@ -40,6 +40,7 @@ import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { MfaRequestType } from './models';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 jest.mock('@cubist-labs/cubesigner-sdk');
 jest.mock('@cubist-labs/cubesigner-sdk-ethers-v6');
@@ -47,13 +48,14 @@ jest.mock('@avalabs/wallets-sdk');
 jest.mock('../network/NetworkService');
 jest.mock('./SeedlessBtcSigner');
 jest.mock('./SeedlessMfaService');
+jest.mock('@src/utils/network/getProviderForNetwork');
 
 describe('src/background/services/seedless/SeedlessWallet', () => {
   const sessionStorage = jest.mocked<SeedlessTokenStorage>(
     new SeedlessTokenStorage({} as any)
   );
   const networkService = jest.mocked<NetworkService>(
-    new NetworkService({} as any)
+    new NetworkService({} as any, {} as any)
   );
   const sessionManager = jest.mocked<SeedlessSessionManager>({
     notifyTokenExpired: jest.fn(),
@@ -258,7 +260,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when incompatible provider is obtained for provided network', () => {
       beforeEach(() => {
-        networkService.getProviderForNetwork.mockReturnValue({} as any);
+        jest.mocked(getProviderForNetwork).mockReturnValue({} as any);
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
@@ -282,9 +284,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       let signerConstructorSpy;
 
       beforeEach(() => {
-        networkService.getProviderForNetwork.mockReturnValue(
-          new JsonRpcProvider() as any
-        );
+        jest
+          .mocked(getProviderForNetwork)
+          .mockReturnValue(new JsonRpcProvider() as any);
 
         signer = {
           signTransaction: jest.fn().mockReturnValue(expectedResult),
@@ -947,7 +949,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when incompatible provider is obtained for provided network', () => {
       beforeEach(() => {
-        networkService.getProviderForNetwork.mockReturnValue({} as any);
+        jest.mocked(getProviderForNetwork).mockReturnValue({} as any);
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
@@ -968,9 +970,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     describe('when public key is not provided', () => {
       beforeEach(() => {
         mockPsbt();
-        networkService.getProviderForNetwork.mockReturnValue(
-          new BitcoinProvider()
-        );
+        jest
+          .mocked(getProviderForNetwork)
+          .mockReturnValue(new BitcoinProvider());
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
@@ -998,7 +1000,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         jest
           .spyOn(bitcoinProvider, 'getNetwork')
           .mockReturnValue(networks.bitcoin);
-        networkService.getProviderForNetwork.mockReturnValue(bitcoinProvider);
+        jest.mocked(getProviderForNetwork).mockReturnValue(bitcoinProvider);
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,

@@ -10,6 +10,23 @@ import {
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MnemonicProps } from './Mnemonic';
+import { getRandomMnemonicWord } from '../../utils/getRandomMnemonicWord';
+
+const FakeWord = () => (
+  <Typography
+    as="span"
+    translate="no"
+    sx={{
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      zIndex: -1,
+      opacity: 0,
+    }}
+  >
+    {getRandomMnemonicWord()}
+  </Typography>
+);
 
 export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
   const { t } = useTranslation();
@@ -19,6 +36,8 @@ export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
   const inputs = useMemo(() => {
     const list: any[] = [];
     for (let num = 1; num <= wordCount; num++) {
+      const isFakeBeforeReal = Math.random() < 0.5;
+
       list.push(
         <Grid item key={num}>
           <Stack
@@ -34,9 +53,11 @@ export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
             >
               {num}.
             </Typography>
-            <Typography as="span" variant="body2">
+            {isFakeBeforeReal && <FakeWord />}
+            <Typography as="span" variant="body2" translate="no">
               {words[num - 1]}
             </Typography>
+            {!isFakeBeforeReal && <FakeWord />}
           </Stack>
         </Grid>
       );
@@ -62,7 +83,9 @@ export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
           rowGap: 1.5,
           p: 2,
           borderRadius: 1,
+          userSelect: 'none', // prevent user from manually selecting & copying the phrase, as it contains fake words in-between
         }}
+        onCopy={(ev) => ev.preventDefault()}
       >
         {inputs}
       </Grid>

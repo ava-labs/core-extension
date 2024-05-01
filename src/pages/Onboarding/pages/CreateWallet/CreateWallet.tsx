@@ -10,10 +10,15 @@ import {
 } from '@src/background/services/onboarding/models';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { WalletType } from '@avalabs/types';
 
 export function CreateWallet() {
-  const { setMnemonic, setOnboardingPhase, setIsNewAccount } =
-    useOnboardingContext();
+  const {
+    setMnemonic,
+    setOnboardingPhase,
+    setIsNewAccount,
+    setOnboardingWalletType,
+  } = useOnboardingContext();
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [mnemonic, setMnemonicPhrase] = useState<string>('');
   const { capture } = useAnalyticsContext();
@@ -30,8 +35,9 @@ export function CreateWallet() {
     setIsNewAccount(true);
     setMnemonicPhrase(createNewMnemonic());
     setOnboardingPhase(OnboardingPhase.CREATE_WALLET);
+    setOnboardingWalletType(WalletType.Mnemonic);
     capture(ONBOARDING_EVENT_NAMES.create_wallet);
-  }, [capture, setIsNewAccount, setOnboardingPhase]);
+  }, [capture, setIsNewAccount, setOnboardingPhase, setOnboardingWalletType]);
 
   return isCopied ? (
     <ConfirmPhrase

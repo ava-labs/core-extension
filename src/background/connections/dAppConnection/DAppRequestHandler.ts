@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { ActionsService } from '@src/background/services/actions/ActionsService';
 import { Action } from '@src/background/services/actions/models';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { container } from 'tsyringe';
-import { JsonRpcRequest, JsonRpcSuccess } from './models';
+import { DAppProviderRequest, JsonRpcRequest, JsonRpcResponse } from './models';
+import { ApprovalService } from '@src/background/services/approvals/ApprovalService';
 
 export interface DAppRequestHandler {
   /**
@@ -24,15 +23,15 @@ export abstract class DAppRequestHandler<
   RequestParams = unknown[],
   ResponseParams = any
 > {
-  abstract methods: string[];
+  abstract methods: DAppProviderRequest[];
 
   abstract handleAuthenticated: (
     request: JsonRpcRequest<RequestParams>
-  ) => Promise<JsonRpcSuccess<ResponseParams>>;
+  ) => Promise<JsonRpcResponse<ResponseParams>>;
 
   abstract handleUnauthenticated: (
     request: JsonRpcRequest<RequestParams>
-  ) => Promise<JsonRpcSuccess<ResponseParams>>;
+  ) => Promise<JsonRpcResponse<ResponseParams>>;
 
   /**
    * Opens approval window with the specified url and saves the action info to the Actions service
@@ -41,22 +40,16 @@ export abstract class DAppRequestHandler<
    * @param url The url of the approval window. Withouth a leading `/`
    */
   async openApprovalWindow(action: Action, url: string) {
-    // using direct injection instead of the constructor to prevent circular dependencies
-
     const actionId = crypto.randomUUID();
+    // using direct injection instead of the constructor to prevent circular dependencies
+    const approvalService = container.resolve(ApprovalService);
 
-    const actionsService = container.resolve(ActionsService);
-
-    // By having this extension window render here, we are popping the extension window before we send the completed request
-    // allowing the locked service to prompt the password input first, saving the previous request to be completed once logged in.
-    const windowData = await openExtensionNewWindow(
-      `${url}?actionId=${actionId}`
+    approvalService.requestApproval(
+      {
+        ...action,
+        actionId,
+      },
+      url
     );
-
-    await actionsService.addAction({
-      ...action,
-      actionId,
-      popupWindowId: windowData.id,
-    });
   }
 }

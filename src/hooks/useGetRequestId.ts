@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 /**
  * This is used to get the id of a transaction or message that
@@ -9,10 +9,10 @@ import { useHistory } from 'react-router-dom';
  * @returns id from the query param
  */
 export function useGetRequestId() {
-  const history = useHistory();
+  const location = useLocation();
 
   return useMemo(() => {
-    const searchParams = new URLSearchParams(history.location.search ?? '');
+    const searchParams = new URLSearchParams(location.search ?? '');
     return searchParams.get('actionId') ?? '';
-  }, [history.location.search]);
+  }, [location.search]);
 }

@@ -90,7 +90,10 @@ export function BridgeTransferAsset({
         ></ApprovalSectionHeader>
         <ApprovalSectionBody sx={{ py: 1, px: 2, gap: 1 }}>
           <TxDetailsRow label={t('App')}>
-            <Typography variant="caption">
+            <Typography
+              variant="caption"
+              sx={{ textOverflow: 'ellipsis', overflow: 'hidden' }}
+            >
               {action.site?.domain ?? ''}
             </Typography>
           </TxDetailsRow>

@@ -30,6 +30,7 @@ import {
 } from '@src/background/services/onboarding/models';
 import { useHistory } from 'react-router-dom';
 import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
+import { WalletType } from '@avalabs/types';
 
 const KeystoneStepImage = styled(Stack)`
   position: relative;
@@ -59,8 +60,12 @@ const tutorialLastStep = 2; // there are 3 steps to get through the tutorial (th
 
 export const Keystone = () => {
   const { capture } = useAnalyticsContext();
-  const { setMasterFingerprint, setXpub, setOnboardingPhase } =
-    useOnboardingContext();
+  const {
+    setMasterFingerprint,
+    setXpub,
+    setOnboardingPhase,
+    setOnboardingWalletType,
+  } = useOnboardingContext();
   const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
@@ -75,12 +80,13 @@ export const Keystone = () => {
 
   useEffect(() => {
     setOnboardingPhase(OnboardingPhase.KEYSTONE);
+    setOnboardingWalletType(WalletType.Keystone);
     if (!stepNumber) {
       capture(ONBOARDING_EVENT_NAMES.keystone);
     } else {
       capture(`KeystoneTutorialStep${stepNumber}`);
     }
-  }, [capture, setOnboardingPhase, stepNumber]);
+  }, [capture, setOnboardingPhase, setOnboardingWalletType, stepNumber]);
 
   const getAddressFromXpubKey = useCallback(
     async (

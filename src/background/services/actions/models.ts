@@ -1,4 +1,7 @@
-import { JsonRpcRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequest,
+} from '@src/background/connections/dAppConnection/models';
 import { DomainMetadata } from '@src/background/models';
 export enum ActionStatus {
   // user has been shown the UI and we are waiting on approval
@@ -16,12 +19,13 @@ export interface Action<DisplayData = any> extends JsonRpcRequest<any> {
   result?: any;
   error?: string;
   displayData: DisplayData;
-  method: string;
+  method: DAppProviderRequest;
   site?: DomainMetadata;
   tabId?: number;
   // we store the window ID of the confirmation popup so
   // that we can clean up stale actions later
   popupWindowId?: number;
+  inAppPromptId?: number;
   actionId: string;
 }
 
@@ -49,7 +53,7 @@ export enum ActionCompletedEventType {
   ERROR = 'error',
 }
 
-export type ActionEvent = {
+export type ActionCompletedEvent = {
   type: ActionCompletedEventType;
   action: Action;
   result: string;

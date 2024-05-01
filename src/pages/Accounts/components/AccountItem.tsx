@@ -34,6 +34,7 @@ import { AccountBalance } from '../AccountBalance';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { SecretType } from '@src/background/services/secrets/models';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 
 type AccountItemProps = {
   account: Account;
@@ -74,7 +75,11 @@ export const AccountItem = forwardRef(
     const balanceTotalUSD = useBalanceTotalInCurrency(account);
     const totalBalance = (balanceTotalUSD && balanceTotalUSD.sum) ?? null;
     const isBitcoinActive = network && isBitcoinNetwork(network);
-    const address = isBitcoinActive ? account.addressBTC : account.addressC;
+    const address = isBitcoinActive
+      ? account.addressBTC
+      : isPchainNetwork(network)
+      ? account.addressPVM
+      : account.addressC;
 
     const toggle = useCallback(
       (accountId: string) => {

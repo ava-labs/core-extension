@@ -198,7 +198,7 @@ export function AvalancheSignTx() {
   }
 
   return (
-    <Stack sx={{ px: 2, width: 1, justifyContent: 'space-between' }}>
+    <Stack sx={{ px: 2, width: 1, height: 1 }}>
       {renderDeviceApproval()}
       <AvalancheTxHeader tx={txData} />
 

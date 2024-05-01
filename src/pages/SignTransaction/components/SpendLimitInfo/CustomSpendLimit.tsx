@@ -1,4 +1,5 @@
 import BN from 'bn.js';
+import browser from 'webextension-polyfill';
 import { useState } from 'react';
 import {
   Box,
@@ -8,6 +9,7 @@ import {
   RadioGroup,
   Stack,
   Typography,
+  useTheme,
 } from '@avalabs/k2-components';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -48,6 +50,7 @@ export function CustomSpendLimit({
   requestedApprovalLimit?: bigint;
 }) {
   const { t } = useTranslation();
+  const theme = useTheme();
   const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
     ...spendLimit,
   });
@@ -57,6 +60,12 @@ export function CustomSpendLimit({
     onClose();
   };
 
+  const isFromExtension = site?.domain === browser.runtime.id;
+  const appName =
+    (isFromExtension
+      ? browser.runtime.getManifest().short_name
+      : site?.domain) ?? t('Unknown Site');
+
   return (
     <Stack sx={{ width: '100%', gap: 3 }}>
       <PageTitle onBackClick={() => onClose()} margin="0">
@@ -64,7 +73,7 @@ export function CustomSpendLimit({
       </PageTitle>
 
       <Stack sx={{ px: 2, gap: 3 }}>
-        <Stack sx={{ gap: 1.5 }}>
+        <Stack sx={{ gap: 1.5, maxWidth: 1 }}>
           <Typography
             sx={{
               fontSize: 'body2.fontSize',
@@ -73,10 +82,21 @@ export function CustomSpendLimit({
           >
             {t('Spending limit')}
           </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          <Typography
+            variant="body2"
+            sx={{
+              textAlign: 'center',
+              maxWidth: 1,
+              wordWrap: 'break-word',
+              color: 'text.secondary',
+            }}
+          >
             <Trans
-              i18nKey="Set a limit that you will allow {{domain}} to automatically spend."
-              values={{ domain: site?.domain ?? t('Unknown Site') }}
+              i18nKey="Set a limit that you will allow <b>{{domain}}</b> to automatically spend."
+              values={{ domain: appName }}
+              components={{
+                b: <b style={{ color: theme.palette.text.primary }} />,
+              }}
             />
           </Typography>
         </Stack>

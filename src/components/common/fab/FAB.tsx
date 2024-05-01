@@ -145,7 +145,7 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
       name: FunctionNames.BRIDGE,
       icon: <BridgeIcon size={24} sx={{ color: theme.palette.common.black }} />,
     },
-  ];
+  ].filter(({ name }) => checkIsFunctionSupported(name));
 
   const fabText = isOpen ? t('Close') : t('Actions');
 
@@ -173,6 +173,10 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
       }
     };
   }, [isContentScrolling]);
+
+  if (!FABMenuItems.length) {
+    return null;
+  }
 
   return (
     <>

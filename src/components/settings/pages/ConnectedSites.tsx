@@ -10,6 +10,7 @@ import {
   XIcon,
   IconButton,
   EmptySitesIcon,
+  Tooltip,
 } from '@avalabs/k2-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
@@ -94,7 +95,8 @@ export function ConnectedSites({
                   sx={{
                     justifyContent: 'space-between',
                     py: 1,
-                    px: 2,
+                    pl: 2,
+                    pr: 5,
                     m: 0,
                     '&:hover': { borderRadius: 0 },
                   }}
@@ -122,12 +124,24 @@ export function ConnectedSites({
                       {site.domain.substring(0, 2).toUpperCase()}
                     </Avatar>
                   </ListItemIcon>
-                  <ListItemText
-                    sx={{ ml: 2, my: 0 }}
-                    primaryTypographyProps={{ variant: 'body2' }}
-                  >
-                    {site.domain}
-                  </ListItemText>
+                  <Tooltip title={site.domain} wrapWithSpan={false}>
+                    <ListItemText
+                      sx={{
+                        ml: 2,
+                        my: 0,
+                      }}
+                      primaryTypographyProps={{
+                        variant: 'body2',
+                        sx: {
+                          maxWidth: 1,
+                          textOverflow: 'ellipsis',
+                          overflow: 'hidden',
+                        },
+                      }}
+                    >
+                      {site.domain}
+                    </ListItemText>
+                  </Tooltip>
                 </ListItem>
               );
             })}

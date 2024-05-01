@@ -82,6 +82,11 @@ type WebsiteDetailsProps = {
 export const WebsiteDetails = ({ site }: WebsiteDetailsProps) => {
   const { t } = useTranslation();
 
+  // Do not show if request originated from the extension itself
+  if (site.domain === location.hostname) {
+    return null;
+  }
+
   return (
     <TxDetailsRow label={t('Website')}>
       <Link
@@ -92,7 +97,14 @@ export const WebsiteDetails = ({ site }: WebsiteDetailsProps) => {
       >
         <LinkIcon size={14} />
       </Link>
-      <Typography variant="caption" sx={{ color: 'text.primary' }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.primary',
+          textOverflow: 'ellipsis',
+          overflow: 'hidden',
+        }}
+      >
         {site.domain}
       </Typography>
     </TxDetailsRow>

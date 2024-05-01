@@ -21,6 +21,12 @@ import {
   AddressDropdownListMyAccounts,
   MyAccountContacts,
 } from './AddressDropdownListMyAccounts';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { isTxHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
+import { addressXpToAddressPvm } from '@src/utils/addressXPToaddressPVM';
+import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
+import { indexOf } from 'lodash';
+import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 
 interface ContactSelectProps {
   selectedContact?: Contact;
@@ -52,7 +58,11 @@ export const ContactSelect = ({
   const identifyAddress = useIdentifyAddress();
   const { getTransactionHistory } = useWalletContext();
   const {
-    accounts: { imported: importedAccounts, primary: primaryAccounts },
+    accounts: {
+      imported: importedAccounts,
+      primary: primaryAccounts,
+      active: activeAccount,
+    },
   } = useAccountsContext();
   const { contacts } = useContactsContext();
   const { network } = useNetworkContext();
@@ -60,23 +70,74 @@ export const ContactSelect = ({
   const [historyContacts, setHistoryContacts] = useState<Contact[]>([]);
 
   useEffect(() => {
-    getTransactionHistory().then((history) =>
-      setHistoryContacts(
-        history
-          .filter((tx, index, self) => {
-            if (!tx.isSender || tx.isContractCall) {
-              return false;
-            }
-            // filter out dupe to addresses
-            return (
-              index === self.findIndex((temp) => temp.to === tx.to) &&
-              tx.to !== '0x0000000000000000000000000000000000000000'
-            );
-          })
-          .map((tx) => identifyAddress(tx.to))
-      )
-    );
-  }, [getTransactionHistory, identifyAddress]);
+    if (!network) {
+      return;
+    }
+    getTransactionHistory().then((history) => {
+      const filteredHistory = history.filter((tx, index, self) => {
+        if (!tx.isSender || (isTxHistoryItem(tx) && tx.isContractCall)) {
+          return false;
+        }
+        // filter out dupe to addresses
+        return (
+          index === self.findIndex((temp) => temp.to === tx.to) &&
+          tx.to !== '0x0000000000000000000000000000000000000000'
+        );
+      });
+
+      const contactHistory = filteredHistory.reduce((acc, tx) => {
+        if (isTxHistoryItem(tx)) {
+          const identifiedContact = identifyAddress(tx.to);
+          if (indexOf(acc, identifiedContact) === -1)
+            acc.push(identifyAddress(tx.to));
+          return acc;
+        }
+
+        const addressIdentities = tx.to.map((toAddress) =>
+          identifyAddress(toAddress)
+        );
+        addressIdentities.forEach((identity) => {
+          const addressToCheck = isBitcoinNetwork(network)
+            ? identity.addressBTC
+            : isPchainNetwork(network)
+            ? identity.addressXP
+            : identity.address;
+
+          const userAddress = isBitcoinNetwork(network)
+            ? activeAccount?.addressBTC
+            : isPchainNetwork(network)
+            ? activeAccount?.addressPVM
+              ? stripAddressPrefix(activeAccount?.addressPVM)
+              : ''
+            : activeAccount?.addressC;
+
+          const addressesInList = acc.map((value) =>
+            isBitcoinNetwork(network)
+              ? value.addressBTC
+              : isPchainNetwork(network)
+              ? value.addressXP
+              : value.address
+          );
+          if (
+            indexOf(addressesInList, addressToCheck) === -1 &&
+            userAddress !== addressToCheck
+          ) {
+            acc.push(identity);
+          }
+        });
+
+        return acc;
+      }, [] as Contact[]);
+      setHistoryContacts(contactHistory);
+    });
+  }, [
+    activeAccount?.addressBTC,
+    activeAccount?.addressC,
+    activeAccount?.addressPVM,
+    getTransactionHistory,
+    identifyAddress,
+    network,
+  ]);
 
   const formattedAccounts = useMemo(() => {
     const formattedPrimary: MyAccountContacts = {};
@@ -86,13 +147,20 @@ export const ContactSelect = ({
       if (!walletAccount || !walletAccount.length) {
         return;
       }
-      const result = walletAccount.map(({ addressC, name, addressBTC }) => ({
-        id: '',
-        address: network?.vmName == NetworkVMType.EVM ? addressC : '',
-        addressBTC: network?.vmName === NetworkVMType.BITCOIN ? addressBTC : '',
-        name,
-        isKnown: true,
-      }));
+      const result = walletAccount.map(
+        ({ addressC, name, addressBTC, addressPVM }) => ({
+          id: '',
+          address: network?.vmName == NetworkVMType.EVM ? addressC : '',
+          addressBTC:
+            network?.vmName === NetworkVMType.BITCOIN ? addressBTC : '',
+          addressXP:
+            isPchainNetwork(network) && addressPVM
+              ? stripAddressPrefix(addressPVM)
+              : '',
+          name,
+          isKnown: true,
+        })
+      );
       formattedPrimary[walletId] = result;
     });
 
@@ -102,12 +170,16 @@ export const ContactSelect = ({
     }
 
     const formattedImported = importedAccountToPrep?.map(
-      ({ addressC, name, addressBTC }) => ({
+      ({ addressC, name, addressBTC, addressPVM }) => ({
         id: '',
         address: network?.vmName == NetworkVMType.EVM ? addressC : '',
         addressBTC:
           network?.vmName === NetworkVMType.BITCOIN && addressBTC
             ? addressBTC
+            : '',
+        addressXP:
+          isPchainNetwork(network) && addressPVM
+            ? stripAddressPrefix(addressPVM)
             : '',
         name,
         isKnown: true,
@@ -118,7 +190,7 @@ export const ContactSelect = ({
       ...formattedPrimary,
       ...(formattedImported.length ? { imported: formattedImported } : {}),
     };
-  }, [importedAccounts, network?.vmName, primaryAccounts]);
+  }, [importedAccounts, network, primaryAccounts]);
 
   const formattedContacts = useMemo(() => {
     return contacts
@@ -129,12 +201,18 @@ export const ContactSelect = ({
         if (network?.vmName === NetworkVMType.BITCOIN) {
           return contact.addressBTC;
         }
+        if (isPchainNetwork(network)) {
+          return contact.addressXP;
+        }
       })
       .map((contact) => ({
         ...contact,
         address: network?.vmName == NetworkVMType.EVM ? contact.address : '',
         addressBTC:
           network?.vmName === NetworkVMType.BITCOIN ? contact.addressBTC : '',
+        addressPVM: isPchainNetwork(network)
+          ? addressXpToAddressPvm(contact)
+          : '',
         isKnown: true,
       }));
   }, [contacts, network]);

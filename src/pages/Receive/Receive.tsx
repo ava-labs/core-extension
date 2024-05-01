@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { QRCodeWithLogo } from '@src/components/common/QRCodeWithLogo';
 import { PageTitle } from '@src/components/common/PageTitle';
@@ -15,6 +15,12 @@ import { isEthereumChainId } from '@src/background/services/network/utils/isEthe
 import { useTranslation } from 'react-i18next';
 import { PrimaryAddressK2 } from '@src/components/common/AddressK2';
 import { CircularProgress, Stack, Typography } from '@avalabs/k2-components';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
+import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 
 export const Receive = () => {
   const { t } = useTranslation();
@@ -24,9 +30,13 @@ export const Receive = () => {
   } = useAccountsContext();
   const { capture } = useAnalyticsContext();
   const isBitcoinActive = network?.vmName === NetworkVMType.BITCOIN;
+  const isPchainActive = useMemo(() => isPchainNetwork(network), [network]);
+  const { checkIsFunctionSupported } = useIsFunctionAvailable();
 
   const address = isBitcoinActive
     ? activeAccount?.addressBTC
+    : isPchainActive
+    ? activeAccount?.addressPVM
     : activeAccount?.addressC;
 
   useEffect(() => {
@@ -50,9 +60,20 @@ export const Receive = () => {
       return t('Bitcoin Address');
     } else if (network?.chainId && isEthereumChainId(network.chainId)) {
       return t('Ethereum Address');
+    } else if (isPchainActive) {
+      return t('Avalanche (P-Chain) Address');
     } else {
       return t('Avalanche (C-Chain) Address');
     }
+  }
+
+  if (network && !checkIsFunctionSupported(FunctionNames.RECEIVE)) {
+    return (
+      <FunctionIsUnavailable
+        functionName={FunctionNames.RECEIVE}
+        network={network?.chainName}
+      />
+    );
   }
 
   if (!address || !network) {

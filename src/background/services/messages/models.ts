@@ -1,11 +1,13 @@
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+
 export enum MessageType {
-  SIGN_TYPED_DATA_V3 = 'eth_signTypedData_v3',
-  SIGN_TYPED_DATA_V4 = 'eth_signTypedData_v4',
-  SIGN_TYPED_DATA_V1 = 'eth_signTypedData_v1',
-  SIGN_TYPED_DATA = 'eth_signTypedData',
-  PERSONAL_SIGN = 'personal_sign',
-  ETH_SIGN = 'eth_sign',
-  AVALANCHE_SIGN = 'avalanche_signMessage',
+  SIGN_TYPED_DATA_V1 = DAppProviderRequest.ETH_SIGN_TYPED_DATA_V1,
+  SIGN_TYPED_DATA_V3 = DAppProviderRequest.ETH_SIGN_TYPED_DATA_V3,
+  SIGN_TYPED_DATA_V4 = DAppProviderRequest.ETH_SIGN_TYPED_DATA_V4,
+  SIGN_TYPED_DATA = DAppProviderRequest.ETH_SIGN_TYPED_DATA,
+  PERSONAL_SIGN = DAppProviderRequest.PERSONAL_SIGN,
+  ETH_SIGN = DAppProviderRequest.ETH_SIGN,
+  AVALANCHE_SIGN = DAppProviderRequest.AVALANCHE_SIGN_MESSAGE,
 }
 
 export interface MessageDisplayData {

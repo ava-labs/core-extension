@@ -27,6 +27,8 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { usePendingBridgeTransactions } from '@src/pages/Bridge/hooks/usePendingBridgeTransactions';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { BN } from 'bn.js';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { PchainActiveNetworkWidgetContent } from './PchainActiveNetworkWidgetContent';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
 
 interface ActiveNetworkWidgetProps {
@@ -61,7 +63,7 @@ export function ActiveNetworkWidget({
     e.stopPropagation();
     capture('PortfolioPrimaryNetworkClicked', { chainId: network.chainId });
 
-    if (isBitcoinNetwork(network)) {
+    if (isBitcoinNetwork(network) || isPchainNetwork(network)) {
       history.push('/token');
     } else {
       history.push('/assets');
@@ -178,7 +180,13 @@ export function ActiveNetworkWidget({
             width: 'auto',
           }}
         />
-        <Assetlist assetList={assetList} />
+        {isPchainNetwork(network) ? (
+          <PchainActiveNetworkWidgetContent
+            balances={assetList[0]?.pchainBalance}
+          />
+        ) : (
+          <Assetlist assetList={assetList} />
+        )}
 
         {hasNoFunds && !isBitcoin(network) ? <ZeroWidget /> : null}
 

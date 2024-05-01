@@ -6,9 +6,18 @@ import { ActionStatus } from '@src/background/services/actions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 import { useCallback, useEffect, useState } from 'react';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from './useIsSpecificContextContainer';
+import { useApprovalsContext } from '@src/contexts/ApprovalsProvider';
 
 export function useApproveAction<DisplayData = any>(actionId: string) {
   const { request } = useConnectionContext();
+  const isConfirmPopup = useIsSpecificContextContainer(
+    ContextContainer.CONFIRM
+  );
+  const { approval } = useApprovalsContext();
   const [action, setAction] = useState<Action<DisplayData>>();
   const [error] = useState<string>('');
 
@@ -33,7 +42,8 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
         };
       });
 
-      const shouldCloseAfterUpdate = params.status !== ActionStatus.PENDING;
+      const shouldCloseAfterUpdate =
+        isConfirmPopup && params.status !== ActionStatus.PENDING;
 
       return request<UpdateActionHandler>({
         method: ExtensionRequest.ACTION_UPDATE,
@@ -44,7 +54,7 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
         }
       });
     },
-    [request]
+    [request, isConfirmPopup]
   );
 
   const cancelHandler = useCallback(
@@ -57,11 +67,15 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
   );
 
   useEffect(() => {
-    request<GetActionHandler>({
-      method: ExtensionRequest.ACTION_GET,
-      params: [actionId],
-    }).then(setAction);
-  }, [actionId, request]);
+    if (isConfirmPopup) {
+      request<GetActionHandler>({
+        method: ExtensionRequest.ACTION_GET,
+        params: [actionId],
+      }).then(setAction);
+    } else if (approval?.action.actionId === actionId) {
+      setAction(approval.action);
+    }
+  }, [actionId, request, approval, isConfirmPopup]);
 
   useWindowGetsClosedOrHidden(cancelHandler);
 

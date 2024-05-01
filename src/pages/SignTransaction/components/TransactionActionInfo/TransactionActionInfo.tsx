@@ -5,9 +5,16 @@ import { ApproveNftCollectionDetails } from './ApproveNftCollectionDetails';
 import { ApproveContractCallDetails } from './ApproveContractCallDetails';
 import {
   Transaction,
+  TransactionAction,
   TransactionType,
 } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { Action } from '@src/background/services/actions/models';
+import { serializeToJSON } from '@src/background/serialization/serialize';
+
+const CALL_WITH_NO_DETAILS = JSON.stringify({ type: 'call' });
+
+const isCallWithNoDetails = (actions: TransactionAction[]) =>
+  actions.length === 1 && serializeToJSON(actions[0]) === CALL_WITH_NO_DETAILS;
 
 export const TransactionActionInfo = ({
   transaction,
@@ -15,6 +22,13 @@ export const TransactionActionInfo = ({
   transaction: Action<Transaction> | null;
 }) => {
   if (!transaction?.displayData?.displayValues?.actions.length) {
+    return null;
+  }
+
+  const actions = transaction.displayData.displayValues.actions ?? [];
+  const hasNoDetails = isCallWithNoDetails(actions);
+
+  if (hasNoDetails) {
     return null;
   }
 

@@ -82,7 +82,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       amountStr: '0.00024',
       asset: btcAsset,
     },
-    method: 'avalanche_bridgeAsset',
+    method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
     actionId: 'uuid',
   };
 
@@ -112,7 +112,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         wrappedAssetSymbol: 'WETH',
       },
     },
-    method: 'avalanche_bridgeAsset',
+    method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
     actionId: 'uuid',
   };
 

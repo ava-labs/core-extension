@@ -36,6 +36,7 @@ import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { isTokenExpiredError } from './utils';
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { toUtf8 } from 'ethereumjs-util';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 type ConstructorOpts = {
   networkService: NetworkService;
@@ -365,7 +366,7 @@ export class SeedlessWallet {
       throw new Error('Unknown network');
     }
 
-    const provider = this.#networkService.getProviderForNetwork(this.#network);
+    const provider = getProviderForNetwork(this.#network);
     if (!(provider instanceof JsonRpcApiProvider)) {
       throw new Error('Wrong provider obtained for EVM transaction');
     }
@@ -426,7 +427,7 @@ export class SeedlessWallet {
       );
     }
 
-    const provider = this.#networkService.getProviderForNetwork(this.#network);
+    const provider = getProviderForNetwork(this.#network);
 
     if (!(provider instanceof BitcoinProvider)) {
       throw new Error('Wrong provider obtained for BTC transaction');

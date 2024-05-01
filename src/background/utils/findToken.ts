@@ -13,6 +13,7 @@ import { ethers } from 'ethers';
 import { container } from 'tsyringe';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 const UNKNOWN_TOKEN = (address: string): TokenWithBalanceERC20 => ({
   address,
@@ -55,7 +56,7 @@ export async function findToken(
     return token;
   }
 
-  const provider = networkService.getProviderForNetwork(network);
+  const provider = getProviderForNetwork(network);
   if (!(provider instanceof JsonRpcBatchInternal)) {
     return UNKNOWN_TOKEN(addressOrSymbol);
   }

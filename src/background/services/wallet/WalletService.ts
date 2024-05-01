@@ -59,6 +59,7 @@ import { FIREBLOCKS_REQUEST_EXPIRY } from '../fireblocks/models';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -176,7 +177,7 @@ export class WalletService implements OnLock, OnUnlock {
       return;
     }
 
-    const provider = this.networkService.getProviderForNetwork(activeNetwork);
+    const provider = getProviderForNetwork(activeNetwork);
     const { secretType } = secrets;
 
     // Seedless wallet uses a universal signer class (one for all tx types)

@@ -28,6 +28,7 @@ import {
   AuthErrorCode,
   TotpResetChallenge,
 } from '@src/background/services/seedless/models';
+import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 
 import { AuthenticatorVerifyScreen } from './AuthenticatorVerifyScreen';
 
@@ -69,7 +70,9 @@ export function AuthenticatorDetails({
 
   const initChange = useCallback(async () => {
     if (hasFidoConfigured) {
-      browser.tabs.create({ url: '/confirm.html#/update-recovery-methods' });
+      browser.tabs.create({
+        url: `${ContextContainer.FULLSCREEN}#/update-recovery-methods`,
+      });
       return;
     }
 
@@ -85,7 +88,7 @@ export function AuthenticatorDetails({
   }, [initAuthenticatorChange, hasFidoConfigured]);
 
   const openRemoveTotpPopup = useCallback(async () => {
-    browser.tabs.create({ url: '/confirm.html#/remove-totp' });
+    browser.tabs.create({ url: `${ContextContainer.FULLSCREEN}#/remove-totp` });
   }, []);
 
   const completeChange = useCallback(

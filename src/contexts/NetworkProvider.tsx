@@ -10,6 +10,7 @@ import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
 import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ChainId } from '@avalabs/chains-sdk';
 import { networksUpdatedEventListener } from '@src/background/services/network/events/networksUpdatedEventListener';
 import { useAnalyticsContext } from './AnalyticsProvider';
 import { SetSelectedNetworkHandler } from '@src/background/services/network/handlers/setSelectedNetwork';
@@ -20,10 +21,12 @@ import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/h
 import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import {
   Network,
   NetworkOverrides,
 } from '@src/background/services/network/models';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 const NetworkContext = createContext<{
   network?: Network | undefined;
@@ -42,6 +45,7 @@ const NetworkContext = createContext<{
   isCustomNetwork(chainId: number): boolean;
   isChainIdExist(chainId: number): boolean;
   getNetwork(chainId: number): Network | undefined;
+  avalancheProvider?: JsonRpcBatchInternal;
 }>({} as any);
 
 /**
@@ -100,6 +104,20 @@ export function NetworkContextProvider({ children }: { children: any }) {
     },
     [networks]
   );
+
+  const avalancheProvider = useMemo(() => {
+    const avaxNetwork = getNetwork(
+      network?.isTestnet
+        ? ChainId.AVALANCHE_TESTNET_ID
+        : ChainId.AVALANCHE_MAINNET_ID
+    );
+
+    if (!avaxNetwork) {
+      return;
+    }
+
+    return getProviderForNetwork(avaxNetwork) as JsonRpcBatchInternal;
+  }, [network?.isTestnet, getNetwork]);
 
   const getNetworkState = useCallback(() => {
     return request<GetNetworksStateHandler>({
@@ -218,6 +236,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
         isCustomNetwork,
         isChainIdExist,
         getNetwork,
+        avalancheProvider,
       }}
     >
       {children}

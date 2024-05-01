@@ -153,9 +153,6 @@ export class SecretsService {
       ? accountsService.activeAccount.walletId
       : accountsService.activeAccount?.id;
 
-    if (walletKeys.wallets.length === 1) {
-      return walletKeys.wallets[0];
-    }
     return walletKeys.wallets.find((wallet) => wallet.id === activeWalletId);
   }
 

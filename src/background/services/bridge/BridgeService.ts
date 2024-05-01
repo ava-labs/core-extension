@@ -48,6 +48,7 @@ import { isWalletConnectAccount } from '../accounts/utils/typeGuards';
 import { FeatureGates } from '../featureFlags/models';
 import { TransactionResponse } from 'ethers';
 import { wrapError } from '@src/utils/errors';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {
@@ -209,7 +210,7 @@ export class BridgeService implements OnLock, OnStorageReady {
 
     const btcNetwork = await this.networkService.getBitcoinNetwork();
 
-    const provider = this.networkService.getProviderForNetwork(btcNetwork);
+    const provider = getProviderForNetwork(btcNetwork);
     if (
       provider instanceof JsonRpcBatchInternal ||
       provider instanceof Avalanche.JsonRpcProvider

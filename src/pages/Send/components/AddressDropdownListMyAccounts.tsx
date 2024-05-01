@@ -15,16 +15,21 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { WalletId } from '@src/background/services/accounts/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { useMemo } from 'react';
+
+export type MyAccountContact = {
+  id: string;
+  address: string;
+  addressBTC: string;
+  addressXP: string;
+  name: string;
+  isKnown: boolean;
+};
 
 export type MyAccountContacts = Record<
   WalletId | 'imported',
-  {
-    id: string;
-    address: string;
-    addressBTC: string;
-    name: string;
-    isKnown: boolean;
-  }[]
+  MyAccountContact[]
 >;
 
 type AddressDropdownListMyAccountsProps = {
@@ -45,8 +50,16 @@ export const AddressDropdownListMyAccounts = ({
   const useBtcAddress = isBitcoin(network);
   const { wallets } = useWalletContext();
 
-  const selectedAddress =
-    selectedContact?.[useBtcAddress ? 'addressBTC' : 'address']?.toLowerCase();
+  const useXpAddress = useMemo(() => {
+    return network ? isPchainNetwork(network) : false;
+  }, [network]);
+
+  const addressType = useBtcAddress
+    ? 'addressBTC'
+    : useXpAddress
+    ? 'addressXP'
+    : 'address';
+  const selectedAddress = selectedContact?.[addressType]?.toLowerCase();
 
   const { setIsSettingsOpen, setSettingsActivePage } = useSettingsContext();
   return (
@@ -78,9 +91,7 @@ export const AddressDropdownListMyAccounts = ({
                     key={`${contact.address}${i}`}
                     contact={contact}
                     isSelected={
-                      contact?.[
-                        useBtcAddress ? 'addressBTC' : 'address'
-                      ]?.toLowerCase() === selectedAddress
+                      contact?.[addressType]?.toLowerCase() === selectedAddress
                     }
                     onChange={onChange}
                   />
@@ -97,11 +108,7 @@ export const AddressDropdownListMyAccounts = ({
             <AddressDropdownListItem
               key={`${acc.id}`}
               contact={acc}
-              isSelected={
-                acc?.[
-                  useBtcAddress ? 'addressBTC' : 'address'
-                ]?.toLowerCase() === selectedAddress
-              }
+              isSelected={acc?.[addressType]?.toLowerCase() === selectedAddress}
               onChange={onChange}
             />
           ))}

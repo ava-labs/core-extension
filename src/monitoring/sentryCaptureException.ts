@@ -24,6 +24,8 @@ export enum SentryExceptionTypes {
   WALLET_IMPORT = 'walletImport',
 
   INTERNAL_ERROR = 'internalError',
+
+  BALANCES = 'balances',
 }
 
 // wrapper to make error reporting contexts unfirom accross the codebase

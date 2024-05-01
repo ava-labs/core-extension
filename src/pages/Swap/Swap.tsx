@@ -1,10 +1,8 @@
-import { useSwapContext } from '@src/contexts/SwapProvider';
+import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useMemo, useState } from 'react';
 import { resolve } from '@src/utils/promiseResolver';
 import { TransactionDetails } from './components/TransactionDetails';
-import { ReviewOrder } from './components/ReviewOrder';
-import { TxInProgress } from '@src/components/common/TxInProgress';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
@@ -18,16 +16,12 @@ import {
 } from '@src/hooks/useIsFunctionAvailable';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import {
-  TokenType,
-  TokenWithBalance,
-} from '@src/background/services/balances/models';
+import { TokenWithBalance } from '@src/background/services/balances/models';
 import BN from 'bn.js';
 import { useTranslation } from 'react-i18next';
 import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwapError } from './components/SwapError';
 import { calculateRate } from './utils';
-import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
 import {
   Stack,
   toast,
@@ -40,9 +34,9 @@ import {
   IconButton,
 } from '@avalabs/k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
-import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { isUserRejectionError } from '@src/utils/errors';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -69,28 +63,25 @@ export function Swap() {
   const theme = useTheme();
   const tokensWBalances = useTokensWithBalances();
   const allTokensOnNetwork = useTokensWithBalances(true);
-  const { resetKeystoneRequest } = useKeystoneContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
 
-  const [isReviewOrderOpen, setIsReviewOrderOpen] = useState<boolean>(false);
   const [slippageTolerance, setSlippageTolerance] = useState('1');
   const [isFromTokenSelectOpen, setIsFromTokenSelectOpen] = useState(false);
   const [isToTokenSelectOpen, setIsToTokenSelectOpen] = useState(false);
   const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] =
     useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const {
     calculateTokenValueToInput,
-    onGasChange,
     reverseTokens,
     onTokenChange,
     onFromInputAmountChange,
     onToInputAmountChange,
     getSwapValues,
-    customGasPrice,
-    gasLimit,
+    swapGasLimit,
     selectedFromToken,
     selectedToToken,
     destinationInputField,
@@ -100,7 +91,6 @@ export function Swap() {
     defaultFromValue,
     swapWarning,
     isReversed,
-    selectedGasFee,
     toTokenValue,
     maxFromValue,
     optimalRate,
@@ -139,11 +129,6 @@ export function Swap() {
   }, [destinationInputField, isLoading, maxFromValue]);
 
   async function performSwap() {
-    captureEncrypted('SwapConfirmed', {
-      address: activeAddress,
-      chainId: network?.chainId,
-    });
-
     const {
       amount,
       fromTokenAddress,
@@ -163,46 +148,48 @@ export function Swap() {
       return;
     }
 
+    setIsConfirming(true);
+
     const slippage = slippageTolerance || '0';
 
     const [, error] = await resolve(
-      swap(
-        fromTokenAddress,
-        toTokenAddress,
-        toTokenDecimals,
-        fromTokenDecimals,
-        optimalRate.srcAmount,
-        optimalRate,
-        optimalRate.destAmount,
-        gasLimit,
-        customGasPrice || networkFee.low.maxFee,
-        parseFloat(slippage)
-      )
+      swap({
+        srcToken: fromTokenAddress,
+        destToken: toTokenAddress,
+        srcDecimals: fromTokenDecimals,
+        destDecimals: toTokenDecimals,
+        srcAmount: optimalRate.srcAmount,
+        priceRoute: optimalRate,
+        destAmount: optimalRate.destAmount,
+        gasLimit: swapGasLimit,
+        slippage: parseFloat(slippage),
+      })
     );
-    if (error) {
+
+    setIsConfirming(false);
+
+    // If there is no error or it wasn't the user rejecting the transaction,
+    // we can report that swap operation was confirmed.
+    if (!error || !isUserRejectionError(error)) {
+      captureEncrypted('SwapConfirmed', {
+        address: activeAddress,
+        chainId: network?.chainId,
+      });
+    }
+
+    if (error && !isUserRejectionError(error)) {
       toast.error(t('Swap Failed'));
-      setIsReviewOrderOpen(false);
-      history.push('/home');
       captureEncrypted('SwapFailed', {
         address: activeAddress,
         chainId: network?.chainId,
       });
-      return;
     }
 
-    history.push('/home');
+    if (!error) {
+      toast.loading(t('Swap pending...'));
+      history.push('/home');
+    }
   }
-
-  const { handleApproval, handleRejection, isApprovalOverlayVisible } =
-    useApprovalHelpers({
-      onApprove: performSwap,
-      onReject: () => {
-        resetKeystoneRequest();
-        capture('SwapCancelled');
-        setIsReviewOrderOpen(false);
-      },
-      pendingMessage: t('Swap pending...'),
-    });
 
   if (!isSwapSupported) {
     return (
@@ -217,19 +204,12 @@ export function Swap() {
     return <FunctionIsOffline functionName={FunctionNames.SWAP} />;
   }
 
-  const maxGasPrice =
-    selectedFromToken?.type === TokenType.NATIVE && fromTokenValue
-      ? selectedFromToken.balance.sub(fromTokenValue.bn).toString()
-      : tokensWBalances
-          .find(({ type }) => type === TokenType.NATIVE)
-          ?.balance.toString() || '0';
-
   const canSwap =
-    !swapError.message &&
+    !swapError?.message &&
     selectedFromToken &&
     selectedToToken &&
     optimalRate &&
-    gasLimit &&
+    swapGasLimit &&
     networkFee;
 
   const isDetailsAvailable =
@@ -249,7 +229,6 @@ export function Swap() {
       <Stack
         sx={{
           p: 2,
-          mt: 1,
           mx: 0,
           mb: 0,
           flexGrow: 1,
@@ -367,6 +346,7 @@ export function Swap() {
               onToInputAmountChange(value);
             }}
             setIsOpen={setIsToTokenSelectOpen}
+            withMaxButton={false}
           />
 
           {isDetailsAvailable && (
@@ -374,14 +354,9 @@ export function Swap() {
               fromTokenSymbol={selectedFromToken?.symbol}
               toTokenSymbol={selectedToToken?.symbol}
               rate={calculateRate(optimalRate)}
-              onGasChange={onGasChange}
-              gasLimit={gasLimit}
-              gasPrice={customGasPrice || networkFee.low.maxFee}
-              maxGasPrice={maxGasPrice}
               slippage={slippageTolerance}
               setSlippage={(slippage) => setSlippageTolerance(slippage)}
               setIsOpen={setIsTransactionDetailsOpen}
-              selectedGasFee={selectedGasFee}
               isTransactionDetailsOpen={isTransactionDetailsOpen}
             />
           )}
@@ -394,77 +369,23 @@ export function Swap() {
               sx={{
                 mt: 2,
               }}
-              onClick={() => {
+              onClick={async () => {
                 capture('SwapReviewOrder', {
                   destinationInputField,
                   slippageTolerance,
-                  customGasPrice: customGasPrice?.toString(),
                 });
-                setIsReviewOrderOpen(true);
+                await performSwap();
               }}
               fullWidth
               size="large"
-              disabled={isLoading || !canSwap}
+              disabled={isLoading || isConfirming || !canSwap}
+              isLoading={isConfirming}
             >
               {t('Review Order')}
             </Button>
           </ReviewOrderButtonContainer>
         </Scrollbars>
       </Stack>
-
-      {isReviewOrderOpen && canSwap && (
-        <ReviewOrder
-          fromToken={selectedFromToken}
-          toToken={selectedToToken}
-          onClose={handleRejection}
-          onConfirm={handleApproval}
-          optimalRate={optimalRate}
-          gasPrice={customGasPrice || networkFee.low.maxFee}
-          slippage={slippageTolerance}
-          onTimerExpire={() => {
-            capture('SwapReviewTimerRestarted');
-            if (fromTokenValue) {
-              const srcToken =
-                destinationInputField === 'to'
-                  ? selectedFromToken
-                  : selectedToToken;
-              const destToken =
-                destinationInputField === 'to'
-                  ? selectedToToken
-                  : selectedFromToken;
-              const amount =
-                destinationInputField === 'to'
-                  ? fromTokenValue
-                  : toTokenValue || { bn: new BN(0), amount: '0' };
-              calculateTokenValueToInput(
-                amount,
-                destinationInputField,
-                srcToken,
-                destToken
-              );
-            }
-          }}
-          isLoading={isLoading}
-          rateValueInput={destinationInputField}
-          rate={calculateRate(optimalRate)}
-          selectedGasFee={selectedGasFee}
-        />
-      )}
-
-      {isApprovalOverlayVisible && (
-        <TxInProgress
-          fee={(
-            ((customGasPrice || networkFee?.low.maxFee || 0n) *
-              BigInt(gasLimit)) /
-            10n ** BigInt(network?.networkToken.decimals ?? 18)
-          ).toString()}
-          feeSymbol={network?.networkToken.symbol}
-          amount={fromTokenValue?.amount}
-          symbol={selectedFromToken?.symbol}
-          onReject={handleRejection}
-          onSubmit={handleApproval}
-        />
-      )}
     </Stack>
   );
 }

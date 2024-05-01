@@ -1,4 +1,4 @@
-import { RichAddress } from '@avalabs/glacier-sdk';
+import { PChainTransactionType, RichAddress } from '@avalabs/glacier-sdk';
 import { TokenType } from '../balances/models';
 
 export interface TxHistoryItemToken {
@@ -30,6 +30,18 @@ export interface TxHistoryItem {
   type: TransactionType;
 }
 
+export interface PchainTxHistoryItem {
+  from: string[];
+  to: string[];
+  isSender: boolean;
+  timestamp: string;
+  token: TxHistoryItemToken;
+  gasUsed: string;
+  explorerLink: string;
+  chainId: string; // chainId from ActiveNetwork used to fetch tx
+  type: PChainTransactionType;
+}
+
 export enum TransactionType {
   BRIDGE = 'Bridge',
   SWAP = 'Swap',
@@ -38,6 +50,7 @@ export enum TransactionType {
   NFT_BUY = 'NFT Buy',
   APPROVE = 'Approve',
   TRANSFER = 'Transfer',
+  BASE_TX = 'BaseTx',
   UNKNOWN = 'Unknown',
 }
 

@@ -183,6 +183,7 @@ export function SignTransactionPage() {
       <Stack
         sx={{
           width: '100%',
+          height: '100%',
           alignItems: 'center',
         }}
       >
@@ -209,7 +210,7 @@ export function SignTransactionPage() {
               width: '100%',
               px: 2,
               gap: 3,
-              pb: 5,
+              pb: 3,
             }}
           >
             <SignTxErrorBoundary>
@@ -283,7 +284,7 @@ export function SignTransactionPage() {
             alignItems: 'flex-end',
             width: '100%',
             justifyContent: 'space-between',
-            pt: 3,
+            pt: 1.5,
             px: 2,
             pb: 1,
             gap: 1,

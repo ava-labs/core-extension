@@ -20,6 +20,7 @@ import { BridgeService } from './BridgeService';
 import { CommonError } from '@src/utils/errors';
 import { FireblocksErrorCode } from '../fireblocks/models';
 import { ethErrors } from 'eth-rpc-errors';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 jest.mock('@avalabs/bridge-sdk', () => {
   const { mockConfig } = require('./fixtures/mockBridgeConfig');
@@ -31,6 +32,8 @@ jest.mock('@avalabs/bridge-sdk', () => {
     fetchConfig: jest.fn().mockResolvedValue({ config: mockConfig }),
   };
 });
+
+jest.mock('@src/utils/network/getProviderForNetwork');
 
 const storageService = {
   load: jest
@@ -144,7 +147,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
         networkBalancesService
       );
 
-      networkService.getProviderForNetwork.mockReturnValue(provider);
+      jest.mocked(getProviderForNetwork).mockReturnValue(provider);
 
       await service.onStorageReady();
     });
@@ -219,7 +222,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
         high: { maxFee },
       } as any);
 
-      networkService.getProviderForNetwork.mockReturnValue(provider);
+      jest.mocked(getProviderForNetwork).mockReturnValue(provider);
 
       jest.mocked(getBtcTransactionDetails).mockReturnValue({
         inputs: utxos,
@@ -302,7 +305,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
         high: { maxFee },
       } as any);
 
-      networkService.getProviderForNetwork.mockReturnValue(provider);
+      jest.mocked(getProviderForNetwork).mockReturnValue(provider);
 
       jest.mocked(getBtcTransactionDetails).mockReturnValue({
         inputs: [],

@@ -1,6 +1,14 @@
-import { Erc1155Token, Erc721Token, Glacier } from '@avalabs/glacier-sdk';
+import {
+  BlockchainId,
+  Erc1155Token,
+  Erc721Token,
+  Glacier,
+  Network,
+  PrimaryNetworkTxType,
+  SortOrder,
+} from '@avalabs/glacier-sdk';
 import { singleton } from 'tsyringe';
-import { resolve, wait } from '@avalabs/utils-sdk';
+import { wait } from '@avalabs/utils-sdk';
 
 import { CommonError } from '@src/utils/errors';
 
@@ -81,22 +89,42 @@ export class GlacierService {
      * This is for performance, basically we just cache the health of glacier every 5 seconds and
      * go off of that instead of every request
      */
-    setInterval(async () => {
-      const [healthStatus, healthStatusError] = await resolve(
-        this.glacierSdkInstance.healthCheck.healthCheck()
-      );
-
-      if (healthStatusError) {
-        this.isGlacierHealthy = false;
-        return;
-      }
-
-      const status = healthStatus?.status?.toString();
-      this.isGlacierHealthy = status === 'ok' ? true : false;
-    }, 5000);
-
     this.getSupportedNetworks().catch(() => {
       // Noop. It will be retried by .isSupportedNetwork calls upon unlocking if necessary.
     });
+  }
+
+  setGlacierToUnhealthy() {
+    this.isGlacierHealthy = false;
+    setTimeout(() => {
+      this.isGlacierHealthy = true;
+    }, 5 * 60 * 1000);
+  }
+
+  async getChainBalance(params: {
+    blockchainId: BlockchainId;
+    network: Network;
+    blockTimestamp?: number;
+    addresses?: string;
+  }) {
+    return await this.glacierSdkInstance.primaryNetworkBalances.getBalancesByAddresses(
+      params
+    );
+  }
+
+  async listLatestPrimaryNetworkTransactions(params: {
+    blockchainId: BlockchainId;
+    network: Network;
+    addresses?: string;
+    txTypes?: Array<PrimaryNetworkTxType>;
+    startTimestamp?: number;
+    endTimestamp?: number;
+    pageToken?: string;
+    pageSize?: number;
+    sortOrder?: SortOrder;
+  }) {
+    return await this.glacierSdkInstance.primaryNetworkTransactions.listLatestPrimaryNetworkTransactions(
+      params
+    );
   }
 }

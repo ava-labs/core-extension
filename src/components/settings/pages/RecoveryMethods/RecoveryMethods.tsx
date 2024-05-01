@@ -10,6 +10,7 @@ import {
   RecoveryMethodType,
 } from '@src/background/services/seedless/models';
 import { KeyType } from '@src/utils/seedless/fido/types';
+import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 
 import { SettingsHeader } from '../../SettingsHeader';
 import { SettingsPageProps } from '../../models';
@@ -52,7 +53,7 @@ export function RecoveryMethods({
       : 'update-recovery-methods';
 
     // Open in a full screen tab to avoid popup hell
-    browser.tabs.create({ url: `/confirm.html#/${url}` });
+    browser.tabs.create({ url: `${ContextContainer.FULLSCREEN}#/${url}` });
   }, []);
 
   const onMethodClick = useCallback(

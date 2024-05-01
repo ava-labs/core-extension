@@ -24,6 +24,7 @@ import {
   LedgerConnector,
   LedgerConnectorData,
 } from '@src/components/ledger/LedgerConnector';
+import { WalletType } from '@avalabs/types';
 
 export interface AddressType {
   address: string;
@@ -45,8 +46,13 @@ export const WAIT_1500_MILLI_FOR_USER = 1500;
 export function LedgerConnect() {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
-  const { setXpub, setXpubXP, setPublicKeys, setOnboardingPhase } =
-    useOnboardingContext();
+  const {
+    setXpub,
+    setXpubXP,
+    setPublicKeys,
+    setOnboardingPhase,
+    setOnboardingWalletType,
+  } = useOnboardingContext();
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
 
   const { t } = useTranslation();
@@ -54,8 +60,9 @@ export function LedgerConnect() {
 
   useEffect(() => {
     setOnboardingPhase(OnboardingPhase.LEDGER);
+    setOnboardingWalletType(WalletType.Ledger);
     capture(ONBOARDING_EVENT_NAMES.ledger);
-  }, [capture, setOnboardingPhase]);
+  }, [capture, setOnboardingPhase, setOnboardingWalletType]);
 
   function onSuccess(data: LedgerConnectorData) {
     setXpub(data.xpub);

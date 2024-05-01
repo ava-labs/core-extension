@@ -20,6 +20,7 @@ import {
   NftTokenWithBalance,
   NftMetadata,
   NftPageTokens,
+  GlacierUnhealthyError,
 } from './models';
 import { BN } from 'bn.js';
 import { Account } from '../accounts/models';
@@ -45,6 +46,12 @@ export class BalancesServiceGlacier {
     private tokensManagerService: TokenManagerService,
     private settingsService: SettingsService
   ) {}
+
+  #isChainUnavailableError(err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+
+    return message.includes('Internal Server Error');
+  }
 
   async getBalances(
     accounts: Account[],
@@ -82,6 +89,8 @@ export class BalancesServiceGlacier {
                   ),
                 },
               };
+            } else if (this.#isChainUnavailableError(nativeBalance.reason)) {
+              throw new GlacierUnhealthyError();
             }
 
             if (erc20Balances.status === 'fulfilled') {
@@ -100,16 +109,32 @@ export class BalancesServiceGlacier {
                 };
               }
               balances = { ...balances, ...erc20BalancesValues };
+            } else if (this.#isChainUnavailableError(erc20Balances.reason)) {
+              throw new GlacierUnhealthyError();
             }
+
             return {
               [address]: balances,
             };
           })
-          .catch(() => {
+          .catch((err) => {
+            if (err instanceof GlacierUnhealthyError) {
+              throw err;
+            }
             return {};
           });
       })
     ).then((items) => {
+      const isGlacierUnhealthy = items.some(
+        (item) =>
+          item.status === 'rejected' &&
+          item.reason instanceof GlacierUnhealthyError
+      );
+
+      // propagate unhealthy glacier errors
+      if (isGlacierUnhealthy) {
+        throw new GlacierUnhealthyError();
+      }
       return items
         .filter(
           (
