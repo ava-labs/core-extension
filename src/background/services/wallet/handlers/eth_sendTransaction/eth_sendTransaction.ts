@@ -35,7 +35,10 @@ import { AnalyticsServicePosthog } from '@src/background/services/analytics/Anal
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 @injectable()
-export class EthSendTransactionHandler extends DAppRequestHandler<EthSendTransactionParams> {
+export class EthSendTransactionHandler extends DAppRequestHandler<
+  [EthSendTransactionParams],
+  string
+> {
   methods = [DAppProviderRequest.ETH_SEND_TX];
 
   constructor(

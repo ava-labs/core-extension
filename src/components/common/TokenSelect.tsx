@@ -134,7 +134,9 @@ export function TokenSelect({
     },
     [onInputAmountChange, maxAmountString]
   );
-  const hideTokenDropdown = bridgeTokensList && bridgeTokensList.length < 2;
+  const hideTokenDropdown =
+    (bridgeTokensList && bridgeTokensList.length < 2) ||
+    (tokensList && tokensList.length < 2);
 
   const displayTokenList = useDisplaytokenlist({
     tokensList,
@@ -175,25 +177,28 @@ export function TokenSelect({
 
   useEffect(() => {
     // when only one token is present, auto select it
-    if (
-      bridgeTokensList?.length === 1 &&
-      bridgeTokensList[0] &&
-      bridgeTokensList[0].asset.symbol !== selectedToken?.symbol
-    ) {
-      onTokenChange(bridgeTokensList[0]);
+    const tokens = bridgeTokensList ?? tokensList;
+    const hasOnlyOneToken = tokens?.length === 1;
+    const theOnlyToken = hasOnlyOneToken ? tokens[0] : undefined;
+    const isOnlyTokenNotSelected =
+      theOnlyToken && theOnlyToken?.symbol !== selectedToken?.symbol;
+
+    if (isOnlyTokenNotSelected) {
+      onTokenChange(theOnlyToken);
+      return;
     }
     // when selected token is not supported, clear it
-    else if (
-      bridgeTokensList &&
-      bridgeTokensList[0] &&
+    const supportedSymbols =
+      tokens?.flatMap((tok) => [tok.symbol, tok.symbolOnNetwork]) ?? [];
+
+    if (
       selectedToken &&
-      !bridgeTokensList
-        .map(({ symbol, symbolOnNetwork }) => symbolOnNetwork ?? symbol) // BTC does not have symbolOnNetwork defined
-        .includes(selectedToken.symbol)
+      tokens?.[0] &&
+      !supportedSymbols.includes(selectedToken.symbol)
     ) {
-      onTokenChange(bridgeTokensList[0]);
+      onTokenChange(tokens[0]);
     }
-  }, [bridgeTokensList, onTokenChange, selectedToken]);
+  }, [bridgeTokensList, tokensList, onTokenChange, selectedToken]);
 
   const rowRenderer = useCallback(
     ({ key, index, style }) => {
@@ -251,6 +256,10 @@ export function TokenSelect({
   );
 
   const renderTokenLabel = useCallback(() => {
+    if (!selectedToken || !('unconfirmedBalance' in selectedToken)) {
+      return `${t('Balance')}: ${selectedToken?.balanceDisplayValue ?? '0'}`;
+    }
+
     if (selectedToken?.unconfirmedBalance) {
       return (
         <Stack sx={{ flexDirection: 'row' }}>
@@ -267,8 +276,6 @@ export function TokenSelect({
           {t('Available Balance')}:{selectedToken?.balanceDisplayValue ?? '0'}
         </Stack>
       );
-    } else {
-      return `${t('Balance')}: ${selectedToken?.balanceDisplayValue ?? '0'}`;
     }
   }, [selectedToken, t]);
 

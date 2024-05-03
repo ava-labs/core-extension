@@ -28,6 +28,7 @@ import { NetworkFee } from '@src/background/services/networkFee/models';
 import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { CustomGasSettings } from '@src/background/services/bridge/models';
+import { TokenWithBalanceBTC } from '@src/background/services/balances/models';
 
 const NETWORK_FEE_REFRESH_INTERVAL = 60_000;
 
@@ -123,7 +124,9 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     const { addressC, addressBTC } = activeAccount ?? {};
 
     if (isBitcoinBridge && btcAsset && addressC && addressBTC) {
-      const balance = btcTokens?.find((token) => token.symbol === 'BTC');
+      const balance = btcTokens?.find(
+        (token) => token.symbol === 'BTC'
+      ) as TokenWithBalanceBTC;
 
       if (balance) {
         setUtxos(balance.utxos);

@@ -5,6 +5,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 import { ActiveNetworkWidget } from './ActiveNetworkWidget';
 import { NetworkList } from './NetworkList';
+import { hasUnconfirmedBalance } from '@src/utils/hasUnconfirmedBalance';
 
 export const tokensWithBalances = (tokenList?: TokenWithBalance[]) => {
   if (!tokenList) {
@@ -18,8 +19,10 @@ export const getNetworkBalance = (assetList: TokenWithBalance[]) => {
   const sum = assetList.reduce((prevAssetUSD, currentAsset) => {
     return (
       prevAssetUSD +
-      ((currentAsset.unconfirmedBalanceUSD || 0) +
-        (currentAsset.balanceUSD || 0))
+      ((hasUnconfirmedBalance(currentAsset)
+        ? currentAsset.unconfirmedBalanceUSD
+        : 0) || 0) +
+      (currentAsset.balanceUSD || 0)
     );
   }, 0);
   return sum;

@@ -35,6 +35,7 @@ import { isPchainNetwork } from '@src/background/services/network/utils/isAvalan
 import { PAndL } from '@src/components/common/ProfitAndLoss';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
+import { hasUnconfirmedBalance } from '@src/utils/hasUnconfirmedBalance';
 
 export function TokenFlow() {
   const { t } = useTranslation();
@@ -98,9 +99,10 @@ export function TokenFlow() {
     return <CircularProgress />;
   }
 
-  const balanceCurrencyValue = isBitcoin
-    ? (token.balanceUSD || 0) + (token.unconfirmedBalanceUSD || 0)
-    : token.balanceUsdDisplayValue ?? token.balanceUSD;
+  const balanceCurrencyValue =
+    isBitcoin && hasUnconfirmedBalance(token)
+      ? (token.balanceUSD || 0) + (token.unconfirmedBalanceUSD || 0)
+      : token.balanceUsdDisplayValue ?? token.balanceUSD;
 
   return (
     <Stack sx={{ width: '100%', position: 'relative' }}>
@@ -144,7 +146,7 @@ export function TokenFlow() {
           </Stack>
           <Stack sx={{ justifyContent: 'space-between', flexDirection: 'row' }}>
             <Typography data-testid="token-details-balance" variant="body2">
-              {token.balance && token.unconfirmedBalance
+              {token.balance && hasUnconfirmedBalance(token)
                 ? balanceToDisplayValue(
                     token.balance.add(token.unconfirmedBalance),
                     token.decimals

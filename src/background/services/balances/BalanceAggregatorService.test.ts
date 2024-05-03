@@ -7,6 +7,7 @@ import {
   BALANCES_CACHE_KEY,
   NetworkTokenWithBalance,
   TokenType,
+  TokenWithBalanceBTC,
 } from './models';
 import BN from 'bn.js';
 import { BitcoinInputUTXO } from '@avalabs/wallets-sdk';
@@ -207,7 +208,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     confirmations: 10,
   };
 
-  const bitcoinTokenBalance: NetworkTokenWithBalance = {
+  const bitcoinTokenBalance: TokenWithBalanceBTC = {
     ...bitcoinToken,
     type: TokenType.NATIVE,
     balance: new BN(100),

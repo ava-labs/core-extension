@@ -21,6 +21,7 @@ import {
 import { TokenEllipsis } from '@src/components/common/TokenEllipsis';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
+import { hasUnconfirmedBalance } from '@src/utils/hasUnconfirmedBalance';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
@@ -109,7 +110,7 @@ export function Assetlist({ assetList }: AssetListProps) {
                   <TokenEllipsis maxLength={12} text={token.name} />
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {token.balance && token.unconfirmedBalance
+                  {token.balance && hasUnconfirmedBalance(token)
                     ? balanceToDisplayValue(
                         token.balance.add(token.unconfirmedBalance),
                         token.decimals
@@ -127,7 +128,10 @@ export function Assetlist({ assetList }: AssetListProps) {
                   sx={{ fontWeight: 'bold' }}
                 >
                   {currencyFormatter(
-                    token.balanceUSD + (token.unconfirmedBalanceUSD || 0)
+                    token.balanceUSD +
+                      ((hasUnconfirmedBalance(token)
+                        ? token.unconfirmedBalanceUSD
+                        : 0) || 0)
                   )}
                 </Typography>
               )}

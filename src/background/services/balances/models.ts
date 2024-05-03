@@ -11,22 +11,22 @@ export enum BalanceServiceEvents {
 
 interface TokenBalanceData {
   type: TokenType;
+  name: string;
+  symbol: string;
   balance: BN;
   balanceUSD?: number;
   balanceDisplayValue?: string;
   balanceUsdDisplayValue?: string;
   priceUSD?: number;
-  utxos?: BitcoinInputUTXOWithOptionalScript[];
-  utxosUnconfirmed?: BitcoinInputUTXOWithOptionalScript[];
-  unconfirmedBalance?: BN;
-  unconfirmedBalanceDisplayValue?: string;
-  unconfirmedBalanceUsdDisplayValue?: string;
-  unconfirmedBalanceUSD?: number;
   pchainBalance?: PchainBalance;
   priceChanges?: {
     percentage?: number;
     value?: number;
   };
+}
+
+interface TokenBalanceDataWithDecimals extends TokenBalanceData {
+  decimals: number;
 }
 
 export enum TokenType {
@@ -52,8 +52,18 @@ export interface PchainBalance {
   pendingStaked: number;
 }
 
+export interface TokenWithBalanceBTC extends NetworkTokenWithBalance {
+  logoUri: string;
+  utxos: BitcoinInputUTXOWithOptionalScript[];
+  utxosUnconfirmed?: BitcoinInputUTXOWithOptionalScript[];
+  unconfirmedBalance?: BN;
+  unconfirmedBalanceDisplayValue?: string;
+  unconfirmedBalanceUsdDisplayValue?: string;
+  unconfirmedBalanceUSD?: number;
+}
+
 export interface TokenWithBalanceERC20
-  extends TokenBalanceData,
+  extends TokenBalanceDataWithDecimals,
     NetworkContractToken {
   type: TokenType.ERC20;
 }
@@ -107,12 +117,17 @@ export interface NftBalanceResponse {
 }
 
 export interface NetworkTokenWithBalance
-  extends TokenBalanceData,
+  extends TokenBalanceDataWithDecimals,
     NetworkToken {
   type: TokenType.NATIVE;
 }
 
-export type TokenWithBalance = NetworkTokenWithBalance | TokenWithBalanceERC20;
+export type TokenWithBalanceEVM =
+  | NetworkTokenWithBalance
+  | TokenWithBalanceERC20;
+
+export type TokenWithBalance = TokenWithBalanceEVM | TokenWithBalanceBTC;
+
 export type SendableToken = TokenWithBalance | NftTokenWithBalance;
 
 export interface TokenListDict {
@@ -122,10 +137,6 @@ export interface TokenListDict {
 export interface TokenListERC20 {
   address: string;
   chainId: number;
-  name: string;
-  symbol: string;
-  decimals: number;
-  logoURI?: string;
 }
 
 // store balances in the structure of network ID -> address -> tokens

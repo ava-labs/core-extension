@@ -20,6 +20,7 @@ import {
   SendState,
   ValidSendState,
 } from './models';
+import { TokenWithBalanceBTC } from '../balances/models';
 
 @singleton()
 export class SendServiceBTC implements SendServiceHelper {
@@ -165,12 +166,11 @@ export class SendServiceBTC implements SendServiceHelper {
     utxos: BitcoinInputUTXO[];
   }> {
     const provider = await this.networkService.getBitcoinProvider();
-    const token =
-      this.networkBalancesService.balances[
-        this.networkService.isMainnet()
-          ? ChainId.BITCOIN
-          : ChainId.BITCOIN_TESTNET
-      ]?.[this.address]?.['BTC'];
+    const token = this.networkBalancesService.balances[
+      this.networkService.isMainnet()
+        ? ChainId.BITCOIN
+        : ChainId.BITCOIN_TESTNET
+    ]?.[this.address]?.['BTC'] as TokenWithBalanceBTC;
 
     const utxosWithScripts = await provider.getScriptsForUtxos(
       token?.utxos || []
