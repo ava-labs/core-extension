@@ -12,7 +12,6 @@ import { NetworkVMType } from '@avalabs/chains-sdk';
 import { isBech32Address } from '@avalabs/bridge-sdk';
 import { isAddress } from 'ethers';
 import { useTranslation } from 'react-i18next';
-
 import { ContactSelect } from './ContactSelect';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
@@ -21,8 +20,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { isValidXPAddress } from '@src/utils/isAddressValid';
-import { addressXpToAddressPvm } from '@src/utils/addressXPToaddressPVM';
+import { isValidPvmAddress } from '@src/utils/isAddressValid';
 
 const truncateName = (name: string) => {
   if (name.length < 28) return name;
@@ -77,8 +75,16 @@ export const ContactInput = ({
   const contactAddress = isBitcoin(network)
     ? contact?.addressBTC
     : isPchainNetwork(network)
-    ? addressXpToAddressPvm(contact)
+    ? contact?.addressXP
     : contact?.address;
+
+  const [cursor, setCursor] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.setSelectionRange(cursor, cursor);
+    }
+  }, [inputRef, cursor, contactAddress]);
 
   const isValidAddress = (): boolean => {
     if (network?.vmName === NetworkVMType.EVM) {
@@ -91,7 +97,7 @@ export const ContactInput = ({
     }
     if (isPchainNetwork(network)) {
       return contact && contact.addressXP
-        ? isValidXPAddress(contact.addressXP)
+        ? isValidPvmAddress(contact.addressXP)
         : false;
     }
     return false;
@@ -180,6 +186,7 @@ export const ContactInput = ({
             minRows={2}
             onChange={(e) => {
               onChange(identifyAddress(e.target.value));
+              setCursor(e.target.selectionStart);
             }}
             value={getInputDisplayValue()}
           />

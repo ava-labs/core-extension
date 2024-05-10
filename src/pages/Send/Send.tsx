@@ -47,7 +47,6 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { useSendContext } from '@src/contexts/SendProvider';
-import { addressXpToAddressPvm } from '@src/utils/addressXPToaddressPVM';
 
 const DEFAULT_DECIMALS = 9;
 
@@ -153,7 +152,7 @@ export function SendPage() {
       addressToUse = contact.addressBTC || contact.address;
     }
     if (isPchainNetwork(network)) {
-      addressToUse = addressXpToAddressPvm(contact);
+      addressToUse = contact.addressXP || '';
     }
     setSendDataInParams({
       token: selectedToken,
@@ -231,7 +230,7 @@ export function SendPage() {
     const inputAddress =
       contactInput?.address ||
       contactInput?.addressBTC ||
-      addressXpToAddressPvm(contactInput);
+      contactInput?.addressXP;
     const stateUpdate = {
       address: inputAddress || pageHistory.address,
     };

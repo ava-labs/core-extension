@@ -295,7 +295,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       ...network,
       isTestnet,
       vmName: NetworkVMType.PVM,
-      chainName: 'Avalanche (P-chain)',
+      chainName: 'Avalanche (P-Chain)',
       logoUri:
         'https://images.ctfassets.net/gcj8jwzm6086/42aMwoCLblHOklt6Msi6tm/1e64aa637a8cead39b2db96fe3225c18/pchain-square.svg', // from contentful
       networkToken: {

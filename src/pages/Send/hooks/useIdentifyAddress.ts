@@ -1,4 +1,3 @@
-import { stripAddressPrefix } from './../../../utils/stripAddressPrefix';
 import type { Contact } from '@avalabs/types';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
@@ -30,7 +29,7 @@ export const useIdentifyAddress = () => {
         if (
           contact.address.toLowerCase() === addressLowerCase ||
           contact.addressBTC?.toLowerCase() === addressLowerCase ||
-          contact.addressXP?.toLowerCase() === addressLowerCase
+          `p-${contact.addressXP?.toLowerCase()}` === addressLowerCase
         ) {
           const addressToUse = isBitcoin(network)
             ? { addressBTC: address, address: '', addressPVM: '' }
@@ -55,9 +54,7 @@ export const useIdentifyAddress = () => {
             ? { addressBTC: account.addressBTC, address: '' }
             : isPchainNetwork(network)
             ? {
-                addressXP: account.addressPVM
-                  ? stripAddressPrefix(account.addressPVM)
-                  : '',
+                addressXP: account.addressPVM ? account.addressPVM : '',
                 address: '',
                 addressBTC: '',
               }

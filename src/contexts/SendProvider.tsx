@@ -155,7 +155,7 @@ export function SendContextProvider<T extends SendableToken = SendableToken>({
       if (isLedgerWallet) {
         return getErrorState(
           sendState,
-          'Ledger does not support send function on P-chain currently'
+          'Ledger does not support send function on P-Chain currently'
         );
       }
 

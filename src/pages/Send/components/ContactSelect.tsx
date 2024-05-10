@@ -23,7 +23,6 @@ import {
 } from './AddressDropdownListMyAccounts';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { isTxHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
-import { addressXpToAddressPvm } from '@src/utils/addressXPToaddressPVM';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 import { indexOf } from 'lodash';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
@@ -210,9 +209,7 @@ export const ContactSelect = ({
         address: network?.vmName == NetworkVMType.EVM ? contact.address : '',
         addressBTC:
           network?.vmName === NetworkVMType.BITCOIN ? contact.addressBTC : '',
-        addressPVM: isPchainNetwork(network)
-          ? addressXpToAddressPvm(contact)
-          : '',
+        addressPVM: isPchainNetwork(network) ? contact.addressXP : '',
         isKnown: true,
       }));
   }, [contacts, network]);

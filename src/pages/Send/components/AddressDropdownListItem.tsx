@@ -11,6 +11,9 @@ import {
   XAndPChainsIcon,
 } from '@avalabs/k2-components';
 import { ContactAddress } from './ContactAddress';
+import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { addressXpToAddressPvm } from '@src/utils/addressXPToaddressPVM';
 
 type AddressDropdownListItemProps = {
   contact: Contact;
@@ -24,6 +27,8 @@ export const AddressDropdownListItem = ({
   isSelected,
   onChange,
 }: AddressDropdownListItemProps) => {
+  const { network } = useNetworkContext();
+
   const initials =
     contact.name
       .split(' ')
@@ -47,7 +52,15 @@ export const AddressDropdownListItem = ({
       color={isSelected ? 'secondary' : 'primary'}
       onClick={(e: React.MouseEvent) => {
         e.stopPropagation();
-        onChange(contact);
+        if (contact.addressXP && isPchainNetwork(network)) {
+          const contactWithPrefix = {
+            ...contact,
+            addressXP: addressXpToAddressPvm(contact),
+          };
+          onChange(contactWithPrefix);
+        } else {
+          onChange(contact);
+        }
       }}
       disableRipple
     >
@@ -92,7 +105,7 @@ export const AddressDropdownListItem = ({
         )}
         {contact.addressXP && (
           <ContactAddress
-            address={contact.addressXP}
+            address={`P-${contact.addressXP}`}
             networkIcon={<XAndPChainsIcon size={16} />}
           />
         )}
