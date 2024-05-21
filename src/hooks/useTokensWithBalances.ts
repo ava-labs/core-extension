@@ -12,8 +12,7 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { GetTokensListHandler } from '@src/background/services/tokens/handlers/getTokenList';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { merge } from 'lodash';
-import { isBitcoinChainId } from '@src/background/services/network/utils/isBitcoinNetwork';
-import { isPchainNetworkId } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { getAddressForChain } from '@src/utils/getAddressForChain';
 
 const bnZero = new BN(0);
 
@@ -98,11 +97,7 @@ export function useTokensWithBalances(
       return [];
     }
 
-    const address = isBitcoinChainId(selectedChainId)
-      ? activeAccount.addressBTC
-      : isPchainNetworkId(selectedChainId)
-      ? activeAccount.addressPVM
-      : activeAccount.addressC;
+    const address = getAddressForChain(selectedChainId, activeAccount);
 
     if (!address) {
       return [];
@@ -133,7 +128,7 @@ export function useTokensWithBalances(
     const defaultResult = nativeToken ? [nativeToken] : [];
 
     const filteredTokens = unfilteredTokens.filter((token) => {
-      return token.balance.gt(bnZero);
+      return token.balance.gt(bnZero) || token.type === TokenType.NATIVE; // Always include the native token
     });
 
     return filteredTokens.length

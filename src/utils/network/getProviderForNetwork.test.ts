@@ -201,7 +201,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
     );
   });
 
-  it('returns fuji provider for X-chain test network', () => {
+  it('returns fuji provider for X-Chain test network', () => {
     const mockAVMNetwork = mockNetwork(NetworkVMType.AVM);
     const provider = getProviderForNetwork(mockAVMNetwork);
 
@@ -211,7 +211,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
     ).toHaveBeenCalledTimes(1);
   });
 
-  it('returns mainnet provider for X-chain network', () => {
+  it('returns mainnet provider for X-Chain network', () => {
     const mockAVMNetwork = mockNetwork(NetworkVMType.AVM, false);
     const provider = getProviderForNetwork(mockAVMNetwork);
 
@@ -221,7 +221,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
     ).toHaveBeenCalledTimes(1);
   });
 
-  it('returns fuji provider for P-chain test network', () => {
+  it('returns fuji provider for P-Chain test network', () => {
     const mockAVMNetwork = mockNetwork(NetworkVMType.PVM);
     const provider = getProviderForNetwork(mockAVMNetwork);
 
@@ -231,7 +231,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
     ).toHaveBeenCalledTimes(1);
   });
 
-  it('returns mainnet provider for P-chain network', () => {
+  it('returns mainnet provider for P-Chain network', () => {
     const mockAVMNetwork = mockNetwork(NetworkVMType.PVM, false);
     const provider = getProviderForNetwork(mockAVMNetwork);
 

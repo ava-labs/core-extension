@@ -118,8 +118,6 @@ export function BNInput({
     onValueChanged(big.toString());
   };
 
-  const canSetMax = max && !isValueLoading;
-
   return (
     <Stack sx={{ position: 'relative' }}>
       <InputNumber
@@ -155,7 +153,9 @@ export function BNInput({
         InputProps={{
           disabled,
           endAdornment: withMaxButton ? (
-            canSetMax ? (
+            isValueLoading ? (
+              <CircularProgress size={16} sx={{ height: 'auto !important' }} />
+            ) : max ? (
               <InputAdornment position="end">
                 <Button
                   variant="text"
@@ -166,9 +166,7 @@ export function BNInput({
                   Max
                 </Button>
               </InputAdornment>
-            ) : (
-              <CircularProgress size={16} sx={{ height: 'auto !important' }} />
-            )
+            ) : null
           ) : null,
           inputMode: 'text',
           sx: {

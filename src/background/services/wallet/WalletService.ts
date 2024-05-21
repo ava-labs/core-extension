@@ -988,7 +988,7 @@ export class WalletService implements OnLock, OnUnlock {
           break;
         case ImportType.WALLET_CONNECT:
           await this.secretService.saveImportedWallet(id, {
-            secretType: SecretType.Fireblocks,
+            secretType: SecretType.WalletConnect,
             ...importData.data,
           });
           break;

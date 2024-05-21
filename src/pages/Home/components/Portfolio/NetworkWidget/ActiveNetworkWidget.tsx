@@ -30,6 +30,10 @@ import { BN } from 'bn.js';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { PchainActiveNetworkWidgetContent } from './PchainActiveNetworkWidgetContent';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
+import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { XchainActiveNetworkWidgetContent } from './XchainActiveNetworkWidgetContent';
+import { isTokenWithBalancePVM } from '@src/background/services/balances/utils/isTokenWithBalancePVM';
+import { isTokenWithBalanceAVM } from '@src/background/services/balances/utils/isTokenWithBalanceAVM';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
@@ -63,7 +67,11 @@ export function ActiveNetworkWidget({
     e.stopPropagation();
     capture('PortfolioPrimaryNetworkClicked', { chainId: network.chainId });
 
-    if (isBitcoinNetwork(network) || isPchainNetwork(network)) {
+    if (
+      isBitcoinNetwork(network) ||
+      isPchainNetwork(network) ||
+      isXchainNetwork(network)
+    ) {
       history.push('/token');
     } else {
       history.push('/assets');
@@ -72,6 +80,8 @@ export function ActiveNetworkWidget({
 
   const hasNoFunds =
     assetList.length === 1 && assetList[0]?.balance.eq(new BN(0));
+
+  const selectedAssetList = assetList[0];
 
   return (
     <>
@@ -180,10 +190,12 @@ export function ActiveNetworkWidget({
             width: 'auto',
           }}
         />
-        {isPchainNetwork(network) ? (
-          <PchainActiveNetworkWidgetContent
-            balances={assetList[0]?.pchainBalance}
-          />
+        {isPchainNetwork(network) &&
+        isTokenWithBalancePVM(selectedAssetList) ? (
+          <PchainActiveNetworkWidgetContent balances={selectedAssetList} />
+        ) : isXchainNetwork(network) &&
+          isTokenWithBalanceAVM(selectedAssetList) ? (
+          <XchainActiveNetworkWidgetContent balances={selectedAssetList} />
         ) : (
           <Assetlist assetList={assetList} />
         )}

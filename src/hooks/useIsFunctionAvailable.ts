@@ -10,8 +10,15 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import useIsUsingSeedlessAccount from './useIsUsingSeedlessAccount';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import {
+  isPchainNetwork,
+  isPchainNetworkId,
+} from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import {
+  isXchainNetwork,
+  isXchainNetworkId,
+} from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 
 export enum FunctionNames {
   BRIDGE = 'Bridge',
@@ -79,18 +86,19 @@ const disableForAccountsWithoutXPSupport = (
   chain: ChainId,
   account: Account
 ) => {
-  const isPChain = [ChainId.AVALANCHE_XP, ChainId.AVALANCHE_TEST_XP].includes(
-    chain
-  );
+  const isPChain = isPchainNetworkId(chain);
+  const isXChain = isXchainNetworkId(chain);
 
-  if (!isPChain) {
+  if (!isPChain && !isXChain) {
     return false;
   }
 
   const hasPAddress = Boolean(account.addressPVM);
+  const hasXAddress = Boolean(account.addressAVM);
 
   return (
-    !hasPAddress ||
+    (isPChain && !hasPAddress) ||
+    (isXChain && !hasXAddress) ||
     isWalletConnectAccount(account) ||
     isFireblocksAccount(account)
   );
@@ -100,8 +108,10 @@ const disabledFeatures: Record<string, BlacklistConfig> = {
   ManageTokens: {
     networks: [
       ChainId.BITCOIN,
-      ChainId.AVALANCHE_TEST_XP,
-      ChainId.AVALANCHE_XP,
+      ChainId.AVALANCHE_P,
+      ChainId.AVALANCHE_TEST_P,
+      ChainId.AVALANCHE_X,
+      ChainId.AVALANCHE_TEST_X,
     ],
     complexChecks: [],
   },
@@ -121,8 +131,10 @@ const disabledFeatures: Record<string, BlacklistConfig> = {
   },
   Bridge: {
     networks: [
-      ChainId.AVALANCHE_TEST_XP,
-      ChainId.AVALANCHE_XP,
+      ChainId.AVALANCHE_P,
+      ChainId.AVALANCHE_TEST_P,
+      ChainId.AVALANCHE_X,
+      ChainId.AVALANCHE_TEST_X,
       ChainId.DFK,
       ChainId.DFK_TESTNET,
       ChainId.SWIMMER,
@@ -181,12 +193,17 @@ export const useIsFunctionAvailable = (
       return false;
     }
 
-    if (functionToCheck === FunctionNames.SEND && isPchainNetwork(network)) {
-      //The Avalanche Ledger app doesn’t support send on pchain yet
+    if (functionToCheck === FunctionNames.SEND) {
+      //The avalanche Ledger app doesn’t suprort send on pchain yet
       if (isLedgerWallet) {
         return false;
       }
-      return !!active?.addressPVM && featureFlags[FeatureGates.SEND_P_CHAIN];
+
+      if (isPchainNetwork(network)) {
+        return !!active?.addressPVM && featureFlags[FeatureGates.SEND_P_CHAIN];
+      } else if (isXchainNetwork(network)) {
+        return !!active?.addressAVM && featureFlags[FeatureGates.SEND_X_CHAIN];
+      }
     }
 
     const featureFlagToCheck = FeatureFlagMap[functionToCheck];
@@ -198,13 +215,20 @@ export const useIsFunctionAvailable = (
     if (!network || !active) {
       return false;
     }
+
+    //The avalanche Ledger app doesn’t suprort send on x/p chain yet
+    //The account without addressPVM cannot send on pchain
+    const onPchainWithNoAccess =
+      isPchainNetwork(network) && (isLedgerWallet || !active.addressPVM);
+
+    //The account without addressAVM cannot send on xchain
+    const onXchainWithNoAccress =
+      isXchainNetwork(network) && (isLedgerWallet || !active.addressAVM);
+
     if (
       name === FunctionNames.SEND &&
-      isPchainNetwork(network) &&
-      (isLedgerWallet || !active.addressPVM)
+      (onPchainWithNoAccess || onXchainWithNoAccress)
     ) {
-      //The Avalanche Ledger app doesn’t support send on pchain yet
-      //The account without addressPVM cannot send on pchain
       return false;
     }
     // Check whitelist

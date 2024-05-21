@@ -49,9 +49,9 @@ describe('src/background/services/network/utils/isAvalanchePchainNetwork.ts', ()
       expect(result).toEqual(false);
     });
     it('should return true if networkId is pchain id', async () => {
-      const result = isPchainNetworkId(ChainId.AVALANCHE_XP);
+      const result = isPchainNetworkId(ChainId.AVALANCHE_P);
       expect(result).toEqual(true);
-      const result2 = isPchainNetworkId(ChainId.AVALANCHE_TEST_XP);
+      const result2 = isPchainNetworkId(ChainId.AVALANCHE_TEST_P);
       expect(result2).toEqual(true);
     });
   });

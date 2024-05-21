@@ -1,4 +1,4 @@
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/chains-sdk';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -22,6 +22,7 @@ import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { filterBridgeStateToNetwork } from '@src/background/services/bridge/utils';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { caipToChainId } from '@src/utils/caipConversion';
+import { getAddressForChain } from '@src/utils/getAddressForChain';
 
 const LogoContainer = styled('div')`
   margin-top: 4px;
@@ -48,13 +49,10 @@ export function NetworkList() {
     state: { pendingTransfers: unifiedBridgeTxs },
   } = useUnifiedBridgeContext();
 
-  function getNetworkValue({ vmName, chainId }: Network) {
-    const networkAddress =
-      (vmName === NetworkVMType.EVM
-        ? activeAccount?.addressC
-        : vmName === NetworkVMType.BITCOIN
-        ? activeAccount?.addressBTC
-        : activeAccount?.addressPVM) || '';
+  function getNetworkValue({ chainId }: Network) {
+    const networkAddress = activeAccount
+      ? getAddressForChain(chainId, activeAccount) || ''
+      : '';
     const networkBalances = tokens.balances?.[chainId];
     const networkAssetList = networkBalances
       ? tokensWithBalances(Object.values(networkBalances[networkAddress] ?? {}))

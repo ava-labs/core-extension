@@ -1,10 +1,10 @@
-import { PchainBalance } from '@src/background/services/balances/models';
 import { Stack, Typography } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
+import { TokenWithBalancePVM } from '@src/background/services/balances/models';
 
 interface PchainActiveNetworkWidgetContentProps {
-  balances?: PchainBalance;
+  balances?: TokenWithBalancePVM;
 }
 
 export function PchainActiveNetworkWidgetContent({

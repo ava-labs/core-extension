@@ -440,7 +440,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           name: 'avalanche_sendTransaction_failed',
           properties: {
             address: activeAccountMock.addressAVM,
-            chainId: ChainId.AVALANCHE_TEST_XP,
+            chainId: ChainId.AVALANCHE_TEST_X,
           },
         })
       );
@@ -449,12 +449,20 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     it('returns error when signing fails', async () => {
       networkServiceMock.isMainnet.mockReturnValue(true);
 
+      const pendingActionPVMMock = {
+        displayData: {
+          vm: 'PVM',
+          unsignedTxJson,
+        },
+        params: {},
+      } as unknown as Action;
+
       const error = new Error('some error');
 
       signMock.mockRejectedValueOnce(error);
 
       await handler.onActionApproved(
-        pendingActionMock,
+        pendingActionPVMMock,
         {},
         onSuccessMock,
         onErrorMock,
@@ -470,8 +478,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         expect.objectContaining({
           name: 'avalanche_sendTransaction_failed',
           properties: {
-            address: activeAccountMock.addressAVM,
-            chainId: ChainId.AVALANCHE_XP,
+            address: activeAccountMock.addressPVM,
+            chainId: ChainId.AVALANCHE_P,
           },
         })
       );
@@ -583,7 +591,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           properties: {
             address: activeAccountMock.addressAVM,
             txHash: 1,
-            chainId: ChainId.AVALANCHE_TEST_XP,
+            chainId: ChainId.AVALANCHE_TEST_X,
           },
         })
       );
@@ -633,7 +641,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           properties: {
             address: activeAccountMock.addressAVM,
             txHash: 1,
-            chainId: ChainId.AVALANCHE_TEST_XP,
+            chainId: ChainId.AVALANCHE_TEST_X,
           },
         })
       );

@@ -13,13 +13,23 @@ import {
   useTheme,
 } from '@avalabs/k2-components';
 import { useMemo } from 'react';
-import { PChainTransactionType } from '@avalabs/glacier-sdk';
+import {
+  PChainTransactionType,
+  XChainTransactionType,
+} from '@avalabs/glacier-sdk';
 export interface PrimaryNetworkMethodIconProp {
-  methodName: PChainTransactionType | 'CreateAssetTx' | 'OperationTx';
+  methodName:
+    | PChainTransactionType
+    | XChainTransactionType
+    | 'CreateAssetTx'
+    | 'OperationTx';
 }
 
 const METHOD_NAME_TO_ICON: Record<
-  PChainTransactionType | 'CreateAssetTx' | 'OperationTx',
+  | PChainTransactionType
+  | XChainTransactionType
+  | 'CreateAssetTx'
+  | 'OperationTx',
   typeof ArrowDownLeftIcon
 > = {
   // Both

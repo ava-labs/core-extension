@@ -19,6 +19,7 @@ import { isEmpty } from 'lodash';
 import { TokenType } from '../balances/models';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { getTokenValue } from '../balances/utils/getTokenValue';
 
 @singleton()
 export class HistoryServicePVM {
@@ -101,7 +102,9 @@ export class HistoryServicePVM {
       ? this.aggregateValue(tx.value, !!network.isTestnet)
       : this.aggregateValue(tx.amountStaked, !!network.isTestnet);
 
-    const avaxAmt = nAvaxAmt ? nAvaxAmt.div(10 ** avax.decimals) : new Big(0);
+    const avaxAmt = nAvaxAmt
+      ? getTokenValue(avax.decimals, nAvaxAmt.toNumber())
+      : new Big(0);
 
     const nAvaxFee = tx.amountBurned
       ?.filter((value) => value.assetId === getAvaxAssetId(!!network.isTestnet))
@@ -110,7 +113,7 @@ export class HistoryServicePVM {
         new Big(0)
       );
     const avaxBurnedAmount = nAvaxFee
-      ? nAvaxFee.div(10 ** avax.decimals)
+      ? getTokenValue(avax.decimals, nAvaxFee.toNumber())
       : new Big(0);
 
     const isSender = froms.has(stripAddressPrefix(address));
@@ -124,7 +127,7 @@ export class HistoryServicePVM {
       type: TokenType.NATIVE,
     };
 
-    const result = {
+    const result: PchainTxHistoryItem = {
       from: Array.from(froms),
       to: Array.from(tos),
       isSender,
@@ -134,6 +137,7 @@ export class HistoryServicePVM {
       explorerLink: getExplorerAddressByNetwork(network, tx.txHash, 'tx'),
       chainId: network.chainId.toString(),
       type: tx.txType,
+      vmType: 'PVM',
     };
 
     return result;

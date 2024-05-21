@@ -52,9 +52,6 @@ import { PermissionStateUpdateEvents } from '@src/background/services/permission
 import { PermissionsAddDomainHandler } from '@src/background/services/permissions/handlers/addPermissionsForDomain';
 import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
 import { GetPermissionsForDomainHandler } from '@src/background/services/permissions/handlers/getPermissionsForDomain';
-import { SendTxDetailsEvents } from '@src/background/services/send/events/sendTxDetailsEvent';
-import { SendSubmitHandler } from '@src/background/services/send/handlers/SendSubmitHandler';
-import { SendValidateHandler } from '@src/background/services/send/handlers/SendValidateHandler';
 import { SettingsUpdatedEvents } from '@src/background/services/settings/events/settingsUpdatedEvent';
 import { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
 import { GetSettingsHandler } from '@src/background/services/settings/handlers/getSettings';
@@ -236,8 +233,6 @@ import { ApprovalEvents } from '@src/background/services/approvals/events/approv
     token: 'ExtensionRequestHandler',
     useToken: GetPermissionsForDomainHandler,
   },
-  { token: 'ExtensionRequestHandler', useToken: SendSubmitHandler },
-  { token: 'ExtensionRequestHandler', useToken: SendValidateHandler },
   { token: 'ExtensionRequestHandler', useToken: AddCustomTokenHandler },
   { token: 'ExtensionRequestHandler', useToken: GetSettingsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenDataHandler },
@@ -397,7 +392,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: AnalyticsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: BridgeConfigUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: OnboardingUpdatedEvents },
-  { token: 'ExtensionEventEmitter', useToken: SendTxDetailsEvents },
   { token: 'ExtensionEventEmitter', useToken: NetworkFeeUpdateEvents },
   { token: 'ExtensionEventEmitter', useToken: NetworkUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: NetworksUpdatedEvents },

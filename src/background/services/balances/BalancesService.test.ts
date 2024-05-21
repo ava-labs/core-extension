@@ -3,7 +3,12 @@ import { BalancesService } from './BalancesService';
 import { AccountType } from '../accounts/models';
 import BN from 'bn.js';
 import { PrimaryNetworkAssetType } from '@avalabs/glacier-sdk';
-import { NetworkTokenWithBalance, TokenType } from './models';
+import {
+  NetworkTokenWithBalance,
+  TokenType,
+  TokenWithBalanceAVM,
+  TokenWithBalancePVM,
+} from './models';
 
 describe('src/background/services/balances/BalancesService.ts', () => {
   const balancesServiceEVMMock = {
@@ -17,6 +22,9 @@ describe('src/background/services/balances/BalancesService.ts', () => {
   const balancesServicePVMMock = {
     getBalances: jest.fn(),
   } as any;
+  const balancesServiceAVMMock = {
+    getBalances: jest.fn(),
+  } as any;
   const balanceServiceGlacierMock = {
     getBalances: jest.fn(),
   } as any;
@@ -27,6 +35,11 @@ describe('src/background/services/balances/BalancesService.ts', () => {
   const pchain = {
     ...AVALANCHE_XP_TEST_NETWORK,
     vmName: NetworkVMType.PVM,
+  };
+
+  const xchain = {
+    ...AVALANCHE_XP_TEST_NETWORK,
+    vmName: NetworkVMType.AVM,
   };
 
   const testChain = {
@@ -55,8 +68,8 @@ describe('src/background/services/balances/BalancesService.ts', () => {
     walletId: 'walletId',
   };
 
-  const pchainResult: NetworkTokenWithBalance = {
-    name: 'P-chain avax',
+  const pchainResult: TokenWithBalancePVM = {
+    name: 'P-Chain avax',
     symbol: 'AVAX',
     description: 'description',
     decimals: 9,
@@ -67,40 +80,88 @@ describe('src/background/services/balances/BalancesService.ts', () => {
     balanceDisplayValue: '2',
     balanceUsdDisplayValue: '4',
     priceUSD: 2,
-    pchainBalance: {
-      available: new BN(1),
-      availableUSD: 2,
-      availableDisplayValue: '1',
-      availableUsdDisplayValue: '2',
-      utxos: {
-        unlockedUnstaked: [
-          {
-            assetId: 'assetId',
-            name: 'assetName',
-            symbol: 'AVAX',
-            denomination: 9,
-            type: PrimaryNetworkAssetType.SECP256K1,
-            amount: '1000000000',
-            utxoCount: 1,
-          },
-        ],
-        unlockedStaked: [],
-        lockedPlatform: [],
-        lockedStakeable: [],
-        lockedStaked: [],
-        pendingStaked: [],
-        atomicMemoryUnlocked: [],
-        atomicMemoryLocked: [],
-      },
-      lockedStaked: 1,
-      lockedStakeable: 0,
-      lockedPlatform: 0,
-      atomicMemoryLocked: 0,
-      atomicMemoryUnlocked: 0,
-      unlockedUnstaked: 0,
-      unlockedStaked: 0,
-      pendingStaked: 0,
+
+    available: new BN(1),
+    availableUSD: 2,
+    availableDisplayValue: '1',
+    availableUsdDisplayValue: '2',
+    utxos: {
+      unlockedUnstaked: [
+        {
+          assetId: 'assetId',
+          name: 'assetName',
+          symbol: 'AVAX',
+          denomination: 9,
+          type: PrimaryNetworkAssetType.SECP256K1,
+          amount: '1000000000',
+          utxoCount: 1,
+        },
+      ],
+      unlockedStaked: [],
+      lockedPlatform: [],
+      lockedStakeable: [],
+      lockedStaked: [],
+      pendingStaked: [],
+      atomicMemoryUnlocked: [],
+      atomicMemoryLocked: [],
     },
+    lockedStaked: 1,
+    lockedStakeable: 0,
+    lockedPlatform: 0,
+    atomicMemoryLocked: 0,
+    atomicMemoryUnlocked: 0,
+    unlockedUnstaked: 0,
+    unlockedStaked: 0,
+    pendingStaked: 0,
+  };
+
+  const xchainResult: TokenWithBalanceAVM = {
+    name: 'X-Chain avax',
+    symbol: 'AVAX',
+    description: 'description',
+    decimals: 9,
+    logoUri: 'logoUri.com',
+    type: TokenType.NATIVE,
+    balance: new BN(6),
+    balanceUSD: 36,
+    balanceDisplayValue: '6',
+    balanceUsdDisplayValue: '36',
+    priceUSD: 6,
+
+    available: new BN(3),
+    availableUSD: 18,
+    availableDisplayValue: '3',
+    availableUsdDisplayValue: '18',
+    utxos: {
+      locked: [
+        {
+          assetId: 'assetId',
+          name: 'assetName',
+          symbol: 'AVAX',
+          denomination: 9,
+          type: PrimaryNetworkAssetType.SECP256K1,
+          amount: '3000000000',
+          utxoCount: 1,
+        },
+      ],
+      unlocked: [
+        {
+          assetId: 'assetId',
+          name: 'assetName',
+          symbol: 'AVAX',
+          denomination: 9,
+          type: PrimaryNetworkAssetType.SECP256K1,
+          amount: '3000000000',
+          utxoCount: 1,
+        },
+      ],
+      atomicMemoryUnlocked: [],
+      atomicMemoryLocked: [],
+    },
+    locked: 3,
+    unlocked: 3,
+    atomicMemoryLocked: 0,
+    atomicMemoryUnlocked: 0,
   };
 
   const glcacierResult: Record<
@@ -171,6 +232,9 @@ describe('src/background/services/balances/BalancesService.ts', () => {
     (balancesServicePVMMock.getBalances as jest.Mock).mockResolvedValue(
       pchainResult
     );
+    (balancesServiceAVMMock.getBalances as jest.Mock).mockResolvedValue(
+      xchainResult
+    );
     (balanceServiceGlacierMock.getBalances as jest.Mock).mockResolvedValue(
       glcacierResult
     );
@@ -182,6 +246,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
       balancesServiceEVMMock,
       balancesServiceBTCMock,
       balancesServicePVMMock,
+      balancesServiceAVMMock,
       {} as any,
       balanceServiceGlacierMock,
       glacierServiceMock
@@ -189,11 +254,18 @@ describe('src/background/services/balances/BalancesService.ts', () => {
   });
 
   describe('getBalancesForNetwork', () => {
-    it('should call getBalances using BalancesServicePVM when network is P-chain', async () => {
+    it('should call getBalances using BalancesServicePVM when network is P-Chain', async () => {
       const result = await service.getBalancesForNetwork(pchain, [account]);
 
       expect(result).toEqual(pchainResult);
       expect(balancesServicePVMMock.getBalances).toHaveBeenCalled();
+    });
+
+    it('should call getBalances using BalancesServiceAVM when network is X-Chain', async () => {
+      const result = await service.getBalancesForNetwork(xchain, [account]);
+
+      expect(result).toEqual(xchainResult);
+      expect(balancesServiceAVMMock.getBalances).toHaveBeenCalled();
     });
 
     it('should call getBalances using balanceServiceGlacier when network is supported by glacier', async () => {

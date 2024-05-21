@@ -9,6 +9,6 @@ export function isPchainNetwork(network?: Network) {
 
 export function isPchainNetworkId(chainId: number) {
   return (
-    ChainId.AVALANCHE_XP === chainId || ChainId.AVALANCHE_TEST_XP === chainId
+    ChainId.AVALANCHE_P === chainId || ChainId.AVALANCHE_TEST_P === chainId
   );
 }

@@ -23,7 +23,7 @@ import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import Big from 'big.js';
 import { resolve } from '@src/utils/promiseResolver';
 import { ethers } from 'ethers';
-import { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
+import type { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenType } from '@src/background/services/balances/models';

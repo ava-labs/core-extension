@@ -428,8 +428,8 @@ describe('background/services/network/NetworkService', () => {
         chainId: 1,
         isTestnet: false,
       },
-      [ChainId.AVALANCHE_TEST_XP]: {
-        chainId: ChainId.AVALANCHE_TEST_XP,
+      [ChainId.AVALANCHE_P]: {
+        chainId: ChainId.AVALANCHE_P,
         vmName: NetworkVMType.PVM,
         isTestnet: false,
       },

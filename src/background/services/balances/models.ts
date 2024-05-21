@@ -1,6 +1,10 @@
 import { NetworkContractToken, NetworkToken } from '@avalabs/chains-sdk';
-import { PChainBalance as GlacierPchainBalance } from '@avalabs/glacier-sdk';
+import {
+  PChainBalance as GlacierPchainBalance,
+  XChainBalances as GlacierXchainBalance,
+} from '@avalabs/glacier-sdk';
 import { BitcoinInputUTXOWithOptionalScript } from '@avalabs/wallets-sdk';
+import { EnsureDefined } from '@src/background/models';
 import BN from 'bn.js';
 
 export const BALANCES_CACHE_KEY = 'balances-service-cache';
@@ -18,7 +22,6 @@ interface TokenBalanceData {
   balanceDisplayValue?: string;
   balanceUsdDisplayValue?: string;
   priceUSD?: number;
-  pchainBalance?: PchainBalance;
   priceChanges?: {
     percentage?: number;
     value?: number;
@@ -36,7 +39,17 @@ export enum TokenType {
   ERC1155 = 'ERC1155',
 }
 
-export interface PchainBalance {
+export interface TokenWithBalanceBTC extends NetworkTokenWithBalance {
+  logoUri: string;
+  utxos: BitcoinInputUTXOWithOptionalScript[];
+  utxosUnconfirmed?: BitcoinInputUTXOWithOptionalScript[];
+  unconfirmedBalance?: BN;
+  unconfirmedBalanceDisplayValue?: string;
+  unconfirmedBalanceUsdDisplayValue?: string;
+  unconfirmedBalanceUSD?: number;
+}
+
+export interface TokenWithBalancePVM extends NetworkTokenWithBalance {
   available?: BN;
   availableUSD?: number;
   availableDisplayValue?: string;
@@ -52,14 +65,16 @@ export interface PchainBalance {
   pendingStaked: number;
 }
 
-export interface TokenWithBalanceBTC extends NetworkTokenWithBalance {
-  logoUri: string;
-  utxos: BitcoinInputUTXOWithOptionalScript[];
-  utxosUnconfirmed?: BitcoinInputUTXOWithOptionalScript[];
-  unconfirmedBalance?: BN;
-  unconfirmedBalanceDisplayValue?: string;
-  unconfirmedBalanceUsdDisplayValue?: string;
-  unconfirmedBalanceUSD?: number;
+export interface TokenWithBalanceAVM extends NetworkTokenWithBalance {
+  available?: BN;
+  availableUSD?: number;
+  availableDisplayValue?: string;
+  availableUsdDisplayValue?: string;
+  utxos?: GlacierXchainBalance;
+  locked: number;
+  unlocked: number;
+  atomicMemoryUnlocked: number;
+  atomicMemoryLocked: number;
 }
 
 export interface TokenWithBalanceERC20
@@ -117,8 +132,8 @@ export interface NftBalanceResponse {
 }
 
 export interface NetworkTokenWithBalance
-  extends TokenBalanceDataWithDecimals,
-    NetworkToken {
+  extends NetworkToken,
+    TokenBalanceDataWithDecimals {
   type: TokenType.NATIVE;
 }
 
@@ -126,7 +141,11 @@ export type TokenWithBalanceEVM =
   | NetworkTokenWithBalance
   | TokenWithBalanceERC20;
 
-export type TokenWithBalance = TokenWithBalanceEVM | TokenWithBalanceBTC;
+export type TokenWithBalance =
+  | TokenWithBalanceEVM
+  | TokenWithBalanceBTC
+  | TokenWithBalancePVM
+  | TokenWithBalanceAVM;
 
 export type SendableToken = TokenWithBalance | NftTokenWithBalance;
 
@@ -173,3 +192,20 @@ export interface TotalPriceChange {
 export class GlacierUnhealthyError extends Error {
   message = 'Glacier is unhealthy. Try again later.';
 }
+
+export const hasUnconfirmedBTCBalance = (
+  token?: TokenWithBalance
+): token is EnsureDefined<TokenWithBalanceBTC, 'unconfirmedBalance'> =>
+  Boolean(token && 'unconfirmedBalance' in token);
+
+export const isAvaxWithUnavailableBalance = (
+  token?: TokenWithBalance
+): token is EnsureDefined<
+  TokenWithBalanceAVM | TokenWithBalancePVM,
+  'available'
+> =>
+  Boolean(
+    token &&
+      ('locked' in token || 'unlockedUnstaked' in token) &&
+      token.available?.toNumber() !== token.balance?.toNumber()
+  );

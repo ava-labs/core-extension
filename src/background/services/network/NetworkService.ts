@@ -42,6 +42,7 @@ import {
 } from '../featureFlags/models';
 import { isPchainNetwork } from './utils/isAvalanchePchainNetwork';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import { isXchainNetwork } from './utils/isAvalancheXchainNetwork';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -91,7 +92,10 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   #getTrackedFeatureFlags(flags: FeatureFlags): Partial<FeatureFlags> {
-    const trackedFlags = [FeatureGates.IN_APP_SUPPORT_P_CHAIN];
+    const trackedFlags = [
+      FeatureGates.IN_APP_SUPPORT_P_CHAIN,
+      FeatureGates.IN_APP_SUPPORT_X_CHAIN,
+    ];
 
     return Object.fromEntries(
       Object.entries(flags).filter(([flag]) =>
@@ -295,6 +299,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       ...network,
       isTestnet,
       vmName: NetworkVMType.PVM,
+      chainId: isTestnet ? ChainId.AVALANCHE_TEST_P : ChainId.AVALANCHE_P,
       chainName: 'Avalanche (P-Chain)',
       logoUri:
         'https://images.ctfassets.net/gcj8jwzm6086/42aMwoCLblHOklt6Msi6tm/1e64aa637a8cead39b2db96fe3225c18/pchain-square.svg', // from contentful
@@ -306,6 +311,29 @@ export class NetworkService implements OnLock, OnStorageReady {
       explorerUrl: isTestnet
         ? 'https://subnets-test.avax.network/p-chain'
         : 'https://subnets.avax.network/p-chain',
+    };
+  }
+
+  private _getXchainNetwork(isTestnet: boolean): Network {
+    const network = isTestnet
+      ? AVALANCHE_XP_TEST_NETWORK
+      : AVALANCHE_XP_NETWORK;
+    return {
+      ...network,
+      chainId: isTestnet ? ChainId.AVALANCHE_TEST_X : ChainId.AVALANCHE_X,
+      isTestnet,
+      vmName: NetworkVMType.AVM,
+      chainName: 'Avalanche (X-Chain)',
+      logoUri:
+        'https://images.ctfassets.net/gcj8jwzm6086/5xiGm7IBR6G44eeVlaWrxi/1b253c4744a3ad21a278091e3119feba/xchain-square.svg', // from contentful
+      networkToken: {
+        ...network.networkToken,
+        logoUri:
+          'https://images.ctfassets.net/gcj8jwzm6086/5VHupNKwnDYJvqMENeV7iJ/3e4b8ff10b69bfa31e70080a4b142cd0/avalanche-avax-logo.svg', // from contentful
+      },
+      explorerUrl: isTestnet
+        ? 'https://subnets-test.avax.network/x-chain'
+        : 'https://subnets.avax.network/x-chain',
     };
   }
 
@@ -326,8 +354,10 @@ export class NetworkService implements OnLock, OnStorageReady {
           ...result,
           [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
           [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
-          [ChainId.AVALANCHE_TEST_XP]: this._getPchainNetwork(true),
-          [ChainId.AVALANCHE_XP]: this._getPchainNetwork(false),
+          [ChainId.AVALANCHE_TEST_P]: this._getPchainNetwork(true),
+          [ChainId.AVALANCHE_P]: this._getPchainNetwork(false),
+          [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork(true),
+          [ChainId.AVALANCHE_X]: this._getXchainNetwork(false),
         };
 
         if (!this.activeNetwork) {
@@ -614,6 +644,14 @@ export class NetworkService implements OnLock, OnStorageReady {
           !isPchainNetwork(network) ||
           this.featureFlagService.featureFlags[
             FeatureGates.IN_APP_SUPPORT_P_CHAIN
+          ]
+        );
+      })
+      .filter((network) => {
+        return (
+          !isXchainNetwork(network) ||
+          this.featureFlagService.featureFlags[
+            FeatureGates.IN_APP_SUPPORT_X_CHAIN
           ]
         );
       })

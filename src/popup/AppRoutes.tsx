@@ -2,6 +2,8 @@ import { Suspense, lazy } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { CircularProgress } from '@avalabs/k2-components';
 
+import { LoadingSendForm } from '@src/pages/Send/components/LoadingSendForm';
+
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({
     default: m.AddToken,
@@ -227,7 +229,7 @@ export const AppRoutes = () => (
       </Suspense>
     </Route>
     <Route path="/send">
-      <Suspense fallback={<CircularProgress />}>
+      <Suspense fallback={<LoadingSendForm withTitle />}>
         <SendPage />
       </Suspense>
     </Route>

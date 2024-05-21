@@ -13,7 +13,7 @@ import {
 import { ContactAddress } from './ContactAddress';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { addressXpToAddressPvm } from '@src/utils/addressXPToaddressPVM';
+import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 
 type AddressDropdownListItemProps = {
   contact: Contact;
@@ -55,7 +55,13 @@ export const AddressDropdownListItem = ({
         if (contact.addressXP && isPchainNetwork(network)) {
           const contactWithPrefix = {
             ...contact,
-            addressXP: addressXpToAddressPvm(contact),
+            addressXP: `P-${contact.addressXP}`,
+          };
+          onChange(contactWithPrefix);
+        } else if (contact.addressXP && isXchainNetwork(network)) {
+          const contactWithPrefix = {
+            ...contact,
+            addressXP: `X-${contact.addressXP}`,
           };
           onChange(contactWithPrefix);
         } else {
@@ -105,7 +111,11 @@ export const AddressDropdownListItem = ({
         )}
         {contact.addressXP && (
           <ContactAddress
-            address={`P-${contact.addressXP}`}
+            address={
+              isPchainNetwork(network)
+                ? `P-${contact.addressXP}`
+                : `X-${contact.addressXP}`
+            }
             networkIcon={<XAndPChainsIcon size={16} />}
           />
         )}

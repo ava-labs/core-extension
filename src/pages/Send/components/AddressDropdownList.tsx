@@ -8,6 +8,7 @@ import { SettingsPages } from '@src/components/settings/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 
 type AddressDropdownListProps = {
   contacts: Contact[];
@@ -25,7 +26,7 @@ export const AddressDropdownList = ({
   const { t } = useTranslation();
   const { network } = useNetworkContext();
   const useBtcAddress = isBitcoin(network);
-  const useXPAddress = isPchainNetwork(network);
+  const useXPAddress = isPchainNetwork(network) || isXchainNetwork(network);
 
   const selectedAddress =
     selectedContact?.[

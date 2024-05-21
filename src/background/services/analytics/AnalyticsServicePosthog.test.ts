@@ -11,6 +11,8 @@ import sentryCaptureException, {
 import browser from 'webextension-polyfill';
 import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
 import { AnalyticsConsent } from '../settings/models';
+import { ChainId } from '@avalabs/chains-sdk';
+import { BlockchainId } from './models';
 
 jest.mock('@avalabs/utils-sdk');
 jest.mock('@src/monitoring/sentryCaptureException');
@@ -207,6 +209,90 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
         expect(sentryCaptureException).toHaveBeenCalledWith(
           new Error('Analytics State is not available.'),
           SentryExceptionTypes.ANALYTICS
+        );
+      });
+    });
+
+    describe('chainId updates', () => {
+      function getEvent(chainId) {
+        return {
+          name: 'name',
+          windowId: 'windowId',
+          properties: { chainId },
+        };
+      }
+      let service: AnalyticsServicePosthog;
+      beforeEach(() => {
+        service = new AnalyticsServicePosthog(
+          buildFlagsService(),
+          buildAnalyticsService(),
+          buildSettingsService()
+        );
+      });
+
+      it('should report expected the chainId: AVALANCHE_P', async () => {
+        const testEvent = getEvent(ChainId.AVALANCHE_P);
+        await service.captureEvent(testEvent);
+        expect(HttpClient.prototype.post).toHaveBeenCalledWith(
+          '/capture/',
+          expect.objectContaining({
+            properties: expect.objectContaining({
+              chainId: BlockchainId.P_CHAIN,
+            }),
+          }),
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      });
+      it('should report expected the chainId: AVALANCHE_TEST_P', async () => {
+        const testEvent = getEvent(ChainId.AVALANCHE_TEST_P);
+        await service.captureEvent(testEvent);
+        expect(HttpClient.prototype.post).toHaveBeenCalledWith(
+          '/capture/',
+          expect.objectContaining({
+            properties: expect.objectContaining({
+              chainId: BlockchainId.P_CHAIN_TESTNET,
+            }),
+          }),
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      });
+      it('should report expected the chainId: AVALANCHE_X', async () => {
+        const testEvent = getEvent(ChainId.AVALANCHE_X);
+        await service.captureEvent(testEvent);
+        expect(HttpClient.prototype.post).toHaveBeenCalledWith(
+          '/capture/',
+          expect.objectContaining({
+            properties: expect.objectContaining({
+              chainId: BlockchainId.X_CHAIN,
+            }),
+          }),
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      });
+      it('should report expected the chainId: AVALANCHE_TEST_X', async () => {
+        const testEvent = getEvent(ChainId.AVALANCHE_TEST_X);
+        await service.captureEvent(testEvent);
+        expect(HttpClient.prototype.post).toHaveBeenCalledWith(
+          '/capture/',
+          expect.objectContaining({
+            properties: expect.objectContaining({
+              chainId: BlockchainId.X_CHAIN_TESTNET,
+            }),
+          }),
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      });
+      it('should report expected the chainId', async () => {
+        const testEvent = getEvent(ChainId.AVALANCHE_MAINNET_ID);
+        await service.captureEvent(testEvent);
+        expect(HttpClient.prototype.post).toHaveBeenCalledWith(
+          '/capture/',
+          expect.objectContaining({
+            properties: expect.objectContaining({
+              chainId: ChainId.AVALANCHE_MAINNET_ID,
+            }),
+          }),
+          { headers: { 'Content-Type': 'application/json' } }
         );
       });
     });

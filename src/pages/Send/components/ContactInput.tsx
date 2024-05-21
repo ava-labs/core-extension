@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import {
   IconButton,
   InputAdornment,
@@ -20,7 +20,11 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { isValidPvmAddress } from '@src/utils/isAddressValid';
+import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import {
+  isValidAvmAddress,
+  isValidPvmAddress,
+} from '@src/utils/isAddressValid';
 
 const truncateName = (name: string) => {
   if (name.length < 28) return name;
@@ -32,6 +36,7 @@ type ContactInputProps = {
   onChange(contact?: Contact, selectedTab?: string): void;
   isContactsOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  containerRef?: RefObject<HTMLDivElement>;
 };
 
 export const ContactInput = ({
@@ -39,6 +44,7 @@ export const ContactInput = ({
   onChange,
   isContactsOpen,
   setIsOpen,
+  containerRef,
 }: ContactInputProps) => {
   const { t } = useTranslation();
   const { network } = useNetworkContext();
@@ -51,18 +57,27 @@ export const ContactInput = ({
   useEffect(() => {
     if (contacts.length > contactsLength) {
       const recentlyAddedContact = contacts[contacts.length - 1];
+      if (isPchainNetwork(network) && recentlyAddedContact) {
+        recentlyAddedContact.addressXP = recentlyAddedContact.addressXP
+          ? `P-${recentlyAddedContact.addressXP}`
+          : '';
+      } else if (isXchainNetwork(network) && recentlyAddedContact) {
+        recentlyAddedContact.addressXP = recentlyAddedContact.addressXP
+          ? `X-${recentlyAddedContact.addressXP}`
+          : '';
+      }
       onChange(recentlyAddedContact);
     }
     setContactsLength(contacts.length);
-  }, [contacts, contactsLength, onChange]);
+  }, [contacts, contactsLength, network, onChange]);
 
-  const changeAndCloseDropdown = (
+  function changeAndCloseDropdown(
     selectedContact: Contact,
     selectedTab: string
-  ) => {
+  ) {
     onChange(selectedContact, selectedTab);
     setIsOpen(!isContactsOpen);
-  };
+  }
 
   const [inputFocused, setInputFocused] = useState<boolean>(false);
   const [inputHovered, setInputHovered] = useState<boolean>(false);
@@ -74,7 +89,7 @@ export const ContactInput = ({
    */
   const contactAddress = isBitcoin(network)
     ? contact?.addressBTC
-    : isPchainNetwork(network)
+    : isPchainNetwork(network) || isXchainNetwork(network)
     ? contact?.addressXP
     : contact?.address;
 
@@ -98,6 +113,11 @@ export const ContactInput = ({
     if (isPchainNetwork(network)) {
       return contact && contact.addressXP
         ? isValidPvmAddress(contact.addressXP)
+        : false;
+    }
+    if (isXchainNetwork(network)) {
+      return contact && contact.addressXP
+        ? isValidAvmAddress(contact.addressXP)
         : false;
     }
     return false;
@@ -195,6 +215,7 @@ export const ContactInput = ({
           anchorEl={inputWrapperRef}
           isOpen={isContactsOpen}
           setIsOpen={setIsOpen}
+          containerRef={containerRef}
         >
           <ContactSelect
             onChange={changeAndCloseDropdown}
