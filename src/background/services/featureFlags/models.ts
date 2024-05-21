@@ -36,6 +36,8 @@ export enum FeatureGates {
   ADD_WALLET_WITH_SEEDPHRASE = 'add-wallet-with-seedphrase',
   ADD_WALLET_WITH_KEYSTORE_FILE = 'add-wallet-with-keystore-file',
   ADD_WALLET_WITH_LEDGER = 'add-wallet-with-ledger',
+  BLOCKAID_DAPP_SCAN = 'blockaid-dapp-scan',
+  BLOCKAID_DAPP_SCAN_WARNING = 'blockaid-dapp-scan-warning',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -78,6 +80,8 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.ADD_WALLET_WITH_SEEDPHRASE]: false,
   [FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE]: false,
   [FeatureGates.ADD_WALLET_WITH_LEDGER]: false,
+  [FeatureGates.BLOCKAID_DAPP_SCAN]: false,
+  [FeatureGates.BLOCKAID_DAPP_SCAN_WARNING]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -119,6 +123,8 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.ADD_WALLET_WITH_SEEDPHRASE]: true,
   [FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE]: true,
   [FeatureGates.ADD_WALLET_WITH_LEDGER]: true,
+  [FeatureGates.BLOCKAID_DAPP_SCAN]: true,
+  [FeatureGates.BLOCKAID_DAPP_SCAN_WARNING]: true,
 };
 
 export enum FeatureFlagEvents {
