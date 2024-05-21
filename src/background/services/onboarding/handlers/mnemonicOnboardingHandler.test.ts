@@ -82,6 +82,42 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     ]);
     (walletServiceMock.init as jest.Mock).mockResolvedValue(WALLET_ID);
   });
+
+  it('is not case sensitive', async () => {
+    jest.mocked(getXpubFromMnemonic).mockResolvedValueOnce('xpubFromMnemonic');
+    jest
+      .mocked(Avalanche.getXpubFromMnemonic)
+      .mockReturnValueOnce('xpubFromMnemonicXP');
+
+    const mnemonic = 'MnEmOnIc';
+    const handler = getHandler();
+    const request = getRequest([
+      {
+        mnemonic,
+        password: 'password',
+        accountName: 'Bob',
+        analyticsConsent: false,
+      },
+    ]);
+
+    const result = await handler.handle(request);
+
+    expect(walletServiceMock.init).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mnemonic: mnemonic.toLowerCase(),
+      })
+    );
+    expect(getXpubFromMnemonic).toHaveBeenCalledWith(mnemonic.toLowerCase());
+    expect(Avalanche.getXpubFromMnemonic).toHaveBeenCalledWith(
+      mnemonic.toLowerCase()
+    );
+
+    expect(result).toEqual({
+      ...request,
+      result: true,
+    });
+  });
+
   it('sets up an mnemonic wallet correctly', async () => {
     (getXpubFromMnemonic as jest.Mock).mockResolvedValueOnce(
       'xpubFromMnemonic'

@@ -52,7 +52,8 @@ export class ImportSeedPhraseHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async (request) => {
     const [params] = request.params;
-    const { mnemonic, name } = params;
+    const { mnemonic: rawMnemonic, name } = params;
+    const mnemonic = rawMnemonic.toLowerCase(); // BIP39 seed phrases are case-insensitive
 
     const isKnown = await this.secretsService.isKnownSecret(
       SecretType.Mnemonic,

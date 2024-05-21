@@ -53,6 +53,48 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
     );
   });
 
+  it('is not case sensitive', async () => {
+    const name = 'Dummy mnemonic';
+    const mnemonicLowerCase =
+      'solar ordinary sentence pelican trim ring indicate cake ordinary water size improve impose gentle frown sound know siren sick elder wait govern tortoise unit';
+    const mnemonicUpperCase = mnemonicLowerCase.toUpperCase();
+    const walletId = crypto.randomUUID();
+
+    walletService.addPrimaryWallet.mockResolvedValue(walletId);
+    secretsService.getWalletAccountsSecretsById.mockResolvedValue({
+      name,
+    } as any);
+
+    await handle({
+      mnemonic: mnemonicLowerCase,
+      name,
+    });
+    await handle({
+      mnemonic: mnemonicUpperCase,
+      name,
+    });
+
+    const expectedCall = {
+      secretType: SecretType.Mnemonic,
+      mnemonic: mnemonicLowerCase,
+      xpub: 'xpub6DPsyHV2MhmxaY7FtPeVVeB1MCZ9XzDhHTHFqzq2BVMKnqCcHjnXCeTZWUbsarGTdWHHz7wFdNfKiggZYabqj3b8FodX7cDryEQgBWqPcY6',
+      xpubXP:
+        'xpub6CiZCQeZSo8jyK2ARkRKkFvo6rkaA9deyRaKNW2nFsbb8C3cnVLZxYuQ8YRABbBUA47xYd1EHoTqWtFX895Pb2VjcJUFD4kGbmetuh57mry',
+      derivationPath: DerivationPath.BIP44,
+      name: 'Dummy mnemonic',
+    };
+
+    // Expect both calls to be the same despite different casing in the seed phrase
+    expect(walletService.addPrimaryWallet).toHaveBeenNthCalledWith(
+      1,
+      expectedCall
+    );
+    expect(walletService.addPrimaryWallet).toHaveBeenNthCalledWith(
+      2,
+      expectedCall
+    );
+  });
+
   it('imports seed phrases and derives accounts', async () => {
     const name = 'Dummy mnemonic';
     const mnemonic =
