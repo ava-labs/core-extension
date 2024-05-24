@@ -6,7 +6,11 @@ import { isBtcAddressInNetwork } from '@src/utils/isBtcAddressInNetwork';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { Action } from '@src/background/services/actions/models';
 import { AccountType } from '../../accounts/models';
+import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
+import { createTransferTx } from '@avalabs/wallets-sdk';
+
 jest.mock('@src/utils/isBtcAddressInNetwork');
+jest.mock('@avalabs/wallets-sdk');
 
 describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', () => {
   const request = {
@@ -29,8 +33,6 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
   const sendTransactionMock = jest.fn();
   const updateBalancesForNetworksMock = jest.fn();
 
-  const validateStateAndCalculateFeesMock = jest.fn();
-  const getTransactionRequestMock = jest.fn();
   const getBitcoinNetworkMock = jest.fn();
   const activeAccountMock = {
     addressBTC: 'btc1',
@@ -42,14 +44,21 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
 
   const networkServiceMock = {
     isMainnet: isMainnet,
+    activeNetwork: {
+      vmName: NetworkVMType.BITCOIN,
+    },
     getBitcoinNetwork: getBitcoinNetworkMock,
     sendTransaction: sendTransactionMock,
   };
   const accountsServiceMock = {};
-  const balancesServiceBTCMock = {};
   const balanceAggregatorServiceMock = {
     balances: {
-      ChainId: {
+      [ChainId.BITCOIN_TESTNET]: {
+        btc1: {
+          BTC: {},
+        },
+      },
+      [ChainId.BITCOIN]: {
         btc1: {
           BTC: {},
         },
@@ -58,14 +67,16 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     updateBalancesForNetworks: updateBalancesForNetworksMock,
   };
 
-  const sendServiceBtcMock = {
-    validateStateAndCalculateFees: validateStateAndCalculateFeesMock,
-    getTransactionRequest: getTransactionRequestMock,
-  };
-
   beforeEach(() => {
     jest.resetAllMocks();
     isMainnet.mockReturnValue(true);
+    jest.mocked(isBtcAddressInNetwork).mockReturnValue(true);
+    getBitcoinNetworkMock.mockResolvedValue({
+      vmName: NetworkVMType.BITCOIN,
+    });
+    jest
+      .mocked(createTransferTx)
+      .mockReturnValue({ fee: 5, inputs: [], outputs: [] });
     openApprovalWindowSpy.mockResolvedValue(undefined);
     (accountsServiceMock as any).activeAccount = activeAccountMock;
   });
@@ -73,8 +84,6 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
   describe('handleUnauthenticated', () => {
     it('returns error for unauthorized requests', async () => {
       const handler = new BitcoinSendTransactionHandler(
-        {} as any,
-        {} as any,
         {} as any,
         {} as any,
         {} as any,
@@ -93,10 +102,14 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     const handler = new BitcoinSendTransactionHandler(
       {} as any,
       networkServiceMock as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any
+      {
+        activeAccount: {
+          addressC: 'abcd1234',
+          addressBTC: activeAccountMock.addressBTC,
+          type: AccountType.PRIMARY,
+        },
+      } as any,
+      balanceAggregatorServiceMock as any
     );
 
     it('returns error if the active account is imported via WalletConnect', async () => {
@@ -104,15 +117,13 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
       const sendHandler = new BitcoinSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        balancesServiceBTCMock as any,
         {
           activeAccount: {
             addressC: 'abcd1234',
-            addressBTC: 'bc1234',
+            addressBTC: activeAccountMock.addressBTC,
             type: AccountType.WALLET_CONNECT,
           },
         } as any,
-        sendServiceBtcMock as any,
         balanceAggregatorServiceMock as any
       );
 
@@ -131,13 +142,11 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
       const sendHandler = new BitcoinSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        balancesServiceBTCMock as any,
         {
           activeAccount: {
             addressC: 'abcd1234',
           },
         } as any,
-        sendServiceBtcMock as any,
         balanceAggregatorServiceMock as any
       );
 
@@ -169,7 +178,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     it('returns error if amount is not provided', async () => {
       const req = {
         ...request,
-        params: ['btc', undefined, 1],
+        params: ['tb1qdx76h4su9wavjjpzxqd4ar5ydcy2e05tvp7d6j', undefined, 1],
       };
       const result = await handler.handleAuthenticated(req);
 
@@ -208,8 +217,13 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     });
 
     it('returns error if there is no active account', async () => {
-      (isBtcAddressInNetwork as jest.Mock).mockReturnValueOnce(true);
-      const result = await handler.handleAuthenticated(request);
+      const sendHandler = new BitcoinSendTransactionHandler(
+        walletServiceMock as any,
+        networkServiceMock as any,
+        {} as any,
+        balanceAggregatorServiceMock as any
+      );
+      const result = await sendHandler.handleAuthenticated(request);
       expect(result).toEqual({
         ...request,
         error: ethErrors.rpc.invalidRequest({
@@ -218,49 +232,12 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
       });
     });
 
-    it('returns error if cant verify form state', async () => {
-      const sendHandler = new BitcoinSendTransactionHandler(
-        walletServiceMock as any,
-        networkServiceMock as any,
-        balancesServiceBTCMock as any,
-        accountsServiceMock as any,
-        sendServiceBtcMock as any,
-        balanceAggregatorServiceMock as any
-      );
-
-      (isBtcAddressInNetwork as jest.Mock).mockReturnValueOnce(true);
-      validateStateAndCalculateFeesMock.mockReturnValueOnce({
-        error: {
-          error: 'Form error',
-          message: 'Form error',
-        },
+    it('returns error if unable to construct a transaction', async () => {
+      jest.mocked(createTransferTx).mockImplementationOnce(() => {
+        throw new Error('hmm');
       });
 
-      const result = await sendHandler.handleAuthenticated(request);
-      expect(result).toEqual({
-        ...request,
-        error: ethErrors.rpc.invalidRequest({
-          message: 'Form error',
-        }),
-      });
-    });
-
-    it('returns error if cant send', async () => {
-      const sendHandler = new BitcoinSendTransactionHandler(
-        walletServiceMock as any,
-        networkServiceMock as any,
-        balancesServiceBTCMock as any,
-        accountsServiceMock as any,
-        sendServiceBtcMock as any,
-        balanceAggregatorServiceMock as any
-      );
-
-      (isBtcAddressInNetwork as jest.Mock).mockReturnValueOnce(true);
-      validateStateAndCalculateFeesMock.mockReturnValueOnce({
-        error: undefined,
-      });
-
-      const result = await sendHandler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(request);
       expect(result).toEqual({
         ...request,
         error: ethErrors.rpc.invalidRequest({
@@ -273,18 +250,9 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
       const sendHandler = new BitcoinSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        balancesServiceBTCMock as any,
         accountsServiceMock as any,
-        sendServiceBtcMock as any,
         balanceAggregatorServiceMock as any
       );
-
-      (isBtcAddressInNetwork as jest.Mock).mockReturnValueOnce(true);
-      validateStateAndCalculateFeesMock.mockReturnValueOnce({
-        canSubmit: true,
-        amount: '1',
-        address: 'btc1',
-      });
 
       const result = await sendHandler.handleAuthenticated(request);
 
@@ -293,15 +261,37 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
           ...request,
           tabId: request.site.tabId,
           displayData: {
-            sendState: {
-              canSubmit: true,
-              amount: '1',
-              address: 'btc1',
-            },
+            address: 'address',
+            amount: 1,
+            balance: {},
+            feeRate: 10,
+            from: 'btc1',
+            sendFee: 5,
           },
         },
         'approve/bitcoinSignTx'
       );
+
+      expect(result).toEqual({
+        ...request,
+        result: DEFERRED_RESPONSE,
+      });
+    });
+
+    it('works even if active network is not bitcoin', async () => {
+      const sendHandler = new BitcoinSendTransactionHandler(
+        walletServiceMock as any,
+        {
+          ...networkServiceMock,
+          activeNetwork: {
+            vmName: NetworkVMType.EVM,
+          },
+        } as any,
+        accountsServiceMock as any,
+        balanceAggregatorServiceMock as any
+      );
+
+      const result = await sendHandler.handleAuthenticated(request);
 
       expect(result).toEqual({
         ...request,
@@ -313,11 +303,12 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
   describe('onActionApproved', () => {
     const pendingActionMock = {
       displayData: {
-        sendState: {
-          canSubmit: true,
-          amount: '1',
-          address: 'btc1',
-        },
+        address: 'address',
+        amount: 1,
+        balance: {},
+        feeRate: 10,
+        from: 'btc1',
+        sendFee: 5,
       },
     } as unknown as Action;
 
@@ -325,14 +316,14 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
       const handler = new BitcoinSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        balancesServiceBTCMock as any,
         accountsServiceMock as any,
-        sendServiceBtcMock as any,
         balanceAggregatorServiceMock as any
       );
 
-      getTransactionRequestMock.mockReturnValueOnce({});
-      getBitcoinNetworkMock.mockResolvedValue({});
+      getBitcoinNetworkMock.mockResolvedValue({
+        chainId: ChainId.BITCOIN_TESTNET,
+        vmName: NetworkVMType.BITCOIN,
+      });
 
       const onSuccessMock = jest.fn();
       const onErrorMock = jest.fn();
@@ -358,14 +349,14 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
       const handler = new BitcoinSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        balancesServiceBTCMock as any,
         accountsServiceMock as any,
-        sendServiceBtcMock as any,
         balanceAggregatorServiceMock as any
       );
 
-      getTransactionRequestMock.mockReturnValueOnce({});
-      getBitcoinNetworkMock.mockResolvedValue({ chainId: 3 });
+      getBitcoinNetworkMock.mockResolvedValue({
+        chainId: ChainId.BITCOIN_TESTNET,
+        vmName: NetworkVMType.BITCOIN,
+      });
 
       const onSuccessMock = jest.fn();
       const onErrorMock = jest.fn();
@@ -379,8 +370,17 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         onErrorMock,
         frontendTabId
       );
-
-      expect(signMock).toHaveBeenCalledWith({}, frontendTabId, { chainId: 3 });
+      expect(signMock).toHaveBeenCalledWith(
+        {
+          inputs: [],
+          outputs: [],
+        },
+        frontendTabId,
+        {
+          chainId: ChainId.BITCOIN_TESTNET,
+          vmName: NetworkVMType.BITCOIN,
+        }
+      );
       expect(onSuccessMock).toHaveBeenCalledWith('resultHash');
     });
   });

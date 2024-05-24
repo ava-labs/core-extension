@@ -49,6 +49,7 @@ import { FeatureGates } from '../featureFlags/models';
 import { TransactionResponse } from 'ethers';
 import { wrapError } from '@src/utils/errors';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { TokenWithBalanceBTC } from '../balances/models';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {
@@ -228,10 +229,9 @@ export class BridgeService implements OnLock, OnStorageReady {
           0
       );
 
-    const token =
-      this.networkBalancesService.balances[btcNetwork.chainId]?.[addressBtc]?.[
-        'BTC'
-      ];
+    const token = this.networkBalancesService.balances[btcNetwork.chainId]?.[
+      addressBtc
+    ]?.['BTC'] as TokenWithBalanceBTC;
 
     const utxos = token?.utxos ?? [];
 
@@ -319,10 +319,9 @@ export class BridgeService implements OnLock, OnStorageReady {
         throw new Error('No BTC address');
       }
 
-      const token =
-        this.networkBalancesService.balances[btcNetwork.chainId]?.[
-          addressBtc
-        ]?.['BTC'];
+      const token = this.networkBalancesService.balances[btcNetwork.chainId]?.[
+        addressBtc
+      ]?.['BTC'] as TokenWithBalanceBTC;
 
       const utxos = token?.utxos ?? [];
 

@@ -23,10 +23,10 @@ import {
 } from './AddressDropdownListMyAccounts';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { isTxHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
-import { addressXpToAddressPvm } from '@src/utils/addressXPToaddressPVM';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 import { indexOf } from 'lodash';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 
 interface ContactSelectProps {
   selectedContact?: Contact;
@@ -99,22 +99,22 @@ export const ContactSelect = ({
         addressIdentities.forEach((identity) => {
           const addressToCheck = isBitcoinNetwork(network)
             ? identity.addressBTC
-            : isPchainNetwork(network)
+            : isPchainNetwork(network) || isXchainNetwork(network)
             ? identity.addressXP
             : identity.address;
 
           const userAddress = isBitcoinNetwork(network)
             ? activeAccount?.addressBTC
             : isPchainNetwork(network)
-            ? activeAccount?.addressPVM
-              ? stripAddressPrefix(activeAccount?.addressPVM)
-              : ''
+            ? stripAddressPrefix(activeAccount?.addressPVM ?? '')
+            : isXchainNetwork(network)
+            ? stripAddressPrefix(activeAccount?.addressAVM ?? '')
             : activeAccount?.addressC;
 
           const addressesInList = acc.map((value) =>
             isBitcoinNetwork(network)
               ? value.addressBTC
-              : isPchainNetwork(network)
+              : isPchainNetwork(network) || isXchainNetwork(network)
               ? value.addressXP
               : value.address
           );
@@ -131,6 +131,7 @@ export const ContactSelect = ({
       setHistoryContacts(contactHistory);
     });
   }, [
+    activeAccount?.addressAVM,
     activeAccount?.addressBTC,
     activeAccount?.addressC,
     activeAccount?.addressPVM,
@@ -148,7 +149,7 @@ export const ContactSelect = ({
         return;
       }
       const result = walletAccount.map(
-        ({ addressC, name, addressBTC, addressPVM }) => ({
+        ({ addressC, name, addressBTC, addressPVM, addressAVM }) => ({
           id: '',
           address: network?.vmName == NetworkVMType.EVM ? addressC : '',
           addressBTC:
@@ -156,6 +157,8 @@ export const ContactSelect = ({
           addressXP:
             isPchainNetwork(network) && addressPVM
               ? stripAddressPrefix(addressPVM)
+              : isXchainNetwork(network) && addressAVM
+              ? stripAddressPrefix(addressAVM)
               : '',
           name,
           isKnown: true,
@@ -170,7 +173,7 @@ export const ContactSelect = ({
     }
 
     const formattedImported = importedAccountToPrep?.map(
-      ({ addressC, name, addressBTC, addressPVM }) => ({
+      ({ addressC, name, addressBTC, addressPVM, addressAVM }) => ({
         id: '',
         address: network?.vmName == NetworkVMType.EVM ? addressC : '',
         addressBTC:
@@ -180,6 +183,8 @@ export const ContactSelect = ({
         addressXP:
           isPchainNetwork(network) && addressPVM
             ? stripAddressPrefix(addressPVM)
+            : isXchainNetwork(network) && addressAVM
+            ? stripAddressPrefix(addressAVM)
             : '',
         name,
         isKnown: true,
@@ -201,7 +206,7 @@ export const ContactSelect = ({
         if (network?.vmName === NetworkVMType.BITCOIN) {
           return contact.addressBTC;
         }
-        if (isPchainNetwork(network)) {
+        if (isPchainNetwork(network) || isXchainNetwork(network)) {
           return contact.addressXP;
         }
       })
@@ -210,9 +215,8 @@ export const ContactSelect = ({
         address: network?.vmName == NetworkVMType.EVM ? contact.address : '',
         addressBTC:
           network?.vmName === NetworkVMType.BITCOIN ? contact.addressBTC : '',
-        addressPVM: isPchainNetwork(network)
-          ? addressXpToAddressPvm(contact)
-          : '',
+        addressPVM: isPchainNetwork(network) ? contact.addressXP : '',
+        addressAVM: isXchainNetwork(network) ? contact.addressXP : '',
         isKnown: true,
       }));
   }, [contacts, network]);

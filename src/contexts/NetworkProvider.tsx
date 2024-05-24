@@ -21,7 +21,7 @@ import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/h
 import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { BitcoinProvider, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import {
   Network,
   NetworkOverrides,
@@ -46,6 +46,7 @@ const NetworkContext = createContext<{
   isChainIdExist(chainId: number): boolean;
   getNetwork(chainId: number): Network | undefined;
   avalancheProvider?: JsonRpcBatchInternal;
+  bitcoinProvider?: BitcoinProvider;
 }>({} as any);
 
 /**
@@ -117,6 +118,18 @@ export function NetworkContextProvider({ children }: { children: any }) {
     }
 
     return getProviderForNetwork(avaxNetwork) as JsonRpcBatchInternal;
+  }, [network?.isTestnet, getNetwork]);
+
+  const bitcoinProvider = useMemo(() => {
+    const btcNetwork = getNetwork(
+      network?.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
+    );
+
+    if (!btcNetwork) {
+      return;
+    }
+
+    return getProviderForNetwork(btcNetwork) as BitcoinProvider;
   }, [network?.isTestnet, getNetwork]);
 
   const getNetworkState = useCallback(() => {
@@ -237,6 +250,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
         isChainIdExist,
         getNetwork,
         avalancheProvider,
+        bitcoinProvider,
       }}
     >
       {children}

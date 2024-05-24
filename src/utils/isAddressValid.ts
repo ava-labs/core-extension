@@ -16,6 +16,10 @@ export const isValidPvmAddress = (address: string) => {
   return isValidXPAddressWithPrefix(address, 'P-');
 };
 
+export const isValidAvmAddress = (address: string) => {
+  return isValidXPAddressWithPrefix(address, 'X-');
+};
+
 function isValidXPAddressWithPrefix(value: unknown, forcedPrefix?: string) {
   if (
     isNil(value) ||

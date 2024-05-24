@@ -221,7 +221,6 @@ export class AccountsService implements OnLock, OnUnlock {
     }
 
     const addresses = await this.getAddressesForAccount(account);
-
     if (account.type === AccountType.PRIMARY) {
       this.accounts = {
         ...this.accounts,

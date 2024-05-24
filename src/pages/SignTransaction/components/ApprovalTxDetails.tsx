@@ -61,17 +61,20 @@ export const ContractDetails = ({
 
 type AccountDetailsProps = {
   address: string;
+  label?: string;
 };
-export const AccountDetails = ({ address }: AccountDetailsProps) => {
+export const AccountDetails = ({ address, label }: AccountDetailsProps) => {
   const { t } = useTranslation();
   const { getAccount } = useAccountsContext();
   const account = getAccount(address);
 
   return (
-    <TxDetailsRow label={t('Account')}>
-      <Typography variant="caption">
-        {account?.name ?? truncateAddress(address)}
-      </Typography>
+    <TxDetailsRow label={label || t('Account')}>
+      <Tooltip title={address}>
+        <Typography variant="caption">
+          {account?.name ?? truncateAddress(address)}
+        </Typography>
+      </Tooltip>
     </TxDetailsRow>
   );
 };

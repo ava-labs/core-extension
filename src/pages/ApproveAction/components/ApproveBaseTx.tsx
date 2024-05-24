@@ -290,7 +290,7 @@ export function BaseTxView({
       </Stack>
 
       {/* memo */}
-      {chain !== PVM && (
+      {chain !== PVM && memo && (
         <Stack>
           <Typography
             variant="body2"

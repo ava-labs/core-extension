@@ -48,9 +48,15 @@ export class MnemonicOnboardingHandler implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async (request) => {
-    const { mnemonic, password, accountName, analyticsConsent, walletName } =
-      (request.params ?? [])[0] ?? {};
+    const {
+      mnemonic: rawMnemonic,
+      password,
+      accountName,
+      analyticsConsent,
+      walletName,
+    } = (request.params ?? [])[0] ?? {};
 
+    const mnemonic = rawMnemonic.toLowerCase(); // BIP39 seed phrases are case-insensitive
     const xpub = await getXpubFromMnemonic(mnemonic);
     const xpubXP = Avalanche.getXpubFromMnemonic(mnemonic);
 

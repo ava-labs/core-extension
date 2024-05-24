@@ -8,10 +8,10 @@ import {
   PchainTxHistoryItem,
   TransactionType,
   TxHistoryItem,
+  XchainTxHistoryItem,
 } from '@src/background/services/history/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useTranslation } from 'react-i18next';
-import { isBitcoin } from '@src/utils/isBitcoin';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { ActivityCard } from './components/History/components/ActivityCard/ActivityCard';
 import { InProgressBridgeActivityCard } from './components/History/components/InProgressBridge/InProgressBridgeActivityCard';
@@ -27,10 +27,21 @@ import {
 } from '@avalabs/k2-components';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 import { usePendingBridgeTransactions } from '../Bridge/hooks/usePendingBridgeTransactions';
-import { isTxHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
-import { PChainTransactionType } from '@avalabs/glacier-sdk';
+import {
+  isPchainTxHistoryItem,
+  isTxHistoryItem,
+} from '@src/background/services/history/utils/isTxHistoryItem';
 import { PchainActivityCard } from './components/History/components/ActivityCard/PchainActivityCard';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import {
+  PchainFilterTxTypeMap,
+  PchainFilterType,
+  XchainFilterTxTypeMap,
+  XchainFilterType,
+} from './models';
+import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { getAddressForChain } from '@src/utils/getAddressForChain';
+import { XchainActivityCard } from './components/History/components/ActivityCard/XchainActivityCard';
 
 type WalletRecentTxsProps = {
   isEmbedded?: boolean;
@@ -46,52 +57,6 @@ export enum FilterType {
   SWAP = 'Swap',
   NFTS = 'NFTs',
 }
-
-enum PchainFilterType {
-  ALL = 'All',
-  INCOMING = 'Incoming',
-  OUTGOING = 'Outgoing',
-  ADD_DELEGATOR_TX = 'Add Delegator',
-  ADD_SUBNET_VALIDATOR_TX = 'Add Subnet Validator',
-  ADD_PERMISSIONLESS_VALIDATOR_TX = 'Add Permissionless Validator',
-  ADD_PERMISSIONLESS_DELEGATOR_TX = 'Add Permissionless Delegator',
-  ADD_VALIDATOR_TX = 'Add Validator',
-  ADVANCE_TIME_TX = 'Advance Time',
-  BASE_TX = 'BaseTx',
-  CREATE_CHAIN_TX = 'Create Chain',
-  CREATE_SUBNET_TX = 'Create Subnet',
-  EXPORT_TX = 'Export',
-  IMPORT_TX = 'Import',
-  REWARD_VALIDATOR_TX = 'Reward Validator',
-  REMOVE_SUBNET_VALIDATOR_TX = 'Remove Subnet Validator',
-  TRANSFER_SUBNET_OWNERSHIP_TX = 'Transfer Subnet Ownership',
-  TRANSFORM_SUBNET_TX = 'Transform Subnet',
-}
-
-const PchainFilterTxTypeMap = {
-  [PchainFilterType.ADD_DELEGATOR_TX]: PChainTransactionType.ADD_DELEGATOR_TX,
-  [PchainFilterType.ADD_SUBNET_VALIDATOR_TX]:
-    PChainTransactionType.ADD_SUBNET_VALIDATOR_TX,
-  [PchainFilterType.ADD_PERMISSIONLESS_VALIDATOR_TX]:
-    PChainTransactionType.ADD_PERMISSIONLESS_VALIDATOR_TX,
-  [PchainFilterType.ADD_PERMISSIONLESS_DELEGATOR_TX]:
-    PChainTransactionType.ADD_PERMISSIONLESS_DELEGATOR_TX,
-  [PchainFilterType.ADD_VALIDATOR_TX]: PChainTransactionType.ADD_VALIDATOR_TX,
-  [PchainFilterType.ADVANCE_TIME_TX]: PChainTransactionType.ADVANCE_TIME_TX,
-  [PchainFilterType.BASE_TX]: PChainTransactionType.BASE_TX,
-  [PchainFilterType.CREATE_CHAIN_TX]: PChainTransactionType.CREATE_CHAIN_TX,
-  [PchainFilterType.CREATE_SUBNET_TX]: PChainTransactionType.CREATE_SUBNET_TX,
-  [PchainFilterType.EXPORT_TX]: PChainTransactionType.EXPORT_TX,
-  [PchainFilterType.IMPORT_TX]: PChainTransactionType.IMPORT_TX,
-  [PchainFilterType.REWARD_VALIDATOR_TX]:
-    PChainTransactionType.REWARD_VALIDATOR_TX,
-  [PchainFilterType.REMOVE_SUBNET_VALIDATOR_TX]:
-    PChainTransactionType.REMOVE_SUBNET_VALIDATOR_TX,
-  [PchainFilterType.TRANSFER_SUBNET_OWNERSHIP_TX]:
-    PChainTransactionType.TRANSFER_SUBNET_OWNERSHIP_TX,
-  [PchainFilterType.TRANSFORM_SUBNET_TX]:
-    PChainTransactionType.TRANSFORM_SUBNET_TX,
-};
 
 export function WalletRecentTxs({
   isEmbedded = false,
@@ -109,7 +74,7 @@ export function WalletRecentTxs({
   };
 
   const PchainFilterItems = {
-    [FilterType.ALL]: t('All'),
+    [PchainFilterType.ALL]: t('All'),
     [PchainFilterType.INCOMING]: t('Incoming'),
     [PchainFilterType.OUTGOING]: t('Outgoing'),
     [PchainFilterType.ADD_DELEGATOR_TX]: t('Add Delegator'),
@@ -135,6 +100,17 @@ export function WalletRecentTxs({
     [PchainFilterType.TRANSFORM_SUBNET_TX]: t('Transform Subnet'),
   };
 
+  const XchainFilterItems = {
+    [XchainFilterType.ALL]: t('All'),
+    [XchainFilterType.INCOMING]: t('Incoming'),
+    [XchainFilterType.OUTGOING]: t('Outgoing'),
+    [XchainFilterType.BASE_TX]: t('BaseTx'),
+    [XchainFilterType.CREATE_ASSET_TX]: t('Create Asset'),
+    [XchainFilterType.OPERATION_TX]: t('Operation'),
+    [XchainFilterType.IMPORT_TX]: t('Import'),
+    [XchainFilterType.EXPORT_TX]: t('Export'),
+  };
+
   const { getTransactionHistory } = useWalletContext();
   const {
     accounts: { active: activeAccount },
@@ -145,13 +121,19 @@ export function WalletRecentTxs({
   const yesterday = endOfYesterday();
   const today = endOfToday();
   const [unfilteredTxHistory, setUnfilteredTxHistory] = useState<
-    TxHistoryItem[] | PchainTxHistoryItem[]
+    TxHistoryItem[] | PchainTxHistoryItem[] | XchainTxHistoryItem[]
   >([]);
   const { network } = useNetworkContext();
 
   const [selectedFilter, setSelectedFilter] = useState<
-    FilterType | PchainFilterType
-  >(isPchainNetwork(network) ? PchainFilterType.ALL : FilterType.ALL);
+    FilterType | PchainFilterType | XchainFilterType
+  >(
+    isPchainNetwork(network)
+      ? PchainFilterType.ALL
+      : isXchainNetwork(network)
+      ? XchainFilterType.ALL
+      : FilterType.ALL
+  );
 
   /*
    * If a tokenSymbolFilter exists, we need to filter out the bridge
@@ -191,11 +173,7 @@ export function WalletRecentTxs({
       return undefined;
     }
 
-    const address = isBitcoin(network)
-      ? activeAccount.addressBTC
-      : isPchainNetwork(network)
-      ? activeAccount.addressPVM
-      : activeAccount.addressC;
+    const address = getAddressForChain(network.chainId, activeAccount);
 
     // Some WalletConnect accounts may come without the BTC address.
     if (!address) {
@@ -214,7 +192,9 @@ export function WalletRecentTxs({
       );
     }
 
-    function shouldTxBeKept(tx: TxHistoryItem | PchainTxHistoryItem) {
+    function shouldTxBeKept(
+      tx: TxHistoryItem | PchainTxHistoryItem | XchainTxHistoryItem
+    ) {
       if (isTxHistoryItem(tx) && tx.isBridge && isPendingBridge(tx)) {
         return false;
       }
@@ -232,51 +212,89 @@ export function WalletRecentTxs({
       .filter((tx) => shouldTxBeKept(tx));
   }, [unfilteredTxHistory, bridgeTransactions, tokenSymbolFilter]);
 
+  function txHistoryItemFilter(
+    tx: TxHistoryItem,
+    filter: FilterType | PchainFilterType | XchainFilterType
+  ) {
+    if (filter === FilterType.ALL) {
+      return true;
+    } else if (filter === FilterType.BRIDGE) {
+      return tx.isBridge;
+    } else if (filter === FilterType.SWAP) {
+      return tx.type === TransactionType.SWAP;
+    } else if (filter === FilterType.CONTRACT_CALL) {
+      return tx.isContractCall && tx.type !== TransactionType.SWAP;
+    } else if (filter === FilterType.INCOMING) {
+      return tx.isIncoming;
+    } else if (filter === FilterType.OUTGOING) {
+      return tx.isOutgoing;
+    } else if (filter === FilterType.NFTS) {
+      return (
+        tx.type === TransactionType.NFT_BUY ||
+        (tx.type === TransactionType.TRANSFER &&
+          tx.tokens[0] &&
+          isNFT(tx.tokens[0].type))
+      );
+    } else {
+      return false;
+    }
+  }
+
+  function pchainTxHistoryItemFilter(
+    tx: PchainTxHistoryItem,
+    filter: FilterType | PchainFilterType | XchainFilterType
+  ) {
+    if (filter === PchainFilterType.ALL) {
+      return true;
+    }
+    if (filter === PchainFilterType.INCOMING) {
+      return !tx.isSender;
+    }
+    if (filter === PchainFilterType.OUTGOING) {
+      return tx.isSender;
+    }
+    const typeBasedOnFilter = PchainFilterTxTypeMap[filter];
+
+    if (typeBasedOnFilter) {
+      return tx.type === typeBasedOnFilter;
+    }
+
+    return false;
+  }
+
+  function xchainTxHistoryItemFilter(
+    tx: XchainTxHistoryItem,
+    filter: FilterType | PchainFilterType | XchainFilterType
+  ) {
+    if (filter === XchainFilterType.ALL) {
+      return true;
+    }
+    if (filter === XchainFilterType.INCOMING) {
+      return !tx.isSender;
+    }
+    if (filter === XchainFilterType.OUTGOING) {
+      return tx.isSender;
+    }
+    const typeBasedOnFilter = XchainFilterTxTypeMap[filter];
+
+    if (typeBasedOnFilter) {
+      return tx.type === typeBasedOnFilter;
+    }
+
+    return false;
+  }
+
   const filteredTxHistory = useMemo(() => {
     function shouldTxBeKept(
-      tx: TxHistoryItem | PchainTxHistoryItem,
-      filter: FilterType | PchainFilterType
+      tx: TxHistoryItem | PchainTxHistoryItem | XchainTxHistoryItem,
+      filter: FilterType | PchainFilterType | XchainFilterType
     ) {
       if (isTxHistoryItem(tx)) {
-        if (filter === FilterType.ALL) {
-          return true;
-        } else if (filter === FilterType.BRIDGE) {
-          return tx.isBridge;
-        } else if (filter === FilterType.SWAP) {
-          return tx.type === TransactionType.SWAP;
-        } else if (filter === FilterType.CONTRACT_CALL) {
-          return tx.isContractCall && tx.type !== TransactionType.SWAP;
-        } else if (filter === FilterType.INCOMING) {
-          return tx.isIncoming;
-        } else if (filter === FilterType.OUTGOING) {
-          return tx.isOutgoing;
-        } else if (filter === FilterType.NFTS) {
-          return (
-            tx.type === TransactionType.NFT_BUY ||
-            (tx.type === TransactionType.TRANSFER &&
-              tx.tokens[0] &&
-              isNFT(tx.tokens[0].type))
-          );
-        } else {
-          return false;
-        }
+        return txHistoryItemFilter(tx, filter);
+      } else if (isPchainTxHistoryItem(tx)) {
+        return pchainTxHistoryItemFilter(tx, filter);
       } else {
-        if (filter === PchainFilterType.ALL) {
-          return true;
-        }
-        if (filter === PchainFilterType.INCOMING) {
-          return !tx.isSender;
-        }
-        if (filter === PchainFilterType.OUTGOING) {
-          return tx.isSender;
-        }
-        const typeBasedOnFilter = PchainFilterTxTypeMap[filter];
-
-        if (typeBasedOnFilter) {
-          return tx.type === typeBasedOnFilter;
-        }
-
-        return false;
+        return xchainTxHistoryItemFilter(tx, filter);
       }
     }
 
@@ -308,6 +326,8 @@ export function WalletRecentTxs({
     }
     const label = isPchainNetwork(network)
       ? PchainFilterItems[keyName]
+      : isXchainNetwork(network)
+      ? XchainFilterItems[keyName]
       : FilterItems[keyName];
     return (
       <MenuItem
@@ -376,6 +396,8 @@ export function WalletRecentTxs({
                 {t('Display')}:{' '}
                 {isPchainNetwork(network)
                   ? PchainFilterItems[selectedFilter]
+                  : isXchainNetwork(network)
+                  ? XchainFilterItems[selectedFilter]
                   : FilterItems[selectedFilter]}
               </Typography>
               {showFilterMenu ? (
@@ -398,7 +420,11 @@ export function WalletRecentTxs({
                   style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
                 >
                   {Object.keys(
-                    isPchainNetwork(network) ? PchainFilterItems : FilterItems
+                    isPchainNetwork(network)
+                      ? PchainFilterItems
+                      : isXchainNetwork(network)
+                      ? XchainFilterItems
+                      : FilterItems
                   ).map((filterItem) => (
                     <FilterItem
                       key={filterItem}
@@ -463,8 +489,10 @@ export function WalletRecentTxs({
                   )}
                   {isTxHistoryItem(tx) ? (
                     <ActivityCard historyItem={tx} />
-                  ) : (
+                  ) : isPchainTxHistoryItem(tx) ? (
                     <PchainActivityCard historyItem={tx} />
+                  ) : (
+                    <XchainActivityCard historyItem={tx} />
                   )}
                 </Fragment>
               );

@@ -72,7 +72,7 @@ export function AddWalletWithSeedPhrase() {
   const deriveAddresses = useCallback(
     async (seedPhrase: string) => {
       const xpub = await getXpubFromMnemonic(
-        seedPhrase.trim().split(/\s+/g).join(' ')
+        seedPhrase.trim().split(/\s+/g).join(' ').toLowerCase()
       );
       setIsPhraseValid(true);
 

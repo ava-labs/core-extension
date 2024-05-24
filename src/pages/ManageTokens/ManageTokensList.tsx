@@ -12,7 +12,7 @@ type ManageTokensListProps = {
 };
 
 export const ManageTokensList = ({ searchQuery }: ManageTokensListProps) => {
-  const tokensWithBalances = useTokensWithBalances();
+  const tokensWithBalances = useTokensWithBalances(true);
 
   return (
     <Stack

@@ -4,13 +4,14 @@ import { singleton } from 'tsyringe';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { SettingsService } from '../settings/SettingsService';
 import { AnalyticsService } from './AnalyticsService';
-import { AnalyticsCapturedEvent, AnalyticsState } from './models';
+import { AnalyticsCapturedEvent, AnalyticsState, BlockchainId } from './models';
 import { FeatureGates } from '../featureFlags/models';
 import { AnalyticsConsent } from '../settings/models';
 import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { ChainId } from '@avalabs/chains-sdk';
 
 @singleton()
 export class AnalyticsServicePosthog {
@@ -119,12 +120,37 @@ export class AnalyticsServicePosthog {
     };
   }
 
+  // TODO update with real value
+  private updateChainIdIfNeeded(original: number) {
+    if (original === ChainId.AVALANCHE_P) {
+      return BlockchainId.P_CHAIN;
+    } else if (original === ChainId.AVALANCHE_TEST_P) {
+      return BlockchainId.P_CHAIN_TESTNET;
+    } else if (original === ChainId.AVALANCHE_X) {
+      return BlockchainId.X_CHAIN;
+    } else if (original === ChainId.AVALANCHE_TEST_X) {
+      return BlockchainId.X_CHAIN_TESTNET;
+    }
+    return original;
+  }
+
   private async prepProperties(
     windowId: string,
     properties: Record<string, any>,
     useEncryption = false
   ) {
     const userEnv = await getUserEnvironment();
+
+    if (Object.keys(properties).includes('chainId')) {
+      properties.chainId = this.updateChainIdIfNeeded(properties.chainId);
+    }
+
+    if (Object.keys(properties).includes('networkChainId')) {
+      properties.networkChainId = this.updateChainIdIfNeeded(
+        properties.networkChainId
+      );
+    }
+
     const preppedProps = useEncryption
       ? await encryptAnalyticsData(JSON.stringify(properties ?? {}))
       : properties;

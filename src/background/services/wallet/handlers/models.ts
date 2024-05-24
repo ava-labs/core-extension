@@ -1,11 +1,14 @@
-import { TokenWithBalance } from '@src/background/services/balances/models';
-import { ValidSendState } from '@src/background/services/send/models';
+import { TokenWithBalanceBTC } from '@src/background/services/balances/models';
 import { SecretType } from '../../secrets/models';
 import { PubKeyType } from '../models';
 
 export interface DisplayData_BitcoinSendTx {
-  sendState: ValidSendState;
-  balance?: TokenWithBalance;
+  from: string;
+  address: string;
+  amount: number; // satoshis
+  sendFee: number; // satoshis
+  feeRate: number;
+  balance: TokenWithBalanceBTC;
 }
 
 export type ImportSeedphraseWalletParams = {

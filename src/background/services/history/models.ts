@@ -1,4 +1,8 @@
-import { PChainTransactionType, RichAddress } from '@avalabs/glacier-sdk';
+import {
+  PChainTransactionType,
+  RichAddress,
+  XChainTransactionType,
+} from '@avalabs/glacier-sdk';
 import { TokenType } from '../balances/models';
 
 export interface TxHistoryItemToken {
@@ -30,7 +34,7 @@ export interface TxHistoryItem {
   type: TransactionType;
 }
 
-export interface PchainTxHistoryItem {
+export interface XPchainTxHistoryItem {
   from: string[];
   to: string[];
   isSender: boolean;
@@ -39,7 +43,16 @@ export interface PchainTxHistoryItem {
   gasUsed: string;
   explorerLink: string;
   chainId: string; // chainId from ActiveNetwork used to fetch tx
+  type: PChainTransactionType | XChainTransactionType;
+}
+
+export interface PchainTxHistoryItem extends XPchainTxHistoryItem {
   type: PChainTransactionType;
+  vmType: 'PVM';
+}
+export interface XchainTxHistoryItem extends XPchainTxHistoryItem {
+  type: XChainTransactionType;
+  vmType: 'AVM';
 }
 
 export enum TransactionType {

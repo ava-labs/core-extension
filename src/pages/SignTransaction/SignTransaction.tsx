@@ -242,7 +242,7 @@ export function SignTransactionPage() {
               <TxBalanceChange transaction={transaction} />
 
               <Stack sx={{ gap: 1, width: '100%' }}>
-                {maxFeePerGas && gasLimit ? (
+                {maxFeePerGas !== undefined && gasLimit ? (
                   <CustomFees
                     maxFeePerGas={maxFeePerGas}
                     limit={gasLimit}

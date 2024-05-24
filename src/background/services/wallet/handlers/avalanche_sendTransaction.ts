@@ -198,9 +198,11 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams
       return isMainnet
         ? ChainId.AVALANCHE_MAINNET_ID
         : ChainId.AVALANCHE_TESTNET_ID;
+    } else if (vm === 'AVM') {
+      return isMainnet ? ChainId.AVALANCHE_X : ChainId.AVALANCHE_TEST_X;
     }
 
-    return isMainnet ? ChainId.AVALANCHE_XP : ChainId.AVALANCHE_TEST_XP;
+    return isMainnet ? ChainId.AVALANCHE_P : ChainId.AVALANCHE_TEST_P;
   }
 
   onActionApproved = async (

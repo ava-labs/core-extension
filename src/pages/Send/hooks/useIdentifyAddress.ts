@@ -1,4 +1,3 @@
-import { stripAddressPrefix } from './../../../utils/stripAddressPrefix';
 import type { Contact } from '@avalabs/types';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
@@ -6,6 +5,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useCallback } from 'react';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 
 const UNSAVED_CONTACT_BASE = {
   id: '',
@@ -30,11 +30,12 @@ export const useIdentifyAddress = () => {
         if (
           contact.address.toLowerCase() === addressLowerCase ||
           contact.addressBTC?.toLowerCase() === addressLowerCase ||
-          contact.addressXP?.toLowerCase() === addressLowerCase
+          `p-${contact.addressXP?.toLowerCase()}` === addressLowerCase ||
+          `x-${contact.addressXP?.toLowerCase()}` === addressLowerCase
         ) {
           const addressToUse = isBitcoin(network)
             ? { addressBTC: address, address: '', addressPVM: '' }
-            : isPchainNetwork(network)
+            : isPchainNetwork(network) || isXchainNetwork(network)
             ? { addressXP: address, address: '', addressBTC: '' }
             : { address: address };
           return {
@@ -49,15 +50,20 @@ export const useIdentifyAddress = () => {
         if (
           account.addressC.toLowerCase() === addressLowerCase ||
           account.addressBTC?.toLocaleLowerCase() === addressLowerCase ||
-          account.addressPVM?.toLocaleLowerCase() === addressLowerCase
+          account.addressPVM?.toLocaleLowerCase() === addressLowerCase ||
+          account.addressAVM?.toLowerCase() === addressLowerCase
         ) {
           const addressToUse = isBitcoin(network)
             ? { addressBTC: account.addressBTC, address: '' }
             : isPchainNetwork(network)
             ? {
-                addressXP: account.addressPVM
-                  ? stripAddressPrefix(account.addressPVM)
-                  : '',
+                addressXP: account.addressPVM ? account.addressPVM : '',
+                address: '',
+                addressBTC: '',
+              }
+            : isXchainNetwork(network)
+            ? {
+                addressXP: account.addressAVM ? account.addressAVM : '',
                 address: '',
                 addressBTC: '',
               }
@@ -73,7 +79,7 @@ export const useIdentifyAddress = () => {
             addressBTC: address,
             addressXP: '',
           }
-        : isPchainNetwork(network)
+        : isPchainNetwork(network) || isXchainNetwork(network)
         ? {
             ...UNSAVED_CONTACT_BASE,
             address: '',

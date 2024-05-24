@@ -14,6 +14,7 @@ import { SETTINGS_STORAGE_KEY } from '../../settings/models';
 import settings_v2 from './migrations/settings_v2';
 import { BALANCES_CACHE_KEY } from '../../balances/models';
 import balances_v2 from './migrations/balances_v2';
+import network_v3 from './migrations/network_v3';
 
 export type Migration = {
   previousSchema: Joi.Schema;
@@ -63,11 +64,15 @@ export const SCHEMA_MAP = {
     ],
   },
   [NETWORK_STORAGE_KEY]: {
-    latestVersion: 2,
+    latestVersion: 3,
     migrations: [
       {
         version: 2,
         migration: network_v2,
+      },
+      {
+        version: 3,
+        migration: network_v3,
       },
     ],
   },

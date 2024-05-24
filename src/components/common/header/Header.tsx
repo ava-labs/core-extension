@@ -6,7 +6,6 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-components';
-import { NetworkVMType } from '@avalabs/chains-sdk';
 import { useTranslation } from 'react-i18next';
 
 import { SettingsMenu } from '@src/components/settings/SettingsMenu';
@@ -24,7 +23,7 @@ import { AccountSelectorButton } from '../account/AccountSelectorButton';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { AccountType } from '@src/background/services/accounts/models';
 import { WalletChip } from '../WalletChip';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { getAddressForChain } from '@src/utils/getAddressForChain';
 
 export function Header() {
   const domain = useCurrentDomain();
@@ -44,11 +43,9 @@ export function Header() {
     false;
   const { network } = useNetworkContext();
   const address =
-    network?.vmName === NetworkVMType.BITCOIN
-      ? activeAccount?.addressBTC
-      : isPchainNetwork(network)
-      ? activeAccount?.addressPVM
-      : activeAccount?.addressC;
+    network && activeAccount
+      ? getAddressForChain(network?.chainId, activeAccount)
+      : '';
   const theme = useTheme();
 
   const showWalletInfo = Boolean(

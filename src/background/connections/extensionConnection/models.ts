@@ -154,4 +154,6 @@ export enum ExtensionRequest {
 
   WALLET_IMPORT_SEED_PHRASE = 'wallet_import_seed_phrase',
   WALLET_IMPORT_LEDGER = 'wallet_import_ledger',
+
+  BLOCKAID_DAPP_SCAN = 'blockaid_dapp_scan',
 }

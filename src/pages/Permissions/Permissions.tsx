@@ -22,6 +22,12 @@ import {
   useIsSpecificContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
 import { AccountsDropdown } from './components/AccountsDropdown';
+import { AlertDialog } from './components/AlertDialog';
+import { AlertBox } from './components/AlertBox';
+import { WarningBox } from './components/WarningBox';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { BlockaidData, useDAppScan } from '@src/hooks/useDAppScan';
 
 export function PermissionsPage() {
   const { t } = useTranslation();
@@ -33,15 +39,34 @@ export function PermissionsPage() {
     allAccounts,
   } = useAccountsContext();
   const [selectedAccount, setSelectedAccount] = useState<Account>();
+  const [dAppScanningResult, setDAppScanningResult] = useState<
+    BlockaidData | undefined
+  >(undefined);
+
+  const [displayDialog, setDisplayDialog] = useState(true);
+
   const isConfirmContainer = useIsSpecificContextContainer(
     ContextContainer.CONFIRM
   );
+  const dAppScanning = useDAppScan();
+  const { featureFlags } = useFeatureFlagContext();
 
   const {
     action: request,
     cancelHandler,
     updateAction,
   } = useApproveAction(requestId);
+
+  useEffect(() => {
+    if (request?.site?.domain) {
+      dAppScanning(request.site.domain)
+        .then((result) => {
+          setDAppScanningResult(result);
+        })
+        .catch((e) => console.error(e));
+    }
+  }, [dAppScanning, request?.site?.domain]);
+
   const isSubmitting = request?.status === ActionStatus.SUBMITTING;
 
   const isEthRequestAccounts = request?.method === 'eth_requestAccounts';
@@ -103,106 +128,123 @@ export function PermissionsPage() {
     return <LoadingDots size={20} />;
   }
 
+  const isMaliciousDApp = dAppScanningResult && dAppScanningResult.isMalicious;
+  const isMissingBlockaidData =
+    dAppScanningResult && dAppScanningResult?.status === 'miss' ? true : false;
+
   return (
-    <Stack
-      sx={{
-        width: '100%',
-        px: 2,
-        color: theme.palette.text.primary,
-        justifyContent: 'space-between',
-      }}
-    >
-      <Stack sx={{ gap: 3, py: 1.5 }}>
-        <Box sx={{ width: '100%' }}>
-          <Typography variant="h4">{t('Connect Core to Dapp')}</Typography>
-        </Box>
-        <Stack sx={{ gap: 2.5, alignItems: 'center' }}>
-          <SiteAvatar sx={{ m: 0 }}>
-            <TokenIcon
-              height="48px"
-              width="48px"
-              src={request.displayData.domainIcon}
-            >
-              <GlobeIcon size={48} color={theme.palette.text.secondary} />
-            </TokenIcon>
-          </SiteAvatar>
-          <Stack
-            sx={{
-              gap: 0.5,
-              textAlign: 'center',
-              maxWidth: 1,
-            }}
-          >
-            <Typography variant="h5">
-              {request.displayData.domainName}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: 12,
-                color: theme.palette.text.secondary,
-                wordWrap: 'break-word',
-              }}
-            >
-              {request.displayData.domainUrl}
-            </Typography>
-          </Stack>
-        </Stack>
-        <AccountsDropdown
-          accounts={allAccounts}
-          activeAccount={activeAccount}
-          onSelectedAccountChanged={(acc) => setSelectedAccount(acc)}
-        />
-      </Stack>
+    <>
       <Stack
         sx={{
           width: '100%',
+          px: 2,
+          color: theme.palette.text.primary,
           justifyContent: 'space-between',
-          textAlign: 'center',
         }}
       >
-        <Typography
-          variant="caption"
-          sx={{
-            mb: 2,
-            color: theme.palette.text.secondary,
-          }}
-          paragraph
-        >
-          {t('Only connect to sites that you trust.')}
-        </Typography>
+        <Stack sx={{ gap: 3, py: 1.5 }}>
+          <Box sx={{ width: '100%' }}>
+            <Typography variant="h4">{t('Connect Core to Dapp')}</Typography>
+          </Box>
+          <Stack sx={{ gap: 2.5, alignItems: 'center' }}>
+            {featureFlags[FeatureGates.BLOCKAID_DAPP_SCAN] &&
+              isMaliciousDApp && <AlertBox />}
+            {featureFlags[FeatureGates.BLOCKAID_DAPP_SCAN_WARNING] &&
+              isMissingBlockaidData && <WarningBox />}
+            <SiteAvatar sx={{ m: 0 }}>
+              <TokenIcon
+                height="48px"
+                width="48px"
+                src={request.displayData.domainIcon}
+              >
+                <GlobeIcon size={48} color={theme.palette.text.secondary} />
+              </TokenIcon>
+            </SiteAvatar>
+            <Stack
+              sx={{
+                gap: 0.5,
+                textAlign: 'center',
+                maxWidth: 1,
+              }}
+            >
+              <Typography variant="h5">
+                {request.displayData.domainName}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  color: theme.palette.text.secondary,
+                  wordWrap: 'break-word',
+                }}
+              >
+                {request.displayData.domainUrl}
+              </Typography>
+            </Stack>
+          </Stack>
+          <AccountsDropdown
+            accounts={allAccounts}
+            activeAccount={activeAccount}
+            onSelectedAccountChanged={(acc) => setSelectedAccount(acc)}
+          />
+        </Stack>
         <Stack
           sx={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
             width: '100%',
-            gap: 1,
+            justifyContent: 'space-between',
+            textAlign: 'center',
           }}
         >
-          <Button
-            color="secondary"
-            data-testid="connect-reject-btn"
-            onClick={() => {
-              cancelHandler();
-              window.close();
+          <Typography
+            variant="caption"
+            sx={{
+              mb: 2,
+              color: theme.palette.text.secondary,
             }}
-            fullWidth
-            size="large"
-            disabled={isSubmitting}
+            paragraph
           >
-            {t('Reject')}
-          </Button>
-          <Button
-            data-testid="connect-approve-btn"
-            onClick={() => onApproveClicked()}
-            fullWidth
-            size="large"
-            isLoading={isSubmitting}
-            disabled={isSubmitting}
+            {t('Only connect to sites that you trust.')}
+          </Typography>
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              width: '100%',
+              gap: 1,
+            }}
           >
-            {isSubmitting ? '' : t('Approve')}
-          </Button>
+            <Button
+              color="secondary"
+              data-testid="connect-reject-btn"
+              onClick={() => {
+                cancelHandler();
+                window.close();
+              }}
+              fullWidth
+              size="large"
+              disabled={isSubmitting}
+            >
+              {t('Reject')}
+            </Button>
+            <Button
+              data-testid="connect-approve-btn"
+              onClick={() => onApproveClicked()}
+              fullWidth
+              size="large"
+              isLoading={isSubmitting}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? '' : t('Approve')}
+            </Button>
+          </Stack>
         </Stack>
       </Stack>
-    </Stack>
+      {featureFlags[FeatureGates.BLOCKAID_DAPP_SCAN] && isMaliciousDApp && (
+        <AlertDialog
+          cancelHandler={cancelHandler}
+          open={displayDialog}
+          onClose={() => setDisplayDialog(false)}
+        />
+      )}
+    </>
   );
 }

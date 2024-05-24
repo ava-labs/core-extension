@@ -186,7 +186,9 @@ export function CollectibleDetails() {
               });
               setCollectibleParams({
                 nft,
-                options: { path: '/collectible/send' },
+                options: {
+                  path: '/collectible/send',
+                },
               });
             }}
             ref={sendRef}

@@ -1,5 +1,5 @@
 import { AVALANCHE_XP_TEST_NETWORK, NetworkVMType } from '@avalabs/chains-sdk';
-import { AccountType } from '../accounts/models';
+import { Account, AccountType } from '../accounts/models';
 import BN from 'bn.js';
 import {
   AggregatedAssetAmount,
@@ -26,7 +26,7 @@ describe('src/background/services/balances/BalancesServicePVM.ts', () => {
   } as any;
   let service: BalancesServicePVM;
 
-  const account = {
+  const account: Account = {
     id: '123',
     name: 'account name',
     addressBTC: 'addressBTC',
@@ -121,21 +121,19 @@ describe('src/background/services/balances/BalancesServicePVM.ts', () => {
             balanceDisplayValue: '8',
             balanceUsdDisplayValue: '40.00',
             priceUSD: 5,
-            pchainBalance: {
-              available: new BN(1000000000),
-              availableUSD: 5,
-              availableDisplayValue: '1',
-              availableUsdDisplayValue: '5.00',
-              utxos: pchainBalanceFromGlacier.balances,
-              lockedStaked: 1,
-              lockedStakeable: 1,
-              lockedPlatform: 1,
-              atomicMemoryLocked: 1,
-              atomicMemoryUnlocked: 1,
-              unlockedUnstaked: 1,
-              unlockedStaked: 1,
-              pendingStaked: 1,
-            },
+            available: new BN(1000000000),
+            availableUSD: 5,
+            availableDisplayValue: '1',
+            availableUsdDisplayValue: '5.00',
+            utxos: pchainBalanceFromGlacier.balances,
+            lockedStaked: 1,
+            lockedStakeable: 1,
+            lockedPlatform: 1,
+            atomicMemoryLocked: 1,
+            atomicMemoryUnlocked: 1,
+            unlockedUnstaked: 1,
+            unlockedStaked: 1,
+            pendingStaked: 1,
           },
         },
       };

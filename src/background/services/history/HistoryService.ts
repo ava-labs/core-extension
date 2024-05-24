@@ -8,6 +8,8 @@ import { GlacierService } from '../glacier/GlacierService';
 import { HistoryServiceGlacier } from './HistoryServiceGlacier';
 import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
 import { HistoryServicePVM } from './HistoryServicePVM';
+import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
+import { HistoryServiceAVM } from './HistoryServiceAVM';
 
 @singleton()
 export class HistoryService {
@@ -17,6 +19,7 @@ export class HistoryService {
     private ethHistoryService: HistoryServiceETH,
     private glacierHistoryService: HistoryServiceGlacier,
     private glacierService: GlacierService,
+    private historyServiceAVM: HistoryServiceAVM,
     private historyServicePVM: HistoryServicePVM
   ) {}
 
@@ -38,6 +41,8 @@ export class HistoryService {
         return await this.ethHistoryService.getHistory(network);
       } else if (isPchainNetwork(network)) {
         return await this.historyServicePVM.getHistory(network);
+      } else if (isXchainNetwork(network)) {
+        return await this.historyServiceAVM.getHistory(network);
       }
     }
     return [];

@@ -1,3 +1,4 @@
+import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 import { Network } from '@avalabs/chains-sdk';
 import {
   BlockchainId,
@@ -11,13 +12,19 @@ import { Account } from '../accounts/models';
 import { GlacierService } from '../glacier/GlacierService';
 import { TokenPricesService } from './TokenPricesService';
 import { SettingsService } from '../settings/SettingsService';
-import { PchainBalance, NetworkTokenWithBalance, TokenType } from './models';
+import {
+  NetworkTokenWithBalance,
+  TokenType,
+  TokenWithBalancePVM,
+} from './models';
 import BN from 'bn.js';
 import { balanceToDisplayValue, bnToBig } from '@avalabs/utils-sdk';
 import * as Sentry from '@sentry/browser';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { getTokenValue } from './utils/getTokenValue';
+import { calculateTotalBalance } from './utils/calculateTotalBalance';
 
 @singleton()
 export class BalancesServicePVM {
@@ -33,10 +40,29 @@ export class BalancesServicePVM {
     return Object.keys(balanceResult).includes('unlockedUnstaked');
   }
 
+  private _getBalancesByAddressesFetcher = async (
+    account: Account,
+    network: Network
+  ): Promise<PChainBalance> => {
+    const xpAddress = account.addressPVM
+      ? stripAddressPrefix(account.addressPVM)
+      : undefined;
+    if (!xpAddress) {
+      throw new Error('This account does not support PVM');
+    }
+
+    const glacierResponses: PChainBalance = await this._fetchBalances(
+      xpAddress,
+      network
+    );
+
+    return glacierResponses;
+  };
+
   private async _fetchBalances(
     address: string,
     network: Network
-  ): Promise<PChainBalance | undefined> {
+  ): Promise<PChainBalance> {
     const networkType = network.isTestnet
       ? NetworkType.FUJI
       : NetworkType.MAINNET;
@@ -53,33 +79,32 @@ export class BalancesServicePVM {
         new Error('Incorrect type balance was returned from glacier'),
         SentryExceptionTypes.BALANCES
       );
-      return;
+      throw new Error('Incorrect type balance was returned from glacier');
     }
     return glacierBalance;
-  }
-
-  private _getTokenValue(decimals: number, amount?: number) {
-    return amount === undefined ? 0 : amount / 10 ** decimals;
   }
 
   private _convertToBalancePchain(
     balance: PChainBalance,
     tokenPrice: number | undefined,
-    decimals: number
-  ): PchainBalance {
+    network: Network
+  ): TokenWithBalancePVM {
     const balancePerType: Record<string, number> = {};
+    const decimals = network.networkToken.decimals;
 
     Object.keys(balance).forEach((balanceType) => {
       const balancesToAdd = balance[balanceType];
-      if (!balancesToAdd.length) {
+      if (!balancesToAdd || !balancesToAdd.length) {
         balancePerType[balanceType] = 0;
         return;
       }
 
-      balance[balanceType]?.forEach((uxto) => {
-        const previousBalance = balancePerType[balanceType] ?? 0;
-        const newBalance = previousBalance + Number(uxto.amount);
-        balancePerType[balanceType] = newBalance;
+      balancesToAdd.forEach((uxto) => {
+        if (uxto.symbol === network.networkToken.symbol) {
+          const previousBalance = balancePerType[balanceType] ?? 0;
+          const newBalance = previousBalance + Number(uxto.amount);
+          balancePerType[balanceType] = newBalance;
+        }
       });
     });
 
@@ -91,63 +116,53 @@ export class BalancesServicePVM {
         ? undefined
         : bnToBig(available, decimals).mul(tokenPrice);
     const availableDisplayValue = balanceToDisplayValue(available, decimals);
+
+    const totalBalance = calculateTotalBalance(balance);
+
+    const balanceUSD =
+      tokenPrice === undefined
+        ? undefined
+        : bnToBig(totalBalance, network.networkToken.decimals).mul(tokenPrice);
+
+    const balanceDisplayValue = balanceToDisplayValue(
+      totalBalance,
+      network.networkToken.decimals
+    );
+
     return {
+      ...network.networkToken,
+      type: TokenType.NATIVE,
+      balance: totalBalance,
+      balanceUSD: balanceUSD?.toNumber(),
+      balanceDisplayValue,
+      balanceUsdDisplayValue: balanceUSD?.toFixed(2),
+      priceUSD: tokenPrice,
       available,
       availableUSD: availableUSD?.toNumber(),
       availableDisplayValue,
       availableUsdDisplayValue: availableUSD?.toFixed(2),
       utxos: balance,
-      lockedStaked: this._getTokenValue(
-        decimals,
-        balancePerType['lockedStaked']
-      ),
-      lockedStakeable: this._getTokenValue(
+      lockedStaked: getTokenValue(decimals, balancePerType['lockedStaked']),
+      lockedStakeable: getTokenValue(
         decimals,
         balancePerType['lockedStakeable']
       ),
-      lockedPlatform: this._getTokenValue(
-        decimals,
-        balancePerType['lockedPlatform']
-      ),
-      atomicMemoryLocked: this._getTokenValue(
+      lockedPlatform: getTokenValue(decimals, balancePerType['lockedPlatform']),
+      atomicMemoryLocked: getTokenValue(
         decimals,
         balancePerType['atomicMemoryLocked']
       ),
-      atomicMemoryUnlocked: this._getTokenValue(
+      atomicMemoryUnlocked: getTokenValue(
         decimals,
         balancePerType['atomicMemoryUnlocked']
       ),
-      unlockedUnstaked: this._getTokenValue(
+      unlockedUnstaked: getTokenValue(
         decimals,
         balancePerType['unlockedUnstaked']
       ),
-      unlockedStaked: this._getTokenValue(
-        decimals,
-        balancePerType['unlockedStaked']
-      ),
-      pendingStaked: this._getTokenValue(
-        decimals,
-        balancePerType['pendingStaked']
-      ),
+      unlockedStaked: getTokenValue(decimals, balancePerType['unlockedStaked']),
+      pendingStaked: getTokenValue(decimals, balancePerType['pendingStaked']),
     };
-  }
-
-  private _calculateTotalBalance(balance: PchainBalance): BN {
-    const uxtos = balance.utxos;
-    if (!uxtos) {
-      return new BN(0);
-    }
-
-    const sum = Object.values(uxtos).reduce(function (totalAcc, utxoList) {
-      const typeSum = utxoList.reduce(function (typeAcc, utxo) {
-        const balanceToAdd = Number(utxo.amount);
-        return typeAcc + balanceToAdd;
-      }, 0);
-
-      return totalAcc + typeSum;
-    }, 0);
-
-    return new BN(sum);
   }
 
   private async _getPrice(network: Network): Promise<number | undefined> {
@@ -182,8 +197,8 @@ export class BalancesServicePVM {
         }
         try {
           // Fetching balance from glacier
-          const fetchedBalance = await this._fetchBalances(
-            account.addressPVM,
+          const fetchedBalance = await this._getBalancesByAddressesFetcher(
+            account,
             network
           );
 
@@ -194,34 +209,12 @@ export class BalancesServicePVM {
           const balancePchain = this._convertToBalancePchain(
             fetchedBalance,
             tokenPrice,
-            network.networkToken.decimals
+            network
           );
-          const balance = this._calculateTotalBalance(balancePchain);
-
-          const balanceUSD =
-            tokenPrice === undefined
-              ? undefined
-              : bnToBig(balance, network.networkToken.decimals).mul(tokenPrice);
-
-          const balanceDisplayValue = balanceToDisplayValue(
-            balance,
-            network.networkToken.decimals
-          );
-
-          const chainBalance: NetworkTokenWithBalance = {
-            ...network.networkToken,
-            type: TokenType.NATIVE,
-            balance,
-            balanceUSD: balanceUSD?.toNumber(),
-            balanceDisplayValue,
-            balanceUsdDisplayValue: balanceUSD?.toFixed(2),
-            priceUSD: tokenPrice,
-            pchainBalance: balancePchain,
-          };
 
           return {
             [account.addressPVM]: {
-              [network.networkToken.symbol]: chainBalance,
+              [network.networkToken.symbol]: balancePchain,
             },
           };
         } catch {
@@ -234,7 +227,7 @@ export class BalancesServicePVM {
           (
             item
           ): item is PromiseFulfilledResult<
-            Record<string, Record<string, NetworkTokenWithBalance>>
+            Record<string, Record<string, TokenWithBalancePVM>>
           > => item.status === 'fulfilled'
         )
         .map((item) => item.value);

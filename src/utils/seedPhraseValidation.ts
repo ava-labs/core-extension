@@ -7,6 +7,6 @@ export const isPhraseCorrect = (phrase: string) => {
 
   return (
     wordPhraseLength.includes(trimmed.length) &&
-    Mnemonic.isValidMnemonic(trimmed.join(' '))
+    Mnemonic.isValidMnemonic(trimmed.join(' ').toLowerCase())
   );
 };

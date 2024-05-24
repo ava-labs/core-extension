@@ -33,8 +33,10 @@ import { openNewTab } from '@src/utils/extensionUtils';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
+import { hasUnconfirmedBalance } from '@src/utils/hasUnconfirmedBalance';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
+import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 
 export function TokenFlow() {
   const { t } = useTranslation();
@@ -66,12 +68,21 @@ export function TokenFlow() {
     return isPchainNetwork(network);
   }, [network]);
 
+  const isXchain = useMemo(() => {
+    if (!network) return false;
+    return isXchainNetwork(network);
+  }, [network]);
+
   const hasAccessToActiveNetwork = useMemo(() => {
     if (isPchain && activeAccount && !activeAccount.addressPVM) {
       return false;
     }
+
+    if (isXchain && activeAccount && !activeAccount.addressAVM) {
+      return false;
+    }
     return true;
-  }, [isPchain, activeAccount]);
+  }, [isPchain, activeAccount, isXchain]);
 
   useEffect(() => {
     setShowSend(token?.balance.gt(new BN(0)));
@@ -83,7 +94,7 @@ export function TokenFlow() {
     } else {
       setTokensWithBalancesAreReady(!!tokensWithBalances.length);
     }
-  }, [activeAccount, hasAccessToActiveNetwork, isPchain, tokensWithBalances]);
+  }, [activeAccount, hasAccessToActiveNetwork, tokensWithBalances]);
 
   if (!hasAccessToActiveNetwork) {
     return (
@@ -98,15 +109,16 @@ export function TokenFlow() {
     return <CircularProgress />;
   }
 
-  const balanceCurrencyValue = isBitcoin
-    ? (token.balanceUSD || 0) + (token.unconfirmedBalanceUSD || 0)
-    : token.balanceUsdDisplayValue ?? token.balanceUSD;
+  const balanceCurrencyValue =
+    isBitcoin && hasUnconfirmedBalance(token)
+      ? (token.balanceUSD || 0) + (token.unconfirmedBalanceUSD || 0)
+      : token.balanceUsdDisplayValue ?? token.balanceUSD;
 
   return (
     <Stack sx={{ width: '100%', position: 'relative' }}>
       <PageTitle
         onBackClick={() => {
-          isBitcoin || isPchain
+          isBitcoin || isPchain || isXchain
             ? history.replace('/home')
             : history.replace('/assets');
         }}
@@ -144,7 +156,7 @@ export function TokenFlow() {
           </Stack>
           <Stack sx={{ justifyContent: 'space-between', flexDirection: 'row' }}>
             <Typography data-testid="token-details-balance" variant="body2">
-              {token.balance && token.unconfirmedBalance
+              {token.balance && hasUnconfirmedBalance(token)
                 ? balanceToDisplayValue(
                     token.balance.add(token.unconfirmedBalance),
                     token.decimals

@@ -17,6 +17,7 @@ import { WalletId } from '@src/background/services/accounts/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { useMemo } from 'react';
+import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 
 export type MyAccountContact = {
   id: string;
@@ -51,7 +52,7 @@ export const AddressDropdownListMyAccounts = ({
   const { wallets } = useWalletContext();
 
   const useXpAddress = useMemo(() => {
-    return network ? isPchainNetwork(network) : false;
+    return isPchainNetwork(network) || isXchainNetwork(network);
   }, [network]);
 
   const addressType = useBtcAddress

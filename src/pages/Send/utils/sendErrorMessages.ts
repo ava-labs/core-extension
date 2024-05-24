@@ -1,5 +1,6 @@
-import { SendErrorMessage } from '@src/background/services/send/models';
 import { t } from 'i18next';
+
+import { SendErrorMessage } from '@src/utils/send/models';
 
 export function getSendErrorMessage(key: SendErrorMessage): string {
   const translations = {
@@ -11,6 +12,12 @@ export function getSendErrorMessage(key: SendErrorMessage): string {
     [SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE]: t(
       'Insufficient balance for fee'
     ),
+    [SendErrorMessage.TOKEN_REQUIRED]: t('Token is required'),
+    [SendErrorMessage.UNABLE_TO_FETCH_UTXOS]: t(
+      'Internal error. Please try again'
+    ),
+    [SendErrorMessage.UNSUPPORTED_TOKEN]: t('Unsupported token'),
+    [SendErrorMessage.UNKNOWN_ERROR]: t('Unknown error'),
   };
 
   return translations[key] ?? key;

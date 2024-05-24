@@ -107,7 +107,7 @@ export class GlacierService {
     blockTimestamp?: number;
     addresses?: string;
   }) {
-    return await this.glacierSdkInstance.primaryNetworkBalances.getBalancesByAddresses(
+    return this.glacierSdkInstance.primaryNetworkBalances.getBalancesByAddresses(
       params
     );
   }
@@ -123,7 +123,15 @@ export class GlacierService {
     pageSize?: number;
     sortOrder?: SortOrder;
   }) {
-    return await this.glacierSdkInstance.primaryNetworkTransactions.listLatestPrimaryNetworkTransactions(
+    return this.glacierSdkInstance.primaryNetworkTransactions.listLatestPrimaryNetworkTransactions(
+      params
+    );
+  }
+  async getChainIdsForAddresses(params: {
+    addresses: string;
+    network: Network;
+  }) {
+    return this.glacierSdkInstance.primaryNetwork.getChainIdsForAddresses(
       params
     );
   }

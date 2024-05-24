@@ -12,14 +12,19 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { GetTokensListHandler } from '@src/background/services/tokens/handlers/getTokenList';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { merge } from 'lodash';
-import { isBitcoinChainId } from '@src/background/services/network/utils/isBitcoinNetwork';
-import { isPchainNetworkId } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { getAddressForChain } from '@src/utils/getAddressForChain';
 
 const bnZero = new BN(0);
 
 const nativeTokensFirst = (tokens: TokenWithBalance[]): TokenWithBalance[] =>
   [...tokens].sort((t) => (t.type === TokenType.NATIVE ? -1 : 1));
 
+/**
+ *
+ * @param forceShowTokensWithoutBalances - show the tokens WITH and WITHOUT balances
+ * @param chainId
+ * @returns Tokens list with OR without balances based on `forceShowTokensWithoutBalances`
+ */
 export function useTokensWithBalances(
   forceShowTokensWithoutBalances?: boolean,
   chainId?: number
@@ -36,11 +41,35 @@ export function useTokensWithBalances(
 
   const { request } = useConnectionContext();
   const { tokens } = useBalancesContext();
-  const { showTokensWithoutBalances } = useSettingsContext();
+  const { showTokensWithoutBalances, customTokens } = useSettingsContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const { network } = useNetworkContext();
+
+  const customTokensWithZeroBalance: {
+    [address: string]: TokenWithBalance;
+  } = useMemo(() => {
+    if (!network?.chainId) {
+      return {};
+    }
+    const customTokenForActiveNetwork = customTokens[network?.chainId];
+    if (!customTokenForActiveNetwork) {
+      return {};
+    }
+
+    return Object.entries(customTokenForActiveNetwork).reduce<{
+      [address: string]: TokenWithBalance;
+    }>((acc, [address, tokenData]) => {
+      acc[address] = {
+        ...tokenData,
+        type: TokenType.ERC20,
+        balance: bnZero,
+      };
+
+      return acc;
+    }, {});
+  }, [customTokens, network?.chainId]);
 
   useEffect(() => {
     setSelectedChainId(chainId ? chainId : network?.chainId);
@@ -73,7 +102,10 @@ export function useTokensWithBalances(
           return tokensWithBalances;
         }, {});
 
-        setAllTokensWithPlaceholderBalances(tokensWithPlaceholderBalances);
+        setAllTokensWithPlaceholderBalances({
+          ...customTokensWithZeroBalance,
+          ...tokensWithPlaceholderBalances,
+        });
       } catch (err) {
         console.error(err);
         setAllTokensWithPlaceholderBalances({});
@@ -91,6 +123,7 @@ export function useTokensWithBalances(
     selectedChainId,
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,
+    customTokensWithZeroBalance,
   ]);
 
   return useMemo<TokenWithBalance[]>(() => {
@@ -98,11 +131,7 @@ export function useTokensWithBalances(
       return [];
     }
 
-    const address = isBitcoinChainId(selectedChainId)
-      ? activeAccount.addressBTC
-      : isPchainNetworkId(selectedChainId)
-      ? activeAccount.addressPVM
-      : activeAccount.addressC;
+    const address = getAddressForChain(selectedChainId, activeAccount);
 
     if (!address) {
       return [];
@@ -133,7 +162,7 @@ export function useTokensWithBalances(
     const defaultResult = nativeToken ? [nativeToken] : [];
 
     const filteredTokens = unfilteredTokens.filter((token) => {
-      return token.balance.gt(bnZero);
+      return token.balance.gt(bnZero) || token.type === TokenType.NATIVE; // Always include the native token
     });
 
     return filteredTokens.length

@@ -11,7 +11,11 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import EthLogo from '@src/images/tokens/eth.png';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import {
+  TokenWithBalance,
+  hasUnconfirmedBTCBalance,
+  isAvaxWithUnavailableBalance,
+} from '@src/background/services/balances/models';
 import { bnToLocaleString, numberToBN } from '@avalabs/utils-sdk';
 import BN from 'bn.js';
 import { useTranslation } from 'react-i18next';
@@ -134,7 +138,9 @@ export function TokenSelect({
     },
     [onInputAmountChange, maxAmountString]
   );
-  const hideTokenDropdown = bridgeTokensList && bridgeTokensList.length < 2;
+  const hideTokenDropdown =
+    (bridgeTokensList && bridgeTokensList.length < 2) ||
+    (tokensList && tokensList.length < 2);
 
   const displayTokenList = useDisplaytokenlist({
     tokensList,
@@ -175,25 +181,28 @@ export function TokenSelect({
 
   useEffect(() => {
     // when only one token is present, auto select it
-    if (
-      bridgeTokensList?.length === 1 &&
-      bridgeTokensList[0] &&
-      bridgeTokensList[0].asset.symbol !== selectedToken?.symbol
-    ) {
-      onTokenChange(bridgeTokensList[0]);
+    const tokens = bridgeTokensList ?? tokensList;
+    const hasOnlyOneToken = tokens?.length === 1;
+    const theOnlyToken = hasOnlyOneToken ? tokens[0] : undefined;
+    const isOnlyTokenNotSelected =
+      theOnlyToken && theOnlyToken?.symbol !== selectedToken?.symbol;
+
+    if (isOnlyTokenNotSelected) {
+      onTokenChange(theOnlyToken);
+      return;
     }
     // when selected token is not supported, clear it
-    else if (
-      bridgeTokensList &&
-      bridgeTokensList[0] &&
+    const supportedSymbols =
+      tokens?.flatMap((tok) => [tok.symbol, tok.symbolOnNetwork]) ?? [];
+
+    if (
       selectedToken &&
-      !bridgeTokensList
-        .map(({ symbol, symbolOnNetwork }) => symbolOnNetwork ?? symbol) // BTC does not have symbolOnNetwork defined
-        .includes(selectedToken.symbol)
+      tokens?.[0] &&
+      !supportedSymbols.includes(selectedToken.symbol)
     ) {
-      onTokenChange(bridgeTokensList[0]);
+      onTokenChange(tokens[0]);
     }
-  }, [bridgeTokensList, onTokenChange, selectedToken]);
+  }, [bridgeTokensList, tokensList, onTokenChange, selectedToken]);
 
   const rowRenderer = useCallback(
     ({ key, index, style }) => {
@@ -251,9 +260,17 @@ export function TokenSelect({
   );
 
   const renderTokenLabel = useCallback(() => {
-    if (selectedToken?.unconfirmedBalance) {
+    if (
+      !selectedToken ||
+      (!hasUnconfirmedBTCBalance(selectedToken) &&
+        !isAvaxWithUnavailableBalance(selectedToken))
+    ) {
+      return `${t('Balance')}: ${selectedToken?.balanceDisplayValue ?? '0'}`;
+    }
+
+    if (hasUnconfirmedBTCBalance(selectedToken)) {
       return (
-        <Stack sx={{ flexDirection: 'row' }}>
+        <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
           {!!selectedToken?.unconfirmedBalance?.toNumber() && (
             <Tooltip
               placement="top"
@@ -264,11 +281,28 @@ export function TokenSelect({
               <InfoCircleIcon sx={{ mr: 0.5, cursor: 'pointer' }} />
             </Tooltip>
           )}
-          {t('Available Balance')}:{selectedToken?.balanceDisplayValue ?? '0'}
+          {t('Available Balance')}: {selectedToken?.balanceDisplayValue ?? '0'}
         </Stack>
       );
-    } else {
-      return `${t('Balance')}: ${selectedToken?.balanceDisplayValue ?? '0'}`;
+    }
+
+    if (isAvaxWithUnavailableBalance(selectedToken)) {
+      return (
+        <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
+          {!!selectedToken?.balance.toNumber() && (
+            <Tooltip
+              placement="top"
+              title={`${t('Total Balance')}: ${
+                selectedToken?.balanceDisplayValue
+              } ${selectedToken?.symbol}`}
+            >
+              <InfoCircleIcon sx={{ mr: 0.5, cursor: 'pointer' }} />
+            </Tooltip>
+          )}
+          {t('Spendable Balance')}:{' '}
+          {selectedToken?.availableDisplayValue ?? '0'}
+        </Stack>
+      );
     }
   }, [selectedToken, t]);
 
@@ -283,7 +317,9 @@ export function TokenSelect({
           m: () => (!padding ? '0 0 8px' : '0'),
         }}
       >
-        <Typography variant="caption">{label ?? t('Token')}</Typography>
+        <Typography variant="body2" fontWeight="fontWeightSemibold">
+          {label ?? t('Token')}
+        </Typography>
         <Typography variant="caption" sx={{ color: 'text.secondary' }}>
           {renderTokenLabel()}
         </Typography>

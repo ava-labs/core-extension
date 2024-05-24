@@ -21,6 +21,8 @@ import {
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
+import { getAddressForChain } from '@src/utils/getAddressForChain';
+import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 
 export const Receive = () => {
   const { t } = useTranslation();
@@ -31,13 +33,16 @@ export const Receive = () => {
   const { capture } = useAnalyticsContext();
   const isBitcoinActive = network?.vmName === NetworkVMType.BITCOIN;
   const isPchainActive = useMemo(() => isPchainNetwork(network), [network]);
+  const isXchainActive = useMemo(() => isXchainNetwork(network), [network]);
   const { checkIsFunctionSupported } = useIsFunctionAvailable();
 
-  const address = isBitcoinActive
-    ? activeAccount?.addressBTC
-    : isPchainActive
-    ? activeAccount?.addressPVM
-    : activeAccount?.addressC;
+  const address = useMemo(
+    () =>
+      network && activeAccount
+        ? getAddressForChain(network?.chainId, activeAccount) ?? ''
+        : '',
+    [activeAccount, network]
+  );
 
   useEffect(() => {
     capture('ReceivePageVisited');
@@ -62,6 +67,8 @@ export const Receive = () => {
       return t('Ethereum Address');
     } else if (isPchainActive) {
       return t('Avalanche (P-Chain) Address');
+    } else if (isXchainActive) {
+      return t('Avalanche (X-Chain) Address');
     } else {
       return t('Avalanche (C-Chain) Address');
     }

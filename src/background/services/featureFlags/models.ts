@@ -7,6 +7,7 @@ export enum FeatureGates {
   BRIDGE_BTC = 'bridge-feature-btc',
   SEND = 'send-feature',
   SEND_P_CHAIN = 'send-p-chain',
+  SEND_X_CHAIN = 'send-x-chain',
   SENDTRANSACTION_CHAIN_ID_SUPPORT = 'sendtransaction-chain-id-support-feature',
   BUY = 'buy',
   BUY_MOONPAY = 'buy-feature-moonpay',
@@ -18,6 +19,7 @@ export enum FeatureGates {
   IMPORT_WALLET_CONNECT = 'import-wallet-connect',
   IMPORT_FIREBLOCKS = 'import-fireblocks',
   IN_APP_SUPPORT_P_CHAIN = 'in-app-support-p-chain',
+  IN_APP_SUPPORT_X_CHAIN = 'in-app-support-x-chain',
   SEEDLESS_ONBOARDING = 'seedless-onboarding',
   SEEDLESS_ONBOARDING_GOOGLE = 'seedless-onboarding-google',
   SEEDLESS_ONBOARDING_APPLE = 'seedless-onboarding-apple',
@@ -34,6 +36,8 @@ export enum FeatureGates {
   ADD_WALLET_WITH_SEEDPHRASE = 'add-wallet-with-seedphrase',
   ADD_WALLET_WITH_KEYSTORE_FILE = 'add-wallet-with-keystore-file',
   ADD_WALLET_WITH_LEDGER = 'add-wallet-with-ledger',
+  BLOCKAID_DAPP_SCAN = 'blockaid-dapp-scan',
+  BLOCKAID_DAPP_SCAN_WARNING = 'blockaid-dapp-scan-warning',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -47,6 +51,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.BRIDGE_BTC]: false,
   [FeatureGates.SEND]: false,
   [FeatureGates.SEND_P_CHAIN]: false,
+  [FeatureGates.SEND_X_CHAIN]: false,
   [FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT]: false,
   [FeatureGates.BUY]: false,
   [FeatureGates.BUY_MOONPAY]: false,
@@ -58,6 +63,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.IMPORT_WALLET_CONNECT]: false,
   [FeatureGates.IMPORT_FIREBLOCKS]: false,
   [FeatureGates.IN_APP_SUPPORT_P_CHAIN]: false,
+  [FeatureGates.IN_APP_SUPPORT_X_CHAIN]: false,
   [FeatureGates.SEEDLESS_ONBOARDING]: false,
   [FeatureGates.SEEDLESS_ONBOARDING_GOOGLE]: false,
   [FeatureGates.SEEDLESS_ONBOARDING_APPLE]: false,
@@ -74,6 +80,8 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.ADD_WALLET_WITH_SEEDPHRASE]: false,
   [FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE]: false,
   [FeatureGates.ADD_WALLET_WITH_LEDGER]: false,
+  [FeatureGates.BLOCKAID_DAPP_SCAN]: false,
+  [FeatureGates.BLOCKAID_DAPP_SCAN_WARNING]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -86,6 +94,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.BRIDGE_BTC]: true,
   [FeatureGates.SEND]: true,
   [FeatureGates.SEND_P_CHAIN]: true,
+  [FeatureGates.SEND_X_CHAIN]: true,
   [FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT]: true,
   [FeatureGates.BUY]: true,
   [FeatureGates.BUY_MOONPAY]: true,
@@ -97,6 +106,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.IMPORT_WALLET_CONNECT]: true,
   [FeatureGates.IMPORT_FIREBLOCKS]: true,
   [FeatureGates.IN_APP_SUPPORT_P_CHAIN]: true,
+  [FeatureGates.IN_APP_SUPPORT_X_CHAIN]: true,
   [FeatureGates.SEEDLESS_ONBOARDING]: true,
   [FeatureGates.SEEDLESS_ONBOARDING_GOOGLE]: true,
   [FeatureGates.SEEDLESS_ONBOARDING_APPLE]: true,
@@ -113,6 +123,8 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.ADD_WALLET_WITH_SEEDPHRASE]: true,
   [FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE]: true,
   [FeatureGates.ADD_WALLET_WITH_LEDGER]: true,
+  [FeatureGates.BLOCKAID_DAPP_SCAN]: true,
+  [FeatureGates.BLOCKAID_DAPP_SCAN_WARNING]: true,
 };
 
 export enum FeatureFlagEvents {

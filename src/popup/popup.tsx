@@ -42,7 +42,6 @@ import { ApprovalsContextProvider } from '@src/contexts/ApprovalsProvider';
 import { ApprovalRoutes } from './ApprovalRoutes';
 import { AppRoutes } from './AppRoutes';
 import { InAppApprovalOverlay } from '@src/components/common/InAppApprovalOverlay';
-import { SendContextProvider } from '@src/contexts/SendProvider';
 
 const pagesWithoutHeader = [
   '/tokens/manage',
@@ -135,66 +134,64 @@ export function Popup() {
                       <BalancesProvider>
                         <DefiContextProvider>
                           <SwapContextProvider>
-                            <SendContextProvider>
-                              <UnifiedBridgeProvider>
-                                <BridgeProvider>
-                                  <ContactsContextProvider>
-                                    <PermissionContextProvider>
-                                      <WalletConnectContextProvider>
-                                        <SeedlessMfaManagementProvider>
-                                          <WalletLoading>
-                                            <ApprovalsContextProvider>
-                                              <TestnetBanner />
-                                              <AnalyticsOptInDialog />
+                            <UnifiedBridgeProvider>
+                              <BridgeProvider>
+                                <ContactsContextProvider>
+                                  <PermissionContextProvider>
+                                    <WalletConnectContextProvider>
+                                      <SeedlessMfaManagementProvider>
+                                        <WalletLoading>
+                                          <ApprovalsContextProvider>
+                                            <TestnetBanner />
+                                            <AnalyticsOptInDialog />
+                                            <Stack
+                                              sx={{
+                                                flexGrow: 1,
+                                                width: dimensions.width,
+                                                maxHeight: 'auto',
+                                                overflow: 'auto',
+                                                alignItems: 'center',
+                                                margin: 'auto',
+                                              }}
+                                            >
+                                              {displayHeader && (
+                                                <Stack sx={{ width: 1 }}>
+                                                  <Header />
+                                                </Stack>
+                                              )}
+
                                               <Stack
+                                                direction="row"
                                                 sx={{
                                                   flexGrow: 1,
-                                                  width: dimensions.width,
-                                                  maxHeight: 'auto',
-                                                  overflow: 'auto',
-                                                  alignItems: 'center',
-                                                  margin: 'auto',
+                                                  justifyContent: 'center',
+                                                  py: isMiniMode ? 0 : 2,
+                                                  maxWidth: '100%',
+                                                  maxHeight: '100%',
+                                                  width: appWidth,
                                                 }}
                                               >
-                                                {displayHeader && (
-                                                  <Stack sx={{ width: 1 }}>
-                                                    <Header />
-                                                  </Stack>
+                                                {isConfirm ? (
+                                                  <ApprovalRoutes />
+                                                ) : (
+                                                  <AppRoutes />
                                                 )}
-
-                                                <Stack
-                                                  direction="row"
-                                                  sx={{
-                                                    flexGrow: 1,
-                                                    justifyContent: 'center',
-                                                    py: isMiniMode ? 0 : 2,
-                                                    maxWidth: '100%',
-                                                    maxHeight: '100%',
-                                                    width: appWidth,
-                                                  }}
-                                                >
-                                                  {isConfirm ? (
-                                                    <ApprovalRoutes />
-                                                  ) : (
-                                                    <AppRoutes />
-                                                  )}
-                                                  <LedgerIncorrectDevice />
-                                                  <LedgerRegisterBtcWalletPolicy />
-                                                  <SeedlessAuthPrompt />
-                                                  {isMiniMode && (
-                                                    <InAppApprovalOverlay />
-                                                  )}
-                                                </Stack>
+                                                <LedgerIncorrectDevice />
+                                                <LedgerRegisterBtcWalletPolicy />
+                                                <SeedlessAuthPrompt />
+                                                {isMiniMode && (
+                                                  <InAppApprovalOverlay />
+                                                )}
                                               </Stack>
-                                            </ApprovalsContextProvider>
-                                          </WalletLoading>
-                                        </SeedlessMfaManagementProvider>
-                                      </WalletConnectContextProvider>
-                                    </PermissionContextProvider>
-                                  </ContactsContextProvider>
-                                </BridgeProvider>
-                              </UnifiedBridgeProvider>
-                            </SendContextProvider>
+                                            </Stack>
+                                          </ApprovalsContextProvider>
+                                        </WalletLoading>
+                                      </SeedlessMfaManagementProvider>
+                                    </WalletConnectContextProvider>
+                                  </PermissionContextProvider>
+                                </ContactsContextProvider>
+                              </BridgeProvider>
+                            </UnifiedBridgeProvider>
                           </SwapContextProvider>
                         </DefiContextProvider>
                       </BalancesProvider>

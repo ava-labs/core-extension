@@ -1,4 +1,4 @@
-import { PchainTxHistoryItem } from './../models';
+import { PchainTxHistoryItem, XchainTxHistoryItem } from './../models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
@@ -7,7 +7,7 @@ import { HistoryService } from './../HistoryService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.HISTORY_GET,
-  TxHistoryItem[] | PchainTxHistoryItem[]
+  TxHistoryItem[] | PchainTxHistoryItem[] | XchainTxHistoryItem[]
 >;
 
 @injectable()

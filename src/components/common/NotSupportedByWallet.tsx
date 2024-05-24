@@ -16,6 +16,9 @@ export function NotSupportedByWallet({
 }: PropsWithChildren<NotSupportedByWalleteProps>) {
   const { t } = useTranslation();
 
+  const functionNameLabel =
+    getTranslatedFunctionName(functionName) ?? t('This Feature');
+
   return (
     <Stack
       sx={{
@@ -23,7 +26,9 @@ export function NotSupportedByWallet({
         height: '100%',
       }}
     >
-      <PageTitle variant={PageTitleVariant.PRIMARY}>{functionName}</PageTitle>
+      <PageTitle variant={PageTitleVariant.PRIMARY}>
+        {functionNameLabel}
+      </PageTitle>
       <Stack
         sx={{
           flexGrow: 1,
@@ -36,8 +41,7 @@ export function NotSupportedByWallet({
           <Trans
             i18nKey="Sorry, {{functionName}} on<br/>{{network}} network<br/>is not supported by this account."
             values={{
-              functionName:
-                getTranslatedFunctionName(functionName) ?? t('This Feature'),
+              functionName: functionNameLabel,
               network,
             }}
           />

@@ -15,6 +15,8 @@ import { GlacierService } from '../glacier/GlacierService';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
 import { TokensPriceShortData } from '../tokens/models';
+import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
+import { BalancesServiceAVM } from './BalancesServiceAVM';
 
 @singleton()
 export class BalancesService {
@@ -22,6 +24,7 @@ export class BalancesService {
     private balancesServiceEVM: BalancesServiceEVM,
     private balancesServiceBTC: BalancesServiceBTC,
     private balancesServicePVM: BalancesServicePVM,
+    private balancesServiceAVM: BalancesServiceAVM,
     private networkService: NetworkService,
     private balanceServiceGlacier: BalancesServiceGlacier,
     private glacierService: GlacierService
@@ -50,6 +53,14 @@ export class BalancesService {
         network,
       });
       return pChainBalances;
+    }
+
+    if (isXchainNetwork(network)) {
+      const xChainBalances = await this.balancesServiceAVM.getBalances({
+        accounts,
+        network,
+      });
+      return xChainBalances;
     }
 
     const isSupportedNetwork = await this.glacierService.isNetworkSupported(
