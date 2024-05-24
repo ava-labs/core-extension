@@ -93,7 +93,7 @@ export const SendAVM = ({
     [nativeToken, amount]
   );
 
-  if (account && !account.addressPVM) {
+  if (account && !account.addressAVM) {
     return (
       <NotSupportedByWallet
         functionName={FunctionNames.TOKEN_DETAILS}

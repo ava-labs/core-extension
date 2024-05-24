@@ -179,10 +179,14 @@ export const useEVMSend: SendAdapterEVM = ({
           setError(SendErrorMessage.UNSUPPORTED_TOKEN);
         }
       } catch (err: any) {
-        // We don't want to send those errors to Sentry,
-        // as they'll likely include identifiable data (i.e. addresses).
-        console.error(err);
-        setError(SendErrorMessage.UNKNOWN_ERROR);
+        if (!!err?.message && err?.message.includes('insufficient funds')) {
+          setError(SendErrorMessage.INSUFFICIENT_BALANCE);
+        } else {
+          // We don't want to send those errors to Sentry,
+          // as they'll likely include identifiable data (i.e. addresses).
+          console.error(err);
+          setError(SendErrorMessage.UNKNOWN_ERROR);
+        }
       } finally {
         setIsValidating(false);
       }

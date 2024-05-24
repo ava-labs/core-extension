@@ -103,10 +103,12 @@ export class BalancesServiceAVM {
     const decimals = network.networkToken.decimals;
     const available = new BN(
       balance.unlocked.reduce((acc, item) => {
-        return Number(item.amount) + acc;
+        if (item.symbol === 'AVAX') {
+          return Number(item.amount) + acc;
+        }
+        return acc;
       }, 0)
     );
-
     const availableUSD =
       tokenPrice === undefined
         ? undefined

@@ -64,6 +64,7 @@ export const usePvmSend: SendAdapterPVM = ({
   const validate = useCallback(
     async (options: PVMSendOptions) => {
       const { address, token, amount } = options;
+      const amountToUse = amount ? amount : '0';
 
       setIsValidating(true);
       setError(undefined);
@@ -73,6 +74,20 @@ export const usePvmSend: SendAdapterPVM = ({
       if (errorReason) {
         return setErrorAndEndValidating(errorReason);
       }
+
+      // using filtered UTXOs because there is size limit
+      const [utxos, utxosError] = await resolve(
+        getMaxUtxoSet(isLedgerWallet, provider, wallet, network)
+      );
+
+      if (utxosError) {
+        return setErrorAndEndValidating(SendErrorMessage.UNABLE_TO_FETCH_UTXOS);
+      }
+      const amountBigInt = bigToBigInt(Big(amountToUse), token.decimals);
+      // maxMount calculation
+      const available = utxos?.balance.available ?? BigInt(0);
+      const maxAvailable = available - maxFee;
+      setMaxAmount(maxAvailable.toString());
 
       if (!address) {
         return setErrorAndEndValidating(SendErrorMessage.ADDRESS_REQUIRED);
@@ -84,25 +99,10 @@ export const usePvmSend: SendAdapterPVM = ({
       if (!amount || amount === '0') {
         return setErrorAndEndValidating(SendErrorMessage.AMOUNT_REQUIRED);
       }
-
-      // using filtered UTXOs because there is size limit
-      const [utxos, utxosError] = await resolve(
-        getMaxUtxoSet(isLedgerWallet, provider, wallet, network)
-      );
-
-      if (utxosError) {
-        return setErrorAndEndValidating(SendErrorMessage.UNABLE_TO_FETCH_UTXOS);
-      }
-      const amountBigInt = bigToBigInt(Big(amount), token.decimals);
-      // maxMount calculation
-      const available = utxos?.balance.available ?? BigInt(0);
-      const maxAvailable = available - maxFee;
-
       if (maxAvailable < BigInt(0) || amountBigInt > maxAvailable) {
         return setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
       }
 
-      setMaxAmount(maxAvailable.toString());
       setIsValidating(false);
       setError(undefined);
     },

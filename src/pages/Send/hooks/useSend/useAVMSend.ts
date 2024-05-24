@@ -65,6 +65,8 @@ export const useAvmSend: SendAdapterAVM = ({
     async (options: AVMSendOptions) => {
       const { address, token, amount } = options;
 
+      const amountToUse = amount ? amount : '0';
+
       setIsValidating(true);
       setError(undefined);
 
@@ -72,17 +74,6 @@ export const useAvmSend: SendAdapterAVM = ({
 
       if (errorReason) {
         return setErrorAndEndValidating(errorReason);
-      }
-
-      if (!address) {
-        return setErrorAndEndValidating(SendErrorMessage.ADDRESS_REQUIRED);
-      }
-      if (!isValidAvmAddress(address)) {
-        return setErrorAndEndValidating(SendErrorMessage.INVALID_ADDRESS);
-      }
-
-      if (!amount || amount === '0') {
-        return setErrorAndEndValidating(SendErrorMessage.AMOUNT_REQUIRED);
       }
 
       // using filtered UTXOs because there is size limit
@@ -97,13 +88,24 @@ export const useAvmSend: SendAdapterAVM = ({
       // maxMount calculation
       const available = utxos?.balance.available ?? BigInt(0);
       const maxAvailable = available - maxFee;
-      const amountBigInt = bigToBigInt(Big(amount), token.decimals);
+      const amountBigInt = bigToBigInt(Big(amountToUse), token.decimals);
+      const mavValue = maxAvailable.toString();
+      setMaxAmount(mavValue);
+
+      if (!address) {
+        return setErrorAndEndValidating(SendErrorMessage.ADDRESS_REQUIRED);
+      }
+      if (!isValidAvmAddress(address)) {
+        return setErrorAndEndValidating(SendErrorMessage.INVALID_ADDRESS);
+      }
+
+      if (!amount || amount === '0') {
+        return setErrorAndEndValidating(SendErrorMessage.AMOUNT_REQUIRED);
+      }
 
       if (maxAvailable < BigInt(0) || amountBigInt > maxAvailable) {
         return setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
       }
-
-      setMaxAmount(maxAvailable.toString());
       setError(undefined);
       setIsValidating(false);
     },
