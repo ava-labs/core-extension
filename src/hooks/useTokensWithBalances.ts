@@ -19,6 +19,12 @@ const bnZero = new BN(0);
 const nativeTokensFirst = (tokens: TokenWithBalance[]): TokenWithBalance[] =>
   [...tokens].sort((t) => (t.type === TokenType.NATIVE ? -1 : 1));
 
+/**
+ *
+ * @param forceShowTokensWithoutBalances - show the tokens WITH and WITHOUT balances
+ * @param chainId
+ * @returns Tokens list with OR without balances based on `forceShowTokensWithoutBalances`
+ */
 export function useTokensWithBalances(
   forceShowTokensWithoutBalances?: boolean,
   chainId?: number
@@ -35,11 +41,35 @@ export function useTokensWithBalances(
 
   const { request } = useConnectionContext();
   const { tokens } = useBalancesContext();
-  const { showTokensWithoutBalances } = useSettingsContext();
+  const { showTokensWithoutBalances, customTokens } = useSettingsContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const { network } = useNetworkContext();
+
+  const customTokensWithZeroBalance: {
+    [address: string]: TokenWithBalance;
+  } = useMemo(() => {
+    if (!network?.chainId) {
+      return {};
+    }
+    const customTokenForActiveNetwork = customTokens[network?.chainId];
+    if (!customTokenForActiveNetwork) {
+      return {};
+    }
+
+    return Object.entries(customTokenForActiveNetwork).reduce<{
+      [address: string]: TokenWithBalance;
+    }>((acc, [address, tokenData]) => {
+      acc[address] = {
+        ...tokenData,
+        type: TokenType.ERC20,
+        balance: bnZero,
+      };
+
+      return acc;
+    }, {});
+  }, [customTokens, network?.chainId]);
 
   useEffect(() => {
     setSelectedChainId(chainId ? chainId : network?.chainId);
@@ -72,7 +102,10 @@ export function useTokensWithBalances(
           return tokensWithBalances;
         }, {});
 
-        setAllTokensWithPlaceholderBalances(tokensWithPlaceholderBalances);
+        setAllTokensWithPlaceholderBalances({
+          ...customTokensWithZeroBalance,
+          ...tokensWithPlaceholderBalances,
+        });
       } catch (err) {
         console.error(err);
         setAllTokensWithPlaceholderBalances({});
@@ -90,6 +123,7 @@ export function useTokensWithBalances(
     selectedChainId,
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,
+    customTokensWithZeroBalance,
   ]);
 
   return useMemo<TokenWithBalance[]>(() => {
