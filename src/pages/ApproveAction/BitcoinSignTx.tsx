@@ -6,7 +6,7 @@ import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { satoshiToBtc } from '@avalabs/bridge-sdk';
 import { useTranslation } from 'react-i18next';
 import { bigIntToString } from '@avalabs/utils-sdk';
-import { BITCOIN_NETWORK } from '@avalabs/chains-sdk';
+import { BITCOIN_NETWORK, ChainId } from '@avalabs/chains-sdk';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { DisplayData_BitcoinSendTx } from '@src/background/services/wallet/handlers/models';
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
@@ -15,6 +15,7 @@ import {
   Button,
   Divider,
   Scrollbars,
+  Skeleton,
   Stack,
   Typography,
 } from '@avalabs/k2-components';
@@ -42,11 +43,12 @@ import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { SendErrorMessage } from '@src/utils/send/models';
 import { buildBtcTx } from '@src/utils/send/btcSendUtils';
 import { getSendErrorMessage } from '../Send/utils/sendErrorMessages';
+import { NetworkFee } from '@src/background/services/networkFee/models';
 
 export function BitcoinSignTx() {
   const { t } = useTranslation();
-  const { network, bitcoinProvider } = useNetworkContext();
-  const { networkFee } = useNetworkFeeContext();
+  const { network, networks, bitcoinProvider } = useNetworkContext();
+  const { getNetworkFeeForNetwork } = useNetworkFeeContext();
   const requestId = useGetRequestId();
   const tokenPrice = useNativeTokenPrice(BITCOIN_NETWORK);
   const { action, updateAction, cancelHandler } =
@@ -57,6 +59,37 @@ export function BitcoinSignTx() {
   const [isCalculatingFee, setIsCalculatingFee] = useState(false);
 
   const { displayData } = action ?? {};
+  const [networkFee, setNetworkFee] = useState<NetworkFee | null>();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // If the request comes from a dApp, a different network may be active,
+    // so we need to fetch current fees for Bitcoin specifically.
+    getNetworkFeeForNetwork(
+      network?.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
+    ).then((fee) => {
+      if (isMounted) {
+        setNetworkFee(fee);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [getNetworkFeeForNetwork, network?.isTestnet]);
+
+  const btcNetwork = useMemo(() => {
+    const networkID = network?.isTestnet
+      ? ChainId.BITCOIN_TESTNET
+      : ChainId.BITCOIN;
+
+    const foundNetwork = networks.filter(
+      (networkItem) => networkItem.chainId === networkID
+    );
+
+    return foundNetwork[0];
+  }, [network, networks]);
 
   const btcAmountDisplay = useMemo(
     () => (displayData ? satoshiToBtc(displayData.amount).toFixed(8) : '-'),
@@ -152,7 +185,8 @@ export function BitcoinSignTx() {
         }
       })
       .catch((err) => {
-        console.log('DEBUG DUPA', err);
+        console.error(err);
+        setError(SendErrorMessage.UNKNOWN_ERROR);
       })
       .finally(() => {
         setIsCalculatingFee(false);
@@ -273,14 +307,21 @@ export function BitcoinSignTx() {
               </ApprovalSectionBody>
             </ApprovalSection>
 
-            <CustomFees
-              maxFeePerGas={BigInt(displayData.feeRate)}
-              limit={Math.ceil(displayData.sendFee / displayData.feeRate)}
-              onChange={setCustomFee}
-              selectedGasFeeModifier={gasFeeModifier}
-              network={network}
-              networkFee={networkFee}
-            />
+            {networkFee ? (
+              <CustomFees
+                maxFeePerGas={BigInt(displayData.feeRate)}
+                limit={Math.ceil(displayData.sendFee / displayData.feeRate)}
+                onChange={setCustomFee}
+                selectedGasFeeModifier={gasFeeModifier}
+                network={btcNetwork}
+                networkFee={networkFee}
+              />
+            ) : (
+              <Stack sx={{ gap: 0.5, justifyContent: 'flex-start' }}>
+                <Skeleton variant="text" width={120} />
+                <Skeleton variant="rounded" height={128} />
+              </Stack>
+            )}
             {error && (
               <Typography variant="caption" color="error.main" sx={{ mt: -1 }}>
                 {getSendErrorMessage(error)}

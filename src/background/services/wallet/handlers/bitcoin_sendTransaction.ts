@@ -23,6 +23,7 @@ import {
   validateBtcSend,
 } from '@src/utils/send/btcSendUtils';
 import { SendErrorMessage } from '@src/utils/send/models';
+import { resolve } from '@avalabs/utils-sdk';
 
 type BtcSendTransactionParams = [string, string, number];
 
@@ -145,10 +146,18 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
       };
     }
 
-    const provider = getProviderForNetwork(
-      this.networkService.activeNetwork
-    ) as BitcoinProvider;
-
+    const [network, networkError] = await resolve(
+      this.networkService.getBitcoinNetwork()
+    );
+    if (networkError || !network) {
+      return {
+        ...request,
+        error: ethErrors.rpc.internal({
+          message: 'Bitcoin network not found',
+        }),
+      };
+    }
+    const provider = getProviderForNetwork(network) as BitcoinProvider;
     const utxos = await getBtcInputUtxos(provider, token);
 
     const from = this.accountService.activeAccount.addressBTC;
@@ -234,11 +243,16 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
       const { address, amount, from, feeRate, balance } =
         pendingAction.displayData;
 
-      const btcNetwork = await this.networkService.getBitcoinNetwork();
+      const [network, networkError] = await resolve(
+        this.networkService.getBitcoinNetwork()
+      );
+      if (networkError || !network) {
+        throw new Error('Bitcoin network not found');
+      }
 
       const { inputs, outputs } = await buildBtcTx(
         from,
-        getProviderForNetwork(btcNetwork) as BitcoinProvider,
+        getProviderForNetwork(network) as BitcoinProvider,
         {
           amount,
           address,
@@ -254,13 +268,10 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
       const result = await this.walletService.sign(
         { inputs, outputs },
         frontendTabId,
-        btcNetwork
+        network
       );
 
-      const hash = await this.networkService.sendTransaction(
-        result,
-        btcNetwork
-      );
+      const hash = await this.networkService.sendTransaction(result, network);
 
       // Refresh UTXOs
       if (this.#isSupportedAccount(this.accountService.activeAccount)) {

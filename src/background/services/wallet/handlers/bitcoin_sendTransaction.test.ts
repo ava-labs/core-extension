@@ -71,6 +71,9 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     jest.resetAllMocks();
     isMainnet.mockReturnValue(true);
     jest.mocked(isBtcAddressInNetwork).mockReturnValue(true);
+    getBitcoinNetworkMock.mockResolvedValue({
+      vmName: NetworkVMType.BITCOIN,
+    });
     jest
       .mocked(createTransferTx)
       .mockReturnValue({ fee: 5, inputs: [], outputs: [] });
@@ -268,6 +271,27 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         },
         'approve/bitcoinSignTx'
       );
+
+      expect(result).toEqual({
+        ...request,
+        result: DEFERRED_RESPONSE,
+      });
+    });
+
+    it('works even if active network is not bitcoin', async () => {
+      const sendHandler = new BitcoinSendTransactionHandler(
+        walletServiceMock as any,
+        {
+          ...networkServiceMock,
+          activeNetwork: {
+            vmName: NetworkVMType.EVM,
+          },
+        } as any,
+        accountsServiceMock as any,
+        balanceAggregatorServiceMock as any
+      );
+
+      const result = await sendHandler.handleAuthenticated(request);
 
       expect(result).toEqual({
         ...request,
