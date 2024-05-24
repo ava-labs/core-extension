@@ -194,15 +194,20 @@ export const useIsFunctionAvailable = (
     }
 
     if (functionToCheck === FunctionNames.SEND) {
-      //The avalanche Ledger app doesn’t suprort send on pchain yet
-      if (isLedgerWallet) {
-        return false;
-      }
-
       if (isPchainNetwork(network)) {
-        return !!active?.addressPVM && featureFlags[FeatureGates.SEND_P_CHAIN];
+        return Boolean(
+          !!active?.addressPVM &&
+            featureFlags[FeatureGates.SEND] &&
+            featureFlags[FeatureGates.SEND_P_CHAIN] &&
+            !isLedgerWallet
+        );
       } else if (isXchainNetwork(network)) {
-        return !!active?.addressAVM && featureFlags[FeatureGates.SEND_X_CHAIN];
+        return Boolean(
+          !!active?.addressAVM &&
+            featureFlags[FeatureGates.SEND] &&
+            featureFlags[FeatureGates.SEND_X_CHAIN] &&
+            !isLedgerWallet
+        );
       }
     }
 
