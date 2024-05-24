@@ -165,7 +165,6 @@ export function BitcoinSignTx() {
 
   const handleRejection = useCallback(() => {
     cancelHandler();
-    window.close();
   }, [cancelHandler]);
 
   const signTx = useCallback(() => {
