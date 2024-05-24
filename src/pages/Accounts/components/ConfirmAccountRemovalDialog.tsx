@@ -41,10 +41,10 @@ export const ConfirmAccountRemovalDialog = ({
         <Typography variant="body2">
           {isMultiple
             ? t(
-                'Deleting the accounts will remove any information associated with them.'
+                'Removing the accounts will delete all local accounts information stored on this computer. Your assets on chain will remain on chain.'
               )
             : t(
-                'Deleting the account will remove any information associated with it.'
+                'Removing the account will delete all local  account information stored on this computer. Your assets on chain will remain on chain.'
               )}
         </Typography>
       </DialogContent>
