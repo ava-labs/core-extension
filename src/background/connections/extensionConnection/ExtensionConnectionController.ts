@@ -114,8 +114,7 @@ export class ExtensionConnectionController implements ConnectionController {
       const response = {
         ...deserializedRequest,
         data: {
-          ...deserializedRequest.data,
-          ...{ error },
+          error,
         },
       };
       if (isDevelopment()) {

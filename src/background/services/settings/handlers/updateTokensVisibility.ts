@@ -16,7 +16,7 @@ export class UpdateTokensVisiblityHandler implements HandlerType {
 
   constructor(private settingsService: SettingsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [tokensVisibility] = request.params;
 
     await this.settingsService.setTokensVisibility(tokensVisibility);

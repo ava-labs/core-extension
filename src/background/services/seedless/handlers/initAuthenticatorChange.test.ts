@@ -3,6 +3,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 import { InitAuthenticatorChangeHandler } from './initAuthenticatorChange';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/initAuthenticatorChange', () => {
   const seedlessMfaService = jest.mocked<SeedlessMfaService>({
@@ -12,10 +13,12 @@ describe('src/background/services/seedless/handlers/initAuthenticatorChange', ()
   const handle = () => {
     const handler = new InitAuthenticatorChangeHandler(seedlessMfaService);
 
-    return handler.handle({
-      method: ExtensionRequest.SEEDLESS_INIT_AUTHENTICATOR_CHANGE,
-      id: 'abcd-1234',
-    });
+    return handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_INIT_AUTHENTICATOR_CHANGE,
+        id: 'abcd-1234',
+      })
+    );
   };
 
   beforeEach(() => {

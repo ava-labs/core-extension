@@ -138,7 +138,9 @@ export function PermissionMiddleware(
       context.authenticated = true;
     }
 
-    if (RESTRICTED_METHODS.includes(context.request.method)) {
+    const method = context.request.params.request.method;
+
+    if (RESTRICTED_METHODS.includes(method)) {
       if (context.authenticated === false) {
         error(new Error('No permission to access requested method.'));
       } else {
@@ -147,7 +149,7 @@ export function PermissionMiddleware(
       return;
     }
 
-    if (CORE_METHODS.includes(context.request.method)) {
+    if (CORE_METHODS.includes(method)) {
       const domain = context.domainMetadata?.domain
         ? context.domainMetadata.domain
         : '';
@@ -164,7 +166,7 @@ export function PermissionMiddleware(
       }
       return;
     }
-    if (!UNRESTRICTED_METHODS.includes(context.request.method)) {
+    if (!UNRESTRICTED_METHODS.includes(method)) {
       error(new Error('Unrecognized method'));
       return;
     }

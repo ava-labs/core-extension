@@ -18,7 +18,7 @@ export class GetDefiPortfolioHandler implements HandlerType {
 
   constructor(private defiService: DefiService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [address] = request.params;
 
     try {

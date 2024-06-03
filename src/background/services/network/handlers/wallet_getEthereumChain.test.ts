@@ -5,6 +5,7 @@ import {
 } from './wallet_getEthereumChain';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ethErrors } from 'eth-rpc-errors';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/network/handlers/wallet_getEthereumChain.ts', () => {
   const networkServiceInactive = {
@@ -21,11 +22,13 @@ describe('background/services/network/handlers/wallet_getEthereumChain.ts', () =
   const getChainRequest = {
     id: '123',
     method: DAppProviderRequest.WALLET_GET_CHAIN,
-  } as any;
+  } as const;
 
   it('handleAuthenticated inactive', async () => {
     const handler = new WalletGetEthereumChainHandler(networkServiceInactive);
-    const result = await handler.handleAuthenticated(getChainRequest);
+    const result = await handler.handleAuthenticated(
+      buildRpcCall(getChainRequest)
+    );
     expect(result).toEqual({
       ...getChainRequest,
       error: ethErrors.rpc.resourceUnavailable({
@@ -37,10 +40,9 @@ describe('background/services/network/handlers/wallet_getEthereumChain.ts', () =
     const handler = new WalletGetEthereumChainHandler(
       networkServiceMockMainnet
     );
-    const { result, ...request } = await handler.handleAuthenticated(
-      getChainRequest
+    const { result } = await handler.handleAuthenticated(
+      buildRpcCall(getChainRequest)
     );
-    expect(request).toEqual(getChainRequest);
     expect(result).toEqual(networkToGetEthChainResponse(BITCOIN_NETWORK));
     expect(result.chainName).toEqual(BITCOIN_NETWORK.chainName);
     expect(result.chainId).toEqual(`0x${BITCOIN_NETWORK.chainId.toString(16)}`);
@@ -50,10 +52,9 @@ describe('background/services/network/handlers/wallet_getEthereumChain.ts', () =
     const handler = new WalletGetEthereumChainHandler(
       networkServiceMockTestnet
     );
-    const { result, ...request } = await handler.handleAuthenticated(
-      getChainRequest
+    const { result } = await handler.handleAuthenticated(
+      buildRpcCall(getChainRequest)
     );
-    expect(request).toEqual(getChainRequest);
     expect(result).toEqual(networkToGetEthChainResponse(BITCOIN_TEST_NETWORK));
     expect(result.chainName).toEqual(BITCOIN_TEST_NETWORK.chainName);
     expect(result.chainId).toEqual(
@@ -66,7 +67,9 @@ describe('background/services/network/handlers/wallet_getEthereumChain.ts', () =
     const handler = new WalletGetEthereumChainHandler(
       networkServiceMockMainnet
     );
-    const result = await handler.handleUnauthenticated(getChainRequest);
+    const result = await handler.handleUnauthenticated(
+      buildRpcCall(getChainRequest)
+    );
     expect(result).toEqual({
       ...getChainRequest,
       error: ethErrors.rpc.invalidRequest({

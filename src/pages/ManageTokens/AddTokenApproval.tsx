@@ -19,12 +19,12 @@ export function AddTokenApproval() {
   const { t } = useTranslation();
   const requestId = useGetRequestId();
   const {
-    action: request,
+    action,
     updateAction: updateMessage,
     cancelHandler,
   } = useApproveAction(requestId);
 
-  if (!request || !request.displayData) {
+  if (!action || !action.displayData) {
     return (
       <Stack
         sx={{
@@ -39,7 +39,7 @@ export function AddTokenApproval() {
     );
   }
 
-  const customToken: NetworkContractToken = request.displayData;
+  const customToken: NetworkContractToken = action.displayData;
 
   return (
     <>
@@ -73,7 +73,7 @@ export function AddTokenApproval() {
             }}
             variant="caption"
           >
-            {request?.site?.domain}
+            {action?.site?.domain}
           </Typography>
         </Stack>
 
@@ -141,7 +141,7 @@ export function AddTokenApproval() {
             data-testid="transaction-reject-btn"
             size="large"
             fullWidth
-            disabled={request.status === ActionStatus.SUBMITTING}
+            disabled={action.status === ActionStatus.SUBMITTING}
             onClick={() => {
               cancelHandler();
               window.close();
@@ -154,7 +154,7 @@ export function AddTokenApproval() {
             size="large"
             fullWidth
             disabled={
-              request.status === ActionStatus.SUBMITTING || !!request.error
+              action.status === ActionStatus.SUBMITTING || !!action.error
             }
             onClick={() => {
               updateMessage({

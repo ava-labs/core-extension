@@ -14,7 +14,7 @@ export class ClearAnalyticsIdsHandler implements HandlerType {
 
   constructor(private analyticsService: AnalyticsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     await this.analyticsService.clearIds();
 
     return {

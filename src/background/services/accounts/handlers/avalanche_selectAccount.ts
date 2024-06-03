@@ -3,8 +3,9 @@ import { injectable } from 'tsyringe';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { AccountsService } from '../AccountsService';
-import { Account, WalletId } from '../models';
+import { Account } from '../models';
 import { Action } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { isPrimaryAccount } from '../utils/typeGuards';
@@ -20,7 +21,8 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
     const [selectedIndexOrID] = request.params;
 
     // until core web sends only IDs...
@@ -59,30 +61,34 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
       };
     }
 
-    const actionData = {
+    const actionData: Action<{ selectedAccount: Account }> = {
       ...request,
-      tabId: request.site.tabId,
-      selectedAccount: selectedAccount,
+      displayData: {
+        selectedAccount,
+      },
     };
 
-    await this.openApprovalWindow(actionData, `switchAccount`);
+    await openApprovalWindow(actionData, `switchAccount`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async ({ request }) => {
     return {
       ...request,
       error: ethErrors.provider.unauthorized(),
     };
   };
 
-  onActionApproved = async (pendingAction: Action, _, onSuccess, onError) => {
+  onActionApproved = async (
+    pendingAction: Action<{ selectedAccount: Account }>,
+    _,
+    onSuccess,
+    onError
+  ) => {
     try {
-      const { selectedAccount } = pendingAction as Action & {
-        selectedAccount: Account;
-        inactiveWalletId?: WalletId;
-      };
+      const { selectedAccount } = pendingAction.displayData;
+
       if (pendingAction.site?.domain) {
         await this.permissionsService.setAccountPermissionForDomain(
           pendingAction.site.domain,

@@ -16,7 +16,7 @@ export class UnlockWalletHandler implements HandlerType {
 
   constructor(private lockService: LockService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [password] = request.params;
 
     const [, err] = await resolve(this.lockService.unlock(password));

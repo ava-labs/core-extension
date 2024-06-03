@@ -1,5 +1,5 @@
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { Action, ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from '@src/background/services/actions/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { Network } from '@avalabs/chains-sdk';
 import { useApproveAction } from '../../hooks/useApproveAction';
@@ -28,9 +28,7 @@ export function SetDeveloperMode() {
     action?.displayData.isTestmode
   );
 
-  const request = action as Action;
-
-  if (!request) {
+  if (!action) {
     return (
       <Stack
         sx={{
@@ -45,7 +43,7 @@ export function SetDeveloperMode() {
     );
   }
 
-  const network: Network = request.displayData;
+  const network: Network = action.displayData;
   return (
     <Stack sx={{ py: 1, px: 2, width: 1, height: 1 }}>
       <Stack
@@ -64,7 +62,7 @@ export function SetDeveloperMode() {
           </TokenIcon>
         </SiteAvatar>
         <Typography sx={{ pb: 2 }} variant="h4">
-          {request.displayData?.isTestmode ? t('Activate') : t('Deactivate')}{' '}
+          {action.displayData?.isTestmode ? t('Activate') : t('Deactivate')}{' '}
           {t('Testnet Mode?')}
         </Typography>
         <Typography
@@ -74,8 +72,8 @@ export function SetDeveloperMode() {
           <Trans
             i18nKey={'{{domain}} is requesting to turn Testnet Mode {{mode}}'}
             values={{
-              mode: request.displayData?.isTestmode ? t('ON') : t('OFF'),
-              domain: request.site?.domain || t('This website'),
+              mode: action.displayData?.isTestmode ? t('ON') : t('OFF'),
+              domain: action.site?.domain || t('This website'),
             }}
           />
         </Typography>
@@ -102,7 +100,7 @@ export function SetDeveloperMode() {
           data-testid="transaction-reject-btn"
           size="large"
           fullWidth
-          disabled={request.status === ActionStatus.SUBMITTING}
+          disabled={action.status === ActionStatus.SUBMITTING}
           onClick={() => {
             cancelHandler();
             window.close();
@@ -114,7 +112,7 @@ export function SetDeveloperMode() {
           data-testid="transaction-approve-btn"
           size="large"
           fullWidth
-          disabled={request.status === ActionStatus.SUBMITTING}
+          disabled={action.status === ActionStatus.SUBMITTING}
           onClick={() => {
             updateMessage({
               status: ActionStatus.SUBMITTING,

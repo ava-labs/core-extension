@@ -15,7 +15,7 @@ export class AvalancheGetProviderState extends DAppRequestHandler {
     super();
   }
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async ({ request }) => {
     const activeNetwork = this.networkService.activeNetwork;
     return {
       ...request,
@@ -32,7 +32,7 @@ export class AvalancheGetProviderState extends DAppRequestHandler {
     };
   };
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async ({ request }) => {
     const activeNetwork = this.networkService.activeNetwork;
     return {
       ...request,

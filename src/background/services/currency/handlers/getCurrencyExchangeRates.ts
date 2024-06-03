@@ -17,7 +17,7 @@ export class GetCurrencyExchangeRatesHandler implements HandlerType {
 
   constructor(private currencyService: CurrencyService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const rates = await this.currencyService.state?.rates;
 
     try {

@@ -2,6 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { RemoveTotpHandler } from './removeTotp';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/removeFidoDevice', () => {
   const seedlessMfaService = jest.mocked<SeedlessMfaService>({
@@ -11,11 +12,13 @@ describe('src/background/services/seedless/handlers/removeFidoDevice', () => {
   const handle = () => {
     const handler = new RemoveTotpHandler(seedlessMfaService);
 
-    return handler.handle({
-      method: ExtensionRequest.SEEDLESS_REMOVE_TOTP,
-      id: 'abcd-1234',
-      tabId: 1234,
-    });
+    return handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_REMOVE_TOTP,
+        id: 'abcd-1234',
+        tabId: 1234,
+      })
+    );
   };
 
   beforeEach(() => {

@@ -16,7 +16,7 @@ export class SetSelectedNetworkHandler implements HandlerType {
 
   constructor(private networkService: NetworkService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [chainId] = request.params;
 
     const [, err] = await resolve(this.networkService.setNetwork(chainId));

@@ -15,7 +15,7 @@ export class UpdateShowNoBalanceHandler implements HandlerType {
 
   constructor(private settingsService: SettingsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [showTokensWithoutBalances] = request.params || [];
 
     await this.settingsService.setShowTokensWithNoBalance(

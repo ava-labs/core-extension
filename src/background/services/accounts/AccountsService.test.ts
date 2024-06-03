@@ -1070,7 +1070,6 @@ describe('background/services/accounts/AccountsService', () => {
         SecretType.Seedless
       );
 
-      console.log('mockedAccounts: ', mockedAccounts);
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
       expect(

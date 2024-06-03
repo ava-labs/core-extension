@@ -3,17 +3,19 @@ import { Runtime } from 'webextension-polyfill';
 import {
   DAppProviderRequest,
   JsonRpcRequest,
+  JsonRpcRequestPayload,
   JsonRpcResponse,
 } from '../dAppConnection/models';
 import { Middleware } from './models';
 
-interface DomainMetadataRequest extends JsonRpcRequest<DomainMetadata> {
-  method: DAppProviderRequest.DOMAIN_METADATA_METHOD;
-  params: DomainMetadata;
-}
+interface DomainMetadataRequest
+  extends JsonRpcRequestPayload<
+    DAppProviderRequest.DOMAIN_METADATA_METHOD,
+    DomainMetadata
+  > {}
 
 const isMetadataRequest = (
-  request: JsonRpcRequest<unknown>
+  request: JsonRpcRequestPayload<string, unknown>
 ): request is DomainMetadataRequest => {
   return request.method === DAppProviderRequest.DOMAIN_METADATA_METHOD;
 };
@@ -36,7 +38,7 @@ export function SiteMetadataMiddleware(
       ...domainMetadata,
     };
 
-    const requestData = context.request;
+    const requestData = context.request.params.request;
     if (!isMetadataRequest(requestData)) {
       next();
       return;

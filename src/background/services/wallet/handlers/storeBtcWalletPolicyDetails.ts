@@ -23,7 +23,7 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
     private networkService: NetworkService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const secrets = await this.secretsService.getActiveAccountSecrets();
 
     if (

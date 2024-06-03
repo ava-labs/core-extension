@@ -15,7 +15,7 @@ export class GetFeatureFlagsHandler implements HandlerType {
 
   constructor(private featureFlagService: FeatureFlagService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     try {
       return {
         ...request,

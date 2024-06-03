@@ -16,7 +16,7 @@ export class SetLanguageHandler implements HandlerType {
 
   constructor(private settingsService: SettingsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [language] = request.params || Languages.EN;
 
     await this.settingsService.setLanguage(language);

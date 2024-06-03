@@ -26,7 +26,7 @@ export class BridgeTransferAssetHandler implements HandlerType {
 
   constructor(private bridgeService: BridgeService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [currentBlockchain, amount, asset, customGasSettings] =
       request.params;
 

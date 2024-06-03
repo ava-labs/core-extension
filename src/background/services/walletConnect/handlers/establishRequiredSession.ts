@@ -16,7 +16,7 @@ export class EstablishRequiredSession implements HandlerType {
 
   constructor(private walletConnectService: WalletConnectService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [fromAddress, chainId] = request.params ?? [];
     const { tabId } = request;
 

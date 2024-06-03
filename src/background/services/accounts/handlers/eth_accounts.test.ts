@@ -1,5 +1,6 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { EthAccountsHandler } from './eth_accounts';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/accounts/handlers/eth_accounts.ts', () => {
   const accountServiceMock = {
@@ -8,6 +9,11 @@ describe('background/services/accounts/handlers/eth_accounts.ts', () => {
       addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
     },
   } as any;
+
+  const request = {
+    id: '123',
+    method: DAppProviderRequest.ETH_ACCOUNTS,
+  } as const;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -18,12 +24,8 @@ describe('background/services/accounts/handlers/eth_accounts.ts', () => {
       const handler = new EthAccountsHandler({
         activeAccount: undefined,
       } as any);
-      const request = {
-        id: '123',
-        method: DAppProviderRequest.ETH_ACCOUNTS,
-      } as any;
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -33,12 +35,7 @@ describe('background/services/accounts/handlers/eth_accounts.ts', () => {
 
     it('returns the active account EVM address', async () => {
       const handler = new EthAccountsHandler(accountServiceMock);
-      const request = {
-        id: '123',
-        method: DAppProviderRequest.ETH_ACCOUNTS,
-      } as any;
-
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -49,12 +46,8 @@ describe('background/services/accounts/handlers/eth_accounts.ts', () => {
 
   it('handleUnauthenticated', async () => {
     const handler = new EthAccountsHandler(accountServiceMock);
-    const request = {
-      id: '123',
-      method: DAppProviderRequest.ETH_ACCOUNTS,
-    } as any;
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
-    const result = await handler.handleUnauthenticated(request);
     expect(result).toEqual({
       ...request,
       result: [],

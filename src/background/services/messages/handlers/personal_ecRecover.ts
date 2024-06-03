@@ -7,7 +7,7 @@ import { personalSigRecovery } from '../utils/personalSigRecovery';
 export class PersonalEcRecoverHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.PERSONAL_EC_RECOVER];
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async ({ request }) => {
     const { params } = request;
 
     if (!params) {

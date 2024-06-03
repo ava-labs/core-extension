@@ -1,5 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { SelectAccountHandler } from './selectAccount';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/accounts/handlers/selectAccount.ts', () => {
   const activateAccountMock = jest.fn();
@@ -7,11 +8,11 @@ describe('background/services/accounts/handlers/selectAccount.ts', () => {
     activateAccount: activateAccountMock,
   } as any;
 
-  const request = {
+  const request = buildRpcCall({
     id: '123',
     method: ExtensionRequest.ACCOUNT_SELECT,
     params: ['uuid'],
-  } as any;
+  });
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -23,7 +24,7 @@ describe('background/services/accounts/handlers/selectAccount.ts', () => {
 
     expect(activateAccountMock).toBeCalledTimes(1);
     expect(activateAccountMock).toBeCalledWith('uuid');
-    expect(result).toEqual({ ...request, result: 'success' });
+    expect(result).toEqual({ ...request.request, result: 'success' });
   });
 
   it('ACCOUNT_SELECT error', async () => {
@@ -32,6 +33,6 @@ describe('background/services/accounts/handlers/selectAccount.ts', () => {
     } as any);
 
     const result = await handler.handle(request);
-    expect(result).toEqual({ ...request, error: 'Error: some error' });
+    expect(result).toEqual({ ...request.request, error: 'Error: some error' });
   });
 });

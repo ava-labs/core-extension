@@ -1,5 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { UpdateDefaultNetworkHandler } from './updateDefaultNetwork';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/network/handlers/updateDefaultNetwork.ts', () => {
   const isValidRPCUrlMock = jest.fn();
@@ -21,7 +22,7 @@ describe('background/services/network/handlers/updateDefaultNetwork.ts', () => {
       params: { undefined },
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
     expect(networkServiceMock.updateNetworkOverrides).not.toBeCalled();
     expect(result).toEqual({
       ...request,
@@ -37,7 +38,7 @@ describe('background/services/network/handlers/updateDefaultNetwork.ts', () => {
       params: { network: { rpcUrl: 'rpcUrl', chainId: 43114 } },
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
     expect(isValidRPCUrlMock).toBeCalledWith(43114, 'rpcUrl');
     expect(networkServiceMock.updateNetworkOverrides).not.toBeCalled();
     expect(result).toEqual({
@@ -58,7 +59,7 @@ describe('background/services/network/handlers/updateDefaultNetwork.ts', () => {
         params: { network: { rpcUrl: 'rpcUrl', chainId: 43114 } },
       } as any;
 
-      const result = await handler.handle(request);
+      const result = await handler.handle(buildRpcCall(request));
       expect(isValidRPCUrlMock).toBeCalledWith(43114, 'rpcUrl');
       expect(updateNetworkOverridesMock).toBeCalledWith(request.params.network);
       expect(result).toEqual({
@@ -78,7 +79,7 @@ describe('background/services/network/handlers/updateDefaultNetwork.ts', () => {
         params: { network: { rpcUrl: 'rpcUrl', chainId: 43114 } },
       } as any;
 
-      const result = await handler.handle(request);
+      const result = await handler.handle(buildRpcCall(request));
       expect(isValidRPCUrlMock).toBeCalledWith(43114, 'rpcUrl');
       expect(result).toEqual({
         ...request,
@@ -99,7 +100,7 @@ describe('background/services/network/handlers/updateDefaultNetwork.ts', () => {
         params: { network: { chainId: 43114 } },
       } as any;
 
-      const result = await handler.handle(request);
+      const result = await handler.handle(buildRpcCall(request));
       expect(isValidRPCUrlMock).not.toBeCalled();
       expect(updateNetworkOverridesMock).toBeCalledWith(request.params.network);
       expect(result).toEqual({
@@ -119,7 +120,7 @@ describe('background/services/network/handlers/updateDefaultNetwork.ts', () => {
         params: { network: { chainId: 43114 } },
       } as any;
 
-      const result = await handler.handle(request);
+      const result = await handler.handle(buildRpcCall(request));
       expect(isValidRPCUrlMock).not.toBeCalled();
       expect(result).toEqual({
         ...request,

@@ -2,6 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { WalletConnectImportAccount } from './walletConnectImportAccount';
 
 import { isCoreMobile } from '../utils';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('../utils', () => {
   return {
@@ -42,7 +43,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
       method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
       params: [],
     } as any;
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(networkServiceMock.activeNetwork).toBe(undefined);
     expect(result).toEqual({
@@ -91,7 +92,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
         method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
         params: [],
       } as any;
-      const { result } = await handler.handle(request);
+      const { result } = await handler.handle(buildRpcCall(request));
 
       expect(result).toEqual({
         accountId: importedAccountId,
@@ -147,7 +148,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
       method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
       params: [],
     } as any;
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(wcServiceWithReturnMock.connect).toHaveBeenCalledTimes(1);
     expect(wcServiceWithReturnMock.connect).toBeCalledWith({
@@ -200,7 +201,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
       method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
       params: [],
     } as any;
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
     expect(wcServiceWithReturnMock.connect).toBeCalledTimes(1);
     expect(result).toEqual({
       ...request,

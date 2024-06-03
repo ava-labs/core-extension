@@ -10,6 +10,7 @@ import { BN } from 'bn.js';
 import { TokenType, TokenWithBalance } from '../../balances/models';
 import { GetEthMaxTransferAmountHandler } from './getEthMaxTransferAmount';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@avalabs/bridge-sdk', () => {
   const originalModule = jest.requireActual('@avalabs/bridge-sdk');
@@ -84,7 +85,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -104,7 +105,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -128,7 +129,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -148,7 +149,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['UNKOWN'],
     } as any;
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -171,7 +172,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -195,7 +196,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -221,7 +222,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -246,7 +247,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(getMaxTransferAmount).toHaveBeenCalledTimes(1);
     expect(getMaxTransferAmount).toHaveBeenCalledWith({

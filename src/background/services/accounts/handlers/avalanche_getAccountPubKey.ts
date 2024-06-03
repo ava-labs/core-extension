@@ -12,7 +12,7 @@ export class AvalancheGetAccountPubKeyHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async ({ request }) => {
     try {
       const publicKey = await this.walletService.getActiveAccountPublicKey();
 
@@ -30,7 +30,7 @@ export class AvalancheGetAccountPubKeyHandler extends DAppRequestHandler {
     }
   };
 
-  handleUnauthenticated = (request) => {
+  handleUnauthenticated = ({ request }) => {
     return {
       ...request,
       error: ethErrors.provider.unauthorized(),

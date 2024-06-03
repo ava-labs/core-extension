@@ -845,12 +845,16 @@ describe('background/services/wallet/WalletService.ts', () => {
     } as any;
 
     const action: Action = {
+      request: {
+        id: '1',
+        method: 'method' as any,
+        params: [],
+      },
       time: 123,
       status: ActionStatus.SUBMITTING,
       displayData: { messageParams: { data: {} } },
-      method: 'method' as any,
       actionId: 'action ID',
-    };
+    } as any;
 
     const undefinedDataAction: Action = {
       ...action,
@@ -1159,12 +1163,16 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     it('should use the accountIndex to getWallet if available', async () => {
       const actionWithAccountIndex: Action = {
+        request: {
+          id: '1',
+          params: [],
+          method: 'method' as any,
+        },
         time: 123,
         status: ActionStatus.SUBMITTING,
         displayData: { messageParams: { data: 'test', accountIndex: 1 } },
-        method: 'method' as any,
         actionId: 'action ID',
-      };
+      } as any;
       const getWalletSpy = jest
         .spyOn(walletService as any, 'getWallet')
         .mockReturnValue(simpleSignerMock);

@@ -14,7 +14,7 @@ export class StopBalancesPollingHandler implements HandlerType {
 
   constructor(private pollingService: BalancePollingService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     this.pollingService.stopPolling();
 
     return {

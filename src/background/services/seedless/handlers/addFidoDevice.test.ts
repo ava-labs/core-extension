@@ -3,6 +3,7 @@ import { KeyType } from '@src/utils/seedless/fido/types';
 
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { AddFidoDeviceHandler } from './addFidoDevice';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/addFidoDevice', () => {
   const seedlessMfaService = jest.mocked<SeedlessMfaService>({
@@ -12,12 +13,14 @@ describe('src/background/services/seedless/handlers/addFidoDevice', () => {
   const handle = (name: string, type: KeyType) => {
     const handler = new AddFidoDeviceHandler(seedlessMfaService);
 
-    return handler.handle({
-      method: ExtensionRequest.SEEDLESS_ADD_FIDO_DEVICE,
-      id: 'abcd-1234',
-      params: [name, type],
-      tabId: 1234,
-    });
+    return handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_ADD_FIDO_DEVICE,
+        id: 'abcd-1234',
+        params: [name, type],
+        tabId: 1234,
+      })
+    );
   };
 
   beforeEach(() => {

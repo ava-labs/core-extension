@@ -27,7 +27,7 @@ export class GetRecoveryPhraseExportStateHandler implements HandlerType {
     private seedlessMfaService: SeedlessMfaService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const secrets = await this.secretsService.getPrimaryAccountSecrets();
 
     if (secrets?.secretType !== SecretType.Seedless) {

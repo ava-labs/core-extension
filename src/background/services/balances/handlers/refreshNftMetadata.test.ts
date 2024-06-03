@@ -1,6 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { GlacierService } from '../../glacier/GlacierService';
 import { RefreshNftMetadataHandler } from './refreshNftMetadata';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/balances/handlers/refreshNftMetadata.ts', () => {
   beforeEach(() => {
@@ -18,11 +19,13 @@ describe('background/services/balances/handlers/refreshNftMetadata.ts', () => {
 
     const handler = new RefreshNftMetadataHandler(glacierService);
 
-    const { result } = await handler.handle({
-      id: '123',
-      method: ExtensionRequest.NFT_REFRESH_METADATA,
-      params: ['address', 'chainId', 'tokenId'],
-    });
+    const { result } = await handler.handle(
+      buildRpcCall({
+        id: '123',
+        method: ExtensionRequest.NFT_REFRESH_METADATA,
+        params: ['address', 'chainId', 'tokenId'],
+      })
+    );
 
     expect(glacierService.refreshNftMetadata).toHaveBeenCalledWith(
       'address',

@@ -11,7 +11,7 @@ export class LockWalletHandler implements HandlerType {
 
   constructor(private lockService: LockService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     this.lockService.lock();
 
     return {

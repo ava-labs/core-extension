@@ -4,6 +4,7 @@ import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
 
 import { DappHandlerToExtensionHandlerTransformer } from './DappHandlerToExtensionHandlerTransformer';
 import { DEFERRED_RESPONSE } from '../middlewares/models';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/connections/extensionConnection/DappHandlerToExtensionHandlerTransformer', () => {
   const transformer = new DappHandlerToExtensionHandlerTransformer();
@@ -61,7 +62,7 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
         id: undefined,
       } as any;
 
-      expect(await transformedHandler!.handle(request)).toEqual(
+      expect(await transformedHandler!.handle(buildRpcCall(request))).toEqual(
         expect.objectContaining({
           error: 'No request ID provided',
         })
@@ -83,7 +84,7 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
         id: 'some-id',
       } as any;
 
-      expect(await transformedHandler!.handle(request)).toEqual(
+      expect(await transformedHandler!.handle(buildRpcCall(request))).toEqual(
         expect.objectContaining({
           error,
         })
@@ -105,7 +106,7 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
         id: 'some-id',
       } as any;
 
-      expect(await transformedHandler!.handle(request)).toEqual(
+      expect(await transformedHandler!.handle(buildRpcCall(request))).toEqual(
         expect.objectContaining({
           error,
         })
@@ -130,17 +131,21 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
         ],
       } as any;
 
-      await transformedHandler?.handle(request);
+      await transformedHandler?.handle(buildRpcCall(request));
 
-      expect(originalHandler.handleAuthenticated).toHaveBeenCalledWith({
-        ...request,
-        site: {
-          domain: browser.runtime.id,
-          tabId: request.tabId,
-          icon: browser.runtime.getManifest().icons?.['192'],
-          name: browser.runtime.getManifest().name,
-        },
-      });
+      expect(originalHandler.handleAuthenticated).toHaveBeenCalledWith(
+        expect.objectContaining({
+          request: {
+            ...request,
+            site: {
+              domain: browser.runtime.id,
+              tabId: request.tabId,
+              icon: browser.runtime.getManifest().icons?.['192'],
+              name: browser.runtime.getManifest().name,
+            },
+          },
+        })
+      );
     });
 
     it('returns the result of the original handler', async () => {
@@ -158,7 +163,7 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
         id: 'some-id',
       } as any;
 
-      expect(await transformedHandler!.handle(request)).toEqual(
+      expect(await transformedHandler!.handle(buildRpcCall(request))).toEqual(
         expect.objectContaining({
           result,
         })
@@ -196,7 +201,7 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
         id: 'some-id',
       } as any;
 
-      expect(await transformedHandler!.handle(request)).toEqual(
+      expect(await transformedHandler!.handle(buildRpcCall(request))).toEqual(
         expect.objectContaining({
           result: DEFERRED_RESPONSE,
         })

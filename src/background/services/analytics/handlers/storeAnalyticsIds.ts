@@ -14,7 +14,7 @@ export class StoreAnalyticsIdsHandler implements HandlerType {
 
   constructor(private analyticsService: AnalyticsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     try {
       await this.analyticsService.saveTemporaryAnalyticsIds();
     } catch (e: any) {

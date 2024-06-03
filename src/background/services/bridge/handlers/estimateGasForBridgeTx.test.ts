@@ -5,6 +5,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { serializeToJSON } from '@src/background/serialization/serialize';
 
 import { EstimateGasForBridgeTxHandler } from './estimateGasForBridgeTx';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/bridge/handlers/estimateGasForBridgeTx', () => {
   const bridgeService = {
@@ -18,11 +19,11 @@ describe('src/background/services/bridge/handlers/estimateGasForBridgeTx', () =>
   const asset = {};
   const amount = new Big('1.5');
   const sourceChain = Blockchain.ETHEREUM;
-  const request = {
+  const request = buildRpcCall({
     id: '123',
     method: ExtensionRequest.BRIDGE_ESTIMATE_GAS,
     params: [sourceChain, amount, asset],
-  } as any;
+  });
 
   it('calls .estimateGas() with passed params', async () => {
     const handler = new EstimateGasForBridgeTxHandler(bridgeService);

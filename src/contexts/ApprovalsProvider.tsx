@@ -42,7 +42,7 @@ export function ApprovalsContextProvider({ children }: { children: any }) {
             return undefined;
           }
 
-          const updatedAction = event.value[prev.action.actionId];
+          const updatedAction = event.value[prev.action.actionId!];
 
           // If the action was completed (removed), clean up the state.
           if (!updatedAction) {

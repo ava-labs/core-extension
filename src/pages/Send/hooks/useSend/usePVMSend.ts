@@ -19,7 +19,7 @@ import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
 import { PVMSendOptions } from '../../models';
 import { SendAdapterPVM } from './models';
 
-const PCHAIN_ALIAS = 'P';
+const PCHAIN_ALIAS = 'P' as const;
 
 export const usePvmSend: SendAdapterPVM = ({
   network,
@@ -160,11 +160,10 @@ export const usePvmSend: SendAdapterPVM = ({
             utils.bufferToHex(utxo.toBytes(codec))
           ),
         };
-        const txID = (await request<AvalancheSendTransactionHandler>({
+        return request<AvalancheSendTransactionHandler>({
           method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
           params,
-        })) as string;
-        return txID;
+        });
       } finally {
         setIsSending(false);
       }

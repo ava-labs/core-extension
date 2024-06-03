@@ -17,8 +17,8 @@ export class AddAccountHandler implements HandlerType {
 
   constructor(private accountsService: AccountsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
-    const { name, importData, walletId } = request.params ?? [];
+  handle: HandlerType['handle'] = async ({ request }) => {
+    const { name, importData, walletId } = request.params ?? {};
 
     try {
       let id = '';

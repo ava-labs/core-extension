@@ -7,6 +7,7 @@ import { SendErrorMessage } from '@src/utils/send/models';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import type { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
+import { EthSendTransactionParams } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 
 import {
   buildTx,
@@ -57,8 +58,8 @@ export const useEVMSend: SendAdapterEVM = ({
           method: DAppProviderRequest.ETH_SEND_TX,
           params: [
             {
+              ...(tx as EthSendTransactionParams),
               chainId,
-              ...tx,
             },
           ],
         });

@@ -15,7 +15,7 @@ export class GetWalletDetailsHandler implements HandlerType {
 
   constructor(private walletService: WalletService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     return {
       ...request,
       result: this.walletService.wallets,

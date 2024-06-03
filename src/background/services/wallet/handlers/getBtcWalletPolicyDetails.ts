@@ -19,7 +19,7 @@ export class GetBtcWalletPolicyDetails implements HandlerType {
     private accountService: AccountsService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     try {
       const activeAccount = this.accountService.activeAccount;
 

@@ -2,6 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { DefiService } from '../DefiService';
 import { GetDefiPortfolioHandler } from './getDefiPortfolio';
 import { DefiProtocol } from '../models';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/defi/handlers/getDefiPortfolio.ts', () => {
   beforeEach(() => {
@@ -24,11 +25,13 @@ describe('src/background/services/defi/handlers/getDefiPortfolio.ts', () => {
 
     const handler = new GetDefiPortfolioHandler(defiService);
 
-    const response = await handler.handle({
-      id: '1',
-      params: ['0x1234'],
-      method: ExtensionRequest.DEFI_GET_PORTFOLIO,
-    });
+    const response = await handler.handle(
+      buildRpcCall({
+        id: '1',
+        params: ['0x1234'],
+        method: ExtensionRequest.DEFI_GET_PORTFOLIO,
+      })
+    );
 
     expect(response).toEqual({
       id: '1',
@@ -48,11 +51,13 @@ describe('src/background/services/defi/handlers/getDefiPortfolio.ts', () => {
     it('responds with proper error', async () => {
       const handler = new GetDefiPortfolioHandler(defiService);
 
-      const response = await handler.handle({
-        id: '1',
-        params: ['0x1234'],
-        method: ExtensionRequest.DEFI_GET_PORTFOLIO,
-      });
+      const response = await handler.handle(
+        buildRpcCall({
+          id: '1',
+          params: ['0x1234'],
+          method: ExtensionRequest.DEFI_GET_PORTFOLIO,
+        })
+      );
 
       expect(response).toEqual({
         id: '1',

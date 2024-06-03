@@ -1,7 +1,7 @@
 import { ethErrors } from 'eth-rpc-errors';
 import {
   DAppProviderRequest,
-  JsonRpcRequest,
+  JsonRpcRequestPayload,
   JsonRpcResponse,
 } from '../connections/dAppConnection/models';
 import { getWalletExtensionType } from './utils/getWalletExtensionType';
@@ -188,7 +188,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
    * @param callback - The callback function.
    */
   sendAsync(
-    payload: JsonRpcRequest<unknown[]>,
+    payload: JsonRpcRequestPayload,
     callback: (error: Error | null, result?: JsonRpcResponse<unknown[]>) => void
   ): void {
     this._request(payload)
@@ -223,7 +223,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
    * response object.
    */
   send<T>(
-    payload: JsonRpcRequest<unknown>,
+    payload: JsonRpcRequestPayload,
     callback: (error: Error | null, result?: JsonRpcResponse<T>) => void
   ): void;
 

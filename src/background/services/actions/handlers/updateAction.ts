@@ -15,7 +15,7 @@ export class UpdateActionHandler implements HandlerType {
   method = ExtensionRequest.ACTION_UPDATE as const;
 
   constructor(private actionsService: ActionsService) {}
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const { tabId } = request;
     const [{ id, ...updates }, shouldWaitForResponse] = request.params;
     if (!id) {

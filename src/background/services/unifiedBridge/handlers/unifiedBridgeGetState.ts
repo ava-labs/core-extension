@@ -17,7 +17,7 @@ export class UnifiedBridgeGetState implements HandlerType {
 
   constructor(private unifiedBridgeService: UnifiedBridgeService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     try {
       return {
         ...request,

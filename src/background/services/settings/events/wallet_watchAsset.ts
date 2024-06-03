@@ -10,6 +10,7 @@ import { NetworkService } from '../../network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { Action } from '../../actions/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 @injectable()
 export class WalletWatchAssetHandler extends DAppRequestHandler {
@@ -22,7 +23,8 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
     super();
   }
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
     const tokenAddress = request.params.options.address;
     const imageUrl = xss(request.params.options.image);
 
@@ -74,16 +76,15 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
     const actionData = {
       ...request,
       displayData: { ...tokenData, logoUri: imageUrl },
-      tabId: request.site.tabId,
     };
 
-    await this.openApprovalWindow(actionData, `approve/watch-asset`);
+    await openApprovalWindow(actionData, `approve/watch-asset`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };
 
-  handleAuthenticated = async (request) => {
-    return this.handleUnauthenticated(request);
+  handleAuthenticated = async (rpcCall) => {
+    return this.handleUnauthenticated(rpcCall);
   };
 
   onActionApproved = async (

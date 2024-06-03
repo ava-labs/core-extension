@@ -16,6 +16,7 @@ import {
   MemorySessionStorage,
   SignerSessionData,
 } from '@cubist-labs/cubesigner-sdk';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@cubist-labs/cubesigner-sdk');
 const mockrMemorySession = {
@@ -131,7 +132,7 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
       },
     ]);
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,

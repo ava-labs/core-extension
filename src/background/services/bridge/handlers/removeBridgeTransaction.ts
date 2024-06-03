@@ -19,7 +19,7 @@ export class BridgeRemoveTransactionHandler implements HandlerType {
     private unifiedBridgeService: UnifiedBridgeService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [txHash] = request.params || [];
 
     if (!txHash) {

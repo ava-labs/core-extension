@@ -1,5 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { RemoveLedgerTransportHandler } from './removeLedgerTransport';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/ledger/handlers/removeLedgerTransport.ts', () => {
   const transportId = '1';
@@ -20,7 +21,7 @@ describe('src/background/services/ledger/handlers/removeLedgerTransport.ts', () 
 
   it('does nothing if the provided transport does not exist', async () => {
     const handler = new RemoveLedgerTransportHandler(ledgerServiceMock);
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({ ...request, result: true });
     expect(ledgerServiceMock.getTransport).toHaveBeenCalledWith(transportId);
@@ -30,7 +31,7 @@ describe('src/background/services/ledger/handlers/removeLedgerTransport.ts', () 
   it('removes the provided transport correctly', async () => {
     ledgerServiceMock.getTransport.mockReturnValueOnce({ foo: 'bar' });
     const handler = new RemoveLedgerTransportHandler(ledgerServiceMock);
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({ ...request, result: true });
     expect(ledgerServiceMock.getTransport).toHaveBeenCalledWith(transportId);

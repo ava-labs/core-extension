@@ -14,7 +14,7 @@ export class GetIsOnboardedHandler implements HandlerType {
 
   constructor(private onboardingService: OnboardingService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     return {
       ...request,
       result: await this.onboardingService.getState(),

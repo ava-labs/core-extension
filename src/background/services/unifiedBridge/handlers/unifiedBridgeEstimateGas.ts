@@ -18,7 +18,7 @@ export class UnifiedBridgeEstimateGas implements HandlerType {
 
   constructor(private unifiedBridgeService: UnifiedBridgeService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [asset, amount, targetChainId] = request.params;
 
     const gasLimit = await this.unifiedBridgeService.estimateGas({

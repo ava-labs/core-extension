@@ -15,7 +15,7 @@ export class DeleteAccountHandler implements HandlerType {
 
   constructor(private accountsService: AccountsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [ids] = request.params ?? [];
 
     try {

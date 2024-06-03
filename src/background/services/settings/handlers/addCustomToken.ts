@@ -20,7 +20,7 @@ export class AddCustomTokenHandler implements HandlerType {
     private tokenManagerService: TokenManagerService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [tokenAddress] = request.params;
     const [tokenData, err] = await resolve(
       this.tokenManagerService.getTokenData(tokenAddress)

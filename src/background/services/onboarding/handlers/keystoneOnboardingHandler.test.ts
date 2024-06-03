@@ -14,6 +14,7 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { SettingsService } from '../../settings/SettingsService';
 import { NetworkService } from '../../network/NetworkService';
 import { KeystoneOnboardingHandler } from './keystoneOnboardingHandler';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@avalabs/wallets-sdk', () => ({
   ...jest.requireActual('@avalabs/wallets-sdk'),
@@ -96,7 +97,7 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
       },
     ]);
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,

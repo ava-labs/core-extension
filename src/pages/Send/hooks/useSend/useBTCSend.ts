@@ -97,15 +97,14 @@ export const useBtcSend: SendAdapterBTC = ({
         const amountBN = stringToBN(amount || '0', nativeToken.decimals);
         const amountInSatoshis = amountBN.toNumber();
 
-        const hash = await request<
+        return request<
           BitcoinSendTransactionHandler,
           DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
           string
         >({
           method: DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
-          params: [address, amountInSatoshis, Number(maxFee)],
+          params: [address, String(amountInSatoshis), Number(maxFee)],
         });
-        return hash;
       } finally {
         setIsSending(false);
       }

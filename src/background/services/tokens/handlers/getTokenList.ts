@@ -17,7 +17,7 @@ export class GetTokensListHandler implements HandlerType {
 
   constructor(private tokenManagerService: TokenManagerService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [chainId] = request.params;
 
     const [tokens, err] = await resolve<NetworkContractToken[]>(

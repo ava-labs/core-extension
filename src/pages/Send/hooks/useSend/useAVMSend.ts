@@ -18,7 +18,7 @@ import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
 import { SendAdapterAVM } from './models';
 import { AVMSendOptions } from '../../models';
 
-const XCHAIN_ALIAS = 'X';
+const XCHAIN_ALIAS = 'X' as const;
 
 export const useAvmSend: SendAdapterAVM = ({
   network,
@@ -163,11 +163,10 @@ export const useAvmSend: SendAdapterAVM = ({
           ),
         };
 
-        const txID = (await request<AvalancheSendTransactionHandler>({
+        return request<AvalancheSendTransactionHandler>({
           method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
           params,
-        })) as string;
-        return txID;
+        });
       } finally {
         setIsSending(false);
       }

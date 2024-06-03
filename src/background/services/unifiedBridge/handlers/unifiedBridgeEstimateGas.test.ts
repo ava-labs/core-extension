@@ -2,6 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { serializeToJSON } from '@src/background/serialization/serialize';
 
 import { UnifiedBridgeEstimateGas } from './unifiedBridgeEstimateGas';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/unifiedBridge/handlers/unifiedBridgeEstimateGas', () => {
   const unifiedBridgeService = {
@@ -24,7 +25,7 @@ describe('src/background/services/unifiedBridge/handlers/unifiedBridgeEstimateGa
   it('calls .estimateGas() with passed params', async () => {
     const handler = new UnifiedBridgeEstimateGas(unifiedBridgeService);
 
-    await handler.handle(request);
+    await handler.handle(buildRpcCall(request));
 
     expect(unifiedBridgeService.estimateGas).toHaveBeenCalledWith({
       asset,
@@ -38,7 +39,7 @@ describe('src/background/services/unifiedBridge/handlers/unifiedBridgeEstimateGa
 
     unifiedBridgeService.estimateGas.mockResolvedValue(1234n);
 
-    const { result } = await handler.handle(request);
+    const { result } = await handler.handle(buildRpcCall(request));
     expect(serializeToJSON(result)).toEqual(serializeToJSON(1234n));
   });
 });

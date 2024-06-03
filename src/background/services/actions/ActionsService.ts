@@ -189,6 +189,18 @@ export class ActionsService implements OnStorageReady {
     }
   }
 
+  addListener(
+    event: ActionsEvent.ACTION_COMPLETED,
+    callback: (data: {
+      type: ActionCompletedEventType;
+      action: Action;
+      result: any;
+    }) => void
+  );
+  addListener(
+    event: ActionsEvent.ACTION_UPDATED,
+    callback: (actions: Actions) => void
+  );
   addListener(event: ActionsEvent, callback: (data: any) => void) {
     this.eventEmitter.on(event, callback);
   }

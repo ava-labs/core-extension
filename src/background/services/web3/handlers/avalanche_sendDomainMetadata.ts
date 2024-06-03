@@ -10,7 +10,7 @@ import { injectable } from 'tsyringe';
 export class AvalancheSendDomainMetadataHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.DOMAIN_METADATA_METHOD];
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async ({ request }) => {
     return { ...request, result: request.params };
   };
 

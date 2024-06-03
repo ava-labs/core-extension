@@ -29,13 +29,13 @@ export function SwitchActiveNetwork() {
   const { t } = useTranslation();
   const requestId = useGetRequestId();
   const {
-    action: request,
+    action,
     updateAction: updateMessage,
     cancelHandler,
   } = useApproveAction(requestId);
 
-  const isLoading = !request || !request.displayData;
-  const network: Network = request?.displayData?.network;
+  const isLoading = !action || !action.displayData;
+  const network: Network = action?.displayData?.network;
   const willSwitchToPrimaryAccount = useWillSwitchToPrimaryAccount(
     Boolean(network?.isTestnet)
   );
@@ -89,7 +89,7 @@ export function SwitchActiveNetwork() {
                 '{{domain}} is requesting to switch your active network to {{chainName}}',
                 {
                   chainName: network?.chainName,
-                  domain: request?.site?.domain || t('This website'),
+                  domain: action?.site?.domain || t('This website'),
                 }
               )}
             </Typography>

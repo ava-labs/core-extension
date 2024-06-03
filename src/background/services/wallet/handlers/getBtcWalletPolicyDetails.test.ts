@@ -1,6 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { AccountType } from '../../accounts/models';
 import { GetBtcWalletPolicyDetails } from './getBtcWalletPolicyDetails';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts', () => {
   const request = {
@@ -27,7 +28,7 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
       getAccountServiceMock()
     );
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toStrictEqual({
       ...request,
@@ -41,7 +42,7 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
       getAccountServiceMock({ type: AccountType.IMPORTED })
     );
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toStrictEqual({
       ...request,
@@ -64,7 +65,7 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
       getAccountServiceMock({ type: AccountType.PRIMARY })
     );
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toStrictEqual({
       ...request,

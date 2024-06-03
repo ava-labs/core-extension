@@ -16,7 +16,7 @@ export class UpdateThemeHandler implements HandlerType {
 
   constructor(private settingsService: SettingsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [theme] = request.params || [ThemeVariant.DARK];
 
     await this.settingsService.setTheme(theme);

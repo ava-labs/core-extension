@@ -2,6 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 import { BalancePollingService } from '../BalancePollingService';
 import { StartBalancesPollingHandler } from './startBalancesPolling';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/balances/handlers/startBalancesPolling.ts', () => {
   beforeEach(() => {
@@ -26,10 +27,12 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
         aggregatorService
       );
 
-      const { result } = await handler.handle({
-        id: '123',
-        method: ExtensionRequest.BALANCES_START_POLLING,
-      });
+      const { result } = await handler.handle(
+        buildRpcCall({
+          id: '123',
+          method: ExtensionRequest.BALANCES_START_POLLING,
+        })
+      );
 
       expect(result).toEqual({
         balances: aggregatorService.balances,
@@ -42,10 +45,12 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
         aggregatorService
       );
 
-      await handler.handle({
-        id: '123',
-        method: ExtensionRequest.BALANCES_START_POLLING,
-      });
+      await handler.handle(
+        buildRpcCall({
+          id: '123',
+          method: ExtensionRequest.BALANCES_START_POLLING,
+        })
+      );
 
       expect(balancePollingService.startPolling).toHaveBeenCalled();
     });
@@ -68,10 +73,12 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
         aggregatorService
       );
 
-      await handler.handle({
-        id: '123',
-        method: ExtensionRequest.BALANCES_START_POLLING,
-      });
+      await handler.handle(
+        buildRpcCall({
+          id: '123',
+          method: ExtensionRequest.BALANCES_START_POLLING,
+        })
+      );
 
       expect(
         balancePollingService.startAsSoonAsAccountIsSelected
@@ -97,10 +104,12 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
         aggregatorService
       );
 
-      const { result } = await handler.handle({
-        id: '123',
-        method: ExtensionRequest.BALANCES_START_POLLING,
-      });
+      const { result } = await handler.handle(
+        buildRpcCall({
+          id: '123',
+          method: ExtensionRequest.BALANCES_START_POLLING,
+        })
+      );
 
       expect(result).toEqual({
         balances: aggregatorService.balances,
@@ -113,10 +122,12 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
         aggregatorService
       );
 
-      await handler.handle({
-        id: '123',
-        method: ExtensionRequest.BALANCES_START_POLLING,
-      });
+      await handler.handle(
+        buildRpcCall({
+          id: '123',
+          method: ExtensionRequest.BALANCES_START_POLLING,
+        })
+      );
 
       expect(balancePollingService.startPolling).not.toHaveBeenCalled();
     });

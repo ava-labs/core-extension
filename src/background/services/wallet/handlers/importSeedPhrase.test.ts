@@ -8,6 +8,7 @@ import { ImportSeedPhraseHandler } from './importSeedPhrase';
 import { SeedphraseImportError } from './models';
 import { SecretType } from '../../secrets/models';
 import { DerivationPath } from '@avalabs/wallets-sdk';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
   const walletService = {
@@ -34,11 +35,13 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
       secretsService
     );
 
-    return handler.handle({
-      id: '123',
-      method: ExtensionRequest.WALLET_IMPORT_SEED_PHRASE,
-      params: [params],
-    });
+    return handler.handle(
+      buildRpcCall({
+        id: '123',
+        method: ExtensionRequest.WALLET_IMPORT_SEED_PHRASE,
+        params: [params],
+      })
+    );
   };
 
   it('returns an error if the seed phrase is already imported', async () => {

@@ -1,5 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { RenameAccountHandler } from './renameAccount';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/accounts/handlers/renameAccount.ts', () => {
   const setAccountNameMock = jest.fn();
@@ -19,7 +20,7 @@ describe('background/services/accounts/handlers/renameAccount.ts', () => {
       params: ['uuid', 'Change Name'],
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(setAccountNameMock).toBeCalledTimes(1);
     expect(setAccountNameMock).toBeCalledWith('uuid', 'Change Name');
@@ -36,7 +37,7 @@ describe('background/services/accounts/handlers/renameAccount.ts', () => {
       params: ['uuid', 'Change Name'],
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
     expect(result).toEqual({ ...request, error: 'Error: some error' });
   });
 });

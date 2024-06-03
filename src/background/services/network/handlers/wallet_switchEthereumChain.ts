@@ -5,6 +5,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 /**
  * @link https://eips.ethereum.org/EIPS/eip-3326
@@ -18,14 +19,15 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
     super();
   }
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async ({ request }) => {
     return {
       ...request,
       error: ethErrors.provider.unauthorized(),
     };
   };
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
     const params = request.params;
     const targetChainID = params?.[0]?.chainId; // chain ID is hex with 0x perfix
     const supportedNetwork = await this.networkService.getNetwork(
@@ -52,10 +54,9 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
         displayData: {
           network: supportedNetwork,
         },
-        tabId: request.site.tabId,
       };
 
-      await this.openApprovalWindow(actionData, `network/switch`);
+      await openApprovalWindow(actionData, `network/switch`);
 
       return { ...request, result: DEFERRED_RESPONSE };
     } else {

@@ -5,6 +5,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
 import { ContactsService } from '../ContactsService';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 @injectable()
 export class AvalancheRemoveContactHandler extends DAppRequestHandler {
@@ -14,7 +15,8 @@ export class AvalancheRemoveContactHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
     const [contact] = request.params;
 
     const { contacts } = await this.contactsService.getContacts();
@@ -29,16 +31,15 @@ export class AvalancheRemoveContactHandler extends DAppRequestHandler {
     }
     const actionData = {
       ...request,
-      tabId: request.site.tabId,
       displayData: {
         contact: existing,
       },
     };
-    await this.openApprovalWindow(actionData, `approve/removeContact`);
+    await openApprovalWindow(actionData, `approve/removeContact`);
     return { ...request, result: DEFERRED_RESPONSE };
   };
 
-  handleUnauthenticated = (request) => {
+  handleUnauthenticated = ({ request }) => {
     return {
       ...request,
       error: ethErrors.provider.unauthorized(),

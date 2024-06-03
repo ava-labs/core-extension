@@ -21,7 +21,7 @@ export class BridgeCreateTransactionHandler implements HandlerType {
 
   constructor(private bridgeService: BridgeService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const partialBridgeTransaction = request.params;
     const {
       sourceChain,

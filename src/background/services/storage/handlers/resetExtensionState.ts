@@ -22,7 +22,7 @@ export class ResetExtensionStateHandler implements HandlerType {
     private analyticsService: AnalyticsService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [openOnboarding] = request.params;
 
     const deviceId = await this.analyticsService.getUnencryptedDeviceId();

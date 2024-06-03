@@ -24,7 +24,7 @@ export class StartBalancesPollingHandler implements HandlerType {
     private aggregatorService: BalanceAggregatorService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     if (!this.pollingService.isPollingActive) {
       const started = await this.pollingService.startPolling();
 

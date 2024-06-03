@@ -16,7 +16,7 @@ export class SubmitKeystoneSignature implements HandlerType {
 
   constructor(private keystoneService: KeystoneService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [response] = request.params;
 
     this.keystoneService.submitSignatureResponse(response);

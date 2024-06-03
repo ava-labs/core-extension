@@ -1,4 +1,7 @@
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequestParams,
+} from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
@@ -33,6 +36,7 @@ import { WalletService } from '@src/background/services/wallet/WalletService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { AnalyticsServicePosthog } from '@src/background/services/analytics/AnalyticsServicePosthog';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 @injectable()
 export class EthSendTransactionHandler extends DAppRequestHandler<
@@ -55,14 +59,20 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
     super();
   }
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async ({ request }) => {
     return {
       ...request,
       error: ethErrors.provider.unauthorized(),
     };
   };
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async (
+    rpcCall: JsonRpcRequestParams<
+      DAppProviderRequest,
+      [EthSendTransactionParams]
+    >
+  ) => {
+    const { request } = rpcCall;
     const { params, site } = request;
     const trxParams = (params || [])[0] as EthSendTransactionParams;
     const network = await getTargetNetworkForTx(
@@ -155,7 +165,6 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
 
     const actionData: Action<Transaction> = {
       ...request,
-      tabId: request.site.tabId,
       displayData: {
         site,
         method: request.method,
@@ -165,7 +174,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
       },
     };
 
-    await this.openApprovalWindow(actionData, `sign/transaction`);
+    await openApprovalWindow(actionData, `sign/transaction`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };

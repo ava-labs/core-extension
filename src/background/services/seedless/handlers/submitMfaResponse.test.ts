@@ -1,6 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { SubmitMfaResponseHandler } from './submitMfaResponse';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/submitMfaResponse', () => {
   const mfaService = jest.mocked<SeedlessMfaService>({
@@ -10,11 +11,13 @@ describe('src/background/services/seedless/handlers/submitMfaResponse', () => {
   const handle = (response: any) => {
     const handler = new SubmitMfaResponseHandler(mfaService);
 
-    return handler.handle({
-      method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
-      id: 'abcd-1234',
-      params: [response],
-    });
+    return handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
+        id: 'abcd-1234',
+        params: [response],
+      })
+    );
   };
 
   it('returns error when response is missing', async () => {

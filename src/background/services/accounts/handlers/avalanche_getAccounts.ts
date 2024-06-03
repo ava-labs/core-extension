@@ -16,7 +16,7 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async ({ request }) => {
     const accounts = this.accountsService.getAccountList();
     const activeAccount = this.accountsService.activeAccount;
 
@@ -43,7 +43,7 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
     };
   };
 
-  handleUnauthenticated = (request) => {
+  handleUnauthenticated = ({ request }) => {
     return {
       ...request,
       error: 'account not connected',

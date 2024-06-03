@@ -360,10 +360,8 @@ export function SwapContextProvider({ children }: { children: any }) {
                 method: DAppProviderRequest.ETH_SEND_TX,
                 params: [
                   {
-                    chainId: ChainId.AVALANCHE_MAINNET_ID,
-                    gasLimit: approveGasLimit
-                      ? Number(approveGasLimit)
-                      : Number(gasLimit),
+                    chainId: ChainId.AVALANCHE_MAINNET_ID.toString(),
+                    gasLimit: String(approveGasLimit || gasLimit),
                     data,
                     from: activeAccount.addressC,
                     to: srcTokenAddress,
@@ -429,8 +427,8 @@ export function SwapContextProvider({ children }: { children: any }) {
           method: DAppProviderRequest.ETH_SEND_TX,
           params: [
             {
-              chainId: ChainId.AVALANCHE_MAINNET_ID,
-              gasLimit: Number(txBuildData.gas),
+              chainId: ChainId.AVALANCHE_MAINNET_ID.toString(),
+              gasLimit: String(txBuildData.gas),
               data: txBuildData.data,
               to: txBuildData.to,
               from: activeAccount.addressC,

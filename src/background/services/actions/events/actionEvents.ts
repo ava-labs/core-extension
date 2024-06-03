@@ -25,6 +25,7 @@ export class ActionEvents implements DAppEventEmitter {
       ({ type, action, result }) => {
         if (
           action.tabId === this._connectionInfo?.tabId ||
+          action.site?.tabId === this._connectionInfo?.tabId ||
           this._connectionInfo?.domain === browser.runtime.id
         ) {
           const response =

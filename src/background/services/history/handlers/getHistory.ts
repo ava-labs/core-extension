@@ -16,7 +16,7 @@ export class GetHistoryHandler implements HandlerType {
 
   constructor(private historyService: HistoryService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const history = await this.historyService.getTxHistory();
     return {
       ...request,

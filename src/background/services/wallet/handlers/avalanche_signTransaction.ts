@@ -1,6 +1,9 @@
 import { injectable } from 'tsyringe';
 import { WalletService } from '../WalletService';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequestParams,
+} from '@src/background/connections/dAppConnection/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { Action } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
@@ -16,6 +19,7 @@ import { AccountsService } from '../../accounts/AccountsService';
 import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/wallets-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 type TxParams = {
   transactionHex: string;
@@ -35,9 +39,12 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async (
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, TxParams>
+  ) => {
     let credentials: Credential[] | undefined = undefined;
 
+    const { request } = rpcCall;
     const {
       transactionHex,
       chainAlias,
@@ -182,7 +189,6 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
 
     const actionData = {
       ...request,
-      tabId: request.site.tabId,
       displayData: {
         unsignedTxJson: JSON.stringify(unsignedTx.toJSON()),
         txData,
@@ -191,7 +197,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
       },
     };
 
-    await this.openApprovalWindow(actionData, `approve/avalancheSignTx`);
+    await openApprovalWindow(actionData, `approve/avalancheSignTx`);
 
     return {
       ...request,
@@ -199,7 +205,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
     };
   };
 
-  handleUnauthenticated = (request) => {
+  handleUnauthenticated = ({ request }) => {
     return {
       ...request,
       error: ethErrors.provider.unauthorized(),

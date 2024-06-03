@@ -20,7 +20,7 @@ export class GetNetworksStateHandler implements HandlerType {
   method = ExtensionRequest.NETWORKS_GET_STATE as const;
 
   constructor(private networkService: NetworkService) {}
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [networks, err] = await resolve<Promise<ChainList>>(
       this.networkService.activeNetworks.promisify()
     );

@@ -1,10 +1,12 @@
 import { AvalancheSignMessageHandler } from '@src/background/services/messages/handlers/avalanche_signMessage';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { Action } from '@src/background/services/actions/models';
 import { utils } from '@avalabs/avalanchejs';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@avalabs/avalanchejs');
+jest.mock('@src/background/runtime/openApprovalWindow');
 
 describe('avalanche_signMessage', function () {
   const msg = 'test';
@@ -15,7 +17,7 @@ describe('avalanche_signMessage', function () {
     params: [msg], // test
     site: {
       tabId: 1,
-    },
+    } as any,
   };
 
   const signMessageMock = jest.fn();
@@ -26,18 +28,15 @@ describe('avalanche_signMessage', function () {
     signMessage: signMessageMock,
   };
 
-  const openApprovalWindowSpy = jest.spyOn(
-    DAppRequestHandler.prototype,
-    'openApprovalWindow'
-  );
-
   beforeEach(() => {
-    openApprovalWindowSpy.mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
   });
 
   it('returns error when no message', async () => {
     const handler = new AvalancheSignMessageHandler(walletServiceMock as any);
-    const res = await handler.handleAuthenticated({ ...request, params: [] });
+    const res = await handler.handleAuthenticated(
+      buildRpcCall({ ...request, params: [] })
+    );
 
     expect(res).toHaveProperty('error');
     expect(res.error.message).toMatch('Missing mandatory param');
@@ -45,10 +44,12 @@ describe('avalanche_signMessage', function () {
 
   it('returns error when account index is not valid', async () => {
     const handler = new AvalancheSignMessageHandler(walletServiceMock as any);
-    const res = await handler.handleAuthenticated({
-      ...request,
-      params: ['hello', 'accountIndex'],
-    });
+    const res = await handler.handleAuthenticated(
+      buildRpcCall({
+        ...request,
+        params: ['hello', 'accountIndex'],
+      })
+    );
 
     expect(res).toHaveProperty('error');
     expect(res.error.message).toMatch(
@@ -59,12 +60,11 @@ describe('avalanche_signMessage', function () {
   it('passes the right display data', async () => {
     const handler = new AvalancheSignMessageHandler(walletServiceMock as any);
 
-    await handler.handleAuthenticated(request);
+    await handler.handleAuthenticated(buildRpcCall(request));
 
-    expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+    expect(openApprovalWindow).toHaveBeenCalledWith(
       {
         ...request,
-        tabId: request.site.tabId,
         displayData: {
           messageParams: {
             data: msgHex,
@@ -87,15 +87,14 @@ describe('avalanche_signMessage', function () {
       params: [msg, 2], // test
       site: {
         tabId: 1,
-      },
+      } as any,
     };
 
-    await handler.handleAuthenticated(requestWithAccountIndex);
+    await handler.handleAuthenticated(buildRpcCall(requestWithAccountIndex));
 
-    expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+    expect(openApprovalWindow).toHaveBeenCalledWith(
       {
         ...requestWithAccountIndex,
-        tabId: request.site.tabId,
         displayData: {
           messageParams: {
             data: msgHex,
@@ -120,7 +119,9 @@ describe('avalanche_signMessage', function () {
         isMessageValid: true,
         validationError: undefined,
       },
-      params: {},
+      request: {
+        params: {},
+      },
     } as unknown as Action;
 
     it('throws when signing fails', async () => {

@@ -22,7 +22,7 @@ export class GetNftBalancesHandler implements HandlerType {
     private accountsService: AccountsService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const params = request.params;
     let [pageTokens] = params;
 

@@ -182,7 +182,7 @@ export interface TransactionDisplayValues {
 }
 
 export interface Transaction {
-  site: DomainMetadata;
+  site?: DomainMetadata;
   method: string;
   chainId: string;
   txParams: EthSendTransactionParamsWithGas;

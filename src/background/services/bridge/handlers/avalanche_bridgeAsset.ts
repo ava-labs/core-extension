@@ -21,6 +21,7 @@ import { BalanceAggregatorService } from '../../balances/BalanceAggregatorServic
 import { ChainId } from '@avalabs/chains-sdk';
 import { blockchainToNetwork } from '@src/pages/Bridge/utils/blockchainConversion';
 import { findTokenForAsset } from '@src/pages/Bridge/utils/findTokenForAsset';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { isBitcoinNetwork } from '../../network/utils/isBitcoinNetwork';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { BridgeActionDisplayData } from '../models';
@@ -46,7 +47,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
     const params: BridgeActionParams = request.params || [];
     const currentBlockchain = params[0];
 
@@ -165,15 +167,14 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
           asset
         ),
       },
-      tabId: request.site.tabId,
     };
 
-    await this.openApprovalWindow(action, `approve`);
+    await openApprovalWindow(action, `approve`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };
 
-  handleUnauthenticated = (request) => {
+  handleUnauthenticated = ({ request }) => {
     return {
       ...request,
       error: 'account not connected',

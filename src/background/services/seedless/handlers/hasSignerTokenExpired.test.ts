@@ -1,5 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { HasSignerTokenExpiredHandler } from './hasSignerTokenExpired';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/hasSignerTokenExpired', () => {
   it('returns true when token is stale', async () => {
@@ -8,10 +9,12 @@ describe('src/background/services/seedless/handlers/hasSignerTokenExpired', () =
     } as any);
 
     expect(
-      await handler.handle({
-        method: ExtensionRequest.SEEDLESS_HAS_TOKEN_EXPIRED,
-        id: 'abcd-1234',
-      })
+      await handler.handle(
+        buildRpcCall({
+          method: ExtensionRequest.SEEDLESS_HAS_TOKEN_EXPIRED,
+          id: 'abcd-1234',
+        })
+      )
     ).toEqual(
       expect.objectContaining({
         result: true,
@@ -25,10 +28,12 @@ describe('src/background/services/seedless/handlers/hasSignerTokenExpired', () =
     } as any);
 
     expect(
-      await handler.handle({
-        method: ExtensionRequest.SEEDLESS_HAS_TOKEN_EXPIRED,
-        id: 'abcd-1234',
-      })
+      await handler.handle(
+        buildRpcCall({
+          method: ExtensionRequest.SEEDLESS_HAS_TOKEN_EXPIRED,
+          id: 'abcd-1234',
+        })
+      )
     ).toEqual(
       expect.objectContaining({
         result: false,

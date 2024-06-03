@@ -17,7 +17,7 @@ export class InitAuthenticatorChangeHandler implements HandlerType {
 
   constructor(private seedlessMfaService: SeedlessMfaService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     try {
       return {
         ...request,

@@ -30,7 +30,7 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
     return [...(activeNetwork ? [activeNetwork] : []), ...favoriteNetworks];
   }
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const params = request.params || [];
 
     // if no account or network is defined default to the currently active one

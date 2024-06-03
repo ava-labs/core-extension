@@ -1,8 +1,8 @@
-import { JsonRpcRequest } from '@src/background/connections/dAppConnection/models';
+import { JsonRpcRequestPayload } from '@src/background/connections/dAppConnection/models';
 import { MessageParams, MessageType } from '../models';
 
 export function paramsToMessageParams(
-  data: JsonRpcRequest<any>
+  data: JsonRpcRequestPayload<MessageType, any[]>
 ): MessageParams {
   const { params, method } = data;
   switch (method) {

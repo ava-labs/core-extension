@@ -11,7 +11,7 @@ export class AvalancheGetContactsHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async ({ request }) => {
     const contacts = await this.contactsService.getContacts();
 
     return {
@@ -20,7 +20,7 @@ export class AvalancheGetContactsHandler extends DAppRequestHandler {
     };
   };
 
-  handleUnauthenticated = (request) => {
+  handleUnauthenticated = ({ request }) => {
     return {
       ...request,
       error: ethErrors.provider.unauthorized(),

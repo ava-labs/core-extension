@@ -2,6 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { serializeToJSON } from '@src/background/serialization/serialize';
 
 import { UnifiedBridgeGetFee } from './unifiedBridgeGetFee';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/unifiedBridge/handlers/unifiedBridgeGetFee', () => {
   const unifiedBridgeService = {
@@ -25,7 +26,7 @@ describe('src/background/services/unifiedBridge/handlers/unifiedBridgeGetFee', (
   it('calls .getFee() with passed params', async () => {
     const handler = new UnifiedBridgeGetFee(unifiedBridgeService);
 
-    await handler.handle(request);
+    await handler.handle(buildRpcCall(request));
 
     expect(unifiedBridgeService.getFee).toHaveBeenCalledWith({
       asset,
@@ -40,7 +41,7 @@ describe('src/background/services/unifiedBridge/handlers/unifiedBridgeGetFee', (
 
     unifiedBridgeService.getFee.mockResolvedValue(1234n);
 
-    const { result } = await handler.handle(request);
+    const { result } = await handler.handle(buildRpcCall(request));
     expect(serializeToJSON(result)).toEqual(serializeToJSON(1234n));
   });
 });

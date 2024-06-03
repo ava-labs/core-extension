@@ -1,6 +1,9 @@
 import { injectable } from 'tsyringe';
 import { WalletService } from '../WalletService';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequestParams,
+} from '@src/background/connections/dAppConnection/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { Action } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
@@ -20,6 +23,7 @@ import { Avalanche } from '@avalabs/wallets-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { ChainId } from '@avalabs/chains-sdk';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 type TxParams = {
   transactionHex: string;
@@ -30,7 +34,10 @@ type TxParams = {
 };
 
 @injectable()
-export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams> {
+export class AvalancheSendTransactionHandler extends DAppRequestHandler<
+  TxParams,
+  string
+> {
   methods = [DAppProviderRequest.AVALANCHE_SEND_TRANSACTION];
 
   constructor(
@@ -42,9 +49,12 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async (
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, TxParams>
+  ) => {
     let unsignedTx: UnsignedTx | EVMUnsignedTx;
 
+    const { request } = rpcCall;
     const {
       transactionHex,
       chainAlias,
@@ -152,7 +162,6 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams
 
     const actionData = {
       ...request,
-      tabId: request.site.tabId,
       displayData: {
         unsignedTxJson: JSON.stringify(unsignedTx.toJSON()),
         txData,
@@ -160,7 +169,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams
       },
     };
 
-    await this.openApprovalWindow(actionData, `approve/avalancheSignTx`);
+    await openApprovalWindow(actionData, `approve/avalancheSignTx`);
 
     return {
       ...request,
@@ -168,7 +177,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<TxParams
     };
   };
 
-  handleUnauthenticated = (request) => {
+  handleUnauthenticated = ({ request }) => {
     return {
       ...request,
       error: ethErrors.provider.unauthorized(),

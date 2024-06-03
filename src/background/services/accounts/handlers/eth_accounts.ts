@@ -17,7 +17,7 @@ export class EthAccountsHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async ({ request }) => {
     if (!this.accountsService.activeAccount) {
       return {
         ...request,
@@ -31,7 +31,7 @@ export class EthAccountsHandler extends DAppRequestHandler {
     };
   };
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async ({ request }) => {
     return {
       ...request,
       result: [],

@@ -16,7 +16,7 @@ export class SaveCustomNetworkHandler implements HandlerType {
   method = ExtensionRequest.NETWORK_SAVE_CUSTOM as const;
 
   constructor(private networkService: NetworkService) {}
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const { params } = request;
     const network: Network = params?.[0];
 

@@ -23,7 +23,7 @@ export class PermissionsAddDomainHandler implements HandlerType {
     private accountsService: AccountsService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [permissions, id] = request.params;
 
     if (!permissions.domain || !permissions.accounts) {

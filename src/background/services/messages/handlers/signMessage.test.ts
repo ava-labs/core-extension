@@ -1,4 +1,3 @@
-import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
@@ -8,7 +7,10 @@ import { PersonalSignHandler } from './signMessage';
 import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';
 import { TypedDataEncoder } from 'ethers';
 import { SecretType } from '../../secrets/models';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { buildRpcCall } from '@src/tests/test-utils';
 
+jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('../../wallet/utils/ensureMessageFormatIsValid');
 jest.mock('../utils/messageParamsParser');
 jest.mock('ethers');
@@ -28,11 +30,6 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
   let networkServiceMock;
 
-  const openApprovalWindowSpy = jest.spyOn(
-    DAppRequestHandler.prototype,
-    'openApprovalWindow'
-  );
-
   beforeEach(() => {
     jest.resetAllMocks();
 
@@ -49,7 +46,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       activeNetwork: activeNetworkMock,
     } as any;
 
-    openApprovalWindowSpy.mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
     (paramsToMessageParams as jest.Mock).mockReturnValue(displayDataMock);
   });
 
@@ -64,10 +61,10 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       method: DAppProviderRequest.ETH_SIGN,
       site: {
         tabId: 1,
-      },
-    } as any;
+      } as any,
+    };
 
-    const result = await handler.handleUnauthenticated(request);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
     expect(result).toEqual({
       ...request,
       error: 'account not available',
@@ -106,12 +103,12 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         },
       } as any;
 
-      await expect(handler.handleAuthenticated(request)).resolves.toStrictEqual(
-        {
-          ...request,
-          error: 'wallet undefined',
-        }
-      );
+      await expect(
+        handler.handleAuthenticated(buildRpcCall(request))
+      ).resolves.toStrictEqual({
+        ...request,
+        error: 'wallet undefined',
+      });
     });
 
     it('throws if no active network found', async () => {
@@ -129,14 +126,14 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         },
       } as any;
 
-      await expect(handler.handleAuthenticated(request)).resolves.toStrictEqual(
-        {
-          ...request,
-          error: ethErrors.rpc.invalidRequest({
-            message: 'no active network found',
-          }),
-        }
-      );
+      await expect(
+        handler.handleAuthenticated(buildRpcCall(request))
+      ).resolves.toStrictEqual({
+        ...request,
+        error: ethErrors.rpc.invalidRequest({
+          message: 'no active network found',
+        }),
+      });
     });
 
     it('throws if message format is invalid', async () => {
@@ -159,14 +156,14 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         throw new Error(errorMessage);
       });
 
-      await expect(handler.handleAuthenticated(request)).resolves.toStrictEqual(
-        {
-          ...request,
-          error: ethErrors.rpc.invalidParams({
-            message: errorMessage,
-          }),
-        }
-      );
+      await expect(
+        handler.handleAuthenticated(buildRpcCall(request))
+      ).resolves.toStrictEqual({
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message: errorMessage,
+        }),
+      });
       expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
         DAppProviderRequest.ETH_SIGN,
         { foo: 'bar' },
@@ -201,20 +198,20 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         });
 
         await expect(
-          handler.handleAuthenticated(request)
+          handler.handleAuthenticated(buildRpcCall(request))
         ).resolves.toStrictEqual({
           ...request,
           result: DEFERRED_RESPONSE,
         });
 
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           {
             ...request,
             displayData: {
               messageParams: displayDataMock,
               isMessageValid: true,
             },
-            tabId: request.site.tabId,
+            tabId: 1,
           },
           `sign`
         );
@@ -264,7 +261,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         });
 
         await expect(
-          handler.handleAuthenticated(request)
+          handler.handleAuthenticated(buildRpcCall(request))
         ).resolves.toStrictEqual({
           ...request,
           result: DEFERRED_RESPONSE,
@@ -279,7 +276,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
           { name: 'asdasd' }
         );
 
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           {
             ...request,
             displayData: {
@@ -287,7 +284,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
               isMessageValid: false,
               validationError: 'Error: some type error',
             },
-            tabId: request.site.tabId,
+            tabId: 1,
           },
           `sign`
         );
@@ -308,7 +305,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         },
       } as any;
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
         request.method,
@@ -320,14 +317,14 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         result: DEFERRED_RESPONSE,
       });
 
-      expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+      expect(openApprovalWindow).toHaveBeenCalledWith(
         {
           ...request,
           displayData: {
             messageParams: displayDataMock,
             isMessageValid: true,
           },
-          tabId: request.site.tabId,
+          tabId: 1,
         },
         `sign`
       );
@@ -351,7 +348,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
       await handler.onActionApproved(
         {
-          method: MessageType.ETH_SIGN,
+          request: { method: MessageType.ETH_SIGN },
           displayData: {
             messageParams: displayDataMock,
           },
@@ -375,7 +372,9 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
       await handler.onActionApproved(
         {
-          method: MessageType.ETH_SIGN,
+          request: {
+            method: MessageType.ETH_SIGN,
+          },
           displayData: {
             messageParams: displayDataMock,
           },

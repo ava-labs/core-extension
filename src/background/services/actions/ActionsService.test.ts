@@ -24,14 +24,12 @@ describe('background/services/actions/ActionsService.ts', () => {
     onActionApproved: jest.fn(),
     handleAuthenticated: jest.fn(),
     handleUnauthenticated: jest.fn(),
-    openApprovalWindow: jest.fn(),
   };
 
   const handlerWithoutCallback: DAppRequestHandler = {
     methods: ['handler_without_callback'] as any,
     handleAuthenticated: jest.fn(),
     handleUnauthenticated: jest.fn(),
-    openApprovalWindow: jest.fn(),
   };
 
   const storageService = new StorageService({} as any);
@@ -44,13 +42,12 @@ describe('background/services/actions/ActionsService.ts', () => {
 
   const mockAction: Action = {
     id: '1',
+    method: 'handler_with_callback' as any,
     time: 123123123,
     status: ActionStatus.PENDING,
     displayData: {},
-    method: 'handler_with_callback' as any,
-    jsonrpc: '2.0',
     actionId: 'uuid',
-  };
+  } as any;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -310,7 +307,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         });
 
         expect(handlerWithCallback.onActionApproved).toHaveBeenCalledWith(
-          expect.objectContaining({ id: '1' }),
+          mockAction,
           undefined,
           expect.any(Function),
           expect.any(Function),

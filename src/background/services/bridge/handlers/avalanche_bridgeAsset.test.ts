@@ -1,7 +1,6 @@
 import { Blockchain, BridgeConfig, getAssets } from '@avalabs/bridge-sdk';
 import { ChainId } from '@avalabs/chains-sdk';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
-import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { AccountType, PrimaryAccount } from '../../accounts/models';
@@ -18,6 +17,10 @@ import {
   nativeAsset,
 } from '../fixtures/mockBridgeConfig';
 import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { buildRpcCall } from '@src/tests/test-utils';
+
+jest.mock('@src/background/runtime/openApprovalWindow');
 
 jest.mock('@avalabs/bridge-sdk', () => {
   const originalModule = jest.requireActual('@avalabs/bridge-sdk');
@@ -73,8 +76,10 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
   } as any;
 
   const btcAction: Action = {
-    id: '123',
-    jsonrpc: '2.0',
+    request: {
+      id: '123',
+      method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
+    },
     time: Date.now(),
     status: ActionStatus.PENDING,
     displayData: {
@@ -82,9 +87,8 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       amountStr: '0.00024',
       asset: btcAsset,
     },
-    method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
     actionId: 'uuid',
-  };
+  } as any;
 
   const btcResult: BtcTransactionResponse = {
     hash: '123hash123',
@@ -95,8 +99,10 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
   };
 
   const ethAction: Action = {
-    id: '987',
-    jsonrpc: '2.0',
+    request: {
+      id: '987',
+      method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
+    },
     time: Date.now(),
     status: ActionStatus.PENDING,
     displayData: {
@@ -112,9 +118,8 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         wrappedAssetSymbol: 'WETH',
       },
     },
-    method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
     actionId: 'uuid',
-  };
+  } as any;
 
   const ethResult: TransactionResponse = {
     hash: '987hash987',
@@ -127,11 +132,6 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     data: '987data987',
     chainId: 8n,
   } as any as TransactionResponse;
-
-  const openApprovalWindowSpy = jest.spyOn(
-    DAppRequestHandler.prototype,
-    'openApprovalWindow'
-  );
 
   let handler: AvalancheBridgeAsset;
 
@@ -146,7 +146,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     bridgeServiceMock.transferBtcAsset.mockResolvedValue(btcResult);
     bridgeServiceMock.transferAsset.mockResolvedValue(ethResult);
     bridgeServiceMock.createTransaction.mockResolvedValue();
-    openApprovalWindowSpy.mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
     jest.mocked(getAssets).mockReturnValue({
       BTC: btcAsset,
       WETH: evmAsset,
@@ -164,62 +164,68 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
   describe('handleAuthenticated', () => {
     const request = {
-      id: 12,
-      site: { tabId: 34 },
+      id: '12',
+      site: { tabId: 34 } as any,
       method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
     };
 
     it('should return error when currentBlockchain is missing', async () => {
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
         error: 'Missing param: blockchain',
       });
-      expect(openApprovalWindowSpy).toBeCalledTimes(0);
+      expect(openApprovalWindow).toBeCalledTimes(0);
     });
 
     it('should return error when amount is missing', async () => {
-      const result = await handler.handleAuthenticated({
-        ...request,
-        params: ['bitcoin'],
-      });
+      const result = await handler.handleAuthenticated(
+        buildRpcCall({
+          ...request,
+          params: ['bitcoin'],
+        })
+      );
 
       expect(result).toEqual({
         ...request,
         params: ['bitcoin'],
         error: 'Missing param: amount',
       });
-      expect(openApprovalWindowSpy).toBeCalledTimes(0);
+      expect(openApprovalWindow).toBeCalledTimes(0);
     });
 
     it('should return error when asset is missing and blockchain in not bitcoin', async () => {
-      const result = await handler.handleAuthenticated({
-        ...request,
-        params: ['testBlockchain', '1'],
-      });
+      const result = await handler.handleAuthenticated(
+        buildRpcCall({
+          ...request,
+          params: ['testBlockchain', '1'],
+        })
+      );
 
       expect(result).toEqual({
         ...request,
         params: ['testBlockchain', '1'],
         error: 'Invalid param: unknown asset',
       });
-      expect(openApprovalWindowSpy).toBeCalledTimes(0);
+      expect(openApprovalWindow).toBeCalledTimes(0);
     });
 
     it('asset should be optional for bitcoin', async () => {
-      const result = await handler.handleAuthenticated({
-        ...request,
-        params: ['bitcoin', '1'],
-      });
+      const result = await handler.handleAuthenticated(
+        buildRpcCall({
+          ...request,
+          params: ['bitcoin', '1'],
+        })
+      );
 
       expect(result).toEqual({
         ...request,
         params: ['bitcoin', '1'],
         result: DEFERRED_RESPONSE,
       });
-      expect(openApprovalWindowSpy).toBeCalledTimes(1);
-      expect(openApprovalWindowSpy).toBeCalledWith(
+      expect(openApprovalWindow).toBeCalledTimes(1);
+      expect(openApprovalWindow).toBeCalledWith(
         {
           ...request,
           params: ['bitcoin', '1'],
@@ -228,7 +234,6 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
             amountStr: '1',
             asset: btcAsset,
           },
-          tabId: request.site.tabId,
         },
         `approve`
       );
@@ -252,13 +257,15 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
           },
         ],
       };
-      const result = await handler.handleAuthenticated(mockRequest);
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(mockRequest)
+      );
 
       expect(result).toEqual({
         ...mockRequest,
         error: 'Invalid param: unknown asset',
       });
-      expect(openApprovalWindowSpy).toBeCalledTimes(0);
+      expect(openApprovalWindow).toBeCalledTimes(0);
     });
 
     it('should return error when asset is for wrong chain', async () => {
@@ -266,13 +273,15 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         ...request,
         params: [Blockchain.ETHEREUM, '1', btcAsset],
       };
-      const result = await handler.handleAuthenticated(mockRequest);
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(mockRequest)
+      );
 
       expect(result).toEqual({
         ...mockRequest,
         error: 'Invalid param: asset',
       });
-      expect(openApprovalWindowSpy).toBeCalledTimes(0);
+      expect(openApprovalWindow).toBeCalledTimes(0);
     });
 
     it('should return error when native is for wrong chain', async () => {
@@ -280,13 +289,15 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         ...request,
         params: [Blockchain.AVALANCHE, '1', nativeAsset],
       };
-      const result = await handler.handleAuthenticated(mockRequest);
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(mockRequest)
+      );
 
       expect(result).toEqual({
         ...mockRequest,
         error: 'Invalid param: asset',
       });
-      expect(openApprovalWindowSpy).toBeCalledTimes(0);
+      expect(openApprovalWindow).toBeCalledTimes(0);
     });
 
     it('returns expected result', async () => {
@@ -300,8 +311,8 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       const amountStr = '0.1';
 
       const mockRequest = {
-        id: 357,
-        site: { tabId: 42 },
+        id: '357',
+        site: { tabId: 42 } as any,
         method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
         params: [currentBlockchain, amountStr, { symbol: 'WETH' }],
       };
@@ -314,16 +325,17 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
           asset: evmAsset,
           gasLimit: estimatedGas,
         },
-        tabId: mockRequest.site.tabId,
       };
 
-      const result = await handler.handleAuthenticated(mockRequest);
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(mockRequest)
+      );
 
       expect(result).toEqual({
         ...mockRequest,
         result: DEFERRED_RESPONSE,
       });
-      expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+      expect(openApprovalWindow).toHaveBeenCalledWith(
         expectedAction,
         `approve`
       );
@@ -370,8 +382,8 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       );
 
       const mockRequest = {
-        id: 357,
-        site: { tabId: 42 },
+        id: '357',
+        site: { tabId: 42 } as any,
         method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
         params: [Blockchain.AVALANCHE, '0.1', { symbol: 'WETH' }],
       };
@@ -397,27 +409,31 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
             decimals: 1,
           },
         },
-        tabId: mockRequest.site.tabId,
       };
-      const result = await handlerToTest.handleAuthenticated(mockRequest);
+      const result = await handlerToTest.handleAuthenticated(
+        buildRpcCall(mockRequest)
+      );
 
       expect(result).toEqual({
         ...mockRequest,
         result: DEFERRED_RESPONSE,
       });
-      expect(openApprovalWindowSpy).toBeCalledWith(expectedAction, `approve`);
+      expect(openApprovalWindow).toHaveBeenCalledWith(
+        expectedAction,
+        `approve`
+      );
     });
   });
 
   describe('handleUnauthenticated', () => {
     it('return expected error', () => {
       const mockRequest = {
-        id: 852,
-        site: { tabId: 10 },
+        id: '852',
+        site: { tabId: 10 } as any,
         method: DAppProviderRequest.AVALANCHE_BRIDGE_ASSET,
       };
 
-      const result = handler.handleUnauthenticated(mockRequest);
+      const result = handler.handleUnauthenticated(buildRpcCall(mockRequest));
       expect(result).toEqual({
         ...mockRequest,
         error: 'account not connected',

@@ -1,5 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { InitLedgerTransportHandler } from './initLedgerTransport';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/ledger/handlers/initLedgerTransport.ts', () => {
   const transportId = '1';
@@ -21,7 +22,7 @@ describe('src/background/services/ledger/handlers/initLedgerTransport.ts', () =>
   it('returns early if transport has been already initiated', async () => {
     ledgerServiceMock.getTransport.mockResolvedValueOnce({ foo: 'bar' });
     const handler = new InitLedgerTransportHandler(ledgerServiceMock);
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({ ...request, result: true });
     expect(ledgerServiceMock.getTransport).toHaveBeenCalledWith(transportId);
@@ -34,7 +35,7 @@ describe('src/background/services/ledger/handlers/initLedgerTransport.ts', () =>
       throw error;
     });
     const handler = new InitLedgerTransportHandler(ledgerServiceMock);
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({ ...request, error: error.message });
     expect(ledgerServiceMock.getTransport).toHaveBeenCalledWith(transportId);
@@ -43,7 +44,7 @@ describe('src/background/services/ledger/handlers/initLedgerTransport.ts', () =>
 
   it('initiates the transport correctly', async () => {
     const handler = new InitLedgerTransportHandler(ledgerServiceMock);
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({ ...request, result: true });
     expect(ledgerServiceMock.getTransport).toHaveBeenCalledWith(transportId);

@@ -97,7 +97,7 @@ export class FireblocksUpdateApiCredentialsHandler implements HandlerType {
     }
   }
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [coreAccountId, apiKey, secretKey] = request.params;
 
     try {

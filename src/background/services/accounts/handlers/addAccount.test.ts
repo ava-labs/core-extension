@@ -1,6 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { AccountType, ImportType } from '../models';
 import { AddAccountHandler } from './addAccount';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 const WALLET_ID = 'wallet-id';
 const ACCOUNT_NAME = 'account-name';
@@ -30,7 +31,7 @@ describe('background/services/accounts/handlers/addAccount.ts', () => {
       method: ExtensionRequest.ACCOUNT_ADD,
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(addPrimaryAccountMock).toBeCalledTimes(1);
     expect(addPrimaryAccountMock).toBeCalledWith({
@@ -49,7 +50,7 @@ describe('background/services/accounts/handlers/addAccount.ts', () => {
       params: { name: ACCOUNT_NAME },
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(addPrimaryAccountMock).toBeCalledTimes(1);
     expect(addPrimaryAccountMock).toBeCalledWith({
@@ -68,7 +69,7 @@ describe('background/services/accounts/handlers/addAccount.ts', () => {
       params: { name: ACCOUNT_NAME, walletId: 'new-wallet-id' },
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(addPrimaryAccountMock).toBeCalledTimes(1);
     expect(addPrimaryAccountMock).toBeCalledWith({
@@ -92,7 +93,7 @@ describe('background/services/accounts/handlers/addAccount.ts', () => {
       },
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(addImportedAccountMock).toBeCalledTimes(1);
     expect(addImportedAccountMock).toBeCalledWith({
@@ -120,7 +121,7 @@ describe('background/services/accounts/handlers/addAccount.ts', () => {
       method: ExtensionRequest.ACCOUNT_ADD,
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
     expect(result).toEqual({
       ...request,
       error: 'Error: There is no wallet id for the new primary account',

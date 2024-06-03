@@ -4,12 +4,14 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 @injectable()
 export class AvalancheSelectWalletHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.AVALANCHE_SELECT_WALLET];
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
     const [availableExtensions] = request.params;
 
     if (!availableExtensions || availableExtensions.length === 0) {
@@ -19,13 +21,12 @@ export class AvalancheSelectWalletHandler extends DAppRequestHandler {
       };
     }
 
-    await this.openApprovalWindow(
+    await openApprovalWindow(
       {
         ...request,
         displayData: {
           options: availableExtensions.map((o) => o.type),
         },
-        tabId: request.site.tabId,
       },
       `approve/select-wallet`
     );
@@ -33,8 +34,8 @@ export class AvalancheSelectWalletHandler extends DAppRequestHandler {
     return { ...request, result: DEFERRED_RESPONSE };
   };
 
-  handleAuthenticated = async (request) => {
-    return this.handleUnauthenticated(request);
+  handleAuthenticated = async (rpcCall) => {
+    return this.handleUnauthenticated(rpcCall);
   };
 
   onActionApproved = async (

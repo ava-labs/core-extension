@@ -2,6 +2,7 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { AccountType } from '../models';
 import { AvalancheGetAccountsHandler } from './avalanche_getAccounts';
 import { SecretType } from '../../secrets/models';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () => {
   const accounts = [
@@ -42,6 +43,11 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
     ],
   } as any;
 
+  const request = {
+    id: '123',
+    method: DAppProviderRequest.AVALANCHE_GET_ACCOUNTS,
+  } as const;
+
   beforeEach(() => {
     jest.resetAllMocks();
   });
@@ -51,12 +57,8 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
       accountServiceMock,
       walletServiceMock
     );
-    const request = {
-      id: '123',
-      method: DAppProviderRequest.AVALANCHE_GET_ACCOUNTS,
-    } as any;
+    const result = await handler.handleAuthenticated(buildRpcCall(request));
 
-    const result = await handler.handleAuthenticated(request);
     expect(result).toEqual({
       ...request,
       result: [
@@ -97,12 +99,8 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
       accountServiceMock,
       walletServiceMock
     );
-    const request = {
-      id: '123',
-      method: DAppProviderRequest.AVALANCHE_GET_ACCOUNTS,
-    } as any;
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
-    const result = await handler.handleUnauthenticated(request);
     expect(result).toEqual({
       ...request,
       error: 'account not connected',

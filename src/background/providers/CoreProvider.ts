@@ -15,9 +15,11 @@ import {
 import {
   DAppProviderRequest,
   JsonRpcRequest,
+  JsonRpcRequestPayload,
 } from '../connections/dAppConnection/models';
-import { ProviderInfo } from '../models';
+import { PartialBy, ProviderInfo } from '../models';
 import AbstractConnection from '../utils/messaging/AbstractConnection';
+import { ChainId } from '@avalabs/chains-sdk';
 
 interface ProviderState {
   accounts: string[] | null;
@@ -56,6 +58,7 @@ export class CoreProvider extends EventEmitter {
   _isConnected = false;
   _initialized = false;
   _isUnlocked = false;
+  _sessionId = crypto.randomUUID();
 
   _state: ProviderState = {
     accounts: null,
@@ -148,20 +151,37 @@ export class CoreProvider extends EventEmitter {
     }
   };
 
-  #request = async (data: JsonRpcRequest) => {
+  #request = async (
+    data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>
+  ) => {
     if (!data) {
       throw ethErrors.rpc.invalidRequest();
     }
 
-    return this.#contentScriptConnection.request(data).catch((err) => {
-      // If the error is already a JsonRPCErorr do not serialize them.
-      // eth-rpc-errors always wraps errors if they have an unkown error code
-      // even if the code is valid like 4902 for unrecognized chain ID.
-      if (!!err.code && Number.isInteger(err.code) && !!err.message) {
-        throw err;
-      }
-      throw serializeError(err);
-    });
+    return this.#contentScriptConnection
+      .request({
+        method: 'provider_request',
+        jsonrpc: '2.0',
+        params: {
+          scope: `eip155:${
+            this.chainId ? parseInt(this.chainId) : ChainId.AVALANCHE_MAINNET_ID
+          }`,
+          sessionId: this._sessionId,
+          request: {
+            params: [],
+            ...data,
+          },
+        },
+      } as JsonRpcRequest)
+      .catch((err) => {
+        // If the error is already a JsonRPCErorr do not serialize them.
+        // eth-rpc-errors always wraps errors if they have an unkown error code
+        // even if the code is valid like 4902 for unrecognized chain ID.
+        if (!!err.code && Number.isInteger(err.code) && !!err.message) {
+          throw err;
+        }
+        throw serializeError(err);
+      });
   };
 
   #requestInternal = (data) => {
@@ -194,7 +214,7 @@ export class CoreProvider extends EventEmitter {
     return true;
   };
 
-  request = async (data: JsonRpcRequest) => {
+  request = async (data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>) => {
     return this.#providerReadyPromise.call(() => {
       return this.#requestRateLimiter.call(data.method, () =>
         this.#request(data)

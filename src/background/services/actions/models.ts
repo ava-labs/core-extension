@@ -1,8 +1,8 @@
 import {
   DAppProviderRequest,
-  JsonRpcRequest,
+  JsonRpcRequestPayload,
 } from '@src/background/connections/dAppConnection/models';
-import { DomainMetadata } from '@src/background/models';
+
 export enum ActionStatus {
   // user has been shown the UI and we are waiting on approval
   PENDING = 'pending',
@@ -13,21 +13,21 @@ export enum ActionStatus {
   ERROR = 'error',
   ERROR_USER_CANCELED = 'error-user-canceled',
 }
-export interface Action<DisplayData = any> extends JsonRpcRequest<any> {
-  time: number;
-  status: ActionStatus;
+export type Action<DisplayData = any, Params = any> = JsonRpcRequestPayload<
+  DAppProviderRequest,
+  Params
+> & {
+  time?: number;
+  status?: ActionStatus;
   result?: any;
   error?: string;
   displayData: DisplayData;
-  method: DAppProviderRequest;
-  site?: DomainMetadata;
-  tabId?: number;
   // we store the window ID of the confirmation popup so
   // that we can clean up stale actions later
   popupWindowId?: number;
   inAppPromptId?: number;
-  actionId: string;
-}
+  actionId?: string;
+};
 
 export interface Actions {
   [id: string]: Action;

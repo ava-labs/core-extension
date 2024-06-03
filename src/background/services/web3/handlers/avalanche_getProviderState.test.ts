@@ -2,8 +2,14 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { AvalancheGetProviderState } from './avalanche_getProviderState';
 import { NetworkService } from '../../network/NetworkService';
 import { AccountsService } from '../../accounts/AccountsService';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/web3/handlers/avalanche_getProviderState.ts', () => {
+  const mockRequest = {
+    id: '1234',
+    method: DAppProviderRequest.INIT_DAPP_STATE,
+  };
+
   describe('handleUnauthenticated', () => {
     it('returns loading state when no network and no accounts even if present', async () => {
       const handler = new AvalancheGetProviderState(
@@ -11,12 +17,9 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         { activeAccount: { addressC: '0x000000' } } as AccountsService
       );
 
-      const mockRequest = {
-        id: 1234,
-        method: DAppProviderRequest.INIT_DAPP_STATE,
-      };
-
-      expect(await handler.handleUnauthenticated(mockRequest)).toEqual({
+      expect(
+        await handler.handleUnauthenticated(buildRpcCall(mockRequest))
+      ).toEqual({
         ...mockRequest,
         result: {
           accounts: [],
@@ -33,12 +36,9 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         { activeAccount: { addressC: '0x000000' } } as AccountsService
       );
 
-      const mockRequest = {
-        id: 1234,
-        method: DAppProviderRequest.INIT_DAPP_STATE,
-      };
-
-      expect(await handler.handleUnauthenticated(mockRequest)).toEqual({
+      expect(
+        await handler.handleUnauthenticated(buildRpcCall(mockRequest))
+      ).toEqual({
         ...mockRequest,
         result: {
           accounts: [],
@@ -57,12 +57,9 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         { activeAccount: { addressC: '0x000000' } } as AccountsService
       );
 
-      const mockRequest = {
-        id: 1234,
-        method: DAppProviderRequest.INIT_DAPP_STATE,
-      };
-
-      expect(await handler.handleAuthenticated(mockRequest)).toEqual({
+      expect(
+        await handler.handleAuthenticated(buildRpcCall(mockRequest))
+      ).toEqual({
         ...mockRequest,
         result: {
           accounts: ['0x000000'],
@@ -79,12 +76,9 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         { activeAccount: { addressC: '0x000000' } } as AccountsService
       );
 
-      const mockRequest = {
-        id: 1234,
-        method: DAppProviderRequest.INIT_DAPP_STATE,
-      };
-
-      expect(await handler.handleAuthenticated(mockRequest)).toEqual({
+      expect(
+        await handler.handleAuthenticated(buildRpcCall(mockRequest))
+      ).toEqual({
         ...mockRequest,
         result: {
           accounts: ['0x000000'],
@@ -101,12 +95,9 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         { activeAccount: undefined } as AccountsService
       );
 
-      const mockRequest = {
-        id: 1234,
-        method: DAppProviderRequest.INIT_DAPP_STATE,
-      };
-
-      expect(await handler.handleAuthenticated(mockRequest)).toEqual({
+      expect(
+        await handler.handleAuthenticated(buildRpcCall(mockRequest))
+      ).toEqual({
         ...mockRequest,
         result: {
           accounts: [],

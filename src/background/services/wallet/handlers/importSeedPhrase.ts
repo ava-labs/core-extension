@@ -50,7 +50,7 @@ export class ImportSeedPhraseHandler implements HandlerType {
     });
   }
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [params] = request.params;
     const { mnemonic: rawMnemonic, name } = params;
     const mnemonic = rawMnemonic.toLowerCase(); // BIP39 seed phrases are case-insensitive

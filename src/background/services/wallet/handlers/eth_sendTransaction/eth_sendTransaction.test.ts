@@ -15,7 +15,6 @@ import {
   TransactionType,
 } from './models';
 import { ethErrors } from 'eth-rpc-errors';
-import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { AccountType } from '@src/background/services/accounts/models';
 import { NetworkContractToken, NetworkVMType } from '@avalabs/chains-sdk';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
@@ -33,7 +32,10 @@ import { txToCustomEvmTx } from './utils/txToCustomEvmTx';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { buildRpcCall } from '@src/tests/test-utils';
 
+jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('@src/utils/network/getProviderForNetwork');
 jest.mock('@src/background/services/analytics/AnalyticsServicePosthog');
 jest.mock('@src/background/services/debank');
@@ -86,12 +88,12 @@ jest.mock('webextension-polyfill', () => ({
 }));
 
 const buildMessage = (params: EthSendTransactionParams) => ({
-  method: 'eth_sendTransaction',
+  method: DAppProviderRequest.ETH_SEND_TX,
   id: Math.floor(1_000_000 * Math.random()).toString(),
   params: [params],
   site: {
     tabId: '1',
-  },
+  } as any,
 });
 
 const gweiToBig = (gwei: number) => BigInt(`0x${(gwei * 1e9).toString(16)}`);
@@ -166,10 +168,6 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     {} as any
   );
 
-  const openApprovalWindowSpy = jest.spyOn(
-    DAppRequestHandler.prototype,
-    'openApprovalWindow'
-  );
   const accountMock = {
     type: AccountType.PRIMARY,
     id: '12',
@@ -218,7 +216,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       .captureEncryptedEvent.mockResolvedValue();
     jest.mocked(isBitcoinNetwork).mockReturnValue(false);
     (encryptAnalyticsData as jest.Mock).mockResolvedValue(mockedEncryptResult);
-    openApprovalWindowSpy.mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
     jest.mocked(txToCustomEvmTx).mockReturnValue({
       maxFeePerGas: '0x54',
       maxPriorityFeePerGas: 1n,
@@ -248,7 +246,9 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
         method: 'eth_sendTransaction',
         params: [],
       };
-      expect(await handler.handleUnauthenticated(request)).toStrictEqual({
+      expect(
+        await handler.handleUnauthenticated(buildRpcCall(request))
+      ).toStrictEqual({
         ...request,
         error: ethErrors.provider.unauthorized(),
       });
@@ -263,8 +263,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           to: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
           value: '0x5af3107a4000',
         });
-        await handler.handleAuthenticated(message);
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        await handler.handleAuthenticated(buildRpcCall(message));
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               txParams: expect.objectContaining({
@@ -283,8 +283,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           type: 0,
         });
 
-        await handler.handleAuthenticated(message);
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        await handler.handleAuthenticated(buildRpcCall(message));
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               txParams: expect.objectContaining({
@@ -302,8 +302,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           value: '0x5af3107a4000',
           type: 3,
         });
-        await handler.handleAuthenticated(message);
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        await handler.handleAuthenticated(buildRpcCall(message));
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               txParams: expect.objectContaining({
@@ -322,8 +322,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           gas: 1,
         });
 
-        await handler.handleAuthenticated(message);
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        await handler.handleAuthenticated(buildRpcCall(message));
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               txParams: expect.objectContaining({
@@ -343,8 +343,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           gas: 1337,
         });
 
-        await handler.handleAuthenticated(message);
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        await handler.handleAuthenticated(buildRpcCall(message));
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               txParams: expect.objectContaining({
@@ -363,8 +363,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           value: '0x5af3107a4000',
         });
 
-        await handler.handleAuthenticated(message);
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        await handler.handleAuthenticated(buildRpcCall(message));
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               txParams: expect.objectContaining({
@@ -385,10 +385,10 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           value: '0x5af3107a4000',
         });
 
-        await expect(handler.handleAuthenticated(message)).rejects.toThrow(
-          new Error('failed request')
-        );
-        expect(openApprovalWindowSpy).not.toHaveBeenCalled();
+        await expect(
+          handler.handleAuthenticated(buildRpcCall(message))
+        ).rejects.toThrow(new Error('failed request'));
+        expect(openApprovalWindow).not.toHaveBeenCalled();
       });
       it('uses maxFeePerGas and maxPriorityFeePerGas if provided', async () => {
         const message = buildMessage({
@@ -399,8 +399,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           maxPriorityFeePerGas: '0x543543',
         });
 
-        await handler.handleAuthenticated(message);
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        await handler.handleAuthenticated(buildRpcCall(message));
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               txParams: expect.objectContaining({
@@ -419,8 +419,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           value: '0x5af3107a4000',
         });
 
-        await handler.handleAuthenticated(message);
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        await handler.handleAuthenticated(buildRpcCall(message));
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               txParams: expect.objectContaining({
@@ -447,7 +447,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           chainId: 2,
         });
         jest.mocked(networkService).isActiveNetwork.mockReturnValue(false);
-        await handler.handleAuthenticated(message);
+        await handler.handleAuthenticated(buildRpcCall(message));
 
         expect(networkService.isActiveNetwork).toHaveBeenCalledWith(2);
         expect(
@@ -465,7 +465,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           data: '0x123123123123',
         });
         jest.mocked(networkService).isActiveNetwork.mockReturnValue(true);
-        await handler.handleAuthenticated(message);
+        await handler.handleAuthenticated(buildRpcCall(message));
         expect(networkService.isActiveNetwork).toHaveBeenCalledWith(1);
         expect(
           balanceAggregatorService.updateBalancesForNetworks
@@ -481,7 +481,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
         jest
           .mocked(debankService.parseTransaction)
           .mockResolvedValue(displayValuesMock);
-        await handler.handleAuthenticated(message);
+        await handler.handleAuthenticated(buildRpcCall(message));
         expect(debankService.parseTransaction).toHaveBeenCalledWith(
           networkMock,
           {
@@ -497,7 +497,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
         );
         expect(parseWithERC20Abi).not.toHaveBeenCalled();
         expect(getTxDescription).not.toHaveBeenCalled();
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               displayValues: displayValuesMock,
@@ -527,7 +527,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
         jest
           .mocked(debankService.parseTransaction)
           .mockRejectedValue(new Error('network error'));
-        await handler.handleAuthenticated(message);
+        await handler.handleAuthenticated(buildRpcCall(message));
         expect(debankService.parseTransaction).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).toHaveBeenCalledWith(
@@ -544,7 +544,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           mockToken
         );
         expect(getTxDescription).not.toHaveBeenCalled();
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               displayValues: displayValuesMock,
@@ -576,12 +576,12 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           .mockResolvedValue({ name: 'function' } as TransactionDescription);
         const parser = contractParserMap.get('function');
         jest.mocked(parser)?.mockResolvedValue(displayValuesMock);
-        await handler.handleAuthenticated(message);
+        await handler.handleAuthenticated(buildRpcCall(message));
         expect(debankService.parseTransaction).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).toHaveBeenCalledTimes(1);
         expect(getTxDescription).toHaveBeenCalledTimes(1);
         expect(parser).toHaveBeenCalledTimes(1);
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               displayValues: displayValuesMock,
@@ -610,13 +610,13 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           .mockResolvedValue({ name: 'function' } as TransactionDescription);
         const parser = contractParserMap.get('function');
         jest.mocked(parser)?.mockResolvedValue(displayValuesMock);
-        await handler.handleAuthenticated(message);
+        await handler.handleAuthenticated(buildRpcCall(message));
         expect(debankService.parseTransaction).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).not.toHaveBeenCalled();
         expect(getTxDescription).toHaveBeenCalledTimes(1);
         expect(parser).toHaveBeenCalledTimes(1);
         expect(parseBasicDisplayValues).not.toHaveBeenCalled();
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               displayValues: displayValuesMock,
@@ -643,12 +643,12 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
         jest
           .mocked(parseBasicDisplayValues)
           .mockResolvedValue(displayValuesMock);
-        await handler.handleAuthenticated(message);
+        await handler.handleAuthenticated(buildRpcCall(message));
         expect(debankService.parseTransaction).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).not.toHaveBeenCalled();
         expect(parser).toHaveBeenCalledTimes(1);
         expect(parseBasicDisplayValues).toHaveBeenCalledTimes(1);
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               displayValues: displayValuesMock,
@@ -674,12 +674,12 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
         jest
           .mocked(parseBasicDisplayValues)
           .mockResolvedValue(displayValuesMock);
-        await handler.handleAuthenticated(message);
+        await handler.handleAuthenticated(buildRpcCall(message));
         expect(debankService.parseTransaction).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).not.toHaveBeenCalled();
         expect(parser).not.toHaveBeenCalled();
         expect(parseBasicDisplayValues).toHaveBeenCalledTimes(1);
-        expect(openApprovalWindowSpy).toHaveBeenCalledWith(
+        expect(openApprovalWindow).toHaveBeenCalledWith(
           expect.objectContaining({
             displayData: expect.objectContaining({
               displayValues: displayValuesMock,
@@ -693,8 +693,13 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
 
   describe('onActionApproved', () => {
     const mockAction: Action<Transaction> = {
-      actionId: 'actiondId',
+      id: 'actionId',
+      params: [],
       method: DAppProviderRequest.ETH_SEND_TX,
+      site: {
+        domain: 'example.com',
+      },
+      actionId: 'actiondId',
       status: ActionStatus.PENDING,
       time: 123123,
       displayData: {

@@ -7,6 +7,7 @@ import { Action } from '../../actions/models';
 import { PermissionsService } from '../PermissionsService';
 import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';
 import { ethErrors } from 'eth-rpc-errors';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 @injectable()
 export class WalletRequestPermissionsHandler extends DAppRequestHandler {
@@ -19,8 +20,10 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
     super();
   }
 
-  handleUnauthenticated = async (request) => {
-    await this.openApprovalWindow(
+  handleUnauthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
+
+    await openApprovalWindow(
       {
         ...request,
         displayData: {
@@ -28,7 +31,6 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
           domainUrl: request.site?.domain,
           domainIcon: request.site?.icon,
         },
-        tabId: request.site.tabId,
       },
       `permissions`
     );
@@ -36,8 +38,8 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
     return { ...request, result: DEFERRED_RESPONSE };
   };
 
-  handleAuthenticated = async (request) => {
-    return await this.handleUnauthenticated(request);
+  handleAuthenticated = async (rpcCall) => {
+    return await this.handleUnauthenticated(rpcCall);
   };
 
   onActionApproved = async (
@@ -52,7 +54,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
       return;
     }
 
-    if (!pendingAction?.site?.domain) {
+    if (!pendingAction.site?.domain) {
       onError(ethErrors.rpc.internal('Domain not set'));
       return;
     }
@@ -68,7 +70,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
     onSuccess(
       getPermissionsConvertedToMetaMaskStructure(
         selectedAccount.addressC,
-        pendingAction.site?.domain,
+        pendingAction.site.domain,
         currentPermissions
       )
     );

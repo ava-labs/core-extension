@@ -19,7 +19,7 @@ export class EstimateGasForBridgeTxHandler implements HandlerType {
 
   constructor(private bridgeService: BridgeService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     return {
       ...request,
       result: await this.bridgeService.estimateGas(...request.params),

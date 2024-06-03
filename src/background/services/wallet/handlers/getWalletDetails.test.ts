@@ -3,6 +3,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { SecretType } from '../../secrets/models';
 import { SeedlessAuthProvider } from '../models';
 import { GetWalletDetailsHandler } from './getWalletDetails';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/wallet/handlers/getWalletDetails.test.ts', () => {
   const walletServiceMock = {
@@ -21,7 +22,7 @@ describe('src/background/services/wallet/handlers/getWalletDetails.test.ts', () 
       method: ExtensionRequest.WALLET_GET_DETAILS,
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toStrictEqual({
       ...request,
@@ -47,7 +48,7 @@ describe('src/background/services/wallet/handlers/getWalletDetails.test.ts', () 
       method: ExtensionRequest.WALLET_GET_DETAILS,
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toStrictEqual({
       ...request,

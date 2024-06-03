@@ -6,6 +6,7 @@ import { PermissionsService } from '../../permissions/PermissionsService';
 import { ethErrors } from 'eth-rpc-errors';
 import { Action } from '../../actions/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -17,17 +18,17 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
  */
 
 @injectable()
-export class ConnectRequestHandler extends DAppRequestHandler {
+export class ConnectRequestHandler implements DAppRequestHandler {
   methods = [DAppProviderRequest.CONNECT_METHOD];
 
   constructor(
     private accountsService: AccountsService,
     private permissionsService: PermissionsService
-  ) {
-    super();
-  }
+  ) {}
 
-  handleAuthenticated = async (request) => {
+  async handleAuthenticated(rpcCall) {
+    const { request } = rpcCall;
+
     if (!this.accountsService.activeAccount) {
       return {
         ...request,
@@ -39,9 +40,11 @@ export class ConnectRequestHandler extends DAppRequestHandler {
       ...request,
       result: [this.accountsService.activeAccount.addressC],
     };
-  };
+  }
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
+
     if (!request.site?.domain) {
       return {
         ...request,
@@ -49,7 +52,7 @@ export class ConnectRequestHandler extends DAppRequestHandler {
       };
     }
 
-    await this.openApprovalWindow(
+    await openApprovalWindow(
       {
         ...request,
         displayData: {
@@ -57,7 +60,6 @@ export class ConnectRequestHandler extends DAppRequestHandler {
           domainUrl: request.site?.domain,
           domainIcon: request.site?.icon,
         },
-        tabId: request.site.tabId,
       },
       `permissions`
     );
