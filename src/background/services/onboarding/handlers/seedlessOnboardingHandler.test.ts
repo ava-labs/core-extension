@@ -17,6 +17,9 @@ import {
   SignerSessionData,
 } from '@cubist-labs/cubesigner-sdk';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
+
+jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
 
 jest.mock('@cubist-labs/cubesigner-sdk');
 const mockrMemorySession = {
@@ -59,6 +62,7 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
   const accountsServiceMock = {
     addPrimaryAccount: jest.fn(),
     getAccountList: jest.fn(),
+    getAccounts: jest.fn(),
     activateAccount: jest.fn(),
   } as unknown as AccountsService;
   const settingsServiceMock = {
@@ -97,6 +101,11 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.mocked(accountsServiceMock.getAccounts).mockReturnValue({
+      primary: {
+        [WALLET_ID]: [accountMock],
+      },
+    } as any);
     (accountsServiceMock.getAccountList as jest.Mock).mockReturnValue([
       accountMock,
     ]);
@@ -167,5 +176,7 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
     });
 
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(true);
+
+    expect(addXPChainToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });

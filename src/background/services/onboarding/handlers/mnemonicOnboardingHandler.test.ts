@@ -15,6 +15,9 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { SettingsService } from '../../settings/SettingsService';
 import { NetworkService } from '../../network/NetworkService';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
+
+jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
 
 jest.mock('@avalabs/wallets-sdk', () => ({
   ...jest.requireActual('@avalabs/wallets-sdk'),
@@ -44,6 +47,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
   const accountsServiceMock = {
     addPrimaryAccount: jest.fn(),
     getAccountList: jest.fn(),
+    getAccounts: jest.fn(),
     activateAccount: jest.fn(),
   } as unknown as AccountsService;
   const settingsServiceMock = {
@@ -55,7 +59,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
 
   const accountMock = {
     id: '1',
-  };
+  } as any;
 
   const getHandler = () =>
     new MnemonicOnboardingHandler(
@@ -78,6 +82,11 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.mocked(accountsServiceMock.getAccounts).mockReturnValue({
+      primary: {
+        [WALLET_ID]: [accountMock],
+      },
+    } as any);
     (accountsServiceMock.getAccountList as jest.Mock).mockReturnValue([
       accountMock,
     ]);
@@ -167,5 +176,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     expect(
       analyticsServiceMock.saveTemporaryAnalyticsIds
     ).not.toHaveBeenCalled();
+
+    expect(addXPChainToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });

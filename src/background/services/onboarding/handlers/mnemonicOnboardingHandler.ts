@@ -90,6 +90,7 @@ export class MnemonicOnboardingHandler implements HandlerType {
     });
 
     await finalizeOnboarding({
+      walletId,
       networkService: this.networkService,
       accountsService: this.accountsService,
       lockService: this.lockService,
