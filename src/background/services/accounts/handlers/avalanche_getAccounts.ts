@@ -20,23 +20,29 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
     const accounts = this.accountsService.getAccountList();
     const activeAccount = this.accountsService.activeAccount;
 
-    const getWalletType = (acc: Account) => {
+    const getWalletData = (acc: Account) => {
       if (acc.type === AccountType.PRIMARY) {
-        return this.walletService.wallets.find(
-          (wallet) => wallet.id === acc.walletId
-        )?.type;
+        const walletData = this.walletService.wallets.find((wallet) => {
+          return wallet.id === acc.walletId;
+        });
+        return {
+          name: walletData?.name,
+          type: walletData?.type,
+        };
       }
+      return null;
     };
 
     return {
       ...request,
       result: accounts.map((acc) => {
         const active = activeAccount?.id === acc.id;
-        const walletType = getWalletType(acc);
+        const walletData = getWalletData(acc);
 
         return {
           ...acc,
-          walletType,
+          walletType: walletData?.type,
+          walletName: walletData?.name,
           active,
         };
       }),

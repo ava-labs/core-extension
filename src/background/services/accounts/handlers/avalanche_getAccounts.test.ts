@@ -4,6 +4,7 @@ import { AvalancheGetAccountsHandler } from './avalanche_getAccounts';
 import { SecretType } from '../../secrets/models';
 import { buildRpcCall } from '@src/tests/test-utils';
 
+const walletName = 'Wallet-Name-001';
 describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () => {
   const accounts = [
     {
@@ -39,6 +40,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
     wallets: [
       {
         type: SecretType.Mnemonic,
+        name: walletName,
       },
     ],
   } as any;
@@ -68,6 +70,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
           addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
           type: AccountType.PRIMARY,
           walletType: SecretType.Mnemonic,
+          walletName,
           active: true,
         },
         {
@@ -76,6 +79,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
           addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
           type: AccountType.PRIMARY,
           walletType: SecretType.Mnemonic,
+          walletName,
           active: false,
         },
         {
