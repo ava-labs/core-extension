@@ -142,9 +142,19 @@ export function PermissionsPage() {
           </Box>
           <Stack sx={{ gap: 2.5, alignItems: 'center' }}>
             {featureFlags[FeatureGates.BLOCKAID_DAPP_SCAN] &&
-              isMaliciousDApp && <AlertBox />}
+              isMaliciousDApp && (
+                <AlertBox
+                  title={t('Malicious Application')}
+                  text={t('This application is malicious, do not proceed.')}
+                />
+              )}
             {featureFlags[FeatureGates.BLOCKAID_DAPP_SCAN_WARNING] &&
-              isMissingBlockaidData && <WarningBox />}
+              isMissingBlockaidData && (
+                <WarningBox
+                  title={t('Suspicious Application')}
+                  text={t('Use caution, this application may be malicious.')}
+                />
+              )}
             <SiteAvatar sx={{ m: 0 }}>
               <TokenIcon
                 height="48px"
@@ -234,9 +244,15 @@ export function PermissionsPage() {
       </Stack>
       {featureFlags[FeatureGates.BLOCKAID_DAPP_SCAN] && isMaliciousDApp && (
         <AlertDialog
-          cancelHandler={cancelHandler}
+          cancelHandler={() => {
+            cancelHandler();
+            window.close();
+          }}
           open={displayDialog}
           onClose={() => setDisplayDialog(false)}
+          title={t('Scam Application')}
+          text={t('This application is malicious, do not proceed.')}
+          rejectLabel={t('Reject Connection')}
         />
       )}
     </>

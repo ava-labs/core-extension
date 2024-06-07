@@ -21,6 +21,7 @@ import { TokenIcon } from '@src/components/common/TokenIcon';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
 import { Action } from '@src/background/services/actions/models';
 import { Transaction } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import { NftAccordion } from './NftAccordion';
 
 type TxBalanceChangeProps = {
   transaction: Action<Transaction>;
@@ -46,6 +47,19 @@ export const TxBalanceChange = ({ transaction }: TxBalanceChangeProps) => {
     !hasSentItems &&
     !hasReceivedItems &&
     !transaction.displayData?.displayValues?.preExecSuccess;
+
+  const hasReceiveNftList =
+    balanceChange && balanceChange?.receiveNftList.length > 1;
+  const hasReceiveNftCollection = balanceChange?.receiveNftList[0]?.size;
+
+  const hasSendNftList = balanceChange && balanceChange?.sendNftList.length > 1;
+  const hasSendNftCollection = balanceChange?.sendNftList[0]?.size;
+
+  const showTokenCard =
+    !hasReceiveNftList &&
+    !hasSendNftList &&
+    !hasSendNftCollection &&
+    !hasSendNftCollection;
 
   return (
     <ApprovalSection>
@@ -94,22 +108,26 @@ export const TxBalanceChange = ({ transaction }: TxBalanceChangeProps) => {
             </TransactionTokenCard>
           ))}
           {balanceChange?.sendNftList.map((nft, index) => (
-            <TransactionTokenCard
-              key={`s-nft-${nft.address}-${index}`}
-              token={nft}
-              variant={TransactionTokenCardVariant.SEND}
-              sx={{ p: 0 }}
-            >
-              <CollectibleMedia
-                height="32px"
-                width="auto"
-                maxWidth="32px"
-                url={nft?.logoUri}
-                hover={false}
-                margin="8px 0"
-                showPlayIcon={false}
-              />
-            </TransactionTokenCard>
+            <>
+              {nft.size && index === 0 && (
+                <TransactionTokenCard
+                  key={`s-nft-${nft.address}-${index}`}
+                  token={nft}
+                  variant={TransactionTokenCardVariant.SEND}
+                  sx={{ p: 0 }}
+                >
+                  <CollectibleMedia
+                    height="32px"
+                    width="auto"
+                    maxWidth="32px"
+                    url={nft?.logoUri}
+                    hover={false}
+                    margin="8px 0"
+                    showPlayIcon={false}
+                  />
+                </TransactionTokenCard>
+              )}
+            </>
           ))}
           {balanceChange?.receiveTokenList.map((token, index) => (
             <TransactionTokenCard
@@ -126,24 +144,36 @@ export const TxBalanceChange = ({ transaction }: TxBalanceChangeProps) => {
               />
             </TransactionTokenCard>
           ))}
-          {balanceChange?.receiveNftList.map((nft, index) => (
-            <TransactionTokenCard
-              key={`r-nft-${nft.address}-${index}`}
-              token={nft}
-              variant={TransactionTokenCardVariant.RECEIVE}
-              sx={{ p: 0 }}
-            >
-              <CollectibleMedia
-                height="32px"
-                width="auto"
-                maxWidth="32px"
-                url={nft?.logoUri}
-                hover={false}
-                margin="8px 0"
-                showPlayIcon={false}
-              />
-            </TransactionTokenCard>
-          ))}
+          {hasReceiveNftList && hasReceiveNftCollection && (
+            <NftAccordion nftList={balanceChange?.receiveNftList} />
+          )}
+          {hasSendNftList && hasSendNftCollection && (
+            <NftAccordion nftList={balanceChange?.sendNftList} />
+          )}
+          {showTokenCard &&
+            balanceChange?.receiveNftList.map((nft, index) => {
+              return (
+                <>
+                  <TransactionTokenCard
+                    key={`r-nft-${nft.address}-${index}`}
+                    token={nft}
+                    variant={TransactionTokenCardVariant.RECEIVE}
+                    sx={{ p: 0 }}
+                  >
+                    <CollectibleMedia
+                      height="32px"
+                      width="auto"
+                      maxWidth="32px"
+                      url={nft?.logoUri}
+                      hover={false}
+                      margin="8px 0"
+                      showPlayIcon={false}
+                    />
+                  </TransactionTokenCard>
+                </>
+              );
+            })}
+
           {showNoDataWarning && (
             <Alert severity="info">
               <AlertTitle>{t('Balance change info not available')}</AlertTitle>

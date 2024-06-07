@@ -4,7 +4,6 @@ import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFe
 import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import { FeatureFlagService } from '@src/background/services/featureFlags/FeatureFlagService';
-import { DebankService } from '@src/background/services/debank';
 import { TokenManagerService } from '@src/background/services/tokens/TokenManagerService';
 import { AnalyticsServicePosthog } from '@src/background/services/analytics/AnalyticsServicePosthog';
 import { WalletService } from '@src/background/services/wallet/WalletService';
@@ -34,11 +33,11 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { BlockaidService } from '@src/background/services/blockaid/BlockaidService';
 
 jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('@src/utils/network/getProviderForNetwork');
 jest.mock('@src/background/services/analytics/AnalyticsServicePosthog');
-jest.mock('@src/background/services/debank');
 jest.mock('@src/background/services/tokens/TokenManagerService');
 jest.mock('@src/background/services/networkFee/NetworkFeeService');
 jest.mock('@src/background/services/network/NetworkService');
@@ -86,6 +85,9 @@ jest.mock('webextension-polyfill', () => ({
     getMessage: jest.fn(),
   },
 }));
+jest.mock('@blockaid/client', () => {
+  return jest.fn();
+});
 
 const buildMessage = (params: EthSendTransactionParams) => ({
   method: DAppProviderRequest.ETH_SEND_TX,
@@ -152,7 +154,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     {} as any,
     {} as any
   );
-  const debankService = new DebankService({} as any);
+
   const tokenManagerService = new TokenManagerService({} as any, {} as any);
   const walletService = new WalletService(
     {} as any,
@@ -167,6 +169,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     {} as any,
     {} as any
   );
+  const blockaidService = new BlockaidService({} as any);
 
   const accountMock = {
     type: AccountType.PRIMARY,
@@ -232,11 +235,11 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       networkFeeService,
       accountsService,
       featureFlagService,
-      debankService,
       balanceAggregatorService,
       tokenManagerService,
       walletService,
-      analyticsServicePosthog
+      analyticsServicePosthog,
+      blockaidService
     );
   });
   describe('handleUnauthenticated', () => {
@@ -471,18 +474,19 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           balanceAggregatorService.updateBalancesForNetworks
         ).not.toHaveBeenCalled();
       });
-      it('parses the transaction with debank', async () => {
+      it('parses the transaction with blockaid', async () => {
         const message = buildMessage({
           from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
           to: '',
           value: '0x5af3107a4000',
           data: '0x123123123123',
         });
-        jest
-          .mocked(debankService.parseTransaction)
+        blockaidService.parseTransaction = jest
+          .fn()
           .mockResolvedValue(displayValuesMock);
         await handler.handleAuthenticated(buildRpcCall(message));
-        expect(debankService.parseTransaction).toHaveBeenCalledWith(
+        expect(blockaidService.parseTransaction).toHaveBeenCalledWith(
+          '',
           networkMock,
           {
             data: '0x123123123123',
@@ -525,10 +529,10 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           .getTokensByChainId.mockResolvedValue([mockToken]);
         jest.mocked(parseWithERC20Abi).mockReturnValue(displayValuesMock);
         jest
-          .mocked(debankService.parseTransaction)
+          .mocked(blockaidService.parseTransaction)
           .mockRejectedValue(new Error('network error'));
         await handler.handleAuthenticated(buildRpcCall(message));
-        expect(debankService.parseTransaction).toHaveBeenCalledTimes(1);
+        expect(blockaidService.parseTransaction).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).toHaveBeenCalledWith(
           {
@@ -569,7 +573,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           throw new Error('parsing failed');
         });
         jest
-          .mocked(debankService.parseTransaction)
+          .mocked(blockaidService.parseTransaction)
           .mockRejectedValue(new Error('network error'));
         jest
           .mocked(getTxDescription)
@@ -577,7 +581,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
         const parser = contractParserMap.get('function');
         jest.mocked(parser)?.mockResolvedValue(displayValuesMock);
         await handler.handleAuthenticated(buildRpcCall(message));
-        expect(debankService.parseTransaction).toHaveBeenCalledTimes(1);
+        expect(blockaidService.parseTransaction).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).toHaveBeenCalledTimes(1);
         expect(getTxDescription).toHaveBeenCalledTimes(1);
         expect(parser).toHaveBeenCalledTimes(1);
@@ -603,7 +607,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           } as any,
         ]);
         jest
-          .mocked(debankService.parseTransaction)
+          .mocked(blockaidService.parseTransaction)
           .mockRejectedValue(new Error('network error'));
         jest
           .mocked(getTxDescription)
@@ -611,7 +615,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
         const parser = contractParserMap.get('function');
         jest.mocked(parser)?.mockResolvedValue(displayValuesMock);
         await handler.handleAuthenticated(buildRpcCall(message));
-        expect(debankService.parseTransaction).toHaveBeenCalledTimes(1);
+        expect(blockaidService.parseTransaction).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).not.toHaveBeenCalled();
         expect(getTxDescription).toHaveBeenCalledTimes(1);
         expect(parser).toHaveBeenCalledTimes(1);
@@ -633,7 +637,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           data: '0x123123123123',
         });
         jest
-          .mocked(debankService.parseTransaction)
+          .mocked(blockaidService.parseTransaction)
           .mockRejectedValue(new Error('network error'));
         jest.mocked(getTxDescription).mockResolvedValue({
           name: 'function',
@@ -644,7 +648,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           .mocked(parseBasicDisplayValues)
           .mockResolvedValue(displayValuesMock);
         await handler.handleAuthenticated(buildRpcCall(message));
-        expect(debankService.parseTransaction).toHaveBeenCalledTimes(1);
+        expect(blockaidService.parseTransaction).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).not.toHaveBeenCalled();
         expect(parser).toHaveBeenCalledTimes(1);
         expect(parseBasicDisplayValues).toHaveBeenCalledTimes(1);
@@ -665,7 +669,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           data: '0x123123123123',
         });
         jest
-          .mocked(debankService.parseTransaction)
+          .mocked(blockaidService.parseTransaction)
           .mockRejectedValue(new Error('network error'));
         jest.mocked(getTxDescription).mockResolvedValue({
           name: 'someOtherFunction',
@@ -675,7 +679,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           .mocked(parseBasicDisplayValues)
           .mockResolvedValue(displayValuesMock);
         await handler.handleAuthenticated(buildRpcCall(message));
-        expect(debankService.parseTransaction).toHaveBeenCalledTimes(1);
+        expect(blockaidService.parseTransaction).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).not.toHaveBeenCalled();
         expect(parser).not.toHaveBeenCalled();
         expect(parseBasicDisplayValues).toHaveBeenCalledTimes(1);

@@ -57,6 +57,7 @@ export interface TransactionNft {
 
   isScam?: boolean;
   isSuspicious?: boolean;
+  size?: number;
 }
 
 export type TransactionAction =
@@ -179,6 +180,8 @@ export interface TransactionDisplayValues {
   };
 
   preExecSuccess?: boolean;
+  isMalicious?: boolean;
+  isSuspicious?: boolean;
 }
 
 export interface Transaction {
