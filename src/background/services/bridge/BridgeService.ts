@@ -16,7 +16,7 @@ import {
   setBridgeEnvironment,
   trackBridgeTransaction as trackBridgeTransactionSDK,
   TrackerSubscription,
-  transferAsset as transferAssetSDK,
+  transferAssetEVM as transferAssetSDK,
   WrapStatus,
 } from '@avalabs/bridge-sdk';
 import { isNil, omit, omitBy } from 'lodash';
@@ -46,7 +46,6 @@ import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { Avalanche, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { isWalletConnectAccount } from '../accounts/utils/typeGuards';
 import { FeatureGates } from '../featureFlags/models';
-import { TransactionResponse } from 'ethers';
 import { wrapError } from '@src/utils/errors';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { TokenWithBalanceBTC } from '../balances/models';
@@ -364,7 +363,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     asset: EthereumConfigAsset | NativeAsset,
     customGasSettings?: CustomGasSettings,
     tabId?: number
-  ): Promise<TransactionResponse | undefined> {
+  ): Promise<string> {
     if (!this.config?.config) {
       throw new Error('missing bridge config');
     }
@@ -376,33 +375,38 @@ export class BridgeService implements OnLock, OnStorageReady {
     const avalancheProvider = await this.networkService.getAvalancheProvider();
     const ethereumProvider = await this.networkService.getEthereumProvider();
 
-    // We have to get the network for the current blockchain
-    let network;
-    if (currentBlockchain === Blockchain.AVALANCHE) {
-      network = await this.networkService.getAvalancheNetwork();
-    } else if (currentBlockchain === Blockchain.ETHEREUM) {
-      network = await this.networkService.getEthereumNetwork();
+    if (
+      Blockchain.AVALANCHE !== currentBlockchain &&
+      Blockchain.ETHEREUM !== currentBlockchain
+    ) {
+      throw new Error('invalid current blockchain value');
     }
 
-    return await transferAssetSDK(
+    // We have to get the network for the current blockchain
+    const network =
+      currentBlockchain === Blockchain.AVALANCHE
+        ? await this.networkService.getAvalancheNetwork()
+        : await this.networkService.getEthereumNetwork();
+
+    return await transferAssetSDK({
       currentBlockchain,
       amount,
-      this.accountsService.activeAccount.addressC,
+      account: this.accountsService.activeAccount.addressC,
       asset,
       avalancheProvider,
       ethereumProvider,
-      this.config.config,
-      (status: WrapStatus) =>
+      config: this.config.config,
+      onStatusChange: (status: WrapStatus) =>
         this.eventEmitter.emit(BridgeEvents.BRIDGE_TRANSFER_EVENT, {
           type: TransferEventType.WRAP_STATUS,
           status,
         }),
-      (txHash: string) =>
+      onTxHashChange: (txHash: string) =>
         this.eventEmitter.emit(BridgeEvents.BRIDGE_TRANSFER_EVENT, {
           type: TransferEventType.TX_HASH,
           txHash,
         }),
-      async (txData) => {
+      signAndSendEVM: async (txData) => {
         // ignore our gas estimation, use whatever the SDK estimated at the time of signing
         const gasSettings = omit(customGasSettings ?? {}, 'gasLimit');
 
@@ -411,7 +415,7 @@ export class BridgeService implements OnLock, OnStorageReady {
           // do not override gas-related properties with nullish values
           ...omitBy(gasSettings ?? {}, isNil),
         };
-        return this.walletService.sign(
+        const signingResult = await this.walletService.sign(
           {
             ...tx,
             gasPrice: tx.maxFeePerGas ? undefined : tx.gasPrice, // erase gasPrice if maxFeePerGas can be used
@@ -420,8 +424,10 @@ export class BridgeService implements OnLock, OnStorageReady {
           tabId,
           network
         );
-      }
-    );
+
+        return this.networkService.sendTransaction(signingResult, network);
+      },
+    });
   }
 
   async createTransaction(

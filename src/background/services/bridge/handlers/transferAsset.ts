@@ -4,14 +4,13 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import Big from 'big.js';
 import { injectable } from 'tsyringe';
 import { BridgeService } from '../BridgeService';
-import { CustomGasSettings, BtcTransactionResponse } from '../models';
-import { TransactionResponse } from 'ethers';
+import { CustomGasSettings } from '../models';
 import { ethErrors } from 'eth-rpc-errors';
 import { CommonError, isWrappedError } from '@src/utils/errors';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_TRANSFER_ASSET,
-  TransactionResponse | BtcTransactionResponse,
+  { hash: string },
   [
     currentBlockchain: Blockchain,
     amountStr: Big,
@@ -41,7 +40,7 @@ export class BridgeTransferAssetHandler implements HandlerType {
           ),
         };
       } else {
-        const result = await this.bridgeService.transferAsset(
+        const txHash = await this.bridgeService.transferAsset(
           currentBlockchain,
           amount,
           // This is needed for the bridge to work currently
@@ -50,7 +49,7 @@ export class BridgeTransferAssetHandler implements HandlerType {
           request.tabId
         );
 
-        if (!result) {
+        if (!txHash) {
           return {
             ...request,
             error: ethErrors.rpc.internal({
@@ -61,7 +60,9 @@ export class BridgeTransferAssetHandler implements HandlerType {
 
         return {
           ...request,
-          result,
+          result: {
+            hash: txHash,
+          },
         };
       }
     } catch (err) {

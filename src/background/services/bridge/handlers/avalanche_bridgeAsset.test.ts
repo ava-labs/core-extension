@@ -7,7 +7,6 @@ import { AccountType, PrimaryAccount } from '../../accounts/models';
 import { BtcTransactionResponse } from '../models';
 import { Action, ActionStatus } from './../../actions/models';
 import { AvalancheBridgeAsset } from './avalanche_bridgeAsset';
-import { TransactionResponse } from 'ethers';
 import { TokenType } from '../../balances/models';
 import { BN } from 'bn.js';
 import {
@@ -121,17 +120,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     actionId: 'uuid',
   } as any;
 
-  const ethResult: TransactionResponse = {
-    hash: '987hash987',
-    gasLimit: 9n,
-    value: 8n,
-    confirmations: async () => 7,
-    from: '987from987',
-    wait: jest.fn(),
-    nonce: 9,
-    data: '987data987',
-    chainId: 8n,
-  } as any as TransactionResponse;
+  const ethResult = '987hash987';
 
   let handler: AvalancheBridgeAsset;
 
@@ -176,7 +165,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         ...request,
         error: 'Missing param: blockchain',
       });
-      expect(openApprovalWindow).toBeCalledTimes(0);
+      expect(openApprovalWindow).toHaveBeenCalledTimes(0);
     });
 
     it('should return error when amount is missing', async () => {
@@ -192,7 +181,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         params: ['bitcoin'],
         error: 'Missing param: amount',
       });
-      expect(openApprovalWindow).toBeCalledTimes(0);
+      expect(openApprovalWindow).toHaveBeenCalledTimes(0);
     });
 
     it('should return error when asset is missing and blockchain in not bitcoin', async () => {
@@ -208,7 +197,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         params: ['testBlockchain', '1'],
         error: 'Invalid param: unknown asset',
       });
-      expect(openApprovalWindow).toBeCalledTimes(0);
+      expect(openApprovalWindow).toHaveBeenCalledTimes(0);
     });
 
     it('asset should be optional for bitcoin', async () => {
@@ -224,8 +213,8 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         params: ['bitcoin', '1'],
         result: DEFERRED_RESPONSE,
       });
-      expect(openApprovalWindow).toBeCalledTimes(1);
-      expect(openApprovalWindow).toBeCalledWith(
+      expect(openApprovalWindow).toHaveBeenCalledTimes(1);
+      expect(openApprovalWindow).toHaveBeenCalledWith(
         {
           ...request,
           params: ['bitcoin', '1'],
@@ -265,7 +254,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         ...mockRequest,
         error: 'Invalid param: unknown asset',
       });
-      expect(openApprovalWindow).toBeCalledTimes(0);
+      expect(openApprovalWindow).toHaveBeenCalledTimes(0);
     });
 
     it('should return error when asset is for wrong chain', async () => {
@@ -281,7 +270,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         ...mockRequest,
         error: 'Invalid param: asset',
       });
-      expect(openApprovalWindow).toBeCalledTimes(0);
+      expect(openApprovalWindow).toHaveBeenCalledTimes(0);
     });
 
     it('should return error when native is for wrong chain', async () => {
@@ -297,7 +286,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         ...mockRequest,
         error: 'Invalid param: asset',
       });
-      expect(openApprovalWindow).toBeCalledTimes(0);
+      expect(openApprovalWindow).toHaveBeenCalledTimes(0);
     });
 
     it('returns expected result', async () => {
@@ -513,16 +502,16 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         frontendTabId
       );
 
-      expect(bridgeServiceMock.transferBtcAsset).toBeCalledTimes(1);
-      expect(bridgeServiceMock.transferBtcAsset).toBeCalledWith(
+      expect(bridgeServiceMock.transferBtcAsset).toHaveBeenCalledTimes(1);
+      expect(bridgeServiceMock.transferBtcAsset).toHaveBeenCalledWith(
         amount,
         undefined,
         frontendTabId
       );
 
-      expect(bridgeServiceMock.transferAsset).toBeCalledTimes(0);
-      expect(bridgeServiceMock.createTransaction).toBeCalledTimes(1);
-      expect(bridgeServiceMock.createTransaction).toBeCalledWith(
+      expect(bridgeServiceMock.transferAsset).toHaveBeenCalledTimes(0);
+      expect(bridgeServiceMock.createTransaction).toHaveBeenCalledTimes(1);
+      expect(bridgeServiceMock.createTransaction).toHaveBeenCalledWith(
         Blockchain.BITCOIN,
         btcResult.hash,
         now,
@@ -533,10 +522,10 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
       expect(
         balanceAggregatorServiceMock.updateBalancesForNetworks
-      ).toBeCalledWith([ChainId.BITCOIN], [testActiveAccount]);
+      ).toHaveBeenCalledWith([ChainId.BITCOIN], [testActiveAccount]);
 
-      expect(mockOnSuccess).toBeCalledWith(btcResult);
-      expect(mockOnError).toBeCalledTimes(0);
+      expect(mockOnSuccess).toHaveBeenCalledWith(btcResult);
+      expect(mockOnError).toHaveBeenCalledTimes(0);
       expect(
         analyticsServicePosthogMock.captureEncryptedEvent
       ).toHaveBeenNthCalledWith(
@@ -564,10 +553,10 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       const mockOnError = jest.fn();
 
       await handler.onActionApproved(btcAction, {}, mockOnSuccess, mockOnError);
-      expect(bridgeServiceMock.createTransaction).toBeCalledTimes(0);
+      expect(bridgeServiceMock.createTransaction).toHaveBeenCalledTimes(0);
 
-      expect(mockOnError).toBeCalledWith(error);
-      expect(mockOnSuccess).toBeCalledTimes(0);
+      expect(mockOnError).toHaveBeenCalledWith(error);
+      expect(mockOnSuccess).toHaveBeenCalledTimes(0);
 
       expect(
         analyticsServicePosthogMock.captureEncryptedEvent
@@ -609,10 +598,10 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
       expect(
         balanceAggregatorServiceMock.updateBalancesForNetworks
-      ).toBeCalledTimes(0);
+      ).toHaveBeenCalledTimes(0);
 
-      expect(bridgeServiceMock.transferAsset).toBeCalledTimes(1);
-      expect(bridgeServiceMock.transferAsset).toBeCalledWith(
+      expect(bridgeServiceMock.transferAsset).toHaveBeenCalledTimes(1);
+      expect(bridgeServiceMock.transferAsset).toHaveBeenCalledWith(
         ethAction.displayData.currentBlockchain,
         amount,
         ethAction.displayData.asset,
@@ -620,18 +609,18 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         undefined,
         frontendTabId
       );
-      expect(bridgeServiceMock.transferBtcAsset).toBeCalledTimes(0);
-      expect(bridgeServiceMock.createTransaction).toBeCalledTimes(1);
-      expect(bridgeServiceMock.createTransaction).toBeCalledWith(
+      expect(bridgeServiceMock.transferBtcAsset).toHaveBeenCalledTimes(0);
+      expect(bridgeServiceMock.createTransaction).toHaveBeenCalledTimes(1);
+      expect(bridgeServiceMock.createTransaction).toHaveBeenCalledWith(
         Blockchain.ETHEREUM,
-        ethResult.hash,
+        ethResult,
         now,
         Blockchain.AVALANCHE,
         amount,
         'ETH'
       );
-      expect(mockOnSuccess).toBeCalledWith(ethResult);
-      expect(mockOnError).toBeCalledTimes(0);
+      expect(mockOnSuccess).toHaveBeenCalledWith(ethResult);
+      expect(mockOnError).toHaveBeenCalledTimes(0);
 
       expect(
         analyticsServicePosthogMock.captureEncryptedEvent
@@ -641,7 +630,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
           name: 'avalanche_bridgeAsset_success',
           properties: {
             address: testActiveAccount.addressC,
-            txHash: ethResult.hash,
+            txHash: ethResult,
             chainId: ChainId.ETHEREUM_TEST_SEPOLIA,
           },
         })
@@ -660,10 +649,10 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       const mockOnError = jest.fn();
 
       await handler.onActionApproved(ethAction, {}, mockOnSuccess, mockOnError);
-      expect(bridgeServiceMock.createTransaction).toBeCalledTimes(0);
+      expect(bridgeServiceMock.createTransaction).toHaveBeenCalledTimes(0);
 
-      expect(mockOnError).toBeCalledWith(error);
-      expect(mockOnSuccess).toBeCalledTimes(0);
+      expect(mockOnError).toHaveBeenCalledWith(error);
+      expect(mockOnSuccess).toHaveBeenCalledTimes(0);
 
       expect(
         analyticsServicePosthogMock.captureEncryptedEvent

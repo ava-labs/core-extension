@@ -14,7 +14,6 @@ import {
   isPchainNetwork,
   isPchainNetworkId,
 } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import {
   isXchainNetwork,
   isXchainNetworkId,
@@ -177,7 +176,6 @@ export const useIsFunctionAvailable = (
   const { network } = useNetworkContext();
   const isUsingSeedlessAccount = useIsUsingSeedlessAccount();
   const { featureFlags } = useFeatureFlagContext();
-  const { isLedgerWallet } = useWalletContext();
 
   const {
     accounts: { active },
@@ -192,21 +190,18 @@ export const useIsFunctionAvailable = (
     ) {
       return false;
     }
-
     if (functionToCheck === FunctionNames.SEND) {
       if (isPchainNetwork(network)) {
         return Boolean(
           !!active?.addressPVM &&
             featureFlags[FeatureGates.SEND] &&
-            featureFlags[FeatureGates.SEND_P_CHAIN] &&
-            !isLedgerWallet
+            featureFlags[FeatureGates.SEND_P_CHAIN]
         );
       } else if (isXchainNetwork(network)) {
         return Boolean(
           !!active?.addressAVM &&
             featureFlags[FeatureGates.SEND] &&
-            featureFlags[FeatureGates.SEND_X_CHAIN] &&
-            !isLedgerWallet
+            featureFlags[FeatureGates.SEND_X_CHAIN]
         );
       }
     }
@@ -223,12 +218,11 @@ export const useIsFunctionAvailable = (
 
     //The avalanche Ledger app doesn’t suprort send on x/p chain yet
     //The account without addressPVM cannot send on pchain
-    const onPchainWithNoAccess =
-      isPchainNetwork(network) && (isLedgerWallet || !active.addressPVM);
+    const onPchainWithNoAccess = isPchainNetwork(network) && !active.addressPVM;
 
     //The account without addressAVM cannot send on xchain
     const onXchainWithNoAccress =
-      isXchainNetwork(network) && (isLedgerWallet || !active.addressAVM);
+      isXchainNetwork(network) && !active.addressAVM;
 
     if (
       name === FunctionNames.SEND &&

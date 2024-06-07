@@ -33,6 +33,7 @@ import {
   getAddressPublicKeyFromXPub,
   Avalanche,
   createWalletPolicy,
+  LedgerSigner,
 } from '@avalabs/wallets-sdk';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { LedgerTransport } from '../ledger/LedgerTransport';
@@ -97,6 +98,7 @@ describe('background/services/wallet/WalletService.ts', () => {
   const staticSignerMock = Object.create(Avalanche.StaticSigner.prototype);
   const simpleSignerMock = Object.create(Avalanche.SimpleSigner.prototype);
   const ledgerSignerMock = Object.create(Avalanche.LedgerSigner.prototype);
+  const evmLedgerSignerMock = Object.create(LedgerSigner.prototype);
   const ledgerSimpleSignerMock = Object.create(
     Avalanche.SimpleLedgerSigner.prototype
   );
@@ -908,6 +910,63 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(seedlessWalletMock.signMessage).toHaveBeenCalledTimes(1);
     });
 
+    it('signs messages with Ledger', async () => {
+      evmLedgerSignerMock.signMessage = jest
+        .fn()
+        .mockResolvedValueOnce('0x00001')
+        .mockResolvedValueOnce('0x00002');
+
+      jest
+        .spyOn(walletService as any, 'getWallet')
+        .mockReturnValue(evmLedgerSignerMock);
+
+      await expect(
+        walletService.signMessage(MessageType.ETH_SIGN, {
+          ...action,
+          displayData: { messageParams: { data: 'data' } },
+        })
+      ).resolves.toBe('0x00001');
+      expect(evmLedgerSignerMock.signMessage).toHaveBeenCalledTimes(1);
+      expect(evmLedgerSignerMock.signMessage).toHaveBeenCalledWith('data');
+
+      await expect(
+        walletService.signMessage(MessageType.PERSONAL_SIGN, action)
+      ).resolves.toBe('0x00002');
+      expect(evmLedgerSignerMock.signMessage).toHaveBeenCalledTimes(2);
+      expect(evmLedgerSignerMock.signMessage).toHaveBeenNthCalledWith(2, {});
+    });
+
+    it('signs typed data with Ledger', async () => {
+      evmLedgerSignerMock.signTypedData = jest
+        .fn()
+        .mockResolvedValue('0x00001');
+
+      jest
+        .spyOn(walletService as any, 'getWallet')
+        .mockReturnValue(evmLedgerSignerMock);
+
+      await expect(
+        walletService.signMessage(MessageType.SIGN_TYPED_DATA_V4, {
+          ...action,
+          displayData: {
+            messageParams: {
+              data: {
+                domain: { name: 'domain' },
+                types: { types: 'types' },
+                message: { message: 'message' },
+              },
+            },
+          },
+        })
+      ).resolves.toBe('0x00001');
+      expect(evmLedgerSignerMock.signTypedData).toHaveBeenCalledTimes(1);
+      expect(evmLedgerSignerMock.signTypedData).toHaveBeenCalledWith(
+        { name: 'domain' },
+        { types: 'types' },
+        { message: 'message' }
+      );
+    });
+
     it('should call Buffer.fill after signing', async () => {
       jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
 
@@ -1155,7 +1214,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         fail('should have thrown an exception');
       } catch (error) {
         expect(error).toEqual(
-          new Error(`this function not supported on your wallet`)
+          new Error(`this function is not supported on your wallet`)
         );
         expect(Buffer.from).not.toHaveBeenCalled();
       }

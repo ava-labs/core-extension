@@ -271,17 +271,17 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
       }
     } else {
       try {
-        const result = await this.bridgeService.transferAsset(
+        const txHash = await this.bridgeService.transferAsset(
           currentBlockchain,
           amount,
           asset as Exclude<Asset, BitcoinConfigAsset>,
           pendingAction.displayData.gasSettings,
           frontendTabId
         );
-        if (result) {
+        if (txHash) {
           await this.bridgeService.createTransaction(
             currentBlockchain,
-            result.hash,
+            txHash,
             Date.now(),
             Blockchain.AVALANCHE === currentBlockchain
               ? Blockchain.ETHEREUM
@@ -295,13 +295,13 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
             windowId: crypto.randomUUID(),
             properties: {
               address: this.accountsService.activeAccount?.addressC,
-              txHash: result.hash,
+              txHash: txHash,
               chainId: sourceChainId,
             },
           });
         }
 
-        onSuccess(result);
+        onSuccess(txHash);
       } catch (e) {
         this.analyticsServicePosthog.captureEncryptedEvent({
           name: 'avalanche_bridgeAsset_failed',

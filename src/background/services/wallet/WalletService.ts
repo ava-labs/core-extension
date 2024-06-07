@@ -715,6 +715,25 @@ export class WalletService implements OnLock, OnUnlock {
       return wallet.signMessage(messageType, action.displayData?.messageParams);
     }
 
+    if (wallet instanceof LedgerSigner) {
+      if (
+        [
+          MessageType.SIGN_TYPED_DATA,
+          MessageType.SIGN_TYPED_DATA_V1,
+          MessageType.SIGN_TYPED_DATA_V3,
+          MessageType.SIGN_TYPED_DATA_V4,
+        ].includes(messageType)
+      ) {
+        return wallet.signTypedData(data.domain, data.types, data.message);
+      } else if (
+        [MessageType.ETH_SIGN, MessageType.PERSONAL_SIGN].includes(messageType)
+      ) {
+        return wallet.signMessage(data);
+      } else {
+        throw new Error(`this function is not supported on your wallet`);
+      }
+    }
+
     if (messageType === MessageType.AVALANCHE_SIGN) {
       return this.signMessageAvalanche(action.displayData?.messageParams);
     }
@@ -722,7 +741,7 @@ export class WalletService implements OnLock, OnUnlock {
     if (!wallet || !(wallet instanceof BaseWallet)) {
       throw new Error(
         wallet
-          ? `this function not supported on your wallet`
+          ? `this function is not supported on your wallet`
           : 'wallet undefined in sign tx'
       );
     }
