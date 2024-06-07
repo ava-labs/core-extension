@@ -30,7 +30,6 @@ import { AppBackground } from '@src/components/common/AppBackground';
 import { LedgerTrouble } from './pages/Ledger/LedgerTrouble';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Welcome } from './pages/Welcome/Welcome';
-import { SignIn } from './pages/Welcome/SignIn';
 import { RecoveryMethods } from './pages/Seedless/RecoveryMethods';
 import { RecoveryMethodsLogin } from './pages/Seedless/RecoveryMethodsLogin';
 import { VerifyGoBackModal } from './pages/Seedless/modals/VerifyGoBackModal';
@@ -112,11 +111,6 @@ export function Onboarding() {
                   <CreateWallet />
                 </Suspense>
               </Route>
-              <Route path={OnboardingURLs.SIGN_IN}>
-                <Suspense fallback={<CircularProgress />}>
-                  <SignIn />
-                </Suspense>
-              </Route>
               <Route path={OnboardingURLs.RECOVERY_METHODS}>
                 <Suspense fallback={<CircularProgress />}>
                   <RecoveryMethods />
@@ -168,7 +162,13 @@ export function Onboarding() {
           />
         </OnboardingStep>
       </ContentPart>
-      <ContentPart sx={{ backgroundColor: 'background.paper' }}>
+      <ContentPart
+        sx={{
+          backgroundColor: 'background.paper',
+          height: '100%',
+          backdropFilter: 'blur(15px)',
+        }}
+      >
         <AppBackground />
       </ContentPart>
     </Box>

@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   CheckIcon,
@@ -10,32 +9,14 @@ import {
   MenuList,
   Popper,
   Typography,
-  styled,
   useTheme,
 } from '@avalabs/k2-components';
 
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useLanguage } from '@src/hooks/useLanguages';
 
-const SelectorButton = styled(Button)`
-  .current-language {
-    color: ${({ theme }) => theme.palette.text.secondary};
-    transition: ${({ theme }) =>
-      theme.transitions.create('color', {
-        duration: theme.transitions.duration.short,
-      })};
-  }
-
-  &:hover {
-    .current-language {
-      color: ${({ theme }) => theme.palette.secondary.lighter};
-    }
-  }
-`;
-
 export function LanguageSelector() {
   const theme = useTheme();
-  const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const { availableLanguages, changeLanguage, currentLanguage } = useLanguage();
 
@@ -44,7 +25,7 @@ export function LanguageSelector() {
 
   return (
     <ClickAwayListener onClickAway={() => setIsDropdownOpen(false)}>
-      <SelectorButton
+      <Button
         variant="text"
         color="primary"
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -52,10 +33,10 @@ export function LanguageSelector() {
         data-testid="onboarding-language-selector"
         sx={{ gap: 0.5, color: 'text.primary' }}
       >
-        <Typography variant="body2">{t('Language')}</Typography>
-        <Typography className="current-language">
-          ({currentLanguage?.name})
+        <Typography variant="body2" className="current-language">
+          {currentLanguage?.name}
         </Typography>
+
         <ChevronDownIcon
           size={16}
           sx={{
@@ -114,7 +95,7 @@ export function LanguageSelector() {
             </Grow>
           )}
         </Popper>
-      </SelectorButton>
+      </Button>
     </ClickAwayListener>
   );
 }
