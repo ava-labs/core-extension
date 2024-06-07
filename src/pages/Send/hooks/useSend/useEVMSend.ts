@@ -137,6 +137,11 @@ export const useEVMSend: SendAdapterEVM = ({
         setMaxAmount(token.balance.toString());
       }
 
+      if (!address) {
+        setError(SendErrorMessage.ADDRESS_REQUIRED);
+        return;
+      }
+
       if (!amount) {
         setError(SendErrorMessage.AMOUNT_REQUIRED);
         return;
