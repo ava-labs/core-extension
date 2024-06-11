@@ -388,10 +388,16 @@ export class BridgeService implements OnLock, OnStorageReady {
         ? await this.networkService.getAvalancheNetwork()
         : await this.networkService.getEthereumNetwork();
 
+    const sourceProvider =
+      currentBlockchain === Blockchain.AVALANCHE
+        ? avalancheProvider
+        : ethereumProvider;
+    const { addressC } = this.accountsService.activeAccount;
+
     return await transferAssetSDK({
       currentBlockchain,
       amount,
-      account: this.accountsService.activeAccount.addressC,
+      account: addressC,
       asset,
       avalancheProvider,
       ethereumProvider,
@@ -418,6 +424,7 @@ export class BridgeService implements OnLock, OnStorageReady {
         const signingResult = await this.walletService.sign(
           {
             ...tx,
+            nonce: await sourceProvider.getTransactionCount(addressC),
             gasPrice: tx.maxFeePerGas ? undefined : tx.gasPrice, // erase gasPrice if maxFeePerGas can be used
             type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
           },
