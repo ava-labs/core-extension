@@ -139,63 +139,74 @@ export function BitcoinSignTx() {
     []
   );
 
-  useEffect(() => {
-    if (!customFeeRate || !action || !displayData || !bitcoinProvider) {
-      return;
-    }
+  useEffect(
+    () => {
+      if (!customFeeRate || !action || !displayData || !bitcoinProvider) {
+        return;
+      }
 
-    // Do nothing if fee hasn't changed
-    if (customFeeRate === displayData.feeRate) {
-      return;
-    }
+      let isMounted = true;
 
-    let isMounted = true;
-
-    setIsCalculatingFee(true);
-    buildBtcTx(displayData.from, bitcoinProvider, {
-      amount: displayData.amount,
-      address: displayData.address,
-      token: displayData.balance,
-      feeRate: customFeeRate,
-    })
-      .then((tx) => {
-        if (!isMounted) {
-          return;
-        }
-
-        if (displayData.amount > 0 && !tx.psbt) {
-          setError(SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE);
-        } else if (tx.psbt) {
-          setError(undefined);
-        }
-
-        const newData: DisplayData_BitcoinSendTx = {
-          ...displayData,
-          feeRate: customFeeRate,
-          sendFee: tx.fee,
-        };
-
-        // Only update if the action wasn't already submitted/cancelled
-        if (action.status === ActionStatus.PENDING) {
-          updateAction({
-            id: action.actionId,
-            status: ActionStatus.PENDING,
-            displayData: newData,
-          });
-        }
+      setIsCalculatingFee(true);
+      buildBtcTx(displayData.from, bitcoinProvider, {
+        amount: displayData.amount,
+        address: displayData.address,
+        token: displayData.balance,
+        feeRate: customFeeRate,
       })
-      .catch((err) => {
-        console.error(err);
-        setError(SendErrorMessage.UNKNOWN_ERROR);
-      })
-      .finally(() => {
-        setIsCalculatingFee(false);
-      });
+        .then((tx) => {
+          if (!isMounted) {
+            return;
+          }
 
-    return () => {
-      isMounted = false;
-    };
-  }, [action, customFeeRate, displayData, updateAction, bitcoinProvider]);
+          if (displayData.amount > 0 && !tx.psbt) {
+            setError(SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE);
+          } else if (tx.psbt) {
+            setError(undefined);
+          }
+
+          const newData: DisplayData_BitcoinSendTx = {
+            balance: displayData.balance,
+            from: displayData.from,
+            amount: displayData.amount,
+            address: displayData.address,
+            feeRate: customFeeRate,
+            sendFee: tx.fee,
+          };
+
+          // Only update if the action wasn't already submitted/cancelled
+          if (action.status === ActionStatus.PENDING) {
+            updateAction({
+              id: action.actionId,
+              status: ActionStatus.PENDING,
+              displayData: newData,
+            });
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(SendErrorMessage.UNKNOWN_ERROR);
+        })
+        .finally(() => {
+          setIsCalculatingFee(false);
+        });
+
+      return () => {
+        isMounted = false;
+      };
+    },
+    // Keeping displayData out of here, as the only way it updates is through this UI,
+    // and having it here would result in render loops.
+    // eslint-disable-next-line
+    [
+      action?.actionId,
+      action?.status,
+      error,
+      customFeeRate,
+      updateAction,
+      bitcoinProvider,
+    ]
+  );
 
   const handleRejection = useCallback(() => {
     cancelHandler();

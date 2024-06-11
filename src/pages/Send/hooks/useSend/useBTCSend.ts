@@ -32,7 +32,7 @@ export const useBtcSend: SendAdapterBTC = ({
   useEffect(() => {
     let isMounted = true;
 
-    getBtcInputUtxos(provider, nativeToken)
+    getBtcInputUtxos(provider, nativeToken, Number(maxFee))
       .then((_utxos) => {
         if (isMounted) {
           setUtxos(_utxos);
@@ -45,7 +45,7 @@ export const useBtcSend: SendAdapterBTC = ({
     return () => {
       isMounted = false;
     };
-  }, [provider, nativeToken]);
+  }, [provider, nativeToken, maxFee]);
 
   const validate = useCallback(
     async (options: BaseSendOptions) => {

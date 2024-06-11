@@ -167,7 +167,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
       };
     }
     const provider = getProviderForNetwork(network) as BitcoinProvider;
-    const utxos = await getBtcInputUtxos(provider, token);
+    const utxos = await getBtcInputUtxos(provider, token, feeRate);
 
     const from = this.accountService.activeAccount.addressBTC;
     const validationError = validateBtcSend(

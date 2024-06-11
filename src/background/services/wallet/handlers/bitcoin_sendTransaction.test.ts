@@ -10,11 +10,12 @@ import { createTransferTx } from '@avalabs/wallets-sdk';
 
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
-jest.mock('@src/utils/isBtcAddressInNetwork');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('@src/utils/isBtcAddressInNetwork');
 jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@src/utils/network/getProviderForNetwork');
 
 describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', () => {
   const request = {
@@ -73,6 +74,10 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     getBitcoinNetworkMock.mockResolvedValue({
       vmName: NetworkVMType.BITCOIN,
     });
+    jest.mocked(getProviderForNetwork).mockReturnValue({
+      getScriptsForUtxos: jest.fn().mockResolvedValue([]),
+      getNetwork: jest.fn(),
+    } as any);
     jest
       .mocked(createTransferTx)
       .mockReturnValue({ fee: 5, inputs: [], outputs: [] });
