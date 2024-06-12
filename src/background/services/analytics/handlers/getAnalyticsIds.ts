@@ -15,7 +15,7 @@ export class GetAnalyticsIdsHandler implements HandlerType {
 
   constructor(private analyticsService: AnalyticsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     try {
       const analyticsState = await this.analyticsService.getIds();
 

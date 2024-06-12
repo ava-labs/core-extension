@@ -21,9 +21,9 @@ export function AppleButton({ setIsLoading }: SeedlesButton) {
     <Button
       sx={{ width: '100%' }}
       data-testid="create-wallet-apple-button"
-      color="secondary"
+      color="primary"
       size="large"
-      endIcon={<AppleIcon size={20} />}
+      startIcon={<AppleIcon size={20} />}
       onClick={() => {
         setOnboardingPhase(OnboardingPhase.SEEDLESS_APPLE);
         capture(ONBOARDING_EVENT_NAMES[OnboardingPhase.SEEDLESS_APPLE]);
@@ -35,7 +35,7 @@ export function AppleButton({ setIsLoading }: SeedlesButton) {
         });
       }}
     >
-      {t('Apple ID')}
+      {t('Continue with Apple')}
     </Button>
   );
 }

@@ -9,21 +9,19 @@ import { Avalanche } from '@avalabs/wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { AvalancheSignTransactionHandler } from './avalanche_signTransaction';
-import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { Action } from '../../actions/models';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@avalabs/avalanchejs');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('../utils/getProvidedUtxos');
+jest.mock('@src/background/runtime/openApprovalWindow');
 
 describe('src/background/services/wallet/handlers/avalanche_signTransaction', () => {
   const env = process.env;
-  const openApprovalWindowSpy = jest.spyOn(
-    DAppRequestHandler.prototype,
-    'openApprovalWindow'
-  );
   const frontendTabId = 951;
   const request = {
     id: '123',
@@ -31,7 +29,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     params: { transactionHex: '0x00001', chainAlias: 'X' },
     site: {
       tabId: 1,
-    },
+    } as any,
   };
   const requestWithUtxos = {
     ...request,
@@ -106,7 +104,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     (utils.getManagerForVM as jest.Mock).mockReturnValue(codecManagerMock);
     txMock.getSigIndices.mockReturnValue([]);
     unsignedTxMock.toJSON.mockReturnValue(unsignedTxJson);
-    openApprovalWindowSpy.mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
     (Avalanche.getUtxosByTxFromGlacier as jest.Mock).mockReturnValue(utxosMock);
     (getProvidedUtxos as jest.Mock).mockReturnValue(utxosMock);
   });
@@ -118,7 +116,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         {} as any,
         {} as any
       );
-      const result = await handler.handleUnauthenticated(request);
+      const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -136,7 +134,9 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         {} as any,
         {} as any
       );
-      const result = await handler.handleAuthenticated(requestWithoutParam);
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(requestWithoutParam)
+      );
 
       expect(result).toEqual({
         ...requestWithoutParam,
@@ -159,7 +159,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         {} as any
       );
       const result = await handler.handleAuthenticated(
-        requestWithoutChainAlias
+        buildRpcCall(requestWithoutChainAlias)
       );
 
       expect(result).toEqual({
@@ -177,7 +177,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         {} as any
       );
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -205,7 +205,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
 
       (utils.addressesFromBytes as jest.Mock).mockReturnValue([]);
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -252,7 +252,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         unsignedTxMock
       );
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -306,7 +306,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         unsignedTxMock
       );
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -362,7 +362,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         type: 'unknown',
       });
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -445,10 +445,9 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             activeAccountMock.addressAVM
           );
 
-          expect(openApprovalWindowSpy).toHaveBeenCalledWith(
-            {
+          expect(openApprovalWindow).toHaveBeenCalledWith(
+            expect.objectContaining({
               ...req,
-              tabId: req.site.tabId,
               displayData: {
                 unsignedTxJson: JSON.stringify(unsignedTxJson),
                 txData: {
@@ -457,7 +456,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
                 ownSignatureIndices: [[0, 1]],
                 vm: 'AVM',
               },
-            },
+            }),
             'approve/avalancheSignTx'
           );
         };
@@ -483,7 +482,9 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             type: 'import',
           });
 
-          const result = await handler.handleAuthenticated(requestWithUtxos);
+          const result = await handler.handleAuthenticated(
+            buildRpcCall(requestWithUtxos)
+          );
 
           checkExpected(requestWithUtxos, result);
           expect(Avalanche.getUtxosByTxFromGlacier).not.toHaveBeenCalled();
@@ -512,7 +513,9 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             type: 'import',
           });
 
-          const result = await handler.handleAuthenticated(request);
+          const result = await handler.handleAuthenticated(
+            buildRpcCall(request)
+          );
 
           checkExpected(request, result);
           expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
@@ -598,10 +601,9 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             activeAccountMock.addressAVM
           );
 
-          expect(openApprovalWindowSpy).toHaveBeenCalledWith(
-            {
+          expect(openApprovalWindow).toHaveBeenCalledWith(
+            expect.objectContaining({
               ...req,
-              tabId: req.site.tabId,
               displayData: {
                 unsignedTxJson: JSON.stringify(unsignedTxJson),
                 txData: {
@@ -610,7 +612,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
                 ownSignatureIndices: [[0, 1]],
                 vm: 'AVM',
               },
-            },
+            }),
             'approve/avalancheSignTx'
           );
         };
@@ -652,7 +654,9 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             .mockReturnValueOnce(signaturesMock[0])
             .mockReturnValueOnce(signaturesMock[1]);
 
-          const result = await handler.handleAuthenticated(requestWithUtxos);
+          const result = await handler.handleAuthenticated(
+            buildRpcCall(requestWithUtxos)
+          );
 
           checkExpected(requestWithUtxos, result, signaturesMock);
           expect(Avalanche.getUtxosByTxFromGlacier).not.toHaveBeenCalled();
@@ -697,7 +701,9 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             .mockReturnValueOnce(signaturesMock[0])
             .mockReturnValueOnce(signaturesMock[1]);
 
-          const result = await handler.handleAuthenticated(request);
+          const result = await handler.handleAuthenticated(
+            buildRpcCall(request)
+          );
 
           checkExpected(request, result, signaturesMock);
           expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({

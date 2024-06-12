@@ -9,6 +9,7 @@ import { ActionsService } from '../../actions/ActionsService';
 import { Action, ActionStatus } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { ConnectRequestHandler } from './connect';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@src/utils/extensionUtils', () => ({
   openExtensionNewWindow: jest.fn().mockReturnValue({ id: 123 }),
@@ -26,9 +27,14 @@ describe('background/services/web3/handlers/connect.ts', () => {
         {} as PermissionsService
       );
 
-      const mockRequest = { id: 1234 };
+      const mockRequest = {
+        id: '1234',
+        method: DAppProviderRequest.CONNECT_METHOD,
+      };
 
-      expect(await handler.handleAuthenticated(mockRequest)).toEqual({
+      expect(
+        await handler.handleAuthenticated(buildRpcCall(mockRequest))
+      ).toEqual({
         ...mockRequest,
         error: ethErrors.rpc.internal('wallet locked, undefined or malformed'),
       });
@@ -45,9 +51,14 @@ describe('background/services/web3/handlers/connect.ts', () => {
         {} as PermissionsService
       );
 
-      const mockRequest = { id: 1235 };
+      const mockRequest = {
+        id: '1235',
+        method: DAppProviderRequest.CONNECT_METHOD,
+      };
 
-      expect(await handler.handleAuthenticated(mockRequest)).toEqual({
+      expect(
+        await handler.handleAuthenticated(buildRpcCall(mockRequest))
+      ).toEqual({
         ...mockRequest,
         result: ['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'],
       });
@@ -61,9 +72,14 @@ describe('background/services/web3/handlers/connect.ts', () => {
         {} as PermissionsService
       );
 
-      const mockRequest = { id: 1235 };
+      const mockRequest = {
+        id: '1235',
+        method: DAppProviderRequest.CONNECT_METHOD,
+      };
 
-      expect(await handler.handleUnauthenticated(mockRequest)).toEqual({
+      expect(
+        await handler.handleUnauthenticated(buildRpcCall(mockRequest))
+      ).toEqual({
         ...mockRequest,
         error: ethErrors.rpc.invalidRequest('domain unknown'),
       });
@@ -81,7 +97,8 @@ describe('background/services/web3/handlers/connect.ts', () => {
       container.registerInstance(ActionsService, actionsServiceMock as any);
 
       const mockRequest = {
-        id: 1235,
+        id: '1235',
+        method: DAppProviderRequest.CONNECT_METHOD,
         site: {
           domain: 'example.com',
           name: 'Example dapp',
@@ -90,7 +107,9 @@ describe('background/services/web3/handlers/connect.ts', () => {
         },
       };
 
-      const result = await handler.handleUnauthenticated(mockRequest);
+      const result = await handler.handleUnauthenticated(
+        buildRpcCall(mockRequest)
+      );
       expect(result).toEqual({
         ...mockRequest,
         result: DEFERRED_RESPONSE,
@@ -105,7 +124,6 @@ describe('background/services/web3/handlers/connect.ts', () => {
           domainName: 'Example dapp',
           domainUrl: 'example.com',
         },
-        tabId: 111,
         popupWindowId: 123,
       });
 
@@ -131,14 +149,15 @@ describe('background/services/web3/handlers/connect.ts', () => {
     };
 
     const mockAction: Action = {
-      id: '1235',
+      request: {
+        id: '1235',
+        method: DAppProviderRequest.CONNECT_METHOD,
+      },
       status: ActionStatus.SUBMITTING,
-      method: DAppProviderRequest.CONNECT_METHOD,
-      jsonrpc: '2.0',
       displayData: {},
       time: 12312312,
       actionId: 'uuid',
-    };
+    } as any;
 
     beforeEach(() => {
       jest.resetAllMocks();
@@ -217,7 +236,10 @@ describe('background/services/web3/handlers/connect.ts', () => {
       );
 
       await handler.onActionApproved(
-        { ...mockAction, site: { domain: 'example.com' } },
+        {
+          ...mockAction,
+          site: { domain: 'example.com' },
+        },
         'uuid',
         onSuccessMock,
         onErrorMock
@@ -250,7 +272,10 @@ describe('background/services/web3/handlers/connect.ts', () => {
       );
 
       await handler.onActionApproved(
-        { ...mockAction, site: { domain: 'example.com' } },
+        {
+          ...mockAction,
+          site: { domain: 'example.com' },
+        },
         'uuid',
         onSuccessMock,
         onErrorMock
@@ -288,7 +313,10 @@ describe('background/services/web3/handlers/connect.ts', () => {
       );
 
       await handler.onActionApproved(
-        { ...mockAction, site: { domain: 'example.com' } },
+        {
+          ...mockAction,
+          site: { domain: 'example.com' },
+        },
         '0x2',
         onSuccessMock,
         onErrorMock

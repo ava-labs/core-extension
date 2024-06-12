@@ -15,7 +15,7 @@ export class BridgeGetStateHandler implements HandlerType {
 
   constructor(private bridgeService: BridgeService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     return {
       ...request,
       result: this.bridgeService.bridgeState,

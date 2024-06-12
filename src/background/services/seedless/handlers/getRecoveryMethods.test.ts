@@ -6,6 +6,7 @@ import { SeedlessMfaService } from '../SeedlessMfaService';
 
 import { GetRecoveryMethodsHandler } from './getRecoveryMethods';
 import { MfaRequestType } from '../models';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {
   const seedlessMfaService = jest.mocked<SeedlessMfaService>({
@@ -22,10 +23,12 @@ describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {
       seedlessMfaService
     );
 
-    return handler.handle({
-      method: ExtensionRequest.SEEDLESS_GET_RECOVERY_METHODS,
-      id: 'abcd-1234',
-    });
+    return handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_GET_RECOVERY_METHODS,
+        id: 'abcd-1234',
+      })
+    );
   };
 
   beforeEach(() => {

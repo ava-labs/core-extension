@@ -51,27 +51,21 @@ export function PermissionsPage() {
   const dAppScanning = useDAppScan();
   const { featureFlags } = useFeatureFlagContext();
 
-  const {
-    action: request,
-    cancelHandler,
-    updateAction,
-  } = useApproveAction(requestId);
+  const { action, cancelHandler, updateAction } = useApproveAction(requestId);
+  const isSubmitting = action?.status === ActionStatus.SUBMITTING;
+  const isEthRequestAccounts = action?.method === 'eth_requestAccounts';
+  const isWalletRequestPermissions =
+    action?.method === 'wallet_requestPermissions';
 
   useEffect(() => {
-    if (request?.site?.domain) {
-      dAppScanning(request.site.domain)
+    if (action?.site?.domain) {
+      dAppScanning(action.site.domain)
         .then((result) => {
           setDAppScanningResult(result);
         })
         .catch((e) => console.error(e));
     }
-  }, [dAppScanning, request?.site?.domain]);
-
-  const isSubmitting = request?.status === ActionStatus.SUBMITTING;
-
-  const isEthRequestAccounts = request?.method === 'eth_requestAccounts';
-  const isWalletRequestPermissions =
-    request?.method === 'wallet_requestPermissions';
+  }, [dAppScanning, action?.site?.domain]);
 
   const onApproveClicked = useCallback(async () => {
     if (!selectedAccount) {
@@ -87,14 +81,14 @@ export function PermissionsPage() {
 
   const isAccountPermissionGranted = useMemo(
     () =>
-      request &&
+      action &&
       activeAccount &&
       isDomainConnectedToAccount(
-        request.displayData.domainUrl,
+        action.displayData.domainUrl,
         activeAccount.addressC
       ) &&
       isConfirmContainer,
-    [request, activeAccount, isDomainConnectedToAccount, isConfirmContainer]
+    [action, activeAccount, isDomainConnectedToAccount, isConfirmContainer]
   );
 
   // If the domain already has permissions for the active account, close the popup
@@ -122,7 +116,7 @@ export function PermissionsPage() {
   // Must also wait for isAccountPermissionGranted since `onApproveClicked` is async
   if (
     !permissions ||
-    !request ||
+    !action ||
     (isAccountPermissionGranted && !isWalletRequestPermissions)
   ) {
     return <LoadingDots size={20} />;
@@ -148,14 +142,24 @@ export function PermissionsPage() {
           </Box>
           <Stack sx={{ gap: 2.5, alignItems: 'center' }}>
             {featureFlags[FeatureGates.BLOCKAID_DAPP_SCAN] &&
-              isMaliciousDApp && <AlertBox />}
+              isMaliciousDApp && (
+                <AlertBox
+                  title={t('Malicious Application')}
+                  text={t('This application is malicious, do not proceed.')}
+                />
+              )}
             {featureFlags[FeatureGates.BLOCKAID_DAPP_SCAN_WARNING] &&
-              isMissingBlockaidData && <WarningBox />}
+              isMissingBlockaidData && (
+                <WarningBox
+                  title={t('Suspicious Application')}
+                  text={t('Use caution, this application may be malicious.')}
+                />
+              )}
             <SiteAvatar sx={{ m: 0 }}>
               <TokenIcon
                 height="48px"
                 width="48px"
-                src={request.displayData.domainIcon}
+                src={action.displayData.domainIcon}
               >
                 <GlobeIcon size={48} color={theme.palette.text.secondary} />
               </TokenIcon>
@@ -168,7 +172,7 @@ export function PermissionsPage() {
               }}
             >
               <Typography variant="h5">
-                {request.displayData.domainName}
+                {action.displayData.domainName}
               </Typography>
               <Typography
                 sx={{
@@ -177,7 +181,7 @@ export function PermissionsPage() {
                   wordWrap: 'break-word',
                 }}
               >
-                {request.displayData.domainUrl}
+                {action.displayData.domainUrl}
               </Typography>
             </Stack>
           </Stack>
@@ -240,9 +244,15 @@ export function PermissionsPage() {
       </Stack>
       {featureFlags[FeatureGates.BLOCKAID_DAPP_SCAN] && isMaliciousDApp && (
         <AlertDialog
-          cancelHandler={cancelHandler}
+          cancelHandler={() => {
+            cancelHandler();
+            window.close();
+          }}
           open={displayDialog}
           onClose={() => setDisplayDialog(false)}
+          title={t('Scam Application')}
+          text={t('This application is malicious, do not proceed.')}
+          rejectLabel={t('Reject Connection')}
         />
       )}
     </>

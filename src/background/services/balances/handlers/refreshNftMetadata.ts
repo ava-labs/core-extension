@@ -20,7 +20,7 @@ export class RefreshNftMetadataHandler implements HandlerType {
 
   constructor(private glacierService: GlacierService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [address, chainId, tokenId] = request.params;
 
     try {

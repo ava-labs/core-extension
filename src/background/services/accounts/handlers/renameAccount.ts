@@ -14,7 +14,7 @@ export class RenameAccountHandler implements HandlerType {
   method = ExtensionRequest.ACCOUNT_RENAME as const;
 
   constructor(private accountsService: AccountsService) {}
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [id, name] = request.params;
 
     try {

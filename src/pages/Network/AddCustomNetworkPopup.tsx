@@ -29,11 +29,8 @@ import { AddEthereumChainDisplayData } from '@src/background/services/network/mo
 export function AddCustomNetworkPopup() {
   const { t } = useTranslation();
   const requestId = useGetRequestId();
-  const {
-    action: request,
-    updateAction,
-    cancelHandler,
-  } = useApproveAction<AddEthereumChainDisplayData>(requestId);
+  const { action, updateAction, cancelHandler } =
+    useApproveAction<AddEthereumChainDisplayData>(requestId);
 
   const [apiKey, setApiKey] = useState('');
   const [isApiModalVisible, setIsApiModalVisible] = useState(false);
@@ -53,7 +50,7 @@ export function AddCustomNetworkPopup() {
       return;
     }
 
-    if (!request || !request.displayData) {
+    if (!action || !action.displayData) {
       throw new Error('Network config not available');
     }
 
@@ -68,9 +65,9 @@ export function AddCustomNetworkPopup() {
         status: ActionStatus.PENDING,
         id: requestId,
         displayData: {
-          ...request.displayData,
+          ...action.displayData,
           network: {
-            ...request.displayData.network,
+            ...action.displayData.network,
             customRpcHeaders: buildGlacierAuthHeaders(apiKey),
           },
         },
@@ -80,17 +77,10 @@ export function AddCustomNetworkPopup() {
     }
 
     await handleApproval();
-  }, [
-    apiKey,
-    request,
-    requestId,
-    updateAction,
-    handleApproval,
-    isSavingApiKey,
-  ]);
+  }, [apiKey, action, requestId, updateAction, handleApproval, isSavingApiKey]);
 
   const shouldPromptForApiKey =
-    request?.displayData.options.requiresGlacierApiKey && !apiKey;
+    action?.displayData.options.requiresGlacierApiKey && !apiKey;
 
   useEffect(() => {
     window.addEventListener('unload', cancelHandler);
@@ -105,7 +95,7 @@ export function AddCustomNetworkPopup() {
     Esc: () => setIsApiModalVisible(false),
   });
 
-  if (!request || !request.displayData) {
+  if (!action || !action.displayData) {
     return (
       <Stack
         sx={{
@@ -120,7 +110,7 @@ export function AddCustomNetworkPopup() {
     );
   }
 
-  const customNetwork = request.displayData.network;
+  const customNetwork = action.displayData.network;
 
   return (
     <>
@@ -154,11 +144,11 @@ export function AddCustomNetworkPopup() {
             }}
             variant="caption"
           >
-            {request?.site?.domain}
+            {action?.site?.domain}
           </Typography>
         </Stack>
 
-        {request.displayData.options.requiresGlacierApiKey && (
+        {action.displayData.options.requiresGlacierApiKey && (
           <Alert color="info" sx={{ mb: 2 }}>
             <AlertTitle>{t('Glacier API key is required')}</AlertTitle>
             <AlertContent>
@@ -253,7 +243,7 @@ export function AddCustomNetworkPopup() {
             data-testid="transaction-reject-btn"
             size="large"
             fullWidth
-            disabled={request.status === ActionStatus.SUBMITTING}
+            disabled={action.status === ActionStatus.SUBMITTING}
             onClick={() => {
               cancelHandler();
               window.close();
@@ -266,7 +256,7 @@ export function AddCustomNetworkPopup() {
             size="large"
             fullWidth
             disabled={
-              request.status === ActionStatus.SUBMITTING || !!request.error
+              action.status === ActionStatus.SUBMITTING || !!action.error
             }
             onClick={() => {
               if (shouldPromptForApiKey) {
@@ -312,13 +302,13 @@ export function AddCustomNetworkPopup() {
             size="large"
             data-testid="api-key-save"
             disabled={
-              request.status === ActionStatus.SUBMITTING ||
-              !!request.error ||
+              action.status === ActionStatus.SUBMITTING ||
+              !!action.error ||
               !apiKey ||
               isSavingApiKey
             }
             isLoading={
-              isSavingApiKey || request.status === ActionStatus.SUBMITTING
+              isSavingApiKey || action.status === ActionStatus.SUBMITTING
             }
             onClick={saveApiKey}
           >
@@ -330,8 +320,8 @@ export function AddCustomNetworkPopup() {
             data-testid="api-key-skip"
             disabled={
               isSavingApiKey ||
-              request.status === ActionStatus.SUBMITTING ||
-              !!request.error
+              action.status === ActionStatus.SUBMITTING ||
+              !!action.error
             }
             onClick={() => handleApproval()}
           >

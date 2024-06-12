@@ -33,6 +33,38 @@ class TestConnection extends AbstractConnection {
   };
 }
 
+const buildRpcCall = (payload) => {
+  const call = {
+    jsonrpc: '2.0' as const,
+    method: 'provider_request',
+    params: {
+      request: {
+        params: [],
+        ...payload,
+      },
+      scope: 'eip155:43114',
+      sessionId: 'session-id',
+    },
+  } as const;
+
+  const id = crypto.randomUUID();
+
+  return {
+    call,
+    withId: {
+      ...call,
+      id,
+      params: {
+        ...call.params,
+        request: {
+          ...call.params.request,
+          id,
+        },
+      },
+    },
+  };
+};
+
 describe('background/providers/utils/AbstractConnection', () => {
   const mocks = {
     connect: jest.fn(),
@@ -53,10 +85,11 @@ describe('background/providers/utils/AbstractConnection', () => {
     expect(mocks.connect).toHaveBeenCalledTimes(1);
   });
 
-  it('sends request through connection with uuid generated and waits for response', (done) => {
+  it('sends request through connection and waits for response', (done) => {
     const testConnection = new TestConnection(mocks);
 
-    const promise = testConnection.request({ method: 'some-method' });
+    const { call, withId } = buildRpcCall({ method: 'some-method' });
+    const promise = testConnection.request(call);
 
     promise.then((response) => {
       expect(response).toBe('success');
@@ -67,10 +100,7 @@ describe('background/providers/utils/AbstractConnection', () => {
     expect(mocks.send).toHaveBeenCalledWith({
       type: 'request',
       id: '00000000-0000-0000-0000-000000000000',
-      data: {
-        method: 'some-method',
-        id: '00000000-0000-0000-0000-000000000000',
-      },
+      data: withId,
     });
 
     testConnection.fakeMessage({
@@ -84,7 +114,8 @@ describe('background/providers/utils/AbstractConnection', () => {
   it('rejects request on error', (done) => {
     const testConnection = new TestConnection(mocks);
 
-    const promise = testConnection.request({ method: 'some-method' });
+    const { call, withId } = buildRpcCall({ method: 'some-method' });
+    const promise = testConnection.request(call);
 
     promise.catch((error) => {
       expect(error).toBe('some-error');
@@ -95,10 +126,7 @@ describe('background/providers/utils/AbstractConnection', () => {
     expect(mocks.send).toHaveBeenCalledWith({
       type: 'request',
       id: '00000000-0000-0000-0000-000000000000',
-      data: {
-        method: 'some-method',
-        id: '00000000-0000-0000-0000-000000000000',
-      },
+      data: withId,
     });
 
     testConnection.fakeMessage({
@@ -112,7 +140,8 @@ describe('background/providers/utils/AbstractConnection', () => {
   it('does nothing with pending request if response id is unknown', async () => {
     const testConnection = new TestConnection(mocks);
 
-    const promise = testConnection.request({ method: 'some-method' });
+    const { call, withId } = buildRpcCall({ method: 'some-method' });
+    const promise = testConnection.request(call);
 
     const errorCallback = jest.fn();
     promise.catch(errorCallback);
@@ -121,10 +150,7 @@ describe('background/providers/utils/AbstractConnection', () => {
     expect(mocks.send).toHaveBeenCalledWith({
       type: 'request',
       id: '00000000-0000-0000-0000-000000000000',
-      data: {
-        method: 'some-method',
-        id: '00000000-0000-0000-0000-000000000000',
-      },
+      data: withId,
     });
 
     testConnection.fakeMessage({
@@ -152,7 +178,8 @@ describe('background/providers/utils/AbstractConnection', () => {
   it('rejects pending requests on dispose and closes connection', (done) => {
     const testConnection = new TestConnection(mocks);
 
-    const promise = testConnection.request({ method: 'some-method' });
+    const { call, withId } = buildRpcCall({ method: 'some-method' });
+    const promise = testConnection.request(call);
 
     promise.catch((error) => {
       expect(error).toStrictEqual(ethErrors.provider.userRejectedRequest());
@@ -164,10 +191,7 @@ describe('background/providers/utils/AbstractConnection', () => {
     expect(mocks.send).toHaveBeenCalledWith({
       type: 'request',
       id: '00000000-0000-0000-0000-000000000000',
-      data: {
-        method: 'some-method',
-        id: '00000000-0000-0000-0000-000000000000',
-      },
+      data: withId,
     });
 
     testConnection.dispose();
@@ -176,9 +200,13 @@ describe('background/providers/utils/AbstractConnection', () => {
   it('rejects request if above the concurrency limit', () => {
     const testConnection = new TestConnection(mocks, 1);
 
-    testConnection.request({ method: 'some-method' });
+    const { call } = buildRpcCall({ method: 'some-method' });
+    const { call: call2 } = buildRpcCall({ method: 'some-method2' });
+
+    testConnection.request(call);
+
     try {
-      testConnection.request({ method: 'some-method2' });
+      testConnection.request(call2);
     } catch (e) {
       expect(e).toStrictEqual(ethErrors.rpc.limitExceeded());
     }
@@ -217,7 +245,7 @@ describe('background/providers/utils/AbstractConnection', () => {
       testConnection.fakeMessage({
         type: 'request',
         id: '0000',
-        data: { method: 'some-method' },
+        data: { method: 'some-method' } as any,
       });
 
       expect(mocks.send).not.toHaveBeenCalled();
@@ -234,7 +262,7 @@ describe('background/providers/utils/AbstractConnection', () => {
       testConnection.fakeMessage({
         type: 'request',
         id: '0000',
-        data: { method: 'some-method' },
+        data: { method: 'some-method' } as any,
       });
 
       await new Promise(process.nextTick);
@@ -259,7 +287,7 @@ describe('background/providers/utils/AbstractConnection', () => {
       testConnection.fakeMessage({
         type: 'request',
         id: '0000',
-        data: { method: 'some-method' },
+        data: { method: 'some-method' } as any,
       });
 
       await new Promise(process.nextTick);
@@ -278,7 +306,7 @@ describe('background/providers/utils/AbstractConnection', () => {
       testConnection.fakeMessage({
         type: 'request',
         id: '0000',
-        data: { method: 'some-method' },
+        data: { method: 'some-method' } as any,
       });
 
       await new Promise(process.nextTick);
@@ -306,7 +334,7 @@ describe('background/providers/utils/AbstractConnection', () => {
       testConnection.fakeMessage({
         type: 'request',
         id: '0000',
-        data: { method: 'some-method' },
+        data: { method: 'some-method' } as any,
       });
 
       await new Promise(process.nextTick);
@@ -337,7 +365,7 @@ describe('background/providers/utils/AbstractConnection', () => {
       testConnection.fakeMessage({
         type: 'request',
         id: '0000',
-        data: { method: 'some-method' },
+        data: { method: 'some-method' } as any,
       });
 
       await new Promise(process.nextTick);

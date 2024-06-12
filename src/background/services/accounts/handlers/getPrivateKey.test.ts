@@ -4,6 +4,7 @@ import { AccountType, GetPrivateKeyErrorTypes } from '../models';
 import { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
 import { getWalletFromMnemonic } from '@avalabs/wallets-sdk';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@avalabs/wallets-sdk', () => ({
   ...jest.requireActual('@avalabs/wallets-sdk'),
@@ -40,10 +41,12 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
 
   it('should return an error when the password is missing', async () => {
     const handler = getHandler();
-    const result = await handler.handle({
-      ...request,
-      params: [{ password: '' }],
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        ...request,
+        params: [{ password: '' }],
+      })
+    );
     expect(result).toEqual({
       ...request,
       params: [{ password: '' }],
@@ -58,10 +61,12 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
     lockServiceMock.verifyPassword.mockResolvedValue(false);
 
     const handler = getHandler();
-    const result = await handler.handle({
-      ...request,
-      params: [{ password: 'asd' }],
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        ...request,
+        params: [{ password: 'asd' }],
+      })
+    );
     expect(result).toEqual({
       ...request,
       params: [{ password: 'asd' }],
@@ -75,7 +80,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
   it('should return an error when the type is empty', async () => {
     const handler = getHandler();
     const params = [{ type: '', password: '123' }];
-    const result = await handler.handle({ ...request, params });
+    const result = await handler.handle(buildRpcCall({ ...request, params }));
 
     expect(result).toEqual({
       ...request,
@@ -87,10 +92,12 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
   it('should return an error when the `SecretType` is not `Mnemonic` or the  `AccountType` is not `IMPORTED`', async () => {
     const handler = getHandler();
     const params = [{ type: SecretType.Keystone, password: 'asd' }];
-    const result = await handler.handle({
-      ...request,
-      params,
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        ...request,
+        params,
+      })
+    );
 
     expect(result).toEqual({
       ...request,
@@ -103,10 +110,12 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
     sercretServiceMock.getPrimaryAccountSecrets.mockResolvedValue(null);
     const handler = getHandler();
     const params = [{ type: SecretType.Mnemonic, index: 0, password: 'asd' }];
-    const result = await handler.handle({
-      ...request,
-      params,
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        ...request,
+        params,
+      })
+    );
     expect(result).toEqual({
       ...request,
       params,
@@ -127,10 +136,12 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
     const handler = getHandler();
 
     const params = [{ type: SecretType.Mnemonic, index: 0, password: 'asd' }];
-    const result = await handler.handle({
-      ...request,
-      params,
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        ...request,
+        params,
+      })
+    );
     expect(result).toEqual({
       ...request,
       params,
@@ -147,10 +158,12 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
     });
     const handler = getHandler();
     const params = [{ type: SecretType.Mnemonic, index: 0, password: 'asd' }];
-    const result = await handler.handle({
-      ...request,
-      params,
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        ...request,
+        params,
+      })
+    );
     expect(result).toEqual({
       ...request,
       params,
@@ -164,10 +177,12 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       secret: 'secretKey',
     });
     const handler = getHandler();
-    const result = await handler.handle({
-      ...request,
-      params,
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        ...request,
+        params,
+      })
+    );
     expect(result).toEqual({
       ...request,
       params,
@@ -181,10 +196,12 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       secret: 'secretKey',
     });
     const handler = getHandler();
-    const result = await handler.handle({
-      ...request,
-      params,
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        ...request,
+        params,
+      })
+    );
     expect(result).toEqual({
       ...request,
       params,

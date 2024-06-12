@@ -5,6 +5,7 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { ImportLedgerHandler } from './importLedger';
 import { SecretType } from '../../secrets/models';
 import { DerivationPath } from '@avalabs/wallets-sdk';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/wallet/handlers/importLedger', () => {
   const walletService = {
@@ -31,11 +32,13 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       secretsService
     );
 
-    return handler.handle({
-      id: '123',
-      method: ExtensionRequest.WALLET_IMPORT_LEDGER,
-      params: [params],
-    });
+    return handler.handle(
+      buildRpcCall({
+        id: '123',
+        method: ExtensionRequest.WALLET_IMPORT_LEDGER,
+        params: [params],
+      })
+    );
   };
 
   it('returns an error if secret type is not ledger or ledger live', async () => {

@@ -29,7 +29,7 @@ export class WalletGetEthereumChainHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async ({ request }) => {
     const activeNetwork = this.networkService.activeNetwork;
     if (!activeNetwork) {
       return {
@@ -48,7 +48,7 @@ export class WalletGetEthereumChainHandler extends DAppRequestHandler {
     };
   };
 
-  handleUnauthenticated = (request) => {
+  handleUnauthenticated = ({ request }) => {
     return {
       ...request,
       error: ethErrors.rpc.invalidRequest({

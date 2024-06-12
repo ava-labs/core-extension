@@ -19,7 +19,7 @@ export class UpdateDefaultNetworkHandler implements HandlerType {
   method = ExtensionRequest.NETWORK_UPDATE_DEFAULT as const;
 
   constructor(private networkService: NetworkService) {}
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const { network } = request.params;
 
     if (!network)

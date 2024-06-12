@@ -1,6 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 import { UnifiedBridgeTransferAsset } from './unifiedBridgeTransferAsset';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/unifiedBridge/handlers/unifiedBridgeTransferAsset', () => {
   const unifiedBridgeService = {
@@ -24,7 +25,7 @@ describe('src/background/services/unifiedBridge/handlers/unifiedBridgeTransferAs
   it('calls .transfer() with proper params', async () => {
     const handler = new UnifiedBridgeTransferAsset(unifiedBridgeService);
 
-    await handler.handle(request);
+    await handler.handle(buildRpcCall(request));
 
     expect(unifiedBridgeService.transfer).toHaveBeenCalledWith({
       asset,
@@ -41,7 +42,7 @@ describe('src/background/services/unifiedBridge/handlers/unifiedBridgeTransferAs
 
     const handler = new UnifiedBridgeTransferAsset(unifiedBridgeService);
 
-    const { result } = await handler.handle(request);
+    const { result } = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual('sourceTxHash');
   });

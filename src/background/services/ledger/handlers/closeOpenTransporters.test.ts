@@ -1,5 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { CloseLedgerTransportHandler } from './closeOpenTransporters';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/ledger/handlers/closeOpenTransporters.ts', () => {
   const request = {
@@ -17,7 +18,7 @@ describe('src/background/services/ledger/handlers/closeOpenTransporters.ts', () 
 
   it('requests all transports to be closed', async () => {
     const handler = new CloseLedgerTransportHandler(ledgerServiceMock);
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({ ...request, result: true });
     expect(ledgerServiceMock.closeOpenedTransport).toHaveBeenCalled();

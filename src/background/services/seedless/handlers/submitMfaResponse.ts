@@ -18,7 +18,7 @@ export class SubmitMfaResponseHandler implements HandlerType {
 
   constructor(private seedlessMfaService: SeedlessMfaService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [response] = request.params;
 
     if (!response) {

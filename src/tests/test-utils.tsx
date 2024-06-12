@@ -1,5 +1,10 @@
 import React, { FC, ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
+import {
+  JsonRpcRequestParams,
+  JsonRpcRequestPayload,
+} from '@src/background/connections/dAppConnection/models';
+import { PartialBy } from '@src/background/models';
 
 const AllTheProviders: FC<{ children: React.ReactNode }> = ({ children }) => {
   // K2 ThemeProvider causes issues here.
@@ -22,6 +27,16 @@ export const waitForIntervalRuns = async (numberOfRuns, intervalMs) => {
     await jest.runAllTicks();
   }
 };
+
+export const buildRpcCall = <M extends string>(
+  payload: PartialBy<JsonRpcRequestPayload<M>, 'params'>,
+  scope = ''
+): JsonRpcRequestParams<M, any> =>
+  ({
+    scope,
+    sessionId: crypto.randomUUID(),
+    request: payload,
+  } as const);
 
 export * from '@testing-library/react';
 export { customRender as render };

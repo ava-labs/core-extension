@@ -1,6 +1,7 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAccountPubKeyHandler } from './avalanche_getAccountPubKey';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', () => {
   const publicKeys = {
@@ -16,6 +17,11 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
     jest.resetAllMocks();
   });
 
+  const request = {
+    id: '123',
+    method: DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
+  } as const;
+
   describe('handleAuthenticated', () => {
     it('throws if no active account found', async () => {
       const noAccountsMock = {
@@ -26,12 +32,8 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
       const handler = new AvalancheGetAccountPubKeyHandler(
         noAccountsMock as any
       );
-      const request = {
-        id: '123',
-        method: DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
-      } as any;
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toStrictEqual({
         ...request,
@@ -41,12 +43,8 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
 
     it('returns the public keys correctly', async () => {
       const handler = new AvalancheGetAccountPubKeyHandler(walletServiceMock);
-      const request = {
-        id: '123',
-        method: DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
-      } as any;
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toStrictEqual({
         ...request,
@@ -57,12 +55,8 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
 
   it('handleUnauthenticated', async () => {
     const handler = new AvalancheGetAccountPubKeyHandler(walletServiceMock);
-    const request = {
-      id: '123',
-      method: DAppProviderRequest.AVALANCHE_GET_ACCOUNTS,
-    } as any;
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
-    const result = await handler.handleUnauthenticated(request);
     expect(result).toEqual({
       ...request,
       error: ethErrors.provider.unauthorized(),

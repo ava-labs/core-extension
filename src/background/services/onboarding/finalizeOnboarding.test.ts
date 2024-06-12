@@ -5,6 +5,9 @@ import { LockService } from '../lock/LockService';
 import { WalletService } from '../wallet/WalletService';
 import { AccountsService } from '../accounts/AccountsService';
 import { NetworkService } from '../network/NetworkService';
+import { addXPChainToFavoriteIfNeeded } from './utils/addXPChainsToFavoriteIfNeeded';
+
+jest.mock('./utils/addXPChainsToFavoriteIfNeeded');
 
 jest.mock('@avalabs/wallets-sdk', () => ({
   ...jest.requireActual('@avalabs/wallets-sdk'),
@@ -15,7 +18,7 @@ jest.mock('@avalabs/wallets-sdk', () => ({
 }));
 
 const WALLET_ID = 'wallet-id';
-describe('src/background/services/onboarding/handlers/onboardingInitalWork.ts', () => {
+describe('src/background/services/onboarding/finalizeOnboarding.test.ts', () => {
   const onboardingServiceMock = {
     setIsOnboarded: jest.fn(),
   } as unknown as OnboardingService;
@@ -28,6 +31,7 @@ describe('src/background/services/onboarding/handlers/onboardingInitalWork.ts', 
   const accountsServiceMock = {
     addPrimaryAccount: jest.fn(),
     getAccountList: jest.fn(),
+    getAccounts: jest.fn(),
     activateAccount: jest.fn(),
   } as unknown as AccountsService;
   const networkServiceMock = {
@@ -40,6 +44,11 @@ describe('src/background/services/onboarding/handlers/onboardingInitalWork.ts', 
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.mocked(accountsServiceMock.getAccounts).mockReturnValue({
+      primary: {
+        [WALLET_ID]: [accountMock],
+      },
+    } as any);
     (accountsServiceMock.getAccountList as jest.Mock).mockReturnValue([
       accountMock,
     ]);
@@ -47,6 +56,7 @@ describe('src/background/services/onboarding/handlers/onboardingInitalWork.ts', 
   });
   it('sets up an mnemonic wallet correctly', async () => {
     await finalizeOnboarding({
+      walletId: WALLET_ID,
       networkService: networkServiceMock,
       accountsService: accountsServiceMock,
       onboardingService: onboardingServiceMock,
@@ -67,5 +77,7 @@ describe('src/background/services/onboarding/handlers/onboardingInitalWork.ts', 
     );
     expect(onboardingServiceMock.setIsOnboarded).toHaveBeenCalledWith(true);
     expect(lockServiceMock.unlock).toHaveBeenCalledWith('password');
+
+    expect(addXPChainToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });

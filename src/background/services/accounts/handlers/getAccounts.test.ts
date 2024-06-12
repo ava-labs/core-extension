@@ -1,6 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { AccountType } from '../models';
 import { GetAccountsHandler } from './getAccounts';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/accounts/handlers/getAccounts.ts', () => {
   const accounts = {
@@ -44,7 +45,7 @@ describe('background/services/accounts/handlers/getAccounts.ts', () => {
       method: ExtensionRequest.ACCOUNT_GET_ACCOUNTS,
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
     expect(result).toEqual({ ...request, result: accounts });
   });
 });

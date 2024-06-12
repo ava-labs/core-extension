@@ -14,7 +14,7 @@ export class RemoveCustomNetworkHandler implements HandlerType {
   method = ExtensionRequest.NETWORK_REMOVE_CUSTOM as const;
 
   constructor(private networkService: NetworkService) {}
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const { params } = request;
     const chainId: number = params?.[0];
 

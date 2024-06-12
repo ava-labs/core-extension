@@ -4,6 +4,7 @@ import { EventEmitter } from 'events';
 import { isDevelopment } from '../../../utils/environment';
 import { isRequest, isResponse, Message, Request, Response } from './models';
 import { JsonRpcRequest } from '@src/background/connections/dAppConnection/models';
+import { PartialBy } from '@src/background/models';
 
 export default abstract class AbstractConnection extends EventEmitter {
   #concurrentRequestLimit: number;
@@ -42,14 +43,22 @@ export default abstract class AbstractConnection extends EventEmitter {
     this._send({ type: 'response', id, res, err });
   };
 
-  request = (data: JsonRpcRequest) => {
+  request = (data: PartialBy<JsonRpcRequest, 'id'>) => {
     if (this.#waitingMap.size >= this.#concurrentRequestLimit) {
       throw ethErrors.rpc.limitExceeded();
     }
 
-    const requestData = {
-      id: crypto.randomUUID(),
+    const id = crypto.randomUUID();
+    const requestData: JsonRpcRequest = {
       ...data,
+      params: {
+        ...data.params,
+        request: {
+          ...data.params.request,
+          id,
+        },
+      },
+      id,
     };
 
     return new Promise((resolve, reject) => {

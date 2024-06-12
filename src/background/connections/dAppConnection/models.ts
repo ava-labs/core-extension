@@ -52,20 +52,52 @@ export enum Web3Event {
   // https://eips.ethereum.org/EIPS/eip-1193#chainchanged-1
   CHAIN_CHANGED = 'chainChanged',
 }
-export interface JsonRpcRequest<Params = unknown[]> {
-  readonly jsonrpc?: '2.0';
-  readonly id?: string;
-  readonly method: string;
-  readonly params?: Params;
+
+export interface JsonRpcRequestParams<Method extends string, Params = unknown> {
+  readonly scope: string;
+  readonly sessionId: string;
+  readonly request: JsonRpcRequestPayload<Method, Params>;
+}
+
+export type JsonRpcRequestPayload<
+  Method extends string = any,
+  Params = unknown
+> = Params extends undefined
+  ? JsonRpcRequestPayloadWithoutParams<Method>
+  : JsonRpcRequestPayloadWithParams<Method, Params>;
+
+export interface JsonRpcRequest<Method extends string = any, Params = unknown> {
+  readonly jsonrpc: '2.0';
+  readonly id: string;
+  readonly method: 'provider_request';
+  readonly params: JsonRpcRequestParams<Method, Params>;
+}
+
+interface JsonRpcRequestPayloadBase<Method extends string = any> {
+  readonly id: string;
+  readonly method: Method;
   readonly site?: DomainMetadata;
   readonly tabId?: number;
 }
-export interface JsonRpcSuccess<T = unknown> {
-  result: Maybe<T>;
+
+interface JsonRpcRequestPayloadWithParams<
+  Method extends string = any,
+  Params = unknown
+> extends JsonRpcRequestPayloadBase<Method> {
+  readonly params: Params;
 }
-export interface JsonRpcFailure<T = unknown> {
-  error: EthereumProviderError<T> | SerializedEthereumRpcError;
+
+interface JsonRpcRequestPayloadWithoutParams<Method extends string = any>
+  extends JsonRpcRequestPayloadBase<Method> {
+  readonly params?: never;
+}
+
+export interface JsonRpcSuccess<T = unknown> {
+  result: Maybe<T | symbol>;
+}
+export interface JsonRpcFailure {
+  error: EthereumProviderError<unknown> | SerializedEthereumRpcError;
 }
 export declare type JsonRpcResponse<T = unknown> =
   | JsonRpcSuccess<T>
-  | JsonRpcFailure<T>;
+  | JsonRpcFailure;

@@ -17,7 +17,7 @@ export class SetNavigationHistoryHandler implements HandlerType {
 
   constructor(private navigationHistoryService: NavigationHistoryService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [newNavigationHistory] = request.params;
 
     return {

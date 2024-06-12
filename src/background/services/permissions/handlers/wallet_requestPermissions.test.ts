@@ -10,6 +10,7 @@ import { Action, ActionStatus } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { WalletRequestPermissionsHandler } from './wallet_requestPermissions';
 import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@src/utils/extensionUtils', () => ({
   openExtensionNewWindow: jest.fn().mockReturnValue({ id: 321 }),
@@ -38,7 +39,8 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       };
       container.registerInstance(ActionsService, actionsServiceMock as any);
       const mockRequest = {
-        id: 1234,
+        id: '1234',
+        method: DAppProviderRequest.WALLET_PERMISSIONS,
         site: {
           domain: 'example.com',
           name: 'Example dapp',
@@ -46,9 +48,11 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
           tabId: 111,
         },
       };
-      await handler.handleAuthenticated(mockRequest);
+      await handler.handleAuthenticated(buildRpcCall(mockRequest));
       expect(handleUnauthenticatedSpy).toBeCalledTimes(1);
-      expect(handleUnauthenticatedSpy).toBeCalledWith(mockRequest);
+      expect(handleUnauthenticatedSpy).toBeCalledWith(
+        buildRpcCall(mockRequest)
+      );
     });
   });
   describe('handleUnauthenticated', () => {
@@ -63,7 +67,8 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       container.registerInstance(ActionsService, actionsServiceMock as any);
 
       const mockRequest = {
-        id: 4321,
+        id: '4321',
+        method: DAppProviderRequest.WALLET_PERMISSIONS,
         site: {
           domain: 'example.com',
           name: 'Example dapp',
@@ -72,7 +77,9 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
         },
       };
 
-      const result = await handler.handleUnauthenticated(mockRequest);
+      const result = await handler.handleUnauthenticated(
+        buildRpcCall(mockRequest)
+      );
       expect(result).toEqual({
         ...mockRequest,
         result: DEFERRED_RESPONSE,
@@ -80,14 +87,12 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
       expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
         ...mockRequest,
-        id: 4321,
         actionId: '00000000-0000-0000-0000-000000000000',
         displayData: {
           domainIcon: 'icon.svg',
           domainName: 'Example dapp',
           domainUrl: 'example.com',
         },
-        tabId: 111,
         popupWindowId: 321,
       });
       expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
@@ -112,14 +117,15 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
     };
 
     const mockAction: Action = {
-      id: '5432',
+      request: {
+        id: '5432',
+        method: DAppProviderRequest.WALLET_PERMISSIONS,
+      },
       status: ActionStatus.SUBMITTING,
-      method: DAppProviderRequest.WALLET_PERMISSIONS,
-      jsonrpc: '2.0',
       displayData: {},
       time: 12312312,
       actionId: 'uuid',
-    };
+    } as any;
 
     beforeEach(() => {
       jest.resetAllMocks();
@@ -202,7 +208,10 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       );
 
       await handler.onActionApproved(
-        { ...mockAction, site: { domain: 'example.com' } },
+        {
+          ...mockAction,
+          site: { domain: 'example.com' },
+        },
         'uuid',
         onSuccessMock,
         onErrorMock

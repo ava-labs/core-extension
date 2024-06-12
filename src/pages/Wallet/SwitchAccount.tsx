@@ -15,7 +15,7 @@ import {
 
 import { Account } from '@src/background/services/accounts/models';
 import { useApproveAction } from '@src/hooks/useApproveAction';
-import { Action, ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { truncateAddress } from '@src/utils/truncateAddress';
 
@@ -28,11 +28,9 @@ export function SwitchAccount() {
     action,
     updateAction: updateMessage,
     cancelHandler,
-  } = useApproveAction(requestId);
+  } = useApproveAction<{ selectedAccount: Account }>(requestId);
 
-  const request = action as Action & { selectedAccount: Account };
-
-  if (!request) {
+  if (!action) {
     return (
       <Stack
         sx={{
@@ -70,7 +68,7 @@ export function SwitchAccount() {
         </Avatar>
         <Typography variant="h4">
           {t('Switch to {{name}}?', {
-            name: request.selectedAccount?.name,
+            name: action.displayData.selectedAccount?.name,
           })}
         </Typography>
 
@@ -84,7 +82,7 @@ export function SwitchAccount() {
           }}
         >
           {t('{{domain}} is requesting to switch your active account.', {
-            domain: request.site?.domain || 'This website',
+            domain: action.site?.domain || 'This website',
           })}
         </Typography>
         <Stack
@@ -111,7 +109,10 @@ export function SwitchAccount() {
               gap: 3,
             }}
           >
-            <Tooltip title={request.selectedAccount?.name} wrapWithSpan={false}>
+            <Tooltip
+              title={action.displayData.selectedAccount?.name}
+              wrapWithSpan={false}
+            >
               <Typography
                 variant="body1"
                 sx={{
@@ -120,19 +121,21 @@ export function SwitchAccount() {
                   whiteSpace: 'nowrap',
                 }}
               >
-                {request.selectedAccount?.name}
+                {action.displayData.selectedAccount?.name}
               </Typography>
             </Tooltip>
             <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
-              <Tooltip title={request.selectedAccount?.addressC}>
+              <Tooltip title={action.displayData.selectedAccount?.addressC}>
                 <Typography variant="body2">
-                  {truncateAddress(request.selectedAccount?.addressC)}
+                  {truncateAddress(
+                    action.displayData.selectedAccount?.addressC
+                  )}
                 </Typography>
               </Tooltip>
               <IconButton
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    request.selectedAccount.addressC
+                    action.displayData.selectedAccount.addressC
                   );
                   toast.success(t('Copied!'), { duration: 2000 });
                 }}

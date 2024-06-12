@@ -11,6 +11,7 @@ import {
   Network,
 } from '../models';
 import { NetworkService } from '../NetworkService';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 /**
  * @link https://eips.ethereum.org/EIPS/eip-3085
@@ -23,7 +24,8 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     super();
   }
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
     const requestedChain: AddEthereumChainParameter = request.params?.[0];
 
     if (!requestedChain) {
@@ -119,10 +121,9 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
         displayData: {
           network: customNetwork,
         },
-        tabId: request.site?.tabId,
       };
 
-      await this.openApprovalWindow(actionData, `network/switch`);
+      await openApprovalWindow(actionData, `network/switch`);
 
       return { ...request, result: DEFERRED_RESPONSE };
     }
@@ -148,15 +149,14 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
           requiresGlacierApiKey: Boolean(requestedChain.requiresGlacierApiKey),
         },
       },
-      tabId: request.site?.tabId,
     };
-    await this.openApprovalWindow(actionData, `networks/add-popup`);
+    await openApprovalWindow(actionData, `networks/add-popup`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };
 
-  handleAuthenticated = async (request) => {
-    return this.handleUnauthenticated(request);
+  handleAuthenticated = async (rpcCall) => {
+    return this.handleUnauthenticated(rpcCall);
   };
 
   onActionApproved = async (

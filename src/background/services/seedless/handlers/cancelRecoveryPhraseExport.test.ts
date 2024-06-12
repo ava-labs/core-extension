@@ -5,6 +5,7 @@ import { SecretType } from '../../secrets/models';
 import { NetworkService } from '../../network/NetworkService';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { SeedlessWallet } from '../SeedlessWallet';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('../SeedlessWallet');
 
@@ -22,10 +23,12 @@ describe('src/background/services/seedless/handlers/cancelRecoveryPhraseExport',
       mfaService
     );
 
-    return handler.handle({
-      method: ExtensionRequest.SEEDLESS_CANCEL_RECOVERY_PHRASE_EXPORT,
-      id: 'abcd-1234',
-    });
+    return handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_CANCEL_RECOVERY_PHRASE_EXPORT,
+        id: 'abcd-1234',
+      })
+    );
   };
 
   const wallet = jest.mocked<SeedlessWallet>({

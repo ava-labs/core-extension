@@ -2,6 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { UpdateSignerTokenHandler } from './updateSignerToken';
 import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/updateSignerToken', () => {
   let secretsService;
@@ -25,11 +26,13 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       secretsService
     );
 
-    const result = await handler.handle({
-      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
-      id: 'abcd-1234',
-      params: [] as any,
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+        id: 'abcd-1234',
+        params: [] as any,
+      })
+    );
 
     expect(result.error).toEqual('missing token');
   });
@@ -44,11 +47,13 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
 
     const token = { token: 'bla bla bla' } as any;
 
-    const result = await handler.handle({
-      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
-      id: 'abcd-1234',
-      params: [token, 'a@b.c', '123'],
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+        id: 'abcd-1234',
+        params: [token, 'a@b.c', '123'],
+      })
+    );
 
     expect(result.error).toEqual('missing session information');
   });
@@ -63,11 +68,13 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
 
-    const result = await handler.handle({
-      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
-      id: 'abcd-1234',
-      params: [token, 'a@b.c', ''],
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+        id: 'abcd-1234',
+        params: [token, 'a@b.c', ''],
+      })
+    );
 
     expect(result.error).toEqual('missing user ID');
   });
@@ -89,11 +96,13 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
 
-    const result = await handler.handle({
-      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
-      id: 'abcd-1234',
-      params: [token, 'a@b.c', '123'],
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+        id: 'abcd-1234',
+        params: [token, 'a@b.c', '123'],
+      })
+    );
     expect(result.error).toEqual('mismatching user ID');
   });
 
@@ -107,11 +116,13 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
 
-    const result = await handler.handle({
-      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
-      id: 'abcd-1234',
-      params: [token, 'a@b.c', '123'],
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+        id: 'abcd-1234',
+        params: [token, 'a@b.c', '123'],
+      })
+    );
 
     expect(result.error).toEqual('mismatching email address');
   });
@@ -129,11 +140,13 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
 
-    const result = await handler.handle({
-      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
-      id: 'abcd-1234',
-      params: [token, 'x@y.z', '123'],
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+        id: 'abcd-1234',
+        params: [token, 'x@y.z', '123'],
+      })
+    );
 
     expect(result.error).toEqual(error.message);
   });
@@ -149,11 +162,13 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
 
-    const result = await handler.handle({
-      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
-      id: 'abcd-1234',
-      params: [token, 'x@y.z', '123'],
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+        id: 'abcd-1234',
+        params: [token, 'x@y.z', '123'],
+      })
+    );
 
     expect(updateSignerToken).toHaveBeenCalledWith(token);
     expect(secretsService.updateSecrets).toHaveBeenCalledTimes(1);
@@ -179,11 +194,13 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
 
-    const result = await handler.handle({
-      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
-      id: 'abcd-1234',
-      params: [token, 'x@y.z', '123'],
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+        id: 'abcd-1234',
+        params: [token, 'x@y.z', '123'],
+      })
+    );
 
     expect(updateSignerToken).toHaveBeenCalledWith(token);
     expect(secretsService.updateSecrets).not.toHaveBeenCalled();
@@ -210,11 +227,13 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
 
-    const result = await handler.handle({
-      method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
-      id: 'abcd-1234',
-      params: [token, 'x@y.z', '123'],
-    });
+    const result = await handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
+        id: 'abcd-1234',
+        params: [token, 'x@y.z', '123'],
+      })
+    );
 
     expect(updateSignerToken).toHaveBeenCalledWith(token);
     expect(secretsService.updateSecrets).not.toHaveBeenCalled();

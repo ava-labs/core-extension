@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { Action } from '@src/background/services/actions/models';
-import { container } from 'tsyringe';
-import { DAppProviderRequest, JsonRpcRequest, JsonRpcResponse } from './models';
-import { ApprovalService } from '@src/background/services/approvals/ApprovalService';
+import {
+  DAppProviderRequest,
+  JsonRpcRequestParams,
+  JsonRpcResponse,
+} from './models';
 
 export interface DAppRequestHandler {
   /**
@@ -20,36 +22,16 @@ export interface DAppRequestHandler {
 }
 
 export abstract class DAppRequestHandler<
-  RequestParams = unknown[],
+  RequestParams = unknown,
   ResponseParams = any
 > {
   abstract methods: DAppProviderRequest[];
 
   abstract handleAuthenticated: (
-    request: JsonRpcRequest<RequestParams>
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, RequestParams>
   ) => Promise<JsonRpcResponse<ResponseParams>>;
 
   abstract handleUnauthenticated: (
-    request: JsonRpcRequest<RequestParams>
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, RequestParams>
   ) => Promise<JsonRpcResponse<ResponseParams>>;
-
-  /**
-   * Opens approval window with the specified url and saves the action info to the Actions service
-   * When singleton is true, it makes sure there is only one approval window at a time for the given domain with the requested method
-   * @param action The action requiring approval
-   * @param url The url of the approval window. Withouth a leading `/`
-   */
-  async openApprovalWindow(action: Action, url: string) {
-    const actionId = crypto.randomUUID();
-    // using direct injection instead of the constructor to prevent circular dependencies
-    const approvalService = container.resolve(ApprovalService);
-
-    approvalService.requestApproval(
-      {
-        ...action,
-        actionId,
-      },
-      url
-    );
-  }
 }

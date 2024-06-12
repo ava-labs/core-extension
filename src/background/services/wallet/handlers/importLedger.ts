@@ -38,7 +38,7 @@ export class ImportLedgerHandler implements HandlerType {
     }
   }
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [{ xpub, xpubXP, pubKeys, secretType, name }] = request.params;
 
     if (

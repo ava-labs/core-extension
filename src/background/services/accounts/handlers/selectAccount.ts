@@ -14,7 +14,7 @@ export class SelectAccountHandler implements HandlerType {
   method = ExtensionRequest.ACCOUNT_SELECT as const;
 
   constructor(private accountsService: AccountsService) {}
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [id] = request.params;
 
     try {

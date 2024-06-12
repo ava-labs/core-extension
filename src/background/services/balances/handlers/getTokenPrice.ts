@@ -19,7 +19,7 @@ export class GetTokenPriceHandler implements HandlerType {
     private settingsService: SettingsService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [tokenId] = request.params;
 
     const settings = await this.settingsService.getSettings();

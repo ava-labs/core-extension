@@ -1,6 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { CaptureAnalyticsEventHandler } from './captureAnalyticsEvent';
 import { FeatureGates } from '../../featureFlags/models';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
   const featureFlagServiceMock = {
@@ -38,7 +39,7 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
       params: [mockEvent, false],
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({ ...request, result: null });
     expect(analyticsServicePosthogMock.captureEvent).toHaveBeenCalledTimes(1);
@@ -59,7 +60,7 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
       params: [mockEvent, true],
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({ ...request, result: null });
     expect(
@@ -88,7 +89,7 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
       params: [mockEvent],
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({ ...request, result: null });
     expect(analyticsServicePosthogMock.captureEvent).not.toHaveBeenCalled();
@@ -110,7 +111,7 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
       params: [mockEvent],
     } as any;
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({ ...request, error: 'Error: some error' });
   });

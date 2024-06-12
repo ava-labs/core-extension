@@ -44,8 +44,8 @@ import sentryCaptureException, {
 @injectable()
 export class DAppConnectionController implements ConnectionController {
   private pipeline?: Pipeline<
-    JsonRpcRequest<unknown>,
-    JsonRpcSuccess<unknown> | JsonRpcFailure<unknown>
+    JsonRpcRequest,
+    JsonRpcSuccess<unknown> | JsonRpcFailure
   >;
   private connection?: PortConnection;
 
@@ -65,8 +65,8 @@ export class DAppConnectionController implements ConnectionController {
   connect(connection: Runtime.Port) {
     this.connection = new PortConnection(connection);
     this.pipeline = RequestProcessorPipeline<
-      JsonRpcRequest<unknown>,
-      JsonRpcSuccess<unknown> | JsonRpcFailure<unknown>
+      JsonRpcRequest,
+      JsonRpcSuccess<unknown> | JsonRpcFailure
     >(
       // TODO: fix this in https://ava-labs.atlassian.net/browse/CP-5738
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -107,15 +107,12 @@ export class DAppConnectionController implements ConnectionController {
   }
 
   needToPost(
-    context: Context<
-      JsonRpcRequest<unknown>,
-      JsonRpcSuccess<unknown> | JsonRpcFailure<unknown>
-    >
+    context: Context<JsonRpcRequest, JsonRpcSuccess<unknown> | JsonRpcFailure>
   ): boolean {
     return context.response !== DEFERRED_RESPONSE;
   }
 
-  private async onRequest(request: JsonRpcRequest<unknown>) {
+  private async onRequest(request: JsonRpcRequest) {
     if (!this.pipeline || !this.connection) {
       throw Error('dAppConnectionController is not connected to a port');
     }

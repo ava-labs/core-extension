@@ -22,7 +22,7 @@ export class GetAvaxBalanceHandler implements HandlerType {
     private balancesServiceEVM: BalancesServiceEVM
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const params = request.params || [];
     const [address] = params;
     const avalancheNetwork = await this.networkService.getAvalancheNetwork();

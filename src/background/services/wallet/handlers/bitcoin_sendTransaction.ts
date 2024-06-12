@@ -1,6 +1,9 @@
 import { injectable } from 'tsyringe';
 import { WalletService } from '../WalletService';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequestParams,
+} from '@src/background/connections/dAppConnection/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { Action } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
@@ -25,11 +28,13 @@ import {
 import { SendErrorMessage } from '@src/utils/send/models';
 import { resolve } from '@avalabs/utils-sdk';
 
-type BtcSendTransactionParams = [string, string, number];
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+
+type BitcoinTxParams = [address: string, amount: string, feeRate: number];
 
 @injectable()
 export class BitcoinSendTransactionHandler extends DAppRequestHandler<
-  BtcSendTransactionParams,
+  BitcoinTxParams,
   string
 > {
   methods = [DAppProviderRequest.BITCOIN_SEND_TRANSACTION];
@@ -102,7 +107,11 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
     return Boolean(account.addressBTC);
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async (
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, BitcoinTxParams>
+  ) => {
+    const { request } = rpcCall;
+
     if (!this.accountService.activeAccount) {
       return {
         ...request,
@@ -131,7 +140,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
     }
 
     const [address, amount, feeRate] = (request.params ??
-      []) as BtcSendTransactionParams;
+      []) as BitcoinTxParams;
     const isMainnet = this.networkService.isMainnet();
     const token = await this.#getBalance(
       this.accountService.activeAccount as EnsureDefined<Account, 'addressBTC'>
@@ -158,7 +167,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
       };
     }
     const provider = getProviderForNetwork(network) as BitcoinProvider;
-    const utxos = await getBtcInputUtxos(provider, token);
+    const utxos = await getBtcInputUtxos(provider, token, feeRate);
 
     const from = this.accountService.activeAccount.addressBTC;
     const validationError = validateBtcSend(
@@ -205,11 +214,10 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
 
       const actionData = {
         ...request,
-        tabId: request.site.tabId,
         displayData,
       };
 
-      await this.openApprovalWindow(actionData, `approve/bitcoinSignTx`);
+      await openApprovalWindow(actionData, `approve/bitcoinSignTx`);
     } catch (err) {
       return {
         ...request,
@@ -225,7 +233,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
     };
   };
 
-  handleUnauthenticated = (request) => {
+  handleUnauthenticated = ({ request }) => {
     return {
       ...request,
       error: ethErrors.provider.unauthorized(),

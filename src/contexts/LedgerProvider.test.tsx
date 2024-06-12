@@ -244,6 +244,56 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         });
       });
     });
+    it('forwards errors with statusCode', async () => {
+      const error = {
+        statusCode: 0x123,
+      };
+      refMock.send.mockRejectedValueOnce(error);
+
+      const eventSubject = new Subject();
+      const connectionMocks = useConnectionContext();
+      (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
+
+      renderTestComponent();
+
+      eventSubject.next({
+        name: LedgerEvent.TRANSPORT_REQUEST,
+        value: {
+          requestId: '1',
+          connectionUUID: '00000000-0000-0000-0000-000000000000',
+          method: 'SEND',
+          params: {
+            cla: 1,
+            ins: 2,
+            p1: 3,
+            p2: 4,
+            data: '0x1',
+            statusList: [StatusCodes.OK],
+          },
+        },
+      });
+
+      await waitFor(() => {
+        expect(refMock.send).toHaveBeenCalledWith(
+          1,
+          2,
+          3,
+          4,
+          Buffer.from('0x1'),
+          [StatusCodes.OK]
+        );
+        expect(connectionMocks.request).toHaveBeenCalledWith({
+          method: ExtensionRequest.LEDGER_RESPONSE,
+          params: [
+            {
+              requestId: '1',
+              method: 'SEND',
+              error: error.statusCode,
+            },
+          ],
+        });
+      });
+    });
 
     it('forwards responses properly', async () => {
       const result = { foo: 'bar' };

@@ -5,7 +5,12 @@ import { engine } from '@src/utils/jsonRpcEngine';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
 import { ethErrors } from 'eth-rpc-errors';
-import { JsonRpcRequest, JsonRpcResponse } from '../dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequest,
+  JsonRpcRequestParams,
+  JsonRpcResponse,
+} from '../dAppConnection/models';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],
@@ -19,13 +24,16 @@ export function DAppRequestHandlerMiddleware(
   }, new Map<string, DAppRequestHandler>());
 
   return async (context, next) => {
-    const handler = handlerMap.get(context.request.method);
+    const handler = handlerMap.get(context.request.params.request.method);
     // Call correct handler method based on authentication status
     let promise: Promise<JsonRpcResponse<unknown>>;
     if (handler) {
-      const params = {
-        ...context.request,
-        site: context.domainMetadata,
+      const params: JsonRpcRequestParams<DAppProviderRequest> = {
+        ...context.request.params,
+        request: {
+          ...context.request.params.request,
+          site: context.domainMetadata, // TODO: move it outside of the inner request payload as contextual data?
+        },
       };
       promise = context.authenticated
         ? handler.handleAuthenticated(params)
@@ -38,7 +46,7 @@ export function DAppRequestHandlerMiddleware(
       } else {
         promise = engine(activeNetwork).then((e) =>
           e.handle<unknown, unknown>({
-            ...context.request,
+            ...context.request.params.request,
             id: crypto.randomUUID(),
             jsonrpc: '2.0',
           })

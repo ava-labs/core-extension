@@ -14,6 +14,10 @@ import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
 import { LedgerOnboardingHandler } from './ledgerOnboardingHandler';
 import { SecretType } from '../../secrets/models';
+import { buildRpcCall } from '@src/tests/test-utils';
+import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
+
+jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
 
 const WALLET_ID = 'wallet-id';
 
@@ -43,6 +47,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
   const accountsServiceMock = {
     addPrimaryAccount: jest.fn(),
     getAccountList: jest.fn(),
+    getAccounts: jest.fn(),
     activateAccount: jest.fn(),
   } as unknown as AccountsService;
   const settingsServiceMock = {
@@ -77,6 +82,11 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.mocked(accountsServiceMock.getAccounts).mockReturnValue({
+      primary: {
+        [WALLET_ID]: [accountMock],
+      },
+    } as any);
     (accountsServiceMock.getAccountList as jest.Mock).mockReturnValue([
       accountMock,
     ]);
@@ -95,7 +105,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       },
     ]);
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -139,7 +149,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       },
     ]);
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -175,5 +185,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     expect(
       analyticsServiceMock.saveTemporaryAnalyticsIds
     ).not.toHaveBeenCalled();
+
+    expect(addXPChainToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });

@@ -2,6 +2,7 @@ import { Avalanche } from '@avalabs/wallets-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAddressesInRangeHandler } from './avalanche_getAddressesInRange';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@avalabs/wallets-sdk');
 
@@ -25,6 +26,13 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
     return handler.handleAuthenticated(request);
   };
 
+  const getPayload = (payload) =>
+    ({
+      id: '1234',
+      method: DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+      ...payload,
+    } as const);
+
   beforeEach(() => {
     jest.resetAllMocks();
   });
@@ -39,7 +47,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
         params: [0, 0, 10, 10],
       } as any;
 
-      const result = await handleRequest(request);
+      const result = await handleRequest(buildRpcCall(request));
       expect(result).toEqual({
         ...request,
         error: ethErrors.rpc.invalidParams({
@@ -68,7 +76,9 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
       });
 
       it('throws if external start index is incorrect', async () => {
-        const { error } = await handleRequest({ params: [-1, 0] });
+        const { error } = await handleRequest(
+          buildRpcCall(getPayload({ params: [-1, 0] }))
+        );
 
         expect(error).toEqual(
           ethErrors.rpc.invalidParams({
@@ -78,7 +88,9 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
       });
 
       it('throws if internal start index is incorrect', async () => {
-        const { error } = await handleRequest({ params: [0, -1] });
+        const { error } = await handleRequest(
+          buildRpcCall(getPayload({ params: [0, -1] }))
+        );
         expect(error).toEqual(
           ethErrors.rpc.invalidParams({
             message: 'Invalid start index',
@@ -87,7 +99,9 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
       });
 
       it('returns the address list correctly', async () => {
-        const { result } = await handleRequest({ params: [0, 0, 2, 2] });
+        const { result } = await handleRequest(
+          buildRpcCall(getPayload({ params: [0, 0, 2, 2] }))
+        );
         expect(result).toEqual({
           external: getExpectedResult('external', 2),
           internal: getExpectedResult('internal', 2),
@@ -96,7 +110,9 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
       });
 
       it('sets the limit to 0 if not provided', async () => {
-        const { result } = await handleRequest({ params: [0, 0] });
+        const { result } = await handleRequest(
+          buildRpcCall(getPayload({ params: [0, 0] }))
+        );
         expect(result).toStrictEqual({
           external: [],
           internal: [],
@@ -105,7 +121,9 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
       });
 
       it('sets the limit to 100 if the provided is over 100', async () => {
-        const { result } = await handleRequest({ params: [0, 0, 1000, 1000] });
+        const { result } = await handleRequest(
+          buildRpcCall(getPayload({ params: [0, 0, 1000, 1000] }))
+        );
         expect(result.external).toHaveLength(100);
         expect(result.internal).toHaveLength(100);
         expect(Avalanche.getAddressFromXpub).toHaveBeenCalledTimes(200);
@@ -124,7 +142,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
       params: [0, 0, 10, 10],
     } as any;
 
-    const result = await handler.handleUnauthenticated(request);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
     expect(result).toEqual({
       ...request,
       error: ethErrors.provider.unauthorized(),

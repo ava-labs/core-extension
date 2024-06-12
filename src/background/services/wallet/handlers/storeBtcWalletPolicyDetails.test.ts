@@ -5,6 +5,7 @@ import { AccountType } from '../../accounts/models';
 import { AccountWithSecrets, SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { StoreBtcWalletPolicyDetails } from './storeBtcWalletPolicyDetails';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@avalabs/wallets-sdk');
 
@@ -38,7 +39,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       networkServiceMock
     );
 
-    await expect(handler.handle(request)).rejects.toThrow(
+    await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
       'no account selected'
     );
   });
@@ -55,7 +56,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       networkServiceMock
     );
 
-    await expect(handler.handle(request)).rejects.toThrow(
+    await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
       'incorrect account type'
     );
   });
@@ -75,7 +76,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       networkServiceMock
     );
 
-    await expect(handler.handle(request)).rejects.toThrow(
+    await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
       'unknown derivation path'
     );
   });
@@ -98,7 +99,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       networkServiceMock
     );
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(
       secretsServiceMock.storeBtcWalletPolicyDetails
@@ -130,7 +131,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       networkServiceMock
     );
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(getBech32AddressFromXPub).toHaveBeenCalledWith(
       'xpub',
@@ -173,7 +174,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       networkServiceMock
     );
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(getBech32AddressFromXPub).toHaveBeenCalledWith(
       'xpub',

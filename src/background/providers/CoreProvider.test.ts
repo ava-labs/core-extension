@@ -15,6 +15,13 @@ jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
 
 jest.mock('./utils/onDomReady');
 
+const matchingPayload = (payload) =>
+  expect.objectContaining({
+    params: expect.objectContaining({
+      request: expect.objectContaining(payload),
+    }),
+  });
+
 describe('src/background/providers/CoreProvider', () => {
   const channelMock = new AutoPairingPostMessageConnection(false);
 
@@ -46,6 +53,53 @@ describe('src/background/providers/CoreProvider', () => {
     });
   });
 
+  describe('CAIP-27', () => {
+    let provider;
+
+    beforeEach(async () => {
+      provider = new CoreProvider({ connection: channelMock });
+
+      // wait for init to finish
+      await new Promise(process.nextTick);
+
+      // response for domain metadata send
+      (channelMock.request as jest.Mock).mockResolvedValueOnce({});
+
+      // domReady to allow requests through
+      (onDomReady as jest.Mock).mock.calls[0][0]();
+
+      await new Promise(process.nextTick);
+    });
+
+    it('wraps incoming requests into CAIP-27 envelope and reuses the provided ID', async () => {
+      // response for the actual call
+      (channelMock.request as jest.Mock).mockResolvedValueOnce('success');
+
+      provider.send(
+        {
+          method: 'some-method',
+          params: [{ param1: 1 }],
+        },
+        jest.fn()
+      );
+
+      await new Promise(process.nextTick);
+
+      expect(channelMock.request).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        method: 'provider_request',
+        params: {
+          scope: 'eip155:1',
+          sessionId: '00000000-0000-0000-0000-000000000000',
+          request: {
+            method: 'some-method',
+            params: [{ param1: 1 }],
+          },
+        },
+      });
+    });
+  });
+
   describe('EIP-1193', () => {
     describe('request', () => {
       it('collects pending requests till the dom is ready', async () => {
@@ -55,9 +109,11 @@ describe('src/background/providers/CoreProvider', () => {
         await new Promise(process.nextTick);
 
         expect(channelMock.request).toHaveBeenCalledTimes(1);
-        expect(channelMock.request).toHaveBeenCalledWith({
-          method: DAppProviderRequest.INIT_DAPP_STATE,
-        });
+        expect(channelMock.request).toHaveBeenCalledWith(
+          matchingPayload({
+            method: DAppProviderRequest.INIT_DAPP_STATE,
+          })
+        );
 
         // response for domain metadata send
         (channelMock.request as jest.Mock).mockResolvedValueOnce({});
@@ -80,10 +136,12 @@ describe('src/background/providers/CoreProvider', () => {
         await new Promise(process.nextTick);
 
         expect(channelMock.request).toHaveBeenCalledTimes(3);
-        expect(channelMock.request).toHaveBeenCalledWith({
-          method: 'some-method',
-          params: [{ param1: 1 }],
-        });
+        expect(channelMock.request).toHaveBeenCalledWith(
+          matchingPayload({
+            method: 'some-method',
+            params: [{ param1: 1 }],
+          })
+        );
 
         expect(rpcResultCallback).toHaveBeenCalledWith('success');
       });
@@ -95,9 +153,11 @@ describe('src/background/providers/CoreProvider', () => {
         await new Promise(process.nextTick);
 
         expect(channelMock.request).toHaveBeenCalledTimes(1);
-        expect(channelMock.request).toHaveBeenCalledWith({
-          method: DAppProviderRequest.INIT_DAPP_STATE,
-        });
+        expect(channelMock.request).toHaveBeenCalledWith(
+          matchingPayload({
+            method: DAppProviderRequest.INIT_DAPP_STATE,
+          })
+        );
 
         // response for domain metadata send
         (channelMock.request as jest.Mock).mockResolvedValueOnce({});
@@ -127,9 +187,11 @@ describe('src/background/providers/CoreProvider', () => {
         await new Promise(process.nextTick);
 
         expect(channelMock.request).toHaveBeenCalledTimes(3);
-        expect(channelMock.request).toHaveBeenCalledWith({
-          method: 'eth_requestAccounts',
-        });
+        expect(channelMock.request).toHaveBeenCalledWith(
+          matchingPayload({
+            method: 'eth_requestAccounts',
+          })
+        );
 
         expect(firstCallCallback).toHaveBeenCalledWith('success');
         expect(secondCallCallback).toHaveBeenCalledWith(
@@ -146,9 +208,11 @@ describe('src/background/providers/CoreProvider', () => {
         await new Promise(process.nextTick);
 
         expect(channelMock.request).toHaveBeenCalledTimes(1);
-        expect(channelMock.request).toHaveBeenCalledWith({
-          method: DAppProviderRequest.INIT_DAPP_STATE,
-        });
+        expect(channelMock.request).toHaveBeenCalledWith(
+          matchingPayload({
+            method: DAppProviderRequest.INIT_DAPP_STATE,
+          })
+        );
 
         // response for domain metadata send
         (channelMock.request as jest.Mock).mockResolvedValueOnce({});
@@ -172,9 +236,11 @@ describe('src/background/providers/CoreProvider', () => {
         await new Promise(process.nextTick);
 
         expect(channelMock.request).toHaveBeenCalledTimes(3);
-        expect(channelMock.request).toHaveBeenCalledWith({
-          method: 'eth_requestAccounts',
-        });
+        expect(channelMock.request).toHaveBeenCalledWith(
+          matchingPayload({
+            method: 'eth_requestAccounts',
+          })
+        );
 
         expect(callCallback).toHaveBeenCalledWith({
           code: -32603,
@@ -192,9 +258,11 @@ describe('src/background/providers/CoreProvider', () => {
         await new Promise(process.nextTick);
 
         expect(channelMock.request).toHaveBeenCalledTimes(1);
-        expect(channelMock.request).toHaveBeenCalledWith({
-          method: DAppProviderRequest.INIT_DAPP_STATE,
-        });
+        expect(channelMock.request).toHaveBeenCalledWith(
+          matchingPayload({
+            method: DAppProviderRequest.INIT_DAPP_STATE,
+          })
+        );
 
         // response for domain metadata send
         (channelMock.request as jest.Mock).mockResolvedValueOnce({});
@@ -221,9 +289,11 @@ describe('src/background/providers/CoreProvider', () => {
         await new Promise(process.nextTick);
 
         expect(channelMock.request).toHaveBeenCalledTimes(3);
-        expect(channelMock.request).toHaveBeenCalledWith({
-          method: 'eth_requestAccounts',
-        });
+        expect(channelMock.request).toHaveBeenCalledWith(
+          matchingPayload({
+            method: 'eth_requestAccounts',
+          })
+        );
 
         expect(callCallback).toHaveBeenCalledWith({
           code: 4902,
@@ -245,9 +315,11 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(1);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: DAppProviderRequest.INIT_DAPP_STATE,
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: DAppProviderRequest.INIT_DAPP_STATE,
+            })
+          );
 
           expect(connectSubscription).toHaveBeenCalledTimes(1);
           expect(connectSubscription).toHaveBeenCalledWith({ chainId: '0x1' });
@@ -269,9 +341,11 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(1);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: DAppProviderRequest.INIT_DAPP_STATE,
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: DAppProviderRequest.INIT_DAPP_STATE,
+            })
+          );
 
           expect(connectSubscription).not.toHaveBeenCalled();
 
@@ -542,10 +616,12 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'some-method',
-            params: [{ param1: 1 }],
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'some-method',
+              params: [{ param1: 1 }],
+            })
+          );
 
           expect(rpcResultCallback).toHaveBeenCalledWith(null, {
             method: 'some-method',
@@ -587,9 +663,11 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'eth_requestAccounts',
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'eth_requestAccounts',
+            })
+          );
 
           expect(firstCallCallback).toHaveBeenCalledWith(null, {
             method: 'eth_requestAccounts',
@@ -640,14 +718,18 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(4);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'some-method',
-            params: [{ param1: 1 }],
-          });
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'some-method2',
-            params: [{ param1: 2 }],
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'some-method',
+              params: [{ param1: 1 }],
+            })
+          );
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'some-method2',
+              params: [{ param1: 2 }],
+            })
+          );
 
           expect(rpcResultCallback).toHaveBeenCalledWith(null, [
             { method: 'some-method', result: 'success' },
@@ -685,10 +767,12 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'some-method',
-            params: [{ param1: 1 }],
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'some-method',
+              params: [{ param1: 1 }],
+            })
+          );
 
           expect(rpcResultCallback).toHaveBeenCalledWith(null, {
             method: 'some-method',
@@ -730,9 +814,11 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'eth_requestAccounts',
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'eth_requestAccounts',
+            })
+          );
 
           expect(firstCallCallback).toHaveBeenCalledWith(null, {
             method: 'eth_requestAccounts',
@@ -783,14 +869,18 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(4);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'some-method',
-            params: [{ param1: 1 }],
-          });
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'some-method2',
-            params: [{ param1: 2 }],
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'some-method',
+              params: [{ param1: 1 }],
+            })
+          );
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'some-method2',
+              params: [{ param1: 2 }],
+            })
+          );
 
           expect(rpcResultCallback).toHaveBeenCalledWith(null, [
             { method: 'some-method', result: 'success' },
@@ -822,10 +912,12 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'some-method',
-            params: undefined,
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'some-method',
+              params: undefined,
+            })
+          );
           expect(rpcResultCallback).toHaveBeenCalledWith({
             id: undefined,
             jsonrpc: '2.0',
@@ -857,10 +949,12 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'some-method',
-            params: [{ someparam: 1 }],
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'some-method',
+              params: [{ someparam: 1 }],
+            })
+          );
           expect(rpcResultCallback).toHaveBeenCalledWith({
             id: undefined,
             jsonrpc: '2.0',
@@ -947,9 +1041,11 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'eth_requestAccounts',
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'eth_requestAccounts',
+            })
+          );
 
           expect(rpcResultCallback).toHaveBeenCalledWith(['0x0000']);
         });
@@ -978,9 +1074,11 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'eth_requestAccounts',
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'eth_requestAccounts',
+            })
+          );
 
           expect(firstCallCallback).toHaveBeenCalledWith(['0x0000']);
           expect(secondCallCallback).toHaveBeenCalledWith(
@@ -1014,9 +1112,11 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith({
-            method: 'net_version',
-          });
+          expect(channelMock.request).toHaveBeenCalledWith(
+            matchingPayload({
+              method: 'net_version',
+            })
+          );
 
           expect(rpcResultCallback).toHaveBeenCalledWith('1');
         });
@@ -1177,9 +1277,11 @@ describe('src/background/providers/CoreProvider', () => {
       await new Promise(process.nextTick);
 
       expect(mockedChannel.request).toHaveBeenCalledTimes(1);
-      expect(mockedChannel.request).toHaveBeenCalledWith({
-        method: DAppProviderRequest.INIT_DAPP_STATE,
-      });
+      expect(mockedChannel.request).toHaveBeenCalledWith(
+        matchingPayload({
+          method: DAppProviderRequest.INIT_DAPP_STATE,
+        })
+      );
 
       await new Promise(process.nextTick);
       expect(provider._isUnlocked).toBe(true);

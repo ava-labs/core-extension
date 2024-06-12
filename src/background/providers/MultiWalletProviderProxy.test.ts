@@ -286,7 +286,11 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
       const requestAccountsCallback = jest.fn();
       mwpp.sendAsync(
-        { method: 'eth_requestAccounts', jsonrpc: '2.0', id: '1' },
+        {
+          method: 'eth_requestAccounts',
+          id: '1',
+          params: [],
+        },
         requestAccountsCallback
       );
 
@@ -317,8 +321,8 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       expect(requestAccountsCallback).toHaveBeenCalledTimes(1);
       expect(requestAccountsCallback).toHaveBeenCalledWith(null, {
         id: '1',
-        jsonrpc: '2.0',
         method: 'eth_requestAccounts',
+        params: [],
         result: ['0x000000'],
       });
       expect(mwpp.defaultProvider).toBe(provider2);
@@ -336,7 +340,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
       const requestAccountsCallback = jest.fn();
       mwpp.send(
-        { method: 'eth_requestAccounts', jsonrpc: '2.0', id: '1' },
+        { method: 'eth_requestAccounts', id: '1', params: [] },
         requestAccountsCallback
       );
 
@@ -367,7 +371,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       expect(requestAccountsCallback).toHaveBeenCalledTimes(1);
       expect(requestAccountsCallback).toHaveBeenCalledWith(null, {
         id: '1',
-        jsonrpc: '2.0',
+        params: [],
         method: 'eth_requestAccounts',
         result: ['0x000000'],
       });

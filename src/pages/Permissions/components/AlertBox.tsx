@@ -5,11 +5,14 @@ import {
   useTheme,
   RemoveModeratorIcon,
 } from '@avalabs/k2-components';
-import { useTranslation } from 'react-i18next';
 
-export function AlertBox() {
+interface AlertBoxProps {
+  title: string;
+  text: string;
+}
+
+export function AlertBox({ title, text }: AlertBoxProps) {
   const theme = useTheme();
-  const { t } = useTranslation();
 
   return (
     <Alert
@@ -30,10 +33,10 @@ export function AlertBox() {
           variant="caption"
           sx={{ fontWeight: 600, display: 'block' }}
         >
-          {t('Malicious Application')}
+          {title}
         </Typography>
         <Typography variant="caption" sx={{ display: 'block' }}>
-          {t('This application is malicious, do not proceed.')}
+          {text}
         </Typography>
       </AlertContent>
     </Alert>

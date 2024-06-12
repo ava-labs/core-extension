@@ -17,7 +17,7 @@ export class BridgeSetIsDevEnvHandler implements HandlerType {
 
   constructor(private bridgeService: BridgeService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const {
       params: [enabled],
     } = request;

@@ -15,7 +15,7 @@ export class RemoveLedgerTransportHandler implements HandlerType {
 
   constructor(private ledgerService: LedgerService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [ledgerTransportUUID] = request.params;
 
     if (this.ledgerService.getTransport(ledgerTransportUUID)) {

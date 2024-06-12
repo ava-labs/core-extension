@@ -11,11 +11,18 @@ import {
   ExtensionConnectionEvent,
 } from '../../background/connections/models';
 import { serializeToJSON } from '@src/background/serialization/serialize';
+import {
+  JsonRpcRequest,
+  JsonRpcRequestPayload,
+} from '@src/background/connections/dAppConnection/models';
+import { PartialBy } from '@src/background/models';
 
 const responseMap = new Map<
   string,
   Subject<ExtensionConnectionMessageResponse>
 >();
+
+const sessionId = crypto.randomUUID();
 
 export function connectionRequest(request: ExtensionConnectionMessage) {
   const responseHandler = new Subject<ExtensionConnectionMessageResponse>();
@@ -56,10 +63,24 @@ export function requestEngine(
     connection.onMessage.removeListener(connectionResponseHandlerInstance);
     connection.onDisconnect.removeListener(onRequestEngineDisconnect);
   });
-  return async (request: Omit<ExtensionConnectionMessage, 'id'>) => {
-    const requestWithId = {
-      ...request,
-      id: `${request.method}-${Math.floor(Math.random() * 10000000)}`,
+  return async (
+    request: PartialBy<Omit<JsonRpcRequestPayload, 'id'>, 'params'>
+  ) => {
+    const id = `${request.method}-${Math.floor(Math.random() * 10000000)}`;
+
+    const requestWithId: JsonRpcRequest = {
+      id,
+      jsonrpc: '2.0',
+      method: 'provider_request',
+      params: {
+        scope: '',
+        sessionId,
+        request: {
+          id,
+          params: [],
+          ...request,
+        },
+      },
     };
     const response = connectionRequest(requestWithId);
     isDevelopment() &&

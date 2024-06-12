@@ -18,7 +18,7 @@ export class AddFidoDeviceHandler implements HandlerType {
 
   constructor(private seedlessMfaService: SeedlessMfaService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [name, keyType] = request.params;
 
     if (!name) {

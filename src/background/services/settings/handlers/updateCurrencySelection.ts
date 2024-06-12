@@ -14,7 +14,7 @@ export class UpdateCurrencyHandler implements HandlerType {
   method = ExtensionRequest.SETTINGS_UPDATE_CURRENCY as const;
 
   constructor(private settingsService: SettingsService) {}
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [currency] = request.params || [];
 
     if (!currency) {

@@ -24,7 +24,7 @@ export class UpdateSignerTokenHandler implements HandlerType {
     private secretsService: SecretsService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [token, email, userId] = request.params;
 
     if (!token) {

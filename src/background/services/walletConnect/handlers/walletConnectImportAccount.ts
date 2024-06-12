@@ -23,7 +23,7 @@ type HandlerType = ExtensionRequestHandler<
   [reconnectionAddress?: string]
 >;
 
-type RequestPayload = Parameters<HandlerType['handle']>[0];
+type RequestPayload = Parameters<HandlerType['handle']>[0]['request'];
 
 @injectable()
 export class WalletConnectImportAccount implements HandlerType {
@@ -35,7 +35,7 @@ export class WalletConnectImportAccount implements HandlerType {
     private accountsService: AccountsService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     if (!this.networkService.activeNetwork) {
       return {
         ...request,

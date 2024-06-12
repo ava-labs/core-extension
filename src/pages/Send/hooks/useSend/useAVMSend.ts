@@ -18,7 +18,7 @@ import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
 import { SendAdapterAVM } from './models';
 import { AVMSendOptions } from '../../models';
 
-const XCHAIN_ALIAS = 'X';
+const XCHAIN_ALIAS = 'X' as const;
 
 export const useAvmSend: SendAdapterAVM = ({
   network,
@@ -51,10 +51,7 @@ export const useAvmSend: SendAdapterAVM = ({
     if (!featureFlags[FeatureGates.SEND_X_CHAIN]) {
       return SendErrorMessage.SEND_NOT_AVAILABLE;
     }
-    if (isLedgerWallet) {
-      return SendErrorMessage.UNSUPPORTED_BY_LEDGER;
-    }
-  }, [featureFlags, isLedgerWallet]);
+  }, [featureFlags]);
 
   function setErrorAndEndValidating(message: SendErrorMessage) {
     setError(message);
@@ -122,11 +119,6 @@ export const useAvmSend: SendAdapterAVM = ({
   const send = useCallback(
     async ({ address, token, amount }: AVMSendOptions) => {
       checkFunctionAvailability();
-      if (isLedgerWallet) {
-        throw new Error(
-          'Ledger does not support send function on X-Chain currently'
-        );
-      }
 
       setIsSending(true);
       try {
@@ -163,11 +155,10 @@ export const useAvmSend: SendAdapterAVM = ({
           ),
         };
 
-        const txID = (await request<AvalancheSendTransactionHandler>({
+        return request<AvalancheSendTransactionHandler>({
           method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
           params,
-        })) as string;
-        return txID;
+        });
       } finally {
         setIsSending(false);
       }

@@ -14,6 +14,7 @@ import { SeedlessWallet } from '../SeedlessWallet';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('../SeedlessWallet');
 jest.mock('@cubist-labs/cubesigner-sdk');
@@ -33,10 +34,12 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
       mfaService
     );
 
-    return handler.handle({
-      method: ExtensionRequest.SEEDLESS_COMPLETE_RECOVERY_PHRASE_EXPORT,
-      id: 'abcd-1234',
-    });
+    return handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_COMPLETE_RECOVERY_PHRASE_EXPORT,
+        id: 'abcd-1234',
+      })
+    );
   };
 
   const wallet = jest.mocked<SeedlessWallet>({

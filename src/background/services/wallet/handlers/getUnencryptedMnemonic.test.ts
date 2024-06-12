@@ -1,3 +1,4 @@
+import { buildRpcCall } from '@src/tests/test-utils';
 import { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
@@ -19,7 +20,9 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
 
     const handler = buildHandler();
 
-    expect(await handler.handle({ params: ['abcd'] } as any)).toEqual(
+    expect(
+      await handler.handle(buildRpcCall({ params: ['abcd'] } as any))
+    ).toEqual(
       expect.objectContaining({
         error: 'Password invalid',
       })
@@ -34,7 +37,9 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
 
     const handler = buildHandler();
 
-    expect(await handler.handle({ params: ['abcd'] } as any)).toEqual(
+    expect(
+      await handler.handle(buildRpcCall({ params: ['abcd'] } as any))
+    ).toEqual(
       expect.objectContaining({
         error: 'Not a MnemonicWallet',
       })
@@ -50,7 +55,9 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
     } as any);
     const handler = buildHandler();
 
-    expect(await handler.handle({ params: ['abcd'] } as any)).toEqual(
+    expect(
+      await handler.handle(buildRpcCall({ params: ['abcd'] } as any))
+    ).toEqual(
       expect.objectContaining({
         result: mnemonic,
       })

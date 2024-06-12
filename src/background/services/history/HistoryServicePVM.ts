@@ -143,14 +143,15 @@ export class HistoryServicePVM {
     return result;
   }
 
-  async getHistory(network: Network) {
+  async getHistory(network: Network, otherAddress?: string) {
     if (!network?.chainId || !isPchainNetwork(network)) {
       return [];
     }
 
-    const account = this.accountsService.activeAccount?.addressPVM;
+    const address =
+      otherAddress ?? this.accountsService.activeAccount?.addressPVM;
 
-    if (!account) {
+    if (!address) {
       return [];
     }
 
@@ -159,7 +160,7 @@ export class HistoryServicePVM {
         ? Avalanche.FujiContext.pBlockchainID
         : Avalanche.MainnetContext.pBlockchainID) as BlockchainId,
       network: network.isTestnet ? NetworkType.FUJI : NetworkType.MAINNET,
-      addresses: account,
+      addresses: address,
       pageSize: 25,
       sortOrder: SortOrder.DESC,
     };
@@ -173,7 +174,7 @@ export class HistoryServicePVM {
       }
 
       const formattedResult = rawResult.transactions.map((tx) =>
-        this.convertToTxHistoryItem(tx, network, account)
+        this.convertToTxHistoryItem(tx, network, address)
       );
 
       return formattedResult;

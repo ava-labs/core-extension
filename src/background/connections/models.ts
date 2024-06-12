@@ -1,56 +1,28 @@
 /* eslint-disable no-prototype-builtins */
 
 import { Runtime } from 'webextension-polyfill';
-import { ArrayElement, DomainMetadata } from '../models';
+import { ArrayElement } from '../models';
 import { ExtensionRequest } from './extensionConnection/models';
-import { DAppProviderRequest, JsonRpcRequest } from './dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequest,
+  JsonRpcRequestPayload,
+} from './dAppConnection/models';
 import { ErrorData } from '@src/utils/errors';
 import { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 import { DAppRequestHandler } from './dAppConnection/DAppRequestHandler';
 
-interface ExtensionConnectionMessageBase<
-  Method extends ExtensionRequest | DAppProviderRequest,
-  Data
-> {
-  id: string;
-  method: Method;
-  /**
-   * Domain metadata gets added to incoming requests only
-   * for requests that go to DAppRequestHandler's.
-   */
-  site?: DomainMetadata;
-  data?: Data;
-  tabId?: number;
-}
-interface ExtensionConnectionMessageWithParams<
-  Method extends ExtensionRequest | DAppProviderRequest,
-  Params,
-  Data
-> extends ExtensionConnectionMessageBase<Method, Data> {
-  params: Params;
-}
-interface ExtensionConnectionMessageWithoutParams<
-  Method extends ExtensionRequest | DAppProviderRequest,
-  Data
-> extends ExtensionConnectionMessageBase<Method, Data> {
-  params?: never;
-}
-
-export type ExtensionConnectionMessage<
+export interface ExtensionConnectionMessage<
   Method extends ExtensionRequest | DAppProviderRequest = any,
-  Params = any,
-  Data = any
-> = Params extends undefined
-  ? ExtensionConnectionMessageWithoutParams<Method, Data>
-  : ExtensionConnectionMessageWithParams<Method, Params, Data>;
+  Params = any
+> extends JsonRpcRequest<Method, Params> {}
 
 export type ExtensionConnectionMessageResponse<
   Method extends ExtensionRequest | DAppProviderRequest = any,
   Result = any,
-  Params = any,
-  Data = any
-> = ExtensionConnectionMessage<Method, Params, Data> &
+  Params = any
+> = ExtensionConnectionMessage<Method, Params>['params']['request'] &
   (
     | {
         result: Result;
@@ -98,28 +70,26 @@ export function isConnectionResponse(
 export interface ExtensionRequestHandler<
   Method extends ExtensionRequest | DAppProviderRequest,
   Result,
-  // `= undefined` is needed here so calls to ConnectionProvider's `request`
-  // function will complain when `params` are provided but not expected.
-  Params = undefined,
-  Data = undefined
+  Params = undefined
 > {
   method: Method;
   handle: (
-    request: ExtensionConnectionMessage<Method, Params, Data>
-  ) => Promise<
-    ExtensionConnectionMessageResponse<Method, Result, Params, Data>
-  >;
+    rpcCall: ExtensionConnectionMessage<Method, Params>['params']
+  ) => Promise<ExtensionConnectionMessageResponse<Method, Result, Params>>;
 }
 
 type ExtractHandlerTypes<Type> = Type extends ExtensionRequestHandler<
   infer M,
   infer R,
-  infer P,
-  infer D
+  infer P
 >
-  ? { Method: M; Result: R; Params: P; Data: D }
+  ? { Method: M; Result: R; Params: P }
   : Type extends DAppRequestHandler<infer P, infer R>
-  ? { Method: ArrayElement<Type['methods']>; Params: P; Result: R; Data: never }
+  ? {
+      Method: ArrayElement<Type['methods']>;
+      Params: P;
+      Result: R;
+    }
   : never;
 
 /**
@@ -129,17 +99,16 @@ type ExtractHandlerTypes<Type> = Type extends ExtensionRequestHandler<
 export type RequestHandlerType = <
   // Reference to a class that implements ExtensionRequestHandler.
   Handler extends
-    | ExtensionRequestHandler<Method, Result, Params, Data>
-    | DAppRequestHandler<Result, Params>,
+    | ExtensionRequestHandler<Method, Result, Params>
+    | DAppRequestHandler<Params, Result>,
   // The following type arguments should NOT be provided, they are inferred.
   Method extends
     | ExtensionRequest
     | DAppProviderRequest = ExtractHandlerTypes<Handler>['Method'],
-  Result = ExtractHandlerTypes<Handler>['Result'],
-  Params = ExtractHandlerTypes<Handler>['Params'],
-  Data = ExtractHandlerTypes<Handler>['Data']
+  Result = Exclude<ExtractHandlerTypes<Handler>['Result'], symbol>,
+  Params = ExtractHandlerTypes<Handler>['Params']
 >(
-  message: Omit<ExtensionConnectionMessage<Method, Params, Data>, 'id'>
+  message: Omit<JsonRpcRequestPayload<Method, Params>, 'id'>
 ) => Promise<Result>;
 
 interface ConnectionEventEmitter {

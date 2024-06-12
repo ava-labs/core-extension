@@ -26,7 +26,7 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
     private ledgerService: LedgerService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     try {
       const secrets = await this.secretsService.getActiveAccountSecrets();
       if (

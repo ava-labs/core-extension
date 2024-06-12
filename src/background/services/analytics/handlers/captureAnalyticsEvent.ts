@@ -21,7 +21,7 @@ export class CaptureAnalyticsEventHandler implements HandlerType {
     private featureFlagService: FeatureFlagService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     if (!this.featureFlagService.featureFlags[FeatureGates.EVENTS]) {
       return {
         ...request,

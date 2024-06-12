@@ -8,6 +8,7 @@ import { SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { LedgerTransport } from '../LedgerTransport';
 import { MigrateMissingPublicKeysFromLedgerHandler } from './migrateMissingPublicKeysFromLedger';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('../../secrets/SecretsService');
 jest.mock('@avalabs/wallets-sdk');
@@ -26,7 +27,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
       secretsService,
       ledgerService
     );
-    return handler.handle(request);
+    return handler.handle(buildRpcCall(request));
   };
 
   beforeEach(() => {

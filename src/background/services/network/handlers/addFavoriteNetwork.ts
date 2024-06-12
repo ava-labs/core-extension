@@ -15,7 +15,7 @@ export class AddFavoriteNetworkHandler implements HandlerType {
   method = ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK as const;
 
   constructor(private networkService: NetworkService) {}
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const { params } = request;
     const [network] = params || [];
 

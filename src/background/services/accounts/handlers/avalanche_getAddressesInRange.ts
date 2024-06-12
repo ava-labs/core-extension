@@ -17,7 +17,7 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async ({ request }) => {
     const [externalStart, internalStart, externalLimit, internalLimit] =
       request.params;
 
@@ -107,7 +107,7 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler {
     }
   };
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async ({ request }) => {
     return {
       ...request,
       error: ethErrors.provider.unauthorized(),

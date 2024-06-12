@@ -14,6 +14,10 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { SettingsService } from '../../settings/SettingsService';
 import { NetworkService } from '../../network/NetworkService';
 import { KeystoneOnboardingHandler } from './keystoneOnboardingHandler';
+import { buildRpcCall } from '@src/tests/test-utils';
+import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
+
+jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
 
 jest.mock('@avalabs/wallets-sdk', () => ({
   ...jest.requireActual('@avalabs/wallets-sdk'),
@@ -43,6 +47,7 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
   const accountsServiceMock = {
     addPrimaryAccount: jest.fn(),
     getAccountList: jest.fn(),
+    getAccounts: jest.fn(),
     activateAccount: jest.fn(),
   } as unknown as AccountsService;
   const settingsServiceMock = {
@@ -77,6 +82,11 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.mocked(accountsServiceMock.getAccounts).mockReturnValue({
+      primary: {
+        [WALLET_ID]: [accountMock],
+      },
+    } as any);
     (accountsServiceMock.getAccountList as jest.Mock).mockReturnValue([
       accountMock,
     ]);
@@ -96,7 +106,7 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
       },
     ]);
 
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -125,5 +135,7 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
     expect(
       analyticsServiceMock.saveTemporaryAnalyticsIds
     ).not.toHaveBeenCalled();
+
+    expect(addXPChainToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });

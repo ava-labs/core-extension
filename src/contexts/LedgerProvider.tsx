@@ -54,6 +54,7 @@ export enum LedgerAppType {
 }
 
 export const REQUIRED_LEDGER_VERSION = '0.7.3';
+export const LEDGER_VERSION_WITH_EIP_712 = '0.8.0';
 
 /**
  * Run this here since each new window will have a different id
@@ -141,7 +142,9 @@ export function LedgerContextProvider({ children }: { children: any }) {
                 {
                   requestId: res.value.requestId,
                   method: res.value.method,
-                  error: (e as Error).message,
+                  error: e?.['statusCode']
+                    ? e['statusCode']
+                    : (e as Error).message,
                 },
               ],
             });

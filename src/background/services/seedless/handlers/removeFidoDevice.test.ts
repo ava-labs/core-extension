@@ -2,6 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { RemoveFidoDeviceHandler } from './removeFidoDevice';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/removeFidoDevice', () => {
   const seedlessMfaService = jest.mocked<SeedlessMfaService>({
@@ -11,12 +12,14 @@ describe('src/background/services/seedless/handlers/removeFidoDevice', () => {
   const handle = (id: string) => {
     const handler = new RemoveFidoDeviceHandler(seedlessMfaService);
 
-    return handler.handle({
-      method: ExtensionRequest.SEEDLESS_REMOVE_FIDO_DEVICE,
-      id: 'abcd-1234',
-      params: [id],
-      tabId: 1234,
-    });
+    return handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_REMOVE_FIDO_DEVICE,
+        id: 'abcd-1234',
+        params: [id],
+        tabId: 1234,
+      })
+    );
   };
 
   beforeEach(() => {

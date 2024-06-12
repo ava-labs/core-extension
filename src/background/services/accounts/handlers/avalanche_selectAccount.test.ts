@@ -5,6 +5,7 @@ import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { ActionsService } from '../../actions/ActionsService';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { AccountType } from '../models';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@src/utils/extensionUtils', () => ({
   openExtensionNewWindow: jest.fn(),
@@ -56,17 +57,18 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       const actionData = {
         ...request,
         actionId: 'uuid',
-        tabId: 1,
-        selectedAccount: account,
+        displayData: {
+          selectedAccount: account,
+        },
         popupWindowId: 123,
       };
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(openExtensionNewWindow).toHaveBeenCalled();
       expect(openExtensionNewWindow).toHaveBeenCalledWith(url);
       expect(addActionMock).toHaveBeenCalled();
-      expect(addActionMock).toBeCalledWith(actionData);
+      expect(addActionMock).toBeCalledWith(expect.objectContaining(actionData));
       expect(result).toEqual({
         ...request,
         result: DEFERRED_RESPONSE,
@@ -97,17 +99,18 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       const actionData = {
         ...request,
         actionId: 'uuid',
-        tabId: 1,
-        selectedAccount: account,
+        displayData: {
+          selectedAccount: account,
+        },
         popupWindowId: 123,
       };
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(openExtensionNewWindow).toHaveBeenCalled();
       expect(openExtensionNewWindow).toHaveBeenCalledWith(url);
       expect(addActionMock).toHaveBeenCalled();
-      expect(addActionMock).toBeCalledWith(actionData);
+      expect(addActionMock).toBeCalledWith(expect.objectContaining(actionData));
       expect(result).toEqual({
         ...request,
         result: DEFERRED_RESPONSE,
@@ -127,7 +130,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         params: [1],
       } as any;
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -166,7 +169,6 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         accountServiceMock,
         permissionsServiceMock
       );
-      handler.openApprovalWindow = jest.fn();
 
       const request = {
         id: '123',
@@ -174,14 +176,14 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         params: [0],
         site: { tabId: 1 },
       } as any;
-      await handler.handleAuthenticated(request);
-      expect(handler.openApprovalWindow).toHaveBeenCalledWith(
-        {
+      await handler.handleAuthenticated(buildRpcCall(request));
+      expect(addActionMock).toHaveBeenCalledWith(
+        expect.objectContaining({
           ...request,
-          tabId: 1,
-          selectedAccount: accounts[1],
-        },
-        'switchAccount'
+          displayData: {
+            selectedAccount: accounts[1],
+          },
+        })
       );
     });
   });
@@ -198,7 +200,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         params: [1],
       } as any;
 
-      const result = await handler.handleUnauthenticated(request);
+      const result = await handler.handleUnauthenticated(buildRpcCall(request));
       expect(result).toEqual({
         ...request,
         error: new Error(
@@ -222,7 +224,14 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       );
       await handler.onActionApproved(
         {
-          selectedAccount: { index: 1, id: 'uuid', type: AccountType.PRIMARY },
+          site: {},
+          displayData: {
+            selectedAccount: {
+              index: 1,
+              id: 'uuid',
+              type: AccountType.PRIMARY,
+            },
+          },
         } as any,
         undefined,
         onSuccessMock,
@@ -247,7 +256,10 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       );
       await handler.onActionApproved(
         {
-          selectedAccount: { id: '0x1', type: AccountType.IMPORTED },
+          site: {} as any,
+          displayData: {
+            selectedAccount: { id: '0x1', type: AccountType.IMPORTED },
+          },
         } as any,
         undefined,
         onSuccessMock,
@@ -272,10 +284,12 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       );
       await handler.onActionApproved(
         {
-          selectedAccount: {
-            id: '0x1',
-            addressC: '0x1',
-            type: AccountType.IMPORTED,
+          displayData: {
+            selectedAccount: {
+              id: '0x1',
+              addressC: '0x1',
+              type: AccountType.IMPORTED,
+            },
           },
           site: {
             domain: 'core.app',
@@ -307,7 +321,12 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
 
       await handler.onActionApproved(
         {
-          selectedAccount: { index: 1 },
+          request: {
+            site: {} as any,
+          },
+          displayData: {
+            selectedAccount: { index: 1 },
+          },
         } as any,
         undefined,
         onSuccessMock,

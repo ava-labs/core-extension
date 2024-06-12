@@ -15,7 +15,7 @@ export class GetContactsHandler implements HandlerType {
 
   constructor(private contactsService: ContactsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const contacts = await this.contactsService.getContacts();
 
     return {

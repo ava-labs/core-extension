@@ -23,7 +23,7 @@ export class UnifiedBridgeGetFee implements HandlerType {
 
   constructor(private unifiedBridgeService: UnifiedBridgeService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [asset, amount, sourceChainId, targetChainId] = request.params;
 
     const transferFee = await this.unifiedBridgeService.getFee({

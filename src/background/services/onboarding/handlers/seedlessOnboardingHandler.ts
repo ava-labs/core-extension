@@ -53,7 +53,7 @@ export class SeedlessOnboardingHandler implements HandlerType {
     private secretsService: SecretsService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const {
       seedlessSignerToken,
       userId,
@@ -115,6 +115,7 @@ export class SeedlessOnboardingHandler implements HandlerType {
     }
 
     await finalizeOnboarding({
+      walletId,
       networkService: this.networkService,
       accountsService: this.accountsService,
       lockService: this.lockService,

@@ -20,7 +20,6 @@ import { BridgeTransferAssetHandler } from '@src/background/services/bridge/hand
 import {
   CustomGasSettings,
   BridgeState,
-  BtcTransactionResponse,
   DefaultBridgeState,
   PartialBridgeTransaction,
   TransferEventType,
@@ -37,7 +36,6 @@ import {
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
-import { TransactionResponse } from 'ethers';
 import { EstimateGasForBridgeTxHandler } from '@src/background/services/bridge/handlers/estimateGasForBridgeTx';
 
 interface BridgeContext {
@@ -51,7 +49,7 @@ interface BridgeContext {
     customGasSettings: CustomGasSettings,
     onStatusChange: (status: WrapStatus) => void,
     onTxHashChange: (txHash: string) => void
-  ) => Promise<TransactionResponse | BtcTransactionResponse>;
+  ) => Promise<{ hash: string }>;
   isBridgeDevEnv: boolean;
   setIsBridgeDevEnv: (enabled: boolean) => void;
   bridgeState: BridgeState;

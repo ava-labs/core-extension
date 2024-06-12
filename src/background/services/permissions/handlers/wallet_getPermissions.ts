@@ -6,13 +6,13 @@ import { injectable } from 'tsyringe';
 export class WalletGetPermissionsHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.WALLET_GET_PERMISSIONS];
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async ({ request }) => {
     return {
       ...request,
       result: [],
     };
   };
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async ({ request }) => {
     return {
       ...request,
       result: [

@@ -44,7 +44,7 @@ export class KeystoneOnboardingHandler implements HandlerType {
     private networkService: NetworkService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const {
       masterFingerprint,
       xpub,
@@ -83,6 +83,7 @@ export class KeystoneOnboardingHandler implements HandlerType {
     });
 
     await finalizeOnboarding({
+      walletId,
       networkService: this.networkService,
       accountsService: this.accountsService,
       lockService: this.lockService,

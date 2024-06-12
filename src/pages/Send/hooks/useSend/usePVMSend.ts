@@ -19,7 +19,7 @@ import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
 import { PVMSendOptions } from '../../models';
 import { SendAdapterPVM } from './models';
 
-const PCHAIN_ALIAS = 'P';
+const PCHAIN_ALIAS = 'P' as const;
 
 export const usePvmSend: SendAdapterPVM = ({
   network,
@@ -51,10 +51,7 @@ export const usePvmSend: SendAdapterPVM = ({
     if (!featureFlags[FeatureGates.SEND_P_CHAIN]) {
       return SendErrorMessage.SEND_NOT_AVAILABLE;
     }
-    if (isLedgerWallet) {
-      return SendErrorMessage.UNSUPPORTED_BY_LEDGER;
-    }
-  }, [featureFlags, isLedgerWallet]);
+  }, [featureFlags]);
 
   function setErrorAndEndValidating(message: SendErrorMessage) {
     setError(message);
@@ -119,11 +116,6 @@ export const usePvmSend: SendAdapterPVM = ({
   const send = useCallback(
     async ({ address, token, amount }: PVMSendOptions) => {
       checkFunctionAvailability();
-      if (isLedgerWallet) {
-        throw new Error(
-          'Ledger does not support send function on P-Chain currently'
-        );
-      }
 
       setIsSending(true);
 
@@ -160,11 +152,10 @@ export const usePvmSend: SendAdapterPVM = ({
             utils.bufferToHex(utxo.toBytes(codec))
           ),
         };
-        const txID = (await request<AvalancheSendTransactionHandler>({
+        return request<AvalancheSendTransactionHandler>({
           method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
           params,
-        })) as string;
-        return txID;
+        });
       } finally {
         setIsSending(false);
       }

@@ -27,6 +27,7 @@ describe('src/background/services/messages/utils/messageParamsParser.ts', () => 
     const data = {
       params,
       method: MessageType.PERSONAL_SIGN,
+      id: '1',
     };
     const result = paramsToMessageParams(data);
     expect(result).toEqual({
@@ -41,6 +42,7 @@ describe('src/background/services/messages/utils/messageParamsParser.ts', () => 
     const data = {
       params,
       method: MessageType.SIGN_TYPED_DATA,
+      id: '1',
     };
     const result = paramsToMessageParams(data);
     expect(result).toEqual({
@@ -54,6 +56,7 @@ describe('src/background/services/messages/utils/messageParamsParser.ts', () => 
     const data = {
       params,
       method: MessageType.SIGN_TYPED_DATA,
+      id: '1',
     };
     const result = paramsToMessageParams(data);
     expect(result).toEqual({
@@ -67,6 +70,7 @@ describe('src/background/services/messages/utils/messageParamsParser.ts', () => 
     const data = {
       params,
       method: MessageType.SIGN_TYPED_DATA_V1,
+      id: '1',
     };
     const result = paramsToMessageParams(data);
     expect(result).toEqual({
@@ -80,6 +84,7 @@ describe('src/background/services/messages/utils/messageParamsParser.ts', () => 
     const data = {
       params,
       method: MessageType.SIGN_TYPED_DATA_V1,
+      id: '1',
     };
     const result = paramsToMessageParams(data);
     expect(result).toEqual({
@@ -93,6 +98,7 @@ describe('src/background/services/messages/utils/messageParamsParser.ts', () => 
     const data = {
       params,
       method: MessageType.ETH_SIGN,
+      id: '1',
     };
     const result = paramsToMessageParams(data);
     expect(result).toEqual({
@@ -106,6 +112,7 @@ describe('src/background/services/messages/utils/messageParamsParser.ts', () => 
     const data = {
       params,
       method: MessageType.SIGN_TYPED_DATA_V3,
+      id: '1',
     };
     const result = paramsToMessageParams(data);
     expect(result).toEqual({
@@ -119,6 +126,7 @@ describe('src/background/services/messages/utils/messageParamsParser.ts', () => 
     const data = {
       params,
       method: MessageType.SIGN_TYPED_DATA_V4,
+      id: '1',
     };
     const result = paramsToMessageParams(data);
     expect(result).toEqual({
@@ -131,7 +139,8 @@ describe('src/background/services/messages/utils/messageParamsParser.ts', () => 
     const params = [from, paramData];
     const data = {
       params,
-      method: 'fakeMethod',
+      method: 'fakeMethod' as MessageType,
+      id: '1',
     };
     const result = paramsToMessageParams(data);
     expect(result).toEqual({

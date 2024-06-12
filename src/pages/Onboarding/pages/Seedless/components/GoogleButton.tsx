@@ -25,9 +25,9 @@ export function GoogleButton({ setIsLoading }: SeedlesButton) {
     <Button
       sx={{ width: '100%' }}
       data-testid="create-wallet-google-button"
-      color="secondary"
+      color="primary"
       size="large"
-      endIcon={<GoogleColorIcon size={20} />}
+      startIcon={<GoogleColorIcon size={20} />}
       onClick={() => {
         setOnboardingPhase(OnboardingPhase.SEEDLESS_GOOGLE);
         capture(ONBOARDING_EVENT_NAMES.seedless_google);
@@ -39,7 +39,7 @@ export function GoogleButton({ setIsLoading }: SeedlesButton) {
         });
       }}
     >
-      {t('Google')}
+      {t('Continue with Google')}
     </Button>
   );
 }

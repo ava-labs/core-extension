@@ -8,6 +8,7 @@ import { ActionsService } from '../../actions/ActionsService';
 import { Action, ActionStatus } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { WalletAddEthereumChainHandler } from './wallet_addEthereumChain';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('../NetworkService');
 jest.mock('@src/utils/extensionUtils', () => ({
@@ -61,7 +62,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   it('returns null when already on the same network', async () => {
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -73,7 +74,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
-    const result = await handler.handleUnauthenticated(request);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -83,7 +84,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   it('opens switch network flow when network is already added', async () => {
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -96,7 +97,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       ],
     };
     openExtensionNewWindow;
-    const result = await handler.handleUnauthenticated(request);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
     expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
     expect(openExtensionNewWindow).toHaveBeenCalledWith(
@@ -105,7 +106,6 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
-      id: 1234,
       actionId: 'uuid',
       displayData: {
         network: {
@@ -126,7 +126,6 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           isTestnet: false,
         },
       },
-      tabId: undefined,
       popupWindowId: 123,
     });
 
@@ -138,7 +137,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   it('returns error when rpc url missing', async () => {
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -150,7 +149,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
-    const result = await handler.handleUnauthenticated(request);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
     expect(openExtensionNewWindow).not.toHaveBeenCalled();
     expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
@@ -165,7 +164,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   it('returns error when native currency missing', async () => {
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -176,7 +175,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
-    const result = await handler.handleUnauthenticated(request);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
     expect(openExtensionNewWindow).not.toHaveBeenCalled();
     expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
@@ -191,7 +190,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   it('should throw an error because of the missing name of the network', async () => {
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -202,7 +201,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
-    const result = await handler.handleUnauthenticated(request);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
     expect(openExtensionNewWindow).not.toHaveBeenCalled();
     expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
@@ -217,7 +216,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   it('should throw an error because of the missing name of the network token', async () => {
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -229,7 +228,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
-    const result = await handler.handleUnauthenticated(request);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
     expect(openExtensionNewWindow).not.toHaveBeenCalled();
     expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
@@ -244,7 +243,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   it('should throw an error because of the missing symbol of the network token', async () => {
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -256,7 +255,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
-    const result = await handler.handleUnauthenticated(request);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
     expect(openExtensionNewWindow).not.toHaveBeenCalled();
     expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
@@ -273,7 +272,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     (mockNetworkService.isValidRPCUrl as jest.Mock).mockReturnValue(false);
 
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -285,7 +284,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
-    const result = await handler.handleUnauthenticated(request);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -306,7 +305,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   it('opens approval dialog', async () => {
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -319,7 +318,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
-    const result = await handler.handleUnauthenticated(request);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -333,7 +332,6 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
-      id: 1234,
       actionId: 'uuid',
       displayData: {
         network: {
@@ -357,7 +355,6 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           requiresGlacierApiKey: false,
         },
       },
-      tabId: undefined,
       popupWindowId: 123,
     });
   });
@@ -365,7 +362,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
   describe('when glacier API key is required', () => {
     it('opens the proper approval window', async () => {
       const request = {
-        id: 1234,
+        id: '1234',
         method: DAppProviderRequest.WALLET_ADD_CHAIN,
         params: [
           {
@@ -379,7 +376,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           },
         ],
       };
-      const result = await handler.handleUnauthenticated(request);
+      const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -393,7 +390,6 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
       expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
         ...request,
-        id: 1234,
         actionId: 'uuid',
         displayData: {
           network: {
@@ -417,7 +413,6 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
             requiresGlacierApiKey: true,
           },
         },
-        tabId: undefined,
         popupWindowId: 123,
       });
     });
@@ -425,7 +420,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   it('works for authenticated', async () => {
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -438,7 +433,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
-    const result = await handler.handleAuthenticated(request);
+    const result = await handler.handleAuthenticated(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -452,7 +447,6 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
-      id: 1234,
       actionId: 'uuid',
       displayData: {
         network: {
@@ -476,14 +470,13 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           requiresGlacierApiKey: false,
         },
       },
-      tabId: undefined,
       popupWindowId: 123,
     });
   });
 
   it('handles non standard isTestnet values', async () => {
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -498,7 +491,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       ],
     };
 
-    const result = await handler.handleAuthenticated(request);
+    const result = await handler.handleAuthenticated(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -512,21 +505,19 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
-      id: 1234,
       actionId: 'uuid',
       displayData: expect.objectContaining({
         network: expect.objectContaining({
           isTestnet: true,
         }),
       }),
-      tabId: undefined,
       popupWindowId: 123,
     });
   });
 
   it('adds testnet networks', async () => {
     const request = {
-      id: 1234,
+      id: '1234',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
       params: [
         {
@@ -540,7 +531,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
-    const result = await handler.handleAuthenticated(request);
+    const result = await handler.handleAuthenticated(buildRpcCall(request));
 
     expect(result).toEqual({
       ...request,
@@ -554,7 +545,6 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
-      id: 1234,
       actionId: 'uuid',
       displayData: {
         network: {
@@ -578,26 +568,28 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           requiresGlacierApiKey: false,
         },
       },
-      tabId: undefined,
       popupWindowId: 123,
     });
   });
 
   describe('onActionApproved', () => {
     const mockPendingAction: Action = {
-      id: 'uuid',
+      request: {
+        id: 'uuid',
+        method: DAppProviderRequest.WALLET_ADD_CHAIN,
+        params: [
+          {
+            chainId: '0xa868', // 43112
+            chainName: 'Avalanche',
+            nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
+            rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+            blockExplorerUrls: ['https://snowtrace.io/'],
+            iconUrls: ['logo.png'],
+          },
+        ],
+        tabId: undefined,
+      },
       actionId: 'uuid',
-      method: DAppProviderRequest.WALLET_ADD_CHAIN,
-      params: [
-        {
-          chainId: '0xa868', // 43112
-          chainName: 'Avalanche',
-          nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
-          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
-          blockExplorerUrls: ['https://snowtrace.io/'],
-          iconUrls: ['logo.png'],
-        },
-      ],
       displayData: {
         network: {
           chainId: 43112,
@@ -617,9 +609,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       },
       time: 123123,
       status: ActionStatus.SUBMITTING,
-      jsonrpc: '2.0',
-      tabId: undefined,
-    };
+    } as any;
 
     describe('when glacier API key is provided', () => {
       const preppedAction = {

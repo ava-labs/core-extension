@@ -15,7 +15,7 @@ export class LedgerVersionWarningClosedHandler implements HandlerType {
 
   constructor(private storageService: StorageService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     await this.storageService.saveToSessionStorage(
       LEDGER_VERSION_WARNING_WAS_CLOSED,
       true

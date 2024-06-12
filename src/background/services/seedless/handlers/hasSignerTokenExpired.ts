@@ -16,7 +16,7 @@ export class HasSignerTokenExpiredHandler implements HandlerType {
 
   constructor(private sessionMgr: SeedlessSessionManager) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     return {
       ...request,
       result: this.sessionMgr.hasTokenExpired,

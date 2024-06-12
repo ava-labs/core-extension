@@ -11,14 +11,14 @@ export class AvalancheGetBridgeTransactionHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async ({ request }) => {
     return {
       ...request,
       result: this.bridgeService.bridgeState,
     };
   };
 
-  handleUnauthenticated = (request) => {
+  handleUnauthenticated = ({ request }) => {
     return {
       ...request,
       error: 'account not connected',

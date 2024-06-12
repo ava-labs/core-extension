@@ -5,12 +5,14 @@ import {
   useTheme,
   GppMaybeIcon,
 } from '@avalabs/k2-components';
-import { useTranslation } from 'react-i18next';
 
-export function WarningBox() {
+interface WarningBoxProps {
+  title: string;
+  text: string;
+}
+
+export function WarningBox({ title, text }: WarningBoxProps) {
   const theme = useTheme();
-  const { t } = useTranslation();
-
   return (
     <Alert
       severity="warning"
@@ -28,10 +30,10 @@ export function WarningBox() {
           variant="caption"
           sx={{ fontWeight: 600, display: 'block' }}
         >
-          {t('Suspicious Application')}
+          {title}
         </Typography>
         <Typography variant="caption" sx={{ display: 'block' }}>
-          {t('Use caution, this application may be malicious.')}
+          {text}
         </Typography>
       </AlertContent>
     </Alert>

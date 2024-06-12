@@ -16,7 +16,7 @@ export class CreateContactHandler implements HandlerType {
 
   constructor(private contactsService: ContactsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [contact] = request.params;
 
     if (

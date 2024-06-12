@@ -2,6 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { CurrencyExchangeRatesState } from '../models';
 import { CurrencyService } from '../CurrencyService';
 import { GetCurrencyExchangeRatesHandler } from './getCurrencyExchangeRates';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/currency/handlers/getCurrencyExchangeRates.ts', () => {
   const currencyService = (state?: CurrencyExchangeRatesState) =>
@@ -22,10 +23,12 @@ describe('src/background/services/currency/handlers/getCurrencyExchangeRates.ts'
     it(`returns an object containing exchange rates`, async () => {
       const handler = new GetCurrencyExchangeRatesHandler(service);
 
-      const response = await handler.handle({
-        id: '1',
-        method: ExtensionRequest.CURRENCIES_GET_EXCHANGE_RATES,
-      });
+      const response = await handler.handle(
+        buildRpcCall({
+          id: '1',
+          method: ExtensionRequest.CURRENCIES_GET_EXCHANGE_RATES,
+        })
+      );
 
       expect(response).toEqual({
         id: '1',
@@ -47,10 +50,12 @@ describe('src/background/services/currency/handlers/getCurrencyExchangeRates.ts'
     it(`returns an empty object`, async () => {
       const handler = new GetCurrencyExchangeRatesHandler(service);
 
-      const response = await handler.handle({
-        id: '1',
-        method: ExtensionRequest.CURRENCIES_GET_EXCHANGE_RATES,
-      });
+      const response = await handler.handle(
+        buildRpcCall({
+          id: '1',
+          method: ExtensionRequest.CURRENCIES_GET_EXCHANGE_RATES,
+        })
+      );
 
       expect(response).toEqual({
         id: '1',

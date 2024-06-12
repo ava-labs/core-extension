@@ -21,7 +21,7 @@ export class GetNetworkFeeHandler implements HandlerType {
     private networkService: NetworkService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [chainId] = request.params || [];
 
     let network: Network | undefined;

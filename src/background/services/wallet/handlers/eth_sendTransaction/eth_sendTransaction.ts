@@ -1,4 +1,7 @@
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequestParams,
+} from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
@@ -18,7 +21,6 @@ import {
 import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
 import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import { DebankService } from '@src/background/services/debank';
 import { TokenManagerService } from '@src/background/services/tokens/TokenManagerService';
 import { parseWithERC20Abi } from './contracts/contractParsers/parseWithERC20Abi';
 import { getTxDescription } from './utils/getTxDescription';
@@ -33,6 +35,8 @@ import { WalletService } from '@src/background/services/wallet/WalletService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { AnalyticsServicePosthog } from '@src/background/services/analytics/AnalyticsServicePosthog';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { BlockaidService } from '@src/background/services/blockaid/BlockaidService';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 @injectable()
 export class EthSendTransactionHandler extends DAppRequestHandler<
@@ -46,24 +50,31 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
     private networkFeeService: NetworkFeeService,
     private accountsService: AccountsService,
     private featureFlagService: FeatureFlagService,
-    private debankService: DebankService,
     private balancesService: BalanceAggregatorService,
     private tokenManagerService: TokenManagerService,
     private walletService: WalletService,
-    private analyticsServicePosthog: AnalyticsServicePosthog
+    private analyticsServicePosthog: AnalyticsServicePosthog,
+    private blockaidService: BlockaidService
   ) {
     super();
   }
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async ({ request }) => {
     return {
       ...request,
       error: ethErrors.provider.unauthorized(),
     };
   };
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async (
+    rpcCall: JsonRpcRequestParams<
+      DAppProviderRequest,
+      [EthSendTransactionParams]
+    >
+  ) => {
+    const { request } = rpcCall;
     const { params, site } = request;
+
     const trxParams = (params || [])[0] as EthSendTransactionParams;
     const network = await getTargetNetworkForTx(
       trxParams,
@@ -98,17 +109,19 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
     }
 
     let displayValues: TransactionDisplayValues | undefined = undefined;
+
     // order of parsing a transaction:
     // 1. use TX pre execution if available
     // 2. if not, check if toAddress is a known ERC20 token
     // 3. if not, use default basic approval data
     try {
-      displayValues = await this.debankService.parseTransaction(
+      displayValues = await this.blockaidService.parseTransaction(
+        site?.domain || '',
         network,
         txPayload
       );
     } catch (e) {
-      // Debank parsing failed, try ERC20 parsing next
+      // Blockaid parsing failed, try ERC20 parsing next
     }
 
     // if debank parsing failed check if toAddress is a known ERC20
@@ -155,7 +168,6 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
 
     const actionData: Action<Transaction> = {
       ...request,
-      tabId: request.site.tabId,
       displayData: {
         site,
         method: request.method,
@@ -165,7 +177,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
       },
     };
 
-    await this.openApprovalWindow(actionData, `sign/transaction`);
+    await openApprovalWindow(actionData, `sign/transaction`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };

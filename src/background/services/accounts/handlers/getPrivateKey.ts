@@ -30,8 +30,8 @@ export class GetPrivateKeyHandler implements HandlerType {
     private lockService: LockService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
-    const [params] = request.params ?? [];
+  handle: HandlerType['handle'] = async ({ request }) => {
+    const [params] = request.params;
     const { type, index: accountIndex, id: accountId, password } = params;
 
     if (!password) {

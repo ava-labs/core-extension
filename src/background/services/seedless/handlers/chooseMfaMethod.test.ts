@@ -3,6 +3,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 import { ChooseMfaMethodHandler } from './chooseMfaMethod';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/chooseMfaMethod', () => {
   const seedlessMfaService = jest.mocked<SeedlessMfaService>({
@@ -12,12 +13,14 @@ describe('src/background/services/seedless/handlers/chooseMfaMethod', () => {
   const handle = (choice: any) => {
     const handler = new ChooseMfaMethodHandler(seedlessMfaService);
 
-    return handler.handle({
-      method: ExtensionRequest.SEEDLESS_CHOOSE_MFA_METHOD,
-      id: 'abcd-1234',
-      params: [choice],
-      tabId: 1234,
-    });
+    return handler.handle(
+      buildRpcCall({
+        method: ExtensionRequest.SEEDLESS_CHOOSE_MFA_METHOD,
+        id: 'abcd-1234',
+        params: [choice],
+        tabId: 1234,
+      })
+    );
   };
 
   beforeEach(() => {

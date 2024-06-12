@@ -16,7 +16,7 @@ export class GetActionHandler implements HandlerType {
 
   constructor(private actionsService: ActionsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [messageId] = request.params;
 
     const currentPendingActions = await this.actionsService.getActions();

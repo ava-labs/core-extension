@@ -51,6 +51,9 @@ jobs:
         run: yarn setup
       - name: Build library
         run: yarn build:alpha
+      - name: Remove onboarding video
+        run: |
+          rm -fv ./dist/images/core-ext-hero-hq.webm
       - name: Generate a zip
         run: yarn zip
       - name: Output extension file version before renaming

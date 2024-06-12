@@ -1,5 +1,4 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { ethErrors } from 'eth-rpc-errors';
 import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/handlers/bitcoin_sendTransaction';
 import { isBtcAddressInNetwork } from '@src/utils/isBtcAddressInNetwork';
@@ -9,8 +8,14 @@ import { AccountType } from '../../accounts/models';
 import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 import { createTransferTx } from '@avalabs/wallets-sdk';
 
-jest.mock('@src/utils/isBtcAddressInNetwork');
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { buildRpcCall } from '@src/tests/test-utils';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+
 jest.mock('@avalabs/wallets-sdk');
+jest.mock('@src/utils/isBtcAddressInNetwork');
+jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@src/utils/network/getProviderForNetwork');
 
 describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', () => {
   const request = {
@@ -19,14 +24,9 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     params: ['address', '1', 10],
     site: {
       tabId: 1,
-    },
+    } as any,
   };
   const frontendTabId = 987;
-
-  const openApprovalWindowSpy = jest.spyOn(
-    DAppRequestHandler.prototype,
-    'openApprovalWindow'
-  );
 
   const isMainnet = jest.fn();
   const signMock = jest.fn();
@@ -74,10 +74,14 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     getBitcoinNetworkMock.mockResolvedValue({
       vmName: NetworkVMType.BITCOIN,
     });
+    jest.mocked(getProviderForNetwork).mockReturnValue({
+      getScriptsForUtxos: jest.fn().mockResolvedValue([]),
+      getNetwork: jest.fn(),
+    } as any);
     jest
       .mocked(createTransferTx)
       .mockReturnValue({ fee: 5, inputs: [], outputs: [] });
-    openApprovalWindowSpy.mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
     (accountsServiceMock as any).activeAccount = activeAccountMock;
   });
 
@@ -89,7 +93,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         {} as any,
         {} as any
       );
-      const result = await handler.handleUnauthenticated(request);
+      const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -127,7 +131,9 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         balanceAggregatorServiceMock as any
       );
 
-      const result = await sendHandler.handleAuthenticated(request);
+      const result = await sendHandler.handleAuthenticated(
+        buildRpcCall(request)
+      );
 
       expect(result).toEqual({
         ...request,
@@ -150,7 +156,9 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         balanceAggregatorServiceMock as any
       );
 
-      const result = await sendHandler.handleAuthenticated(request);
+      const result = await sendHandler.handleAuthenticated(
+        buildRpcCall(request)
+      );
 
       expect(result).toEqual({
         ...request,
@@ -165,7 +173,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         ...request,
         params: [undefined, '1', 1],
       };
-      const result = await handler.handleAuthenticated(req);
+      const result = await handler.handleAuthenticated(buildRpcCall(req));
 
       expect(result).toEqual({
         ...req,
@@ -180,7 +188,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         ...request,
         params: ['tb1qdx76h4su9wavjjpzxqd4ar5ydcy2e05tvp7d6j', undefined, 1],
       };
-      const result = await handler.handleAuthenticated(req);
+      const result = await handler.handleAuthenticated(buildRpcCall(req));
 
       expect(result).toEqual({
         ...req,
@@ -195,7 +203,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         ...request,
         params: ['btc', '1', undefined],
       };
-      const result = await handler.handleAuthenticated(req);
+      const result = await handler.handleAuthenticated(buildRpcCall(req));
 
       expect(result).toEqual({
         ...req,
@@ -207,7 +215,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
 
     it('returns error if address is invalid', async () => {
       (isBtcAddressInNetwork as jest.Mock).mockReturnValueOnce(false);
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
       expect(result).toEqual({
         ...request,
         error: ethErrors.rpc.invalidParams({
@@ -217,13 +225,14 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     });
 
     it('returns error if there is no active account', async () => {
+      (isBtcAddressInNetwork as jest.Mock).mockReturnValueOnce(true);
       const sendHandler = new BitcoinSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
         {} as any,
         balanceAggregatorServiceMock as any
       );
-      const result = await sendHandler.handleAuthenticated(request);
+      const result = await sendHandler.handleAuthenticated({ request } as any);
       expect(result).toEqual({
         ...request,
         error: ethErrors.rpc.invalidRequest({
@@ -237,7 +246,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         throw new Error('hmm');
       });
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
       expect(result).toEqual({
         ...request,
         error: ethErrors.rpc.invalidRequest({
@@ -254,12 +263,13 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         balanceAggregatorServiceMock as any
       );
 
-      const result = await sendHandler.handleAuthenticated(request);
+      const result = await sendHandler.handleAuthenticated(
+        buildRpcCall(request)
+      );
 
-      expect(openApprovalWindowSpy).toHaveBeenCalledWith(
-        {
+      expect(openApprovalWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
           ...request,
-          tabId: request.site.tabId,
           displayData: {
             address: 'address',
             amount: 1,
@@ -268,7 +278,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
             from: 'btc1',
             sendFee: 5,
           },
-        },
+        }),
         'approve/bitcoinSignTx'
       );
 
@@ -291,7 +301,9 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         balanceAggregatorServiceMock as any
       );
 
-      const result = await sendHandler.handleAuthenticated(request);
+      const result = await sendHandler.handleAuthenticated(
+        buildRpcCall(request)
+      );
 
       expect(result).toEqual({
         ...request,

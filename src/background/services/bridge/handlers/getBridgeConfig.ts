@@ -15,7 +15,7 @@ export class BridgeGetConfigHandler implements HandlerType {
 
   constructor(private bridgeService: BridgeService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const config = await this.bridgeService.updateBridgeConfig();
     return { ...request, result: config };
   };

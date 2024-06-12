@@ -15,7 +15,7 @@ export class InitAnalyticsIdsHandler implements HandlerType {
 
   constructor(private analyticsService: AnalyticsService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [storeInStorage] = request.params;
 
     try {

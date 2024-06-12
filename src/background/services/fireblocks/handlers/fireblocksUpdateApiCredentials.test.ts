@@ -3,7 +3,6 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { NetworkService } from '../../network/NetworkService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { FireblocksUpdateApiCredentialsHandler } from './fireblocksUpdateApiCredentials';
-import { ExtensionConnectionMessage } from '@src/background/connections/models';
 import { AccountType } from '../../accounts/models';
 import { FireblocksService } from '../FireblocksService';
 import { importPKCS8 } from 'jose';
@@ -14,6 +13,7 @@ import {
   TESTNET_LOOKUP_ASSETS,
 } from '../models';
 import { SecretType } from '../../secrets/models';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('../FireblocksService', () => ({
   FireblocksService: jest.fn().mockReturnValue({
@@ -38,15 +38,11 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
   );
   const fireblocksServiceMock = new FireblocksService({} as any);
 
-  const mockRequest: ExtensionConnectionMessage<
-    ExtensionRequest.FIREBLOCKS_UPDATE_API_CREDENTIALS,
-    [accountId: string, apiKey: string, secretKey: string],
-    undefined
-  > = {
+  const mockRequest = buildRpcCall({
     id: '1',
     method: ExtensionRequest.FIREBLOCKS_UPDATE_API_CREDENTIALS,
     params: ['ACCOUNT_ID', 'API_KEY', 'SECRET_KEY'],
-  };
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -87,7 +83,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     );
 
     expect(await handler.handle(mockRequest)).toEqual({
-      ...mockRequest,
+      ...mockRequest.request,
       result: true,
     });
 
@@ -135,7 +131,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     jest.mocked(networkServiceMock.isMainnet).mockReturnValue(false);
 
     expect(await handler.handle(mockRequest)).toEqual({
-      ...mockRequest,
+      ...mockRequest.request,
       result: true,
     });
 
@@ -163,7 +159,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     });
 
     expect(await handler.handle(mockRequest)).toEqual({
-      ...mockRequest,
+      ...mockRequest.request,
       error: new FireblocksBtcAccessError(
         FireblocksBtcAccessErrorCode.WrongAccountType
       ).message,
@@ -179,7 +175,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     jest.mocked(accountServiceMock.getAccountByID).mockReturnValue(undefined);
 
     expect(await handler.handle(mockRequest)).toEqual({
-      ...mockRequest,
+      ...mockRequest.request,
       error: 'No account found with the given ID',
     });
   });
@@ -195,7 +191,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
       .mockResolvedValue(null);
 
     expect(await handler.handle(mockRequest)).toEqual({
-      ...mockRequest,
+      ...mockRequest.request,
       error: new FireblocksBtcAccessError(
         FireblocksBtcAccessErrorCode.VaultAccountNotFound
       ).message,
@@ -211,7 +207,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     jest.mocked(importPKCS8).mockRejectedValue('Invalid key');
 
     expect(await handler.handle(mockRequest)).toEqual({
-      ...mockRequest,
+      ...mockRequest.request,
       error: new FireblocksBtcAccessError(
         FireblocksBtcAccessErrorCode.InvalidSecretKey
       ).message,
@@ -229,7 +225,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
       .mockResolvedValue(undefined);
 
     expect(await handler.handle(mockRequest)).toEqual({
-      ...mockRequest,
+      ...mockRequest.request,
       error: new FireblocksBtcAccessError(
         FireblocksBtcAccessErrorCode.BTCAddressNotFound
       ).message,

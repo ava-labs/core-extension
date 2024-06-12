@@ -19,7 +19,7 @@ export class GetTokenDataHandler implements HandlerType {
 
   constructor(private tokenManagerService: TokenManagerService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [tokenAddress] = request.params;
 
     try {

@@ -15,7 +15,7 @@ export class CloseLedgerTransportHandler implements HandlerType {
 
   constructor(private ledgerService: LedgerService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     await this.ledgerService.closeOpenedTransport();
     return {
       result: true,

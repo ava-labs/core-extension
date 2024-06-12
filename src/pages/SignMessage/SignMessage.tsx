@@ -33,7 +33,11 @@ import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBo
 import { useIsIntersecting } from './hooks/useIsIntersecting';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import { LedgerAppType } from '@src/contexts/LedgerProvider';
+import {
+  LEDGER_VERSION_WITH_EIP_712,
+  LedgerAppType,
+  useLedgerContext,
+} from '@src/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/components/LedgerApprovalOverlay';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
@@ -48,6 +52,7 @@ import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { AccountType } from '@src/background/services/accounts/models';
 import { truncateAddress } from '@src/utils/truncateAddress';
+import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible';
 
 export function SignMessage() {
   const { t } = useTranslation();
@@ -58,10 +63,8 @@ export function SignMessage() {
     cancelHandler,
   } = useApproveAction(requestId);
 
-  // TODO: remove this in https://ava-labs.atlassian.net/browse/CP-5617
-  // Message signing is not currently supported by the Ledger Avalanche app
-  // We also disable the "Sign" button
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const { avaxAppVersion, hasLedgerTransport } = useLedgerContext();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
   const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
@@ -79,10 +82,13 @@ export function SignMessage() {
   const disabledForLedger = useMemo(() => {
     return (
       isUsingLedgerWallet &&
+      hasLedgerTransport &&
+      avaxAppVersion &&
+      !isLedgerVersionCompatible(avaxAppVersion, LEDGER_VERSION_WITH_EIP_712) &&
       action &&
       action.method !== DAppProviderRequest.AVALANCHE_SIGN_MESSAGE
     );
-  }, [isUsingLedgerWallet, action]);
+  }, [isUsingLedgerWallet, hasLedgerTransport, avaxAppVersion, action]);
 
   const signingAccountAddress = useMemo(() => {
     if (!action || !activeAccount) {
@@ -118,9 +124,9 @@ export function SignMessage() {
   }, [
     updateMessage,
     requestId,
-    isUsingLedgerWallet,
     isUsingWalletConnectAccount,
     isFireblocksAccount,
+    isUsingLedgerWallet,
   ]);
 
   useEffect(() => {
@@ -188,7 +194,11 @@ export function SignMessage() {
         {t('Not Supported')}
       </Typography>
       <Typography variant="body2" sx={{ textAlign: 'center', mt: 1 }}>
-        {t('Message signing not supported by the Avalanche Ledger app')}
+        {t(
+          'Message signing not supported by this version of the Avalanche Ledger app'
+        )}
+        <br />
+        {t('Please update to version 0.8.0 or newer')}
       </Typography>
       <Stack
         sx={{

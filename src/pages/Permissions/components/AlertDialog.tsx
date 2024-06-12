@@ -8,7 +8,23 @@ import {
 } from '@avalabs/k2-components';
 import { useTranslation } from 'react-i18next';
 
-export function AlertDialog({ cancelHandler, open, onClose }) {
+interface AlertDialogProps {
+  cancelHandler: () => void;
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  text: string;
+  rejectLabel: string;
+}
+
+export function AlertDialog({
+  cancelHandler,
+  open,
+  onClose,
+  title,
+  text,
+  rejectLabel,
+}: AlertDialogProps) {
   const theme = useTheme();
   const { t } = useTranslation();
   return (
@@ -42,7 +58,7 @@ export function AlertDialog({ cancelHandler, open, onClose }) {
             textAlign: 'center',
             width: '225px',
             gap: 1.5,
-            py: 15,
+            py: 14,
           }}
         >
           <RemoveModeratorIcon
@@ -53,11 +69,9 @@ export function AlertDialog({ cancelHandler, open, onClose }) {
             sx={{ color: theme.customPalette.avalancheRed, px: 2 }}
             variant="h4"
           >
-            {t('Scam Application')}
+            {title}
           </Typography>
-          <Typography variant="body2">
-            {t('This application is malicious, do not proceed.')}
-          </Typography>
+          <Typography variant="body2">{text}</Typography>
         </Stack>
         <Stack
           sx={{
@@ -71,12 +85,11 @@ export function AlertDialog({ cancelHandler, open, onClose }) {
             data-testid="connect-reject-btn"
             onClick={() => {
               cancelHandler();
-              window.close();
             }}
             fullWidth
             size="large"
           >
-            {t('Reject Connection')}
+            {rejectLabel}
           </Button>
           <Button
             data-testid="connect-approve-btn"

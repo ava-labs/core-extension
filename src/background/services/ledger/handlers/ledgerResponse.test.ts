@@ -1,5 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { LedgerResponseHandler } from './ledgerResponse';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/ledger/handlers/ledgerResponse.ts', () => {
   const response = { foo: 'bar' };
@@ -19,7 +20,7 @@ describe('src/background/services/ledger/handlers/ledgerResponse.ts', () => {
 
   it('adds the response to the service correctly', async () => {
     const handler = new LedgerResponseHandler(ledgerServiceMock);
-    const result = await handler.handle(request);
+    const result = await handler.handle(buildRpcCall(request));
 
     expect(result).toEqual({ ...request, result: true });
     expect(ledgerServiceMock.ledgerResponse).toHaveBeenCalledWith(response);

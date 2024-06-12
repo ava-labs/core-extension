@@ -6,6 +6,7 @@ import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { ChainId } from '@avalabs/chains-sdk';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 @injectable()
 export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
@@ -15,7 +16,8 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
     super();
   }
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
     const [isTestmode] = request.params;
 
     if (typeof isTestmode !== 'boolean') {
@@ -35,17 +37,17 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
       },
     };
 
-    await this.openApprovalWindow(actionData, `approve/set-developer-mode`);
+    await openApprovalWindow(actionData, `approve/set-developer-mode`);
 
     return { ...request, result: DEFERRED_RESPONSE };
   };
 
-  handleAuthenticated = async (request) => {
-    return this.handleUnauthenticated(request);
+  handleAuthenticated = async (rpcCall) => {
+    return this.handleUnauthenticated(rpcCall);
   };
 
   onActionApproved = async (
-    pendingAction: Action,
+    pendingAction: Action<{ isTestmode: boolean }>,
     result,
     onSuccess,
     onError
@@ -53,9 +55,7 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
     try {
       const {
         displayData: { isTestmode },
-      } = pendingAction as Action & {
-        isTestmode: boolean;
-      };
+      } = pendingAction;
       await this.networkService.setNetwork(
         isTestmode ? ChainId.AVALANCHE_TESTNET_ID : ChainId.AVALANCHE_MAINNET_ID
       );

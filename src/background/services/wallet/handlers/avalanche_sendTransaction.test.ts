@@ -9,17 +9,19 @@ import {
   EVM,
 } from '@avalabs/avalanchejs';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { Action } from '../../actions/models';
 import { Avalanche } from '@avalabs/wallets-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { ChainId } from '@avalabs/chains-sdk';
 import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@avalabs/avalanchejs');
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('../utils/getProvidedUtxos');
 jest.mock('../../analytics/utils/encryptAnalyticsData');
+jest.mock('@src/background/runtime/openApprovalWindow');
 
 describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts', () => {
   const env = process.env;
@@ -29,7 +31,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     params: { transactionHex: '0x00001', chainAlias: 'X' },
     site: {
       tabId: 1,
-    },
+    } as any,
   };
   const requestWithUtxos = {
     ...request,
@@ -42,10 +44,6 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
   const frontendTabId = 951;
   const txBytes = new Uint8Array([0, 1, 2]);
 
-  const openApprovalWindowSpy = jest.spyOn(
-    DAppRequestHandler.prototype,
-    'openApprovalWindow'
-  );
   const getAvalanceProviderXPMock = jest.fn();
   const getAvalancheNetworkXPMock = jest.fn();
   const signMock = jest.fn();
@@ -123,7 +121,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     issueTxHexMock.mockResolvedValue({ txID: 1 });
     getAvalanceProviderXPMock.mockResolvedValue(providerMock);
     getAddressesMock.mockReturnValue([]);
-    openApprovalWindowSpy.mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
     (accountsServiceMock as any).activeAccount = activeAccountMock;
     (Avalanche.getVmByChainAlias as jest.Mock).mockReturnValue(AVM);
     (Avalanche.getUtxosByTxFromGlacier as jest.Mock).mockReturnValue(utxosMock);
@@ -147,7 +145,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {} as any,
         {} as any
       );
-      const result = await handler.handleUnauthenticated(request);
+      const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -166,7 +164,9 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {} as any,
         {} as any
       );
-      const result = await handler.handleAuthenticated(requestWithoutParam);
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(requestWithoutParam)
+      );
 
       expect(result).toEqual({
         ...requestWithoutParam,
@@ -190,7 +190,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {} as any
       );
       const result = await handler.handleAuthenticated(
-        requestWithoutChainAlias
+        buildRpcCall(requestWithoutChainAlias)
       );
 
       expect(result).toEqual({
@@ -209,7 +209,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {} as any
       );
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -233,7 +233,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         unsignedTxMock
       );
 
-      const result = await handler.handleAuthenticated(request);
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
@@ -246,10 +246,9 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     describe('approval window and deferred response', () => {
       describe('for X/P chain', () => {
         const checkExpected = (req, result, tx) => {
-          expect(openApprovalWindowSpy).toHaveBeenCalledWith(
-            {
+          expect(openApprovalWindow).toHaveBeenCalledWith(
+            expect.objectContaining({
               ...req,
-              tabId: req.site.tabId,
               displayData: {
                 unsignedTxJson: JSON.stringify(unsignedTxJson),
                 txData: {
@@ -257,7 +256,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
                 },
                 vm: 'AVM',
               },
-            },
+            }),
             'approve/avalancheSignTx'
           );
 
@@ -290,7 +289,9 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
             Avalanche.createAvalancheUnsignedTx as jest.Mock
           ).mockReturnValueOnce(unsignedTxMock);
 
-          const result = await handler.handleAuthenticated(requestWithUtxos);
+          const result = await handler.handleAuthenticated(
+            buildRpcCall(requestWithUtxos)
+          );
 
           expect(Avalanche.getUtxosByTxFromGlacier).not.toHaveBeenCalled();
           checkExpected(requestWithUtxos, result, tx);
@@ -313,7 +314,9 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           ).mockReturnValueOnce(unsignedTxMock);
           (getProvidedUtxos as jest.Mock).mockReturnValue([]);
 
-          const result = await handler.handleAuthenticated(request);
+          const result = await handler.handleAuthenticated(
+            buildRpcCall(request)
+          );
 
           expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
             transactionHex: request.params.transactionHex,
@@ -328,10 +331,9 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
 
       describe('for C chain', () => {
         const checkExpected = (req, result) => {
-          expect(openApprovalWindowSpy).toHaveBeenCalledWith(
-            {
+          expect(openApprovalWindow).toHaveBeenCalledWith(
+            expect.objectContaining({
               ...req,
-              tabId: req.site.tabId,
               displayData: {
                 unsignedTxJson: JSON.stringify(unsignedTxJson),
                 txData: {
@@ -339,7 +341,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
                 },
                 vm: 'EVM',
               },
-            },
+            }),
             'approve/avalancheSignTx'
           );
 
@@ -369,7 +371,9 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
             Avalanche.createAvalancheEvmUnsignedTx as jest.Mock
           ).mockReturnValueOnce(unsignedTxMock);
 
-          const result = await handler.handleAuthenticated(requestWithUtxos);
+          const result = await handler.handleAuthenticated(
+            buildRpcCall(requestWithUtxos)
+          );
 
           checkExpected(requestWithUtxos, result);
           expect(Avalanche.getUtxosByTxFromGlacier).not.toHaveBeenCalled();
@@ -389,7 +393,9 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           ).mockReturnValueOnce(unsignedTxMock);
           (getProvidedUtxos as jest.Mock).mockReturnValue([]);
 
-          const result = await handler.handleAuthenticated(request);
+          const result = await handler.handleAuthenticated(
+            buildRpcCall(request)
+          );
 
           checkExpected(request, result);
           expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
@@ -411,7 +417,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         unsignedTxJson,
       },
       params: {},
-    } as unknown as Action;
+    } as Action;
 
     it('returns error when there are multiple addresses without indices', async () => {
       getAddressesMock.mockReturnValueOnce(['addr1', 'addr2']);
@@ -608,7 +614,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {
           ...pendingActionMock,
           params: { externalIndices: [0, 1], internalIndices: [2, 3] },
-        } as unknown as Action,
+        },
         {},
         onSuccessMock,
         onErrorMock,

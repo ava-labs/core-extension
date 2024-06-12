@@ -10,6 +10,7 @@ import { WalletService } from '../../wallet/WalletService';
 import { MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
 import { TypedDataEncoder } from 'ethers';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 @injectable()
 export class PersonalSignHandler extends DAppRequestHandler {
@@ -29,14 +30,15 @@ export class PersonalSignHandler extends DAppRequestHandler {
     super();
   }
 
-  handleUnauthenticated = async (request) => {
+  handleUnauthenticated = async ({ request }) => {
     return {
       ...request,
       error: `account not available`,
     };
   };
 
-  handleAuthenticated = async (request) => {
+  handleAuthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
     if (this.walletService.wallets.length === 0) {
       return {
         ...request,
@@ -102,7 +104,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
         tabId: request.site.tabId,
       };
 
-      this.openApprovalWindow(actionData, `sign`);
+      await openApprovalWindow(actionData, `sign`);
 
       return { ...request, result: DEFERRED_RESPONSE };
     } catch (err) {

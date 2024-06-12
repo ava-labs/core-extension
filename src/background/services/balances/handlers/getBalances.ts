@@ -15,7 +15,7 @@ export class GetBalancesHandler implements HandlerType {
 
   constructor(private networkBalancesService: BalanceAggregatorService) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const { balances, isBalancesCached, totalBalance } =
       this.networkBalancesService;
 

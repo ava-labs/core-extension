@@ -33,7 +33,7 @@ export class GetEthMaxTransferAmountHandler implements HandlerType {
     private accountsService: AccountsService
   ) {}
 
-  handle: HandlerType['handle'] = async (request) => {
+  handle: HandlerType['handle'] = async ({ request }) => {
     const [currentAsset] = request.params;
 
     const activeNetwork = this.networkService.activeNetwork;

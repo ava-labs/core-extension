@@ -4,6 +4,7 @@ import {
   createTransferTx,
   getMaxTransferAmount,
 } from '@avalabs/wallets-sdk';
+import { inputBytes } from 'coinselect/utils';
 
 import { BtcSendOptions } from '@src/pages/Send/models';
 import { TokenWithBalanceBTC } from '@src/background/services/balances/models';
@@ -13,8 +14,23 @@ import { SendErrorMessage } from './models';
 
 export const getBtcInputUtxos = async (
   provider: BitcoinProvider,
-  token: TokenWithBalanceBTC
-) => provider.getScriptsForUtxos(token.utxos ?? []);
+  token: TokenWithBalanceBTC,
+  feeRate?: number
+) => {
+  const utxos = await provider.getScriptsForUtxos(token.utxos ?? []);
+
+  if (typeof feeRate === 'number') {
+    // Filter out UTXOs that would not be used with the current fee rate,
+    // that is those for which fee to use the UTXO would be higher than its value.
+    return utxos.filter((utxo) => {
+      const utxoFee = inputBytes(utxo) * feeRate;
+
+      return utxoFee < utxo.value;
+    });
+  }
+
+  return utxos;
+};
 
 export const buildBtcTx = async (
   from: string,

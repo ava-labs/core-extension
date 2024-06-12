@@ -1,5 +1,5 @@
 import { useApproveAction } from '@src/hooks/useApproveAction';
-import { Action, ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ContactInfo } from '@src/components/settings/components/ContactInfo';
 import { Contact } from '@avalabs/types';
@@ -26,13 +26,9 @@ export function UpdateContacts({
     action,
     updateAction: updateMessage,
     cancelHandler,
-  } = useApproveAction(requestId);
+  } = useApproveAction<{ contact: Contact; existing?: Contact }>(requestId);
 
-  const request = action as Action & {
-    displayData: { contact: Contact; existing?: Contact };
-  };
-
-  if (!request) {
+  if (!action) {
     return (
       <Stack
         sx={{
@@ -77,7 +73,7 @@ export function UpdateContacts({
           <Trans
             i18nKey={'{{domain}} is requesting to {{method}} a contact:'}
             values={{
-              domain: request.site?.domain || t('This website'),
+              domain: action.site?.domain || t('This website'),
               method: translatedMethod[method].toLowerCase(),
             }}
           />
@@ -91,7 +87,7 @@ export function UpdateContacts({
             mt: 3,
           }}
         >
-          {method === 'update' && request.displayData?.existing ? (
+          {method === 'update' && action.displayData?.existing ? (
             <>
               <Typography variant="body1">{t('From:')}</Typography>
               <Card
@@ -100,7 +96,7 @@ export function UpdateContacts({
                   p: 2,
                 }}
               >
-                <ContactInfo contact={request.displayData?.existing} />
+                <ContactInfo contact={action.displayData?.existing} />
               </Card>
               <Typography variant="body1" sx={{ mt: 2 }}>
                 {t('To:')}
@@ -111,11 +107,11 @@ export function UpdateContacts({
                   p: 2,
                 }}
               >
-                <ContactInfo contact={request.displayData?.contact} />
+                <ContactInfo contact={action.displayData?.contact} />
               </Card>
             </>
           ) : (
-            <ContactInfo contact={request.displayData?.contact} />
+            <ContactInfo contact={action.displayData?.contact} />
           )}
         </Stack>
       </Stack>
@@ -136,7 +132,7 @@ export function UpdateContacts({
           data-testid="transaction-reject-btn"
           size="large"
           fullWidth
-          disabled={request.status === ActionStatus.SUBMITTING}
+          disabled={action.status === ActionStatus.SUBMITTING}
           onClick={() => {
             cancelHandler();
             window.close();
@@ -148,9 +144,7 @@ export function UpdateContacts({
           data-testid="transaction-approve-btn"
           size="large"
           fullWidth
-          disabled={
-            request.status === ActionStatus.SUBMITTING || !!request.error
-          }
+          disabled={action.status === ActionStatus.SUBMITTING || !!action.error}
           onClick={() => {
             updateMessage({
               status: ActionStatus.SUBMITTING,

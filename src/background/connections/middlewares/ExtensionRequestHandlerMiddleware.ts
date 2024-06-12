@@ -21,16 +21,17 @@ export function ExtensionRequestHandlerMiddleware(
   }, new Map<string, ExtensionRequestHandler<any, any>>());
 
   return async (context, next, onError) => {
-    const handler = handlerMap.get(context.request.method);
+    const method = context.request.params.request.method;
+    const handler = handlerMap.get(method);
 
     if (!handler) {
       onError(new Error('no handler for this request found'));
       return;
     }
     const sentryTracker = Sentry.startTransaction({
-      name: `Handler: ${context.request.method}`,
+      name: `Handler: ${method}`,
     });
-    const promise = handler.handle({ ...context.request });
+    const promise = handler.handle({ ...context.request.params });
 
     context.response = await resolve(promise).then(([result, error]) => {
       error && console.error(error);

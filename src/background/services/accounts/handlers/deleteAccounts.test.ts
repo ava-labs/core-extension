@@ -1,5 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { DeleteAccountHandler } from './deleteAccounts';
+import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/accounts/handlers/deleteAccount.ts', () => {
   const deleteAccounstMock = jest.fn();
@@ -13,16 +14,16 @@ describe('background/services/accounts/handlers/deleteAccount.ts', () => {
 
   it('removes the imported accounts', async () => {
     const handler = new DeleteAccountHandler(accountServiceMock);
-    const request = {
+    const request = buildRpcCall({
       id: '123',
       method: ExtensionRequest.ACCOUNT_DELETE,
       params: [['0x1', '0x2']],
-    } as any;
+    });
 
     const result = await handler.handle(request);
 
     expect(deleteAccounstMock).toHaveBeenCalledWith(['0x1', '0x2']);
-    expect(result).toEqual({ ...request, result: 'success' });
+    expect(result).toEqual({ ...request.request, result: 'success' });
   });
 
   it('returns the error that happened during removal', async () => {
@@ -30,15 +31,15 @@ describe('background/services/accounts/handlers/deleteAccount.ts', () => {
     deleteAccounstMock.mockRejectedValueOnce(error);
 
     const handler = new DeleteAccountHandler(accountServiceMock);
-    const request = {
+    const request = buildRpcCall({
       id: '123',
       method: ExtensionRequest.ACCOUNT_DELETE,
       params: [['0x1', '0x2']],
-    } as any;
+    });
 
     const result = await handler.handle(request);
 
     expect(deleteAccounstMock).toHaveBeenCalledWith(['0x1', '0x2']);
-    expect(result).toEqual({ ...request, error: error.toString() });
+    expect(result).toEqual({ ...request.request, error: error.toString() });
   });
 });
