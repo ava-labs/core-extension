@@ -4,6 +4,7 @@ import Blockaid from '@blockaid/client';
 import { ChainId, Network } from '@avalabs/chains-sdk';
 import {
   EthSendTransactionParamsWithGas,
+  TransactionAction,
   TransactionDisplayValues,
   TransactionNft,
   TransactionToken,
@@ -137,27 +138,7 @@ export class BlockaidService {
     });
   }
 
-  async parseTransaction(
-    domain: string,
-    network: Network,
-    tx: EthSendTransactionParamsWithGas
-  ): Promise<TransactionDisplayValues> {
-    const chain = this.#getChainName(network.chainId);
-    const response = await this.transactionScan(tx, chain, domain);
-    if (!response) {
-      throw new Error('The transaction scanning is disabled');
-    }
-
-    const { simulation, validation } = response;
-    if (simulation?.status !== 'Success') {
-      throw new Error('Transaction simulation unsuccessful');
-    }
-
-    const senderAssetDiff = simulation.account_summary.assets_diffs;
-    if (!senderAssetDiff) {
-      throw new Error(`Unknown impact on sender's assets`);
-    }
-
+  #collectTokenLists(senderAssetDiff: Blockaid.Evm.AssetDiff[]) {
     const sendTokenList: TransactionToken[] = [];
     const receiveTokenList: TransactionToken[] = [];
     const sendNftList: TransactionNft[] = [];
@@ -219,15 +200,95 @@ export class BlockaidService {
         }
       }
     }
+    return { sendTokenList, receiveTokenList, sendNftList, receiveNftList };
+  }
+
+  #parseTransactionAction(
+    exposures: Blockaid.Evm.AddressAssetExposure[],
+    txFrom: string
+  ) {
+    const actions: TransactionAction[] = [];
+
+    for (const exposure of exposures) {
+      let token: TransactionToken | undefined = undefined;
+      let nft: TransactionNft | undefined = undefined;
+      if (isToken(exposure.asset)) {
+        token = this.parseTokenData(exposure.asset);
+      }
+      if (isNft(exposure.asset)) {
+        nft = this.parseNftData(exposure.asset);
+      }
+      for (const spenderId in exposure.spenders) {
+        const spender = exposure.spenders[spenderId];
+        if (spender && 'approval' in spender && token) {
+          actions.push({
+            type: TransactionType.APPROVE_TOKEN,
+            spender: {
+              address: spenderId,
+            },
+            token: { ...token, amount: BigInt(spender.approval) },
+          });
+        }
+        if (spender && 'approval' in spender && nft) {
+          actions.push({
+            type: TransactionType.APPROVE_NFT,
+            owner: txFrom,
+            spender: {
+              address: spenderId,
+            },
+            token: { ...nft, amount: BigInt(spender.approval) },
+          });
+        }
+      }
+    }
+    return { actions };
+  }
+
+  async parseTransaction(
+    domain: string,
+    network: Network,
+    tx: EthSendTransactionParamsWithGas
+  ): Promise<TransactionDisplayValues> {
+    const chain = this.#getChainName(network.chainId);
+
+    const response = await this.transactionScan(tx, chain, domain);
+
+    if (!response) {
+      throw new Error('The transaction scanning is disabled');
+    }
+
+    const { simulation, validation } = response;
+    if (simulation?.status !== 'Success') {
+      throw new Error('Transaction simulation unsuccessful');
+    }
+
+    const senderAssetDiff = simulation.account_summary.assets_diffs;
+    const { sendTokenList, receiveTokenList, sendNftList, receiveNftList } =
+      this.#collectTokenLists(senderAssetDiff);
+
+    let actions: TransactionAction[] = [];
+    if (
+      !sendTokenList.length &&
+      !receiveTokenList.length &&
+      !sendNftList.length &&
+      !receiveNftList.length
+    ) {
+      const parsedData = this.#parseTransactionAction(
+        simulation.account_summary.exposures,
+        tx.from
+      );
+      actions = parsedData.actions;
+    }
+
     const displayValues: TransactionDisplayValues = {
       fromAddress: tx.from,
       balanceChange: {
         usdValueChange: Number(
           simulation.account_summary.total_usd_diff?.total
         ),
-        sendTokenList,
+        sendTokenList: [...sendTokenList],
         receiveTokenList,
-        sendNftList,
+        sendNftList: [...sendNftList],
         receiveNftList,
       },
       isMalicious: validation?.result_type === 'Malicious',
@@ -244,15 +305,17 @@ export class BlockaidService {
         recommendedGasLimit: undefined,
       },
       abi: undefined,
-      actions: [
-        {
-          type: TransactionType.CALL,
-          fromAddress: tx.from,
-          contract: {
-            address: tx.to ?? '',
-          },
-        },
-      ],
+      actions: actions.length
+        ? actions
+        : [
+            {
+              type: TransactionType.CALL,
+              fromAddress: tx.from,
+              contract: {
+                address: tx.to ?? '',
+              },
+            },
+          ],
     };
     return displayValues;
   }

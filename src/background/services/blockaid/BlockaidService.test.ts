@@ -67,6 +67,7 @@ jest.mock('@blockaid/client', () => {
             account_summary: {
               assets_diffs: assetsDiffsMock,
               total_usd_diff: { total: 1 },
+              exposures: [],
             },
           },
           validation: { status: 'Success', result_type: 'Malicious' },

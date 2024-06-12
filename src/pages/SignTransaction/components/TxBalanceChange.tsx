@@ -50,17 +50,25 @@ export const TxBalanceChange = ({ transaction }: TxBalanceChangeProps) => {
 
   const hasReceiveNftList =
     balanceChange && balanceChange?.receiveNftList.length > 1;
+
   const hasReceiveNftCollection = balanceChange?.receiveNftList[0]?.size;
 
   const hasSendNftList = balanceChange && balanceChange?.sendNftList.length > 1;
   const hasSendNftCollection = balanceChange?.sendNftList[0]?.size;
 
-  const showTokenCard =
+  if (
+    !hasSentItems &&
+    !hasReceivedItems &&
+    !showNonPreExecInfoWarning &&
+    !showNoDataWarning &&
+    !hasReceiveNftCollection &&
     !hasReceiveNftList &&
     !hasSendNftList &&
     !hasSendNftCollection &&
-    !hasSendNftCollection;
-
+    !transaction.displayData?.displayValues?.abi
+  ) {
+    return null;
+  }
   return (
     <ApprovalSection>
       <ApprovalSectionHeader
@@ -150,8 +158,32 @@ export const TxBalanceChange = ({ transaction }: TxBalanceChangeProps) => {
           {hasSendNftList && hasSendNftCollection && (
             <NftAccordion nftList={balanceChange?.sendNftList} />
           )}
-          {showTokenCard &&
+          {!hasReceiveNftCollection &&
             balanceChange?.receiveNftList.map((nft, index) => {
+              return (
+                <>
+                  <TransactionTokenCard
+                    key={`r-nft-${nft.address}-${index}`}
+                    token={nft}
+                    variant={TransactionTokenCardVariant.RECEIVE}
+                    sx={{ p: 0 }}
+                  >
+                    <CollectibleMedia
+                      height="32px"
+                      width="auto"
+                      maxWidth="32px"
+                      url={nft?.logoUri}
+                      hover={false}
+                      margin="8px 0"
+                      showPlayIcon={false}
+                    />
+                  </TransactionTokenCard>
+                </>
+              );
+            })}
+
+          {!hasSendNftCollection &&
+            balanceChange?.sendNftList.map((nft, index) => {
               return (
                 <>
                   <TransactionTokenCard
