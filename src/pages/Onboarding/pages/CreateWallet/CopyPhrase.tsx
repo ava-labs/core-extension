@@ -28,7 +28,7 @@ export function CopyPhrase({ onBack, onNext, mnemonic }: CopyPhraseProps) {
     >
       <OnboardingStepHeader
         testId="copy-phrase"
-        title={t('Write Down Seed Phrase')}
+        title={t('Write Down Recovery Phrase')}
       />
       <Stack
         data-testid="copy-phrase-section"

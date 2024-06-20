@@ -152,7 +152,7 @@ export const ImportWallet = () => {
     >
       <OnboardingStepHeader
         testId="enter-recovery-phrase"
-        title={t('Enter Seed Phrase')}
+        title={t('Enter Recovery Phrase')}
       />
       <Stack
         sx={{
@@ -162,7 +162,7 @@ export const ImportWallet = () => {
         }}
       >
         <Typography variant="body2" sx={{ color: theme.palette.grey[400] }}>
-          <Trans i18nKey="Access an existing wallet with your seed phrase. You can paste your entire phrase in the first field." />
+          <Trans i18nKey="Access an existing wallet with your recovery phrase. You can paste your entire phrase in the first field." />
         </Typography>
         <Stack
           sx={{

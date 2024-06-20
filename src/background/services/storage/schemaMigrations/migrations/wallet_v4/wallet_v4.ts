@@ -50,7 +50,7 @@ const up = async (walletStorage: PreviousSchema) => {
   const secretType = getSecretsType(walletStorage);
   const nameType =
     secretType === SecretType.Mnemonic
-      ? 'Seed Phrase'
+      ? 'Recovery Phrase'
       : secretType === SecretType.Seedless
       ? 'Seedless'
       : secretType === SecretType.Keystone

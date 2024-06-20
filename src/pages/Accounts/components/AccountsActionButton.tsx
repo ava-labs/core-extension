@@ -227,7 +227,7 @@ export const AccountsActionButton = ({
                       data-testid="add-wallet-seed-phrase"
                     >
                       <ListIcon size={16} sx={{ pr: 1 }} />
-                      {t('Add Wallet with Seed Phrase')}
+                      {t('Add Wallet with Recovery Phrase')}
                     </StyledMenuItem>
                   )}
                   {featureFlags[FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE] && (

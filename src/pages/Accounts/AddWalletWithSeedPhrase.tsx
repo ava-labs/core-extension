@@ -178,7 +178,7 @@ export function AddWalletWithSeedPhrase() {
       >
         <Stack direction="row" sx={{ mt: 2.5, mb: 0.5, pr: 1 }}>
           <PageTitle onBackClick={() => history.replace('/accounts')}>
-            {t('Add Wallet with Seed Phrase')}
+            {t('Add Wallet with Recovery Phrase')}
           </PageTitle>
         </Stack>
 
@@ -187,7 +187,7 @@ export function AddWalletWithSeedPhrase() {
             autoFocus
             data-testid="add-seed-phrase-input"
             fullWidth
-            label={t('Enter Seed Phrase')}
+            label={t('Enter Recovery Phrase')}
             inputLabelProps={{
               sx: { transform: 'none', fontSize: 'body2.fontSize', mb: 1 },
             }}
@@ -200,13 +200,15 @@ export function AddWalletWithSeedPhrase() {
             }}
             helperText={
               isKnownPhrase
-                ? t('This seed phrase appears to have already been imported.')
-                : t('Add account(s) by entering a valid seed phrase.')
+                ? t(
+                    'This recovery phrase appears to have already been imported.'
+                  )
+                : t('Add account(s) by entering a valid recovery phrase.')
             }
             multiline
             rows={3}
             value={phrase}
-            placeholder={t('Enter Seed Phrase')}
+            placeholder={t('Enter Recovery Phrase')}
             error={isKnownPhrase}
             type="password"
             {...keyboardShortcuts}
@@ -270,9 +272,11 @@ export function AddWalletWithSeedPhrase() {
             title={
               isPhraseValid
                 ? isKnownPhrase
-                  ? t('This seed phrase appears to have already been imported.')
+                  ? t(
+                      'This recovery phrase appears to have already been imported.'
+                    )
                   : ''
-                : t('Provided seed phrase is not valid.')
+                : t('Provided recovery phrase is not valid.')
             }
           >
             <Button
@@ -283,7 +287,7 @@ export function AddWalletWithSeedPhrase() {
               onClick={onContinue}
               startIcon={<ListIcon size={16} />}
             >
-              {t('Add Seed Phrase')}
+              {t('Add Recovery Phrase')}
             </Button>
           </Tooltip>
         </Stack>

@@ -29,7 +29,7 @@ export class SecretsService {
 
   async #getDefaultName(secrets: AddPrimaryWalletSecrets) {
     const defaultNames = {
-      [SecretType.Mnemonic]: 'Seed Phrase',
+      [SecretType.Mnemonic]: 'Recovery Phrase',
       [SecretType.Ledger]: 'Ledger',
       [SecretType.LedgerLive]: 'Ledger Live',
       [SecretType.Keystone]: 'Keystone',

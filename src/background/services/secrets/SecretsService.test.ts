@@ -77,7 +77,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         {
           secretType: SecretType.Mnemonic,
           mnemonic: 'mnemonic',
-          name: 'Seed Phrase 01',
+          name: 'Recovery Phrase 01',
           xpub: 'xpub',
           xpubXP: 'xpubXP',
           derivationPath: DerivationPath.BIP44,
@@ -325,7 +325,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             derivationPath: DerivationPath.BIP44,
             xpub: 'xpib',
             xpubXP: 'xpubXP',
-            name: 'Seed Phrase 01',
+            name: 'Recovery Phrase 01',
           },
         ],
       });
