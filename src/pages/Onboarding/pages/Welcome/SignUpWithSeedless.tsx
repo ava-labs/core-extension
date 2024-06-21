@@ -38,20 +38,20 @@ export function SignUpWithSeedles() {
         sx={{
           width: '322px',
           textAlign: 'center',
+          height: '100%',
         }}
       >
         <Stack
           sx={{
             alignItems: 'center',
             justifyContent: 'center',
-            mb: 22,
-            rowGap: 2,
+            height: '40%',
           }}
         >
           <BlinkingLogo height={150} />
         </Stack>
 
-        <Stack sx={{ rowGap: 2 }}>
+        <Stack sx={{ rowGap: 2, height: '40%' }}>
           {featureFlags[FeatureGates.SEEDLESS_ONBOARDING_GOOGLE] && (
             <GoogleButton setIsLoading={setIsAuthenticationInProgress} />
           )}

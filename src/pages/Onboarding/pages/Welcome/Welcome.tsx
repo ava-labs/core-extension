@@ -11,7 +11,7 @@ export function Welcome() {
   }, [resetStates]);
 
   return (
-    <Stack sx={{ top: '15%', position: 'relative' }}>
+    <Stack sx={{ height: '100%' }}>
       <SignUpWithSeedles />
     </Stack>
   );
