@@ -96,7 +96,11 @@ export function SignTransactionPage() {
         ).toString()
       )
     );
-  }, [nativeTokenWithBalance, transaction]);
+  }, [
+    nativeTokenWithBalance?.balance,
+    transaction?.displayData?.displayValues?.gas.gasLimit,
+    transaction?.displayData?.displayValues?.gas.maxFeePerGas,
+  ]);
 
   const cancelHandler = useCallback(() => {
     if (transaction?.actionId) {
