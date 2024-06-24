@@ -6,7 +6,9 @@ import { ActionsService } from '../../actions/ActionsService';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { AccountType } from '../models';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { isCoreWeb } from '../../network/utils/isCoreWeb';
 
+jest.mock('../../network/utils/isCoreWeb');
 jest.mock('@src/utils/extensionUtils', () => ({
   openExtensionNewWindow: jest.fn(),
 }));
@@ -15,6 +17,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
   const addActionMock = jest.fn();
   const accountServiceMock = {
     getAccountList: jest.fn(),
+    activateAccount: jest.fn(),
   } as any;
   const actionsServiceMock = {
     addAction: addActionMock,
@@ -30,6 +33,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
 
     (openExtensionNewWindow as jest.Mock).mockReturnValue({ id: 123 });
     (crypto.randomUUID as jest.Mock).mockReturnValue('uuid');
+    jest.mocked(isCoreWeb).mockResolvedValue(false);
   });
 
   describe('handleAuthenticated', () => {
@@ -137,6 +141,43 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         error: new Error('Account not found'),
       });
     });
+
+    it('should switch account without opening approval window if the request is from core web', async () => {
+      jest.mocked(isCoreWeb).mockResolvedValue(true);
+
+      const account = {
+        index: 1,
+        addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        type: AccountType.PRIMARY,
+        id: 'accountId',
+      };
+      accountServiceMock.getAccountList.mockReturnValue([account]);
+
+      const handler = new AvalancheSelectAccountHandler(
+        accountServiceMock,
+        permissionsServiceMock
+      );
+
+      const request = {
+        id: '123',
+        method: DAppProviderRequest.ACCOUNT_SELECT,
+        params: [1],
+        site: { tabId: 1, domain: 'core.app', name: 'Core' },
+      } as any;
+
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(accountServiceMock.activateAccount).toHaveBeenCalledWith(
+        account.id
+      );
+      expect(openExtensionNewWindow).not.toHaveBeenCalled();
+      expect(addActionMock).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        ...request,
+        result: null,
+      });
+    });
+
     it('should call the approval window with the new active account from the active wallet', async () => {
       const accounts = [
         {

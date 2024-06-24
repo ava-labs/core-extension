@@ -9,8 +9,10 @@ import { Action, ActionStatus } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { WalletAddEthereumChainHandler } from './wallet_addEthereumChain';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { isCoreWeb } from '../../network/utils/isCoreWeb';
 
 jest.mock('../NetworkService');
+jest.mock('../../network/utils/isCoreWeb');
 jest.mock('@src/utils/extensionUtils', () => ({
   openExtensionNewWindow: jest.fn(),
 }));
@@ -44,6 +46,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
   beforeEach(() => {
     jest.resetAllMocks();
 
+    jest.mocked(isCoreWeb).mockResolvedValue(false);
     mockNetworkService = new NetworkService({} as any, {} as any);
     (mockNetworkService.isValidRPCUrl as jest.Mock).mockReturnValue(true);
     (mockNetworkService as any).activeNetwork = { ...mockActiveNetwork };
@@ -512,6 +515,94 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         }),
       }),
       popupWindowId: 123,
+    });
+  });
+
+  it('does not opens approval dialog and switch to a known network if the request is from core web', async () => {
+    jest.mocked(isCoreWeb).mockResolvedValue(true);
+
+    const request = {
+      id: '852',
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa869', // 43113
+          chainName: 'Avalanche',
+          nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          iconUrls: ['logo.png'],
+        },
+      ],
+      site: {
+        domain: 'core.app',
+        name: 'Core',
+        tabId: 123,
+      },
+    };
+
+    const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+    expect(result).toEqual({
+      ...request,
+      result: null,
+    });
+
+    expect(openExtensionNewWindow).not.toHaveBeenCalled();
+    expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
+    expect(mockNetworkService.setNetwork).toHaveBeenCalledTimes(1);
+    expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(43113);
+  });
+
+  it('does not opens approval dialog and add and switch to a new network if the request is from a core domain', async () => {
+    jest.mocked(isCoreWeb).mockResolvedValue(true);
+
+    const request = {
+      id: '852',
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868', // 43112
+          chainName: 'Avalanche',
+          nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          iconUrls: ['logo.png'],
+        },
+      ],
+      site: {
+        domain: 'core.app',
+        name: 'Core',
+        tabId: 123,
+      },
+    };
+
+    const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+    expect(result).toEqual({
+      ...request,
+      result: null,
+    });
+
+    expect(openExtensionNewWindow).not.toHaveBeenCalled();
+    expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
+    expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledTimes(1);
+    expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledWith({
+      chainId: 43112,
+      chainName: 'Avalanche',
+      explorerUrl: 'https://snowtrace.io/',
+      isTestnet: false,
+      logoUri: 'logo.png',
+      networkToken: {
+        decimals: 18,
+        description: '',
+        logoUri: 'logo.png',
+        name: 'AVAX',
+        symbol: 'AVAX',
+      },
+      primaryColor: 'black',
+      rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+      vmName: 'EVM',
     });
   });
 

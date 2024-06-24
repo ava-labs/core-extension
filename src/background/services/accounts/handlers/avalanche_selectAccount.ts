@@ -9,6 +9,7 @@ import { Account } from '../models';
 import { Action } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { isPrimaryAccount } from '../utils/typeGuards';
+import { isCoreWeb } from '../../network/utils/isCoreWeb';
 
 @injectable()
 export class AvalancheSelectAccountHandler extends DAppRequestHandler {
@@ -59,6 +60,13 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
           message: 'Account not found',
         }),
       };
+    }
+
+    const skipApproval = await isCoreWeb(request);
+
+    if (skipApproval) {
+      await this.accountsService.activateAccount(selectedAccount.id);
+      return { ...request, result: null };
     }
 
     const actionData: Action<{ selectedAccount: Account }> = {
