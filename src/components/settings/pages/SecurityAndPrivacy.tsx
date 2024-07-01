@@ -194,7 +194,7 @@ export function SecurityAndPrivacy({
               onClick={() => navigateTo(SettingsPages.RECOVERY_PHRASE)}
             >
               <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
-                {t('Show Recovery')}
+                {t('Show Recovery Phrase')}
               </ListItemText>
 
               <ListItemIcon>
