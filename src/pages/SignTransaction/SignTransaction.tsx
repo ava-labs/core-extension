@@ -45,14 +45,12 @@ import { NetworkDetails, WebsiteDetails } from './components/ApprovalTxDetails';
 import { getToAddressesFromTransaction } from './utils/getToAddressesFromTransaction';
 import { SpendLimitInfo } from './components/SpendLimitInfo/SpendLimitInfo';
 import { ActionStatus } from '@src/background/services/actions/models';
-import { AlertBox } from '../Permissions/components/AlertBox';
-import { WarningBox } from '../Permissions/components/WarningBox';
-import { AlertDialog } from '../Permissions/components/AlertDialog';
+import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
+import { TxWarningBox } from '@src/components/common/TxWarningBox';
 
 export function SignTransactionPage() {
   const { t } = useTranslation();
   const requestId = useGetRequestId();
-  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(true);
   const onTxError = useCallback(() => {
     window.close();
   }, []);
@@ -166,16 +164,10 @@ export function SignTransactionPage() {
 
   return (
     <>
-      {isTransactionMalicious && (
-        <AlertDialog
-          open={isAlertDialogOpen}
-          cancelHandler={cancelHandler}
-          onClose={() => setIsAlertDialogOpen(false)}
-          title={t('Scam Transaction')}
-          text={t('This transaction is malicious do not proceed.')}
-          rejectLabel={t('Reject Transaction')}
-        />
-      )}
+      <MaliciousTxAlert
+        showAlert={isTransactionMalicious}
+        cancelHandler={cancelHandler}
+      />
       {isApprovalOverlayVisible && (
         <>
           {isUsingLedgerWallet && (
@@ -240,26 +232,11 @@ export function SignTransactionPage() {
             <SignTxErrorBoundary>
               <Stack sx={{ width: '100%', gap: 3, pt: 1 }}>
                 <ApprovalSection>
-                  {isTransactionMalicious && (
-                    <Box sx={{ mb: 3 }}>
-                      <AlertBox
-                        title={t('Scam transaction')}
-                        text={t(
-                          'This transaction is malicious do not proceed.'
-                        )}
-                      />
-                    </Box>
-                  )}
-                  {isTransactionSuspicious && (
-                    <Box sx={{ mb: 3 }}>
-                      <WarningBox
-                        title={t('Suspicious Transaction')}
-                        text={t(
-                          'Use caution, this transaction may be malicious.'
-                        )}
-                      />
-                    </Box>
-                  )}
+                  <TxWarningBox
+                    isMalicious={isTransactionMalicious}
+                    isSuspicious={isTransactionSuspicious}
+                  />
+
                   <ApprovalSectionHeader label={t('Transaction Details')}>
                     <IconButton
                       size="small"

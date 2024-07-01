@@ -36,7 +36,7 @@
     "@avalabs/types": "2.8.0-alpha.188",
     "@avalabs/utils-sdk": "2.8.0-alpha.188",
     "@avalabs/wallets-sdk": "2.8.0-alpha.188",
-    "@blockaid/client": "0.9.2",
+    "@blockaid/client": "0.10.0",
     "@coinbase/cbpay-js": "1.6.0",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
     "@cubist-labs/cubesigner-sdk-ethers-v6": "0.3.28",

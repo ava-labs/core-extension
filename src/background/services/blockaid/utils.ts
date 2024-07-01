@@ -1,4 +1,5 @@
 import Blockaid from '@blockaid/client';
+import { TransactionValidationResponse } from '@blockaid/client/resources';
 
 export const isToken = (
   asset: Asset
@@ -27,3 +28,10 @@ export type NftDetails =
 export type TokenDetails =
   | Blockaid.Erc20TokenDetails
   | Blockaid.NativeAssetDetails;
+
+export const getValidationResultType = (
+  validation?: TransactionValidationResponse
+) => ({
+  isMalicious: validation?.result_type === 'Malicious',
+  isSuspicious: validation?.result_type === 'Warning',
+});

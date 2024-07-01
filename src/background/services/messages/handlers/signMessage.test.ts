@@ -14,6 +14,9 @@ jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('../../wallet/utils/ensureMessageFormatIsValid');
 jest.mock('../utils/messageParamsParser');
 jest.mock('ethers');
+jest.mock('@blockaid/client', () => {
+  return jest.fn();
+});
 
 describe('src/background/services/messages/handlers/signMessage.ts', () => {
   const displayDataMock: MessageParams = {
@@ -30,6 +33,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
   let networkServiceMock;
 
+  let blockaidServiceMock;
+
   beforeEach(() => {
     jest.resetAllMocks();
 
@@ -42,6 +47,10 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       ],
     } as any;
 
+    blockaidServiceMock = {
+      jsonRPCScan: jest.fn(),
+    };
+
     networkServiceMock = {
       activeNetwork: activeNetworkMock,
     } as any;
@@ -53,7 +62,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
   it('handleUnauthenticated', async () => {
     const handler = new PersonalSignHandler(
       walletServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      blockaidServiceMock
     );
 
     const request = {
@@ -74,7 +84,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
   it('supports multiple signing methods', () => {
     const handler = new PersonalSignHandler(
       walletServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      blockaidServiceMock
     );
 
     expect(handler.methods).toStrictEqual([
@@ -92,7 +103,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       walletServiceMock.wallets = [];
       const handler = new PersonalSignHandler(
         walletServiceMock,
-        networkServiceMock
+        networkServiceMock,
+        blockaidServiceMock
       );
 
       const request = {
@@ -113,9 +125,11 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
     it('throws if no active network found', async () => {
       networkServiceMock.activeNetwork = undefined;
+
       const handler = new PersonalSignHandler(
         walletServiceMock,
-        networkServiceMock
+        networkServiceMock,
+        blockaidServiceMock
       );
 
       const request = {
@@ -140,7 +154,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const errorMessage = 'invalid message format';
       const handler = new PersonalSignHandler(
         walletServiceMock,
-        networkServiceMock
+        networkServiceMock,
+        blockaidServiceMock
       );
 
       const request = {
@@ -175,7 +190,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const errorMessage = 'some type error';
       const handler = new PersonalSignHandler(
         walletServiceMock,
-        networkServiceMock
+        networkServiceMock,
+        blockaidServiceMock
       );
 
       const methodsWithoutTypeCheck = [
@@ -196,6 +212,9 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         jest.mocked(TypedDataEncoder.getPayload).mockImplementationOnce(() => {
           throw new Error(errorMessage);
         });
+        jest
+          .mocked(blockaidServiceMock.jsonRPCScan)
+          .mockResolvedValue({ validation: { result_type: 'Being' } });
 
         await expect(
           handler.handleAuthenticated(buildRpcCall(request))
@@ -210,6 +229,9 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
             displayData: {
               messageParams: displayDataMock,
               isMessageValid: true,
+              isMalicious: false,
+              isSuspicious: false,
+              validationError: undefined,
             },
             tabId: 1,
           },
@@ -222,7 +244,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const errorMessage = 'some type error';
       const handler = new PersonalSignHandler(
         walletServiceMock,
-        networkServiceMock
+        networkServiceMock,
+        blockaidServiceMock
       );
 
       const messageParamsMock: MessageParams = {
@@ -241,6 +264,10 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       };
 
       jest.mocked(paramsToMessageParams).mockReturnValue(messageParamsMock);
+
+      jest
+        .mocked(blockaidServiceMock.jsonRPCScan)
+        .mockResolvedValue({ validation: { result_type: 'Being' } });
 
       const methodsWithTypeCheck = [
         DAppProviderRequest.ETH_SIGN_TYPED_DATA_V3,
@@ -283,6 +310,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
               messageParams: messageParamsMock,
               isMessageValid: false,
               validationError: 'Error: some type error',
+              isMalicious: false,
+              isSuspicious: false,
             },
             tabId: 1,
           },
@@ -294,7 +323,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
     it('opens the approval window if message is valid', async () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
-        networkServiceMock
+        networkServiceMock,
+        blockaidServiceMock
       );
 
       const request = {
@@ -304,6 +334,10 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
           tabId: 1,
         },
       } as any;
+
+      jest
+        .mocked(blockaidServiceMock.jsonRPCScan)
+        .mockResolvedValue({ validation: { result_type: 'Being' } });
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
@@ -323,6 +357,9 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
           displayData: {
             messageParams: displayDataMock,
             isMessageValid: true,
+            isMalicious: false,
+            isSuspicious: false,
+            validationError: undefined,
           },
           tabId: 1,
         },
@@ -339,7 +376,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const result = 'signed_message';
       const handler = new PersonalSignHandler(
         walletServiceMock,
-        networkServiceMock
+        networkServiceMock,
+        blockaidServiceMock
       );
 
       (walletServiceMock.signMessage as jest.Mock).mockResolvedValueOnce(
@@ -365,7 +403,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const error = new Error('signing error');
       const handler = new PersonalSignHandler(
         walletServiceMock,
-        networkServiceMock
+        networkServiceMock,
+        blockaidServiceMock
       );
 
       (walletServiceMock.signMessage as jest.Mock).mockRejectedValueOnce(error);

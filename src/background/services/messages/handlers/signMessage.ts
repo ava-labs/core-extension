@@ -11,6 +11,8 @@ import { MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
 import { TypedDataEncoder } from 'ethers';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { BlockaidService } from '../../blockaid/BlockaidService';
+import { getValidationResultType } from '../../blockaid/utils';
 
 @injectable()
 export class PersonalSignHandler extends DAppRequestHandler {
@@ -25,7 +27,8 @@ export class PersonalSignHandler extends DAppRequestHandler {
 
   constructor(
     private walletService: WalletService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private blockaidService: BlockaidService
   ) {
     super();
   }
@@ -64,6 +67,15 @@ export class PersonalSignHandler extends DAppRequestHandler {
         messageParams.data,
         activeNetwork.chainId
       );
+      const scanResult = await this.blockaidService.jsonRPCScan(
+        activeNetwork.chainId.toString(),
+        messageParams.from,
+        request
+      );
+
+      const validation = scanResult?.validation ?? undefined;
+      const isMalicious = getValidationResultType(validation).isMalicious;
+      const isSuspicious = getValidationResultType(validation).isSuspicious;
 
       let isMessageValid = true;
       let validationError: string | undefined = undefined;
@@ -100,6 +112,8 @@ export class PersonalSignHandler extends DAppRequestHandler {
           messageParams,
           isMessageValid,
           validationError,
+          isMalicious,
+          isSuspicious,
         },
         tabId: request.site.tabId,
       };
