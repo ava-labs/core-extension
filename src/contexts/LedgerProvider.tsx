@@ -46,10 +46,12 @@ import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
 import { VM } from '@avalabs/avalanchejs';
+import Eth from '@ledgerhq/hw-app-eth';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
   BITCOIN = 'Bitcoin',
+  ETHEREUM = 'Ethereum',
   UNKNOWN = 'UNKNOWN',
 }
 
@@ -93,7 +95,7 @@ const LedgerContext = createContext<{
 export function LedgerContextProvider({ children }: { children: any }) {
   const [initialized, setInialized] = useState(false);
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
-  const [app, setApp] = useState<Btc | AppAvalanche>();
+  const [app, setApp] = useState<Btc | AppAvalanche | Eth>();
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
   const transportRef = useRef<Transport | null>(null);
@@ -192,7 +194,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
   }, [request]);
 
   const initLedgerApp = useCallback(
-    async (transport?: Transport | null): Promise<Btc | AppAvalanche> => {
+    async (transport?: Transport | null): Promise<Btc | AppAvalanche | Eth> => {
       if (!transport) {
         throw new Error('Ledger not connected');
       }
@@ -206,11 +208,18 @@ export function LedgerContextProvider({ children }: { children: any }) {
           avaxAppInstance.getAppInfo()
         );
 
-        if (!appVersionError && config.appName === LedgerAppType.AVALANCHE) {
-          setAvaxAppVersion(config.appVersion);
-          setApp(avaxAppInstance);
-          setAppType(LedgerAppType.AVALANCHE);
-          return avaxAppInstance;
+        if (!appVersionError) {
+          if (config.appName === LedgerAppType.AVALANCHE) {
+            setAvaxAppVersion(config.appVersion);
+            setApp(avaxAppInstance);
+            setAppType(LedgerAppType.AVALANCHE);
+            return avaxAppInstance;
+          } else if (config.appName === LedgerAppType.ETHEREUM) {
+            const ethAppInstance = new Eth(transport);
+            setApp(ethAppInstance);
+            setAppType(LedgerAppType.ETHEREUM);
+            return ethAppInstance;
+          }
         }
       }
 
