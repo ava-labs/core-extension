@@ -32,6 +32,7 @@ import {
 } from '@avalabs/wallets-sdk';
 import { LockEvents } from '@src/background/services/lock/models';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
+import Eth from '@ledgerhq/hw-app-eth';
 
 jest.mock('./ConnectionProvider', () => {
   const connectionFunctions = {
@@ -45,6 +46,7 @@ jest.mock('./ConnectionProvider', () => {
 
 jest.mock('@avalabs/wallets-sdk');
 jest.mock('@avalabs/hw-app-avalanche');
+jest.mock('@ledgerhq/hw-app-eth');
 jest.mock('ledger-bitcoin');
 jest.mock('@ledgerhq/hw-transport-webusb');
 jest.mock('./utils/getLedgerTransport');
@@ -646,6 +648,44 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           LedgerAppType.AVALANCHE
         );
         expect(screen.getByTestId('avaxAppVersion').textContent).toBe('1.0');
+      });
+    });
+
+    it('initializes Ethereum app correctly', async () => {
+      const transportMock = { foo: 'bar' };
+      const avalancheAppMock = {
+        name: 'Ethereum',
+        getAppInfo: jest.fn().mockResolvedValue({
+          appName: LedgerAppType.ETHEREUM,
+          appVersion: '1.0',
+        }),
+      };
+      (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
+      (AppAvalanche as unknown as jest.Mock).mockReturnValue(avalancheAppMock);
+
+      const connectionMocks = useConnectionContext();
+
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('initLedgerTransport'));
+
+      await waitFor(() => {
+        expect(connectionMocks.request).toHaveBeenCalledWith({
+          method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
+          params: [],
+        });
+        expect(getLedgerTransport).toHaveBeenCalled();
+        expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
+        expect(Eth).toHaveBeenCalledWith(transportMock);
+        expect(Btc).not.toHaveBeenCalledWith(transportMock);
+        expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
+          'true'
+        );
+        expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
+          'true'
+        );
+        expect(screen.getByTestId('appType').textContent).toBe(
+          LedgerAppType.ETHEREUM
+        );
       });
     });
 

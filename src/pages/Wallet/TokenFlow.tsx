@@ -12,7 +12,6 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { balanceToDisplayValue } from '@avalabs/utils-sdk';
 import {
   ArrowUpRightIcon,
-  Box,
   BridgeIcon,
   Button,
   BuyIcon,
@@ -155,17 +154,19 @@ export function TokenFlow() {
             </Typography>
           </Stack>
           <Stack sx={{ justifyContent: 'space-between', flexDirection: 'row' }}>
-            <Typography data-testid="token-details-balance" variant="body2">
-              {token.balance && hasUnconfirmedBalance(token)
-                ? balanceToDisplayValue(
-                    token.balance.add(token.unconfirmedBalance),
-                    token.decimals
-                  )
-                : token.balanceDisplayValue || '0.00'}{' '}
-              <Box sx={{ color: 'text.secondary', display: 'inline' }}>
+            <Stack direction="row" alignItems="center" sx={{ columnGap: 0.5 }}>
+              <Typography data-testid="token-details-balance" variant="body2">
+                {token.balance && hasUnconfirmedBalance(token)
+                  ? balanceToDisplayValue(
+                      token.balance.add(token.unconfirmedBalance),
+                      token.decimals
+                    )
+                  : token.balanceDisplayValue || '0.00'}{' '}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {token.symbol}
-              </Box>
-            </Typography>
+              </Typography>
+            </Stack>
             <PAndL
               value={token.priceChanges?.value}
               percentage={token.priceChanges?.percentage}

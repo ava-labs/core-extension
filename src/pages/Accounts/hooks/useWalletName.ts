@@ -15,7 +15,7 @@ export const useWalletName = () => {
 
     switch (walletDetails.type) {
       case SecretType.Mnemonic:
-        return t('Seed Phrase {{number}}', {
+        return t('Recovery Phrase {{number}}', {
           number: '01',
         });
 

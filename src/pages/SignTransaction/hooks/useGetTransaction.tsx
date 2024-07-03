@@ -48,8 +48,23 @@ export function useGetTransaction(requestId: string) {
       tokenDecimals: network?.networkToken.decimals,
     });
 
+    const displayValues = {
+      ...action.displayData.displayValues,
+      gas: {
+        gasLimit:
+          feeDisplayValues.gasLimit ||
+          action.displayData.displayValues.gas.gasLimit,
+        maxFeePerGas:
+          feeDisplayValues.maxFeePerGas ||
+          action.displayData.displayValues.gas.maxFeePerGas,
+        maxPriorityFeePerGas:
+          customGas.maxPriorityFeePerGas ||
+          action.displayData.displayValues.gas.maxPriorityFeePerGas,
+      },
+    };
     const updatedDisplayData: Transaction = {
       ...action.displayData,
+      displayValues,
       txParams: {
         ...action.displayData.txParams,
         gas: feeDisplayValues.gasLimit,

@@ -71,7 +71,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
     });
     (useNetworkContext as jest.Mock).mockReturnValue({
       network: {
-        chainId: 1,
+        chainId: 41334,
       },
     });
     (useIsUsingLedgerWallet as jest.Mock).mockReturnValue(true);
@@ -189,6 +189,37 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
       expect(showDialogMock).toBeCalledWith({
         title: translation,
         content: <LedgerIncorrectApp requiredAppType={LedgerAppType.BITCOIN} />,
+        open: true,
+        onClose: expect.any(Function),
+      });
+    });
+
+    it('shows incorrect app dialog for Ethereum', () => {
+      const translation = 'Wrong App';
+      translationMock.mockReturnValueOnce(translation);
+      (useLedgerContext as jest.Mock).mockReturnValue({
+        wasTransportAttempted: true,
+        hasLedgerTransport: true,
+        appType: LedgerAppType.AVALANCHE,
+      });
+      (useNetworkContext as jest.Mock).mockReturnValue({
+        network: {
+          chainId: 1,
+        },
+      });
+
+      const { result } = renderHook(() =>
+        useLedgerDisconnectedDialog(onCancelMock)
+      );
+
+      expect(result.current).toBe(false);
+      expect(clearDialogMock).toBeCalledTimes(1);
+      expect(translationMock).toBeCalledWith(translation);
+      expect(showDialogMock).toBeCalledWith({
+        title: translation,
+        content: (
+          <LedgerIncorrectApp requiredAppType={LedgerAppType.ETHEREUM} />
+        ),
         open: true,
         onClose: expect.any(Function),
       });

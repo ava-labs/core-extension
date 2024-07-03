@@ -90,7 +90,7 @@ describe('background/services/storage/schemaMigrations/migrations/wallet_v4', ()
           ...restInput,
           id: 'migrated-wallet-id',
           secretType: SecretType.Mnemonic,
-          name: `Seed Phrase 01`,
+          name: `Recovery Phrase 01`,
         },
       ],
       importedAccounts: {

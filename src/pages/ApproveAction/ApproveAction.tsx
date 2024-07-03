@@ -6,7 +6,6 @@ import { useGetRequestId } from '../../hooks/useGetRequestId';
 import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
 import { BridgeTransferAsset } from './BridgeTransferAsset';
 import { useTranslation } from 'react-i18next';
-import { LedgerAppType } from '@src/contexts/LedgerProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { LedgerApprovalOverlay } from '../SignTransaction/components/LedgerApprovalOverlay';
@@ -69,11 +68,7 @@ export function ApproveAction() {
       onReject: cancelHandler,
     });
 
-  useLedgerDisconnectedDialog(
-    () => handleRejection(),
-    LedgerAppType.AVALANCHE,
-    network
-  );
+  useLedgerDisconnectedDialog(() => handleRejection(), undefined, network);
 
   if (!action) {
     return (

@@ -6,6 +6,7 @@ import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { isCoreWeb } from '../utils/isCoreWeb';
 
 /**
  * @link https://eips.ethereum.org/EIPS/eip-3326
@@ -49,13 +50,19 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
     // then we need to show a confirmation popup to confirm user wants to switch to the requested network
     // from the dApp they are on.
     if (supportedNetwork?.chainId) {
+      const skipApproval = await isCoreWeb(request);
+
+      if (skipApproval) {
+        await this.networkService.setNetwork(Number(supportedNetwork.chainId));
+        return { ...request, result: null };
+      }
+
       const actionData = {
         ...request,
         displayData: {
           network: supportedNetwork,
         },
       };
-
       await openApprovalWindow(actionData, `network/switch`);
 
       return { ...request, result: DEFERRED_RESPONSE };

@@ -1,7 +1,7 @@
 import { singleton } from 'tsyringe';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import Blockaid from '@blockaid/client';
-import { ChainId, Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/chains-sdk';
 import {
   EthSendTransactionParamsWithGas,
   TransactionAction,
@@ -10,10 +10,17 @@ import {
   TransactionToken,
   TransactionType,
 } from '../wallet/handlers/eth_sendTransaction/models';
-import { TransactionScanSupportedChain } from '@blockaid/client/resources';
 import { TokenType } from '../balances/models';
-import { NftDetails, TokenDetails, isNft, isToken } from './utils';
+import {
+  NftDetails,
+  TokenDetails,
+  getValidationResultType,
+  isNft,
+  isToken,
+} from './utils';
 import { FeatureGates } from '../featureFlags/models';
+import { JsonRpcRequestPayload } from '@src/background/connections/dAppConnection/models';
+import { MessageType } from '../messages/models';
 
 @singleton()
 export class BlockaidService {
@@ -27,33 +34,6 @@ export class BlockaidService {
       apiKey: 'key', // Proxy API will append the actual API key, this here is just so the SDK does not complain
     });
   }
-
-  #getChainName = (chainId: number): TransactionScanSupportedChain => {
-    switch (chainId) {
-      case ChainId.ETHEREUM_HOMESTEAD:
-        return 'ethereum';
-      case ChainId.AVALANCHE_MAINNET_ID:
-        return 'avalanche';
-      case 42161:
-        return 'arbitrum';
-      case 8453:
-        return 'base';
-      case 56:
-        return 'bsc';
-      case 137:
-        return 'polygon';
-      case 324:
-        return 'zksync';
-      case 7777777:
-        return 'zora';
-      case 59144:
-        return 'linea';
-      case 238:
-        return 'blast';
-      default:
-        return 'unknown';
-    }
-  };
 
   parseTokenData(token: TokenDetails): TransactionToken | undefined {
     if (token.type === 'ERC20') {
@@ -112,9 +92,34 @@ export class BlockaidService {
     }
   }
 
+  async jsonRPCScan(
+    chainId: string,
+    from: string,
+    request: JsonRpcRequestPayload<MessageType, any[]>
+  ) {
+    if (
+      !this.featureFlagService.featureFlags[FeatureGates.BLOCKAID_JSONRPC_SCAN]
+    ) {
+      return null;
+    }
+    try {
+      const result = await this.#blockaid.evm.jsonRpc.scan({
+        chain: chainId,
+        options: ['validation', 'simulation'],
+        account_address: from,
+        data: { method: request.method, params: request.params },
+        metadata: { domain: request.site?.domain || '' },
+      });
+      return result;
+    } catch (e) {
+      console.error('Error: ', e);
+      return null;
+    }
+  }
+
   async transactionScan(
     tx: EthSendTransactionParamsWithGas,
-    chain: Blockaid.Evm.TransactionScanSupportedChain,
+    chainId: string,
     domain: string
   ) {
     if (
@@ -126,7 +131,7 @@ export class BlockaidService {
     }
     return await this.#blockaid.evm.transaction.scan({
       account_address: tx.from,
-      chain,
+      chain: chainId,
       options: ['validation', 'simulation'],
       data: {
         from: tx.from,
@@ -249,9 +254,11 @@ export class BlockaidService {
     network: Network,
     tx: EthSendTransactionParamsWithGas
   ): Promise<TransactionDisplayValues> {
-    const chain = this.#getChainName(network.chainId);
-
-    const response = await this.transactionScan(tx, chain, domain);
+    const response = await this.transactionScan(
+      tx,
+      network.chainId.toString(),
+      domain
+    );
 
     if (!response) {
       throw new Error('The transaction scanning is disabled');
@@ -291,10 +298,8 @@ export class BlockaidService {
         sendNftList: [...sendNftList],
         receiveNftList,
       },
-      isMalicious: validation?.result_type === 'Malicious',
-      isSuspicious:
-        validation?.result_type === 'Warning' ||
-        validation?.result_type === 'Error',
+      isMalicious: getValidationResultType(validation).isMalicious,
+      isSuspicious: getValidationResultType(validation).isSuspicious,
       preExecSuccess: simulation.status === 'Success',
       gas: {
         maxPriorityFeePerGas: tx.maxPriorityFeePerGas

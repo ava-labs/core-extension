@@ -59,7 +59,6 @@ export function useSeedlessActions() {
     setSeedlessSignerToken,
     oidcToken,
     setUserId,
-    setIsNewAccount,
     setIsSeedlessMfaRequired,
   } = useOnboardingContext();
   const history = useHistory();
@@ -81,7 +80,6 @@ export function useSeedlessActions() {
       const identity = await oidcClient.identityProve();
 
       if (!identity.user_info) {
-        setIsNewAccount(true);
         const result = await approveSeedlessRegistration(
           identity,
           !featureFlags[FeatureGates.SEEDLESS_OPTIONAL_MFA]
@@ -116,7 +114,6 @@ export function useSeedlessActions() {
     [
       setOidcToken,
       setUserId,
-      setIsNewAccount,
       setIsSeedlessMfaRequired,
       t,
       history,

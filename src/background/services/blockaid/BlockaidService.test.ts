@@ -2,6 +2,7 @@ import { NetworkVMType } from '@avalabs/chains-sdk';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
 import { BlockaidService } from './BlockaidService';
+import { MessageType } from '../messages/models';
 
 jest.mock('../featureFlags/FeatureFlagService');
 
@@ -57,6 +58,21 @@ const assetsDiffsMock = [
   },
 ];
 
+const requestMock = {
+  params: [
+    '0xf3e1A73e0B91c510C3BB6f5D441d7B47bcE8338B',
+    '{"domain":{"name":"USDC","version":"2","chainId":"1","verifyingContract":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"},"message":{"owner":"0xf3e1a73e0b91c510c3bb6f5d441d7b47bce8338b","spender":"0x0000b8a32b692d4b2073cda7085af11c9e190000","value":"115792089237316195423570985008687907853269984665640564039457584007913129639935","nonce":"0","deadline":"2034778242340"},"primaryType":"Permit","types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]}}',
+  ],
+  method: MessageType.ETH_SIGN,
+  id: 'f233181c-2543-43e4-bdea-fd6928f480a8',
+  site: {
+    domain: 'examples.blockaid.io',
+    tabId: 2099694006,
+    icon: 'https://examples.blockaid.io/blockaid_favicon.png',
+    name: 'Blockaid Integration Dapp',
+  },
+};
+
 jest.mock('@blockaid/client', () => {
   return jest.fn(() => ({
     evm: {
@@ -71,6 +87,19 @@ jest.mock('@blockaid/client', () => {
             },
           },
           validation: { status: 'Success', result_type: 'Malicious' },
+        })),
+      },
+      jsonRpc: {
+        scan: jest.fn(() => ({
+          simulation: {
+            status: 'Success',
+            account_summary: {
+              assets_diffs: assetsDiffsMock,
+              total_usd_diff: { total: 1 },
+              exposures: [],
+            },
+          },
+          validation: { status: 'Success', result_type: 'Being' },
         })),
       },
     },
@@ -112,11 +141,12 @@ describe('background/services/blockaid/BlockaidService', () => {
     featureFlagService = {
       featureFlags: {
         [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: true,
+        [FeatureGates.BLOCKAID_JSONRPC_SCAN]: true,
       },
     } as any;
   });
 
-  it('should throw an error because the feature flag is disabled', async () => {
+  it('should throw an error because the `BLOCKAID_TRANSACTION_SCAN` feature flag is disabled', async () => {
     featureFlagService = {
       featureFlags: {
         [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: false,
@@ -128,11 +158,52 @@ describe('background/services/blockaid/BlockaidService', () => {
     ).rejects.toThrow('The transaction scanning is disabled');
   });
 
-  it('should scan the transaction', async () => {
+  it('should call the blockaid transaction scan', async () => {
     const service = new BlockaidService(featureFlagService);
     const transactionScanSpy = jest.spyOn(service, 'transactionScan');
     await service.parseTransaction('core.test', networkMock, txMock);
     expect(transactionScanSpy).toHaveBeenCalled();
+  });
+
+  it('should return the `isMalicious` as true', async () => {
+    const service = new BlockaidService(featureFlagService);
+    const result = await service.parseTransaction(
+      'core.test',
+      networkMock,
+      txMock
+    );
+    expect(result).toMatchObject({
+      isMalicious: true,
+      isSuspicious: false,
+      preExecSuccess: true,
+    });
+  });
+  it('should return `null` because the `JSONRPC SCAN` feature flag is disabled', async () => {
+    featureFlagService = {
+      featureFlags: {
+        [FeatureGates.BLOCKAID_JSONRPC_SCAN]: false,
+      },
+    } as any;
+    const service = new BlockaidService(featureFlagService);
+    const result = await service.jsonRPCScan(
+      networkMock.chainId.toString(),
+      'toAddress',
+      requestMock
+    );
+    expect(result).toBe(null);
+  });
+
+  it('should get the blockaid jsonRPC scan response', async () => {
+    const service = new BlockaidService(featureFlagService);
+    const result = await service.jsonRPCScan(
+      networkMock.chainId.toString(),
+      'toAddress',
+      requestMock
+    );
+    expect(result?.validation).toEqual({
+      result_type: 'Being',
+      status: 'Success',
+    });
   });
 
   it('should return the `isMalicious` as true', async () => {

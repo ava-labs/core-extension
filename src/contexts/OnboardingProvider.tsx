@@ -74,8 +74,6 @@ const OnboardingContext = createContext<{
   >;
   setUserId: Dispatch<SetStateAction<string | undefined>>;
   resetStates: () => void;
-  setIsNewAccount: Dispatch<SetStateAction<boolean>>;
-  isNewAccount: boolean;
   isSeedlessMfaRequired: boolean;
   setIsSeedlessMfaRequired: Dispatch<SetStateAction<boolean>>;
   setOnboardingWalletType: Dispatch<SetStateAction<WalletType | undefined>>;
@@ -126,7 +124,6 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const [walletType, setWalletType] = useState<string>();
 
-  const [isNewAccount, setIsNewAccount] = useState(false);
   const [isSeedlessMfaRequired, setIsSeedlessMfaRequired] = useState(false);
 
   const [onboardingWalletType, setOnboardingWalletType] = useState<
@@ -148,7 +145,6 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setSeedlessSignerToken(undefined);
     setWalletType(undefined);
     setUserId(undefined);
-    setIsNewAccount(false);
     setWalletName(undefined);
     setIsSeedlessMfaRequired(false);
     setOnboardingWalletType(undefined);
@@ -409,8 +405,6 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setAuthProvider,
         setUserId,
         resetStates,
-        setIsNewAccount,
-        isNewAccount,
         isSeedlessMfaRequired,
         setIsSeedlessMfaRequired,
         setOnboardingWalletType,

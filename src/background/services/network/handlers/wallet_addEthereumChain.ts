@@ -1,4 +1,4 @@
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { ChainList, NetworkVMType } from '@avalabs/chains-sdk';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
@@ -12,6 +12,7 @@ import {
 } from '../models';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { isCoreWeb } from '../utils/isCoreWeb';
 
 /**
  * @link https://eips.ethereum.org/EIPS/eip-3085
@@ -114,6 +115,12 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
         }),
       };
     }
+    const skipApproval = await isCoreWeb(request);
+
+    if (skipApproval) {
+      await this.actionHandler(chains, customNetwork);
+      return { ...request, result: null };
+    }
 
     if (chainRequestedIsSupported) {
       const actionData: Action<{ network: Network }> = {
@@ -150,6 +157,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
         },
       },
     };
+
     await openApprovalWindow(actionData, `networks/add-popup`);
 
     return { ...request, result: DEFERRED_RESPONSE };
@@ -158,6 +166,22 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
   handleAuthenticated = async (rpcCall) => {
     return this.handleUnauthenticated(rpcCall);
   };
+
+  async actionHandler(chains: ChainList, network: Network) {
+    const supportedChainIds = Object.keys(chains);
+
+    if (network.customRpcHeaders) {
+      // eslint-disable-next-line
+      const { rpcUrl, ...overrides } = network; // we do not want to apply rpcUrl override from here
+      await this.networkService.updateNetworkOverrides(overrides);
+    }
+
+    if (supportedChainIds.includes(network.chainId.toString())) {
+      await this.networkService.setNetwork(network.chainId);
+    } else {
+      await this.networkService.saveCustomNetwork(network);
+    }
+  }
 
   onActionApproved = async (
     pendingAction: Action<AddEthereumChainDisplayData>,
@@ -172,21 +196,9 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
         return;
       }
 
-      const supportedChainIds = Object.keys(chains);
-
       const { network } = pendingAction.displayData;
 
-      if (network.customRpcHeaders) {
-        // eslint-disable-next-line
-        const { rpcUrl, ...overrides } = network; // we do not want to apply rpcUrl override from here
-        await this.networkService.updateNetworkOverrides(overrides);
-      }
-
-      if (supportedChainIds.includes(network.chainId.toString())) {
-        await this.networkService.setNetwork(network.chainId);
-      } else {
-        await this.networkService.saveCustomNetwork(network);
-      }
+      await this.actionHandler(chains, network);
       onSuccess(null);
     } catch (e) {
       onError(e);

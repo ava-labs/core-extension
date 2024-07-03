@@ -84,7 +84,7 @@ export const KeystoreFileConfirmation = ({
               borderRadius: 1,
             }}
           >
-            <Typography variant="body2">{t('Seed Phrases')}</Typography>
+            <Typography variant="body2">{t('Recovery Phrases')}</Typography>
             <Typography variant="h5" data-testid="seed-phrase-count">
               {fileInfo.seedPhrasesCount}
             </Typography>

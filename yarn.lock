@@ -2259,10 +2259,10 @@
     "@noble/hashes" "^1.1.5"
     "@noble/secp256k1" "^1.7.1"
 
-"@blockaid/client@0.9.2":
-  version "0.9.2"
-  resolved "https://registry.yarnpkg.com/@blockaid/client/-/client-0.9.2.tgz#46537d80074ba9aa32dab8f74b5fd7846e11ab50"
-  integrity sha512-dsEGkViHbs5Vk1HQcXCppIbePuHK9gbL8DZ9U4GrgBl5lagieimeea2DGoe9O8LhT4afrT6tUKr2LzeLW5sBNA==
+"@blockaid/client@0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@blockaid/client/-/client-0.10.0.tgz#cc22dd5bda41764198ab882f66185db85d9ee9f2"
+  integrity sha512-dubeOcP70tGNHevdUhN2hTtAp1IjS4TI7QmkVVWAimhxQDdB7sMi1/aHISMS8rZ87uUytJmU6JIf4O+tEOgHcA==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
