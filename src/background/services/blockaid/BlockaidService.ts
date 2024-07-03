@@ -102,13 +102,19 @@ export class BlockaidService {
     ) {
       return null;
     }
-    return this.#blockaid.evm.jsonRpc.scan({
-      chain: chainId,
-      options: ['validation', 'simulation'],
-      account_address: from,
-      data: { method: request.method, params: request.params },
-      metadata: { domain: request.site?.domain || '' },
-    });
+    try {
+      const result = await this.#blockaid.evm.jsonRpc.scan({
+        chain: chainId,
+        options: ['validation', 'simulation'],
+        account_address: from,
+        data: { method: request.method, params: request.params },
+        metadata: { domain: request.site?.domain || '' },
+      });
+      return result;
+    } catch (e) {
+      console.error('Error: ', e);
+      return null;
+    }
   }
 
   async transactionScan(
