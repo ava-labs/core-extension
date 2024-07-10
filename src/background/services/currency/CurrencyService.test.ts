@@ -87,6 +87,65 @@ describe('src/background/services/currency/CurrencyService.ts', () => {
       }
     });
 
+    it('retries when data is invalid', async () => {
+      jest
+        .mocked(mockStorageService.loadUnencrypted)
+        .mockResolvedValueOnce(cachedResponse);
+
+      global.fetch = jest
+        .fn()
+        .mockResolvedValueOnce(
+          buildResponse({
+            date: '2023-06-15',
+            someOtherField: 'someData',
+            usd: { eur: 1 },
+          })
+        )
+
+        .mockResolvedValueOnce(
+          buildResponse({
+            usd: { eur: 1 },
+          })
+        )
+        .mockResolvedValueOnce(
+          buildResponse({
+            date: '2023-06-15',
+            usd: { eur: 'asdasd' },
+          })
+        )
+        .mockResolvedValue(buildResponse(apiResponse));
+
+      await service.onUnlock();
+
+      expect(global.fetch).toHaveBeenCalledWith(CURRENCY_EXCHANGE_RATES_URL);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+
+      expect(service.state).toEqual(cachedResponse);
+
+      await jest.advanceTimersByTimeAsync(29999);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+
+      await jest.advanceTimersByTimeAsync(1);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(service.state).toEqual(cachedResponse);
+
+      await jest.advanceTimersByTimeAsync(30000);
+      expect(global.fetch).toHaveBeenCalledTimes(3);
+      expect(service.state).toEqual(cachedResponse);
+
+      // after 3 errors the 4th call will succeed
+      await jest.advanceTimersByTimeAsync(30000);
+      expect(global.fetch).toHaveBeenCalledTimes(4);
+      expect(service.state).toEqual({
+        date: '2023-06-15',
+        rates: { usd: { eur: 1 } },
+      });
+
+      // stops polling after a successful fetch
+      await jest.advanceTimersByTimeAsync(30000);
+      expect(global.fetch).toHaveBeenCalledTimes(4);
+    });
+
     describe('and API responds faster than local storage', () => {
       beforeEach(async () => {
         jest.mocked(mockStorageService.loadUnencrypted).mockImplementationOnce(

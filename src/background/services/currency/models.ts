@@ -1,3 +1,5 @@
+import Joi from 'joi';
+
 export type CurrencyExchangeRates = Record<string, Record<string, number>>;
 
 export type CurrencyExchangeRatesState = {
@@ -5,13 +7,18 @@ export type CurrencyExchangeRatesState = {
   rates: CurrencyExchangeRates;
 };
 
+export const ExchangeRatesSchema = Joi.object<CurrencyExchangeRates>({
+  date: Joi.string().required(),
+  usd: Joi.object().pattern(Joi.string(), Joi.number()),
+});
+
 export enum CurrencyServiceEvents {
   RatesUpdated = 'CurrencyService::RatesUpdated',
 }
 
 // We're only loading exchange rates for USD at the moment.
 export const CURRENCY_EXCHANGE_RATES_URL =
-  'https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/usd.min.json';
+  'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json';
 
 // We refresh data every one hour.
 // No need to do it more often, since the above API updates the exchange rates daily.

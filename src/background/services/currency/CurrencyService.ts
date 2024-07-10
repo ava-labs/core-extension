@@ -10,6 +10,7 @@ import {
   CURRENCY_EXCHANGE_RATES_URL,
   CurrencyExchangeRatesState,
   CurrencyServiceEvents,
+  ExchangeRatesSchema,
 } from './models';
 
 @singleton()
@@ -64,7 +65,12 @@ export class CurrencyService implements OnLock, OnUnlock {
   async #updateExchangeRates() {
     try {
       const response = await fetch(CURRENCY_EXCHANGE_RATES_URL);
-      const { date, ...rates } = await response.json();
+      const data = await response.json();
+      const validationResult = ExchangeRatesSchema.validate(data);
+      if (validationResult.error) {
+        throw new Error('Invalid exchange rate list format');
+      }
+      const { date, ...rates } = data;
 
       this.state = {
         date,
