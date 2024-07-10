@@ -15,6 +15,7 @@ import { EXTENSION_SCRIPT } from '@src/common';
 import { requestEngine } from '@src/contexts/utils/connectionResponseMapper';
 import { Signal, ValueCache } from 'micro-signals';
 import { LoadingContent } from '@src/popup/LoadingContent';
+import { networkChanges } from './NetworkProvider/networkChanges';
 
 const requestEngineCache = new ValueCache<ReturnType<typeof requestEngine>>();
 const requestEngineSignal = new Signal<ReturnType<typeof requestEngine>>();
@@ -61,10 +62,13 @@ export function ConnectionContextProvider({ children }: { children: any }) {
   const requestHandler: RequestHandlerType = useCallback(
     async function requestHandler(message) {
       const activeEngine = await activeRequestEngine.promisify();
+      const scope = await networkChanges.promisify();
 
-      return activeEngine({ ...message, tabId }).then<any>((results) => {
-        return results.error ? Promise.reject(results.error) : results.result;
-      });
+      return activeEngine({ ...message, tabId }, scope ?? '').then<any>(
+        (results) => {
+          return results.error ? Promise.reject(results.error) : results.result;
+        }
+      );
     },
     []
   );

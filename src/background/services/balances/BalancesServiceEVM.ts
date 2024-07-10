@@ -10,7 +10,7 @@ import { NetworkService } from '@src/background/services/network/NetworkService'
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { TokenPricesService } from '@src/background/services/balances/TokenPricesService';
 import { NetworkTokenWithBalance, TokenWithBalance, TokenType } from './models';
-import { Network, NetworkContractToken } from '@avalabs/chains-sdk';
+import { NetworkContractToken } from '@avalabs/chains-sdk';
 import { TokenManagerService } from '../tokens/TokenManagerService';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import { SettingsService } from '../settings/SettingsService';
@@ -19,6 +19,8 @@ import { Account } from '../accounts/models';
 import * as Sentry from '@sentry/browser';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { Network } from '../network/models';
+import { TokensPriceShortData } from '../tokens/models';
 
 @singleton()
 export class BalancesServiceEVM {
@@ -137,7 +139,8 @@ export class BalancesServiceEVM {
 
   async getBalances(
     accounts: Account[],
-    network: Network
+    network: Network,
+    priceChanges?: TokensPriceShortData // eslint-disable-line
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalancesServiceEVM: getBalances',

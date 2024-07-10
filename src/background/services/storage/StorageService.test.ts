@@ -27,6 +27,9 @@ jest.mock('webextension-polyfill', () => ({
       clear: jest.fn().mockResolvedValue(undefined),
     },
   },
+  runtime: {
+    id: 'runtime-id',
+  },
 }));
 jest.mock('@src/background/services/storage/utils/crypto');
 

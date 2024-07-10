@@ -17,13 +17,12 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
   const getAccountsMock = jest.fn();
   const connectMock = jest.fn();
   const requestMock = jest.fn();
-  const activateAccountMock = undefined;
   const wcServiceMock = {
     connect: connectMock,
     request: requestMock,
   } as any;
   const networkServiceMock = {
-    activeNetwork: activateAccountMock,
+    getNetwork: jest.fn(),
   } as any;
   const accountServiceMock = {
     getAccounts: getAccountsMock,
@@ -45,10 +44,9 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
     } as any;
     const result = await handler.handle(buildRpcCall(request));
 
-    expect(networkServiceMock.activeNetwork).toBe(undefined);
     expect(result).toEqual({
       ...request,
-      error: 'No network is active',
+      error: 'Unknown network',
     });
   });
 
@@ -59,9 +57,9 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
     });
 
     it('continues without P/X/CoreEth/BTC addresses', async () => {
-      const networkWithAccountMock = {
-        activeNetwork: { network: 'network', chainId: 44 },
-      } as any;
+      jest
+        .spyOn(networkServiceMock, 'getNetwork')
+        .mockResolvedValue({ network: 'network', chainId: 44 });
 
       const importedAccountId = 'new-account-id';
       const accountsServiceWithAccountsMock = {
@@ -85,7 +83,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
       } as any;
       const handler = new WalletConnectImportAccount(
         wcService,
-        networkWithAccountMock,
+        networkServiceMock,
         accountsServiceWithAccountsMock
       );
       const request = {
@@ -114,9 +112,9 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
   });
 
   it('returns account ID and session info on successful connection', async () => {
-    const networkWithAccountMock = {
-      activeNetwork: { network: 'network', chainId: 44 },
-    } as any;
+    jest
+      .spyOn(networkServiceMock, 'getNetwork')
+      .mockResolvedValue({ network: 'network', chainId: 44 });
 
     const importedAccountId = 'new-account-key';
     const accountsServiceWithAccountsMock = {
@@ -141,7 +139,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
 
     const handler = new WalletConnectImportAccount(
       wcServiceWithReturnMock,
-      networkWithAccountMock,
+      networkServiceMock,
       accountsServiceWithAccountsMock
     );
     const request = {
@@ -188,13 +186,13 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
       connect: jest.fn().mockRejectedValueOnce('this is the error'),
     } as any;
 
-    const networkWithAccountMock = {
-      activeNetwork: { network: 'network', chainId: 44 },
-    } as any;
+    jest
+      .spyOn(networkServiceMock, 'getNetwork')
+      .mockResolvedValue({ network: 'network', chainId: 44 });
 
     const handler = new WalletConnectImportAccount(
       wcServiceWithReturnMock,
-      networkWithAccountMock,
+      networkServiceMock,
       accountServiceMock
     );
     const request = {

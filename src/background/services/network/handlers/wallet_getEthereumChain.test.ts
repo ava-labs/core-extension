@@ -9,14 +9,14 @@ import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/network/handlers/wallet_getEthereumChain.ts', () => {
   const networkServiceInactive = {
-    activeNetwork: undefined,
+    getNetwork: () => undefined,
   } as any;
   const networkServiceMockMainnet = {
-    activeNetwork: BITCOIN_NETWORK,
+    getNetwork: () => BITCOIN_NETWORK,
   } as any;
 
   const networkServiceMockTestnet = {
-    activeNetwork: BITCOIN_TEST_NETWORK,
+    getNetwork: () => BITCOIN_TEST_NETWORK,
   } as any;
 
   const getChainRequest = {

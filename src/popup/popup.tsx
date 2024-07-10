@@ -7,7 +7,6 @@ import { BridgeProvider } from '@src/contexts/BridgeProvider';
 import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { LedgerContextProvider } from '@src/contexts/LedgerProvider';
-import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
 import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
 import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
 import { PermissionContextProvider } from '@src/contexts/PermissionsProvider';
@@ -42,6 +41,7 @@ import { ApprovalsContextProvider } from '@src/contexts/ApprovalsProvider';
 import { ApprovalRoutes } from './ApprovalRoutes';
 import { AppRoutes } from './AppRoutes';
 import { InAppApprovalOverlay } from '@src/components/common/InAppApprovalOverlay';
+import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
 
 const pagesWithoutHeader = [
   '/tokens/manage',
@@ -127,9 +127,9 @@ export function Popup() {
         <KeystoneContextProvider>
           <OnboardingContextProvider>
             <AccountsContextProvider>
-              <NetworkFeeContextProvider>
-                <WalletContextProvider>
-                  <NetworkContextProvider>
+              <NetworkContextProvider>
+                <NetworkFeeContextProvider>
+                  <WalletContextProvider>
                     <CurrenciesContextProvider>
                       <BalancesProvider>
                         <DefiContextProvider>
@@ -196,9 +196,9 @@ export function Popup() {
                         </DefiContextProvider>
                       </BalancesProvider>
                     </CurrenciesContextProvider>
-                  </NetworkContextProvider>
-                </WalletContextProvider>
-              </NetworkFeeContextProvider>
+                  </WalletContextProvider>
+                </NetworkFeeContextProvider>
+              </NetworkContextProvider>
             </AccountsContextProvider>
           </OnboardingContextProvider>
         </KeystoneContextProvider>

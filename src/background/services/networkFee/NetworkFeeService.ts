@@ -1,20 +1,14 @@
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 import {
   BitcoinProviderAbstract,
   JsonRpcBatchInternal,
 } from '@avalabs/wallets-sdk';
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { isSwimmer } from '@src/utils/isSwimmerNetwork';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { NetworkService } from '../network/NetworkService';
-import {
-  FeeRate,
-  NetworkFee,
-  NetworkFeeEvents,
-  TransactionPriority,
-} from './models';
+import { FeeRate, NetworkFee, TransactionPriority } from './models';
+import { Network } from '../network/models';
 
 const EVM_BASE_TIP = BigInt(5e8); // 0.5 Gwei
 const EVM_TIP_MODIFIERS: Record<TransactionPriority, bigint> = {
@@ -24,57 +18,10 @@ const EVM_TIP_MODIFIERS: Record<TransactionPriority, bigint> = {
 };
 
 @singleton()
-export class NetworkFeeService implements OnUnlock, OnLock {
-  private eventEmitter = new EventEmitter();
-  private intervalId?: ReturnType<typeof setInterval>;
-
-  private currentNetworkFee: NetworkFee | null = null;
-
+export class NetworkFeeService {
   constructor(private networkService: NetworkService) {}
 
-  private updateFee = async () => {
-    let newFee: NetworkFee | null = null;
-    try {
-      newFee = await this.getNetworkFee();
-    } catch (e) {
-      return;
-    }
-    const oldFee = this.currentNetworkFee;
-
-    if (newFee && oldFee && newFee.low.maxFee === oldFee.low.maxFee) {
-      return;
-    }
-
-    this.currentNetworkFee = newFee;
-    this.eventEmitter.emit(
-      NetworkFeeEvents.NETWORK_FEE_UPDATED,
-      this.currentNetworkFee
-    );
-  };
-
-  onUnlock(): void | Promise<void> {
-    this.networkService.activeNetworkChanged.add(this.updateFee);
-    // Update fees as soon as wallet is unlocked
-    this.updateFee();
-
-    // Then schedule automatic updates every X seconds
-    this.intervalId = setInterval(async () => {
-      this.updateFee();
-    }, 30000);
-  }
-
-  onLock() {
-    this.networkService.activeNetworkChanged.remove(this.updateFee);
-    this.intervalId && clearInterval(this.intervalId);
-    this.currentNetworkFee = null;
-  }
-
-  async getNetworkFee(otherNetwork?: Network): Promise<NetworkFee | null> {
-    const network = otherNetwork || this.networkService.activeNetwork;
-
-    if (!network) {
-      return null;
-    }
+  async getNetworkFee(network: Network): Promise<NetworkFee | null> {
     const provider = getProviderForNetwork(network);
 
     if (network.vmName === NetworkVMType.EVM) {
@@ -142,12 +89,10 @@ export class NetworkFeeService implements OnUnlock, OnLock {
     from: string,
     to: string,
     data: string,
-    value?: bigint,
-    otherNetwork?: Network
+    network: Network,
+    value?: bigint
   ): Promise<number | null> {
-    const network = otherNetwork ?? this.networkService.activeNetwork;
-
-    if (network?.vmName !== NetworkVMType.EVM) {
+    if (network.vmName !== NetworkVMType.EVM) {
       return null;
     }
 
@@ -165,9 +110,5 @@ export class NetworkFeeService implements OnUnlock, OnLock {
         value,
       })
     );
-  }
-
-  addListener(event: NetworkFeeEvents, callback: (data: any) => void) {
-    this.eventEmitter.on(event, callback);
   }
 }

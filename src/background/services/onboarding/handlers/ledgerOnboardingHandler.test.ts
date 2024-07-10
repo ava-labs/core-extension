@@ -21,13 +21,19 @@ jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
 
 const WALLET_ID = 'wallet-id';
 
-jest.mock('@avalabs/wallets-sdk', () => ({
-  ...jest.requireActual('@avalabs/wallets-sdk'),
-  getXpubFromMnemonic: jest.fn(),
-  Avalanche: {
+jest.mock('@avalabs/wallets-sdk', () => {
+  const actual = jest.requireActual('@avalabs/wallets-sdk');
+
+  return {
+    ...actual,
     getXpubFromMnemonic: jest.fn(),
-  },
-}));
+    Avalanche: {
+      ...actual.Avalanche,
+      getXpubFromMnemonic: jest.fn(),
+    },
+  };
+});
+
 describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts', () => {
   const onboardingServiceMock = {
     setIsOnboarded: jest.fn(),
@@ -55,6 +61,8 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
   } as unknown as SettingsService;
   const networkServiceMock = {
     addFavoriteNetwork: jest.fn(),
+    getAvalancheNetwork: jest.fn(),
+    setNetwork: jest.fn(),
   } as unknown as NetworkService;
 
   const accountMock = {
@@ -91,6 +99,9 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       accountMock,
     ]);
     (walletServiceMock.init as jest.Mock).mockResolvedValue(WALLET_ID);
+    jest
+      .mocked(networkServiceMock.getAvalancheNetwork)
+      .mockResolvedValue({ chainId: 43114 } as any);
   });
   it('sets up a ledger wallet with xpub correctly', async () => {
     const handler = getHandler();

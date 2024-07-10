@@ -14,11 +14,7 @@ import {
   AvalancheTransactionRequest,
   WalletEvents,
 } from './models';
-import {
-  AVALANCHE_XP_TEST_NETWORK,
-  Network,
-  NetworkVMType,
-} from '@avalabs/chains-sdk';
+import { AVALANCHE_XP_TEST_NETWORK, NetworkVMType } from '@avalabs/chains-sdk';
 import {
   BitcoinLedgerWallet,
   BitcoinWallet,
@@ -56,6 +52,8 @@ import { SecretType } from '../secrets/models';
 import { networks, Transaction } from 'bitcoinjs-lib';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
+import { Network } from '../network/models';
+import { decorateWithCaipId } from '@src/utils/caipConversion';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -577,7 +575,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       getWalletSpy.mockResolvedValueOnce(undefined);
 
       await expect(
-        walletService.sign(txMock, tabId, networkMock)
+        walletService.sign(txMock, networkMock, tabId)
       ).rejects.toThrow('Wallet not found');
     });
 
@@ -585,7 +583,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       getWalletSpy.mockResolvedValueOnce(walletMock);
 
       await expect(
-        walletService.sign(btcTxMock, tabId, networkMock)
+        walletService.sign(btcTxMock, networkMock, tabId)
       ).rejects.toThrow('Signing error, wrong network');
     });
 
@@ -593,7 +591,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       getWalletSpy.mockResolvedValueOnce(btcWalletMock);
 
       await expect(
-        walletService.sign(txMock, tabId, networkMock)
+        walletService.sign(txMock, networkMock, tabId)
       ).rejects.toThrow('Signing error, wrong network');
     });
 
@@ -606,8 +604,8 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       const { signedTx } = await walletService.sign(
         btcTxMock,
-        tabId,
-        networkMock
+        networkMock,
+        tabId
       );
       expect(btcWalletMock.signTx).toHaveBeenCalledWith(
         btcTxMock.inputs,
@@ -628,8 +626,8 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
       const { signedTx } = await walletService.sign(
         btcTxMock,
-        tabId,
-        networkMock
+        networkMock,
+        tabId
       );
       expect(btcKeystoneWalletMock.signTx).toHaveBeenCalledWith(
         btcTxMock.inputs,
@@ -652,8 +650,8 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       const { signedTx } = await walletService.sign(
         btcTxMock,
-        tabId,
-        networkMock
+        networkMock,
+        tabId
       );
       expect(prepareBtcTxForLedger).toHaveBeenCalledWith(
         btcTxMock,
@@ -670,7 +668,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       walletMock.signTransaction = jest.fn().mockReturnValueOnce('0x1');
       getWalletSpy.mockResolvedValueOnce(walletMock);
 
-      const { signedTx } = await walletService.sign(txMock, tabId, networkMock);
+      const { signedTx } = await walletService.sign(txMock, networkMock, tabId);
 
       expect(walletMock.signTransaction).toHaveBeenCalledWith(txMock);
       expect(signedTx).toBe('0x1');
@@ -680,7 +678,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       keystoneWalletMock.signTransaction = jest.fn().mockReturnValueOnce('0x1');
       getWalletSpy.mockResolvedValueOnce(keystoneWalletMock);
 
-      const { signedTx } = await walletService.sign(txMock, tabId, networkMock);
+      const { signedTx } = await walletService.sign(txMock, networkMock, tabId);
 
       expect(keystoneWalletMock.signTransaction).toHaveBeenCalledWith(txMock);
       expect(signedTx).toBe('0x1');
@@ -690,7 +688,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       seedlessWalletMock.signTransaction = jest.fn().mockReturnValueOnce('0x1');
       getWalletSpy.mockResolvedValueOnce(seedlessWalletMock);
 
-      const { signedTx } = await walletService.sign(txMock, tabId, networkMock);
+      const { signedTx } = await walletService.sign(txMock, networkMock, tabId);
 
       expect(seedlessWalletMock.signTransaction).toHaveBeenCalledWith(txMock);
       expect(signedTx).toBe('0x1');
@@ -725,7 +723,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         getWalletSpy.mockResolvedValueOnce(btcWalletMock);
 
         await expect(
-          walletService.sign(avalancheTxMock, tabId, networkMock)
+          walletService.sign(avalancheTxMock, networkMock, tabId)
         ).rejects.toThrow('Signing error, wrong network');
       });
 
@@ -735,8 +733,8 @@ describe('background/services/wallet/WalletService.ts', () => {
 
         const { signedTx } = await walletService.sign(
           avalancheTxMock,
-          tabId,
-          networkMock
+          networkMock,
+          tabId
         );
 
         expect(signedTx).toEqual(JSON.stringify(unsignedTxJSON));
@@ -756,8 +754,8 @@ describe('background/services/wallet/WalletService.ts', () => {
 
         const { signedTx } = await walletService.sign(
           avalancheTxMock,
-          tabId,
-          networkMock
+          networkMock,
+          tabId
         );
 
         expect(signedTx).toEqual(JSON.stringify(unsignedTxJSON));
@@ -781,8 +779,8 @@ describe('background/services/wallet/WalletService.ts', () => {
 
         const { signedTx } = await walletService.sign(
           avalancheTxMock,
-          tabId,
-          networkMock
+          networkMock,
+          tabId
         );
 
         expect(signedTx).toEqual(JSON.stringify(unsignedTxJSON));
@@ -803,8 +801,8 @@ describe('background/services/wallet/WalletService.ts', () => {
 
         const { signedTx } = await walletService.sign(
           avalancheTxMock,
-          tabId,
-          networkMock
+          networkMock,
+          tabId
         );
 
         expect(signedTx).toEqual(JSON.stringify(unsignedTxJSON));
@@ -825,8 +823,8 @@ describe('background/services/wallet/WalletService.ts', () => {
 
         const { signedTx } = await walletService.sign(
           avalancheTxMock,
-          tabId,
-          networkMock
+          networkMock,
+          tabId
         );
 
         expect(signedTx).toEqual(JSON.stringify(unsignedTxJSON));
@@ -877,7 +875,9 @@ describe('background/services/wallet/WalletService.ts', () => {
         };
       });
       Object.assign(walletMock, { _signingKey: signingKeyMock });
-      (networkService.activeNetwork as any) = activeNetworkMock;
+      jest
+        .spyOn(networkService, 'getNetwork')
+        .mockResolvedValue(activeNetworkMock);
     });
     afterEach(() => {
       // eslint-disable-next-line no-global-assign
@@ -923,7 +923,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       await expect(
         walletService.signMessage(MessageType.ETH_SIGN, {
           ...action,
-          displayData: { messageParams: { data: 'data' } },
+          displayData: { messageParams: { data: 'data' } } as any,
         })
       ).resolves.toBe('0x00001');
       expect(evmLedgerSignerMock.signMessage).toHaveBeenCalledTimes(1);
@@ -956,7 +956,7 @@ describe('background/services/wallet/WalletService.ts', () => {
                 message: { message: 'message' },
               },
             },
-          },
+          } as any,
         })
       ).resolves.toBe('0x00001');
       expect(evmLedgerSignerMock.signTypedData).toHaveBeenCalledTimes(1);
@@ -1145,7 +1145,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('should throw an exception when there is no active network', async () => {
-      (networkService.activeNetwork as any) = undefined;
+      jest.spyOn(networkService, 'getNetwork').mockResolvedValue(undefined);
       jest.spyOn(walletService as any, 'getWallet').mockReturnValue(walletMock);
       await expect(
         walletService.signMessage(MessageType.ETH_SIGN, action)
@@ -1237,7 +1237,9 @@ describe('background/services/wallet/WalletService.ts', () => {
         .mockReturnValue(simpleSignerMock);
       jest
         .mocked(networkService)
-        .getAvalancheNetworkXP.mockReturnValue(AVALANCHE_XP_TEST_NETWORK);
+        .getAvalancheNetworkXP.mockReturnValue(
+          decorateWithCaipId(AVALANCHE_XP_TEST_NETWORK)
+        );
 
       const mockedHash = 'mockedHash';
       simpleSignerMock.signMessage = jest
@@ -1250,7 +1252,10 @@ describe('background/services/wallet/WalletService.ts', () => {
       );
 
       expect(getWalletSpy).toHaveBeenCalledTimes(2);
-      expect(getWalletSpy).toHaveBeenNthCalledWith(1, { accountIndex: 1 });
+      expect(getWalletSpy).toHaveBeenNthCalledWith(1, {
+        accountIndex: 1,
+        network: { chainId: 1 },
+      });
       expect(getWalletSpy).toHaveBeenNthCalledWith(2, {
         network: AVALANCHE_XP_TEST_NETWORK,
         accountIndex: 1,

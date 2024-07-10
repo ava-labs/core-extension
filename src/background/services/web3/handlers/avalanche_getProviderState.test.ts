@@ -8,14 +8,20 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
   const mockRequest = {
     id: '1234',
     method: DAppProviderRequest.INIT_DAPP_STATE,
+    site: {
+      domain: 'core.app',
+    },
   };
 
   describe('handleUnauthenticated', () => {
     it('returns loading state when no network and no accounts even if present', async () => {
-      const handler = new AvalancheGetProviderState(
-        { activeNetwork: undefined } as NetworkService,
-        { activeAccount: { addressC: '0x000000' } } as AccountsService
-      );
+      const networkService = {
+        getAvalancheNetwork: async () => undefined,
+        getInitialNetworkForDapp: () => undefined,
+      } as unknown as NetworkService;
+      const handler = new AvalancheGetProviderState(networkService, {
+        activeAccount: { addressC: '0x000000' },
+      } as AccountsService);
 
       expect(
         await handler.handleUnauthenticated(buildRpcCall(mockRequest))
@@ -32,7 +38,9 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
 
     it('returns network info and no accounts even if present', async () => {
       const handler = new AvalancheGetProviderState(
-        { activeNetwork: { chainId: 1 } } as NetworkService,
+        {
+          getInitialNetworkForDapp: () => ({ chainId: 1 }),
+        } as unknown as NetworkService,
         { activeAccount: { addressC: '0x000000' } } as AccountsService
       );
 
@@ -52,10 +60,13 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
 
   describe('handleAuthenticated', () => {
     it('returns loading state when no network', async () => {
-      const handler = new AvalancheGetProviderState(
-        { activeNetwork: undefined } as NetworkService,
-        { activeAccount: { addressC: '0x000000' } } as AccountsService
-      );
+      const networkService = {
+        getInitialNetworkForDapp: () => undefined,
+      } as unknown as NetworkService;
+
+      const handler = new AvalancheGetProviderState(networkService, {
+        activeAccount: { addressC: '0x000000' },
+      } as AccountsService);
 
       expect(
         await handler.handleAuthenticated(buildRpcCall(mockRequest))
@@ -72,7 +83,9 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
 
     it('returns network info', async () => {
       const handler = new AvalancheGetProviderState(
-        { activeNetwork: { chainId: 1 } } as NetworkService,
+        {
+          getInitialNetworkForDapp: () => ({ chainId: 1 }),
+        } as unknown as NetworkService,
         { activeAccount: { addressC: '0x000000' } } as AccountsService
       );
 
@@ -91,7 +104,9 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
 
     it('returns empty array if account is not set', async () => {
       const handler = new AvalancheGetProviderState(
-        { activeNetwork: { chainId: 1 } } as NetworkService,
+        {
+          getInitialNetworkForDapp: () => ({ chainId: 43114 }),
+        } as unknown as NetworkService,
         { activeAccount: undefined } as AccountsService
       );
 
@@ -101,9 +116,9 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         ...mockRequest,
         result: {
           accounts: [],
-          chainId: '0x1',
+          chainId: '0xa86a',
           isUnlocked: true,
-          networkVersion: '1',
+          networkVersion: '43114',
         },
       });
     });

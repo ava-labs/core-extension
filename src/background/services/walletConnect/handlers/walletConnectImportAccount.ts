@@ -35,21 +35,22 @@ export class WalletConnectImportAccount implements HandlerType {
     private accountsService: AccountsService
   ) {}
 
-  handle: HandlerType['handle'] = async ({ request }) => {
-    if (!this.networkService.activeNetwork) {
+  handle: HandlerType['handle'] = async ({ request, scope }) => {
+    const network = await this.networkService.getNetwork(scope);
+
+    if (!network) {
       return {
         ...request,
-        error: 'No network is active',
+        error: 'Unknown network',
       };
     }
     const [reconnectionAddress] = request.params;
 
     try {
-      const chainId = this.networkService.activeNetwork?.chainId;
       const { tabId } = request;
 
       const session = await this.wcService.connect({
-        chainId,
+        chainId: network.chainId,
         tabId,
         address: reconnectionAddress,
       });

@@ -5,6 +5,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 
 import { UnifiedBridgeService } from '../UnifiedBridgeService';
+import { caipToChainId } from '@src/utils/caipConversion';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.UNIFIED_BRIDGE_ESTIMATE_GAS,
@@ -18,12 +19,13 @@ export class UnifiedBridgeEstimateGas implements HandlerType {
 
   constructor(private unifiedBridgeService: UnifiedBridgeService) {}
 
-  handle: HandlerType['handle'] = async ({ request }) => {
+  handle: HandlerType['handle'] = async ({ request, scope }) => {
     const [asset, amount, targetChainId] = request.params;
 
     const gasLimit = await this.unifiedBridgeService.estimateGas({
       asset,
       amount,
+      sourceChainId: caipToChainId(scope),
       targetChainId,
     });
 

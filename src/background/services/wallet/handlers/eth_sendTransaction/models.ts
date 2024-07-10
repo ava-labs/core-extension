@@ -1,5 +1,5 @@
 import { TokenType } from '@src/background/services/balances/models';
-import { DomainMetadata } from '@src/background/models';
+import { DomainMetadata, EnsureDefined } from '@src/background/models';
 
 export enum AvalancheChainStrings {
   AVM = 'X Chain',
@@ -188,7 +188,7 @@ export interface Transaction {
   site?: DomainMetadata;
   method: string;
   chainId: string;
-  txParams: EthSendTransactionParamsWithGas;
+  txParams: EnsureDefined<EthSendTransactionParamsWithGas, 'chainId'>;
   displayValues: TransactionDisplayValues;
 }
 

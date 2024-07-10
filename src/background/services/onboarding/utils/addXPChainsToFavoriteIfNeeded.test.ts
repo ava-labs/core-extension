@@ -16,7 +16,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
     },
   ] as const;
 
-  const getBatchedUpdatedBalancesForNetworks = jest.fn();
+  const getBalancesForNetworks = jest.fn();
   const getNetwork = jest.fn();
   const addFavoriteNetwork = jest.fn();
   const getHistoryP = jest.fn();
@@ -27,14 +27,14 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
     getNetwork.mockResolvedValue({} as any);
     jest
       .spyOn(container, 'resolve')
-      .mockReturnValueOnce({ getBatchedUpdatedBalancesForNetworks })
+      .mockReturnValueOnce({ getBalancesForNetworks })
       .mockReturnValueOnce({ getNetwork, addFavoriteNetwork })
       .mockReturnValueOnce({ getHistory: getHistoryP })
       .mockReturnValueOnce({ getHistory: getHistoryX });
   });
 
   it('adds X-Chain if there is balance on one of the accounts', async () => {
-    getBatchedUpdatedBalancesForNetworks.mockResolvedValueOnce({
+    getBalancesForNetworks.mockResolvedValueOnce({
       [ChainId.AVALANCHE_X]: {
         [accounts[0].addressAVM]: {
           AVAX: {
@@ -50,7 +50,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
   });
 
   it('adds P-Chain if there is balance on one of the accounts', async () => {
-    getBatchedUpdatedBalancesForNetworks.mockResolvedValueOnce({
+    getBalancesForNetworks.mockResolvedValueOnce({
       [ChainId.AVALANCHE_P]: {
         [accounts[1].addressPVM]: {
           AVAX: {
@@ -66,7 +66,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
   });
 
   it('adds P-Chain if there was some activity on one of the accounts', async () => {
-    getBatchedUpdatedBalancesForNetworks.mockResolvedValue({
+    getBalancesForNetworks.mockResolvedValue({
       [ChainId.AVALANCHE_P]: {},
       [ChainId.AVALANCHE_X]: {},
     });
@@ -79,7 +79,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
   });
 
   it('adds X-Chain if there was some activity on one of the accounts', async () => {
-    getBatchedUpdatedBalancesForNetworks.mockResolvedValue({
+    getBalancesForNetworks.mockResolvedValue({
       [ChainId.AVALANCHE_P]: {},
       [ChainId.AVALANCHE_X]: {},
     });
@@ -96,7 +96,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
   });
 
   it('does not add any networks if there is no balance or activity', async () => {
-    getBatchedUpdatedBalancesForNetworks.mockResolvedValue({
+    getBalancesForNetworks.mockResolvedValue({
       [ChainId.AVALANCHE_P]: {},
       [ChainId.AVALANCHE_X]: {},
     });

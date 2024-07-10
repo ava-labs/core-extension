@@ -27,12 +27,15 @@ export function LoggerMiddleware(
   ExtensionConnectionMessageResponse<any, any> | JsonRpcResponse
 > {
   return (context, next) => {
-    if (!SUPER_NOISY_REQUESTS.includes(context.request.method)) {
+    if (!SUPER_NOISY_REQUESTS.includes(context.request.params.request.method)) {
       if (sideToLog === SideToLog.REQUEST) {
-        requestLog(`Web3 request (${context.request.method})`, context.request);
+        requestLog(
+          `Web3 request (${context.request.params.request.method})`,
+          context.request
+        );
       } else if (sideToLog === SideToLog.RESPONSE) {
         responseLog(
-          `Web3 response (${context.request.method})`,
+          `Web3 response (${context.request.params.request.method})`,
           context.response
         );
       }

@@ -5,6 +5,7 @@
   "scripts": {
     "start": "yarn dev",
     "build:inpage": "webpack --config webpack.inpage.js",
+    "dev:inpage": "webpack -w --config webpack.inpage.js",
     "build": "yarn run build:inpage --mode=production && webpack --config webpack.prod.js",
     "build:alpha": "yarn run build:inpage --mode=production && webpack --config webpack.alpha.js",
     "dev": "yarn run build:inpage && webpack -w --config webpack.dev.js",

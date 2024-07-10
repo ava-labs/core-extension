@@ -1,15 +1,15 @@
-import { Network } from '@avalabs/chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../../network/NetworkService';
 import { NetworkFee } from '../models';
 import { NetworkFeeService } from '../NetworkFeeService';
+import { Network } from '../../network/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_FEE_GET,
   NetworkFee | null,
-  [chainId: number] | undefined
+  [networkCaipId?: string]
 >;
 
 @injectable()
@@ -21,14 +21,19 @@ export class GetNetworkFeeHandler implements HandlerType {
     private networkService: NetworkService
   ) {}
 
-  handle: HandlerType['handle'] = async ({ request }) => {
-    const [chainId] = request.params || [];
+  handle: HandlerType['handle'] = async ({ request, scope }) => {
+    const [networkCaipId] = request.params;
 
     let network: Network | undefined;
 
-    if (typeof chainId === 'number') {
-      network = await this.networkService.getNetwork(chainId);
-      if (!network) return { ...request, error: 'invalid chainId' };
+    if (networkCaipId) {
+      network = await this.networkService.getNetwork(networkCaipId);
+    } else {
+      network = await this.networkService.getNetwork(scope);
+    }
+
+    if (!network) {
+      return { ...request, error: 'invalid or missing network id' };
     }
 
     return {

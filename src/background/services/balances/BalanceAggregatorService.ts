@@ -1,24 +1,16 @@
-import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
+import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
-import { Account, AccountsEvents } from '../accounts/models';
-import {
-  Balances,
-  BalanceServiceEvents,
-  BALANCES_CACHE_KEY,
-  TotalBalance,
-} from './models';
+import { Account } from '../accounts/models';
+import { Balances, BalanceServiceEvents, BALANCES_CACHE_KEY } from './models';
 import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
 import { EventEmitter } from 'events';
 import * as Sentry from '@sentry/browser';
 
 import { LockService } from '../lock/LockService';
-import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
 import { StorageService } from '../storage/StorageService';
 import { CachedBalancesInfo } from './models';
-import { AccountsService } from '../accounts/AccountsService';
-import { getAccountKey } from '@src/utils/getAccountKey';
-import { merge } from 'lodash';
+import { isEqual, merge } from 'lodash';
 import {
   PriceChangesData,
   TOKENS_PRICE_DATA,
@@ -28,72 +20,20 @@ import {
 } from '../tokens/models';
 import { resolve } from '@avalabs/utils-sdk';
 import { SettingsService } from '../settings/SettingsService';
+import { isFulfilled } from '@src/utils/typeUtils';
 
 @singleton()
-export class BalanceAggregatorService implements OnLock {
+export class BalanceAggregatorService implements OnLock, OnUnlock {
   #eventEmitter = new EventEmitter();
   #balances: Balances = {};
   #isBalancesCached = true;
-  #balancesLastUpdated?: number;
-  #totalBalance?: TotalBalance = {};
 
   get balances() {
     return this.#balances;
   }
 
-  async #setBalances(
-    balances: Balances,
-    changedNetworks?: number[],
-    fromCache = false,
-    accounts?: Account[]
-  ) {
-    // prevent slow promise callbacks from mutating the state after lock
-    if (this.lockService.locked && Object.keys(balances).length) {
-      return;
-    }
-
-    this.#balances = balances;
-    this.#balancesLastUpdated = Date.now();
-
-    if (!fromCache && !this.lockService.locked) {
-      await this.updateBalancesValues(balances, accounts);
-    }
-
-    const changedBalances =
-      (changedNetworks ?? []).length === 0
-        ? balances
-        : (changedNetworks ?? []).reduce((changed, chainId) => {
-            changed[chainId] = balances[chainId];
-            return changed;
-          }, {});
-
-    this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
-      balances: changedBalances,
-      isBalancesCached: this.#isBalancesCached,
-      totalBalance: this.#totalBalance,
-    });
-  }
-
   get isBalancesCached() {
     return this.#isBalancesCached;
-  }
-
-  get balancesLastUpdated() {
-    return this.#balancesLastUpdated;
-  }
-
-  get totalBalance() {
-    return this.#totalBalance;
-  }
-
-  #getAccountsToUpdate(accounts?: Account[]) {
-    if (accounts?.length) {
-      return accounts;
-    }
-
-    const activeAccount = this.accountsService.activeAccount;
-
-    return activeAccount ? [activeAccount] : [];
   }
 
   constructor(
@@ -101,83 +41,15 @@ export class BalanceAggregatorService implements OnLock {
     private networkService: NetworkService,
     private lockService: LockService,
     private storageService: StorageService,
-    private accountsService: AccountsService,
     private settingsService: SettingsService
-  ) {
-    this.accountsService.addListener<Account | undefined>(
-      AccountsEvents.ACTIVE_ACCOUNT_CHANGED,
-      (activeAccount) => {
-        if (!Object.keys(this.#balances).length) {
-          this.#isBalancesCached = true;
-          this.loadBalanceFromCache().then((cachedBalance) => {
-            const account = activeAccount?.addressC;
+  ) {}
 
-            if (account && cachedBalance) {
-              this.#totalBalance = {
-                ...this.#totalBalance,
-                ...cachedBalance.totalBalance,
-              };
-            }
-
-            if (cachedBalance?.balances) {
-              this.#setBalances(cachedBalance?.balances, undefined, true);
-            }
-          });
-        }
-      }
-    );
-
-    // recalculate the total balances on network events
-    const networkChangeCallback = async () => {
-      if (
-        !this.lockService.locked &&
-        this.accountsService.activeAccount &&
-        Object.keys(this.#balances).length
-      ) {
-        await this.#setTotalBalance(this.#balances);
-        this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
-          balances: this.#balances,
-          isBalancesCached: this.#isBalancesCached,
-          totalBalance: this.#totalBalance,
-        });
-      }
-    };
-
-    this.networkService.activeNetworkChanged.add(networkChangeCallback);
-    this.networkService.favoriteNetworksUpdated.add(networkChangeCallback);
-  }
-
-  async updateBalancesValues(balances: Balances, accounts?: Account[]) {
-    const networksToUpdate = Object.keys(balances);
-
-    if (!networksToUpdate.length) {
-      return;
-    }
-
-    const activeNetwork = this.networkService.activeNetwork;
-    const favoriteNetworks = await this.networkService.getFavoriteNetworks();
-    const cachedNetworks = [
-      ...(activeNetwork?.chainId ? [activeNetwork.chainId] : []),
-      ...favoriteNetworks,
-    ];
-
-    const needsCacheOverwrite = cachedNetworks.some((networkId) =>
-      networksToUpdate.includes(networkId.toString())
-    );
-
-    if (needsCacheOverwrite) {
-      this.#isBalancesCached = false;
-      await this.#setTotalBalance(balances, accounts);
-    }
-  }
-
-  async updateBalancesForNetworks(
+  async getBalancesForNetworks(
     chainIds: number[],
     accounts: Account[]
-  ): Promise<void> {
-    const isFirstUpdateAttempt = this.#isBalancesCached;
+  ): Promise<Balances> {
     const sentryTracker = Sentry.startTransaction({
-      name: 'BalanceAggregatorService: updateBalancesForNetworks',
+      name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
     });
 
     const networks = Object.values(
@@ -186,34 +58,61 @@ export class BalanceAggregatorService implements OnLock {
 
     const priceChangesData = await this.getPriceChangesData();
 
-    await Promise.allSettled(
+    const updateRequests = await Promise.allSettled(
       networks.map(async (network) => {
-        const balances = await this.balancesService.getBalancesForNetwork(
-          network,
-          accounts,
-          priceChangesData
-        );
-
-        if (
-          isFirstUpdateAttempt ||
-          JSON.stringify(this.balances[network.chainId]) !==
-            JSON.stringify({ ...this.balances[network.chainId], ...balances })
-        ) {
-          await this.#setBalances(
-            {
-              ...this.balances,
-              [network.chainId]: {
-                ...this.balances[network.chainId],
-                ...balances,
-              },
-            },
-            [network.chainId]
+        const networkBalances =
+          await this.balancesService.getBalancesForNetwork(
+            network,
+            accounts,
+            priceChangesData
           );
-        }
+
+        return {
+          chainId: network.chainId,
+          networkBalances,
+        };
       })
     );
 
+    const updatedNetworks = updateRequests
+      .filter(isFulfilled)
+      .map(({ value }) => value);
+
+    const networksWithChanges = updatedNetworks
+      .filter(
+        ({ chainId, networkBalances }) =>
+          !isEqual(networkBalances, this.balances[chainId])
+      )
+      .map(({ chainId }) => chainId);
+
+    const freshBalances = updatedNetworks.reduce<Balances>(
+      (balances, balanceOfNetwork) => {
+        const { chainId, networkBalances } = balanceOfNetwork;
+        balances[chainId] = networkBalances;
+
+        return balances;
+      },
+      {}
+    );
+
+    const aggregatedBalances = merge({}, this.balances, freshBalances);
+    const hasChanges = networksWithChanges.length > 0;
+
+    if (hasChanges && !this.lockService.locked) {
+      this.#balances = aggregatedBalances;
+
+      this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
+        balances: aggregatedBalances,
+        isBalancesCached: false,
+      });
+      await this.#updateCachedBalancesInfo();
+    }
+
+    this.#isBalancesCached = false;
+
     sentryTracker.finish();
+
+    return aggregatedBalances;
   }
 
   getPriceChangesData = async () => {
@@ -270,110 +169,44 @@ export class BalanceAggregatorService implements OnLock {
     return priceChangesData;
   };
 
-  async getBatchedUpdatedBalancesForNetworks(
-    chainIds: number[],
-    accounts: Account[]
-  ): Promise<Balances> {
-    const sentryTracker = Sentry.startTransaction({
-      name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
-    });
-
-    const networks = Object.values(
-      await this.networkService.activeNetworks.promisify()
-    ).filter((network) => chainIds.includes(network.chainId));
-
-    const updatedBalancesList = await Promise.all(
-      networks.map(async (network) => {
-        try {
-          const networkBalances =
-            await this.balancesService.getBalancesForNetwork(network, accounts);
-
-          return {
-            chainId: network.chainId,
-            networkBalances,
-          };
-        } catch {
-          return null;
-        }
-      })
-    );
-
-    const updatedBalances = updatedBalancesList.reduce<Balances>(
-      (balances, balanceOfNetwork) => {
-        if (!balanceOfNetwork) {
-          return balances;
-        }
-
-        const { chainId, networkBalances } = balanceOfNetwork;
-        balances[chainId] = networkBalances;
-
-        return balances;
-      },
-      {}
-    );
-
-    await this.#setBalances(
-      merge({}, this.balances, updatedBalances),
-      chainIds,
-      false,
-      accounts
-    );
-
-    sentryTracker.finish();
-    return updatedBalances;
-  }
-
   async loadBalanceFromCache() {
-    if (this.lockService.locked || !this.accountsService.activeAccount) {
+    if (this.lockService.locked) {
       return;
     }
 
     return this.storageService.load<CachedBalancesInfo>(BALANCES_CACHE_KEY);
   }
 
-  async #setTotalBalance(balances: Balances, accounts?: Account[]) {
-    const accountsToUpdate = this.#getAccountsToUpdate(accounts);
-
-    if (!accountsToUpdate.length) {
-      throw new Error('There is no account to save total balances');
-    }
-
-    for (const account of accountsToUpdate) {
-      const favoriteNetworks = await this.networkService.getFavoriteNetworks();
-      const accountKey = getAccountKey({
-        address: account.addressC,
-        isTestnet: this.networkService.activeNetwork?.isTestnet,
-      });
-      const totalBalance: TotalBalance = {
-        [accountKey]: calculateTotalBalance(
-          this.networkService.activeNetwork,
-          account,
-          favoriteNetworks,
-          balances
-        ),
-      };
-
-      this.#totalBalance = {
-        ...this.#totalBalance,
-        ...totalBalance,
-      };
-    }
-
-    this.#updateCachedBalancesInfo();
-  }
-
   async #updateCachedBalancesInfo() {
     return this.storageService.save<CachedBalancesInfo>(BALANCES_CACHE_KEY, {
       balances: this.#balances,
-      totalBalance: this.#totalBalance,
-      lastUpdated: Date.now(),
     });
   }
 
   onLock() {
-    this.#setBalances({});
+    this.#balances = {};
     this.#isBalancesCached = true;
-    this.#totalBalance = undefined;
+  }
+
+  async onUnlock() {
+    // Do not set state from cache if we already have something in memory
+    if (Object.keys(this.#balances).length) {
+      return;
+    }
+
+    const cachedBalance = await this.loadBalanceFromCache();
+
+    if (!cachedBalance?.balances) {
+      return;
+    }
+
+    this.#balances = cachedBalance.balances;
+    this.#isBalancesCached = true;
+
+    this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
+      balances: this.#balances,
+      isBalancesCached: true,
+    });
   }
 
   addListener<T = unknown>(

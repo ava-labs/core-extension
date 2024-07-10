@@ -52,7 +52,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
     };
 
     networkServiceMock = {
-      activeNetwork: activeNetworkMock,
+      getNetwork: () => activeNetworkMock,
     } as any;
 
     jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
@@ -124,8 +124,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
     });
 
     it('throws if no active network found', async () => {
-      networkServiceMock.activeNetwork = undefined;
-
+      networkServiceMock.getNetwork = jest.fn();
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
@@ -226,6 +225,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         expect(openApprovalWindow).toHaveBeenCalledWith(
           {
             ...request,
+            scope: 'eip155:43113',
             displayData: {
               messageParams: displayDataMock,
               isMessageValid: true,
@@ -314,6 +314,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
               isSuspicious: false,
             },
             tabId: 1,
+            scope: 'eip155:43113',
           },
           `sign`
         );
@@ -362,6 +363,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
             validationError: undefined,
           },
           tabId: 1,
+          scope: 'eip155:43113',
         },
         `sign`
       );

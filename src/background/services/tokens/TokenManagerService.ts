@@ -11,6 +11,7 @@ import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import xss from 'xss';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { EnsureDefined } from '@src/background/models';
 
 @singleton()
 export class TokenManagerService {
@@ -33,9 +34,8 @@ export class TokenManagerService {
 
   async getTokenData(
     tokenAddress: string,
-    otherNetwork?: Network
-  ): Promise<NetworkContractToken | null> {
-    const network = otherNetwork ?? this.networkService.activeNetwork;
+    network: Network
+  ): Promise<EnsureDefined<NetworkContractToken, 'chainId'> | null> {
     if (!network || network.vmName !== NetworkVMType.EVM) {
       throw new Error('No network');
     }

@@ -33,11 +33,10 @@ export class GetEthMaxTransferAmountHandler implements HandlerType {
     private accountsService: AccountsService
   ) {}
 
-  handle: HandlerType['handle'] = async ({ request }) => {
+  handle: HandlerType['handle'] = async ({ request, scope }) => {
     const [currentAsset] = request.params;
 
-    const activeNetwork = this.networkService.activeNetwork;
-    const balances = this.balanceAggregatorService.balances;
+    const activeNetwork = await this.networkService.getNetwork(scope);
     const activeAccount = this.accountsService.activeAccount;
     const currentBlockchain = networkToBlockchain(activeNetwork);
 
@@ -55,6 +54,10 @@ export class GetEthMaxTransferAmountHandler implements HandlerType {
       };
     }
 
+    const balances = await this.balanceAggregatorService.getBalancesForNetworks(
+      [activeNetwork.chainId],
+      [activeAccount]
+    );
     const token = Object.values(
       balances[activeNetwork?.chainId]?.[activeAccount?.addressC] ?? {}
     )?.find(({ symbol }) => symbol === currentAsset);

@@ -44,11 +44,12 @@ import { SendErrorMessage } from '@src/utils/send/models';
 import { buildBtcTx } from '@src/utils/send/btcSendUtils';
 import { getSendErrorMessage } from '../Send/utils/sendErrorMessages';
 import { NetworkFee } from '@src/background/services/networkFee/models';
+import { getNetworkCaipId } from '@src/utils/caipConversion';
 
 export function BitcoinSignTx() {
   const { t } = useTranslation();
   const { network, networks, bitcoinProvider } = useNetworkContext();
-  const { getNetworkFeeForNetwork } = useNetworkFeeContext();
+  const { getNetworkFee } = useNetworkFeeContext();
   const requestId = useGetRequestId();
   const tokenPrice = useNativeTokenPrice(BITCOIN_NETWORK);
   const { action, updateAction, cancelHandler } =
@@ -64,11 +65,12 @@ export function BitcoinSignTx() {
   useEffect(() => {
     let isMounted = true;
 
+    if (!network) {
+      return;
+    }
     // If the request comes from a dApp, a different network may be active,
     // so we need to fetch current fees for Bitcoin specifically.
-    getNetworkFeeForNetwork(
-      network?.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
-    ).then((fee) => {
+    getNetworkFee(getNetworkCaipId(network)).then((fee) => {
       if (isMounted) {
         setNetworkFee(fee);
       }
@@ -77,7 +79,7 @@ export function BitcoinSignTx() {
     return () => {
       isMounted = false;
     };
-  }, [getNetworkFeeForNetwork, network?.isTestnet]);
+  }, [getNetworkFee, network]);
 
   const btcNetwork = useMemo(() => {
     const networkID = network?.isTestnet

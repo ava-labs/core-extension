@@ -12,6 +12,7 @@ import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { TokenAmount } from '@src/components/common/TokenAmount';
 import Big from 'big.js';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import {
   BridgeActionDisplayData,
@@ -19,7 +20,6 @@ import {
 } from '@src/background/services/bridge/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 

@@ -59,12 +59,13 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
   } as any;
 
   const balanceAggregatorServiceMock = {
-    updateBalancesForNetworks: jest.fn(),
+    getBalancesForNetworks: jest.fn(),
     balances: {},
   } as any;
 
   const networkServiceMock = {
     isMainnet: jest.fn(),
+    getNetwork: jest.fn(),
     allNetworks: {
       promisify: jest.fn(),
     },
@@ -201,11 +202,27 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     });
 
     it('asset should be optional for bitcoin', async () => {
+      const targetNetwork = {
+        chainId: 43113,
+        chainName: 'Avalanche',
+      };
+      const sourceNetwork = {
+        chainId: ChainId.BITCOIN,
+        chainName: 'Bitcoin',
+      };
+
+      jest
+        .mocked(networkServiceMock.allNetworks.promisify)
+        .mockResolvedValue([sourceNetwork, targetNetwork]);
+
       const result = await handler.handleAuthenticated(
-        buildRpcCall({
-          ...request,
-          params: ['bitcoin', '1'],
-        })
+        buildRpcCall(
+          {
+            ...request,
+            params: ['bitcoin', '1'],
+          },
+          `eip155:${ChainId.BITCOIN}`
+        )
       );
 
       expect(result).toEqual({
@@ -220,6 +237,9 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
           params: ['bitcoin', '1'],
           displayData: {
             currentBlockchain: 'bitcoin',
+            sourceNetwork,
+            targetNetwork,
+            token: undefined,
             amountStr: '1',
             asset: btcAsset,
           },
@@ -290,6 +310,19 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     });
 
     it('returns expected result', async () => {
+      const sourceNetwork = {
+        chainId: 43113,
+        chainName: 'Avalanche',
+      };
+      const targetNetwork = {
+        chainId: 5,
+        chainName: 'Ethereum',
+      };
+
+      jest
+        .mocked(networkServiceMock.allNetworks.promisify)
+        .mockResolvedValue([sourceNetwork, targetNetwork]);
+
       const estimatedGas = 12340n;
 
       jest
@@ -311,6 +344,9 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         displayData: {
           currentBlockchain,
           amountStr,
+          sourceNetwork,
+          targetNetwork,
+          token: undefined,
           asset: evmAsset,
           gasLimit: estimatedGas,
         },
@@ -347,8 +383,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       ]);
 
       const balanceServiceMock = {
-        ...balanceAggregatorServiceMock,
-        balances: {
+        getBalancesForNetworks: jest.fn().mockResolvedValueOnce({
           [43113]: {
             C_address: {
               WETH: {
@@ -359,8 +394,8 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
               },
             },
           },
-        },
-      };
+        }),
+      } as any;
 
       const handlerToTest = new AvalancheBridgeAsset(
         bridgeServiceMock,
@@ -520,10 +555,6 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         'BTC'
       );
 
-      expect(
-        balanceAggregatorServiceMock.updateBalancesForNetworks
-      ).toHaveBeenCalledWith([ChainId.BITCOIN], [testActiveAccount]);
-
       expect(mockOnSuccess).toHaveBeenCalledWith(btcResult);
       expect(mockOnError).toHaveBeenCalledTimes(0);
       expect(
@@ -597,7 +628,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       );
 
       expect(
-        balanceAggregatorServiceMock.updateBalancesForNetworks
+        balanceAggregatorServiceMock.getBalancesForNetworks
       ).toHaveBeenCalledTimes(0);
 
       expect(bridgeServiceMock.transferAsset).toHaveBeenCalledTimes(1);

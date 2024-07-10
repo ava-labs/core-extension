@@ -64,7 +64,8 @@ export function requestEngine(
     connection.onDisconnect.removeListener(onRequestEngineDisconnect);
   });
   return async (
-    request: PartialBy<Omit<JsonRpcRequestPayload, 'id'>, 'params'>
+    request: PartialBy<Omit<JsonRpcRequestPayload, 'id'>, 'params'>,
+    scope: string
   ) => {
     const id = `${request.method}-${Math.floor(Math.random() * 10000000)}`;
 
@@ -73,8 +74,8 @@ export function requestEngine(
       jsonrpc: '2.0',
       method: 'provider_request',
       params: {
-        scope: '',
         sessionId,
+        scope,
         request: {
           id,
           params: [],
@@ -84,7 +85,10 @@ export function requestEngine(
     };
     const response = connectionRequest(requestWithId);
     isDevelopment() &&
-      requestLog(`Extension Request  (${requestWithId.method})`, requestWithId);
+      requestLog(
+        `Extension Request  (${requestWithId.params.request.method})`,
+        requestWithId
+      );
     connection.postMessage(serializeToJSON(requestWithId));
     response.then((res) => {
       isDevelopment() && responseLog(`Extension Response (${res.method})`, res);

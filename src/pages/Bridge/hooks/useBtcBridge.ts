@@ -18,17 +18,18 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useInterval } from '@src/hooks/useInterval';
 import Big from 'big.js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AssetBalance } from '../models';
 import { BridgeAdapter } from './useBridge';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { NetworkFee } from '@src/background/services/networkFee/models';
 import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { CustomGasSettings } from '@src/background/services/bridge/models';
 import { TokenWithBalanceBTC } from '@src/background/services/balances/models';
+import { chainIdToCaip } from '@src/utils/caipConversion';
 
 const NETWORK_FEE_REFRESH_INTERVAL = 60_000;
 
@@ -49,7 +50,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const refetchFeeTrigger = useInterval(NETWORK_FEE_REFRESH_INTERVAL);
   const { request } = useConnectionContext();
   const { isDeveloperMode } = useNetworkContext();
-  const { getNetworkFeeForNetwork } = useNetworkFeeContext();
+  const { getNetworkFee } = useNetworkFeeContext();
   const { config } = useBridgeConfig();
   const { createBridgeTransaction } = useBridgeContext();
   const avalancheTokens = useTokensWithBalances(
@@ -104,20 +105,17 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   useEffect(() => {
     async function loadFeeRates() {
       if (isBitcoinBridge && refetchFeeTrigger) {
-        const rates = await getNetworkFeeForNetwork(
-          isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
+        const rates = await getNetworkFee(
+          chainIdToCaip(
+            isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
+          )
         );
         setFeeRates(rates);
       }
     }
 
     loadFeeRates();
-  }, [
-    getNetworkFeeForNetwork,
-    isBitcoinBridge,
-    isDeveloperMode,
-    refetchFeeTrigger,
-  ]);
+  }, [getNetworkFee, isBitcoinBridge, isDeveloperMode, refetchFeeTrigger]);
 
   // balances, utxos
   useEffect(() => {

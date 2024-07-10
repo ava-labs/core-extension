@@ -205,10 +205,12 @@ export class UnifiedBridgeService implements OnStorageReady {
   async estimateGas({
     asset,
     amount,
+    sourceChainId,
     targetChainId,
   }: UnifiedBridgeEstimateGasParams): Promise<bigint> {
     const { fromAddress, sourceChain, targetChain } = await this.#buildParams({
       targetChainId,
+      sourceChainId,
     });
 
     const gasLimit = await this.#core.estimateGas({
@@ -222,7 +224,7 @@ export class UnifiedBridgeService implements OnStorageReady {
     return gasLimit;
   }
 
-  async #buildParams({ targetChainId }):
+  async #buildParams({ targetChainId, sourceChainId }):
     | Promise<{
         sourceChain: Chain;
         sourceChainId: number;
@@ -232,7 +234,6 @@ export class UnifiedBridgeService implements OnStorageReady {
       }>
     | never {
     const { activeAccount } = this.accountsService;
-    const { activeNetwork } = this.networkService;
 
     if (!activeAccount) {
       throw ethErrors.rpc.invalidParams({
@@ -242,7 +243,9 @@ export class UnifiedBridgeService implements OnStorageReady {
       });
     }
 
-    if (!activeNetwork) {
+    const network = await this.networkService.getNetwork(sourceChainId);
+
+    if (!network) {
       throw ethErrors.rpc.invalidParams({
         data: {
           reason: CommonError.NoActiveNetwork,
@@ -250,7 +253,7 @@ export class UnifiedBridgeService implements OnStorageReady {
       });
     }
 
-    if (isBitcoinNetwork(activeNetwork)) {
+    if (isBitcoinNetwork(network)) {
       throw ethErrors.rpc.invalidParams({
         data: {
           reason: UnifiedBridgeError.UnsupportedNetwork,
@@ -258,13 +261,10 @@ export class UnifiedBridgeService implements OnStorageReady {
       });
     }
 
-    const sourceChainId = activeNetwork.chainId;
     const sourceChain = await this.#buildChain(sourceChainId);
     const targetChain = await this.#buildChain(targetChainId);
 
-    const provider = getProviderForNetwork(
-      activeNetwork
-    ) as JsonRpcBatchInternal;
+    const provider = getProviderForNetwork(network) as JsonRpcBatchInternal;
 
     const fromAddress = activeAccount.addressC as `0x${string}`;
 
@@ -281,11 +281,12 @@ export class UnifiedBridgeService implements OnStorageReady {
     asset,
     amount,
     targetChainId,
+    sourceChainId,
     customGasSettings,
     tabId,
   }: UnifiedBridgeTransferParams): Promise<BridgeTransfer> {
-    const { fromAddress, provider, sourceChain, sourceChainId, targetChain } =
-      await this.#buildParams({ targetChainId });
+    const { fromAddress, provider, sourceChain, targetChain } =
+      await this.#buildParams({ targetChainId, sourceChainId });
 
     const bridgeTransfer = await this.#core.transferAsset({
       asset,
@@ -306,8 +307,16 @@ export class UnifiedBridgeService implements OnStorageReady {
         };
 
         // If we have no custom fee rate, fetch it from the network
+        const network = await this.networkService.getNetwork(sourceChainId);
+
+        if (!network) {
+          throw ethErrors.rpc.internal({
+            data: { reason: CommonError.UnknownNetwork },
+          });
+        }
+
         if (!feeRate.maxFee) {
-          const networkFee = await this.feeService.getNetworkFee();
+          const networkFee = await this.feeService.getNetworkFee(network);
 
           if (networkFee) {
             feeRate = networkFee.high;
@@ -327,7 +336,8 @@ export class UnifiedBridgeService implements OnStorageReady {
         const gasLimit = await this.feeService.estimateGasLimit(
           from,
           to as string,
-          data as string
+          data as string,
+          network
         );
 
         const result = await this.walletService.sign(
@@ -341,14 +351,13 @@ export class UnifiedBridgeService implements OnStorageReady {
             maxPriorityFeePerGas: feeRate.maxTip,
             nonce,
           } as TransactionRequest,
+          network,
           tabId
         );
 
-        const hash = (await this.networkService.sendTransaction(
-          result
-        )) as `0x${string}`;
+        const hash = await this.networkService.sendTransaction(result, network);
 
-        return hash;
+        return hash as `0x${string}`;
       },
     });
 

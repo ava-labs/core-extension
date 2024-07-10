@@ -170,8 +170,6 @@ export function SwitchAccount() {
                 status: ActionStatus.SUBMITTING,
                 id: requestId,
               });
-
-              window.close();
             }}
             fullWidth
           >

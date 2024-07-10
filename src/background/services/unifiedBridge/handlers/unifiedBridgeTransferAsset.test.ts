@@ -25,11 +25,12 @@ describe('src/background/services/unifiedBridge/handlers/unifiedBridgeTransferAs
   it('calls .transfer() with proper params', async () => {
     const handler = new UnifiedBridgeTransferAsset(unifiedBridgeService);
 
-    await handler.handle(buildRpcCall(request));
+    await handler.handle(buildRpcCall(request, 'eip155:1'));
 
     expect(unifiedBridgeService.transfer).toHaveBeenCalledWith({
       asset,
       amount,
+      sourceChainId: 1,
       targetChainId,
       tabId: request.tabId, // include the tabId
     });
@@ -42,7 +43,7 @@ describe('src/background/services/unifiedBridge/handlers/unifiedBridgeTransferAs
 
     const handler = new UnifiedBridgeTransferAsset(unifiedBridgeService);
 
-    const { result } = await handler.handle(buildRpcCall(request));
+    const { result } = await handler.handle(buildRpcCall(request, 'eip155:1'));
 
     expect(result).toEqual('sourceTxHash');
   });

@@ -7,7 +7,7 @@ export enum ExtensionRequest {
   KEYSTONE_ONBOARDING_SUBMIT = 'keystone_onboarding_submit',
   LEDGER_ONBOARDING_SUBMIT = 'ledger_onboarding_submit',
 
-  NETWORK_SET_SELECTED = 'network_setSelectedNetwork',
+  NETWORK_SET_ACTIVE = 'network_setActiveNetwork',
   NETWORK_SET_DEVELOPER_MODE = 'network_setDeveloperMode',
   NETWORK_ADD_FAVORITE_NETWORK = 'network_add_favorite_networks',
   NETWORK_REMOVE_FAVORITE_NETWORK = 'network_remove_favorite_network',

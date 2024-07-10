@@ -31,7 +31,9 @@ export function ExtensionRequestHandlerMiddleware(
     const sentryTracker = Sentry.startTransaction({
       name: `Handler: ${method}`,
     });
-    const promise = handler.handle({ ...context.request.params });
+    const promise = handler.handle({
+      ...context.request.params,
+    });
 
     context.response = await resolve(promise).then(([result, error]) => {
       error && console.error(error);

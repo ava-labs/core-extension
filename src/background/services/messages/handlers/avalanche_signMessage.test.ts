@@ -4,6 +4,7 @@ import { Action } from '@src/background/services/actions/models';
 import { utils } from '@avalabs/avalanchejs';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { ChainId } from '@avalabs/chains-sdk';
 
 jest.mock('@avalabs/avalanchejs');
 jest.mock('@src/background/runtime/openApprovalWindow');
@@ -59,14 +60,17 @@ describe('avalanche_signMessage', function () {
 
   it('passes the right display data', async () => {
     const handler = new AvalancheSignMessageHandler(walletServiceMock as any);
+    const scope = `eip:${ChainId.AVALANCHE_TEST_P}`;
 
-    await handler.handleAuthenticated(buildRpcCall(request));
+    await handler.handleAuthenticated(buildRpcCall(request, scope));
 
     expect(openApprovalWindow).toHaveBeenCalledWith(
       {
         ...request,
+        scope,
         displayData: {
           messageParams: {
+            accountIndex: undefined,
             data: msgHex,
             from: '',
           },
@@ -95,6 +99,7 @@ describe('avalanche_signMessage', function () {
     expect(openApprovalWindow).toHaveBeenCalledWith(
       {
         ...requestWithAccountIndex,
+        scope: 'eip155:43113',
         displayData: {
           messageParams: {
             data: msgHex,

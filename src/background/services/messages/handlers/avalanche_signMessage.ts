@@ -9,6 +9,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import {
   MessageParams,
   MessageType,
+  SignMessageData,
 } from '@src/background/services/messages/models';
 import { utils } from '@avalabs/avalanchejs';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
@@ -21,8 +22,7 @@ export class AvalancheSignMessageHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async (rpcCall) => {
-    const { request } = rpcCall;
+  handleAuthenticated = async ({ request, scope }) => {
     const message = request.params[0] ?? undefined;
 
     if (!message) {
@@ -55,8 +55,9 @@ export class AvalancheSignMessageHandler extends DAppRequestHandler {
       accountIndex,
     };
 
-    const actionData = {
+    const actionData: Action<SignMessageData> = {
       ...request,
+      scope,
       displayData: {
         messageParams,
         isMessageValid: true,
@@ -80,7 +81,12 @@ export class AvalancheSignMessageHandler extends DAppRequestHandler {
     };
   };
 
-  onActionApproved = async (pendingAction: Action, _, onSuccess, onError) => {
+  onActionApproved = async (
+    pendingAction: Action<SignMessageData>,
+    _,
+    onSuccess,
+    onError
+  ) => {
     try {
       const res = (await this.walletService.signMessage(
         MessageType.AVALANCHE_SIGN,

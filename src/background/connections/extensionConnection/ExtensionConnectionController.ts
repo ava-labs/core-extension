@@ -119,7 +119,7 @@ export class ExtensionConnectionController implements ConnectionController {
       };
       if (isDevelopment()) {
         responseLog(
-          `extension reponse (${deserializedRequest.method})`,
+          `extension reponse (${deserializedRequest.params.request.method})`,
           response
         );
       }
@@ -135,7 +135,7 @@ export class ExtensionConnectionController implements ConnectionController {
     } else if (context) {
       if (isDevelopment()) {
         responseLog(
-          `extension reponse (${deserializedRequest.method})`,
+          `extension reponse (${deserializedRequest.params.request.method})`,
           context.response
         );
       }

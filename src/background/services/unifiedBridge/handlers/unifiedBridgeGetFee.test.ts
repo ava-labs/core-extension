@@ -26,7 +26,7 @@ describe('src/background/services/unifiedBridge/handlers/unifiedBridgeGetFee', (
   it('calls .getFee() with passed params', async () => {
     const handler = new UnifiedBridgeGetFee(unifiedBridgeService);
 
-    await handler.handle(buildRpcCall(request));
+    await handler.handle(buildRpcCall(request, `eip155:${sourceChainId}`));
 
     expect(unifiedBridgeService.getFee).toHaveBeenCalledWith({
       asset,

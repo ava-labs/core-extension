@@ -6,6 +6,7 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 
 import { UnifiedBridgeService } from '../UnifiedBridgeService';
 import { CustomGasSettings } from '../../bridge/models';
+import { caipToChainId } from '@src/utils/caipConversion';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.UNIFIED_BRIDGE_TRANSFER_ASSET,
@@ -24,13 +25,14 @@ export class UnifiedBridgeTransferAsset implements HandlerType {
 
   constructor(private unifiedBridgeService: UnifiedBridgeService) {}
 
-  handle: HandlerType['handle'] = async ({ request }) => {
+  handle: HandlerType['handle'] = async ({ request, scope }) => {
     const [asset, amount, targetChainId, customGasSettings] = request.params;
 
     try {
       const bridgeTransfer = await this.unifiedBridgeService.transfer({
         asset,
         amount,
+        sourceChainId: caipToChainId(scope),
         targetChainId,
         customGasSettings,
         tabId: request.tabId,

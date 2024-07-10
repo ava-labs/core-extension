@@ -1,7 +1,6 @@
 import * as cs from '@cubist-labs/cubesigner-sdk';
 import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
 import { strip0x } from '@avalabs/utils-sdk';
-import { Network } from '@avalabs/chains-sdk';
 import {
   JsonRpcApiProvider,
   TransactionRequest,
@@ -31,6 +30,7 @@ import { MessageParams, MessageType } from '../messages/models';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { Transaction } from 'bitcoinjs-lib';
 import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
+import { Network } from '../network/models';
 import { CoreApiError } from './models';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { isTokenExpiredError } from './utils';

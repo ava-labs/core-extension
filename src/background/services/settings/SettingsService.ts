@@ -17,6 +17,7 @@ import {
 } from './models';
 import { SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant } from './models';
 import { changeLanguage } from 'i18next';
+import { EnsureDefined } from '@src/background/models';
 
 const DEFAULT_SETTINGS_STATE: SettingsState = {
   currency: 'USD',
@@ -38,7 +39,7 @@ export class SettingsService implements OnStorageReady, OnLock {
     private storageService: StorageService,
     private networkService: NetworkService
   ) {
-    this.networkService.activeNetworkChanged.add(() => {
+    this.networkService.uiActiveNetworkChanged.add(() => {
       this.applySettings();
     });
   }
@@ -105,14 +106,14 @@ export class SettingsService implements OnStorageReady, OnLock {
     }
   }
 
-  async addCustomToken(token: NetworkContractToken) {
-    const network = this.networkService.activeNetwork;
+  async addCustomToken(token: EnsureDefined<NetworkContractToken, 'chainId'>) {
+    const settings = await this.getSettings();
+
+    const network = await this.networkService.getNetwork(token.chainId);
 
     if (!network) {
       throw new Error('Unable to detect current network selection.');
     }
-
-    const settings = await this.getSettings();
 
     const tokenAlreadyExists = await isTokenSupported(
       token.address,

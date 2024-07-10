@@ -1,36 +1,58 @@
 import { jest } from '@jest/globals';
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 import getTargetNetworkForTx from './getTargetNetworkForTx';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { StorageService } from '@src/background/services/storage/StorageService';
 import { errorCodes, EthereumRpcError } from 'eth-rpc-errors';
 import { FeatureFlagService } from '@src/background/services/featureFlags/FeatureFlagService';
-import { AnalyticsService } from '@src/background/services/analytics/AnalyticsService';
-import { LockService } from '@src/background/services/lock/LockService';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { EthSendTransactionParams } from '../models';
+import { caipToChainId } from '@src/utils/caipConversion';
 
 jest.mock('@src/background/services/network/NetworkService');
-jest.mock('@src/background/services/featureFlags/FeatureFlagService');
 
-const transactionMock = {
-  chainId: '0x1',
-} as unknown as EthSendTransactionParams;
+const uiActiveNetwork = {
+  chainId: 43114,
+  isTestnet: false,
+};
 
-const networkMock = {
-  isTestnet: true,
+const eth = {
+  isTestnet: false,
   vmName: NetworkVMType.EVM,
   chainId: 0x1,
-} as unknown as Network;
+};
+
+const networkFromRequestScope = {
+  isTestnet: true,
+  vmName: NetworkVMType.EVM,
+  chainId: 43113,
+};
+
+const btc = {
+  ...eth,
+  chainId: ChainId.BITCOIN_TESTNET,
+  vmName: NetworkVMType.BITCOIN,
+};
+
+const otherNetwork = {
+  ...eth,
+  isTestnet: true,
+  chainId: 0x2,
+};
 
 const getRpcError = (message: string, chainId: number) =>
   new EthereumRpcError(errorCodes.rpc.invalidParams, message, {
     chainId,
   });
 
+const normalizeId = (networkId: string | number) => {
+  if (typeof networkId === 'string') {
+    return caipToChainId(networkId);
+  }
+
+  return networkId;
+};
+
 describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () => {
   let mockNetworkService: NetworkService;
-  let mockFeatureFlagService: FeatureFlagService;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -39,8 +61,36 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
       {} as unknown as StorageService,
       {} as unknown as FeatureFlagService
     );
-    mockNetworkService['activeNetwork'] = networkMock;
-    mockNetworkService.isActiveNetwork = jest.fn();
+
+    // eslint-disable-next-line
+    // @ts-ignore
+    mockNetworkService.allNetworks = {
+      promisify: async () => [
+        uiActiveNetwork,
+        eth,
+        networkFromRequestScope,
+        btc,
+        otherNetwork,
+      ],
+    } as any;
+
+    // eslint-disable-next-line
+    // @ts-ignore
+    mockNetworkService.uiActiveNetwork = uiActiveNetwork;
+
+    jest
+      .mocked(mockNetworkService.getNetwork)
+      .mockImplementation(async (scopeOrId: string | number) => {
+        const id = normalizeId(scopeOrId);
+
+        return [
+          networkFromRequestScope,
+          eth,
+          uiActiveNetwork,
+          otherNetwork,
+          btc,
+        ].find(({ chainId }) => chainId === id) as any;
+      });
 
     // We need the @ts-ignore, since customNetworks is defined as a read-only accessor.
     // Normally we'd be able to use Jest API to mock it, but the latest version (29.3 at
@@ -50,150 +100,61 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     mockNetworkService['customNetworks'] = {};
-
-    mockFeatureFlagService = new FeatureFlagService(
-      {} as unknown as AnalyticsService,
-      {} as unknown as LockService,
-      {} as unknown as StorageService
-    );
-    mockFeatureFlagService['featureFlags'] = {
-      [FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT]: true,
-    } as Record<FeatureGates, boolean>;
   });
 
-  it('returns the active network if chainId was not provided', async () => {
-    const network = await getTargetNetworkForTx(
-      {} as unknown as EthSendTransactionParams,
-      mockNetworkService,
-      mockFeatureFlagService
-    );
-
-    expect(network).toBe(networkMock);
-  });
-
-  it('returns the active network if chainId is the active one', async () => {
-    jest.spyOn(mockNetworkService, 'isActiveNetwork').mockReturnValueOnce(true);
-
-    const network = await getTargetNetworkForTx(
-      {} as unknown as EthSendTransactionParams,
-      mockNetworkService,
-      mockFeatureFlagService
-    );
-
-    expect(network).toBe(networkMock);
-  });
-
-  it(`returns the active network if feature flag is disabled and the provided chainId equals the active network's`, async () => {
-    mockFeatureFlagService.featureFlags[
-      FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT
-    ] = false;
-
-    jest.spyOn(mockNetworkService, 'isActiveNetwork').mockReturnValueOnce(true);
-
-    const network = await getTargetNetworkForTx(
-      transactionMock,
-      mockNetworkService,
-      mockFeatureFlagService
-    );
-
-    expect(network).toBe(networkMock);
-  });
-
-  it(`throws an error if feature flag is disabled and the provided chainId differs from the active network's`, async () => {
-    mockFeatureFlagService.featureFlags[
-      FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT
-    ] = false;
-
-    jest
-      .spyOn(mockNetworkService, 'isActiveNetwork')
-      .mockReturnValueOnce(false);
-
-    await expect(
-      getTargetNetworkForTx(
-        transactionMock,
-        mockNetworkService,
-        mockFeatureFlagService
-      )
-    ).rejects.toThrow(getRpcError('Custom ChainID is not supported', 1));
-  });
-
-  it('returns the proper network if a supported chanId was provided', async () => {
-    const otherNetwork = {
-      ...networkMock,
-      chainId: 0x2,
+  it('returns the proper network if a supported chainId was provided', async () => {
+    // eslint-disable-next-line
+    // @ts-ignore
+    mockNetworkService.uiActiveNetwork = {
+      chainId: 1234,
+      isTestnet: true,
     };
 
-    jest
-      .spyOn(mockNetworkService, 'getNetwork')
-      .mockResolvedValueOnce(otherNetwork);
-
     const network = await getTargetNetworkForTx(
-      transactionMock,
-      mockNetworkService,
-      mockFeatureFlagService
+      { chainId: 2 } as any,
+      mockNetworkService
     );
 
     expect(network).toBe(otherNetwork);
   });
 
   it('throws error if an unsupported chainId was provided', async () => {
-    jest
-      .spyOn(mockNetworkService, 'getNetwork')
-      .mockResolvedValueOnce(undefined);
-
     await expect(
-      getTargetNetworkForTx(
-        transactionMock,
-        mockNetworkService,
-        mockFeatureFlagService
-      )
+      getTargetNetworkForTx({ chainId: 12321 } as any, mockNetworkService)
     ).rejects.toThrow(getRpcError('Provided ChainID is not supported', 1));
   });
 
   it('throws error for non EVM networks', async () => {
-    jest.spyOn(mockNetworkService, 'getNetwork').mockResolvedValueOnce({
-      ...networkMock,
-      vmName: NetworkVMType.BITCOIN,
-    });
-
     await expect(
       getTargetNetworkForTx(
-        transactionMock,
-        mockNetworkService,
-        mockFeatureFlagService
+        { chainId: ChainId.BITCOIN_TESTNET } as any,
+        mockNetworkService
       )
     ).rejects.toThrow(getRpcError('Provided ChainID is not supported', 1));
   });
 
   it('throws error for cross-environment transactions', async () => {
-    jest.spyOn(mockNetworkService, 'getNetwork').mockResolvedValueOnce({
-      ...networkMock,
-      isTestnet: false,
-    });
-
     await expect(
-      getTargetNetworkForTx(
-        transactionMock,
-        mockNetworkService,
-        mockFeatureFlagService
-      )
+      getTargetNetworkForTx({ chainId: 43113 } as any, mockNetworkService)
     ).rejects.toThrow(
       getRpcError('Provided ChainID is in a different environment', 1)
     );
   });
 
   it('throws error for custom networks', async () => {
-    mockNetworkService.customNetworks[networkMock.chainId] = networkMock;
-
-    jest
-      .spyOn(mockNetworkService, 'getNetwork')
-      .mockResolvedValueOnce(networkMock);
+    // eslint-disable-next-line
+    // @ts-ignore
+    mockNetworkService.uiActiveNetwork = {
+      chainId: 1234,
+      isTestnet: true,
+    };
+    mockNetworkService.customNetworks[otherNetwork.chainId] =
+      otherNetwork as any;
 
     await expect(
       getTargetNetworkForTx(
-        transactionMock,
-        mockNetworkService,
-        mockFeatureFlagService
+        { chainId: otherNetwork.chainId } as any,
+        mockNetworkService
       )
     ).rejects.toThrow(
       getRpcError('ChainID is not supported for custom networks', 1)

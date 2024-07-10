@@ -5,8 +5,9 @@ import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
-import { ChainId } from '@avalabs/chains-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { ChainId } from '@avalabs/chains-sdk';
+import { runtime } from 'webextension-polyfill';
 
 @injectable()
 export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
@@ -56,9 +57,17 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
       const {
         displayData: { isTestmode },
       } = pendingAction;
-      await this.networkService.setNetwork(
+
+      const network = await this.networkService.getNetwork(
         isTestmode ? ChainId.AVALANCHE_TESTNET_ID : ChainId.AVALANCHE_MAINNET_ID
       );
+
+      if (!network) {
+        throw new Error('Target network not found');
+      }
+
+      await this.networkService.setNetwork(runtime.id, network);
+
       onSuccess(null);
     } catch (e) {
       onError(e);

@@ -34,7 +34,9 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { BlockaidService } from '@src/background/services/blockaid/BlockaidService';
+import { caipToChainId } from '@src/utils/caipConversion';
 
+jest.mock('@src/utils/caipConversion');
 jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('@src/utils/network/getProviderForNetwork');
 jest.mock('@src/background/services/analytics/AnalyticsServicePosthog');
@@ -83,6 +85,9 @@ jest.mock('webextension-polyfill', () => ({
   },
   i18n: {
     getMessage: jest.fn(),
+  },
+  runtime: {
+    id: 'runtime-id',
   },
 }));
 jest.mock('@blockaid/client', () => {
@@ -139,7 +144,6 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     {} as any,
     {} as any,
     {} as any,
-    {} as any,
     {} as any
   );
   const accountsService = new AccountsService(
@@ -182,6 +186,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
   };
   const networkMock = {
     chainId: 1,
+    caipId: 'eip155:1',
     vmName: NetworkVMType.EVM,
     chainName: '',
     rpcUrl: '',
@@ -202,6 +207,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
   let handler: EthSendTransactionHandler;
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.mocked(caipToChainId).mockReturnValue(43114);
     jest
       .spyOn(accountsService, 'activeAccount', 'get')
       .mockReturnValue(accountMock);
@@ -437,7 +443,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       });
     });
     describe('parses transaction', () => {
-      it('updates balances when active network is different', async () => {
+      it('updates balances', async () => {
         const message = buildMessage({
           from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
           to: '',
@@ -449,30 +455,13 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           ...networkMock,
           chainId: 2,
         });
-        jest.mocked(networkService).isActiveNetwork.mockReturnValue(false);
         await handler.handleAuthenticated(buildRpcCall(message));
-
-        expect(networkService.isActiveNetwork).toHaveBeenCalledWith(2);
         expect(
-          balanceAggregatorService.updateBalancesForNetworks
+          balanceAggregatorService.getBalancesForNetworks
         ).toHaveBeenCalledTimes(1);
         expect(
-          balanceAggregatorService.updateBalancesForNetworks
+          balanceAggregatorService.getBalancesForNetworks
         ).toHaveBeenCalledWith([2], [accountMock]);
-      });
-      it('does not update balances if the target network is active', async () => {
-        const message = buildMessage({
-          from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
-          to: '',
-          value: '0x5af3107a4000',
-          data: '0x123123123123',
-        });
-        jest.mocked(networkService).isActiveNetwork.mockReturnValue(true);
-        await handler.handleAuthenticated(buildRpcCall(message));
-        expect(networkService.isActiveNetwork).toHaveBeenCalledWith(1);
-        expect(
-          balanceAggregatorService.updateBalancesForNetworks
-        ).not.toHaveBeenCalled();
       });
       it('parses the transaction with blockaid', async () => {
         const message = buildMessage({
@@ -489,6 +478,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           '',
           networkMock,
           {
+            chainId: '0xa86a', // 43114
             data: '0x123123123123',
             from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
             gasLimit: '0x4d2',
@@ -536,6 +526,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
         expect(parseWithERC20Abi).toHaveBeenCalledTimes(1);
         expect(parseWithERC20Abi).toHaveBeenCalledWith(
           {
+            chainId: '0xa86a', // 43114
             data: '0x123123123123',
             from: '0x473B6494E2632ec1c9F90Ce05327e96e30767638',
             gasLimit: '0x4d2',
@@ -706,10 +697,12 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       actionId: 'actiondId',
       status: ActionStatus.PENDING,
       time: 123123,
+      scope: 'eip:43114',
       displayData: {
         chainId: '0xa86a', // 43114
         method: DAppProviderRequest.ETH_SEND_TX,
         txParams: {
+          chainId: '0xa86a',
           to: '0x32131',
           from: '0x123123123',
           type: 2,
@@ -742,8 +735,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       expect(getTargetNetworkForTx).toHaveBeenCalledTimes(1);
       expect(getTargetNetworkForTx).toHaveBeenCalledWith(
         mockAction.displayData.txParams,
-        networkService,
-        featureFlagService
+        networkService
       );
       expect(onSuccessMock).not.toHaveBeenCalled();
       expect(onErrorMock).toHaveBeenCalled();
@@ -817,8 +809,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           type: 2,
           value: '0x1',
         },
-        111,
-        networkMock
+        networkMock,
+        111
       );
       expect(onSuccessMock).not.toHaveBeenCalled();
       expect(onErrorMock).toHaveBeenCalled();

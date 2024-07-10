@@ -9,9 +9,11 @@ import {
   AddEthereumChainDisplayData,
   AddEthereumChainParameter,
   Network,
+  NetworkWithCaipId,
 } from '../models';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { decorateWithCaipId } from '@src/utils/caipConversion';
 import { isCoreWeb } from '../utils/isCoreWeb';
 
 /**
@@ -25,8 +27,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     super();
   }
 
-  handleUnauthenticated = async (rpcCall) => {
-    const { request } = rpcCall;
+  handleUnauthenticated = async ({ request, scope }) => {
     const requestedChain: AddEthereumChainParameter = request.params?.[0];
 
     if (!requestedChain) {
@@ -39,7 +40,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     }
 
     const chains = await this.networkService.allNetworks.promisify();
-    const currentActiveNetwork = this.networkService.activeNetwork;
+    const currentActiveNetwork = await this.networkService.getNetwork(scope);
     const supportedChainIds = Object.keys(chains ?? {});
     const requestedChainId = Number(requestedChain.chainId);
     const chainRequestedIsSupported =
@@ -71,7 +72,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       };
     }
 
-    const customNetwork: Network = {
+    const customNetwork = decorateWithCaipId({
       chainId: requestedChainId,
       chainName: requestedChain.chainName || '',
       vmName: NetworkVMType.EVM,
@@ -87,7 +88,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       explorerUrl: requestedChain.blockExplorerUrls?.[0] || '',
       primaryColor: 'black',
       isTestnet: !!requestedChain.isTestnet,
-    };
+    });
 
     if (!customNetwork.chainName) {
       return {
@@ -118,13 +119,14 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     const skipApproval = await isCoreWeb(request);
 
     if (skipApproval) {
-      await this.actionHandler(chains, customNetwork);
+      await this.actionHandler(chains, customNetwork, request.site.domain);
       return { ...request, result: null };
     }
 
     if (chainRequestedIsSupported) {
       const actionData: Action<{ network: Network }> = {
         ...request,
+        scope,
         displayData: {
           network: customNetwork,
         },
@@ -150,6 +152,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
 
     const actionData: Action<AddEthereumChainDisplayData> = {
       ...request,
+      scope,
       displayData: {
         network: customNetwork,
         options: {
@@ -167,7 +170,11 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     return this.handleUnauthenticated(rpcCall);
   };
 
-  async actionHandler(chains: ChainList, network: Network) {
+  async actionHandler(
+    chains: ChainList,
+    network: NetworkWithCaipId,
+    domain: string
+  ) {
     const supportedChainIds = Object.keys(chains);
 
     if (network.customRpcHeaders) {
@@ -176,11 +183,12 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       await this.networkService.updateNetworkOverrides(overrides);
     }
 
-    if (supportedChainIds.includes(network.chainId.toString())) {
-      await this.networkService.setNetwork(network.chainId);
-    } else {
+    // Add a custom network if it is not on the list yet.
+    if (!supportedChainIds.includes(network.chainId.toString())) {
       await this.networkService.saveCustomNetwork(network);
     }
+
+    await this.networkService.setNetwork(domain, network);
   }
 
   onActionApproved = async (
@@ -195,10 +203,16 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
         onError('networks not found');
         return;
       }
+      const domain = pendingAction.site?.domain;
+
+      if (!domain) {
+        return onError(new Error('Unrecognized domain'));
+      }
 
       const { network } = pendingAction.displayData;
 
-      await this.actionHandler(chains, network);
+      await this.actionHandler(chains, network, domain);
+
       onSuccess(null);
     } catch (e) {
       onError(e);

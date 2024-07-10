@@ -17,7 +17,7 @@ export const addXPChainToFavoriteIfNeeded = async (
   const networkService = container.resolve(NetworkService);
   const historyServiceP = container.resolve(HistoryServicePVM);
   const historyServiceX = container.resolve(HistoryServiceAVM);
-  const balances = await balanceService.getBatchedUpdatedBalancesForNetworks(
+  const balances = await balanceService.getBalancesForNetworks(
     [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
     accounts
   );

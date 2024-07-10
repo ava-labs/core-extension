@@ -7,7 +7,7 @@ import {
   GlacierUnhealthyError,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
-import { Network, ChainId, NetworkVMType } from '@avalabs/chains-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 import { Account } from '../accounts/models';
 import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
 import { BalancesServiceGlacier } from './BalancesServiceGlacier';
@@ -17,6 +17,7 @@ import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
 import { TokensPriceShortData } from '../tokens/models';
 import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
 import { BalancesServiceAVM } from './BalancesServiceAVM';
+import { Network } from '../network/models';
 
 @singleton()
 export class BalancesService {

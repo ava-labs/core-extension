@@ -1,5 +1,3 @@
-import { AccountsService } from '../accounts/AccountsService';
-import { NetworkService } from '../network/NetworkService';
 import { BalanceAggregatorService } from './BalanceAggregatorService';
 import { BalancePollingService } from './BalancePollingService';
 
@@ -14,26 +12,12 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
   });
 
   const aggregatorServiceMock = {
-    updateBalancesForNetworks: jest.fn(),
+    getBalancesForNetworks: jest.fn(),
   } as unknown as BalanceAggregatorService;
 
-  const networkServiceMock = {
-    activeNetwork: {
-      chainId: 1,
-    },
-    async getFavoriteNetworks() {
-      return [2, 3, 4];
-    },
-    favoriteNetworksUpdated: {
-      add: jest.fn(),
-    },
-  } as unknown as NetworkService;
-
-  const addListenerMock = jest.fn();
-  const accountsServiceMock = {
-    addListener: addListenerMock,
-    activeAccount: { id: 'abcd-1234' },
-  } as unknown as AccountsService;
+  const account = {} as any;
+  const activeNetworkId = 1;
+  const roundRobinChainIds = [2, 3, 4];
 
   const getFetchedNetworksForCall = (mock, callIndex) => {
     return mock.calls[callIndex][0];
@@ -50,80 +34,15 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
     }
   };
 
-  describe('when polling initiation fails due to no account being active', () => {
-    it('schedules polling to start as soon as account is selected', async () => {
-      const accountsService = {
-        ...accountsServiceMock,
-        activeAccount: null,
-      } as unknown as AccountsService;
-
-      const service = new BalancePollingService(
-        aggregatorServiceMock,
-        networkServiceMock,
-        accountsService
-      );
-      // Simulate .startPolling() call before an account is selected
-      service.startAsSoonAsAccountIsSelected();
-
-      jest.spyOn(service, 'startPolling');
-      const [, callback] = addListenerMock.mock.calls[0];
-
-      // Simulate active account selection event
-      callback({ id: '1234' });
-
-      expect(service.startPolling).toHaveBeenCalled();
-    });
-  });
-
-  describe('when the active account changes', () => {
-    it('restarts polling', async () => {
-      const service = new BalancePollingService(
-        aggregatorServiceMock,
-        networkServiceMock,
-        accountsServiceMock
-      );
-      jest.spyOn(service, 'restartPolling');
-
-      const [, callback] = addListenerMock.mock.calls[0];
-
-      // Simulate active account selection event
-      callback({ id: '1234' });
-
-      expect(service.restartPolling).toHaveBeenCalled();
-    });
-  });
-
-  describe('when there is no active account', () => {
-    it('stops polling', () => {
-      const service = new BalancePollingService(
-        aggregatorServiceMock,
-        networkServiceMock,
-        accountsServiceMock
-      );
-
-      const [, callback] = addListenerMock.mock.calls[0];
-
-      jest.spyOn(service, 'stopPolling');
-      // Simulate active account deselection event (i.e. wallet lock)
-      callback(undefined);
-
-      expect(service.stopPolling).toHaveBeenCalled();
-    });
-  });
-
   describe('when polling is active', () => {
     beforeEach(async () => {
-      const service = new BalancePollingService(
-        aggregatorServiceMock,
-        networkServiceMock,
-        accountsServiceMock
-      );
-      await service.startPolling();
+      const service = new BalancePollingService(aggregatorServiceMock);
+      await service.startPolling(account, activeNetworkId, roundRobinChainIds);
     });
 
     it('polls for active and favorite networks on the first run', () => {
       expect(
-        aggregatorServiceMock.updateBalancesForNetworks
+        aggregatorServiceMock.getBalancesForNetworks
       ).toHaveBeenLastCalledWith([1, 2, 3, 4], expect.anything());
     });
 
@@ -132,7 +51,7 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
 
       expect(
         (
-          aggregatorServiceMock.updateBalancesForNetworks as jest.Mock
+          aggregatorServiceMock.getBalancesForNetworks as jest.Mock
         ).mock.calls.every(([chainIds]) => chainIds.includes(1))
       ).toBe(true);
     });
@@ -141,7 +60,7 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
       await runIntervalTimes(16);
 
       const { mock } =
-        aggregatorServiceMock.updateBalancesForNetworks as jest.Mock;
+        aggregatorServiceMock.getBalancesForNetworks as jest.Mock;
 
       // On first run, loads active + 1st non-active, favorite network and all other favorite networks
       expect(getFetchedNetworksForCall(mock, 0)).toEqual([1, 2, 3, 4]);

@@ -1,75 +1,40 @@
-import { uniq, isNumber } from 'lodash';
+import { uniq } from 'lodash';
 import {
   OnAllExtensionClosed,
   OnLock,
 } from '@src/background/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
-import { Account, AccountsEvents } from '../accounts/models';
-import { NetworkService } from '../network/NetworkService';
-import { AccountsService } from '../accounts/AccountsService';
+import { Account } from '../accounts/models';
 import { BalanceAggregatorService } from './BalanceAggregatorService';
 
 @singleton()
 export class BalancePollingService implements OnLock, OnAllExtensionClosed {
   static readonly INTERVAL = 2000;
-  private _timer: NodeJS.Timeout | null = null;
-  private _pollingIteration = 0;
-  private _requestInProgress = false;
-  private _preventSchedulingNextUpdate = false;
-  private _startAsSoonAsAccountIsSelected = false;
+
+  #timer: NodeJS.Timeout | null = null;
+  #pollingIteration = 0;
+  #lastPollingStartedAt?: number;
 
   get isPollingActive() {
-    return this._timer !== null;
+    return this.#timer !== null;
   }
 
-  constructor(
-    private balanceAggregator: BalanceAggregatorService,
-    private networkService: NetworkService,
-    private accountsService: AccountsService
-  ) {
-    this.networkService.favoriteNetworksUpdated.add(() => {
-      this.restartPolling();
-    });
-    this.accountsService.addListener<Account | undefined>(
-      AccountsEvents.ACTIVE_ACCOUNT_CHANGED,
-      (activeAccount) => {
-        if (!activeAccount) {
-          this.stopPolling();
-          return;
-        }
-
-        if (this._startAsSoonAsAccountIsSelected) {
-          // It's technically possible, with some unfortunate timing, that
-          // the balance polling is initiated by BalancesProvider before
-          // we have an account selected. If that's the case, we should
-          // make sure that we .startPolling() instead of .restartPolling()
-          // as soon as AccountsService notifies us about the account selection.
-          this.startPolling();
-        } else {
-          // Restart polling with newly activated account
-          this.restartPolling();
-        }
-      }
-    );
-  }
+  constructor(private balanceAggregator: BalanceAggregatorService) {}
 
   onLock() {
     this.stopPolling();
   }
 
-  async startPolling() {
+  async startPolling(
+    account: Account,
+    activeChainId: number,
+    roundRobinChainIds: number[]
+  ) {
     // Stop any polling that may be occurring already
     this.stopPolling();
     // Start a new interval
-    this._preventSchedulingNextUpdate = false;
-    return this.pollBalances();
-  }
-
-  // This method should only be invoked by outside classes (i.e. startBalancesPolling handler).
-  // Do not use it in event handlers for other services, as balance polling should only be
-  // first initiated when the UI requires it, so it should never be set by the backend script itself.
-  startAsSoonAsAccountIsSelected() {
-    this._startAsSoonAsAccountIsSelected = true;
+    // this._preventSchedulingNextUpdate = false;
+    return this.pollBalances(account, activeChainId, roundRobinChainIds);
   }
 
   onAllExtensionsClosed() {
@@ -77,64 +42,51 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
   }
 
   stopPolling() {
-    if (this._timer) {
-      clearTimeout(this._timer);
-      this._timer = null;
-      this._pollingIteration = 0;
-    }
-
-    if (this._requestInProgress) {
-      this._preventSchedulingNextUpdate = true;
-    }
-
-    this._startAsSoonAsAccountIsSelected = false;
-  }
-
-  // Only starts polling if it was already active.
-  // Call this if you need to start a new polling process,
-  // i.e. when favorite networks change.
-  restartPolling() {
-    if (this.isPollingActive) {
-      this.startPolling();
+    if (this.#timer) {
+      clearTimeout(this.#timer);
+      this.#timer = null;
+      this.#pollingIteration = 0;
     }
   }
 
-  private async pollBalances() {
-    const { activeNetwork } = this.networkService;
-    const favoriteNetworks = await this.networkService.getFavoriteNetworks();
+  private async pollBalances(
+    account: Account,
+    activeChainId: number,
+    roundRobinChainIds: number[]
+  ) {
+    const thisPollingStartedAt = performance.now();
+    this.#lastPollingStartedAt = thisPollingStartedAt;
+
     const chainIds = uniq([
-      activeNetwork?.chainId,
-      ...this.getNetworksToUpdate(favoriteNetworks, this._pollingIteration, 15),
-    ]).filter(isNumber);
+      activeChainId,
+      ...this.getNetworksToUpdate(
+        roundRobinChainIds,
+        this.#pollingIteration,
+        15
+      ),
+    ]);
 
-    const { activeAccount } = this.accountsService;
-
-    if (activeAccount) {
-      this._requestInProgress = true;
-      this._startAsSoonAsAccountIsSelected = false;
-
-      try {
-        await this.balanceAggregator.updateBalancesForNetworks(chainIds, [
-          activeAccount,
-        ]);
-      } finally {
-        this._requestInProgress = false;
-      }
-
-      if (!this._preventSchedulingNextUpdate) {
-        this.scheduleNextUpdate();
-      }
-
-      return true;
+    try {
+      await this.balanceAggregator.getBalancesForNetworks(chainIds, [account]);
+    } catch {
+      // Do nothing, just schedule another attempt
     }
 
-    return false;
+    // Only schedule the next update if another polling was not started
+    // while we were waiting for balance results.
+    if (thisPollingStartedAt === this.#lastPollingStartedAt) {
+      this.scheduleNextUpdate(account, activeChainId, roundRobinChainIds);
+    }
   }
 
-  private scheduleNextUpdate() {
-    this._pollingIteration += 1;
-    this._timer = setTimeout(
-      () => this.pollBalances(),
+  private scheduleNextUpdate(
+    account: Account,
+    activeChainId: number,
+    roundRobinChainIds: number[]
+  ) {
+    this.#pollingIteration += 1;
+    this.#timer = setTimeout(
+      () => this.pollBalances(account, activeChainId, roundRobinChainIds),
       BalancePollingService.INTERVAL
     );
   }

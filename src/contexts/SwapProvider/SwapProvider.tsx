@@ -19,7 +19,6 @@ import { ChainId } from '@avalabs/chains-sdk';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import Web3 from 'web3';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
-import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import Big from 'big.js';
 import { resolve } from '@src/utils/promiseResolver';
 import { ethers } from 'ethers';
@@ -29,6 +28,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenType } from '@src/background/services/balances/models';
 import { BN } from 'bn.js';
 import { useAnalyticsContext } from '../AnalyticsProvider';
+import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import { useTranslation } from 'react-i18next';
 import {
   GetRateParams,

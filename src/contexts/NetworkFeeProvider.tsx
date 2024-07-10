@@ -5,65 +5,72 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { concat, filter, from, map } from 'rxjs';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+
 import { NetworkFee } from '@src/background/services/networkFee/models';
-import { networkFeeUpdatedEventListener } from '@src/background/services/networkFee/events/listeners';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handlers/getNetworkFee';
+import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { chainIdToCaip } from '@src/utils/caipConversion';
+
+import { useNetworkContext } from './NetworkProvider';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;
-  getNetworkFeeForNetwork: (chainId: number) => Promise<NetworkFee | null>;
-}>({} as any);
+  getNetworkFee: (caipId: string) => Promise<NetworkFee | null>;
+}>({
+  networkFee: null,
+  async getNetworkFee() {
+    return null;
+  },
+});
 
 export function NetworkFeeContextProvider({ children }: { children: any }) {
-  const { request, events } = useConnectionContext();
-  const [networkFee, setNetworkFee] = useState<NetworkFee | null>(null);
+  const { request } = useConnectionContext();
+  const { network } = useNetworkContext();
+  const [fee, setFee] = useState<NetworkFee | null>(null);
+  const [iteration, setIteration] = useState(0);
 
-  useEffect(() => {
-    if (!request || !events) {
-      return;
-    }
-    const subscription = concat(
-      from(
-        request<GetNetworkFeeHandler>({
-          method: ExtensionRequest.NETWORK_FEE_GET,
-        })
-      ),
-      events().pipe(
-        filter(networkFeeUpdatedEventListener),
-        map((evt) => evt.value)
-      )
-    ).subscribe((result) => {
-      if (!result) {
-        setNetworkFee(null);
-      } else {
-        setNetworkFee(result);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [events, request]);
-
-  const getNetworkFeeForNetwork = useCallback(
-    async (chainId: number) => {
-      const result = await request<GetNetworkFeeHandler>({
+  const getNetworkFee = useCallback(
+    async (caipId: string) =>
+      request<GetNetworkFeeHandler>({
         method: ExtensionRequest.NETWORK_FEE_GET,
-        params: [chainId],
-      });
-      return result;
-    },
+        params: [caipId],
+      }),
     [request]
   );
+
+  useEffect(() => {
+    if (!network?.chainId) {
+      return;
+    }
+
+    let timer: ReturnType<typeof setTimeout>;
+    let isMounted = true;
+
+    getNetworkFee(chainIdToCaip(network.chainId))
+      .then((networkFee) => {
+        if (isMounted && networkFee) {
+          setFee(networkFee);
+        }
+      })
+      .catch((err) => {
+        console.warn('Failed to determine the network fee:', err);
+      })
+      .finally(() => {
+        timer = setTimeout(() => setIteration((i) => i + 1), 15_000);
+      });
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, [getNetworkFee, iteration, network?.chainId]);
 
   return (
     <NetworkFeeContext.Provider
       value={{
-        networkFee,
-        getNetworkFeeForNetwork,
+        networkFee: fee,
+        getNetworkFee,
       }}
     >
       {children}

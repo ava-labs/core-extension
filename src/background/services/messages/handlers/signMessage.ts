@@ -40,8 +40,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
     };
   };
 
-  handleAuthenticated = async (rpcCall) => {
-    const { request } = rpcCall;
+  handleAuthenticated = async ({ request, scope }) => {
     if (this.walletService.wallets.length === 0) {
       return {
         ...request,
@@ -50,7 +49,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
     }
 
     try {
-      const activeNetwork = this.networkService.activeNetwork;
+      const activeNetwork = await this.networkService.getNetwork(scope);
 
       if (!activeNetwork) {
         return {
@@ -108,6 +107,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
 
       const actionData = {
         ...request,
+        scope,
         displayData: {
           messageParams,
           isMessageValid,

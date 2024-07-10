@@ -75,15 +75,12 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
       : ChainId.BITCOIN_TESTNET;
 
     // Refresh UTXOs before to ensure that UTXOs is updated
-    await this.balanceAggregatorService.updateBalancesForNetworks(
+    const balances = await this.balanceAggregatorService.getBalancesForNetworks(
       [btcChainID],
       [account]
     );
 
-    const balance =
-      this.balanceAggregatorService.balances[btcChainID]?.[
-        account.addressBTC
-      ]?.['BTC'];
+    const balance = balances[btcChainID]?.[account.addressBTC]?.['BTC'];
 
     if (balance) {
       return balance as TokenWithBalanceBTC;
@@ -107,11 +104,10 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
     return Boolean(account.addressBTC);
   }
 
-  handleAuthenticated = async (
-    rpcCall: JsonRpcRequestParams<DAppProviderRequest, BitcoinTxParams>
-  ) => {
-    const { request } = rpcCall;
-
+  handleAuthenticated = async ({
+    request,
+    scope,
+  }: JsonRpcRequestParams<DAppProviderRequest, BitcoinTxParams>) => {
     if (!this.accountService.activeAccount) {
       return {
         ...request,
@@ -126,15 +122,6 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
         ...request,
         error: ethErrors.rpc.invalidRequest({
           message: 'The active account does not support BTC transactions',
-        }),
-      };
-    }
-
-    if (!this.networkService.activeNetwork) {
-      return {
-        ...request,
-        error: ethErrors.rpc.internal({
-          message: 'No active network',
         }),
       };
     }
@@ -214,6 +201,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
 
       const actionData = {
         ...request,
+        scope,
         displayData,
       };
 
@@ -275,8 +263,8 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
 
       const result = await this.walletService.sign(
         { inputs, outputs },
-        frontendTabId,
-        network
+        network,
+        frontendTabId
       );
 
       const hash = await this.networkService.sendTransaction(result, network);

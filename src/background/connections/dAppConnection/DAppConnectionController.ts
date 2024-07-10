@@ -128,7 +128,7 @@ export class DAppConnectionController implements ConnectionController {
     );
 
     if (error) {
-      responseLog(`Web3 response (${request.method})`, {
+      responseLog(`Web3 response (${request.params.request.method})`, {
         ...{ error },
       });
       throw error;

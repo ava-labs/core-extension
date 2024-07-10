@@ -29,8 +29,8 @@ export class WalletGetEthereumChainHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async ({ request }) => {
-    const activeNetwork = this.networkService.activeNetwork;
+  handleAuthenticated = async ({ request, scope }) => {
+    const activeNetwork = await this.networkService.getNetwork(scope);
     if (!activeNetwork) {
       return {
         ...request,

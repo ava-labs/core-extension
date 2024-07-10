@@ -11,6 +11,7 @@ import { TokenType, TokenWithBalance } from '../../balances/models';
 import { GetEthMaxTransferAmountHandler } from './getEthMaxTransferAmount';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { ChainId } from '@avalabs/chains-sdk';
 
 jest.mock('@avalabs/bridge-sdk', () => {
   const originalModule = jest.requireActual('@avalabs/bridge-sdk');
@@ -24,12 +25,9 @@ jest.mock('@avalabs/bridge-sdk', () => {
 jest.mock('@src/utils/network/getProviderForNetwork');
 
 describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
-  const activeNetworkMock = {
-    chainId: 1,
-  } as any;
   const mockProvider = new JsonRpcBatchInternal(1);
   const networkServiceMock = {
-    activeNetwork: activeNetworkMock,
+    getNetwork: jest.fn(),
     getProviderForNetwork: jest.fn(),
   } as any;
   const bridgeServiceMock = {
@@ -42,7 +40,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
     },
   } as any;
   const balanceAggregatorServiceMock = {
-    balances: {
+    getBalancesForNetworks: async () => ({
       '1': {
         '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': [
           {
@@ -56,24 +54,25 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
           },
         ] as TokenWithBalance[],
       },
-    },
+    }),
   } as any;
   const accountsServiceMock = {
     activeAccount: {
       addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
     },
   } as any;
+  const scope = `eip155:${ChainId.ETHEREUM_HOMESTEAD}`;
 
   beforeEach(() => {
     jest.resetAllMocks();
-
-    networkServiceMock.activeNetwork = activeNetworkMock;
     jest.mocked(getProviderForNetwork).mockReturnValue(mockProvider);
+
+    jest
+      .mocked(networkServiceMock.getNetwork)
+      .mockResolvedValue({ chainId: ChainId.ETHEREUM_HOMESTEAD });
   });
 
   it('returns error when network is not set', async () => {
-    networkServiceMock.activeNetwork = undefined;
-
     const handler = new GetEthMaxTransferAmountHandler(
       bridgeServiceMock,
       networkServiceMock,
@@ -85,7 +84,12 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(buildRpcCall(request));
+
+    jest
+      .spyOn(networkServiceMock, 'getNetwork')
+      .mockResolvedValueOnce(undefined);
+
+    const result = await handler.handle(buildRpcCall(request, scope));
 
     expect(result).toEqual({
       ...request,
@@ -105,7 +109,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(buildRpcCall(request));
+    const result = await handler.handle(buildRpcCall(request, scope));
 
     expect(result).toEqual({
       ...request,
@@ -114,9 +118,9 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
   });
 
   it('returns error when not on ethereum network', async () => {
-    networkServiceMock.activeNetwork = {
-      chainId: 1234,
-    };
+    jest
+      .mocked(networkServiceMock.getNetwork)
+      .mockResolvedValue({ chainId: ChainId.AVALANCHE_MAINNET_ID });
 
     const handler = new GetEthMaxTransferAmountHandler(
       bridgeServiceMock,
@@ -129,7 +133,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(buildRpcCall(request));
+    const result = await handler.handle(buildRpcCall(request, 'eip155:43114'));
 
     expect(result).toEqual({
       ...request,
@@ -149,7 +153,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['UNKOWN'],
     } as any;
-    const result = await handler.handle(buildRpcCall(request));
+    const result = await handler.handle(buildRpcCall(request, scope));
 
     expect(result).toEqual({
       ...request,
@@ -172,7 +176,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(buildRpcCall(request));
+    const result = await handler.handle(buildRpcCall(request, scope));
 
     expect(result).toEqual({
       ...request,
@@ -196,7 +200,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(buildRpcCall(request));
+    const result = await handler.handle(buildRpcCall(request, scope));
 
     expect(result).toEqual({
       ...request,
@@ -222,7 +226,7 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(buildRpcCall(request));
+    const result = await handler.handle(buildRpcCall(request, scope));
 
     expect(result).toEqual({
       ...request,
@@ -247,8 +251,12 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       method: ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
       params: ['NTT'],
     } as any;
-    const result = await handler.handle(buildRpcCall(request));
+    const result = await handler.handle(buildRpcCall(request, scope));
 
+    expect(result).toEqual({
+      ...request,
+      result: new Big(1000),
+    });
     expect(getMaxTransferAmount).toHaveBeenCalledTimes(1);
     expect(getMaxTransferAmount).toHaveBeenCalledWith({
       currentBlockchain: Blockchain.ETHEREUM,
@@ -257,11 +265,6 @@ describe('background/services/bridge/handlers/getEthMaxTransferAmount', () => {
       assets: ethAssets,
       provider: mockProvider,
       config: bridgeServiceMock.bridgeConfig.config,
-    });
-
-    expect(result).toEqual({
-      ...request,
-      result: new Big(1000),
     });
   });
 });

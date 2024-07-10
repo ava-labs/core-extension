@@ -22,7 +22,7 @@ export class GetNftBalancesHandler implements HandlerType {
     private accountsService: AccountsService
   ) {}
 
-  handle: HandlerType['handle'] = async ({ request }) => {
+  handle: HandlerType['handle'] = async ({ request, scope }) => {
     const params = request.params;
     let [pageTokens] = params;
 
@@ -32,7 +32,7 @@ export class GetNftBalancesHandler implements HandlerType {
         [TokenType.ERC1155]: undefined,
       };
     }
-    const currentNetwork = this.networkService.activeNetwork;
+    const currentNetwork = await this.networkService.getNetwork(scope);
 
     if (!currentNetwork) {
       return {

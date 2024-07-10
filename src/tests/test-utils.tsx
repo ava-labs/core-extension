@@ -30,7 +30,7 @@ export const waitForIntervalRuns = async (numberOfRuns, intervalMs) => {
 
 export const buildRpcCall = <M extends string>(
   payload: PartialBy<JsonRpcRequestPayload<M>, 'params'>,
-  scope = ''
+  scope = 'eip155:43113'
 ): JsonRpcRequestParams<M, any> =>
   ({
     scope,

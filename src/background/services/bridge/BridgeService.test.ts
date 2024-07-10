@@ -68,13 +68,13 @@ const networkFeeService = jest.mocked<NetworkFeeService>({
 const addressBTC = 'tb01234';
 
 const networkBalancesService = {
-  balances: {
+  getBalancesForNetworks: async () => ({
     [ChainId.BITCOIN_TESTNET]: {
       [addressBTC]: {
         BTC: {},
       },
     },
-  },
+  }),
 } as unknown as BalanceAggregatorService;
 
 const utxos = [{ index: 1 }, { index: 2 }];
@@ -245,8 +245,8 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
           inputs: utxosWithScript,
           outputs: [],
         },
-        1234,
-        BITCOIN_NETWORK
+        BITCOIN_NETWORK,
+        1234
       );
 
       expect({ hash, confirmations, from }).toStrictEqual({

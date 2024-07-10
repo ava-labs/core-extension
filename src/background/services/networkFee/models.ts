@@ -23,7 +23,3 @@ export type SerializedNetworkFee = Omit<
   high: bigint;
   isFixedFee: boolean;
 };
-
-export enum NetworkFeeEvents {
-  NETWORK_FEE_UPDATED = 'network-fee-updated',
-}

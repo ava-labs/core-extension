@@ -11,17 +11,21 @@ import {
 import { FetchRequest, Network } from 'ethers';
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 import { getProviderForNetwork } from './getProviderForNetwork';
+import { decorateWithCaipId } from '../caipConversion';
 
 jest.mock('@avalabs/wallets-sdk', () => {
   const BitcoinProviderMock = jest.fn();
   const JsonRpcBatchInternalMock = jest.fn();
   const getDefaultFujiProviderMock = jest.fn();
   const getDefaultMainnetProviderMock = jest.fn();
+  const actual = jest.requireActual('@avalabs/wallets-sdk');
+
   return {
-    ...jest.requireActual('@avalabs/wallets-sdk'),
+    ...actual,
     BitcoinProvider: BitcoinProviderMock,
     JsonRpcBatchInternal: JsonRpcBatchInternalMock,
     Avalanche: {
+      ...actual.Avalanche,
       JsonRpcProvider: {
         getDefaultFujiProvider: getDefaultFujiProviderMock,
         getDefaultMainnetProvider: getDefaultMainnetProviderMock,
@@ -48,23 +52,24 @@ const mockNetwork = (
   vmName: NetworkVMType,
   isTestnet?: boolean,
   overrides = {}
-) => ({
-  chainName: 'test chain',
-  chainId: 123,
-  vmName,
-  rpcUrl: 'https://rpcurl.example',
-  networkToken: {
-    name: 'test network token',
-    symbol: 'TNT',
-    description: '',
-    decimals: 18,
+) =>
+  decorateWithCaipId({
+    chainName: 'test chain',
+    chainId: 123,
+    vmName,
+    rpcUrl: 'https://rpcurl.example',
+    networkToken: {
+      name: 'test network token',
+      symbol: 'TNT',
+      description: '',
+      decimals: 18,
+      logoUri: '',
+    },
     logoUri: '',
-  },
-  logoUri: '',
-  primaryColor: 'blue',
-  isTestnet: isTestnet ?? true,
-  ...overrides,
-});
+    primaryColor: 'blue',
+    isTestnet: isTestnet ?? true,
+    ...overrides,
+  });
 
 describe('src/utils/network/getProviderForNetwork', () => {
   const mockJsonRpcBatchInternalInstance = {};
@@ -174,7 +179,9 @@ describe('src/utils/network/getProviderForNetwork', () => {
   });
 
   it('returns bitcoin provider for BTC testnet', () => {
-    const provider = getProviderForNetwork(BITCOIN_TEST_NETWORK);
+    const provider = getProviderForNetwork(
+      decorateWithCaipId(BITCOIN_TEST_NETWORK)
+    );
 
     expect(provider).toBe(mockBitcoinProviderInstance);
     expect(BitcoinProvider).toHaveBeenCalledTimes(1);
@@ -188,7 +195,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
   });
 
   it('returns bitcoin provider for BTC mainnet', () => {
-    const provider = getProviderForNetwork(BITCOIN_NETWORK);
+    const provider = getProviderForNetwork(decorateWithCaipId(BITCOIN_NETWORK));
 
     expect(provider).toBe(mockBitcoinProviderInstance);
     expect(BitcoinProvider).toHaveBeenCalledTimes(1);

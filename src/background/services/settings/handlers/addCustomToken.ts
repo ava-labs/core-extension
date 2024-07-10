@@ -4,6 +4,7 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { TokenManagerService } from '../../tokens/TokenManagerService';
 import { SettingsService } from '../SettingsService';
+import { NetworkService } from '../../network/NetworkService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_ADD_CUSTOM_TOKEN,
@@ -17,13 +18,23 @@ export class AddCustomTokenHandler implements HandlerType {
 
   constructor(
     private settingsService: SettingsService,
-    private tokenManagerService: TokenManagerService
+    private tokenManagerService: TokenManagerService,
+    private networkService: NetworkService
   ) {}
 
-  handle: HandlerType['handle'] = async ({ request }) => {
+  handle: HandlerType['handle'] = async ({ request, scope }) => {
+    const network = await this.networkService.getNetwork(scope);
+
+    if (!network) {
+      return {
+        ...request,
+        error: 'Target network not found',
+      };
+    }
+
     const [tokenAddress] = request.params;
     const [tokenData, err] = await resolve(
-      this.tokenManagerService.getTokenData(tokenAddress)
+      this.tokenManagerService.getTokenData(tokenAddress, network)
     );
 
     if (!tokenData || err) {

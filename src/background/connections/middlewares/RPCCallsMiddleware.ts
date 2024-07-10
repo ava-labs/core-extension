@@ -7,7 +7,9 @@ export function RPCCallsMiddleware(
   networkService: NetworkService
 ): Middleware<JsonRpcRequest, JsonRpcResponse> {
   return async (context, next, error) => {
-    const network = networkService.activeNetwork;
+    const network = await networkService.getNetwork(
+      context.request.params.scope
+    );
     const { method } = context.request;
     const declineMethodsPattern = /(^eth_|_watchAsset$)/;
     if (
