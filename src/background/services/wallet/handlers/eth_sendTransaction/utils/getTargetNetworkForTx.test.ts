@@ -5,38 +5,39 @@ import { NetworkService } from '@src/background/services/network/NetworkService'
 import { StorageService } from '@src/background/services/storage/StorageService';
 import { errorCodes, EthereumRpcError } from 'eth-rpc-errors';
 import { FeatureFlagService } from '@src/background/services/featureFlags/FeatureFlagService';
-import { caipToChainId } from '@src/utils/caipConversion';
+import { caipToChainId, decorateWithCaipId } from '@src/utils/caipConversion';
 
 jest.mock('@src/background/services/network/NetworkService');
 
-const uiActiveNetwork = {
+const uiActiveNetwork = decorateWithCaipId({
   chainId: 43114,
+  vmName: NetworkVMType.EVM,
   isTestnet: false,
-};
+} as any);
 
-const eth = {
+const eth = decorateWithCaipId({
   isTestnet: false,
   vmName: NetworkVMType.EVM,
   chainId: 0x1,
-};
+} as any);
 
-const networkFromRequestScope = {
+const networkFromRequestScope = decorateWithCaipId({
   isTestnet: true,
   vmName: NetworkVMType.EVM,
   chainId: 43113,
-};
+} as any);
 
-const btc = {
+const btc = decorateWithCaipId({
   ...eth,
   chainId: ChainId.BITCOIN_TESTNET,
   vmName: NetworkVMType.BITCOIN,
-};
+} as any);
 
-const otherNetwork = {
+const otherNetwork = decorateWithCaipId({
   ...eth,
   isTestnet: true,
   chainId: 0x2,
-};
+} as any);
 
 const getRpcError = (message: string, chainId: number) =>
   new EthereumRpcError(errorCodes.rpc.invalidParams, message, {
@@ -108,11 +109,13 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
     mockNetworkService.uiActiveNetwork = {
       chainId: 1234,
       isTestnet: true,
+      caipId: 'eip155:1234',
     };
 
     const network = await getTargetNetworkForTx(
       { chainId: 2 } as any,
-      mockNetworkService
+      mockNetworkService,
+      eth.caipId
     );
 
     expect(network).toBe(otherNetwork);
@@ -120,7 +123,11 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
 
   it('throws error if an unsupported chainId was provided', async () => {
     await expect(
-      getTargetNetworkForTx({ chainId: 12321 } as any, mockNetworkService)
+      getTargetNetworkForTx(
+        { chainId: 12321 } as any,
+        mockNetworkService,
+        'eip155:1'
+      )
     ).rejects.toThrow(getRpcError('Provided ChainID is not supported', 1));
   });
 
@@ -128,17 +135,42 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
     await expect(
       getTargetNetworkForTx(
         { chainId: ChainId.BITCOIN_TESTNET } as any,
-        mockNetworkService
+        mockNetworkService,
+        eth.caipId
       )
     ).rejects.toThrow(getRpcError('Provided ChainID is not supported', 1));
   });
 
   it('throws error for cross-environment transactions', async () => {
     await expect(
-      getTargetNetworkForTx({ chainId: 43113 } as any, mockNetworkService)
+      getTargetNetworkForTx(
+        { chainId: 43113 } as any,
+        mockNetworkService,
+        eth.caipId
+      )
     ).rejects.toThrow(
       getRpcError('Provided ChainID is in a different environment', 1)
     );
+  });
+
+  it('allows chainIds of custom networks as long as it is also the active network for dApp', async () => {
+    // eslint-disable-next-line
+    // @ts-ignore
+    mockNetworkService.uiActiveNetwork = {
+      chainId: 1234,
+      isTestnet: true,
+      caipId: 'eip155:1234',
+    };
+    mockNetworkService.customNetworks[otherNetwork.chainId] =
+      otherNetwork as any;
+
+    expect(
+      await getTargetNetworkForTx(
+        { chainId: otherNetwork.chainId } as any,
+        mockNetworkService,
+        otherNetwork.caipId
+      )
+    ).toEqual(otherNetwork);
   });
 
   it('throws error for custom networks', async () => {
@@ -147,6 +179,7 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
     mockNetworkService.uiActiveNetwork = {
       chainId: 1234,
       isTestnet: true,
+      caipId: 'eip155:1234',
     };
     mockNetworkService.customNetworks[otherNetwork.chainId] =
       otherNetwork as any;
@@ -154,7 +187,8 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
     await expect(
       getTargetNetworkForTx(
         { chainId: otherNetwork.chainId } as any,
-        mockNetworkService
+        mockNetworkService,
+        'eip155:1234'
       )
     ).rejects.toThrow(
       getRpcError('ChainID is not supported for custom networks', 1)

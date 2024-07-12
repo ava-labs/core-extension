@@ -18,8 +18,8 @@ const BitcoinCaipId = {
 const AvaxCaipId = {
   [ChainId.AVALANCHE_P]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.pBlockchainID}`,
   [ChainId.AVALANCHE_X]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.xBlockchainID}`,
-  [ChainId.AVALANCHE_TEST_P]: `${CaipNamespace.AVAX}:${Avalanche.FujiContext.pBlockchainID}`,
-  [ChainId.AVALANCHE_TEST_X]: `${CaipNamespace.AVAX}:${Avalanche.FujiContext.xBlockchainID}`,
+  [ChainId.AVALANCHE_TEST_P]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.pBlockchainID}`,
+  [ChainId.AVALANCHE_TEST_X]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.xBlockchainID}`,
 } as const;
 
 export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {

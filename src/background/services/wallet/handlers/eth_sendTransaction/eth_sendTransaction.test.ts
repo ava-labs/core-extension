@@ -735,7 +735,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       expect(getTargetNetworkForTx).toHaveBeenCalledTimes(1);
       expect(getTargetNetworkForTx).toHaveBeenCalledWith(
         mockAction.displayData.txParams,
-        networkService
+        networkService,
+        mockAction.scope
       );
       expect(onSuccessMock).not.toHaveBeenCalled();
       expect(onErrorMock).toHaveBeenCalled();

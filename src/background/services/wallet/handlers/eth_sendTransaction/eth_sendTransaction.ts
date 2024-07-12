@@ -79,7 +79,11 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
       ...rawParams,
       chainId: rawParams.chainId ?? `0x${caipToChainId(scope).toString(16)}`,
     };
-    const network = await getTargetNetworkForTx(trxParams, this.networkService);
+    const network = await getTargetNetworkForTx(
+      trxParams,
+      this.networkService,
+      scope
+    );
 
     if (!network) {
       throw Error('no network selected');
@@ -188,7 +192,8 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
     try {
       const network = await getTargetNetworkForTx(
         pendingAction.displayData.txParams,
-        this.networkService
+        this.networkService,
+        pendingAction.scope
       );
 
       const calculatedFee = await this.networkFeeService.getNetworkFee(network);

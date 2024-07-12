@@ -96,10 +96,7 @@ describe('background/services/network/NetworkService', () => {
     addListener: jest.fn(),
   } as any);
 
-  const service = new NetworkService(
-    storageServiceMock,
-    featureFlagsServiceMock
-  );
+  let service = new NetworkService(storageServiceMock, featureFlagsServiceMock);
 
   const ethMainnet = mockNetwork(NetworkVMType.EVM, false, { chainId: 1 });
   const avaxMainnet = mockNetwork(NetworkVMType.EVM, false, {
@@ -273,15 +270,45 @@ describe('background/services/network/NetworkService', () => {
       });
 
       beforeEach(async () => {
+        service = new NetworkService(
+          storageServiceMock,
+          featureFlagsServiceMock
+        );
         // Set Ethereum Mainnet directly for the frontend
         await service.setNetwork(runtime.id, ethMainnet);
         expect(service.uiActiveNetwork).toEqual(ethMainnet);
       });
 
-      it('changes the extension UI network as well', async () => {
-        // Set Ethereum Sepolia for any dApp
+      it(`changes dApp's network to the specified chain`, async () => {
+        storageServiceMock.load.mockResolvedValueOnce({
+          [runtime.id]: sepolia.caipId,
+        });
+        await service.setNetwork('app.uniswap.io', sepolia);
+        expect(storageServiceMock.save).toHaveBeenCalledWith(
+          NETWORK_STORAGE_KEY,
+          expect.objectContaining({
+            dappScopes: expect.objectContaining({
+              'app.uniswap.io': sepolia.caipId,
+            }),
+          })
+        );
+      });
+
+      it(`changes all other dApps' networks to C-Chain, extension included`, async () => {
+        storageServiceMock.load.mockResolvedValueOnce({
+          [runtime.id]: sepolia.caipId,
+        });
         await service.setNetwork('app.uniswap.io', sepolia);
         expect(service.uiActiveNetwork).toEqual(sepolia);
+        expect(storageServiceMock.save).toHaveBeenCalledWith(
+          NETWORK_STORAGE_KEY,
+          expect.objectContaining({
+            dappScopes: expect.objectContaining({
+              'app.uniswap.io': sepolia.caipId,
+              [runtime.id]: 'eip155:43113',
+            }),
+          })
+        );
       });
 
       it('notifies on developer mode change', async () => {

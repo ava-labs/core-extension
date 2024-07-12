@@ -7,7 +7,6 @@ import { NetworkService } from '../NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { ChainId } from '@avalabs/chains-sdk';
-import { runtime } from 'webextension-polyfill';
 
 @injectable()
 export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
@@ -58,6 +57,12 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
         displayData: { isTestmode },
       } = pendingAction;
 
+      const domain = pendingAction.site?.domain;
+
+      if (!domain) {
+        throw new Error('Unrecognized domain');
+      }
+
       const network = await this.networkService.getNetwork(
         isTestmode ? ChainId.AVALANCHE_TESTNET_ID : ChainId.AVALANCHE_MAINNET_ID
       );
@@ -66,7 +71,7 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
         throw new Error('Target network not found');
       }
 
-      await this.networkService.setNetwork(runtime.id, network);
+      await this.networkService.setNetwork(domain, network);
 
       onSuccess(null);
     } catch (e) {

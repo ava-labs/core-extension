@@ -47,7 +47,11 @@ import { isPchainNetwork } from './utils/isAvalanchePchainNetwork';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { isXchainNetwork } from './utils/isAvalancheXchainNetwork';
 import { runtime } from 'webextension-polyfill';
-import { caipToChainId, decorateWithCaipId } from '@src/utils/caipConversion';
+import {
+  caipToChainId,
+  chainIdToCaip,
+  decorateWithCaipId,
+} from '@src/utils/caipConversion';
 import { getSyncDomain } from './utils/getSyncDomain';
 
 @singleton()
@@ -155,14 +159,38 @@ export class NetworkService implements OnLock, OnStorageReady {
       this.uiActiveNetwork = selectedNetwork;
     }
 
-    await this.#updateDappScope(domain, selectedNetwork.caipId);
+    // Save scope for requesting dApp
+    await this.#updateDappScopes({ [domain]: selectedNetwork.caipId });
+
+    // If change resulted in an environment switch, also notify other dApps
+    if (changesEnvironment) {
+      const newScopes = Object.fromEntries(
+        Object.entries(this.#dappScopes)
+          .filter(
+            ([savedDomain]) =>
+              getSyncDomain(savedDomain) !== getSyncDomain(domain)
+          )
+          .map(([savedDomain]) => [
+            savedDomain,
+            chainIdToCaip(
+              selectedNetwork.isTestnet
+                ? ChainId.AVALANCHE_TESTNET_ID
+                : ChainId.AVALANCHE_MAINNET_ID
+            ),
+          ])
+      );
+
+      await this.#updateDappScopes(newScopes);
+    }
   }
 
-  async #updateDappScope(domain: string, scope: string) {
-    const syncDomain = getSyncDomain(domain);
+  async #updateDappScopes(scopes: Record<string, string>) {
+    Object.entries(scopes).forEach(([domain, scope]) => {
+      const syncDomain = getSyncDomain(domain);
 
-    this.#dappScopes[syncDomain] = scope;
-    this.dappScopeChanged.dispatch({ domain: syncDomain, scope });
+      this.#dappScopes[syncDomain] = scope;
+      this.dappScopeChanged.dispatch({ domain: syncDomain, scope });
+    });
 
     await this.updateNetworkState();
   }
