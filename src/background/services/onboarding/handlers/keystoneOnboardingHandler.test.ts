@@ -110,7 +110,6 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
         xpub: 'xpub',
         xpubXP: '',
         password: 'password',
-        accountName: 'Bob',
         analyticsConsent: false,
         masterFingerprint: 'masterFingerprint',
       },
@@ -136,7 +135,6 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
       name: undefined,
     });
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
-      name: 'Bob',
       walletId: WALLET_ID,
     });
 

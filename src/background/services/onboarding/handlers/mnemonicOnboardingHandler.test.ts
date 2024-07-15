@@ -115,7 +115,6 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
       {
         mnemonic,
         password: 'password',
-        accountName: 'Bob',
         analyticsConsent: false,
       },
     ]);
@@ -151,7 +150,6 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
       {
         mnemonic: 'mnemonic',
         password: 'password',
-        accountName: 'Bob',
         analyticsConsent: false,
       },
     ]);
@@ -177,7 +175,6 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     });
 
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
-      name: 'Bob',
       walletId: WALLET_ID,
     });
 

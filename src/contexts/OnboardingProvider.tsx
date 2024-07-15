@@ -37,6 +37,10 @@ import { SeedlessOnboardingHandler } from '@src/background/services/onboarding/h
 import { KeystoneOnboardingHandler } from '@src/background/services/onboarding/handlers/keystoneOnboardingHandler';
 import { LedgerOnboardingHandler } from '@src/background/services/onboarding/handlers/ledgerOnboardingHandler';
 import { WalletType } from '@avalabs/types';
+import { signUpForNewsletter } from '@src/utils/newsletter';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 const Onboarding = lazy(() =>
   import('../pages/Onboarding/Onboarding').then((m) => ({
@@ -54,11 +58,7 @@ const OnboardingContext = createContext<{
   setXpubXP: Dispatch<SetStateAction<string>>;
   setAnalyticsConsent: Dispatch<SetStateAction<boolean | undefined>>;
   analyticsConsent: boolean | undefined;
-  setPasswordAndNames: (
-    password: string,
-    accountName: string,
-    walletName?: string
-  ) => void;
+  setPasswordAndNames: (password: string, walletName?: string) => void;
   submit(postSubmitHandler: () => void): void;
   setPublicKeys: Dispatch<SetStateAction<PubKeyType[] | undefined>>;
   publicKeys?: PubKeyType[];
@@ -77,6 +77,11 @@ const OnboardingContext = createContext<{
   isSeedlessMfaRequired: boolean;
   setIsSeedlessMfaRequired: Dispatch<SetStateAction<boolean>>;
   setOnboardingWalletType: Dispatch<SetStateAction<WalletType | undefined>>;
+  newsletterEmail: string;
+  setNewsletterEmail: Dispatch<SetStateAction<string>>;
+  isNewsletterEnabled: boolean;
+  setIsNewsletterEnabled: Dispatch<SetStateAction<boolean>>;
+  onboardingWalletType: WalletType | undefined;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -94,7 +99,8 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
   const [password, setPassword] = useState('');
 
-  const [accountName, setAccountName] = useState<string>('Account 1');
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [isNewsletterEnabled, setIsNewsletterEnabled] = useState(false);
   const [walletName, setWalletName] = useState<string>();
 
   const [analyticsConsent, setAnalyticsConsent] = useState<boolean | undefined>(
@@ -138,7 +144,6 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setXpubXP('');
     setPublicKeys(undefined);
     setPassword('');
-    setAccountName('Account 1');
     setAnalyticsConsent(undefined);
     setMasterFingerprint('');
     setOidcToken('');
@@ -148,6 +153,8 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setWalletName(undefined);
     setIsSeedlessMfaRequired(false);
     setOnboardingWalletType(undefined);
+    setIsNewsletterEnabled(false);
+    setNewsletterEmail('');
   }, []);
 
   useEffect(() => {
@@ -206,9 +213,8 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   }, [isHome, onboardingState]);
 
   const setPasswordAndNames = useCallback(
-    (pass: string, newAccountName: string, newWalletName?: string) => {
+    (pass: string, newWalletName?: string) => {
       setPassword(pass);
-      setAccountName(newAccountName);
       setWalletName(newWalletName);
     },
     []
@@ -221,13 +227,12 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         {
           mnemonic,
           password,
-          accountName,
           analyticsConsent: !!analyticsConsent,
           walletName: walletName,
         },
       ],
     });
-  }, [accountName, analyticsConsent, mnemonic, password, request, walletName]);
+  }, [analyticsConsent, mnemonic, password, request, walletName]);
 
   const submitSeedless = useCallback(() => {
     if (!seedlessSignerToken || !userId || !authProvider) {
@@ -241,14 +246,12 @@ export function OnboardingContextProvider({ children }: { children: any }) {
           userId,
           authProvider,
           password,
-          accountName,
           analyticsConsent: !!analyticsConsent,
           walletName: walletName,
         },
       ],
     });
   }, [
-    accountName,
     analyticsConsent,
     authProvider,
     password,
@@ -267,14 +270,12 @@ export function OnboardingContextProvider({ children }: { children: any }) {
           xpubXP,
           pubKeys: publicKeys,
           password,
-          accountName,
           analyticsConsent: !!analyticsConsent,
           walletName: walletName,
         },
       ],
     });
   }, [
-    accountName,
     analyticsConsent,
     password,
     publicKeys,
@@ -292,14 +293,12 @@ export function OnboardingContextProvider({ children }: { children: any }) {
           masterFingerprint,
           xpub,
           password,
-          accountName,
           analyticsConsent: !!analyticsConsent,
           walletName: walletName,
         },
       ],
     });
   }, [
-    accountName,
     analyticsConsent,
     masterFingerprint,
     password,
@@ -341,8 +340,30 @@ export function OnboardingContextProvider({ children }: { children: any }) {
 
       setSubmitInProgress(true);
       handler()
-        .then(() => {
+        .then(async () => {
           capture('OnboardingSubmitSucceeded', { walletType });
+
+          if (isNewsletterEnabled) {
+            try {
+              await signUpForNewsletter({ email: newsletterEmail });
+              capture('NewsletterSignupSuccess');
+            } catch (ex: any) {
+              const rawMessage = ex.message
+                ? String(ex.message)
+                : 'Failed to sign up for newsletter';
+              const sanitizedMessage = rawMessage.replace(
+                new RegExp(newsletterEmail, 'g'),
+                '<user-email>'
+              );
+
+              sentryCaptureException(
+                new Error(sanitizedMessage),
+                SentryExceptionTypes.ONBOARDING
+              );
+              capture('NewsletterSignupFailure');
+            }
+          }
+
           resetStates();
           postSubmitHandler();
         })
@@ -360,7 +381,9 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     },
     [
       capture,
+      isNewsletterEnabled,
       mnemonic,
+      newsletterEmail,
       onboardingWalletType,
       password,
       resetStates,
@@ -384,8 +407,12 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       value={{
         onboardingState,
         nextPhase,
+        newsletterEmail,
+        isNewsletterEnabled,
+        setIsNewsletterEnabled,
         submitInProgress,
         setNextPhase,
+        setNewsletterEmail,
         setMnemonic,
         setXpub,
         setXpubXP,
@@ -408,6 +435,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         isSeedlessMfaRequired,
         setIsSeedlessMfaRequired,
         setOnboardingWalletType,
+        onboardingWalletType,
       }}
     >
       {/*

@@ -142,7 +142,6 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
     const request = getRequest([
       {
         password: 'password',
-        accountName: 'test-acc',
         walletName: 'wallet-name',
         seedlessSignerToken: {},
         userId: '123',
@@ -177,11 +176,9 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
     // Adds all derived accounts
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledTimes(2);
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(1, {
-      name: 'test-acc',
       walletId: WALLET_ID,
     });
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(2, {
-      name: '',
       walletId: WALLET_ID,
     });
 

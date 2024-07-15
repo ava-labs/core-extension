@@ -5,22 +5,21 @@ import {
 } from '@src/background/services/onboarding/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
-import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
-import {
-  Button,
-  ChevronLeftIcon,
-  Stack,
-  Typography,
-} from '@avalabs/k2-components';
+import { AirdropIcon, Button, Stack, Typography } from '@avalabs/k2-components';
 import { PageNav } from '../components/PageNav';
 import { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { TypographyLink } from '../components/TypographyLink';
 import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
 
 export const AnalyticsConsent = () => {
-  const { setAnalyticsConsent, submit, onboardingPhase, analyticsConsent } =
-    useOnboardingContext();
+  const {
+    setAnalyticsConsent,
+    submit,
+    onboardingPhase,
+    analyticsConsent,
+    newsletterEmail,
+    isNewsletterEnabled,
+  } = useOnboardingContext();
   const { capture, stopDataCollection } = useAnalyticsContext();
   const { t } = useTranslation();
   const history = useHistory();
@@ -58,10 +57,17 @@ export const AnalyticsConsent = () => {
 
     // submit handler can't be in the onNext and onBack callbacks since it would run in a stale closure
     // resulting in an always false analytics consent
-    submit(() =>
+    submit(async () =>
       coreWebLink ? window.location.replace(coreWebLink) : window.close()
     );
-  }, [analyticsConsent, onboardingPhase, submit]);
+  }, [
+    analyticsConsent,
+    onboardingPhase,
+    submit,
+    newsletterEmail,
+    capture,
+    isNewsletterEnabled,
+  ]);
 
   return (
     <Stack
@@ -70,61 +76,56 @@ export const AnalyticsConsent = () => {
         height: '100%',
       }}
     >
-      <OnboardingStepHeader title={t('Help Us Improve Core')} />
       <Stack
         sx={{
           mt: 4,
           flexGrow: 1,
+          textAlign: 'center',
+          gap: 4,
+          justifyContent: 'center',
         }}
       >
-        <Stack sx={{ mb: 4 }}>
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            {t(
-              'Core would like to gather data using local storage and similar technologies to help us understand how our users interact with Core.'
-            )}
-          </Typography>
-          <Typography variant="body1">
+        <Stack sx={{ alignItems: 'center', gap: 2 }}>
+          <AirdropIcon size={64} />
+          <Typography variant="h3">{t('Unlock Airdrops')}</Typography>
+        </Stack>
+        <Stack sx={{ mb: 4, gap: 3 }}>
+          <Typography variant="body2">
             <Trans
-              i18nKey="This enables us to develop improvements and enhance your experience, to find out more you can read our <typography>Privacy Policy</typography>. You can always opt out by visiting the settings page."
+              i18nKey="As a Core user, you have the option to opt-in for <b>airdrop rewards</b> based on your activity and engagement. Core will collect anonymous interaction data to power this feature."
               components={{
-                typography: (
-                  <TypographyLink
-                    as="a"
-                    target="_blank"
-                    href="https://www.avalabs.org/privacy-policy"
-                  />
-                ),
+                b: <b />,
+              }}
+            />
+          </Typography>
+          <Typography variant="body2">
+            <Trans
+              i18nKey="Core is committed to protecting your privacy. We will <b>never</b> sell or share your data. If you wish, you can disable this at any time in the settings menu."
+              components={{
+                b: <b />,
               }}
             />
           </Typography>
         </Stack>
-        <Typography variant="body1" sx={{ mb: 1 }}>
-          <Trans
-            i18nKey="Core will <typography>never</typography> sell or share data."
-            components={{
-              typography: (
-                <Typography
-                  component="span"
-                  sx={{ fontWeight: 'fontWeightBold' }}
-                />
-              ),
-            }}
-          />
-        </Typography>
       </Stack>
 
       <PageNav
-        onBack={async () => {
-          capture('OnboardingAnalyticsRejected');
-          stopDataCollection();
-          setAnalyticsConsent(false);
+        onBack={() => {
+          if (
+            onboardingPhase === OnboardingPhase.SEEDLESS_GOOGLE ||
+            onboardingPhase === OnboardingPhase.SEEDLESS_APPLE
+          ) {
+            setIsVerifyGoBackModalOpen(true);
+            return;
+          }
+          history.goBack();
         }}
-        backText={t('No Thanks')}
+        backText={t('Back')}
         onNext={async () => {
           capture('OnboardingAnalyticsAccepted');
           setAnalyticsConsent(true);
         }}
-        nextText={t('I Agree')}
+        nextText={t('Unlock')}
         disableNext={false}
         expand={onboardingPhase !== OnboardingPhase.CREATE_WALLET}
         steps={getSteps.stepsNumber}
@@ -132,20 +133,17 @@ export const AnalyticsConsent = () => {
       >
         <Button
           variant="text"
-          onClick={() => {
-            if (onboardingPhase === OnboardingPhase.SEEDLESS_GOOGLE) {
-              setIsVerifyGoBackModalOpen(true);
-              return;
-            }
-            history.goBack();
+          onClick={async () => {
+            capture('OnboardingAnalyticsRejected');
+            stopDataCollection();
+            setAnalyticsConsent(false);
           }}
           sx={{
             color: 'secondary',
           }}
         >
-          <ChevronLeftIcon size={16} />
           <Typography variant="caption" sx={{ ml: 1 }}>
-            {t('Back')}
+            {t('No Thanks')}
           </Typography>
         </Button>
       </PageNav>

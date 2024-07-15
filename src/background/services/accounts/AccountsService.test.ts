@@ -515,7 +515,7 @@ describe('background/services/accounts/AccountsService', () => {
               ...getAllAddresses(),
               index: 0,
               id: uuid,
-              name: 'Account name',
+              name: 'Account 1',
               type: AccountType.PRIMARY,
               walletId,
             },
@@ -600,7 +600,7 @@ describe('background/services/accounts/AccountsService', () => {
       newAccounts.primary[walletId].push({
         index: 2,
         id: uuid,
-        name: 'New Account',
+        name: 'Account 3',
         ...getAllAddresses(),
         type: AccountType.PRIMARY,
         walletId,
@@ -634,7 +634,7 @@ describe('background/services/accounts/AccountsService', () => {
       newAccounts.primary[walletId].push({
         index: 2,
         id: uuid,
-        name: 'New Account',
+        name: 'Account 3',
         ...getAllAddresses(),
         type: AccountType.PRIMARY,
         walletId,

@@ -29,7 +29,6 @@ type HandlerType = ExtensionRequestHandler<
       seedlessSignerToken: SignerSessionData;
       userId: string;
       password: string;
-      accountName: string;
       analyticsConsent: boolean;
       walletName?: string;
       authProvider: SeedlessAuthProvider;
@@ -59,7 +58,6 @@ export class SeedlessOnboardingHandler implements HandlerType {
       userId,
       authProvider,
       password,
-      accountName,
       analyticsConsent,
       walletName,
     } = (request.params ?? [])[0] ?? {};
@@ -103,7 +101,6 @@ export class SeedlessOnboardingHandler implements HandlerType {
       // Otherwise race conditions occur and addresses get mixed up.
       for (let i = 0; i < secrets.pubKeys.length; i++) {
         await this.accountsService.addPrimaryAccount({
-          name: i === 0 ? accountName : '',
           walletId,
         });
       }

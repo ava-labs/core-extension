@@ -110,7 +110,6 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
         xpub: 'xpub',
         xpubXP: 'xpubXP',
         password: 'password',
-        accountName: 'Bob',
         walletName: 'wallet-name',
         analyticsConsent: false,
       },
@@ -137,7 +136,6 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       name: 'wallet-name',
     });
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
-      name: 'Bob',
       walletId: WALLET_ID,
     });
 
@@ -154,7 +152,6 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       {
         pubKeys: ['pubkey1', 'pubkey2', 'pubkey3'],
         password: 'password',
-        accountName: 'Bob',
         walletName: 'wallet-name',
         analyticsConsent: false,
       },
@@ -179,15 +176,12 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       name: 'wallet-name',
     });
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(1, {
-      name: 'Bob',
       walletId: WALLET_ID,
     });
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(2, {
-      name: '',
       walletId: WALLET_ID,
     });
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(3, {
-      name: '',
       walletId: WALLET_ID,
     });
 

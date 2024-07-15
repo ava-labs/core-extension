@@ -31,7 +31,7 @@
     "@avalabs/etherscan-sdk": "2.8.0-alpha.188",
     "@avalabs/glacier-sdk": "2.8.0-alpha.188",
     "@avalabs/hw-app-avalanche": "0.14.1",
-    "@avalabs/k2-components": "4.18.0-alpha.35",
+    "@avalabs/k2-components": "4.18.0-alpha.41",
     "@avalabs/snowtrace-sdk": "2.8.0-alpha.188",
     "@avalabs/token-prices-sdk": "2.8.0-alpha.188",
     "@avalabs/types": "2.8.0-alpha.188",

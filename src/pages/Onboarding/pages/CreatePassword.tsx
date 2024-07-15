@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import {
   OnboardingPhase,
@@ -8,23 +8,44 @@ import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import {
+  CheckIcon,
   Checkbox,
+  Divider,
+  InputAdornment,
   Stack,
   TextField,
   Typography,
+  XIcon,
   useTheme,
 } from '@avalabs/k2-components';
 import { PageNav } from '../components/PageNav';
 import { PasswordStrength } from '@src/components/common/PasswordStrength';
 import { useHistory } from 'react-router-dom';
 import { TypographyLink } from '../components/TypographyLink';
+
 import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
+import { WalletType } from '@avalabs/types';
+import Joi from 'joi';
+import { isNewsletterConfigured } from '@src/utils/newsletter';
+
+enum EmailValidationResult {
+  Undetermined,
+  Valid,
+  Invalid,
+}
 
 export const CreatePassword = () => {
   const { capture } = useAnalyticsContext();
   const history = useHistory();
-  const { setPasswordAndNames, onboardingPhase } = useOnboardingContext();
-  const [accountName, setAccountName] = useState<string>('');
+  const {
+    setPasswordAndNames,
+    onboardingPhase,
+    isNewsletterEnabled,
+    setIsNewsletterEnabled,
+    newsletterEmail,
+    setNewsletterEmail,
+    onboardingWalletType,
+  } = useOnboardingContext();
   const [walletName, setWalletName] = useState<string>();
   const [password, setPassword] = useState<string>('');
   const [confirmPasswordVal, setConfirmPasswordVal] = useState<string>('');
@@ -36,6 +57,12 @@ export const CreatePassword = () => {
   const theme = useTheme();
   const [newPasswordStrength, setNewPasswordStrength] = useState<number>(0);
   const [isVerifyGoBackModalOpen, setIsVerifyGoBackModalOpen] = useState(false);
+
+  const [emailValidationResult, setEmailValidationResult] = useState(
+    onboardingWalletType === WalletType.Seedless
+      ? EmailValidationResult.Valid
+      : EmailValidationResult.Undetermined
+  );
 
   const getSteps = useMemo(() => {
     if (onboardingPhase === OnboardingPhase.IMPORT_WALLET) {
@@ -72,12 +99,20 @@ export const CreatePassword = () => {
     !confirmationError &&
     isFieldsFilled &&
     termAndPolicyChecked &&
-    newPasswordStrength > 1;
+    newPasswordStrength > 1 &&
+    (!isNewsletterEnabled ||
+      emailValidationResult === EmailValidationResult.Valid);
+
+  const validateEmail = useCallback((email: string) => {
+    const { error } = Joi.string().email().validate(email);
+
+    return error ? EmailValidationResult.Invalid : EmailValidationResult.Valid;
+  }, []);
 
   return (
     <Stack
       sx={{
-        width: '100%',
+        width: 375,
         height: '100%',
       }}
     >
@@ -85,47 +120,57 @@ export const CreatePassword = () => {
         testId="name-and-password"
         title={t('Account Details')}
       />
-      <Stack sx={{ flexGrow: 1, textAlign: 'center', mb: 3 }}>
-        <Typography
-          variant="body2"
-          sx={{ mb: 4 }}
-          color={theme.palette.text.secondary}
-        >
-          <Trans i18nKey="For your security, please create a name and password." />
-        </Typography>
+      <Stack sx={{ flexGrow: 1, mb: 3, px: 1.5 }}>
+        <Stack sx={{ textAlign: 'center' }}>
+          <Typography
+            variant="body2"
+            sx={{ mb: 4 }}
+            color={theme.palette.text.secondary}
+          >
+            <Trans i18nKey="For your security, please create a name and password." />
+          </Typography>
+        </Stack>
 
-        <Stack
-          sx={{ width: theme.spacing(44), alignSelf: 'center', rowGap: 2 }}
-        >
-          <Stack sx={{ height: theme.spacing(12) }}>
+        <Stack sx={{ alignSelf: 'center', rowGap: 2, width: 1 }}>
+          <Stack>
             <TextField
+              size="small"
               data-testid="wallet-name-input"
               label={t('Wallet Name')}
               onChange={(e) => setWalletName(e.target.value)}
               placeholder={t('Enter a Name')}
               autoFocus
               fullWidth
+              inputLabelProps={{
+                sx: {
+                  transform: 'none',
+                  fontSize: theme.typography.body2.fontSize,
+                  pb: 0.5,
+                },
+              }}
             />
           </Stack>
-          <Stack sx={{ height: theme.spacing(12) }}>
+          <Stack sx={{ minHeight: theme.spacing(10) }}>
             <TextField
-              data-testid="wallet-name-input"
-              label={t('Account Name')}
-              onChange={(e) => setAccountName(e.target.value)}
-              placeholder={t('Enter a Name')}
-              fullWidth
-            />
-          </Stack>
-          <Stack sx={{ height: theme.spacing(12) }}>
-            <TextField
+              size="small"
               data-testid="wallet-password-input"
               type="password"
               label={t('Password')}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t('Enter a Password')}
               error={!!passwordLengthError}
+              helperText={
+                password ? '' : t('Password must be 8 characters minimum')
+              }
               onBlur={() => {
                 setIsPasswordInputFilled(true);
+              }}
+              inputLabelProps={{
+                sx: {
+                  transform: 'none',
+                  fontSize: theme.typography.body2.fontSize,
+                  pb: 0.5,
+                },
               }}
               fullWidth
             />
@@ -136,8 +181,9 @@ export const CreatePassword = () => {
               />
             )}
           </Stack>
-          <Stack sx={{ height: theme.spacing(12) }}>
+          <Stack sx={{ minHeight: theme.spacing(10) }}>
             <TextField
+              size="small"
               type="password"
               data-testid="wallet-confirm-password-input"
               label={t('Confirm Password')}
@@ -147,15 +193,23 @@ export const CreatePassword = () => {
               helperText={
                 confirmationError ? t('Passwords do not match') : undefined
               }
+              inputLabelProps={{
+                sx: {
+                  transform: 'none',
+                  fontSize: theme.typography.body2.fontSize,
+                  pb: 0.5,
+                },
+              }}
               fullWidth
             />
           </Stack>
         </Stack>
 
         <Stack sx={{ justifyContent: 'center', mt: 2 }}>
-          <Stack sx={{ alignSelf: 'center', width: theme.spacing(44) }}>
+          <Stack>
             <Checkbox
               disableRipple
+              size="small"
               style={{
                 height: theme.spacing(2.5),
                 color: termAndPolicyChecked
@@ -168,25 +222,13 @@ export const CreatePassword = () => {
               label={
                 <Typography variant="caption">
                   <Trans
-                    i18nKey="I agree to the <termLink>Terms of Use</termLink> and the <privacyLink>Privacy Policy</privacyLink>"
+                    i18nKey="I have read and agree to the <termLink>Terms of Use</termLink>"
                     components={{
                       termLink: (
                         <TypographyLink
                           as="a"
                           target="_blank"
                           href="https://core.app/terms/core"
-                          variant="caption"
-                          sx={{
-                            color: 'secondary.main',
-                          }}
-                          rel="noreferrer"
-                        />
-                      ),
-                      privacyLink: (
-                        <TypographyLink
-                          as="a"
-                          target="_blank"
-                          href="https://www.avalabs.org/privacy-policy"
                           variant="caption"
                           sx={{
                             color: 'secondary.main',
@@ -201,6 +243,93 @@ export const CreatePassword = () => {
             />
           </Stack>
         </Stack>
+
+        {isNewsletterConfigured() && (
+          <>
+            <Divider light sx={{ my: 4, mx: 1.5 }} />
+
+            <Stack sx={{ justifyContent: 'center' }}>
+              <Stack sx={{ alignSelf: 'center' }}>
+                <Checkbox
+                  disableRipple
+                  size="small"
+                  style={{
+                    height: theme.spacing(2.5),
+                    color: isNewsletterEnabled
+                      ? theme.palette.secondary.main
+                      : theme.palette.primary.main,
+                  }}
+                  sx={{
+                    alignSelf: 'flex-start',
+                    mt: -0.25,
+                  }}
+                  data-testid="newsletter-checkbox"
+                  checked={isNewsletterEnabled}
+                  onChange={() => setIsNewsletterEnabled((enabled) => !enabled)}
+                  label={
+                    <Typography variant="caption">
+                      <Trans
+                        i18nKey="Stay updated on latest airdrops, events and more! You can unsubscribe anytime. For more details, see our <privacyLink>Privacy Policy</privacyLink>"
+                        components={{
+                          privacyLink: (
+                            <TypographyLink
+                              as="a"
+                              target="_blank"
+                              href="https://www.avalabs.org/privacy-policy"
+                              variant="caption"
+                              sx={{
+                                color: 'secondary.main',
+                              }}
+                              rel="noreferrer"
+                            />
+                          ),
+                        }}
+                      />
+                    </Typography>
+                  }
+                />
+              </Stack>
+            </Stack>
+            {isNewsletterEnabled &&
+              onboardingWalletType !== WalletType.Seedless && (
+                <TextField
+                  autoFocus
+                  sx={{ mt: 1.5 }}
+                  size="small"
+                  data-testid="newsletter-email-input"
+                  onChange={(e) => {
+                    setNewsletterEmail(e.target.value);
+                    setEmailValidationResult(validateEmail(e.target.value));
+                  }}
+                  value={newsletterEmail}
+                  placeholder={t('E-mail address')}
+                  error={
+                    emailValidationResult === EmailValidationResult.Invalid
+                  }
+                  helperText={
+                    emailValidationResult === EmailValidationResult.Invalid
+                      ? t('Please provide a valid e-mail address')
+                      : ''
+                  }
+                  fullWidth
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {emailValidationResult ===
+                          EmailValidationResult.Valid && (
+                          <CheckIcon color={theme.palette.success.main} />
+                        )}
+                        {emailValidationResult ===
+                          EmailValidationResult.Invalid && (
+                          <XIcon color={theme.palette.error.main} />
+                        )}
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+          </>
+        )}
       </Stack>
       <PageNav
         onBack={() => {
@@ -212,10 +341,8 @@ export const CreatePassword = () => {
           history.goBack();
         }}
         onNext={() => {
-          capture('OnboardingPasswordSet', {
-            AccountNameSet: !!accountName,
-          });
-          setPasswordAndNames(password, accountName, walletName);
+          capture('OnboardingPasswordSet');
+          setPasswordAndNames(password, walletName);
           history.push(OnboardingURLs.ANALYTICS_CONSENT);
         }}
         nextText={t('Save')}
