@@ -18,9 +18,9 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
 
   handleUnauthenticated = async (rpcCall) => {
     const { request } = rpcCall;
-    const [isTestmode] = request.params;
+    const [isRequestingTestnetMode] = request.params;
 
-    if (typeof isTestmode !== 'boolean') {
+    if (typeof isRequestingTestnetMode !== 'boolean') {
       return {
         ...request,
         error: ethErrors.rpc.invalidParams(
@@ -29,11 +29,19 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
       };
     }
 
+    // If we're already on the requested environment, do not prompt the user
+    if (this.networkService.isMainnet() !== isRequestingTestnetMode) {
+      return {
+        ...request,
+        result: null,
+      };
+    }
+
     const actionData = {
       ...request,
       tabId: request.site.tabId,
       displayData: {
-        isTestmode,
+        isTestmode: isRequestingTestnetMode,
       },
     };
 
