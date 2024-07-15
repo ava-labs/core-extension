@@ -23,6 +23,7 @@ import { isProductionBuild } from '@src/utils/environment';
 import { DerivedAddresses, SecretType } from '../secrets/models';
 import { isPrimaryAccount } from './utils/typeGuards';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
+import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 
 type AddAccountParams = {
   walletId: string;
@@ -316,13 +317,7 @@ export class AccountsService implements OnLock, OnUnlock {
     };
   }
   #getAllAddresses() {
-    return this.getAccountList().flatMap((acc) => [
-      acc.addressC,
-      acc.addressBTC,
-      acc.addressAVM,
-      acc.addressPVM,
-      acc.addressCoreEth,
-    ]);
+    return this.getAccountList().flatMap(getAllAddressesForAccount);
   }
 
   async addPrimaryAccount({ walletId, name }: AddAccountParams) {
