@@ -1,4 +1,3 @@
-import { caip2 } from '@avalabs/bridge-unified';
 import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
 import { Avalanche } from '@avalabs/wallets-sdk';
 import { EnsureDefined, PartialBy } from '@src/background/models';
@@ -42,7 +41,15 @@ export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
 };
 
 export const caipToChainId = (identifier: string): number => {
-  const { namespace, reference } = caip2.toJSON(identifier);
+  const [namespace, reference] = identifier.split(':');
+
+  if (!namespace) {
+    throw new Error('No namespace found in identifier: ' + identifier);
+  }
+
+  if (!reference) {
+    throw new Error('No reference found in identifier: ' + identifier);
+  }
 
   if (namespace === CaipNamespace.EIP155) {
     return Number(reference);

@@ -52,7 +52,7 @@ import {
   chainIdToCaip,
   decorateWithCaipId,
 } from '@src/utils/caipConversion';
-import { getSyncDomain } from './utils/getSyncDomain';
+import { getSyncDomain, isSyncDomain } from './utils/getSyncDomain';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -150,7 +150,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async setNetwork(domain: string, selectedNetwork: NetworkWithCaipId) {
-    const isSynced = SYNCED_DOMAINS.includes(domain);
+    const isSynced = isSyncDomain(domain);
     const changesEnvironment =
       Boolean(this._uiActiveNetwork?.isTestnet) !==
       Boolean(selectedNetwork.isTestnet);
