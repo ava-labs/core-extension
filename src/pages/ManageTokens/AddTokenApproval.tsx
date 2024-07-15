@@ -1,4 +1,3 @@
-import { NetworkContractToken } from '@avalabs/chains-sdk';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { TokenIcon } from '@src/components/common/TokenIcon';
@@ -14,6 +13,7 @@ import {
   Typography,
 } from '@avalabs/k2-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
+import { AddCustomTokenData } from '@src/background/services/settings/models';
 
 export function AddTokenApproval() {
   const { t } = useTranslation();
@@ -22,7 +22,7 @@ export function AddTokenApproval() {
     action,
     updateAction: updateMessage,
     cancelHandler,
-  } = useApproveAction(requestId);
+  } = useApproveAction<AddCustomTokenData>(requestId);
 
   if (!action || !action.displayData) {
     return (
@@ -39,7 +39,7 @@ export function AddTokenApproval() {
     );
   }
 
-  const customToken: NetworkContractToken = action.displayData;
+  const { token: customToken } = action.displayData;
 
   return (
     <>
