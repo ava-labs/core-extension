@@ -3,6 +3,9 @@ import { serializeToJSON } from '@src/background/serialization/serialize';
 
 import { UnifiedBridgeEstimateGas } from './unifiedBridgeEstimateGas';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { caipToChainId } from '@src/utils/caipConversion';
+
+jest.mock('@src/utils/caipConversion');
 
 describe('src/background/services/unifiedBridge/handlers/unifiedBridgeEstimateGas', () => {
   const unifiedBridgeService = {
@@ -11,6 +14,8 @@ describe('src/background/services/unifiedBridge/handlers/unifiedBridgeEstimateGa
 
   beforeEach(() => {
     jest.resetAllMocks();
+
+    jest.mocked(caipToChainId).mockReturnValue(43113);
   });
 
   const asset = {};
@@ -30,6 +35,7 @@ describe('src/background/services/unifiedBridge/handlers/unifiedBridgeEstimateGa
     expect(unifiedBridgeService.estimateGas).toHaveBeenCalledWith({
       asset,
       amount,
+      sourceChainId: 43113,
       targetChainId,
     });
   });

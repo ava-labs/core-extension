@@ -19,13 +19,18 @@ import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNe
 
 jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
 
-jest.mock('@avalabs/wallets-sdk', () => ({
-  ...jest.requireActual('@avalabs/wallets-sdk'),
-  getXpubFromMnemonic: jest.fn(),
-  Avalanche: {
+jest.mock('@avalabs/wallets-sdk', () => {
+  const actual = jest.requireActual('@avalabs/wallets-sdk');
+
+  return {
+    ...actual,
     getXpubFromMnemonic: jest.fn(),
-  },
-}));
+    Avalanche: {
+      ...actual.Avalanche,
+      getXpubFromMnemonic: jest.fn(),
+    },
+  };
+});
 
 const WALLET_ID = 'wallet-id';
 describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.ts', () => {
@@ -55,6 +60,8 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
   } as unknown as SettingsService;
   const networkServiceMock = {
     addFavoriteNetwork: jest.fn(),
+    getAvalancheNetwork: jest.fn(),
+    setNetwork: jest.fn(),
   } as unknown as NetworkService;
 
   const accountMock = {
@@ -91,6 +98,9 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
       accountMock,
     ]);
     (walletServiceMock.init as jest.Mock).mockResolvedValue(WALLET_ID);
+    jest
+      .mocked(networkServiceMock.getAvalancheNetwork)
+      .mockResolvedValue({ chainId: 43114 } as any);
   });
 
   it('is not case sensitive', async () => {
@@ -105,7 +115,6 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
       {
         mnemonic,
         password: 'password',
-        accountName: 'Bob',
         analyticsConsent: false,
       },
     ]);
@@ -141,7 +150,6 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
       {
         mnemonic: 'mnemonic',
         password: 'password',
-        accountName: 'Bob',
         analyticsConsent: false,
       },
     ]);
@@ -167,7 +175,6 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     });
 
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
-      name: 'Bob',
       walletId: WALLET_ID,
     });
 

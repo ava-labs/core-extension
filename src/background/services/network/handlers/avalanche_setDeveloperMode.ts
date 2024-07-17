@@ -5,8 +5,8 @@ import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
-import { ChainId } from '@avalabs/chains-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { ChainId } from '@avalabs/chains-sdk';
 
 @injectable()
 export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
@@ -18,9 +18,9 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
 
   handleUnauthenticated = async (rpcCall) => {
     const { request } = rpcCall;
-    const [isTestmode] = request.params;
+    const [isRequestingTestnetMode] = request.params;
 
-    if (typeof isTestmode !== 'boolean') {
+    if (typeof isRequestingTestnetMode !== 'boolean') {
       return {
         ...request,
         error: ethErrors.rpc.invalidParams(
@@ -29,11 +29,19 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
       };
     }
 
+    // If we're already on the requested environment, do not prompt the user
+    if (this.networkService.isMainnet() !== isRequestingTestnetMode) {
+      return {
+        ...request,
+        result: null,
+      };
+    }
+
     const actionData = {
       ...request,
       tabId: request.site.tabId,
       displayData: {
-        isTestmode,
+        isTestmode: isRequestingTestnetMode,
       },
     };
 
@@ -56,9 +64,23 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
       const {
         displayData: { isTestmode },
       } = pendingAction;
-      await this.networkService.setNetwork(
+
+      const domain = pendingAction.site?.domain;
+
+      if (!domain) {
+        throw new Error('Unrecognized domain');
+      }
+
+      const network = await this.networkService.getNetwork(
         isTestmode ? ChainId.AVALANCHE_TESTNET_ID : ChainId.AVALANCHE_MAINNET_ID
       );
+
+      if (!network) {
+        throw new Error('Target network not found');
+      }
+
+      await this.networkService.setNetwork(domain, network);
+
       onSuccess(null);
     } catch (e) {
       onError(e);

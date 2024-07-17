@@ -8,7 +8,6 @@ import { useAccountsContext } from '../AccountsProvider';
 import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { useConnectionContext } from '../ConnectionProvider';
-import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
 
 import { ChainId } from '@avalabs/chains-sdk';
@@ -16,6 +15,7 @@ import { Contract } from 'ethers';
 import Big from 'big.js';
 import { GetRateParams, SwapContextAPI, SwapParams } from './models';
 import { SwapContextProvider, useSwapContext } from './SwapProvider';
+import { useNetworkFeeContext } from '../NetworkFeeProvider';
 
 const API_URL = 'https://apiv5.paraswap.io';
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';

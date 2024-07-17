@@ -14,6 +14,9 @@ import {
   CustomNetworkPayload,
   ChainList,
   Network,
+  SYNCED_DOMAINS,
+  ChainListWithCaipIds,
+  NetworkWithCaipId,
 } from './models';
 import {
   AVALANCHE_XP_NETWORK,
@@ -43,11 +46,17 @@ import {
 import { isPchainNetwork } from './utils/isAvalanchePchainNetwork';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { isXchainNetwork } from './utils/isAvalancheXchainNetwork';
+import { runtime } from 'webextension-polyfill';
+import {
+  caipToChainId,
+  chainIdToCaip,
+  decorateWithCaipId,
+} from '@src/utils/caipConversion';
+import { getSyncDomain, isSyncDomain } from './utils/getSyncDomain';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
   private _allNetworks = new Signal<ChainList | undefined>();
-  private _activeNetwork: Network | undefined = undefined;
   private _customNetworks: Record<number, Network> = {};
   private _favoriteNetworks: number[] = [];
   private _chainListFetched = new Signal<ChainList>();
@@ -56,17 +65,51 @@ export class NetworkService implements OnLock, OnStorageReady {
     .cache(new ValueCache())
     .readOnly();
 
-  public activeNetworkChanged = new Signal<Network | undefined>();
+  public uiActiveNetworkChanged = new Signal<Network | undefined>();
   public developerModeChanged = new Signal<boolean | undefined>();
   public favoriteNetworksUpdated = new Signal<number[]>();
+  public dappScopeChanged = new Signal<{ domain: string; scope: string }>();
 
   // Provides a way to read the most recently dispatched _allNetworks
   // signal which is supposed to contain the "raw" chainlist (without
   // config overrides applied to it).
   private _rawNetworks = this._allNetworks.cache(new ValueCache<ChainList>());
+  private _uiActiveNetwork: NetworkWithCaipId | undefined;
 
-  public allNetworks: ReadableSignal<Promise<ChainList>>;
-  public activeNetworks: ReadableSignal<Promise<ChainList>>;
+  #dappScopes: Record<string, string> = {};
+
+  public allNetworks: ReadableSignal<Promise<ChainListWithCaipIds>>;
+  public activeNetworks: ReadableSignal<Promise<ChainListWithCaipIds>>;
+
+  get uiActiveNetwork(): NetworkWithCaipId | undefined {
+    return this._uiActiveNetwork;
+  }
+
+  private set uiActiveNetwork(network: NetworkWithCaipId | undefined) {
+    const previousNetwork = this._uiActiveNetwork;
+
+    // Chain ID comparison is not enough here, the active network may
+    // need an update even though the chain ID didn't change (for example,
+    // a custom URL is configured for the active network).
+    const activeNetworkChanged =
+      JSON.stringify(previousNetwork) !== JSON.stringify(network);
+
+    if (!activeNetworkChanged) {
+      return;
+    }
+
+    this._uiActiveNetwork = network;
+    this.uiActiveNetworkChanged.dispatch(this._uiActiveNetwork);
+
+    // No need to notify about developer mode being changed when we're only setting
+    // the network for the first time (after extension startup or unlocking).
+    const developerModeChanged =
+      Boolean(previousNetwork?.isTestnet) !== Boolean(network?.isTestnet);
+
+    if (developerModeChanged) {
+      this.developerModeChanged.dispatch(this._uiActiveNetwork?.isTestnet);
+    }
+  }
 
   // We'll re-initialize the network list when one of these flags is toggled.
   #flagStates: Partial<FeatureFlags> = {};
@@ -80,6 +123,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.allNetworks = this._allNetworks
       .cache(new ValueCache<ChainList>())
       .map(this.#applyOverrides)
+      .map(this.#applyChainAgnosticIds)
       .readOnly();
 
     this.activeNetworks = this._allNetworks
@@ -88,6 +132,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       .map(this.#filterBasedOnDevMode)
       .map(this.#filterBasedOnFeatureFlags)
       .map(this.#applyOverrides)
+      .map(this.#applyChainAgnosticIds)
       .readOnly();
   }
 
@@ -104,36 +149,72 @@ export class NetworkService implements OnLock, OnStorageReady {
     );
   }
 
-  public get activeNetwork() {
-    return this._activeNetwork;
+  async setNetwork(domain: string, selectedNetwork: NetworkWithCaipId) {
+    const isSynced = isSyncDomain(domain);
+    const changesEnvironment =
+      Boolean(this._uiActiveNetwork?.isTestnet) !==
+      Boolean(selectedNetwork.isTestnet);
+
+    if (isSynced || changesEnvironment) {
+      this.uiActiveNetwork = selectedNetwork;
+    }
+
+    // Save scope for requesting dApp
+    await this.#updateDappScopes({ [domain]: selectedNetwork.caipId });
+
+    // If change resulted in an environment switch, also notify other dApps
+    if (changesEnvironment) {
+      const newScopes = Object.fromEntries(
+        Object.entries(this.#dappScopes)
+          .filter(
+            ([savedDomain]) =>
+              getSyncDomain(savedDomain) !== getSyncDomain(domain)
+          )
+          .map(([savedDomain]) => [
+            savedDomain,
+            chainIdToCaip(
+              selectedNetwork.isTestnet
+                ? ChainId.AVALANCHE_TESTNET_ID
+                : ChainId.AVALANCHE_MAINNET_ID
+            ),
+          ])
+      );
+
+      await this.#updateDappScopes(newScopes);
+    }
   }
 
-  private set activeNetwork(network: Network | undefined) {
-    const previousNetwork = this._activeNetwork;
+  async #updateDappScopes(scopes: Record<string, string>) {
+    Object.entries(scopes).forEach(([domain, scope]) => {
+      const syncDomain = getSyncDomain(domain);
 
-    // Chain ID comparison is not enough here, the active network may
-    // need an update even though the chain ID didn't change (for example,
-    // a custom URL is configured for the active network).
-    const activeNetworkChanged =
-      JSON.stringify(previousNetwork) !== JSON.stringify(network);
+      this.#dappScopes[syncDomain] = scope;
+      this.dappScopeChanged.dispatch({ domain: syncDomain, scope });
+    });
 
-    if (!activeNetworkChanged) {
-      return;
-    }
+    await this.updateNetworkState();
+  }
 
-    this._activeNetwork = network;
-    this.activeNetworkChanged.dispatch(this._activeNetwork);
+  isMainnet() {
+    return !this._uiActiveNetwork?.isTestnet;
+  }
 
-    // No need to notify about developer mode being changed when we're only setting
-    // the network for the first time (after extension startup or unlocking).
-    const developerModeChanged =
-      Boolean(previousNetwork) &&
-      Boolean(network) &&
-      previousNetwork?.isTestnet !== network?.isTestnet;
+  async getInitialNetworkForDapp(domain: string): Promise<Network> {
+    const scope = this.#dappScopes[getSyncDomain(domain)];
+    const storedNetwork = scope ? await this.getNetwork(scope) : null;
 
-    if (developerModeChanged) {
-      this.developerModeChanged.dispatch(this._activeNetwork?.isTestnet);
-    }
+    const isSynced = SYNCED_DOMAINS.includes(domain);
+    // Synchronized dApps can handle our fake chain IDs
+    const isActiveEvmBased = this.uiActiveNetwork?.vmName === NetworkVMType.EVM;
+    const canFallbackToActive = isActiveEvmBased || isSynced;
+
+    // If it's the first time this dApp connects, default to extension's active network
+    // or C-Chain if there is no active network (i.e. extension is locked).
+    return (
+      storedNetwork ??
+      (canFallbackToActive ? this.uiActiveNetwork : null) ??
+      (await this.getAvalancheNetwork())
+    );
   }
 
   private set favoriteNetworks(networkIds: number[]) {
@@ -142,13 +223,13 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async getFavoriteNetworks() {
-    const isTestnet = this.activeNetwork?.isTestnet;
     const allNetworks = await this.allNetworks.promisify();
+    const isMainnet = this.isMainnet();
     const filteredFavoriteNetworks = this._favoriteNetworks.filter((id) => {
       if (allNetworks) {
-        return isTestnet
-          ? allNetworks[id]?.isTestnet
-          : !allNetworks[id]?.isTestnet;
+        return isMainnet
+          ? !allNetworks[id]?.isTestnet
+          : allNetworks[id]?.isTestnet;
       }
       return false;
     });
@@ -183,24 +264,11 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this._favoriteNetworks;
   }
 
-  public isMainnet(): boolean {
-    return !this.activeNetwork?.isTestnet;
-  }
-
-  public isActiveNetwork(chainId: number) {
-    return this.activeNetwork?.chainId === chainId;
-  }
-
   async onLock(): Promise<void> {
-    const allNetworks = await this.allNetworks.promisify();
-
-    // Set active network so that dApps do not break connection when
-    // extension gets locked. This is an issue with RainbowKit as an example.
-    this.activeNetwork = allNetworks?.[ChainId.AVALANCHE_MAINNET_ID];
-
-    this._allNetworks.dispatch(undefined);
+    this.uiActiveNetwork = undefined;
     this._customNetworks = {};
     this._favoriteNetworks = [];
+    this.#dappScopes = {};
   }
 
   onStorageReady(): void {
@@ -216,17 +284,6 @@ export class NetworkService implements OnLock, OnStorageReady {
       this.storageService.save(NETWORK_LIST_STORAGE_KEY, chainlist);
     });
 
-    // If the active network gets filtered-out, fall back to C-Chain
-    this.activeNetworks.add(async (chainListPromise) => {
-      const chainList = await chainListPromise;
-
-      if (this.activeNetwork && !chainList[this.activeNetwork.chainId]) {
-        this.activeNetwork =
-          chainList[ChainId.AVALANCHE_TESTNET_ID] ??
-          chainList[ChainId.AVALANCHE_MAINNET_ID];
-      }
-    });
-
     this.featureFlagService.addListener(
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
       async (flags) => {
@@ -239,20 +296,32 @@ export class NetworkService implements OnLock, OnStorageReady {
         }
       }
     );
+
+    this.activeNetworks.add(async (chainListPromise) => {
+      const chainList = await chainListPromise;
+
+      if (this.uiActiveNetwork && !chainList[this.uiActiveNetwork.chainId]) {
+        this.uiActiveNetwork =
+          chainList[ChainId.AVALANCHE_TESTNET_ID] ??
+          chainList[ChainId.AVALANCHE_MAINNET_ID];
+      }
+    });
   }
 
   async updateNetworkState() {
     this.storageService.save<NetworkStorage>(NETWORK_STORAGE_KEY, {
-      activeNetworkId: this.activeNetwork?.chainId || null,
+      dappScopes: this.#dappScopes,
       customNetworks: this._customNetworks,
       favoriteNetworks: this._favoriteNetworks,
     });
   }
 
   async init() {
-    const network = await this.storageService.load<NetworkStorage>(
+    const storedState = await this.storageService.load<NetworkStorage>(
       NETWORK_STORAGE_KEY
     );
+
+    this.#dappScopes = storedState?.dappScopes ?? {};
 
     // At this point the chainlist from Glacier should already be available,
     // as it is fetched when service worker starts (so before extension is unlocked).
@@ -266,23 +335,24 @@ export class NetworkService implements OnLock, OnStorageReady {
       throw new Error('chainlist failed to load');
     }
 
-    this._customNetworks = network?.customNetworks || {};
-    this._allNetworks.dispatch({
+    this._customNetworks = storedState?.customNetworks || {};
+    const fullChainlist = {
       ...chainlist,
       ...this._customNetworks,
-    });
+    };
 
-    // Fall back to Avalanche network if we don't know what previous network was,
-    // or if that network is no longer available in the network list.
-    const allNetworks = await this.allNetworks.promisify();
-    const previouslyActiveNetwork = network?.activeNetworkId
-      ? allNetworks[network.activeNetworkId]
+    const previousUiScope = this.#dappScopes[runtime.id];
+    const previouslyActiveNetwork = previousUiScope
+      ? fullChainlist[caipToChainId(previousUiScope)]
       : null;
-    const avalancheMainnet = allNetworks[ChainId.AVALANCHE_MAINNET_ID];
 
-    this.activeNetwork = previouslyActiveNetwork ?? avalancheMainnet;
+    this.uiActiveNetwork = decorateWithCaipId(
+      previouslyActiveNetwork ?? fullChainlist[ChainId.AVALANCHE_MAINNET_ID]
+    );
 
-    this.favoriteNetworks = network?.favoriteNetworks || [
+    this._allNetworks.dispatch(fullChainlist);
+
+    this.favoriteNetworks = storedState?.favoriteNetworks || [
       ChainId.AVALANCHE_MAINNET_ID,
     ];
   }
@@ -295,7 +365,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     const network = isTestnet
       ? AVALANCHE_XP_TEST_NETWORK
       : AVALANCHE_XP_NETWORK;
-    return {
+    return decorateWithCaipId({
       ...network,
       isTestnet,
       vmName: NetworkVMType.PVM,
@@ -311,14 +381,14 @@ export class NetworkService implements OnLock, OnStorageReady {
       explorerUrl: isTestnet
         ? 'https://subnets-test.avax.network/p-chain'
         : 'https://subnets.avax.network/p-chain',
-    };
+    });
   }
 
   private _getXchainNetwork(isTestnet: boolean): Network {
     const network = isTestnet
       ? AVALANCHE_XP_TEST_NETWORK
       : AVALANCHE_XP_NETWORK;
-    return {
+    return decorateWithCaipId({
       ...network,
       chainId: isTestnet ? ChainId.AVALANCHE_TEST_X : ChainId.AVALANCHE_X,
       isTestnet,
@@ -334,7 +404,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       explorerUrl: isTestnet
         ? 'https://subnets-test.avax.network/x-chain'
         : 'https://subnets.avax.network/x-chain',
-    };
+    });
   }
 
   private async _initChainList(): Promise<ChainList> {
@@ -359,10 +429,6 @@ export class NetworkService implements OnLock, OnStorageReady {
           [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork(true),
           [ChainId.AVALANCHE_X]: this._getXchainNetwork(false),
         };
-
-        if (!this.activeNetwork) {
-          this.activeNetwork = result[ChainId.AVALANCHE_MAINNET_ID];
-        }
       } else {
         attempt += 1;
         await wait(getExponentialBackoffDelay({ attempt }));
@@ -378,37 +444,35 @@ export class NetworkService implements OnLock, OnStorageReady {
     return chainlist;
   }
 
-  async getNetwork(networkId: number): Promise<Network | undefined> {
+  async getNetwork(caipScope: string): Promise<NetworkWithCaipId | undefined>;
+  async getNetwork(chainId: number): Promise<NetworkWithCaipId | undefined>;
+  async getNetwork(
+    scopeOrChainId: string | number
+  ): Promise<NetworkWithCaipId | undefined> {
+    const chainId =
+      typeof scopeOrChainId === 'string'
+        ? caipToChainId(scopeOrChainId)
+        : scopeOrChainId;
+
     const activeNetworks = await this.allNetworks.promisify();
-    return activeNetworks?.[networkId];
+    return activeNetworks?.[chainId];
   }
 
   /**
    * Returns the network object for Avalanche X/P Chains
    */
   getAvalancheNetworkXP() {
-    return this.isMainnet() ? AVALANCHE_XP_NETWORK : AVALANCHE_XP_TEST_NETWORK;
+    return this._getXchainNetwork(!this.isMainnet());
   }
 
-  async setNetwork(networkId: number) {
-    const selectedNetwork = await this.getNetwork(networkId);
-    if (!selectedNetwork) {
-      throw new Error('selected network not supported');
-    }
-
-    this.activeNetwork = selectedNetwork;
-    this.updateNetworkState();
-  }
-
-  /**
-   * Returns the network object used for Avalanche EVM chain
-   */
-  async getAvalancheNetwork(): Promise<Network> {
+  async getAvalancheNetwork() {
     const activeNetworks = await this.activeNetworks.promisify();
     const network =
       activeNetworks[ChainId.AVALANCHE_TESTNET_ID] ??
       activeNetworks[ChainId.AVALANCHE_MAINNET_ID];
-    if (!network) throw new Error('Avalanche network not found');
+    if (!network) {
+      throw new Error('Avalanche network not found');
+    }
     return network;
   }
 
@@ -423,9 +487,10 @@ export class NetworkService implements OnLock, OnStorageReady {
   /**
    * Returns the provider used by Avalanche X/P/CoreEth chains.
    */
-  async getAvalanceProviderXP(): Promise<Avalanche.JsonRpcProvider> {
-    const network = this.getAvalancheNetworkXP();
-    return getProviderForNetwork(network) as Avalanche.JsonRpcProvider;
+  getAvalanceProviderXP(): Avalanche.JsonRpcProvider {
+    return getProviderForNetwork(
+      this.getAvalancheNetworkXP()
+    ) as Avalanche.JsonRpcProvider;
   }
 
   async getEthereumNetwork(): Promise<Network> {
@@ -462,7 +527,7 @@ export class NetworkService implements OnLock, OnStorageReady {
    */
   async sendTransaction(
     { txHash, signedTx }: SigningResult,
-    network?: Network
+    network: Network
   ): Promise<string> {
     // Sometimes we'll receive the TX hash directly from the wallet
     // device that signed the transaction (it's the case for WalletConnect).
@@ -471,11 +536,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       return txHash;
     }
 
-    const activeNetwork = network || this.activeNetwork;
-    if (!activeNetwork) {
-      throw new Error('No active network');
-    }
-    const provider = getProviderForNetwork(activeNetwork);
+    const provider = getProviderForNetwork(network);
     if (provider instanceof JsonRpcBatchInternal) {
       return (await provider.broadcastTransaction(signedTx)).hash;
     }
@@ -504,7 +565,8 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
   }
 
-  async saveCustomNetwork(customNetwork: CustomNetworkPayload) {
+  async saveCustomNetwork(customNetworkPayload: CustomNetworkPayload) {
+    const customNetwork = decorateWithCaipId(customNetworkPayload);
     const chainId = parseInt(customNetwork.chainId.toString(16), 16);
     const chainlist = await this._rawNetworks.promisify();
 
@@ -529,14 +591,9 @@ export class NetworkService implements OnLock, OnStorageReady {
       ...chainlist,
       ...this._customNetworks,
     });
-    if (!isCustomNetworkExist) {
-      this.setNetwork(chainId);
-    }
-    if (this._activeNetwork?.chainId === customNetwork.chainId) {
-      this._activeNetwork = customNetwork;
-      this.activeNetworkChanged.dispatch(customNetwork);
-    }
     this.updateNetworkState();
+
+    return customNetwork;
   }
 
   async updateNetworkOverrides(network: NetworkOverrides) {
@@ -565,17 +622,17 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._allNetworks.dispatch({ ...chainlist });
 
     // If we're editing the active network, apply the changes to it as well.
-    if (chainlist && this.activeNetwork?.chainId === network.chainId) {
+    if (chainlist && this.uiActiveNetwork?.chainId === network.chainId) {
       // We're getting the pure network config from _allNetworks signal,
       // as that's where we have the network in it's default state.
       const pureActiveNetwork = chainlist[network.chainId];
 
       // Only then we apply the new overrides
       if (pureActiveNetwork) {
-        this.activeNetwork = {
+        this.uiActiveNetwork = decorateWithCaipId({
           ...pureActiveNetwork,
           ...overrides,
-        };
+        });
       }
     }
   }
@@ -607,11 +664,16 @@ export class NetworkService implements OnLock, OnStorageReady {
     this._allNetworks.dispatch({ ...chainlist, ...this._customNetworks });
 
     // Switch to Avalanache Mainnet or Fuji if the active network was removed.
-    if (this.activeNetwork?.chainId === chainID) {
-      this.setNetwork(
+    if (this.uiActiveNetwork?.chainId === chainID) {
+      const network = await this.getNetwork(
         wasTestnet ? ChainId.AVALANCHE_TESTNET_ID : ChainId.AVALANCHE_MAINNET_ID
       );
+
+      if (network) {
+        await this.setNetwork(runtime.id, network);
+      }
     }
+
     this.removeFavoriteNetwork(chainID);
 
     // Update storage
@@ -626,7 +688,8 @@ export class NetworkService implements OnLock, OnStorageReady {
     return Object.values(chainList ?? {})
       .filter(
         (network) =>
-          Boolean(this.activeNetwork?.isTestnet) === Boolean(network.isTestnet)
+          Boolean(this.uiActiveNetwork?.isTestnet) ===
+          Boolean(network.isTestnet)
       )
       .reduce(
         (acc, network) => ({
@@ -695,5 +758,16 @@ export class NetworkService implements OnLock, OnStorageReady {
     );
 
     return merge({}, chainList, applicableOverrides) as ChainList;
+  };
+
+  #applyChainAgnosticIds = async (chainListPromise: Promise<ChainList>) => {
+    const chainList = await chainListPromise;
+
+    return Object.fromEntries(
+      Object.entries(chainList ?? {}).map(([chainId, network]) => [
+        chainId,
+        decorateWithCaipId(network),
+      ])
+    );
   };
 }

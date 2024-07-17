@@ -11,6 +11,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import { Action } from '../../actions/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { AddCustomTokenData } from '../models';
 
 @injectable()
 export class WalletWatchAssetHandler extends DAppRequestHandler {
@@ -23,17 +24,17 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
     super();
   }
 
-  handleUnauthenticated = async (rpcCall) => {
-    const { request } = rpcCall;
+  handleUnauthenticated = async ({ request, scope }) => {
     const tokenAddress = request.params.options.address;
     const imageUrl = xss(request.params.options.image);
 
-    const network = this.networkService.activeNetwork;
+    const network = await this.networkService.getNetwork(scope);
+
     if (!network) {
       return {
         ...request,
         error: ethErrors.rpc.internal({
-          message: 'Unable to detect current network selection.',
+          message: 'Target network not found',
         }),
       };
     }
@@ -61,7 +62,7 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
     }
 
     const [tokenData, err] = await resolve(
-      this.tokenManagerService.getTokenData(tokenAddress)
+      this.tokenManagerService.getTokenData(tokenAddress, network)
     );
 
     if (!tokenData || err) {
@@ -73,9 +74,14 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
       };
     }
 
-    const actionData = {
+    const actionData: Action<AddCustomTokenData> = {
       ...request,
-      displayData: { ...tokenData, logoUri: imageUrl },
+      displayData: {
+        token: {
+          ...tokenData,
+          logoUri: imageUrl,
+        },
+      },
     };
 
     await openApprovalWindow(actionData, `approve/watch-asset`);
@@ -88,13 +94,16 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
   };
 
   onActionApproved = async (
-    pendingAction: Action,
+    pendingAction: Action<AddCustomTokenData>,
     result,
     onSuccess,
     onError
   ) => {
     try {
-      await this.settingsService.addCustomToken(pendingAction.displayData);
+      await this.settingsService.addCustomToken(
+        pendingAction.displayData.token
+      );
+
       onSuccess(null);
     } catch (e) {
       onError(e);

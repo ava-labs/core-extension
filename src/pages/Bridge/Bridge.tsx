@@ -77,9 +77,9 @@ import { isUnifiedBridgeAsset } from './utils/isUnifiedBridgeAsset';
 import { getTokenAddress } from './utils/getTokenAddress';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { CustomGasSettings } from '@src/background/services/bridge/models';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';

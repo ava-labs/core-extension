@@ -1,6 +1,7 @@
 import { Blockchain, BridgeConfig } from '@avalabs/bridge-sdk';
 import { Chain } from '@avalabs/bridge-unified';
-import { ChainId, Network } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/chains-sdk';
+import { Network } from '@src/background/services/network/models';
 import { caipToChainId } from '@src/utils/caipConversion';
 import { t } from 'i18next';
 

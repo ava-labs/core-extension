@@ -3,6 +3,7 @@ import { NetworkService } from '../network/NetworkService';
 import { AccountsService } from '../accounts/AccountsService';
 import { OnboardingService } from './OnboardingService';
 import { LockService } from '../lock/LockService';
+import { runtime } from 'webextension-polyfill';
 import { addXPChainToFavoriteIfNeeded } from './utils/addXPChainsToFavoriteIfNeeded';
 
 export interface FinalizeOnboardingParams {
@@ -24,6 +25,11 @@ export async function finalizeOnboarding({
 }: FinalizeOnboardingParams) {
   await networkService.addFavoriteNetwork(ChainId.BITCOIN);
   await networkService.addFavoriteNetwork(ChainId.ETHEREUM_HOMESTEAD);
+
+  await networkService.setNetwork(
+    runtime.id,
+    await networkService.getAvalancheNetwork()
+  );
 
   const allAccounts = accountsService.getAccounts();
   const addedAccounts = allAccounts.primary[walletId];

@@ -9,13 +9,18 @@ import { addXPChainToFavoriteIfNeeded } from './utils/addXPChainsToFavoriteIfNee
 
 jest.mock('./utils/addXPChainsToFavoriteIfNeeded');
 
-jest.mock('@avalabs/wallets-sdk', () => ({
-  ...jest.requireActual('@avalabs/wallets-sdk'),
-  getXpubFromMnemonic: jest.fn(),
-  Avalanche: {
+jest.mock('@avalabs/wallets-sdk', () => {
+  const actual = jest.requireActual('@avalabs/wallets-sdk');
+
+  return {
+    ...actual,
     getXpubFromMnemonic: jest.fn(),
-  },
-}));
+    Avalanche: {
+      ...actual.Avalanche,
+      getXpubFromMnemonic: jest.fn(),
+    },
+  };
+});
 
 const WALLET_ID = 'wallet-id';
 describe('src/background/services/onboarding/finalizeOnboarding.test.ts', () => {
@@ -35,7 +40,9 @@ describe('src/background/services/onboarding/finalizeOnboarding.test.ts', () => 
     activateAccount: jest.fn(),
   } as unknown as AccountsService;
   const networkServiceMock = {
+    setNetwork: jest.fn(),
     addFavoriteNetwork: jest.fn(),
+    getAvalancheNetwork: jest.fn(),
   } as unknown as NetworkService;
 
   const accountMock = {
@@ -53,6 +60,9 @@ describe('src/background/services/onboarding/finalizeOnboarding.test.ts', () => 
       accountMock,
     ]);
     (walletServiceMock.init as jest.Mock).mockResolvedValue(WALLET_ID);
+    jest
+      .mocked(networkServiceMock.getAvalancheNetwork)
+      .mockResolvedValue({ chainId: 43114 } as any);
   });
   it('sets up an mnemonic wallet correctly', async () => {
     await finalizeOnboarding({

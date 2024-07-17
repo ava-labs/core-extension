@@ -112,7 +112,7 @@ export class BridgeService implements OnLock, OnStorageReady {
   }
 
   async updateBridgeConfig() {
-    setBridgeEnvironment(this.getEnv(await this.networkService.isMainnet()));
+    setBridgeEnvironment(this.getEnv(this.networkService.isMainnet()));
     const config = await fetchConfig();
 
     this.config = config;
@@ -228,9 +228,13 @@ export class BridgeService implements OnLock, OnStorageReady {
           0
       );
 
-    const token = this.networkBalancesService.balances[btcNetwork.chainId]?.[
-      addressBtc
-    ]?.['BTC'] as TokenWithBalanceBTC;
+    const balances = await this.networkBalancesService.getBalancesForNetworks(
+      [btcNetwork.chainId],
+      [activeAccount]
+    );
+    const token = balances[btcNetwork.chainId]?.[addressBtc]?.[
+      'BTC'
+    ] as TokenWithBalanceBTC;
 
     const utxos = token?.utxos ?? [];
 
@@ -245,7 +249,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     const inputsWithScripts = await provider.getScriptsForUtxos(inputs);
 
     const signResult = await this.walletService
-      .sign({ inputs: inputsWithScripts, outputs }, tabId, btcNetwork)
+      .sign({ inputs: inputsWithScripts, outputs }, btcNetwork, tabId)
       .catch(wrapError('Failed to sign transaction'));
 
     // If we received a signed tx, we need to issue it ourselves.
@@ -318,9 +322,14 @@ export class BridgeService implements OnLock, OnStorageReady {
         throw new Error('No BTC address');
       }
 
-      const token = this.networkBalancesService.balances[btcNetwork.chainId]?.[
-        addressBtc
-      ]?.['BTC'] as TokenWithBalanceBTC;
+      const balances = await this.networkBalancesService.getBalancesForNetworks(
+        [btcNetwork.chainId],
+        [this.accountsService.activeAccount]
+      );
+
+      const token = balances[btcNetwork.chainId]?.[addressBtc]?.[
+        'BTC'
+      ] as TokenWithBalanceBTC;
 
       const utxos = token?.utxos ?? [];
 
@@ -428,8 +437,8 @@ export class BridgeService implements OnLock, OnStorageReady {
             gasPrice: tx.maxFeePerGas ? undefined : tx.gasPrice, // erase gasPrice if maxFeePerGas can be used
             type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
           },
-          tabId,
-          network
+          network,
+          tabId
         );
 
         return this.networkService.sendTransaction(signingResult, network);
@@ -463,8 +472,7 @@ export class BridgeService implements OnLock, OnStorageReady {
       sourceChain,
       config
     );
-    const isMainnet = await this.networkService.isMainnet();
-    const environment = isMainnet ? 'main' : 'test';
+    const environment = this.networkService.isMainnet() ? 'main' : 'test';
     const bridgeTransaction: BridgeTransaction = {
       /* from params */
       sourceChain,

@@ -4,7 +4,6 @@ import {
   NftPageTokens,
   NftTokenWithBalance,
   TokenType,
-  TotalBalance,
   TotalPriceChange,
 } from '@src/background/services/balances/models';
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
@@ -16,6 +15,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
   useState,
 } from 'react';
@@ -29,12 +29,12 @@ import { balancesUpdatedEventListener } from '@src/background/services/balances/
 import { Account } from '@src/background/services/accounts/models';
 import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
 import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
-import { getAccountKey } from '@src/utils/getAccountKey';
 import { RefreshNftMetadataHandler } from '@src/background/services/balances/handlers/refreshNftMetadata';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { getSmallImageForNFT } from '@src/background/services/balances/nft/utils/getSmallImageForNFT';
 import { parseRawAttributesString } from '@src/utils/nfts/metadataParser';
 import { TokensPriceShortData } from '@src/background/services/tokens/models';
+import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
 
 interface NftState {
   loading: boolean;
@@ -46,8 +46,6 @@ export interface BalancesState {
   loading: boolean;
   balances?: Balances;
   cached?: boolean;
-  totalBalance?: TotalBalance;
-  lastUpdated?: number;
 }
 
 export interface TokensPriceData {
@@ -66,8 +64,6 @@ type BalanceAction =
       type: BalanceActionType.UPDATE_BALANCES;
       payload: {
         balances?: Balances;
-        totalBalance?: TotalBalance;
-        lastUpdated?: number;
         isBalancesCached?: boolean;
       };
     };
@@ -89,7 +85,7 @@ const BalancesContext = createContext<{
   unregisterSubscriber: () => void;
   isTokensCached: boolean;
   totalBalance?: { sum: number | null; priceChange: TotalPriceChange };
-  getTotalBalance: (addressC?: string) =>
+  getTotalBalance: (addressC: string) =>
     | {
         sum: number | null;
         priceChange: TotalPriceChange;
@@ -126,11 +122,6 @@ function balancesReducer(
         cached: action.payload.isBalancesCached,
         // use deep merge to make sure we keep all accounts in there, even after a partial update
         balances: merge({}, state.balances, action.payload.balances),
-        totalBalance: merge(
-          {},
-          state.totalBalance,
-          action.payload.totalBalance
-        ),
       };
 
     default:
@@ -140,9 +131,10 @@ function balancesReducer(
 
 export function BalancesProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const { network } = useNetworkContext();
+  const { network, favoriteNetworks } = useNetworkContext();
   const {
     accounts: { active: activeAccount },
+    getAccount,
   } = useAccountsContext();
   const [tokens, dispatch] = useReducer(balancesReducer, {
     loading: true,
@@ -152,6 +144,11 @@ export function BalancesProvider({ children }: { children: any }) {
   const [nfts, setNfts] = useState<NftState>({ loading: true });
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [isPolling, setIsPolling] = useState(false);
+
+  const polledChainIds = useMemo(
+    () => favoriteNetworks.map(({ chainId }) => chainId),
+    [favoriteNetworks]
+  );
 
   const registerSubscriber = useCallback(() => {
     setSubscriberCount((count) => count + 1);
@@ -168,11 +165,11 @@ export function BalancesProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
       .subscribe((balancesData) => {
-        const { balances, isBalancesCached, totalBalance } = balancesData;
+        const { balances, isBalancesCached } = balancesData;
 
         dispatch({
           type: BalanceActionType.UPDATE_BALANCES,
-          payload: { balances, isBalancesCached, totalBalance },
+          payload: { balances, isBalancesCached },
         });
       });
 
@@ -189,25 +186,30 @@ export function BalancesProvider({ children }: { children: any }) {
     request<GetBalancesHandler>({
       method: ExtensionRequest.BALANCES_GET,
     }).then((balancesData) => {
-      const { balances, isBalancesCached, totalBalance } = balancesData;
+      const { balances, isBalancesCached } = balancesData;
 
       dispatch({
         type: BalanceActionType.UPDATE_BALANCES,
-        payload: { balances, isBalancesCached, totalBalance },
+        payload: { balances, isBalancesCached },
       });
     });
   }, [request]);
 
   useEffect(() => {
+    if (!activeAccount) {
+      return;
+    }
+
     if (isPolling) {
       request<StartBalancesPollingHandler>({
         method: ExtensionRequest.BALANCES_START_POLLING,
+        params: [activeAccount, polledChainIds],
       }).then((balancesData) => {
-        const { balances, isBalancesCached, totalBalance } = balancesData;
+        const { balances, isBalancesCached } = balancesData;
 
         dispatch({
           type: BalanceActionType.UPDATE_BALANCES,
-          payload: { balances, isBalancesCached, totalBalance },
+          payload: { balances, isBalancesCached },
         });
       });
     }
@@ -217,7 +219,7 @@ export function BalancesProvider({ children }: { children: any }) {
         method: ExtensionRequest.BALANCES_STOP_POLLING,
       });
     };
-  }, [request, isPolling]);
+  }, [request, isPolling, activeAccount, network?.chainId, polledChainIds]);
 
   useEffect(() => {
     // Toggle balance polling based on the amount of dependent components.
@@ -311,31 +313,19 @@ export function BalancesProvider({ children }: { children: any }) {
   );
 
   const getTotalBalance = useCallback(
-    (addressC?: string) => {
-      if (
-        tokens.totalBalance !== undefined &&
-        tokens.totalBalance !== null &&
-        activeAccount?.addressC
-      ) {
-        const accountKey = getAccountKey({
-          address: addressC || activeAccount?.addressC,
-          isTestnet: network?.isTestnet,
-        });
-        const totalBalance = tokens.totalBalance[accountKey];
-        if (typeof totalBalance === 'number' || totalBalance === null) {
-          return {
-            sum: totalBalance,
-            priceChange: {
-              value: 0,
-              percentage: [],
-            },
-          };
-        }
-        return totalBalance ?? undefined;
+    (addressC: string) => {
+      if (tokens.balances) {
+        return calculateTotalBalance(
+          network,
+          getAccount(addressC),
+          favoriteNetworks.map(({ chainId }) => chainId),
+          tokens.balances
+        );
       }
+
       return undefined;
     },
-    [activeAccount?.addressC, network?.isTestnet, tokens.totalBalance]
+    [getAccount, favoriteNetworks, network, tokens.balances]
   );
 
   return (
@@ -349,7 +339,9 @@ export function BalancesProvider({ children }: { children: any }) {
         registerSubscriber,
         unregisterSubscriber,
         isTokensCached: tokens.cached ?? true,
-        totalBalance: getTotalBalance(),
+        totalBalance: activeAccount
+          ? getTotalBalance(activeAccount.addressC)
+          : undefined,
         getTotalBalance,
       }}
     >

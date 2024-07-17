@@ -53,11 +53,12 @@ export type UnifiedBridgeTransferParams = {
   asset: BridgeAsset;
   amount: bigint;
   targetChainId: number;
+  sourceChainId: number;
   customGasSettings?: CustomGasSettings;
   tabId?: number;
 };
 
 export type UnifiedBridgeEstimateGasParams = Pick<
   UnifiedBridgeTransferParams,
-  'amount' | 'asset' | 'targetChainId'
+  'amount' | 'asset' | 'targetChainId' | 'sourceChainId'
 >;

@@ -15,8 +15,17 @@ export class AvalancheGetProviderState extends DAppRequestHandler {
     super();
   }
 
+  #getInitialNetwork = async (domain?: string) => {
+    if (!domain) {
+      return;
+    }
+
+    return this.networkService.getInitialNetworkForDapp(domain);
+  };
+
   handleUnauthenticated = async ({ request }) => {
-    const activeNetwork = this.networkService.activeNetwork;
+    const activeNetwork = await this.#getInitialNetwork(request.site.domain);
+
     return {
       ...request,
       result: {
@@ -25,7 +34,7 @@ export class AvalancheGetProviderState extends DAppRequestHandler {
           ? `0x${activeNetwork.chainId.toString(16)}`
           : '0x0',
         networkVersion: activeNetwork?.chainId
-          ? `${activeNetwork?.chainId}`
+          ? `${activeNetwork.chainId}`
           : 'loading',
         accounts: [],
       },
@@ -33,13 +42,14 @@ export class AvalancheGetProviderState extends DAppRequestHandler {
   };
 
   handleAuthenticated = async ({ request }) => {
-    const activeNetwork = this.networkService.activeNetwork;
+    const activeNetwork = await this.#getInitialNetwork(request.site.domain);
+
     return {
       ...request,
       result: {
         isUnlocked: true,
         chainId: activeNetwork?.chainId
-          ? `0x${activeNetwork?.chainId.toString(16)}`
+          ? `0x${activeNetwork.chainId.toString(16)}`
           : '0x0',
         networkVersion: activeNetwork?.chainId
           ? `${activeNetwork?.chainId}`

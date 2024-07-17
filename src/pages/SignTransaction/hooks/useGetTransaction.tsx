@@ -13,6 +13,7 @@ import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { Transaction } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { ActionStatus } from '@src/background/services/actions/models';
+import { getNetworkCaipId } from '@src/utils/caipConversion';
 
 export function useGetTransaction(requestId: string) {
   // Target network of the transaction defined by the chainId param. May differ from the active one.
@@ -20,7 +21,7 @@ export function useGetTransaction(requestId: string) {
   const [networkFee, setNetworkFee] = useState<NetworkFee | null>(null);
   const { updateAction, action } = useApproveAction<Transaction>(requestId);
   const tokenPrice = useNativeTokenPrice(network);
-  const { getNetworkFeeForNetwork } = useNetworkFeeContext();
+  const { getNetworkFee } = useNetworkFeeContext();
   const { getNetwork, network: activeNetwork } = useNetworkContext();
   const { featureFlags } = useFeatureFlagContext();
   const [customGas, setCustomGas] = useState<{
@@ -116,12 +117,12 @@ export function useGetTransaction(requestId: string) {
   useEffect(() => {
     const updateNetworkAndFees = async () => {
       if (network?.chainId) {
-        setNetworkFee(await getNetworkFeeForNetwork(network?.chainId));
+        setNetworkFee(await getNetworkFee(getNetworkCaipId(network)));
       }
     };
 
     updateNetworkAndFees();
-  }, [getNetworkFeeForNetwork, network?.chainId]);
+  }, [getNetworkFee, network]);
 
   useEffect(() => {
     const chainId = parseInt(action?.displayData?.chainId ?? '');

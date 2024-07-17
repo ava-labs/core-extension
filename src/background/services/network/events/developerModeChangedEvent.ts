@@ -1,25 +1,22 @@
-import { NetworkFeeEvents } from '../models';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
-import { NetworkFeeService } from '../NetworkFeeService';
 import { singleton } from 'tsyringe';
+import { NetworkEvents } from '../models';
+import { NetworkService } from '../NetworkService';
 
 @singleton()
-export class NetworkFeeUpdateEvents implements ExtensionEventEmitter {
+export class DeveloperModeChangedEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
-  constructor(private networkFeeService: NetworkFeeService) {
-    this.networkFeeService.addListener(
-      NetworkFeeEvents.NETWORK_FEE_UPDATED,
-      (fee) => {
-        this.eventEmitter.emit('update', {
-          name: NetworkFeeEvents.NETWORK_FEE_UPDATED,
-          value: fee,
-        });
-      }
-    );
+  constructor(private networkService: NetworkService) {
+    this.networkService.developerModeChanged.add((enabled) => {
+      this.eventEmitter.emit('update', {
+        name: NetworkEvents.DEVELOPER_MODE_CHANGED,
+        value: Boolean(enabled),
+      });
+    });
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {

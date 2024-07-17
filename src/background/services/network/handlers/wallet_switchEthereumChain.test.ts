@@ -39,7 +39,6 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
 
   const networkServiceMock = {
     isValidRPCUrl: jest.fn(),
-    activeNetwork: mockActiveNetwork,
     allNetworks: {
       promisify: () =>
         Promise.resolve({
@@ -47,7 +46,11 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
           [43113]: { ...mockActiveNetwork, id: 43113 },
         }),
     },
-    getNetwork: (chainId: number) => {
+    getNetwork: (chainId: number | string) => {
+      if (chainId === 'eip:43114') {
+        return mockActiveNetwork;
+      }
+
       if (chainId === 43112) {
         return Promise.resolve();
       }
@@ -95,7 +98,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
   describe('handleAuthenticated', () => {
     it('opens approval dialog', async () => {
       const result = await handler.handleAuthenticated(
-        buildRpcCall(switchChainRequest)
+        buildRpcCall(switchChainRequest, 'eip:43114')
       );
 
       expect(result).toEqual({

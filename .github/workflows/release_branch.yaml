@@ -42,6 +42,9 @@ jobs:
           echo APPLE_OAUTH_REDIRECT_URL=${{ secrets.APPLE_OAUTH_REDIRECT_URL }} >> .env.production
           echo CUBESIGNER_ENV=${{ secrets.CUBESIGNER_ENV }} >> .env.production
           echo SEEDLESS_FIDO_IDENTITY_URL=${{ secrets.SEEDLESS_FIDO_IDENTITY_URL }} >> .env.production
+          echo NEWSLETTER_BASE_URL=${{ secrets.NEWSLETTER_BASE_URL }} >> .env.production
+          echo NEWSLETTER_PORTAL_ID=${{ secrets.NEWSLETTER_PORTAL_ID }} >> .env.production
+          echo NEWSLETTER_FORM_ID=${{ secrets.NEWSLETTER_FORM_ID }} >> .env.production
       - name: Install dependencies
         run: yarn setup
       - name: Build library

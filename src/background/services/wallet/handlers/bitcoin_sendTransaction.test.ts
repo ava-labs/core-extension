@@ -31,7 +31,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
   const isMainnet = jest.fn();
   const signMock = jest.fn();
   const sendTransactionMock = jest.fn();
-  const updateBalancesForNetworksMock = jest.fn();
+  const getBalancesForNetworksMock = jest.fn();
 
   const getBitcoinNetworkMock = jest.fn();
   const activeAccountMock = {
@@ -44,27 +44,12 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
 
   const networkServiceMock = {
     isMainnet: isMainnet,
-    activeNetwork: {
-      vmName: NetworkVMType.BITCOIN,
-    },
     getBitcoinNetwork: getBitcoinNetworkMock,
     sendTransaction: sendTransactionMock,
   };
   const accountsServiceMock = {};
   const balanceAggregatorServiceMock = {
-    balances: {
-      [ChainId.BITCOIN_TESTNET]: {
-        btc1: {
-          BTC: {},
-        },
-      },
-      [ChainId.BITCOIN]: {
-        btc1: {
-          BTC: {},
-        },
-      },
-    },
-    updateBalancesForNetworks: updateBalancesForNetworksMock,
+    getBalancesForNetworks: getBalancesForNetworksMock,
   };
 
   beforeEach(() => {
@@ -82,6 +67,21 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
       .mocked(createTransferTx)
       .mockReturnValue({ fee: 5, inputs: [], outputs: [] });
     jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
+    getBitcoinNetworkMock.mockResolvedValue({
+      vmName: NetworkVMType.BITCOIN,
+    });
+    getBalancesForNetworksMock.mockResolvedValue({
+      [ChainId.BITCOIN_TESTNET]: {
+        btc1: {
+          BTC: {},
+        },
+      },
+      [ChainId.BITCOIN]: {
+        btc1: {
+          BTC: {},
+        },
+      },
+    });
     (accountsServiceMock as any).activeAccount = activeAccountMock;
   });
 
@@ -387,11 +387,11 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
           inputs: [],
           outputs: [],
         },
-        frontendTabId,
         {
           chainId: ChainId.BITCOIN_TESTNET,
           vmName: NetworkVMType.BITCOIN,
-        }
+        },
+        frontendTabId
       );
       expect(onSuccessMock).toHaveBeenCalledWith('resultHash');
     });

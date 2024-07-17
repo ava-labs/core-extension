@@ -906,8 +906,8 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         {
           tx: mockedTx,
         },
-        frontendTabId,
-        providerMock
+        providerMock,
+        frontendTabId
       );
       expect(signedTxMock.getCredentials).toHaveBeenCalled();
       expect(mockedTx.getSigIndices).toHaveBeenCalled();

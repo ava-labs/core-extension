@@ -22,7 +22,6 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
   const estimateGas = jest.fn();
 
   const networkService = {
-    activeNetwork: { chainId: 43113 },
     developerModeChanged: {
       add: jest.fn(),
     },
@@ -253,6 +252,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
         await service.transfer({
           asset,
           amount: 1000000n,
+          sourceChainId: 43113,
           targetChainId: 5,
           tabId: 1234,
           customGasSettings: {
@@ -267,6 +267,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
             maxFeePerGas,
             maxPriorityFeePerGas,
           }),
+          { chainId: 43113 },
           1234
         );
 
@@ -276,6 +277,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
             maxFeePerGas,
             maxPriorityFeePerGas,
           }),
+          { chainId: 43113 },
           1234
         );
       });
@@ -288,6 +290,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
         await service.transfer({
           asset,
           amount: 1000000n,
+          sourceChainId: 43113,
           targetChainId: 5,
           tabId: 1234,
           customGasSettings: {
@@ -304,6 +307,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
             maxPriorityFeePerGas,
             gasLimit: estimatedGasLimits[0],
           }),
+          { chainId: 43113 },
           1234
         );
 
@@ -314,6 +318,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
             maxPriorityFeePerGas,
             gasLimit: estimatedGasLimits[1],
           }),
+          { chainId: 43113 },
           1234
         );
       });
@@ -329,6 +334,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
           service.transfer({
             asset,
             amount: 1000000n,
+            sourceChainId: 43113,
             targetChainId: 5,
             tabId: 1234,
           })
@@ -366,6 +372,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
         await service.transfer({
           asset,
           amount: 1000000n,
+          sourceChainId: 43113,
           targetChainId: 5,
           tabId: 1234,
         });
@@ -375,7 +382,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
           fromAddress: accountsService.activeAccount.addressC,
           amount: 1000000n,
           sourceChain: expect.objectContaining({
-            chainId: chainIdToCaip(networkService.activeNetwork.chainId),
+            chainId: chainIdToCaip(43113),
           }),
           targetChain: expect.objectContaining({ chainId: chainIdToCaip(5) }),
           onStepChange: expect.any(Function),
@@ -389,12 +396,13 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
             from: accountsService.activeAccount.addressC,
             to: 'toAddress',
             data: 'approval-data',
-            chainId: networkService.activeNetwork.chainId,
+            chainId: 43113,
             gasLimit: 2000,
             maxFeePerGas: 1000n,
             maxPriorityFeePerGas: 10n,
             nonce: 5,
           },
+          { chainId: 43113 },
           1234
         );
         expect(walletService.sign).toHaveBeenNthCalledWith(
@@ -403,22 +411,31 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
             from: accountsService.activeAccount.addressC,
             to: 'toAddress',
             data: 'transfer-data',
-            chainId: networkService.activeNetwork.chainId,
+            chainId: 43113,
             gasLimit: 2000,
             maxFeePerGas: 1000n,
             maxPriorityFeePerGas: 10n,
             nonce: 6,
           },
+          { chainId: 43113 },
           1234
         );
 
         expect(networkService.sendTransaction).toHaveBeenCalledTimes(2);
-        expect(networkService.sendTransaction).toHaveBeenNthCalledWith(1, {
-          signedTx: 'approval-tx-hex',
-        });
-        expect(networkService.sendTransaction).toHaveBeenNthCalledWith(2, {
-          signedTx: 'transfer-tx-hex',
-        });
+        expect(networkService.sendTransaction).toHaveBeenNthCalledWith(
+          1,
+          {
+            signedTx: 'approval-tx-hex',
+          },
+          { chainId: 43113 }
+        );
+        expect(networkService.sendTransaction).toHaveBeenNthCalledWith(
+          2,
+          {
+            signedTx: 'transfer-tx-hex',
+          },
+          { chainId: 43113 }
+        );
       });
     });
   });
@@ -466,6 +483,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
       const result = await service.estimateGas({
         asset,
         amount: 100n,
+        sourceChainId: 43113,
         targetChainId: 5,
       });
 

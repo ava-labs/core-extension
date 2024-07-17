@@ -1,8 +1,11 @@
+import { injectable } from 'tsyringe';
+import { runtime } from 'webextension-polyfill';
 import { ChainId } from '@avalabs/chains-sdk';
+
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
-import { injectable } from 'tsyringe';
+
 import { NetworkService } from '../NetworkService';
 
 type HandlerType = ExtensionRequestHandler<
@@ -20,12 +23,18 @@ export class SetDevelopermodeNetworkHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     const [enableDeveloperMode] = request.params;
 
+    const network = await this.networkService.getNetwork(
+      enableDeveloperMode
+        ? ChainId.AVALANCHE_TESTNET_ID
+        : ChainId.AVALANCHE_MAINNET_ID
+    );
+
+    if (!network) {
+      throw new Error('Target network not found');
+    }
+
     const [, err] = await resolve(
-      this.networkService.setNetwork(
-        enableDeveloperMode
-          ? ChainId.AVALANCHE_TESTNET_ID
-          : ChainId.AVALANCHE_MAINNET_ID
-      )
+      this.networkService.setNetwork(runtime.id, network)
     );
 
     if (err) {

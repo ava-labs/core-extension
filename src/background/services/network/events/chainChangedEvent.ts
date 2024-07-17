@@ -4,10 +4,11 @@ import {
   DAppEventEmitter,
   ConnectionInfo,
 } from '@src/background/connections/models';
-import { ChainChangedEventData } from '@src/background/providers/models';
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
+import { caipToChainId } from '@src/utils/caipConversion';
 import { NetworkService } from '../NetworkService';
+import { getSyncDomain } from '../utils/getSyncDomain';
 
 /**
  * Emits `chainChanged` events for each dApp according to EIP-1193
@@ -24,15 +25,30 @@ export class ChainChangedEvents implements DAppEventEmitter {
   }
 
   constructor(private networkService: NetworkService) {
-    this.networkService.activeNetworkChanged.add((chain) => {
-      if (!chain) return;
-      const eventData: ChainChangedEventData = {
-        chainId: `0x${chain.chainId.toString(16)}`,
-        networkVersion: `${chain.chainId}`,
-      };
+    this.networkService.dappScopeChanged.add(({ domain, scope }) => {
+      if (!this._connectionInfo?.domain) {
+        return;
+      }
+
+      // Changes triggered by Core suite will contain the extension's ID as the `domain`.
+
+      const normalizedConnectionDomain = getSyncDomain(
+        this._connectionInfo?.domain
+      );
+
+      if (normalizedConnectionDomain !== domain) {
+        // Do not emit events to other dApps
+        return;
+      }
+
+      const chainId = caipToChainId(scope);
+
       this.eventEmitter.emit('update', {
         method: Web3Event.CHAIN_CHANGED,
-        params: eventData,
+        params: {
+          chainId: `0x${chainId.toString(16)}`,
+          networkVersion: `${chainId}`,
+        },
       });
     });
   }

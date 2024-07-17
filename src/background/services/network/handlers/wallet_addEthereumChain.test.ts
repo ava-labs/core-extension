@@ -49,7 +49,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     jest.mocked(isCoreWeb).mockResolvedValue(false);
     mockNetworkService = new NetworkService({} as any, {} as any);
     (mockNetworkService.isValidRPCUrl as jest.Mock).mockReturnValue(true);
-    (mockNetworkService as any).activeNetwork = { ...mockActiveNetwork };
+    jest.spyOn(mockNetworkService, 'setNetwork');
     mockNetworkService.allNetworks = {
       promisify: () =>
         Promise.resolve({
@@ -77,6 +77,11 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
+
+    jest
+      .spyOn(mockNetworkService, 'getNetwork')
+      .mockResolvedValue({ chainId: 43114 } as any);
+
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
     expect(result).toEqual({
@@ -110,8 +115,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
       actionId: 'uuid',
+      scope: 'eip155:43113',
       displayData: {
         network: {
+          caipId: 'eip155:43113',
           chainId: 43113,
           chainName: 'Avalanche',
           vmName: NetworkVMType.EVM,
@@ -336,8 +343,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
       actionId: 'uuid',
+      scope: 'eip155:43113',
       displayData: {
         network: {
+          caipId: 'eip155:43112',
           chainId: 43112,
           chainName: 'Avalanche',
           vmName: NetworkVMType.EVM,
@@ -396,6 +405,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         actionId: 'uuid',
         displayData: {
           network: {
+            caipId: 'eip155:43112',
             chainId: 43112,
             chainName: 'Avalanche',
             vmName: NetworkVMType.EVM,
@@ -417,6 +427,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           },
         },
         popupWindowId: 123,
+        scope: 'eip155:43113',
       });
     });
   });
@@ -451,8 +462,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
       actionId: 'uuid',
+      scope: 'eip155:43113',
       displayData: {
         network: {
+          caipId: 'eip155:43112',
           chainId: 43112,
           chainName: 'Avalanche',
           vmName: NetworkVMType.EVM,
@@ -514,6 +527,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           isTestnet: true,
         }),
       }),
+      scope: 'eip155:43113',
       popupWindowId: 123,
     });
   });
@@ -551,7 +565,12 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(openExtensionNewWindow).not.toHaveBeenCalled();
     expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
     expect(mockNetworkService.setNetwork).toHaveBeenCalledTimes(1);
-    expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(43113);
+    expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
+      'core.app',
+      expect.objectContaining({
+        chainId: 43113,
+      })
+    );
   });
 
   it('does not opens approval dialog and add and switch to a new network if the request is from a core domain', async () => {
@@ -588,6 +607,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(actionsServiceMock.addAction).not.toHaveBeenCalled();
     expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledTimes(1);
     expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledWith({
+      caipId: 'eip155:43112',
       chainId: 43112,
       chainName: 'Avalanche',
       explorerUrl: 'https://snowtrace.io/',
@@ -636,9 +656,11 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
     expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
       ...request,
+      scope: 'eip155:43113',
       actionId: 'uuid',
       displayData: {
         network: {
+          caipId: 'eip155:43112',
           chainId: 43112,
           chainName: 'Avalanche',
           vmName: NetworkVMType.EVM,
@@ -665,20 +687,21 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
   describe('onActionApproved', () => {
     const mockPendingAction: Action = {
-      request: {
-        id: 'uuid',
-        method: DAppProviderRequest.WALLET_ADD_CHAIN,
-        params: [
-          {
-            chainId: '0xa868', // 43112
-            chainName: 'Avalanche',
-            nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
-            rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
-            blockExplorerUrls: ['https://snowtrace.io/'],
-            iconUrls: ['logo.png'],
-          },
-        ],
-        tabId: undefined,
+      id: 'uuid',
+      method: DAppProviderRequest.WALLET_ADD_CHAIN,
+      params: [
+        {
+          chainId: '0xa868', // 43112
+          chainName: 'Avalanche',
+          nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          iconUrls: ['logo.png'],
+        },
+      ],
+      tabId: undefined,
+      site: {
+        domain: 'core.app',
       },
       actionId: 'uuid',
       displayData: {
@@ -761,7 +784,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         errorHandler
       );
 
-      expect(mockNetworkService.setNetwork).not.toHaveBeenCalled();
+      expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
+        mockPendingAction.site?.domain,
+        mockPendingAction.displayData.network
+      );
       expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledTimes(1);
       expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledWith({
         ...mockPendingAction.displayData.network,
@@ -795,19 +821,21 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     });
 
     it('switches network if network already added', async () => {
-      (mockNetworkService.setNetwork as jest.Mock).mockResolvedValue(undefined);
+      jest.mocked(mockNetworkService.setNetwork).mockResolvedValue(undefined);
 
       const successHandler = jest.fn();
       const errorHandler = jest.fn();
+
+      const network = {
+        ...mockPendingAction.displayData.network,
+        chainId: 43113,
+      };
 
       await handler.onActionApproved(
         {
           ...mockPendingAction,
           displayData: {
-            network: {
-              ...mockPendingAction.displayData.network,
-              chainId: 43113,
-            },
+            network,
             options: {
               requiresGlacierApiKey: false,
             },
@@ -819,8 +847,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       );
 
       expect(mockNetworkService.saveCustomNetwork).not.toHaveBeenCalled();
-      expect(mockNetworkService.setNetwork).toHaveBeenCalledTimes(1);
-      expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(43113);
+      expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
+        mockPendingAction.site?.domain,
+        network
+      );
 
       expect(successHandler).toHaveBeenCalledTimes(1);
       expect(successHandler).toHaveBeenCalledWith(null);
@@ -828,9 +858,9 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     });
 
     it('calls error when switching network fails', async () => {
-      (mockNetworkService.setNetwork as jest.Mock).mockRejectedValue(
-        new Error('some serious error')
-      );
+      jest
+        .mocked(mockNetworkService.setNetwork)
+        .mockRejectedValue(new Error('some serious error'));
 
       const successHandler = jest.fn();
       const errorHandler = jest.fn();

@@ -38,13 +38,10 @@ import { GetNavigationHistoryHandler } from '@src/background/services/navigation
 import { GetNavigationHistoryDataHandler } from '@src/background/services/navigationHistory/handlers/getNavigationHistoryData';
 import { SetNavigationHistoryHandler } from '@src/background/services/navigationHistory/handlers/setNavigationHistory';
 import { SetNavigationHistoryDataHandler } from '@src/background/services/navigationHistory/handlers/setNavigationHistoryData';
-import { NetworkUpdatedEvents } from '@src/background/services/network/events/networkUpdatedEvent';
-import { SetSelectedNetworkHandler } from '@src/background/services/network/handlers/setSelectedNetwork';
 import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
 import { RemoveCustomNetworkHandler } from '@src/background/services/network/handlers/removeCustomNetwork';
 import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
 import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
-import { NetworkFeeUpdateEvents } from '@src/background/services/networkFee/events/networkFeeUpdate';
 import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handlers/getNetworkFee';
 import { OnboardingUpdatedEvents } from '@src/background/services/onboarding/events/onboardingUpdatedEvent';
 import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
@@ -66,6 +63,7 @@ import { registry } from 'tsyringe';
 import { UpdateCurrencyHandler } from '../../services/settings/handlers/updateCurrencySelection';
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
 import { NetworksUpdatedEvents } from '@src/background/services/network/events/networksUpdatedEvent';
+import { NetworkUpdatedEvents } from '@src/background/services/network/events/networkUpdatedEvent';
 import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
 import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
@@ -80,15 +78,12 @@ import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/
 import { GetEthMaxTransferAmountHandler } from '@src/background/services/bridge/handlers/getEthMaxTransferAmount';
 import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
 import { LedgerCloseTransportEvent } from '@src/background/services/ledger/events/ledgerCloseTransport';
-import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
 import { GetAvaxBalanceHandler } from '@src/background/services/balances/handlers/getAvaxBalance';
 import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
 import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
 import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
-import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
-import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
 import { KeystoneRequestEvents } from '@src/background/services/keystone/events/keystoneDeviceRequest';
 import { SubmitKeystoneSignature } from '@src/background/services/keystone/handlers/keystoneSubmitSignature';
 import { StoreBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/storeBtcWalletPolicyDetails';
@@ -135,6 +130,10 @@ import { SeedlessOnboardingHandler } from '@src/background/services/onboarding/h
 import { KeystoneOnboardingHandler } from '@src/background/services/onboarding/handlers/keystoneOnboardingHandler';
 import { LedgerOnboardingHandler } from '@src/background/services/onboarding/handlers/ledgerOnboardingHandler';
 import { ApprovalEvents } from '@src/background/services/approvals/events/approvalEvents';
+import { SetActiveNetworkHandler } from '@src/background/services/network/handlers/setActiveNetwork';
+import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
+import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
+import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -164,8 +163,6 @@ import { ApprovalEvents } from '@src/background/services/approvals/events/approv
     useToken: UpdateBalancesForNetworkHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: GetBalancesHandler },
-  { token: 'ExtensionRequestHandler', useToken: StartBalancesPollingHandler },
-  { token: 'ExtensionRequestHandler', useToken: StopBalancesPollingHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNftBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetConfigHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetStateHandler },
@@ -201,7 +198,6 @@ import { ApprovalEvents } from '@src/background/services/approvals/events/approv
     token: 'ExtensionRequestHandler',
     useToken: SetNavigationHistoryDataHandler,
   },
-  { token: 'ExtensionRequestHandler', useToken: SetSelectedNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: SaveCustomNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveCustomNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateDefaultNetworkHandler },
@@ -216,6 +212,10 @@ import { ApprovalEvents } from '@src/background/services/approvals/events/approv
   {
     token: 'ExtensionRequestHandler',
     useToken: RemoveFavoriteNetworkHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetActiveNetworkHandler,
   },
   {
     token: 'ExtensionRequestHandler',
@@ -384,15 +384,23 @@ import { ApprovalEvents } from '@src/background/services/approvals/events/approv
     token: 'ExtensionRequestHandler',
     useToken: RefreshNftMetadataHandler,
   },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: StartBalancesPollingHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: StopBalancesPollingHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
 @registry([
   { token: 'ExtensionEventEmitter', useToken: AccountsUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: AnalyticsUpdatedEvents },
+  { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: BridgeConfigUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: OnboardingUpdatedEvents },
-  { token: 'ExtensionEventEmitter', useToken: NetworkFeeUpdateEvents },
   { token: 'ExtensionEventEmitter', useToken: NetworkUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: NetworksUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: ContactsUpdatedEvents },
@@ -406,7 +414,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: LockStateChangedEvents },
   { token: 'ExtensionEventEmitter', useToken: FeatureFlagsUpdatedEvent },
   { token: 'ExtensionEventEmitter', useToken: LedgerCloseTransportEvent },
-  { token: 'ExtensionEventEmitter', useToken: BalancesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: WalletUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: CurrencyRatesUpdatedEvents },
   { token: 'ExtensionEventEmitter', useToken: DefiPortfolioUpdatedEvents },

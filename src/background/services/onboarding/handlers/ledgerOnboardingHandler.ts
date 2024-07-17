@@ -24,7 +24,6 @@ type HandlerType = ExtensionRequestHandler<
       xpubXP?: string;
       pubKeys?: PubKeyType[];
       password: string;
-      accountName: string;
       analyticsConsent: boolean;
       walletName?: string;
     }
@@ -47,15 +46,8 @@ export class LedgerOnboardingHandler implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const {
-      xpub,
-      xpubXP,
-      pubKeys,
-      password,
-      accountName,
-      analyticsConsent,
-      walletName,
-    } = (request.params ?? [])[0] ?? {};
+    const { xpub, xpubXP, pubKeys, password, analyticsConsent, walletName } =
+      (request.params ?? [])[0] ?? {};
 
     if ((xpub || xpubXP) && pubKeys?.length) {
       return {
@@ -102,16 +94,13 @@ export class LedgerOnboardingHandler implements HandlerType {
 
     if (xpub) {
       await this.accountsService.addPrimaryAccount({
-        name: accountName,
         walletId,
       });
     }
 
     if (pubKeys?.length) {
       for (let i = 0; i < pubKeys.length; i++) {
-        const newAccountName = i === 0 ? accountName : '';
         await this.accountsService.addPrimaryAccount({
-          name: newAccountName,
           walletId,
         });
       }

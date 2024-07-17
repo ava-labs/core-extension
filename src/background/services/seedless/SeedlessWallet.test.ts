@@ -707,7 +707,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('with Avalanche messages', () => {
       beforeEach(() => {
-        networkService.getAvalanceProviderXP.mockResolvedValue({
+        networkService.getAvalanceProviderXP.mockReturnValue({
           getAddress: () => `X-${avaKey.materialId}`,
         } as any);
 

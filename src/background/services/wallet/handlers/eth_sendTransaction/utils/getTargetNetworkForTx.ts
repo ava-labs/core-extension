@@ -1,39 +1,36 @@
 import { NetworkVMType } from '@avalabs/chains-sdk';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
-import { FeatureFlagService } from '@src/background/services/featureFlags/FeatureFlagService';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { EthSendTransactionParams } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import { Network } from '@src/background/services/network/models';
+import { EnsureDefined } from '@src/background/models';
+
+const assertSameEnvironment = (networkA: Network, activeNetwork?: Network) => {
+  if (Boolean(networkA.isTestnet) !== Boolean(activeNetwork?.isTestnet)) {
+    throw ethErrors.rpc.invalidParams({
+      message: 'Provided ChainID is in a different environment',
+      data: { chainId: networkA.chainId },
+    });
+  }
+};
 
 const getTargetNetworkForTx = async (
-  tx: EthSendTransactionParams,
+  tx: EnsureDefined<EthSendTransactionParams, 'chainId'>,
   networkService: NetworkService,
-  featureFlagService: FeatureFlagService
+  activeScope: string
 ) => {
-  const activeNetwork = networkService.activeNetwork;
-
-  if (!tx.chainId) {
-    return activeNetwork;
-  }
+  const { uiActiveNetwork } = networkService;
 
   const chainId = parseInt(tx.chainId);
 
-  if (networkService.isActiveNetwork(chainId)) {
-    return activeNetwork;
-  }
+  const network = await networkService.getNetwork(chainId);
 
-  if (
-    !featureFlagService.featureFlags[
-      FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT
-    ]
-  ) {
+  if (!network) {
     throw ethErrors.rpc.invalidParams({
-      message: 'Custom ChainID is not supported',
+      message: 'Provided ChainID is not supported',
       data: { chainId },
     });
   }
-
-  const network = await networkService.getNetwork(chainId);
 
   if (network?.vmName !== NetworkVMType.EVM) {
     throw ethErrors.rpc.invalidParams({
@@ -41,15 +38,12 @@ const getTargetNetworkForTx = async (
       data: { chainId },
     });
   }
+  assertSameEnvironment(network, uiActiveNetwork);
 
-  if (network.isTestnet !== activeNetwork?.isTestnet) {
-    throw ethErrors.rpc.invalidParams({
-      message: 'Provided ChainID is in a different environment',
-      data: { chainId },
-    });
-  }
+  const isCustomNetwork = network.chainId in networkService.customNetworks;
 
-  if (networkService.customNetworks[network.chainId]) {
+  // Only allow custom networks if they are also the active network for the dApp
+  if (isCustomNetwork && network.caipId !== activeScope) {
     throw ethErrors.rpc.invalidParams({
       message: 'ChainID is not supported for custom networks',
       data: { chainId },

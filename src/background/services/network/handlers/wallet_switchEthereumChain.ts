@@ -6,6 +6,7 @@ import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { NetworkWithCaipId } from '../models';
 import { isCoreWeb } from '../utils/isCoreWeb';
 
 /**
@@ -27,14 +28,13 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
     };
   };
 
-  handleAuthenticated = async (rpcCall) => {
-    const { request } = rpcCall;
+  handleAuthenticated = async ({ request, scope }) => {
     const params = request.params;
     const targetChainID = params?.[0]?.chainId; // chain ID is hex with 0x perfix
     const supportedNetwork = await this.networkService.getNetwork(
       Number(targetChainID)
     );
-    const currentActiveNetwork = this.networkService.activeNetwork;
+    const currentActiveNetwork = await this.networkService.getNetwork(scope);
 
     // If switch ethereum network is called, we need to verify the wallet
     // is not currently on the requested network. If it is, we just need to return early
@@ -53,7 +53,10 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
       const skipApproval = await isCoreWeb(request);
 
       if (skipApproval) {
-        await this.networkService.setNetwork(Number(supportedNetwork.chainId));
+        await this.networkService.setNetwork(
+          request.site.domain,
+          supportedNetwork
+        );
         return { ...request, result: null };
       }
 
@@ -83,18 +86,24 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
   };
 
   onActionApproved = async (
-    pendingAction: Action,
+    pendingAction: Action<{ network: NetworkWithCaipId }>,
     result,
     onSuccess,
     onError
   ) => {
+    if (!pendingAction.site?.domain) {
+      return onError(new Error('Unrecognized domain'));
+    }
+
     try {
       await this.networkService.setNetwork(
-        Number(pendingAction.displayData.network.chainId)
+        pendingAction.site.domain,
+        pendingAction.displayData.network
       );
+
       onSuccess(null);
-    } catch (e) {
-      onError(e);
+    } catch (err) {
+      onError(err);
     }
   };
 }

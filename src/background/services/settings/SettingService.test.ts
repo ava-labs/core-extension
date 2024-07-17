@@ -53,10 +53,11 @@ describe('background/services/settings/SettingsService.ts', () => {
   };
 
   const networkServiceMock = {
-    activeNetworkChanged: {
+    uiActiveNetworkChanged: {
       add: jest.fn(),
     },
     activeNetwork: testNetwork,
+    getNetwork: jest.fn(),
   } as any;
 
   const storedSettings: SettingsState = {
@@ -96,6 +97,8 @@ describe('background/services/settings/SettingsService.ts', () => {
     );
     (isTokenSupported as jest.Mock).mockResolvedValue(false);
     service = new SettingsService(storageServiceMock, networkServiceMock);
+
+    jest.mocked(networkServiceMock.getNetwork).mockResolvedValue(testNetwork);
   });
 
   describe('getSettings', () => {
@@ -192,7 +195,7 @@ describe('background/services/settings/SettingsService.ts', () => {
       const eventListener = jest.fn();
       service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
-      await service.addCustomToken(customToken);
+      await service.addCustomToken(customToken, testNetwork);
 
       expect(storageServiceMock.saveUnencrypted).toBeCalledWith(
         SETTINGS_UNENCRYPTED_STORAGE_KEY,
@@ -223,7 +226,7 @@ describe('background/services/settings/SettingsService.ts', () => {
       service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
       try {
-        await service.addCustomToken(customToken);
+        await service.addCustomToken(customToken, testNetwork);
         fail('Should have thrown an error');
       } catch (e) {
         expect(e).toEqual(new Error('Token already exists in the wallet.'));

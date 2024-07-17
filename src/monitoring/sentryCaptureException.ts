@@ -26,6 +26,8 @@ export enum SentryExceptionTypes {
   INTERNAL_ERROR = 'internalError',
 
   BALANCES = 'balances',
+
+  ONBOARDING = 'onboarding',
 }
 
 // wrapper to make error reporting contexts unfirom accross the codebase

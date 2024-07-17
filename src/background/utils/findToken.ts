@@ -1,12 +1,12 @@
 import { Network, NetworkContractToken } from '@avalabs/chains-sdk';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import {
+  Balances,
   TokenType,
   TokenWithBalance,
   TokenWithBalanceERC20,
 } from '@src/background/services/balances/models';
 import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
-import { NetworkService } from '@src/background/services/network/NetworkService';
 import { TokenManagerService } from '@src/background/services/tokens/TokenManagerService';
 import BN from 'bn.js';
 import { ethers } from 'ethers';
@@ -28,29 +28,29 @@ const UNKNOWN_TOKEN = (address: string): TokenWithBalanceERC20 => ({
 
 export async function findToken(
   addressOrSymbol: string,
-  otherNetwork?: Network
+  network: Network
 ): Promise<TokenWithBalance> {
   const balancesService = container.resolve(BalanceAggregatorService);
-  const networkService = container.resolve(NetworkService);
   const accountsService = container.resolve(AccountsService);
   const tokenManagerService = container.resolve(TokenManagerService);
-  const network = otherNetwork ?? networkService.activeNetwork;
 
-  if (!balancesService.balances || !network || !accountsService.activeAccount) {
+  if (!network || !accountsService.activeAccount) {
     return UNKNOWN_TOKEN(addressOrSymbol);
   }
 
-  if (!balancesService.balances[network.chainId]) {
-    await balancesService.updateBalancesForNetworks(
+  let balances: Balances = balancesService.balances;
+
+  if (!balances) {
+    balances = await balancesService.getBalancesForNetworks(
       [network.chainId],
       [accountsService.activeAccount]
     );
   }
 
   const token =
-    balancesService.balances[network.chainId]?.[
-      accountsService.activeAccount.addressC
-    ]?.[addressOrSymbol.toLowerCase()];
+    balances[network.chainId]?.[accountsService.activeAccount.addressC]?.[
+      addressOrSymbol.toLowerCase()
+    ];
 
   if (token) {
     return token;

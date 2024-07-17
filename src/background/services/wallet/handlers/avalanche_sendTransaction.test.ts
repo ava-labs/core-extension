@@ -117,7 +117,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     (UnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
     (EVMUnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
     signMock.mockReturnValue({ signedTx: 'baz' });
-    getAvalancheNetworkXPMock.mockReturnValue('network');
+    getAvalancheNetworkXPMock.mockReturnValue({});
     issueTxHexMock.mockResolvedValue({ txID: 1 });
     getAvalanceProviderXPMock.mockResolvedValue(providerMock);
     getAddressesMock.mockReturnValue([]);
@@ -532,8 +532,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: undefined,
           internalIndices: undefined,
         },
+        {},
         frontendTabId,
-        'network',
         'avalanche_sendTransaction'
       );
       expect(EVMUnsignedTx.fromJSON).toBeCalledWith(
@@ -577,8 +577,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: undefined,
           internalIndices: undefined,
         },
+        {},
         frontendTabId,
-        'network',
         'avalanche_sendTransaction'
       );
       expect(UnsignedTx.fromJSON).toBeCalledWith(
@@ -627,8 +627,8 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: [0, 1],
           internalIndices: [2, 3],
         },
+        {},
         frontendTabId,
-        'network',
         'avalanche_sendTransaction'
       );
       expect(UnsignedTx.fromJSON).toBeCalledWith(

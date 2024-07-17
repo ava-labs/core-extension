@@ -55,12 +55,16 @@ describe('utils/calculateTotalBalance', () => {
   };
 
   it('should return false when there is no balance for the account in the balances object', () => {
-    const balance = hasAccountBalances(balances, account2);
+    const balance = hasAccountBalances(balances, account2, [
+      ChainId.AVALANCHE_MAINNET_ID,
+    ]);
     expect(balance).toBe(false);
   });
 
   it('should return true when we can get balances for the account from the balances object', () => {
-    const balance = hasAccountBalances(balances, account1);
+    const balance = hasAccountBalances(balances, account1, [
+      ChainId.AVALANCHE_MAINNET_ID,
+    ]);
     expect(balance).toBe(true);
   });
 });

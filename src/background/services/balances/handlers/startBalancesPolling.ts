@@ -3,16 +3,17 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 import { BalancePollingService } from '../BalancePollingService';
-import { Balances, TotalBalance } from '../models';
+import { Balances } from '../models';
+import { Account } from '../../accounts/models';
+import { caipToChainId } from '@src/utils/caipConversion';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_START_POLLING,
   {
     balances: Balances;
     isBalancesCached: boolean;
-    balancesLastUpdated?: number;
-    totalBalance?: TotalBalance;
-  }
+  },
+  [account: Account, roundRobinChainIds: number[]]
 >;
 
 @injectable()
@@ -24,25 +25,25 @@ export class StartBalancesPollingHandler implements HandlerType {
     private aggregatorService: BalanceAggregatorService
   ) {}
 
-  handle: HandlerType['handle'] = async ({ request }) => {
-    if (!this.pollingService.isPollingActive) {
-      const started = await this.pollingService.startPolling();
+  handle: HandlerType['handle'] = async ({ request, scope }) => {
+    if (scope && !this.pollingService.isPollingActive) {
+      const activeChainId = caipToChainId(scope);
+      const [account, roundRobinChainIds] = request.params;
 
-      if (!started) {
-        this.pollingService.startAsSoonAsAccountIsSelected();
-      }
+      this.pollingService.startPolling(
+        account,
+        activeChainId,
+        roundRobinChainIds
+      );
     }
 
-    const { balances, isBalancesCached, totalBalance, balancesLastUpdated } =
-      this.aggregatorService;
+    const { balances, isBalancesCached } = this.aggregatorService;
 
     return {
       ...request,
       result: {
         balances,
         isBalancesCached,
-        totalBalance,
-        balancesLastUpdated,
       },
     };
   };

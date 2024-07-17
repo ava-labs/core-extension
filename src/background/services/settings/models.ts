@@ -1,4 +1,5 @@
 import { NetworkContractToken } from '@avalabs/chains-sdk';
+import { EnsureDefined } from '@src/background/models';
 
 export enum ThemeVariant {
   LIGHT = 'LIGHT',
@@ -34,6 +35,10 @@ export enum LanguageLinks {
 
 export type TokensVisibility = {
   [key: string]: boolean;
+};
+
+export type AddCustomTokenData = {
+  token: EnsureDefined<NetworkContractToken, 'chainId'>;
 };
 
 type CustomTokens = {

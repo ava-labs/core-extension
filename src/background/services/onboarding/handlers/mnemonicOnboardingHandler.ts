@@ -25,7 +25,6 @@ type HandlerType = ExtensionRequestHandler<
     {
       mnemonic: string;
       password: string;
-      accountName: string;
       analyticsConsent: boolean;
       walletName?: string;
     }
@@ -51,7 +50,6 @@ export class MnemonicOnboardingHandler implements HandlerType {
     const {
       mnemonic: rawMnemonic,
       password,
-      accountName,
       analyticsConsent,
       walletName,
     } = (request.params ?? [])[0] ?? {};
@@ -85,7 +83,6 @@ export class MnemonicOnboardingHandler implements HandlerType {
     }
 
     await this.accountsService.addPrimaryAccount({
-      name: accountName,
       walletId,
     });
 

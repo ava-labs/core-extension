@@ -2,7 +2,12 @@ import {
   PChainTransactionType,
   XChainTransactionType,
 } from '@avalabs/glacier-sdk';
-import { Network, NetworkToken, NetworkVMType } from '@avalabs/chains-sdk';
+import {
+  ChainId,
+  Network,
+  NetworkToken,
+  NetworkVMType,
+} from '@avalabs/chains-sdk';
 import { HistoryService } from './HistoryService';
 import {
   PchainTxHistoryItem,
@@ -11,19 +16,6 @@ import {
   XchainTxHistoryItem,
 } from './models';
 import { TokenType } from '../balances/models';
-import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
-import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
-import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
-
-jest.mock('../network/utils/isEthereumNetwork', () => ({
-  isEthereumNetwork: jest.fn(),
-}));
-jest.mock('../network/utils/isAvalanchePchainNetwork', () => ({
-  isPchainNetwork: jest.fn(),
-}));
-jest.mock('../network/utils/isAvalancheXchainNetwork', () => ({
-  isXchainNetwork: jest.fn(),
-}));
 
 describe('src/background/services/history/HistoryService.ts', () => {
   let service: HistoryService;
@@ -158,7 +150,6 @@ describe('src/background/services/history/HistoryService.ts', () => {
       .mockResolvedValue([pchainTxHistoryItem]);
 
     service = new HistoryService(
-      networkServiceMock,
       btcHistoryServiceMock,
       ethHistoryServiceMock,
       glacierHistoryServiceMock,
@@ -168,10 +159,8 @@ describe('src/background/services/history/HistoryService.ts', () => {
     );
   });
 
-  it('should return empty array when no active network', async () => {
-    networkServiceMock.activeNetwork = undefined;
-
-    const result = await service.getTxHistory();
+  it('should return empty array when network is not supported', async () => {
+    const result = await service.getTxHistory({ vmName: 'hmmmmmm' } as any);
     expect(result).toEqual([]);
   });
   it('should return results from glacier if the network is supported', async () => {
@@ -179,44 +168,47 @@ describe('src/background/services/history/HistoryService.ts', () => {
       .spyOn(glacierServiceMock, 'isNetworkSupported')
       .mockResolvedValue(true);
 
-    const result = await service.getTxHistory();
+    const result = await service.getTxHistory({
+      chainId: ChainId.ETHEREUM_HOMESTEAD,
+    } as any);
     expect(glacierServiceMock.isNetworkSupported).toHaveBeenCalledTimes(1);
     expect(result).toEqual([txHistoryItem, btcTxHistoryItem]);
   });
 
   it('should return results from btc history service when not supported by glacier and network has bitcoin vmType', async () => {
-    networkServiceMock.activeNetwork = {
+    const result = await service.getTxHistory({
       ...network1,
       vmName: NetworkVMType.BITCOIN,
-    };
-    const result = await service.getTxHistory();
+    });
     expect(btcHistoryServiceMock.getHistory).toHaveBeenCalledTimes(1);
     expect(result).toEqual([btcTxHistoryItem]);
   });
   it('should return results from btc history service when not supported by glacier and network has bitcoin vmType', async () => {
-    networkServiceMock.activeNetwork = {
+    const result = await service.getTxHistory({
       ...network1,
       vmName: NetworkVMType.BITCOIN,
-    };
-    const result = await service.getTxHistory();
+    });
     expect(btcHistoryServiceMock.getHistory).toHaveBeenCalledTimes(1);
     expect(result).toEqual([btcTxHistoryItem]);
   });
   it('should return results from eth history service when not supported by glacier and network has EVM vmType', async () => {
-    (isEthereumNetwork as jest.Mock).mockReturnValue(true);
-    const result = await service.getTxHistory();
+    const result = await service.getTxHistory({
+      chainId: ChainId.ETHEREUM_HOMESTEAD,
+    } as any);
     expect(ethHistoryServiceMock.getHistory).toHaveBeenCalledTimes(1);
     expect(result).toEqual([txHistoryItem]);
   });
   it('should return results from pvm history service when not supported by glacier and isPchainNetwork', async () => {
-    (isPchainNetwork as jest.Mock).mockReturnValue(true);
-    const result = await service.getTxHistory();
+    const result = await service.getTxHistory({
+      vmName: NetworkVMType.PVM,
+    } as any);
     expect(historyServicePVMMock.getHistory).toHaveBeenCalledTimes(1);
     expect(result).toEqual([pchainTxHistoryItem]);
   });
   it('should return results from avm history service when not supported by glacier and network has AVM vmType', async () => {
-    (isXchainNetwork as jest.Mock).mockReturnValue(true);
-    const result = await service.getTxHistory();
+    const result = await service.getTxHistory({
+      vmName: NetworkVMType.AVM,
+    } as any);
     expect(historyServiceAVMMock.getHistory).toHaveBeenCalledTimes(1);
     expect(result).toEqual([xchainTxHistoryItem]);
   });

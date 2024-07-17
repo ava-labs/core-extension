@@ -1,14 +1,15 @@
-import { Network } from '@avalabs/chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
+import { CustomNetworkPayload } from '../models';
+import { runtime } from 'webextension-polyfill';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SAVE_CUSTOM,
   'success',
-  [Network]
+  [CustomNetworkPayload]
 >;
 
 @injectable()
@@ -18,7 +19,7 @@ export class SaveCustomNetworkHandler implements HandlerType {
   constructor(private networkService: NetworkService) {}
   handle: HandlerType['handle'] = async ({ request }) => {
     const { params } = request;
-    const network: Network = params?.[0];
+    const network = params?.[0];
 
     if (!network)
       return {
@@ -38,7 +39,7 @@ export class SaveCustomNetworkHandler implements HandlerType {
       };
     }
 
-    const [, err] = await resolve(
+    const [addedNetwork, err] = await resolve(
       this.networkService.saveCustomNetwork(network)
     );
 
@@ -48,6 +49,8 @@ export class SaveCustomNetworkHandler implements HandlerType {
         error: err.toString(),
       };
     }
+
+    await this.networkService.setNetwork(runtime.id, addedNetwork);
 
     return {
       ...request,

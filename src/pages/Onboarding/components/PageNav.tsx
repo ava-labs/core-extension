@@ -50,6 +50,7 @@ export function PageNav({
       >
         <Button
           color="secondary"
+          size="large"
           data-testid="page-nav-back-button"
           onClick={async () => {
             onBack();
@@ -63,6 +64,7 @@ export function PageNav({
         <Tooltip title={nextDisabledReason} sx={{ cursor: 'not-allowed' }}>
           <Button
             data-testid="page-nav-next-button"
+            size="large"
             disabled={disableNext}
             onClick={async () => {
               onNext();

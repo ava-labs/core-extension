@@ -22,3 +22,9 @@ export type MessageParams = {
   password?: string;
   accountIndex?: number;
 };
+
+export type SignMessageData = {
+  messageParams: MessageParams;
+  isMessageValid: boolean;
+  validationError?: string;
+};

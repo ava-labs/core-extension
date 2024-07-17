@@ -39,7 +39,9 @@ export function DAppRequestHandlerMiddleware(
         ? handler.handleAuthenticated(params)
         : handler.handleUnauthenticated(params);
     } else {
-      const activeNetwork = networkService.activeNetwork;
+      const activeNetwork = await networkService.getNetwork(
+        context.request.params.scope
+      );
 
       if (!activeNetwork) {
         promise = Promise.reject(ethErrors.provider.disconnected());

@@ -1,8 +1,10 @@
 import { Network as _Network } from '@avalabs/chains-sdk';
-import { PartialBy } from '@src/background/models';
+import { EnsureDefined, PartialBy } from '@src/background/models';
+import { runtime } from 'webextension-polyfill';
 
 export enum NetworkEvents {
   NETWORK_UPDATE_EVENT = 'network-updated',
+  DEVELOPER_MODE_CHANGED = 'developer-mode-changed',
   NETWORKS_UPDATED_EVENT = 'networks-updated',
 }
 
@@ -10,10 +12,17 @@ export const NETWORK_STORAGE_KEY = 'NETWORK_STORAGE_KEY';
 export const NETWORK_LIST_STORAGE_KEY = 'NETWORK_LIST_STORAGE_KEY';
 export const NETWORK_OVERRIDES_STORAGE_KEY = 'NETWORK_OVERRIDES_STORAGE_KEY';
 
+export const SYNCED_DOMAINS = [
+  'core-web.pages.dev',
+  'core.app',
+  'test.core.app',
+  runtime.id,
+];
+
 export interface NetworkStorage {
-  activeNetworkId: number | null;
   favoriteNetworks: number[];
   customNetworks: Record<number, Network>;
+  dappScopes: Record<string, string>;
 }
 
 export interface AddEthereumChainParameter {
@@ -31,9 +40,15 @@ export interface AddEthereumChainParameter {
   requiresGlacierApiKey?: boolean;
 }
 
-export type Network = _Network & AdvancedNetworkConfig;
+export type Network = _Network &
+  AdvancedNetworkConfig & {
+    caipId?: string;
+  };
+
+export type NetworkWithCaipId = EnsureDefined<Network, 'caipId'>;
 
 export type ChainList = Record<string, Network>;
+export type ChainListWithCaipIds = Record<string, NetworkWithCaipId>;
 
 export type NetworkOverrides = PartialBy<Network, 'rpcUrl'> &
   AdvancedNetworkConfig;
@@ -44,12 +59,15 @@ export type AdvancedNetworkConfig = {
   customRpcHeaders?: CustomRpcHeaders;
 };
 
-export type CustomNetworkPayload = Network & {
-  chainId: number | string; // Chain ID may come in hex-encoded through wallet_addEthereumChain call.
-};
+export type CustomNetworkPayload = Omit<
+  Network & {
+    chainId: number | string; // Chain ID may come in hex-encoded through wallet_addEthereumChain call.
+  },
+  'caipId'
+>;
 
 export type AddEthereumChainDisplayData = {
-  network: Network;
+  network: EnsureDefined<Network, 'caipId'>;
   options: {
     requiresGlacierApiKey: boolean;
   };

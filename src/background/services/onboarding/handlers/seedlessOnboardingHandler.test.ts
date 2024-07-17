@@ -34,13 +34,18 @@ const mockrMemorySession = {
 
 jest.mock('../../seedless/SeedlessWallet');
 
-jest.mock('@avalabs/wallets-sdk', () => ({
-  ...jest.requireActual('@avalabs/wallets-sdk'),
-  getXpubFromMnemonic: jest.fn(),
-  Avalanche: {
+jest.mock('@avalabs/wallets-sdk', () => {
+  const actual = jest.requireActual('@avalabs/wallets-sdk');
+
+  return {
+    ...actual,
     getXpubFromMnemonic: jest.fn(),
-  },
-}));
+    Avalanche: {
+      ...actual.Avalanche,
+      getXpubFromMnemonic: jest.fn(),
+    },
+  };
+});
 
 const WALLET_ID = 'wallet-id';
 describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.ts', () => {
@@ -70,6 +75,8 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
   } as unknown as SettingsService;
   const networkServiceMock = {
     addFavoriteNetwork: jest.fn(),
+    getAvalancheNetwork: jest.fn(),
+    setNetwork: jest.fn(),
   } as unknown as NetworkService;
   const secretsServiceMock = {
     getWalletAccountsSecretsById: jest.fn(),
@@ -110,6 +117,9 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
       accountMock,
     ]);
     (walletServiceMock.init as jest.Mock).mockResolvedValue(WALLET_ID);
+    jest
+      .mocked(networkServiceMock.getAvalancheNetwork)
+      .mockResolvedValue({ chainId: 43114 } as any);
   });
 
   it('sets up seedless wallets correctly', async () => {
@@ -132,7 +142,6 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
     const request = getRequest([
       {
         password: 'password',
-        accountName: 'test-acc',
         walletName: 'wallet-name',
         seedlessSignerToken: {},
         userId: '123',
@@ -167,11 +176,9 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
     // Adds all derived accounts
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledTimes(2);
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(1, {
-      name: 'test-acc',
       walletId: WALLET_ID,
     });
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(2, {
-      name: '',
       walletId: WALLET_ID,
     });
 

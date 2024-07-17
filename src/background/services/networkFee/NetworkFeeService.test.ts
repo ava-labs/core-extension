@@ -29,23 +29,25 @@ describe('src/background/services/networkFee/NetworkFeeService', () => {
 
       const service = new NetworkFeeService(networkService as any);
 
-      expect(await service.getNetworkFee()).toEqual({
-        displayDecimals: 9, // use Gwei to display amount
-        baseMaxFee: maxFeePerGas,
-        low: {
-          maxFee: maxFeePerGas + BigInt(5e8),
-          maxTip: BigInt(5e8),
-        },
-        medium: {
-          maxFee: maxFeePerGas + BigInt(2e9),
-          maxTip: BigInt(2e9),
-        },
-        high: {
-          maxFee: maxFeePerGas + BigInt(3e9),
-          maxTip: BigInt(3e9),
-        },
-        isFixedFee: false,
-      });
+      expect(await service.getNetworkFee(networkService.activeNetwork)).toEqual(
+        {
+          displayDecimals: 9, // use Gwei to display amount
+          baseMaxFee: maxFeePerGas,
+          low: {
+            maxFee: maxFeePerGas + BigInt(5e8),
+            maxTip: BigInt(5e8),
+          },
+          medium: {
+            maxFee: maxFeePerGas + BigInt(2e9),
+            maxTip: BigInt(2e9),
+          },
+          high: {
+            maxFee: maxFeePerGas + BigInt(3e9),
+            maxTip: BigInt(3e9),
+          },
+          isFixedFee: false,
+        }
+      );
     });
   });
 });

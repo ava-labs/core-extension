@@ -4,13 +4,12 @@ import {
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { BalanceServiceEvents, Balances, TotalBalance } from '../models';
+import { BalanceServiceEvents, Balances } from '../models';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 
 export interface BalancesInfo {
   balances: Balances;
   isBalancesCached: boolean;
-  totalBalance?: TotalBalance;
 }
 @singleton()
 export class BalancesUpdatedEvents implements ExtensionEventEmitter {

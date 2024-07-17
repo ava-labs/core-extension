@@ -118,8 +118,6 @@ export function SetDeveloperMode() {
               status: ActionStatus.SUBMITTING,
               id: requestId,
             });
-
-            window.close();
           }}
           width="168px"
         >

@@ -60,6 +60,7 @@ export function useSeedlessActions() {
     oidcToken,
     setUserId,
     setIsSeedlessMfaRequired,
+    setNewsletterEmail,
   } = useOnboardingContext();
   const history = useHistory();
   const { t } = useTranslation();
@@ -104,6 +105,7 @@ export function useSeedlessActions() {
       }
 
       setUserId(identity.identity?.sub);
+      setNewsletterEmail(identity.email ?? '');
 
       if ((identity.user_info?.configured_mfa ?? []).length === 0) {
         history.push(OnboardingURLs.RECOVERY_METHODS);
@@ -115,6 +117,7 @@ export function useSeedlessActions() {
       setOidcToken,
       setUserId,
       setIsSeedlessMfaRequired,
+      setNewsletterEmail,
       t,
       history,
       featureFlags,

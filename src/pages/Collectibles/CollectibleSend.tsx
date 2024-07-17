@@ -22,10 +22,10 @@ import {
 import { Network } from '@src/background/services/network/models';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 import { LoadingSendForm } from '../Send/components/LoadingSendForm';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';

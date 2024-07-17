@@ -25,7 +25,11 @@ export function calculateTotalBalance(
 
   const chainIdsToSum = new Set([network.chainId, ...(networkIds ?? [])]);
 
-  const hasBalances = hasAccountBalances(balances, account);
+  const hasBalances = hasAccountBalances(
+    balances,
+    account,
+    Array.from(chainIdsToSum)
+  );
 
   if (!hasBalances) {
     return {

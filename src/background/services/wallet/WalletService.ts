@@ -9,7 +9,11 @@ import {
   WalletDetails,
   SUPPORTED_PRIMARY_SECRET_TYPES,
 } from './models';
-import { MessageParams, MessageType } from '../messages/models';
+import {
+  MessageParams,
+  MessageType,
+  SignMessageData,
+} from '../messages/models';
 import {
   Avalanche,
   BitcoinLedgerWallet,
@@ -30,7 +34,7 @@ import {
   LedgerSigner,
 } from '@avalabs/wallets-sdk';
 import { NetworkService } from '../network/NetworkService';
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/chains-sdk';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import {
   personalSign,
@@ -60,6 +64,7 @@ import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { Network } from '../network/models';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -165,19 +170,17 @@ export class WalletService implements OnLock, OnUnlock {
     tabId,
     accountIndex,
   }: {
-    network?: Network;
+    network: Network;
     tabId?: number;
     accountIndex?: number;
   }) {
     const secrets = await this.secretService.getActiveAccountSecrets();
-    const activeNetwork = network || this.networkService.activeNetwork;
-
-    if (!activeNetwork || !secrets.account) {
+    if (!secrets.account) {
       // wallet is not initialized
       return;
     }
 
-    const provider = getProviderForNetwork(activeNetwork);
+    const provider = getProviderForNetwork(network);
     const { secretType } = secrets;
 
     // Seedless wallet uses a universal signer class (one for all tx types)
@@ -195,14 +198,14 @@ export class WalletService implements OnLock, OnUnlock {
         networkService: this.networkService,
         sessionStorage: new SeedlessTokenStorage(this.secretService),
         addressPublicKey,
-        network: activeNetwork,
+        network,
         sessionManager: container.resolve(SeedlessSessionManager),
       });
       return wallet;
     }
 
     // EVM signers
-    if (activeNetwork.vmName === NetworkVMType.EVM) {
+    if (network.vmName === NetworkVMType.EVM) {
       if (secretType === SecretType.Mnemonic) {
         const accountIndexToUse =
           accountIndex === undefined ? secrets.account.index : accountIndex;
@@ -239,7 +242,7 @@ export class WalletService implements OnLock, OnUnlock {
           secrets.masterFingerprint,
           accountIndexToUse,
           this.keystoneService,
-          activeNetwork.chainId,
+          network.chainId,
           tabId
         );
       }
@@ -250,7 +253,7 @@ export class WalletService implements OnLock, OnUnlock {
       ) {
         return new WalletConnectSigner(
           this.walletConnectService,
-          activeNetwork.chainId,
+          network.chainId,
           secrets.account.addressC,
           tabId,
           // Due to Fireblocks nature, transaction sign requests may need
@@ -271,7 +274,7 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     // Bitcoin signers
-    if (activeNetwork.vmName === NetworkVMType.BITCOIN) {
+    if (network.vmName === NetworkVMType.BITCOIN) {
       if (secretType === SecretType.Mnemonic) {
         const accountIndexToUse =
           accountIndex === undefined ? secrets.account.index : accountIndex;
@@ -289,7 +292,7 @@ export class WalletService implements OnLock, OnUnlock {
         return new FireblocksBTCSigner(
           this.fireblocksService,
           secrets.api.vaultAccountId,
-          activeNetwork.isTestnet
+          network.isTestnet
         );
       }
 
@@ -375,8 +378,8 @@ export class WalletService implements OnLock, OnUnlock {
 
     // Avalanche signers
     if (
-      activeNetwork.vmName === NetworkVMType.AVM ||
-      activeNetwork.vmName === NetworkVMType.PVM
+      network.vmName === NetworkVMType.AVM ||
+      network.vmName === NetworkVMType.PVM
     ) {
       if (secretType === SecretType.Mnemonic) {
         const accountIndexToUse =
@@ -437,7 +440,7 @@ export class WalletService implements OnLock, OnUnlock {
       if (secretType === SecretType.WalletConnect) {
         return new WalletConnectSigner(
           this.walletConnectService,
-          activeNetwork.chainId,
+          network.chainId,
           secrets.account.addressC,
           tabId
         );
@@ -459,8 +462,8 @@ export class WalletService implements OnLock, OnUnlock {
 
   async sign(
     tx: SignTransactionRequest,
+    network: Network,
     tabId?: number,
-    network?: Network,
     originalRequestMethod?: string
   ): Promise<SigningResult> {
     const wallet = await this.getWallet({ network, tabId });
@@ -693,19 +696,21 @@ export class WalletService implements OnLock, OnUnlock {
    * @param messageType
    * @param data
    */
-  async signMessage(messageType: MessageType, action: Action) {
-    const wallet = await this.getWallet({
-      accountIndex: action.displayData.messageParams.accountIndex,
-    });
-    const activeNetwork = this.networkService.activeNetwork;
+  async signMessage(messageType: MessageType, action: Action<SignMessageData>) {
+    const network = await this.networkService.getNetwork(action.scope);
 
-    if (!activeNetwork) {
+    if (!network) {
       throw new Error(`no active network found`);
     }
 
+    const wallet = await this.getWallet({
+      accountIndex: action.displayData.messageParams.accountIndex,
+      network,
+    });
+
     const data = action.displayData?.messageParams?.data;
 
-    ensureMessageIsValid(messageType, data, activeNetwork.chainId);
+    ensureMessageIsValid(messageType, data, network.chainId);
 
     if (wallet instanceof WalletConnectSigner) {
       return await wallet.signMessage(messageType, action.params);

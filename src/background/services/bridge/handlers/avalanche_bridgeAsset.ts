@@ -47,8 +47,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     super();
   }
 
-  handleAuthenticated = async (rpcCall) => {
-    const { request } = rpcCall;
+  handleAuthenticated = async ({ request, scope }) => {
     const params: BridgeActionParams = request.params || [];
     const currentBlockchain = params[0];
 
@@ -98,11 +97,13 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
       (await this.networkService.allNetworks.promisify()) ?? {}
     );
 
+    const activeNetwork = await this.networkService.getNetwork(scope);
+
     const sourceNetwork = blockchainToNetwork(
       currentBlockchain,
       networks,
       this.bridgeService.bridgeConfig,
-      this.networkService.activeNetwork?.isTestnet
+      activeNetwork?.isTestnet
     );
 
     const wrappedNetwork = isNativeAsset(asset)
@@ -122,17 +123,29 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
           : asset.nativeNetwork,
         networks,
         this.bridgeService.bridgeConfig,
-        this.networkService.activeNetwork?.isTestnet
+        activeNetwork?.isTestnet
       );
 
     const { activeAccount } = this.accountsService;
-    // refresh balances so we have the correct balance information for the asset
-    sourceNetwork &&
-      activeAccount &&
-      (await this.balanceAggregatorService.updateBalancesForNetworks(
-        [sourceNetwork.chainId],
-        [activeAccount]
-      ));
+    if (!sourceNetwork) {
+      return {
+        ...request,
+        error: 'Unknown active network',
+      };
+    }
+
+    if (!activeAccount) {
+      return {
+        ...request,
+        error: 'No active account',
+      };
+    }
+
+    // get the correct balance information for the asset
+    const balances = await this.balanceAggregatorService.getBalancesForNetworks(
+      [sourceNetwork.chainId],
+      [activeAccount]
+    );
 
     const balanceAddress =
       sourceNetwork && isBitcoinNetwork(sourceNetwork)
@@ -145,11 +158,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
       findTokenForAsset(
         asset.symbol,
         asset.nativeNetwork,
-        Object.values(
-          this.balanceAggregatorService.balances?.[sourceNetwork.chainId]?.[
-            balanceAddress
-          ] ?? {}
-        )
+        Object.values(balances?.[sourceNetwork.chainId]?.[balanceAddress] ?? {})
       );
 
     const action: Action<BridgeActionDisplayData> = {
@@ -219,13 +228,6 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
 
     if (currentBlockchain === Blockchain.BITCOIN) {
       try {
-        // Refresh UTXOs before to ensure that it is updated
-        this.accountsService.activeAccount &&
-          (await this.balanceAggregatorService.updateBalancesForNetworks(
-            [sourceChainId],
-            [this.accountsService.activeAccount]
-          ));
-
         const result = await this.bridgeService.transferBtcAsset(
           amount,
           undefined,
@@ -250,12 +252,6 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
           },
         });
 
-        // Refresh UTXOs
-        this.accountsService.activeAccount &&
-          this.balanceAggregatorService.updateBalancesForNetworks(
-            [sourceChainId],
-            [this.accountsService.activeAccount]
-          );
         onSuccess(result);
       } catch (e) {
         this.analyticsServicePosthog.captureEncryptedEvent({

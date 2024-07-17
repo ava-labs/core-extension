@@ -6,6 +6,7 @@ import { Account } from '../../accounts/models';
 import { NetworkService } from '../../network/NetworkService';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 import { Balances } from '../models';
+import { caipToChainId } from '@src/utils/caipConversion';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_BALANCES_UPDATE,
@@ -23,14 +24,13 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
     private networkSerice: NetworkService
   ) {}
 
-  async #getDefaultNetworksToFetch() {
-    const activeNetwork = this.networkSerice.activeNetwork?.chainId;
+  async #getDefaultNetworksToFetch(activeChainId: number) {
     const favoriteNetworks = await this.networkSerice.getFavoriteNetworks();
 
-    return [...(activeNetwork ? [activeNetwork] : []), ...favoriteNetworks];
+    return [...(activeChainId ? [activeChainId] : []), ...favoriteNetworks];
   }
 
-  handle: HandlerType['handle'] = async ({ request }) => {
+  handle: HandlerType['handle'] = async ({ request, scope }) => {
     const params = request.params || [];
 
     // if no account or network is defined default to the currently active one
@@ -49,7 +49,7 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
 
     const networksToFetch = networks?.length
       ? networks
-      : await this.#getDefaultNetworksToFetch();
+      : await this.#getDefaultNetworksToFetch(caipToChainId(scope));
 
     if (Object.keys(networksToFetch).length === 0) {
       return {
@@ -59,11 +59,10 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
     }
 
     try {
-      const balances =
-        await this.networkBalancesService.getBatchedUpdatedBalancesForNetworks(
-          networksToFetch,
-          accountsToFetch
-        );
+      const balances = await this.networkBalancesService.getBalancesForNetworks(
+        networksToFetch,
+        accountsToFetch
+      );
       return {
         ...request,
         result: balances,

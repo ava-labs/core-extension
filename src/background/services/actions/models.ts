@@ -17,6 +17,7 @@ export type Action<DisplayData = any, Params = any> = JsonRpcRequestPayload<
   DAppProviderRequest,
   Params
 > & {
+  scope: string;
   time?: number;
   status?: ActionStatus;
   result?: any;

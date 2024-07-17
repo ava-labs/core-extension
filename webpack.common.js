@@ -84,6 +84,8 @@ module.exports = {
       '@cubist-labs/cubesigner-sdk': path.resolve(
         './node_modules/@cubist-labs/cubesigner-sdk/dist/cjs/src/index.js'
       ),
+      // Joi by default goes to browser-specific version which does not include the list of TLDS (which we need for email validation)
+      joi: path.resolve('./node_modules/joi/lib/index.js'),
     },
     // We're using different node.js modules in our code,
     // this prevents WebPack from failing on them or embedding

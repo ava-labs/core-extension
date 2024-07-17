@@ -54,7 +54,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
   ) => {
     let unsignedTx: UnsignedTx | EVMUnsignedTx;
 
-    const { request } = rpcCall;
+    const { request, scope } = rpcCall;
     const {
       transactionHex,
       chainAlias,
@@ -162,6 +162,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
 
     const actionData = {
       ...request,
+      scope,
       displayData: {
         unsignedTxJson: JSON.stringify(unsignedTx.toJSON()),
         txData,
@@ -255,9 +256,8 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
           externalIndices,
           internalIndices,
         },
-        frontendTabId,
-        // Must tell it is avalanche network
         this.networkService.getAvalancheNetworkXP(),
+        frontendTabId,
         DAppProviderRequest.AVALANCHE_SEND_TRANSACTION
       );
 

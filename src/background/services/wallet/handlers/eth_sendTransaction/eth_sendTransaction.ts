@@ -37,6 +37,8 @@ import { AnalyticsServicePosthog } from '@src/background/services/analytics/Anal
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { BlockaidService } from '@src/background/services/blockaid/BlockaidService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { caipToChainId } from '@src/utils/caipConversion';
+import { EnsureDefined } from '@src/background/models';
 
 @injectable()
 export class EthSendTransactionHandler extends DAppRequestHandler<
@@ -66,20 +68,21 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
     };
   };
 
-  handleAuthenticated = async (
-    rpcCall: JsonRpcRequestParams<
-      DAppProviderRequest,
-      [EthSendTransactionParams]
-    >
-  ) => {
-    const { request } = rpcCall;
+  handleAuthenticated = async ({
+    request,
+    scope,
+  }: JsonRpcRequestParams<DAppProviderRequest, [EthSendTransactionParams]>) => {
     const { params, site } = request;
 
-    const trxParams = (params || [])[0] as EthSendTransactionParams;
+    const rawParams = (params || [])[0] as EthSendTransactionParams;
+    const trxParams = {
+      ...rawParams,
+      chainId: rawParams.chainId ?? `0x${caipToChainId(scope).toString(16)}`,
+    };
     const network = await getTargetNetworkForTx(
       trxParams,
       this.networkService,
-      this.featureFlagService
+      scope
     );
 
     if (!network) {
@@ -97,12 +100,8 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
 
     const txPayload = await this.#addGasInformation(network, trxParams);
 
-    // update balances if we are not on the current network
-    if (
-      !this.networkService.isActiveNetwork(network.chainId) &&
-      this.accountsService.activeAccount
-    ) {
-      await this.balancesService.updateBalancesForNetworks(
+    if (this.accountsService.activeAccount) {
+      await this.balancesService.getBalancesForNetworks(
         [network.chainId],
         [this.accountsService.activeAccount]
       );
@@ -168,6 +167,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
 
     const actionData: Action<Transaction> = {
       ...request,
+      scope,
       displayData: {
         site,
         method: request.method,
@@ -193,7 +193,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
       const network = await getTargetNetworkForTx(
         pendingAction.displayData.txParams,
         this.networkService,
-        this.featureFlagService
+        pendingAction.scope
       );
 
       const calculatedFee = await this.networkFeeService.getNetworkFee(network);
@@ -229,8 +229,8 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
           value: value,
           type,
         },
-        tabId,
-        network
+        network,
+        tabId
       );
 
       const txHash = await this.networkService.sendTransaction(
@@ -314,8 +314,8 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
 
   async #addGasInformation(
     network: Network,
-    tx: EthSendTransactionParams
-  ): Promise<EthSendTransactionParamsWithGas> {
+    tx: EnsureDefined<EthSendTransactionParams, 'chainId'>
+  ): Promise<EnsureDefined<EthSendTransactionParamsWithGas, 'chainId'>> {
     const fees = await this.networkFeeService.getNetworkFee(network);
     const maxFeePerGas = fees?.low.maxFee ?? 0n;
     const maxPriorityFeePerGas = fees?.low.maxTip
@@ -333,8 +333,8 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
               tx.from,
               tx.to ?? '',
               tx.data as string,
-              tx.value ? BigInt(tx.value) : undefined,
-              network
+              network,
+              tx.value ? BigInt(tx.value) : undefined
             ));
 
         // we should always be able to calculate gas limit. If we don't have the limit the TX would fail anyways

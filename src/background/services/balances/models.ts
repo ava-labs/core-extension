@@ -160,13 +160,11 @@ export interface TokenListERC20 {
 
 // store balances in the structure of network ID -> address -> tokens
 export interface Balances {
-  [networkId: string | number]:
-    | {
-        [accountAddress: string]: {
-          [tokenAddressOrSymbol: string]: TokenWithBalance;
-        };
-      }
-    | undefined;
+  [networkId: string | number]: {
+    [accountAddress: string]: {
+      [tokenAddressOrSymbol: string]: TokenWithBalance;
+    };
+  };
 }
 
 export const CLOUDFLARE_IPFS_URL = 'https://cloudflare-ipfs.com';

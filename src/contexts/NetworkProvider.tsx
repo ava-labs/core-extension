@@ -8,12 +8,10 @@ import {
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
-import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ChainId } from '@avalabs/chains-sdk';
 import { networksUpdatedEventListener } from '@src/background/services/network/events/networksUpdatedEventListener';
 import { useAnalyticsContext } from './AnalyticsProvider';
-import { SetSelectedNetworkHandler } from '@src/background/services/network/handlers/setSelectedNetwork';
 import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
 import { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
 import { RemoveCustomNetworkHandler } from '@src/background/services/network/handlers/removeCustomNetwork';
@@ -23,17 +21,22 @@ import { AddFavoriteNetworkHandler } from '@src/background/services/network/hand
 import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
 import { BitcoinProvider, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 import {
+  CustomNetworkPayload,
   Network,
   NetworkOverrides,
 } from '@src/background/services/network/models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { isNetworkUpdatedEvent } from '@src/background/services/network/events/isNetworkUpdatedEvent';
+import { SetActiveNetworkHandler } from '@src/background/services/network/handlers/setActiveNetwork';
+import { getNetworkCaipId } from '@src/utils/caipConversion';
+import { networkChanged } from './NetworkProvider/networkChanges';
 
 const NetworkContext = createContext<{
   network?: Network | undefined;
   setNetwork(network: Network): void;
   networks: Network[];
   setDeveloperMode(status: boolean): void;
-  saveCustomNetwork(network: Network): Promise<unknown>;
+  saveCustomNetwork(network: CustomNetworkPayload): Promise<unknown>;
   updateDefaultNetwork(network: NetworkOverrides): Promise<unknown>;
   removeCustomNetwork(chainId: number): Promise<unknown>;
   isDeveloperMode: boolean;
@@ -56,7 +59,6 @@ const NetworkContext = createContext<{
  */
 export function NetworkContextProvider({ children }: { children: any }) {
   const [network, setNetwork] = useState<Network | undefined>();
-
   const [networks, setNetworks] = useState<Network[]>([]);
   const [customNetworks, setCustomNetworks] = useState<number[]>([]);
   const [favoriteNetworks, setFavoriteNetworks] = useState<number[]>([]);
@@ -138,6 +140,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
     }).then((result) => {
       setNetworks(result.networks);
       setNetwork(result.activeNetwork);
+      networkChanged.dispatch(result.activeNetwork?.caipId);
       setFavoriteNetworks(result.favoriteNetworks);
       setCustomNetworks(result.customNetworks);
     });
@@ -150,7 +153,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
     }).then(getNetworkState);
   };
 
-  const saveCustomNetwork = async (customNetwork: Network) => {
+  const saveCustomNetwork = async (customNetwork: CustomNetworkPayload) => {
     return request<SaveCustomNetworkHandler>({
       method: ExtensionRequest.NETWORK_SAVE_CUSTOM,
       params: [customNetwork],
@@ -166,17 +169,19 @@ export function NetworkContextProvider({ children }: { children: any }) {
 
   useEffect(() => {
     getNetworkState();
+
     const activeNetworkSubscription = events()
       .pipe(
-        filter(networkUpdatedEventListener),
+        filter(isNetworkUpdatedEvent),
         map((evt) => evt.value)
       )
-      .subscribe((result) => {
-        if (!result) {
+      .subscribe(async (newNetwork) => {
+        if (!newNetwork) {
           return;
         }
         getNetworkState();
-        setNetwork(result);
+        setNetwork(newNetwork);
+        networkChanged.dispatch(newNetwork.caipId);
       });
 
     const networksSubscription = events()
@@ -184,9 +189,14 @@ export function NetworkContextProvider({ children }: { children: any }) {
         filter(networksUpdatedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe((result) => {
+      .subscribe(async (result) => {
         setNetworks(result.networks);
-        setNetwork((currentNetwork) => result.activeNetwork ?? currentNetwork); // do not delete currently set network
+        setNetwork((currentNetwork) => {
+          const newNetwork = result.activeNetwork ?? currentNetwork; // do not delete currently set network
+          networkChanged.dispatch(newNetwork.caipId);
+
+          return newNetwork;
+        });
         setFavoriteNetworks(result.favoriteNetworks);
         setCustomNetworks(
           Object.values(result.customNetworks).map(({ chainId }) => chainId)
@@ -197,16 +207,16 @@ export function NetworkContextProvider({ children }: { children: any }) {
       activeNetworkSubscription.unsubscribe();
       networksSubscription.unsubscribe();
     };
-  }, [events, getNetworkState, request]);
+  }, [events, getNetworkState]);
 
   return (
     <NetworkContext.Provider
       value={{
         network,
-        setNetwork: ({ chainId }: Network) =>
-          request<SetSelectedNetworkHandler>({
-            method: ExtensionRequest.NETWORK_SET_SELECTED,
-            params: [chainId],
+        setNetwork: (newNetwork: Network) =>
+          request<SetActiveNetworkHandler>({
+            method: ExtensionRequest.NETWORK_SET_ACTIVE,
+            params: [getNetworkCaipId(newNetwork)],
           }),
         networks,
         setDeveloperMode: (status: boolean) =>
