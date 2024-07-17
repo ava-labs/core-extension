@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import {
   OnboardingPhase,
@@ -34,6 +34,12 @@ enum EmailValidationResult {
   Invalid,
 }
 
+const validateEmail = (email: string) => {
+  const { error } = Joi.string().email().validate(email);
+
+  return error ? EmailValidationResult.Invalid : EmailValidationResult.Valid;
+};
+
 export const CreatePassword = () => {
   const { capture } = useAnalyticsContext();
   const history = useHistory();
@@ -61,6 +67,8 @@ export const CreatePassword = () => {
   const [emailValidationResult, setEmailValidationResult] = useState(
     onboardingWalletType === WalletType.Seedless
       ? EmailValidationResult.Valid
+      : newsletterEmail
+      ? validateEmail(newsletterEmail)
       : EmailValidationResult.Undetermined
   );
 
@@ -102,12 +110,6 @@ export const CreatePassword = () => {
     newPasswordStrength > 1 &&
     (!isNewsletterEnabled ||
       emailValidationResult === EmailValidationResult.Valid);
-
-  const validateEmail = useCallback((email: string) => {
-    const { error } = Joi.string().email().validate(email);
-
-    return error ? EmailValidationResult.Invalid : EmailValidationResult.Valid;
-  }, []);
 
   return (
     <Stack
