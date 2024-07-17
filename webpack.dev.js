@@ -3,6 +3,10 @@ const common = require('./webpack.common.js');
 const { DefinePlugin } = require('webpack');
 const Dotenv = require('dotenv-webpack');
 const CopyPlugin = require('copy-webpack-plugin');
+const {
+  transformManifestFiles,
+} = require('./build-scripts/manifestHelpers.js');
+
 require('dotenv').config({ path: './.env' });
 
 module.exports = merge(common, {
@@ -25,21 +29,13 @@ module.exports = merge(common, {
           context: 'manifest/',
           from: '**/*.json',
           to: '../',
-          transform: (content) => {
-            return content
-              .toString()
-              .replace('__NAME__', 'Core Dev')
-              .replace('__SHORT_NAME__', 'Core Dev')
-              .replace('__DEFAULT_TITLE__', 'Core Dev Browser Extension')
-              .replace(
-                '__OAUTH_CLIENT_ID__',
-                process.env.GOOGLE_OAUTH_CLIENT_ID
-              )
-              .replace(
-                '__EXTENSION_PUBLIC_KEY__',
-                process.env.EXTENSION_PUBLIC_KEY
-              );
-          },
+          transform: transformManifestFiles({
+            name: 'Core Dev',
+            shortName: 'Core Dev',
+            actionDefaultTitle: 'Core Dev Browser Extension',
+            oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+            publicKey: process.env.EXTENSION_PUBLIC_KEY,
+          }),
           force: true,
         },
       ],

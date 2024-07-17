@@ -3,6 +3,9 @@ const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const Dotenv = require('dotenv-webpack');
 const CopyPlugin = require('copy-webpack-plugin');
+const {
+  transformManifestFiles,
+} = require('./build-scripts/manifestHelpers.js');
 require('dotenv').config({ path: './.env.production' });
 
 module.exports = merge(common, {
@@ -24,20 +27,12 @@ module.exports = merge(common, {
           context: 'manifest/',
           from: '**/*.json',
           to: '../',
-          transform: (content) =>
-            content
-              .toString()
-              .replace('__NAME__', 'Core | Crypto Wallet & NFT Extension')
-              .replace('__SHORT_NAME__', 'Core')
-              .replace(
-                '__DEFAULT_TITLE__',
-                'Core | Crypto Wallet & NFT Extension'
-              )
-              .replace(
-                '__OAUTH_CLIENT_ID__',
-                process.env.GOOGLE_OAUTH_CLIENT_ID
-              )
-              .replace('"key": "__EXTENSION_PUBLIC_KEY__",', ''),
+          transform: transformManifestFiles({
+            name: 'Core | Crypto Wallet & NFT Extension',
+            shortName: 'Core',
+            actionDefaultTitle: 'Core | Crypto Wallet & NFT Extension',
+            oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+          }),
           force: true,
         },
       ],

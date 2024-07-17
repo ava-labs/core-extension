@@ -1,6 +1,9 @@
 const { merge } = require('webpack-merge');
 const prod = require('./webpack.prod.js');
 const CopyPlugin = require('copy-webpack-plugin');
+const {
+  transformManifestFiles,
+} = require('./build-scripts/manifestHelpers.js');
 require('dotenv').config({ path: './.env.production' });
 
 module.exports = merge(prod, {
@@ -11,20 +14,12 @@ module.exports = merge(prod, {
           context: 'manifest/',
           from: '**/*.json',
           to: '../',
-          transform: (content) =>
-            content
-              .toString()
-              .replace('__NAME__', 'Core Beta DEVELOPMENT BUILD')
-              .replace('__SHORT_NAME__', 'Core Beta')
-              .replace(
-                '__DEFAULT_TITLE__',
-                'Core Beta Browser Extension DEVELOPMENT BUILD'
-              )
-              .replace(
-                '__OAUTH_CLIENT_ID__',
-                process.env.GOOGLE_OAUTH_CLIENT_ID
-              )
-              .replace('"key": "__EXTENSION_PUBLIC_KEY__",', ''),
+          transform: transformManifestFiles({
+            name: 'Core Beta DEVELOPMENT BUILD',
+            shortName: 'Core Beta',
+            actionDefaultTitle: 'Core Beta Browser Extension DEVELOPMENT BUILD',
+            oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+          }),
           force: true,
         },
         { from: 'src/images/beta-logos', to: '../images', force: true },

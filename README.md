@@ -31,6 +31,11 @@
   The project uses multiple private SDKs and utility packages from NPM.<br/>
   Make sure you have 2FA enabled.
 
+### Environment variables
+
+- Copy `.env.example` file and rename it as `.env`
+  - Populate environment variables with your own values
+
 ### Setting Up a Project
 
 1. Install dependencies
