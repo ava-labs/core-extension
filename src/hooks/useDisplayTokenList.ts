@@ -1,8 +1,11 @@
+import { bnToBig } from '@avalabs/utils-sdk';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import { useMemo } from 'react';
 import { formatTokenAmount } from '@avalabs/bridge-sdk';
 import Big from 'big.js';
+import BN from 'bn.js';
+import { partition } from 'lodash';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -25,7 +28,7 @@ export const useDisplaytokenlist = ({
   searchQuery: string;
 }) => {
   const displayTokenList: DisplayToken[] = useMemo(() => {
-    return [
+    const initialList = [
       ...(tokensList
         ? tokensList
             .filter((token) =>
@@ -66,6 +69,42 @@ export const useDisplaytokenlist = ({
               };
             })
         : []),
+    ];
+
+    const [tokensWithBalance, tokensWithoutBalance]: DisplayToken[][] =
+      partition(initialList, (token) => {
+        if (!token.token?.balance) {
+          return -1;
+        }
+        const balance =
+          token.token.balance instanceof BN
+            ? bnToBig(token.token.balance)
+            : token.token.balance;
+        return balance.gt(new Big(0));
+      });
+
+    // Sorting specification per: https://ava-labs.atlassian.net/browse/CP-7768
+    // First part of the list should be tokens with a balance sorted by balance (descending)
+    // Second part of the list should be all no balance assets in order alphabetically
+    return [
+      ...tokensWithBalance.sort((tokenOne, tokenTwo) => {
+        const firstBalance =
+          tokenOne.token.balance instanceof BN
+            ? bnToBig(tokenOne.token.balance)
+            : tokenOne.token.balance || new Big(0);
+        const secondBalance =
+          tokenTwo.token.balance instanceof BN
+            ? bnToBig(tokenTwo.token.balance)
+            : tokenTwo.token.balance || new Big(0);
+        const comparison = firstBalance.cmp(secondBalance);
+        if (comparison) {
+          return comparison * -1;
+        }
+        return tokenOne.name.localeCompare(tokenTwo.name);
+      }),
+      ...tokensWithoutBalance.sort((tokenOne, tokenTwo) => {
+        return tokenOne.name.localeCompare(tokenTwo.name);
+      }),
     ];
   }, [tokensList, bridgeTokensList, searchQuery]);
   return displayTokenList;
