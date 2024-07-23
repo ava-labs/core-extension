@@ -7,7 +7,6 @@ import { PageTitle } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { SwitchIconContainer } from '@src/components/common/SwitchIconContainer';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { ParaswapNotice } from './components/ParaswapNotice';
 import {
@@ -299,7 +298,7 @@ export function Swap() {
                 {swapWarning}
               </Typography>
             )}
-            <SwitchIconContainer
+            <Stack
               data-testid="swap-switch-token-button"
               onClick={() => {
                 reverseTokens(
@@ -310,7 +309,10 @@ export function Swap() {
                 );
               }}
               disabled={!selectedFromToken || !selectedToToken}
-              isSwapped={isReversed}
+              sx={{
+                transition: 'all 0.2s',
+                transform: isReversed ? 'rotate(0deg)' : 'rotate(180deg)',
+              }}
             >
               <IconButton variant="contained" color="secondary">
                 <SwapIcon
@@ -320,7 +322,7 @@ export function Swap() {
                   }}
                 />
               </IconButton>
-            </SwitchIconContainer>
+            </Stack>
           </Stack>
           <TokenSelect
             label={t('To')}
