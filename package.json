@@ -1,7 +1,7 @@
 {
   "name": "avalanche-extension",
   "version": "1.82.0",
-  "license": "UNLICENSED",
+  "license": "Limited Ecosystem License",
   "scripts": {
     "start": "yarn dev",
     "build:inpage": "webpack --config webpack.inpage.js",
