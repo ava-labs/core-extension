@@ -27,6 +27,8 @@ export enum SentryExceptionTypes {
 
   BALANCES = 'balances',
 
+  VM_MODULES = 'vmModules',
+
   ONBOARDING = 'onboarding',
 }
 

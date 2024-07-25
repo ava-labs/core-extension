@@ -22,6 +22,7 @@
     "sentry": "node sentryscript.js"
   },
   "dependencies": {
+    "@avalabs/vm-module-types": "0.0.15",
     "@avalabs/avalanchejs": "4.0.5",
     "@avalabs/bridge-sdk": "2.8.0-alpha.188",
     "@avalabs/bridge-unified": "2.1.0",
@@ -242,7 +243,11 @@
       "web3>web3-bzz": false,
       "web3>web3-shh": false,
       "yarn": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false
+      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
+      "@avalabs/vm-module-types": false,
+      "@avalabs/vm-module-types>@avalabs/wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
+      "@avalabs/vm-module-types>@avalabs/wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
+      "@avalabs/vm-module-types>@avalabs/wallets-sdk>hdkey>secp256k1": false
     }
   }
 }
