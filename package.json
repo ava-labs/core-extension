@@ -1,6 +1,6 @@
 {
   "name": "avalanche-extension",
-  "version": "1.82.0",
+  "version": "0.0.0",
   "license": "Limited Ecosystem License",
   "scripts": {
     "start": "yarn dev",
@@ -113,13 +113,9 @@
     "@google/semantic-release-replace-plugin": "1.1.0",
     "@lavamoat/allow-scripts": "2.0.0",
     "@lavamoat/preinstall-always-fail": "1.0.0",
-    "@semantic-release/changelog": "6.0.1",
     "@semantic-release/commit-analyzer": "9.0.2",
     "@semantic-release/exec": "6.0.3",
-    "@semantic-release/git": "10.0.1",
     "@semantic-release/github": "8.0.2",
-    "@semantic-release/npm": "9.0.1",
-    "@semantic-release/release-notes-generator": "10.0.3",
     "@testing-library/react": "12.1.5",
     "@testing-library/react-hooks": "8.0.1",
     "@types/argon2-browser": "1.18.4",

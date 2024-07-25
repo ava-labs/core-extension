@@ -1,9 +1,5 @@
-name: Push to release branch
-
-on:
-  push:
-    branches:
-      - release
+name: Create prod release
+on: workflow_dispatch
 jobs:
   release:
     name: Release
@@ -11,11 +7,11 @@ jobs:
     environment: production
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
       - name: Create .npmrc
@@ -60,10 +56,5 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_BRANCH: release
-        run: yarn run semantic-release
-      - name: Rebase main
-        run: |
-          git checkout main &&
-          git rebase release &&
-          git push origin main
+          RELEASE_TYPE: production
+        run: yarn run semantic-release --branches ${{ github.ref_name }}

@@ -85,30 +85,6 @@ const githubSetting = [
   },
 ];
 
-const gitSetting = [
-  '@semantic-release/git',
-  {
-    assets: ['package.json'],
-    message:
-      'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
-  },
-];
-
-/**
- * This is used to publish to npm, however, we set that flag false and thus the
- * plugin acts as a package.json version updater.
- */
-const npmRelease = [
-  '@semantic-release/npm',
-  {
-    npmPublish: false,
-  },
-];
-
-const changelogGen = ['@semantic-release/changelog', {}];
-
-const releaseNotesGen = ['@semantic-release/release-notes-generator', {}];
-
 const execZipSetting = [
   '@semantic-release/exec',
   {
@@ -131,10 +107,6 @@ if (process.env && process.env.RELEASE_BRANCH === 'release') {
     releaseReplaceSetting,
     execZipSetting,
     githubSetting,
-    changelogGen,
-    releaseNotesGen,
-    npmRelease,
-    gitSetting,
   ];
 } else {
   plugins = [
@@ -143,19 +115,15 @@ if (process.env && process.env.RELEASE_BRANCH === 'release') {
     releaseReplaceSetting,
     execZipSetting,
     githubSetting,
-    gitSetting,
   ];
 }
 
 module.exports = {
+  // define a main version release branch even though we are doing all releases from main
+  // this branch list gets overwritten in the production release Github Action 
   branches: [
-    {
-      name: 'release',
-    },
-    {
-      name: 'main',
-      prerelease: 'alpha',
-    },
-  ],
+    'release', 
+    { name: 'main', prerelease: 'alpha'}
+  ], 
   plugins,
 };

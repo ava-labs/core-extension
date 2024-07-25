@@ -86,13 +86,13 @@ Bundles can be found in the "Releases" section of the repo.
 
 ### Production releases
 
-Production releases are created after each merge into the `release` branch.
-To create a Production release:
+Production releases are created by the `Create prod release` Github action.
+The action needs to be triggered manually, and can be triggered on any branch making it easier to create hotfix releases.
 
-- Open a PR from `main` to `release`
-- Wait for CI to complete
-- Make sure branch protection rules allow the CI to push the tags to `main` and `release` branches
-- Merge the PR by creating a merge commit
+- Make sure the branch you are creating the release on is clean and good to go
+- Go to Actions and select the "Create prod release" action
+- Click "Run workflow" and select the target branch
+- After the workflow run is complete, the new release is automatically pushed to the Releses age of the repo and the commit gets tagged
 - After green light from QA, upload the build to the Chrome
 
 ### Create a production release locally
