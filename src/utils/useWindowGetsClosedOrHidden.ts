@@ -1,7 +1,15 @@
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 import { useEffect } from 'react';
 import { filter, first, fromEventPattern, merge } from 'rxjs';
 
 export function useWindowGetsClosedOrHidden(cancelHandler: () => void) {
+  const isConfirmPopup = useIsSpecificContextContainer(
+    ContextContainer.CONFIRM
+  );
+
   useEffect(() => {
     const subscription = merge(
       fromEventPattern(
@@ -27,11 +35,14 @@ export function useWindowGetsClosedOrHidden(cancelHandler: () => void) {
     )
       .pipe(first())
       .subscribe(() => {
-        cancelHandler();
+        // Only close for popup windows. The extension UI should not react this way.
+        if (isConfirmPopup) {
+          cancelHandler();
+        }
       });
 
     return () => {
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
-  }, [cancelHandler]);
+  }, [cancelHandler, isConfirmPopup]);
 }

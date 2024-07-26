@@ -27,7 +27,7 @@ export async function handleTxOutcome<T>(txRequestPromise: Promise<T>): Promise<
     };
   } catch (err) {
     return {
-      isApproved: !!err || !isUserRejectionError(err),
+      isApproved: !isUserRejectionError(err),
       hasError: true,
       error: err,
     };

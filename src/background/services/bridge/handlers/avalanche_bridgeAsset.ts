@@ -1,13 +1,17 @@
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import {
+  AppConfig,
   Asset,
   Assets,
   BitcoinConfigAsset,
   Blockchain,
   EthereumConfigAsset,
+  btcToSatoshi,
   getAssets,
   isNativeAsset,
+  transferAssetBTC,
+  transferAssetEVM,
 } from '@avalabs/bridge-sdk';
 import Big from 'big.js';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
@@ -25,6 +29,19 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { isBitcoinNetwork } from '../../network/utils/isBitcoinNetwork';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { BridgeActionDisplayData } from '../models';
+import { WalletService } from '../../wallet/WalletService';
+import { ContractTransaction } from 'ethers';
+import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
+import { FeatureGates } from '../../featureFlags/models';
+import { isWalletConnectAccount } from '../../accounts/utils/typeGuards';
+import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
+import { TokenWithBalanceBTC } from '../../balances/models';
+import {
+  buildBtcTx,
+  getBtcInputUtxos,
+  validateBtcSend,
+} from '@src/utils/send/btcSendUtils';
+import { resolve } from '@src/utils/promiseResolver';
 
 type BridgeActionParams = [
   currentBlockchain: Blockchain,
@@ -42,7 +59,10 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     private accountsService: AccountsService,
     private balanceAggregatorService: BalanceAggregatorService,
     private networkService: NetworkService,
-    private analyticsServicePosthog: AnalyticsServicePosthog
+    private analyticsServicePosthog: AnalyticsServicePosthog,
+    private walletService: WalletService,
+    private featureFlagService: FeatureFlagService,
+    private networkFeeService: NetworkFeeService
   ) {
     super();
   }
@@ -66,8 +86,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     }
 
     // map asset from params to bridge config asset
-    const bridgeConfig = this.bridgeService.bridgeConfig;
-    const config = bridgeConfig.config;
+    const config = this.#getConfig();
     const assets: Assets | undefined =
       config && getAssets(currentBlockchain, config);
     const assetSymbol =
@@ -190,6 +209,22 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     };
   };
 
+  #getSourceAccount = () => {
+    if (!this.accountsService.activeAccount) {
+      throw new Error('no active account found');
+    }
+
+    return this.accountsService.activeAccount;
+  };
+
+  #getConfig = (): AppConfig => {
+    if (!this.bridgeService.bridgeConfig.config) {
+      throw new Error('missing bridge config');
+    }
+
+    return this.bridgeService.bridgeConfig.config;
+  };
+
   #getSourceChainId = (currentBlockchain: Blockchain) => {
     const isMainnet = this.networkService.isMainnet();
 
@@ -220,39 +255,133 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     frontendTabId?: number
   ) => {
     const currentBlockchain = pendingAction?.displayData.currentBlockchain;
+
+    if (currentBlockchain === Blockchain.UNKNOWN) {
+      onError('Unsupported blockchain');
+      return;
+    }
+    this.featureFlagService.ensureFlagEnabled(FeatureGates.BRIDGE);
+
     const amountStr = pendingAction?.displayData.amountStr;
     const asset = pendingAction?.displayData.asset;
     const denomination = asset.denomination;
     const amount = bnToBig(stringToBN(amountStr, denomination), denomination);
     const sourceChainId = this.#getSourceChainId(currentBlockchain);
+    const network = await this.networkService.getNetwork(sourceChainId);
+
+    if (!network) {
+      onError('Unsupported source network');
+      return;
+    }
 
     if (currentBlockchain === Blockchain.BITCOIN) {
       try {
-        const result = await this.bridgeService.transferBtcAsset(
-          amount,
-          undefined,
-          frontendTabId
+        const account = this.#getSourceAccount();
+
+        if (isWalletConnectAccount(account)) {
+          throw new Error(
+            'WalletConnect accounts are not supported by Bridge yet'
+          );
+        }
+        const { addressBTC } = account;
+
+        if (!addressBTC) {
+          throw new Error('No active account found');
+        }
+
+        const balances =
+          await this.balanceAggregatorService.getBalancesForNetworks(
+            [network.chainId],
+            [account]
+          );
+
+        const highFeeRate = Number(
+          (await this.networkFeeService.getNetworkFee(network))?.high.maxFee ??
+            0
         );
+
+        const token = balances[network.chainId]?.[addressBTC]?.[
+          'BTC'
+        ] as TokenWithBalanceBTC;
+
+        const btcProvider = await this.networkService.getBitcoinProvider();
+
+        const utxos = await getBtcInputUtxos(btcProvider, token, highFeeRate);
+
+        const hash = await transferAssetBTC({
+          config: this.#getConfig(),
+          amount: String(btcToSatoshi(amount)),
+          feeRate: highFeeRate,
+          onStatusChange: () => {},
+          onTxHashChange: () => {},
+          signAndSendBTC: async ([address, amountAsString, feeRate]) => {
+            const error = validateBtcSend(
+              addressBTC,
+              {
+                address,
+                amount: Number(amountAsString),
+                feeRate,
+                token,
+              },
+              utxos,
+              !network.isTestnet
+            );
+
+            if (error) {
+              throw new Error(
+                'Building BTC transaction for Bridge failed: ' + error
+              );
+            }
+
+            const { inputs, outputs } = await buildBtcTx(
+              addressBTC,
+              btcProvider,
+              {
+                amount: Number(amountAsString),
+                address,
+                token,
+                feeRate,
+              }
+            );
+
+            if (!inputs || !outputs) {
+              throw new Error('Unable to create transaction');
+            }
+
+            const result = await this.walletService.sign(
+              { inputs, outputs },
+              network,
+              frontendTabId
+            );
+
+            return this.networkService.sendTransaction(result, network);
+          },
+        });
+
+        const [tx, txError] = await resolve(btcProvider.waitForTx(hash));
+
+        if (!tx || txError) {
+          throw new Error('Failed to fetch transaction details.');
+        }
+
         await this.bridgeService.createTransaction(
           Blockchain.BITCOIN,
-          result.hash,
+          tx.hash,
           Date.now(),
           Blockchain.AVALANCHE,
           amount,
           'BTC'
         );
-
         this.analyticsServicePosthog.captureEncryptedEvent({
           name: 'avalanche_bridgeAsset_success',
           windowId: crypto.randomUUID(),
           properties: {
             address: this.accountsService.activeAccount?.addressBTC,
-            txHash: result.hash,
+            txHash: tx.hash,
             chainId: sourceChainId,
           },
         });
-
-        onSuccess(result);
+        onSuccess(tx);
       } catch (e) {
         this.analyticsServicePosthog.captureEncryptedEvent({
           name: 'avalanche_bridgeAsset_failed',
@@ -262,18 +391,41 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
             chainId: sourceChainId,
           },
         });
-
         onError(e);
       }
     } else {
       try {
-        const txHash = await this.bridgeService.transferAsset(
+        const txHash = await transferAssetEVM({
           currentBlockchain,
           amount,
-          asset as Exclude<Asset, BitcoinConfigAsset>,
-          pendingAction.displayData.gasSettings,
-          frontendTabId
-        );
+          account: this.#getSourceAccount().addressC,
+          asset,
+          avalancheProvider: await this.networkService.getAvalancheProvider(),
+          ethereumProvider: await this.networkService.getEthereumProvider(),
+          config: this.#getConfig(),
+          signAndSendEVM: async (txData) => {
+            const tx = txData as ContractTransaction; // TODO: update types in the SDK?
+
+            const signResult = await this.walletService.sign(
+              {
+                ...tx,
+                // erase gasPrice if maxFeePerGas can be used
+                gasPrice: tx.maxFeePerGas
+                  ? undefined
+                  : tx.gasPrice ?? undefined,
+                type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
+              },
+              network,
+              frontendTabId
+            );
+
+            return this.networkService.sendTransaction(signResult, network);
+          },
+          // Unused, but required.
+          onStatusChange: () => {},
+          onTxHashChange: () => {},
+        });
+
         if (txHash) {
           await this.bridgeService.createTransaction(
             currentBlockchain,

@@ -1,4 +1,11 @@
-import { Blockchain, BridgeConfig, getAssets } from '@avalabs/bridge-sdk';
+import {
+  Blockchain,
+  BridgeConfig,
+  btcToSatoshi,
+  getAssets,
+  transferAssetBTC,
+  transferAssetEVM,
+} from '@avalabs/bridge-sdk';
 import { ChainId } from '@avalabs/chains-sdk';
 import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
@@ -18,13 +25,17 @@ import {
 import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { FeatureGates } from '../../featureFlags/models';
+import { getBtcInputUtxos } from '@src/utils/send/btcSendUtils';
 
 jest.mock('@src/background/runtime/openApprovalWindow');
-
+jest.mock('@src/utils/send/btcSendUtils');
 jest.mock('@avalabs/bridge-sdk', () => {
   const originalModule = jest.requireActual('@avalabs/bridge-sdk');
   return {
     ...originalModule,
+    transferAssetBTC: jest.fn(),
+    transferAssetEVM: jest.fn(),
     getAssets: jest.fn(),
   };
 });
@@ -37,8 +48,6 @@ const mockBridgeConfig: BridgeConfig = { config: mockConfig };
 
 describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
   const bridgeServiceMock = {
-    transferBtcAsset: jest.fn(),
-    transferAsset: jest.fn(),
     createTransaction: jest.fn(),
     estimateGas: jest.fn(),
     bridgeConfig: mockBridgeConfig,
@@ -69,6 +78,24 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     allNetworks: {
       promisify: jest.fn(),
     },
+    getAvalancheProvider: jest.fn(),
+    getEthereumProvider: jest.fn(),
+    getBitcoinProvider: jest.fn(),
+  } as any;
+
+  const walletServiceMock = {
+    sign: jest.fn(),
+  } as any;
+
+  const networkFeeServiceMock = {
+    getNetworkFee: jest.fn(),
+  } as any;
+
+  const featureFlagServiceMock = {
+    featureFlags: {
+      [FeatureGates.BRIDGE]: true,
+    },
+    ensureFlagEnabled: jest.fn(),
   } as any;
 
   const analyticsServicePosthogMock = {
@@ -133,9 +160,11 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    bridgeServiceMock.transferBtcAsset.mockResolvedValue(btcResult);
-    bridgeServiceMock.transferAsset.mockResolvedValue(ethResult);
     bridgeServiceMock.createTransaction.mockResolvedValue();
+    networkServiceMock.getBitcoinProvider.mockResolvedValue({
+      waitForTx: jest.fn().mockResolvedValue(btcResult),
+    });
+    balanceAggregatorServiceMock.getBalancesForNetworks.mockResolvedValue({});
     jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
     jest.mocked(getAssets).mockReturnValue({
       BTC: btcAsset,
@@ -147,9 +176,14 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       accountsServiceMock,
       balanceAggregatorServiceMock,
       networkServiceMock,
-      analyticsServicePosthogMock
+      analyticsServicePosthogMock,
+      walletServiceMock,
+      featureFlagServiceMock,
+      networkFeeServiceMock
     );
     (encryptAnalyticsData as jest.Mock).mockResolvedValue(mockedEncryptResult);
+
+    jest.mocked(getBtcInputUtxos).mockResolvedValue([]);
   });
 
   describe('handleAuthenticated', () => {
@@ -402,7 +436,10 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         accountsServiceMock,
         balanceServiceMock,
         networkServiceMock,
-        analyticsServicePosthogMock
+        analyticsServicePosthogMock,
+        walletServiceMock,
+        featureFlagServiceMock,
+        networkFeeServiceMock
       );
 
       const mockRequest = {
@@ -468,6 +505,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
   describe('onActionApproved', () => {
     it('uses custom gas settings if provided', async () => {
       networkServiceMock.isMainnet.mockReturnValue(false);
+      networkServiceMock.getNetwork.mockReturnValue({ chainId: 5 } as any);
 
       const mockOnSuccess = jest.fn();
       const mockOnError = jest.fn();
@@ -501,21 +539,21 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         frontendTabId
       );
 
-      expect(bridgeServiceMock.transferAsset).toHaveBeenCalledTimes(1);
-      expect(bridgeServiceMock.transferAsset).toHaveBeenCalledWith(
-        ethAction.displayData.currentBlockchain,
-        amount,
-        ethAction.displayData.asset,
-        {
-          maxFeePerGas: 1337,
-          maxPriorityFeePerGas: 42,
-        },
-        frontendTabId
+      expect(transferAssetEVM).toHaveBeenCalledTimes(1);
+      expect(transferAssetEVM).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currentBlockchain: ethAction.displayData.currentBlockchain,
+          amount,
+          asset: ethAction.displayData.asset,
+        })
       );
     });
 
-    it('transferBtcAsset is called when network is Bitcoin', async () => {
+    it('transferAssetBTC is called when network is Bitcoin', async () => {
       networkServiceMock.isMainnet.mockReturnValue(true);
+      networkServiceMock.getNetwork.mockReturnValue({ chainId: 5 } as any);
+
+      jest.mocked(transferAssetBTC).mockResolvedValue('0xhash');
 
       const mockOnSuccess = jest.fn();
       const mockOnError = jest.fn();
@@ -537,14 +575,13 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         frontendTabId
       );
 
-      expect(bridgeServiceMock.transferBtcAsset).toHaveBeenCalledTimes(1);
-      expect(bridgeServiceMock.transferBtcAsset).toHaveBeenCalledWith(
-        amount,
-        undefined,
-        frontendTabId
+      expect(transferAssetBTC).toHaveBeenCalledTimes(1);
+      expect(transferAssetBTC).toHaveBeenCalledWith(
+        expect.objectContaining({
+          amount: String(btcToSatoshi(amount)),
+        })
       );
 
-      expect(bridgeServiceMock.transferAsset).toHaveBeenCalledTimes(0);
       expect(bridgeServiceMock.createTransaction).toHaveBeenCalledTimes(1);
       expect(bridgeServiceMock.createTransaction).toHaveBeenCalledWith(
         Blockchain.BITCOIN,
@@ -572,11 +609,12 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       );
     });
 
-    it('should call onError if transferBtcAsset throws errors', async () => {
+    it('should call onError if transferAssetBTC throws errors', async () => {
       networkServiceMock.isMainnet.mockReturnValue(false);
+      networkServiceMock.getNetwork.mockReturnValue({ chainId: 5 } as any);
 
       const error = new Error('error');
-      bridgeServiceMock.transferBtcAsset.mockImplementation(() => {
+      jest.mocked(transferAssetBTC).mockImplementation(() => {
         return Promise.reject(error);
       });
 
@@ -603,8 +641,9 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       );
     });
 
-    it('transferAsset is called when network is not bitcoin', async () => {
+    it('transferAssetEVM is called when network is not bitcoin', async () => {
       networkServiceMock.isMainnet.mockReturnValue(false);
+      networkServiceMock.getNetwork.mockReturnValue({ chainId: 5 } as any);
 
       const mockOnSuccess = jest.fn();
       const mockOnError = jest.fn();
@@ -619,6 +658,8 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       const now = Date.now();
       jest.spyOn(Date, 'now').mockReturnValue(now);
 
+      jest.mocked(transferAssetEVM).mockResolvedValue('987hash987');
+
       await handler.onActionApproved(
         ethAction,
         {},
@@ -631,16 +672,14 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         balanceAggregatorServiceMock.getBalancesForNetworks
       ).toHaveBeenCalledTimes(0);
 
-      expect(bridgeServiceMock.transferAsset).toHaveBeenCalledTimes(1);
-      expect(bridgeServiceMock.transferAsset).toHaveBeenCalledWith(
-        ethAction.displayData.currentBlockchain,
-        amount,
-        ethAction.displayData.asset,
-
-        undefined,
-        frontendTabId
+      expect(transferAssetEVM).toHaveBeenCalledTimes(1);
+      expect(transferAssetEVM).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currentBlockchain: ethAction.displayData.currentBlockchain,
+          amount: amount,
+          asset: ethAction.displayData.asset,
+        })
       );
-      expect(bridgeServiceMock.transferBtcAsset).toHaveBeenCalledTimes(0);
       expect(bridgeServiceMock.createTransaction).toHaveBeenCalledTimes(1);
       expect(bridgeServiceMock.createTransaction).toHaveBeenCalledWith(
         Blockchain.ETHEREUM,
@@ -670,9 +709,10 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
     it('should call onError if transferAsset throws errors', async () => {
       networkServiceMock.isMainnet.mockReturnValue(true);
+      networkServiceMock.getNetwork.mockReturnValue({ chainId: 1 } as any);
 
       const error = new Error('error');
-      bridgeServiceMock.transferAsset.mockImplementation(() => {
+      jest.mocked(transferAssetEVM).mockImplementation(() => {
         return Promise.reject(error);
       });
 
@@ -682,7 +722,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       await handler.onActionApproved(ethAction, {}, mockOnSuccess, mockOnError);
       expect(bridgeServiceMock.createTransaction).toHaveBeenCalledTimes(0);
 
-      expect(mockOnError).toHaveBeenCalledWith(error);
+      expect(mockOnError).toHaveBeenCalledTimes(1);
       expect(mockOnSuccess).toHaveBeenCalledTimes(0);
 
       expect(

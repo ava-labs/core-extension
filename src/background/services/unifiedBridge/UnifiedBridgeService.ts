@@ -2,37 +2,22 @@ import { singleton } from 'tsyringe';
 import {
   BridgeTransfer,
   BridgeType,
-  Chain,
-  ChainAssetMap,
   createUnifiedBridgeService,
   Environment,
-  TokenType,
 } from '@avalabs/bridge-unified';
-import { JsonRpcApiProvider, TransactionRequest } from 'ethers';
-import { ethErrors } from 'eth-rpc-errors';
 import EventEmitter from 'events';
 
-import { chainIdToCaip } from '@src/utils/caipConversion';
 import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
-import { CommonError } from '@src/utils/errors';
-
-import { WalletService } from '../wallet/WalletService';
 import { NetworkService } from '../network/NetworkService';
-import { AccountsService } from '../accounts/AccountsService';
-import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { StorageService } from '../storage/StorageService';
 
 import {
   UNIFIED_BRIDGE_DEFAULT_STATE,
   UNIFIED_BRIDGE_STATE_STORAGE_KEY,
   UNIFIED_BRIDGE_TRACKED_FLAGS,
-  UnifiedBridgeError,
-  UnifiedBridgeEstimateGasParams,
   UnifiedBridgeEvent,
   UnifiedBridgeState,
-  UnifiedBridgeTransferParams,
 } from './models';
-import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import {
   FeatureFlagEvents,
@@ -42,9 +27,6 @@ import {
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
-import { FeeRate } from '../networkFee/models';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
 
 @singleton()
 export class UnifiedBridgeService implements OnStorageReady {
@@ -59,15 +41,8 @@ export class UnifiedBridgeService implements OnStorageReady {
     return this.#state;
   }
 
-  async getAssets(): Promise<ChainAssetMap> {
-    return this.#core.getAssets();
-  }
-
   constructor(
     private networkService: NetworkService,
-    private accountsService: AccountsService,
-    private walletService: WalletService,
-    private feeService: NetworkFeeService,
     private storageService: StorageService,
     private featureFlagService: FeatureFlagService
   ) {
@@ -111,6 +86,7 @@ export class UnifiedBridgeService implements OnStorageReady {
       )) ?? UNIFIED_BRIDGE_DEFAULT_STATE;
 
     this.#saveState(state);
+    this.#trackPendingTransfers();
   }
 
   #trackPendingTransfers() {
@@ -165,206 +141,11 @@ export class UnifiedBridgeService implements OnStorageReady {
       disabledBridgeTypes: this.#getDisabledBridges(),
     });
     core.init().then(async () => {
-      this.#eventEmitter.emit(
-        UnifiedBridgeEvent.AssetsUpdated,
-        await core.getAssets()
-      );
       this.#updateBridgeAddresses();
       this.#trackPendingTransfers();
     });
 
     return core;
-  }
-
-  async getFee({
-    asset,
-    amount,
-    sourceChainId,
-    targetChainId,
-  }): Promise<bigint> {
-    const feeMap = await this.#core.getFees({
-      asset,
-      amount,
-      targetChain: await this.#buildChain(targetChainId),
-      sourceChain: await this.#buildChain(sourceChainId),
-    });
-
-    const fee = feeMap[asset.address];
-
-    if (typeof fee !== 'bigint') {
-      throw ethErrors.rpc.invalidRequest({
-        data: {
-          reason: UnifiedBridgeError.InvalidFee,
-        },
-      });
-    }
-
-    return fee;
-  }
-
-  async estimateGas({
-    asset,
-    amount,
-    sourceChainId,
-    targetChainId,
-  }: UnifiedBridgeEstimateGasParams): Promise<bigint> {
-    const { fromAddress, sourceChain, targetChain } = await this.#buildParams({
-      targetChainId,
-      sourceChainId,
-    });
-
-    const gasLimit = await this.#core.estimateGas({
-      asset,
-      fromAddress,
-      amount,
-      sourceChain,
-      targetChain,
-    });
-
-    return gasLimit;
-  }
-
-  async #buildParams({ targetChainId, sourceChainId }):
-    | Promise<{
-        sourceChain: Chain;
-        sourceChainId: number;
-        targetChain: Chain;
-        provider: JsonRpcApiProvider;
-        fromAddress: `0x${string}`;
-      }>
-    | never {
-    const { activeAccount } = this.accountsService;
-
-    if (!activeAccount) {
-      throw ethErrors.rpc.invalidParams({
-        data: {
-          reason: CommonError.NoActiveAccount,
-        },
-      });
-    }
-
-    const network = await this.networkService.getNetwork(sourceChainId);
-
-    if (!network) {
-      throw ethErrors.rpc.invalidParams({
-        data: {
-          reason: CommonError.NoActiveNetwork,
-        },
-      });
-    }
-
-    if (isBitcoinNetwork(network)) {
-      throw ethErrors.rpc.invalidParams({
-        data: {
-          reason: UnifiedBridgeError.UnsupportedNetwork,
-        },
-      });
-    }
-
-    const sourceChain = await this.#buildChain(sourceChainId);
-    const targetChain = await this.#buildChain(targetChainId);
-
-    const provider = getProviderForNetwork(network) as JsonRpcBatchInternal;
-
-    const fromAddress = activeAccount.addressC as `0x${string}`;
-
-    return {
-      sourceChain,
-      sourceChainId,
-      targetChain,
-      provider,
-      fromAddress,
-    };
-  }
-
-  async transfer({
-    asset,
-    amount,
-    targetChainId,
-    sourceChainId,
-    customGasSettings,
-    tabId,
-  }: UnifiedBridgeTransferParams): Promise<BridgeTransfer> {
-    const { fromAddress, provider, sourceChain, targetChain } =
-      await this.#buildParams({ targetChainId, sourceChainId });
-
-    const bridgeTransfer = await this.#core.transferAsset({
-      asset,
-      fromAddress,
-      amount,
-      sourceChain,
-      targetChain,
-      onStepChange: (stepDetails) => {
-        this.#eventEmitter.emit(
-          UnifiedBridgeEvent.TransferStepChange,
-          stepDetails
-        );
-      },
-      sign: async ({ from, to, data }) => {
-        let feeRate: FeeRate = {
-          maxFee: customGasSettings?.maxFeePerGas ?? 0n,
-          maxTip: customGasSettings?.maxPriorityFeePerGas ?? 0n,
-        };
-
-        // If we have no custom fee rate, fetch it from the network
-        const network = await this.networkService.getNetwork(sourceChainId);
-
-        if (!network) {
-          throw ethErrors.rpc.internal({
-            data: { reason: CommonError.UnknownNetwork },
-          });
-        }
-
-        if (!feeRate.maxFee) {
-          const networkFee = await this.feeService.getNetworkFee(network);
-
-          if (networkFee) {
-            feeRate = networkFee.high;
-          }
-        }
-
-        if (!feeRate.maxFee) {
-          throw ethErrors.rpc.internal({
-            data: { reason: CommonError.UnknownNetworkFee },
-          });
-        }
-
-        const nonce = await (
-          provider as JsonRpcApiProvider
-        ).getTransactionCount(from);
-
-        const gasLimit = await this.feeService.estimateGasLimit(
-          from,
-          to as string,
-          data as string,
-          network
-        );
-
-        const result = await this.walletService.sign(
-          {
-            from,
-            to,
-            data,
-            chainId: sourceChainId,
-            gasLimit,
-            maxFeePerGas: feeRate.maxFee,
-            maxPriorityFeePerGas: feeRate.maxTip,
-            nonce,
-          } as TransactionRequest,
-          network,
-          tabId
-        );
-
-        const hash = await this.networkService.sendTransaction(result, network);
-
-        return hash as `0x${string}`;
-      },
-    });
-
-    await this.updatePendingTransfer(bridgeTransfer);
-    this.trackTransfer(bridgeTransfer);
-
-    return bridgeTransfer;
   }
 
   trackTransfer(bridgeTransfer: BridgeTransfer) {
@@ -415,31 +196,6 @@ export class UnifiedBridgeService implements OnStorageReady {
     } catch {
       // May be called before extension is unlocked. Ignore.
     }
-  }
-
-  async #buildChain(chainId: number): Promise<Chain> {
-    const network = await this.networkService.getNetwork(chainId);
-
-    if (!network) {
-      throw ethErrors.rpc.invalidParams({
-        data: {
-          reason: CommonError.UnknownNetwork,
-        },
-      });
-    }
-
-    return {
-      chainId: chainIdToCaip(network.chainId),
-      chainName: network.chainName,
-      rpcUrl: network.rpcUrl,
-      networkToken: {
-        ...network.networkToken,
-        type: TokenType.NATIVE,
-      },
-      utilityAddresses: {
-        multicall: network.utilityAddresses?.multicall as `0x${string}`,
-      },
-    };
   }
 
   addListener(eventName: string, callback) {

@@ -28,6 +28,7 @@ import {
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { isNetworkUpdatedEvent } from '@src/background/services/network/events/isNetworkUpdatedEvent';
 import { SetActiveNetworkHandler } from '@src/background/services/network/handlers/setActiveNetwork';
+import { updateIfDifferent } from '@src/utils/updateIfDifferent';
 import { getNetworkCaipId } from '@src/utils/caipConversion';
 import { networkChanged } from './NetworkProvider/networkChanges';
 
@@ -49,6 +50,7 @@ const NetworkContext = createContext<{
   isChainIdExist(chainId: number): boolean;
   getNetwork(chainId: number): Network | undefined;
   avalancheProvider?: JsonRpcBatchInternal;
+  ethereumProvider?: JsonRpcBatchInternal;
   bitcoinProvider?: BitcoinProvider;
 }>({} as any);
 
@@ -122,6 +124,20 @@ export function NetworkContextProvider({ children }: { children: any }) {
     return getProviderForNetwork(avaxNetwork) as JsonRpcBatchInternal;
   }, [network?.isTestnet, getNetwork]);
 
+  const ethereumProvider = useMemo(() => {
+    const ethNetwork = getNetwork(
+      network?.isTestnet
+        ? ChainId.ETHEREUM_TEST_SEPOLIA
+        : ChainId.ETHEREUM_HOMESTEAD
+    );
+
+    if (!ethNetwork) {
+      return;
+    }
+
+    return getProviderForNetwork(ethNetwork) as JsonRpcBatchInternal;
+  }, [network?.isTestnet, getNetwork]);
+
   const bitcoinProvider = useMemo(() => {
     const btcNetwork = getNetwork(
       network?.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
@@ -138,11 +154,11 @@ export function NetworkContextProvider({ children }: { children: any }) {
     return request<GetNetworksStateHandler>({
       method: ExtensionRequest.NETWORKS_GET_STATE,
     }).then((result) => {
-      setNetworks(result.networks);
-      setNetwork(result.activeNetwork);
+      updateIfDifferent(setNetworks, result.networks);
+      updateIfDifferent(setNetwork, result.activeNetwork);
       networkChanged.dispatch(result.activeNetwork?.caipId);
-      setFavoriteNetworks(result.favoriteNetworks);
-      setCustomNetworks(result.customNetworks);
+      updateIfDifferent(setFavoriteNetworks, result.favoriteNetworks);
+      updateIfDifferent(setCustomNetworks, result.customNetworks);
     });
   }, [request]);
 
@@ -190,14 +206,14 @@ export function NetworkContextProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
       .subscribe(async (result) => {
-        setNetworks(result.networks);
+        updateIfDifferent(setNetworks, result.networks);
+        updateIfDifferent(setFavoriteNetworks, result.favoriteNetworks);
         setNetwork((currentNetwork) => {
           const newNetwork = result.activeNetwork ?? currentNetwork; // do not delete currently set network
           networkChanged.dispatch(newNetwork?.caipId);
 
           return newNetwork;
         });
-        setFavoriteNetworks(result.favoriteNetworks);
         setCustomNetworks(
           Object.values(result.customNetworks).map(({ chainId }) => chainId)
         );
@@ -261,6 +277,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
         getNetwork,
         avalancheProvider,
         bitcoinProvider,
+        ethereumProvider,
       }}
     >
       {children}

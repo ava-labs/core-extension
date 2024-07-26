@@ -1,4 +1,7 @@
 import {
+  Alert,
+  AlertContent,
+  AlertTitle,
   Box,
   Button,
   CodeIcon,
@@ -162,6 +165,8 @@ export function SignTransactionPage() {
   const isTransactionSuspicious =
     transaction.displayData.displayValues.isSuspicious;
 
+  const { contextInformation } = transaction.displayData.displayOptions ?? {};
+
   return (
     <>
       <MaliciousTxAlert
@@ -217,6 +222,16 @@ export function SignTransactionPage() {
           >
             <Typography variant="h4">{header}</Typography>
           </Box>
+        )}
+        {contextInformation && (
+          <Stack sx={{ width: 1, px: 2 }}>
+            <Alert severity="info" sx={{ width: 1, py: 0, mb: 1, mt: -1 }}>
+              <AlertTitle>{contextInformation.title}</AlertTitle>
+              {contextInformation.notice && (
+                <AlertContent>{contextInformation.notice}</AlertContent>
+              )}
+            </Alert>
+          </Stack>
         )}
         {/* Actions  */}
         <Scrollbars>

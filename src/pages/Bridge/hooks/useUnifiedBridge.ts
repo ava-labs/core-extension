@@ -15,11 +15,8 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 import { useAssetBalancesEVM } from './useAssetBalancesEVM';
 import { BridgeAdapter } from './useBridge';
-import { useHasEnoughForGas } from './useHasEnoughtForGas';
 import { isUnifiedBridgeAsset } from '../utils/isUnifiedBridgeAsset';
-import { BridgeStepDetails } from '@avalabs/bridge-unified';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { CustomGasSettings } from '@src/background/services/bridge/models';
 
 /**
  * Hook for when the Unified Bridge SDK can handle the transfer
@@ -27,8 +24,7 @@ import { CustomGasSettings } from '@src/background/services/bridge/models';
 export function useUnifiedBridge(
   amount: Big,
   targetChainId: number,
-  currentAssetAddress?: string,
-  gasSetting?: CustomGasSettings
+  currentAssetAddress?: string
 ): BridgeAdapter {
   const {
     currentAsset,
@@ -46,7 +42,6 @@ export function useUnifiedBridge(
   const [maximum, setMaximum] = useState<Big>();
   const [minimum, setMinimum] = useState<Big>();
   const [bridgeFee, setBridgeFee] = useState<Big>();
-  const [bridgeStep, setBridgeStep] = useState<BridgeStepDetails>();
 
   const isEthereum = currentBlockchain === Blockchain.ETHEREUM;
   const { assetsWithBalances } = useAssetBalancesEVM(
@@ -61,10 +56,6 @@ export function useUnifiedBridge(
       return isUnifiedBridgeAsset(asset) && asset.symbol === currentAsset;
     });
   }, [network, assetsWithBalances, currentAssetAddress, currentAsset]);
-
-  const hasEnoughForNetworkFee = useHasEnoughForGas(gasSetting?.gasLimit);
-
-  const [txHash, setTxHash] = useState<string>();
 
   useEffect(() => {
     if (!maximum && sourceBalance?.balance) {
@@ -139,67 +130,58 @@ export function useUnifiedBridge(
     [estimateTransferGas, targetChainId]
   );
 
-  const transfer = useCallback(
-    async (customGasSettings: CustomGasSettings) => {
-      capture('unifedBridgeTransferStarted', {
-        bridgeType: 'CCTP',
-        sourceBlockchain: currentBlockchain,
-        targetBlockchain,
-      });
-
-      if (!currentAsset) {
-        throw new Error('No asset chosen');
-      }
-
-      if (!currentAssetData) {
-        throw new Error('No asset data');
-      }
-
-      const symbol = isNativeAsset(currentAssetData)
-        ? currentAssetData.wrappedAssetSymbol
-        : currentAsset || '';
-
-      const hash = await transferAsset(
-        currentAsset,
-        bigToBigInt(amount, currentAssetData.denomination),
-        targetChainId,
-        setBridgeStep,
-        customGasSettings
-      );
-
-      setTxHash(hash);
-      setTransactionDetails({
-        tokenSymbol: symbol,
-        amount,
-      });
-
-      return hash;
-    },
-    [
-      amount,
-      currentAssetData,
-      currentAsset,
-      setTransactionDetails,
-      transferAsset,
-      targetChainId,
-      capture,
-      currentBlockchain,
+  const transfer = useCallback(async () => {
+    capture('unifedBridgeTransferStarted', {
+      bridgeType: 'CCTP',
+      sourceBlockchain: currentBlockchain,
       targetBlockchain,
-    ]
-  );
+    });
+
+    if (!currentAsset) {
+      throw new Error('No asset chosen');
+    }
+
+    if (!currentAssetData) {
+      throw new Error('No asset data');
+    }
+
+    const symbol = isNativeAsset(currentAssetData)
+      ? currentAssetData.wrappedAssetSymbol
+      : currentAsset || '';
+
+    const hash = await transferAsset(
+      currentAsset,
+      bigToBigInt(amount, currentAssetData.denomination),
+      targetChainId
+    );
+
+    setTransactionDetails({
+      tokenSymbol: symbol,
+      amount,
+    });
+
+    return hash;
+  }, [
+    amount,
+    currentAssetData,
+    currentAsset,
+    setTransactionDetails,
+    transferAsset,
+    targetChainId,
+    capture,
+    currentBlockchain,
+    targetBlockchain,
+  ]);
 
   return {
     sourceBalance,
-    bridgeStep,
     estimateGas,
     assetsWithBalances,
-    hasEnoughForNetworkFee,
     receiveAmount,
     bridgeFee,
     maximum,
     minimum,
     price: sourceBalance?.price,
-    txHash,
     transfer,
   };
 }

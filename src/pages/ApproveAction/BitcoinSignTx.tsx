@@ -273,7 +273,10 @@ export function BitcoinSignTx() {
             height: '56px',
           }}
         >
-          <Typography variant="h4">{t('Approve BTC Send')}</Typography>
+          <Typography variant="h4">
+            {displayData.displayOptions?.customApprovalScreenTitle ||
+              t('Approve BTC Send')}
+          </Typography>
         </Box>
         {/* Transaction Details */}
         <Scrollbars>

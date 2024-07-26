@@ -10,7 +10,12 @@ import { Action } from '@src/background/services/actions/models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import getTargetNetworkForTx from './utils/getTargetNetworkForTx';
 import { FeatureFlagService } from '@src/background/services/featureFlags/FeatureFlagService';
-import { JsonRpcApiProvider, Result, TransactionDescription } from 'ethers';
+import {
+  ContractTransaction,
+  JsonRpcApiProvider,
+  Result,
+  TransactionDescription,
+} from 'ethers';
 import {
   EthSendTransactionParams,
   EthSendTransactionParamsWithGas,
@@ -27,7 +32,7 @@ import { getTxDescription } from './utils/getTxDescription';
 import { ContractParserHandler } from './contracts/contractParsers/models';
 import { contractParserMap } from './contracts/contractParsers/contractParserMap';
 import { parseBasicDisplayValues } from './contracts/contractParsers/utils/parseBasicDisplayValues';
-import browser from 'webextension-polyfill';
+import browser, { runtime } from 'webextension-polyfill';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { txToCustomEvmTx } from './utils/txToCustomEvmTx';
 import { Network } from '@avalabs/chains-sdk';
@@ -37,12 +42,16 @@ import { AnalyticsServicePosthog } from '@src/background/services/analytics/Anal
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { BlockaidService } from '@src/background/services/blockaid/BlockaidService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { caipToChainId } from '@src/utils/caipConversion';
 import { EnsureDefined } from '@src/background/models';
+import { caipToChainId } from '@src/utils/caipConversion';
+import { TxDisplayOptions } from '../models';
+
+type TxPayload = EthSendTransactionParams | ContractTransaction;
+type Params = [TxPayload] | [TxPayload, TxDisplayOptions];
 
 @injectable()
 export class EthSendTransactionHandler extends DAppRequestHandler<
-  [EthSendTransactionParams],
+  Params,
   string
 > {
   methods = [DAppProviderRequest.ETH_SEND_TX];
@@ -71,10 +80,17 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
   handleAuthenticated = async ({
     request,
     scope,
-  }: JsonRpcRequestParams<DAppProviderRequest, [EthSendTransactionParams]>) => {
+  }: JsonRpcRequestParams<DAppProviderRequest, Params>) => {
     const { params, site } = request;
 
     const rawParams = (params || [])[0] as EthSendTransactionParams;
+    const displayOptions = params[1];
+
+    // Only the extension UI is allowed to suggest custom display options
+    if (displayOptions && site?.domain !== runtime.id) {
+      throw new Error('Unauthorized use of display options');
+    }
+
     const trxParams = {
       ...rawParams,
       chainId: rawParams.chainId ?? `0x${caipToChainId(scope).toString(16)}`,
@@ -174,6 +190,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
         chainId: network.chainId.toString(),
         txParams: txPayload,
         displayValues,
+        displayOptions,
       },
     };
 

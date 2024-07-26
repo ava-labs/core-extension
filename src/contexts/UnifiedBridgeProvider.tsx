@@ -8,9 +8,14 @@ import {
 } from 'react';
 import {
   BridgeAsset,
-  BridgeStepDetails,
+  BridgeType,
+  Chain,
   ChainAssetMap,
-  ErrorCode,
+  Environment,
+  ErrorCode as UnifiedBridgeErrorCode,
+  TokenType,
+  createUnifiedBridgeService,
+  BridgeTransfer,
 } from '@avalabs/bridge-unified';
 import { ethErrors } from 'eth-rpc-errors';
 import { filter, map } from 'rxjs';
@@ -22,26 +27,26 @@ import {
   UnifiedBridgeError,
   UnifiedBridgeState,
 } from '@src/background/services/unifiedBridge/models';
-import {
-  UnifiedBridgeTransferAsset,
-  UnifiedBridgeGetFee,
-  UnifiedBridgeGetState,
-} from '@src/background/services/unifiedBridge/handlers';
-import {
-  isUnifiedBridgeAssetsUpdatedEvent,
-  isUnifiedBridgeStateUpdate,
-  isUnifiedBridgeTransferStepChanged,
-} from '@src/background/services/unifiedBridge/events/eventFilters';
+import { UnifiedBridgeGetState } from '@src/background/services/unifiedBridge/handlers';
+import { isUnifiedBridgeStateUpdate } from '@src/background/services/unifiedBridge/events/eventFilters';
 
 import { useNetworkContext } from './NetworkProvider';
 import { useConnectionContext } from './ConnectionProvider';
-import { CommonError } from '@src/utils/errors';
-import { UnifiedBridgeGetAssets } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeGetAssets';
+import { CommonError, ErrorCode } from '@src/utils/errors';
 import { useTranslation } from 'react-i18next';
-import { UnifiedBridgeEstimateGas } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeEstimateGas';
-import { CustomGasSettings } from '@src/background/services/bridge/models';
+import { useFeatureFlagContext } from './FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { getNetworkCaipId } from '@src/utils/caipConversion';
+import { useAccountsContext } from './AccountsProvider';
+import { JsonRpcApiProvider } from 'ethers';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { NetworkVMType } from '@avalabs/chains-sdk';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
+import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 
-interface UnifiedBridgeContext {
+export interface UnifiedBridgeContext {
   estimateTransferGas(
     symbol: string,
     amount: bigint,
@@ -60,11 +65,9 @@ interface UnifiedBridgeContext {
   transferAsset(
     symbol: string,
     amount: bigint,
-    targetChainId: number,
-    onStepChange: (stepDetails: BridgeStepDetails) => void,
-    customGasSettings?: CustomGasSettings
+    targetChainId: number
   ): Promise<any>;
-  getErrorMessage(errorCode: ErrorCode): string;
+  getErrorMessage(errorCode: UnifiedBridgeErrorCode): string;
   transferableAssets: BridgeAsset[];
   state: UnifiedBridgeState;
 }
@@ -94,41 +97,113 @@ const DEFAULT_STATE = {
 
 const UnifiedBridgeContext = createContext<UnifiedBridgeContext>(DEFAULT_STATE);
 
+function assert(
+  value: unknown,
+  reason?: ErrorCode
+): asserts value is NonNullable<unknown> {
+  if (!value) {
+    throw ethErrors.rpc.internal({
+      data: { reason: reason ?? CommonError.Unknown },
+    });
+  }
+}
+
 export function UnifiedBridgeProvider({
   children,
 }: {
   children: React.ReactChild;
 }) {
   const { t } = useTranslation();
-  const { network } = useNetworkContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
+  const { network: activeNetwork, getNetwork } = useNetworkContext();
   const { events, request } = useConnectionContext();
   const [assets, setAssets] = useState<ChainAssetMap>({});
   const [state, setState] = useState<UnifiedBridgeState>(
     UNIFIED_BRIDGE_DEFAULT_STATE
   );
+  const { featureFlags } = useFeatureFlagContext();
+  const isCCTPDisabled = !featureFlags[FeatureGates.UNIFIED_BRIDGE_CCTP];
+  const disabledBridges = useMemo(
+    () => (isCCTPDisabled ? [BridgeType.CCTP] : []),
+    [isCCTPDisabled]
+  );
+
+  // Memoize the core instance of Unified Bridge based on the current
+  // network environment & feature flags configuration
+  const core = useMemo(
+    () =>
+      activeNetwork
+        ? createUnifiedBridgeService({
+            environment: activeNetwork.isTestnet
+              ? Environment.TEST
+              : Environment.PROD,
+            disabledBridgeTypes: disabledBridges,
+          })
+        : null,
+    [activeNetwork, disabledBridges]
+  );
+
+  // Whenever core instance is re-created, initialize it and update assets
+  useEffect(() => {
+    if (!core) {
+      return;
+    }
+
+    let isMounted = true;
+
+    core.init().then(async () => {
+      if (!isMounted) {
+        return;
+      }
+
+      setAssets(await core.getAssets());
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [core]);
+
+  const buildChain = useCallback(
+    (chainId: number) => {
+      const network = getNetwork(chainId);
+
+      assert(network, CommonError.UnknownNetwork);
+
+      return {
+        chainId: chainIdToCaip(network.chainId),
+        chainName: network.chainName,
+        rpcUrl: network.rpcUrl,
+        networkToken: {
+          ...network.networkToken,
+          type: TokenType.NATIVE,
+        },
+        utilityAddresses: {
+          multicall: network.utilityAddresses?.multicall as `0x${string}`,
+        },
+      };
+    },
+    [getNetwork]
+  );
 
   const transferableAssets = useMemo(() => {
-    if (!network?.chainId) {
+    if (!activeNetwork) {
       return [];
     }
 
     // UnifiedBridge SDK returns the chain IDs in CAIP2 format.
     // This is good, but we need to translate it to numeric chain ids
     // until we make the switch in extension:
-    return assets[chainIdToCaip(network.chainId)] ?? [];
-  }, [network, assets]);
+    return assets[getNetworkCaipId(activeNetwork)] ?? [];
+  }, [activeNetwork, assets]);
 
   useEffect(() => {
     request<UnifiedBridgeGetState>({
       method: ExtensionRequest.UNIFIED_BRIDGE_GET_STATE,
     }).then((currState) => {
       setState(currState);
-    });
-
-    request<UnifiedBridgeGetAssets>({
-      method: ExtensionRequest.UNIFIED_BRIDGE_GET_ASSETS,
-    }).then((newAssets) => {
-      setAssets(newAssets);
     });
 
     const stateUpdateSubscription = events()
@@ -140,28 +215,18 @@ export function UnifiedBridgeProvider({
         setState(currState);
       });
 
-    const assetListSubscription = events()
-      .pipe(
-        filter(isUnifiedBridgeAssetsUpdatedEvent),
-        map((evt) => evt.value)
-      )
-      .subscribe((newAssets) => {
-        setAssets(newAssets);
-      });
-
     return () => {
       stateUpdateSubscription.unsubscribe();
-      assetListSubscription.unsubscribe();
     };
   }, [events, request]);
 
   const supportsAsset = useCallback(
     (lookupAddress: string, targetChainId: number) => {
-      if (!network) {
+      if (!activeNetwork) {
         return false;
       }
 
-      const sourceAssets = assets[chainIdToCaip(network.chainId)] ?? [];
+      const sourceAssets = assets[getNetworkCaipId(activeNetwork)] ?? [];
       const asset = sourceAssets.find(({ address }) => {
         return lookupAddress === address;
       });
@@ -172,7 +237,7 @@ export function UnifiedBridgeProvider({
 
       return chainIdToCaip(targetChainId) in asset.destinations;
     },
-    [assets, network]
+    [assets, activeNetwork]
   );
 
   const getAsset = useCallback(
@@ -188,28 +253,105 @@ export function UnifiedBridgeProvider({
     [assets]
   );
 
-  const estimateTransferGas = useCallback(
-    (symbol: string, amount: bigint, targetChainId: number) => {
-      if (!network) {
-        throw ethErrors.rpc.internal({
-          data: { reason: CommonError.UnknownNetwork },
-        });
-      }
+  const buildParams = useCallback(
+    (
+      targetChainId: number
+    ): {
+      sourceChain: Chain;
+      sourceChainId: number;
+      targetChain: Chain;
+      provider: JsonRpcApiProvider;
+      fromAddress: `0x${string}`;
+    } => {
+      assert(activeAccount, CommonError.NoActiveAccount);
+      assert(activeNetwork, CommonError.NoActiveNetwork);
+      assert(
+        activeNetwork.vmName === NetworkVMType.EVM,
+        UnifiedBridgeError.UnsupportedNetwork
+      );
 
-      const asset = getAsset(symbol, network.chainId);
+      const sourceChain = buildChain(activeNetwork.chainId);
+      const targetChain = buildChain(targetChainId);
 
-      if (!asset) {
-        throw ethErrors.rpc.invalidParams({
-          data: { reason: UnifiedBridgeError.UnknownAsset },
-        });
-      }
+      const provider = getProviderForNetwork(
+        activeNetwork
+      ) as JsonRpcBatchInternal;
 
-      return request<UnifiedBridgeEstimateGas>({
-        method: ExtensionRequest.UNIFIED_BRIDGE_ESTIMATE_GAS,
-        params: [asset, amount, targetChainId],
-      });
+      const fromAddress = activeAccount.addressC as `0x${string}`;
+
+      return {
+        sourceChain,
+        sourceChainId: activeNetwork.chainId,
+        targetChain,
+        provider,
+        fromAddress,
+      };
     },
-    [getAsset, network, request]
+    [activeAccount, activeNetwork, buildChain]
+  );
+
+  const getFee = useCallback(
+    async (
+      symbol: string,
+      amount: bigint,
+      targetChainId: number
+    ): Promise<bigint> => {
+      assert(core, CommonError.Unknown);
+      assert(activeNetwork, CommonError.NoActiveNetwork);
+
+      const asset = getAsset(symbol, activeNetwork.chainId);
+
+      assert(asset?.address, UnifiedBridgeError.UnknownAsset);
+
+      const feeMap = await core.getFees({
+        asset,
+        amount,
+        targetChain: buildChain(targetChainId),
+        sourceChain: buildChain(activeNetwork.chainId),
+      });
+
+      const fee = feeMap[asset.address];
+
+      if (typeof fee !== 'bigint') {
+        throw ethErrors.rpc.invalidRequest({
+          data: {
+            reason: UnifiedBridgeError.InvalidFee,
+          },
+        });
+      }
+
+      return fee;
+    },
+    [activeNetwork, core, buildChain, getAsset]
+  );
+
+  const estimateTransferGas = useCallback(
+    async (
+      symbol: string,
+      amount: bigint,
+      targetChainId: number
+    ): Promise<bigint> => {
+      assert(core, CommonError.Unknown);
+      assert(activeNetwork, CommonError.NoActiveNetwork);
+
+      const asset = getAsset(symbol, activeNetwork.chainId);
+
+      assert(asset, UnifiedBridgeError.UnknownAsset);
+
+      const { fromAddress, sourceChain, targetChain } =
+        buildParams(targetChainId);
+
+      const gasLimit = await core.estimateGas({
+        asset,
+        fromAddress,
+        amount,
+        sourceChain,
+        targetChain,
+      });
+
+      return gasLimit;
+    },
+    [activeNetwork, core, buildParams, getAsset]
   );
 
   const getAssetAddressOnTargetChain = useCallback(
@@ -225,93 +367,109 @@ export function UnifiedBridgeProvider({
     [getAsset]
   );
 
-  const getFee = useCallback(
-    async (
-      symbol: string,
-      amount: bigint,
-      targetChainId: number
-    ): Promise<bigint> => {
-      if (!network) {
-        throw ethErrors.rpc.internal({
-          data: { reason: CommonError.UnknownNetwork },
-        });
-      }
-
-      const asset = getAsset(symbol, network.chainId);
-
-      if (!asset) {
-        throw ethErrors.rpc.invalidParams({
-          data: { reason: UnifiedBridgeError.UnknownAsset },
-        });
-      }
-
-      return request<UnifiedBridgeGetFee>({
-        method: ExtensionRequest.UNIFIED_BRIDGE_GET_FEE,
-        params: [asset, amount, network.chainId, targetChainId],
+  const trackBridgeTransfer = useCallback(
+    async (bridgeTransfer: BridgeTransfer) => {
+      return request<UnifiedBridgeTrackTransfer>({
+        method: ExtensionRequest.UNIFIED_BRIDGE_TRACK_TRANSFER,
+        params: [bridgeTransfer],
       });
     },
-    [getAsset, network, request]
+    [request]
   );
 
   const transferAsset = useCallback(
-    async (
-      symbol: string,
-      amount: bigint,
-      targetChainId: number,
-      onStepChange: (stepDetails: BridgeStepDetails) => void,
-      customGasSettings?: CustomGasSettings
-    ) => {
-      if (!network) {
-        throw ethErrors.rpc.internal({
-          data: { reason: CommonError.UnknownNetwork },
-        });
-      }
+    async (symbol: string, amount: bigint, targetChainId: number) => {
+      assert(core, CommonError.Unknown);
+      assert(activeNetwork, CommonError.NoActiveNetwork);
 
-      const asset = getAsset(symbol, network.chainId);
+      const asset = getAsset(symbol, activeNetwork.chainId);
 
-      if (!asset) {
-        throw ethErrors.rpc.invalidParams({
-          data: { reason: UnifiedBridgeError.UnknownAsset },
-        });
-      }
+      assert(asset, UnifiedBridgeError.UnknownAsset);
 
-      const transferEventSubscription = events()
-        .pipe(
-          filter(isUnifiedBridgeTransferStepChanged),
-          map((evt) => evt.value)
-        )
-        .subscribe((event) => {
-          onStepChange(event);
-        });
+      const { fromAddress, sourceChain, targetChain } =
+        buildParams(targetChainId);
 
-      const txHash = request<UnifiedBridgeTransferAsset>({
-        method: ExtensionRequest.UNIFIED_BRIDGE_TRANSFER_ASSET,
-        params: [asset, amount, targetChainId, customGasSettings],
-      }).finally(() => {
-        transferEventSubscription.unsubscribe();
+      let requiredSignatures = 1;
+      let currentSignature = 1;
+
+      const bridgeTransfer = await core.transferAsset({
+        asset,
+        fromAddress,
+        amount,
+        sourceChain,
+        targetChain,
+        onStepChange: (step) => {
+          requiredSignatures = step.requiredSignatures;
+          currentSignature = step.currentSignature;
+        },
+        sign: async ({ from, to, data }) => {
+          assert(to, UnifiedBridgeError.InvalidTxPayload);
+          assert(data, UnifiedBridgeError.InvalidTxPayload);
+
+          return request<EthSendTransactionHandler>({
+            method: DAppProviderRequest.ETH_SEND_TX,
+            params: [
+              {
+                from,
+                to,
+                data,
+              },
+              {
+                customApprovalScreenTitle: t('Confirm Bridge'),
+                contextInformation:
+                  requiredSignatures > currentSignature
+                    ? {
+                        title: t(
+                          'This operation requires {{total}} approvals.',
+                          {
+                            total: requiredSignatures,
+                          }
+                        ),
+                        notice: t(
+                          'You will be prompted {{remaining}} more time(s).',
+                          {
+                            remaining: requiredSignatures - currentSignature,
+                          }
+                        ),
+                      }
+                    : undefined,
+              },
+            ],
+          });
+        },
       });
 
-      return txHash;
+      await trackBridgeTransfer(bridgeTransfer);
+
+      return bridgeTransfer.sourceTxHash;
     },
-    [getAsset, request, network, events]
+    [
+      getAsset,
+      request,
+      activeNetwork,
+      buildParams,
+      core,
+      t,
+      trackBridgeTransfer,
+    ]
   );
 
   const getErrorMessage = useCallback(
-    (errorCode: ErrorCode) => {
+    (errorCode: UnifiedBridgeErrorCode) => {
       switch (errorCode) {
-        case ErrorCode.BRIDGE_NOT_AVAILABLE:
+        case UnifiedBridgeErrorCode.BRIDGE_NOT_AVAILABLE:
           return t('Bridge not available');
 
-        case ErrorCode.INITIALIZATION_FAILED:
+        case UnifiedBridgeErrorCode.INITIALIZATION_FAILED:
           return t('Bridge initialization failed');
 
-        case ErrorCode.INVALID_PARAMS:
+        case UnifiedBridgeErrorCode.INVALID_PARAMS:
           return t('Invalid transfer parameters');
 
-        case ErrorCode.TIMEOUT:
+        case UnifiedBridgeErrorCode.TIMEOUT:
           return t('The transaction timed out');
 
-        case ErrorCode.TRANSACTION_REVERTED:
+        case UnifiedBridgeErrorCode.TRANSACTION_REVERTED:
           return t('The transaction has been reverted');
       }
     },

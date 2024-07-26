@@ -9,7 +9,10 @@ import { Action } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
-import { DisplayData_BitcoinSendTx } from '@src/background/services/wallet/handlers/models';
+import {
+  DisplayData_BitcoinSendTx,
+  TxDisplayOptions,
+} from '@src/background/services/wallet/handlers/models';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import { ChainId } from '@avalabs/chains-sdk';
 import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
@@ -29,8 +32,14 @@ import { SendErrorMessage } from '@src/utils/send/models';
 import { resolve } from '@avalabs/utils-sdk';
 
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { runtime } from 'webextension-polyfill';
 
-type BitcoinTxParams = [address: string, amount: string, feeRate: number];
+type BitcoinTxParams = [
+  address: string,
+  amount: string,
+  feeRate: number,
+  displayOptions?: TxDisplayOptions
+];
 
 @injectable()
 export class BitcoinSendTransactionHandler extends DAppRequestHandler<
@@ -126,12 +135,22 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
       };
     }
 
-    const [address, amount, feeRate] = (request.params ??
+    const [address, amount, feeRate, displayOptions] = (request.params ??
       []) as BitcoinTxParams;
     const isMainnet = this.networkService.isMainnet();
     const token = await this.#getBalance(
       this.accountService.activeAccount as EnsureDefined<Account, 'addressBTC'>
     );
+
+    // Only the extension UI is allowed to suggest custom display options
+    if (displayOptions && request.site?.domain !== runtime.id) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidRequest({
+          message: 'Unauthorized use of display options',
+        }),
+      };
+    }
 
     if (!token) {
       return {
@@ -197,6 +216,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
         sendFee,
         feeRate,
         balance: token,
+        displayOptions,
       };
 
       const actionData = {
