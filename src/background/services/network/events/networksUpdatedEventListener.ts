@@ -4,7 +4,7 @@ import { Network, NetworkEvents } from '../models';
 export function networksUpdatedEventListener(
   evt: ExtensionConnectionEvent<{
     networks: Network[];
-    activeNetwork: Network;
+    activeNetwork?: Network;
     favoriteNetworks: number[];
     customNetworks: Record<number, Network>;
   }>

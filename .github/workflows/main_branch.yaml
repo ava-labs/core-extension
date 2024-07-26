@@ -61,5 +61,5 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_BRANCH: main
+          RELEASE_TYPE: alpha
         run: yarn run semantic-release

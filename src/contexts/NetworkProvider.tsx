@@ -193,7 +193,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
         setNetworks(result.networks);
         setNetwork((currentNetwork) => {
           const newNetwork = result.activeNetwork ?? currentNetwork; // do not delete currently set network
-          networkChanged.dispatch(newNetwork.caipId);
+          networkChanged.dispatch(newNetwork?.caipId);
 
           return newNetwork;
         });
