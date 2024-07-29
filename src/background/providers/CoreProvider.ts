@@ -1,12 +1,12 @@
-import { ethErrors, serializeError } from 'eth-rpc-errors';
+import { ethErrors } from 'eth-rpc-errors';
 import EventEmitter from 'events';
 import { getSiteMetadata } from './utils/getSiteMetadata';
 import onDomReady from './utils/onDomReady';
-import RequestRatelimiter from './utils/RequestRatelimiter';
 import {
-  AccountsChangedEventData,
-  ChainChangedEventData,
-  UnlockStateChangedEventData,
+  EventNames,
+  type AccountsChangedEventData,
+  type ChainChangedEventData,
+  type UnlockStateChangedEventData,
 } from './models';
 import {
   InitializationStep,
@@ -14,12 +14,11 @@ import {
 } from './utils/ProviderReadyPromise';
 import {
   DAppProviderRequest,
-  JsonRpcRequest,
-  JsonRpcRequestPayload,
+  type JsonRpcRequestPayload,
 } from '../connections/dAppConnection/models';
-import { PartialBy, ProviderInfo } from '../models';
-import AbstractConnection from '../utils/messaging/AbstractConnection';
-import { ChainId } from '@avalabs/chains-sdk';
+import type { PartialBy, ProviderInfo } from '../models';
+import type AbstractConnection from '../utils/messaging/AbstractConnection';
+import { ChainAgnostinProvider } from './ChainAgnosticProvider';
 
 interface ProviderState {
   accounts: string[] | null;
@@ -29,12 +28,9 @@ interface ProviderState {
 }
 
 export class CoreProvider extends EventEmitter {
-  #contentScriptConnection: AbstractConnection;
-  #requestRateLimiter = new RequestRatelimiter([
-    'eth_requestAccounts',
-    'avalanche_selectWallet',
-  ]);
   #providerReadyPromise = new ProviderReadyPromise();
+
+  #chainagnosticProvider?: ChainAgnostinProvider;
 
   readonly info: ProviderInfo = {
     name: EVM_PROVIDER_INFO_NAME,
@@ -73,7 +69,6 @@ export class CoreProvider extends EventEmitter {
   };
 
   constructor({
-    connection,
     maxListeners = 100,
   }: {
     connection: AbstractConnection;
@@ -81,17 +76,32 @@ export class CoreProvider extends EventEmitter {
   }) {
     super();
     this.setMaxListeners(maxListeners);
-    this.#contentScriptConnection = connection;
-    this.#init();
+    this.#subscribe();
   }
 
+  #subscribe() {
+    window.addEventListener(
+      EventNames.CORE_WALLET_ANNOUNCE_PROVIDER,
+      (event) => {
+        if (this.#chainagnosticProvider) {
+          return;
+        }
+        this.#chainagnosticProvider = (<CustomEvent>event).detail.provider;
+
+        this.#chainagnosticProvider?.subscribeToMessage(
+          this.#handleBackgroundMessage
+        );
+
+        this.#init();
+      }
+    );
+
+    window.dispatchEvent(new Event(EventNames.CORE_WALLET_REQUEST_PROVIDER));
+  }
   /**
    * Initializes provider state,  and collects dApp information
    */
   #init = async () => {
-    await this.#contentScriptConnection.connect();
-    this.#contentScriptConnection.on('message', this.#handleBackgroundMessage);
-
     onDomReady(async () => {
       const domainMetadata = await getSiteMetadata();
 
@@ -141,7 +151,6 @@ export class CoreProvider extends EventEmitter {
         InitializationStep.PROVIDER_STATE_LOADED
       );
     } catch (e) {
-      console.error(e);
       // the provider will have a partial state, but still should be able to function
     } finally {
       this._initialized = true;
@@ -154,40 +163,15 @@ export class CoreProvider extends EventEmitter {
   #request = async (
     data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>
   ) => {
-    if (!data) {
-      throw ethErrors.rpc.invalidRequest();
-    }
-
-    return this.#contentScriptConnection
-      .request({
-        method: 'provider_request',
-        jsonrpc: '2.0',
-        params: {
-          scope: `eip155:${
-            this.chainId ? parseInt(this.chainId) : ChainId.AVALANCHE_MAINNET_ID
-          }`,
-          sessionId: this._sessionId,
-          request: {
-            params: [],
-            ...data,
-          },
-        },
-      } as JsonRpcRequest)
-      .catch((err) => {
-        // If the error is already a JsonRPCErorr do not serialize them.
-        // eth-rpc-errors always wraps errors if they have an unkown error code
-        // even if the code is valid like 4902 for unrecognized chain ID.
-        if (!!err.code && Number.isInteger(err.code) && !!err.message) {
-          throw err;
-        }
-        throw serializeError(err);
-      });
+    return this.#chainagnosticProvider?.request({
+      data,
+      chainId: this.chainId,
+      sessionId: this._sessionId,
+    });
   };
 
   #requestInternal = (data) => {
-    return this.#requestRateLimiter.call(data.method, () =>
-      this.#request(data)
-    );
+    return this.#request(data);
   };
 
   #getEventHandler = (method: string): ((params: any) => void) => {
@@ -216,9 +200,7 @@ export class CoreProvider extends EventEmitter {
 
   request = async (data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>) => {
     return this.#providerReadyPromise.call(() => {
-      return this.#requestRateLimiter.call(data.method, () =>
-        this.#request(data)
-      );
+      return this.#request(data);
     });
   };
 
