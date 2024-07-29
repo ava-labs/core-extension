@@ -53,16 +53,16 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const { getNetworkFee } = useNetworkFeeContext();
   const { config } = useBridgeConfig();
   const { createBridgeTransaction } = useBridgeContext();
-  const avalancheTokens = useTokensWithBalances(
-    true,
-    isDeveloperMode
+  const avalancheTokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+    chainId: isDeveloperMode
       ? ChainId.AVALANCHE_TESTNET_ID
-      : ChainId.AVALANCHE_MAINNET_ID
-  );
-  const btcTokens = useTokensWithBalances(
-    true,
-    isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
-  );
+      : ChainId.AVALANCHE_MAINNET_ID,
+  });
+  const btcTokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+    chainId: isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN,
+  });
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();

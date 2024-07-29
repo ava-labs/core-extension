@@ -40,7 +40,9 @@ export function useAssetBalancesEVM(
 
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
 
-  const tokens = useTokensWithBalances(true);
+  const tokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+  });
 
   // For balances on the Avalanche side, for all bridge assets on avalanche
   const balances = useMemo(() => {

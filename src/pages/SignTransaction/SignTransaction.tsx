@@ -73,7 +73,9 @@ export function SignTransactionPage() {
   const [transactionProgressState, setTransactionProgressState] = useState(
     TransactionProgressState.NOT_APPROVED
   );
-  const tokens = useTokensWithBalances(false, network?.chainId);
+  const tokens = useTokensWithBalances({
+    chainId: network?.chainId,
+  });
   const header = useSignTransactionHeader(transaction?.displayData);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();

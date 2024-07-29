@@ -37,6 +37,7 @@ import {
   SwapContextAPI,
   SwapParams,
   hasParaswapError,
+  DISALLOWED_SWAP_ASSETS,
 } from './models';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
@@ -51,7 +52,10 @@ export function SwapContextProvider({ children }: { children: any }) {
   const { networkFee } = useNetworkFeeContext();
   const { captureEncrypted } = useAnalyticsContext();
   const { t } = useTranslation();
-  const tokens = useTokensWithBalances(true);
+  const tokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+    disallowedAssets: DISALLOWED_SWAP_ASSETS,
+  });
 
   const paraswap = useMemo(
     () => new ParaSwap(ChainId.AVALANCHE_MAINNET_ID, undefined, new Web3()),

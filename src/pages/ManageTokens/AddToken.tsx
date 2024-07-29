@@ -24,7 +24,9 @@ export function AddToken() {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { network } = useNetworkContext();
-  const tokens = useTokensWithBalances(true);
+  const tokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+  });
   const history = useHistory();
 
   const [addressInput, setAddressInput] = useState<string>('');

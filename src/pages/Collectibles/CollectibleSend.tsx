@@ -40,7 +40,7 @@ export function CollectibleSend() {
     accounts: { active },
   } = useAccountsContext();
   const { captureEncrypted } = useAnalyticsContext();
-  const tokens = useTokensWithBalances(false);
+  const tokens = useTokensWithBalances();
   const { nft } = useCollectibleFromParams();
 
   const { isFunctionAvailable, isFunctionSupported } = useIsFunctionAvailable(
