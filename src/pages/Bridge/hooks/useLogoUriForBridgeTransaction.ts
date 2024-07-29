@@ -40,7 +40,10 @@ export function useLogoUriForBridgeTransaction(
         : ChainId.AVALANCHE_TESTNET_ID;
   }
 
-  const tokens = useTokensWithBalances(true, chainId);
+  const tokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+    chainId,
+  });
 
   if (!bridgeTransaction || !targetBlockchain) {
     return;

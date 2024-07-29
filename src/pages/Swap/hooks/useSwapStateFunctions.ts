@@ -10,9 +10,12 @@ import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import BN from 'bn.js';
 import { bnToLocaleString } from '@avalabs/utils-sdk';
 import { useSwap } from './useSwap';
+import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
 
 export function useSwapStateFunctions() {
-  const tokensWBalances = useTokensWithBalances();
+  const tokensWBalances = useTokensWithBalances({
+    disallowedAssets: DISALLOWED_SWAP_ASSETS,
+  });
   const { setNavigationHistoryData } = usePageHistory();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();

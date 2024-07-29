@@ -36,6 +36,7 @@ import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isUserRejectionError } from '@src/utils/errors';
+import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -60,8 +61,13 @@ export function Swap() {
   } = useIsFunctionAvailable(FunctionNames.SWAP);
   const history = useHistory();
   const theme = useTheme();
-  const tokensWBalances = useTokensWithBalances();
-  const allTokensOnNetwork = useTokensWithBalances(true);
+  const tokensWBalances = useTokensWithBalances({
+    disallowedAssets: DISALLOWED_SWAP_ASSETS,
+  });
+  const allTokensOnNetwork = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+    disallowedAssets: DISALLOWED_SWAP_ASSETS,
+  });
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();

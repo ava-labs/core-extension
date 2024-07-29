@@ -14,21 +14,29 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { merge } from 'lodash';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 
+type UseTokensWithBalanceOptions = {
+  // Requests the tokens WITH and WITHOUT balances
+  forceShowTokensWithoutBalances?: boolean;
+  // string array of asset symbols that are to be excluded from the result
+  disallowedAssets?: string[];
+  chainId?: number;
+};
+
 const bnZero = new BN(0);
 
 const nativeTokensFirst = (tokens: TokenWithBalance[]): TokenWithBalance[] =>
   [...tokens].sort((t) => (t.type === TokenType.NATIVE ? -1 : 1));
 
+const DISALLOWED_ASSETS = [];
+
 /**
  *
- * @param forceShowTokensWithoutBalances - show the tokens WITH and WITHOUT balances
- * @param chainId
+ * @param {UseTokensWithBalanceOptions} options
  * @returns Tokens list with OR without balances based on `forceShowTokensWithoutBalances`
  */
-export function useTokensWithBalances(
-  forceShowTokensWithoutBalances?: boolean,
-  chainId?: number
-) {
+export const useTokensWithBalances = (
+  options: UseTokensWithBalanceOptions = {}
+) => {
   const [selectedChainId, setSelectedChainId] = useState<number | undefined>(
     undefined
   );
@@ -46,6 +54,11 @@ export function useTokensWithBalances(
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const { network } = useNetworkContext();
+  const {
+    forceShowTokensWithoutBalances = false,
+    disallowedAssets = DISALLOWED_ASSETS,
+    chainId = undefined,
+  } = options;
 
   const customTokensWithZeroBalance: {
     [address: string]: TokenWithBalance;
@@ -85,7 +98,7 @@ export function useTokensWithBalances(
       try {
         const networkTokens = await request<GetTokensListHandler>({
           method: ExtensionRequest.GET_NETWORK_TOKENS,
-          params: [selectedChainId],
+          params: [selectedChainId, disallowedAssets],
         });
 
         const tokensWithPlaceholderBalances = Object.entries(
@@ -124,6 +137,7 @@ export function useTokensWithBalances(
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,
     customTokensWithZeroBalance,
+    disallowedAssets,
   ]);
 
   return useMemo<TokenWithBalance[]>(() => {
@@ -176,4 +190,4 @@ export function useTokensWithBalances(
     showTokensWithoutBalances,
     allTokensWithPlaceholderBalances,
   ]);
-}
+};

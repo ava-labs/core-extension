@@ -53,7 +53,7 @@ export function SendPage() {
     accounts: { active },
   } = useAccountsContext();
   const { captureEncrypted } = useAnalyticsContext();
-  const tokens = useTokensWithBalances(false);
+  const tokens = useTokensWithBalances();
 
   const { isFunctionAvailable, isFunctionSupported } = useIsFunctionAvailable(
     FunctionNames.SEND

@@ -66,3 +66,8 @@ export type SwapContextAPI = {
     approveTxHash: string;
   }>;
 };
+
+export const DISALLOWED_SWAP_ASSETS: string[] = [
+  // ETH is disabled in Swaps per issue CP-8409
+  'ETH',
+];
