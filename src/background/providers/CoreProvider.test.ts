@@ -457,15 +457,6 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(chainChangedSubscription).not.toHaveBeenCalled();
-
-          console.log(
-            '(channelMock.req as jest.Mock).mock.: ',
-            (channelMock.request as jest.Mock).mock
-          );
-          console.log(
-            '(channelMock.on as jest.Mock).mock.: ',
-            (channelMock.on as jest.Mock).mock
-          );
           (channelMock.on as jest.Mock).mock.calls[0]?.[1]({
             method: 'chainChanged',
             params: { chainId: '0x1', networkVersion: '1' },

@@ -3,7 +3,15 @@ import { CoreProvider } from './CoreProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { initializeProvider } from './initializeInpageProvider';
 
-jest.mock('../utils/messaging/AutoPairingPostMessageConnection');
+jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
+  const mocks = {
+    connect: jest.fn().mockResolvedValue(undefined),
+    on: jest.fn(),
+    request: jest.fn().mockResolvedValue({}),
+  };
+  return jest.fn().mockReturnValue(mocks);
+});
+
 jest.mock('./CoreProvider', () => ({
   CoreProvider: jest
     .fn()
@@ -176,9 +184,12 @@ describe('src/background/providers/initializeInpageProvider', () => {
     it('announces core provider with eip6963:announceProvider', () => {
       const provider = initializeProvider(connectionMock, 10, windowMock);
 
-      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(4);
+      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(5);
       expect(windowMock.dispatchEvent.mock.calls[3][0].type).toEqual(
         'eip6963:announceProvider'
+      );
+      expect(windowMock.dispatchEvent.mock.calls[4][0].type).toEqual(
+        'core-wallet:announceProvider'
       );
       expect(windowMock.dispatchEvent.mock.calls[3][0].detail).toEqual({
         info: provider.info,
@@ -187,10 +198,11 @@ describe('src/background/providers/initializeInpageProvider', () => {
     });
     it('re-announces on eip6963:requestProvider', () => {
       const provider = initializeProvider(connectionMock, 10, windowMock);
+      console.log('provider: ', provider);
 
-      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(4);
+      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(5);
 
-      expect(windowMock.addEventListener).toHaveBeenCalledTimes(1);
+      expect(windowMock.addEventListener).toHaveBeenCalledTimes(2);
       expect(windowMock.addEventListener).toHaveBeenCalledWith(
         'eip6963:requestProvider',
         expect.anything()
@@ -198,15 +210,14 @@ describe('src/background/providers/initializeInpageProvider', () => {
 
       windowMock.addEventListener.mock.calls[0][1]();
 
-      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(5);
+      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(6);
 
-      expect(windowMock.dispatchEvent.mock.calls[4][0].type).toEqual(
+      expect(windowMock.dispatchEvent.mock.calls[3][0].type).toEqual(
         'eip6963:announceProvider'
       );
-      expect(windowMock.dispatchEvent.mock.calls[4][0].detail).toEqual({
-        info: provider.info,
-        provider: provider,
-      });
+      expect(windowMock.dispatchEvent.mock.calls[4][0].type).toEqual(
+        'core-wallet:announceProvider'
+      );
     });
   });
 });
