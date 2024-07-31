@@ -248,7 +248,12 @@
       "@avalabs/vm-module-types>@avalabs/wallets-sdk>hdkey>secp256k1": false,
       "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
-      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
+      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
+      "@avalabs/bitcoin-module>@avalabs/wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
+      "@avalabs/bitcoin-module>@avalabs/wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
+      "@avalabs/bitcoin-module>@avalabs/wallets-sdk>@metamask/eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "@avalabs/bitcoin-module>@avalabs/wallets-sdk>@metamask/eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>secp256k1": false,
+      "@avalabs/bitcoin-module>@avalabs/wallets-sdk>hdkey>secp256k1": false
     }
   }
 }
