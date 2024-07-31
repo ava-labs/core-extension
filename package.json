@@ -243,7 +243,10 @@
       "@avalabs/vm-module-types": false,
       "@avalabs/vm-module-types>@avalabs/wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/vm-module-types>@avalabs/wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
-      "@avalabs/vm-module-types>@avalabs/wallets-sdk>hdkey>secp256k1": false
+      "@avalabs/vm-module-types>@avalabs/wallets-sdk>hdkey>secp256k1": false,
+      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
+      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
+      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
     }
   }
 }
