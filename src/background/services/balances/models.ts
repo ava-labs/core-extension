@@ -32,6 +32,7 @@ interface TokenBalanceDataWithDecimals extends TokenBalanceData {
   decimals: number;
 }
 
+// TODO: remove TokenType once all VM modules are integrated (it should no longer be needed at this point)
 export enum TokenType {
   NATIVE = 'NATIVE',
   ERC20 = 'ERC20',
