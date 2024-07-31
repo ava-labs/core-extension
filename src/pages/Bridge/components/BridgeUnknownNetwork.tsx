@@ -1,4 +1,4 @@
-import { Blockchain, useBridgeSDK } from '@avalabs/bridge-sdk';
+import { Blockchain, useBridgeSDK } from '@avalabs/core-bridge-sdk';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useAvailableBlockchains } from '../hooks/useAvailableBlockchains';

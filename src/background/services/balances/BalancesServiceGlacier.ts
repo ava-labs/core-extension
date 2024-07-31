@@ -1,4 +1,4 @@
-import { Network, NetworkContractToken } from '@avalabs/chains-sdk';
+import { Network, NetworkContractToken } from '@avalabs/core-chains-sdk';
 import {
   NativeTokenBalance,
   Erc20TokenBalance,
@@ -8,7 +8,7 @@ import {
   ListErc721BalancesResponse,
   ListErc1155BalancesResponse,
 } from '@avalabs/glacier-sdk';
-import { balanceToDisplayValue, bnToBig } from '@avalabs/utils-sdk';
+import { balanceToDisplayValue, bnToBig } from '@avalabs/core-utils-sdk';
 import { singleton } from 'tsyringe';
 import { SettingsService } from '../settings/SettingsService';
 import { TokenManagerService } from '../tokens/TokenManagerService';

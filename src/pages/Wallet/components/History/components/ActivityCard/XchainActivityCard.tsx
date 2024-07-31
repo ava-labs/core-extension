@@ -14,7 +14,7 @@ import { XChainTransactionType } from '@avalabs/glacier-sdk';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { truncateAddress } from '@avalabs/utils-sdk';
+import { truncateAddress } from '@avalabs/core-utils-sdk';
 
 export interface XchainActivityCardProp {
   historyItem: XchainTxHistoryItem;

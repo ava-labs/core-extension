@@ -2,7 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { SecretsService } from '../../secrets/SecretsService';
-import { getWalletFromMnemonic } from '@avalabs/wallets-sdk';
+import { getWalletFromMnemonic } from '@avalabs/core-wallets-sdk';
 import { AccountType, GetPrivateKeyErrorTypes } from '../models';
 import { utils } from '@avalabs/avalanchejs';
 import { LockService } from '../../lock/LockService';

@@ -1,11 +1,11 @@
-import { Blockchain, usePrice, useBridgeSDK } from '@avalabs/bridge-sdk';
+import { Blockchain, usePrice, useBridgeSDK } from '@avalabs/core-bridge-sdk';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useHistory, useParams } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useEffect, useMemo, useState } from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { VsCurrencyType } from '@avalabs/coingecko-sdk';
+import { VsCurrencyType } from '@avalabs/core-coingecko-sdk';
 import { ElapsedTimer } from './components/ElapsedTimer';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';

@@ -3,7 +3,7 @@ import {
   DerivationPath,
   getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';

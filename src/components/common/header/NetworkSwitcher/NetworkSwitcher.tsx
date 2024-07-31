@@ -1,6 +1,6 @@
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useRef, useState } from 'react';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { useHistory } from 'react-router-dom';
 import { NetworkLogo } from '../../NetworkLogo';
 import { useTranslation } from 'react-i18next';

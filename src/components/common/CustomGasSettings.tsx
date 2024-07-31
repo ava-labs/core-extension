@@ -3,7 +3,7 @@ import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useEffect, useState } from 'react';
 import { PageTitle } from './PageTitle';
 import { useTranslation } from 'react-i18next';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import {
   Box,
   Button,

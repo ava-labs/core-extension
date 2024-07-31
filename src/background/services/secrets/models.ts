@@ -1,4 +1,4 @@
-import { DerivationPath } from '@avalabs/wallets-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 import {

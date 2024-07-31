@@ -1,7 +1,7 @@
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
 import { Button, BuyIcon, QRCodeIcon, Stack } from '@avalabs/k2-components';
 import { openNewTab } from '@src/utils/extensionUtils';

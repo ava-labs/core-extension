@@ -4,7 +4,7 @@ import {
   EthereumAssets,
   useBridgeSDK,
   useGetTokenSymbolOnNetwork,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 import { uniqBy } from 'lodash';
 
 import { getBalances } from '../utils/getBalances';

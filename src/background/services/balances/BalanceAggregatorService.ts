@@ -18,7 +18,7 @@ import {
   TokensPriceShortData,
   priceChangeRefreshRate,
 } from '../tokens/models';
-import { resolve } from '@avalabs/utils-sdk';
+import { resolve } from '@avalabs/core-utils-sdk';
 import { SettingsService } from '../settings/SettingsService';
 import { isFulfilled } from '@src/utils/typeUtils';
 

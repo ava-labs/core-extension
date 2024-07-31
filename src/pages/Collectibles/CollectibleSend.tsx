@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
 import { Stack, toast } from '@avalabs/k2-components';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';

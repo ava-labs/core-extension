@@ -1,4 +1,4 @@
-import { NetworkContractToken } from '@avalabs/chains-sdk';
+import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import {
   OnLock,
   OnStorageReady,

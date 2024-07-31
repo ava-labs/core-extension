@@ -1,5 +1,5 @@
-import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { EnsureDefined, PartialBy } from '@src/background/models';
 import { Network } from '@src/background/services/network/models';
 

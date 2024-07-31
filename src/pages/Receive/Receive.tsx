@@ -10,7 +10,7 @@ import {
   EthereumQRCodeLogo,
   AvalancheQRCodeLogo,
 } from '@src/components/icons/QRCodeLogos';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
 import { useTranslation } from 'react-i18next';
 import { PrimaryAddressK2 } from '@src/components/common/AddressK2';

@@ -5,7 +5,7 @@ import {
   Blockchain,
   EthereumStaticFeeAssetConfig,
   NativeAsset,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 
 export const btcAsset: BitcoinStaticFeeConfigAsset = {
   additionalTxFeeAmount: 0,

@@ -1,4 +1,4 @@
-import { DerivationPath } from '@avalabs/wallets-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { SecretType } from '../../secrets/models';
 import { SeedlessAuthProvider } from '../models';

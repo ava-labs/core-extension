@@ -1,4 +1,4 @@
-import { isBech32Address } from '@avalabs/bridge-sdk';
+import { isBech32Address } from '@avalabs/core-bridge-sdk';
 import { isAddress } from 'ethers';
 import { isNil, isString } from 'lodash';
 import { stripAddressPrefix } from './stripAddressPrefix';

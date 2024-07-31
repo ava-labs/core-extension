@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,

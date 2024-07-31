@@ -1,5 +1,5 @@
-import { Blockchain, useBridgeSDK } from '@avalabs/bridge-sdk';
-import { ChainId } from '@avalabs/chains-sdk';
+import { Blockchain, useBridgeSDK } from '@avalabs/core-bridge-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useEffect } from 'react';
 

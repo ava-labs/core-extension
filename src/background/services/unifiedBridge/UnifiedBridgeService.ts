@@ -44,7 +44,7 @@ import sentryCaptureException, {
 } from '@src/monitoring/sentryCaptureException';
 import { FeeRate } from '../networkFee/models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 
 @singleton()
 export class UnifiedBridgeService implements OnStorageReady {

@@ -5,7 +5,7 @@ import {
   UnsignedTx,
   avaxSerial,
 } from '@avalabs/avalanchejs';
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { AvalancheSignTransactionHandler } from './avalanche_signTransaction';
@@ -16,7 +16,7 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('@avalabs/avalanchejs');
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('../utils/getProvidedUtxos');
 jest.mock('@src/background/runtime/openApprovalWindow');
 

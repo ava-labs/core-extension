@@ -2,8 +2,8 @@ import {
   Blockchain,
   getAssets,
   getMaxTransferAmount,
-} from '@avalabs/bridge-sdk';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+} from '@avalabs/core-bridge-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import Big from 'big.js';
 import { BN } from 'bn.js';
@@ -11,10 +11,10 @@ import { TokenType, TokenWithBalance } from '../../balances/models';
 import { GetEthMaxTransferAmountHandler } from './getEthMaxTransferAmount';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
-jest.mock('@avalabs/bridge-sdk', () => {
-  const originalModule = jest.requireActual('@avalabs/bridge-sdk');
+jest.mock('@avalabs/core-bridge-sdk', () => {
+  const originalModule = jest.requireActual('@avalabs/core-bridge-sdk');
   return {
     ...originalModule,
     getAssets: jest.fn(),

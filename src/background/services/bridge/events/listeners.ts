@@ -1,4 +1,4 @@
-import { BridgeConfig } from '@avalabs/bridge-sdk';
+import { BridgeConfig } from '@avalabs/core-bridge-sdk';
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
 import { BridgeEvents, BridgeState, TransferEvent } from '../models';
 

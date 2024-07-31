@@ -13,7 +13,7 @@ import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { useSyncBridgeConfig } from './hooks/useSyncBridgeConfig';
 import { useSetBridgeChainFromNetwork } from './hooks/useSetBridgeChainFromNetwork';
 import Big from 'big.js';
-import { bigToLocaleString } from '@avalabs/utils-sdk';
+import { bigToLocaleString } from '@avalabs/core-utils-sdk';
 
 type NetworkInfo = {
   logoUri?: string;

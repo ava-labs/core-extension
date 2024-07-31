@@ -3,7 +3,7 @@ import { GlacierService } from '../glacier/GlacierService';
 import { TokenPricesService } from './TokenPricesService';
 import { SettingsService } from '../settings/SettingsService';
 import { Account } from '../accounts/models';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import {
   NetworkTokenWithBalance,
   TokenType,
@@ -22,7 +22,7 @@ import {
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
-import { balanceToDisplayValue, bnToBig } from '@avalabs/utils-sdk';
+import { balanceToDisplayValue, bnToBig } from '@avalabs/core-utils-sdk';
 import BN from 'bn.js';
 import { getTokenValue } from './utils/getTokenValue';
 import { calculateTotalBalance } from './utils/calculateTotalBalance';

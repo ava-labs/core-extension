@@ -32,9 +32,9 @@ import {
   getWalletFromMnemonic,
   JsonRpcBatchInternal,
   LedgerSigner,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { NetworkService } from '../network/NetworkService';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import {
   personalSign,

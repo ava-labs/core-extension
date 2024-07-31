@@ -6,7 +6,7 @@ import {
 } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { ContractCall, ContractParser } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { TransactionDescription } from 'ethers';
 import { findToken } from '../../../../../../utils/findToken';

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Contact } from '@avalabs/types';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
 import {
   Box,

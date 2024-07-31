@@ -1,4 +1,4 @@
-import { NetworkToken } from '@avalabs/chains-sdk';
+import { NetworkToken } from '@avalabs/core-chains-sdk';
 import {
   NetworkTokenWithBalance,
   TokenType,

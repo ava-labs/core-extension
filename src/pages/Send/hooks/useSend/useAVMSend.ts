@@ -1,7 +1,7 @@
 import Big from 'big.js';
 import { utils } from '@avalabs/avalanchejs';
-import { Avalanche } from '@avalabs/wallets-sdk';
-import { bigToBigInt, resolve } from '@avalabs/utils-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
+import { bigToBigInt, resolve } from '@avalabs/core-utils-sdk';
 import { useCallback, useMemo, useState } from 'react';
 
 import { FeatureGates } from '@src/background/services/featureFlags/models';

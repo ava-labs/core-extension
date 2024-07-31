@@ -1,6 +1,6 @@
 import Big from 'big.js';
 import { injectable } from 'tsyringe';
-import { Asset, Blockchain } from '@avalabs/bridge-sdk';
+import { Asset, Blockchain } from '@avalabs/core-bridge-sdk';
 
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';

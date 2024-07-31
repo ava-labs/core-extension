@@ -1,4 +1,4 @@
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { Account, AccountType } from '@src/background/services/accounts/models';
 
 function shouldUseWalletConnectApproval(network: Network, account: Account) {

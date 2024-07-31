@@ -1,6 +1,6 @@
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { stringToBN } from '@avalabs/utils-sdk';
+import { stringToBN } from '@avalabs/core-utils-sdk';
 
 import {
   NetworkTokenWithBalance,

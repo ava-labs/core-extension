@@ -1,8 +1,11 @@
 import { singleton } from 'tsyringe';
-import { SimplePriceInCurrency } from '@avalabs/coingecko-sdk';
+import { SimplePriceInCurrency } from '@avalabs/core-coingecko-sdk';
 import { SettingsService } from '../settings/SettingsService';
-import { getTokensPrice } from '@avalabs/token-prices-sdk';
-import { simplePrice, getBasicCoingeckoHttp } from '@avalabs/coingecko-sdk';
+import { getTokensPrice } from '@avalabs/core-token-prices-sdk';
+import {
+  simplePrice,
+  getBasicCoingeckoHttp,
+} from '@avalabs/core-coingecko-sdk';
 import LRUCache from 'lru-cache';
 
 /**

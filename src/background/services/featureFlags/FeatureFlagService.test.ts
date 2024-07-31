@@ -1,4 +1,4 @@
-import { noop } from '@avalabs/utils-sdk';
+import { noop } from '@avalabs/core-utils-sdk';
 import browser from 'webextension-polyfill';
 
 import { AnalyticsEvents } from '../analytics/models';

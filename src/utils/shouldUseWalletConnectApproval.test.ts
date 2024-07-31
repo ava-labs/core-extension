@@ -1,4 +1,4 @@
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import shouldUseWalletConnectApproval from './shouldUseWalletConnectApproval';
 import {
   AccountType,
@@ -14,6 +14,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
     chainId: 1234,
     vmName: NetworkVMType.EVM,
     rpcUrl: 'network1.rpc.com',
+    explorerUrl: 'https://explorer.url',
     networkToken: {
       name: 'network1 token',
       symbol: 'NTW1',

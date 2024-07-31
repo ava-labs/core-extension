@@ -1,5 +1,5 @@
 import { Divider, Typography, Button, Stack } from '@avalabs/k2-components';
-import { truncateAddress } from '@avalabs/utils-sdk';
+import { truncateAddress } from '@avalabs/core-utils-sdk';
 import { Account } from '@src/background/services/accounts/models';
 import { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
 import { t } from 'i18next';

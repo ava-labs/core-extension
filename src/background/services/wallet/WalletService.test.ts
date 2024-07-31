@@ -14,7 +14,10 @@ import {
   AvalancheTransactionRequest,
   WalletEvents,
 } from './models';
-import { AVALANCHE_XP_TEST_NETWORK, NetworkVMType } from '@avalabs/chains-sdk';
+import {
+  AVALANCHE_XP_TEST_NETWORK,
+  NetworkVMType,
+} from '@avalabs/core-chains-sdk';
 import {
   BitcoinLedgerWallet,
   BitcoinWallet,
@@ -30,7 +33,7 @@ import {
   Avalanche,
   createWalletPolicy,
   LedgerSigner,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { LedgerTransport } from '../ledger/LedgerTransport';
 import getDerivationPath from './utils/getDerivationPath';
@@ -62,7 +65,7 @@ jest.mock('../keystone/KeystoneService');
 jest.mock('../lock/LockService');
 jest.mock('./utils/prepareBtcTxForLedger');
 jest.mock('./utils/ensureMessageFormatIsValid');
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('./utils/getDerivationPath');
 jest.mock('../seedless/SeedlessWallet');
 jest.mock('../seedless/SeedlessSessionManager');

@@ -1,4 +1,4 @@
-import { Blockchain } from '@avalabs/bridge-sdk';
+import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { findTokenForAsset } from './findTokenForAsset';
 import {
   TokenType,

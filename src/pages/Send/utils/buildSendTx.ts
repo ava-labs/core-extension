@@ -1,8 +1,8 @@
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import ERC721 from '@openzeppelin/contracts/build/contracts/ERC721.json';
 import ERC1155 from '@openzeppelin/contracts/build/contracts/ERC1155.json';
-import { stringToBN } from '@avalabs/utils-sdk';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { stringToBN } from '@avalabs/core-utils-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { Contract, TransactionRequest } from 'ethers';
 
 import {

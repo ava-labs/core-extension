@@ -10,7 +10,7 @@ import { useNetworkContext } from '../NetworkProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
 
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { Contract } from 'ethers';
 import Big from 'big.js';
 import { GetRateParams, SwapContextAPI, SwapParams } from './models';

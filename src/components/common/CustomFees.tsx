@@ -2,7 +2,7 @@ import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { formatUnits, parseUnits } from 'ethers';
 import { Trans, useTranslation } from 'react-i18next';
 import {

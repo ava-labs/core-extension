@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@avalabs/k2-components';
-import { bigToLocaleString } from '@avalabs/utils-sdk';
+import { bigToLocaleString } from '@avalabs/core-utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { bigintToBig } from '@src/utils/bigintToBig';
 

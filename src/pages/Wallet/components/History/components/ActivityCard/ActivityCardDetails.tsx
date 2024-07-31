@@ -1,4 +1,4 @@
-import { AVAX_TOKEN } from '@avalabs/chains-sdk';
+import { AVAX_TOKEN } from '@avalabs/core-chains-sdk';
 import {
   AvalancheColorIcon,
   Stack,

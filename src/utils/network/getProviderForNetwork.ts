@@ -2,8 +2,8 @@ import {
   Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
-} from '@avalabs/wallets-sdk';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+} from '@avalabs/core-wallets-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { FetchRequest, Network as EthersNetwork } from 'ethers';
 
 import { Network } from '@src/background/services/network/models';

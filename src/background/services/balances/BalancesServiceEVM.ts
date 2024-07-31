@@ -5,14 +5,14 @@ import {
   bigToBN,
   numberToBN,
   bnToBig,
-} from '@avalabs/utils-sdk';
+} from '@avalabs/core-utils-sdk';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { TokenPricesService } from '@src/background/services/balances/TokenPricesService';
 import { NetworkTokenWithBalance, TokenWithBalance, TokenType } from './models';
-import { NetworkContractToken } from '@avalabs/chains-sdk';
+import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { TokenManagerService } from '../tokens/TokenManagerService';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { SettingsService } from '../settings/SettingsService';
 import BN from 'bn.js';
 import { Account } from '../accounts/models';

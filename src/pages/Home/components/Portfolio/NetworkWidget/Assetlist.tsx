@@ -9,7 +9,7 @@ import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
-import { balanceToDisplayValue } from '@avalabs/utils-sdk';
+import { balanceToDisplayValue } from '@avalabs/core-utils-sdk';
 import {
   Button,
   ChevronRightIcon,

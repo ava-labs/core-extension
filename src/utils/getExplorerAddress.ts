@@ -1,6 +1,6 @@
-import { Blockchain } from '@avalabs/bridge-sdk';
+import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { Chain } from '@avalabs/bridge-unified';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { networkToBlockchain } from '@src/pages/Bridge/utils/blockchainConversion';
 
 function getAvalancheExplorerBaseUrl(isMainnet = true) {

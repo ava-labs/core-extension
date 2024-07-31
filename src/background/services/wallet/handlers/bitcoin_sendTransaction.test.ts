@@ -5,14 +5,14 @@ import { isBtcAddressInNetwork } from '@src/utils/isBtcAddressInNetwork';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { Action } from '@src/background/services/actions/models';
 import { AccountType } from '../../accounts/models';
-import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
-import { createTransferTx } from '@avalabs/wallets-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { createTransferTx } from '@avalabs/core-wallets-sdk';
 
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@src/utils/isBtcAddressInNetwork');
 jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('@src/utils/network/getProviderForNetwork');

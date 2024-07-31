@@ -2,7 +2,7 @@ import {
   ChainId,
   getChainsAndTokens,
   NetworkVMType,
-} from '@avalabs/chains-sdk';
+} from '@avalabs/core-chains-sdk';
 import { FetchRequest } from 'ethers';
 import { Signal } from 'micro-signals';
 
@@ -18,12 +18,12 @@ import { FeatureGates } from '../featureFlags/models';
 import { runtime } from 'webextension-polyfill';
 import { decorateWithCaipId } from '@src/utils/caipConversion';
 
-jest.mock('@avalabs/wallets-sdk', () => {
+jest.mock('@avalabs/core-wallets-sdk', () => {
   const BitcoinProviderMock = jest.fn();
   const JsonRpcBatchInternalMock = jest.fn();
   const getDefaultFujiProviderMock = jest.fn();
   const getDefaultMainnetProviderMock = jest.fn();
-  const actual = jest.requireActual('@avalabs/wallets-sdk');
+  const actual = jest.requireActual('@avalabs/core-wallets-sdk');
 
   return {
     ...actual,
@@ -48,8 +48,8 @@ jest.mock('@src/utils/network/addGlacierAPIKeyIfNeeded', () => ({
   addGlacierAPIKeyIfNeeded: jest.fn(),
 }));
 
-jest.mock('@avalabs/chains-sdk', () => ({
-  ...jest.requireActual('@avalabs/chains-sdk'),
+jest.mock('@avalabs/core-chains-sdk', () => ({
+  ...jest.requireActual('@avalabs/core-chains-sdk'),
   getChainsAndTokens: jest.fn(),
 }));
 
@@ -63,6 +63,7 @@ const mockNetwork = (
     chainId: 123,
     vmName,
     rpcUrl: 'https://rpcurl.example',
+    explorerUrl: 'https://explorer.url',
     networkToken: {
       name: 'test network token',
       symbol: 'TNT',
@@ -120,6 +121,7 @@ describe('background/services/network/NetworkService', () => {
         chainId: 123,
         vmName: NetworkVMType.EVM,
         rpcUrl: 'https://rpcurl.example',
+        explorerUrl: 'https://explorer.url',
         networkToken: {
           name: 'test network token',
           symbol: 'TNT',

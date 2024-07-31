@@ -1,4 +1,4 @@
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { singleton } from 'tsyringe';
 import { GlacierService } from '../../glacier/GlacierService';
 import { SettingsService } from '../../settings/SettingsService';

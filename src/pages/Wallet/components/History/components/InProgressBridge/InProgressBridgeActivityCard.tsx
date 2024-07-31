@@ -1,4 +1,4 @@
-import { BridgeTransaction, useBridgeSDK } from '@avalabs/bridge-sdk';
+import { BridgeTransaction, useBridgeSDK } from '@avalabs/core-bridge-sdk';
 import {
   Button,
   Card,

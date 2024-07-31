@@ -6,7 +6,7 @@
  *
  * Our issue is a bit different than the one linked above, but it can be worked around in the same manner.
  *
- * In our case, some of our (deep) dependencies (e.g. is-ipfs, imported by @avalabs/utils-sdk) try to CJS-require
+ * In our case, some of our (deep) dependencies (e.g. is-ipfs, imported by @avalabs/core-utils-sdk) try to CJS-require
  * packages which define ESM versions as default for browser env. This results in errors like:
  *
  * 1. SyntaxError: Cannot use import statement outside a module

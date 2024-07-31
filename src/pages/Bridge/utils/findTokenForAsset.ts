@@ -1,4 +1,4 @@
-import { Blockchain } from '@avalabs/bridge-sdk';
+import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 
 export function findTokenForAsset(

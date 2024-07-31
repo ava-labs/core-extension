@@ -9,7 +9,7 @@ import { useHistory } from 'react-router';
 import { Activity } from '../Activity/Activity';
 import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { balanceToDisplayValue } from '@avalabs/utils-sdk';
+import { balanceToDisplayValue } from '@avalabs/core-utils-sdk';
 import {
   ArrowUpRightIcon,
   BridgeIcon,

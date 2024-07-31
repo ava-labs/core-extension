@@ -2,8 +2,8 @@ import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
 import { BridgeService } from '../bridge/BridgeService';
 import { BitcoinHistoryTx } from '@avalabs/wallets-sdk';
 import { singleton } from 'tsyringe';
-import { Erc20Tx } from '@avalabs/snowtrace-sdk';
-import { Network } from '@avalabs/chains-sdk';
+import { Erc20Tx } from '@avalabs/core-snowtrace-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
 import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
 

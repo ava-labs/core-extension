@@ -7,7 +7,7 @@ import {
   Network,
   NetworkToken,
   NetworkVMType,
-} from '@avalabs/chains-sdk';
+} from '@avalabs/core-chains-sdk';
 import { HistoryService } from './HistoryService';
 import {
   PchainTxHistoryItem,
@@ -32,6 +32,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     chainId: 1,
     vmName: NetworkVMType.EVM,
     rpcUrl: 'test.one.com/rpc',
+    explorerUrl: 'https://explorer.url',
     networkToken: networkToken1,
     logoUri: 'test.one.com/logo',
     primaryColor: 'purple',

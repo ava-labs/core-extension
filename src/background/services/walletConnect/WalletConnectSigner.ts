@@ -1,5 +1,5 @@
 import { TransactionRequest } from 'ethers';
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { AVM, PVM } from '@avalabs/avalanchejs';
 
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';

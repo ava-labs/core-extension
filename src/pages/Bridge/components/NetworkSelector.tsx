@@ -1,4 +1,4 @@
-import { Blockchain } from '@avalabs/bridge-sdk';
+import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useRef, useState } from 'react';

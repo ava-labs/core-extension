@@ -7,12 +7,12 @@ import {
   satoshiToBtc,
   useBridgeConfig,
   useBridgeSDK,
-} from '@avalabs/bridge-sdk';
-import { ChainId } from '@avalabs/chains-sdk';
+} from '@avalabs/core-bridge-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import {
   BitcoinInputUTXOWithOptionalScript,
   getMaxTransferAmount,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
