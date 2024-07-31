@@ -68,14 +68,19 @@ export class ChainAgnostinProvider extends EventEmitter {
   };
 
   request = async ({
+    internal,
     data,
     sessionId,
     chainId,
   }: {
+    internal?: boolean;
     data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>;
     sessionId: string;
     chainId: string | null;
   }) => {
+    if (internal) {
+      return this.#request({ data, chainId, sessionId });
+    }
     return this.#requestRateLimiter.call(data.method, () =>
       this.#request({ data, chainId, sessionId })
     );

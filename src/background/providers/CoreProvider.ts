@@ -17,7 +17,6 @@ import {
   type JsonRpcRequestPayload,
 } from '../connections/dAppConnection/models';
 import type { PartialBy, ProviderInfo } from '../models';
-import type AbstractConnection from '../utils/messaging/AbstractConnection';
 import { ChainAgnostinProvider } from './ChainAgnosticProvider';
 
 interface ProviderState {
@@ -68,12 +67,7 @@ export class CoreProvider extends EventEmitter {
     isUnlocked: () => Promise.resolve(this._isUnlocked),
   };
 
-  constructor({
-    maxListeners = 100,
-  }: {
-    connection: AbstractConnection;
-    maxListeners?: number;
-  }) {
+  constructor(maxListeners: number = 100) {
     super();
     this.setMaxListeners(maxListeners);
     this.#subscribe();
@@ -117,6 +111,7 @@ export class CoreProvider extends EventEmitter {
       const response = await this.#requestInternal({
         method: DAppProviderRequest.INIT_DAPP_STATE,
       });
+
       const { chainId, accounts, networkVersion, isUnlocked } =
         (response as {
           isUnlocked: boolean;
@@ -170,8 +165,15 @@ export class CoreProvider extends EventEmitter {
     });
   };
 
-  #requestInternal = (data) => {
-    return this.#request(data);
+  #requestInternal = (
+    data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>
+  ) => {
+    return this.#chainagnosticProvider?.request({
+      internal: true,
+      data,
+      chainId: this.chainId,
+      sessionId: this._sessionId,
+    });
   };
 
   #getEventHandler = (method: string): ((params: any) => void) => {
