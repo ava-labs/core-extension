@@ -6,7 +6,7 @@ import {
 import { PartialBy } from '../models';
 import { ethErrors, serializeError } from 'eth-rpc-errors';
 import AbstractConnection from '../utils/messaging/AbstractConnection';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import RequestRatelimiter from './utils/RequestRatelimiter';
 
 export class ChainAgnostinProvider extends EventEmitter {
