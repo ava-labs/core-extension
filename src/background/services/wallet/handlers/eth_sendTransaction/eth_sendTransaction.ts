@@ -30,7 +30,7 @@ import { parseBasicDisplayValues } from './contracts/contractParsers/utils/parse
 import browser from 'webextension-polyfill';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { txToCustomEvmTx } from './utils/txToCustomEvmTx';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { WalletService } from '@src/background/services/wallet/WalletService';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { AnalyticsServicePosthog } from '@src/background/services/analytics/AnalyticsServicePosthog';
