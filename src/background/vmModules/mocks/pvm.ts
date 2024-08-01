@@ -40,8 +40,8 @@ export class PVMModule implements Module {
     });
   }
 
-  getAddress() {
-    return Promise.resolve('PVM address');
+  async getAddress() {
+    return {};
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
