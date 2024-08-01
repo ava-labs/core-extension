@@ -1,4 +1,9 @@
-import { CheckIcon, GlobeIcon, Stack, styled } from '@avalabs/k2-components';
+import {
+  CheckIcon,
+  GlobeIcon,
+  Stack,
+  styled,
+} from '@avalabs/core-k2-components';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 
 export const GlobeIconContainer = styled('div')<NetworkLogoProps>`

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Stack, Tooltip, Typography } from '@avalabs/k2-components';
+import { Stack, Tooltip, Typography } from '@avalabs/core-k2-components';
 
 import { DefiInsuranceBuyerItem } from '@src/background/services/defi/models';
 

@@ -1,4 +1,4 @@
-import { Box, Typography } from '@avalabs/k2-components';
+import { Box, Typography } from '@avalabs/core-k2-components';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { useTranslation } from 'react-i18next';
 

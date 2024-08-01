@@ -10,7 +10,7 @@ import {
   styled,
   toast,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 
 import { PageTitle } from '@src/components/common/PageTitle';

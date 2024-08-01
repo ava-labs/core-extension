@@ -16,7 +16,7 @@ import {
   Stack,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { DerivationPathDropdown } from '@src/pages/Onboarding/components/DerivationPathDropDown';
 import { DerivedAddresses } from '@src/pages/Onboarding/components/DerivedAddresses';
 

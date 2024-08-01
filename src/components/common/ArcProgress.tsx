@@ -1,4 +1,4 @@
-import { useTheme } from '@avalabs/k2-components';
+import { useTheme } from '@avalabs/core-k2-components';
 
 type Props = {
   size: number;

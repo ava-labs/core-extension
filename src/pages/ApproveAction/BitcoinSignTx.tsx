@@ -18,7 +18,7 @@ import {
   Skeleton,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/components/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';

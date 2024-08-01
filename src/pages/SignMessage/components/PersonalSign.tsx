@@ -1,7 +1,12 @@
 import { toUtf8 } from 'ethereumjs-util';
 import { positionValues } from 'react-custom-scrollbars-2';
 import { useTranslation } from 'react-i18next';
-import { Card, Scrollbars, Stack, Typography } from '@avalabs/k2-components';
+import {
+  Card,
+  Scrollbars,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 
 import { MessageParams } from '@src/background/services/messages/models';
 import { forwardRef, ForwardedRef } from 'react';

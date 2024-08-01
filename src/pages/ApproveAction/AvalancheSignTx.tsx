@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Scrollbars, Stack } from '@avalabs/k2-components';
+import { Button, Scrollbars, Stack } from '@avalabs/core-k2-components';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 
 import { useApproveAction } from '@src/hooks/useApproveAction';

@@ -3,7 +3,7 @@ import {
   ScrollbarsRef,
   Stack,
   SxProps,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useEffect, useRef } from 'react';
 
 import { Account } from '@src/background/services/accounts/models';

@@ -1,4 +1,8 @@
-import { CircularProgress, Stack, Typography } from '@avalabs/k2-components';
+import {
+  CircularProgress,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { useEffect, useState } from 'react';
 

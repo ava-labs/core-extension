@@ -10,7 +10,7 @@ import {
   SearchBar,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 export const ManageTokens = () => {
   const history = useHistory();

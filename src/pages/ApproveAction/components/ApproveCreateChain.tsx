@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Typography } from '@avalabs/k2-components';
+import { Button, Typography } from '@avalabs/core-k2-components';
 
 import {
   ApprovalSection,

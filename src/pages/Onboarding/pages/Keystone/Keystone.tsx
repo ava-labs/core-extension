@@ -9,7 +9,7 @@ import {
   ExternalLinkIcon,
   Button,
   styled,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { PageNav } from '../../components/PageNav';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';

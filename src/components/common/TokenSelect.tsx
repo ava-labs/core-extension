@@ -31,7 +31,7 @@ import {
   Divider,
   Card,
   SearchBar,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { BNInput } from '@src/components/common/BNInput';
 import { TokenSelector } from './TokenSelector';
 import { TokenEllipsis } from './TokenEllipsis';

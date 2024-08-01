@@ -1,7 +1,7 @@
 import { CollectibleMedia } from './CollectibleMedia';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { NftTokenWithBalance } from '@src/background/services/balances/models';
-import { Stack } from '@avalabs/k2-components';
+import { Stack } from '@avalabs/core-k2-components';
 import { TokenCard } from '@src/components/common/TokenCard';
 
 export function CollectibleList({

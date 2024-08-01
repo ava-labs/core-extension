@@ -1,4 +1,4 @@
-import { Divider, Typography } from '@avalabs/k2-components';
+import { Divider, Typography } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import {
   ApprovalSection,

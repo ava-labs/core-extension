@@ -8,7 +8,7 @@ import {
   Skeleton,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { BN } from 'bn.js';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useMemo, useState } from 'react';

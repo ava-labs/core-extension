@@ -13,7 +13,7 @@ import {
   MenuItem,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 
 interface NetworkSelectorProps {

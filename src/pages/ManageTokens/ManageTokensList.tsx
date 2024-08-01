@@ -5,7 +5,12 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
-import { Divider, Stack, Switch, Typography } from '@avalabs/k2-components';
+import {
+  Divider,
+  Stack,
+  Switch,
+  Typography,
+} from '@avalabs/core-k2-components';
 
 type ManageTokensListProps = {
   searchQuery: string;

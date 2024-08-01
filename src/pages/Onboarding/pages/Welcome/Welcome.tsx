@@ -1,5 +1,5 @@
 import { SignUpWithSeedles } from './SignUpWithSeedless';
-import { Stack } from '@avalabs/k2-components';
+import { Stack } from '@avalabs/core-k2-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useEffect } from 'react';
 

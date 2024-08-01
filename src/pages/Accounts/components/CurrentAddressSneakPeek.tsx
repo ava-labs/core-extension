@@ -7,7 +7,7 @@ import {
   Tooltip,
   Typography,
   toast,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { truncateAddress } from '@src/utils/truncateAddress';
 

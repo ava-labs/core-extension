@@ -1,6 +1,11 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { useTranslation } from 'react-i18next';
-import { CheckIcon, Stack, Typography, useTheme } from '@avalabs/k2-components';
+import {
+  CheckIcon,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/core-k2-components';
 import { Dropdown, DropdownItem } from '@src/components/common/Dropdown';
 
 interface DerivationPathDropdownProps {

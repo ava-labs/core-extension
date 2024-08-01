@@ -4,7 +4,7 @@ import {
   Stack,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 import { TransactionType } from '@src/background/services/history/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';

@@ -1,7 +1,7 @@
 import { useHistory } from 'react-router-dom';
 import { NetworkCard } from './common/NetworkCard';
 import { useTranslation } from 'react-i18next';
-import { Button, Stack, Typography } from '@avalabs/k2-components';
+import { Button, Stack, Typography } from '@avalabs/core-k2-components';
 
 import { NetworkTab } from '@src/pages/Networks';
 

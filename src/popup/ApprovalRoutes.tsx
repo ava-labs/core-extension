@@ -1,6 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { Route, Switch, SwitchProps } from 'react-router-dom';
-import { CircularProgress, Stack } from '@avalabs/k2-components';
+import { CircularProgress, Stack } from '@avalabs/core-k2-components';
 
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
 

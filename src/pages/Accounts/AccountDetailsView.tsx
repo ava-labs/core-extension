@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
   toast,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useWalletContext } from '@src/contexts/WalletProvider';

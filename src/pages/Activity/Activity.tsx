@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@avalabs/k2-components';
+import { Stack, Typography } from '@avalabs/core-k2-components';
 import { WalletRecentTxs } from '../Wallet/WalletRecentTxs';
 import { useTranslation } from 'react-i18next';
 

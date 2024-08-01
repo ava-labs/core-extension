@@ -8,7 +8,7 @@ import {
   Typography,
   styled,
   keyframes,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 const ShowThumbnailImageAnimation = keyframes`
   0% {

@@ -19,7 +19,11 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
 
 import { FIDOApiEndpoint } from '@src/utils/seedless/fido/types';
-import { Dialog, DialogContent, DialogTitle } from '@avalabs/k2-components';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from '@avalabs/core-k2-components';
 import { TOTPChallenge } from '@src/components/common/seedless/components/TOTPChallenge';
 import { FIDOChallenge } from '@src/components/common/seedless/components/FIDOChallenge';
 import { useTranslation } from 'react-i18next';

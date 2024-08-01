@@ -11,7 +11,7 @@ import {
   WalletIcon,
   toast,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { Account } from '@src/background/services/accounts/models';
 import { useApproveAction } from '@src/hooks/useApproveAction';

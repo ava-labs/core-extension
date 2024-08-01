@@ -28,7 +28,7 @@ import {
   Collapse,
   ChevronDownIcon,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import Dialog from '@src/components/common/Dialog';
 import { bigintToBig } from '@src/utils/bigintToBig';

@@ -1,5 +1,5 @@
 import { cloneElement } from 'react';
-import { Box } from '@avalabs/k2-components';
+import { Box } from '@avalabs/core-k2-components';
 
 type FlipperProps = {
   size: number;

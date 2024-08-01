@@ -9,7 +9,7 @@ import {
   TabPanel,
   Tabs,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';

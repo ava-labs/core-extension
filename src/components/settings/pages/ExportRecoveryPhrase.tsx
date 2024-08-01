@@ -15,7 +15,7 @@ import {
   Typography,
   Skeleton,
   CheckCircleIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useCallback, useState } from 'react';
 
 import {

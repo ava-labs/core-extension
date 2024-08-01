@@ -4,7 +4,7 @@ import {
   Stack,
   Typography,
   styled,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { Trans } from 'react-i18next';
 import { WalletConnectCircledIcon } from '../../../ImportWithWalletConnect/components/WalletConnectCircledIcon';
 import { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';

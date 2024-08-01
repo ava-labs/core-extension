@@ -1,4 +1,4 @@
-import { Skeleton, Stack } from '@avalabs/k2-components';
+import { Skeleton, Stack } from '@avalabs/core-k2-components';
 
 type Props = { withTitle?: boolean };
 

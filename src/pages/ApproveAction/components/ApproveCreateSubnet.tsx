@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Stack, Typography } from '@avalabs/k2-components';
+import { Stack, Typography } from '@avalabs/core-k2-components';
 
 import {
   ApprovalSection,

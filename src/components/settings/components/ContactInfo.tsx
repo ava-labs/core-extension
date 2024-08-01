@@ -6,7 +6,7 @@ import {
   AvalancheColorIcon,
   BitcoinColorIcon,
   XAndPChainsIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 export const ContactInfo = ({ contact }: { contact: Contact }) => {
   return (

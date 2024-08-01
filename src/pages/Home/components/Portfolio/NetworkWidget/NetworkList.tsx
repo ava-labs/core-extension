@@ -16,7 +16,7 @@ import {
   styled,
   Skeleton,
   Badge,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { filterBridgeStateToNetwork } from '@src/background/services/bridge/utils';

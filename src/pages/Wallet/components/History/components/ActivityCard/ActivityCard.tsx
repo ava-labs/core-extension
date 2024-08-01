@@ -9,7 +9,7 @@ import {
   Tooltip,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { weiToAvax } from '@avalabs/core-utils-sdk';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 import {

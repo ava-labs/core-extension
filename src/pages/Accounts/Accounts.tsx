@@ -11,7 +11,7 @@ import {
   XIcon,
   toast,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { t } from 'i18next';
 import { useHistory } from 'react-router-dom';
 

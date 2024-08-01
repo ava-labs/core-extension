@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';

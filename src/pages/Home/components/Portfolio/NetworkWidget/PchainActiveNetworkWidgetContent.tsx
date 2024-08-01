@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@avalabs/k2-components';
+import { Stack, Typography } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { TokenWithBalancePVM } from '@src/background/services/balances/models';

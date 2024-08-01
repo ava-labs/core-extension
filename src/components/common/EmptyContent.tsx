@@ -1,4 +1,4 @@
-import { Stack, Grow, Typography } from '@avalabs/k2-components';
+import { Stack, Grow, Typography } from '@avalabs/core-k2-components';
 
 interface EmptyContentProps {
   text: string;

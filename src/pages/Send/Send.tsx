@@ -14,7 +14,7 @@ import {
   TokenWithBalancePVM,
 } from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
-import { Stack, toast } from '@avalabs/k2-components';
+import { Stack, toast } from '@avalabs/core-k2-components';
 import {
   FunctionNames,
   useIsFunctionAvailable,

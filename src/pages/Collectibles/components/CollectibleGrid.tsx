@@ -5,7 +5,7 @@ import {
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { CollectibleMedia } from './CollectibleMedia';
 import { CollectibleWrapper } from './CollectibleWrapper';
-import { Button } from '@avalabs/k2-components';
+import { Button } from '@avalabs/core-k2-components';
 
 export function CollectibleGrid({
   onClick,

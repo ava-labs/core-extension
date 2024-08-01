@@ -5,7 +5,7 @@ import {
   Button,
   XIcon,
   AlertCircleIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { Overlay } from '@src/components/common/Overlay';
 import { useTranslation } from 'react-i18next';
 

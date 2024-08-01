@@ -15,7 +15,7 @@ import {
   ListIcon,
   Typography,
   TypographyProps,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';

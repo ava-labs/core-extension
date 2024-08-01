@@ -20,7 +20,7 @@ import {
   TrashIcon,
   Typography,
   toast,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { PageTitle } from '@src/components/common/PageTitle';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';

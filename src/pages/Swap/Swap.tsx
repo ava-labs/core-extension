@@ -31,7 +31,7 @@ import {
   Button,
   styled,
   IconButton,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';

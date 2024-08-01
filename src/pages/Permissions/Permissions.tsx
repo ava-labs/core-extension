@@ -7,7 +7,7 @@ import {
   Box,
   useTheme,
   GlobeIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { Account } from '@src/background/services/accounts/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';

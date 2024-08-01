@@ -13,7 +13,7 @@ import {
   TextField,
   Tooltip,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { TextFieldLabel } from './TextFieldLabel';
 import { parseUnits } from 'ethers';

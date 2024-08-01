@@ -7,7 +7,7 @@ import {
   XIcon,
   useTheme,
   AlertCircleIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { Overlay } from '@src/components/common/Overlay';
 import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
 import { useCallback, useEffect, useMemo, useState } from 'react';

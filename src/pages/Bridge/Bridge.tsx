@@ -63,7 +63,7 @@ import {
   Typography,
   toast,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import BridgeConfirmation from './BridgeConfirmation';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';

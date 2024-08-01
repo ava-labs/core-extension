@@ -6,7 +6,7 @@ import {
   Tooltip,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { XchainTxHistoryItem } from '@src/background/services/history/models';
 import { PrimaryNetworkMethodIcon } from './PrimaryNetworkMethodIcon';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';

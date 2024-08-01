@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Stack, Typography } from '@avalabs/k2-components';
+import { Stack, Typography } from '@avalabs/core-k2-components';
 
 import { sumByProperty } from '@src/utils/sumByProperty';
 import { DefiCommonItem } from '@src/background/services/defi/models';

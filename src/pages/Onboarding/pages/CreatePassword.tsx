@@ -17,7 +17,7 @@ import {
   Typography,
   XIcon,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { PageNav } from '../components/PageNav';
 import { PasswordStrength } from '@src/components/common/PasswordStrength';
 import { useHistory } from 'react-router-dom';

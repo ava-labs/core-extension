@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Button, PlusIcon, Skeleton } from '@avalabs/k2-components';
+import { Stack, Button, PlusIcon, Skeleton } from '@avalabs/core-k2-components';
 import browser from 'webextension-polyfill';
 
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';

@@ -1,4 +1,9 @@
-import { Card, CardContent, Stack, Typography } from '@avalabs/k2-components';
+import {
+  Card,
+  CardContent,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { bigToLocaleString } from '@avalabs/core-utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';

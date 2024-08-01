@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { GoogleColorIcon, Button } from '@avalabs/k2-components';
+import { GoogleColorIcon, Button } from '@avalabs/core-k2-components';
 import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,

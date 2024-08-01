@@ -11,7 +11,7 @@ import {
   IconButton,
   EmptySitesIcon,
   Tooltip,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { SettingsPageProps } from '../models';

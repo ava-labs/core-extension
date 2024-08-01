@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Stack, Typography } from '@avalabs/k2-components';
+import { Stack, Typography } from '@avalabs/core-k2-components';
 import { positionValues } from 'react-custom-scrollbars-2';
 import { MessageParams } from '@src/background/services/messages/models';
 import { ForwardedRef, forwardRef } from 'react';

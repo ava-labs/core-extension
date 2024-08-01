@@ -24,7 +24,7 @@ import {
   MenuList,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 import { usePendingBridgeTransactions } from '../Bridge/hooks/usePendingBridgeTransactions';
 import {
