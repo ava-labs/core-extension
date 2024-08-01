@@ -1,4 +1,4 @@
-import { Blockchain } from '@avalabs/bridge-sdk';
+import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { useEffect } from 'react';
 import { getLedgerAppForBlockchain } from '../utils/getLedgerAppForBlockchain';

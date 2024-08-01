@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Typography } from '@avalabs/k2-components';
+import { Button, Typography } from '@avalabs/core-k2-components';
 
 import {
   ApprovalSection,
@@ -12,7 +12,7 @@ import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 import { AvaxAmount } from './AvaxAmount';
 import { TruncatedIdentifier } from './TruncatedIdentifier';
 import { BlockchainGenesisFile } from './BlockchainGenesisFile';
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 
 export function ApproveCreateChain({
   tx,

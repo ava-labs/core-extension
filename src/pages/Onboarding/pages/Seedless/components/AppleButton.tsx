@@ -1,4 +1,4 @@
-import { AppleIcon, Button } from '@avalabs/k2-components';
+import { AppleIcon, Button } from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useTranslation } from 'react-i18next';

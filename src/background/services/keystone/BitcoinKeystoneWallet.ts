@@ -1,4 +1,4 @@
-import { BitcoinProviderAbstract, createPsbt } from '@avalabs/wallets-sdk';
+import { BitcoinProviderAbstract, createPsbt } from '@avalabs/core-wallets-sdk';
 import { CryptoPSBT } from '@keystonehq/bc-ur-registry-eth';
 import { Psbt, Transaction } from 'bitcoinjs-lib';
 

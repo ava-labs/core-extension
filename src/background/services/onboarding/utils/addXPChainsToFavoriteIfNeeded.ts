@@ -1,6 +1,6 @@
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { NetworkService } from '../../network/NetworkService';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { Balances } from '../../balances/models';
 import { PrimaryAccount } from '../../accounts/models';
 import BN from 'bn.js';

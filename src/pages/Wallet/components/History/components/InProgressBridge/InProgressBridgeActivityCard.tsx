@@ -1,4 +1,4 @@
-import { BridgeTransaction, useBridgeSDK } from '@avalabs/bridge-sdk';
+import { BridgeTransaction, useBridgeSDK } from '@avalabs/core-bridge-sdk';
 import {
   Button,
   Card,
@@ -9,7 +9,7 @@ import {
   ToastCard,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { blockchainToNetwork } from '@src/pages/Bridge/utils/blockchainConversion';

@@ -4,7 +4,7 @@ import {
   Card,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { useTranslation } from 'react-i18next';
 

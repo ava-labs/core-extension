@@ -1,10 +1,10 @@
-import * as WalletsSDK from '@avalabs/wallets-sdk';
+import * as WalletsSDK from '@avalabs/core-wallets-sdk';
 import { CryptoPSBT } from '@keystonehq/bc-ur-registry-eth';
 import { Network, Psbt } from 'bitcoinjs-lib';
 import { BitcoinKeystoneWallet } from './BitcoinKeystoneWallet';
 import { KeystoneTransport } from './models';
 
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 
 const FIXTURES = {
   MOCKED_PSBT: Buffer.from(

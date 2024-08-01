@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as Sentry from '@sentry/browser';
-import { Network, NetworkToken, NetworkVMType } from '@avalabs/chains-sdk';
+import { Network, NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
 
 import { StorageService } from '../storage/StorageService';
 import { SettingsService } from '../settings/SettingsService';
@@ -51,6 +51,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     chainId: 1,
     vmName: NetworkVMType.EVM,
     rpcUrl: 'test.one.com/rpc',
+    explorerUrl: 'https://explorer.url',
     networkToken: networkToken1,
     logoUri: 'test.one.com/logo',
     primaryColor: 'purple',
@@ -69,6 +70,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     chainId: 2,
     vmName: NetworkVMType.EVM,
     rpcUrl: 'test.two.com/rpc',
+    explorerUrl: 'https://explorer.url',
     networkToken: networkToken2,
     logoUri: 'test.two.com/logo',
     primaryColor: 'brown',

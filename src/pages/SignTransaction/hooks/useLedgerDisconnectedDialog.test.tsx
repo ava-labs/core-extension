@@ -1,4 +1,4 @@
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { useDialog } from '@src/contexts/DialogContextProvider';
 import {
   LedgerAppType,

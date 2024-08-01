@@ -13,7 +13,7 @@ import {
   TabPanel,
   Tabs,
   styled,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionAvailable';
 import { Redirect } from 'react-router-dom';

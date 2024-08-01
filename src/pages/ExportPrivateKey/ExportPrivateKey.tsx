@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { EnterPassword } from './EnterPassword';
 import { ShowPrivateKey } from './ShowPrivateKey';
-import { Stack, useTheme } from '@avalabs/k2-components';
+import { Stack, useTheme } from '@avalabs/core-k2-components';
 import { GetPrivateKeyHandler } from '@src/background/services/accounts/handlers/getPrivateKey';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';

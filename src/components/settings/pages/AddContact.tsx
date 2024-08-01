@@ -11,7 +11,7 @@ import {
   Scrollbars,
   styled,
   toast,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const FlexScrollbars = styled(Scrollbars)`

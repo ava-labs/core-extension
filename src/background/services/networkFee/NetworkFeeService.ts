@@ -1,8 +1,8 @@
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   BitcoinProviderAbstract,
   JsonRpcBatchInternal,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { isSwimmer } from '@src/utils/isSwimmerNetwork';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { singleton } from 'tsyringe';

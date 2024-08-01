@@ -2,7 +2,7 @@ import Dialog from '@src/components/common/Dialog';
 import { useEffect, useState } from 'react';
 import { t } from 'i18next';
 import DangerIcon from '@src/components/icons/DangerIcon';
-import { Stack, Typography, useTheme } from '@avalabs/k2-components';
+import { Stack, Typography, useTheme } from '@avalabs/core-k2-components';
 import useIsIncorrectDevice from './hooks/useIsIncorrectDevice';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 

@@ -1,4 +1,4 @@
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { GetTokenPriceHandler } from '@src/background/services/balances/handlers/getTokenPrice';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';

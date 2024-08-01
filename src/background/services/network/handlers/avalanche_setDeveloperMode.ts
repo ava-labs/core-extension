@@ -6,7 +6,7 @@ import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 @injectable()
 export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {

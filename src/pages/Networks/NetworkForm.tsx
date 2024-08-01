@@ -12,7 +12,7 @@ import {
   Stack,
   TextField,
   styled,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { TextFieldLabel } from '@src/components/common/TextFieldLabel';

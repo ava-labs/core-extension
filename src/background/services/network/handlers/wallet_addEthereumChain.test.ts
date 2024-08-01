@@ -1,4 +1,4 @@
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
@@ -23,6 +23,7 @@ const mockActiveNetwork: Network = {
   vmName: NetworkVMType.EVM,
   subnetExplorerUriId: 'c-chain',
   rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+  explorerUrl: 'https://explorer.url',
   networkToken: {
     name: 'Avalanche',
     symbol: 'AVAX',

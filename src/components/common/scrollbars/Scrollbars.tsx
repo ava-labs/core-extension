@@ -1,6 +1,6 @@
 import * as CustomScrollbars from 'react-custom-scrollbars-2';
 import { forwardRef, LegacyRef } from 'react';
-import { useTheme } from '@avalabs/k2-components';
+import { useTheme } from '@avalabs/core-k2-components';
 
 export type ScrollbarsRef = CustomScrollbars.Scrollbars;
 

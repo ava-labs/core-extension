@@ -1,6 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Stack, TextField, useTheme } from '@avalabs/k2-components';
+import {
+  Button,
+  Stack,
+  TextField,
+  useTheme,
+} from '@avalabs/core-k2-components';
 
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';

@@ -5,7 +5,7 @@ import {
   useLedgerContext,
 } from '@src/contexts/LedgerProvider';
 import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible';
-import { Backdrop, Stack } from '@avalabs/k2-components';
+import { Backdrop, Stack } from '@avalabs/core-k2-components';
 
 export function LedgerWrongVersionOverlay({
   onClose,

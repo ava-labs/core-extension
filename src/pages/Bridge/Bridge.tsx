@@ -7,7 +7,7 @@ import {
   WrapStatus,
   useGetTokenSymbolOnNetwork,
   isAddressBlocklisted,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -23,7 +23,7 @@ import {
   bigToLocaleString,
   bnToBig,
   resolve,
-} from '@avalabs/utils-sdk';
+} from '@avalabs/core-utils-sdk';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { useSyncBridgeConfig } from './hooks/useSyncBridgeConfig';
 import BN from 'bn.js';
@@ -63,7 +63,7 @@ import {
   Typography,
   toast,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import BridgeConfirmation from './BridgeConfirmation';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';

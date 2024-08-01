@@ -14,7 +14,7 @@ import { TokenType } from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from '@src/components/common/VirtualizedList';
-import { Button, Stack, styled } from '@avalabs/k2-components';
+import { Button, Stack, styled } from '@avalabs/core-k2-components';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { BN } from 'bn.js';
 

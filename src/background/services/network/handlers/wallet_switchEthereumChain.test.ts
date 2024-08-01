@@ -3,7 +3,7 @@ import { openExtensionNewWindow } from './../../../../utils/extensionUtils';
 import { buildRpcCall } from './../../../../tests/test-utils';
 import { DAppProviderRequest } from './../../../connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from './../../../connections/middlewares/models';
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 import { container } from 'tsyringe';
 import { ActionsService } from '../../actions/ActionsService';
@@ -20,6 +20,7 @@ const mockActiveNetwork: Network = {
   vmName: NetworkVMType.EVM,
   subnetExplorerUriId: 'c-chain',
   rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+  explorerUrl: 'https://explorer.url',
   networkToken: {
     name: 'Avalanche',
     symbol: 'AVAX',
@@ -123,6 +124,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
             vmName: NetworkVMType.EVM,
             primaryColor: 'violet',
             rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+            explorerUrl: 'https://explorer.url',
             subnetExplorerUriId: 'c-chain',
             tokens: [],
             networkToken: {

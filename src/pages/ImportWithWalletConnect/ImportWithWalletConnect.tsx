@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Stack, useTheme } from '@avalabs/k2-components';
+import { Stack, useTheme } from '@avalabs/core-k2-components';
 
 import { PageTitle } from '@src/components/common/PageTitle';
 import { WalletConnectCircledIcon } from './components/WalletConnectCircledIcon';

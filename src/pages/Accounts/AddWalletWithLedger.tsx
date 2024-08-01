@@ -7,7 +7,7 @@ import {
   Typography,
   toast,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
@@ -15,7 +15,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
 import { PubKeyType } from '@src/background/services/wallet/models';
 import { NameYourWallet } from './components/NameYourWallet';
-import { DerivationPath } from '@avalabs/wallets-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { SecretType } from '@src/background/services/secrets/models';
 import { useImportLedger } from './hooks/useImportLedger';
 import {

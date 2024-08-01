@@ -15,7 +15,7 @@ import {
   Stack,
   Typography,
   toast,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedlessAnalytics';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';

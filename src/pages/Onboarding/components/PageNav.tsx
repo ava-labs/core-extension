@@ -1,4 +1,4 @@
-import { Button, Stack, Tooltip, useTheme } from '@avalabs/k2-components';
+import { Button, Stack, Tooltip, useTheme } from '@avalabs/core-k2-components';
 import { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageTracker } from './PageTracker';

@@ -1,4 +1,4 @@
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { finalizeOnboarding } from './finalizeOnboarding';
 import { OnboardingService } from './OnboardingService';
 import { LockService } from '../lock/LockService';
@@ -9,8 +9,8 @@ import { addXPChainToFavoriteIfNeeded } from './utils/addXPChainsToFavoriteIfNee
 
 jest.mock('./utils/addXPChainsToFavoriteIfNeeded');
 
-jest.mock('@avalabs/wallets-sdk', () => {
-  const actual = jest.requireActual('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk', () => {
+  const actual = jest.requireActual('@avalabs/core-wallets-sdk');
 
   return {
     ...actual,

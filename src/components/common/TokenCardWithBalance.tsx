@@ -1,4 +1,4 @@
-import { Card, Stack, Tooltip, Typography } from '@avalabs/k2-components';
+import { Card, Stack, Tooltip, Typography } from '@avalabs/core-k2-components';
 import { useEffect, useRef, useState } from 'react';
 import { PAndL } from './ProfitAndLoss';
 import { TokenWithBalance } from '@src/background/services/balances/models';

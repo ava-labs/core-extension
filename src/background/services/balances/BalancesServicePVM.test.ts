@@ -1,4 +1,7 @@
-import { AVALANCHE_XP_TEST_NETWORK, NetworkVMType } from '@avalabs/chains-sdk';
+import {
+  AVALANCHE_XP_TEST_NETWORK,
+  NetworkVMType,
+} from '@avalabs/core-chains-sdk';
 import { Account, AccountType } from '../accounts/models';
 import BN from 'bn.js';
 import {

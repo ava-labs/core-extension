@@ -1,4 +1,4 @@
-import { Stack } from '@avalabs/k2-components';
+import { Stack } from '@avalabs/core-k2-components';
 
 import { Overlay } from '@src/components/common/Overlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';

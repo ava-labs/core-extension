@@ -1,4 +1,4 @@
-import { Stack } from '@avalabs/k2-components';
+import { Stack } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
 import { useNetworkContext } from '@src/contexts/NetworkProvider';

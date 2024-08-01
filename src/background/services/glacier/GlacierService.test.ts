@@ -7,11 +7,11 @@ import {
 } from '@avalabs/glacier-sdk';
 import { GlacierService } from './GlacierService';
 
-import { wait } from '@avalabs/utils-sdk';
+import { wait } from '@avalabs/core-utils-sdk';
 
 jest.mock('@avalabs/glacier-sdk');
-jest.mock('@avalabs/utils-sdk', () => ({
-  ...jest.requireActual('@avalabs/utils-sdk'),
+jest.mock('@avalabs/core-utils-sdk', () => ({
+  ...jest.requireActual('@avalabs/core-utils-sdk'),
   wait: jest.fn(),
 }));
 

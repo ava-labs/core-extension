@@ -1,5 +1,5 @@
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { TransactionDescription } from 'ethers';
 import {
   EthSendTransactionParamsWithGas,

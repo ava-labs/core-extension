@@ -1,4 +1,4 @@
-import { ChainId, Network } from '@avalabs/chains-sdk';
+import { ChainId, Network } from '@avalabs/core-chains-sdk';
 
 export function isSwimmer(network: Network) {
   return isSwimmerByChainId(network.chainId);

@@ -9,7 +9,7 @@ import {
   ChevronUpIcon,
   TextField,
   Grow,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;

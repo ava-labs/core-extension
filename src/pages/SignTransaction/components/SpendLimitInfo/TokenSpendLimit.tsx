@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, Stack } from '@avalabs/k2-components';
+import { Box, Button, Dialog, Stack } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import {
   ApprovalSection,

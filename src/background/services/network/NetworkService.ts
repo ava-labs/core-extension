@@ -26,14 +26,14 @@ import {
   ChainId,
   NetworkVMType,
   getChainsAndTokens,
-} from '@avalabs/chains-sdk';
+} from '@avalabs/core-chains-sdk';
 import { ReadableSignal, Signal, ValueCache } from 'micro-signals';
 import {
   Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
-} from '@avalabs/wallets-sdk';
-import { resolve, wait } from '@avalabs/utils-sdk';
+} from '@avalabs/core-wallets-sdk';
+import { resolve, wait } from '@avalabs/core-utils-sdk';
 import { Network as EthersNetwork } from 'ethers';
 import { SigningResult } from '../wallet/models';
 import { getExponentialBackoffDelay } from '@src/utils/exponentialBackoff';

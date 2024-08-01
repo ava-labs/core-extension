@@ -4,7 +4,7 @@ import {
   Tooltip,
   Typography,
   Skeleton,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';

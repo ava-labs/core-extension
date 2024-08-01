@@ -1,12 +1,12 @@
 import { utils } from '@avalabs/avalanchejs';
-import { ChainId, Network, NetworkVMType } from '@avalabs/chains-sdk';
-import { strip0x } from '@avalabs/utils-sdk';
+import { ChainId, Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { strip0x } from '@avalabs/core-utils-sdk';
 import {
   Avalanche,
   BitcoinProvider,
   getEvmAddressFromPubKey,
   createPsbt,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import * as cs from '@cubist-labs/cubesigner-sdk';
 import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
 import { networks } from 'bitcoinjs-lib';
@@ -44,7 +44,7 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 
 jest.mock('@cubist-labs/cubesigner-sdk');
 jest.mock('@cubist-labs/cubesigner-sdk-ethers-v6');
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('../network/NetworkService');
 jest.mock('./SeedlessBtcSigner');
 jest.mock('./SeedlessMfaService');

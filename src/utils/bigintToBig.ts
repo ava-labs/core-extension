@@ -1,4 +1,4 @@
-import { bnToBig } from '@avalabs/utils-sdk';
+import { bnToBig } from '@avalabs/core-utils-sdk';
 import Big from 'big.js';
 import { BN } from 'bn.js';
 

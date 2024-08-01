@@ -1,5 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { Grid, GridProps, Stack, Typography } from '@avalabs/k2-components';
+import {
+  Grid,
+  GridProps,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 
 import { DefiPerpetualItem } from '@src/background/services/defi/models';
 

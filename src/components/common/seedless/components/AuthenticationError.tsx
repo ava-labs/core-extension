@@ -1,5 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { AlertCircleIcon, Stack, Typography } from '@avalabs/k2-components';
+import {
+  AlertCircleIcon,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 import { AuthErrorCode } from '@src/background/services/seedless/models';
 
 type Props = {

@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 import { runtime } from 'webextension-polyfill';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';

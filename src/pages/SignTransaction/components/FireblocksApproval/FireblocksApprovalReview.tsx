@@ -5,7 +5,7 @@ import {
   FireblocksIcon,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { Trans } from 'react-i18next';
 import { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
 import { Account } from '@src/background/services/accounts/models';

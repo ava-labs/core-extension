@@ -13,7 +13,7 @@ import {
   IconButton,
   List,
   SearchBar,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {

@@ -1,4 +1,9 @@
-import { Dialog, IconButton, Typography, XIcon } from '@avalabs/k2-components';
+import {
+  Dialog,
+  IconButton,
+  Typography,
+  XIcon,
+} from '@avalabs/core-k2-components';
 import { PropsWithChildren } from 'react';
 
 interface RemoteApprovalDialogProps {

@@ -1,4 +1,4 @@
-import { satoshiToBtc } from '@avalabs/bridge-sdk';
+import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 import {
   Card,
   ChevronDownIcon,
@@ -9,8 +9,8 @@ import {
   Tooltip,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
-import { weiToAvax } from '@avalabs/utils-sdk';
+} from '@avalabs/core-k2-components';
+import { weiToAvax } from '@avalabs/core-utils-sdk';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 import {
   TransactionType,

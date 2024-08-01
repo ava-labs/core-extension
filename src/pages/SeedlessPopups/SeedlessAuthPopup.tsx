@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Button, Stack } from '@avalabs/k2-components';
+import { Button, Stack } from '@avalabs/core-k2-components';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

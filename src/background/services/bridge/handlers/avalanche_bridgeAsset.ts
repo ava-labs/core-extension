@@ -8,9 +8,9 @@ import {
   EthereumConfigAsset,
   getAssets,
   isNativeAsset,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 import Big from 'big.js';
-import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
+import { bnToBig, stringToBN } from '@avalabs/core-utils-sdk';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
@@ -18,7 +18,7 @@ import { injectable } from 'tsyringe';
 import { Action } from '../../actions/models';
 import { BridgeService } from '../BridgeService';
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { blockchainToNetwork } from '@src/pages/Bridge/utils/blockchainConversion';
 import { findTokenForAsset } from '@src/pages/Bridge/utils/findTokenForAsset';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';

@@ -1,6 +1,6 @@
 import { singleton } from 'tsyringe';
-import { Network } from '@avalabs/chains-sdk';
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { AccountsService } from '../accounts/AccountsService';
 import {
   BlockchainId,

@@ -1,5 +1,5 @@
 import { SettingsService } from './../SettingsService';
-import { resolve } from '@avalabs/utils-sdk';
+import { resolve } from '@avalabs/core-utils-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { injectable } from 'tsyringe';

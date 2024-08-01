@@ -40,8 +40,8 @@ export class BitcoinModule implements Module {
     });
   }
 
-  getAddress(): Promise<string> {
-    return Promise.resolve('Bitcoin address');
+  async getAddress() {
+    return {};
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

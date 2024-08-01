@@ -4,7 +4,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   NetworkTokenWithBalance,
   TokenType,
@@ -14,7 +14,7 @@ import {
   TokenWithBalancePVM,
 } from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
-import { Stack, toast } from '@avalabs/k2-components';
+import { Stack, toast } from '@avalabs/core-k2-components';
 import {
   FunctionNames,
   useIsFunctionAvailable,
@@ -27,7 +27,7 @@ import {
   Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { SendEVM } from './components/SendEVM';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';

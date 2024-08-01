@@ -6,7 +6,7 @@ import {
   DialogTitle,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { TypographyLink } from '@src/pages/Onboarding/components/TypographyLink';

@@ -8,7 +8,7 @@ import {
   CircularProgress,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import {
   AnimatedQRCode,
   AnimatedQRScanner,

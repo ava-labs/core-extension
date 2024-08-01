@@ -1,4 +1,4 @@
-import { NetworkContractToken } from '@avalabs/chains-sdk';
+import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { EnsureDefined } from '@src/background/models';
 
 export enum ThemeVariant {

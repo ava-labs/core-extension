@@ -2,7 +2,7 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { BridgeService } from '../BridgeService';
 import { injectable } from 'tsyringe';
-import { resolve } from '@avalabs/utils-sdk';
+import { resolve } from '@avalabs/core-utils-sdk';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_SET_IS_DEV_ENV,

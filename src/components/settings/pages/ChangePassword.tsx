@@ -13,7 +13,7 @@ import {
   Typography,
   Button,
   AlertTriangleIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function ChangePassword({

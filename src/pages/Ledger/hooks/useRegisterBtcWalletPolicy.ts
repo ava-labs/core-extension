@@ -1,4 +1,4 @@
-import { DerivationPath } from '@avalabs/wallets-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { AccountType } from '@src/background/services/accounts/models';
 import { GetBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/getBtcWalletPolicyDetails';

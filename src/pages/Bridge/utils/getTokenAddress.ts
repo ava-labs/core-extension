@@ -1,4 +1,4 @@
-import { isEthAsset } from '@avalabs/bridge-sdk';
+import { isEthAsset } from '@avalabs/core-bridge-sdk';
 import { AssetBalance } from '../models';
 import { isUnifiedBridgeAsset } from './isUnifiedBridgeAsset';
 

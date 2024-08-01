@@ -4,7 +4,7 @@ import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 import { ImportLedgerHandler } from './importLedger';
 import { SecretType } from '../../secrets/models';
-import { DerivationPath } from '@avalabs/wallets-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/wallet/handlers/importLedger', () => {

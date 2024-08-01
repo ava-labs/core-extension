@@ -9,7 +9,7 @@ import {
   styled,
   TriangleRightIcon,
   ArrowsMaximizeIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import BN from 'bn.js';
 
 const NftImage = styled(ImageWithFallback)<{

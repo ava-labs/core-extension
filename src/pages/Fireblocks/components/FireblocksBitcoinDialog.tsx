@@ -6,7 +6,7 @@ import {
   Button,
   DialogContent,
   toast,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { AccountsTab } from '@src/pages/Accounts/Accounts';
 import { useTranslation } from 'react-i18next';

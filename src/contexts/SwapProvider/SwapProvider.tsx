@@ -15,7 +15,7 @@ import { useNetworkContext } from '../NetworkProvider';
 import { useAccountsContext } from '../AccountsProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import Web3 from 'web3';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';

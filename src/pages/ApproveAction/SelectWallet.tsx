@@ -6,7 +6,7 @@ import { useCallback } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { WalletExtensionButton } from '../Wallet/components/WalletExtensionButton';
 import { Trans } from 'react-i18next';
-import { Stack, Typography, WalletIcon } from '@avalabs/k2-components';
+import { Stack, Typography, WalletIcon } from '@avalabs/core-k2-components';
 
 export function SelectWallet() {
   const requestId = useGetRequestId();

@@ -1,4 +1,4 @@
-import { Stack, Typography, styled } from '@avalabs/k2-components';
+import { Stack, Typography, styled } from '@avalabs/core-k2-components';
 
 import { BrandName } from '@src/components/icons/BrandName';
 import { Logo } from '@src/components/icons/Logo';

@@ -1,6 +1,6 @@
 import * as cs from '@cubist-labs/cubesigner-sdk';
 import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
-import { strip0x } from '@avalabs/utils-sdk';
+import { strip0x } from '@avalabs/core-utils-sdk';
 import {
   JsonRpcApiProvider,
   TransactionRequest,
@@ -15,7 +15,7 @@ import {
   BitcoinProvider,
   createPsbt,
   getEvmAddressFromPubKey,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { sha256 } from '@noble/hashes/sha256';
 import { utils } from '@avalabs/avalanchejs';
 import {

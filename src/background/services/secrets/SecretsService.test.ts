@@ -1,5 +1,5 @@
 import { container } from 'tsyringe';
-import { Avalanche, DerivationPath } from '@avalabs/wallets-sdk';
+import { Avalanche, DerivationPath } from '@avalabs/core-wallets-sdk';
 
 import { CallbackManager } from '@src/background/runtime/CallbackManager';
 
@@ -18,7 +18,7 @@ import { SecretsService } from './SecretsService';
 
 jest.mock('../storage/StorageService');
 jest.mock('../network/NetworkService');
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('tsyringe', () => {
   const tsyringe = jest.requireActual('tsyringe');
 

@@ -1,4 +1,4 @@
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { Account, AccountType } from '@src/background/services/accounts/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 describe('utils/getAddressForChain', () => {

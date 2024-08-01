@@ -1,4 +1,4 @@
-import { Stack, styled } from '@avalabs/k2-components';
+import { Stack, styled } from '@avalabs/core-k2-components';
 
 export const SiteAvatar = styled(Stack)<{ margin?: string }>`
   width: 80px;

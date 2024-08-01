@@ -1,10 +1,10 @@
-import { AVAX_TOKEN } from '@avalabs/chains-sdk';
+import { AVAX_TOKEN } from '@avalabs/core-chains-sdk';
 import {
   AvalancheColorIcon,
   Stack,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 import { TransactionType } from '@src/background/services/history/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';

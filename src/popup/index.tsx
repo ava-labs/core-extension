@@ -14,7 +14,7 @@ import { LoadingContent } from './LoadingContent';
 import { FeatureFlagsContextProvider } from '@src/contexts/FeatureFlagsProvider';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@src/localization/init';
-import { darkTheme, ThemeProvider } from '@avalabs/k2-components';
+import { darkTheme, ThemeProvider } from '@avalabs/core-k2-components';
 
 const App = lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './popup').then((m) => ({

@@ -14,7 +14,7 @@ import {
   TextField,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { PageNav } from '../components/PageNav';
 import { useHistory } from 'react-router-dom';
 import { WordsLengthSelector } from '../components/WordsLengthSelector';

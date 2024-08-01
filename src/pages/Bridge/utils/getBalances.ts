@@ -1,6 +1,6 @@
-import { Asset, isBtcAsset, isNativeAsset } from '@avalabs/bridge-sdk';
+import { Asset, isBtcAsset, isNativeAsset } from '@avalabs/core-bridge-sdk';
 import { AssetBalance } from '@src/pages/Bridge/models';
-import { bnToBig } from '@avalabs/utils-sdk';
+import { bnToBig } from '@avalabs/core-utils-sdk';
 import {
   TokenWithBalanceERC20,
   TokenWithBalance,

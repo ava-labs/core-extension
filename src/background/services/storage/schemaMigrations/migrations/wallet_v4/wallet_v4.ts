@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { DerivationPath } from '@avalabs/wallets-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { WALLET_ID } from '../../models';
 import { getSecretsType } from './utils/getSecretsType';
 import { SecretType } from '@src/background/services/secrets/models';

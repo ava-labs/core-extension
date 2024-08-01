@@ -4,7 +4,7 @@ import {
   Stack,
   Tooltip,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { KeystoreFileContentInfo } from '@src/utils/keystore/models';
 import { useTranslation } from 'react-i18next';
 

@@ -1,4 +1,4 @@
-import { TextFieldProps, useTheme } from '@avalabs/k2-components';
+import { TextFieldProps, useTheme } from '@avalabs/core-k2-components';
 import { TextField } from '@mui/material';
 
 export const AccountNameInput = (props: TextFieldProps) => {

@@ -6,7 +6,7 @@ import {
   Typography,
   styled,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 const MethodName = styled(Typography)`
   ${({ theme }) => ({

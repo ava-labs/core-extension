@@ -1,6 +1,10 @@
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
-import { AlertCircleIcon, Stack, Typography } from '@avalabs/k2-components';
+import {
+  AlertCircleIcon,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 
 export const BridgeSanctions = () => {
   const { t } = useTranslation();

@@ -1,4 +1,4 @@
-import { Typography, useTheme, Button } from '@avalabs/k2-components';
+import { Typography, useTheme, Button } from '@avalabs/core-k2-components';
 import { Trans, useTranslation } from 'react-i18next';
 import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
 import {

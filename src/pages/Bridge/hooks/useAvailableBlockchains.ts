@@ -1,4 +1,4 @@
-import { Blockchain } from '@avalabs/bridge-sdk';
+import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useEffect, useState } from 'react';

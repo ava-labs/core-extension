@@ -4,7 +4,7 @@ import {
   Stack,
   Typography,
   Tooltip,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { ParaswapIcon } from '@src/components/icons/ParaswapIcon';
 
 export function ParaswapNotice() {

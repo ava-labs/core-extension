@@ -1,6 +1,6 @@
 import { BN } from 'bn.js';
-import { Network } from '@avalabs/chains-sdk';
-import { Covalent, GetAddressBalanceV2Item } from '@avalabs/covalent-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
+import { Covalent, GetAddressBalanceV2Item } from '@avalabs/core-covalent-sdk';
 import { singleton } from 'tsyringe';
 import { SettingsService } from '../../settings/SettingsService';
 import { TokenType, NftTokenWithBalance, NftBalanceResponse } from '../models';

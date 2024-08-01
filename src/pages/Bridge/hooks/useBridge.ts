@@ -7,7 +7,7 @@ import {
   WrapStatus,
   useMinimumTransferAmount,
   Asset,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 
 import { AssetBalance } from '../models';
@@ -17,7 +17,7 @@ import { useAvalancheBridge } from './useAvalancheBridge';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { useUnifiedBridge } from './useUnifiedBridge';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { BridgeStepDetails } from '@avalabs/bridge-unified';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { CustomGasSettings } from '@src/background/services/bridge/models';

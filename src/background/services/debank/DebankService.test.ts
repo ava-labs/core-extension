@@ -1,4 +1,4 @@
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { DefiItemType } from '../defi/models';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
@@ -457,6 +457,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
       vmName: NetworkVMType.EVM,
       chainName: '',
       rpcUrl: '',
+      explorerUrl: 'https://explorer.url',
       logoUri: '',
       networkToken: {
         name: 'Avalanche',

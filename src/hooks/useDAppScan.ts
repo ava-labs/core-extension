@@ -1,4 +1,4 @@
-import { resolve } from '@avalabs/utils-sdk';
+import { resolve } from '@avalabs/core-utils-sdk';
 import Blockaid from '@blockaid/client';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';

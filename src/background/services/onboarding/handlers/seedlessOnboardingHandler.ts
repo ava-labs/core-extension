@@ -8,7 +8,7 @@ import { injectable } from 'tsyringe';
 import { SecretType } from '../../secrets/models';
 import { SeedlessWallet } from '../../seedless/SeedlessWallet';
 import { SeedlessAuthProvider } from '../../wallet/models';
-import { DerivationPath } from '@avalabs/wallets-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { SecretsService } from '../../secrets/SecretsService';
 import { NetworkService } from '../../network/NetworkService';
 import { WalletService } from '../../wallet/WalletService';

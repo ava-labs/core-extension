@@ -4,7 +4,7 @@ import {
   Stack,
   TextField,
   styled,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Dispatch, SetStateAction } from 'react';

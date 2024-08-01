@@ -3,7 +3,7 @@ import {
   IconButton,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 

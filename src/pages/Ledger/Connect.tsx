@@ -6,7 +6,7 @@ import {
   CardContent,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { StyledNumberList } from '@src/components/common/StyledNumberList';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';

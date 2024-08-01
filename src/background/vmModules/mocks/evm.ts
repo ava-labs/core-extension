@@ -40,8 +40,8 @@ export class EVMModule implements Module {
     });
   }
 
-  getAddress() {
-    return Promise.resolve('EVM address');
+  async getAddress() {
+    return {};
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

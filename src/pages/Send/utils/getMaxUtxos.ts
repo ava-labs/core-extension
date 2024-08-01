@@ -1,6 +1,6 @@
 import { utils } from '@avalabs/avalanchejs';
-import { Network } from '@avalabs/chains-sdk';
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { LEDGER_TX_SIZE_LIMIT_BYTES } from '@src/background/services/ledger/models';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 const MAX_LEDGER_OUTPUTS = 64;
