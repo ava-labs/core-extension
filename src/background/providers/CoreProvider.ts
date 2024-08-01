@@ -18,6 +18,7 @@ import {
 } from '../connections/dAppConnection/models';
 import type { PartialBy, ProviderInfo } from '../models';
 import { ChainAgnostinProvider } from './ChainAgnosticProvider';
+import AbstractConnection from '../utils/messaging/AbstractConnection';
 
 interface ProviderState {
   accounts: string[] | null;
@@ -28,7 +29,7 @@ interface ProviderState {
 
 export class CoreProvider extends EventEmitter {
   #providerReadyPromise = new ProviderReadyPromise();
-
+  #contentScriptConnection: AbstractConnection;
   #chainagnosticProvider?: ChainAgnostinProvider;
 
   readonly info: ProviderInfo = {
@@ -67,9 +68,16 @@ export class CoreProvider extends EventEmitter {
     isUnlocked: () => Promise.resolve(this._isUnlocked),
   };
 
-  constructor(maxListeners: number = 100) {
+  constructor({
+    connection,
+    maxListeners = 100,
+  }: {
+    connection: AbstractConnection;
+    maxListeners?: number;
+  }) {
     super();
     this.setMaxListeners(maxListeners);
+    this.#contentScriptConnection = connection;
     this.#subscribe();
   }
 
@@ -96,10 +104,12 @@ export class CoreProvider extends EventEmitter {
    * Initializes provider state,  and collects dApp information
    */
   #init = async () => {
+    await this.#contentScriptConnection.connect();
+
     onDomReady(async () => {
       const domainMetadata = await getSiteMetadata();
 
-      this.#requestInternal({
+      this.#request({
         method: DAppProviderRequest.DOMAIN_METADATA_METHOD,
         params: domainMetadata,
       });
@@ -108,7 +118,7 @@ export class CoreProvider extends EventEmitter {
     });
 
     try {
-      const response = await this.#requestInternal({
+      const response = await this.#request({
         method: DAppProviderRequest.INIT_DAPP_STATE,
       });
 
@@ -159,17 +169,6 @@ export class CoreProvider extends EventEmitter {
     data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>
   ) => {
     return this.#chainagnosticProvider?.request({
-      data,
-      chainId: this.chainId,
-      sessionId: this._sessionId,
-    });
-  };
-
-  #requestInternal = (
-    data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>
-  ) => {
-    return this.#chainagnosticProvider?.request({
-      internal: true,
       data,
       chainId: this.chainId,
       sessionId: this._sessionId,

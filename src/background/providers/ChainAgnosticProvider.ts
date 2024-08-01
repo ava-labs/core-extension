@@ -33,8 +33,8 @@ export class ChainAgnostinProvider extends EventEmitter {
     chainId,
   }: {
     data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>;
-    sessionId: string;
-    chainId: string | null;
+    sessionId?: string;
+    chainId?: string | null;
   }) => {
     if (!data) {
       throw ethErrors.rpc.invalidRequest();

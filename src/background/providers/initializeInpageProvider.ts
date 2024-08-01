@@ -24,7 +24,7 @@ export function initializeProvider(
     }
   );
 
-  const provider = new Proxy(new CoreProvider(maxListeners), {
+  const provider = new Proxy(new CoreProvider({ maxListeners, connection }), {
     // some common libraries, e.g. web3@1.x, mess with our API
     deleteProperty: () => true,
   });
