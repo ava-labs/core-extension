@@ -59,11 +59,11 @@ yarn dev
 1. In Chrome, go to `chrome://extensions/`.
 2. At the top right make sure you have `Developer mode` turned on:
 
-<img src="./docs/screenshots/screenshot1.png" />
+<img src="./docs/images/screenshot1.png" />
 
 3. After `Developer mode` is turned on, at the top left should be `Load unpacked`:
 
-<img src="./docs/screenshots/screenshot2.png" />
+<img src="./docs/images/screenshot2.png" />
 
 4. Click `Load unpacked` and go to the extension folder.
 5. Select the `dist` folder and press `Select`.
