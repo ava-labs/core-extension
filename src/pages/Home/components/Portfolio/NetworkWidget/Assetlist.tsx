@@ -9,7 +9,7 @@ import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
-import { balanceToDisplayValue } from '@avalabs/utils-sdk';
+import { balanceToDisplayValue } from '@avalabs/core-utils-sdk';
 import {
   Button,
   ChevronRightIcon,
@@ -17,7 +17,7 @@ import {
   Typography,
   keyframes,
   styled,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { TokenEllipsis } from '@src/components/common/TokenEllipsis';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { PAndL } from '@src/components/common/ProfitAndLoss';

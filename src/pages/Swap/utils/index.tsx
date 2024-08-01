@@ -4,7 +4,7 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
-import { stringToBN } from '@avalabs/utils-sdk';
+import { stringToBN } from '@avalabs/core-utils-sdk';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { OptimalRate } from 'paraswap-core';
 import BN from 'bn.js';

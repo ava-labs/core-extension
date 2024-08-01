@@ -6,7 +6,7 @@ import {
   Select,
   TextFieldProps,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 const TriggerIcon = ({ ...rest }: IconBaseProps) => {
   const theme = useTheme();

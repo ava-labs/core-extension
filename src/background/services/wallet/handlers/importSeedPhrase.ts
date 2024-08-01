@@ -3,7 +3,7 @@ import {
   getXpubFromMnemonic,
   Avalanche,
   DerivationPath,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';

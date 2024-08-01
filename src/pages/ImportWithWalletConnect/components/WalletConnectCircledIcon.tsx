@@ -1,4 +1,4 @@
-import { WalletConnectIcon, Avatar } from '@avalabs/k2-components';
+import { WalletConnectIcon, Avatar } from '@avalabs/core-k2-components';
 
 export const WalletConnectCircledIcon = () => (
   <Avatar

@@ -1,4 +1,4 @@
-import { ListItemButton, styled } from '@avalabs/k2-components';
+import { ListItemButton, styled } from '@avalabs/core-k2-components';
 
 export const StyledListButton = styled(ListItemButton)`
   justify-content: space-between;

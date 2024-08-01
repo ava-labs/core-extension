@@ -2,8 +2,8 @@ import {
   Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
-} from '@avalabs/wallets-sdk';
-import { Network } from '@avalabs/chains-sdk';
+} from '@avalabs/core-wallets-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 
 import { BaseSendOptions, NativeSendOptions, SendOptions } from '../../models';
 

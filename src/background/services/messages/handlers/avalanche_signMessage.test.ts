@@ -4,7 +4,7 @@ import { Action } from '@src/background/services/actions/models';
 import { utils } from '@avalabs/avalanchejs';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 jest.mock('@avalabs/avalanchejs');
 jest.mock('@src/background/runtime/openApprovalWindow');

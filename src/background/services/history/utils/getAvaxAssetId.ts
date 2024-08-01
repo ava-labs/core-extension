@@ -1,4 +1,4 @@
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 
 export const getAvaxAssetId = (isTestnet: boolean) =>
   isTestnet

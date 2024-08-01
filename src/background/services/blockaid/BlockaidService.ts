@@ -1,7 +1,7 @@
 import { singleton } from 'tsyringe';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import Blockaid from '@blockaid/client';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import {
   EthSendTransactionParamsWithGas,
   TransactionAction,

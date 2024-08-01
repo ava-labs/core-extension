@@ -1,10 +1,10 @@
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAddressesInRangeHandler } from './avalanche_getAddressesInRange';
 import { buildRpcCall } from '@src/tests/test-utils';
 
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 
 describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts', () => {
   const getPrimaryAccountSecretsMock = jest.fn();

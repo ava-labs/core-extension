@@ -1,4 +1,4 @@
-import { Stack, useTheme } from '@avalabs/k2-components';
+import { Stack, useTheme } from '@avalabs/core-k2-components';
 import { ReactNode } from 'react';
 
 const innerCirclToOuterCircleRatio = 49.5 / 63;

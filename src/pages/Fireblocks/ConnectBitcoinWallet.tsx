@@ -7,7 +7,7 @@ import {
   useTheme,
   Scrollbars,
   Link,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { Trans, useTranslation } from 'react-i18next';
 import { useHistory, useParams } from 'react-router-dom';

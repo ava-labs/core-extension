@@ -1,4 +1,4 @@
-import { Box, Button, Scrollbars, Stack } from '@avalabs/k2-components';
+import { Box, Button, Scrollbars, Stack } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import type { Contact } from '@avalabs/types';
 

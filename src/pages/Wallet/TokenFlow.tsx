@@ -9,7 +9,7 @@ import { useHistory } from 'react-router';
 import { Activity } from '../Activity/Activity';
 import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { balanceToDisplayValue } from '@avalabs/utils-sdk';
+import { balanceToDisplayValue } from '@avalabs/core-utils-sdk';
 import {
   ArrowUpRightIcon,
   BridgeIcon,
@@ -20,7 +20,7 @@ import {
   QRCodeIcon,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import {
   FunctionNames,
   useIsFunctionAvailable,

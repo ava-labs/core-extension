@@ -1,5 +1,5 @@
-import { Blockchain, BridgeTransaction } from '@avalabs/bridge-sdk';
-import { ChainId } from '@avalabs/chains-sdk';
+import { Blockchain, BridgeTransaction } from '@avalabs/core-bridge-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
 
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -40,7 +40,10 @@ export function useLogoUriForBridgeTransaction(
         : ChainId.AVALANCHE_TESTNET_ID;
   }
 
-  const tokens = useTokensWithBalances(true, chainId);
+  const tokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+    chainId,
+  });
 
   if (!bridgeTransaction || !targetBlockchain) {
     return;

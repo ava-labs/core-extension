@@ -17,7 +17,7 @@ import { NetworkService } from '@src/background/services/network/NetworkService'
 import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
 import getAddressByVM from '../utils/getAddressByVM';
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 

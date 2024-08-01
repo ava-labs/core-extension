@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Avatar, Stack, Typography } from '@avalabs/k2-components';
+import { Avatar, Stack, Typography } from '@avalabs/core-k2-components';
 
 import {
   DefiLendingItem,

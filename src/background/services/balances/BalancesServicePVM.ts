@@ -1,5 +1,5 @@
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import {
   BlockchainId,
   CChainAtomicBalances,
@@ -18,7 +18,7 @@ import {
   TokenWithBalancePVM,
 } from './models';
 import BN from 'bn.js';
-import { balanceToDisplayValue, bnToBig } from '@avalabs/utils-sdk';
+import { balanceToDisplayValue, bnToBig } from '@avalabs/core-utils-sdk';
 import * as Sentry from '@sentry/browser';
 import sentryCaptureException, {
   SentryExceptionTypes,

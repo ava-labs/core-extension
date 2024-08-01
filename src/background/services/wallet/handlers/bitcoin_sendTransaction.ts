@@ -11,10 +11,10 @@ import { NetworkService } from '@src/background/services/network/NetworkService'
 import { ethErrors } from 'eth-rpc-errors';
 import { DisplayData_BitcoinSendTx } from '@src/background/services/wallet/handlers/models';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
 import { Account, WalletConnectAccount } from '../../accounts/models';
-import { BitcoinProvider } from '@avalabs/wallets-sdk';
+import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { TokenWithBalanceBTC } from '../../balances/models';
 import { BtcSendOptions } from '@src/pages/Send/models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
@@ -26,7 +26,7 @@ import {
   validateBtcSend,
 } from '@src/utils/send/btcSendUtils';
 import { SendErrorMessage } from '@src/utils/send/models';
-import { resolve } from '@avalabs/utils-sdk';
+import { resolve } from '@avalabs/core-utils-sdk';
 
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 

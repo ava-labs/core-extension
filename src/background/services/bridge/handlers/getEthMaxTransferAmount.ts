@@ -2,8 +2,8 @@ import {
   Blockchain,
   getAssets,
   getMaxTransferAmount as getEVMMaxTransferAmount,
-} from '@avalabs/bridge-sdk';
-import { bnToBig } from '@avalabs/utils-sdk';
+} from '@avalabs/core-bridge-sdk';
+import { bnToBig } from '@avalabs/core-utils-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { networkToBlockchain } from '@src/pages/Bridge/utils/blockchainConversion';
@@ -11,7 +11,7 @@ import Big from 'big.js';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../../network/NetworkService';
 import { BridgeService } from '../BridgeService';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { AccountsService } from '../../accounts/AccountsService';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';

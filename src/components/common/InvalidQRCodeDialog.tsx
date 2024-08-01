@@ -1,4 +1,4 @@
-import { Stack, Typography, Dialog, Button } from '@avalabs/k2-components';
+import { Stack, Typography, Dialog, Button } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import InvalidQRCodeIcon from '../icons/InvalidQRCodeIcon';
 

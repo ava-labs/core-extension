@@ -1,5 +1,5 @@
 import { BN } from 'bn.js';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { Glacier, TransactionDetails } from '@avalabs/glacier-sdk';
 import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
 import { startCase } from 'lodash';
@@ -14,7 +14,7 @@ import {
   TxHistoryItemToken,
 } from './models';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-import { balanceToDisplayValue } from '@avalabs/utils-sdk';
+import { balanceToDisplayValue } from '@avalabs/core-utils-sdk';
 import { getNftMetadata } from '@src/utils/getNftMetadata';
 import { getSmallImageForNFT } from '../balances/nft/utils/getSmallImageForNFT';
 import { resolve } from '@src/utils/promiseResolver';

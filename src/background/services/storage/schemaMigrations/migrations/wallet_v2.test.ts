@@ -1,7 +1,7 @@
 import wallet_v2 from './wallet_v2';
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import Joi from 'joi';
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 
 describe('background/services/storage/schemaMigrations/migrations/wallet_v2', () => {
   const validInputMnemonic = {

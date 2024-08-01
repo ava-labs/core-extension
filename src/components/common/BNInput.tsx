@@ -8,8 +8,8 @@ import {
   Button,
   styled,
   CircularProgress,
-} from '@avalabs/k2-components';
-import { bnToLocaleString, numberToBN } from '@avalabs/utils-sdk';
+} from '@avalabs/core-k2-components';
+import { bnToLocaleString, numberToBN } from '@avalabs/core-utils-sdk';
 
 Big.PE = 99;
 Big.NE = -18;

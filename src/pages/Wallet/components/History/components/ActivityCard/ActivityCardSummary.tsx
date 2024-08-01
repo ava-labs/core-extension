@@ -1,4 +1,4 @@
-import { Typography } from '@avalabs/k2-components';
+import { Typography } from '@avalabs/core-k2-components';
 import { TransactionType } from '@src/background/services/history/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { truncateAddress } from '@src/utils/truncateAddress';

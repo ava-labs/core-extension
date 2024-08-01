@@ -3,10 +3,10 @@ import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
-import { satoshiToBtc } from '@avalabs/bridge-sdk';
+import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 import { useTranslation } from 'react-i18next';
-import { bigIntToString } from '@avalabs/utils-sdk';
-import { BITCOIN_NETWORK, ChainId } from '@avalabs/chains-sdk';
+import { bigIntToString } from '@avalabs/core-utils-sdk';
+import { BITCOIN_NETWORK, ChainId } from '@avalabs/core-chains-sdk';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { DisplayData_BitcoinSendTx } from '@src/background/services/wallet/handlers/models';
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
@@ -18,7 +18,7 @@ import {
   Skeleton,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/components/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';

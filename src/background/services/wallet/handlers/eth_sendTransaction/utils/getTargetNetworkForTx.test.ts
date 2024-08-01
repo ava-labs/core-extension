@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { ChainId, NetworkVMType } from '@avalabs/chains-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
 import getTargetNetworkForTx from './getTargetNetworkForTx';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { StorageService } from '@src/background/services/storage/StorageService';

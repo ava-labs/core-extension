@@ -21,7 +21,7 @@ import {
   Switch,
   Tooltip,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useState } from 'react';
 import Dialog from '@src/components/common/Dialog';
 import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedlessAnalytics';

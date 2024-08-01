@@ -1,6 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { CircularProgress } from '@avalabs/k2-components';
+import { CircularProgress } from '@avalabs/core-k2-components';
 
 import { LoadingSendForm } from '@src/pages/Send/components/LoadingSendForm';
 

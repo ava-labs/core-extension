@@ -1,7 +1,7 @@
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
 
-import { HttpClient } from '@avalabs/utils-sdk';
+import { HttpClient } from '@avalabs/core-utils-sdk';
 import { AnalyticsServicePosthog } from './AnalyticsServicePosthog';
 import { AnalyticsService } from './AnalyticsService';
 import { SettingsService } from '../settings/SettingsService';
@@ -11,10 +11,10 @@ import sentryCaptureException, {
 import browser from 'webextension-polyfill';
 import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
 import { AnalyticsConsent } from '../settings/models';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { BlockchainId } from './models';
 
-jest.mock('@avalabs/utils-sdk');
+jest.mock('@avalabs/core-utils-sdk');
 jest.mock('@src/monitoring/sentryCaptureException');
 jest.mock('webextension-polyfill');
 jest.mock('./utils/encryptAnalyticsData');

@@ -1,5 +1,5 @@
 import { Contract } from 'ethers';
-import { stringToBN } from '@avalabs/utils-sdk';
+import { stringToBN } from '@avalabs/core-utils-sdk';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import ERC721 from '@openzeppelin/contracts/build/contracts/ERC721.json';
 import ERC1155 from '@openzeppelin/contracts/build/contracts/ERC1155.json';

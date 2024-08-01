@@ -10,7 +10,7 @@ import {
   Popper,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useLanguage } from '@src/hooks/useLanguages';

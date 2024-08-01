@@ -6,7 +6,7 @@ import {
   Stack,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { DropdownItem, Dropdown } from '@src/components/common/Dropdown';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';

@@ -16,7 +16,7 @@ import {
   hasUnconfirmedBTCBalance,
   isAvaxWithUnavailableBalance,
 } from '@src/background/services/balances/models';
-import { bnToLocaleString, numberToBN } from '@avalabs/utils-sdk';
+import { bnToLocaleString, numberToBN } from '@avalabs/core-utils-sdk';
 import BN from 'bn.js';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
@@ -31,7 +31,7 @@ import {
   Divider,
   Card,
   SearchBar,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { BNInput } from '@src/components/common/BNInput';
 import { TokenSelector } from './TokenSelector';
 import { TokenEllipsis } from './TokenEllipsis';

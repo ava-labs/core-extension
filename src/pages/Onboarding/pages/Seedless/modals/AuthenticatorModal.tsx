@@ -8,7 +8,7 @@ import {
   CopyIcon,
   toast,
   CircularProgress,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { Trans, useTranslation } from 'react-i18next';
 import { Overlay } from '@src/components/common/Overlay';
 import { TypographyLink } from '@src/pages/Onboarding/components/TypographyLink';

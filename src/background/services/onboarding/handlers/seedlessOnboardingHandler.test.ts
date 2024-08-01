@@ -1,5 +1,5 @@
 import { SecretType } from '../../secrets/models';
-import { DerivationPath } from '@avalabs/wallets-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { OnboardingService } from '../OnboardingService';
 import { StorageService } from '../../storage/StorageService';
@@ -34,8 +34,8 @@ const mockrMemorySession = {
 
 jest.mock('../../seedless/SeedlessWallet');
 
-jest.mock('@avalabs/wallets-sdk', () => {
-  const actual = jest.requireActual('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk', () => {
+  const actual = jest.requireActual('@avalabs/core-wallets-sdk');
 
   return {
     ...actual,

@@ -1,9 +1,9 @@
-import { ChainId, Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { ChainId, Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   blockchainToNetwork,
   networkToBlockchain,
 } from './blockchainConversion';
-import { Blockchain, BridgeConfig } from '@avalabs/bridge-sdk';
+import { Blockchain, BridgeConfig } from '@avalabs/core-bridge-sdk';
 import { t } from 'i18next';
 
 jest.mock('i18next', () => ({
@@ -17,6 +17,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
     chainId: ChainId.BITCOIN,
     vmName: NetworkVMType.BITCOIN,
     rpcUrl: 'https://www.test.com/',
+    explorerUrl: 'https://explorer.url',
     networkToken: {
       name: 'test',
       symbol: btcSymbol,
@@ -31,6 +32,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
     chainId: ChainId.BITCOIN_TESTNET,
     vmName: NetworkVMType.BITCOIN,
     rpcUrl: 'https://www.test1.com/',
+    explorerUrl: 'https://explorer.url',
     networkToken: {
       name: 'test',
       symbol: btcSymbol,
@@ -46,6 +48,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
     chainId: ChainId.AVALANCHE_MAINNET_ID,
     vmName: NetworkVMType.EVM,
     rpcUrl: 'https://www.test2.com/',
+    explorerUrl: 'https://explorer.url',
     networkToken: {
       name: 'test',
       symbol: 'AVAX',
@@ -61,6 +64,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
     chainId: ChainId.ETHEREUM_HOMESTEAD,
     vmName: NetworkVMType.EVM,
     rpcUrl: 'https://www.test3.com/',
+    explorerUrl: 'https://explorer.url',
     networkToken: {
       name: 'test',
       symbol: 'ETH',
@@ -257,6 +261,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       chainId: ChainId.AVALANCHE_MAINNET_ID,
       vmName: NetworkVMType.EVM,
       rpcUrl: 'https://www.test10.com/',
+      explorerUrl: 'https://explorer.url',
       networkToken: {
         name: 'test',
         symbol: 'AVAX',

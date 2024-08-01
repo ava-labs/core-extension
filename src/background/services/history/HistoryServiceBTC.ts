@@ -1,6 +1,10 @@
-import { Blockchain } from '@avalabs/bridge-sdk';
-import { BITCOIN_NETWORK, Network, NetworkVMType } from '@avalabs/chains-sdk';
-import { BitcoinHistoryTx, BitcoinProvider } from '@avalabs/wallets-sdk';
+import { Blockchain } from '@avalabs/core-bridge-sdk';
+import {
+  BITCOIN_NETWORK,
+  Network,
+  NetworkVMType,
+} from '@avalabs/core-chains-sdk';
+import { BitcoinHistoryTx, BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { getExplorerAddress } from '@src/utils/getExplorerAddress';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';

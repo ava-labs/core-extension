@@ -5,8 +5,8 @@ import {
   setBridgeEnvironment,
   useBridgeSDK,
   WrapStatus,
-} from '@avalabs/bridge-sdk';
-import { ChainId } from '@avalabs/chains-sdk';
+} from '@avalabs/core-bridge-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   isBridgeStateUpdateEventListener,

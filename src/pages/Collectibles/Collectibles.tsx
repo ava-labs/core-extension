@@ -7,7 +7,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Stack,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { CollectibleGrid } from './components/CollectibleGrid';
 import { CollectibleList } from './components/CollectibleList';

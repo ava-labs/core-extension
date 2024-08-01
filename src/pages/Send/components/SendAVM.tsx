@@ -1,6 +1,6 @@
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { stringToBN } from '@avalabs/utils-sdk';
+import { stringToBN } from '@avalabs/core-utils-sdk';
 
 import { TokenWithBalanceAVM } from '@src/background/services/balances/models';
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';

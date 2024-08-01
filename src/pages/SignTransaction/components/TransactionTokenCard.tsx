@@ -5,8 +5,8 @@ import {
   Theme,
   Tooltip,
   Typography,
-} from '@avalabs/k2-components';
-import { balanceToDisplayValue } from '@avalabs/utils-sdk';
+} from '@avalabs/core-k2-components';
+import { balanceToDisplayValue } from '@avalabs/core-utils-sdk';
 import {
   TransactionNft,
   TransactionToken,

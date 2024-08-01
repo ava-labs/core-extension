@@ -1,4 +1,4 @@
-import { Network as _Network } from '@avalabs/chains-sdk';
+import { Network as _Network } from '@avalabs/core-chains-sdk';
 import { EnsureDefined, PartialBy } from '@src/background/models';
 import { runtime } from 'webextension-polyfill';
 

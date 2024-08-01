@@ -8,7 +8,7 @@ import {
   TabPanel,
   Tabs,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { useWalletConnectContext } from '@src/contexts/WalletConnectContextProvider/WalletConnectContextProvider';
 import { WalletConnectQRCode } from './WalletConnectQRCode';

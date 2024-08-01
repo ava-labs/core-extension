@@ -1,4 +1,4 @@
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
 import { BlockaidService } from './BlockaidService';
@@ -122,6 +122,7 @@ const networkMock = {
   chainId: 123,
   vmName: NetworkVMType.EVM,
   rpcUrl: 'https://rpcurl.example',
+  explorerUrl: 'https://explorer.url',
   networkToken: {
     name: 'test network token',
     symbol: 'TNT',

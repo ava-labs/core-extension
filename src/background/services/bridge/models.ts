@@ -3,8 +3,8 @@ import {
   Blockchain,
   BridgeTransaction,
   WrapStatus,
-} from '@avalabs/bridge-sdk';
-import { Network } from '@avalabs/chains-sdk';
+} from '@avalabs/core-bridge-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { TokenWithBalance } from '../balances/models';
 
 export enum TransferEventType {

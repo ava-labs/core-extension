@@ -7,7 +7,7 @@ import {
 import { ContractCall, ContractParser } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { findToken } from '../../../../../../utils/findToken';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { TransactionDescription } from 'ethers';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { TokenType } from '@src/background/services/balances/models';

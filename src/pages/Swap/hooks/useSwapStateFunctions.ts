@@ -3,16 +3,19 @@ import { t } from 'i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Amount, DestinationInput, getTokenAddress } from '../utils';
-import { stringToBN } from '@avalabs/utils-sdk';
+import { stringToBN } from '@avalabs/core-utils-sdk';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import BN from 'bn.js';
-import { bnToLocaleString } from '@avalabs/utils-sdk';
+import { bnToLocaleString } from '@avalabs/core-utils-sdk';
 import { useSwap } from './useSwap';
+import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
 
 export function useSwapStateFunctions() {
-  const tokensWBalances = useTokensWithBalances();
+  const tokensWBalances = useTokensWithBalances({
+    disallowedAssets: DISALLOWED_SWAP_ASSETS,
+  });
   const { setNavigationHistoryData } = usePageHistory();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();

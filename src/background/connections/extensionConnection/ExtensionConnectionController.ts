@@ -19,7 +19,7 @@ import {
   responseLog,
 } from '@src/utils/logging';
 
-import { resolve } from '@avalabs/utils-sdk';
+import { resolve } from '@avalabs/core-utils-sdk';
 import { isDevelopment } from '@src/utils/environment';
 import './registry';
 import '../dAppConnection/registry';

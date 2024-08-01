@@ -1,5 +1,5 @@
 import { BN } from 'bn.js';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { container } from 'tsyringe';
 
 import { addXPChainToFavoriteIfNeeded } from './addXPChainsToFavoriteIfNeeded';

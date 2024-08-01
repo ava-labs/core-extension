@@ -1,4 +1,4 @@
-import { ChainId, NetworkToken } from '@avalabs/chains-sdk';
+import { ChainId, NetworkToken } from '@avalabs/core-chains-sdk';
 import { Account, AccountType } from '@src/background/services/accounts/models';
 import {
   Balances,

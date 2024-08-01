@@ -4,7 +4,7 @@ import {
   ExternalLinkIcon,
   Button,
   Link,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 export const toastCardWithLink = ({ url, title, label, id = '' }) => {
   const toaster = toast.custom(

@@ -1,4 +1,4 @@
-import { Stack, styled } from '@avalabs/k2-components';
+import { Stack, styled } from '@avalabs/core-k2-components';
 
 export const BalanceColumn = styled(Stack)`
   align-items: end;

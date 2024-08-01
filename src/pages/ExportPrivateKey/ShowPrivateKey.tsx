@@ -9,7 +9,7 @@ import {
   Typography,
   CopyIcon,
   toast,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';

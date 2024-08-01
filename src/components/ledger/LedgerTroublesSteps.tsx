@@ -6,7 +6,7 @@ import {
   SxProps,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { TypographyLink } from '../../pages/Onboarding/components/TypographyLink';
 
 export enum LedgerTroubleStepsFontVariant {

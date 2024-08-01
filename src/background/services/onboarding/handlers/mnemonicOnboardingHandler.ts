@@ -9,7 +9,7 @@ import {
   Avalanche,
   DerivationPath,
   getXpubFromMnemonic,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { AccountsService } from '../../accounts/AccountsService';
 import { OnboardingService } from '../OnboardingService';
 import { LockService } from '../../lock/LockService';

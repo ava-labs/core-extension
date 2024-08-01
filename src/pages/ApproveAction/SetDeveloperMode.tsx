@@ -1,7 +1,7 @@
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { useApproveAction } from '../../hooks/useApproveAction';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -10,7 +10,7 @@ import {
   GlobeIcon,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import useWillSwitchToPrimaryAccount from '@src/hooks/useWillSwitchToPrimaryAccount';
 

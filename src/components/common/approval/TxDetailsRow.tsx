@@ -1,4 +1,4 @@
-import { Stack, Typography, useTheme } from '@avalabs/k2-components';
+import { Stack, Typography, useTheme } from '@avalabs/core-k2-components';
 
 type TxDetailsRowProps = { label: string };
 

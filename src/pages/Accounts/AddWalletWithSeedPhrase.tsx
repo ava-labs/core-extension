@@ -12,10 +12,13 @@ import {
   styled,
   toast,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getAddressFromXPub, getXpubFromMnemonic } from '@avalabs/wallets-sdk';
+import {
+  getAddressFromXPub,
+  getXpubFromMnemonic,
+} from '@avalabs/core-wallets-sdk';
 
 import { Account } from '@src/background/services/accounts/models';
 import { PageTitle } from '@src/components/common/PageTitle';

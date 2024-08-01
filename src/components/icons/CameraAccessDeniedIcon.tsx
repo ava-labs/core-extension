@@ -2,7 +2,7 @@ import {
   CameraBlockedIcon,
   IconBaseProps,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 export default function CameraAccessDeniedIcon(props: IconBaseProps) {
   const theme = useTheme();

@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
-import { Tooltip } from '@avalabs/k2-components';
-import { truncateAddress } from '@avalabs/utils-sdk';
+import { Tooltip } from '@avalabs/core-k2-components';
+import { truncateAddress } from '@avalabs/core-utils-sdk';
 
 interface TokenEllipsisProps {
   maxLength: number;

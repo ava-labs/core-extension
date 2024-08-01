@@ -10,7 +10,7 @@ import {
 import { CommonError } from '@src/utils/errors';
 import { ethErrors } from 'eth-rpc-errors';
 
-jest.mock('@avalabs/utils-sdk');
+jest.mock('@avalabs/core-utils-sdk');
 
 jest.mock('ethers', () => ({
   ...jest.requireActual('ethers'),

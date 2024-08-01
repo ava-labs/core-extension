@@ -11,7 +11,7 @@ import {
   ShareIcon,
   Stack,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useMemo } from 'react';
 import {
   PChainTransactionType,

@@ -4,7 +4,7 @@ import {
   Typography,
   UsbIcon,
   QRCodeIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
 import { Trans, useTranslation } from 'react-i18next';
 import { MethodCard } from './components/MethodCard';

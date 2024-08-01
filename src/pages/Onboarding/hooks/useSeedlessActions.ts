@@ -3,7 +3,7 @@ import {
   SeedlessRegistartionResult,
   approveSeedlessRegistration,
 } from '../utils/approveSeedlessRegistration';
-import { toast } from '@avalabs/k2-components';
+import { toast } from '@avalabs/core-k2-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useHistory } from 'react-router-dom';
 import { OnboardingURLs } from '@src/background/services/onboarding/models';

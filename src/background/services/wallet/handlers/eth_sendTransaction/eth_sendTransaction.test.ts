@@ -15,8 +15,8 @@ import {
 } from './models';
 import { ethErrors } from 'eth-rpc-errors';
 import { AccountType } from '@src/background/services/accounts/models';
-import { NetworkContractToken, NetworkVMType } from '@avalabs/chains-sdk';
-import { JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { NetworkContractToken, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import getTargetNetworkForTx from './utils/getTargetNetworkForTx';
 import { encryptAnalyticsData } from '@src/background/services/analytics/utils/encryptAnalyticsData';
@@ -190,6 +190,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     vmName: NetworkVMType.EVM,
     chainName: '',
     rpcUrl: '',
+    explorerUrl: 'https://explorer.url',
     logoUri: '',
     networkToken: {
       name: 'Ethereum',

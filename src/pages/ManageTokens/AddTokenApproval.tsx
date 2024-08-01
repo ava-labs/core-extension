@@ -11,7 +11,7 @@ import {
   GlobeIcon,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { AddCustomTokenData } from '@src/background/services/settings/models';
 

@@ -5,7 +5,12 @@ import {
 } from '@src/background/services/onboarding/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
-import { AirdropIcon, Button, Stack, Typography } from '@avalabs/k2-components';
+import {
+  AirdropIcon,
+  Button,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 import { PageNav } from '../components/PageNav';
 import { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';

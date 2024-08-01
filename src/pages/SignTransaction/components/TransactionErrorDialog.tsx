@@ -1,4 +1,4 @@
-import { Typography, Stack, Button } from '@avalabs/k2-components';
+import { Typography, Stack, Button } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
 export const TransactionErrorDialog = ({ onConfirm }) => {

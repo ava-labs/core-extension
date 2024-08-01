@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@avalabs/k2-components';
+import { Stack, Typography } from '@avalabs/core-k2-components';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 import {
   TransactionType,

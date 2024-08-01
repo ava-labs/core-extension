@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Contact } from '@avalabs/types';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -9,7 +9,7 @@ import {
   TabPanel,
   Tabs,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';

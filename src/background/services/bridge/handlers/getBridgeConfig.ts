@@ -1,4 +1,4 @@
-import { BridgeConfig } from '@avalabs/bridge-sdk';
+import { BridgeConfig } from '@avalabs/core-bridge-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';

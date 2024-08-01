@@ -3,7 +3,7 @@ import {
   NetworkContractToken,
   NetworkToken,
   NetworkVMType,
-} from '@avalabs/chains-sdk';
+} from '@avalabs/core-chains-sdk';
 import { SettingsService } from './SettingsService';
 import {
   AnalyticsConsent,
@@ -47,6 +47,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     chainId: 123,
     vmName: NetworkVMType.EVM,
     rpcUrl: 'test.chain.com/rpc',
+    explorerUrl: 'https://explorer.url',
     networkToken: testNetworkToken,
     logoUri: 'test.chain.com/logo',
     primaryColor: 'orange',

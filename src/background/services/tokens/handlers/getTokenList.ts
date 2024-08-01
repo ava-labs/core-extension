@@ -1,4 +1,4 @@
-import { NetworkContractToken } from '@avalabs/chains-sdk';
+import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
@@ -8,7 +8,7 @@ import { TokenManagerService } from '../TokenManagerService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GET_NETWORK_TOKENS,
   { tokens: { [address: string]: NetworkContractToken } },
-  [number]
+  [number, string[]]
 >;
 
 @injectable()
@@ -18,7 +18,7 @@ export class GetTokensListHandler implements HandlerType {
   constructor(private tokenManagerService: TokenManagerService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [chainId] = request.params;
+    const [chainId, disallowedAssets] = request.params;
 
     const [tokens, err] = await resolve<NetworkContractToken[]>(
       this.tokenManagerService.getTokensByChainId(chainId)
@@ -35,6 +35,9 @@ export class GetTokensListHandler implements HandlerType {
       ...request,
       result: {
         tokens: tokens.reduce((allTokens, token) => {
+          if (disallowedAssets.includes(token.symbol)) {
+            return allTokens;
+          }
           allTokens[token.address] = token;
           return allTokens;
         }, {}),

@@ -1,4 +1,9 @@
-import { Slide, Stack, Typography, useTheme } from '@avalabs/k2-components';
+import {
+  Slide,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/core-k2-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { t } from 'i18next';
 

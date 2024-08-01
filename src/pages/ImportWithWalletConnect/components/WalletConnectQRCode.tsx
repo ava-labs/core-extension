@@ -1,5 +1,5 @@
 import QRCode from 'qrcode.react';
-import { Box, useTheme } from '@avalabs/k2-components';
+import { Box, useTheme } from '@avalabs/core-k2-components';
 
 import { AccountImportStatus } from '@src/contexts/WalletConnectContextProvider/models';
 

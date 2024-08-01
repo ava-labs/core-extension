@@ -1,4 +1,9 @@
-import { CheckIcon, MenuItem, Stack, Typography } from '@avalabs/k2-components';
+import {
+  CheckIcon,
+  MenuItem,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 
 export const MenuFilterItem = ({
   itemText,

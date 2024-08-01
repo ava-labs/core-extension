@@ -5,7 +5,7 @@ import {
   WalletConnectIcon,
   FireblocksIcon,
   Chip,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { Account, AccountType } from '@src/background/services/accounts/models';
 

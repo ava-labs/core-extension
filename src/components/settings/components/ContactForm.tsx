@@ -7,7 +7,7 @@ import {
 } from '@src/utils/isAddressValid';
 import { useTranslation } from 'react-i18next';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
-import { Stack, TextField } from '@avalabs/k2-components';
+import { Stack, TextField } from '@avalabs/core-k2-components';
 interface ContactFormProps {
   contact: Contact;
   handleChange: (contact: Contact, formValid: boolean) => void;

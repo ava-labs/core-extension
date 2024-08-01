@@ -1,4 +1,4 @@
-import { Blockchain, getNativeSymbol } from '@avalabs/bridge-sdk';
+import { Blockchain, getNativeSymbol } from '@avalabs/core-bridge-sdk';
 import { Chain } from '@avalabs/bridge-unified';
 
 export const getNativeTokenSymbol = (chain: Blockchain | Chain) => {

@@ -6,7 +6,7 @@ import {
   LedgerIcon,
   ListIcon,
   SxProps,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { SecretType } from '@src/background/services/secrets/models';
 import {

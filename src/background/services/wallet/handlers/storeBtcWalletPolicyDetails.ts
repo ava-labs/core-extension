@@ -1,4 +1,7 @@
-import { DerivationPath, getBech32AddressFromXPub } from '@avalabs/wallets-sdk';
+import {
+  DerivationPath,
+  getBech32AddressFromXPub,
+} from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { networks } from 'bitcoinjs-lib';

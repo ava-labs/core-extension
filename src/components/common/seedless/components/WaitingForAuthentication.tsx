@@ -1,5 +1,9 @@
 import { Trans, useTranslation } from 'react-i18next';
-import { CircularProgress, Stack, Typography } from '@avalabs/k2-components';
+import {
+  CircularProgress,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 
 import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
 

@@ -1,4 +1,4 @@
-import { Box } from '@avalabs/k2-components';
+import { Box } from '@avalabs/core-k2-components';
 import { AlertBox } from '@src/pages/Permissions/components/AlertBox';
 import { WarningBox } from '@src/pages/Permissions/components/WarningBox';
 import { useTranslation } from 'react-i18next';

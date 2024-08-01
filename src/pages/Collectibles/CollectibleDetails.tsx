@@ -9,7 +9,7 @@ import {
   Typography,
   TypographyProps,
   toast,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { PageTitle } from '@src/components/common/PageTitle';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';

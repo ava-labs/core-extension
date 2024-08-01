@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Stack } from '@avalabs/k2-components';
+import { Stack } from '@avalabs/core-k2-components';
 
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { EmptyContent } from '@src/components/common/EmptyContent';

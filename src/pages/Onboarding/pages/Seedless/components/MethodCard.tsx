@@ -5,7 +5,7 @@ import {
   ChevronRightIcon,
   CardActionArea,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { ReactElement } from 'react';
 import { InlineBold } from '@src/components/common/InlineBold';
 

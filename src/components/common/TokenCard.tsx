@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { Card, Stack, Typography } from '@avalabs/k2-components';
+import { Card, Stack, Typography } from '@avalabs/core-k2-components';
 
 interface TokenCardProps {
   name: string;

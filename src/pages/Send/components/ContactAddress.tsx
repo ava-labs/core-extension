@@ -4,7 +4,7 @@ import {
   toast,
   Tooltip,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
 import { truncateAddress } from '@src/utils/truncateAddress';

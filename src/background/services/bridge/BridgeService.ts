@@ -1,4 +1,4 @@
-import { resolve } from '@avalabs/utils-sdk';
+import { resolve } from '@avalabs/core-utils-sdk';
 import {
   Asset,
   BitcoinConfigAsset,
@@ -18,7 +18,7 @@ import {
   TrackerSubscription,
   transferAssetEVM as transferAssetSDK,
   WrapStatus,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 import { isNil, omit, omitBy } from 'lodash';
 import { EventEmitter } from 'events';
 import { NetworkService } from '../network/NetworkService';
@@ -43,7 +43,7 @@ import {
 import Big from 'big.js';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
-import { Avalanche, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import { Avalanche, JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { isWalletConnectAccount } from '../accounts/utils/typeGuards';
 import { FeatureGates } from '../featureFlags/models';
 import { wrapError } from '@src/utils/errors';

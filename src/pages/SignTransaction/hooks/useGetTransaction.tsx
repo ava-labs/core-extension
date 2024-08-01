@@ -6,7 +6,7 @@ import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkFee } from '@src/background/services/networkFee/models';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useDialog } from '@src/contexts/DialogContextProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';

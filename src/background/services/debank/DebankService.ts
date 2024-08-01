@@ -26,7 +26,7 @@ import {
 } from './models';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { txParamsToTransactionData } from './utils/txParamsToTransactionData';
 import {
   EthSendTransactionParamsWithGas,

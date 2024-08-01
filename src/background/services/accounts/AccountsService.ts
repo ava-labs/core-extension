@@ -17,7 +17,7 @@ import {
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { WalletService } from '../wallet/WalletService';
 import { NetworkService } from '../network/NetworkService';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { PermissionsService } from '../permissions/PermissionsService';
 import { isProductionBuild } from '@src/utils/environment';
 import { DerivedAddresses, SecretType } from '../secrets/models';

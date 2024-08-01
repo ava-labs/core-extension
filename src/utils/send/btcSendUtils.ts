@@ -3,7 +3,7 @@ import {
   BitcoinProvider,
   createTransferTx,
   getMaxTransferAmount,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { inputBytes } from 'coinselect/utils';
 
 import { BtcSendOptions } from '@src/pages/Send/models';

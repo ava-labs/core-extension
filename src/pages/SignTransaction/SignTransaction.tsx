@@ -8,7 +8,7 @@ import {
   Skeleton,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { BN } from 'bn.js';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useMemo, useState } from 'react';
@@ -73,7 +73,9 @@ export function SignTransactionPage() {
   const [transactionProgressState, setTransactionProgressState] = useState(
     TransactionProgressState.NOT_APPROVED
   );
-  const tokens = useTokensWithBalances(false, network?.chainId);
+  const tokens = useTokensWithBalances({
+    chainId: network?.chainId,
+  });
   const header = useSignTransactionHeader(transaction?.displayData);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();

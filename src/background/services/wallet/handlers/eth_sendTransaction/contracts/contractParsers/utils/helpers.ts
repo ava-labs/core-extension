@@ -1,4 +1,4 @@
-import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/utils-sdk';
+import { bigToLocaleString, bnToBig, hexToBN } from '@avalabs/core-utils-sdk';
 import {
   NetworkTokenWithBalance,
   TokenWithBalanceERC20,

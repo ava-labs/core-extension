@@ -28,7 +28,7 @@ import { concat, filter, from, map } from 'rxjs';
 import browser from 'webextension-polyfill';
 import { useConnectionContext } from './ConnectionProvider';
 import { LoadingContent } from '@src/popup/LoadingContent';
-import { toast } from '@avalabs/k2-components';
+import { toast } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { useAnalyticsContext } from './AnalyticsProvider';

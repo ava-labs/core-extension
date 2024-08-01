@@ -1,6 +1,6 @@
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useRef, useState } from 'react';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { useHistory } from 'react-router-dom';
 import { NetworkLogo } from '../../NetworkLogo';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,7 @@ import {
   Grow,
   ClickAwayListener,
   Box,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const defaultNetworks = [

@@ -1,4 +1,4 @@
-import { Blockchain, usePriceForChain } from '@avalabs/bridge-sdk';
+import { Blockchain, usePriceForChain } from '@avalabs/core-bridge-sdk';
 import { Chain } from '@avalabs/bridge-unified';
 import { useMemo } from 'react';
 import { networkToBlockchain } from '../utils/blockchainConversion';

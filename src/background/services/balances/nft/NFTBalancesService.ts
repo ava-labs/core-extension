@@ -1,5 +1,5 @@
 import { injectAll, singleton } from 'tsyringe';
-import { ChainId, Network } from '@avalabs/chains-sdk';
+import { ChainId, Network } from '@avalabs/core-chains-sdk';
 import { NFTService } from './models';
 import './registry';
 import { NFTBalancesServiceCovalent } from './NFTBalancesServiceCovalent';

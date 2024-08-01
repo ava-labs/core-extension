@@ -1,4 +1,4 @@
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -16,7 +16,7 @@ import {
   styled,
   Skeleton,
   Badge,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { filterBridgeStateToNetwork } from '@src/background/services/bridge/utils';

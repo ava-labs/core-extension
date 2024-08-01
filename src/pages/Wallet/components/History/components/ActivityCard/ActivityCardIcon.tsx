@@ -8,7 +8,7 @@ import {
   Stack,
   SwapIcon,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 import {
   TransactionType,

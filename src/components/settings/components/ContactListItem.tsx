@@ -2,7 +2,7 @@ import type { Contact } from '@avalabs/types';
 import { SettingsPages } from '../models';
 import { useHistory, useLocation } from 'react-router-dom';
 import { ContactInfo } from './ContactInfo';
-import { Divider, ListItem, ListItemButton } from '@avalabs/k2-components';
+import { Divider, ListItem, ListItemButton } from '@avalabs/core-k2-components';
 
 interface ContactListItemProps {
   contact: Contact;

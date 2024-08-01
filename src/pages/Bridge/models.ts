@@ -1,4 +1,4 @@
-import { Asset, Blockchain } from '@avalabs/bridge-sdk';
+import { Asset, Blockchain } from '@avalabs/core-bridge-sdk';
 import { BridgeAsset } from '@avalabs/bridge-unified';
 import Big from 'big.js';
 

@@ -6,7 +6,7 @@ import {
   Tooltip,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { PchainTxHistoryItem } from '@src/background/services/history/models';
 import { PrimaryNetworkMethodIcon } from './PrimaryNetworkMethodIcon';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -14,7 +14,7 @@ import { PChainTransactionType } from '@avalabs/glacier-sdk';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { truncateAddress } from '@avalabs/utils-sdk';
+import { truncateAddress } from '@avalabs/core-utils-sdk';
 
 export interface PchainActivityCardProp {
   historyItem: PchainTxHistoryItem;

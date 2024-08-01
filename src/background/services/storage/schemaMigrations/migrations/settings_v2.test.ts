@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 import {
   AnalyticsConsent,

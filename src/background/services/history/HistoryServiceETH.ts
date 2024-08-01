@@ -1,12 +1,12 @@
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import { HistoryServiceBridgeHelper } from './HistoryServiceBridgeHelper';
 import { TransactionType, TxHistoryItem } from './models';
 
-import { balanceToDisplayValue } from '@avalabs/utils-sdk';
+import { balanceToDisplayValue } from '@avalabs/core-utils-sdk';
 import { BN } from 'bn.js';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import {
@@ -14,7 +14,7 @@ import {
   getErc20Txs,
   getNormalTxs,
   NormalTx,
-} from '@avalabs/etherscan-sdk';
+} from '@avalabs/core-etherscan-sdk';
 import { TokenType } from '../balances/models';
 
 @singleton()

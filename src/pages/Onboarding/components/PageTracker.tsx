@@ -1,4 +1,4 @@
-import { MobileStepper } from '@avalabs/k2-components';
+import { MobileStepper } from '@avalabs/core-k2-components';
 
 interface PageTrackerrProps {
   steps: number;

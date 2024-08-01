@@ -1,4 +1,4 @@
-import { Avalanche, BitcoinProvider } from '@avalabs/wallets-sdk';
+import { Avalanche, BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
