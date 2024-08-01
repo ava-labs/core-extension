@@ -2,6 +2,7 @@
   "name": "avalanche-extension",
   "version": "0.0.0",
   "license": "Limited Ecosystem License",
+  "private": true,
   "scripts": {
     "start": "yarn dev",
     "build:inpage": "webpack --config webpack.inpage.js",
@@ -22,7 +23,7 @@
     "sentry": "node sentryscript.js"
   },
   "dependencies": {
-    "@avalabs/vm-module-types": "0.0.15",
+    "@avalabs/vm-module-types": "0.1.0",
     "@avalabs/avalanchejs": "4.0.5",
     "@avalabs/bridge-unified": "2.1.0",
     "@avalabs/core-bridge-sdk": "3.0.0",
