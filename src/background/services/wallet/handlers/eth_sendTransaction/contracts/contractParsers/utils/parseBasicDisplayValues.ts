@@ -8,16 +8,17 @@ import {
 } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { findToken } from '../../../../../../../utils/findToken';
+import { TokenWithBalanceEVM } from '@src/background/services/balances/models';
 
 export async function parseBasicDisplayValues(
   network: Network,
   request: EthSendTransactionParamsWithGas,
   description: TransactionDescription | null
 ): Promise<TransactionDisplayValues> {
-  const networkTokenWithBalance = await findToken(
+  const networkTokenWithBalance = (await findToken(
     network.networkToken.symbol,
     network
-  );
+  )) as TokenWithBalanceEVM;
   const name = description?.name;
 
   const sendTokenList: TransactionToken[] = [];

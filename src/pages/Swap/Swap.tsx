@@ -15,7 +15,7 @@ import {
 } from '@src/hooks/useIsFunctionAvailable';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import { TokenWithBalanceEVM } from '@src/background/services/balances/models';
 import BN from 'bn.js';
 import { useTranslation } from 'react-i18next';
 import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
@@ -248,7 +248,7 @@ export function Swap() {
         >
           <TokenSelect
             label={t('From')}
-            onTokenChange={(token: TokenWithBalance) => {
+            onTokenChange={(token: TokenWithBalanceEVM) => {
               onTokenChange({
                 token,
                 destination: 'to',
@@ -332,7 +332,7 @@ export function Swap() {
           </Stack>
           <TokenSelect
             label={t('To')}
-            onTokenChange={(token: TokenWithBalance) => {
+            onTokenChange={(token: TokenWithBalanceEVM) => {
               onTokenChange({
                 token,
                 fromToken: selectedFromToken,

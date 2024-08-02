@@ -48,7 +48,7 @@ import { isWalletConnectAccount } from '../accounts/utils/typeGuards';
 import { FeatureGates } from '../featureFlags/models';
 import { wrapError } from '@src/utils/errors';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { TokenWithBalanceBTC } from '../balances/models';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {

@@ -1,3 +1,4 @@
+import { getTokenPrice } from '@src/background/services/balances/models';
 import { isBitcoinChainId } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
@@ -54,7 +55,7 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
       }
 
       const isMissingPrices = Object.values(tokensForActiveAccount).some(
-        (token) => token.priceUSD === undefined
+        (token) => getTokenPrice(token) === undefined
       );
 
       networksIsMissingPrices[networkId] = isMissingPrices;

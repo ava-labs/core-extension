@@ -1,4 +1,4 @@
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import { TokenWithBalanceEVM } from '@src/background/services/balances/models';
 import { t } from 'i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -21,8 +21,8 @@ export function useSwapStateFunctions() {
     useSendAnalyticsData();
   const { getPageHistoryData } = usePageHistory();
   const pageHistory: {
-    selectedFromToken?: TokenWithBalance;
-    selectedToToken?: TokenWithBalance;
+    selectedFromToken?: TokenWithBalanceEVM;
+    selectedToToken?: TokenWithBalanceEVM;
     destinationInputField?: DestinationInput;
     tokenValue?: Amount;
   } = getPageHistoryData();
@@ -31,8 +31,8 @@ export function useSwapStateFunctions() {
     useState<DestinationInput>('');
 
   const [selectedFromToken, setSelectedFromToken] =
-    useState<TokenWithBalance>();
-  const [selectedToToken, setSelectedToToken] = useState<TokenWithBalance>();
+    useState<TokenWithBalanceEVM>();
+  const [selectedToToken, setSelectedToToken] = useState<TokenWithBalanceEVM>();
   const [isReversed, setIsReversed] = useState(false);
   const [swapWarning, setSwapWarning] = useState('');
   const [defaultFromValue, setFromDefaultValue] = useState<BN>();
@@ -54,8 +54,8 @@ export function useSwapStateFunctions() {
     (
       amount: Amount,
       destinationInput: DestinationInput,
-      sourceToken?: TokenWithBalance,
-      destinationToken?: TokenWithBalance
+      sourceToken?: TokenWithBalanceEVM,
+      destinationToken?: TokenWithBalanceEVM
     ) => {
       if (!sourceToken || !destinationToken) {
         return;
@@ -139,8 +139,8 @@ export function useSwapStateFunctions() {
     toToken,
     fromValue,
   }: {
-    fromToken?: TokenWithBalance;
-    toToken?: TokenWithBalance;
+    fromToken?: TokenWithBalanceEVM;
+    toToken?: TokenWithBalanceEVM;
     fromValue?: Amount;
   }) => {
     if (!fromToken || !toToken) {
@@ -161,8 +161,8 @@ export function useSwapStateFunctions() {
 
   const reverseTokens = (
     reversed: boolean,
-    fromToken?: TokenWithBalance,
-    toToken?: TokenWithBalance,
+    fromToken?: TokenWithBalanceEVM,
+    toToken?: TokenWithBalanceEVM,
     fromValue?: Amount
   ) => {
     if (
@@ -195,10 +195,10 @@ export function useSwapStateFunctions() {
     fromToken,
     fromValue,
   }: {
-    token: TokenWithBalance;
+    token: TokenWithBalanceEVM;
     destination: 'from' | 'to';
-    toToken?: TokenWithBalance;
-    fromToken?: TokenWithBalance;
+    toToken?: TokenWithBalanceEVM;
+    fromToken?: TokenWithBalanceEVM;
     fromValue?: Amount;
   }) => {
     setSwapWarning('');

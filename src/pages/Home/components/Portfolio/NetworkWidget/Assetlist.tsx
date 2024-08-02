@@ -1,6 +1,8 @@
 import {
   TokenType,
   TokenWithBalance,
+  getBalanceInCurrency,
+  getUnconfirmedBalanceInCurrency,
 } from '@src/background/services/balances/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
@@ -9,7 +11,7 @@ import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { InlineTokenEllipsis } from '@src/components/common/InlineTokenEllipsis';
-import { balanceToDisplayValue } from '@avalabs/core-utils-sdk';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 import {
   Button,
   ChevronRightIcon,
@@ -70,13 +72,26 @@ export function Assetlist({ assetList }: AssetListProps) {
 
   const filteredAssetList = assetList
     .filter((asset) => getTokenVisibility(asset))
-    .sort((a, b) => (b.balanceUSD ?? 0) - (a.balanceUSD ?? 0));
+    .sort(
+      (a, b) => (getBalanceInCurrency(b) ?? 0) - (getBalanceInCurrency(a) ?? 0)
+    );
 
   const restAssetCount = filteredAssetList.length - maxAssetCount;
 
   return (
     <>
       {filteredAssetList.slice(0, maxAssetCount).map((token) => {
+        const totalBalance =
+          token.balance && hasUnconfirmedBalance(token)
+            ? new TokenUnit(
+                token.balance + token.unconfirmedBalance,
+                token.decimals,
+                token.symbol
+              )
+            : new TokenUnit(token.balance, token.decimals, token.symbol);
+
+        const balanceInCurrency = getBalanceInCurrency(token);
+
         return (
           <AssetlistRow
             data-testid={`${token.symbol.toLowerCase()}-token-list-row`}
@@ -110,28 +125,21 @@ export function Assetlist({ assetList }: AssetListProps) {
                   <TokenEllipsis maxLength={12} text={token.name} />
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {token.balance && hasUnconfirmedBalance(token)
-                    ? balanceToDisplayValue(
-                        token.balance.add(token.unconfirmedBalance),
-                        token.decimals
-                      )
-                    : token.balanceDisplayValue}{' '}
+                  {totalBalance.toDisplay()}{' '}
                   <InlineTokenEllipsis maxLength={8} text={token.symbol} />
                 </Typography>
               </Stack>
             </Stack>
             <BalanceColumn className="balance-column">
-              {typeof token.balanceUSD === 'number' && (
+              {typeof balanceInCurrency === 'number' && (
                 <Typography
                   data-testid="token-row-currency-balance"
                   variant="caption"
                   sx={{ fontWeight: 'bold' }}
                 >
                   {currencyFormatter(
-                    token.balanceUSD +
-                      ((hasUnconfirmedBalance(token)
-                        ? token.unconfirmedBalanceUSD
-                        : 0) || 0)
+                    balanceInCurrency +
+                      (getUnconfirmedBalanceInCurrency(token) ?? 0)
                   )}
                 </Typography>
               )}

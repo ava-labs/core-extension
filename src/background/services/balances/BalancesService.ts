@@ -17,7 +17,7 @@ import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
 import { TokensPriceShortData } from '../tokens/models';
 import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
 import { BalancesServiceAVM } from './BalancesServiceAVM';
-import { Network } from '../network/models';
+import { NetworkWithCaipId } from '../network/models';
 
 @singleton()
 export class BalancesService {
@@ -44,7 +44,7 @@ export class BalancesService {
   }
 
   async getBalancesForNetwork(
-    network: Network,
+    network: NetworkWithCaipId,
     accounts: Account[],
     priceChanges?: TokensPriceShortData
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {

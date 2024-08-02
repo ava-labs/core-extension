@@ -1,9 +1,9 @@
 import { NetworkContractToken, NetworkToken } from '@avalabs/core-chains-sdk';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import {
   PChainBalance as GlacierPchainBalance,
   XChainBalances as GlacierXchainBalance,
 } from '@avalabs/glacier-sdk';
-import { BitcoinInputUTXOWithOptionalScript } from '@avalabs/core-wallets-sdk';
 import { EnsureDefined } from '@src/background/models';
 import BN from 'bn.js';
 
@@ -38,16 +38,6 @@ export enum TokenType {
   ERC20 = 'ERC20',
   ERC721 = 'ERC721',
   ERC1155 = 'ERC1155',
-}
-
-export interface TokenWithBalanceBTC extends NetworkTokenWithBalance {
-  logoUri: string;
-  utxos: BitcoinInputUTXOWithOptionalScript[];
-  utxosUnconfirmed?: BitcoinInputUTXOWithOptionalScript[];
-  unconfirmedBalance?: BN;
-  unconfirmedBalanceDisplayValue?: string;
-  unconfirmedBalanceUsdDisplayValue?: string;
-  unconfirmedBalanceUSD?: number;
 }
 
 export interface TokenWithBalancePVM extends NetworkTokenWithBalance {
@@ -208,3 +198,32 @@ export const isAvaxWithUnavailableBalance = (
       ('locked' in token || 'unlockedUnstaked' in token) &&
       token.available?.toNumber() !== token.balance?.toNumber()
   );
+
+export const isNewTokenBalance = (
+  token?: TokenWithBalance
+): token is TokenWithBalanceBTC =>
+  !token ? false : typeof token.balance === 'bigint';
+
+export const getTokenPrice = (token?: TokenWithBalance | null) => {
+  if (!token) {
+    return;
+  }
+
+  return isNewTokenBalance(token) ? token.priceInCurrency : token.priceUSD;
+};
+
+export const getBalanceInCurrency = (token?: TokenWithBalance) => {
+  if (!token) {
+    return undefined;
+  }
+
+  return isNewTokenBalance(token) ? token.balanceInCurrency : token.balanceUSD;
+};
+
+export const getUnconfirmedBalanceInCurrency = (token?: TokenWithBalance) => {
+  if (!token || !hasUnconfirmedBTCBalance(token)) {
+    return undefined;
+  }
+
+  return token.unconfirmedBalanceInCurrency;
+};

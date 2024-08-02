@@ -9,7 +9,10 @@ import { findToken } from '../../../../../../utils/findToken';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { TransactionDescription } from 'ethers';
 import { bigintToBig } from '@src/utils/bigintToBig';
-import { TokenType } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalanceEVM,
+} from '@src/background/services/balances/models';
 
 type ApproveData = {
   spender: string;
@@ -33,7 +36,10 @@ export async function approveTxHandler(
   if (!request.to) {
     throw new Error('Contract address not defined');
   }
-  const tokenToBeApproved = await findToken(request.to.toLowerCase(), network);
+  const tokenToBeApproved = (await findToken(
+    request.to.toLowerCase(),
+    network
+  )) as TokenWithBalanceEVM;
 
   const displayData = await parseBasicDisplayValues(
     network,

@@ -2,7 +2,6 @@ import {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
   TokenWithBalanceAVM,
-  TokenWithBalanceBTC,
   TokenWithBalanceERC20,
   TokenWithBalancePVM,
 } from '@src/background/services/balances/models';
@@ -10,6 +9,7 @@ import {
 import { Network } from '@src/background/services/network/models';
 import { Account } from '@src/background/services/accounts/models';
 import { AvmCapableAccount, PvmCapableAccount } from './hooks/useSend/models';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 export type SendPageProps<Provider, Token, Tokens> = {
   network: Network;
