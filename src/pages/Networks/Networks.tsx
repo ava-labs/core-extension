@@ -10,7 +10,7 @@ import {
   TabPanel,
   Tabs,
   styled,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { PageTitle } from '@src/components/common/PageTitle';

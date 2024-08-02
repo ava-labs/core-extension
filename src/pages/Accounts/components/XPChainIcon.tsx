@@ -3,7 +3,7 @@ import {
   Avatar,
   Badge,
   Stack,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 export const XPChainIcon = () => (
   <Badge

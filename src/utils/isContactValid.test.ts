@@ -1,14 +1,14 @@
 import { Contact } from '@avalabs/types';
 import { isContactValid } from './isContactValid';
 import { isAddress } from 'ethers';
-import { isBech32Address } from '@avalabs/bridge-sdk';
+import { isBech32Address } from '@avalabs/core-bridge-sdk';
 import { isValidXPAddress } from './isAddressValid';
 
 jest.mock('ethers', () => ({
   isAddress: jest.fn(),
 }));
 
-jest.mock('@avalabs/bridge-sdk', () => ({
+jest.mock('@avalabs/core-bridge-sdk', () => ({
   isBech32Address: jest.fn(),
 }));
 jest.mock('./isAddressValid', () => ({

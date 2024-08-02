@@ -1,10 +1,10 @@
-import { Blockchain, useBridgeSDK } from '@avalabs/bridge-sdk';
+import { Blockchain, useBridgeSDK } from '@avalabs/core-bridge-sdk';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useAvailableBlockchains } from '../hooks/useAvailableBlockchains';
 import { blockchainToNetwork } from '../utils/blockchainConversion';
 import { useTranslation } from 'react-i18next';
-import { Button, Stack, Typography } from '@avalabs/k2-components';
+import { Button, Stack, Typography } from '@avalabs/core-k2-components';
 
 export const BridgeUnknownNetwork = ({ onSelect }) => {
   const { t } = useTranslation();

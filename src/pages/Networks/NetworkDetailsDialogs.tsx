@@ -1,4 +1,4 @@
-import { Button, Stack, Typography } from '@avalabs/k2-components';
+import { Button, Stack, Typography } from '@avalabs/core-k2-components';
 import Dialog from '@src/components/common/Dialog';
 import { useTranslation } from 'react-i18next';
 

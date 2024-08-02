@@ -8,7 +8,7 @@ import {
   SortOrder,
 } from '@avalabs/glacier-sdk';
 import { singleton } from 'tsyringe';
-import { wait } from '@avalabs/utils-sdk';
+import { wait } from '@avalabs/core-utils-sdk';
 
 import { CommonError } from '@src/utils/errors';
 

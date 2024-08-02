@@ -19,7 +19,7 @@ import {
   AlertTriangleIcon,
   Badge,
   CheckIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { NetworkLogoK2 } from '@src/components/common/NetworkLogoK2';
 import { isBitcoin } from '@src/utils/isBitcoin';

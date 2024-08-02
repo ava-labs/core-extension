@@ -4,7 +4,7 @@ import {
   CircularProgress,
   HomeIcon,
   Box,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { LanguageSelector } from './components/LanguageSelector';
 import {
   Redirect,

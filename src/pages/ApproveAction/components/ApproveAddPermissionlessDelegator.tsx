@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Divider, Typography } from '@avalabs/k2-components';
+import { Divider, Typography } from '@avalabs/core-k2-components';
 
 import {
   ApprovalSection,
@@ -10,7 +10,7 @@ import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 
 import { TruncatedIdentifier } from './TruncatedIdentifier';
 import { AvaxAmount } from './AvaxAmount';
-import { Avalanche } from '@avalabs/wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { isPrimarySubnet } from '@src/utils/isPrimarySubnet';
 
 type AddPermssionlessDelegatorProps = {

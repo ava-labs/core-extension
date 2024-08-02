@@ -10,8 +10,8 @@ import type {
   TransactionResponse,
   TransactionArguments,
 } from 'fireblocks-sdk';
-import { wait } from '@avalabs/utils-sdk';
-import { satoshiToBtc } from '@avalabs/bridge-sdk';
+import { wait } from '@avalabs/core-utils-sdk';
+import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 
 import { wrapError } from '@src/utils/errors';
 

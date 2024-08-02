@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Scrollbars, Stack, Typography } from '@avalabs/k2-components';
+import { Scrollbars, Stack, Typography } from '@avalabs/core-k2-components';
 
 import { PageTitle } from '@src/components/common/PageTitle';
 import { getHexStringToBytes } from '@src/utils/getHexStringToBytes';

@@ -1,4 +1,4 @@
-import { getEvmAddressFromPubKey } from '@avalabs/wallets-sdk';
+import { getEvmAddressFromPubKey } from '@avalabs/core-wallets-sdk';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';

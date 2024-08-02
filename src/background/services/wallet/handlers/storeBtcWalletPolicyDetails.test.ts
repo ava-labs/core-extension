@@ -1,4 +1,7 @@
-import { DerivationPath, getBech32AddressFromXPub } from '@avalabs/wallets-sdk';
+import {
+  DerivationPath,
+  getBech32AddressFromXPub,
+} from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { networks } from 'bitcoinjs-lib';
 import { AccountType } from '../../accounts/models';
@@ -7,7 +10,7 @@ import { SecretsService } from '../../secrets/SecretsService';
 import { StoreBtcWalletPolicyDetails } from './storeBtcWalletPolicyDetails';
 import { buildRpcCall } from '@src/tests/test-utils';
 
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 
 describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts', () => {
   const request = {

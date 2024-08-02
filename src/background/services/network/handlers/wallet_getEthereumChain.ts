@@ -4,7 +4,7 @@ import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 import { AddEthereumChainParameter } from '../models';
 import { ethErrors } from 'eth-rpc-errors';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 
 export const networkToGetEthChainResponse = (
   network: Network

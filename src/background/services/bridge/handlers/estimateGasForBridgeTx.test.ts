@@ -1,5 +1,5 @@
 import Big from 'big.js';
-import { Blockchain } from '@avalabs/bridge-sdk';
+import { Blockchain } from '@avalabs/core-bridge-sdk';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { serializeToJSON } from '@src/background/serialization/serialize';

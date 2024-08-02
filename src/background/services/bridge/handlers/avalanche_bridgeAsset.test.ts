@@ -5,9 +5,9 @@ import {
   getAssets,
   transferAssetBTC,
   transferAssetEVM,
-} from '@avalabs/bridge-sdk';
-import { ChainId } from '@avalabs/chains-sdk';
-import { bnToBig, stringToBN } from '@avalabs/utils-sdk';
+} from '@avalabs/core-bridge-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
+import { bnToBig, stringToBN } from '@avalabs/core-utils-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { AccountType, PrimaryAccount } from '../../accounts/models';
@@ -30,8 +30,8 @@ import { getBtcInputUtxos } from '@src/utils/send/btcSendUtils';
 
 jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('@src/utils/send/btcSendUtils');
-jest.mock('@avalabs/bridge-sdk', () => {
-  const originalModule = jest.requireActual('@avalabs/bridge-sdk');
+jest.mock('@avalabs/core-bridge-sdk', () => {
+  const originalModule = jest.requireActual('@avalabs/core-bridge-sdk');
   return {
     ...originalModule,
     transferAssetBTC: jest.fn(),

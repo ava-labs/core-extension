@@ -3,7 +3,7 @@ import {
   Button,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { ExportErrorCode } from '@src/hooks/useSeedlessMnemonicExport';
 import { useTranslation } from 'react-i18next';
 

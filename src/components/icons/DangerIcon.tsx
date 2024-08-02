@@ -1,4 +1,4 @@
-import { AlertCircleIcon, Stack, useTheme } from '@avalabs/k2-components';
+import { AlertCircleIcon, Stack, useTheme } from '@avalabs/core-k2-components';
 
 type DangerIconProps = {
   size?: number;

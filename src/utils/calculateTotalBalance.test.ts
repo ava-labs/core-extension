@@ -3,7 +3,7 @@ import {
   Network,
   NetworkToken,
   NetworkVMType,
-} from '@avalabs/chains-sdk';
+} from '@avalabs/core-chains-sdk';
 import { Account, AccountType } from '@src/background/services/accounts/models';
 import {
   Balances,
@@ -36,6 +36,7 @@ describe('utils/calculateTotalBalance', () => {
     chainId: ChainId.AVALANCHE_MAINNET_ID,
     vmName: NetworkVMType.EVM,
     rpcUrl: 'test.one.com/rpc',
+    explorerUrl: 'https://explorer.url',
     networkToken: networkToken1,
     logoUri: 'test.one.com/logo',
     primaryColor: 'pink',

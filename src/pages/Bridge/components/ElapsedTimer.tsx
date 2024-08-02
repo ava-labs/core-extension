@@ -5,7 +5,7 @@ import {
   Tooltip,
   Typography,
   styled,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { useStopwatch } from 'react-timer-hook';

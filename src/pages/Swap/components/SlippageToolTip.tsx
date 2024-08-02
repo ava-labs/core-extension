@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { InfoCircleIcon, Tooltip } from '@avalabs/k2-components';
+import { InfoCircleIcon, Tooltip } from '@avalabs/core-k2-components';
 
 export function SlippageToolTip() {
   const { t } = useTranslation();

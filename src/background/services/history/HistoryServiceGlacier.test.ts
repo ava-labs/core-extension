@@ -3,7 +3,7 @@ import {
   Network,
   NetworkToken,
   NetworkVMType,
-} from '@avalabs/chains-sdk';
+} from '@avalabs/core-chains-sdk';
 import {
   CurrencyCode,
   Erc20Token,
@@ -166,6 +166,7 @@ const network: Network = {
   chainId: 123,
   vmName: NetworkVMType.EVM,
   rpcUrl: 'network.rpc.url',
+  explorerUrl: 'https://explorer.url',
   networkToken: networkToken,
   logoUri: 'network.logo.uri',
 };

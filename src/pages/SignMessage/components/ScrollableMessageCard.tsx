@@ -1,6 +1,6 @@
 import React, { ForwardedRef, forwardRef } from 'react';
 import { positionValues } from 'react-custom-scrollbars-2';
-import { Card, Scrollbars, useTheme } from '@avalabs/k2-components';
+import { Card, Scrollbars, useTheme } from '@avalabs/core-k2-components';
 
 type Props = {
   scrollUpdateHandler: (values: positionValues) => void;

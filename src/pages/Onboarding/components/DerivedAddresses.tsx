@@ -12,7 +12,7 @@ import {
   Typography,
   useTheme,
   Tooltip,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 interface DerivedAddressesProps {
   addresses: AddressType[];

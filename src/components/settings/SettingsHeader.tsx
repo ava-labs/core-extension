@@ -4,7 +4,7 @@ import {
   Stack,
   Typography,
   ChevronLeftIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { SettingsPageProps } from './models';
 interface SettingsHeaderProps {
   title: string;

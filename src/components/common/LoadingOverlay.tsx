@@ -1,4 +1,4 @@
-import { CircularProgress } from '@avalabs/k2-components';
+import { CircularProgress } from '@avalabs/core-k2-components';
 import { Overlay } from './Overlay';
 
 export function LoadingOverlay() {

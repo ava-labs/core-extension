@@ -5,14 +5,21 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@src/background/services/balances/models';
-import { Divider, Stack, Switch, Typography } from '@avalabs/k2-components';
+import {
+  Divider,
+  Stack,
+  Switch,
+  Typography,
+} from '@avalabs/core-k2-components';
 
 type ManageTokensListProps = {
   searchQuery: string;
 };
 
 export const ManageTokensList = ({ searchQuery }: ManageTokensListProps) => {
-  const tokensWithBalances = useTokensWithBalances(true);
+  const tokensWithBalances = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+  });
 
   return (
     <Stack

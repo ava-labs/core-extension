@@ -3,7 +3,7 @@ import {
   Blockchain,
   useBridgeSDK,
   isAddressBlocklisted,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -29,7 +29,7 @@ import {
   ToastCard,
   Typography,
   toast,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import {
   FunctionNames,
   useIsFunctionAvailable,

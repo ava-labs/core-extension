@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { CircularProgress, Typography, useTheme } from '@avalabs/k2-components';
+import {
+  CircularProgress,
+  Typography,
+  useTheme,
+} from '@avalabs/core-k2-components';
 import Dialog from '@src/components/common/Dialog';
 import { useTranslation } from 'react-i18next';
 

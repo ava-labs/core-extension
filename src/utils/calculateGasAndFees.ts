@@ -1,4 +1,4 @@
-import { bigToLocaleString } from '@avalabs/utils-sdk';
+import { bigToLocaleString } from '@avalabs/core-utils-sdk';
 import { bigintToBig } from './bigintToBig';
 
 type GasPriceArgs =

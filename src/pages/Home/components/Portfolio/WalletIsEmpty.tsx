@@ -4,7 +4,12 @@ import {
 } from '@src/hooks/useIsFunctionAvailable';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, QRCodeIcon, Stack, Typography } from '@avalabs/k2-components';
+import {
+  Button,
+  QRCodeIcon,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 
 export function WalletIsEmpty() {
   const history = useHistory();

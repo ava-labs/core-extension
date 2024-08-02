@@ -3,8 +3,8 @@ import { SettingsService } from '../settings/SettingsService';
 import { AnalyticsService } from '../analytics/AnalyticsService';
 import { StorageService } from '../storage/StorageService';
 
-jest.mock('@avalabs/wallets-sdk', () => ({
-  ...jest.requireActual('@avalabs/wallets-sdk'),
+jest.mock('@avalabs/core-wallets-sdk', () => ({
+  ...jest.requireActual('@avalabs/core-wallets-sdk'),
   getXpubFromMnemonic: jest.fn(),
   Avalanche: {
     getXpubFromMnemonic: jest.fn(),

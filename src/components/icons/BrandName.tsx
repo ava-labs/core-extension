@@ -1,4 +1,4 @@
-import { Stack, useTheme } from '@avalabs/k2-components';
+import { Stack, useTheme } from '@avalabs/core-k2-components';
 
 interface BrandNameProps {
   height?: number;

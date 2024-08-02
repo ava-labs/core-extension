@@ -1,6 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef } from 'react';
-import { CircularProgress, Stack, Typography } from '@avalabs/k2-components';
+import {
+  CircularProgress,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 
 export interface InfiniteScrollProps {
   loadMore: () => void;

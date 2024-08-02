@@ -1,5 +1,5 @@
 import { DEFERRED_RESPONSE } from './../middlewares/models';
-import { resolve } from '@avalabs/utils-sdk';
+import { resolve } from '@avalabs/core-utils-sdk';
 import {
   connectionLog,
   disconnectLog,

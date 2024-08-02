@@ -1,4 +1,4 @@
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { NetworkService } from '../network/NetworkService';
 import { AccountsService } from '../accounts/AccountsService';
 import { OnboardingService } from './OnboardingService';

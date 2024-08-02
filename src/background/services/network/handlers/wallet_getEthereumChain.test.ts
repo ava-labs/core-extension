@@ -1,4 +1,7 @@
-import { BITCOIN_NETWORK, BITCOIN_TEST_NETWORK } from '@avalabs/chains-sdk';
+import {
+  BITCOIN_NETWORK,
+  BITCOIN_TEST_NETWORK,
+} from '@avalabs/core-chains-sdk';
 import {
   WalletGetEthereumChainHandler,
   networkToGetEthChainResponse,

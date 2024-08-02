@@ -15,7 +15,7 @@ import {
   AlertCircleIcon,
   TrashIcon,
   Tooltip,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useCallback, useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
 

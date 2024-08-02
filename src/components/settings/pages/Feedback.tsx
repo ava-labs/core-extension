@@ -7,7 +7,7 @@ import {
   ListItemText,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import browser from 'webextension-polyfill';
 import { useEffect, useState } from 'react';

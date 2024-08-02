@@ -7,12 +7,12 @@ import {
   satoshiToBtc,
   useBridgeConfig,
   useBridgeSDK,
-} from '@avalabs/bridge-sdk';
-import { ChainId } from '@avalabs/chains-sdk';
+} from '@avalabs/core-bridge-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import {
   BitcoinInputUTXOWithOptionalScript,
   getMaxTransferAmount,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
@@ -44,10 +44,10 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   const { networkFee: currentFeeInfo } = useNetworkFeeContext();
   const { config } = useBridgeConfig();
   const { createBridgeTransaction } = useBridgeContext();
-  const btcTokens = useTokensWithBalances(
-    true,
-    isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
-  );
+  const btcTokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+    chainId: isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN,
+  });
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();

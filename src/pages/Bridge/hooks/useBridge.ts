@@ -7,13 +7,13 @@ import {
   WrapStatus,
   useMinimumTransferAmount,
   Asset,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 import { useMemo, useState } from 'react';
 
 import { AssetBalance } from '../models';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { BridgeStepDetails } from '@avalabs/bridge-unified';
 
 export interface BridgeAdapter {

@@ -8,7 +8,7 @@ import {
   estimateGas as sdkEstimateGas,
   transferAssetEVM,
   useBridgeSDK,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 
 import { useConnectionContext } from './ConnectionProvider';
 import { useAccountsContext } from './AccountsProvider';
@@ -53,8 +53,8 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-jest.mock('@avalabs/bridge-sdk', () => {
-  const actual = jest.requireActual('@avalabs/bridge-sdk');
+jest.mock('@avalabs/core-bridge-sdk', () => {
+  const actual = jest.requireActual('@avalabs/core-bridge-sdk');
   const MockSDKProvider = ({ children }) => <>{children}</>;
 
   return {

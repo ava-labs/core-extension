@@ -3,7 +3,7 @@ import {
   CircularProgress,
   Stack,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 export interface InProgressBridgeIconProp {
   value: number;
   hasError?: boolean;

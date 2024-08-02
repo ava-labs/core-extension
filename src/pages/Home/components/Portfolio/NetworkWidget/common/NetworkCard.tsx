@@ -1,4 +1,4 @@
-import { Card, styled } from '@avalabs/k2-components';
+import { Card, styled } from '@avalabs/core-k2-components';
 
 export const NetworkCard = styled(Card)`
   padding: 16px;

@@ -7,7 +7,7 @@ import {
   getBtcAsset,
   Blockchain,
   btcToSatoshi,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
@@ -23,7 +23,7 @@ jest.mock('react-i18next', () => ({
     t: (k) => k,
   }),
 }));
-jest.mock('@avalabs/bridge-sdk');
+jest.mock('@avalabs/core-bridge-sdk');
 jest.mock('@src/contexts/BridgeProvider');
 jest.mock('@src/contexts/AccountsProvider');
 jest.mock('@src/contexts/NetworkFeeProvider');

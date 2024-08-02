@@ -5,7 +5,7 @@ import {
   Stack,
   SxProps,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useEffect, useRef } from 'react';
 
 import {

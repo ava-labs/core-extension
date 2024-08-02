@@ -4,7 +4,7 @@ import {
   Stack,
   Typography,
   AccordionDetails,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { TransactionNft } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
 import {

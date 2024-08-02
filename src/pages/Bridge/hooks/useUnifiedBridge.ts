@@ -1,5 +1,5 @@
 import Big from 'big.js';
-import { bigToBigInt } from '@avalabs/utils-sdk';
+import { bigToBigInt } from '@avalabs/core-utils-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Asset,
@@ -7,7 +7,7 @@ import {
   Blockchain,
   isNativeAsset,
   useBridgeSDK,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { bigintToBig } from '@src/utils/bigintToBig';

@@ -1,6 +1,6 @@
 import { Middleware } from './models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { JsonRpcRequest, JsonRpcResponse } from '../dAppConnection/models';
 
 export function RPCCallsMiddleware(

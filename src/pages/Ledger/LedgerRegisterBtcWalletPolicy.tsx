@@ -4,7 +4,7 @@ import {
   Divider,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useEffect, useState } from 'react';
 import useRegisterBtcWalletPolicy from './hooks/useRegisterBtcWalletPolicy';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';

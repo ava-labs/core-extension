@@ -1,4 +1,4 @@
-import { Stack } from '@avalabs/k2-components';
+import { Stack } from '@avalabs/core-k2-components';
 import { WalletConnectCircledIcon } from '../../../ImportWithWalletConnect/components/WalletConnectCircledIcon';
 import WalletConnectConnector from '@src/pages/ImportWithWalletConnect/components/WalletConnectConnector';
 

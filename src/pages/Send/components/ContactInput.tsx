@@ -6,10 +6,10 @@ import {
   TextField,
   Tooltip,
   UserSearchIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import type { Contact } from '@avalabs/types';
-import { NetworkVMType } from '@avalabs/chains-sdk';
-import { isBech32Address } from '@avalabs/bridge-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { isBech32Address } from '@avalabs/core-bridge-sdk';
 import { isAddress } from 'ethers';
 import { useTranslation } from 'react-i18next';
 import { ContactSelect } from './ContactSelect';

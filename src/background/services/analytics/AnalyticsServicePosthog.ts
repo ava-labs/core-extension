@@ -1,4 +1,4 @@
-import { HttpClient } from '@avalabs/utils-sdk';
+import { HttpClient } from '@avalabs/core-utils-sdk';
 import { getUserEnvironment } from '@src/utils/getUserEnvironment';
 import { singleton } from 'tsyringe';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
@@ -11,7 +11,7 @@ import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 @singleton()
 export class AnalyticsServicePosthog {

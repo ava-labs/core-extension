@@ -1,4 +1,4 @@
-import { Blockchain } from '@avalabs/bridge-sdk';
+import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
 import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useCallback, useRef, useState } from 'react';
@@ -13,7 +13,7 @@ import {
   MenuItem,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 interface NetworkSelectorProps {
   testId?: string;

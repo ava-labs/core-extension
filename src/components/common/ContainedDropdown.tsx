@@ -1,4 +1,4 @@
-import { Stack, StackProps, useTheme } from '@avalabs/k2-components';
+import { Stack, StackProps, useTheme } from '@avalabs/core-k2-components';
 import {
   forwardRef,
   MutableRefObject,

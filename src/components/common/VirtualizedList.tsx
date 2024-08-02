@@ -1,4 +1,4 @@
-import { styled } from '@avalabs/k2-components';
+import { styled } from '@avalabs/core-k2-components';
 import { List } from 'react-virtualized';
 
 const VirtualizedList = styled(List)`

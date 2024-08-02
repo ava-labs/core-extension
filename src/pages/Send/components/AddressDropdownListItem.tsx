@@ -9,7 +9,7 @@ import {
   Typography,
   Tooltip,
   XAndPChainsIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { ContactAddress } from './ContactAddress';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import Masonry from 'react-masonry-css';
-import { styled } from '@avalabs/k2-components';
+import { styled } from '@avalabs/core-k2-components';
 
 const StyledMasonry = styled(Masonry)`
   display: flex;

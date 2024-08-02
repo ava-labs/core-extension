@@ -7,7 +7,7 @@ import {
   Tooltip,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useHistory } from 'react-router-dom';
 import {
   ForwardedRef,

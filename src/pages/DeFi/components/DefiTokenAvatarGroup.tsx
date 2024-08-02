@@ -3,7 +3,7 @@ import {
   AvatarGroup,
   AvatarGroupProps,
   AvatarProps,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { DefiToken } from '@src/background/services/defi/models';
 import { useMemo } from 'react';
 

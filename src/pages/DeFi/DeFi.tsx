@@ -1,4 +1,4 @@
-import { CircularProgress, Stack } from '@avalabs/k2-components';
+import { CircularProgress, Stack } from '@avalabs/core-k2-components';
 
 import { useDefiContext } from '@src/contexts/DefiProvider';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';

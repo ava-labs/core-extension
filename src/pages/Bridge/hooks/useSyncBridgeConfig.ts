@@ -1,4 +1,4 @@
-import { useBridgeConfigUpdater, useBridgeSDK } from '@avalabs/bridge-sdk';
+import { useBridgeConfigUpdater, useBridgeSDK } from '@avalabs/core-bridge-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { isBridgeStateUpdateEventListener } from '@src/background/services/bridge/events/listeners';
 import { BridgeGetConfigHandler } from '@src/background/services/bridge/handlers/getBridgeConfig';

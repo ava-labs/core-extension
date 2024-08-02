@@ -4,7 +4,7 @@ import {
   ChevronDownIcon,
   Tooltip,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';

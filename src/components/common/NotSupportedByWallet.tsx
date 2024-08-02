@@ -2,7 +2,7 @@ import { PropsWithChildren } from 'react';
 import { PageTitle, PageTitleVariant } from './PageTitle';
 import { Trans, useTranslation } from 'react-i18next';
 import { getTranslatedFunctionName } from './FunctionIsOffline';
-import { Stack, Typography } from '@avalabs/k2-components';
+import { Stack, Typography } from '@avalabs/core-k2-components';
 import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 interface NotSupportedByWalleteProps {
   functionName: FunctionNames;

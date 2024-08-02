@@ -29,7 +29,7 @@ import {
   getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
   quitLedgerApp,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { LockEvents } from '@src/background/services/lock/models';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import Eth from '@ledgerhq/hw-app-eth';
@@ -44,7 +44,7 @@ jest.mock('./ConnectionProvider', () => {
   };
 });
 
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@avalabs/hw-app-avalanche');
 jest.mock('@ledgerhq/hw-app-eth');
 jest.mock('ledger-bitcoin');

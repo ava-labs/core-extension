@@ -1,4 +1,4 @@
-import { ChainId, Network, NetworkVMType } from '@avalabs/chains-sdk';
+import { ChainId, Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { isPchainNetwork, isPchainNetworkId } from './isAvalanchePchainNetwork';
 
 describe('src/background/services/network/utils/isAvalanchePchainNetwork.ts', () => {
@@ -7,6 +7,7 @@ describe('src/background/services/network/utils/isAvalanchePchainNetwork.ts', ()
     chainId: 132,
     vmName: NetworkVMType.EVM,
     rpcUrl: 'rpcUrl',
+    explorerUrl: 'https://explorer.url',
     networkToken: {
       name: 'networkTokenName',
       symbol: 'TEST',

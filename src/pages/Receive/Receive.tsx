@@ -10,11 +10,15 @@ import {
   EthereumQRCodeLogo,
   AvalancheQRCodeLogo,
 } from '@src/components/icons/QRCodeLogos';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
 import { useTranslation } from 'react-i18next';
 import { PrimaryAddressK2 } from '@src/components/common/AddressK2';
-import { CircularProgress, Stack, Typography } from '@avalabs/k2-components';
+import {
+  CircularProgress,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import {
   FunctionNames,

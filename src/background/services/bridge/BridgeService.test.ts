@@ -2,8 +2,8 @@ import {
   Blockchain,
   estimateGas,
   getBtcTransactionDetails,
-} from '@avalabs/bridge-sdk';
-import { BITCOIN_NETWORK, ChainId } from '@avalabs/chains-sdk';
+} from '@avalabs/core-bridge-sdk';
+import { BITCOIN_NETWORK, ChainId } from '@avalabs/core-chains-sdk';
 import Big from 'big.js';
 
 import { AccountsService } from '../accounts/AccountsService';
@@ -15,11 +15,11 @@ import { StorageService } from '../storage/StorageService';
 
 import { BridgeService } from './BridgeService';
 
-jest.mock('@avalabs/bridge-sdk', () => {
+jest.mock('@avalabs/core-bridge-sdk', () => {
   const { mockConfig } = require('./fixtures/mockBridgeConfig');
 
   return {
-    ...jest.requireActual('@avalabs/bridge-sdk'),
+    ...jest.requireActual('@avalabs/core-bridge-sdk'),
     getBtcTransactionDetails: jest.fn(),
     estimateGas: jest.fn(),
     fetchConfig: jest.fn().mockResolvedValue({ config: mockConfig }),

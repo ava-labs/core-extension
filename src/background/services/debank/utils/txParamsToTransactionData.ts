@@ -1,5 +1,5 @@
 import { toBeHex } from 'ethers';
-import { Network } from '@avalabs/chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { DebankTransactionData } from '../models';
 import { EthSendTransactionParams } from '../../wallet/handlers/eth_sendTransaction/models';
 

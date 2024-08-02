@@ -6,7 +6,7 @@ import {
   DerivationPath,
   getAddressFromXPub,
   getEvmAddressFromPubKey,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
 import { PubKeyType } from '@src/background/services/wallet/models';
 import { Trans, useTranslation } from 'react-i18next';
@@ -16,7 +16,7 @@ import {
   Stack,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { DerivationPathDropdown } from '@src/pages/Onboarding/components/DerivationPathDropDown';
 import { DerivedAddresses } from '@src/pages/Onboarding/components/DerivedAddresses';
 

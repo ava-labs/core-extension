@@ -6,7 +6,7 @@ import {
   LedgerIcon,
   ArrowLeftIcon,
   ShieldLockIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';

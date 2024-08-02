@@ -6,7 +6,7 @@ import {
 } from '../connections/dAppConnection/models';
 import { getWalletExtensionType } from './utils/getWalletExtensionType';
 import { CoreProvider } from './CoreProvider';
-import { Maybe } from '@avalabs/utils-sdk';
+import { Maybe } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
 
 export class MultiWalletProviderProxy extends EventEmitter {

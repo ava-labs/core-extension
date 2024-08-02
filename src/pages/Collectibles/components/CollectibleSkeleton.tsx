@@ -1,4 +1,4 @@
-import { Skeleton } from '@avalabs/k2-components';
+import { Skeleton } from '@avalabs/core-k2-components';
 import { CollectibleWrapper } from './CollectibleWrapper';
 
 export function CollectibleSkeleton() {

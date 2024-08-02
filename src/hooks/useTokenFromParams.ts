@@ -12,7 +12,9 @@ export function useTokenFromParams(
   withDefault = true
 ): TokenWithBalance | undefined {
   const { search } = useLocation();
-  const allTokens = useTokensWithBalances(true);
+  const allTokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+  });
   const [selectedToken, setSelectedToken] = useState<
     TokenWithBalance | undefined
   >(undefined);

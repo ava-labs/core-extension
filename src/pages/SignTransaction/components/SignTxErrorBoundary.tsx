@@ -7,7 +7,7 @@ import {
   Stack,
   Typography,
   toast,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { WithTranslation, withTranslation } from 'react-i18next';
 
 interface SignTxErrorBoundaryProps extends WithTranslation {

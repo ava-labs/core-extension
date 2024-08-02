@@ -1,4 +1,9 @@
-import { Button, Stack, TextField, Typography } from '@avalabs/k2-components';
+import {
+  Button,
+  Stack,
+  TextField,
+  Typography,
+} from '@avalabs/core-k2-components';
 import { AuthErrorCode } from '@src/background/services/seedless/models';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useTotpErrorMessage } from '@src/hooks/useTotpErrorMessage';

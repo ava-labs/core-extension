@@ -1,6 +1,6 @@
-import { Blockchain, BridgeTransaction } from '@avalabs/bridge-sdk';
+import { Blockchain, BridgeTransaction } from '@avalabs/core-bridge-sdk';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
-import { BITCOIN_NETWORK, ChainId } from '@avalabs/chains-sdk';
+import { BITCOIN_NETWORK, ChainId } from '@avalabs/core-chains-sdk';
 import { TxHistoryItem } from '@src/background/services/history/models';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';

@@ -9,8 +9,8 @@ import {
   transferAssetEVM,
   useBridgeSDK,
   WrapStatus,
-} from '@avalabs/bridge-sdk';
-import { ChainId } from '@avalabs/chains-sdk';
+} from '@avalabs/core-bridge-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { isBridgeStateUpdateEventListener } from '@src/background/services/bridge/events/listeners';
 import { BridgeCreateTransactionHandler } from '@src/background/services/bridge/handlers/createBridgeTransaction';

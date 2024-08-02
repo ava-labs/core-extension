@@ -1,4 +1,4 @@
-import { Stack, Trend, ProfitAndLoss } from '@avalabs/k2-components';
+import { Stack, Trend, ProfitAndLoss } from '@avalabs/core-k2-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 interface PandLProps {

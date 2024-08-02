@@ -1,7 +1,7 @@
 import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Typography, Divider } from '@avalabs/k2-components';
+import { Stack, Typography, Divider } from '@avalabs/core-k2-components';
 import {
   ApprovalSection,
   ApprovalSectionBody,

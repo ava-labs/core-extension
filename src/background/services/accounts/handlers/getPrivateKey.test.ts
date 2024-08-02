@@ -3,11 +3,11 @@ import { GetPrivateKeyHandler } from './getPrivateKey';
 import { AccountType, GetPrivateKeyErrorTypes } from '../models';
 import { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
-import { getWalletFromMnemonic } from '@avalabs/wallets-sdk';
+import { getWalletFromMnemonic } from '@avalabs/core-wallets-sdk';
 import { buildRpcCall } from '@src/tests/test-utils';
 
-jest.mock('@avalabs/wallets-sdk', () => ({
-  ...jest.requireActual('@avalabs/wallets-sdk'),
+jest.mock('@avalabs/core-wallets-sdk', () => ({
+  ...jest.requireActual('@avalabs/core-wallets-sdk'),
   getWalletFromMnemonic: jest.fn(),
 }));
 

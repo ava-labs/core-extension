@@ -6,7 +6,7 @@ import {
   getMaxTransferAmount,
   isNativeAsset,
   useBridgeSDK,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useCallback, useEffect, useState } from 'react';
 import { useAssetBalancesEVM } from './useAssetBalancesEVM';

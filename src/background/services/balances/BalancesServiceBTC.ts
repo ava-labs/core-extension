@@ -1,6 +1,6 @@
-import { satoshiToBtc } from '@avalabs/bridge-sdk';
-import { Network, NetworkVMType } from '@avalabs/chains-sdk';
-import { balanceToDisplayValue, bigToBN } from '@avalabs/utils-sdk';
+import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
+import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { balanceToDisplayValue, bigToBN } from '@avalabs/core-utils-sdk';
 import { TokenPricesService } from '@src/background/services/balances/TokenPricesService';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { singleton } from 'tsyringe';
@@ -9,7 +9,7 @@ import { SettingsService } from '../settings/SettingsService';
 import { TokenType, TokenWithBalance } from './models';
 import * as Sentry from '@sentry/browser';
 import { TokensPriceShortData } from '../tokens/models';
-import { BitcoinProvider } from '@avalabs/wallets-sdk';
+import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { getPriceChangeValues } from './utils/getPriceChangeValues';
 
 @singleton()

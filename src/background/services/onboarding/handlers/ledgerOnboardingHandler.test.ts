@@ -2,7 +2,7 @@ import {
   Avalanche,
   DerivationPath,
   getXpubFromMnemonic,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
@@ -21,8 +21,8 @@ jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
 
 const WALLET_ID = 'wallet-id';
 
-jest.mock('@avalabs/wallets-sdk', () => {
-  const actual = jest.requireActual('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk', () => {
+  const actual = jest.requireActual('@avalabs/core-wallets-sdk');
 
   return {
     ...actual,

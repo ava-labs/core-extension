@@ -13,7 +13,7 @@ import {
   Stack,
   Tooltip,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import Dialog from '@src/components/common/Dialog';
 import { ActionStatus } from '@src/background/services/actions/models';

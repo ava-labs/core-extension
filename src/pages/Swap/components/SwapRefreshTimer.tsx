@@ -6,7 +6,7 @@ import {
   Tooltip,
   Typography,
   Card,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 interface SwapRefreshTimerProps {
   secondsTimer: number;

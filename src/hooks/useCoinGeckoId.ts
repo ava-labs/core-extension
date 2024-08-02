@@ -1,4 +1,4 @@
-import { useTokenInfoContext } from '@avalabs/bridge-sdk';
+import { useTokenInfoContext } from '@avalabs/core-bridge-sdk';
 
 // This is a copy from https://github.com/ava-labs/core-web-properties/blob/develop/packages/web/src/hooks/bridge/useCoingeckoId.ts
 

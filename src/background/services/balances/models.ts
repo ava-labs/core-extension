@@ -1,9 +1,9 @@
-import { NetworkContractToken, NetworkToken } from '@avalabs/chains-sdk';
+import { NetworkContractToken, NetworkToken } from '@avalabs/core-chains-sdk';
 import {
   PChainBalance as GlacierPchainBalance,
   XChainBalances as GlacierXchainBalance,
 } from '@avalabs/glacier-sdk';
-import { BitcoinInputUTXOWithOptionalScript } from '@avalabs/wallets-sdk';
+import { BitcoinInputUTXOWithOptionalScript } from '@avalabs/core-wallets-sdk';
 import { EnsureDefined } from '@src/background/models';
 import BN from 'bn.js';
 

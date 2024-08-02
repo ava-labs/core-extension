@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 import useIsUsingLedgerWallet from './useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from './useIsUsingKeystoneWallet';
 import useIsUsingWalletConnectAccount from './useIsUsingWalletConnectAccount';
-import { toast } from '@avalabs/k2-components';
+import { toast } from '@avalabs/core-k2-components';
 import useIsUsingFireblocksAccount from './useIsUsingFireblocksAccount';
 
 type UseApprovalHelpersProps = {

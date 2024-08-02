@@ -13,7 +13,7 @@ import {
   setBridgeEnvironment,
   trackBridgeTransaction as trackBridgeTransactionSDK,
   TrackerSubscription,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 import { EventEmitter } from 'events';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';

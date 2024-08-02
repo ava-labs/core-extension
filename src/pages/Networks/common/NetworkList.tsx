@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { ChainId, Network } from '@avalabs/chains-sdk';
+import { ChainId, Network } from '@avalabs/core-chains-sdk';
 import {
   Collapse,
   Divider,
@@ -16,7 +16,7 @@ import {
   Typography,
   toast,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';

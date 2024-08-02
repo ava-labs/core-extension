@@ -20,7 +20,7 @@ import {
   Stack,
   TextField,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { buildGlacierAuthHeaders } from '@src/background/services/network/utils/buildGlacierAuthHeaders';
 import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';

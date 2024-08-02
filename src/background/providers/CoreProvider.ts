@@ -19,7 +19,7 @@ import {
 } from '../connections/dAppConnection/models';
 import { PartialBy, ProviderInfo } from '../models';
 import AbstractConnection from '../utils/messaging/AbstractConnection';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 interface ProviderState {
   accounts: string[] | null;

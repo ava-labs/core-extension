@@ -1,8 +1,8 @@
-import { bnToBig } from '@avalabs/utils-sdk';
+import { bnToBig } from '@avalabs/core-utils-sdk';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import { useMemo } from 'react';
-import { formatTokenAmount } from '@avalabs/bridge-sdk';
+import { formatTokenAmount } from '@avalabs/core-bridge-sdk';
 import Big from 'big.js';
 import BN from 'bn.js';
 import { partition } from 'lodash';

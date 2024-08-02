@@ -1,11 +1,11 @@
-import { strip0x } from '@avalabs/utils-sdk';
-import { getBtcAddressFromPubKey } from '@avalabs/wallets-sdk';
+import { strip0x } from '@avalabs/core-utils-sdk';
+import { getBtcAddressFromPubKey } from '@avalabs/core-wallets-sdk';
 import { networks, payments } from 'bitcoinjs-lib';
 
 import { evmKey } from './fixtures/rawKeys';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 
 describe('src/background/services/seedless/SeedlessWallet', () => {
   it('validates the provided public key', () => {

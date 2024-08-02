@@ -7,7 +7,7 @@ import {
   Switch,
   Tooltip,
   InfoCircleIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isProductionBuild } from '@src/utils/environment';

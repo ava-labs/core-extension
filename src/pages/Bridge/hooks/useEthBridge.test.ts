@@ -5,7 +5,7 @@ import {
   AssetType,
   isNativeAsset,
   getMaxTransferAmount,
-} from '@avalabs/bridge-sdk';
+} from '@avalabs/core-bridge-sdk';
 import { act, renderHook } from '@testing-library/react-hooks';
 
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
@@ -22,7 +22,7 @@ jest.mock('react-i18next', () => ({
     t: (k) => k,
   }),
 }));
-jest.mock('@avalabs/bridge-sdk');
+jest.mock('@avalabs/core-bridge-sdk');
 jest.mock('./useAssetBalancesEVM');
 jest.mock('@src/contexts/BridgeProvider');
 jest.mock('@src/contexts/NetworkProvider');

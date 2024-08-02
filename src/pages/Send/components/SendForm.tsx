@@ -6,7 +6,7 @@ import {
   Stack,
   Scrollbars,
   Tooltip,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { Contact } from '@avalabs/types';
 import { useTranslation } from 'react-i18next';
 

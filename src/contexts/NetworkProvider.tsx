@@ -9,7 +9,7 @@ import {
 import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ChainId } from '@avalabs/chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { networksUpdatedEventListener } from '@src/background/services/network/events/networksUpdatedEventListener';
 import { useAnalyticsContext } from './AnalyticsProvider';
 import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
@@ -19,7 +19,10 @@ import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/h
 import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
-import { BitcoinProvider, JsonRpcBatchInternal } from '@avalabs/wallets-sdk';
+import {
+  BitcoinProvider,
+  JsonRpcBatchInternal,
+} from '@avalabs/core-wallets-sdk';
 import {
   CustomNetworkPayload,
   Network,

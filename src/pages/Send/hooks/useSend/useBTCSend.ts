@@ -1,6 +1,9 @@
-import { stringToBN } from '@avalabs/utils-sdk';
+import { stringToBN } from '@avalabs/core-utils-sdk';
 import { useCallback, useEffect, useState } from 'react';
-import { BitcoinInputUTXO, getMaxTransferAmount } from '@avalabs/wallets-sdk';
+import {
+  BitcoinInputUTXO,
+  getMaxTransferAmount,
+} from '@avalabs/core-wallets-sdk';
 
 import { SendErrorMessage } from '@src/utils/send/models';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';

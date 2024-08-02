@@ -1,7 +1,11 @@
 import { PropsWithChildren } from 'react';
 import { PageTitle, PageTitleVariant } from './PageTitle';
 import { t as translate } from 'i18next';
-import { AlertCircleIcon, Stack, Typography } from '@avalabs/k2-components';
+import {
+  AlertCircleIcon,
+  Stack,
+  Typography,
+} from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 

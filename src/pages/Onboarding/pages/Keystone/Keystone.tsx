@@ -9,7 +9,7 @@ import {
   ExternalLinkIcon,
   Button,
   styled,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { PageNav } from '../../components/PageNav';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
@@ -18,7 +18,7 @@ import {
   KEYSTONE_CONNECT_SUPPORT_URL,
 } from './KeystoneQRCodeScanner';
 import { AddressType } from '../Ledger/LedgerConnect';
-import { getAddressFromXPub } from '@avalabs/wallets-sdk';
+import { getAddressFromXPub } from '@avalabs/core-wallets-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
 import { DerivedAddresses } from '../../components/DerivedAddresses';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';

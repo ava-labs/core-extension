@@ -1,4 +1,4 @@
-import { CoreIcon, Stack, Typography } from '@avalabs/k2-components';
+import { CoreIcon, Stack, Typography } from '@avalabs/core-k2-components';
 
 interface OnboardingStepHeaderProps {
   testId?: string;

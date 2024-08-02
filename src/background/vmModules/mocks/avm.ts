@@ -41,8 +41,8 @@ export class AVMModule implements Module {
     });
   }
 
-  getAddress(): Promise<string> {
-    return Promise.resolve('AVM address');
+  async getAddress() {
+    return {};
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

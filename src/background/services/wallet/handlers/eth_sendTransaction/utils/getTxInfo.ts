@@ -2,8 +2,8 @@ import { Interface, TransactionDescription, toBeHex } from 'ethers';
 import {
   getABIForContract,
   getSourceForContract,
-} from '@avalabs/snowtrace-sdk';
-import { ChainId, Network } from '@avalabs/chains-sdk';
+} from '@avalabs/core-snowtrace-sdk';
+import { ChainId, Network } from '@avalabs/core-chains-sdk';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 
 function parseDataWithABI(

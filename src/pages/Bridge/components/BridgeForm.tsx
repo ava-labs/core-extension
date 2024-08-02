@@ -11,7 +11,7 @@ import {
   Tooltip,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -22,8 +22,8 @@ import {
   formatTokenAmount,
   useBridgeSDK,
   useGetTokenSymbolOnNetwork,
-} from '@avalabs/bridge-sdk';
-import { bigToBN, bigToLocaleString, bnToBig } from '@avalabs/utils-sdk';
+} from '@avalabs/core-bridge-sdk';
+import { bigToBN, bigToLocaleString, bnToBig } from '@avalabs/core-utils-sdk';
 import Big from 'big.js';
 import BN from 'bn.js';
 

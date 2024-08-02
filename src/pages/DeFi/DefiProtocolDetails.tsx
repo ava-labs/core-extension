@@ -12,7 +12,7 @@ import {
   Scrollbars,
   Stack,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 
 import { openNewTab } from '@src/utils/extensionUtils';
 import { useDefiContext } from '@src/contexts/DefiProvider';

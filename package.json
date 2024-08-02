@@ -2,6 +2,7 @@
   "name": "avalanche-extension",
   "version": "0.0.0",
   "license": "Limited Ecosystem License",
+  "private": true,
   "scripts": {
     "start": "yarn dev",
     "build:inpage": "webpack --config webpack.inpage.js",
@@ -22,22 +23,22 @@
     "sentry": "node sentryscript.js"
   },
   "dependencies": {
-    "@avalabs/vm-module-types": "0.0.15",
+    "@avalabs/vm-module-types": "0.1.0",
     "@avalabs/avalanchejs": "4.0.5",
-    "@avalabs/bridge-sdk": "2.8.0-alpha.188",
     "@avalabs/bridge-unified": "2.1.0",
-    "@avalabs/chains-sdk": "2.8.0-alpha.188",
-    "@avalabs/coingecko-sdk": "2.8.0-alpha.188",
-    "@avalabs/covalent-sdk": "2.8.0-alpha.188",
-    "@avalabs/etherscan-sdk": "2.8.0-alpha.188",
+    "@avalabs/core-bridge-sdk": "3.0.0",
+    "@avalabs/core-chains-sdk": "3.0.0",
+    "@avalabs/core-coingecko-sdk": "3.0.0",
+    "@avalabs/core-covalent-sdk": "3.0.0",
+    "@avalabs/core-etherscan-sdk": "3.0.0",
+    "@avalabs/core-snowtrace-sdk": "3.0.0",
+    "@avalabs/core-token-prices-sdk": "3.0.0",
+    "@avalabs/core-utils-sdk": "3.0.0",
+    "@avalabs/core-wallets-sdk": "3.0.0",
     "@avalabs/glacier-sdk": "2.8.0-alpha.188",
     "@avalabs/hw-app-avalanche": "0.14.1",
-    "@avalabs/k2-components": "4.18.0-alpha.41",
-    "@avalabs/snowtrace-sdk": "2.8.0-alpha.188",
-    "@avalabs/token-prices-sdk": "2.8.0-alpha.188",
+    "@avalabs/core-k2-components": "4.18.0-alpha.44",
     "@avalabs/types": "2.8.0-alpha.188",
-    "@avalabs/utils-sdk": "2.8.0-alpha.188",
-    "@avalabs/wallets-sdk": "2.8.0-alpha.188",
     "@blockaid/client": "0.10.0",
     "@coinbase/cbpay-js": "1.6.0",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
@@ -212,15 +213,7 @@
   },
   "lavamoat": {
     "allowScripts": {
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
       "@ethereumjs/common>ethereumjs-util>ethereum-cryptography>keccak": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3>web3-bzz": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3>web3-core>web3-core-requestmanager>web3-providers-ws>websocket>bufferutil": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3>web3-core>web3-core-requestmanager>web3-providers-ws>websocket>es5-ext": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3>web3-core>web3-core-requestmanager>web3-providers-ws>websocket>utf-8-validate": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3>web3-shh": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>hdkey>secp256k1": false,
       "@lavamoat/preinstall-always-fail": false,
       "@types/web3>web3": false,
       "@types/web3>web3>web3-bzz": false,
@@ -239,11 +232,13 @@
       "web3>web3-bzz": false,
       "web3>web3-shh": false,
       "yarn": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/vm-module-types": false,
       "@avalabs/vm-module-types>@avalabs/wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/vm-module-types>@avalabs/wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
-      "@avalabs/vm-module-types>@avalabs/wallets-sdk>hdkey>secp256k1": false
+      "@avalabs/vm-module-types>@avalabs/wallets-sdk>hdkey>secp256k1": false,
+      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
+      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
+      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
     }
   }
 }

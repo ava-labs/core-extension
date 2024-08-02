@@ -3,7 +3,7 @@ import {
   Box,
   Stack,
   CircularProgress,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { Trans } from 'react-i18next';
 
 export const LedgerDisconnected = () => {

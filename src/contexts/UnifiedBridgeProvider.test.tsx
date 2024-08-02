@@ -17,7 +17,7 @@ import {
   useUnifiedBridgeContext,
 } from './UnifiedBridgeProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { chainIdToCaip } from '@src/utils/caipConversion';
 import { CommonError } from '@src/utils/errors';
 import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';

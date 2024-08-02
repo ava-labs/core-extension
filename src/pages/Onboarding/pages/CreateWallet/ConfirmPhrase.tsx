@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
-import { Stack, Typography, useTheme } from '@avalabs/k2-components';
+import { Stack, Typography, useTheme } from '@avalabs/core-k2-components';
 import { Mnemonic } from './Mnemonic';
 import { PageNav } from '../../components/PageNav';
 

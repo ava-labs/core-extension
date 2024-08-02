@@ -20,7 +20,7 @@ import { CryptoMultiAccounts } from '@keystonehq/bc-ur-registry-eth';
 import {
   getAddressFromXPub,
   getBech32AddressFromXPub,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 
 const decoder = new URDecoder();
 decoder.receivePart(qrcode2);

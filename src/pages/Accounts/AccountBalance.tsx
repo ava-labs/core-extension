@@ -8,7 +8,7 @@ import {
   IconButton,
   Button,
   Grow,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
 import { useSettingsContext } from '@src/contexts/SettingsProvider';

@@ -10,7 +10,7 @@ import {
   ListItem,
   List,
   CheckIcon,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { StyledListButton } from '../components/StyledListItemButton';
 
 export function Language({ goBack, navigateTo, width }: SettingsPageProps) {

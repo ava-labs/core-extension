@@ -2,7 +2,7 @@ import {
   DerivationPath,
   getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
-} from '@avalabs/wallets-sdk';
+} from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
@@ -11,7 +11,7 @@ import { MigrateMissingPublicKeysFromLedgerHandler } from './migrateMissingPubli
 import { buildRpcCall } from '@src/tests/test-utils';
 
 jest.mock('../../secrets/SecretsService');
-jest.mock('@avalabs/wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk');
 
 const WALLET_ID = 'wallet_id';
 describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger.ts', () => {

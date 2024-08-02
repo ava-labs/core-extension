@@ -1,4 +1,4 @@
-import { ChainList, NetworkVMType } from '@avalabs/chains-sdk';
+import { ChainList, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';

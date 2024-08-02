@@ -1,4 +1,4 @@
-import { styled, Typography } from '@avalabs/k2-components';
+import { styled, Typography } from '@avalabs/core-k2-components';
 
 export const TypographyLink = styled(Typography)`
   cursor: pointer;

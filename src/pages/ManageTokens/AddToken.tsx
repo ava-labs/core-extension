@@ -16,7 +16,7 @@ import {
   TextField,
   Typography,
   toast,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { TokenCardWithBalance } from '@src/components/common/TokenCardWithBalance';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 
@@ -24,7 +24,9 @@ export function AddToken() {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { network } = useNetworkContext();
-  const tokens = useTokensWithBalances(true);
+  const tokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+  });
   const history = useHistory();
 
   const [addressInput, setAddressInput] = useState<string>('');

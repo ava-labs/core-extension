@@ -115,7 +115,7 @@ jobs:
         with:
           payload: |
             {
-              "GH_RUN_LINK": "https://github.com/ava-labs/extension-avalanche/actions/runs/${{ github.run_id }}",
+              "GH_RUN_LINK": "https://github.com/ava-labs/core-extension/actions/runs/${{ github.run_id }}",
               "GH_RUN_STATUS": "PASSED",
               "STATUS_EMOJI": ":white_check_mark:",
               "TEST_RUN_TYPE": "Browser extension smoke tests are running against branch= ${{ github.head_ref }}",
@@ -129,7 +129,7 @@ jobs:
         with:
           payload: |
             {
-              "GH_RUN_LINK": "https://github.com/ava-labs/extension-avalanche/actions/runs/${{ github.run_id }}",
+              "GH_RUN_LINK": "https://github.com/ava-labs/core-extension/actions/runs/${{ github.run_id }}",
               "GH_RUN_STATUS": "FAILED",
               "STATUS_EMOJI": ":alert:",
               "TEST_RUN_TYPE": "Browser extension smoke tests are running against branch= ${{ github.head_ref }}",

@@ -7,7 +7,7 @@ import {
   Stack,
   Typography,
   useTheme,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { useHistory } from 'react-router-dom';
 import { OnboardingURLs } from '@src/background/services/onboarding/models';
 import { useLanguage } from '@src/hooks/useLanguages';

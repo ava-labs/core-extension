@@ -13,7 +13,7 @@ import {
   Tabs,
   Tooltip,
   Typography,
-} from '@avalabs/k2-components';
+} from '@avalabs/core-k2-components';
 import { Redirect, useHistory } from 'react-router-dom';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import {

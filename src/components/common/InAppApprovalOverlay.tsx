@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Fade, Stack, useTheme } from '@avalabs/k2-components';
+import { Fade, Stack, useTheme } from '@avalabs/core-k2-components';
 
 import { useApprovalsContext } from '@src/contexts/ApprovalsProvider';
 import { ApprovalRoutes } from '@src/popup/ApprovalRoutes';

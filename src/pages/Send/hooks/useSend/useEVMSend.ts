@@ -1,5 +1,5 @@
 import BN from 'bn.js';
-import { stringToBN } from '@avalabs/utils-sdk';
+import { stringToBN } from '@avalabs/core-utils-sdk';
 import { useCallback, useState } from 'react';
 
 import { TokenType } from '@src/background/services/balances/models';
