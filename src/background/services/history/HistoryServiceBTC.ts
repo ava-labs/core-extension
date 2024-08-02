@@ -1,4 +1,4 @@
-import { NetworkVMType } from '@avalabs/chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import { HistoryServiceBridgeHelper } from './HistoryServiceBridgeHelper';
