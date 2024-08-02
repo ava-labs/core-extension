@@ -4,7 +4,7 @@ import { injectable } from 'tsyringe';
 import { NetworkService } from '../../network/NetworkService';
 import { NetworkFee } from '../models';
 import { NetworkFeeService } from '../NetworkFeeService';
-import { Network } from '../../network/models';
+import { NetworkWithCaipId } from '../../network/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_FEE_GET,
@@ -24,7 +24,7 @@ export class GetNetworkFeeHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request, scope }) => {
     const [networkCaipId] = request.params;
 
-    let network: Network | undefined;
+    let network: NetworkWithCaipId | undefined;
 
     if (networkCaipId) {
       network = await this.networkService.getNetwork(networkCaipId);

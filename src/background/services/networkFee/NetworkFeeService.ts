@@ -1,14 +1,11 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import {
-  BitcoinProviderAbstract,
-  JsonRpcBatchInternal,
-} from '@avalabs/core-wallets-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { isSwimmer } from '@src/utils/isSwimmerNetwork';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { singleton } from 'tsyringe';
-import { NetworkService } from '../network/NetworkService';
 import { FeeRate, NetworkFee, TransactionPriority } from './models';
-import { Network } from '../network/models';
+import { NetworkWithCaipId } from '../network/models';
+import ModuleManager from '@src/background/vmModules/ModuleManager';
 
 const EVM_BASE_TIP = BigInt(5e8); // 0.5 Gwei
 const EVM_TIP_MODIFIERS: Record<TransactionPriority, bigint> = {
@@ -19,24 +16,33 @@ const EVM_TIP_MODIFIERS: Record<TransactionPriority, bigint> = {
 
 @singleton()
 export class NetworkFeeService {
-  constructor(private networkService: NetworkService) {}
+  constructor() {}
 
-  async getNetworkFee(network: Network): Promise<NetworkFee | null> {
-    const provider = getProviderForNetwork(network);
-
+  async getNetworkFee(network: NetworkWithCaipId): Promise<NetworkFee | null> {
     if (network.vmName === NetworkVMType.EVM) {
+      const provider = getProviderForNetwork(network);
       return this.getEip1559NetworkFeeRates(
         network,
         provider as JsonRpcBatchInternal
       );
     } else if (network.vmName === NetworkVMType.BITCOIN) {
-      const rates = await (provider as BitcoinProviderAbstract).getFeeRates();
+      const module = await ModuleManager.loadModuleByNetwork(network);
+      const { low, medium, high, isFixedFee } = await module.getNetworkFee(
+        network
+      );
+
       return {
+        isFixedFee,
+        low: {
+          maxFee: low.maxFeePerGas,
+        },
+        medium: {
+          maxFee: medium.maxFeePerGas,
+        },
+        high: {
+          maxFee: high.maxFeePerGas,
+        },
         displayDecimals: 0, // display btc fees in satoshi
-        low: this.formatBtcFee(rates.low),
-        medium: this.formatBtcFee(rates.medium),
-        high: this.formatBtcFee(rates.high),
-        isFixedFee: false,
       };
     }
 
@@ -44,7 +50,7 @@ export class NetworkFeeService {
   }
 
   private async getEip1559NetworkFeeRates(
-    network: Network,
+    network: NetworkWithCaipId,
     provider: JsonRpcBatchInternal
   ): Promise<NetworkFee> {
     const { maxFeePerGas: baseMaxFee } = await (
@@ -79,17 +85,11 @@ export class NetworkFeeService {
     };
   }
 
-  private formatBtcFee(rate: number) {
-    return {
-      maxFee: BigInt(rate),
-    };
-  }
-
   async estimateGasLimit(
     from: string,
     to: string,
     data: string,
-    network: Network,
+    network: NetworkWithCaipId,
     value?: bigint
   ): Promise<number | null> {
     if (network.vmName !== NetworkVMType.EVM) {
