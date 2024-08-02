@@ -137,7 +137,11 @@ export class BlockaidService {
         from: tx.from,
         to: tx.to,
         data: tx.data,
-        value: tx.value,
+        // BigInt cannot be JSON-stringified
+        value:
+          typeof tx.value === 'bigint'
+            ? `0x${tx.value.toString(16)}`
+            : tx.value,
       },
       metadata: { domain },
     });
