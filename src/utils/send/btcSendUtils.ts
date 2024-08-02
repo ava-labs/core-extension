@@ -7,10 +7,10 @@ import {
 import { inputBytes } from 'coinselect/utils';
 
 import { BtcSendOptions } from '@src/pages/Send/models';
-import { TokenWithBalanceBTC } from '@src/background/services/balances/models';
 
 import { isBtcAddressInNetwork } from '../isBtcAddressInNetwork';
 import { SendErrorMessage } from './models';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 export const getBtcInputUtxos = async (
   provider: BitcoinProvider,

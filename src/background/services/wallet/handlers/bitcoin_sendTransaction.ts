@@ -15,7 +15,6 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
 import { Account, WalletConnectAccount } from '../../accounts/models';
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
-import { TokenWithBalanceBTC } from '../../balances/models';
 import { BtcSendOptions } from '@src/pages/Send/models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { EnsureDefined } from '@src/background/models';
@@ -29,6 +28,7 @@ import { SendErrorMessage } from '@src/utils/send/models';
 import { resolve } from '@avalabs/core-utils-sdk';
 
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 type BitcoinTxParams = [address: string, amount: string, feeRate: number];
 

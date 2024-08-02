@@ -3,7 +3,6 @@ import {
   getAssets,
   getMaxTransferAmount as getEVMMaxTransferAmount,
 } from '@avalabs/core-bridge-sdk';
-import { bnToBig } from '@avalabs/core-utils-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { networkToBlockchain } from '@src/pages/Bridge/utils/blockchainConversion';
@@ -15,6 +14,7 @@ import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { AccountsService } from '../../accounts/AccountsService';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { normalizeBalance } from '@src/utils/normalizeBalance';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_GET_ETH_MAX_TRANSFER_AMOUNT,
@@ -76,7 +76,7 @@ export class GetEthMaxTransferAmountHandler implements HandlerType {
 
       const requiredForGas = await getEVMMaxTransferAmount({
         currentBlockchain,
-        balance: bnToBig(token.balance, token.decimals),
+        balance: normalizeBalance(token.balance, token.decimals) ?? new Big(0),
         currentAsset,
         assets: ethereumAssets,
         provider,

@@ -1,8 +1,8 @@
 import BN from 'bn.js';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import {
   TokenType,
   TokenWithBalanceAVM,
-  TokenWithBalanceBTC,
   TokenWithBalanceEVM,
   TokenWithBalancePVM,
 } from '../models';
@@ -45,7 +45,9 @@ describe('src/background/services/balances/utils/isTokenWithBalancePVM.ts', () =
     type: TokenType.NATIVE,
     name: 'Avalanche',
     symbol: 'AVAX',
-    balance: new BN(1),
+    balance: 1n,
+    balanceDisplayValue: '0.00000001',
+    coingeckoId: 'btc',
     decimals: 9,
     description: 'description',
     logoUri: 'logoUri',

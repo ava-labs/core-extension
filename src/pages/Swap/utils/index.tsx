@@ -2,7 +2,7 @@ import { TokenIcon as TokenImage } from '@src/components/common/TokenIcon';
 import { APIError } from 'paraswap';
 import {
   TokenType,
-  TokenWithBalance,
+  TokenWithBalanceEVM,
 } from '@src/background/services/balances/models';
 import { stringToBN } from '@avalabs/core-utils-sdk';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
@@ -10,7 +10,7 @@ import { OptimalRate } from 'paraswap-core';
 import BN from 'bn.js';
 
 interface GetTokenIconProps {
-  token?: TokenWithBalance;
+  token?: TokenWithBalanceEVM;
 }
 
 export const TokenIcon = ({ token }: GetTokenIconProps) => {
@@ -27,7 +27,7 @@ export const TokenIcon = ({ token }: GetTokenIconProps) => {
   );
 };
 
-export const getTokenIcon = (token: TokenWithBalance) => {
+export const getTokenIcon = (token: TokenWithBalanceEVM) => {
   if (!token) {
     return null;
   }
@@ -42,7 +42,7 @@ export const getTokenIcon = (token: TokenWithBalance) => {
   );
 };
 
-export const getMaxValue = (token?: TokenWithBalance, fee?: string) => {
+export const getMaxValue = (token?: TokenWithBalanceEVM, fee?: string) => {
   if (!token || !fee) {
     return;
   }
@@ -57,7 +57,7 @@ export function isAPIError(rate: any): rate is APIError {
   return typeof rate.message === 'string';
 }
 
-export const getTokenAddress = (token?: TokenWithBalance) => {
+export const getTokenAddress = (token?: TokenWithBalanceEVM) => {
   if (!token) {
     return undefined;
   }
@@ -75,7 +75,7 @@ export const getMaxValueWithGas = ({
   gasLimit?: number;
   avaxPrice: number;
   tokenDecimals?: number;
-  selectedFromToken: TokenWithBalance;
+  selectedFromToken: TokenWithBalanceEVM;
 }) => {
   const newFees = calculateGasAndFees({
     gasPrice: customGasPrice,

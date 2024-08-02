@@ -6,6 +6,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import {
   TokenType,
   TokenWithBalance,
+  isNewTokenBalance,
 } from '@src/background/services/balances/models';
 import { BN } from 'bn.js';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
@@ -176,7 +177,9 @@ export const useTokensWithBalances = (
     const defaultResult = nativeToken ? [nativeToken] : [];
 
     const filteredTokens = unfilteredTokens.filter((token) => {
-      return token.balance.gt(bnZero) || token.type === TokenType.NATIVE; // Always include the native token
+      return isNewTokenBalance(token)
+        ? token.balance > 0
+        : token.balance.gt(bnZero) || token.type === TokenType.NATIVE; // Always include the native token
     });
 
     return filteredTokens.length

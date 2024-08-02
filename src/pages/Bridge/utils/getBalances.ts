@@ -1,13 +1,14 @@
 import { Asset, isBtcAsset, isNativeAsset } from '@avalabs/core-bridge-sdk';
 import { AssetBalance } from '@src/pages/Bridge/models';
-import { bnToBig } from '@avalabs/core-utils-sdk';
 import {
   TokenWithBalanceERC20,
   TokenWithBalance,
   TokenType,
+  getTokenPrice,
 } from '@src/background/services/balances/models';
 import { BridgeAsset } from '@avalabs/bridge-unified';
 import { isUnifiedBridgeAsset } from './isUnifiedBridgeAsset';
+import { normalizeBalance } from '@src/utils/normalizeBalance';
 
 /**
  * Get balances of wrapped erc20 tokens on Avalanche
@@ -41,9 +42,9 @@ export function getBalances(
       : tokensByAddress[asset.wrappedContractAddress?.toLowerCase()] ||
         tokensByAddress[asset.nativeContractAddress?.toLowerCase()];
 
-    const balance = token && bnToBig(token.balance, token.decimals);
+    const balance = token && normalizeBalance(token.balance, token.decimals);
     const logoUri = token?.logoUri;
-    const price = token?.priceUSD;
+    const price = getTokenPrice(token);
 
     return { symbol, asset, balance, logoUri, price };
   });

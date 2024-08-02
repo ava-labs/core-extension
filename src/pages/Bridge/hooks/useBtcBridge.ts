@@ -28,8 +28,10 @@ import { NetworkFee } from '@src/background/services/networkFee/models';
 import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { CustomGasSettings } from '@src/background/services/bridge/models';
-import { TokenWithBalanceBTC } from '@src/background/services/balances/models';
 import { chainIdToCaip } from '@src/utils/caipConversion';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { normalizeBalance } from '@src/utils/normalizeBalance';
+import { getTokenPrice } from '@src/background/services/balances/models';
 
 const NETWORK_FEE_REFRESH_INTERVAL = 60_000;
 
@@ -131,11 +133,11 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
         setBtcBalance({
           symbol: btcAsset.symbol,
           asset: btcAsset,
-          balance: satoshiToBtc(balance.balance.toNumber()),
+          balance: normalizeBalance(balance.balance, balance.decimals),
           logoUri: balance.logoUri,
-          price: balance.priceUSD,
+          price: balance.priceInCurrency,
           unconfirmedBalance: balance?.unconfirmedBalance
-            ? satoshiToBtc(balance.unconfirmedBalance.toNumber())
+            ? satoshiToBtc(Number(balance.unconfirmedBalance))
             : satoshiToBtc(0),
         });
       }
@@ -148,11 +150,15 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
         setBtcBalanceAvalanche({
           symbol: btcAsset.symbol,
           asset: btcAsset,
-          balance: satoshiToBtc(btcAvalancheBalance.balance?.toNumber() || 0),
+          balance: normalizeBalance(
+            btcAvalancheBalance.balance,
+            btcAvalancheBalance.decimals
+          ),
           logoUri: btcAvalancheBalance.logoUri,
-          price: btcAvalancheBalance.priceUSD,
-          unconfirmedBalance: satoshiToBtc(
-            btcAvalancheBalance.balance?.toNumber() || 0
+          price: getTokenPrice(balance),
+          unconfirmedBalance: normalizeBalance(
+            btcAvalancheBalance.balance,
+            btcAvalancheBalance.decimals
           ),
         });
       }

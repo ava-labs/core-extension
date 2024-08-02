@@ -1,24 +1,19 @@
-import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
-import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { balanceToDisplayValue, bigToBN } from '@avalabs/core-utils-sdk';
-import { TokenPricesService } from '@src/background/services/balances/TokenPricesService';
-import { NetworkService } from '@src/background/services/network/NetworkService';
+import { BitcoinModule } from '@avalabs/bitcoin-module';
+import { isString, mapValues } from 'lodash';
 import { singleton } from 'tsyringe';
 import { Account } from '../accounts/models';
 import { SettingsService } from '../settings/SettingsService';
-import { TokenType, TokenWithBalance } from './models';
 import * as Sentry from '@sentry/browser';
 import { TokensPriceShortData } from '../tokens/models';
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { getPriceChangeValues } from './utils/getPriceChangeValues';
+import ModuleManager from '@src/background/vmModules/ModuleManager';
+import { NetworkWithCaipId } from '../network/models';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BalancesServiceBTC {
-  constructor(
-    private networkService: NetworkService,
-    private tokenPricesService: TokenPricesService,
-    private settingsService: SettingsService
-  ) {}
+  constructor(private settingsService: SettingsService) {}
 
   getServiceForProvider(provider: any) {
     if (provider instanceof BitcoinProvider) return this;
@@ -26,117 +21,41 @@ export class BalancesServiceBTC {
 
   async getBalances(
     accounts: Account[],
-    network: Network,
+    network: NetworkWithCaipId,
     priceChanges?: TokensPriceShortData
-  ): Promise<Record<string, Record<string, TokenWithBalance>>> {
+  ): Promise<Record<string, Record<string, TokenWithBalanceBTC>>> {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalancesServiceBTC: getBalances',
     });
-    const provider = await this.networkService.getBitcoinProvider();
-    const selectedCurrency = (await this.settingsService.getSettings())
-      .currency;
-    const coingeckoTokenId = network.pricingProviders?.coingecko.nativeTokenId;
-    const tokenPrice = coingeckoTokenId
-      ? await this.tokenPricesService.getPriceByCoinId(
-          coingeckoTokenId,
-          selectedCurrency
-        )
-      : undefined;
+    const currency = (
+      await this.settingsService.getSettings()
+    ).currency.toLowerCase();
 
-    const balances = (
-      await Promise.allSettled(
-        accounts.map(async (account) => {
-          // WalletConnect accounts may be imported without the BTC address.
-          // Any accounts like that are filtered out below.
-          if (!account.addressBTC) {
-            throw new Error('This account does not support BTC');
-          }
+    const module = (await ModuleManager.loadModuleByNetwork(
+      network
+    )) as BitcoinModule;
+    const addresses = accounts
+      .map(({ addressBTC }) => addressBTC)
+      .filter(isString);
 
-          if (network.vmName !== NetworkVMType.BITCOIN) {
-            return {
-              address: account.addressBTC,
-              balances: [],
-            };
-          }
+    const rawBalances = await module.getBalances({
+      addresses,
+      currency,
+      network,
+    });
 
-          const denomination = network.networkToken.decimals;
-          const {
-            balance: balanceSatoshis,
-            utxos,
-            balanceUnconfirmed: balanceSatoshisUnconfirmed,
-          } = await provider.getUtxoBalance(account.addressBTC, false);
+    // Apply price changes data, VM Modules don't do this yet
+    const balances = mapValues(rawBalances, (accountBalance) => {
+      return mapValues(accountBalance, (tokenBalance) => ({
+        ...tokenBalance,
+        priceChanges: getPriceChangeValues(
+          tokenBalance.symbol,
+          tokenBalance.balanceInCurrency,
+          priceChanges
+        ),
+      }));
+    });
 
-          const balanceBig = satoshiToBtc(balanceSatoshis);
-          const balance = bigToBN(balanceBig, denomination);
-          const balanceUSD =
-            tokenPrice === undefined
-              ? undefined
-              : balanceBig.times(tokenPrice).toNumber();
-
-          const unconfirmedBalanceBig = satoshiToBtc(
-            balanceSatoshisUnconfirmed
-          );
-          const unconfirmedBalance = bigToBN(
-            unconfirmedBalanceBig,
-            denomination
-          );
-          const unconfirmedBalanceUSD =
-            tokenPrice === undefined
-              ? undefined
-              : unconfirmedBalanceBig.times(tokenPrice).toNumber();
-
-          const symbol = network.networkToken.symbol;
-
-          return {
-            address: account.addressBTC,
-            balances: {
-              [symbol]: {
-                ...network.networkToken,
-                type: TokenType.NATIVE,
-                balance,
-                balanceDisplayValue: balanceToDisplayValue(
-                  balance,
-                  denomination
-                ),
-                balanceUSD,
-                balanceUsdDisplayValue:
-                  tokenPrice === undefined
-                    ? undefined
-                    : balanceBig.mul(tokenPrice).toFixed(2),
-                priceUSD: tokenPrice,
-                utxos,
-                unconfirmedBalance,
-                unconfirmedBalanceDisplayValue: balanceToDisplayValue(
-                  unconfirmedBalance,
-                  denomination
-                ),
-                unconfirmedBalanceUsdDisplayValue:
-                  tokenPrice === undefined
-                    ? undefined
-                    : unconfirmedBalanceBig.mul(tokenPrice).toFixed(2),
-                unconfirmedBalanceUSD,
-                logoUri:
-                  'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
-                priceChanges: getPriceChangeValues(
-                  symbol,
-                  balanceUSD,
-                  priceChanges
-                ),
-              },
-            },
-          };
-        })
-      )
-    ).reduce((acc, result) => {
-      if (result.status === 'rejected') {
-        return acc;
-      }
-
-      return {
-        ...acc,
-        [result.value.address]: result.value.balances,
-      };
-    }, {});
     sentryTracker.finish();
     return balances;
   }

@@ -10,7 +10,10 @@ import { findToken } from '../../../../../../utils/findToken';
 import { Network } from '@avalabs/core-chains-sdk';
 import { TransactionDescription } from 'ethers';
 import { bigintToBig } from '@src/utils/bigintToBig';
-import { TokenType } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalanceEVM,
+} from '@src/background/services/balances/models';
 
 export interface SwapExactTokensForAVAXData {
   amountOutMin: bigint;
@@ -34,14 +37,14 @@ export async function swapExactTokensForAvax(
   data: SwapExactTokensForAVAXData,
   txDetails: TransactionDescription | null
 ): Promise<TransactionDisplayValues> {
-  const firstTokenInPath = await findToken(
+  const firstTokenInPath = (await findToken(
     data.path[0]?.toLowerCase() || '',
     network
-  );
-  const networkTokenWithBalance = await findToken(
+  )) as TokenWithBalanceEVM;
+  const networkTokenWithBalance = (await findToken(
     network.networkToken.symbol,
     network
-  );
+  )) as TokenWithBalanceEVM;
 
   const sendTokenList: TransactionToken[] = [];
 

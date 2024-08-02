@@ -10,12 +10,12 @@ import { BaseSendOptions, NativeSendOptions, SendOptions } from '../../models';
 import {
   NetworkTokenWithBalance,
   TokenWithBalanceAVM,
-  TokenWithBalanceBTC,
   TokenWithBalancePVM,
 } from '@src/background/services/balances/models';
 import { Account } from '@src/background/services/accounts/models';
 import { EnsureDefined } from '@src/background/models';
 import { SendErrorMessage } from '@src/utils/send/models';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 type CommonAdapterOptions<Provider, Token> = {
   from: string;
