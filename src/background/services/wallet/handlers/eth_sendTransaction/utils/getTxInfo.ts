@@ -1,4 +1,4 @@
-import { Interface, TransactionDescription } from 'ethers';
+import { Interface, TransactionDescription, toBeHex } from 'ethers';
 import {
   getABIForContract,
   getSourceForContract,
@@ -51,9 +51,10 @@ async function getAvalancheABIFromSource(address: string, isMainnet: boolean) {
 export async function getTxInfo(
   address: string,
   data: string,
-  value: string,
+  value: string | bigint,
   network: Network
 ): Promise<TransactionDescription> {
+  const hexValue = toBeHex(value);
   /**
    * We already eliminate BTC as a tx requestor so we only need to verify if we are still on a
    * avalanche net. At this point anything else would be a subnet
@@ -62,7 +63,7 @@ export async function getTxInfo(
     network?.chainId !== ChainId.AVALANCHE_TESTNET_ID &&
     network?.chainId !== ChainId.AVALANCHE_MAINNET_ID
   ) {
-    return parseDataWithABI(data, value, new Interface(ERC20.abi));
+    return parseDataWithABI(data, hexValue, new Interface(ERC20.abi));
   }
 
   const { result, contractSource } = await getAvalancheABIFromSource(
@@ -78,5 +79,5 @@ export async function getTxInfo(
   if (!abi) {
     throw new Error('unable to get abi');
   }
-  return parseDataWithABI(data, value, new Interface(abi));
+  return parseDataWithABI(data, hexValue, new Interface(abi));
 }

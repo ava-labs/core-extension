@@ -14,6 +14,8 @@ import { bnToLocaleString, numberToBN } from '@avalabs/core-utils-sdk';
 Big.PE = 99;
 Big.NE = -18;
 
+const BN_ZERO = new BN(0);
+
 export interface BNInputProps {
   value?: BN;
   denomination: number;
@@ -118,6 +120,8 @@ export function BNInput({
     onValueChanged(big.toString());
   };
 
+  const isMaxBtnVisible = max?.gt(BN_ZERO);
+
   return (
     <Stack sx={{ position: 'relative' }}>
       <InputNumber
@@ -155,7 +159,7 @@ export function BNInput({
           endAdornment: withMaxButton ? (
             isValueLoading ? (
               <CircularProgress size={16} sx={{ height: 'auto !important' }} />
-            ) : max ? (
+            ) : isMaxBtnVisible ? (
               <InputAdornment position="end">
                 <Button
                   variant="text"

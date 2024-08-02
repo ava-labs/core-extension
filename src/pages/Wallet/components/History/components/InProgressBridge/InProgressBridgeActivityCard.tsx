@@ -12,7 +12,10 @@ import {
 } from '@avalabs/core-k2-components';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { blockchainToNetwork } from '@src/pages/Bridge/utils/blockchainConversion';
+import {
+  blockchainToNetwork,
+  networkToBlockchain,
+} from '@src/pages/Bridge/utils/blockchainConversion';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -209,8 +212,13 @@ export function InProgressBridgeActivityCard({
                       p: 0,
                     }}
                     onClick={() => {
+                      const chainName =
+                        typeof tx.sourceChain === 'string'
+                          ? tx.sourceChain
+                          : networkToBlockchain(tx.sourceChain);
+
                       history.push(
-                        `/bridge/transaction-status/${tx.sourceChain}/${tx.sourceTxHash}/${tx.sourceStartedAt}`
+                        `/bridge/transaction-status/${chainName}/${tx.sourceTxHash}/${tx.sourceStartedAt}`
                       );
                     }}
                   >

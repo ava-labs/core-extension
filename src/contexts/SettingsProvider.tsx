@@ -32,6 +32,7 @@ import {
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { getCurrencyFormatter } from './utils/getCurrencyFormatter';
+import { updateIfDifferent } from '@src/utils/updateIfDifferent';
 
 type SettingsFromProvider = SettingsState & {
   lockWallet(): Promise<true>;
@@ -77,7 +78,9 @@ export function SettingsContextProvider({ children }: { children: any }) {
         filter(settingsUpdatedEventListener),
         map((evt) => evt.value)
       )
-      .subscribe((val) => setSettings(val));
+      .subscribe((newSettings) => {
+        updateIfDifferent(setSettings, newSettings);
+      });
 
     return () => subscription.unsubscribe();
   }, [events, request]);
