@@ -260,7 +260,12 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
       onError('Unsupported blockchain');
       return;
     }
-    this.featureFlagService.ensureFlagEnabled(FeatureGates.BRIDGE);
+    try {
+      this.featureFlagService.ensureFlagEnabled(FeatureGates.BRIDGE);
+    } catch {
+      onError('Bridge feature is currently disabled');
+      return;
+    }
 
     const amountStr = pendingAction?.displayData.amountStr;
     const asset = pendingAction?.displayData.asset;
