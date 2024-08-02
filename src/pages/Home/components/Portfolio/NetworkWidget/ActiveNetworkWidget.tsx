@@ -26,7 +26,6 @@ import { isBitcoin } from '@src/utils/isBitcoin';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { usePendingBridgeTransactions } from '@src/pages/Bridge/hooks/usePendingBridgeTransactions';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
-import { BN } from 'bn.js';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { PchainActiveNetworkWidgetContent } from './PchainActiveNetworkWidgetContent';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
@@ -34,6 +33,8 @@ import { isXchainNetwork } from '@src/background/services/network/utils/isAvalan
 import { XchainActiveNetworkWidgetContent } from './XchainActiveNetworkWidgetContent';
 import { isTokenWithBalancePVM } from '@src/background/services/balances/utils/isTokenWithBalancePVM';
 import { isTokenWithBalanceAVM } from '@src/background/services/balances/utils/isTokenWithBalanceAVM';
+import { normalizeBalance } from '@src/utils/normalizeBalance';
+import Big from 'big.js';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
@@ -78,8 +79,11 @@ export function ActiveNetworkWidget({
     }
   };
 
-  const hasNoFunds =
-    assetList.length === 1 && assetList[0]?.balance.eq(new BN(0));
+  const firstAsset = assetList[0];
+  const funds = firstAsset
+    ? normalizeBalance(firstAsset.balance, firstAsset.decimals) ?? new Big(0)
+    : new Big(0);
+  const hasNoFunds = assetList.length === 1 && funds?.eq(new Big(0));
 
   const selectedAssetList = assetList[0];
 

@@ -24,12 +24,13 @@ import { AssetBalance } from '../models';
 import { BridgeAdapter } from './useBridge';
 import { TransactionPriority } from '@src/background/services/networkFee/models';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { TokenWithBalanceBTC } from '@src/background/services/balances/models';
 
 import { getBtcInputUtxos } from '@src/utils/send/btcSendUtils';
 import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/handlers/bitcoin_sendTransaction';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useTranslation } from 'react-i18next';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { normalizeBalance } from '@src/utils/normalizeBalance';
 
 /**
  * Hook for Bitcoin to Avalanche transactions
@@ -109,12 +110,12 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     setBtcBalance({
       symbol: btcAsset.symbol,
       asset: btcAsset,
-      balance: satoshiToBtc(btcToken.balance.toNumber()),
+      balance: normalizeBalance(btcToken.balance, btcToken.decimals),
       logoUri: btcToken.logoUri,
-      price: btcToken.priceUSD,
+      price: btcToken.priceInCurrency,
       unconfirmedBalance: btcToken.unconfirmedBalance
-        ? satoshiToBtc(btcToken.unconfirmedBalance.toNumber())
-        : satoshiToBtc(0),
+        ? normalizeBalance(btcToken.unconfirmedBalance, btcToken.decimals)
+        : new Big(0),
     });
   }, [btcToken, btcAsset, isBitcoinBridge]);
 

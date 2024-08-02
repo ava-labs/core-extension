@@ -10,7 +10,10 @@ import { Network } from '@avalabs/core-chains-sdk';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { TransactionDescription } from 'ethers';
 import { findToken } from '../../../../../../utils/findToken';
-import { TokenType } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalanceEVM,
+} from '@src/background/services/balances/models';
 
 export interface AddLiquidityAvaxData {
   amountAVAXMin: bigint;
@@ -35,7 +38,10 @@ export async function addLiquidityAvaxHandler(
   data: AddLiquidityAvaxData,
   txDetails: TransactionDescription | null
 ): Promise<TransactionDisplayValues> {
-  const token = await findToken(data.token.toLowerCase(), network);
+  const token = (await findToken(
+    data.token.toLowerCase(),
+    network
+  )) as TokenWithBalanceEVM;
   const sendTokenList: TransactionToken[] = [];
 
   sendTokenList.push({

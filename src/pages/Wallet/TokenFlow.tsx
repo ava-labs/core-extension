@@ -9,7 +9,7 @@ import { useHistory } from 'react-router';
 import { Activity } from '../Activity/Activity';
 import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { balanceToDisplayValue } from '@avalabs/core-utils-sdk';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 import {
   ArrowUpRightIcon,
   BridgeIcon,
@@ -36,6 +36,11 @@ import { hasUnconfirmedBalance } from '@src/utils/hasUnconfirmedBalance';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import {
+  getBalanceInCurrency,
+  getUnconfirmedBalanceInCurrency,
+  isNewTokenBalance,
+} from '@src/background/services/balances/models';
 
 export function TokenFlow() {
   const { t } = useTranslation();
@@ -84,7 +89,11 @@ export function TokenFlow() {
   }, [isPchain, activeAccount, isXchain]);
 
   useEffect(() => {
-    setShowSend(token?.balance.gt(new BN(0)));
+    setShowSend(
+      isNewTokenBalance(token)
+        ? token.balance > 0n
+        : token?.balance.gt(new BN(0))
+    );
   }, [token]);
 
   useEffect(() => {
@@ -110,8 +119,18 @@ export function TokenFlow() {
 
   const balanceCurrencyValue =
     isBitcoin && hasUnconfirmedBalance(token)
-      ? (token.balanceUSD || 0) + (token.unconfirmedBalanceUSD || 0)
-      : token.balanceUsdDisplayValue ?? token.balanceUSD;
+      ? (getBalanceInCurrency(token) ?? 0) +
+        (getUnconfirmedBalanceInCurrency(token) ?? 0)
+      : getBalanceInCurrency(token);
+
+  const totalBalance =
+    token.balance && hasUnconfirmedBalance(token)
+      ? new TokenUnit(
+          token.balance + token.unconfirmedBalance,
+          token.decimals,
+          token.symbol
+        )
+      : new TokenUnit(token.balance, token.decimals, token.symbol);
 
   return (
     <Stack sx={{ width: '100%', position: 'relative' }}>
@@ -156,12 +175,7 @@ export function TokenFlow() {
           <Stack sx={{ justifyContent: 'space-between', flexDirection: 'row' }}>
             <Stack direction="row" alignItems="center" sx={{ columnGap: 0.5 }}>
               <Typography data-testid="token-details-balance" variant="body2">
-                {token.balance && hasUnconfirmedBalance(token)
-                  ? balanceToDisplayValue(
-                      token.balance.add(token.unconfirmedBalance),
-                      token.decimals
-                    )
-                  : token.balanceDisplayValue || '0.00'}{' '}
+                {totalBalance.toDisplay()}{' '}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {token.symbol}

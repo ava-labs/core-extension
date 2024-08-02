@@ -10,7 +10,10 @@ import {
   TransactionType,
 } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { TransactionDescription } from 'ethers';
-import { TokenType } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalanceEVM,
+} from '@src/background/services/balances/models';
 
 export interface AddLiquidityData {
   amountAMin: bigint;
@@ -37,8 +40,14 @@ export async function addLiquidityHandler(
   data: AddLiquidityData,
   txDetails: TransactionDescription | null
 ): Promise<TransactionDisplayValues> {
-  const tokenA = await findToken(data.tokenA.toLowerCase(), network);
-  const tokenB = await findToken(data.tokenB.toLowerCase(), network);
+  const tokenA = (await findToken(
+    data.tokenA.toLowerCase(),
+    network
+  )) as TokenWithBalanceEVM;
+  const tokenB = (await findToken(
+    data.tokenB.toLowerCase(),
+    network
+  )) as TokenWithBalanceEVM;
 
   const sendTokenList: TransactionToken[] = [];
 

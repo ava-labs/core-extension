@@ -2,7 +2,10 @@ import { ContractCall, ContractParser } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { findToken } from '../../../../../../utils/findToken';
 import { Network } from '@avalabs/core-chains-sdk';
-import { TokenType } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  TokenWithBalanceEVM,
+} from '@src/background/services/balances/models';
 import { TransactionDescription } from 'ethers';
 import {
   EthSendTransactionParamsWithGas,
@@ -44,12 +47,16 @@ export async function simpleSwapHandler(
   { data }: SimpleSwapData,
   txDetails: TransactionDescription | null
 ): Promise<TransactionDisplayValues> {
-  const fromToken = isNetworkToken(data.fromToken)
-    ? await findToken(network.networkToken.symbol, network)
-    : await findToken(data.fromToken, network);
-  const toToken = isNetworkToken(data.toToken)
-    ? await findToken(network.networkToken.symbol, network)
-    : await findToken(data.toToken, network);
+  const fromToken = (
+    isNetworkToken(data.fromToken)
+      ? await findToken(network.networkToken.symbol, network)
+      : await findToken(data.fromToken, network)
+  ) as TokenWithBalanceEVM;
+  const toToken = (
+    isNetworkToken(data.toToken)
+      ? await findToken(network.networkToken.symbol, network)
+      : await findToken(data.toToken, network)
+  ) as TokenWithBalanceEVM;
 
   const sendTokenList: TransactionToken[] = [];
   const receiveTokenList: TransactionToken[] = [];

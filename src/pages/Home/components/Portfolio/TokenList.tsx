@@ -10,13 +10,17 @@ import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
-import { TokenType } from '@src/background/services/balances/models';
+import {
+  TokenType,
+  getBalanceInCurrency,
+} from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from '@src/components/common/VirtualizedList';
 import { Button, Stack, styled } from '@avalabs/core-k2-components';
 import { TokenIcon } from '@src/components/common/TokenIcon';
-import { BN } from 'bn.js';
+import { normalizeBalance } from '@src/utils/normalizeBalance';
+import Big from 'big.js';
 
 const TokenRow = styled('div')`
   padding: 0 10px 0 16px;
@@ -36,9 +40,12 @@ export function TokenList({ searchQuery }: TokenListProps) {
   const { isFunctionSupported: isManageTokenSupported } =
     useIsFunctionAvailable(FunctionNames.MANAGE_TOKEN);
 
+  const firstAsset = tokensWithBalances[0];
+  const firstAssetBalance = firstAsset
+    ? normalizeBalance(firstAsset.balance, firstAsset.decimals) ?? new Big(0)
+    : new Big(0);
   const hasNoFunds =
-    tokensWithBalances.length === 1 &&
-    tokensWithBalances[0]?.balance.eq(new BN(0));
+    tokensWithBalances.length === 1 && firstAssetBalance.eq(new Big(0));
 
   const tokens = useMemo(
     () =>
@@ -52,7 +59,10 @@ export function TokenList({ searchQuery }: TokenListProps) {
         : tokensWithBalances
       )
         .filter((token) => getTokenVisibility(token))
-        .sort((a, b) => (b.balanceUSD ?? 0) - (a.balanceUSD ?? 0)),
+        .sort(
+          (a, b) =>
+            (getBalanceInCurrency(b) ?? 0) - (getBalanceInCurrency(a) ?? 0)
+        ),
     [searchQuery, tokensWithBalances, getTokenVisibility]
   );
 
@@ -87,7 +97,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
           name={token.name}
           symbol={token.symbol}
           balanceDisplayValue={token.balanceDisplayValue}
-          balanceUSD={token.balanceUSD?.toString()}
+          balanceUSD={getBalanceInCurrency(token)?.toString()}
           priceChanges={token.priceChanges}
         >
           <TokenIcon

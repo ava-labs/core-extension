@@ -1,4 +1,4 @@
-import { TokenWithBalanceBTC } from '@src/background/services/balances/models';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import { SecretType } from '../../secrets/models';
 import { PubKeyType } from '../models';
 
