@@ -12,6 +12,7 @@ import { EVMModule } from './mocks/evm';
 import { PVMModule } from './mocks/pvm';
 import { CoreEthModule } from './mocks/coreEth';
 import { VMModuleError } from './models';
+import ApprovalController from './ApprovalController';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2
@@ -41,6 +42,7 @@ class ModuleManager {
       new EVMModule(),
       new BitcoinModule({
         environment,
+        approvalController: ApprovalController,
       }),
       new AVMModule(),
       new CoreEthModule(),
