@@ -45,15 +45,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@0.1.4":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.1.4.tgz#69e5b0bde655385f737db7394d05f31ffb73752a"
-  integrity sha512-XDjElNILR8Wpn0RL1ngiYfnyAtjp/eWPn3nC4e2mNMNjZWmWgGHa0Y/flR5vWTWpmd1WNtDxEug2n6l0pTZIlg==
+"@avalabs/bitcoin-module@0.0.0-feat-bitcoin-sign-tx-20240804192215":
+  version "0.0.0-feat-bitcoin-sign-tx-20240804192215"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-bitcoin-sign-tx-20240804192215.tgz#8397894fd6cc77edd6ca86aabacb0ad467bf272e"
+  integrity sha512-gKS1E0zGgLvZRHlbtdTxGAW7eCfT/0gkLAeQHmtLjDFYJmA8oinfxFlakmOBnheDw/9ATv9B8dBgx8VXsWHKYA==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.0.1-alpha.1"
     "@avalabs/core-utils-sdk" "3.0.1-alpha.1"
     "@avalabs/core-wallets-sdk" "3.0.1-alpha.1"
-    "@avalabs/vm-module-types" "0.1.4"
+    "@avalabs/vm-module-types" "0.0.0-feat-bitcoin-sign-tx-20240804192215"
     "@metamask/rpc-errors" "6.3.0"
     "@zodios/core" "10.9.6"
     big.js "6.2.1"
@@ -199,10 +199,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.0.1-alpha.1.tgz#f0c213652fa0ba9f674e438dbad4eb6274cff61a"
   integrity sha512-2Rysz0akLzn97VGNxBKuxKNY0GLgtVrbPw1RRJN2KHECAFGj5hMWdfQP5oI+7KfPegM3xenDmKlgrw41UOVbCg==
 
-"@avalabs/vm-module-types@0.1.4":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.1.4.tgz#e6c0dfc595f06404ddd513d9134433ede71fa623"
-  integrity sha512-zlvAvZc1dp3VaMFApMQ0clooICt955aklh6zxDqUW4wPR1mHozI0TLUMZd8NXXFhW8OjFITaNEUb802h2qtkRA==
+"@avalabs/vm-module-types@0.0.0-feat-bitcoin-sign-tx-20240804192215":
+  version "0.0.0-feat-bitcoin-sign-tx-20240804192215"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-bitcoin-sign-tx-20240804192215.tgz#0bfa768731ee517a42c2f99baf271987f8d63f20"
+  integrity sha512-vxU0B9drJVHjir7Ys9VFXQE9otBak10Fel9UzMQwUTJDMpa6mfYQIYOmY5W1BgFgU0R2y+IcW5ZnO1TMB9eZhg==
   dependencies:
     "@metamask/rpc-errors" "6.3.0"
     ethers "6.8.1"

@@ -4,3 +4,5 @@ export enum VMModuleError {
   UnsupportedNamespace = 'unsupported-namespace',
   ModulesNotInitialized = 'modules-not-initialized',
 }
+
+export const VIA_MODULE_SYMBOL = Symbol.for('handle.via.module');
