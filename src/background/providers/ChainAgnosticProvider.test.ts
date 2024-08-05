@@ -1,6 +1,6 @@
 import { ethErrors } from 'eth-rpc-errors';
 import AutoPairingPostMessageConnection from '../utils/messaging/AutoPairingPostMessageConnection';
-import { ChainAgnostinProvider } from './ChainAgnosticProvider';
+import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 
 jest.mock('./utils/onDomReady');
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
@@ -16,7 +16,7 @@ describe('src/background/providers/ChainAgnosticProvider', () => {
 
   describe('initialization', () => {
     it('should connect to the backgroundscript', async () => {
-      new ChainAgnostinProvider(channelMock);
+      new ChainAgnosticProvider(channelMock);
 
       expect(channelMock.connect).toHaveBeenCalled();
       expect(channelMock.request).not.toHaveBeenCalled();
@@ -24,7 +24,7 @@ describe('src/background/providers/ChainAgnosticProvider', () => {
     it('waits for message channel to be connected', async () => {
       const mockedChannel = new AutoPairingPostMessageConnection(false);
 
-      const provider = new ChainAgnostinProvider(channelMock);
+      const provider = new ChainAgnosticProvider(channelMock);
       expect(mockedChannel.connect).toHaveBeenCalled();
       expect(mockedChannel.request).not.toHaveBeenCalled();
 
@@ -39,7 +39,7 @@ describe('src/background/providers/ChainAgnosticProvider', () => {
 
   describe('request', () => {
     it('should use the rate limits on `eth_requestAccounts` requests', async () => {
-      const provider = new ChainAgnostinProvider(channelMock);
+      const provider = new ChainAgnosticProvider(channelMock);
       (channelMock.request as jest.Mock).mockResolvedValue('success');
 
       const firstCallCallback = jest.fn();
@@ -66,7 +66,7 @@ describe('src/background/providers/ChainAgnosticProvider', () => {
       );
     });
     it('shoud not use the rate limits on `random_method` requests', async () => {
-      const provider = new ChainAgnostinProvider(channelMock);
+      const provider = new ChainAgnosticProvider(channelMock);
       (channelMock.request as jest.Mock).mockResolvedValue('success');
 
       const firstCallCallback = jest.fn();
@@ -90,7 +90,7 @@ describe('src/background/providers/ChainAgnosticProvider', () => {
     });
 
     it('should call the request of the connection', async () => {
-      const provider = new ChainAgnostinProvider(channelMock);
+      const provider = new ChainAgnosticProvider(channelMock);
       (channelMock.request as jest.Mock).mockResolvedValueOnce('success');
 
       await provider.request({
@@ -102,7 +102,7 @@ describe('src/background/providers/ChainAgnosticProvider', () => {
     });
     describe('CAIP-27', () => {
       it('should wrap the incoming request into CAIP-27 envelope and reuses the provided ID', async () => {
-        const provider = new ChainAgnostinProvider(channelMock);
+        const provider = new ChainAgnosticProvider(channelMock);
         // response for the actual call
         (channelMock.request as jest.Mock).mockResolvedValueOnce('success');
 

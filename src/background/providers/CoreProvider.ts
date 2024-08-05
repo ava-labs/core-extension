@@ -17,7 +17,7 @@ import {
   type JsonRpcRequestPayload,
 } from '../connections/dAppConnection/models';
 import type { PartialBy, ProviderInfo } from '../models';
-import { ChainAgnostinProvider } from './ChainAgnosticProvider';
+import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import AbstractConnection from '../utils/messaging/AbstractConnection';
 
 interface ProviderState {
@@ -30,7 +30,7 @@ interface ProviderState {
 export class CoreProvider extends EventEmitter {
   #providerReadyPromise = new ProviderReadyPromise();
   #contentScriptConnection: AbstractConnection;
-  #chainagnosticProvider?: ChainAgnostinProvider;
+  #chainagnosticProvider?: ChainAgnosticProvider;
 
   readonly info: ProviderInfo = {
     name: EVM_PROVIDER_INFO_NAME,

@@ -1,5 +1,5 @@
 import type AbstractConnection from '../utils/messaging/AbstractConnection';
-import { ChainAgnostinProvider } from './ChainAgnosticProvider';
+import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import { CoreProvider } from './CoreProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { EventNames, type EIP6963ProviderDetail } from './models';
@@ -18,7 +18,7 @@ export function initializeProvider(
   globalObject = window
 ): CoreProvider {
   const chainAgnosticProvider = new Proxy(
-    new ChainAgnostinProvider(connection),
+    new ChainAgnosticProvider(connection),
     {
       deleteProperty: () => true,
     }
@@ -149,10 +149,10 @@ function announceWalletProvider(
 }
 
 function announceChainAgnosticProvider(
-  providerInstance: ChainAgnostinProvider,
+  providerInstance: ChainAgnosticProvider,
   globalObject = window
 ): void {
-  const announceEvent = new CustomEvent<{ provider: ChainAgnostinProvider }>(
+  const announceEvent = new CustomEvent<{ provider: ChainAgnosticProvider }>(
     EventNames.CORE_WALLET_ANNOUNCE_PROVIDER,
     {
       detail: Object.freeze({

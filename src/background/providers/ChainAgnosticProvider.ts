@@ -9,7 +9,7 @@ import AbstractConnection from '../utils/messaging/AbstractConnection';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import RequestRatelimiter from './utils/RequestRatelimiter';
 
-export class ChainAgnostinProvider extends EventEmitter {
+export class ChainAgnosticProvider extends EventEmitter {
   #contentScriptConnection: AbstractConnection;
 
   #requestRateLimiter = new RequestRatelimiter([
@@ -68,19 +68,14 @@ export class ChainAgnostinProvider extends EventEmitter {
   };
 
   request = async ({
-    internal,
     data,
     sessionId,
     chainId,
   }: {
-    internal?: boolean;
     data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>;
     sessionId: string;
     chainId: string | null;
   }) => {
-    if (internal) {
-      return this.#request({ data, chainId, sessionId });
-    }
     return this.#requestRateLimiter.call(data.method, () =>
       this.#request({ data, chainId, sessionId })
     );
