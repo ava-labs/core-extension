@@ -32,6 +32,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
   const signMock = jest.fn();
   const sendTransactionMock = jest.fn();
   const getBalancesForNetworksMock = jest.fn();
+  const captureEventMock = jest.fn();
 
   const getBitcoinNetworkMock = jest.fn();
   const activeAccountMock = {
@@ -50,6 +51,9 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
   const accountsServiceMock = {};
   const balanceAggregatorServiceMock = {
     getBalancesForNetworks: getBalancesForNetworksMock,
+  };
+  const analyticsServiceMock = {
+    captureEvent: captureEventMock,
   };
 
   beforeEach(() => {
@@ -91,6 +95,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         {} as any,
         {} as any,
         {} as any,
+        {} as any,
         {} as any
       );
       const result = await handler.handleUnauthenticated(buildRpcCall(request));
@@ -113,7 +118,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
           type: AccountType.PRIMARY,
         },
       } as any,
-      balanceAggregatorServiceMock as any
+      balanceAggregatorServiceMock as any,
+      analyticsServiceMock as any
     );
 
     it('returns error if the active account is imported via WalletConnect', async () => {
@@ -128,7 +134,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
             type: AccountType.WALLET_CONNECT,
           },
         } as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       const result = await sendHandler.handleAuthenticated(
@@ -153,7 +160,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
             addressC: 'abcd1234',
           },
         } as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       const result = await sendHandler.handleAuthenticated(
@@ -230,7 +238,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         walletServiceMock as any,
         networkServiceMock as any,
         {} as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
       const result = await sendHandler.handleAuthenticated({ request } as any);
       expect(result).toEqual({
@@ -260,7 +269,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         walletServiceMock as any,
         networkServiceMock as any,
         accountsServiceMock as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       const result = await sendHandler.handleAuthenticated(
@@ -298,7 +308,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
           },
         } as any,
         accountsServiceMock as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       const result = await sendHandler.handleAuthenticated(
@@ -329,7 +340,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         walletServiceMock as any,
         networkServiceMock as any,
         accountsServiceMock as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       getBitcoinNetworkMock.mockResolvedValue({
@@ -362,7 +374,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         walletServiceMock as any,
         networkServiceMock as any,
         accountsServiceMock as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       getBitcoinNetworkMock.mockResolvedValue({

@@ -26,6 +26,8 @@ Object.defineProperty(global.document, 'prerendering', {
   value: false,
 });
 
+performance.mark = jest.fn();
+
 global.chrome = {
   runtime: {
     id: 'testid',
