@@ -5,13 +5,13 @@ import {
   ChainAssetMap,
 } from '@avalabs/bridge-unified';
 import { FeatureGates } from '../featureFlags/models';
-import { CustomGasSettings } from '../bridge/models';
 
 export enum UnifiedBridgeError {
   UnknownAsset = 'unknown-asset',
   AmountLessThanFee = 'amount-less-than-fee',
   InvalidFee = 'invalid-fee',
   UnsupportedNetwork = 'unsupported-network',
+  InvalidTxPayload = 'invalid-tx-payload',
 }
 
 export type UnifiedBridgeState = {
@@ -54,7 +54,6 @@ export type UnifiedBridgeTransferParams = {
   amount: bigint;
   targetChainId: number;
   sourceChainId: number;
-  customGasSettings?: CustomGasSettings;
   tabId?: number;
 };
 

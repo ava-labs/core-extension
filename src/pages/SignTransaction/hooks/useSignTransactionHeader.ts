@@ -9,6 +9,10 @@ export const useSignTransactionHeader = (
 ) => {
   const { t } = useTranslation();
 
+  if (transaction?.displayOptions?.customApprovalScreenTitle) {
+    return transaction.displayOptions.customApprovalScreenTitle;
+  }
+
   const transactionTypes = transaction?.displayValues?.actions.map(
     (a) => a.type
   );

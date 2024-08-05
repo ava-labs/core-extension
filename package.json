@@ -213,15 +213,7 @@
   },
   "lavamoat": {
     "allowScripts": {
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
       "@ethereumjs/common>ethereumjs-util>ethereum-cryptography>keccak": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3>web3-bzz": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3>web3-core>web3-core-requestmanager>web3-providers-ws>websocket>bufferutil": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3>web3-core>web3-core-requestmanager>web3-providers-ws>websocket>es5-ext": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3>web3-core>web3-core-requestmanager>web3-providers-ws>websocket>utf-8-validate": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>web3>web3-shh": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>hdkey>secp256k1": false,
       "@lavamoat/preinstall-always-fail": false,
       "@types/web3>web3": false,
       "@types/web3>web3>web3-bzz": false,
@@ -240,7 +232,6 @@
       "web3>web3-bzz": false,
       "web3>web3-shh": false,
       "yarn": false,
-      "@avalabs/bridge-sdk>@avalabs/wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/vm-module-types": false,
       "@avalabs/vm-module-types>@avalabs/wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/vm-module-types>@avalabs/wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
