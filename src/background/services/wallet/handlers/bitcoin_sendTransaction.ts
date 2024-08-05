@@ -8,6 +8,7 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { Action } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
+import { AnalyticsServicePosthog } from '@src/background/services/analytics/AnalyticsServicePosthog';
 import { ethErrors } from 'eth-rpc-errors';
 import {
   DisplayData_BitcoinSendTx,
@@ -33,6 +34,7 @@ import { resolve } from '@avalabs/core-utils-sdk';
 
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { runtime } from 'webextension-polyfill';
+import { measureTransactionTime } from '@src/background/services/wallet/utils/measureTransactionTime';
 
 type BitcoinTxParams = [
   address: string,
@@ -52,7 +54,8 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
     private walletService: WalletService,
     private networkService: NetworkService,
     private accountService: AccountsService,
-    private balanceAggregatorService: BalanceAggregatorService
+    private balanceAggregatorService: BalanceAggregatorService,
+    private analyticsServicePosthog: AnalyticsServicePosthog
   ) {
     super();
   }
@@ -256,8 +259,12 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
     frontendTabId?: number
   ) => {
     try {
+      measureTransactionTime().startMeasure();
       const { address, amount, from, feeRate, balance } =
         pendingAction.displayData;
+      const btcChainID = this.networkService.isMainnet()
+        ? ChainId.BITCOIN
+        : ChainId.BITCOIN_TESTNET;
 
       const [network, networkError] = await resolve(
         this.networkService.getBitcoinNetwork()
@@ -293,6 +300,19 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
       if (this.#isSupportedAccount(this.accountService.activeAccount)) {
         this.#getBalance(this.accountService.activeAccount);
       }
+
+      measureTransactionTime().endMeasure(async (duration) => {
+        this.analyticsServicePosthog.captureEvent({
+          name: 'TransactionTimeToConfirmation',
+          windowId: crypto.randomUUID(),
+          properties: {
+            duration,
+            txType: 'something',
+            chainId: btcChainID,
+          },
+        });
+      });
+
       onSuccess(hash);
     } catch (e) {
       onError(e);

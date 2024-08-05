@@ -45,6 +45,7 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { EnsureDefined } from '@src/background/models';
 import { caipToChainId } from '@src/utils/caipConversion';
 import { TxDisplayOptions } from '../models';
+import { measureTransactionTime } from '@src/background/services/wallet/utils/measureTransactionTime';
 
 type TxPayload = EthSendTransactionParams | ContractTransaction;
 type Params = [TxPayload] | [TxPayload, TxDisplayOptions];
@@ -207,6 +208,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
     tabId?: number | undefined
   ) => {
     try {
+      measureTransactionTime().startMeasure();
       const network = await getTargetNetworkForTx(
         pendingAction.displayData.txParams,
         this.networkService,
@@ -298,6 +300,18 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
           method: pendingAction.method,
           chainId: pendingAction.displayData.chainId,
         },
+      });
+
+      measureTransactionTime().endMeasure(async (duration) => {
+        this.analyticsServicePosthog.captureEvent({
+          name: 'TransactionTimeToConfirmation',
+          windowId: crypto.randomUUID(),
+          properties: {
+            duration,
+            txType: 'something',
+            chainId: pendingAction.displayData.chainId,
+          },
+        });
       });
 
       onSuccess(txHash);
