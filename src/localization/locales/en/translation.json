@@ -768,7 +768,7 @@
   "Strength: weak. Keep adding characters.": "Strength: weak. Keep adding characters.",
   "Subnet Details": "Subnet Details",
   "Subnet ID": "Subnet ID",
-  "Succesfully reconnected!": "Succesfully reconnected!",
+  "Successfully reconnected!": "Successfully reconnected!",
   "Success!": "Success!",
   "Successfully imported the keystore file.": "Successfully imported the keystore file.",
   "Successfully swapped {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}": "Successfully swapped {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}",

@@ -27,7 +27,7 @@ export const LedgerTroubleshooting = () => {
         {isConnected && (
           <>
             <Typography variant="h5">
-              {t('Succesfully reconnected!')}
+              {t('Successfully reconnected!')}
             </Typography>
             <Button
               color="primary"
