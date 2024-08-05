@@ -45,6 +45,7 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { EnsureDefined } from '@src/background/models';
 import { caipToChainId } from '@src/utils/caipConversion';
 import { TxDisplayOptions } from '../models';
+import { measureTransactionTime } from '@src/background/services/wallet/utils/measureTransactionTime';
 
 type TxPayload = EthSendTransactionParams | ContractTransaction;
 type Params = [TxPayload] | [TxPayload, TxDisplayOptions];
@@ -207,6 +208,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
     tabId?: number | undefined
   ) => {
     try {
+      measureTransactionTime().startMeasure();
       const network = await getTargetNetworkForTx(
         pendingAction.displayData.txParams,
         this.networkService,
@@ -223,6 +225,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
       const nonce = await provider.getTransactionCount(
         pendingAction.displayData.txParams.from
       );
+      const chainId = pendingAction.displayData.chainId;
 
       const {
         maxFeePerGas,
@@ -237,7 +240,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
       const signingResult = await this.walletService.sign(
         {
           nonce,
-          chainId: Number(BigInt(pendingAction.displayData.chainId)),
+          chainId: Number(BigInt(chainId)),
           maxFeePerGas,
           maxPriorityFeePerGas,
           gasLimit: gasLimit,
@@ -296,11 +299,26 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
           address: this.accountsService.activeAccount?.addressC,
           txHash,
           method: pendingAction.method,
-          chainId: pendingAction.displayData.chainId,
+          chainId,
         },
       });
 
       onSuccess(txHash);
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      provider.waitForTransaction(txHash).then((_tx) => {
+        measureTransactionTime().endMeasure(async (duration) => {
+          this.analyticsServicePosthog.captureEvent({
+            name: 'TransactionTimeToConfirmation',
+            windowId: crypto.randomUUID(),
+            properties: {
+              duration,
+              txType: 'txType',
+              chainId,
+            },
+          });
+        });
+      });
     } catch (err: any) {
       const errorMessage: string =
         err instanceof Error ? err.message : err.toString();

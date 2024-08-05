@@ -52,6 +52,17 @@ jest.mock('@src/background/services/analytics/utils/encryptAnalyticsData');
 jest.mock('./contracts/contractParsers/parseWithERC20Abi');
 jest.mock('./utils/getTxDescription');
 jest.mock('./contracts/contractParsers/utils/parseBasicDisplayValues');
+jest.mock(
+  '@src/background/services/wallet/utils/measureTransactionTime',
+  () => ({
+    measureTransactionTime: function () {
+      return {
+        startMeasure: jest.fn(),
+        endMeasure: jest.fn(),
+      };
+    },
+  })
+);
 jest.mock('./contracts/contractParsers/contractParserMap', () => ({
   contractParserMap: new Map([['function', jest.fn()]]),
 }));

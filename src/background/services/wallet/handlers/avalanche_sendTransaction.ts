@@ -24,6 +24,7 @@ import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { measureTransactionTime } from '@src/background/services/wallet/utils/measureTransactionTime';
 
 type TxParams = {
   transactionHex: string;
@@ -231,6 +232,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
     const usedNetwork = this.#getChainIdForVM(vm);
 
     try {
+      measureTransactionTime().startMeasure();
       // Parse the json into a tx object
       const unsignedTx =
         vm === EVM
@@ -270,6 +272,18 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
             txHash: txHash,
             chainId: usedNetwork,
           },
+        });
+
+        measureTransactionTime().endMeasure(async (duration) => {
+          this.analyticsServicePosthog.captureEvent({
+            name: 'TransactionTimeToConfirmation',
+            windowId: crypto.randomUUID(),
+            properties: {
+              duration,
+              txType: 'txType',
+              chainId: usedNetwork,
+            },
+          });
         });
 
         // If we already have the transaction hash (i.e. it was dispatched by WalletConnect),
