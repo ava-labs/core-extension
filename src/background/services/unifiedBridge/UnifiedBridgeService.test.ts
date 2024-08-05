@@ -4,16 +4,11 @@ import {
 } from '@avalabs/bridge-unified';
 import { UnifiedBridgeService } from './UnifiedBridgeService';
 import { FeatureGates } from '../featureFlags/models';
-import { chainIdToCaip } from '@src/utils/caipConversion';
-import { ethErrors } from 'eth-rpc-errors';
-import { CommonError } from '@src/utils/errors';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 jest.mock('@avalabs/bridge-unified');
 jest.mock('@src/utils/network/getProviderForNetwork');
 
 describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
-  let service: UnifiedBridgeService;
   let core: ReturnType<typeof createUnifiedBridgeService>;
 
   const trackTransfer = jest.fn();
@@ -29,21 +24,6 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     getNetwork: jest.fn(),
     getProviderForNetwork: jest.fn(),
     sendTransaction: jest.fn(),
-  } as any;
-
-  const accountsService = {
-    activeAccount: {
-      addressC: 'addressC',
-    },
-  } as any;
-
-  const walletService = {
-    sign: jest.fn(),
-  } as any;
-
-  const feeService = {
-    getNetworkFee: jest.fn(),
-    estimateGasLimit: jest.fn(),
   } as any;
 
   const storageService = {
@@ -79,27 +59,13 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
       chainId,
     }));
 
-    service = new UnifiedBridgeService(
-      networkService,
-      accountsService,
-      walletService,
-      feeService,
-      storageService,
-      flagsService
-    );
+    new UnifiedBridgeService(networkService, storageService, flagsService);
   });
 
   it('creates core instance with proper environment', () => {
     networkService.isMainnet.mockReturnValue(true);
 
-    new UnifiedBridgeService(
-      networkService,
-      accountsService,
-      walletService,
-      feeService,
-      storageService,
-      flagsService
-    );
+    new UnifiedBridgeService(networkService, storageService, flagsService);
 
     expect(createUnifiedBridgeService).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -109,14 +75,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
 
     networkService.isMainnet.mockReturnValue(false);
 
-    new UnifiedBridgeService(
-      networkService,
-      accountsService,
-      walletService,
-      feeService,
-      storageService,
-      flagsService
-    );
+    new UnifiedBridgeService(networkService, storageService, flagsService);
 
     expect(createUnifiedBridgeService).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -166,9 +125,6 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
 
     const bridgeService = new UnifiedBridgeService(
       networkService,
-      accountsService,
-      walletService,
-      feeService,
       storageService,
       flagsService
     );
@@ -179,322 +135,5 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     expect(trackTransfer).toHaveBeenCalledWith(
       expect.objectContaining({ bridgeTransfer: { sourceTxHash: '0x2345' } })
     );
-  });
-
-  describe('.transfer()', () => {
-    beforeEach(() => {
-      networkService.sendTransaction
-        .mockResolvedValueOnce('approveTxHash')
-        .mockResolvedValueOnce('transferTxHash');
-
-      trackTransfer.mockReturnValue({
-        result: Promise.resolve({ sourceTxHash: 'transferTxHash' }),
-      });
-
-      transferAsset.mockImplementation(
-        async ({ fromAddress, onStepChange, sign }) => {
-          onStepChange({ currentSignature: 1, requiredSignatures: 2 });
-          await sign({
-            from: fromAddress,
-            to: 'toAddress',
-            data: 'approval-data',
-          });
-
-          onStepChange({ currentSignature: 2, requiredSignatures: 2 });
-          await sign({
-            from: fromAddress,
-            to: 'toAddress',
-            data: 'transfer-data',
-          });
-
-          return {
-            sourceTxHash: 'transferTxHash',
-          };
-        }
-      );
-    });
-
-    const asset = { address: 'adderss' } as any;
-
-    describe('when custom gas settings are passed', () => {
-      const highMarketFee = {
-        maxFee: 1000n,
-        maxTip: 10n,
-      };
-
-      const estimatedGasLimits = [55_000n, 165_000n];
-
-      beforeEach(() => {
-        feeService.getNetworkFee.mockResolvedValue({
-          high: highMarketFee,
-        });
-
-        feeService.estimateGasLimit
-          .mockResolvedValueOnce(estimatedGasLimits[0])
-          .mockResolvedValueOnce(estimatedGasLimits[1]);
-
-        jest.mocked(getProviderForNetwork).mockReturnValue({
-          getTransactionCount: jest
-            .fn()
-            .mockResolvedValueOnce(5)
-            .mockResolvedValueOnce(6),
-        } as any);
-
-        walletService.sign
-          .mockResolvedValueOnce({ signedTx: 'approval-tx-hex' })
-          .mockResolvedValueOnce({ signedTx: 'transfer-tx-hex' });
-      });
-
-      it('applies the user-provided maxFeePerGas and maxPriorityFeePerGas', async () => {
-        const maxFeePerGas = BigInt(50e9);
-        const maxPriorityFeePerGas = BigInt(5e9);
-
-        await service.transfer({
-          asset,
-          amount: 1000000n,
-          sourceChainId: 43113,
-          targetChainId: 5,
-          tabId: 1234,
-          customGasSettings: {
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-          },
-        });
-
-        expect(walletService.sign).toHaveBeenNthCalledWith(
-          1,
-          expect.objectContaining({
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-          }),
-          { chainId: 43113 },
-          1234
-        );
-
-        expect(walletService.sign).toHaveBeenNthCalledWith(
-          2,
-          expect.objectContaining({
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-          }),
-          { chainId: 43113 },
-          1234
-        );
-      });
-
-      it('ignores the user-provided gasLimit', async () => {
-        const maxFeePerGas = BigInt(50e9);
-        const maxPriorityFeePerGas = BigInt(5e9);
-        const gasLimit = 50_000n;
-
-        await service.transfer({
-          asset,
-          amount: 1000000n,
-          sourceChainId: 43113,
-          targetChainId: 5,
-          tabId: 1234,
-          customGasSettings: {
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-            gasLimit,
-          },
-        });
-
-        expect(walletService.sign).toHaveBeenNthCalledWith(
-          1,
-          expect.objectContaining({
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-            gasLimit: estimatedGasLimits[0],
-          }),
-          { chainId: 43113 },
-          1234
-        );
-
-        expect(walletService.sign).toHaveBeenNthCalledWith(
-          2,
-          expect.objectContaining({
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-            gasLimit: estimatedGasLimits[1],
-          }),
-          { chainId: 43113 },
-          1234
-        );
-      });
-    });
-
-    describe('when network fee is unknown', () => {
-      beforeEach(() => {
-        feeService.getNetworkFee.mockResolvedValue(null);
-      });
-
-      it('raises UnknownNetworkFee error', async () => {
-        await expect(
-          service.transfer({
-            asset,
-            amount: 1000000n,
-            sourceChainId: 43113,
-            targetChainId: 5,
-            tabId: 1234,
-          })
-        ).rejects.toThrow(
-          ethErrors.rpc.internal({
-            data: { reason: CommonError.UnknownNetworkFee },
-          })
-        );
-      });
-    });
-
-    describe('during happy path', () => {
-      beforeEach(() => {
-        feeService.getNetworkFee.mockResolvedValue({
-          high: {
-            maxFee: 1000n,
-            maxTip: 10n,
-          },
-        });
-        feeService.estimateGasLimit.mockResolvedValue(2000);
-      });
-
-      it('calls .transferAsset() with proper params', async () => {
-        jest.mocked(getProviderForNetwork).mockReturnValue({
-          getTransactionCount: jest
-            .fn()
-            .mockResolvedValueOnce(5)
-            .mockResolvedValueOnce(6),
-        } as any);
-
-        walletService.sign
-          .mockResolvedValueOnce({ signedTx: 'approval-tx-hex' })
-          .mockResolvedValueOnce({ signedTx: 'transfer-tx-hex' });
-
-        await service.transfer({
-          asset,
-          amount: 1000000n,
-          sourceChainId: 43113,
-          targetChainId: 5,
-          tabId: 1234,
-        });
-
-        expect(core.transferAsset).toHaveBeenCalledWith({
-          asset,
-          fromAddress: accountsService.activeAccount.addressC,
-          amount: 1000000n,
-          sourceChain: expect.objectContaining({
-            chainId: chainIdToCaip(43113),
-          }),
-          targetChain: expect.objectContaining({ chainId: chainIdToCaip(5) }),
-          onStepChange: expect.any(Function),
-          sign: expect.any(Function),
-        });
-
-        expect(walletService.sign).toHaveBeenCalledTimes(2);
-        expect(walletService.sign).toHaveBeenNthCalledWith(
-          1,
-          {
-            from: accountsService.activeAccount.addressC,
-            to: 'toAddress',
-            data: 'approval-data',
-            chainId: 43113,
-            gasLimit: 2000,
-            maxFeePerGas: 1000n,
-            maxPriorityFeePerGas: 10n,
-            nonce: 5,
-          },
-          { chainId: 43113 },
-          1234
-        );
-        expect(walletService.sign).toHaveBeenNthCalledWith(
-          2,
-          {
-            from: accountsService.activeAccount.addressC,
-            to: 'toAddress',
-            data: 'transfer-data',
-            chainId: 43113,
-            gasLimit: 2000,
-            maxFeePerGas: 1000n,
-            maxPriorityFeePerGas: 10n,
-            nonce: 6,
-          },
-          { chainId: 43113 },
-          1234
-        );
-
-        expect(networkService.sendTransaction).toHaveBeenCalledTimes(2);
-        expect(networkService.sendTransaction).toHaveBeenNthCalledWith(
-          1,
-          {
-            signedTx: 'approval-tx-hex',
-          },
-          { chainId: 43113 }
-        );
-        expect(networkService.sendTransaction).toHaveBeenNthCalledWith(
-          2,
-          {
-            signedTx: 'transfer-tx-hex',
-          },
-          { chainId: 43113 }
-        );
-      });
-    });
-  });
-
-  describe('.getFee()', () => {
-    const asset = {
-      address: 'address',
-    };
-    const fee = 2000000n;
-
-    beforeEach(() => {
-      getFees.mockResolvedValue({
-        [asset.address]: fee,
-      });
-    });
-
-    it(`properly calls SDK's getFees() and returns the same value`, async () => {
-      const result = await service.getFee({
-        asset,
-        amount: 100n,
-        sourceChainId: 43113,
-        targetChainId: 5,
-      });
-
-      expect(result).toEqual(fee);
-      expect(core.getFees).toHaveBeenCalledWith({
-        asset,
-        amount: 100n,
-        sourceChain: expect.objectContaining({ chainId: chainIdToCaip(43113) }),
-        targetChain: expect.objectContaining({ chainId: chainIdToCaip(5) }),
-      });
-    });
-  });
-
-  describe('.estimateGas()', () => {
-    const asset = {
-      address: 'address',
-    } as any;
-
-    beforeEach(() => {
-      estimateGas.mockResolvedValue(12345n);
-    });
-
-    it(`properly calls SDK's estimateGas() and returns the same value`, async () => {
-      const result = await service.estimateGas({
-        asset,
-        amount: 100n,
-        sourceChainId: 43113,
-        targetChainId: 5,
-      });
-
-      expect(result).toEqual(12345n);
-      expect(core.estimateGas).toHaveBeenCalledWith({
-        asset,
-        amount: 100n,
-        fromAddress: accountsService.activeAccount.addressC,
-        sourceChain: expect.objectContaining({ chainId: chainIdToCaip(43113) }),
-        targetChain: expect.objectContaining({ chainId: chainIdToCaip(5) }),
-      });
-    });
   });
 });

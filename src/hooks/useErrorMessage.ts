@@ -92,6 +92,9 @@ export const useErrorMessage = () => {
           title: t('Amount is too low'),
           hint: t('The amount cannot be lower than the bridging fee'),
         },
+        [UnifiedBridgeError.InvalidTxPayload]: {
+          title: t('Invalid transaction data'),
+        },
         [UnifiedBridgeError.InvalidFee]: {
           title: t('The bridging fee is unknown'),
         },

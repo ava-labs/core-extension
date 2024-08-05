@@ -193,8 +193,19 @@ const DefiProtocolDetails = lazy(() => {
   }));
 });
 
+const LedgerTroubleshootingPopup = lazy(() => {
+  return import('../pages/Ledger/LedgerTroubleshooting').then((m) => ({
+    default: m.LedgerTroubleshooting,
+  }));
+});
+
 export const AppRoutes = () => (
   <Switch>
+    <Route path="/ledger/troubleshooting">
+      <Suspense fallback={<CircularProgress />}>
+        <LedgerTroubleshootingPopup />
+      </Suspense>
+    </Route>
     <Route path="/token/add">
       <Suspense fallback={<CircularProgress />}>
         <AddToken />

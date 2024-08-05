@@ -57,7 +57,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         console.warn('Failed to determine the network fee:', err);
       })
       .finally(() => {
-        timer = setTimeout(() => setIteration((i) => i + 1), 15_000);
+        timer = setTimeout(() => setIteration((i) => i + 1), 30_000);
       });
 
     return () => {
