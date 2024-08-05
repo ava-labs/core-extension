@@ -271,6 +271,15 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
             chainId: usedNetwork,
           },
         });
+        console.log('Capturing AVA timed event', usedNetwork);
+        this.analyticsServicePosthog.captureTimedTxEvent({
+          name: 'TransactionTimeToConfirmation',
+          windowId: crypto.randomUUID(),
+          properties: {
+            txType: 'something',
+            chainId: usedNetwork,
+          },
+        });
 
         // If we already have the transaction hash (i.e. it was dispatched by WalletConnect),
         // we just return it to the caller.

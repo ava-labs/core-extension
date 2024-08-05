@@ -299,6 +299,18 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
           chainId: pendingAction.displayData.chainId,
         },
       });
+      console.log(
+        'Capturing ETH timed event',
+        pendingAction.displayData.chainId
+      );
+      this.analyticsServicePosthog.captureTimedTxEvent({
+        name: 'TransactionTimeToConfirmation',
+        windowId: crypto.randomUUID(),
+        properties: {
+          txType: 'something',
+          chainId: pendingAction.displayData.chainId,
+        },
+      });
 
       onSuccess(txHash);
     } catch (err: any) {

@@ -8,6 +8,7 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { Action } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
+import { AnalyticsServicePosthog } from '@src/background/services/analytics/AnalyticsServicePosthog';
 import { ethErrors } from 'eth-rpc-errors';
 import {
   DisplayData_BitcoinSendTx,
@@ -52,7 +53,8 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
     private walletService: WalletService,
     private networkService: NetworkService,
     private accountService: AccountsService,
-    private balanceAggregatorService: BalanceAggregatorService
+    private balanceAggregatorService: BalanceAggregatorService,
+    private analyticsServicePosthog: AnalyticsServicePosthog
   ) {
     super();
   }
@@ -262,6 +264,11 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
       const [network, networkError] = await resolve(
         this.networkService.getBitcoinNetwork()
       );
+
+      const btcChainID = this.networkService.isMainnet()
+        ? ChainId.BITCOIN
+        : ChainId.BITCOIN_TESTNET;
+
       if (networkError || !network) {
         throw new Error('Bitcoin network not found');
       }
@@ -293,6 +300,16 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
       if (this.#isSupportedAccount(this.accountService.activeAccount)) {
         this.#getBalance(this.accountService.activeAccount);
       }
+
+      this.analyticsServicePosthog.captureTimedTxEvent({
+        name: 'TransactionTimeToConfirmation',
+        windowId: crypto.randomUUID(),
+        properties: {
+          txType: 'something',
+          chainId: btcChainID,
+        },
+      });
+
       onSuccess(hash);
     } catch (e) {
       onError(e);

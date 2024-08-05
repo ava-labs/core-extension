@@ -41,3 +41,9 @@ export enum BlockchainId {
   X_CHAIN = 'avax:2oYMBNV4eNHyqk2fjjV5nVQLDbtmNJzq5s3qs3Lo6ftnC6FByM',
   X_CHAIN_TESTNET = 'avax:2JVSBoinj9C2J33VntvzYtVJNZdN2NKiwwKjcumHUWEb5DbBrm',
 }
+
+export enum TimeMeasureEventNames {
+  TRANSACTION_TIMED = 'transaction-timed',
+  TRANSACTION_SUCCEEDED = 'transaction-succeeded',
+  TRANSACTION_APPROVED = 'transaction-approved',
+}

@@ -11,6 +11,7 @@ import {
   useIsSpecificContextContainer,
 } from './useIsSpecificContextContainer';
 import { useApprovalsContext } from '@src/contexts/ApprovalsProvider';
+import { TimeMeasureEventNames } from '@src/background/services/analytics/models';
 
 export function useApproveAction<DisplayData = any>(actionId: string) {
   const { request } = useConnectionContext();
@@ -26,6 +27,11 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
       params: ActionUpdate<Partial<DisplayData>>,
       shouldWaitForResponse?: boolean
     ) => {
+      const status = params.status;
+      console.log('STATUS IS', status);
+      if (status === ActionStatus.SUBMITTING) {
+        performance.mark(TimeMeasureEventNames.TRANSACTION_APPROVED);
+      }
       // We need to update the status a bit faster for smoother UX.
       // use function to avoid `action` as a dependency and thus infinite loops
       setAction((prevActionData) => {
@@ -34,7 +40,7 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
         }
         return {
           ...prevActionData,
-          status: params.status,
+          status,
           displayData: {
             ...prevActionData.displayData,
             ...params.displayData,

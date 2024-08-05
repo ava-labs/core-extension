@@ -4,7 +4,12 @@ import { singleton } from 'tsyringe';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { SettingsService } from '../settings/SettingsService';
 import { AnalyticsService } from './AnalyticsService';
-import { AnalyticsCapturedEvent, AnalyticsState, BlockchainId } from './models';
+import {
+  AnalyticsCapturedEvent,
+  AnalyticsState,
+  BlockchainId,
+  TimeMeasureEventNames,
+} from './models';
 import { FeatureGates } from '../featureFlags/models';
 import { AnalyticsConsent } from '../settings/models';
 import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
@@ -39,6 +44,29 @@ export class AnalyticsServicePosthog {
   async captureEvent(event: AnalyticsCapturedEvent) {
     return this.#captureEvent(event, false).catch((err) => {
       // Capture all errors and report them to Sentry instead of breaking the execution chain.
+      sentryCaptureException(err, SentryExceptionTypes.ANALYTICS);
+    });
+  }
+
+  async captureTimedTxEvent(event: AnalyticsCapturedEvent) {
+    performance.mark(TimeMeasureEventNames.TRANSACTION_SUCCEEDED);
+    const measurement = performance.measure(
+      TimeMeasureEventNames.TRANSACTION_TIMED,
+      TimeMeasureEventNames.TRANSACTION_APPROVED,
+      TimeMeasureEventNames.TRANSACTION_SUCCEEDED
+    );
+    event = {
+      ...event,
+      properties: {
+        ...event.properties,
+        time: measurement.duration,
+      },
+    };
+    console.log('captureTimedEvent', event);
+    performance.clearMarks(TimeMeasureEventNames.TRANSACTION_APPROVED);
+    performance.clearMarks(TimeMeasureEventNames.TRANSACTION_SUCCEEDED);
+    performance.clearMeasures(TimeMeasureEventNames.TRANSACTION_TIMED);
+    return this.#captureEvent(event, false).catch((err) => {
       sentryCaptureException(err, SentryExceptionTypes.ANALYTICS);
     });
   }
