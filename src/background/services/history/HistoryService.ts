@@ -1,7 +1,7 @@
 import { singleton } from 'tsyringe';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 
-import { Network } from '../network/models';
+import { NetworkWithCaipId } from '../network/models';
 import { GlacierService } from '../glacier/GlacierService';
 import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
 import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
@@ -24,7 +24,7 @@ export class HistoryService {
     private historyServicePVM: HistoryServicePVM
   ) {}
 
-  async getTxHistory(network: Network) {
+  async getTxHistory(network: NetworkWithCaipId) {
     const isSupportedNetwork = await this.glacierService.isNetworkSupported(
       network.chainId
     );

@@ -1,6 +1,5 @@
 import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
 import { BridgeService } from '../bridge/BridgeService';
-import { BitcoinHistoryTx } from '@avalabs/core-wallets-sdk';
 import { singleton } from 'tsyringe';
 import { Erc20Tx } from '@avalabs/core-snowtrace-sdk';
 import { Network } from '@avalabs/core-chains-sdk';
@@ -77,7 +76,7 @@ export class HistoryServiceBridgeHelper {
    * config.criticalBitcoin?.walletAddresses.btc or
    * config.criticalBitcoin?.walletAddresses.avalanche
    */
-  isBridgeTransactionBTC(tx: BitcoinHistoryTx): boolean {
+  isBridgeTransactionBTC(addresses: string[]): boolean {
     const config = this.bridgeService.bridgeConfig;
     const bitcoinWalletAddresses =
       config?.config?.criticalBitcoin?.walletAddresses;
@@ -86,7 +85,7 @@ export class HistoryServiceBridgeHelper {
       return false;
     }
 
-    return tx.addresses.some((address) => {
+    return addresses.some((address) => {
       return [
         bitcoinWalletAddresses.btc,
         bitcoinWalletAddresses.avalanche,

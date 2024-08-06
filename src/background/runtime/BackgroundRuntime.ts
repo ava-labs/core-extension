@@ -5,6 +5,7 @@ import { singleton } from 'tsyringe';
 import { LockService } from '@src/background/services/lock/LockService';
 import { OnboardingService } from '@src/background/services/onboarding/OnboardingService';
 import { BridgeService } from '@src/background/services/bridge/BridgeService';
+import ModuleManager from '../vmModules/ModuleManager';
 
 @singleton()
 export class BackgroundRuntime {
@@ -19,6 +20,8 @@ export class BackgroundRuntime {
     this.onInstalled();
     this.registerInpageScript();
     this.addContextMenus();
+
+    ModuleManager.init();
 
     // Activate services which need to run all the or are required for bootstraping the wallet state
     this.connectionService.activate();

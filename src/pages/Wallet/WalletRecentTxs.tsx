@@ -303,7 +303,7 @@ export function WalletRecentTxs({
     );
   }, [baseFilteredTxHistory, selectedFilter]);
 
-  const getDayString = (timestamp: string) => {
+  const getDayString = (timestamp: string | number) => {
     const date = new Date(timestamp);
     const isToday = isSameDay(today, date);
     const isYesterday = isSameDay(yesterday, date);

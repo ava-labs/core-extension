@@ -28,7 +28,7 @@ describe('ModuleManager', () => {
         },
         {
           chainId: 'bip122:000000000019d6689c085ae165831e93',
-          method: 'bitcoin_randomMethod',
+          method: 'bitcoin_sendTransaction',
           name: NetworkVMType.BITCOIN,
         },
         {

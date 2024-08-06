@@ -180,6 +180,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     const result = await service.getTxHistory({
       ...network1,
       vmName: NetworkVMType.BITCOIN,
+      caipId: 'bip122:000000000019d6689c085ae165831e93',
     });
     expect(btcHistoryServiceMock.getHistory).toHaveBeenCalledTimes(1);
     expect(result).toEqual([btcTxHistoryItem]);
@@ -188,6 +189,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     const result = await service.getTxHistory({
       ...network1,
       vmName: NetworkVMType.BITCOIN,
+      caipId: 'bip122:000000000019d6689c085ae165831e93',
     });
     expect(btcHistoryServiceMock.getHistory).toHaveBeenCalledTimes(1);
     expect(result).toEqual([btcTxHistoryItem]);

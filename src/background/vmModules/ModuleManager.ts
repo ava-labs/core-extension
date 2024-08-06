@@ -1,14 +1,15 @@
-import { Module } from '@avalabs/vm-module-types';
+import { Environment, Module } from '@avalabs/vm-module-types';
+import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { ethErrors } from 'eth-rpc-errors';
 
 import { assertPresent } from '@src/utils/assertions';
+import { isDevelopment } from '@src/utils/environment';
 
 import { NetworkWithCaipId } from '../services/network/models';
 
 import { AVMModule } from './mocks/avm';
 import { EVMModule } from './mocks/evm';
 import { PVMModule } from './mocks/pvm';
-import { BitcoinModule } from './mocks/bitcoin';
 import { CoreEthModule } from './mocks/coreEth';
 import { VMModuleError } from './models';
 
@@ -32,9 +33,15 @@ class ModuleManager {
   async init(): Promise<void> {
     if (this.#_modules !== undefined) return;
 
+    const environment = isDevelopment()
+      ? Environment.DEV
+      : Environment.PRODUCTION;
+
     this.#modules = [
       new EVMModule(),
-      new BitcoinModule(),
+      new BitcoinModule({
+        environment,
+      }),
       new AVMModule(),
       new CoreEthModule(),
       new PVMModule(),
