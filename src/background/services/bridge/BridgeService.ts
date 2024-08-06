@@ -1,4 +1,3 @@
-import { resolve } from '@avalabs/core-utils-sdk';
 import {
   Asset,
   BitcoinConfigAsset,
@@ -8,18 +7,13 @@ import {
   btcToSatoshi,
   Environment,
   estimateGas,
-  EthereumConfigAsset,
   fetchConfig,
   getBtcTransactionDetails,
   getMinimumConfirmations,
-  NativeAsset,
   setBridgeEnvironment,
   trackBridgeTransaction as trackBridgeTransactionSDK,
   TrackerSubscription,
-  transferAssetEVM as transferAssetSDK,
-  WrapStatus,
 } from '@avalabs/core-bridge-sdk';
-import { isNil, omit, omitBy } from 'lodash';
 import { EventEmitter } from 'events';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
@@ -29,11 +23,7 @@ import {
   BridgeEvents,
   BridgeState,
   DefaultBridgeState,
-  TransferEventType,
-  BtcTransactionResponse,
-  CustomGasSettings,
 } from './models';
-import { WalletService } from '../wallet/WalletService';
 import { AccountsService } from '../accounts/AccountsService';
 import { singleton } from 'tsyringe';
 import {
@@ -41,13 +31,8 @@ import {
   OnStorageReady,
 } from '@src/background/runtime/lifecycleCallbacks';
 import Big from 'big.js';
-import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
-import { Avalanche, JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
-import { isWalletConnectAccount } from '../accounts/utils/typeGuards';
 import { FeatureGates } from '../featureFlags/models';
-import { wrapError } from '@src/utils/errors';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { TokenWithBalanceBTC } from '../balances/models';
 
 @singleton()
@@ -71,10 +56,8 @@ export class BridgeService implements OnLock, OnStorageReady {
   constructor(
     private storageService: StorageService,
     private networkService: NetworkService,
-    private walletService: WalletService,
     private accountsService: AccountsService,
     private featureFlagService: FeatureFlagService,
-    private networkFeeService: NetworkFeeService,
     private networkBalancesService: BalanceAggregatorService
   ) {
     this.networkService.developerModeChanged.add(() => {
@@ -187,120 +170,6 @@ export class BridgeService implements OnLock, OnStorageReady {
     );
   }
 
-  async transferBtcAsset(
-    amount: Big,
-    customGasSettings?: CustomGasSettings,
-    tabId?: number
-  ): Promise<BtcTransactionResponse> {
-    if (!this.config?.config) {
-      throw new Error('Missing bridge config');
-    }
-
-    const { activeAccount } = this.accountsService;
-
-    if (isWalletConnectAccount(activeAccount)) {
-      throw new Error('WalletConnect accounts are not supported by Bridge yet');
-    }
-
-    const addressBtc = activeAccount?.addressBTC;
-
-    if (!addressBtc) {
-      throw new Error('No active account found');
-    }
-
-    const btcNetwork = await this.networkService.getBitcoinNetwork();
-
-    const provider = getProviderForNetwork(btcNetwork);
-    if (
-      provider instanceof JsonRpcBatchInternal ||
-      provider instanceof Avalanche.JsonRpcProvider
-    ) {
-      throw new Error('Wrong provider found.');
-    }
-
-    const amountInSatoshis = btcToSatoshi(amount);
-
-    // mimicing the same feeRate in useBtcBridge
-    const feeRate =
-      customGasSettings?.maxFeePerGas ??
-      Number(
-        (await this.networkFeeService.getNetworkFee(btcNetwork))?.high.maxFee ??
-          0
-      );
-
-    const balances = await this.networkBalancesService.getBalancesForNetworks(
-      [btcNetwork.chainId],
-      [activeAccount]
-    );
-    const token = balances[btcNetwork.chainId]?.[addressBtc]?.[
-      'BTC'
-    ] as TokenWithBalanceBTC;
-
-    const utxos = token?.utxos ?? [];
-
-    const { inputs, outputs } = getBtcTransactionDetails(
-      this.config.config,
-      addressBtc,
-      utxos,
-      amountInSatoshis,
-      Number(feeRate)
-    );
-
-    const inputsWithScripts = await provider.getScriptsForUtxos(inputs);
-
-    const signResult = await this.walletService
-      .sign({ inputs: inputsWithScripts, outputs }, btcNetwork, tabId)
-      .catch(wrapError('Failed to sign transaction'));
-
-    // If we received a signed tx, we need to issue it ourselves.
-    if (typeof signResult.signedTx === 'string') {
-      const [sendResult, sendError] = await resolve(
-        provider.issueRawTx(signResult.signedTx)
-      );
-
-      if (!sendResult || sendError) {
-        throw new Error('Failed to send transaction.');
-      }
-
-      const [tx, txError] = await resolve(provider.waitForTx(sendResult));
-
-      if (!tx || txError) {
-        throw new Error('Failed to fetch transaction details.');
-      }
-
-      return {
-        hash: tx.hash,
-        gasLimit: BigInt(tx.fees),
-        value: BigInt(amountInSatoshis),
-        confirmations: tx.confirmations,
-        from: addressBtc,
-      };
-    }
-
-    // If we received the tx hash, we can look it up for details.
-    if (typeof signResult.txHash === 'string') {
-      const [tx, txError] = await resolve(
-        provider.waitForTx(signResult.txHash)
-      );
-
-      if (!tx || txError) {
-        throw new Error('Transaction not found');
-      }
-
-      return {
-        hash: tx.hash,
-        gasLimit: BigInt(tx.fees),
-        value: BigInt(amountInSatoshis),
-        confirmations: tx.confirmations,
-        from: addressBtc,
-      };
-    }
-
-    throw new Error(
-      'Unsupported signing result format. Signed TX or TX hash expected'
-    );
-  }
-
   async estimateGas(
     currentBlockchain: Blockchain,
     amount: Big,
@@ -364,86 +233,6 @@ export class BridgeService implements OnLock, OnStorageReady {
         currentBlockchain
       );
     }
-  }
-
-  async transferAsset(
-    currentBlockchain: Blockchain,
-    amount: Big,
-    asset: EthereumConfigAsset | NativeAsset,
-    customGasSettings?: CustomGasSettings,
-    tabId?: number
-  ): Promise<string> {
-    if (!this.config?.config) {
-      throw new Error('missing bridge config');
-    }
-    if (!this.accountsService.activeAccount) {
-      throw new Error('no active account found');
-    }
-    this.featureFlagService.ensureFlagEnabled(FeatureGates.BRIDGE);
-
-    const avalancheProvider = await this.networkService.getAvalancheProvider();
-    const ethereumProvider = await this.networkService.getEthereumProvider();
-
-    if (
-      Blockchain.AVALANCHE !== currentBlockchain &&
-      Blockchain.ETHEREUM !== currentBlockchain
-    ) {
-      throw new Error('invalid current blockchain value');
-    }
-
-    // We have to get the network for the current blockchain
-    const network =
-      currentBlockchain === Blockchain.AVALANCHE
-        ? await this.networkService.getAvalancheNetwork()
-        : await this.networkService.getEthereumNetwork();
-
-    const sourceProvider =
-      currentBlockchain === Blockchain.AVALANCHE
-        ? avalancheProvider
-        : ethereumProvider;
-    const { addressC } = this.accountsService.activeAccount;
-
-    return await transferAssetSDK({
-      currentBlockchain,
-      amount,
-      account: addressC,
-      asset,
-      avalancheProvider,
-      ethereumProvider,
-      config: this.config.config,
-      onStatusChange: (status: WrapStatus) =>
-        this.eventEmitter.emit(BridgeEvents.BRIDGE_TRANSFER_EVENT, {
-          type: TransferEventType.WRAP_STATUS,
-          status,
-        }),
-      onTxHashChange: (txHash: string) =>
-        this.eventEmitter.emit(BridgeEvents.BRIDGE_TRANSFER_EVENT, {
-          type: TransferEventType.TX_HASH,
-          txHash,
-        }),
-      signAndSendEVM: async (txData) => {
-        // ignore our gas estimation, use whatever the SDK estimated at the time of signing
-        const gasSettings = omit(customGasSettings ?? {}, 'gasLimit');
-
-        const tx = {
-          ...txData,
-          // do not override gas-related properties with nullish values
-          ...omitBy(gasSettings ?? {}, isNil),
-        };
-        const signingResult = await this.walletService.sign(
-          {
-            ...tx,
-            nonce: await sourceProvider.getTransactionCount(addressC),
-            gasPrice: tx.maxFeePerGas ? undefined : tx.gasPrice, // erase gasPrice if maxFeePerGas can be used
-            type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
-          },
-          network,
-          tabId
-        );
-
-        return this.networkService.sendTransaction(signingResult, network);
-      },
-    });
   }
 
   async createTransaction(

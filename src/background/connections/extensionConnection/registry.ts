@@ -21,7 +21,6 @@ import { BridgeGetConfigHandler } from '@src/background/services/bridge/handlers
 import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
 import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
 import { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handlers/setIsDevEnv';
-import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import { ContactsUpdatedEvents } from '@src/background/services/contacts/events/contactsUpdatedEvent';
 import { CreateContactHandler } from '@src/background/services/contacts/handlers/createContact';
 import { GetContactsHandler } from '@src/background/services/contacts/handlers/getContacts';
@@ -75,7 +74,6 @@ import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/h
 import { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
 import { GetFeatureFlagsHandler } from '@src/background/services/featureFlags/handlers/getFeatureFlags';
 import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/events/featureFlagsUpdatedEvent';
-import { GetEthMaxTransferAmountHandler } from '@src/background/services/bridge/handlers/getEthMaxTransferAmount';
 import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
 import { LedgerCloseTransportEvent } from '@src/background/services/ledger/events/ledgerCloseTransport';
 import { GetAvaxBalanceHandler } from '@src/background/services/balances/handlers/getAvaxBalance';
@@ -107,14 +105,10 @@ import { GetRecoveryPhraseExportStateHandler } from '@src/background/services/se
 import { InitRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/initRecoveryPhraseExport';
 import { CompleteRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/completeRecoveryPhraseExport';
 import { CancelRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/cancelRecoveryPhraseExport';
-import { UnifiedBridgeTransferAsset } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTransferAsset';
-import { UnifiedBridgeGetFee } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeGetFee';
 import { UnifiedBridgeGetState } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeGetState';
-import { UnifiedBridgeGetAssets } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeGetAssets';
 import { UnifiedBridgeEvents } from '@src/background/services/unifiedBridge/events/unifiedBridgeEvents';
 import { GetPrivateKeyHandler } from '@src/background/services/accounts/handlers/getPrivateKey';
 import { EstimateGasForBridgeTxHandler } from '@src/background/services/bridge/handlers/estimateGasForBridgeTx';
-import { UnifiedBridgeEstimateGas } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeEstimateGas';
 import { ImportSeedPhraseHandler } from '@src/background/services/wallet/handlers/importSeedPhrase';
 import { ImportLedgerHandler } from '@src/background/services/wallet/handlers/importLedger';
 import { GetRecoveryMethodsHandler } from '@src/background/services/seedless/handlers/getRecoveryMethods';
@@ -134,6 +128,7 @@ import { SetActiveNetworkHandler } from '@src/background/services/network/handle
 import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
 import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
 import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
+import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -170,11 +165,6 @@ import { BalancesUpdatedEvents } from '@src/background/services/balances/events/
   {
     token: 'ExtensionRequestHandler',
     useToken: BridgeRemoveTransactionHandler,
-  },
-  { token: 'ExtensionRequestHandler', useToken: BridgeTransferAssetHandler },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: GetEthMaxTransferAmountHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: CreateContactHandler },
   { token: 'ExtensionRequestHandler', useToken: GetContactsHandler },
@@ -318,19 +308,11 @@ import { BalancesUpdatedEvents } from '@src/background/services/balances/events/
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: UnifiedBridgeTransferAsset,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: UnifiedBridgeGetFee,
+    useToken: UnifiedBridgeTrackTransfer,
   },
   {
     token: 'ExtensionRequestHandler',
     useToken: UnifiedBridgeGetState,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: UnifiedBridgeGetAssets,
   },
   {
     token: 'ExtensionRequestHandler',
@@ -339,10 +321,6 @@ import { BalancesUpdatedEvents } from '@src/background/services/balances/events/
   {
     token: 'ExtensionRequestHandler',
     useToken: EstimateGasForBridgeTxHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: UnifiedBridgeEstimateGas,
   },
   {
     token: 'ExtensionRequestHandler',

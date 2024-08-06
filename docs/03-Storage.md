@@ -12,7 +12,7 @@ Core generates a random storage encryption key during onboarding. This encryptio
 
 The encryption key is also stored encrypted in storage at rest using the password set by the user during onboarding. The password is hashed using `Scrypt KDF` from the `@noble/hashes/scrypt` library.
 
-To check the exact implementations out, go here: [`src/background/services/storage/utils/crypto.ts`](https://github.com/ava-labs/extension-avalanche/blob/main/src/background/services/storage/utils/crypto.ts)
+To check the exact implementations out, go here: [`src/background/services/storage/utils/crypto.ts`](https://github.com/ava-labs/core-extension/blob/main/src/background/services/storage/utils/crypto.ts)
 
 ## DOs and DON'Ts
 
