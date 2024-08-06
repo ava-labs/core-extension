@@ -1,7 +1,5 @@
 import { ethErrors } from 'eth-rpc-errors';
 import EventEmitter from 'events';
-import { getSiteMetadata } from './utils/getSiteMetadata';
-import onDomReady from './utils/onDomReady';
 import {
   EventNames,
   type AccountsChangedEventData,
@@ -18,7 +16,6 @@ import {
 } from '../connections/dAppConnection/models';
 import type { PartialBy, ProviderInfo } from '../models';
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
-import AbstractConnection from '../utils/messaging/AbstractConnection';
 
 interface ProviderState {
   accounts: string[] | null;
@@ -28,8 +25,9 @@ interface ProviderState {
 }
 
 export class CoreProvider extends EventEmitter {
-  #providerReadyPromise = new ProviderReadyPromise();
-  #contentScriptConnection: AbstractConnection;
+  #providerReadyPromise = new ProviderReadyPromise([
+    InitializationStep.PROVIDER_STATE_LOADED,
+  ]);
   #chainagnosticProvider?: ChainAgnosticProvider;
 
   readonly info: ProviderInfo = {
@@ -68,16 +66,9 @@ export class CoreProvider extends EventEmitter {
     isUnlocked: () => Promise.resolve(this._isUnlocked),
   };
 
-  constructor({
-    connection,
-    maxListeners = 100,
-  }: {
-    connection: AbstractConnection;
-    maxListeners?: number;
-  }) {
+  constructor({ maxListeners = 100 }: { maxListeners?: number }) {
     super();
     this.setMaxListeners(maxListeners);
-    this.#contentScriptConnection = connection;
     this.#subscribe();
   }
 
@@ -104,19 +95,6 @@ export class CoreProvider extends EventEmitter {
    * Initializes provider state,  and collects dApp information
    */
   #init = async () => {
-    await this.#contentScriptConnection.connect();
-
-    onDomReady(async () => {
-      const domainMetadata = await getSiteMetadata();
-
-      this.#request({
-        method: DAppProviderRequest.DOMAIN_METADATA_METHOD,
-        params: domainMetadata,
-      });
-
-      this.#providerReadyPromise.check(InitializationStep.DOMAIN_METADATA_SENT);
-    });
-
     try {
       const response = await this.#request({
         method: DAppProviderRequest.INIT_DAPP_STATE,

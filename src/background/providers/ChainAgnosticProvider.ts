@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import {
+  DAppProviderRequest,
   JsonRpcRequest,
   JsonRpcRequestPayload,
 } from '../connections/dAppConnection/models';
@@ -8,9 +9,18 @@ import { ethErrors, serializeError } from 'eth-rpc-errors';
 import AbstractConnection from '../utils/messaging/AbstractConnection';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import RequestRatelimiter from './utils/RequestRatelimiter';
+import {
+  InitializationStep,
+  ProviderReadyPromise,
+} from './utils/ProviderReadyPromise';
+import onDomReady from './utils/onDomReady';
+import { getSiteMetadata } from './utils/getSiteMetadata';
 
 export class ChainAgnosticProvider extends EventEmitter {
   #contentScriptConnection: AbstractConnection;
+  #providerReadyPromise = new ProviderReadyPromise([
+    InitializationStep.DOMAIN_METADATA_SENT,
+  ]);
 
   #requestRateLimiter = new RequestRatelimiter([
     'eth_requestAccounts',
@@ -19,12 +29,26 @@ export class ChainAgnosticProvider extends EventEmitter {
 
   constructor(connection) {
     super();
+    connection.connect();
     this.#contentScriptConnection = connection;
     this.#init();
   }
 
   async #init() {
     await this.#contentScriptConnection.connect();
+
+    onDomReady(async () => {
+      const domainMetadata = await getSiteMetadata();
+
+      this.#request({
+        data: {
+          method: DAppProviderRequest.DOMAIN_METADATA_METHOD,
+          params: domainMetadata,
+        },
+      });
+
+      this.#providerReadyPromise.check(InitializationStep.DOMAIN_METADATA_SENT);
+    });
   }
 
   #request = async ({
@@ -73,12 +97,14 @@ export class ChainAgnosticProvider extends EventEmitter {
     chainId,
   }: {
     data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>;
-    sessionId: string;
-    chainId: string | null;
+    sessionId?: string;
+    chainId?: string | null;
   }) => {
-    return this.#requestRateLimiter.call(data.method, () =>
-      this.#request({ data, chainId, sessionId })
-    );
+    return this.#providerReadyPromise.call(() => {
+      return this.#requestRateLimiter.call(data.method, () =>
+        this.#request({ data, chainId, sessionId })
+      );
+    });
   };
 
   subscribeToMessage = (callback) => {
