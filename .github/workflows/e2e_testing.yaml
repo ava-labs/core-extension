@@ -13,15 +13,15 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
     environment: alpha
     steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
       - name: Checkout extension
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
       - name: Create .npmrc
         run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}' >> .npmrc
       - name: Create env file
@@ -105,6 +105,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: extension
+      - name: Show directory content
+        run: |
+          ls
       - name: Running browser extension smoke tests on testnet/mainnet against generated zip
         run: yarn ext:testnet/mainnet-smoke
       - if: always()
@@ -112,31 +115,3 @@ jobs:
         run: |
           echo $(head -n 1 testrail_run_id.txt)
           echo "TESTRAIL_RUN_ID=$(head -n 1 testrail_run_id.txt)" >> $GITHUB_ENV
-      - name: Success slack notification
-        if: success()
-        uses: slackapi/slack-github-action@v1.25.0
-        with:
-          payload: |
-            {
-              "GH_RUN_LINK": "https://github.com/ava-labs/core-extension/actions/runs/${{ github.run_id }}",
-              "GH_RUN_STATUS": "PASSED",
-              "STATUS_EMOJI": ":white_check_mark:",
-              "TEST_RUN_TYPE": "Browser extension smoke tests are running against branch= ${{ github.head_ref }}",
-              "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TESTRAIL_RUN_ID }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      - name: Failure slack notification
-        if: failure()
-        uses: slackapi/slack-github-action@v1.25.0
-        with:
-          payload: |
-            {
-              "GH_RUN_LINK": "https://github.com/ava-labs/core-extension/actions/runs/${{ github.run_id }}",
-              "GH_RUN_STATUS": "FAILED",
-              "STATUS_EMOJI": ":alert:",
-              "TEST_RUN_TYPE": "Browser extension smoke tests are running against branch= ${{ github.head_ref }}",
-              "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TESTRAIL_RUN_ID }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
