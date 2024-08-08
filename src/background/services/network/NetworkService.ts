@@ -326,7 +326,8 @@ export class NetworkService implements OnLock, OnStorageReady {
     // At this point the chainlist from Glacier should already be available,
     // as it is fetched when service worker starts (so before extension is unlocked).
     // If it isn't available yet, we'll use the list cached in the storage.
-    const chainlist = await Promise.race([
+
+    const chainlist = await Promise.any([
       this._chainListFetched.promisify(),
       this._getCachedChainList(),
     ]);
@@ -358,7 +359,15 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   private async _getCachedChainList(): Promise<ChainList | undefined> {
-    return this.storageService.load<ChainList>(NETWORK_LIST_STORAGE_KEY);
+    const networkList = await this.storageService.load<ChainList>(
+      NETWORK_LIST_STORAGE_KEY
+    );
+
+    if (!networkList) {
+      throw new Error('No networks cached');
+    }
+
+    return networkList;
   }
 
   private _getPchainNetwork(isTestnet: boolean): Network {
