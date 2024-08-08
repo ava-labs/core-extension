@@ -66,7 +66,7 @@ export class CoreProvider extends EventEmitter {
     isUnlocked: () => Promise.resolve(this._isUnlocked),
   };
 
-  constructor({ maxListeners = 100 }: { maxListeners?: number }) {
+  constructor(maxListeners: number = 100) {
     super();
     this.setMaxListeners(maxListeners);
     this.#subscribe();

@@ -4,7 +4,6 @@ import {
   MultiWalletProviderProxy,
   createMultiWalletProxy,
 } from './MultiWalletProviderProxy';
-import AutoPairingPostMessageConnection from '../utils/messaging/AutoPairingPostMessageConnection';
 
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection');
 jest.mock('./CoreProvider', () => ({
@@ -16,10 +15,9 @@ jest.mock('./CoreProvider', () => ({
 }));
 
 describe('src/background/providers/MultiWalletProviderProxy', () => {
-  const connectionMock = new AutoPairingPostMessageConnection(false);
   describe('init', () => {
     it('initializes with the default provider', () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
 
       const mwpp = new MultiWalletProviderProxy(provider);
 
@@ -45,7 +43,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
   describe('addProvider', () => {
     it('adds new providers from coinbase proxy', () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const mwpp = new MultiWalletProviderProxy(provider);
 
       expect(mwpp.defaultProvider).toBe(provider);
@@ -72,7 +70,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('does not add extra coinbase proxy', () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const mwpp = new MultiWalletProviderProxy(provider);
 
       expect(mwpp.defaultProvider).toBe(provider);
@@ -89,7 +87,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('adds new provider', () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const mwpp = new MultiWalletProviderProxy(provider);
 
       expect(mwpp.defaultProvider).toBe(provider);
@@ -106,7 +104,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
   describe('wallet selection', () => {
     it('toggles wallet selection on `eth_requestAccounts` call if multiple providers', async () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const provider2 = { isMetaMask: true, request: jest.fn() };
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
@@ -153,7 +151,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('does not toggle wallet selection if only core is available', async () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const mwpp = new MultiWalletProviderProxy(provider);
 
       provider.request = jest.fn().mockResolvedValueOnce(['0x000000']);
@@ -176,7 +174,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('does not toggle wallet selection if wallet is already selected', async () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const provider2 = { isMetaMask: true, request: jest.fn() };
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
@@ -232,7 +230,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('wallet selection works with legacy functions: enable', async () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const provider2 = { isMetaMask: true, enable: jest.fn() };
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
@@ -274,7 +272,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('wallet selection works with legacy functions: sendAsync', async () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const provider2 = { isMetaMask: true, request: jest.fn() };
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
@@ -328,7 +326,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('wallet selection works with legacy functions: send with callback', async () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const provider2 = { isMetaMask: true, request: jest.fn() };
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
@@ -380,7 +378,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
   describe('createMultiWalletProxy', () => {
     it('creates proxy with property deletion disabled', () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const mwpp = createMultiWalletProxy(provider);
 
       expect(mwpp.defaultProvider).toBe(provider);
@@ -389,7 +387,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('allows setting extra params without changing the provider', () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const mwpp = createMultiWalletProxy(provider);
 
       (mwpp as any).somePromerty = true;
@@ -413,7 +411,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('maintains the providers list properly', () => {
-      const provider = new CoreProvider({ connection: connectionMock });
+      const provider = new CoreProvider();
       const mwpp = createMultiWalletProxy(provider);
       const fooMock = () => 'bar';
       const bizMock = () => 'baz';

@@ -35,10 +35,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
 
   it('initializes CoreProvider with the correct channel name', () => {
     const provider = initializeProvider(connectionMock, 10, windowMock);
-    expect(CoreProvider).toHaveBeenCalledWith({
-      connection: connectionMock,
-      maxListeners: 10,
-    });
+    expect(CoreProvider).toHaveBeenCalledWith(10);
     expect(provider.isAvalanche).toBe(true);
   });
 
