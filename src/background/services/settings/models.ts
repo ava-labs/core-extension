@@ -37,6 +37,10 @@ export type TokensVisibility = {
   [key: string]: boolean;
 };
 
+export type CollectiblesVisibility = {
+  [key: string]: boolean;
+};
+
 export type AddCustomTokenData = {
   token: EnsureDefined<NetworkContractToken, 'chainId'>;
 };
@@ -51,6 +55,7 @@ export interface SettingsState {
   showTokensWithoutBalances: boolean;
   theme: ThemeVariant;
   tokensVisibility: TokensVisibility;
+  collectiblesVisibility: CollectiblesVisibility;
   analyticsConsent: AnalyticsConsent;
   language: Languages;
 }

@@ -7,6 +7,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Stack,
+  Button,
 } from '@avalabs/core-k2-components';
 
 import { CollectibleGrid } from './components/CollectibleGrid';
@@ -15,10 +16,16 @@ import { CollectibleListEmpty } from './components/CollectibleListEmpty';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import {
   NftTokenWithBalance,
   TokenType,
 } from '@src/background/services/balances/models';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@src/hooks/useIsFunctionAvailable';
+import { useHistory } from 'react-router-dom';
 import { CollectibleSkeleton } from './components/CollectibleSkeleton';
 import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteScroll';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
@@ -35,9 +42,15 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
   const { nfts, updateNftBalances } = useBalancesContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
+  const history = useHistory();
   const setCollectibleParams = useSetCollectibleParams();
   const { setNavigationHistoryData, isHistoryLoading } = usePageHistory();
-
+  const { isFunctionSupported: isManageCollectiblesSupported } =
+    useIsFunctionAvailable(FunctionNames.MANAGE_COLLECTIBLES);
+  const { getCollectibleVisibility } = useSettingsContext();
+  const visibleNfts = nfts.items?.filter((nft) => {
+    return getCollectibleVisibility(nft);
+  });
   const [loading, setLoading] = useState(false);
 
   const update = useCallback(() => {
@@ -59,6 +72,14 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
     setNavigationHistoryData({ listType: type });
   };
 
+  const toggleManageCollectiblesPage = () => {
+    if (history.location.pathname.startsWith('/manage-collectibles')) {
+      history.push('/');
+      return;
+    }
+    history.push('/manage-collectibles');
+  };
+
   const handleItemClick = useCallback(
     (nft: NftTokenWithBalance) => {
       setCollectibleParams({
@@ -75,26 +96,44 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
 
   return (
     <Stack style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-      <ToggleButtonGroup
-        sx={{
-          my: 1,
-          ml: 2,
-        }}
-        exclusive
-        size="small"
-        color="primary"
-        disabled={isHistoryLoading && !listType}
-        value={listType}
-        onChange={(_, value) => handleClick(value)}
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ my: 1, mr: 2 }}
       >
-        <ToggleButton value={ListType.GRID}>
-          <GridIcon size={16} />
-        </ToggleButton>
-        <ToggleButton value={ListType.LIST}>
-          <ListIcon size={16} />
-        </ToggleButton>
-      </ToggleButtonGroup>
-      {!nfts.loading && !!nfts.items?.length && (
+        <ToggleButtonGroup
+          sx={{
+            my: 1,
+            ml: 2,
+          }}
+          exclusive
+          size="small"
+          color="primary"
+          disabled={isHistoryLoading && !listType}
+          value={listType}
+          onChange={(_, value) => handleClick(value)}
+        >
+          <ToggleButton value={ListType.GRID}>
+            <GridIcon size={16} />
+          </ToggleButton>
+          <ToggleButton value={ListType.LIST}>
+            <ListIcon size={16} />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        {isManageCollectiblesSupported && (
+          <Button
+            variant="text"
+            size="small"
+            data-testid="manage-collectibles-button"
+            onClick={toggleManageCollectiblesPage}
+            sx={{ cursor: 'pointer' }}
+          >
+            {t('Manage')}
+          </Button>
+        )}
+      </Stack>
+      {!nfts.loading && !!visibleNfts?.length && (
         <InfiniteScroll
           loadMore={update}
           hasMore={
@@ -111,7 +150,7 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
           )}
         </InfiniteScroll>
       )}
-      {!nfts.loading && nfts.items?.length === 0 && (
+      {!nfts.loading && visibleNfts?.length === 0 && (
         <Stack
           sx={{
             flexGrow: 1,

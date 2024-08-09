@@ -67,6 +67,7 @@ export enum ExtensionRequest {
   SEND_SUBMIT = 'send_submit',
 
   SETTINGS_GET = 'settings_get',
+  SETTINGS_UPDATE_COLLECTIBLES_VISIBILITY = 'settings_update_collectibles_visibility',
   SETTINGS_UPDATE_CURRENCY = 'settings_update_currency',
   SETTINGS_UPDATE_SHOW_NO_BALANCE = 'settings_update_show_no_balance',
   SETTINGS_UPDATE_THEME = 'settings_update_theme',
