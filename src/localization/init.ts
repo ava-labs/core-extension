@@ -19,6 +19,7 @@ i18next
       'zh-TW',
       'es-EM',
       'ja-JP',
+      'fr-FR',
     ],
     load: 'currentOnly',
     interpolation: {

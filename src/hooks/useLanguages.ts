@@ -36,6 +36,12 @@ export function useLanguage() {
       linkCode: LanguageLinks.DE,
     },
     {
+      code: Languages.FR,
+      name: t('French'),
+      originalName: 'Français',
+      linkCode: LanguageLinks.FR,
+    },
+    {
       code: Languages.HI,
       name: t('Hindi'),
       originalName: 'हिन्दी',
