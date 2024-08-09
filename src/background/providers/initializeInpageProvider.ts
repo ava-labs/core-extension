@@ -1,7 +1,8 @@
-import AbstractConnection from '../utils/messaging/AbstractConnection';
+import type AbstractConnection from '../utils/messaging/AbstractConnection';
+import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import { CoreProvider } from './CoreProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
-import { EIP6963ProviderDetail } from './models';
+import { EventNames, type EIP6963ProviderDetail } from './models';
 
 /**
  * Initializes a CoreProvide and assigns it as window.ethereum.
@@ -16,7 +17,14 @@ export function initializeProvider(
   maxListeners = 100,
   globalObject = window
 ): CoreProvider {
-  const provider = new Proxy(new CoreProvider({ connection, maxListeners }), {
+  const chainAgnosticProvider = new Proxy(
+    new ChainAgnosticProvider(connection),
+    {
+      deleteProperty: () => true,
+    }
+  );
+
+  const provider = new Proxy(new CoreProvider(maxListeners), {
     // some common libraries, e.g. web3@1.x, mess with our API
     deleteProperty: () => true,
   });
@@ -25,6 +33,7 @@ export function initializeProvider(
   setAvalancheGlobalProvider(provider, globalObject);
   setEvmproviders(provider, globalObject);
   announceWalletProvider(provider, globalObject);
+  announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
 
   return provider;
 }
@@ -119,7 +128,7 @@ function announceWalletProvider(
   globalObject = window
 ): void {
   const announceEvent = new CustomEvent<EIP6963ProviderDetail>(
-    'eip6963:announceProvider',
+    EventNames.EIP6963_ANNOUNCE_PROVIDER,
     {
       detail: Object.freeze({
         info: { ...providerInstance.info },
@@ -134,7 +143,31 @@ function announceWalletProvider(
 
   // The Wallet listens to the request events which may be
   // dispatched later and re-dispatches the `EIP6963AnnounceProviderEvent`
-  globalObject.addEventListener('eip6963:requestProvider', () => {
+  globalObject.addEventListener(EventNames.EIP6963_REQUEST_PROVIDER, () => {
+    globalObject.dispatchEvent(announceEvent);
+  });
+}
+
+function announceChainAgnosticProvider(
+  providerInstance: ChainAgnosticProvider,
+  globalObject = window
+): void {
+  const announceEvent = new CustomEvent<{ provider: ChainAgnosticProvider }>(
+    EventNames.CORE_WALLET_ANNOUNCE_PROVIDER,
+    {
+      detail: Object.freeze({
+        provider: providerInstance,
+      }),
+    }
+  );
+
+  // The Wallet dispatches an announce event which is heard by
+  // the DApp code that had run earlier
+  globalObject.dispatchEvent(announceEvent);
+
+  // The Wallet listens to the request events which may be
+  // dispatched later and re-dispatches the `EIP6963AnnounceProviderEvent`
+  globalObject.addEventListener(EventNames.CORE_WALLET_REQUEST_PROVIDER, () => {
     globalObject.dispatchEvent(announceEvent);
   });
 }
