@@ -9,19 +9,19 @@ on:
     types: [opened, reopened, 'synchronize', 'ready_for_review']
 jobs:
   build:
-    runs-on: ubuntu-latest-16-cores
+    runs-on: ubuntu-latest-16-cores-core-extension
     if: ${{ !github.event.pull_request.draft }}
     environment: alpha
     steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
       - name: Checkout extension
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
       - name: Create .npmrc
         run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}' >> .npmrc
       - name: Create env file
@@ -57,6 +57,9 @@ jobs:
       - name: Remove onboarding video
         run: |
           rm -fv ./dist/images/core-ext-hero-hq.webm
+      - name: Add extension key to manifest file
+        run: |
+          echo $(cat ./dist/manifest.json | jq '.key = "${{ secrets.EXTENSION_PUBLIC_KEY }}"') > ./dist/manifest.json
       - name: Generate a zip
         run: yarn zip
       - name: Output extension file version before renaming
@@ -71,9 +74,9 @@ jobs:
           name: extension
           path: extension.zip
   e2e:
+    runs-on: ubuntu-latest-16-cores-core-extension
     needs: build
     name: Run E2E Smoke Tests
-    runs-on: ubuntu-latest-16-cores
     environment: e2e
     env:
       RUNNER: CI
