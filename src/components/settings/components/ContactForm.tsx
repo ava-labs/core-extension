@@ -142,6 +142,14 @@ export const ContactForm = ({
     setAddressXpError('');
   };
 
+  const sanitizeXPAddress = (address: string) => {
+    if (address.startsWith('P-') || address.startsWith('X-')) {
+      return address.substring(2, address.length);
+    } else {
+      return address;
+    }
+  };
+
   const handleUpdate = (name: keyof Contact, value: string) => {
     resetErrors();
 
@@ -211,6 +219,11 @@ export const ContactForm = ({
         onChange={(e) => {
           e.stopPropagation();
           handleUpdate('addressXP', e.target.value);
+        }}
+        onPaste={(e) => {
+          e.preventDefault();
+          const pastedAddress = e.clipboardData.getData('Text');
+          handleUpdate('addressXP', sanitizeXPAddress(pastedAddress));
         }}
         value={contact.addressXP}
         label={t('Avalanche (X/P-Chain) Address')}
