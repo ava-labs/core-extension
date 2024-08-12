@@ -312,7 +312,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
             windowId: crypto.randomUUID(),
             properties: {
               duration,
-              txType: 'txType',
+              txType: 'send',
               chainId: btcChainID,
               site: pendingAction.site?.domain,
               rpcUrl: network.rpcUrl,

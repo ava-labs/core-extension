@@ -468,7 +468,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
           chainId: 4503599627370475,
           duration: 1000,
           site: 'core.app',
-          txType: 'txType',
+          txType: 'send',
           rpcUrl: 'RPCURL',
         },
         windowId: undefined,
