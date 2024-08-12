@@ -11,11 +11,21 @@ import { createTransferTx } from '@avalabs/core-wallets-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { measureDuration } from '@src/utils/measureDuration';
 
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@src/utils/isBtcAddressInNetwork');
 jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('@src/utils/network/getProviderForNetwork');
+jest.mock('@src/utils/measureDuration', () => {
+  const measureDurationMock = {
+    start: jest.fn(),
+    end: jest.fn(),
+  };
+  return {
+    measureDuration: () => measureDurationMock,
+  };
+});
 
 describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', () => {
   const request = {
@@ -53,7 +63,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     getBalancesForNetworks: getBalancesForNetworksMock,
   };
   const analyticsServiceMock = {
-    captureEvent: captureEventMock,
+    captureEncryptedEvent: captureEventMock,
   };
 
   beforeEach(() => {
@@ -66,6 +76,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     jest.mocked(getProviderForNetwork).mockReturnValue({
       getScriptsForUtxos: jest.fn().mockResolvedValue([]),
       getNetwork: jest.fn(),
+      waitForTx: jest.fn().mockRejectedValue(new Error()),
     } as any);
     jest
       .mocked(createTransferTx)
@@ -333,6 +344,9 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         from: 'btc1',
         sendFee: 5,
       },
+      site: {
+        domain: 'core.app',
+      },
     } as unknown as Action;
 
     it('returns error when signing fails', async () => {
@@ -407,6 +421,55 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         frontendTabId
       );
       expect(onSuccessMock).toHaveBeenCalledWith('resultHash');
+    });
+
+    it('reports time to confirmation event', async () => {
+      const handler = new BitcoinSendTransactionHandler(
+        walletServiceMock as any,
+        networkServiceMock as any,
+        accountsServiceMock as any,
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
+      );
+      const durationMock = measureDuration();
+      jest.mocked(durationMock.end).mockReturnValue(1000);
+      jest.mocked(getProviderForNetwork).mockReturnValue({
+        getScriptsForUtxos: jest.fn().mockResolvedValue([]),
+        getNetwork: jest.fn(),
+        waitForTx: jest.fn().mockResolvedValue({}),
+      } as any);
+
+      getBitcoinNetworkMock.mockResolvedValue({
+        chainId: ChainId.BITCOIN_TESTNET,
+        vmName: NetworkVMType.BITCOIN,
+      });
+
+      const onSuccessMock = jest.fn();
+      const onErrorMock = jest.fn();
+
+      signMock.mockResolvedValue({ signedTx: 'resultHash' });
+      sendTransactionMock.mockReturnValueOnce('resultHash');
+      await handler.onActionApproved(
+        pendingActionMock,
+        {},
+        onSuccessMock,
+        onErrorMock,
+        frontendTabId
+      );
+
+      expect(analyticsServiceMock.captureEncryptedEvent).toHaveBeenCalledTimes(
+        1
+      );
+      expect(analyticsServiceMock.captureEncryptedEvent).toHaveBeenCalledWith({
+        name: 'TransactionTimeToConfirmation',
+        properties: {
+          chainId: 4503599627370475,
+          duration: 1000,
+          site: 'core.app',
+          txType: 'txType',
+        },
+        windowId: undefined,
+      });
     });
   });
 });

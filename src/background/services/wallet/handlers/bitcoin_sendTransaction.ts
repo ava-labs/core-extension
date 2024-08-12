@@ -34,7 +34,8 @@ import { resolve } from '@avalabs/core-utils-sdk';
 
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { runtime } from 'webextension-polyfill';
-import { measureTransactionTime } from '@src/background/services/wallet/utils/measureTransactionTime';
+import { measureDuration } from '@src/utils/measureDuration';
+import { noop } from '@src/utils/noop';
 
 type BitcoinTxParams = [
   address: string,
@@ -258,8 +259,9 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
     onError,
     frontendTabId?: number
   ) => {
+    const measurement = measureDuration();
+    measurement.start();
     try {
-      measureTransactionTime().startMeasure();
       const { address, amount, from, feeRate, balance } =
         pendingAction.displayData;
       const btcChainID = this.networkService.isMainnet()
@@ -301,21 +303,25 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
 
       onSuccess(hash);
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      provider.waitForTx(hash).then((_tx) => {
-        measureTransactionTime().endMeasure(async (duration) => {
-          this.analyticsServicePosthog.captureEvent({
+      provider
+        .waitForTx(hash)
+        .then(() => {
+          const duration = measurement.end();
+          this.analyticsServicePosthog.captureEncryptedEvent({
             name: 'TransactionTimeToConfirmation',
             windowId: crypto.randomUUID(),
             properties: {
               duration,
               txType: 'txType',
               chainId: btcChainID,
+              site: pendingAction.site?.domain,
             },
           });
-        });
-      });
+        })
+        .catch(noop);
     } catch (e) {
+      // clean up pending measurement
+      measurement.end();
       onError(e);
     }
   };

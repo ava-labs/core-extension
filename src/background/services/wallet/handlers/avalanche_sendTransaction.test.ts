@@ -16,12 +16,22 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { measureDuration } from '@src/utils/measureDuration';
 
 jest.mock('@avalabs/avalanchejs');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('../utils/getProvidedUtxos');
 jest.mock('../../analytics/utils/encryptAnalyticsData');
 jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@src/utils/measureDuration', () => {
+  const measureDurationMock = {
+    start: jest.fn(),
+    end: jest.fn(),
+  };
+  return {
+    measureDuration: () => measureDurationMock,
+  };
+});
 
 describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts', () => {
   const env = process.env;
@@ -117,7 +127,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     (UnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
     (EVMUnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
     signMock.mockReturnValue({ signedTx: 'baz' });
-    getAvalancheNetworkXPMock.mockReturnValue({});
+    getAvalancheNetworkXPMock.mockReturnValue({ rpcUrl: 'RPCURL' });
     issueTxHexMock.mockResolvedValue({ txID: 1 });
     getAvalanceProviderXPMock.mockResolvedValue(providerMock);
     getAddressesMock.mockReturnValue([]);
@@ -417,6 +427,9 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         unsignedTxJson,
       },
       params: {},
+      site: {
+        domain: 'core.app',
+      },
     } as Action;
 
     it('returns error when there are multiple addresses without indices', async () => {
@@ -532,7 +545,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: undefined,
           internalIndices: undefined,
         },
-        {},
+        { rpcUrl: 'RPCURL' },
         frontendTabId,
         'avalanche_sendTransaction'
       );
@@ -577,7 +590,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: undefined,
           internalIndices: undefined,
         },
-        {},
+        { rpcUrl: 'RPCURL' },
         frontendTabId,
         'avalanche_sendTransaction'
       );
@@ -627,7 +640,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: [0, 1],
           internalIndices: [2, 3],
         },
-        {},
+        { rpcUrl: 'RPCURL' },
         frontendTabId,
         'avalanche_sendTransaction'
       );
@@ -651,6 +664,43 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           },
         })
       );
+    });
+
+    it('measures and reports time to confirmation', async () => {
+      const signedTxHex = '0x000142';
+
+      const measurement = measureDuration();
+      jest.mocked(measurement.end).mockReturnValue(1000);
+      hasAllSignaturesMock.mockReturnValueOnce(true);
+      (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(signedTxHex);
+
+      await handler.onActionApproved(
+        pendingActionMock,
+        {},
+        onSuccessMock,
+        onErrorMock,
+        frontendTabId
+      );
+
+      expect(measurement.start).toHaveBeenCalled();
+
+      expect(measurement.end).toHaveBeenCalled();
+      expect(
+        analyticsServicePosthogMock.captureEncryptedEvent
+      ).toHaveBeenCalledTimes(2);
+      expect(
+        analyticsServicePosthogMock.captureEncryptedEvent
+      ).toHaveBeenNthCalledWith(2, {
+        name: 'TransactionTimeToConfirmation',
+        properties: {
+          chainId: 4503599627370468,
+          duration: 1000,
+          rpcUrl: 'RPCURL',
+          site: 'core.app',
+          txType: undefined,
+        },
+        windowId: undefined,
+      });
     });
   });
 });

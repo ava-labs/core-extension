@@ -24,7 +24,7 @@ import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { measureTransactionTime } from '@src/background/services/wallet/utils/measureTransactionTime';
+import { measureDuration } from '@src/utils/measureDuration';
 
 type TxParams = {
   transactionHex: string;
@@ -230,9 +230,9 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
 
     const usedAddress = this.#getAddressForVM(vm);
     const usedNetwork = this.#getChainIdForVM(vm);
-
+    const measurement = measureDuration();
     try {
-      measureTransactionTime().startMeasure();
+      measurement.start();
       // Parse the json into a tx object
       const unsignedTx =
         vm === EVM
@@ -252,13 +252,14 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         );
       }
 
+      const network = this.networkService.getAvalancheNetworkXP();
       const { txHash, signedTx } = await this.walletService.sign(
         {
           tx: unsignedTx,
           externalIndices,
           internalIndices,
         },
-        this.networkService.getAvalancheNetworkXP(),
+        network,
         frontendTabId,
         DAppProviderRequest.AVALANCHE_SEND_TRANSACTION
       );
@@ -272,18 +273,6 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
             txHash: txHash,
             chainId: usedNetwork,
           },
-        });
-
-        measureTransactionTime().endMeasure(async (duration) => {
-          this.analyticsServicePosthog.captureEvent({
-            name: 'TransactionTimeToConfirmation',
-            windowId: crypto.randomUUID(),
-            properties: {
-              duration,
-              txType: 'txType',
-              chainId: usedNetwork,
-            },
-          });
         });
 
         // If we already have the transaction hash (i.e. it was dispatched by WalletConnect),
@@ -319,7 +308,23 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
 
         onSuccess(res.txID);
       }
+
+      const duration = measurement.end();
+      this.analyticsServicePosthog.captureEncryptedEvent({
+        name: 'TransactionTimeToConfirmation',
+        windowId: crypto.randomUUID(),
+        properties: {
+          duration,
+          txType: unsignedTx.getTx()._type,
+          chainId: usedNetwork,
+          rpcUrl: network.rpcUrl,
+          site: pendingAction.site?.domain,
+        },
+      });
     } catch (e) {
+      // clean up pending measurement
+      measurement.end();
+
       this.analyticsServicePosthog.captureEncryptedEvent({
         name: 'avalanche_sendTransaction_failed',
         windowId: crypto.randomUUID(),

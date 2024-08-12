@@ -3,7 +3,6 @@ import { EthSendTransactionHandler } from './eth_sendTransaction';
 import { NetworkFeeService } from '@src/background/services/networkFee/NetworkFeeService';
 import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import { FeatureFlagService } from '@src/background/services/featureFlags/FeatureFlagService';
 import { TokenManagerService } from '@src/background/services/tokens/TokenManagerService';
 import { AnalyticsServicePosthog } from '@src/background/services/analytics/AnalyticsServicePosthog';
 import { WalletService } from '@src/background/services/wallet/WalletService';
@@ -35,6 +34,7 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { BlockaidService } from '@src/background/services/blockaid/BlockaidService';
 import { caipToChainId } from '@src/utils/caipConversion';
+import { measureDuration } from '@src/utils/measureDuration';
 
 jest.mock('@src/utils/caipConversion');
 jest.mock('@src/background/runtime/openApprovalWindow');
@@ -52,17 +52,15 @@ jest.mock('@src/background/services/analytics/utils/encryptAnalyticsData');
 jest.mock('./contracts/contractParsers/parseWithERC20Abi');
 jest.mock('./utils/getTxDescription');
 jest.mock('./contracts/contractParsers/utils/parseBasicDisplayValues');
-jest.mock(
-  '@src/background/services/wallet/utils/measureTransactionTime',
-  () => ({
-    measureTransactionTime: function () {
-      return {
-        startMeasure: jest.fn(),
-        endMeasure: jest.fn(),
-      };
-    },
-  })
-);
+jest.mock('@src/utils/measureDuration', () => {
+  const measureDurationMock = {
+    start: jest.fn(),
+    end: jest.fn(),
+  };
+  return {
+    measureDuration: () => measureDurationMock,
+  };
+});
 jest.mock('./contracts/contractParsers/contractParserMap', () => ({
   contractParserMap: new Map([['function', jest.fn()]]),
 }));
@@ -164,11 +162,6 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     {} as any,
     {} as any
   );
-  const featureFlagService = new FeatureFlagService(
-    {} as any,
-    {} as any,
-    {} as any
-  );
 
   const tokenManagerService = new TokenManagerService({} as any, {} as any);
   const walletService = new WalletService(
@@ -217,17 +210,21 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     keyID: 'testKeyId',
   };
   let handler: EthSendTransactionHandler;
+  let provider: JsonRpcBatchInternal;
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
+    jest.useFakeTimers();
     jest.mocked(caipToChainId).mockReturnValue(43114);
+    jest.mocked(browser.notifications.clear).mockResolvedValue(true);
     jest
       .spyOn(accountsService, 'activeAccount', 'get')
       .mockReturnValue(accountMock);
     jest.mocked(getTargetNetworkForTx).mockResolvedValue(networkMock);
-    const provider = new JsonRpcBatchInternal(123);
+    provider = new JsonRpcBatchInternal(123);
     jest.spyOn(provider, 'getCode').mockResolvedValue('0x');
     jest.spyOn(provider, 'getTransactionCount').mockResolvedValue(3); // dummy nonce
     jest.spyOn(provider, 'estimateGas').mockResolvedValue(21000n); // dummy gas limit
+    jest.spyOn(provider, 'waitForTransaction').mockRejectedValue(new Error());
     jest.mocked(getProviderForNetwork).mockReturnValue(provider);
     jest.mocked(networkFeeService).getNetworkFee.mockResolvedValue(mockedFees);
     jest.mocked(networkFeeService).estimateGasLimit.mockResolvedValue(1234);
@@ -252,7 +249,6 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       networkService,
       networkFeeService,
       accountsService,
-      featureFlagService,
       balanceAggregatorService,
       tokenManagerService,
       walletService,
@@ -260,6 +256,11 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       blockaidService
     );
   });
+
+  afterEach(() => {
+    jest.clearAllTimers();
+  });
+
   describe('handleUnauthenticated', () => {
     it('returns error', async () => {
       const request = {
@@ -883,7 +884,6 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       jest
         .mocked(getTargetNetworkForTx)
         .mockRejectedValue(new Error('Network not found'));
-      jest.mocked(crypto.randomUUID).mockReturnValue('a-b-c-d-e-f');
 
       await handler.onActionApproved(
         mockAction,
@@ -905,7 +905,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           method: 'eth_sendTransaction',
           txHash: undefined,
         },
-        windowId: 'a-b-c-d-e-f',
+        windowId: '00000000-0000-0000-0000-000000000000',
       });
     });
 
@@ -925,7 +925,6 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     });
 
     it('captures encrypted analytics event on success', async () => {
-      jest.mocked(crypto.randomUUID).mockReturnValue('a-b-c-d-e-f');
       jest.mocked(networkService.sendTransaction).mockResolvedValue('0x0123');
 
       await handler.onActionApproved(
@@ -948,12 +947,11 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           method: 'eth_sendTransaction',
           txHash: '0x0123',
         },
-        windowId: 'a-b-c-d-e-f',
+        windowId: '00000000-0000-0000-0000-000000000000',
       });
     });
 
-    it('opens explorer link on notification click', async () => {
-      jest.spyOn(Date, 'now').mockReturnValue(999);
+    it('opens explorer link on pending notification click', async () => {
       jest.mocked(networkService.sendTransaction).mockResolvedValue('0x0123');
       jest
         .mocked(getExplorerAddressByNetwork)
@@ -967,13 +965,16 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       );
 
       expect(browser.notifications.create).toHaveBeenCalledTimes(1);
-      expect(browser.notifications.create).toHaveBeenCalledWith('999', {
-        type: 'basic',
-        iconUrl: '../../../../images/icon-32.png',
-        title: 'Confirmed transaction',
-        message: `Transaction confirmed! View on the explorer.`,
-        priority: 2,
-      });
+      expect(browser.notifications.create).toHaveBeenCalledWith(
+        '00000000-0000-0000-0000-000000000000',
+        {
+          type: 'basic',
+          iconUrl: '../../../../images/icon-32.png',
+          title: 'Pending transaction',
+          message: `Transaction pending! View on the explorer.`,
+          priority: 2,
+        }
+      );
 
       expect(browser.notifications.onClicked.addListener).toHaveBeenCalledTimes(
         1
@@ -989,7 +990,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
 
       jest
         .mocked(browser.notifications.onClicked.addListener)
-        .mock.calls[0]?.[0]?.('999');
+        .mock.calls[0]?.[0]?.('00000000-0000-0000-0000-000000000000');
 
       expect(getExplorerAddressByNetwork).toHaveBeenCalledWith(
         networkMock,
@@ -1001,8 +1002,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
         url: 'https://explorer.example.com',
       });
     });
-    it('unsubcribes from clicks when browser notification closed', async () => {
-      jest.spyOn(Date, 'now').mockReturnValue(999);
+
+    it('unsubcribes from clicks when pending browser notification closed', async () => {
       jest.mocked(networkService.sendTransaction).mockResolvedValue('0x0123');
       jest
         .mocked(getExplorerAddressByNetwork)
@@ -1016,13 +1017,16 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       );
 
       expect(browser.notifications.create).toHaveBeenCalledTimes(1);
-      expect(browser.notifications.create).toHaveBeenCalledWith('999', {
-        type: 'basic',
-        iconUrl: '../../../../images/icon-32.png',
-        title: 'Confirmed transaction',
-        message: `Transaction confirmed! View on the explorer.`,
-        priority: 2,
-      });
+      expect(browser.notifications.create).toHaveBeenCalledWith(
+        '00000000-0000-0000-0000-000000000000',
+        {
+          type: 'basic',
+          iconUrl: '../../../../images/icon-32.png',
+          title: 'Pending transaction',
+          message: `Transaction pending! View on the explorer.`,
+          priority: 2,
+        }
+      );
 
       expect(browser.notifications.onClosed.addListener).toHaveBeenCalledTimes(
         1
@@ -1044,7 +1048,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       (
         jest.mocked(browser.notifications.onClosed.addListener).mock
           .calls[0]?.[0] as any
-      )?.('999');
+      )?.('00000000-0000-0000-0000-000000000000');
 
       expect(
         browser.notifications.onClicked.removeListener
@@ -1054,9 +1058,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       );
     });
 
-    it('dismisses browser notification after 5 seconds', async () => {
-      jest.useFakeTimers();
-      jest.spyOn(Date, 'now').mockReturnValue(999);
+    it('dismisses pending browser notification after 5 seconds', async () => {
       jest.mocked(networkService.sendTransaction).mockResolvedValue('0x0123');
       jest
         .mocked(getExplorerAddressByNetwork)
@@ -1070,13 +1072,16 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       );
 
       expect(browser.notifications.create).toHaveBeenCalledTimes(1);
-      expect(browser.notifications.create).toHaveBeenCalledWith('999', {
-        type: 'basic',
-        iconUrl: '../../../../images/icon-32.png',
-        title: 'Confirmed transaction',
-        message: `Transaction confirmed! View on the explorer.`,
-        priority: 2,
-      });
+      expect(browser.notifications.create).toHaveBeenCalledWith(
+        '00000000-0000-0000-0000-000000000000',
+        {
+          type: 'basic',
+          iconUrl: '../../../../images/icon-32.png',
+          title: 'Pending transaction',
+          message: `Transaction pending! View on the explorer.`,
+          priority: 2,
+        }
+      );
 
       expect(browser.notifications.onClosed.addListener).toHaveBeenCalledTimes(
         1
@@ -1091,13 +1096,114 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       jest.advanceTimersByTime(1);
 
       expect(browser.notifications.clear).toHaveBeenCalledTimes(1);
-      expect(browser.notifications.clear).toHaveBeenCalledWith('999');
+      expect(browser.notifications.clear).toHaveBeenCalledWith(
+        '00000000-0000-0000-0000-000000000000'
+      );
       expect(
         browser.notifications.onClicked.removeListener
       ).toHaveBeenCalledWith(
         jest.mocked(browser.notifications.onClicked.addListener).mock
           .calls[0]?.[0]
       );
+    });
+
+    it('creates transaction confirmed browser notification', async () => {
+      jest.mocked(networkService.sendTransaction).mockResolvedValue('0x0123');
+      jest
+        .mocked(getExplorerAddressByNetwork)
+        .mockReturnValue('https://explorer.example.com');
+
+      let resolveTransaction;
+      jest.spyOn(provider, 'waitForTransaction').mockReturnValue(
+        new Promise((resolve) => {
+          resolveTransaction = resolve;
+        })
+      );
+
+      await handler.onActionApproved(
+        mockAction,
+        undefined,
+        onSuccessMock,
+        onErrorMock
+      );
+
+      expect(browser.notifications.clear).toHaveBeenCalledTimes(0);
+      expect(browser.notifications.create).toHaveBeenCalledTimes(1);
+      expect(browser.notifications.create).toHaveBeenCalledWith(
+        '00000000-0000-0000-0000-000000000000',
+        expect.objectContaining({
+          title: 'Pending transaction',
+        })
+      );
+
+      resolveTransaction({ status: 1 });
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // clears prevous pending notification
+      expect(browser.notifications.clear).toHaveBeenCalledTimes(1);
+      expect(browser.notifications.clear).toHaveBeenCalledWith(
+        '00000000-0000-0000-0000-000000000000'
+      );
+
+      // creates new notification
+      expect(browser.notifications.create).toHaveBeenCalledTimes(2);
+      expect(browser.notifications.create).toHaveBeenNthCalledWith(
+        2,
+        '00000000-0000-0000-0000-000000000000',
+        expect.objectContaining({
+          title: 'Confirmed transaction',
+        })
+      );
+    });
+
+    it('measures time to confirmation and reports it', async () => {
+      jest.mocked(networkService.sendTransaction).mockResolvedValue('0x0123');
+      jest
+        .mocked(getExplorerAddressByNetwork)
+        .mockReturnValue('https://explorer.example.com');
+      const durationMock = measureDuration();
+      jest.mocked(durationMock.end).mockReturnValue(1000);
+
+      let resolveTransaction;
+      jest.spyOn(provider, 'waitForTransaction').mockReturnValue(
+        new Promise((resolve) => {
+          resolveTransaction = resolve;
+        })
+      );
+
+      await handler.onActionApproved(
+        mockAction,
+        undefined,
+        onSuccessMock,
+        onErrorMock
+      );
+
+      expect(durationMock.start).toHaveBeenCalledTimes(1);
+
+      resolveTransaction({ status: 1 });
+      await jest.runAllTimersAsync();
+
+      expect(durationMock.end).toHaveBeenCalledTimes(1);
+
+      // creates new notification
+      expect(
+        analyticsServicePosthog.captureEncryptedEvent
+      ).toHaveBeenCalledTimes(2);
+      expect(
+        analyticsServicePosthog.captureEncryptedEvent
+      ).toHaveBeenNthCalledWith(2, {
+        name: 'TransactionTimeToConfirmation',
+        properties: {
+          chainId: '0xa86a',
+          duration: 1000,
+          rpcUrl: '',
+          site: 'example.com',
+          success: true,
+          txType: 'eth_sendTransaction',
+        },
+        windowId: '00000000-0000-0000-0000-000000000000',
+      });
     });
   });
 });
