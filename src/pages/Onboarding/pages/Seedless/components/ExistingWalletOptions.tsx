@@ -4,6 +4,7 @@ import {
   ShieldLockIcon,
   LedgerIcon,
   KeystoneIcon,
+  ArrowLeftIconV2,
 } from '@avalabs/core-k2-components';
 import { forwardRef, ForwardedRef } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -15,7 +16,7 @@ import { Overlay } from '@src/components/common/Overlay';
 import { ExistingWalletButton } from './ExistingWalletButton';
 
 type ExistingWalletOptionsProps = {
-  setShowExistingWalletOption: (boolean) => void;
+  setShowExistingWalletOption: (open: boolean) => void;
 };
 
 export const ExistingWalletOptions = forwardRef(function ExistingWalletOptions(
@@ -42,8 +43,8 @@ export const ExistingWalletOptions = forwardRef(function ExistingWalletOptions(
           top: 90,
         }}
       >
-        <img
-          src="images/arrow-left.svg"
+        <ArrowLeftIconV2
+          sx={{ cursor: 'pointer', width: 19, height: 14 }}
           onClick={() => {
             setShowExistingWalletOption(false);
           }}

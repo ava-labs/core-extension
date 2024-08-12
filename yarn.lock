@@ -91,10 +91,10 @@
   dependencies:
     "@avalabs/core-utils-sdk" "^3.0.0"
 
-"@avalabs/core-k2-components@4.18.0-alpha.44":
-  version "4.18.0-alpha.44"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-k2-components/-/core-k2-components-4.18.0-alpha.44.tgz#8daf2d8ab28cc5491adbb11d36201ec91dfc4bce"
-  integrity sha512-2oIg1SsJ7dGedpxoezOPMTJbIcMK4s+P8fu9ba6Q3ZskjhX5OJizv42H4orvQyCb5RXgN2FvxYkft6FSufNiqA==
+"@avalabs/core-k2-components@4.18.0-alpha.47":
+  version "4.18.0-alpha.47"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-k2-components/-/core-k2-components-4.18.0-alpha.47.tgz#94d588cf109350fe57d246dbf36bc127a1fc0584"
+  integrity sha512-eXgd3mgHJKHyQRGHxcQV4MJBzJT0Orr+w2xrWZ1M9dGcQBTGbOxQ5h0Y/TPRkUXrP8SVhonEM2ACX8YTSTbKDA==
   dependencies:
     "@emotion/react" "11.11.1"
     "@emotion/styled" "11.11.0"
