@@ -84,6 +84,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
     getBitcoinNetworkMock.mockResolvedValue({
       vmName: NetworkVMType.BITCOIN,
+      rpcUrl: 'RPCURL',
     });
     getBalancesForNetworksMock.mockResolvedValue({
       [ChainId.BITCOIN_TESTNET]: {
@@ -442,6 +443,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
       getBitcoinNetworkMock.mockResolvedValue({
         chainId: ChainId.BITCOIN_TESTNET,
         vmName: NetworkVMType.BITCOIN,
+        rpcUrl: 'RPCURL',
       });
 
       const onSuccessMock = jest.fn();
@@ -467,6 +469,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
           duration: 1000,
           site: 'core.app',
           txType: 'txType',
+          rpcUrl: 'RPCURL',
         },
         windowId: undefined,
       });

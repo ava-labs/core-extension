@@ -315,6 +315,7 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
               txType: 'txType',
               chainId: btcChainID,
               site: pendingAction.site?.domain,
+              rpcUrl: network.rpcUrl,
             },
           });
         })
