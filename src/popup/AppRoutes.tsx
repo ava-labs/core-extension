@@ -16,6 +16,12 @@ const TokenFlowPage = lazy(() => {
   }));
 });
 
+const ManageCollectiblesPage = lazy(() => {
+  return import('../pages/ManageCollectibles/ManageCollectibles').then((m) => ({
+    default: m.ManageCollectibles,
+  }));
+});
+
 const ManageTokensPage = lazy(() => {
   return import('../pages/ManageTokens/ManageTokens').then((m) => ({
     default: m.ManageTokens,
@@ -193,8 +199,19 @@ const DefiProtocolDetails = lazy(() => {
   }));
 });
 
+const LedgerTroubleshootingPopup = lazy(() => {
+  return import('../pages/Ledger/LedgerTroubleshooting').then((m) => ({
+    default: m.LedgerTroubleshooting,
+  }));
+});
+
 export const AppRoutes = () => (
   <Switch>
+    <Route path="/ledger/troubleshooting">
+      <Suspense fallback={<CircularProgress />}>
+        <LedgerTroubleshootingPopup />
+      </Suspense>
+    </Route>
     <Route path="/token/add">
       <Suspense fallback={<CircularProgress />}>
         <AddToken />
@@ -256,6 +273,11 @@ export const AppRoutes = () => (
     <Route path="/manage-tokens">
       <Suspense fallback={<CircularProgress />}>
         <ManageTokensPage />
+      </Suspense>
+    </Route>
+    <Route path="/manage-collectibles">
+      <Suspense fallback={<CircularProgress />}>
+        <ManageCollectiblesPage />
       </Suspense>
     </Route>
     <Route exact path="/networks">

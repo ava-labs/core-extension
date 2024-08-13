@@ -86,6 +86,7 @@ describe('src/background/services/balances/BalancesServiceAVM.ts', () => {
       showTokensWithoutBalances: false,
       theme: ThemeVariant.DARK,
       tokensVisibility: {},
+      collectiblesVisibility: {},
       analyticsConsent: AnalyticsConsent.Approved,
       language: Languages.EN,
     });

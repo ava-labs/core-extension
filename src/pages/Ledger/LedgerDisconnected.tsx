@@ -3,10 +3,21 @@ import {
   Box,
   Stack,
   CircularProgress,
+  Button,
 } from '@avalabs/core-k2-components';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import { useCallback } from 'react';
+import { tabs } from 'webextension-polyfill';
 
 export const LedgerDisconnected = () => {
+  const { t } = useTranslation();
+  const openTroubleshootingPopup = useCallback(() => {
+    // Open in a full screen tab to avoid popup hell
+    tabs.create({
+      url: '/fullscreen.html#/ledger/troubleshooting',
+    });
+  }, []);
+
   return (
     <>
       <Typography
@@ -27,6 +38,14 @@ export const LedgerDisconnected = () => {
       <Stack sx={{ mt: '48px', mb: '16px', alignItems: 'center' }}>
         <CircularProgress size={48} />
       </Stack>
+      <Button
+        variant="text"
+        color="primary"
+        onClick={openTroubleshootingPopup}
+        sx={{ mt: 2 }}
+      >
+        {t('Unable to connect?')}
+      </Button>
     </>
   );
 };

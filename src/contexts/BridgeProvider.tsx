@@ -1,28 +1,26 @@
 import {
   Asset,
+  BitcoinConfigAsset,
+  Blockchain,
   BridgeSDKProvider,
   Environment,
+  estimateGas as sdkEstimateGas,
   setBridgeEnvironment,
+  transferAssetEVM,
   useBridgeSDK,
   WrapStatus,
 } from '@avalabs/core-bridge-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  isBridgeStateUpdateEventListener,
-  isBridgeTransferEventListener,
-} from '@src/background/services/bridge/events/listeners';
+import { isBridgeStateUpdateEventListener } from '@src/background/services/bridge/events/listeners';
 import { BridgeCreateTransactionHandler } from '@src/background/services/bridge/handlers/createBridgeTransaction';
 import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
 import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
 import { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handlers/setIsDevEnv';
-import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
 import {
-  CustomGasSettings,
   BridgeState,
   DefaultBridgeState,
   PartialBridgeTransaction,
-  TransferEventType,
 } from '@src/background/services/bridge/models';
 import { filterBridgeStateToNetwork } from '@src/background/services/bridge/utils';
 import Big from 'big.js';
@@ -36,20 +34,18 @@ import {
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
-import { EstimateGasForBridgeTxHandler } from '@src/background/services/bridge/handlers/estimateGasForBridgeTx';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { useAccountsContext } from './AccountsProvider';
+import { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
+import type { ContractTransaction } from 'ethers';
+import { useTranslation } from 'react-i18next';
 
-interface BridgeContext {
+export interface BridgeContext {
   createBridgeTransaction(tx: PartialBridgeTransaction): Promise<void>;
   removeBridgeTransaction(txHash: string): Promise<void>;
   bridgeTransactions: BridgeState['bridgeTransactions'];
   estimateGas: (amount: Big, asset: Asset) => Promise<bigint | undefined>;
-  transferAsset: (
-    amount: Big,
-    asset: Asset,
-    customGasSettings: CustomGasSettings,
-    onStatusChange: (status: WrapStatus) => void,
-    onTxHashChange: (txHash: string) => void
-  ) => Promise<{ hash: string }>;
+  transferEVMAsset: (amount: Big, asset: Asset) => Promise<{ hash: string }>;
   isBridgeDevEnv: boolean;
   setIsBridgeDevEnv: (enabled: boolean) => void;
   bridgeState: BridgeState;
@@ -81,9 +77,13 @@ export function useBridgeContext() {
 
 // This component is separate so it has access to useBridgeSDK
 function InnerBridgeProvider({ children }: { children: any }) {
+  const { t } = useTranslation();
   const { request, events } = useConnectionContext();
-  const { currentBlockchain } = useBridgeSDK();
-  const { network } = useNetworkContext();
+  const { currentBlockchain, bridgeConfig } = useBridgeSDK();
+  const { network, avalancheProvider, ethereumProvider } = useNetworkContext();
+  const {
+    accounts: { active },
+  } = useAccountsContext();
   const [bridgeState, setBridgeState] =
     useState<BridgeState>(DefaultBridgeState);
   // Separate from bridgeState so they can be filtered to the current network
@@ -147,56 +147,143 @@ function InnerBridgeProvider({ children }: { children: any }) {
     [request]
   );
 
-  function setIsBridgeDevEnv(enabled: boolean) {
-    request<BridgeSetIsDevEnvHandler>({
-      method: ExtensionRequest.BRIDGE_SET_IS_DEV_ENV,
-      params: [enabled],
-    });
-  }
-
-  const estimateGas = useCallback(
-    (amount: Big, asset: Asset) => {
-      return request<EstimateGasForBridgeTxHandler>({
-        method: ExtensionRequest.BRIDGE_ESTIMATE_GAS,
-        params: [currentBlockchain, amount, asset],
+  const setIsBridgeDevEnv = useCallback(
+    (enabled: boolean) => {
+      request<BridgeSetIsDevEnvHandler>({
+        method: ExtensionRequest.BRIDGE_SET_IS_DEV_ENV,
+        params: [enabled],
       });
     },
-    [currentBlockchain, request]
+    [request]
   );
 
-  async function transferAsset(
-    amount: Big,
-    asset: Asset,
-    customGasSettings: CustomGasSettings,
-    onStatusChange: (status: WrapStatus) => void,
-    onTxHashChange: (txHash: string) => void
-  ) {
-    const transferEventSubscription = events()
-      .pipe(
-        filter(isBridgeTransferEventListener),
-        map((evt) => evt.value)
-      )
-      .subscribe((event) => {
-        event.type === TransferEventType.WRAP_STATUS
-          ? onStatusChange(event.status)
-          : onTxHashChange(event.txHash);
+  const estimateGas = useCallback(
+    async (amount: Big, asset: Asset) => {
+      const isEvmSourceChain =
+        currentBlockchain === Blockchain.ETHEREUM || Blockchain.AVALANCHE;
+
+      if (
+        !isEvmSourceChain ||
+        !active?.addressC ||
+        !ethereumProvider ||
+        !avalancheProvider ||
+        !bridgeConfig.config
+      ) {
+        return;
+      }
+
+      return sdkEstimateGas(
+        amount,
+        active.addressC,
+        asset as Exclude<Asset, BitcoinConfigAsset>,
+        {
+          ethereum: ethereumProvider,
+          avalanche: avalancheProvider,
+        },
+        bridgeConfig.config,
+        currentBlockchain
+      );
+    },
+    [
+      currentBlockchain,
+      active?.addressC,
+      avalancheProvider,
+      ethereumProvider,
+      bridgeConfig.config,
+    ]
+  );
+
+  const transferEVMAsset = useCallback(
+    async (amount: Big, asset: Asset) => {
+      let currentSignature = 1;
+      let requiredSignatures = 1;
+
+      if (
+        currentBlockchain !== Blockchain.ETHEREUM &&
+        currentBlockchain !== Blockchain.AVALANCHE
+      ) {
+        throw new Error('Wrong source chain');
+      }
+
+      const result = await transferAssetEVM({
+        currentBlockchain,
+        amount,
+        account: active?.addressC as string,
+        asset,
+        avalancheProvider: avalancheProvider!,
+        ethereumProvider: ethereumProvider!,
+        config: bridgeConfig.config!,
+        onStatusChange: (status) => {
+          if (status === WrapStatus.WAITING_FOR_DEPOSIT_CONFIRMATION) {
+            requiredSignatures = 2;
+          }
+
+          if (
+            requiredSignatures > 1 &&
+            status === WrapStatus.WAITING_FOR_CONFIRMATION
+          ) {
+            currentSignature = 2;
+          }
+        },
+        onTxHashChange: () => {},
+        signAndSendEVM: (txData) => {
+          const tx = txData as ContractTransaction;
+
+          return request<EthSendTransactionHandler>({
+            method: DAppProviderRequest.ETH_SEND_TX,
+            params: [
+              {
+                ...tx,
+                // erase gasPrice if maxFeePerGas can be used
+                gasPrice: tx.maxFeePerGas
+                  ? undefined
+                  : tx.gasPrice ?? undefined,
+                type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
+              },
+              {
+                customApprovalScreenTitle: t('Confirm Bridge'),
+                contextInformation:
+                  requiredSignatures > currentSignature
+                    ? {
+                        title: t(
+                          'This operation requires {{total}} approvals.',
+                          {
+                            total: requiredSignatures,
+                          }
+                        ),
+                        notice: t(
+                          'You will be prompted {{remaining}} more time(s).',
+                          {
+                            remaining: requiredSignatures - currentSignature,
+                          }
+                        ),
+                      }
+                    : undefined,
+              },
+            ],
+          });
+        },
       });
 
-    const result = await request<BridgeTransferAssetHandler>({
-      method: ExtensionRequest.BRIDGE_TRANSFER_ASSET,
-      params: [currentBlockchain, amount, asset, customGasSettings],
-    });
-
-    transferEventSubscription.unsubscribe();
-    return result;
-  }
+      return { hash: result };
+    },
+    [
+      active?.addressC,
+      avalancheProvider,
+      bridgeConfig.config,
+      currentBlockchain,
+      ethereumProvider,
+      request,
+      t,
+    ]
+  );
 
   return (
     <bridgeContext.Provider
       value={{
         bridgeTransactions,
         estimateGas,
-        transferAsset,
+        transferEVMAsset,
         removeBridgeTransaction,
         createBridgeTransaction,
         isBridgeDevEnv,

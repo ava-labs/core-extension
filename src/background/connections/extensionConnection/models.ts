@@ -67,6 +67,7 @@ export enum ExtensionRequest {
   SEND_SUBMIT = 'send_submit',
 
   SETTINGS_GET = 'settings_get',
+  SETTINGS_UPDATE_COLLECTIBLES_VISIBILITY = 'settings_update_collectibles_visibility',
   SETTINGS_UPDATE_CURRENCY = 'settings_update_currency',
   SETTINGS_UPDATE_SHOW_NO_BALANCE = 'settings_update_show_no_balance',
   SETTINGS_UPDATE_THEME = 'settings_update_theme',
@@ -149,6 +150,7 @@ export enum ExtensionRequest {
   UNIFIED_BRIDGE_GET_FEE = 'unified_bridge_get_fee',
   UNIFIED_BRIDGE_ESTIMATE_GAS = 'unified_bridge_estimate_gas',
   UNIFIED_BRIDGE_TRANSFER_ASSET = 'unified_bridge_transfer_asset',
+  UNIFIED_BRIDGE_TRACK_TRANSFER = 'unified_bridge_track_transfer',
   UNIFIED_BRIDGE_GET_STATE = 'unified_bridge_get_state',
   UNIFIED_BRIDGE_GET_ASSETS = 'unified_bridge_get_assets',
 
