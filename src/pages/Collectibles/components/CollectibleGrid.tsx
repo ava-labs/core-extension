@@ -3,6 +3,7 @@ import {
   TokenType,
 } from '@src/background/services/balances/models';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CollectibleMedia } from './CollectibleMedia';
 import { CollectibleWrapper } from './CollectibleWrapper';
 import { Button } from '@avalabs/core-k2-components';
@@ -13,10 +14,14 @@ export function CollectibleGrid({
   onClick: (nft: NftTokenWithBalance) => void;
 }) {
   const { nfts } = useBalancesContext();
+  const { getCollectibleVisibility } = useSettingsContext();
+  const nftsToShow = nfts.items?.filter((nft) => {
+    return getCollectibleVisibility(nft);
+  });
 
   return (
     <CollectibleWrapper>
-      {nfts.items?.map((nft) => {
+      {nftsToShow?.map((nft) => {
         return (
           <Button
             sx={{ display: 'flex', padding: 0 }}

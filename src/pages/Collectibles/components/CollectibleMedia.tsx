@@ -73,6 +73,7 @@ interface CollectibleMediaProps {
   showBalance?: boolean;
   balance?: BN;
   showExpandOption?: boolean;
+  noAction?: boolean;
 }
 
 export function CollectibleMedia({
@@ -90,6 +91,7 @@ export function CollectibleMedia({
   showBalance = false,
   balance = new BN(0),
   showExpandOption = false,
+  noAction = false,
 }: CollectibleMediaProps) {
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
   const [shouldUseLightIcon, setShouldUseLightIcon] = useState(false);
@@ -178,7 +180,7 @@ export function CollectibleMedia({
         <ImageWrapper
           isOverlay={isImageFullScreen}
           onClick={() => {
-            if (!showBalance) setIsImageFullScreen(true);
+            if (!showBalance && !noAction) setIsImageFullScreen(true);
           }}
           onClose={() => setIsImageFullScreen(false)}
           backdropImageUrl={url}

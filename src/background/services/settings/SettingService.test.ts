@@ -14,6 +14,7 @@ import {
   SettingsState,
   ThemeVariant,
   TokensVisibility,
+  CollectiblesVisibility,
 } from './models';
 import { changeLanguage } from 'i18next';
 import { isTokenSupported } from '../tokens/utils/isTokenSupported';
@@ -67,6 +68,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     showTokensWithoutBalances: true,
     theme: ThemeVariant.DARK,
     tokensVisibility: {},
+    collectiblesVisibility: {},
     analyticsConsent: AnalyticsConsent.Denied,
     language: Languages.DE,
   };
@@ -76,6 +78,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     showTokensWithoutBalances: false,
     theme: ThemeVariant.DARK,
     tokensVisibility: {},
+    collectiblesVisibility: {},
     analyticsConsent: AnalyticsConsent.Approved,
     language: Languages.DE,
   };
@@ -338,6 +341,27 @@ describe('background/services/settings/SettingsService.ts', () => {
       it('should emit only the language if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
           await service.setTokensVisibility(visibility);
+        });
+      });
+    });
+
+    describe('setCollectiblesVisibility', () => {
+      const visibility: CollectiblesVisibility = {
+        '0x00000': false,
+      };
+      it('should save the new value for collectible visibility properly', async () => {
+        const eventListener = jest.fn();
+        service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
+        await service.setCollectiblesVisibility(visibility);
+        expect(eventListener).toHaveBeenCalledWith({
+          ...storedSettings,
+          collectiblesVisibility: visibility,
+        });
+      });
+
+      it('should emit only the language if it fails to save', async () => {
+        await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
+          await service.setCollectiblesVisibility(visibility);
         });
       });
     });
