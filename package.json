@@ -23,22 +23,23 @@
     "sentry": "node sentryscript.js"
   },
   "dependencies": {
-    "@avalabs/vm-module-types": "0.1.0",
     "@avalabs/avalanchejs": "4.0.5",
+    "@avalabs/bitcoin-module": "0.1.4",
     "@avalabs/bridge-unified": "2.1.0",
-    "@avalabs/core-bridge-sdk": "3.0.0",
-    "@avalabs/core-chains-sdk": "3.0.0",
-    "@avalabs/core-coingecko-sdk": "3.0.0",
-    "@avalabs/core-covalent-sdk": "3.0.0",
-    "@avalabs/core-etherscan-sdk": "3.0.0",
-    "@avalabs/core-snowtrace-sdk": "3.0.0",
-    "@avalabs/core-token-prices-sdk": "3.0.0",
-    "@avalabs/core-utils-sdk": "3.0.0",
-    "@avalabs/core-wallets-sdk": "3.0.0",
+    "@avalabs/core-bridge-sdk": "3.0.1-alpha.1",
+    "@avalabs/core-chains-sdk": "3.0.1-alpha.1",
+    "@avalabs/core-coingecko-sdk": "3.0.1-alpha.1",
+    "@avalabs/core-covalent-sdk": "3.0.1-alpha.1",
+    "@avalabs/core-etherscan-sdk": "3.0.1-alpha.1",
+    "@avalabs/core-snowtrace-sdk": "3.0.1-alpha.1",
+    "@avalabs/core-token-prices-sdk": "3.0.1-alpha.1",
+    "@avalabs/core-utils-sdk": "3.0.1-alpha.1",
+    "@avalabs/core-wallets-sdk": "3.0.1-alpha.1",
     "@avalabs/glacier-sdk": "2.8.0-alpha.188",
     "@avalabs/hw-app-avalanche": "0.14.1",
     "@avalabs/core-k2-components": "4.18.0-alpha.47",
-    "@avalabs/types": "2.8.0-alpha.188",
+    "@avalabs/types": "3.0.1-alpha.1",
+    "@avalabs/vm-module-types": "0.1.4",
     "@blockaid/client": "0.10.0",
     "@coinbase/cbpay-js": "1.6.0",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
@@ -238,7 +239,10 @@
       "@avalabs/vm-module-types>@avalabs/wallets-sdk>hdkey>secp256k1": false,
       "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
-      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
+      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
+      "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
+      "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
+      "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
     }
   }
 }
