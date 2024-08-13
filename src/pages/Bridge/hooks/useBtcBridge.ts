@@ -13,52 +13,37 @@ import {
   BitcoinInputUTXOWithOptionalScript,
   getMaxTransferAmount,
 } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { useInterval } from '@src/hooks/useInterval';
 import Big from 'big.js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AssetBalance } from '../models';
 import { BridgeAdapter } from './useBridge';
-import { NetworkFee } from '@src/background/services/networkFee/models';
-import { BridgeTransferAssetHandler } from '@src/background/services/bridge/handlers/transferAsset';
+import { TransactionPriority } from '@src/background/services/networkFee/models';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { CustomGasSettings } from '@src/background/services/bridge/models';
 import { TokenWithBalanceBTC } from '@src/background/services/balances/models';
-import { chainIdToCaip } from '@src/utils/caipConversion';
 
-const NETWORK_FEE_REFRESH_INTERVAL = 60_000;
+import { getBtcInputUtxos } from '@src/utils/send/btcSendUtils';
+import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/handlers/bitcoin_sendTransaction';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Hook for Bitcoin to Avalanche transactions
  */
 export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
-  const {
-    currentAsset,
-    setTransactionDetails,
-    currentBlockchain,
-    targetBlockchain,
-  } = useBridgeSDK();
-  const isBitcoinBridge =
-    currentBlockchain === Blockchain.BITCOIN ||
-    targetBlockchain === Blockchain.BITCOIN;
+  const { t } = useTranslation();
+  const { setTransactionDetails, currentBlockchain } = useBridgeSDK();
+  const isBitcoinBridge = currentBlockchain === Blockchain.BITCOIN;
 
-  const refetchFeeTrigger = useInterval(NETWORK_FEE_REFRESH_INTERVAL);
   const { request } = useConnectionContext();
-  const { isDeveloperMode } = useNetworkContext();
-  const { getNetworkFee } = useNetworkFeeContext();
+  const { bitcoinProvider, isDeveloperMode } = useNetworkContext();
+  const { networkFee: currentFeeInfo } = useNetworkFeeContext();
   const { config } = useBridgeConfig();
   const { createBridgeTransaction } = useBridgeContext();
-  const avalancheTokens = useTokensWithBalances({
-    forceShowTokensWithoutBalances: true,
-    chainId: isDeveloperMode
-      ? ChainId.AVALANCHE_TESTNET_ID
-      : ChainId.AVALANCHE_MAINNET_ID,
-  });
   const btcTokens = useTokensWithBalances({
     forceShowTokensWithoutBalances: true,
     chainId: isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN,
@@ -68,109 +53,100 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
   } = useAccountsContext();
 
   const [btcBalance, setBtcBalance] = useState<AssetBalance>();
-  const [btcBalanceAvalanche, setBtcBalanceAvalanche] =
-    useState<AssetBalance>();
-  const [utxos, setUtxos] = useState<BitcoinInputUTXOWithOptionalScript[]>();
-  const [feeRates, setFeeRates] = useState<NetworkFee | null>();
+  const [utxos, setUtxos] = useState<BitcoinInputUTXOWithOptionalScript[]>([]);
 
+  const btcToken = useMemo(
+    () =>
+      btcTokens.find((tok): tok is TokenWithBalanceBTC => tok.symbol === 'BTC'),
+    [btcTokens]
+  );
+
+  // Update the fee rate so we're able to calculate the
+  // max. bridgable amount for the main bridge screen
   const feeRate: number = useMemo(() => {
-    return Number(feeRates?.high.maxFee || 0n);
-  }, [feeRates]);
+    if (!currentFeeInfo) {
+      return 0;
+    }
 
+    // Because BTC testnet fees are super high recently,
+    // defaulting to cheaper preset makes testing easier.
+    const preset: TransactionPriority = isDeveloperMode ? 'low' : 'high';
+
+    return Number(currentFeeInfo[preset].maxFee);
+  }, [currentFeeInfo, isDeveloperMode]);
+
+  // Calculate the maximum bridgable BTC amount whwnever
   const maximum = useMemo(() => {
-    if (!config || !activeAccount || !activeAccount.addressBTC) {
+    if (!feeRate || !config || !activeAccount?.addressBTC) {
       return Big(0);
     }
 
     const maxAmt = getMaxTransferAmount(
-      utxos || [],
+      utxos,
       // As long as the address type is the same (P2WPKH) it should not matter.
       config.criticalBitcoin.walletAddresses.btc,
       activeAccount.addressBTC,
       feeRate
     );
-    return satoshiToBtc(maxAmt);
-  }, [utxos, config, feeRate, activeAccount]);
 
-  /** Network fee (in BTC) */
-  const [networkFee, setNetworkFee] = useState<Big>();
+    return satoshiToBtc(maxAmt);
+  }, [utxos, config, feeRate, activeAccount?.addressBTC]);
+
   /** Amount minus network and bridge fees (in BTC) */
   const [receiveAmount, setReceiveAmount] = useState<Big>();
-  const loading = !btcBalance || !btcBalanceAvalanche || !networkFee;
+  const loading = !btcBalance || !currentFeeInfo || !feeRate;
   const amountInSatoshis = btcToSatoshi(amountInBtc);
 
   const btcAsset = config && getBtcAsset(config);
   const assetsWithBalances = btcBalance ? [btcBalance] : [];
 
+  // Update balances for the UI
   useEffect(() => {
-    async function loadFeeRates() {
-      if (isBitcoinBridge && refetchFeeTrigger) {
-        const rates = await getNetworkFee(
-          chainIdToCaip(
-            isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
-          )
-        );
-        setFeeRates(rates);
-      }
+    if (!isBitcoinBridge || !btcAsset || !btcToken) {
+      return;
     }
 
-    loadFeeRates();
-  }, [getNetworkFee, isBitcoinBridge, isDeveloperMode, refetchFeeTrigger]);
+    setBtcBalance({
+      symbol: btcAsset.symbol,
+      asset: btcAsset,
+      balance: satoshiToBtc(btcToken.balance.toNumber()),
+      logoUri: btcToken.logoUri,
+      price: btcToken.priceUSD,
+      unconfirmedBalance: btcToken.unconfirmedBalance
+        ? satoshiToBtc(btcToken.unconfirmedBalance.toNumber())
+        : satoshiToBtc(0),
+    });
+  }, [btcToken, btcAsset, isBitcoinBridge]);
 
-  // balances, utxos
+  // Filter UTXOs whenever balance or fee rate is updated
+  // so we can calculate the max. bridgable amount.
   useEffect(() => {
-    const { addressC, addressBTC } = activeAccount ?? {};
+    let isMounted = true;
 
-    if (isBitcoinBridge && btcAsset && addressC && addressBTC) {
-      const balance = btcTokens?.find(
-        (token) => token.symbol === 'BTC'
-      ) as TokenWithBalanceBTC;
-
-      if (balance) {
-        setUtxos(balance.utxos);
-        setBtcBalance({
-          symbol: btcAsset.symbol,
-          asset: btcAsset,
-          balance: satoshiToBtc(balance.balance.toNumber()),
-          logoUri: balance.logoUri,
-          price: balance.priceUSD,
-          unconfirmedBalance: balance?.unconfirmedBalance
-            ? satoshiToBtc(balance.unconfirmedBalance.toNumber())
-            : satoshiToBtc(0),
-        });
-      }
-
-      const btcAvalancheBalance = avalancheTokens?.find(
-        (token) => token.symbol === 'BTC.b'
-      );
-
-      if (btcAvalancheBalance) {
-        setBtcBalanceAvalanche({
-          symbol: btcAsset.symbol,
-          asset: btcAsset,
-          balance: satoshiToBtc(btcAvalancheBalance.balance?.toNumber() || 0),
-          logoUri: btcAvalancheBalance.logoUri,
-          price: btcAvalancheBalance.priceUSD,
-          unconfirmedBalance: satoshiToBtc(
-            btcAvalancheBalance.balance?.toNumber() || 0
-          ),
-        });
-      }
+    if (!bitcoinProvider || !feeRate || !btcToken) {
+      return;
     }
-  }, [
-    activeAccount,
-    avalancheTokens,
-    btcTokens,
-    btcAsset,
-    isBitcoinBridge,
-    isDeveloperMode,
-    request,
-  ]);
+
+    getBtcInputUtxos(bitcoinProvider, btcToken, feeRate)
+      .then((_utxos) => {
+        if (isMounted) {
+          setUtxos(_utxos);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        if (isMounted) {
+          setUtxos([]);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [bitcoinProvider, btcToken, feeRate]);
 
   useEffect(() => {
-    if (!isBitcoinBridge || !config || !activeAccount || !utxos) return;
-
-    if (!activeAccount.addressBTC) {
+    if (!isBitcoinBridge || !config || !activeAccount?.addressBTC || !utxos) {
       return;
     }
 
@@ -183,77 +159,107 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
         feeRate
       );
 
-      setNetworkFee(satoshiToBtc(btcTx.fee));
       setReceiveAmount(satoshiToBtc(btcTx.receiveAmount));
     } catch (error) {
       // getBtcTransaction throws an error when the amount is too low or too high
       // so set these to 0
-      setNetworkFee(BIG_ZERO);
       setReceiveAmount(BIG_ZERO);
     }
   }, [
     amountInSatoshis,
-    activeAccount,
+    activeAccount?.addressBTC,
     config,
     isBitcoinBridge,
     utxos,
     feeRate,
   ]);
 
-  const transfer = useCallback(
-    async (customGasSettings: CustomGasSettings) => {
-      if (!isBitcoinBridge || !config || !activeAccount || !btcAsset || !utxos)
+  const transferBTC = useCallback(async () => {
+    if (!config || !feeRate) {
+      throw new Error('Bridge not ready');
+    }
+
+    if (amountInBtc.lte(0)) {
+      throw new Error('Amount not provided');
+    }
+
+    if (!activeAccount?.addressBTC) {
+      throw new Error('Unsupported account');
+    }
+
+    const symbol = 'BTC';
+    const hash = await request<
+      BitcoinSendTransactionHandler,
+      DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
+      string
+    >({
+      method: DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
+      params: [
+        config.criticalBitcoin.walletAddresses.btc,
+        String(btcToSatoshi(amountInBtc)),
+        feeRate,
+        { customApprovalScreenTitle: t('Confirm Bridge') },
+      ],
+    });
+
+    setTransactionDetails({
+      tokenSymbol: symbol,
+      amount: amountInBtc,
+    });
+    createBridgeTransaction({
+      sourceChain: Blockchain.BITCOIN,
+      sourceTxHash: hash,
+      sourceStartedAt: Date.now(),
+      targetChain: Blockchain.AVALANCHE,
+      amount: amountInBtc,
+      symbol,
+    });
+
+    return hash;
+  }, [
+    request,
+    activeAccount?.addressBTC,
+    t,
+    amountInBtc,
+    config,
+    createBridgeTransaction,
+    feeRate,
+    setTransactionDetails,
+  ]);
+
+  const estimateGas = useCallback(
+    async (amount: Big) => {
+      if (!config || !activeAccount?.addressBTC) {
         return;
+      }
 
-      const timestamp = Date.now();
-      const symbol = currentAsset || '';
+      // Bitcoin's formula for fee is `transactionByteLength * feeRate`.
+      // By setting the feeRate here to 1, we'll receive the transaction's byte length,
+      // which is what we need to have the dynamic fee calculations in the UI.
+      // Think of the byteLength as gasLimit for EVM transactions.
+      const fakeFeeRate = 1;
+      const { fee: byteLength } = getBtcTransactionDetails(
+        config,
+        activeAccount.addressBTC,
+        utxos,
+        btcToSatoshi(amount),
+        fakeFeeRate
+      );
 
-      const result = await request<BridgeTransferAssetHandler>({
-        method: ExtensionRequest.BRIDGE_TRANSFER_ASSET,
-        params: [currentBlockchain, amountInBtc, btcAsset, customGasSettings],
-      });
-
-      setTransactionDetails({
-        tokenSymbol: symbol,
-        amount: amountInBtc,
-      });
-      createBridgeTransaction({
-        sourceChain: Blockchain.BITCOIN,
-        sourceTxHash: result.hash,
-        sourceStartedAt: timestamp,
-        targetChain: Blockchain.AVALANCHE,
-        amount: amountInBtc,
-        symbol,
-      });
-
-      return result.hash;
+      return BigInt(byteLength);
     },
-    [
-      isBitcoinBridge,
-      config,
-      activeAccount,
-      btcAsset,
-      utxos,
-      currentAsset,
-      request,
-      currentBlockchain,
-      amountInBtc,
-      setTransactionDetails,
-      createBridgeTransaction,
-    ]
+    [activeAccount?.addressBTC, config, utxos]
   );
 
   return {
     address: activeAccount?.addressBTC,
     sourceBalance: btcBalance,
-    targetBalance: btcBalanceAvalanche,
     assetsWithBalances,
-    hasEnoughForNetworkFee: true, // minimum calc covers this
     loading,
-    networkFee,
     receiveAmount,
     maximum,
     price: btcBalance?.price,
-    transfer,
+    estimateGas,
+    transfer: transferBTC,
   };
 }

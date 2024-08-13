@@ -32,6 +32,12 @@ export class GetNftBalancesHandler implements HandlerType {
         [TokenType.ERC1155]: undefined,
       };
     }
+    if (!scope) {
+      return {
+        ...request,
+        error: 'No request scope provided',
+      };
+    }
     const currentNetwork = await this.networkService.getNetwork(scope);
 
     if (!currentNetwork) {

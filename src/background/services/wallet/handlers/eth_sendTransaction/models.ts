@@ -1,5 +1,6 @@
 import { TokenType } from '@src/background/services/balances/models';
 import { DomainMetadata, EnsureDefined } from '@src/background/models';
+import { TxDisplayOptions } from '../models';
 
 export enum AvalancheChainStrings {
   AVM = 'X Chain',
@@ -190,12 +191,13 @@ export interface Transaction {
   chainId: string;
   txParams: EnsureDefined<EthSendTransactionParamsWithGas, 'chainId'>;
   displayValues: TransactionDisplayValues;
+  displayOptions?: TxDisplayOptions;
 }
 
 export interface EthSendTransactionParams {
   from: string;
   to?: string;
-  value?: string;
+  value?: string | bigint;
   data?: string;
   gas?: number;
   gasPrice?: string;

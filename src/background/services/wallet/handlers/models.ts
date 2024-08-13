@@ -9,6 +9,7 @@ export interface DisplayData_BitcoinSendTx {
   sendFee: number; // satoshis
   feeRate: number;
   balance: TokenWithBalanceBTC;
+  displayOptions?: TxDisplayOptions;
 }
 
 export type ImportSeedphraseWalletParams = {
@@ -33,3 +34,11 @@ export type ImportWalletResult = {
 export enum SeedphraseImportError {
   ExistingSeedphrase = 'existing-seedphrase',
 }
+
+export type TxDisplayOptions = {
+  customApprovalScreenTitle?: string;
+  contextInformation?: {
+    title: string;
+    notice?: string;
+  };
+};

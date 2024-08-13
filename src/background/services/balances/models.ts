@@ -168,7 +168,7 @@ export interface Balances {
   };
 }
 
-export const CLOUDFLARE_IPFS_URL = 'https://cloudflare-ipfs.com';
+export const IPFS_URL = 'https://ipfs.io';
 
 export interface CachedBalancesInfo {
   totalBalance?: TotalBalance;

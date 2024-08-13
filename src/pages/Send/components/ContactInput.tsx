@@ -205,7 +205,7 @@ export const ContactInput = ({
             multiline
             minRows={2}
             onChange={(e) => {
-              onChange(identifyAddress(e.target.value));
+              onChange(identifyAddress(e.target.value.trim()));
               setCursor(e.target.selectionStart);
             }}
             value={getInputDisplayValue()}
