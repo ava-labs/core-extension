@@ -47,7 +47,7 @@ describe('src/background/services/balances/utils/isTokenWithBalancePVM.ts', () =
     symbol: 'AVAX',
     balance: 1n,
     balanceDisplayValue: '0.00000001',
-    coingeckoId: 'btc',
+    coingeckoId: 'avax',
     decimals: 9,
     description: 'description',
     logoUri: 'logoUri',

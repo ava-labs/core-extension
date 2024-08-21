@@ -48,7 +48,7 @@ describe('src/background/services/balances/utils/isTokenWithBalanceAVM.ts', () =
     type: VMModulesTokenType.NATIVE,
     name: 'Avalanche',
     symbol: 'AVAX',
-    coingeckoId: 'btc',
+    coingeckoId: 'avax',
     balance: 1n,
     balanceDisplayValue: '0.00000001',
     decimals: 9,
