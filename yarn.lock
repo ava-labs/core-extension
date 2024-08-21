@@ -178,11 +178,6 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/glacier-sdk@2.8.0-alpha.188":
-  version "2.8.0-alpha.188"
-  resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-2.8.0-alpha.188.tgz#82e4efc4be55b2f67a825e033863a25a14a13915"
-  integrity sha512-NjtlHXWpxC7aDZE+USb5YkZ1In+IjkCi/THHxOZg0ahv2RyccUiA75VU+daZ0zAZWgIUQCutniTB46HFq5Sjbw==
-
 "@avalabs/glacier-sdk@3.0.1-alpha.1":
   version "3.0.1-alpha.1"
   resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.0.1-alpha.1.tgz#7cd1fe5d534beb0c5370642a8bb22ad94bc14e48"
