@@ -13,6 +13,7 @@ import {
   SettingsEvents,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
   TokensVisibility,
+  CollectiblesVisibility,
   AnalyticsConsent,
 } from './models';
 import { SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant } from './models';
@@ -25,6 +26,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   showTokensWithoutBalances: false,
   theme: ThemeVariant.DARK,
   tokensVisibility: {},
+  collectiblesVisibility: {},
   analyticsConsent: AnalyticsConsent.Approved,
   language: Languages.EN,
 };
@@ -178,6 +180,14 @@ export class SettingsService implements OnStorageReady, OnLock {
     await this.saveSettings({
       ...settings,
       tokensVisibility: visibility,
+    });
+  }
+
+  async setCollectiblesVisibility(visibility: CollectiblesVisibility) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      collectiblesVisibility: visibility,
     });
   }
 

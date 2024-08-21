@@ -5,6 +5,7 @@ import {
   Languages,
   ThemeVariant,
   TokensVisibility,
+  CollectiblesVisibility,
 } from '@src/background/services/settings/models';
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 
@@ -16,6 +17,7 @@ type PreviousSchema = {
   showTokensWithoutBalances?: boolean;
   theme?: ThemeVariant;
   tokensVisibility?: TokensVisibility;
+  collectiblesVisibility?: CollectiblesVisibility;
   analyticsConsent?: boolean;
   language?: Languages;
 };

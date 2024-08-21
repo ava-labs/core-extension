@@ -2,6 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import {
   TokenType,
   TokenWithBalance,
+  NftTokenWithBalance,
 } from '@src/background/services/balances/models';
 import { LockWalletHandler } from '@src/background/services/lock/handlers/lockWallet';
 import { settingsUpdatedEventListener } from '@src/background/services/settings/events/listeners';
@@ -12,6 +13,7 @@ import { UpdateCurrencyHandler } from '@src/background/services/settings/handler
 import { UpdateShowNoBalanceHandler } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
 import { UpdateThemeHandler } from '@src/background/services/settings/handlers/updateTheme';
 import { UpdateTokensVisiblityHandler } from '@src/background/services/settings/handlers/updateTokensVisibility';
+import { UpdateCollectiblesVisibilityHandler } from '@src/background/services/settings/handlers/updateCollectiblesVisibility';
 import {
   Languages,
   SettingsState,
@@ -40,6 +42,10 @@ type SettingsFromProvider = SettingsState & {
   toggleShowTokensWithoutBalanceSetting(): Promise<true>;
   toggleTokenVisibility(token: TokenWithBalance): Promise<true | undefined>;
   getTokenVisibility(token: TokenWithBalance): boolean;
+  toggleCollectibleVisibility(
+    token: NftTokenWithBalance
+  ): Promise<true | undefined>;
+  getCollectibleVisibility(token: NftTokenWithBalance): boolean;
   updateTheme(theme: ThemeVariant): Promise<boolean>;
   currencyFormatter(value: number): string;
   setAnalyticsConsent(consent: boolean): Promise<boolean>;
@@ -139,6 +145,34 @@ export function SettingsContextProvider({ children }: { children: any }) {
     [settings?.tokensVisibility]
   );
 
+  async function toggleCollectibleVisibility(nft: NftTokenWithBalance) {
+    const key = nft.address;
+    const collectiblesVisibility = settings?.collectiblesVisibility ?? {};
+    return request<UpdateCollectiblesVisibilityHandler>({
+      method: ExtensionRequest.SETTINGS_UPDATE_COLLECTIBLES_VISIBILITY,
+      params: [
+        {
+          ...collectiblesVisibility,
+          [key]:
+            collectiblesVisibility[key] !== undefined
+              ? !collectiblesVisibility[key]
+              : false,
+        },
+      ],
+    });
+  }
+
+  const getCollectibleVisibility = useCallback(
+    (nft: NftTokenWithBalance) => {
+      const key = nft.address;
+      const collectiblesVisibility = settings?.collectiblesVisibility ?? {};
+      return (
+        collectiblesVisibility[key] || collectiblesVisibility[key] === undefined
+      );
+    },
+    [settings?.collectiblesVisibility]
+  );
+
   function updateTheme(theme: ThemeVariant) {
     return request<UpdateThemeHandler>({
       method: ExtensionRequest.SETTINGS_UPDATE_THEME,
@@ -170,6 +204,8 @@ export function SettingsContextProvider({ children }: { children: any }) {
           toggleShowTokensWithoutBalanceSetting,
           getTokenVisibility,
           toggleTokenVisibility,
+          getCollectibleVisibility,
+          toggleCollectibleVisibility,
           updateTheme,
           currencyFormatter,
           setAnalyticsConsent,

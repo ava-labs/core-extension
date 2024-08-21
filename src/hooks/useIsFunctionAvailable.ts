@@ -27,6 +27,7 @@ export enum FunctionNames {
   FEATURE = 'Feature', // Default when function name is unknown or not included
   KEYSTONE = 'Keystone',
   MANAGE_TOKEN = 'ManageTokens',
+  MANAGE_COLLECTIBLES = 'ManageCollectibles',
   RECEIVE = 'Receive',
   SEND = 'Send',
   SWAP = 'Swap',
@@ -105,6 +106,16 @@ const disableForAccountsWithoutXPSupport = (
 
 const disabledFeatures: Record<string, BlacklistConfig> = {
   ManageTokens: {
+    networks: [
+      ChainId.BITCOIN,
+      ChainId.AVALANCHE_P,
+      ChainId.AVALANCHE_TEST_P,
+      ChainId.AVALANCHE_X,
+      ChainId.AVALANCHE_TEST_X,
+    ],
+    complexChecks: [],
+  },
+  ManageCollectibles: {
     networks: [
       ChainId.BITCOIN,
       ChainId.AVALANCHE_P,

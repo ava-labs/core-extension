@@ -3,7 +3,7 @@ import {
   RichAddress,
   XChainTransactionType,
 } from '@avalabs/glacier-sdk';
-import { TokenType } from '../balances/models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 export interface TxHistoryItemToken {
   decimal?: string;
@@ -22,7 +22,7 @@ export interface TxHistoryItem {
   isIncoming: boolean;
   isOutgoing: boolean;
   isSender: boolean;
-  timestamp: string;
+  timestamp: string | number;
   hash: string;
   from: string;
   to: string;

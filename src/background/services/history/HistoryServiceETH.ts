@@ -153,6 +153,8 @@ export class HistoryServiceETH {
 
     // Sort by timestamp
     const joined = [...filteredNormalTxs, ...erc20Hist];
-    return joined.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+    return joined.sort((a, b) =>
+      (b.timestamp as string).localeCompare(a.timestamp as string)
+    );
   }
 }
