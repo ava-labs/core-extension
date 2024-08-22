@@ -104,14 +104,16 @@ export class ActionsService implements OnStorageReady {
   ) {
     await this.removeAction(id);
 
-    // We dont want display data to be emitted. Sometimes it can not be serialized.
-    delete action.displayData;
+    // We dont want display data to be emitted. Sometimes it can not be serialized and it's content is internal to Core
+    // Make sure not to modify the original action object
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { displayData, ...actionWithoutDisplayData } = action;
 
     this.eventEmitter.emit(ActionsEvent.ACTION_COMPLETED, {
       type: isSuccess
         ? ActionCompletedEventType.COMPLETED
         : ActionCompletedEventType.ERROR,
-      action,
+      action: actionWithoutDisplayData,
       result,
     });
   }

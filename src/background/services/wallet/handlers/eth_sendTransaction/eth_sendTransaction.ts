@@ -9,7 +9,6 @@ import { ethErrors } from 'eth-rpc-errors';
 import { Action } from '@src/background/services/actions/models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import getTargetNetworkForTx from './utils/getTargetNetworkForTx';
-import { FeatureFlagService } from '@src/background/services/featureFlags/FeatureFlagService';
 import {
   ContractTransaction,
   JsonRpcApiProvider,
@@ -42,9 +41,12 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { BlockaidService } from '@src/background/services/blockaid/BlockaidService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { EnsureDefined } from '@src/background/models';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { caipToChainId } from '@src/utils/caipConversion';
 import { TxDisplayOptions } from '../models';
+import { measureDuration } from '@src/utils/measureDuration';
+import { noop } from '@src/utils/noop';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { LockService } from '@src/background/services/lock/LockService';
 
 type TxPayload = EthSendTransactionParams | ContractTransaction;
 type Params = [TxPayload] | [TxPayload, TxDisplayOptions];
@@ -60,12 +62,12 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
     private networkService: NetworkService,
     private networkFeeService: NetworkFeeService,
     private accountsService: AccountsService,
-    private featureFlagService: FeatureFlagService,
     private balancesService: BalanceAggregatorService,
     private tokenManagerService: TokenManagerService,
     private walletService: WalletService,
     private analyticsServicePosthog: AnalyticsServicePosthog,
-    private blockaidService: BlockaidService
+    private blockaidService: BlockaidService,
+    private lockService: LockService
   ) {
     super();
   }
@@ -206,6 +208,9 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
     onError: (error: Error) => Promise<void>,
     tabId?: number | undefined
   ) => {
+    const measurement = measureDuration();
+    measurement.start();
+
     try {
       const network = await getTargetNetworkForTx(
         pendingAction.displayData.txParams,
@@ -220,9 +225,11 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
       }
 
       const provider = getProviderForNetwork(network) as JsonRpcBatchInternal;
+
       const nonce = await provider.getTransactionCount(
         pendingAction.displayData.txParams.from
       );
+      const chainId = pendingAction.displayData.chainId;
 
       const {
         maxFeePerGas,
@@ -237,7 +244,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
       const signingResult = await this.walletService.sign(
         {
           nonce,
-          chainId: Number(BigInt(pendingAction.displayData.chainId)),
+          chainId: Number(BigInt(chainId)),
           maxFeePerGas,
           maxPriorityFeePerGas,
           gasLimit: gasLimit,
@@ -255,38 +262,61 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
         network
       );
 
-      const notificationId = Date.now().toString();
-      await browser.notifications.create(notificationId, {
-        type: 'basic',
-        iconUrl: '../../../../images/icon-32.png',
-        title: 'Confirmed transaction',
-        message: `Transaction confirmed! View on the explorer.`,
-        priority: 2,
-      });
+      const notificationId = crypto.randomUUID();
 
-      const openTab = async (id: string) => {
-        if (id === notificationId) {
-          const explorerUrl = getExplorerAddressByNetwork(network, txHash);
-          await browser.tabs.create({ url: explorerUrl });
-        }
-      };
+      await this.#createTxNotification(
+        notificationId,
+        {
+          type: 'basic',
+          iconUrl: '../../../../images/icon-32.png',
+          title: 'Pending transaction',
+          message: `Transaction pending! View on the explorer.`,
+          priority: 2,
+        },
+        network,
+        txHash
+      );
 
-      browser.notifications.onClicked.addListener(openTab);
-      browser.notifications.onClosed.addListener((id: string) => {
-        if (id === notificationId) {
-          browser.notifications.onClicked.removeListener(openTab);
-        }
-      });
+      provider
+        .waitForTransaction(txHash)
+        .then(async (tx) => {
+          const duration = measurement.end();
 
-      /*
-        notifications.onClosed is only triggered when a user close the notification.
-        And the notification is automatically closed 5 secs if user does not close it.
-        To mimic onClosed for system, using setTimeout.
-      */
-      setTimeout(async () => {
-        browser.notifications.onClicked.removeListener(openTab);
-        await browser.notifications.clear(notificationId);
-      }, 5000);
+          const isTxSuccessul = tx?.status === 1;
+          await browser.notifications.clear(notificationId); // close transaction pending notification
+          if (!this.lockService.locked) {
+            await this.#createTxNotification(
+              crypto.randomUUID(),
+              {
+                type: 'basic',
+                iconUrl: '../../../../images/icon-32.png',
+                title: isTxSuccessul
+                  ? 'Confirmed transaction'
+                  : 'Failed transaction',
+                message: `Transaction ${
+                  isTxSuccessul ? 'confirmed' : 'failed'
+                }! View on the explorer.`,
+                priority: 2,
+              },
+              network,
+              txHash
+            );
+          }
+
+          this.analyticsServicePosthog.captureEncryptedEvent({
+            name: 'TransactionTimeToConfirmation',
+            windowId: crypto.randomUUID(),
+            properties: {
+              duration,
+              txType: pendingAction.displayData.method,
+              chainId,
+              success: isTxSuccessul,
+              rpcUrl: network.rpcUrl,
+              site: pendingAction.displayData.site?.domain,
+            },
+          });
+        })
+        .catch(noop);
 
       // No need to await the request here.
       this.analyticsServicePosthog.captureEncryptedEvent({
@@ -296,12 +326,15 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
           address: this.accountsService.activeAccount?.addressC,
           txHash,
           method: pendingAction.method,
-          chainId: pendingAction.displayData.chainId,
+          chainId,
         },
       });
 
       onSuccess(txHash);
     } catch (err: any) {
+      // Stop and clean up measurement
+      // Some error happened during transaction creation, no need to measure end-to-end time till confirmation
+      measurement.end();
       const errorMessage: string =
         err instanceof Error ? err.message : err.toString();
 
@@ -328,6 +361,39 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
       onError(err);
     }
   };
+
+  async #createTxNotification(
+    notificationId: string,
+    notificationParams: browser.Notifications.CreateNotificationOptions,
+    network: NetworkWithCaipId,
+    txHash: string
+  ) {
+    await browser.notifications.create(notificationId, notificationParams);
+
+    const openTab = async (id: string) => {
+      if (id === notificationId) {
+        const explorerUrl = getExplorerAddressByNetwork(network, txHash);
+        await browser.tabs.create({ url: explorerUrl });
+      }
+    };
+
+    browser.notifications.onClicked.addListener(openTab);
+    browser.notifications.onClosed.addListener((id: string) => {
+      if (id === notificationId) {
+        browser.notifications.onClicked.removeListener(openTab);
+      }
+    });
+
+    /*
+        notifications.onClosed is only triggered when a user close the notification.
+        And the notification is automatically closed 5 secs if user does not close it.
+        To mimic onClosed for system, using setTimeout.
+      */
+    setTimeout(async () => {
+      browser.notifications.onClicked.removeListener(openTab);
+      await browser.notifications.clear(notificationId);
+    }, 5000);
+  }
 
   async #addGasInformation(
     network: NetworkWithCaipId,

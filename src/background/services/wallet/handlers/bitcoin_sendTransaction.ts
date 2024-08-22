@@ -8,6 +8,7 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { Action } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { NetworkService } from '@src/background/services/network/NetworkService';
+import { AnalyticsServicePosthog } from '@src/background/services/analytics/AnalyticsServicePosthog';
 import { ethErrors } from 'eth-rpc-errors';
 import {
   DisplayData_BitcoinSendTx,
@@ -33,6 +34,8 @@ import { resolve } from '@avalabs/core-utils-sdk';
 
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { runtime } from 'webextension-polyfill';
+import { measureDuration } from '@src/utils/measureDuration';
+import { noop } from '@src/utils/noop';
 
 type BitcoinTxParams = [
   address: string,
@@ -52,7 +55,8 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
     private walletService: WalletService,
     private networkService: NetworkService,
     private accountService: AccountsService,
-    private balanceAggregatorService: BalanceAggregatorService
+    private balanceAggregatorService: BalanceAggregatorService,
+    private analyticsServicePosthog: AnalyticsServicePosthog
   ) {
     super();
   }
@@ -255,9 +259,14 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
     onError,
     frontendTabId?: number
   ) => {
+    const measurement = measureDuration();
+    measurement.start();
     try {
       const { address, amount, from, feeRate, balance } =
         pendingAction.displayData;
+      const btcChainID = this.networkService.isMainnet()
+        ? ChainId.BITCOIN
+        : ChainId.BITCOIN_TESTNET;
 
       const [network, networkError] = await resolve(
         this.networkService.getBitcoinNetwork()
@@ -266,16 +275,14 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
         throw new Error('Bitcoin network not found');
       }
 
-      const { inputs, outputs } = await buildBtcTx(
-        from,
-        getProviderForNetwork(network) as BitcoinProvider,
-        {
-          amount,
-          address,
-          token: balance,
-          feeRate,
-        }
-      );
+      const provider = getProviderForNetwork(network) as BitcoinProvider;
+
+      const { inputs, outputs } = await buildBtcTx(from, provider, {
+        amount,
+        address,
+        token: balance,
+        feeRate,
+      });
 
       if (!inputs || !outputs) {
         throw new Error('Unable to create transaction');
@@ -293,8 +300,29 @@ export class BitcoinSendTransactionHandler extends DAppRequestHandler<
       if (this.#isSupportedAccount(this.accountService.activeAccount)) {
         this.#getBalance(this.accountService.activeAccount);
       }
+
       onSuccess(hash);
+
+      provider
+        .waitForTx(hash)
+        .then(() => {
+          const duration = measurement.end();
+          this.analyticsServicePosthog.captureEncryptedEvent({
+            name: 'TransactionTimeToConfirmation',
+            windowId: crypto.randomUUID(),
+            properties: {
+              duration,
+              txType: 'send',
+              chainId: btcChainID,
+              site: pendingAction.site?.domain,
+              rpcUrl: network.rpcUrl,
+            },
+          });
+        })
+        .catch(noop);
     } catch (e) {
+      // clean up pending measurement
+      measurement.end();
       onError(e);
     }
   };

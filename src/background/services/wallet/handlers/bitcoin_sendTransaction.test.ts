@@ -11,11 +11,21 @@ import { createTransferTx } from '@avalabs/core-wallets-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { measureDuration } from '@src/utils/measureDuration';
 
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@src/utils/isBtcAddressInNetwork');
 jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('@src/utils/network/getProviderForNetwork');
+jest.mock('@src/utils/measureDuration', () => {
+  const measureDurationMock = {
+    start: jest.fn(),
+    end: jest.fn(),
+  };
+  return {
+    measureDuration: () => measureDurationMock,
+  };
+});
 
 describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', () => {
   const request = {
@@ -32,6 +42,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
   const signMock = jest.fn();
   const sendTransactionMock = jest.fn();
   const getBalancesForNetworksMock = jest.fn();
+  const captureEventMock = jest.fn();
 
   const getBitcoinNetworkMock = jest.fn();
   const activeAccountMock = {
@@ -51,6 +62,9 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
   const balanceAggregatorServiceMock = {
     getBalancesForNetworks: getBalancesForNetworksMock,
   };
+  const analyticsServiceMock = {
+    captureEncryptedEvent: captureEventMock,
+  };
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -62,6 +76,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     jest.mocked(getProviderForNetwork).mockReturnValue({
       getScriptsForUtxos: jest.fn().mockResolvedValue([]),
       getNetwork: jest.fn(),
+      waitForTx: jest.fn().mockRejectedValue(new Error()),
     } as any);
     jest
       .mocked(createTransferTx)
@@ -69,6 +84,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
     jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
     getBitcoinNetworkMock.mockResolvedValue({
       vmName: NetworkVMType.BITCOIN,
+      rpcUrl: 'RPCURL',
     });
     getBalancesForNetworksMock.mockResolvedValue({
       [ChainId.BITCOIN_TESTNET]: {
@@ -88,6 +104,7 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
   describe('handleUnauthenticated', () => {
     it('returns error for unauthorized requests', async () => {
       const handler = new BitcoinSendTransactionHandler(
+        {} as any,
         {} as any,
         {} as any,
         {} as any,
@@ -113,7 +130,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
           type: AccountType.PRIMARY,
         },
       } as any,
-      balanceAggregatorServiceMock as any
+      balanceAggregatorServiceMock as any,
+      analyticsServiceMock as any
     );
 
     it('returns error if the active account is imported via WalletConnect', async () => {
@@ -128,7 +146,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
             type: AccountType.WALLET_CONNECT,
           },
         } as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       const result = await sendHandler.handleAuthenticated(
@@ -153,7 +172,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
             addressC: 'abcd1234',
           },
         } as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       const result = await sendHandler.handleAuthenticated(
@@ -230,7 +250,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         walletServiceMock as any,
         networkServiceMock as any,
         {} as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
       const result = await sendHandler.handleAuthenticated({ request } as any);
       expect(result).toEqual({
@@ -260,7 +281,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         walletServiceMock as any,
         networkServiceMock as any,
         accountsServiceMock as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       const result = await sendHandler.handleAuthenticated(
@@ -298,7 +320,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
           },
         } as any,
         accountsServiceMock as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       const result = await sendHandler.handleAuthenticated(
@@ -322,6 +345,9 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         from: 'btc1',
         sendFee: 5,
       },
+      site: {
+        domain: 'core.app',
+      },
     } as unknown as Action;
 
     it('returns error when signing fails', async () => {
@@ -329,7 +355,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         walletServiceMock as any,
         networkServiceMock as any,
         accountsServiceMock as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       getBitcoinNetworkMock.mockResolvedValue({
@@ -362,7 +389,8 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         walletServiceMock as any,
         networkServiceMock as any,
         accountsServiceMock as any,
-        balanceAggregatorServiceMock as any
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
       );
 
       getBitcoinNetworkMock.mockResolvedValue({
@@ -394,6 +422,57 @@ describe('src/background/services/wallet/handlers/bitcoin_sendTransaction.ts', (
         frontendTabId
       );
       expect(onSuccessMock).toHaveBeenCalledWith('resultHash');
+    });
+
+    it('reports time to confirmation event', async () => {
+      const handler = new BitcoinSendTransactionHandler(
+        walletServiceMock as any,
+        networkServiceMock as any,
+        accountsServiceMock as any,
+        balanceAggregatorServiceMock as any,
+        analyticsServiceMock as any
+      );
+      const durationMock = measureDuration();
+      jest.mocked(durationMock.end).mockReturnValue(1000);
+      jest.mocked(getProviderForNetwork).mockReturnValue({
+        getScriptsForUtxos: jest.fn().mockResolvedValue([]),
+        getNetwork: jest.fn(),
+        waitForTx: jest.fn().mockResolvedValue({}),
+      } as any);
+
+      getBitcoinNetworkMock.mockResolvedValue({
+        chainId: ChainId.BITCOIN_TESTNET,
+        vmName: NetworkVMType.BITCOIN,
+        rpcUrl: 'RPCURL',
+      });
+
+      const onSuccessMock = jest.fn();
+      const onErrorMock = jest.fn();
+
+      signMock.mockResolvedValue({ signedTx: 'resultHash' });
+      sendTransactionMock.mockReturnValueOnce('resultHash');
+      await handler.onActionApproved(
+        pendingActionMock,
+        {},
+        onSuccessMock,
+        onErrorMock,
+        frontendTabId
+      );
+
+      expect(analyticsServiceMock.captureEncryptedEvent).toHaveBeenCalledTimes(
+        1
+      );
+      expect(analyticsServiceMock.captureEncryptedEvent).toHaveBeenCalledWith({
+        name: 'TransactionTimeToConfirmation',
+        properties: {
+          chainId: 4503599627370475,
+          duration: 1000,
+          site: 'core.app',
+          txType: 'send',
+          rpcUrl: 'RPCURL',
+        },
+        windowId: undefined,
+      });
     });
   });
 });
