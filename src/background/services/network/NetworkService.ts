@@ -516,7 +516,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     return getProviderForNetwork(network) as JsonRpcBatchInternal;
   }
 
-  async getBitcoinNetwork(): Promise<Network> {
+  async getBitcoinNetwork(): Promise<NetworkWithCaipId> {
     const activeNetworks = await this.activeNetworks.promisify();
     const network =
       activeNetworks[ChainId.BITCOIN] ??

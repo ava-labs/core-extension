@@ -10,6 +10,7 @@ export enum Languages {
   EN = 'en',
   DE = 'de-DE',
   ES = 'es-EM',
+  FR = 'fr-FR',
   JA = 'ja-JP',
   HI = 'hi-IN',
   KO = 'ko-KR',
@@ -23,6 +24,7 @@ export enum LanguageLinks {
   EN = 'en',
   DE = 'de',
   ES = 'es',
+  FR = 'fr',
   JA = 'ja',
   // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   HI = 'en', // does not have translated pages in HelpCenter TODO: modify if we are having more external pages with HI language set up
@@ -34,6 +36,10 @@ export enum LanguageLinks {
 }
 
 export type TokensVisibility = {
+  [key: string]: boolean;
+};
+
+export type CollectiblesVisibility = {
   [key: string]: boolean;
 };
 
@@ -51,6 +57,7 @@ export interface SettingsState {
   showTokensWithoutBalances: boolean;
   theme: ThemeVariant;
   tokensVisibility: TokensVisibility;
+  collectiblesVisibility: CollectiblesVisibility;
   analyticsConsent: AnalyticsConsent;
   language: Languages;
 }

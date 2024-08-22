@@ -61,6 +61,7 @@ import { GetWalletDetailsHandler } from '@src/background/services/wallet/handler
 import { registry } from 'tsyringe';
 import { UpdateCurrencyHandler } from '../../services/settings/handlers/updateCurrencySelection';
 import { UpdateTokensVisiblityHandler } from '../../services/settings/handlers/updateTokensVisibility';
+import { UpdateCollectiblesVisibilityHandler } from '../../services/settings/handlers/updateCollectiblesVisibility';
 import { NetworksUpdatedEvents } from '@src/background/services/network/events/networksUpdatedEvent';
 import { NetworkUpdatedEvents } from '@src/background/services/network/events/networkUpdatedEvent';
 import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
@@ -235,6 +236,10 @@ import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBrid
   { token: 'ExtensionRequestHandler', useToken: UpdateCurrencyHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateThemeHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateTokensVisiblityHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: UpdateCollectiblesVisibilityHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: ResetExtensionStateHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },

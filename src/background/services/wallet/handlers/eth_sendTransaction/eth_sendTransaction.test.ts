@@ -149,7 +149,7 @@ const displayValuesMock: TransactionDisplayValues = {
 
 describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransaction.ts', () => {
   const networkService = new NetworkService({} as any, {} as any);
-  const networkFeeService = new NetworkFeeService({} as any);
+  const networkFeeService = new NetworkFeeService();
   const balanceAggregatorService = new BalanceAggregatorService(
     {} as any,
     {} as any,

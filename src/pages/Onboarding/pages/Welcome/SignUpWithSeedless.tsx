@@ -1,12 +1,4 @@
-import {
-  Button,
-  Stack,
-  Typography,
-  KeystoneIcon,
-  LedgerIcon,
-  ArrowLeftIcon,
-  ShieldLockIcon,
-} from '@avalabs/core-k2-components';
+import { Button, Stack } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
@@ -15,22 +7,39 @@ import { OnboardingURLs } from '@src/background/services/onboarding/models';
 import { GoogleButton } from '../Seedless/components/GoogleButton';
 import { AppleButton } from '../Seedless/components/AppleButton';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
-import { useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { Overlay } from '@src/components/common/Overlay';
-import { ExistingWalletButton } from '../Seedless/components/ExistingWalletButton';
+import { ExistingWalletOptions } from '../Seedless/components/ExistingWalletOptions';
 import { BlinkingLogo } from '@src/components/icons/BlinkLogo';
 
-export function SignUpWithSeedles() {
+export function SignUpWithSeedless() {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const { featureFlags } = useFeatureFlagContext();
   const history = useHistory();
   const [isAuthenticationInProgress, setIsAuthenticationInProgress] =
     useState(false);
+  const scrimRef = useRef<HTMLDivElement>(null);
+  const optionsRef = useRef<HTMLDivElement>(null);
 
   const [showExistingWalletOption, setShowExistingWalletOption] =
     useState(false);
+
+  useEffect(() => {
+    const handleClickInShim = (event: MouseEvent) => {
+      const { target } = event;
+      const overlayClicked = scrimRef.current?.contains(target as Node);
+      const optionsClicked = optionsRef.current?.contains(target as Node);
+      if (overlayClicked && !optionsClicked) {
+        setShowExistingWalletOption(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickInShim);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickInShim);
+    };
+  }, [scrimRef, setShowExistingWalletOption]);
 
   return (
     <>
@@ -40,6 +49,7 @@ export function SignUpWithSeedles() {
           textAlign: 'center',
           height: '100%',
         }}
+        ref={scrimRef}
       >
         <Stack
           sx={{
@@ -91,53 +101,11 @@ export function SignUpWithSeedles() {
             </Button>
           </Stack>
         </Stack>
-
         {showExistingWalletOption && (
-          <Overlay>
-            <Stack sx={{ width: 480, alignItems: 'flex-start', rowGap: 5 }}>
-              <ArrowLeftIcon
-                size={32}
-                onClick={() => {
-                  setShowExistingWalletOption(false);
-                }}
-              />
-              <Typography variant="h3" sx={{ textAlign: 'left' }}>
-                {t('How would you like to access your existing wallet?')}
-              </Typography>
-              <Stack>
-                <Stack sx={{ flexDirection: 'row', columnGap: 3, pb: 3 }}>
-                  <ExistingWalletButton
-                    data-testid="access-with-seed-phrase"
-                    icon={<ShieldLockIcon size={30} />}
-                    text={t('Enter recovery phrase')}
-                    onClick={() => {
-                      history.push(OnboardingURLs.SEED_PHRASE);
-                    }}
-                  />
-                  <ExistingWalletButton
-                    data-testid="access-with-ledger"
-                    icon={<LedgerIcon size={30} />}
-                    text={t('Add using Ledger')}
-                    onClick={() => {
-                      history.push(OnboardingURLs.LEDGER);
-                    }}
-                  />
-                </Stack>
-                {featureFlags[FeatureGates.KEYSTONE] && (
-                  <Stack sx={{ flexDirection: 'row' }}>
-                    <ExistingWalletButton
-                      data-testid="access-with-seed-keystone"
-                      icon={<KeystoneIcon size={30} />}
-                      text={t('Add using Keystone')}
-                      onClick={() => {
-                        history.push(OnboardingURLs.KEYSTONE);
-                      }}
-                    />
-                  </Stack>
-                )}
-              </Stack>
-            </Stack>
-          </Overlay>
+          <ExistingWalletOptions
+            ref={optionsRef}
+            setShowExistingWalletOption={setShowExistingWalletOption}
+          />
         )}
       </Stack>
       {isAuthenticationInProgress && <LoadingOverlay />}

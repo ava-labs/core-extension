@@ -25,6 +25,7 @@ describe('background/services/storage/schemaMigrations/migrations/settings_v2', 
     showTokensWithoutBalances: false,
     theme: ThemeVariant.DARK,
     tokensVisibility: {},
+    collectiblesVisibility: {},
     analyticsConsent: true,
     language: Languages.EN,
   };

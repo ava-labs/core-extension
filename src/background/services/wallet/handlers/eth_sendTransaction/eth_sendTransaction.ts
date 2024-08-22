@@ -34,7 +34,6 @@ import { parseBasicDisplayValues } from './contracts/contractParsers/utils/parse
 import browser, { runtime } from 'webextension-polyfill';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { txToCustomEvmTx } from './utils/txToCustomEvmTx';
-import { Network } from '@avalabs/core-chains-sdk';
 import { WalletService } from '@src/background/services/wallet/WalletService';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { AnalyticsServicePosthog } from '@src/background/services/analytics/AnalyticsServicePosthog';
@@ -42,6 +41,7 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { BlockaidService } from '@src/background/services/blockaid/BlockaidService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { EnsureDefined } from '@src/background/models';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { caipToChainId } from '@src/utils/caipConversion';
 import { TxDisplayOptions } from '../models';
 import { measureDuration } from '@src/utils/measureDuration';
@@ -397,7 +397,7 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
   }
 
   async #addGasInformation(
-    network: Network,
+    network: NetworkWithCaipId,
     tx: EnsureDefined<EthSendTransactionParams, 'chainId'>
   ): Promise<EnsureDefined<EthSendTransactionParamsWithGas, 'chainId'>> {
     const fees = await this.networkFeeService.getNetworkFee(network);

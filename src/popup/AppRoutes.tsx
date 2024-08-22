@@ -16,6 +16,12 @@ const TokenFlowPage = lazy(() => {
   }));
 });
 
+const ManageCollectiblesPage = lazy(() => {
+  return import('../pages/ManageCollectibles/ManageCollectibles').then((m) => ({
+    default: m.ManageCollectibles,
+  }));
+});
+
 const ManageTokensPage = lazy(() => {
   return import('../pages/ManageTokens/ManageTokens').then((m) => ({
     default: m.ManageTokens,
@@ -267,6 +273,11 @@ export const AppRoutes = () => (
     <Route path="/manage-tokens">
       <Suspense fallback={<CircularProgress />}>
         <ManageTokensPage />
+      </Suspense>
+    </Route>
+    <Route path="/manage-collectibles">
+      <Suspense fallback={<CircularProgress />}>
+        <ManageCollectiblesPage />
       </Suspense>
     </Route>
     <Route exact path="/networks">
