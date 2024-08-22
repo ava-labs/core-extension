@@ -4,34 +4,32 @@ export enum InitializationStep {
 }
 
 export class ProviderReadyPromise {
-  #unpreparedSteps: InitializationStep[] = [];
+  #unpreparedSteps: Map<InitializationStep, boolean> = new Map();
   #inflightRequests: {
     resolve(value: unknown): void;
-    fn(): Promise<any>;
+    fn(): Promise<unknown>;
   }[] = [];
 
   constructor(steps: InitializationStep[]) {
-    this.#unpreparedSteps = Object.values(steps);
+    steps.map((step) => this.#unpreparedSteps.set(step, true));
   }
 
   check = (step: InitializationStep) => {
-    const stepIndex = this.#unpreparedSteps.findIndex(
-      (currentStep) => step === currentStep
-    );
+    const hasStep = this.#unpreparedSteps.has(step);
 
-    if (stepIndex > -1) {
-      this.#unpreparedSteps.splice(stepIndex, 1);
+    if (hasStep) {
+      this.#unpreparedSteps.delete(step);
     }
 
     this._proceed();
   };
 
   uncheck = (step: InitializationStep) => {
-    this.#unpreparedSteps[step] = step;
+    this.#unpreparedSteps.set(step, true);
   };
 
   private _proceed = () => {
-    if (this.#unpreparedSteps.length) {
+    if (this.#unpreparedSteps.size) {
       return;
     }
 
@@ -41,7 +39,7 @@ export class ProviderReadyPromise {
     }
   };
 
-  call = (fn) => {
+  call = (fn: () => Promise<unknown>) => {
     return new Promise((resolve) => {
       this.#inflightRequests.push({
         fn,

@@ -185,9 +185,6 @@ describe('src/background/providers/initializeInpageProvider', () => {
       expect(windowMock.dispatchEvent.mock.calls[3][0].type).toEqual(
         'eip6963:announceProvider'
       );
-      expect(windowMock.dispatchEvent.mock.calls[4][0].type).toEqual(
-        'core-wallet:announceProvider'
-      );
       expect(windowMock.dispatchEvent.mock.calls[3][0].detail).toEqual({
         info: provider.info,
         provider: provider,
@@ -211,6 +208,19 @@ describe('src/background/providers/initializeInpageProvider', () => {
       expect(windowMock.dispatchEvent.mock.calls[3][0].type).toEqual(
         'eip6963:announceProvider'
       );
+    });
+  });
+  describe('core-wallet ', () => {
+    it('should announce chainagnostic provider with core-wallet:announceProvider', () => {
+      initializeProvider(connectionMock, 10, windowMock);
+
+      expect(windowMock.dispatchEvent.mock.calls[4][0].type).toEqual(
+        'core-wallet:announceProvider'
+      );
+    });
+    it('should re-announce on core-wallet:requestProvider', () => {
+      initializeProvider(connectionMock, 10, windowMock);
+
       expect(windowMock.dispatchEvent.mock.calls[4][0].type).toEqual(
         'core-wallet:announceProvider'
       );

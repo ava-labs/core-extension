@@ -51,8 +51,7 @@ describe('src/background/providers/utils/ProviderReadyPromise', () => {
     initializedPromise.uncheck(InitializationStep.DOMAIN_METADATA_SENT);
     initializedPromise.call(callMock);
 
-    expect(callMock).toHaveBeenCalledTimes(2);
-
+    expect(callMock).toHaveBeenCalledTimes(1);
     initializedPromise.check(InitializationStep.DOMAIN_METADATA_SENT);
 
     await new Promise(process.nextTick);
