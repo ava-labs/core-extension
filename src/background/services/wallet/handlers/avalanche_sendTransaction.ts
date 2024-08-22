@@ -253,6 +253,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       }
 
       const network = this.networkService.getAvalancheNetworkXP();
+      const prov = await this.networkService.getAvalanceProviderXP();
       const { txHash, signedTx } = await this.walletService.sign(
         {
           tx: unsignedTx,
@@ -264,7 +265,10 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         DAppProviderRequest.AVALANCHE_SEND_TRANSACTION
       );
 
+      let transactionHash: string;
       if (typeof txHash === 'string') {
+        transactionHash = txHash;
+
         this.analyticsServicePosthog.captureEncryptedEvent({
           name: 'avalanche_sendTransaction_success',
           windowId: crypto.randomUUID(),
@@ -293,7 +297,6 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         );
 
         // Submit the transaction and return the tx id
-        const prov = await this.networkService.getAvalanceProviderXP();
         const res = await prov.issueTxHex(signedTransactionHex, vm);
 
         this.analyticsServicePosthog.captureEncryptedEvent({
@@ -306,21 +309,34 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
           },
         });
 
+        transactionHash = res.txID;
+
         onSuccess(res.txID);
+      } else {
+        onError(new Error('Signing error, invalid result'));
+        return;
       }
 
-      const duration = measurement.end();
-      this.analyticsServicePosthog.captureEncryptedEvent({
-        name: 'TransactionTimeToConfirmation',
-        windowId: crypto.randomUUID(),
-        properties: {
-          duration,
-          txType: unsignedTx.getTx()._type,
-          chainId: usedNetwork,
-          rpcUrl: network.rpcUrl,
-          site: pendingAction.site?.domain,
-        },
-      });
+      prov
+        .waitForTransaction(transactionHash, vm, 60000)
+        .then(() => {
+          const duration = measurement.end();
+          this.analyticsServicePosthog.captureEncryptedEvent({
+            name: 'TransactionTimeToConfirmation',
+            windowId: crypto.randomUUID(),
+            properties: {
+              duration,
+              txType: unsignedTx.getTx()._type,
+              chainId: usedNetwork,
+              rpcUrl: network.rpcUrl,
+              site: pendingAction.site?.domain,
+            },
+          });
+        })
+        .catch(() => {
+          // clean up pending measurement
+          measurement.end();
+        });
     } catch (e) {
       // clean up pending measurement
       measurement.end();
