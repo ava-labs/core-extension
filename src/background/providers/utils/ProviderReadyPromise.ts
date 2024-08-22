@@ -1,32 +1,35 @@
 export enum InitializationStep {
-  DOMAIN_METADATA_SENT,
-  PROVIDER_STATE_LOADED,
+  DOMAIN_METADATA_SENT = 'domain_metadata_sent',
+  PROVIDER_STATE_LOADED = 'provider_state_loaded',
 }
 
 export class ProviderReadyPromise {
-  #steps: boolean[] = [];
+  #unpreparedSteps: Map<InitializationStep, boolean> = new Map();
   #inflightRequests: {
     resolve(value: unknown): void;
-    fn(): Promise<any>;
+    fn(): Promise<unknown>;
   }[] = [];
 
-  constructor() {
-    // length / 2 is required since InitializationStep is an enum
-    // enums generate objects like this: { key0: 0, key1: 1, 0: key0, 1: key1 }
-    this.#steps = Array(Object.keys(InitializationStep).length / 2).fill(false);
+  constructor(steps: InitializationStep[]) {
+    steps.map((step) => this.#unpreparedSteps.set(step, true));
   }
 
   check = (step: InitializationStep) => {
-    this.#steps[step] = true;
+    const hasStep = this.#unpreparedSteps.has(step);
+
+    if (hasStep) {
+      this.#unpreparedSteps.delete(step);
+    }
+
     this._proceed();
   };
 
   uncheck = (step: InitializationStep) => {
-    this.#steps[step] = false;
+    this.#unpreparedSteps.set(step, true);
   };
 
   private _proceed = () => {
-    if (this.#steps.some((step) => !step)) {
+    if (this.#unpreparedSteps.size) {
       return;
     }
 
@@ -36,7 +39,7 @@ export class ProviderReadyPromise {
     }
   };
 
-  call = (fn) => {
+  call = (fn: () => Promise<unknown>) => {
     return new Promise((resolve) => {
       this.#inflightRequests.push({
         fn,
