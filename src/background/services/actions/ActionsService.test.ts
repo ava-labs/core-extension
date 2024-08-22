@@ -18,7 +18,7 @@ jest.mock('./utils', () => ({
   filterStaleActions: jest.fn(),
 }));
 
-describe.only('background/services/actions/ActionsService.ts', () => {
+describe('background/services/actions/ActionsService.ts', () => {
   const handlerWithCallback: DAppRequestHandler = {
     methods: ['handler_with_callback'] as any,
     onActionApproved: jest.fn(),

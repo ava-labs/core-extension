@@ -35,6 +35,7 @@ import { buildRpcCall } from '@src/tests/test-utils';
 import { BlockaidService } from '@src/background/services/blockaid/BlockaidService';
 import { caipToChainId } from '@src/utils/caipConversion';
 import { measureDuration } from '@src/utils/measureDuration';
+import { LockService } from '@src/background/services/lock/LockService';
 
 jest.mock('@src/utils/caipConversion');
 jest.mock('@src/background/runtime/openApprovalWindow');
@@ -46,6 +47,7 @@ jest.mock('@src/background/services/network/NetworkService');
 jest.mock('@src/background/services/balances/BalanceAggregatorService');
 jest.mock('@src/background/services/featureFlags/FeatureFlagService');
 jest.mock('@src/background/services/wallet/WalletService');
+jest.mock('@src/background/services/lock/LockService');
 jest.mock('./utils/getTargetNetworkForTx');
 jest.mock('@src/background/services/network/utils/isBitcoinNetwork');
 jest.mock('@src/background/services/analytics/utils/encryptAnalyticsData');
@@ -178,6 +180,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     {} as any
   );
   const blockaidService = new BlockaidService({} as any);
+  const lockService = new LockService({} as any, {} as any);
 
   const accountMock = {
     type: AccountType.PRIMARY,
@@ -253,7 +256,8 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       tokenManagerService,
       walletService,
       analyticsServicePosthog,
-      blockaidService
+      blockaidService,
+      lockService
     );
   });
 
@@ -1107,7 +1111,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       );
     });
 
-    it('creates transaction confirmed browser notification', async () => {
+    it('creates transaction confirmed browser notification if wallet is unlocked', async () => {
       jest.mocked(networkService.sendTransaction).mockResolvedValue('0x0123');
       jest
         .mocked(getExplorerAddressByNetwork)
@@ -1155,6 +1159,51 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
           title: 'Confirmed transaction',
         })
       );
+    });
+
+    it('does not create transaction confirmed browser notification when wallet gets locked while waiting', async () => {
+      jest.mocked(networkService.sendTransaction).mockResolvedValue('0x0123');
+      jest
+        .mocked(getExplorerAddressByNetwork)
+        .mockReturnValue('https://explorer.example.com');
+
+      let resolveTransaction;
+      jest.spyOn(provider, 'waitForTransaction').mockReturnValue(
+        new Promise((resolve) => {
+          resolveTransaction = resolve;
+        })
+      );
+
+      await handler.onActionApproved(
+        mockAction,
+        undefined,
+        onSuccessMock,
+        onErrorMock
+      );
+
+      expect(browser.notifications.clear).toHaveBeenCalledTimes(0);
+      expect(browser.notifications.create).toHaveBeenCalledTimes(1);
+      expect(browser.notifications.create).toHaveBeenCalledWith(
+        '00000000-0000-0000-0000-000000000000',
+        expect.objectContaining({
+          title: 'Pending transaction',
+        })
+      );
+
+      (lockService as any).locked = true;
+
+      resolveTransaction({ status: 1 });
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // clears prevous pending notification
+      expect(browser.notifications.clear).toHaveBeenCalledTimes(1);
+      expect(browser.notifications.clear).toHaveBeenCalledWith(
+        '00000000-0000-0000-0000-000000000000'
+      );
+
+      // creates new notification
+      expect(browser.notifications.create).toHaveBeenCalledTimes(1);
     });
 
     it('measures time to confirmation and reports it', async () => {

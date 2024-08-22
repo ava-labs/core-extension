@@ -47,6 +47,7 @@ import { TxDisplayOptions } from '../models';
 import { measureDuration } from '@src/utils/measureDuration';
 import { noop } from '@src/utils/noop';
 import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { LockService } from '@src/background/services/lock/LockService';
 
 type TxPayload = EthSendTransactionParams | ContractTransaction;
 type Params = [TxPayload] | [TxPayload, TxDisplayOptions];
@@ -66,7 +67,8 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
     private tokenManagerService: TokenManagerService,
     private walletService: WalletService,
     private analyticsServicePosthog: AnalyticsServicePosthog,
-    private blockaidService: BlockaidService
+    private blockaidService: BlockaidService,
+    private lockService: LockService
   ) {
     super();
   }
@@ -283,22 +285,24 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
 
           const isTxSuccessul = tx?.status === 1;
           await browser.notifications.clear(notificationId); // close transaction pending notification
-          await this.#createTxNotification(
-            crypto.randomUUID(),
-            {
-              type: 'basic',
-              iconUrl: '../../../../images/icon-32.png',
-              title: isTxSuccessul
-                ? 'Confirmed transaction'
-                : 'Failed transaction',
-              message: `Transaction ${
-                isTxSuccessul ? 'confirmed' : 'failed'
-              }! View on the explorer.`,
-              priority: 2,
-            },
-            network,
-            txHash
-          );
+          if (!this.lockService.locked) {
+            await this.#createTxNotification(
+              crypto.randomUUID(),
+              {
+                type: 'basic',
+                iconUrl: '../../../../images/icon-32.png',
+                title: isTxSuccessul
+                  ? 'Confirmed transaction'
+                  : 'Failed transaction',
+                message: `Transaction ${
+                  isTxSuccessul ? 'confirmed' : 'failed'
+                }! View on the explorer.`,
+                priority: 2,
+              },
+              network,
+              txHash
+            );
+          }
 
           this.analyticsServicePosthog.captureEncryptedEvent({
             name: 'TransactionTimeToConfirmation',
