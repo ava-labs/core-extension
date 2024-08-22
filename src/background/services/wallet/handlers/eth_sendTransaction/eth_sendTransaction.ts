@@ -41,7 +41,6 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { BlockaidService } from '@src/background/services/blockaid/BlockaidService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { EnsureDefined } from '@src/background/models';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { caipToChainId } from '@src/utils/caipConversion';
 import { TxDisplayOptions } from '../models';
 import { measureDuration } from '@src/utils/measureDuration';

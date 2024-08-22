@@ -98,6 +98,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
   };
   const providerMock = {
     issueTxHex: issueTxHexMock,
+    waitForTransaction: jest.fn(),
   };
   const utxosMock = [{ utxoId: '1' }, { utxoId: '2' }];
 
@@ -669,6 +670,12 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     it('measures and reports time to confirmation', async () => {
       const signedTxHex = '0x000142';
 
+      let resolveWaitforTransaction;
+      providerMock.waitForTransaction.mockReturnValue(
+        new Promise((resolve) => {
+          resolveWaitforTransaction = resolve;
+        })
+      );
       const measurement = measureDuration();
       jest.mocked(measurement.end).mockReturnValue(1000);
       hasAllSignaturesMock.mockReturnValueOnce(true);
@@ -683,8 +690,22 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       );
 
       expect(measurement.start).toHaveBeenCalled();
+      expect(providerMock.waitForTransaction).toHaveBeenCalledTimes(1);
+      expect(providerMock.waitForTransaction).toHaveBeenCalledWith(
+        1,
+        'AVM',
+        60000
+      );
+      expect(
+        analyticsServicePosthogMock.captureEncryptedEvent
+      ).toHaveBeenCalledTimes(1);
+
+      resolveWaitforTransaction(undefined);
+
+      await new Promise(process.nextTick);
 
       expect(measurement.end).toHaveBeenCalled();
+
       expect(
         analyticsServicePosthogMock.captureEncryptedEvent
       ).toHaveBeenCalledTimes(2);
@@ -701,6 +722,50 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         },
         windowId: undefined,
       });
+    });
+
+    it('ends measurement if waiting for confirmation fails', async () => {
+      const signedTxHex = '0x000142';
+
+      let rejectWaitforTransaction;
+      providerMock.waitForTransaction.mockReturnValue(
+        new Promise((_, reject) => {
+          rejectWaitforTransaction = reject;
+        })
+      );
+      const measurement = measureDuration();
+      jest.mocked(measurement.end).mockReturnValue(1000);
+      hasAllSignaturesMock.mockReturnValueOnce(true);
+      (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(signedTxHex);
+
+      await handler.onActionApproved(
+        pendingActionMock,
+        {},
+        onSuccessMock,
+        onErrorMock,
+        frontendTabId
+      );
+
+      expect(measurement.start).toHaveBeenCalled();
+      expect(providerMock.waitForTransaction).toHaveBeenCalledTimes(1);
+      expect(providerMock.waitForTransaction).toHaveBeenCalledWith(
+        1,
+        'AVM',
+        60000
+      );
+      expect(
+        analyticsServicePosthogMock.captureEncryptedEvent
+      ).toHaveBeenCalledTimes(1);
+
+      rejectWaitforTransaction(new Error('some error'));
+
+      await new Promise(process.nextTick);
+
+      expect(measurement.end).toHaveBeenCalled();
+
+      expect(
+        analyticsServicePosthogMock.captureEncryptedEvent
+      ).toHaveBeenCalledTimes(1);
     });
   });
 });
