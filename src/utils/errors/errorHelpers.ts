@@ -51,7 +51,7 @@ export const isUserRejectionError = (err: any) => {
   }
 
   if (typeof err === 'object') {
-    return err.message.startsWith('User rejected') || err.code === 4001;
+    return err.message?.startsWith('User rejected') || err.code === 4001;
   }
 
   return false;
