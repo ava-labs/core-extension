@@ -1,8 +1,9 @@
 import { ethErrors } from 'eth-rpc-errors';
 import { CoreProvider } from './CoreProvider';
-import onDomReady from './utils/onDomReady';
 import { DAppProviderRequest } from '../connections/dAppConnection/models';
 import AutoPairingPostMessageConnection from '../utils/messaging/AutoPairingPostMessageConnection';
+import { EventNames } from './models';
+import { matchingPayload } from './ChainAgnosticProvider.test';
 
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
   const mocks = {
@@ -15,25 +16,18 @@ jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
 
 jest.mock('./utils/onDomReady');
 
-const matchingPayload = (payload) =>
-  expect.objectContaining({
-    params: expect.objectContaining({
-      request: expect.objectContaining(payload),
-    }),
-  });
-
+const channelMockResolvedValue = {
+  isUnlocked: true,
+  chainId: '0x1',
+  networkVersion: '1',
+  accounts: ['0x00000'],
+};
 describe('src/background/providers/CoreProvider', () => {
   const channelMock = new AutoPairingPostMessageConnection(false);
+  const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
 
   beforeEach(() => {
     jest.mocked(channelMock.connect).mockResolvedValueOnce(undefined);
-
-    (channelMock.request as jest.Mock).mockResolvedValueOnce({
-      isUnlocked: true,
-      chainId: '0x1',
-      networkVersion: '1',
-      accounts: ['0x00000'],
-    });
   });
 
   afterEach(() => {
@@ -42,7 +36,7 @@ describe('src/background/providers/CoreProvider', () => {
 
   describe('EIP-5749', () => {
     it('sets the ProviderInfo', () => {
-      const provider = new CoreProvider({ connection: channelMock });
+      const provider = new CoreProvider();
       expect(provider.info).toEqual({
         description: 'EVM_PROVIDER_INFO_DESCRIPTION',
         icon: 'EVM_PROVIDER_INFO_ICON',
@@ -53,58 +47,22 @@ describe('src/background/providers/CoreProvider', () => {
     });
   });
 
-  describe('CAIP-27', () => {
-    let provider;
-
-    beforeEach(async () => {
-      provider = new CoreProvider({ connection: channelMock });
-
-      // wait for init to finish
-      await new Promise(process.nextTick);
-
-      // response for domain metadata send
-      (channelMock.request as jest.Mock).mockResolvedValueOnce({});
-
-      // domReady to allow requests through
-      (onDomReady as jest.Mock).mock.calls[0][0]();
-
-      await new Promise(process.nextTick);
-    });
-
-    it('wraps incoming requests into CAIP-27 envelope and reuses the provided ID', async () => {
-      // response for the actual call
-      (channelMock.request as jest.Mock).mockResolvedValueOnce('success');
-
-      provider.send(
-        {
-          method: 'some-method',
-          params: [{ param1: 1 }],
-        },
-        jest.fn()
-      );
-
-      await new Promise(process.nextTick);
-
-      expect(channelMock.request).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        method: 'provider_request',
-        params: {
-          scope: 'eip155:1',
-          sessionId: '00000000-0000-0000-0000-000000000000',
-          request: {
-            method: 'some-method',
-            params: [{ param1: 1 }],
-          },
-        },
-      });
-    });
-  });
-
   describe('EIP-1193', () => {
     describe('request', () => {
       it('collects pending requests till the dom is ready', async () => {
-        const provider = new CoreProvider({ connection: channelMock });
-
+        const provider = new CoreProvider();
+        (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+          detail: {
+            provider: {
+              subscribeToMessage: jest.fn((callback) => {
+                return channelMock.on('message', callback);
+              }),
+              request: jest.fn((params) => {
+                return channelMock.request(params as any);
+              }),
+            },
+          },
+        });
         // wait for init to finish
         await new Promise(process.nextTick);
 
@@ -115,10 +73,8 @@ describe('src/background/providers/CoreProvider', () => {
           })
         );
 
-        // response for domain metadata send
-        (channelMock.request as jest.Mock).mockResolvedValueOnce({});
         // response for 'some-method'
-        (channelMock.request as jest.Mock).mockResolvedValueOnce('success');
+        (channelMock.request as jest.Mock).mockResolvedValue('success');
         const rpcResultCallback = jest.fn();
         provider
           .request({
@@ -128,14 +84,11 @@ describe('src/background/providers/CoreProvider', () => {
           .then(rpcResultCallback);
         await new Promise(process.nextTick);
 
-        // no domReady happened yet, still only one call sent
-        expect(channelMock.request).toHaveBeenCalledTimes(1);
+        expect(channelMock.request).toHaveBeenCalledTimes(2);
 
-        // domReady triggers sending pending requests as well
-        (onDomReady as jest.Mock).mock.calls[0][0]();
         await new Promise(process.nextTick);
 
-        expect(channelMock.request).toHaveBeenCalledTimes(3);
+        expect(channelMock.request).toHaveBeenCalledTimes(2);
         expect(channelMock.request).toHaveBeenCalledWith(
           matchingPayload({
             method: 'some-method',
@@ -146,64 +99,20 @@ describe('src/background/providers/CoreProvider', () => {
         expect(rpcResultCallback).toHaveBeenCalledWith('success');
       });
 
-      it('rate limits `eth_requestAccounts` requests', async () => {
-        const provider = new CoreProvider({ connection: channelMock });
-
-        // wait for init to finish
-        await new Promise(process.nextTick);
-
-        expect(channelMock.request).toHaveBeenCalledTimes(1);
-        expect(channelMock.request).toHaveBeenCalledWith(
-          matchingPayload({
-            method: DAppProviderRequest.INIT_DAPP_STATE,
-          })
-        );
-
-        // response for domain metadata send
-        (channelMock.request as jest.Mock).mockResolvedValueOnce({});
-        // response for 'eth_requestAccounts'
-        (channelMock.request as jest.Mock).mockResolvedValue('success');
-        const firstCallCallback = jest.fn();
-        const secondCallCallback = jest.fn();
-        provider
-          .request({
-            method: 'eth_requestAccounts',
-          })
-          .then(firstCallCallback)
-          .catch(firstCallCallback);
-        provider
-          .request({
-            method: 'eth_requestAccounts',
-          })
-          .then(secondCallCallback)
-          .catch(secondCallCallback);
-        await new Promise(process.nextTick);
-
-        // no domReady happened yet, still only one call sent
-        expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-        // domReady triggers sending pending requests as well
-        (onDomReady as jest.Mock).mock.calls[0][0]();
-        await new Promise(process.nextTick);
-
-        expect(channelMock.request).toHaveBeenCalledTimes(3);
-        expect(channelMock.request).toHaveBeenCalledWith(
-          matchingPayload({
-            method: 'eth_requestAccounts',
-          })
-        );
-
-        expect(firstCallCallback).toHaveBeenCalledWith('success');
-        expect(secondCallCallback).toHaveBeenCalledWith(
-          ethErrors.rpc.resourceUnavailable(
-            `Request of type eth_requestAccounts already pending for origin. Please wait.`
-          )
-        );
-      });
-
       it('always returns JSON RPC-compatible error', async () => {
-        const provider = new CoreProvider({ connection: channelMock });
-
+        const provider = new CoreProvider();
+        (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+          detail: {
+            provider: {
+              subscribeToMessage: jest.fn((callback) => {
+                return channelMock.on('message', callback);
+              }),
+              request: jest.fn((params) => {
+                return channelMock.request(params as any);
+              }),
+            },
+          },
+        });
         // wait for init to finish
         await new Promise(process.nextTick);
 
@@ -214,8 +123,6 @@ describe('src/background/providers/CoreProvider', () => {
           })
         );
 
-        // response for domain metadata send
-        (channelMock.request as jest.Mock).mockResolvedValueOnce({});
         // response for 'eth_requestAccounts'
         (channelMock.request as jest.Mock).mockRejectedValueOnce(
           new Error('non RPC error')
@@ -228,32 +135,32 @@ describe('src/background/providers/CoreProvider', () => {
           .catch(callCallback);
         await new Promise(process.nextTick);
 
-        // no domReady happened yet, still only one call sent
-        expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-        // domReady triggers sending pending requests as well
-        (onDomReady as jest.Mock).mock.calls[0][0]();
         await new Promise(process.nextTick);
 
-        expect(channelMock.request).toHaveBeenCalledTimes(3);
+        expect(channelMock.request).toHaveBeenCalledTimes(2);
         expect(channelMock.request).toHaveBeenCalledWith(
           matchingPayload({
             method: 'eth_requestAccounts',
           })
         );
 
-        expect(callCallback).toHaveBeenCalledWith({
-          code: -32603,
-          data: {
-            originalError: {},
-          },
-          message: 'non RPC error',
-        });
+        expect(callCallback).toHaveBeenCalledWith(new Error('non RPC error'));
       });
 
       it('does not double wraps JSON RPC errors', async () => {
-        const provider = new CoreProvider({ connection: channelMock });
-
+        const provider = new CoreProvider();
+        (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+          detail: {
+            provider: {
+              subscribeToMessage: jest.fn((callback) => {
+                return channelMock.on('message', callback);
+              }),
+              request: jest.fn((params) => {
+                return channelMock.request(params as any);
+              }),
+            },
+          },
+        });
         // wait for init to finish
         await new Promise(process.nextTick);
 
@@ -264,8 +171,6 @@ describe('src/background/providers/CoreProvider', () => {
           })
         );
 
-        // response for domain metadata send
-        (channelMock.request as jest.Mock).mockResolvedValueOnce({});
         // response for 'eth_requestAccounts'
         (channelMock.request as jest.Mock).mockRejectedValueOnce({
           code: 4902,
@@ -281,14 +186,7 @@ describe('src/background/providers/CoreProvider', () => {
           .catch(callCallback);
         await new Promise(process.nextTick);
 
-        // no domReady happened yet, still only one call sent
-        expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-        // domReady triggers sending pending requests as well
-        (onDomReady as jest.Mock).mock.calls[0][0]();
-        await new Promise(process.nextTick);
-
-        expect(channelMock.request).toHaveBeenCalledTimes(3);
+        expect(channelMock.request).toHaveBeenCalledTimes(2);
         expect(channelMock.request).toHaveBeenCalledWith(
           matchingPayload({
             method: 'eth_requestAccounts',
@@ -306,12 +204,27 @@ describe('src/background/providers/CoreProvider', () => {
 
     describe('events', () => {
       describe(`connect`, () => {
-        it('emits `connect` when chainId first set', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should emit `connect` when chainId first set', async () => {
+          (channelMock.request as jest.Mock).mockResolvedValueOnce(
+            channelMockResolvedValue
+          );
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const connectSubscription = jest.fn();
           provider.addListener('connect', connectSubscription);
 
-          // wait for init to finish
+          // // wait for init to finish
           await new Promise(process.nextTick);
 
           expect(channelMock.request).toHaveBeenCalledTimes(1);
@@ -325,7 +238,7 @@ describe('src/background/providers/CoreProvider', () => {
           expect(connectSubscription).toHaveBeenCalledWith({ chainId: '0x1' });
         });
 
-        it('does not emit connect if chain is still loading', async () => {
+        it('should not emit connect if chain is still loading', async () => {
           (channelMock.request as jest.Mock).mockReset();
           (channelMock.request as jest.Mock).mockResolvedValue({
             isUnlocked: true,
@@ -333,7 +246,19 @@ describe('src/background/providers/CoreProvider', () => {
             networkVersion: 'loading',
             accounts: ['0x00000'],
           });
-          const provider = new CoreProvider({ connection: channelMock });
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const connectSubscription = jest.fn();
           provider.addListener('connect', connectSubscription);
 
@@ -359,8 +284,23 @@ describe('src/background/providers/CoreProvider', () => {
           });
         });
 
-        it('emits connect on re-connect after disconnected', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should emit connect on re-connect after disconnected', async () => {
+          const provider = new CoreProvider();
+          (channelMock.request as jest.Mock).mockResolvedValue(
+            channelMockResolvedValue
+          );
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const connectSubscription = jest.fn();
           const disconnectSubscription = jest.fn();
           provider.addListener('connect', connectSubscription);
@@ -395,7 +335,19 @@ describe('src/background/providers/CoreProvider', () => {
 
       describe('disconnect', () => {
         it('emits disconnect event with error', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const disconnectSubscription = jest.fn();
           provider.addListener('disconnect', disconnectSubscription);
 
@@ -426,8 +378,20 @@ describe('src/background/providers/CoreProvider', () => {
       });
 
       describe('chainChanged', () => {
-        it('does not emit `chainChanged` on initialization', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should not emit `chainChanged` on initialization', async () => {
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const chainChangedSubscription = jest.fn();
           provider.addListener('chainChanged', chainChangedSubscription);
 
@@ -445,7 +409,19 @@ describe('src/background/providers/CoreProvider', () => {
             networkVersion: 'loading',
             accounts: ['0x00000'],
           });
-          const provider = new CoreProvider({ connection: channelMock });
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const chainChangedSubscription = jest.fn();
           provider.addListener('chainChanged', chainChangedSubscription);
 
@@ -453,8 +429,7 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           expect(chainChangedSubscription).not.toHaveBeenCalled();
-
-          (channelMock.on as jest.Mock).mock.calls[0][1]({
+          (channelMock.on as jest.Mock).mock.calls[0]?.[1]({
             method: 'chainChanged',
             params: { chainId: '0x1', networkVersion: '1' },
           });
@@ -462,8 +437,24 @@ describe('src/background/providers/CoreProvider', () => {
           expect(chainChangedSubscription).toHaveBeenCalledWith('0x1');
         });
 
-        it('does not emit `chainChanged` when chain is set to the same value', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should not emit `chainChanged` when chain is set to the same value', async () => {
+          const provider = new CoreProvider();
+
+          (channelMock.request as jest.Mock).mockResolvedValueOnce(
+            channelMockResolvedValue
+          );
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const chainChangedSubscription = jest.fn();
           provider.addListener('chainChanged', chainChangedSubscription);
 
@@ -486,7 +477,19 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('emits `chainChanged` when chain is set to new value', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const chainChangedSubscription = jest.fn();
           provider.addListener('chainChanged', chainChangedSubscription);
 
@@ -513,7 +516,19 @@ describe('src/background/providers/CoreProvider', () => {
 
       describe('accountsChanged', () => {
         it('emits `accountsChanged` on initialization', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const accountsChangedSubscription = jest.fn();
           provider.addListener('accountsChanged', accountsChangedSubscription);
 
@@ -534,7 +549,19 @@ describe('src/background/providers/CoreProvider', () => {
             networkVersion: '1',
             accounts: undefined,
           });
-          const provider = new CoreProvider({ connection: channelMock });
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const accountsChangedSubscription = jest.fn();
           provider.addListener('accountsChanged', accountsChangedSubscription);
 
@@ -545,8 +572,24 @@ describe('src/background/providers/CoreProvider', () => {
           expect(accountsChangedSubscription).toHaveBeenCalledWith([]);
         });
 
-        it('does not emit `accountsChanged` when account is set to the same value', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should not emit `accountsChanged` when account is set to the same value', async () => {
+          const provider = new CoreProvider();
+
+          (channelMock.request as jest.Mock).mockResolvedValueOnce(
+            channelMockResolvedValue
+          );
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const accountsChangedSubscription = jest.fn();
           provider.addListener('accountsChanged', accountsChangedSubscription);
 
@@ -563,8 +606,24 @@ describe('src/background/providers/CoreProvider', () => {
           expect(accountsChangedSubscription).toHaveBeenCalledTimes(1);
         });
 
-        it('emits `accountsChanged` when account is set to new value', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should emit `accountsChanged` when account is set to new value', async () => {
+          const provider = new CoreProvider();
+
+          (channelMock.request as jest.Mock).mockResolvedValueOnce(
+            channelMockResolvedValue
+          );
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const accountsChangedSubscription = jest.fn();
           provider.addListener('accountsChanged', accountsChangedSubscription);
 
@@ -588,16 +647,27 @@ describe('src/background/providers/CoreProvider', () => {
 
     describe('legacy', () => {
       describe('sendAsync', () => {
-        it('collects pending requests till the dom is ready', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
-
+        it('should call the requests correctly', async () => {
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           // wait for init to finish
           await new Promise(process.nextTick);
 
-          // response for domain metadata send
-          (channelMock.request as jest.Mock).mockResolvedValueOnce(undefined);
           // response for 'some-method'
           (channelMock.request as jest.Mock).mockResolvedValueOnce('success');
+          // response for domain metadata send
+          (channelMock.request as jest.Mock).mockResolvedValueOnce(undefined);
           const rpcResultCallback = jest.fn();
           provider.sendAsync(
             {
@@ -609,13 +679,8 @@ describe('src/background/providers/CoreProvider', () => {
           await new Promise(process.nextTick);
 
           // no domReady happened yet, still only one call sent
-          expect(channelMock.request).toHaveBeenCalledTimes(1);
+          expect(channelMock.request).toHaveBeenCalledTimes(2);
 
-          // domReady triggers sending pending requests as well
-          (onDomReady as jest.Mock).mock.calls[0][0]();
-          await new Promise(process.nextTick);
-
-          expect(channelMock.request).toHaveBeenCalledTimes(3);
           expect(channelMock.request).toHaveBeenCalledWith(
             matchingPayload({
               method: 'some-method',
@@ -629,66 +694,20 @@ describe('src/background/providers/CoreProvider', () => {
           });
         });
 
-        it('rate limits `eth_requestAccounts` requests', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
-
-          // wait for init to finish
-          await new Promise(process.nextTick);
-
-          // response for domain metadata send
-          (channelMock.request as jest.Mock).mockResolvedValueOnce({});
-          // response for 'eth_requestAccounts'
-          (channelMock.request as jest.Mock).mockResolvedValue('success');
-          const firstCallCallback = jest.fn();
-          const secondCallCallback = jest.fn();
-          provider.sendAsync(
-            {
-              method: 'eth_requestAccounts',
+        it('should support batched requets', async () => {
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
             },
-            firstCallCallback
-          );
-          provider.sendAsync(
-            {
-              method: 'eth_requestAccounts',
-            },
-            secondCallCallback
-          );
-          await new Promise(process.nextTick);
-
-          // no domReady happened yet, still only one call sent
-          expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-          // domReady triggers sending pending requests as well
-          (onDomReady as jest.Mock).mock.calls[0][0]();
-          await new Promise(process.nextTick);
-
-          expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith(
-            matchingPayload({
-              method: 'eth_requestAccounts',
-            })
-          );
-
-          expect(firstCallCallback).toHaveBeenCalledWith(null, {
-            method: 'eth_requestAccounts',
-            result: 'success',
           });
-          expect(secondCallCallback).toHaveBeenCalledWith(
-            ethErrors.rpc.resourceUnavailable(
-              `Request of type eth_requestAccounts already pending for origin. Please wait.`
-            ),
-            {
-              method: 'eth_requestAccounts',
-              error: ethErrors.rpc.resourceUnavailable(
-                `Request of type eth_requestAccounts already pending for origin. Please wait.`
-              ),
-            }
-          );
-        });
-
-        it('supports batched requets', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
-
           // wait for init to finish
           await new Promise(process.nextTick);
 
@@ -708,16 +727,10 @@ describe('src/background/providers/CoreProvider', () => {
             ],
             rpcResultCallback
           );
+
           await new Promise(process.nextTick);
 
-          // no domReady happened yet, still only one call sent
-          expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-          // domReady triggers sending pending requests as well
-          (onDomReady as jest.Mock).mock.calls[0][0]();
-          await new Promise(process.nextTick);
-
-          expect(channelMock.request).toHaveBeenCalledTimes(4);
+          expect(channelMock.request).toHaveBeenCalledTimes(3);
           expect(channelMock.request).toHaveBeenCalledWith(
             matchingPayload({
               method: 'some-method',
@@ -739,14 +752,23 @@ describe('src/background/providers/CoreProvider', () => {
       });
 
       describe('send', () => {
-        it('collects pending requests till the dom is ready', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
-
+        it('should call the requests properly', async () => {
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           // wait for init to finish
           await new Promise(process.nextTick);
 
-          // response for domain metadata send
-          (channelMock.request as jest.Mock).mockResolvedValueOnce({});
           // response for 'some-method'
           (channelMock.request as jest.Mock).mockResolvedValueOnce('success');
           const rpcResultCallback = jest.fn();
@@ -759,14 +781,8 @@ describe('src/background/providers/CoreProvider', () => {
           );
           await new Promise(process.nextTick);
 
-          // no domReady happened yet, still only one call sent
-          expect(channelMock.request).toHaveBeenCalledTimes(1);
+          expect(channelMock.request).toHaveBeenCalledTimes(2);
 
-          // domReady triggers sending pending requests as well
-          (onDomReady as jest.Mock).mock.calls[0][0]();
-          await new Promise(process.nextTick);
-
-          expect(channelMock.request).toHaveBeenCalledTimes(3);
           expect(channelMock.request).toHaveBeenCalledWith(
             matchingPayload({
               method: 'some-method',
@@ -780,66 +796,20 @@ describe('src/background/providers/CoreProvider', () => {
           });
         });
 
-        it('rate limits `eth_requestAccounts` requests', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
-
-          // wait for init to finish
-          await new Promise(process.nextTick);
-
-          // response for domain metadata send
-          (channelMock.request as jest.Mock).mockResolvedValueOnce({});
-          // response for 'eth_requestAccounts'
-          (channelMock.request as jest.Mock).mockResolvedValue('success');
-          const firstCallCallback = jest.fn();
-          const secondCallCallback = jest.fn();
-          provider.send(
-            {
-              method: 'eth_requestAccounts',
+        it('should support batched requets', async () => {
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
             },
-            firstCallCallback
-          );
-          provider.send(
-            {
-              method: 'eth_requestAccounts',
-            },
-            secondCallCallback
-          );
-          await new Promise(process.nextTick);
-
-          // no domReady happened yet, still only one call sent
-          expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-          // domReady triggers sending pending requests as well
-          (onDomReady as jest.Mock).mock.calls[0][0]();
-          await new Promise(process.nextTick);
-
-          expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith(
-            matchingPayload({
-              method: 'eth_requestAccounts',
-            })
-          );
-
-          expect(firstCallCallback).toHaveBeenCalledWith(null, {
-            method: 'eth_requestAccounts',
-            result: 'success',
           });
-          expect(secondCallCallback).toHaveBeenCalledWith(
-            ethErrors.rpc.resourceUnavailable(
-              `Request of type eth_requestAccounts already pending for origin. Please wait.`
-            ),
-            {
-              method: 'eth_requestAccounts',
-              error: ethErrors.rpc.resourceUnavailable(
-                `Request of type eth_requestAccounts already pending for origin. Please wait.`
-              ),
-            }
-          );
-        });
-
-        it('supports batched requets', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
-
           // wait for init to finish
           await new Promise(process.nextTick);
 
@@ -859,16 +829,10 @@ describe('src/background/providers/CoreProvider', () => {
             ],
             rpcResultCallback
           );
+
           await new Promise(process.nextTick);
 
-          // no domReady happened yet, still only one call sent
-          expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-          // domReady triggers sending pending requests as well
-          (onDomReady as jest.Mock).mock.calls[0][0]();
-          await new Promise(process.nextTick);
-
-          expect(channelMock.request).toHaveBeenCalledTimes(4);
+          expect(channelMock.request).toHaveBeenCalledTimes(3);
           expect(channelMock.request).toHaveBeenCalledWith(
             matchingPayload({
               method: 'some-method',
@@ -888,9 +852,20 @@ describe('src/background/providers/CoreProvider', () => {
           ]);
         });
 
-        it('supports method as the only param', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
-
+        it('should support method as the only param', async () => {
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           // wait for init to finish
           await new Promise(process.nextTick);
 
@@ -904,14 +879,7 @@ describe('src/background/providers/CoreProvider', () => {
 
           await new Promise(process.nextTick);
 
-          // no domReady happened yet, still only one call sent
-          expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-          // domReady triggers sending pending requests as well
-          (onDomReady as jest.Mock).mock.calls[0][0]();
-          await new Promise(process.nextTick);
-
-          expect(channelMock.request).toHaveBeenCalledTimes(3);
+          expect(channelMock.request).toHaveBeenCalledTimes(2);
           expect(channelMock.request).toHaveBeenCalledWith(
             matchingPayload({
               method: 'some-method',
@@ -925,9 +893,20 @@ describe('src/background/providers/CoreProvider', () => {
           });
         });
 
-        it('supports method with params', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
-
+        it('should support method with params', async () => {
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           // wait for init to finish
           await new Promise(process.nextTick);
 
@@ -941,14 +920,7 @@ describe('src/background/providers/CoreProvider', () => {
 
           await new Promise(process.nextTick);
 
-          // no domReady happened yet, still only one call sent
-          expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-          // domReady triggers sending pending requests as well
-          (onDomReady as jest.Mock).mock.calls[0][0]();
-          await new Promise(process.nextTick);
-
-          expect(channelMock.request).toHaveBeenCalledTimes(3);
+          expect(channelMock.request).toHaveBeenCalledTimes(2);
           expect(channelMock.request).toHaveBeenCalledWith(
             matchingPayload({
               method: 'some-method',
@@ -962,9 +934,25 @@ describe('src/background/providers/CoreProvider', () => {
           });
         });
 
-        it('returns eth_accounts response syncronously', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should return eth_accounts response syncronously', async () => {
+          const provider = new CoreProvider();
 
+          (channelMock.request as jest.Mock).mockResolvedValueOnce(
+            channelMockResolvedValue
+          );
+
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           // wait for init to finish
           await new Promise(process.nextTick);
 
@@ -978,9 +966,24 @@ describe('src/background/providers/CoreProvider', () => {
           });
         });
 
-        it('returns eth_coinbase response syncronously', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should return eth_coinbase response syncronously', async () => {
+          const provider = new CoreProvider();
 
+          (channelMock.request as jest.Mock).mockResolvedValueOnce(
+            channelMockResolvedValue
+          );
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           // wait for init to finish
           await new Promise(process.nextTick);
 
@@ -995,8 +998,19 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('throws error if method not supported syncronously', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
-
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           // wait for init to finish
           await new Promise(process.nextTick);
 
@@ -1019,28 +1033,34 @@ describe('src/background/providers/CoreProvider', () => {
       });
 
       describe('enable', () => {
-        it('collects pending requests till the dom is ready', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should call the requests properly', async () => {
+          const provider = new CoreProvider();
 
+          (channelMock.request as jest.Mock).mockResolvedValueOnce(
+            channelMockResolvedValue
+          );
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           // wait for init to finish
           await new Promise(process.nextTick);
 
-          // response for domain metadata send
-          (channelMock.request as jest.Mock).mockResolvedValueOnce(undefined);
           // response for 'some-method'
           (channelMock.request as jest.Mock).mockResolvedValueOnce(['0x0000']);
           const rpcResultCallback = jest.fn();
           provider.enable().then(rpcResultCallback);
           await new Promise(process.nextTick);
 
-          // no domReady happened yet, still only one call sent
-          expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-          // domReady triggers sending pending requests as well
-          (onDomReady as jest.Mock).mock.calls[0][0]();
-          await new Promise(process.nextTick);
-
-          expect(channelMock.request).toHaveBeenCalledTimes(3);
+          expect(channelMock.request).toHaveBeenCalledTimes(2);
           expect(channelMock.request).toHaveBeenCalledWith(
             matchingPayload({
               method: 'eth_requestAccounts',
@@ -1049,69 +1069,34 @@ describe('src/background/providers/CoreProvider', () => {
 
           expect(rpcResultCallback).toHaveBeenCalledWith(['0x0000']);
         });
-
-        it('rate limits enable calls', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
-
-          // wait for init to finish
-          await new Promise(process.nextTick);
-
-          // response for domain metadata send
-          (channelMock.request as jest.Mock).mockResolvedValueOnce(undefined);
-          // response for 'eth_requestAccounts'
-          (channelMock.request as jest.Mock).mockResolvedValue(['0x0000']);
-          const firstCallCallback = jest.fn();
-          const secondCallCallback = jest.fn();
-          provider.enable().then(firstCallCallback).catch(firstCallCallback);
-          provider.enable().then(secondCallCallback).catch(secondCallCallback);
-          await new Promise(process.nextTick);
-
-          // no domReady happened yet, still only one call sent
-          expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-          // domReady triggers sending pending requests as well
-          (onDomReady as jest.Mock).mock.calls[0][0]();
-          await new Promise(process.nextTick);
-
-          expect(channelMock.request).toHaveBeenCalledTimes(3);
-          expect(channelMock.request).toHaveBeenCalledWith(
-            matchingPayload({
-              method: 'eth_requestAccounts',
-            })
-          );
-
-          expect(firstCallCallback).toHaveBeenCalledWith(['0x0000']);
-          expect(secondCallCallback).toHaveBeenCalledWith(
-            ethErrors.rpc.resourceUnavailable(
-              `Request of type eth_requestAccounts already pending for origin. Please wait.`
-            )
-          );
-        });
       });
 
       describe('net_version', () => {
         it('supports net_version call', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+          const provider = new CoreProvider();
 
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           // wait for init to finish
           await new Promise(process.nextTick);
 
-          // response for domain metadata send
-          (channelMock.request as jest.Mock).mockResolvedValueOnce(undefined);
           // response for 'some-method'
           (channelMock.request as jest.Mock).mockResolvedValueOnce('1');
           const rpcResultCallback = jest.fn();
           provider.net_version().then(rpcResultCallback);
           await new Promise(process.nextTick);
 
-          // no domReady happened yet, still only one call sent
-          expect(channelMock.request).toHaveBeenCalledTimes(1);
-
-          // domReady triggers sending pending requests as well
-          (onDomReady as jest.Mock).mock.calls[0][0]();
-          await new Promise(process.nextTick);
-
-          expect(channelMock.request).toHaveBeenCalledTimes(3);
+          expect(channelMock.request).toHaveBeenCalledTimes(2);
           expect(channelMock.request).toHaveBeenCalledWith(
             matchingPayload({
               method: 'net_version',
@@ -1123,8 +1108,24 @@ describe('src/background/providers/CoreProvider', () => {
       });
 
       describe('close event', () => {
-        it('emits close event with error', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should emit close event with error', async () => {
+          const provider = new CoreProvider();
+
+          (channelMock.request as jest.Mock).mockResolvedValueOnce(
+            channelMockResolvedValue
+          );
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const closeSubscription = jest.fn();
           provider.on('close', closeSubscription);
 
@@ -1155,8 +1156,21 @@ describe('src/background/providers/CoreProvider', () => {
       });
 
       describe('networkChanged event', () => {
-        it('does not emit `networkChanged` on initialization', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should not emit `networkChanged` on initialization', async () => {
+          const provider = new CoreProvider();
+
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const networkChangedSubscription = jest.fn();
           provider.addListener('networkChanged', networkChangedSubscription);
 
@@ -1174,7 +1188,19 @@ describe('src/background/providers/CoreProvider', () => {
             networkVersion: 'loading',
             accounts: ['0x00000'],
           });
-          const provider = new CoreProvider({ connection: channelMock });
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const networkChangedSubscription = jest.fn();
           provider.addListener('networkChanged', networkChangedSubscription);
 
@@ -1191,8 +1217,24 @@ describe('src/background/providers/CoreProvider', () => {
           expect(networkChangedSubscription).toHaveBeenCalledWith('1');
         });
 
-        it('does not emit `networkChanged` when chain is set to the same value', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+        it('should not emit `networkChanged` when chain is set to the same value', async () => {
+          const provider = new CoreProvider();
+
+          (channelMock.request as jest.Mock).mockResolvedValueOnce(
+            channelMockResolvedValue
+          );
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const networkChangedSubscription = jest.fn();
           provider.addListener('networkChanged', networkChangedSubscription);
 
@@ -1215,7 +1257,19 @@ describe('src/background/providers/CoreProvider', () => {
         });
 
         it('emits `chainChanged` when chain is set to new value', async () => {
-          const provider = new CoreProvider({ connection: channelMock });
+          const provider = new CoreProvider();
+          (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+            detail: {
+              provider: {
+                subscribeToMessage: jest.fn((callback) => {
+                  return channelMock.on('message', callback);
+                }),
+                request: jest.fn((params) => {
+                  return channelMock.request(params as any);
+                }),
+              },
+            },
+          });
           const networkChangedSubscription = jest.fn();
           provider.addListener('networkChanged', networkChangedSubscription);
 
@@ -1243,24 +1297,27 @@ describe('src/background/providers/CoreProvider', () => {
   });
 
   describe('init', () => {
-    it('waits for message channel to be connected', async () => {
-      const mockedChannel = new AutoPairingPostMessageConnection(false);
-      let resolve;
-      const promise = new Promise<void>((res) => {
-        resolve = res;
+    it('should call the event listener with the right event name', async () => {
+      new CoreProvider();
+      (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+        detail: {
+          provider: {
+            subscribeToMessage: jest.fn((callback) => {
+              return channelMock.on('message', callback);
+            }),
+            request: jest.fn((params) => {
+              return channelMock.request(params as any);
+            }),
+          },
+        },
       });
+      expect(addEventListenerSpy).toHaveBeenCalledTimes(1);
 
-      jest.mocked(mockedChannel.connect).mockReturnValue(promise);
-
-      new CoreProvider({ connection: mockedChannel });
-      expect(mockedChannel.connect).toHaveBeenCalled();
-      expect(mockedChannel.request).not.toHaveBeenCalled();
-
-      resolve();
-      await new Promise(process.nextTick);
-      expect(mockedChannel.request).toHaveBeenCalled();
+      expect(addEventListenerSpy).toHaveBeenCalledWith(
+        EventNames.CORE_WALLET_ANNOUNCE_PROVIDER,
+        expect.any(Function)
+      );
     });
-
     it('loads provider state from the background', async () => {
       const mockedChannel = new AutoPairingPostMessageConnection(false);
 
@@ -1271,7 +1328,19 @@ describe('src/background/providers/CoreProvider', () => {
         networkVersion: '1',
         accounts: ['0x00000'],
       });
-      const provider = new CoreProvider({ connection: mockedChannel });
+      const provider = new CoreProvider();
+      (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+        detail: {
+          provider: {
+            subscribeToMessage: jest.fn((callback) => {
+              return channelMock.on('message', callback);
+            }),
+            request: jest.fn((params) => {
+              return channelMock.request(params as any);
+            }),
+          },
+        },
+      });
       const initializedSubscription = jest.fn();
       provider.addListener('_initialized', initializedSubscription);
       await new Promise(process.nextTick);
@@ -1298,8 +1367,19 @@ describe('src/background/providers/CoreProvider', () => {
 
   describe('Metamask compatibility', () => {
     it('supports _metamask.isUnlocked', async () => {
-      const provider = new CoreProvider({ connection: channelMock });
-
+      const provider = new CoreProvider();
+      (addEventListenerSpy.mock.calls[0]?.[1] as any)({
+        detail: {
+          provider: {
+            subscribeToMessage: jest.fn((callback) => {
+              return channelMock.on('message', callback);
+            }),
+            request: jest.fn((params) => {
+              return channelMock.request(params as any);
+            }),
+          },
+        },
+      });
       expect(await provider._metamask.isUnlocked()).toBe(false);
 
       // wait for init to finish
@@ -1307,11 +1387,11 @@ describe('src/background/providers/CoreProvider', () => {
       expect(await provider._metamask.isUnlocked()).toBe(true);
     });
     it('isMetamask is true', () => {
-      const provider = new CoreProvider({ connection: channelMock });
+      const provider = new CoreProvider();
       expect(provider.isMetaMask).toBe(true);
     });
     it('isAvalanche is true', async () => {
-      const provider = new CoreProvider({ connection: channelMock });
+      const provider = new CoreProvider();
       expect(provider.isAvalanche).toBe(true);
     });
   });

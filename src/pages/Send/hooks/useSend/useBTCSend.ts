@@ -100,7 +100,7 @@ export const useBtcSend: SendAdapterBTC = ({
         const amountBN = stringToBN(amount || '0', nativeToken.decimals);
         const amountInSatoshis = amountBN.toNumber();
 
-        return request<
+        return await request<
           BitcoinSendTransactionHandler,
           DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
           string

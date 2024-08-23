@@ -24,6 +24,7 @@ import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { measureDuration } from '@src/utils/measureDuration';
 
 type TxParams = {
   transactionHex: string;
@@ -229,8 +230,9 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
 
     const usedAddress = this.#getAddressForVM(vm);
     const usedNetwork = this.#getChainIdForVM(vm);
-
+    const measurement = measureDuration();
     try {
+      measurement.start();
       // Parse the json into a tx object
       const unsignedTx =
         vm === EVM
@@ -250,18 +252,23 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         );
       }
 
+      const network = this.networkService.getAvalancheNetworkXP();
+      const prov = await this.networkService.getAvalanceProviderXP();
       const { txHash, signedTx } = await this.walletService.sign(
         {
           tx: unsignedTx,
           externalIndices,
           internalIndices,
         },
-        this.networkService.getAvalancheNetworkXP(),
+        network,
         frontendTabId,
         DAppProviderRequest.AVALANCHE_SEND_TRANSACTION
       );
 
+      let transactionHash: string;
       if (typeof txHash === 'string') {
+        transactionHash = txHash;
+
         this.analyticsServicePosthog.captureEncryptedEvent({
           name: 'avalanche_sendTransaction_success',
           windowId: crypto.randomUUID(),
@@ -290,7 +297,6 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         );
 
         // Submit the transaction and return the tx id
-        const prov = await this.networkService.getAvalanceProviderXP();
         const res = await prov.issueTxHex(signedTransactionHex, vm);
 
         this.analyticsServicePosthog.captureEncryptedEvent({
@@ -303,9 +309,38 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
           },
         });
 
+        transactionHash = res.txID;
+
         onSuccess(res.txID);
+      } else {
+        onError(new Error('Signing error, invalid result'));
+        return;
       }
+
+      prov
+        .waitForTransaction(transactionHash, vm, 60000)
+        .then(() => {
+          const duration = measurement.end();
+          this.analyticsServicePosthog.captureEncryptedEvent({
+            name: 'TransactionTimeToConfirmation',
+            windowId: crypto.randomUUID(),
+            properties: {
+              duration,
+              txType: unsignedTx.getTx()._type,
+              chainId: usedNetwork,
+              rpcUrl: network.rpcUrl,
+              site: pendingAction.site?.domain,
+            },
+          });
+        })
+        .catch(() => {
+          // clean up pending measurement
+          measurement.end();
+        });
     } catch (e) {
+      // clean up pending measurement
+      measurement.end();
+
       this.analyticsServicePosthog.captureEncryptedEvent({
         name: 'avalanche_sendTransaction_failed',
         windowId: crypto.randomUUID(),

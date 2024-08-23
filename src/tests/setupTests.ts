@@ -26,6 +26,21 @@ Object.defineProperty(global.document, 'prerendering', {
   value: false,
 });
 
+Object.defineProperties(global.performance, {
+  mark: {
+    value: jest.fn(),
+  },
+  measure: {
+    value: jest.fn().mockReturnValue({ duration: 100 }),
+  },
+  clearMarks: {
+    value: jest.fn(),
+  },
+  clearMeasures: {
+    value: jest.fn(),
+  },
+});
+
 global.chrome = {
   runtime: {
     id: 'testid',
