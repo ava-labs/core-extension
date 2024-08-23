@@ -2,6 +2,7 @@ import {
   DAppProviderRequest,
   JsonRpcRequestPayload,
 } from '@src/background/connections/dAppConnection/models';
+import { VIA_MODULE_SYMBOL } from '@src/background/vmModules/models';
 
 export enum ActionStatus {
   // user has been shown the UI and we are waiting on approval
@@ -18,6 +19,7 @@ export type Action<DisplayData = any, Params = any> = JsonRpcRequestPayload<
   Params
 > & {
   scope: string;
+  [VIA_MODULE_SYMBOL]?: boolean;
   time?: number;
   status?: ActionStatus;
   result?: any;

@@ -15,6 +15,7 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 import { LockService } from '../lock/LockService';
 import { filterStaleActions } from './utils';
+import { VIA_MODULE_SYMBOL } from '@src/background/vmModules/models';
 
 @singleton()
 export class ActionsService implements OnStorageReady {
@@ -133,6 +134,13 @@ export class ActionsService implements OnStorageReady {
     }
 
     if (status === ActionStatus.SUBMITTING) {
+      const isHandledByModule = pendingMessage[VIA_MODULE_SYMBOL];
+
+      if (isHandledByModule) {
+        // TODO: emit events here and return early
+        return;
+      }
+
       const handler = this.dAppRequestHandlers.find((h) =>
         h.methods.includes(pendingMessage.method)
       );
