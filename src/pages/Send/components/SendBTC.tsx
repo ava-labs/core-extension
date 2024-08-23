@@ -2,7 +2,6 @@ import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { stringToBN } from '@avalabs/core-utils-sdk';
 
-import { TokenWithBalanceBTC } from '@src/background/services/balances/models';
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
 import { isBtcAddressInNetwork } from '@src/utils/isBtcAddressInNetwork';
 
@@ -11,6 +10,7 @@ import { useValidAddressFromParams } from '../hooks/useValidAddressFromParams';
 import { SendPageProps } from '../models';
 import { SendForm } from './SendForm';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 export const SendBTC = ({
   network,

@@ -22,7 +22,10 @@ import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog
 import { TransactionProgressState } from './models';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { TokenType } from '@src/background/services/balances/models';
+import {
+  NetworkTokenWithBalance,
+  TokenType,
+} from '@src/background/services/balances/models';
 import { Trans, useTranslation } from 'react-i18next';
 import { RawTransactionData } from './components/RawTransactionData';
 import { CustomFees } from '@src/components/common/CustomFees';
@@ -88,7 +91,8 @@ export function SignTransactionPage() {
   const nativeTokenWithBalance = useMemo(
     () => tokens.find(({ type }) => type === TokenType.NATIVE),
     [tokens]
-  );
+  ) as NetworkTokenWithBalance; // This screen only shows up for EVM
+
   const hasEnoughForNetworkFee = useMemo(() => {
     return nativeTokenWithBalance?.balance.gte(
       new BN(

@@ -1,7 +1,11 @@
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { NetworkService } from '../../network/NetworkService';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { Balances } from '../../balances/models';
+import {
+  Balances,
+  TokenWithBalanceAVM,
+  TokenWithBalancePVM,
+} from '../../balances/models';
 import { PrimaryAccount } from '../../accounts/models';
 import BN from 'bn.js';
 import { Network } from '../../network/models';
@@ -96,7 +100,9 @@ function hasBalance(
       return false;
     }
 
-    const avaxBalance = balance['AVAX'];
+    const avaxBalance = balance['AVAX'] as
+      | TokenWithBalanceAVM
+      | TokenWithBalancePVM;
 
     return avaxBalance && avaxBalance.balance.gt(new BN(0));
   });

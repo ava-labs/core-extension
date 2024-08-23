@@ -3,10 +3,13 @@ import { isTokenWithBalanceAVM } from './isTokenWithBalanceAVM';
 import {
   TokenType,
   TokenWithBalanceAVM,
-  TokenWithBalanceBTC,
   TokenWithBalanceEVM,
   TokenWithBalancePVM,
 } from '../models';
+import {
+  TokenWithBalanceBTC,
+  TokenType as VMModulesTokenType,
+} from '@avalabs/vm-module-types';
 
 describe('src/background/services/balances/utils/isTokenWithBalanceAVM.ts', () => {
   const tokenWithBalanceAVM: TokenWithBalanceAVM = {
@@ -42,10 +45,12 @@ describe('src/background/services/balances/utils/isTokenWithBalanceAVM.ts', () =
   };
 
   const tokenWithBalanceBTC: TokenWithBalanceBTC = {
-    type: TokenType.NATIVE,
+    type: VMModulesTokenType.NATIVE,
     name: 'Avalanche',
     symbol: 'AVAX',
-    balance: new BN(1),
+    coingeckoId: 'avax',
+    balance: 1n,
+    balanceDisplayValue: '0.00000001',
     decimals: 9,
     description: 'description',
     logoUri: 'logoUri',

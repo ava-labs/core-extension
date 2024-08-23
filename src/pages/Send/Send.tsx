@@ -9,7 +9,6 @@ import {
   NetworkTokenWithBalance,
   TokenType,
   TokenWithBalanceAVM,
-  TokenWithBalanceBTC,
   TokenWithBalanceEVM,
   TokenWithBalancePVM,
 } from '@src/background/services/balances/models';
@@ -43,6 +42,7 @@ import {
   isAvmCapableAccount,
   isPvmCapableAccount,
 } from './hooks/useSend/models';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 export function SendPage() {
   const { t } = useTranslation();

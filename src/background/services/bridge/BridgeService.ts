@@ -33,7 +33,7 @@ import {
 import Big from 'big.js';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { FeatureGates } from '../featureFlags/models';
-import { TokenWithBalanceBTC } from '../balances/models';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {

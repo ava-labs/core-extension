@@ -1,11 +1,11 @@
-import { bnToBig } from '@avalabs/core-utils-sdk';
 import { TokenWithBalance } from '@src/background/services/balances/models';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import { useMemo } from 'react';
 import { formatTokenAmount } from '@avalabs/core-bridge-sdk';
 import Big from 'big.js';
-import BN from 'bn.js';
 import { partition } from 'lodash';
+import { isUnifiedBridgeAsset } from '@src/pages/Bridge/utils/isUnifiedBridgeAsset';
+import { normalizeBalance } from '@src/utils/normalizeBalance';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -16,6 +16,7 @@ export interface DisplayToken {
   symbol: string;
   displayValue: string;
   token: TokenWithBalance | AssetBalance;
+  decimals: number;
 }
 
 export const useDisplaytokenlist = ({
@@ -45,6 +46,7 @@ export const useDisplaytokenlist = ({
                 symbol: token.symbol,
                 displayValue: token.balanceDisplayValue ?? '',
                 token,
+                decimals: token.decimals,
               };
             })
         : []),
@@ -66,6 +68,9 @@ export const useDisplaytokenlist = ({
                 symbol: token.asset.symbol,
                 displayValue: formatBalance(token.balance),
                 token,
+                decimals: isUnifiedBridgeAsset(token.asset)
+                  ? token.asset.decimals
+                  : token.asset.denomination,
               };
             })
         : []),
@@ -73,14 +78,9 @@ export const useDisplaytokenlist = ({
 
     const [tokensWithBalance, tokensWithoutBalance]: DisplayToken[][] =
       partition(initialList, (token) => {
-        if (!token.token?.balance) {
-          return -1;
-        }
-        const balance =
-          token.token.balance instanceof BN
-            ? bnToBig(token.token.balance)
-            : token.token.balance;
-        return balance.gt(new Big(0));
+        const balance = normalizeBalance(token.token.balance, token.decimals);
+
+        return balance ? balance.gt(new Big(0)) : false;
       });
 
     // Sorting specification per: https://ava-labs.atlassian.net/browse/CP-7768
@@ -89,13 +89,13 @@ export const useDisplaytokenlist = ({
     return [
       ...tokensWithBalance.sort((tokenOne, tokenTwo) => {
         const firstBalance =
-          tokenOne.token.balance instanceof BN
-            ? bnToBig(tokenOne.token.balance)
-            : tokenOne.token.balance || new Big(0);
+          normalizeBalance(tokenOne.token.balance, tokenOne.decimals) ??
+          new Big(0);
+
         const secondBalance =
-          tokenTwo.token.balance instanceof BN
-            ? bnToBig(tokenTwo.token.balance)
-            : tokenTwo.token.balance || new Big(0);
+          normalizeBalance(tokenTwo.token.balance, tokenTwo.decimals) ??
+          new Big(0);
+
         const comparison = firstBalance.cmp(secondBalance);
         if (comparison) {
           return comparison * -1;

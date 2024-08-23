@@ -12,6 +12,7 @@ import {
   TokenWithBalanceAVM,
   TokenWithBalancePVM,
 } from './models';
+import { decorateWithCaipId } from '@src/utils/caipConversion';
 
 describe('src/background/services/balances/BalancesService.ts', () => {
   const balancesServiceEVMMock = {
@@ -35,17 +36,17 @@ describe('src/background/services/balances/BalancesService.ts', () => {
     isNetworkSupported: jest.fn(),
   } as any;
 
-  const pchain = {
+  const pchain = decorateWithCaipId({
     ...AVALANCHE_XP_TEST_NETWORK,
     vmName: NetworkVMType.PVM,
-  };
+  });
 
-  const xchain = {
+  const xchain = decorateWithCaipId({
     ...AVALANCHE_XP_TEST_NETWORK,
     vmName: NetworkVMType.AVM,
-  };
+  });
 
-  const testChain = {
+  const testChain = decorateWithCaipId({
     chainName: 'testChain',
     chainId: 123,
     vmName: NetworkVMType.EVM,
@@ -59,7 +60,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
       logoUri: 'testChainTokenLogoUri.com',
     },
     logoUri: 'testChainLogoUri.com',
-  };
+  });
 
   const account = {
     id: '123',
