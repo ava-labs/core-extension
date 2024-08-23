@@ -27,6 +27,7 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { FeatureGates } from '../../featureFlags/models';
 import { getBtcInputUtxos } from '@src/utils/send/btcSendUtils';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('@src/utils/send/btcSendUtils');
@@ -40,6 +41,7 @@ jest.mock('@avalabs/core-bridge-sdk', () => {
   };
 });
 
+jest.mock('@src/utils/network/getProviderForNetwork');
 jest.mock('../../analytics/utils/encryptAnalyticsData');
 
 const frontendTabId = 654;
@@ -81,6 +83,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     getAvalancheProvider: jest.fn(),
     getEthereumProvider: jest.fn(),
     getBitcoinProvider: jest.fn(),
+    sendTransaction: jest.fn(),
   } as any;
 
   const walletServiceMock = {
@@ -546,6 +549,30 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
           amount,
           asset: ethAction.displayData.asset,
         })
+      );
+
+      // Mock signAndSendEVM callback being called
+      const signerFn = (transferAssetEVM as jest.Mock).mock.calls[0][0]
+        .signAndSendEVM;
+
+      jest.mocked(getProviderForNetwork).mockReturnValue({
+        async getTransactionCount() {
+          return 14;
+        },
+      } as any);
+
+      signerFn({});
+
+      await new Promise(process.nextTick);
+
+      expect(walletServiceMock.sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          maxFeePerGas: 1337,
+          maxPriorityFeePerGas: 42,
+          nonce: 14,
+        }),
+        { chainId: 5 },
+        expect.any(Number)
       );
     });
 
