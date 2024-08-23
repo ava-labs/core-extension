@@ -5,9 +5,9 @@ import {
   JsonRpcResponse,
 } from '../connections/dAppConnection/models';
 import { getWalletExtensionType } from './utils/getWalletExtensionType';
-import { CoreProvider } from './CoreProvider';
 import { Maybe } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
+import { EVMProvider } from '@avalabs/evm-module/dist/provider';
 
 export class MultiWalletProviderProxy extends EventEmitter {
   #_providers: unknown[] = [];
@@ -18,18 +18,18 @@ export class MultiWalletProviderProxy extends EventEmitter {
     return this.#defaultProvider;
   }
   get providers() {
-    // When the user decides to select the providers and there is more than one provider and CoreProvider is selected, we want to trigger the wallet selection. So we replace CoreProvider with this.
+    // When the user decides to select the providers and there is more than one provider and EVMProvider is selected, we want to trigger the wallet selection. So we replace EVMProvider with this.
     if (this.#_providers.length > 1) {
       return [...this.#_providers].map((provider) => {
-        if ((provider as CoreProvider)?.isAvalanche) {
+        if ((provider as EVMProvider)?.isAvalanche) {
           return new Proxy(this, {
             get(target, prop) {
               // eslint-disable-next-line no-prototype-builtins
               if (target.hasOwnProperty(prop)) {
                 return target[prop];
                 // eslint-disable-next-line no-prototype-builtins
-              } else if ((provider as CoreProvider).hasOwnProperty(prop)) {
-                return (provider as CoreProvider)[prop];
+              } else if ((provider as EVMProvider).hasOwnProperty(prop)) {
+                return (provider as EVMProvider)[prop];
               }
             },
           });
@@ -41,7 +41,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
     return [...this.#_providers];
   }
 
-  constructor(private coreProvider: CoreProvider) {
+  constructor(private coreProvider: EVMProvider) {
     super();
 
     this.addProvider = this.addProvider.bind(this);
@@ -253,8 +253,8 @@ export class MultiWalletProviderProxy extends EventEmitter {
   }
 }
 
-export function createMultiWalletProxy(coreProvider: CoreProvider) {
-  const proxyProvider = new MultiWalletProviderProxy(coreProvider);
+export function createMultiWalletProxy(evmProvider: EVMProvider) {
+  const proxyProvider = new MultiWalletProviderProxy(evmProvider);
   // Some dApps like Pangolin likes to define helper methods on the window.ethereum object.
   // Store them separately to prevent them from altering the inpage provider behaviour
   const walletProviderExtensions = {};

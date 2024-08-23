@@ -1,8 +1,8 @@
 import type AbstractConnection from '../utils/messaging/AbstractConnection';
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
-import { CoreProvider } from './CoreProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { EventNames, type EIP6963ProviderDetail } from './models';
+import { EVMProvider } from '@avalabs/evm-module/dist/provider';
 
 /**
  * Initializes a CoreProvide and assigns it as window.ethereum.
@@ -16,7 +16,7 @@ export function initializeProvider(
   connection: AbstractConnection,
   maxListeners = 100,
   globalObject = window
-): CoreProvider {
+): EVMProvider {
   const chainAgnosticProvider = new Proxy(
     new ChainAgnosticProvider(connection),
     {
@@ -24,18 +24,30 @@ export function initializeProvider(
     }
   );
 
-  const provider = new Proxy(new CoreProvider(maxListeners), {
-    // some common libraries, e.g. web3@1.x, mess with our API
-    deleteProperty: () => true,
-  });
+  const evmProvider = new Proxy(
+    new EVMProvider({
+      maxListeners,
+      info: {
+        name: EVM_PROVIDER_INFO_NAME,
+        uuid: EVM_PROVIDER_INFO_UUID,
+        icon: EVM_PROVIDER_INFO_ICON,
+        description: EVM_PROVIDER_INFO_DESCRIPTION,
+        rdns: EVM_PROVIDER_INFO_RDNS,
+      },
+    }),
+    {
+      // some common libraries, e.g. web3@1.x, mess with our API
+      deleteProperty: () => true,
+    }
+  );
 
-  setGlobalProvider(provider, globalObject);
-  setAvalancheGlobalProvider(provider, globalObject);
-  setEvmproviders(provider, globalObject);
-  announceWalletProvider(provider, globalObject);
+  setGlobalProvider(evmProvider, globalObject);
+  setAvalancheGlobalProvider(evmProvider, globalObject);
+  setEvmproviders(evmProvider, globalObject);
+  announceWalletProvider(evmProvider, globalObject);
   announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
 
-  return provider;
+  return evmProvider;
 }
 
 /**
@@ -45,7 +57,7 @@ export function initializeProvider(
  * @param providerInstance - The provider instance.
  */
 function setGlobalProvider(
-  providerInstance: CoreProvider,
+  providerInstance: EVMProvider,
   globalObject = window
 ): void {
   try {
@@ -89,7 +101,6 @@ function setGlobalProvider(
     globalObject.dispatchEvent(new Event('ethereum#initialized'));
   } catch (e) {
     // some browser was faster and defined the window.ethereum as non writable before us
-    console.error('Cannot set Core window.ethereum provider', e);
 
     // try to set the providerInstance in case it's a proxy like we are
     globalObject.ethereum = providerInstance;
@@ -103,7 +114,7 @@ function setGlobalProvider(
  * @param providerInstance - The provider instance.
  */
 function setAvalancheGlobalProvider(
-  providerInstance: CoreProvider,
+  providerInstance: EVMProvider,
   globalObject = window
 ): void {
   Object.defineProperty(globalObject, 'avalanche', {
@@ -114,7 +125,7 @@ function setAvalancheGlobalProvider(
 }
 
 function setEvmproviders(
-  providerInstance: CoreProvider,
+  providerInstance: EVMProvider,
   globalObject = window
 ): void {
   globalObject.evmproviders = globalObject.evmproviders || {};
@@ -124,7 +135,7 @@ function setEvmproviders(
 }
 
 function announceWalletProvider(
-  providerInstance: CoreProvider,
+  providerInstance: EVMProvider,
   globalObject = window
 ): void {
   const announceEvent = new CustomEvent<EIP6963ProviderDetail>(
