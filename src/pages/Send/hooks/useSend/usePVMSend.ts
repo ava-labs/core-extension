@@ -152,7 +152,7 @@ export const usePvmSend: SendAdapterPVM = ({
             utils.bufferToHex(utxo.toBytes(codec))
           ),
         };
-        return request<AvalancheSendTransactionHandler>({
+        return await request<AvalancheSendTransactionHandler>({
           method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
           params,
         });
