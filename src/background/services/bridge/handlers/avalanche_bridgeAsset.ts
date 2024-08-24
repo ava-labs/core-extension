@@ -35,13 +35,13 @@ import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../../featureFlags/models';
 import { isWalletConnectAccount } from '../../accounts/utils/typeGuards';
 import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
-import { TokenWithBalanceBTC } from '../../balances/models';
 import {
   buildBtcTx,
   getBtcInputUtxos,
   validateBtcSend,
 } from '@src/utils/send/btcSendUtils';
 import { resolve } from '@src/utils/promiseResolver';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 type BridgeActionParams = [
   currentBlockchain: Blockchain,

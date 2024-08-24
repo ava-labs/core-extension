@@ -49,6 +49,9 @@ describe('background/services/actions/ActionsService.ts', () => {
     actionId: 'uuid',
   } as any;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { displayData, ...mockActionWithoutDisplaydata } = mockAction;
+
   beforeEach(() => {
     jest.resetAllMocks();
     // jest is having issues mocking non static getters
@@ -277,7 +280,10 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(eventListener).toHaveBeenCalledTimes(1);
         expect(eventListener).toHaveBeenCalledWith({
           type: ActionCompletedEventType.ERROR,
-          action: action,
+          action: {
+            ...mockActionWithoutDisplaydata,
+            method: 'method-with-no-handler',
+          },
           result: ethErrors.rpc.internal('Request handler not found'),
         });
         expect(storageService.save).toHaveBeenCalledTimes(1);
@@ -340,7 +346,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(eventListener).toHaveBeenCalledTimes(1);
         expect(eventListener).toHaveBeenCalledWith({
           type: ActionCompletedEventType.ERROR,
-          action: mockAction,
+          action: mockActionWithoutDisplaydata,
           result: new Error('someError'),
         });
         expect(storageService.save).toHaveBeenCalledTimes(1);
@@ -375,7 +381,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(eventListener).toHaveBeenCalledTimes(1);
         expect(eventListener).toHaveBeenCalledWith({
           type: ActionCompletedEventType.COMPLETED,
-          action: mockAction,
+          action: mockActionWithoutDisplaydata,
           result: ['ADDRESS'],
         });
         expect(storageService.save).toHaveBeenCalledTimes(1);
@@ -406,7 +412,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(eventListener).toHaveBeenCalledTimes(1);
         expect(eventListener).toHaveBeenCalledWith({
           type: ActionCompletedEventType.ERROR,
-          action: mockAction,
+          action: mockActionWithoutDisplaydata,
           result: ethErrors.provider.userRejectedRequest(),
         });
         expect(storageService.save).toHaveBeenCalledTimes(1);
@@ -438,7 +444,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(eventListener).toHaveBeenCalledTimes(1);
         expect(eventListener).toHaveBeenCalledWith({
           type: ActionCompletedEventType.ERROR,
-          action: mockAction,
+          action: mockActionWithoutDisplaydata,
           result: ethErrors.rpc.internal(new Error('very big error')),
         });
         expect(storageService.save).toHaveBeenCalledTimes(1);
@@ -470,7 +476,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(eventListener).toHaveBeenCalledTimes(1);
         expect(eventListener).toHaveBeenCalledWith({
           type: ActionCompletedEventType.COMPLETED,
-          action: mockAction,
+          action: mockActionWithoutDisplaydata,
           result: ['ADDRESS'],
         });
         expect(storageService.save).toHaveBeenCalledTimes(1);

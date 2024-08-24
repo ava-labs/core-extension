@@ -3,6 +3,7 @@ import { Account } from '@src/background/services/accounts/models';
 import {
   Balances,
   TotalPriceChange,
+  getBalanceInCurrency,
 } from '@src/background/services/balances/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { hasAccountBalances } from './hasAccountBalances';
@@ -73,7 +74,7 @@ export function calculateTotalBalance(
             : [...sumTotal.priceChange.percentage];
 
           return {
-            sum: sumTotal.sum + (token.balanceUSD ?? 0),
+            sum: sumTotal.sum + (getBalanceInCurrency(token) ?? 0),
             priceChange: {
               value:
                 sumTotal.priceChange.value + (token.priceChanges?.value ?? 0),

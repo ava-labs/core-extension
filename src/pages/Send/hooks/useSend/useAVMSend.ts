@@ -155,7 +155,7 @@ export const useAvmSend: SendAdapterAVM = ({
           ),
         };
 
-        return request<AvalancheSendTransactionHandler>({
+        return await request<AvalancheSendTransactionHandler>({
           method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
           params,
         });

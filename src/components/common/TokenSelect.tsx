@@ -13,6 +13,7 @@ import { AssetBalance } from '@src/pages/Bridge/models';
 import EthLogo from '@src/images/tokens/eth.png';
 import {
   TokenWithBalance,
+  getTokenPrice,
   hasUnconfirmedBTCBalance,
   isAvaxWithUnavailableBalance,
 } from '@src/background/services/balances/models';
@@ -149,12 +150,13 @@ export function TokenSelect({
   });
 
   const formattedAmount = useMemo(() => {
+    const price = getTokenPrice(selectedToken);
     const amount =
-      inputAmount && !inputAmount.isZero() && selectedToken?.priceUSD
+      inputAmount && !inputAmount.isZero() && price
         ? currencyFormatter(
             parseFloat(
               bnToLocaleString(inputAmount, decimals).replace(/,/g, '')
-            ) * selectedToken.priceUSD
+            ) * price
           )
         : undefined;
     return amount;
@@ -271,7 +273,7 @@ export function TokenSelect({
     if (hasUnconfirmedBTCBalance(selectedToken)) {
       return (
         <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
-          {!!selectedToken?.unconfirmedBalance?.toNumber() && (
+          {!!selectedToken?.unconfirmedBalance && (
             <Tooltip
               placement="top"
               title={`${t('Unavailable')}: ${
@@ -366,7 +368,15 @@ export function TokenSelect({
             isValueLoading={isValueLoading}
             data-testid="token-amount-input"
             max={
-              !isValueLoading ? maxAmount || selectedToken?.balance : undefined
+              !isValueLoading
+                ? maxAmount ||
+                  (typeof selectedToken?.balance === 'bigint'
+                    ? new BN(
+                        selectedToken.balance.toString(16),
+                        selectedToken.decimals
+                      )
+                    : selectedToken?.balance)
+                : undefined
             }
             withMaxButton={withMaxButton}
           />
@@ -387,7 +397,7 @@ export function TokenSelect({
           </Typography>
           <Stack sx={{ minHeight: '14px' }}>
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-              {selectedToken?.priceUSD !== undefined &&
+              {getTokenPrice(selectedToken) !== undefined &&
                 (amountInCurrency
                   ? `${amountInCurrency.replace(currency, '')} ${currency}`
                   : `${currencyFormatter(0).replace(
