@@ -101,6 +101,7 @@ function setGlobalProvider(
     globalObject.dispatchEvent(new Event('ethereum#initialized'));
   } catch (e) {
     // some browser was faster and defined the window.ethereum as non writable before us
+    console.error('Cannot set Core window.ethereum provider', e);
 
     // try to set the providerInstance in case it's a proxy like we are
     globalObject.ethereum = providerInstance;

@@ -1,23 +1,32 @@
 import { EventEmitter } from 'stream';
-import { CoreProvider } from './CoreProvider';
 import {
   MultiWalletProviderProxy,
   createMultiWalletProxy,
 } from './MultiWalletProviderProxy';
+import { EVMProvider } from '@avalabs/evm-module/dist/provider';
+import { EIP6963ProviderInfo } from '@avalabs/vm-module-types';
 
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection');
-jest.mock('./CoreProvider', () => ({
-  CoreProvider: jest.fn().mockImplementation(() => ({
+jest.mock('@avalabs/evm-module/dist/provider', () => ({
+  EVMProvider: jest.fn().mockImplementation(() => ({
     isAvalanche: true,
     isMetaMask: true,
     removeAllListeners: jest.fn(),
   })),
 }));
 
+const providerInfo = {
+  description: 'EVM_PROVIDER_INFO_DESCRIPTION',
+  icon: 'EVM_PROVIDER_INFO_ICON',
+  name: 'EVM_PROVIDER_INFO_NAME',
+  uuid: 'EVM_PROVIDER_INFO_UUID',
+  rdns: 'EVM_PROVIDER_INFO_RDNS',
+} as unknown as EIP6963ProviderInfo;
+
 describe('src/background/providers/MultiWalletProviderProxy', () => {
   describe('init', () => {
     it('initializes with the default provider', () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
 
       const mwpp = new MultiWalletProviderProxy(provider);
 
@@ -27,7 +36,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
     it('relays events from the deafult provider', () => {
       const provider = new EventEmitter();
-      const mwpp = new MultiWalletProviderProxy(provider as CoreProvider);
+      const mwpp = new MultiWalletProviderProxy(provider as EVMProvider);
 
       const eventSub = jest.fn();
       mwpp.on('chainChanged', eventSub);
@@ -43,7 +52,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
   describe('addProvider', () => {
     it('adds new providers from coinbase proxy', () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const mwpp = new MultiWalletProviderProxy(provider);
 
       expect(mwpp.defaultProvider).toBe(provider);
@@ -70,7 +79,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('does not add extra coinbase proxy', () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const mwpp = new MultiWalletProviderProxy(provider);
 
       expect(mwpp.defaultProvider).toBe(provider);
@@ -87,7 +96,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('adds new provider', () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const mwpp = new MultiWalletProviderProxy(provider);
 
       expect(mwpp.defaultProvider).toBe(provider);
@@ -104,7 +113,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
   describe('wallet selection', () => {
     it('toggles wallet selection on `eth_requestAccounts` call if multiple providers', async () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const provider2 = { isMetaMask: true, request: jest.fn() };
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
@@ -151,7 +160,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('does not toggle wallet selection if only core is available', async () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const mwpp = new MultiWalletProviderProxy(provider);
 
       provider.request = jest.fn().mockResolvedValueOnce(['0x000000']);
@@ -174,7 +183,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('does not toggle wallet selection if wallet is already selected', async () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const provider2 = { isMetaMask: true, request: jest.fn() };
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
@@ -230,7 +239,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('wallet selection works with legacy functions: enable', async () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const provider2 = { isMetaMask: true, enable: jest.fn() };
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
@@ -272,7 +281,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('wallet selection works with legacy functions: sendAsync', async () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const provider2 = { isMetaMask: true, request: jest.fn() };
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
@@ -326,7 +335,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('wallet selection works with legacy functions: send with callback', async () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const provider2 = { isMetaMask: true, request: jest.fn() };
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
@@ -378,7 +387,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
   describe('createMultiWalletProxy', () => {
     it('creates proxy with property deletion disabled', () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const mwpp = createMultiWalletProxy(provider);
 
       expect(mwpp.defaultProvider).toBe(provider);
@@ -387,7 +396,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('allows setting extra params without changing the provider', () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const mwpp = createMultiWalletProxy(provider);
 
       (mwpp as any).somePromerty = true;
@@ -397,7 +406,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
     it('does not overwrite provider properties', () => {
       const provider = { isAvalanche: true };
-      const mwpp = createMultiWalletProxy(provider as CoreProvider);
+      const mwpp = createMultiWalletProxy(provider as EVMProvider);
 
       (mwpp as any).isAvalanche = false;
       expect((mwpp as any).isAvalanche).toBe(true);
@@ -411,7 +420,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
     });
 
     it('maintains the providers list properly', () => {
-      const provider = new CoreProvider();
+      const provider = new EVMProvider({ info: providerInfo });
       const mwpp = createMultiWalletProxy(provider);
       const fooMock = () => 'bar';
       const bizMock = () => 'baz';
