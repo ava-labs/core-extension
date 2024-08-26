@@ -42,6 +42,8 @@ import {
 } from '@src/utils/send/btcSendUtils';
 import { resolve } from '@src/utils/promiseResolver';
 import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 
 type BridgeActionParams = [
   currentBlockchain: Blockchain,
@@ -279,6 +281,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
       return;
     }
 
+    const feeData = await this.networkFeeService.getNetworkFee(network);
+
     if (currentBlockchain === Blockchain.BITCOIN) {
       try {
         const account = this.#getSourceAccount();
@@ -411,14 +415,32 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
           signAndSendEVM: async (txData) => {
             const tx = txData as ContractTransaction; // TODO: update types in the SDK?
 
+            const provider = getProviderForNetwork(
+              network
+            ) as JsonRpcBatchInternal;
+
+            const nonce = await provider.getTransactionCount(
+              this.#getSourceAccount().addressC
+            );
+
+            // Get fee-related properties from the approval screen first,
+            // then use current instant (high) fee rate as a fallback.
+            const customGasSettings = pendingAction.displayData.gasSettings;
+            const maxFeePerGas =
+              customGasSettings?.maxFeePerGas ?? feeData?.high.maxFee;
+            const maxPriorityFeePerGas =
+              customGasSettings?.maxPriorityFeePerGas ?? feeData?.high.maxTip;
+
+            if (!maxFeePerGas) {
+              throw new Error('Required option missing: maxFeePerGas');
+            }
+
             const signResult = await this.walletService.sign(
               {
                 ...tx,
-                // erase gasPrice if maxFeePerGas can be used
-                gasPrice: tx.maxFeePerGas
-                  ? undefined
-                  : tx.gasPrice ?? undefined,
-                type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
+                nonce,
+                maxFeePerGas,
+                maxPriorityFeePerGas,
               },
               network,
               frontendTabId
