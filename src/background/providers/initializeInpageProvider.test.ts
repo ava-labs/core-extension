@@ -1,7 +1,7 @@
 import AutoPairingPostMessageConnection from '../utils/messaging/AutoPairingPostMessageConnection';
-import { CoreProvider } from './CoreProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { initializeProvider } from './initializeInpageProvider';
+import { EVMProvider } from '@avalabs/evm-module/dist/provider';
 
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
   const mocks = {
@@ -12,8 +12,8 @@ jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
   return jest.fn().mockReturnValue(mocks);
 });
 
-jest.mock('./CoreProvider', () => ({
-  CoreProvider: jest
+jest.mock('@avalabs/evm-module/dist/provider', () => ({
+  EVMProvider: jest
     .fn()
     .mockImplementation(() => ({ isAvalanche: true, info: { name: 'name' } })),
 }));
@@ -35,7 +35,9 @@ describe('src/background/providers/initializeInpageProvider', () => {
 
   it('initializes CoreProvider with the correct channel name', () => {
     const provider = initializeProvider(connectionMock, 10, windowMock);
-    expect(CoreProvider).toHaveBeenCalledWith(10);
+    expect(EVMProvider).toHaveBeenCalledWith(
+      expect.objectContaining({ maxListeners: 10 })
+    );
     expect(provider.isAvalanche).toBe(true);
   });
 

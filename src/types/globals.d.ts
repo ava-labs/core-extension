@@ -1,10 +1,10 @@
-import { CoreProvider } from '@src/background/providers/CoreProvider';
+import { EVMProvider } from '@avalabs/evm-module/dist/provider';
 import { MultiWalletProviderProxy } from '@src/background/providers/MultiWalletProviderProxy';
 
 declare global {
   interface Window {
-    avalanche?: CoreProvider;
-    ethereum?: MultiWalletProviderProxy | CoreProvider;
+    avalanche?: EVMProvider;
+    ethereum?: MultiWalletProviderProxy | EVMProvider;
     evmproviders?: Record<string, unknown>;
   }
 

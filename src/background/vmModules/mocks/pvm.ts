@@ -56,4 +56,5 @@ export class PVMModule implements Module {
       }) as any, // TODO: fix it
     };
   }
+  getProvider;
 }

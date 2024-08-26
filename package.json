@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "@avalabs/avalanchejs": "4.0.5",
-    "@avalabs/bitcoin-module": "0.1.4",
     "@avalabs/bridge-unified": "2.1.0",
     "@avalabs/core-bridge-sdk": "3.1.0-alpha.4",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.4",
@@ -39,7 +38,9 @@
     "@avalabs/hw-app-avalanche": "0.14.1",
     "@avalabs/core-k2-components": "4.18.0-alpha.47",
     "@avalabs/types": "3.1.0-alpha.3",
-    "@avalabs/vm-module-types": "0.1.4",
+    "@avalabs/vm-module-types": "0.3.0",
+    "@avalabs/bitcoin-module": "0.3.0",
+    "@avalabs/evm-module": "0.3.0",
     "@blockaid/client": "0.10.0",
     "@coinbase/cbpay-js": "1.6.0",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
@@ -68,7 +69,7 @@
     "date-fns": "2.28.0",
     "eth-json-rpc-middleware": "8.0.1",
     "eth-rpc-errors": "4.0.3",
-    "ethers": "6.7.1",
+    "ethers": "6.8.1",
     "events": "3.3.0",
     "fireblocks-sdk": "5.20.0",
     "i18next": "21.9.2",
@@ -242,7 +243,8 @@
       "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
       "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
-      "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
+      "@avalabs/bitcoin-module>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
+      "@avalabs/evm-module": false
     }
   }
 }
