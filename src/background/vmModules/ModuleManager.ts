@@ -41,6 +41,17 @@ class ModuleManager {
       new EVMModule(),
       new BitcoinModule({
         environment,
+        approvalController: {
+          requestApproval: () => {
+            throw new Error('not implemented');
+          },
+          onTransactionConfirmed: () => {
+            throw new Error('not implemented');
+          },
+          onTransactionReverted: () => {
+            throw new Error('not implemented');
+          },
+        },
       }),
       new AVMModule(),
       new CoreEthModule(),

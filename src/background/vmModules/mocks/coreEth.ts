@@ -57,4 +57,5 @@ export class CoreEthModule implements Module {
       }) as any, // TODO: fix it
     };
   }
+  getProvider;
 }

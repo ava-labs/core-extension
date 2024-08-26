@@ -57,4 +57,6 @@ export class AVMModule implements Module {
       }) as any, // TODO: fix it
     };
   }
+
+  getProvider;
 }

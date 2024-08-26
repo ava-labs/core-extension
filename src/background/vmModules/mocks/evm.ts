@@ -56,4 +56,5 @@ export class EVMModule implements Module {
       }) as any, // TODO: fix it
     };
   }
+  getProvider;
 }
