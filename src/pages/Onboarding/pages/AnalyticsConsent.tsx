@@ -132,7 +132,7 @@ export const AnalyticsConsent = () => {
         }}
         nextText={t('Unlock')}
         disableNext={false}
-        expand={onboardingPhase !== OnboardingPhase.CREATE_WALLET}
+        expand
         steps={getSteps.stepsNumber}
         activeStep={getSteps.activeStep}
       >
@@ -143,6 +143,7 @@ export const AnalyticsConsent = () => {
             stopDataCollection();
             setAnalyticsConsent(false);
           }}
+          disableRipple
           sx={{
             color: 'secondary',
           }}
