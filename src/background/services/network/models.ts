@@ -1,6 +1,5 @@
 import { Network as _Network } from '@avalabs/core-chains-sdk';
 import { EnsureDefined, PartialBy } from '@src/background/models';
-import { runtime } from 'webextension-polyfill';
 
 export enum NetworkEvents {
   NETWORK_UPDATE_EVENT = 'network-updated',
@@ -11,13 +10,6 @@ export enum NetworkEvents {
 export const NETWORK_STORAGE_KEY = 'NETWORK_STORAGE_KEY';
 export const NETWORK_LIST_STORAGE_KEY = 'NETWORK_LIST_STORAGE_KEY';
 export const NETWORK_OVERRIDES_STORAGE_KEY = 'NETWORK_OVERRIDES_STORAGE_KEY';
-
-export const SYNCED_DOMAINS = [
-  'core-web.pages.dev',
-  'core.app',
-  'test.core.app',
-  runtime.id,
-];
 
 export interface NetworkStorage {
   favoriteNetworks: number[];

@@ -1,6 +1,11 @@
 import { runtime } from 'webextension-polyfill';
 
-import { SYNCED_DOMAINS } from '../models';
+const SYNCED_DOMAINS = [
+  'core-web.pages.dev',
+  'core.app',
+  'test.core.app',
+  runtime.id,
+];
 
 export const isSyncDomain = (domain: string) => {
   return SYNCED_DOMAINS.some((syncDomain) => {
