@@ -9,6 +9,8 @@ import {
   useBridgeSDK,
 } from '@avalabs/core-bridge-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
+import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
+import { RpcMethod, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import {
   BitcoinInputUTXOWithOptionalScript,
   getMaxTransferAmount,
@@ -26,20 +28,16 @@ import { TransactionPriority } from '@src/background/services/networkFee/models'
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 import { getBtcInputUtxos } from '@src/utils/send/btcSendUtils';
-import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/handlers/bitcoin_sendTransaction';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useTranslation } from 'react-i18next';
-import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import { normalizeBalance } from '@src/utils/normalizeBalance';
 
 /**
  * Hook for Bitcoin to Avalanche transactions
  */
 export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
-  const { t } = useTranslation();
   const { setTransactionDetails, currentBlockchain } = useBridgeSDK();
   const isBitcoinBridge = currentBlockchain === Blockchain.BITCOIN;
-
+  const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { bitcoinProvider, isDeveloperMode } = useNetworkContext();
   const { networkFee: currentFeeInfo } = useNetworkFeeContext();
@@ -189,19 +187,18 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     }
 
     const symbol = 'BTC';
-    const hash = await request<
-      BitcoinSendTransactionHandler,
-      DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
-      string
-    >({
-      method: DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
-      params: [
-        config.criticalBitcoin.walletAddresses.btc,
-        String(btcToSatoshi(amountInBtc)),
-        feeRate,
-        { customApprovalScreenTitle: t('Confirm Bridge') },
-      ],
-    });
+    const hash = await request<BitcoinSendTransactionParams>(
+      {
+        method: RpcMethod.BITCOIN_SEND_TRANSACTION,
+        params: {
+          from: activeAccount.addressBTC,
+          to: config.criticalBitcoin.walletAddresses.btc,
+          feeRate,
+          amount: btcToSatoshi(amountInBtc),
+        },
+      },
+      { customApprovalScreenTitle: t('Confirm Bridge') }
+    );
 
     setTransactionDetails({
       tokenSymbol: symbol,
