@@ -4,15 +4,15 @@ import {
   BitcoinInputUTXO,
   getMaxTransferAmount,
 } from '@avalabs/core-wallets-sdk';
+import { RpcMethod } from '@avalabs/vm-module-types';
+import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
 import { SendErrorMessage } from '@src/utils/send/models';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import {
   getBtcInputUtxos,
   validateBtcSend,
 } from '@src/utils/send/btcSendUtils';
-import type { BitcoinSendTransactionHandler } from '@src/background/services/wallet/handlers/bitcoin_sendTransaction';
 
 import { SendAdapterBTC } from './models';
 import { BaseSendOptions } from '../../models';
@@ -100,19 +100,20 @@ export const useBtcSend: SendAdapterBTC = ({
         const amountBN = stringToBN(amount || '0', nativeToken.decimals);
         const amountInSatoshis = amountBN.toNumber();
 
-        return await request<
-          BitcoinSendTransactionHandler,
-          DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
-          string
-        >({
-          method: DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
-          params: [address, String(amountInSatoshis), Number(maxFee)],
+        return await request<BitcoinSendTransactionParams>({
+          method: RpcMethod.BITCOIN_SEND_TRANSACTION,
+          params: {
+            from,
+            to: address,
+            amount: amountInSatoshis,
+            feeRate: Number(maxFee),
+          },
         });
       } finally {
         setIsSending(false);
       }
     },
-    [maxFee, nativeToken.decimals, request]
+    [from, maxFee, nativeToken.decimals, request]
   );
 
   return {
