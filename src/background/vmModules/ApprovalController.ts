@@ -19,26 +19,41 @@ import { NetworkService } from '../services/network/NetworkService';
 import { NetworkWithCaipId } from '../services/network/models';
 
 import { ApprovalParamsWithContext, VIA_MODULE_SYMBOL } from './models';
+import { measureDuration } from '@src/utils/measureDuration';
+import { AnalyticsServicePosthog } from '../services/analytics/AnalyticsServicePosthog';
 
 class ApprovalController implements IApprovalController {
   #walletService: WalletService;
+  #requestsMetadata = new Map<
+    string,
+    { txType: string; chainId: number; site: string; rpcUrl: string }
+  >();
 
   constructor(walletService: WalletService) {
     this.#walletService = walletService;
   }
 
-  onTransactionConfirmed = (txHash: `0x${string}`) => {
-    console.log(
-      'DEBUG Transaction Confirmed. Show a toast? Trigger browser notification?',
-      txHash
-    );
+  onTransactionConfirmed = (txHash: `0x${string}`, requestId: string) => {
+    // Transaction Confirmed. Show a toast? Trigger browser notification?',
+    const confirmationTime = measureDuration(requestId).end();
+    const analyticsService = container.resolve(AnalyticsServicePosthog);
+    const metadata = this.#requestsMetadata.get(requestId);
+
+    if (metadata) {
+      analyticsService.captureEncryptedEvent({
+        name: 'TransactionTimeToConfirmation',
+        windowId: crypto.randomUUID(),
+        properties: {
+          ...metadata,
+          duration: confirmationTime,
+        },
+      });
+      this.#requestsMetadata.delete(requestId);
+    }
   };
 
-  onTransactionReverted = (txHash: `0x${string}`) => {
-    console.log(
-      'DEBUG Transaction Confirmed. Show a toast? Trigger browser notification?',
-      txHash
-    );
+  onTransactionReverted = () => {
+    // Transaction Reverted. Show a toast? Trigger browser notification?',
   };
 
   requestApproval = async (
@@ -51,21 +66,6 @@ class ApprovalController implements IApprovalController {
       throw new Error('Unsupported network: ' + params.request.chainId);
     }
 
-    // 2. Setup listeners on ActionsService, waiting for the action
-    //		to be concluded (approved, rejected or timeout)
-    //
-    //		Remember that actions can also be updated (i.e. fee could be updated).
-    //		If it is, this gets a bit tricky for Bitcoin. The reason is that I guess
-    //		the Modules should be the source of truth here and only provide us with
-    //		inputs/outputs arrays, but if the user updates the fee on the approval screen,
-    //		we need to may need to re-generate the inputs/outputs (i.e. to select different
-    //		UTXOs). So, should we then ask the Bitcoin Module to create the signing data again?
-    //		Seems cumbersome. So for now we agreed that the frontend could reconstruct the
-    //		inputs/outputs arrays (just like it does for the Send feature at the moment).
-    //		There is a Slack convo with the mobile team about this, feel free to ask to get
-    //		added to it so you can see more details.
-
-    // 3. Open the approval screen
     const url = this.#getPopupUrl(params.request.method);
     const action = await openApprovalWindow(this.#buildAction(params), url);
 
@@ -74,6 +74,10 @@ class ApprovalController implements IApprovalController {
       const actionId = action.id;
 
       const cleanup = () => {
+        if (action.actionId) {
+          actionsService.removeAction(action.actionId);
+        }
+
         actionsService.removeListener(
           ActionsEvent.MODULE_ACTION_UPDATED,
           onUpdated
@@ -154,6 +158,15 @@ class ApprovalController implements IApprovalController {
     const { signingData } = action;
 
     if (signingData?.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
+      this.#requestsMetadata.set(params.request.requestId, {
+        txType: 'send',
+        chainId: network.chainId,
+        rpcUrl: network.rpcUrl,
+        site: new URL(params.request.dappInfo.url).hostname,
+      });
+
+      measureDuration(params.request.requestId).start();
+
       const { inputs, outputs } = await buildBtcTx(
         signingData.account,
         getProviderForNetwork(network) as BitcoinProvider,
