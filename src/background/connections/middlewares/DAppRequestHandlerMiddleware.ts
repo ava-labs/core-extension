@@ -100,6 +100,9 @@ export function DAppRequestHandlerMiddleware(
               sessionId: context.request.params.sessionId,
               method: context.request.params.request.method,
               params: normalizeLegacyParams(context.request.params.request),
+              // Do not pass context from unknown sources.
+              // This field is for our internal use only (only used with extension's direct connection)
+              context: undefined,
             },
             activeNetwork
           );

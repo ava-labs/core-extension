@@ -94,9 +94,7 @@ const handleRequest = async (
       sessionId: context.request.params.sessionId,
       method: context.request.params.request.method,
       params: context.request.params.request.params,
-      context: {
-        tabId: context.request.params.request.tabId,
-      },
+      context: context.request.context,
     },
     network
   );

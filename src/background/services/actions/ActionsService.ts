@@ -135,18 +135,17 @@ export class ActionsService implements OnStorageReady {
       return;
     }
 
-    if (status === ActionStatus.SUBMITTING) {
-      const isHandledByModule = pendingMessage[VIA_MODULE_SYMBOL];
+    const isHandledByModule = pendingMessage[VIA_MODULE_SYMBOL];
 
-      if (isHandledByModule) {
-        this.eventEmitter.emit(ActionsEvent.MODULE_ACTION_UPDATED, {
-          action: pendingMessage,
-          newStatus: status,
-          error,
-        });
-        return;
-      }
+    if (isHandledByModule) {
+      this.eventEmitter.emit(ActionsEvent.MODULE_ACTION_UPDATED, {
+        action: pendingMessage,
+        newStatus: status,
+        error,
+      });
+    }
 
+    if (status === ActionStatus.SUBMITTING && !isHandledByModule) {
       const handler = this.dAppRequestHandlers.find((h) =>
         h.methods.includes(pendingMessage.method as DAppProviderRequest)
       );

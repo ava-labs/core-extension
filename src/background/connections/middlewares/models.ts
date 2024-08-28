@@ -7,7 +7,7 @@ export const DEFERRED_RESPONSE: unique symbol = Symbol();
 
 export type Context<RequestType, ResponseType> = {
   request: RequestType;
-  domainMetadata: DomainMetadata;
+  domainMetadata?: DomainMetadata;
   authenticated: boolean;
   response?: ResponseType | typeof DEFERRED_RESPONSE;
 };
