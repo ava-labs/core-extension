@@ -1,3 +1,5 @@
+import { ApprovalParams, RpcRequest } from '@avalabs/vm-module-types';
+
 export enum VMModuleError {
   UnsupportedChain = 'unsupported-chain',
   UnsupportedMethod = 'unsupported-method',
@@ -5,4 +7,13 @@ export enum VMModuleError {
   ModulesNotInitialized = 'modules-not-initialized',
 }
 
-export const VIA_MODULE_SYMBOL = Symbol.for('handle.via.module');
+export const VIA_MODULE_SYMBOL = '__handled.via.vm.modules__';
+
+type RpcRequestWithExtensionContext = RpcRequest & {
+  context?: RpcRequest['context'] & {
+    tabId?: number;
+  };
+};
+export interface ApprovalParamsWithContext extends ApprovalParams {
+  request: RpcRequestWithExtensionContext;
+}

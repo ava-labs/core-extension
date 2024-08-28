@@ -6,9 +6,10 @@ import { assertPresent } from '@src/utils/assertions';
 import { isDevelopment } from '@src/utils/environment';
 
 import { NetworkWithCaipId } from '../services/network/models';
+import { type WalletService } from '../services/wallet/WalletService';
 
 import { VMModuleError } from './models';
-import ApprovalController from './ApprovalController';
+import getController from './ApprovalController';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2
@@ -27,7 +28,7 @@ class ModuleManager {
     this.#_modules = modules;
   }
 
-  async init(): Promise<void> {
+  async init(walletService: WalletService): Promise<void> {
     if (this.#_modules !== undefined) return;
 
     const environment = isDevelopment()
@@ -37,7 +38,7 @@ class ModuleManager {
     this.#modules = [
       new BitcoinModule({
         environment,
-        approvalController: ApprovalController,
+        approvalController: getController(walletService),
       }),
     ];
   }

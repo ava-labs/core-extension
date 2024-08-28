@@ -31,6 +31,7 @@ export function SiteMetadataMiddleware(
       ? new URL(connection.sender?.url || '').hostname
       : 'unknown',
     tabId: connection.sender?.tab?.id,
+    url: connection.sender?.url,
   };
 
   return (context, next, error) => {

@@ -16,6 +16,7 @@ import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 import { LockService } from '../lock/LockService';
 import { filterStaleActions } from './utils';
 import { VIA_MODULE_SYMBOL } from '@src/background/vmModules/models';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 
 @singleton()
 export class ActionsService implements OnStorageReady {
@@ -125,6 +126,7 @@ export class ActionsService implements OnStorageReady {
     result,
     error,
     displayData,
+    signingData,
     tabId,
   }: ActionUpdate) {
     const currentPendingActions = await this.getActions();
@@ -137,12 +139,16 @@ export class ActionsService implements OnStorageReady {
       const isHandledByModule = pendingMessage[VIA_MODULE_SYMBOL];
 
       if (isHandledByModule) {
-        // TODO: emit events here and return early
+        this.eventEmitter.emit(ActionsEvent.MODULE_ACTION_UPDATED, {
+          action: pendingMessage,
+          newStatus: status,
+          error,
+        });
         return;
       }
 
       const handler = this.dAppRequestHandlers.find((h) =>
-        h.methods.includes(pendingMessage.method)
+        h.methods.includes(pendingMessage.method as DAppProviderRequest)
       );
 
       if (!handler || !handler.onActionApproved) {
@@ -191,6 +197,10 @@ export class ActionsService implements OnStorageReady {
             ...pendingMessage.displayData,
             ...displayData,
           },
+          signingData: {
+            ...pendingMessage.signingData,
+            ...signingData,
+          },
           status,
           result,
           error,
@@ -210,6 +220,14 @@ export class ActionsService implements OnStorageReady {
   addListener(
     event: ActionsEvent.ACTION_UPDATED,
     callback: (actions: Actions) => void
+  );
+  addListener(
+    event: ActionsEvent.MODULE_ACTION_UPDATED,
+    callback: (data: {
+      action: Action;
+      newStatus: ActionStatus;
+      error: unknown;
+    }) => void
   );
   addListener(event: ActionsEvent, callback: (data: any) => void) {
     this.eventEmitter.on(event, callback);

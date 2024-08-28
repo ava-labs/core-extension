@@ -8,6 +8,7 @@ export interface DomainMetadata {
   name?: string;
   icon?: string;
   tabId?: number;
+  url?: string;
 }
 
 export interface EthCall {

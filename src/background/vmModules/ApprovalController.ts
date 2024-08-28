@@ -1,15 +1,32 @@
+import { container } from 'tsyringe';
 import {
   ApprovalParams,
   ApprovalResponse,
   ApprovalController as IApprovalController,
   RpcMethod,
 } from '@avalabs/vm-module-types';
-import { DisplayData_BitcoinSendTx } from '../services/wallet/handlers/models';
-import { Action } from '../services/actions/models';
+import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
+import { ethErrors } from 'eth-rpc-errors';
+
+import { buildBtcTx } from '@src/utils/send/btcSendUtils';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+
+import type { WalletService } from '../services/wallet/WalletService';
+import { Action, ActionStatus, ActionsEvent } from '../services/actions/models';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
-import { VIA_MODULE_SYMBOL } from './models';
+import { ActionsService } from '../services/actions/ActionsService';
+import { NetworkService } from '../services/network/NetworkService';
+import { NetworkWithCaipId } from '../services/network/models';
+
+import { ApprovalParamsWithContext, VIA_MODULE_SYMBOL } from './models';
 
 class ApprovalController implements IApprovalController {
+  #walletService: WalletService;
+
+  constructor(walletService: WalletService) {
+    this.#walletService = walletService;
+  }
+
   onTransactionConfirmed = (txHash: `0x${string}`) => {
     console.log(
       'DEBUG Transaction Confirmed. Show a toast? Trigger browser notification?',
@@ -25,10 +42,14 @@ class ApprovalController implements IApprovalController {
   };
 
   requestApproval = async (
-    params: ApprovalParams
+    params: ApprovalParamsWithContext
   ): Promise<ApprovalResponse> => {
-    // 1. Generate an Action model based on the incoming request.
-    const action = this.#buildAction(params);
+    const networkService = container.resolve(NetworkService);
+    const network = await networkService.getNetwork(params.request.chainId);
+
+    if (!network) {
+      throw new Error('Unsupported network: ' + params.request.chainId);
+    }
 
     // 2. Setup listeners on ActionsService, waiting for the action
     //		to be concluded (approved, rejected or timeout)
@@ -46,15 +67,75 @@ class ApprovalController implements IApprovalController {
 
     // 3. Open the approval screen
     const url = this.#getPopupUrl(params.request.method);
-    openApprovalWindow(action, url);
+    const action = await openApprovalWindow(this.#buildAction(params), url);
 
-    // 4. Wait for one of the listeners from step 2 to be triggered.
-    //		If approved, call WalletService.sign(...) and return the result
-    //		If declined or error, return { error: <message> }
+    return new Promise((resolve) => {
+      const actionsService = container.resolve(ActionsService);
+      const actionId = action.id;
 
-    return {
-      result: 'oopsies',
-    };
+      const cleanup = () => {
+        actionsService.removeListener(
+          ActionsEvent.MODULE_ACTION_UPDATED,
+          onUpdated
+        );
+      };
+
+      const onUpdated = async ({
+        action: updatedAction,
+        newStatus,
+        error,
+      }: {
+        action: Action;
+        newStatus: ActionStatus;
+        error: unknown;
+      }) => {
+        if (updatedAction.id !== actionId) {
+          return;
+        }
+
+        if (error || newStatus === ActionStatus.ERROR) {
+          cleanup();
+          resolve({ error: error ?? (updatedAction.error as any) }); // TODO: fix any
+          return;
+        }
+
+        if (newStatus === ActionStatus.ERROR_USER_CANCELED) {
+          cleanup();
+          resolve({ error: ethErrors.provider.userRejectedRequest() as any }); // TODO: fix any
+          return;
+        }
+
+        if (newStatus === ActionStatus.SUBMITTING) {
+          try {
+            const { signedTx: signedData, txHash } = await this.#handleApproval(
+              params,
+              updatedAction,
+              network
+            );
+
+            if (signedData) {
+              resolve({ signedData });
+            } else if (txHash) {
+              resolve({ txHash });
+            } else {
+              resolve({
+                error: ethErrors.rpc.internal({
+                  message: 'Unsupported signing result type',
+                }) as any,
+              }); // TODO: fix any
+            }
+          } catch (err) {
+            resolve({ error: err as any }); // TODO: fix any
+          } finally {
+            cleanup();
+          }
+
+          return;
+        }
+      };
+
+      actionsService.addListener(ActionsEvent.MODULE_ACTION_UPDATED, onUpdated);
+    });
   };
 
   #getPopupUrl = (method: RpcMethod) => {
@@ -62,35 +143,54 @@ class ApprovalController implements IApprovalController {
       return 'approve/bitcoinSignTx';
     }
 
-    throw new Error('Unrecognized method ' + method);
+    throw new Error('Unrecognized method: ' + method);
   };
 
-  #buildAction = (params: ApprovalParams): Action => {
+  #handleApproval = async (
+    params: ApprovalParams,
+    action: Action,
+    network: NetworkWithCaipId
+  ) => {
+    const { signingData } = action;
+
+    if (signingData?.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
+      const { inputs, outputs } = await buildBtcTx(
+        signingData.account,
+        getProviderForNetwork(network) as BitcoinProvider,
+        {
+          amount: signingData.data.amount,
+          address: signingData.data.to,
+          feeRate: signingData.data.feeRate,
+          token: signingData.data.balance,
+        }
+      );
+
+      if (!inputs || !outputs) {
+        throw new Error('Unable to construct BTC transaction');
+      }
+
+      return await this.#walletService.sign({ inputs, outputs }, network);
+    }
+
+    throw new Error('Unrecognized method: ' + params.request.method);
+  };
+
+  #buildAction = (params: ApprovalParamsWithContext): Action => {
     if (params.signingData.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
-      const displayData: DisplayData_BitcoinSendTx = {
-        from: params.signingData.account,
-        address: params.signingData.data.to,
-        amount: params.signingData.data.amount,
-        sendFee: params.signingData.data.fee,
-        feeRate: params.signingData.data.feeRate,
-        balance: params.signingData.data.balance as any, // FIXME: this should not be needed when BTC balance changes are merged
-
-        // FIXME: populate it.
-        // Bridge feature should add `context` to the `bitcoin_sendTransaction` request,
-        // which should then be passed back by the module and can be used here to add more
-        // context for the approval screen (i.e. telling the user they're approving a bridge tx).
-        displayOptions: {} as any,
-      };
-
       return {
-        // ActionService needs to know it should not look for the handler
-        // in the tsyringe registry, but rather just emit the events for
-        // it for the ApprovalController to catch
+        // ActionService needs to know it should not look for the handler in the DI registry,
+        // but rather just emit the events for the ApprovalController to listen for
         [VIA_MODULE_SYMBOL]: true,
-        displayData,
+        dappInfo: params.request.dappInfo,
+        signingData: params.signingData,
+        context: params.request.context,
+        status: ActionStatus.PENDING,
+        tabId: params.request.context?.tabId,
+        params: params.request.params,
+        displayData: params.displayData,
         scope: params.request.chainId,
         id: params.request.requestId,
-        method: params.request.method as any, // FIXME: typings
+        method: params.request.method,
       };
     }
 
@@ -98,4 +198,14 @@ class ApprovalController implements IApprovalController {
   };
 }
 
-export default new ApprovalController();
+let instance: ApprovalController;
+
+function getController(walletService: WalletService) {
+  if (!instance) {
+    instance = new ApprovalController(walletService);
+  }
+
+  return instance;
+}
+
+export default getController;
