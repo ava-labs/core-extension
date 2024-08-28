@@ -5,6 +5,7 @@ import {
   NftTokenWithBalance,
   TokenType,
   TotalPriceChange,
+  getTokenPrice as getTokenPriceFromBalance,
 } from '@src/background/services/balances/models';
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
 import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
@@ -35,6 +36,8 @@ import { getSmallImageForNFT } from '@src/background/services/balances/nft/utils
 import { parseRawAttributesString } from '@src/utils/nfts/metadataParser';
 import { TokensPriceShortData } from '@src/background/services/tokens/models';
 import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
+import { Network } from '@src/background/services/network/models';
+import { getAddressForChain } from '@src/utils/getAddressForChain';
 
 interface NftState {
   loading: boolean;
@@ -80,6 +83,7 @@ const BalancesContext = createContext<{
     pageToken?: NftPageTokens,
     callback?: () => void
   ) => void;
+  getTokenPrice(addressOrSymbol: string): number | undefined;
   updateBalanceOnAllNetworks: (accounts: Account[]) => Promise<void>;
   registerSubscriber: () => void;
   unregisterSubscriber: () => void;
@@ -94,6 +98,9 @@ const BalancesContext = createContext<{
 }>({
   tokens: { loading: true },
   nfts: { loading: false },
+  getTokenPrice() {
+    return undefined;
+  },
   async refreshNftMetadata() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   async updateBalanceOnAllNetworks() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
@@ -328,11 +335,38 @@ export function BalancesProvider({ children }: { children: any }) {
     [getAccount, favoriteNetworks, network, tokens.balances]
   );
 
+  const getTokenPrice = useCallback(
+    (addressOrSymbol: string, lookupNetwork?: Network) => {
+      if (!activeAccount) {
+        return;
+      }
+
+      const chainId = (lookupNetwork ?? network)?.chainId;
+
+      if (!chainId) {
+        return;
+      }
+
+      const addressForChain = getAddressForChain(chainId, activeAccount);
+
+      if (!addressForChain) {
+        return;
+      }
+
+      const token =
+        tokens.balances?.[chainId]?.[addressForChain]?.[addressOrSymbol];
+
+      return getTokenPriceFromBalance(token);
+    },
+    [tokens.balances, activeAccount, network]
+  );
+
   return (
     <BalancesContext.Provider
       value={{
         tokens,
         nfts,
+        getTokenPrice,
         refreshNftMetadata,
         updateNftBalances,
         updateBalanceOnAllNetworks,
