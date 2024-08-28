@@ -5,15 +5,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 import { useTranslation } from 'react-i18next';
-import { bigIntToString } from '@avalabs/core-utils-sdk';
-import { BITCOIN_NETWORK, ChainId } from '@avalabs/core-chains-sdk';
-import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
-import { DisplayData_BitcoinSendTx } from '@src/background/services/wallet/handlers/models';
+import { ChainId } from '@avalabs/core-chains-sdk';
+import { DisplayData, RpcMethod } from '@avalabs/vm-module-types';
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
 import {
   Box,
   Button,
-  Divider,
   Scrollbars,
   Skeleton,
   Stack,
@@ -29,14 +26,6 @@ import {
   ApprovalSectionBody,
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
-import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
-import {
-  TransactionTokenCard,
-  TransactionTokenCardVariant,
-} from '../SignTransaction/components/TransactionTokenCard';
-import { TokenIcon } from '@src/components/common/TokenIcon';
-import { TransactionToken } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
-import { AccountDetails } from '../SignTransaction/components/ApprovalTxDetails';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
@@ -45,21 +34,30 @@ import { buildBtcTx } from '@src/utils/send/btcSendUtils';
 import { getSendErrorMessage } from '../Send/utils/sendErrorMessages';
 import { NetworkFee } from '@src/background/services/networkFee/models';
 import { getNetworkCaipId } from '@src/utils/caipConversion';
+import { TransactionDetailItem } from '@src/components/common/approval/TransactionDetailItem';
 
 export function BitcoinSignTx() {
   const { t } = useTranslation();
   const { network, networks, bitcoinProvider } = useNetworkContext();
   const { getNetworkFee } = useNetworkFeeContext();
   const requestId = useGetRequestId();
-  const tokenPrice = useNativeTokenPrice(BITCOIN_NETWORK);
   const { action, updateAction, cancelHandler } =
-    useApproveAction<DisplayData_BitcoinSendTx>(requestId);
+    useApproveAction<DisplayData>(requestId);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const [error, setError] = useState<SendErrorMessage>();
   const [isCalculatingFee, setIsCalculatingFee] = useState(false);
 
-  const { displayData } = action ?? {};
+  const { displayData, context } = action ?? {};
+  const signingData = useMemo(
+    () =>
+      action?.signingData?.type === RpcMethod.BITCOIN_SEND_TRANSACTION
+        ? action.signingData
+        : null,
+    [action]
+  );
+  const btcTxData = signingData?.data;
+
   const [networkFee, setNetworkFee] = useState<NetworkFee | null>();
 
   useEffect(() => {
@@ -94,15 +92,13 @@ export function BitcoinSignTx() {
   }, [network, networks]);
 
   const btcAmountDisplay = useMemo(
-    () => (displayData ? satoshiToBtc(displayData.amount).toFixed(8) : '-'),
-    [displayData]
+    () => (btcTxData ? satoshiToBtc(btcTxData.amount).toFixed(8) : '-'),
+    [btcTxData]
   );
 
   const sendFeeDisplay = useMemo(() => {
-    return displayData?.sendFee
-      ? satoshiToBtc(displayData.sendFee).toFixed(8)
-      : '-';
-  }, [displayData]);
+    return btcTxData ? satoshiToBtc(btcTxData.fee).toFixed(8) : '-';
+  }, [btcTxData]);
 
   const renderDeviceApproval = () => {
     if (action?.status !== ActionStatus.SUBMITTING) {
@@ -112,7 +108,7 @@ export function BitcoinSignTx() {
     if (isUsingLedgerWallet) {
       return (
         <LedgerApprovalOverlay
-          to={displayData?.address}
+          to={btcTxData?.to}
           amount={btcAmountDisplay}
           symbol="BTC"
           fee={sendFeeDisplay}
@@ -129,7 +125,7 @@ export function BitcoinSignTx() {
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
     GasFeeModifier.NORMAL
   );
-  const [customFeeRate, setCustomFeeRate] = useState(displayData?.feeRate ?? 0);
+  const [customFeeRate, setCustomFeeRate] = useState(btcTxData?.feeRate ?? 0);
 
   const setCustomFee = useCallback(
     (values: { maxFeePerGas: bigint; feeType: GasFeeModifier }) => {
@@ -143,17 +139,23 @@ export function BitcoinSignTx() {
 
   useEffect(
     () => {
-      if (!customFeeRate || !action || !displayData || !bitcoinProvider) {
+      if (
+        !customFeeRate ||
+        !action ||
+        !signingData ||
+        !bitcoinProvider ||
+        !btcTxData
+      ) {
         return;
       }
 
       let isMounted = true;
 
       setIsCalculatingFee(true);
-      buildBtcTx(displayData.from, bitcoinProvider, {
-        amount: displayData.amount,
-        address: displayData.address,
-        token: displayData.balance,
+      buildBtcTx(signingData.account, bitcoinProvider, {
+        amount: btcTxData.amount,
+        address: btcTxData.to,
+        token: btcTxData.balance,
         feeRate: customFeeRate,
       })
         .then((tx) => {
@@ -161,27 +163,25 @@ export function BitcoinSignTx() {
             return;
           }
 
-          if (displayData.amount > 0 && !tx.psbt) {
+          if (btcTxData.amount > 0 && !tx.psbt) {
             setError(SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE);
           } else if (tx.psbt) {
             setError(undefined);
           }
-
-          const newData: DisplayData_BitcoinSendTx = {
-            balance: displayData.balance,
-            from: displayData.from,
-            amount: displayData.amount,
-            address: displayData.address,
-            feeRate: customFeeRate,
-            sendFee: tx.fee,
-          };
 
           // Only update if the action wasn't already submitted/cancelled
           if (action.status === ActionStatus.PENDING) {
             updateAction({
               id: action.actionId,
               status: ActionStatus.PENDING,
-              displayData: newData,
+              signingData: {
+                ...signingData,
+                data: {
+                  ...btcTxData,
+                  fee: tx.fee,
+                  feeRate: customFeeRate,
+                },
+              },
             });
           }
         })
@@ -227,34 +227,17 @@ export function BitcoinSignTx() {
   // Make the user switch to the correct app or close the window
   useLedgerDisconnectedDialog(handleRejection, LedgerAppType.BITCOIN);
 
-  const transactionToken: TransactionToken | null = useMemo(() => {
-    if (!displayData?.balance) {
-      return null;
-    }
-
-    const { decimals, symbol, name, logoUri } = displayData.balance;
-
-    return {
-      address: '',
-      decimals,
-      symbol,
-      name,
-      logoUri,
-      amount: BigInt(displayData.amount),
-      usdValue:
-        Number(
-          bigIntToString(BigInt(displayData.amount.toString()), decimals)
-        ) * tokenPrice,
-      usdPrice: tokenPrice,
-    };
-  }, [displayData?.balance, displayData?.amount, tokenPrice]);
-
   if (!action || !displayData) {
     return <LoadingOverlay />;
   }
 
   return (
-    <>
+    <Stack
+      sx={{
+        width: '100%',
+        height: '100%',
+      }}
+    >
       <Stack
         sx={{
           width: '100%',
@@ -274,120 +257,95 @@ export function BitcoinSignTx() {
           }}
         >
           <Typography variant="h4">
-            {displayData.displayOptions?.customApprovalScreenTitle ||
-              t('Approve BTC Send')}
+            {context?.customApprovalScreenTitle || displayData.title}
           </Typography>
         </Box>
-        {/* Transaction Details */}
+
         <Scrollbars>
           <Stack sx={{ flex: 1, width: 1, px: 2, gap: 2, pb: 3 }}>
             <Stack sx={{ width: '100%', gap: 3, pt: 1 }}>
-              <ApprovalSection>
-                <ApprovalSectionHeader label={t('Transaction Details')} />
-                <ApprovalSectionBody sx={{ py: 1 }}>
-                  <AccountDetails address={displayData.from} />
-                  <AccountDetails
-                    address={displayData.address}
-                    label={t('Recipient')}
-                  />
-                </ApprovalSectionBody>
-              </ApprovalSection>
-            </Stack>
-
-            <ApprovalSection>
-              <ApprovalSectionHeader label={t('Balance Change')} />
-              <ApprovalSectionBody>
-                <Stack gap={2}>
-                  <TxDetailsRow label={t('Transaction Type')}>
-                    <Typography variant="caption">{t('Send')}</Typography>
-                  </TxDetailsRow>
-                  {transactionToken && (
-                    <>
-                      <Divider />
-                      <TransactionTokenCard
-                        key={`s-token-${transactionToken.symbol}`}
-                        token={transactionToken}
-                        variant={TransactionTokenCardVariant.SEND}
-                        sx={{ p: 0 }}
-                      >
-                        <TokenIcon
-                          width="32px"
-                          height="32px"
-                          src={transactionToken.logoUri}
-                          name={transactionToken.name}
-                        />
-                      </TransactionTokenCard>
-                    </>
+              {displayData.details.map((section, sectionIndex) => (
+                <ApprovalSection key={`tx-detail-section-${sectionIndex}`}>
+                  {section.title && (
+                    <ApprovalSectionHeader label={section.title} />
                   )}
+                  <ApprovalSectionBody sx={{ py: 1 }}>
+                    {section.items.map((item, index) => (
+                      <TransactionDetailItem
+                        key={`tx-detail.${sectionIndex}.${index}`}
+                        item={item}
+                      />
+                    ))}
+                  </ApprovalSectionBody>
+                </ApprovalSection>
+              ))}
+            </Stack>
+            {displayData.networkFeeSelector &&
+              (networkFee && btcTxData ? (
+                <CustomFees
+                  maxFeePerGas={BigInt(btcTxData.feeRate)}
+                  limit={Math.ceil(btcTxData.fee / btcTxData.feeRate)}
+                  onChange={setCustomFee}
+                  selectedGasFeeModifier={gasFeeModifier}
+                  network={btcNetwork}
+                  networkFee={networkFee}
+                />
+              ) : (
+                <Stack sx={{ gap: 0.5, justifyContent: 'flex-start' }}>
+                  <Skeleton variant="text" width={120} />
+                  <Skeleton variant="rounded" height={128} />
                 </Stack>
-              </ApprovalSectionBody>
-            </ApprovalSection>
-
-            {networkFee ? (
-              <CustomFees
-                maxFeePerGas={BigInt(displayData.feeRate)}
-                limit={Math.ceil(displayData.sendFee / displayData.feeRate)}
-                onChange={setCustomFee}
-                selectedGasFeeModifier={gasFeeModifier}
-                network={btcNetwork}
-                networkFee={networkFee}
-              />
-            ) : (
-              <Stack sx={{ gap: 0.5, justifyContent: 'flex-start' }}>
-                <Skeleton variant="text" width={120} />
-                <Skeleton variant="rounded" height={128} />
-              </Stack>
-            )}
-            {error && (
-              <Typography variant="caption" color="error.main" sx={{ mt: -1 }}>
-                {getSendErrorMessage(error)}
-              </Typography>
-            )}
+              ))}
           </Stack>
         </Scrollbars>
-        {/* Action Buttons */}
-        <Stack
-          sx={{
-            flexDirection: 'row',
-            alignItems: 'flex-end',
-            width: '100%',
-            justifyContent: 'space-between',
-            pt: 1.5,
-            px: 2,
-            pb: 1,
-            gap: 1,
-          }}
+        {error && (
+          <Typography variant="caption" color="error.main" sx={{ mt: -1 }}>
+            {getSendErrorMessage(error)}
+          </Typography>
+        )}
+      </Stack>
+      {/* Action Buttons */}
+      <Stack
+        sx={{
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          width: '100%',
+          justifyContent: 'space-between',
+          pt: 1.5,
+          px: 2,
+          pb: 1,
+          gap: 1,
+        }}
+      >
+        <Button
+          color="secondary"
+          data-testid="transaction-reject-btn"
+          disabled={action.status === ActionStatus.SUBMITTING}
+          size="large"
+          fullWidth
+          onClick={handleRejection}
         >
-          <Button
-            color="secondary"
-            data-testid="transaction-reject-btn"
-            disabled={action.status === ActionStatus.SUBMITTING}
-            size="large"
-            fullWidth
-            onClick={handleRejection}
-          >
-            {t('Reject')}
-          </Button>
-          <Button
-            data-testid="transaction-approve-btn"
-            disabled={
-              !displayData ||
-              action.status === ActionStatus.SUBMITTING ||
-              Boolean(error) ||
-              isCalculatingFee
-            }
-            isLoading={
-              action.status === ActionStatus.SUBMITTING || isCalculatingFee
-            }
-            size="large"
-            fullWidth
-            onClick={signTx}
-          >
-            {t('Approve')}
-          </Button>
-        </Stack>
+          {t('Reject')}
+        </Button>
+        <Button
+          data-testid="transaction-approve-btn"
+          disabled={
+            !displayData ||
+            action.status === ActionStatus.SUBMITTING ||
+            Boolean(error) ||
+            isCalculatingFee
+          }
+          isLoading={
+            action.status === ActionStatus.SUBMITTING || isCalculatingFee
+          }
+          size="large"
+          fullWidth
+          onClick={signTx}
+        >
+          {t('Approve')}
+        </Button>
       </Stack>
       {renderDeviceApproval()}
-    </>
+    </Stack>
   );
 }
