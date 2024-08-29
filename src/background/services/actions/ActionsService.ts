@@ -17,6 +17,7 @@ import { LockService } from '../lock/LockService';
 import { filterStaleActions } from './utils';
 import { VIA_MODULE_SYMBOL } from '@src/background/vmModules/models';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
 
 @singleton()
 export class ActionsService implements OnStorageReady {
@@ -196,10 +197,10 @@ export class ActionsService implements OnStorageReady {
             ...pendingMessage.displayData,
             ...displayData,
           },
-          signingData: {
-            ...pendingMessage.signingData,
-            ...signingData,
-          },
+          signingData: getUpdatedSigningData(
+            pendingMessage.signingData,
+            signingData
+          ),
           status,
           result,
           error,

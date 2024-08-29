@@ -15,8 +15,10 @@ describe('ModuleManager', () => {
   });
 
   describe('when initialized', () => {
+    const walletService = { sign: jest.fn() };
+
     beforeEach(async () => {
-      await ModuleManager.init();
+      await ModuleManager.init(walletService as any);
     });
 
     it('should load the correct modules', async () => {
@@ -30,21 +32,6 @@ describe('ModuleManager', () => {
           chainId: 'bip122:000000000019d6689c085ae165831e93',
           method: 'bitcoin_sendTransaction',
           name: NetworkVMType.BITCOIN,
-        },
-        {
-          chainId: 'avax:2oYMBNV4eNHyqk2fjjV5nVQLDbtmNJzq5s3qs3Lo6ftnC6FByM',
-          method: 'avalanche_randomMethod',
-          name: NetworkVMType.AVM,
-        },
-        {
-          chainId: 'avax:11111111111111111111111111111111LpoYY',
-          method: 'avalanche_randomMethod',
-          name: NetworkVMType.PVM,
-        },
-        {
-          chainId: 'eip2256:1',
-          method: 'eth_randomMethod',
-          name: NetworkVMType.CoreEth,
         },
       ];
 

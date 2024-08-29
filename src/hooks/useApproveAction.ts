@@ -11,23 +11,7 @@ import {
   useIsSpecificContextContainer,
 } from './useIsSpecificContextContainer';
 import { useApprovalsContext } from '@src/contexts/ApprovalsProvider';
-import { SigningData } from '@avalabs/vm-module-types';
-
-const getUpdatedSigningData = (
-  oldSigningData?: SigningData,
-  newSigningData?: SigningData
-): SigningData | undefined => {
-  if (!oldSigningData) {
-    return newSigningData;
-  } else if (!newSigningData) {
-    return oldSigningData;
-  }
-
-  return {
-    ...oldSigningData,
-    ...newSigningData,
-  };
-};
+import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
 
 export function useApproveAction<DisplayData = any>(actionId: string) {
   const { request } = useConnectionContext();

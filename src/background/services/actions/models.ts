@@ -15,8 +15,9 @@ export enum ActionStatus {
   ERROR = 'error',
   ERROR_USER_CANCELED = 'error-user-canceled',
 }
-export type Action<DisplayData = any> = JsonRpcRequestPayload<
-  DAppProviderRequest | RpcMethod
+export type Action<DisplayData = any, Params = any> = JsonRpcRequestPayload<
+  DAppProviderRequest | RpcMethod,
+  Params
 > & {
   scope: string;
   context?: Record<string, unknown>;
