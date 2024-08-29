@@ -6,7 +6,7 @@ import {
   RpcMethod,
 } from '@avalabs/vm-module-types';
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
-import { ethErrors } from 'eth-rpc-errors';
+import { rpcErrors, providerErrors } from '@metamask/rpc-errors';
 
 import { buildBtcTx } from '@src/utils/send/btcSendUtils';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
@@ -91,7 +91,7 @@ class ApprovalController implements IApprovalController {
       }: {
         action: Action;
         newStatus: ActionStatus;
-        error: unknown;
+        error?: string;
       }) => {
         if (updatedAction.id !== actionId) {
           return;
@@ -99,13 +99,13 @@ class ApprovalController implements IApprovalController {
 
         if (error || newStatus === ActionStatus.ERROR) {
           cleanup();
-          resolve({ error: error ?? (updatedAction.error as any) }); // TODO: fix any
+          resolve({ error: rpcErrors.internal(error) });
           return;
         }
 
         if (newStatus === ActionStatus.ERROR_USER_CANCELED) {
           cleanup();
-          resolve({ error: ethErrors.provider.userRejectedRequest() as any }); // TODO: fix any
+          resolve({ error: providerErrors.userRejectedRequest() });
           return;
         }
 
@@ -123,13 +123,20 @@ class ApprovalController implements IApprovalController {
               resolve({ txHash });
             } else {
               resolve({
-                error: ethErrors.rpc.internal({
+                error: rpcErrors.internal({
                   message: 'Unsupported signing result type',
-                }) as any,
-              }); // TODO: fix any
+                }),
+              });
             }
           } catch (err) {
-            resolve({ error: err as any }); // TODO: fix any
+            resolve({
+              error: rpcErrors.internal({
+                message: 'Unable to sign the message',
+                data: {
+                  originalError: err,
+                },
+              }),
+            });
           } finally {
             cleanup();
           }

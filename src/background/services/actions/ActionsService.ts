@@ -225,7 +225,7 @@ export class ActionsService implements OnStorageReady {
     callback: (data: {
       action: Action;
       newStatus: ActionStatus;
-      error: unknown;
+      error?: string;
     }) => void
   );
   addListener(event: ActionsEvent, callback: (data: any) => void) {
