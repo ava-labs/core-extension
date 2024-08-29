@@ -1,6 +1,7 @@
 const path = require('path');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const { DefinePlugin } = require('webpack');
+const { version } = require('./package.json');
 
 const fs = require('fs');
 
@@ -75,6 +76,7 @@ module.exports = (env, argv) => {
       new NodePolyfillPlugin(),
       new DefinePlugin({
         ...evmProviderConfig,
+        CORE_EXTENSION_VERSION: `"${version}"`,
       }),
     ],
   };

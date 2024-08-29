@@ -36,6 +36,14 @@ export function initializeProvider(
       },
     }),
     {
+      get(...args) {
+        // Core Web needs to know which extension version it's working with
+        if (args[1] === 'coreVersion') {
+          return CORE_EXTENSION_VERSION;
+        }
+
+        return Reflect.get(...args);
+      },
       // some common libraries, e.g. web3@1.x, mess with our API
       deleteProperty: () => true,
     }
