@@ -9,33 +9,9 @@ import {
   DAppProviderRequest,
   JsonRpcRequest,
   JsonRpcRequestParams,
-  JsonRpcRequestPayload,
   JsonRpcResponse,
 } from '../dAppConnection/models';
 import ModuleManager from '@src/background/vmModules/ModuleManager';
-import { container } from 'tsyringe';
-import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import { RpcMethod } from '@avalabs/vm-module-types';
-
-const normalizeLegacyParams = (request: JsonRpcRequestPayload) => {
-  // bitcoin_sendTransaction request payload changed shape,
-  // we need to support legacy params until we don't see old
-  // extension versions reported in Sentry
-  if (
-    request.method === RpcMethod.BITCOIN_SEND_TRANSACTION &&
-    Array.isArray(request.params)
-  ) {
-    // The legacy params were a tuple [address, amount, feeRate]
-    return {
-      from: container.resolve(AccountsService).activeAccount?.addressBTC,
-      to: request.params[0],
-      amount: Number(request.params[1]),
-      feeRate: request.params[2],
-    };
-  }
-
-  return request.params;
-};
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],
@@ -99,7 +75,7 @@ export function DAppRequestHandlerMiddleware(
               requestId: context.request.id,
               sessionId: context.request.params.sessionId,
               method: context.request.params.request.method,
-              params: normalizeLegacyParams(context.request.params.request),
+              params: context.request.params.request,
               // Do not pass context from unknown sources.
               // This field is for our internal use only (only used with extension's direct connection)
               context: undefined,

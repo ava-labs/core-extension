@@ -39,6 +39,8 @@ export function initializeProvider(
       get(...args) {
         // Core Web needs to know which extension version it's working with
         if (args[1] === 'coreVersion') {
+          // For local (dev) builds, CORE_EXTENSION_VERSION is 0.0.0
+          // For release builds (alpha or production), it's replaced by semantic-release to the actual version number
           return CORE_EXTENSION_VERSION;
         }
 
