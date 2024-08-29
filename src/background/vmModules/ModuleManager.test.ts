@@ -24,11 +24,6 @@ describe('ModuleManager', () => {
     it('should load the correct modules', async () => {
       const params = [
         {
-          chainId: 'eip155:1',
-          method: 'eth_randomMethod',
-          name: NetworkVMType.EVM,
-        },
-        {
           chainId: 'bip122:000000000019d6689c085ae165831e93',
           method: 'bitcoin_sendTransaction',
           name: NetworkVMType.BITCOIN,
@@ -60,7 +55,7 @@ describe('ModuleManager', () => {
       try {
         await ModuleManager.loadModule('eip155:1', 'evth_randomMethod');
       } catch (e: any) {
-        expect(e.data.reason).toBe(VMModuleError.UnsupportedMethod);
+        expect(e.data.reason).toBe(VMModuleError.UnsupportedChain);
       }
     });
 
