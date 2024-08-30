@@ -3,10 +3,11 @@ import {
   ApprovalParams,
   ApprovalResponse,
   ApprovalController as IApprovalController,
+  RpcError,
   RpcMethod,
 } from '@avalabs/vm-module-types';
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
-import { rpcErrors, providerErrors } from '@metamask/rpc-errors';
+import { rpcErrors, providerErrors, JsonRpcError } from '@metamask/rpc-errors';
 
 import { buildBtcTx } from '@src/utils/send/btcSendUtils';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
@@ -18,11 +19,12 @@ import { ActionsService } from '../services/actions/ActionsService';
 import { NetworkService } from '../services/network/NetworkService';
 import { NetworkWithCaipId } from '../services/network/models';
 
-import { ApprovalParamsWithContext, VIA_MODULE_SYMBOL } from './models';
+import { ApprovalParamsWithContext } from './models';
 import { measureDuration } from '@src/utils/measureDuration';
 import { AnalyticsServicePosthog } from '../services/analytics/AnalyticsServicePosthog';
+import { buildBtcSendTransactionAction } from './helpers/buildBtcSendTransactionAction';
 
-class ApprovalController implements IApprovalController {
+export class ApprovalController implements IApprovalController {
   #walletService: WalletService;
   #requestsMetadata = new Map<
     string,
@@ -56,18 +58,34 @@ class ApprovalController implements IApprovalController {
     // Transaction Reverted. Show a toast? Trigger browser notification?',
   };
 
+  /**
+   * This method should never throw. Instead, return an { error } object.
+   */
   requestApproval = async (
     params: ApprovalParamsWithContext
   ): Promise<ApprovalResponse> => {
     const networkService = container.resolve(NetworkService);
     const network = await networkService.getNetwork(params.request.chainId);
-
     if (!network) {
-      throw new Error('Unsupported network: ' + params.request.chainId);
+      return {
+        error: rpcErrors.invalidRequest({
+          message: 'Unsupported network',
+          data: params.request.chainId,
+        }),
+      };
     }
 
-    const url = this.#getPopupUrl(params.request.method);
-    const action = await openApprovalWindow(this.#buildAction(params), url);
+    const [url, urlError] = this.#try(() =>
+      this.#getPopupUrl(params.request.method)
+    );
+    if (urlError) return { error: urlError };
+
+    const [preparedAction, actionError] = this.#try(() =>
+      this.#buildAction(params)
+    );
+    if (actionError) return { error: actionError };
+
+    const action = await openApprovalWindow(preparedAction, url);
 
     return new Promise((resolve) => {
       const actionsService = container.resolve(ActionsService);
@@ -154,8 +172,24 @@ class ApprovalController implements IApprovalController {
       return 'approve/bitcoinSignTx';
     }
 
-    throw new Error('Unrecognized method: ' + method);
+    throw rpcErrors.methodNotSupported({
+      data: method,
+    });
   };
+
+  #try<F extends (...args: any) => any>(
+    fn: F
+  ): [ReturnType<F>, null] | [null, RpcError] {
+    try {
+      return [fn(), null];
+    } catch (err: any) {
+      const safeError =
+        err instanceof JsonRpcError
+          ? err
+          : rpcErrors.internal({ message: 'Unknown error', data: err });
+      return [null, safeError];
+    }
+  }
 
   #handleApproval = async (
     params: ApprovalParams,
@@ -197,24 +231,12 @@ class ApprovalController implements IApprovalController {
 
   #buildAction = (params: ApprovalParamsWithContext): Action => {
     if (params.signingData.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
-      return {
-        // ActionService needs to know it should not look for the handler in the DI registry,
-        // but rather just emit the events for the ApprovalController to listen for
-        [VIA_MODULE_SYMBOL]: true,
-        dappInfo: params.request.dappInfo,
-        signingData: params.signingData,
-        context: params.request.context,
-        status: ActionStatus.PENDING,
-        tabId: params.request.context?.tabId,
-        params: params.request.params,
-        displayData: params.displayData,
-        scope: params.request.chainId,
-        id: params.request.requestId,
-        method: params.request.method,
-      };
+      return buildBtcSendTransactionAction(params);
     }
 
-    throw new Error('Unrecognized method ' + params.request.method);
+    throw rpcErrors.methodNotSupported({
+      data: params.request.method,
+    });
   };
 }
 
