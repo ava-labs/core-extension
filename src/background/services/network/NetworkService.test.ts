@@ -147,25 +147,7 @@ describe('background/services/network/NetworkService', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    jest.mocked(getChainsAndTokens).mockResolvedValue({
-      // [43114]: {
-      //   chainName: 'test chain x',
-      //   chainId: 123,
-      //   vmName: NetworkVMType.EVM,
-      //   rpcUrl: 'https://rpcurl.example',
-      //   explorerUrl: 'https://explorer.url',
-      //   networkToken: {
-      //     name: 'test network token',
-      //     symbol: 'TNT',
-      //     description: '',
-      //     decimals: 18,
-      //     logoUri: '',
-      //   },
-      //   logoUri: '',
-      //   primaryColor: 'blue',
-      //   isTestnet: false,
-      // },
-    });
+    jest.mocked(getChainsAndTokens).mockResolvedValue({});
 
     jest.mocked(FetchRequest).mockImplementation((url) => ({ url } as any));
     mockChainList(service);
@@ -208,7 +190,7 @@ describe('background/services/network/NetworkService', () => {
         .mockResolvedValueOnce(chainlist);
 
       await service.init();
-      await service.setNetwork(runtime.id, leetNetwork.chainId);
+      await service.setNetwork(runtime.id, leetNetwork.caipId);
 
       const network = await service.getInitialNetworkForDapp('test.app');
 
@@ -223,7 +205,7 @@ describe('background/services/network/NetworkService', () => {
         .mockResolvedValueOnce(chainlist);
 
       await service.init();
-      await service.setNetwork(runtime.id, btcNetwork.chainId);
+      await service.setNetwork(runtime.id, btcNetwork.caipId);
 
       const network = await service.getInitialNetworkForDapp('core.app');
 
@@ -238,7 +220,7 @@ describe('background/services/network/NetworkService', () => {
         .mockResolvedValueOnce(chainlist);
 
       await service.init();
-      await service.setNetwork(runtime.id, btcNetwork.chainId);
+      await service.setNetwork(runtime.id, btcNetwork.caipId);
 
       const network = await service.getInitialNetworkForDapp('test.app');
 
@@ -267,10 +249,8 @@ describe('background/services/network/NetworkService', () => {
       storageServiceMock.save.mockResolvedValue();
     });
 
-    // it('defaults to saved config instead of accepting');
-
     it('persists current network for given domain', async () => {
-      await service.setNetwork('test.app', ethMainnet.chainId);
+      await service.setNetwork('test.app', ethMainnet.caipId);
 
       expect(storageServiceMock.save).toHaveBeenCalledWith(
         NETWORK_STORAGE_KEY,
@@ -287,7 +267,7 @@ describe('background/services/network/NetworkService', () => {
 
       service.dappScopeChanged.addOnce(listener);
 
-      await service.setNetwork('test.app', ethMainnet.chainId);
+      await service.setNetwork('test.app', ethMainnet.caipId);
 
       expect(listener).toHaveBeenCalledWith({
         domain: 'test.app',
@@ -303,7 +283,7 @@ describe('background/services/network/NetworkService', () => {
         );
         mockChainList(service);
         // Set Ethereum Mainnet directly for the frontend
-        await service.setNetwork(runtime.id, ethMainnet.chainId);
+        await service.setNetwork(runtime.id, ethMainnet.caipId);
         expect(service.uiActiveNetwork).toEqual(ethMainnet);
       });
 
@@ -311,7 +291,7 @@ describe('background/services/network/NetworkService', () => {
         storageServiceMock.load.mockResolvedValueOnce({
           [runtime.id]: sepolia.caipId,
         });
-        await service.setNetwork('app.uniswap.io', sepolia.chainId);
+        await service.setNetwork('app.uniswap.io', sepolia.caipId);
         expect(storageServiceMock.save).toHaveBeenCalledWith(
           NETWORK_STORAGE_KEY,
           expect.objectContaining({
@@ -326,7 +306,7 @@ describe('background/services/network/NetworkService', () => {
         storageServiceMock.load.mockResolvedValueOnce({
           [runtime.id]: sepolia.caipId,
         });
-        await service.setNetwork('app.uniswap.io', sepolia.chainId);
+        await service.setNetwork('app.uniswap.io', sepolia.caipId);
         expect(service.uiActiveNetwork).toEqual(sepolia);
         expect(storageServiceMock.save).toHaveBeenCalledWith(
           NETWORK_STORAGE_KEY,
@@ -344,7 +324,7 @@ describe('background/services/network/NetworkService', () => {
 
         service.developerModeChanged.addOnce(onDevModeChange);
 
-        await service.setNetwork('app.uniswap.io', sepolia.chainId);
+        await service.setNetwork('app.uniswap.io', sepolia.caipId);
         expect(service.uiActiveNetwork).toEqual(sepolia);
 
         expect(onDevModeChange).toHaveBeenCalledWith(true);
@@ -353,7 +333,7 @@ describe('background/services/network/NetworkService', () => {
 
     describe('when changing network for synchronized dApps', () => {
       it('uses the extension ID as domain', async () => {
-        await service.setNetwork('core.app', ethMainnet.chainId);
+        await service.setNetwork('core.app', ethMainnet.caipId);
 
         expect(storageServiceMock.save).toHaveBeenCalledWith(
           NETWORK_STORAGE_KEY,
@@ -373,11 +353,11 @@ describe('background/services/network/NetworkService', () => {
           })
         );
         // Set Ethereum directly for the frontend
-        await service.setNetwork(runtime.id, ethMainnet.chainId);
+        await service.setNetwork(runtime.id, ethMainnet.caipId);
         expect(service.uiActiveNetwork).toEqual(ethMainnet);
 
         // Set C-Chain for core.app and expect it to change also for the extension UI
-        await service.setNetwork('core.app', avaxMainnet.chainId);
+        await service.setNetwork('core.app', avaxMainnet.caipId);
         expect(service.uiActiveNetwork).toEqual(avaxMainnet);
       });
 
@@ -391,7 +371,7 @@ describe('background/services/network/NetworkService', () => {
           })
         );
 
-        await service.setNetwork('core.app', ethMainnet.chainId);
+        await service.setNetwork('core.app', ethMainnet.caipId);
 
         expect(listener).toHaveBeenCalledWith({
           domain: runtime.id,
@@ -410,6 +390,7 @@ describe('background/services/network/NetworkService', () => {
     it('saves custom RPC headers', async () => {
       const overrides = {
         chainId: 1337,
+        caipId: 'eip155:1337',
         customRpcHeaders: {
           'X-Glacier-Api-Key': 'my-elite-api-key',
         },
@@ -458,7 +439,7 @@ describe('background/services/network/NetworkService', () => {
         })
       );
 
-      await networkService.setNetwork(runtime.id, activeNetwork.chainId);
+      await networkService.setNetwork(runtime.id, activeNetwork.caipId);
 
       await networkService.updateNetworkOverrides({
         caipId: 'eip155:1337',

@@ -188,7 +188,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       await this.networkService.saveCustomNetwork(network);
     }
 
-    await this.networkService.setNetwork(domain, network.chainId);
+    await this.networkService.setNetwork(domain, network.caipId);
   }
 
   onActionApproved = async (

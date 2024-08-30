@@ -50,7 +50,7 @@ export class SaveCustomNetworkHandler implements HandlerType {
       };
     }
 
-    await this.networkService.setNetwork(runtime.id, addedNetwork.chainId);
+    await this.networkService.setNetwork(runtime.id, addedNetwork.caipId);
 
     return {
       ...request,

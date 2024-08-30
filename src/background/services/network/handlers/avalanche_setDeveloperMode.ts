@@ -7,6 +7,7 @@ import { NetworkService } from '../NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { ChainId } from '@avalabs/core-chains-sdk';
+import { chainIdToCaip } from '@src/utils/caipConversion';
 
 @injectable()
 export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
@@ -73,7 +74,11 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
 
       await this.networkService.setNetwork(
         domain,
-        isTestmode ? ChainId.AVALANCHE_TESTNET_ID : ChainId.AVALANCHE_MAINNET_ID
+        chainIdToCaip(
+          isTestmode
+            ? ChainId.AVALANCHE_TESTNET_ID
+            : ChainId.AVALANCHE_MAINNET_ID
+        )
       );
 
       onSuccess(null);

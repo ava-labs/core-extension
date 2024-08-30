@@ -6,7 +6,6 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 
 import { NetworkService } from '../NetworkService';
-import { caipToChainId } from '@src/utils/caipConversion';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SET_ACTIVE,
@@ -23,7 +22,7 @@ export class SetActiveNetworkHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     const [scope] = request.params;
     const [, err] = await resolve(
-      this.networkService.setNetwork(runtime.id, caipToChainId(scope))
+      this.networkService.setNetwork(runtime.id, scope)
     );
 
     if (err) {

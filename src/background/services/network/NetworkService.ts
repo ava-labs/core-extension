@@ -149,13 +149,13 @@ export class NetworkService implements OnLock, OnStorageReady {
     );
   }
 
-  async setNetwork(domain: string, chainId: number) {
+  async setNetwork(domain: string, caipId: string) {
     const isSynced = isSyncDomain(domain);
     // For supported networks, use config from saved chainlist
     // instead of relying on payload that may come from a 3rd party:
-    const targetNetwork = await this.getNetwork(chainId);
+    const targetNetwork = await this.getNetwork(caipId);
     if (!targetNetwork) {
-      throw new Error(`Network not found: ${chainId}`);
+      throw new Error(`Network not found: ${caipId}`);
     }
 
     const changesEnvironment =
@@ -686,7 +686,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       );
 
       if (network) {
-        await this.setNetwork(runtime.id, network.chainId);
+        await this.setNetwork(runtime.id, network.caipId);
       }
     }
 
