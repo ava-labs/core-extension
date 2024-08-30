@@ -58,10 +58,10 @@ const TextInfo = ({ item }: { item: TextItem }) => (
 const LinkInfo = ({ item }: { item: LinkItem }) => {
   const url = new URL(item.value.url);
 
-  const isLinkExtensionItself = url.hostname === runtime.id;
+  const isLinkToExtensionItself = url.hostname === runtime.id;
 
   // Do not link to ourselves
-  if (isLinkExtensionItself) {
+  if (isLinkToExtensionItself) {
     return null;
   }
 

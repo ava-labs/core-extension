@@ -27,14 +27,17 @@ export function ExtensionRequestHandlerMiddleware(
 
   return async (context, next, onError) => {
     const method = context.request.params.request.method;
-    const handlerOrModule =
-      handlerMap.get(method) ??
-      (await ModuleManager.loadModule(
-        context.request.params.scope,
-        context.request.params.request.method
-      ));
+    const handler = handlerMap.get(method);
+    const [module] = handler
+      ? [null]
+      : await resolve(
+          ModuleManager.loadModule(
+            context.request.params.scope,
+            context.request.params.request.method
+          )
+        );
 
-    if (!handlerOrModule) {
+    if (!handler && !module) {
       onError(
         new Error(
           'Unable to handle request: ' + context.request.params.request.method
@@ -46,7 +49,7 @@ export function ExtensionRequestHandlerMiddleware(
     const sentryTracker = Sentry.startTransaction({
       name: `Handler: ${method}`,
     });
-    const promise = handleRequest(handlerOrModule, context, networkService);
+    const promise = handleRequest(handler ?? module, context, networkService);
 
     context.response = await resolve(promise).then(([result, error]) => {
       error && console.error(error);

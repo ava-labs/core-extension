@@ -7,8 +7,6 @@ export enum VMModuleError {
   ModulesNotInitialized = 'modules-not-initialized',
 }
 
-export const VIA_MODULE_SYMBOL = '__handled.via.vm.modules__';
-
 type RpcRequestWithExtensionContext = RpcRequest & {
   context?: RpcRequest['context'] & {
     tabId?: number;

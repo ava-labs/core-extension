@@ -3,7 +3,7 @@ import {
   DAppProviderRequest,
   JsonRpcRequestPayload,
 } from '@src/background/connections/dAppConnection/models';
-import { VIA_MODULE_SYMBOL } from '@src/background/vmModules/models';
+import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
 
 export enum ActionStatus {
   // user has been shown the UI and we are waiting on approval
@@ -23,7 +23,7 @@ export type Action<DisplayData = any, Params = any> = JsonRpcRequestPayload<
   context?: Record<string, unknown>;
   signingData?: SigningData;
   dappInfo?: DappInfo;
-  [VIA_MODULE_SYMBOL]?: boolean;
+  [ACTION_HANDLED_BY_MODULE]?: boolean;
   time?: number;
   status?: ActionStatus;
   result?: any;

@@ -1,6 +1,7 @@
 import { Action, ActionStatus } from '@src/background/services/actions/models';
+import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
 
-import { ApprovalParamsWithContext, VIA_MODULE_SYMBOL } from '../models';
+import { ApprovalParamsWithContext } from '../models';
 
 export const buildBtcSendTransactionAction = (
   params: ApprovalParamsWithContext
@@ -8,7 +9,7 @@ export const buildBtcSendTransactionAction = (
   return {
     // ActionService needs to know it should not look for the handler in the DI registry,
     // but rather just emit the events for the ApprovalController to listen for
-    [VIA_MODULE_SYMBOL]: true,
+    [ACTION_HANDLED_BY_MODULE]: true,
     dappInfo: params.request.dappInfo,
     signingData: params.signingData,
     context: params.request.context,

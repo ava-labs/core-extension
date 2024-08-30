@@ -2,7 +2,8 @@ import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
 import { chainIdToCaip } from '@src/utils/caipConversion';
-import { ApprovalParamsWithContext, VIA_MODULE_SYMBOL } from '../models';
+import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
+import { ApprovalParamsWithContext } from '../models';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { buildBtcSendTransactionAction } from './buildBtcSendTransactionAction';
 
@@ -68,7 +69,7 @@ describe('src/background/vmModules/helpers/buildBtcSendTransactionAction', () =>
 
   it('generates valid action', () => {
     expect(buildBtcSendTransactionAction(approvalParams)).toEqual({
-      [VIA_MODULE_SYMBOL]: true,
+      [ACTION_HANDLED_BY_MODULE]: true,
       dappInfo: approvalParams.request.dappInfo,
       signingData: approvalParams.signingData,
       context: approvalParams.request.context,

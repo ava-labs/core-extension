@@ -110,7 +110,7 @@ export class ExtensionConnectionController implements ConnectionController {
         authenticated: false,
         request: deserializedRequest,
         // Extension does not connect through ChainAgnosticProvider,
-        // therefore its requests does have domainMetadata populated.
+        // therefore its requests do not have domainMetadata populated.
         domainMetadata: {
           domain: runtime.id,
           url: runtime.getURL(''),

@@ -15,7 +15,7 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 import { LockService } from '../lock/LockService';
 import { filterStaleActions } from './utils';
-import { VIA_MODULE_SYMBOL } from '@src/background/vmModules/models';
+import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
 
@@ -136,7 +136,7 @@ export class ActionsService implements OnStorageReady {
       return;
     }
 
-    const isHandledByModule = pendingMessage[VIA_MODULE_SYMBOL];
+    const isHandledByModule = pendingMessage[ACTION_HANDLED_BY_MODULE];
 
     if (isHandledByModule) {
       this.eventEmitter.emit(ActionsEvent.MODULE_ACTION_UPDATED, {
