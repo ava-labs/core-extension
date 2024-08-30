@@ -71,15 +71,10 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
         throw new Error('Unrecognized domain');
       }
 
-      const network = await this.networkService.getNetwork(
+      await this.networkService.setNetwork(
+        domain,
         isTestmode ? ChainId.AVALANCHE_TESTNET_ID : ChainId.AVALANCHE_MAINNET_ID
       );
-
-      if (!network) {
-        throw new Error('Target network not found');
-      }
-
-      await this.networkService.setNetwork(domain, network);
 
       onSuccess(null);
     } catch (e) {

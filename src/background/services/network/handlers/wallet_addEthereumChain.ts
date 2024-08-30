@@ -118,14 +118,8 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     }
     const skipApproval = await isCoreWeb(request);
 
-    const targetNetwork = chainRequestedIsSupported
-      ? ((await this.networkService.getNetwork(
-          requestedChainId
-        )) as NetworkWithCaipId)
-      : customNetwork;
-
     if (skipApproval) {
-      await this.actionHandler(chains, targetNetwork, request.site.domain);
+      await this.actionHandler(chains, customNetwork, request.site.domain);
       return { ...request, result: null };
     }
 
@@ -134,7 +128,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
         ...request,
         scope,
         displayData: {
-          network: targetNetwork,
+          network: customNetwork,
         },
       };
 
@@ -194,7 +188,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
       await this.networkService.saveCustomNetwork(network);
     }
 
-    await this.networkService.setNetwork(domain, network);
+    await this.networkService.setNetwork(domain, network.chainId);
   }
 
   onActionApproved = async (

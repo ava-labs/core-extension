@@ -105,30 +105,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
       ],
     };
-    const supportedNetwork = {
-      caipId: 'eip155:43113',
-      chainId: 43113,
-      chainName: 'Avalanche',
-      vmName: NetworkVMType.EVM,
-      primaryColor: 'black',
-      rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
-      explorerUrl: 'https://snowtrace.io/',
-      logoUri: '',
-      networkToken: {
-        symbol: 'AVAX',
-        decimals: 18,
-        description: '',
-        name: 'AVAX',
-        logoUri: '',
-      },
-      isTestnet: false,
-    };
-
-    jest
-      .mocked(mockNetworkService.getNetwork)
-      .mockResolvedValueOnce(mockActiveNetwork as any)
-      .mockResolvedValueOnce(supportedNetwork);
-
+    openExtensionNewWindow;
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
     expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
@@ -141,7 +118,24 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       actionId: 'uuid',
       scope: 'eip155:43113',
       displayData: {
-        network: supportedNetwork,
+        network: {
+          caipId: 'eip155:43113',
+          chainId: 43113,
+          chainName: 'Avalanche',
+          vmName: NetworkVMType.EVM,
+          primaryColor: 'black',
+          rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+          explorerUrl: 'https://snowtrace.io/',
+          logoUri: '',
+          networkToken: {
+            symbol: 'AVAX',
+            decimals: 18,
+            description: '',
+            name: 'AVAX',
+            logoUri: '',
+          },
+          isTestnet: false,
+        },
       },
       popupWindowId: 123,
     });
@@ -542,29 +536,25 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
   it('does not opens approval dialog and switch to a known network if the request is from core web', async () => {
     jest.mocked(isCoreWeb).mockResolvedValue(true);
 
-    const supportedNetwork = {
-      chainId: '0xa869', // 43113
-      chainName: 'Avalanche',
-      nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
-      rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
-      blockExplorerUrls: ['https://snowtrace.io/'],
-      iconUrls: ['logo.png'],
-    };
     const request = {
       id: '852',
       method: DAppProviderRequest.WALLET_ADD_CHAIN,
-      params: [supportedNetwork],
+      params: [
+        {
+          chainId: '0xa869', // 43113
+          chainName: 'Avalanche',
+          nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
+          rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+          blockExplorerUrls: ['https://snowtrace.io/'],
+          iconUrls: ['logo.png'],
+        },
+      ],
       site: {
         domain: 'core.app',
         name: 'Core',
         tabId: 123,
       },
     };
-
-    jest
-      .mocked(mockNetworkService.getNetwork)
-      .mockResolvedValueOnce(mockActiveNetwork as any)
-      .mockResolvedValueOnce(supportedNetwork as any);
 
     const result = await handler.handleAuthenticated(buildRpcCall(request));
 
@@ -578,7 +568,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(mockNetworkService.setNetwork).toHaveBeenCalledTimes(1);
     expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
       'core.app',
-      supportedNetwork
+      43113
     );
   });
 
@@ -795,7 +785,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
       expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
         mockPendingAction.site?.domain,
-        mockPendingAction.displayData.network
+        mockPendingAction.displayData.network.chainId
       );
       expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledTimes(1);
       expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledWith({
@@ -858,7 +848,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       expect(mockNetworkService.saveCustomNetwork).not.toHaveBeenCalled();
       expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
         mockPendingAction.site?.domain,
-        network
+        network.chainId
       );
 
       expect(successHandler).toHaveBeenCalledTimes(1);

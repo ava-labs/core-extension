@@ -22,19 +22,13 @@ export class SetDevelopermodeNetworkHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const [enableDeveloperMode] = request.params;
-
-    const network = await this.networkService.getNetwork(
-      enableDeveloperMode
-        ? ChainId.AVALANCHE_TESTNET_ID
-        : ChainId.AVALANCHE_MAINNET_ID
-    );
-
-    if (!network) {
-      throw new Error('Target network not found');
-    }
-
     const [, err] = await resolve(
-      this.networkService.setNetwork(runtime.id, network)
+      this.networkService.setNetwork(
+        runtime.id,
+        enableDeveloperMode
+          ? ChainId.AVALANCHE_TESTNET_ID
+          : ChainId.AVALANCHE_MAINNET_ID
+      )
     );
 
     if (err) {
