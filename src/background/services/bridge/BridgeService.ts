@@ -63,6 +63,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     this.networkService.developerModeChanged.add(() => {
       this.updateBridgeConfig();
     });
+    this.updateBridgeConfig();
   }
 
   async onStorageReady(): Promise<void> {

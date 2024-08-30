@@ -75,7 +75,7 @@ export function DAppRequestHandlerMiddleware(
               requestId: context.request.id,
               sessionId: context.request.params.sessionId,
               method: context.request.params.request.method,
-              params: context.request.params.request,
+              params: context.request.params.request.params,
               // Do not pass context from unknown sources.
               // This field is for our internal use only (only used with extension's direct connection)
               context: undefined,

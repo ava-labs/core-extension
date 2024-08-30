@@ -78,7 +78,9 @@ module.exports = (env, argv) => {
       new DefinePlugin({
         ...evmProviderConfig,
         // For non-dev builds, it's replaced by actual version number later in the release process
-        CORE_EXTENSION_VERSION: isDevBuild ? '0.0.0' : 'CORE_EXTENSION_VERSION',
+        CORE_EXTENSION_VERSION: isDevBuild
+          ? '"0.0.0"'
+          : '"CORE_EXTENSION_VERSION"',
       }),
     ],
   };
