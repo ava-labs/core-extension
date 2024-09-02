@@ -21,19 +21,8 @@ export class SetActiveNetworkHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const [scope] = request.params;
-    const [network, networkErr] = await resolve(
-      this.networkService.getNetwork(scope)
-    );
-
-    if (networkErr || !network) {
-      return {
-        ...request,
-        error: 'Ttarget network not found',
-      };
-    }
-
     const [, err] = await resolve(
-      this.networkService.setNetwork(runtime.id, network)
+      this.networkService.setNetwork(runtime.id, scope)
     );
 
     if (err) {

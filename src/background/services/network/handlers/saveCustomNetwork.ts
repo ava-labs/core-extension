@@ -1,10 +1,10 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
-import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 import { CustomNetworkPayload } from '../models';
 import { runtime } from 'webextension-polyfill';
+import { resolve } from '@avalabs/core-utils-sdk';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SAVE_CUSTOM,
@@ -43,14 +43,14 @@ export class SaveCustomNetworkHandler implements HandlerType {
       this.networkService.saveCustomNetwork(network)
     );
 
-    if (err) {
+    if (err || !addedNetwork) {
       return {
         ...request,
-        error: err.toString(),
+        error: err?.toString() ?? 'Adding custom network failed',
       };
     }
 
-    await this.networkService.setNetwork(runtime.id, addedNetwork);
+    await this.networkService.setNetwork(runtime.id, addedNetwork.caipId);
 
     return {
       ...request,

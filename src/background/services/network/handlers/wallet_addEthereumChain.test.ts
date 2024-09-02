@@ -568,9 +568,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(mockNetworkService.setNetwork).toHaveBeenCalledTimes(1);
     expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
       'core.app',
-      expect.objectContaining({
-        chainId: 43113,
-      })
+      'eip155:43113'
     );
   });
 
@@ -787,7 +785,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
       expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
         mockPendingAction.site?.domain,
-        mockPendingAction.displayData.network
+        mockPendingAction.displayData.network.caipId
       );
       expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledTimes(1);
       expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledWith({
@@ -830,6 +828,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       const network = {
         ...mockPendingAction.displayData.network,
         chainId: 43113,
+        caipId: 'eip155:43113',
       };
 
       await handler.onActionApproved(
@@ -850,7 +849,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       expect(mockNetworkService.saveCustomNetwork).not.toHaveBeenCalled();
       expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
         mockPendingAction.site?.domain,
-        network
+        network.caipId
       );
 
       expect(successHandler).toHaveBeenCalledTimes(1);
@@ -873,6 +872,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
             network: {
               ...mockPendingAction.displayData.network,
               chainId: 43113,
+              caipId: 'eip155:43113',
             },
             options: {
               requiresGlacierApiKey: false,

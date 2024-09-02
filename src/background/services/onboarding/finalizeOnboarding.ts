@@ -26,10 +26,8 @@ export async function finalizeOnboarding({
   await networkService.addFavoriteNetwork(ChainId.BITCOIN);
   await networkService.addFavoriteNetwork(ChainId.ETHEREUM_HOMESTEAD);
 
-  await networkService.setNetwork(
-    runtime.id,
-    await networkService.getAvalancheNetwork()
-  );
+  const cChain = await networkService.getAvalancheNetwork();
+  await networkService.setNetwork(runtime.id, cChain.caipId);
 
   const allAccounts = accountsService.getAccounts();
   const addedAccounts = allAccounts.primary[walletId];
