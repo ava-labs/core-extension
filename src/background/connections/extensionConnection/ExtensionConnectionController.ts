@@ -32,6 +32,7 @@ import sentryCaptureException, {
 import { DappHandlerToExtensionHandlerTransformer } from './DappHandlerToExtensionHandlerTransformer';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
 
 @injectable()
 export class ExtensionConnectionController implements ConnectionController {
@@ -64,6 +65,7 @@ export class ExtensionConnectionController implements ConnectionController {
     this.connection = connection;
 
     this.pipeline = RequestProcessorPipeline(
+      ActiveNetworkMiddleware(this.networkService),
       ExtensionRequestHandlerMiddleware(
         [...this.handlers, ...this.dappHandlers],
         this.moduleManager
