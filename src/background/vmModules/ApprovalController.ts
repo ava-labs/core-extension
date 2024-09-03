@@ -7,15 +7,14 @@ import {
   RpcMethod,
 } from '@avalabs/vm-module-types';
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
-import { rpcErrors, providerErrors, JsonRpcError } from '@metamask/rpc-errors';
+import { rpcErrors, JsonRpcError, providerErrors } from '@metamask/rpc-errors';
 
 import { buildBtcTx } from '@src/utils/send/btcSendUtils';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 import { WalletService } from '../services/wallet/WalletService';
-import { Action, ActionStatus, ActionsEvent } from '../services/actions/models';
+import { Action } from '../services/actions/models';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
-import { ActionsService } from '../services/actions/ActionsService';
 import { NetworkService } from '../services/network/NetworkService';
 import { NetworkWithCaipId } from '../services/network/models';
 
@@ -23,10 +22,21 @@ import { ApprovalParamsWithContext } from './models';
 import { measureDuration } from '@src/utils/measureDuration';
 import { AnalyticsServicePosthog } from '../services/analytics/AnalyticsServicePosthog';
 import { buildBtcSendTransactionAction } from './helpers/buildBtcSendTransactionAction';
+import { EnsureDefined } from '../models';
 
 @singleton()
 export class ApprovalController implements IApprovalController {
   #walletService: WalletService;
+
+  #requests = new Map<
+    string,
+    {
+      params: ApprovalParams;
+      network: NetworkWithCaipId;
+      resolve: (response: ApprovalResponse) => void;
+    }
+  >();
+
   #requestsMetadata = new Map<
     string,
     { txType: string; chainId: number; site: string; rpcUrl: string }
@@ -59,6 +69,70 @@ export class ApprovalController implements IApprovalController {
     // Transaction Reverted. Show a toast? Trigger browser notification?',
   };
 
+  onRejected = async (action: Action) => {
+    if (!action.actionId) {
+      return;
+    }
+
+    const request = this.#requests.get(action.actionId);
+
+    if (!request) {
+      return;
+    }
+
+    const { resolve } = request;
+
+    resolve({
+      error: providerErrors.userRejectedRequest(),
+    });
+    this.#requests.delete(action.actionId);
+  };
+
+  onApproved = async (action: Action) => {
+    if (!action.actionId) {
+      return;
+    }
+
+    const request = this.#requests.get(action.actionId);
+
+    if (!request) {
+      return;
+    }
+
+    const { params, network, resolve } = request;
+
+    try {
+      const { signedTx: signedData, txHash } = await this.#handleApproval(
+        params,
+        action,
+        network
+      );
+
+      if (signedData) {
+        resolve({ signedData });
+      } else if (txHash) {
+        resolve({ txHash });
+      } else {
+        resolve({
+          error: rpcErrors.internal({
+            message: 'Unsupported signing result type',
+          }),
+        });
+      }
+    } catch (err) {
+      resolve({
+        error: rpcErrors.internal({
+          message: 'Unable to sign the message',
+          data: {
+            originalError: err,
+          },
+        }),
+      });
+    } finally {
+      this.#requests.delete(action.actionId);
+    }
+  };
+
   /**
    * This method should never throw. Instead, return an { error } object.
    */
@@ -86,85 +160,17 @@ export class ApprovalController implements IApprovalController {
     );
     if (actionError) return { error: actionError };
 
-    const action = await openApprovalWindow(preparedAction, url);
+    const action = (await openApprovalWindow(
+      preparedAction,
+      url
+    )) as EnsureDefined<Action, 'actionId'>;
 
     return new Promise((resolve) => {
-      const actionsService = container.resolve(ActionsService);
-      const actionId = action.id;
-
-      const cleanup = () => {
-        if (action.actionId) {
-          actionsService.removeAction(action.actionId);
-        }
-
-        actionsService.removeListener(
-          ActionsEvent.MODULE_ACTION_UPDATED,
-          onUpdated
-        );
-      };
-
-      const onUpdated = async ({
-        action: updatedAction,
-        newStatus,
-        error,
-      }: {
-        action: Action;
-        newStatus: ActionStatus;
-        error?: string;
-      }) => {
-        if (updatedAction.id !== actionId) {
-          return;
-        }
-
-        if (error || newStatus === ActionStatus.ERROR) {
-          cleanup();
-          resolve({ error: rpcErrors.internal(error) });
-          return;
-        }
-
-        if (newStatus === ActionStatus.ERROR_USER_CANCELED) {
-          cleanup();
-          resolve({ error: providerErrors.userRejectedRequest() });
-          return;
-        }
-
-        if (newStatus === ActionStatus.SUBMITTING) {
-          try {
-            const { signedTx: signedData, txHash } = await this.#handleApproval(
-              params,
-              updatedAction,
-              network
-            );
-
-            if (signedData) {
-              resolve({ signedData });
-            } else if (txHash) {
-              resolve({ txHash });
-            } else {
-              resolve({
-                error: rpcErrors.internal({
-                  message: 'Unsupported signing result type',
-                }),
-              });
-            }
-          } catch (err) {
-            resolve({
-              error: rpcErrors.internal({
-                message: 'Unable to sign the message',
-                data: {
-                  originalError: err,
-                },
-              }),
-            });
-          } finally {
-            cleanup();
-          }
-
-          return;
-        }
-      };
-
-      actionsService.addListener(ActionsEvent.MODULE_ACTION_UPDATED, onUpdated);
+      this.#requests.set(action.actionId, {
+        params,
+        network,
+        resolve,
+      });
     });
   };
 
@@ -200,15 +206,6 @@ export class ApprovalController implements IApprovalController {
     const { signingData } = action;
 
     if (signingData?.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
-      this.#requestsMetadata.set(params.request.requestId, {
-        txType: 'send',
-        chainId: network.chainId,
-        rpcUrl: network.rpcUrl,
-        site: new URL(params.request.dappInfo.url).hostname,
-      });
-
-      measureDuration(params.request.requestId).start();
-
       const { inputs, outputs } = await buildBtcTx(
         signingData.account,
         getProviderForNetwork(network) as BitcoinProvider,
@@ -240,15 +237,3 @@ export class ApprovalController implements IApprovalController {
     });
   };
 }
-
-let instance: ApprovalController;
-
-function getController(walletService: WalletService) {
-  if (!instance) {
-    instance = new ApprovalController(walletService);
-  }
-
-  return instance;
-}
-
-export default getController;

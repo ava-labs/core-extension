@@ -54,7 +54,6 @@ export const ACTIONS_STORAGE_KEY = 'actions';
 export enum ActionsEvent {
   ACTION_UPDATED = 'action-updated',
   ACTION_COMPLETED = 'action-completed',
-  MODULE_ACTION_UPDATED = 'module-action-updated',
 }
 
 export enum ActionCompletedEventType {

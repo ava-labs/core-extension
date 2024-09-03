@@ -1,25 +1,17 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { ethErrors } from 'eth-rpc-errors';
-import { container } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AccountType } from '../../accounts/models';
-import { ActionsService } from '../../actions/ActionsService';
 import { Action, ActionStatus } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { ConnectRequestHandler } from './connect';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
-jest.mock('@src/utils/extensionUtils', () => ({
-  openExtensionNewWindow: jest.fn().mockReturnValue({ id: 123 }),
-}));
+jest.mock('@src/background/runtime/openApprovalWindow');
 
 describe('background/services/web3/handlers/connect.ts', () => {
-  beforeEach(() => {
-    container.clearInstances();
-  });
-
   describe('handleAuthenticated', () => {
     it('returns error when no active account available', async () => {
       const handler = new ConnectRequestHandler(
@@ -91,11 +83,6 @@ describe('background/services/web3/handlers/connect.ts', () => {
         {} as PermissionsService
       );
 
-      const actionsServiceMock = {
-        addAction: jest.fn(),
-      };
-      container.registerInstance(ActionsService, actionsServiceMock as any);
-
       const mockRequest = {
         id: '1235',
         method: DAppProviderRequest.CONNECT_METHOD,
@@ -115,21 +102,10 @@ describe('background/services/web3/handlers/connect.ts', () => {
         result: DEFERRED_RESPONSE,
       });
 
-      expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
-      expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
-        ...mockRequest,
-        actionId: '00000000-0000-0000-0000-000000000000',
-        displayData: {
-          domainIcon: 'icon.svg',
-          domainName: 'Example dapp',
-          domainUrl: 'example.com',
-        },
-        popupWindowId: 123,
-      });
-
-      expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
-      expect(openExtensionNewWindow).toHaveBeenCalledWith(
-        `permissions?actionId=00000000-0000-0000-0000-000000000000`
+      expect(openApprovalWindow).toHaveBeenCalledTimes(1);
+      expect(openApprovalWindow).toHaveBeenCalledWith(
+        expect.objectContaining({ id: '1235' }),
+        'permissions'
       );
     });
   });

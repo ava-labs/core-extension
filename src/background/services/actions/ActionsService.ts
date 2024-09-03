@@ -18,6 +18,7 @@ import { filterStaleActions } from './utils';
 import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
+import { ApprovalController } from '@src/background/vmModules/ApprovalController';
 
 @singleton()
 export class ActionsService implements OnStorageReady {
@@ -27,7 +28,8 @@ export class ActionsService implements OnStorageReady {
     @injectAll('DAppRequestHandler')
     private dAppRequestHandlers: DAppRequestHandler[],
     private storageService: StorageService,
-    private lockService: LockService
+    private lockService: LockService,
+    private approvalController: ApprovalController
   ) {}
 
   async onStorageReady() {
@@ -138,15 +140,10 @@ export class ActionsService implements OnStorageReady {
 
     const isHandledByModule = pendingMessage[ACTION_HANDLED_BY_MODULE];
 
-    if (isHandledByModule) {
-      this.eventEmitter.emit(ActionsEvent.MODULE_ACTION_UPDATED, {
-        action: pendingMessage,
-        newStatus: status,
-        error,
-      });
-    }
-
-    if (status === ActionStatus.SUBMITTING && !isHandledByModule) {
+    if (status === ActionStatus.SUBMITTING && isHandledByModule) {
+      this.approvalController.onApproved(pendingMessage);
+      this.removeAction(id);
+    } else if (status === ActionStatus.SUBMITTING) {
       const handler = this.dAppRequestHandlers.find((h) =>
         h.methods.includes(pendingMessage.method as DAppProviderRequest)
       );
@@ -181,6 +178,12 @@ export class ActionsService implements OnStorageReady {
       );
     } else if (status === ActionStatus.COMPLETED) {
       await this.emitResult(id, pendingMessage, true, result ?? true);
+    } else if (
+      status === ActionStatus.ERROR_USER_CANCELED &&
+      isHandledByModule
+    ) {
+      this.approvalController.onRejected(pendingMessage);
+      this.removeAction(id);
     } else if (status === ActionStatus.ERROR_USER_CANCELED) {
       await this.emitResult(
         id,
@@ -220,14 +223,6 @@ export class ActionsService implements OnStorageReady {
   addListener(
     event: ActionsEvent.ACTION_UPDATED,
     callback: (actions: Actions) => void
-  );
-  addListener(
-    event: ActionsEvent.MODULE_ACTION_UPDATED,
-    callback: (data: {
-      action: Action;
-      newStatus: ActionStatus;
-      error?: string;
-    }) => void
   );
   addListener(event: ActionsEvent, callback: (data: any) => void) {
     this.eventEmitter.on(event, callback);
