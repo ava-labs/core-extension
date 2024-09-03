@@ -10,11 +10,11 @@ import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { Module } from '@avalabs/vm-module-types';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { runtime } from 'webextension-polyfill';
+import { container } from 'tsyringe';
 
 export function ExtensionRequestHandlerMiddleware(
   handlers: ExtensionRequestHandler<any, any>[],
-  networkService: NetworkService,
-  moduleManager: ModuleManager
+  networkService: NetworkService
 ): Middleware<
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse<any, any>
@@ -29,6 +29,7 @@ export function ExtensionRequestHandlerMiddleware(
   return async (context, next, onError) => {
     const method = context.request.params.request.method;
     const handler = handlerMap.get(method);
+    const moduleManager = container.resolve(ModuleManager);
     const [module] = handler
       ? [null]
       : await resolve(

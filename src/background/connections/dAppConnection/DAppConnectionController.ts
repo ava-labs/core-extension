@@ -56,8 +56,7 @@ export class DAppConnectionController implements ConnectionController {
     private permissionsService: PermissionsService,
     private accountsService: AccountsService,
     private networkService: NetworkService,
-    private lockService: LockService,
-    private moduleManager: ModuleManager
+    private lockService: LockService
   ) {
     this.onRequest = this.onRequest.bind(this);
     this.disconnect = this.disconnect.bind(this);
@@ -81,11 +80,7 @@ export class DAppConnectionController implements ConnectionController {
         this.accountsService,
         this.lockService
       ),
-      DAppRequestHandlerMiddleware(
-        this.handlers,
-        this.networkService,
-        this.moduleManager
-      ),
+      DAppRequestHandlerMiddleware(this.handlers, this.networkService),
       LoggerMiddleware(SideToLog.RESPONSE)
     );
 

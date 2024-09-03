@@ -12,11 +12,11 @@ import {
   JsonRpcResponse,
 } from '../dAppConnection/models';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { container } from 'tsyringe';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],
-  networkService: NetworkService,
-  moduleManager: ModuleManager
+  networkService: NetworkService
 ): Middleware<JsonRpcRequest, JsonRpcResponse<unknown>> {
   const handlerMap = handlers.reduce((acc, handler) => {
     for (const method of handler.methods) {
@@ -50,6 +50,7 @@ export function DAppRequestHandlerMiddleware(
         ? handler.handleAuthenticated(params)
         : handler.handleUnauthenticated(params);
     } else {
+      const moduleManager = container.resolve(ModuleManager);
       const [module] = await resolve(
         moduleManager.loadModule(
           context.request.params.scope,
