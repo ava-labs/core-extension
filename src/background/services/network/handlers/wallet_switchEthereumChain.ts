@@ -55,7 +55,7 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
       if (skipApproval) {
         await this.networkService.setNetwork(
           request.site.domain,
-          supportedNetwork
+          supportedNetwork.caipId
         );
         return { ...request, result: null };
       }
@@ -98,7 +98,7 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
     try {
       await this.networkService.setNetwork(
         pendingAction.site.domain,
-        pendingAction.displayData.network
+        pendingAction.displayData.network.caipId
       );
 
       onSuccess(null);

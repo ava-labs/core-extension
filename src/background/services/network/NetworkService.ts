@@ -148,18 +148,25 @@ export class NetworkService implements OnLock, OnStorageReady {
     );
   }
 
-  async setNetwork(domain: string, selectedNetwork: NetworkWithCaipId) {
+  async setNetwork(domain: string, caipId: string) {
     const isSynced = isSyncDomain(domain);
+    // For supported networks, use config from saved chainlist
+    // instead of relying on payload that may come from a 3rd party:
+    const targetNetwork = await this.getNetwork(caipId);
+    if (!targetNetwork) {
+      throw new Error(`Network not found: ${caipId}`);
+    }
+
     const changesEnvironment =
       Boolean(this._uiActiveNetwork?.isTestnet) !==
-      Boolean(selectedNetwork.isTestnet);
+      Boolean(targetNetwork.isTestnet);
 
     if (isSynced || changesEnvironment) {
-      this.uiActiveNetwork = selectedNetwork;
+      this.uiActiveNetwork = targetNetwork;
     }
 
     // Save scope for requesting dApp
-    await this.#updateDappScopes({ [domain]: selectedNetwork.caipId });
+    await this.#updateDappScopes({ [domain]: targetNetwork.caipId });
 
     // If change resulted in an environment switch, also notify other dApps
     if (changesEnvironment) {
@@ -172,7 +179,7 @@ export class NetworkService implements OnLock, OnStorageReady {
           .map(([savedDomain]) => [
             savedDomain,
             chainIdToCaip(
-              selectedNetwork.isTestnet
+              targetNetwork.isTestnet
                 ? ChainId.AVALANCHE_TESTNET_ID
                 : ChainId.AVALANCHE_MAINNET_ID
             ),
@@ -678,7 +685,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       );
 
       if (network) {
-        await this.setNetwork(runtime.id, network);
+        await this.setNetwork(runtime.id, network.caipId);
       }
     }
 

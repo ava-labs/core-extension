@@ -8,6 +8,7 @@ import { WalletAddEthereumChainHandler } from './wallet_addEthereumChain';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { isCoreWeb } from '../../network/utils/isCoreWeb';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { decorateWithCaipId } from '@src/utils/caipConversion';
 
 jest.mock('../NetworkService');
 jest.mock('../../network/utils/isCoreWeb');
@@ -427,9 +428,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       expect(mockNetworkService.setNetwork).toHaveBeenCalledTimes(1);
       expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
         'core.app',
-        expect.objectContaining({
-          chainId: 43113,
-        })
+        'eip155:43113'
       );
     });
 
@@ -535,7 +534,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         },
         actionId: 'uuid',
         displayData: {
-          network: {
+          network: decorateWithCaipId({
             chainId: 43112,
             chainName: 'Avalanche',
             vmName: NetworkVMType.EVM,
@@ -549,7 +548,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
               name: 'AVAX',
               logoUri: 'logo.png',
             },
-          },
+          }),
         },
         time: 123123,
         status: ActionStatus.SUBMITTING,
@@ -620,7 +619,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
         expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
           mockPendingAction.site?.domain,
-          mockPendingAction.displayData.network
+          mockPendingAction.displayData.network.caipId
         );
         expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledTimes(1);
         expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledWith({
@@ -683,7 +682,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         expect(mockNetworkService.saveCustomNetwork).not.toHaveBeenCalled();
         expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
           mockPendingAction.site?.domain,
-          network
+          network.caipId
         );
 
         expect(successHandler).toHaveBeenCalledTimes(1);
