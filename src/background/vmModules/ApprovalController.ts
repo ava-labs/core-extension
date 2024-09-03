@@ -1,4 +1,4 @@
-import { container, singleton } from 'tsyringe';
+import { singleton } from 'tsyringe';
 import {
   ApprovalParams,
   ApprovalResponse,
@@ -19,14 +19,13 @@ import { NetworkService } from '../services/network/NetworkService';
 import { NetworkWithCaipId } from '../services/network/models';
 
 import { ApprovalParamsWithContext } from './models';
-import { measureDuration } from '@src/utils/measureDuration';
-import { AnalyticsServicePosthog } from '../services/analytics/AnalyticsServicePosthog';
 import { buildBtcSendTransactionAction } from './helpers/buildBtcSendTransactionAction';
 import { EnsureDefined } from '../models';
 
 @singleton()
 export class ApprovalController implements IApprovalController {
   #walletService: WalletService;
+  #networkService: NetworkService;
 
   #requests = new Map<
     string,
@@ -37,32 +36,13 @@ export class ApprovalController implements IApprovalController {
     }
   >();
 
-  #requestsMetadata = new Map<
-    string,
-    { txType: string; chainId: number; site: string; rpcUrl: string }
-  >();
-
-  constructor(walletService: WalletService) {
+  constructor(walletService: WalletService, networkService: NetworkService) {
     this.#walletService = walletService;
+    this.#networkService = networkService;
   }
 
-  onTransactionConfirmed = (txHash: `0x${string}`, requestId: string) => {
+  onTransactionConfirmed = () => {
     // Transaction Confirmed. Show a toast? Trigger browser notification?',
-    const confirmationTime = measureDuration(requestId).end();
-    const analyticsService = container.resolve(AnalyticsServicePosthog);
-    const metadata = this.#requestsMetadata.get(requestId);
-
-    if (metadata) {
-      analyticsService.captureEncryptedEvent({
-        name: 'TransactionTimeToConfirmation',
-        windowId: crypto.randomUUID(),
-        properties: {
-          ...metadata,
-          duration: confirmationTime,
-        },
-      });
-      this.#requestsMetadata.delete(requestId);
-    }
   };
 
   onTransactionReverted = () => {
@@ -139,8 +119,9 @@ export class ApprovalController implements IApprovalController {
   requestApproval = async (
     params: ApprovalParamsWithContext
   ): Promise<ApprovalResponse> => {
-    const networkService = container.resolve(NetworkService);
-    const network = await networkService.getNetwork(params.request.chainId);
+    const network = await this.#networkService.getNetwork(
+      params.request.chainId
+    );
     if (!network) {
       return {
         error: rpcErrors.invalidRequest({

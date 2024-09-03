@@ -1,4 +1,3 @@
-import { container } from 'tsyringe';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { errorCodes, providerErrors, rpcErrors } from '@metamask/rpc-errors';
 import { DappInfo, DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
@@ -10,7 +9,6 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 
 import { WalletService } from '../services/wallet/WalletService';
 import { NetworkService } from '../services/network/NetworkService';
-import { AnalyticsServicePosthog } from '../services/analytics/AnalyticsServicePosthog';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
 
 import { ApprovalParamsWithContext } from './models';
@@ -44,7 +42,6 @@ describe('src/background/vmModules/ApprovalController', () => {
   describe('requestApproval()', () => {
     let walletService: jest.Mocked<WalletService>;
     let networkService: jest.Mocked<NetworkService>;
-    let analyticsService: jest.Mocked<AnalyticsServicePosthog>;
     let controller: ApprovalController;
 
     beforeEach(() => {
@@ -56,26 +53,7 @@ describe('src/background/vmModules/ApprovalController', () => {
         getNetwork: jest.fn(),
       } as any;
 
-      analyticsService = {
-        captureEncryptedEvent: jest.fn(),
-      } as any;
-
-      controller = new ApprovalController(walletService);
-
-      jest.mocked(container.resolve).mockImplementation((dependency) => {
-        switch (dependency) {
-          case NetworkService:
-            return networkService;
-
-          case AnalyticsServicePosthog:
-            return analyticsService;
-
-          default:
-            throw new Error(
-              `Don't know how to resolve ${dependency.toString()}. Please mock it.`
-            );
-        }
-      });
+      controller = new ApprovalController(walletService, networkService);
     });
 
     it('returns error if network cannot be resolved', async () => {
