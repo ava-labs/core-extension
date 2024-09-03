@@ -131,11 +131,6 @@ export class ApprovalController implements IApprovalController {
       };
     }
 
-    const [url, urlError] = this.#try(() =>
-      this.#getPopupUrl(params.request.method)
-    );
-    if (urlError) return { error: urlError };
-
     const [preparedAction, actionError] = this.#try(() =>
       this.#buildAction(params)
     );
@@ -143,7 +138,7 @@ export class ApprovalController implements IApprovalController {
 
     const action = (await openApprovalWindow(
       preparedAction,
-      url
+      'approve/generic'
     )) as EnsureDefined<Action, 'actionId'>;
 
     return new Promise((resolve) => {
@@ -152,16 +147,6 @@ export class ApprovalController implements IApprovalController {
         network,
         resolve,
       });
-    });
-  };
-
-  #getPopupUrl = (method: RpcMethod) => {
-    if (method === RpcMethod.BITCOIN_SEND_TRANSACTION) {
-      return 'approve/bitcoinSignTx';
-    }
-
-    throw rpcErrors.methodNotSupported({
-      data: method,
     });
   };
 

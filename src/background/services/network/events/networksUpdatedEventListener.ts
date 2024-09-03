@@ -1,12 +1,12 @@
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import { Network, NetworkEvents } from '../models';
+import { NetworkEvents, NetworkWithCaipId } from '../models';
 
 export function networksUpdatedEventListener(
   evt: ExtensionConnectionEvent<{
-    networks: Network[];
-    activeNetwork?: Network;
+    networks: NetworkWithCaipId[];
+    activeNetwork?: NetworkWithCaipId;
     favoriteNetworks: number[];
-    customNetworks: Record<number, Network>;
+    customNetworks: Record<number, NetworkWithCaipId>;
   }>
 ) {
   return evt.name === NetworkEvents.NETWORKS_UPDATED_EVENT;

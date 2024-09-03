@@ -27,6 +27,7 @@ import {
   CustomNetworkPayload,
   Network,
   NetworkOverrides,
+  NetworkWithCaipId,
 } from '@src/background/services/network/models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { isNetworkUpdatedEvent } from '@src/background/services/network/events/isNetworkUpdatedEvent';
@@ -36,22 +37,22 @@ import { getNetworkCaipId } from '@src/utils/caipConversion';
 import { networkChanged } from './NetworkProvider/networkChanges';
 
 const NetworkContext = createContext<{
-  network?: Network | undefined;
+  network?: NetworkWithCaipId | undefined;
   setNetwork(network: Network): void;
-  networks: Network[];
+  networks: NetworkWithCaipId[];
   setDeveloperMode(status: boolean): void;
   saveCustomNetwork(network: CustomNetworkPayload): Promise<unknown>;
   updateDefaultNetwork(network: NetworkOverrides): Promise<unknown>;
   removeCustomNetwork(chainId: number): Promise<unknown>;
   isDeveloperMode: boolean;
-  favoriteNetworks: Network[];
+  favoriteNetworks: NetworkWithCaipId[];
   addFavoriteNetwork(chainId: number): void;
   removeFavoriteNetwork(chainId: number): void;
   isFavoriteNetwork(chainId: number): boolean;
-  customNetworks: Network[];
+  customNetworks: NetworkWithCaipId[];
   isCustomNetwork(chainId: number): boolean;
   isChainIdExist(chainId: number): boolean;
-  getNetwork(chainId: number): Network | undefined;
+  getNetwork(chainId: number | string): NetworkWithCaipId | undefined;
   avalancheProvider?: JsonRpcBatchInternal;
   ethereumProvider?: JsonRpcBatchInternal;
   bitcoinProvider?: BitcoinProvider;
@@ -63,8 +64,8 @@ const NetworkContext = createContext<{
  * event. Thus updating all instances of the network provider and everything stays in sync.
  */
 export function NetworkContextProvider({ children }: { children: any }) {
-  const [network, setNetwork] = useState<Network | undefined>();
-  const [networks, setNetworks] = useState<Network[]>([]);
+  const [network, setNetwork] = useState<NetworkWithCaipId | undefined>();
+  const [networks, setNetworks] = useState<NetworkWithCaipId[]>([]);
   const [customNetworks, setCustomNetworks] = useState<number[]>([]);
   const [favoriteNetworks, setFavoriteNetworks] = useState<number[]>([]);
   const { request, events } = useConnectionContext();
@@ -103,12 +104,11 @@ export function NetworkContextProvider({ children }: { children: any }) {
   );
 
   const getNetwork = useCallback(
-    (lookupChainId: number) => {
-      if (isNaN(lookupChainId)) {
-        return;
-      }
-
-      return networks.find(({ chainId }) => chainId === lookupChainId);
+    (lookupChainId: number | string) => {
+      return networks.find(
+        ({ chainId, caipId }) =>
+          chainId === lookupChainId || caipId === lookupChainId
+      );
     },
     [networks]
   );

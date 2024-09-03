@@ -88,9 +88,9 @@ const AvalancheSignTx = lazy(() => {
   }));
 });
 
-const BitcoinSignTx = lazy(() => {
-  return import('../pages/ApproveAction/BitcoinSignTx').then((m) => ({
-    default: m.BitcoinSignTx,
+const GenericApprovalScreen = lazy(() => {
+  return import('../pages/ApproveAction/GenericApprovalScreen').then((m) => ({
+    default: m.GenericApprovalScreen,
   }));
 });
 
@@ -119,6 +119,11 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       <Route path="/sign/transaction">
         <SignTxErrorBoundary variant="OpenError">
           <SignTransactionPage />
+        </SignTxErrorBoundary>
+      </Route>
+      <Route path="/approve/generic">
+        <SignTxErrorBoundary variant="OpenError">
+          <GenericApprovalScreen />
         </SignTxErrorBoundary>
       </Route>
       <Route path="/sign">
@@ -159,9 +164,6 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       </Route>
       <Route path="/approve/avalancheSignTx">
         <AvalancheSignTx />
-      </Route>
-      <Route path="/approve/bitcoinSignTx">
-        <BitcoinSignTx />
       </Route>
       <Route path="/approve">
         <ApproveAction />

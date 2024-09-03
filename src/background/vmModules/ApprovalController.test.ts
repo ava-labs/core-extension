@@ -67,24 +67,6 @@ describe('src/background/vmModules/ApprovalController', () => {
         error: expect.objectContaining({ message: 'Unsupported network' }),
       });
     });
-
-    it('returns error if request method is unknown', async () => {
-      networkService.getNetwork.mockResolvedValue(btcNetwork);
-
-      expect(
-        await controller.requestApproval({
-          request: {
-            chainId: btcNetwork.chainId,
-            method: 'weird-method',
-          },
-        } as any)
-      ).toEqual({
-        error: expect.objectContaining({
-          code: errorCodes.rpc.methodNotSupported,
-        }),
-      });
-    });
-
     it('returns error if signing data is of unknown format', async () => {
       networkService.getNetwork.mockResolvedValue(btcNetwork);
 
@@ -105,7 +87,7 @@ describe('src/background/vmModules/ApprovalController', () => {
       });
     });
 
-    describe(`with ${RpcMethod.BITCOIN_SEND_TRANSACTION} request`, () => {
+    describe(`after approval`, () => {
       const params: BitcoinSendTransactionParams = {
         amount: 100_000_000,
         feeRate: 50,
@@ -175,14 +157,14 @@ describe('src/background/vmModules/ApprovalController', () => {
         }));
       });
 
-      it('opens the BitcoinSignTx approval screen', async () => {
+      it('opens the generic approval screen', async () => {
         controller.requestApproval(approvalParams);
 
         await new Promise(process.nextTick);
 
         expect(openApprovalWindow).toHaveBeenCalledWith(
           buildBtcSendTransactionAction(approvalParams),
-          'approve/bitcoinSignTx'
+          'approve/generic'
         );
       });
 
