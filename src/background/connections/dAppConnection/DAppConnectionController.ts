@@ -37,6 +37,7 @@ import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
 
 /**
  * This needs to be a controller per dApp, to separate messages
@@ -81,11 +82,8 @@ export class DAppConnectionController implements ConnectionController {
         this.accountsService,
         this.lockService
       ),
-      DAppRequestHandlerMiddleware(
-        this.handlers,
-        this.networkService,
-        this.moduleManager
-      ),
+      ActiveNetworkMiddleware(this.networkService),
+      DAppRequestHandlerMiddleware(this.handlers, this.moduleManager),
       LoggerMiddleware(SideToLog.RESPONSE)
     );
 

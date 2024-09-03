@@ -2,7 +2,6 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { Middleware } from './models';
 import { resolve } from '@src/utils/promiseResolver';
 import { engine } from '@src/utils/jsonRpcEngine';
-import { NetworkService } from '@src/background/services/network/NetworkService';
 import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
 import { ethErrors } from 'eth-rpc-errors';
 import {
@@ -15,7 +14,6 @@ import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],
-  networkService: NetworkService,
   moduleManager: ModuleManager
 ): Middleware<JsonRpcRequest, JsonRpcResponse<unknown>> {
   const handlerMap = handlers.reduce((acc, handler) => {
@@ -57,17 +55,13 @@ export function DAppRequestHandlerMiddleware(
         )
       );
 
-      const activeNetwork = await networkService.getNetwork(
-        context.request.params.scope
-      );
-
-      if (!activeNetwork) {
+      if (!context.network) {
         promise = Promise.reject(ethErrors.provider.disconnected());
       } else {
         if (module) {
           promise = module.onRpcRequest(
             {
-              chainId: activeNetwork.caipId,
+              chainId: context.network.caipId,
               dappInfo: {
                 icon: context.domainMetadata.icon ?? '',
                 name: context.domainMetadata.name ?? '',
@@ -81,10 +75,10 @@ export function DAppRequestHandlerMiddleware(
               // This field is for our internal use only (only used with extension's direct connection)
               context: undefined,
             },
-            activeNetwork
+            context.network
           );
         } else {
-          promise = engine(activeNetwork).then((e) =>
+          promise = engine(context.network).then((e) =>
             e.handle<unknown, unknown>({
               ...context.request.params.request,
               id: crypto.randomUUID(),

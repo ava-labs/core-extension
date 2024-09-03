@@ -66,7 +66,6 @@ export class ExtensionConnectionController implements ConnectionController {
     this.pipeline = RequestProcessorPipeline(
       ExtensionRequestHandlerMiddleware(
         [...this.handlers, ...this.dappHandlers],
-        this.networkService,
         this.moduleManager
       )
     );

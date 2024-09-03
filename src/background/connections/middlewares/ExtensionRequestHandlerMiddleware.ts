@@ -8,12 +8,10 @@ import {
 import * as Sentry from '@sentry/browser';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { Module } from '@avalabs/vm-module-types';
-import { NetworkService } from '@src/background/services/network/NetworkService';
 import { runtime } from 'webextension-polyfill';
 
 export function ExtensionRequestHandlerMiddleware(
   handlers: ExtensionRequestHandler<any, any>[],
-  networkService: NetworkService,
   moduleManager: ModuleManager
 ): Middleware<
   ExtensionConnectionMessage,
@@ -50,7 +48,7 @@ export function ExtensionRequestHandlerMiddleware(
     const sentryTracker = Sentry.startTransaction({
       name: `Handler: ${method}`,
     });
-    const promise = handleRequest(handler ?? module, context, networkService);
+    const promise = handleRequest(handler ?? module, context);
 
     context.response = await resolve(promise).then(([result, error]) => {
       error && console.error(error);
@@ -70,8 +68,7 @@ export function ExtensionRequestHandlerMiddleware(
 
 const handleRequest = async (
   handlerOrModule: ExtensionRequestHandler<any, any> | Module,
-  context: Context<ExtensionConnectionMessage, any>,
-  networkService: NetworkService
+  context: Context<ExtensionConnectionMessage, any>
 ) => {
   if ('handle' in handlerOrModule) {
     return handlerOrModule.handle({
@@ -79,16 +76,13 @@ const handleRequest = async (
     });
   }
 
-  const { scope } = context.request.params;
-  const network = await networkService.getNetwork(scope);
-
-  if (!network) {
-    throw new Error('Unrecognized network: ' + scope);
+  if (!context.network) {
+    throw new Error('Unrecognized network: ' + context.request.params.scope);
   }
 
   const response = await handlerOrModule.onRpcRequest(
     {
-      chainId: network.caipId,
+      chainId: context.network.caipId,
       dappInfo: {
         icon: runtime.getManifest().icons?.['192'] ?? '',
         name: runtime.getManifest().name,
@@ -100,7 +94,7 @@ const handleRequest = async (
       params: context.request.params.request.params,
       context: context.request.context,
     },
-    network
+    context.network
   );
 
   return {
