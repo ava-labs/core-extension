@@ -1,22 +1,24 @@
 import { Environment, Module } from '@avalabs/vm-module-types';
 import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { ethErrors } from 'eth-rpc-errors';
+import { singleton } from 'tsyringe';
 
 import { assertPresent } from '@src/utils/assertions';
 import { isDevelopment } from '@src/utils/environment';
 
 import { NetworkWithCaipId } from '../services/network/models';
-import { type WalletService } from '../services/wallet/WalletService';
 
 import { VMModuleError } from './models';
-import getController from './ApprovalController';
+import { ApprovalController } from './ApprovalController';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2
 const NAMESPACE_REGEX = new RegExp('^[-a-z0-9]{3,8}$');
 
-class ModuleManager {
+@singleton()
+export class ModuleManager {
   #_modules: Module[] | undefined;
+  #approvalController: ApprovalController;
 
   get #modules(): Module[] {
     assertPresent(this.#_modules, VMModuleError.ModulesNotInitialized);
@@ -28,7 +30,11 @@ class ModuleManager {
     this.#_modules = modules;
   }
 
-  async init(walletService: WalletService): Promise<void> {
+  constructor(controller: ApprovalController) {
+    this.#approvalController = controller;
+  }
+
+  async activate(): Promise<void> {
     if (this.#_modules !== undefined) return;
 
     const environment = isDevelopment()
@@ -38,7 +44,7 @@ class ModuleManager {
     this.#modules = [
       new BitcoinModule({
         environment,
-        approvalController: getController(walletService),
+        approvalController: this.#approvalController,
       }),
     ];
   }
@@ -121,5 +127,3 @@ class ModuleManager {
     });
   }
 }
-
-export default new ModuleManager();

@@ -1,13 +1,23 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 
-import ModuleManager from './ModuleManager';
+import { ModuleManager } from './ModuleManager';
 import { VMModuleError } from './models';
+import { ApprovalController } from './ApprovalController';
 
 describe('ModuleManager', () => {
+  let manager: ModuleManager;
+  let controller: ApprovalController;
+
+  beforeEach(() => {
+    controller = {
+      requestApproval: jest.fn(),
+    } as any;
+    manager = new ModuleManager(controller);
+  });
   describe('when not initialized', () => {
     it('should throw not initialized error', async () => {
       try {
-        await ModuleManager.loadModule('eip155:123', 'eth_randomMethod');
+        await manager.loadModule('eip155:123', 'eth_randomMethod');
       } catch (e: any) {
         expect(e.data.reason).toBe(VMModuleError.ModulesNotInitialized);
       }
@@ -15,10 +25,8 @@ describe('ModuleManager', () => {
   });
 
   describe('when initialized', () => {
-    const walletService = { sign: jest.fn() };
-
     beforeEach(async () => {
-      await ModuleManager.init(walletService as any);
+      await manager.activate();
     });
 
     it('should load the correct modules', async () => {
@@ -32,10 +40,7 @@ describe('ModuleManager', () => {
 
       await Promise.all(
         params.map(async (param) => {
-          const module = await ModuleManager.loadModule(
-            param.chainId,
-            param.method
-          );
+          const module = await manager.loadModule(param.chainId, param.method);
           expect(module?.getManifest()?.name.toLowerCase()).toContain(
             param.name.toLowerCase()
           );
@@ -45,7 +50,7 @@ describe('ModuleManager', () => {
 
     it('should have thrown with incorrect chainId', async () => {
       try {
-        await ModuleManager.loadModule('eip155:123', 'eth_randomMethod');
+        await manager.loadModule('eip155:123', 'eth_randomMethod');
       } catch (e: any) {
         expect(e.data.reason).toBe(VMModuleError.UnsupportedChain);
       }
@@ -53,7 +58,7 @@ describe('ModuleManager', () => {
 
     it('should have thrown with incorrect method', async () => {
       try {
-        await ModuleManager.loadModule('eip155:1', 'evth_randomMethod');
+        await manager.loadModule('eip155:1', 'evth_randomMethod');
       } catch (e: any) {
         expect(e.data.reason).toBe(VMModuleError.UnsupportedChain);
       }
@@ -61,7 +66,7 @@ describe('ModuleManager', () => {
 
     it('should have thrown with incorrect namespace', async () => {
       try {
-        await ModuleManager.loadModule('avalanche:1', 'eth_method');
+        await manager.loadModule('avalanche:1', 'eth_method');
       } catch (e: any) {
         expect(e.data.reason).toBe(VMModuleError.UnsupportedNamespace);
       }

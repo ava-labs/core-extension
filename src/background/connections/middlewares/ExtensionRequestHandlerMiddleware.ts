@@ -6,14 +6,15 @@ import {
   ExtensionRequestHandler,
 } from '../models';
 import * as Sentry from '@sentry/browser';
-import ModuleManager from '@src/background/vmModules/ModuleManager';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { Module } from '@avalabs/vm-module-types';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { runtime } from 'webextension-polyfill';
 
 export function ExtensionRequestHandlerMiddleware(
   handlers: ExtensionRequestHandler<any, any>[],
-  networkService: NetworkService
+  networkService: NetworkService,
+  moduleManager: ModuleManager
 ): Middleware<
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse<any, any>
@@ -31,7 +32,7 @@ export function ExtensionRequestHandlerMiddleware(
     const [module] = handler
       ? [null]
       : await resolve(
-          ModuleManager.loadModule(
+          moduleManager.loadModule(
             context.request.params.scope,
             context.request.params.request.method
           )

@@ -3,7 +3,7 @@ import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import { HistoryServiceBridgeHelper } from './HistoryServiceBridgeHelper';
 import { TransactionType, TxHistoryItem } from './models';
-import ModuleManager from '@src/background/vmModules/ModuleManager';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { NetworkWithCaipId } from '../network/models';
 import sentryCaptureException, {
   SentryExceptionTypes,
@@ -13,7 +13,8 @@ import sentryCaptureException, {
 export class HistoryServiceBTC {
   constructor(
     private accountsService: AccountsService,
-    private bridgeHistoryHelperService: HistoryServiceBridgeHelper
+    private bridgeHistoryHelperService: HistoryServiceBridgeHelper,
+    private moduleManager: ModuleManager
   ) {}
 
   async getHistory(network: NetworkWithCaipId): Promise<TxHistoryItem[]> {
@@ -27,7 +28,7 @@ export class HistoryServiceBTC {
     }
 
     try {
-      const module = await ModuleManager.loadModuleByNetwork(network);
+      const module = await this.moduleManager.loadModuleByNetwork(network);
       const { transactions } = await module.getTransactionHistory({
         address,
         network,

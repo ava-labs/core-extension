@@ -1,4 +1,4 @@
-import { container } from 'tsyringe';
+import { container, singleton } from 'tsyringe';
 import {
   ApprovalParams,
   ApprovalResponse,
@@ -12,7 +12,7 @@ import { rpcErrors, providerErrors, JsonRpcError } from '@metamask/rpc-errors';
 import { buildBtcTx } from '@src/utils/send/btcSendUtils';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
-import type { WalletService } from '../services/wallet/WalletService';
+import { WalletService } from '../services/wallet/WalletService';
 import { Action, ActionStatus, ActionsEvent } from '../services/actions/models';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
 import { ActionsService } from '../services/actions/ActionsService';
@@ -24,6 +24,7 @@ import { measureDuration } from '@src/utils/measureDuration';
 import { AnalyticsServicePosthog } from '../services/analytics/AnalyticsServicePosthog';
 import { buildBtcSendTransactionAction } from './helpers/buildBtcSendTransactionAction';
 
+@singleton()
 export class ApprovalController implements IApprovalController {
   #walletService: WalletService;
   #requestsMetadata = new Map<

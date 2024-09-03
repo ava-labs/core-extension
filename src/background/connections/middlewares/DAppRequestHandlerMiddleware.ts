@@ -11,11 +11,12 @@ import {
   JsonRpcRequestParams,
   JsonRpcResponse,
 } from '../dAppConnection/models';
-import ModuleManager from '@src/background/vmModules/ModuleManager';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],
-  networkService: NetworkService
+  networkService: NetworkService,
+  moduleManager: ModuleManager
 ): Middleware<JsonRpcRequest, JsonRpcResponse<unknown>> {
   const handlerMap = handlers.reduce((acc, handler) => {
     for (const method of handler.methods) {
@@ -50,7 +51,7 @@ export function DAppRequestHandlerMiddleware(
         : handler.handleUnauthenticated(params);
     } else {
       const [module] = await resolve(
-        ModuleManager.loadModule(
+        moduleManager.loadModule(
           context.request.params.scope,
           context.request.params.request.method
         )
