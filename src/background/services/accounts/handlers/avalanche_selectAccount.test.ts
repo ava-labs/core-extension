@@ -6,9 +6,9 @@ import { ActionsService } from '../../actions/ActionsService';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { AccountType } from '../models';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { isCoreWeb } from '../../network/utils/isCoreWeb';
+import { isSyncDomain } from '../../network/utils/getSyncDomain';
 
-jest.mock('../../network/utils/isCoreWeb');
+jest.mock('../../network/utils/getSyncDomain');
 jest.mock('@src/utils/extensionUtils', () => ({
   openExtensionNewWindow: jest.fn(),
 }));
@@ -33,7 +33,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
 
     (openExtensionNewWindow as jest.Mock).mockReturnValue({ id: 123 });
     (crypto.randomUUID as jest.Mock).mockReturnValue('uuid');
-    jest.mocked(isCoreWeb).mockResolvedValue(false);
+    jest.mocked(isSyncDomain).mockReturnValue(false);
   });
 
   describe('handleAuthenticated', () => {
@@ -143,7 +143,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
     });
 
     it('should switch account without opening approval window if the request is from core web', async () => {
-      jest.mocked(isCoreWeb).mockResolvedValue(true);
+      jest.mocked(isSyncDomain).mockReturnValue(true);
 
       const account = {
         index: 1,
