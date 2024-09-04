@@ -17,10 +17,11 @@ import {
 } from '@src/background/services/accounts/models';
 import { GetAccountsHandler } from '@src/background/services/accounts/handlers/getAccounts';
 import { SelectAccountHandler } from '@src/background/services/accounts/handlers/selectAccount';
-import { RenameAccountHandler } from '@src/background/services/accounts/handlers/renameAccount';
+import { AvalancheRenameAccountHandler } from '@src/background/services/accounts/handlers/avalanche_renameAccount';
 import { AddAccountHandler } from '@src/background/services/accounts/handlers/addAccount';
 import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 
 const AccountsContext = createContext<{
   accounts: Accounts;
@@ -105,8 +106,8 @@ export function AccountsContextProvider({ children }: { children: any }) {
 
   const renameAccount = useCallback(
     (id: string, name: string) => {
-      return request<RenameAccountHandler>({
-        method: ExtensionRequest.ACCOUNT_RENAME,
+      return request<AvalancheRenameAccountHandler>({
+        method: DAppProviderRequest.ACCOUNT_RENAME,
         params: [id, name],
       });
     },
