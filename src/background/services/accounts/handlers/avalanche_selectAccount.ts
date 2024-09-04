@@ -1,7 +1,10 @@
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequestParams,
+} from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { AccountsService } from '../AccountsService';
@@ -9,10 +12,15 @@ import { Account } from '../models';
 import { Action } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { isPrimaryAccount } from '../utils/typeGuards';
-import { isCoreWeb } from '../../network/utils/isCoreWeb';
+import { isSyncDomain } from '../../network/utils/getSyncDomain';
+
+type Params = [selectedIndexOrID: number | string];
 
 @injectable()
-export class AvalancheSelectAccountHandler extends DAppRequestHandler {
+export class AvalancheSelectAccountHandler extends DAppRequestHandler<
+  Params,
+  null
+> {
   methods = [DAppProviderRequest.ACCOUNT_SELECT];
 
   constructor(
@@ -22,8 +30,10 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
     super();
   }
 
-  handleAuthenticated = async (rpcCall) => {
-    const { request } = rpcCall;
+  handleAuthenticated = async (
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>
+  ) => {
+    const { request, scope } = rpcCall;
     const [selectedIndexOrID] = request.params;
 
     // until core web sends only IDs...
@@ -62,7 +72,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
       };
     }
 
-    const skipApproval = await isCoreWeb(request);
+    const skipApproval = await isSyncDomain(request.site?.domain ?? '');
 
     if (skipApproval) {
       await this.accountsService.activateAccount(selectedAccount.id);
@@ -71,6 +81,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
 
     const actionData: Action<{ selectedAccount: Account }> = {
       ...request,
+      scope,
       displayData: {
         selectedAccount,
       },
