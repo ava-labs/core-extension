@@ -8,9 +8,9 @@ import { WalletAddEthereumChainHandler } from './wallet_addEthereumChain';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { decorateWithCaipId } from '@src/utils/caipConversion';
-import { isSyncDomain } from '../utils/getSyncDomain';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
 
-jest.mock('../utils/getSyncDomain');
+jest.mock('@src/utils/canSkipApproval');
 jest.mock('../NetworkService');
 jest.mock('@src/background/runtime/openApprovalWindow');
 
@@ -40,7 +40,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
   beforeEach(() => {
     jest.resetAllMocks();
 
-    jest.mocked(isSyncDomain).mockReturnValue(false);
+    jest.mocked(canSkipApproval).mockResolvedValue(false);
     mockNetworkService = new NetworkService({} as any, {} as any);
     (mockNetworkService.isValidRPCUrl as jest.Mock).mockReturnValue(true);
     jest.spyOn(mockNetworkService, 'setNetwork');
@@ -72,6 +72,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       ],
       site: {
         domain: 'core.app',
+        tabId: 1,
       },
     };
 
@@ -102,6 +103,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       ],
       site: {
         domain: 'core.app',
+        tabId: 1,
       },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
@@ -133,6 +135,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       ],
       site: {
         domain: 'core.app',
+        tabId: 1,
       },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
@@ -161,6 +164,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       ],
       site: {
         domain: 'core.app',
+        tabId: 1,
       },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
@@ -189,6 +193,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       ],
       site: {
         domain: 'core.app',
+        tabId: 1,
       },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
@@ -218,6 +223,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       ],
       site: {
         domain: 'core.app',
+        tabId: 1,
       },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
@@ -247,6 +253,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       ],
       site: {
         domain: 'core.app',
+        tabId: 1,
       },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
@@ -278,6 +285,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       ],
       site: {
         domain: 'core.app',
+        tabId: 1,
       },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
@@ -314,6 +322,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       ],
       site: {
         domain: 'google.app',
+        tabId: 1,
       },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
@@ -348,6 +357,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
         ],
         site: {
           domain: 'google.app',
+          tabId: 1,
         },
       };
       const result = await handler.handleUnauthenticated(buildRpcCall(request));
@@ -425,7 +435,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     });
 
     it('does not opens approval dialog and switch to a known network if the request is from core web', async () => {
-      jest.mocked(isSyncDomain).mockReturnValue(true);
+      jest.mocked(canSkipApproval).mockResolvedValue(true);
 
       const request = {
         id: '852',
@@ -463,7 +473,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     });
 
     it('does not opens approval dialog and add and switch to a new network if the request is from a core domain', async () => {
-      jest.mocked(isSyncDomain).mockReturnValue(true);
+      jest.mocked(canSkipApproval).mockResolvedValue(true);
 
       const request = {
         id: '852',

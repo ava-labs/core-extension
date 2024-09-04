@@ -12,7 +12,7 @@ import { Account } from '../models';
 import { Action } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { isPrimaryAccount } from '../utils/typeGuards';
-import { isSyncDomain } from '../../network/utils/getSyncDomain';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
 
 type Params = [selectedIndexOrID: number | string];
 
@@ -72,7 +72,10 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler<
       };
     }
 
-    const skipApproval = await isSyncDomain(request.site?.domain ?? '');
+    const skipApproval = await canSkipApproval(
+      request.site?.domain ?? '',
+      request.site?.tabId ?? -1
+    );
 
     if (skipApproval) {
       await this.accountsService.activateAccount(selectedAccount.id);

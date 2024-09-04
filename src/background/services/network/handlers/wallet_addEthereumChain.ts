@@ -17,7 +17,7 @@ import {
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { decorateWithCaipId } from '@src/utils/caipConversion';
-import { isSyncDomain } from '../utils/getSyncDomain';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
 
 type Params = [AddEthereumChainParameter];
 
@@ -41,7 +41,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
   }: JsonRpcRequestParams<DAppProviderRequest, Params>) => {
     const requestedChain: AddEthereumChainParameter = request.params?.[0];
 
-    if (!request.site?.domain) {
+    if (!request.site?.domain || !request.site?.tabId) {
       return {
         ...request,
         error: ethErrors.rpc.invalidRequest({
@@ -136,7 +136,10 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
         }),
       };
     }
-    const skipApproval = await isSyncDomain(request.site?.domain ?? '');
+    const skipApproval = await canSkipApproval(
+      request.site.domain,
+      request.site.tabId
+    );
 
     if (skipApproval) {
       await this.actionHandler(chains, customNetwork, request.site.domain);

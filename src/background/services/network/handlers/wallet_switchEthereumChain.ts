@@ -10,7 +10,7 @@ import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { NetworkWithCaipId } from '../models';
-import { isSyncDomain } from '../utils/getSyncDomain';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
 
 type Params = [{ chainId: string | number }];
 
@@ -40,7 +40,7 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler<
     request,
     scope,
   }: JsonRpcRequestParams<DAppProviderRequest, Params>) => {
-    if (!request.site?.domain) {
+    if (!request.site?.domain || !request.site.tabId) {
       return {
         ...request,
         error: ethErrors.rpc.invalidRequest({
@@ -70,7 +70,10 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler<
     // then we need to show a confirmation popup to confirm user wants to switch to the requested network
     // from the dApp they are on.
     if (supportedNetwork?.chainId) {
-      const skipApproval = await isSyncDomain(request.site.domain);
+      const skipApproval = await canSkipApproval(
+        request.site.domain,
+        request.site.tabId
+      );
 
       if (skipApproval) {
         await this.networkService.setNetwork(

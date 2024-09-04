@@ -7,7 +7,9 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 
 import { AvalancheRenameAccountHandler } from './avalanche_renameAccount';
 import { Account } from '../models';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
 
+jest.mock('@src/utils/canSkipApproval');
 jest.mock('@src/background/runtime/openApprovalWindow');
 
 describe('src/background/services/accounts/handlers/avalanche_renameAccount', () => {
@@ -45,9 +47,10 @@ describe('src/background/services/accounts/handlers/avalanche_renameAccount', ()
       params: ['uuid', 'Changed Name'],
       site: {
         domain: 'google.com',
+        tabId: 1,
       },
     } as any;
-
+    jest.mocked(canSkipApproval).mockResolvedValueOnce(false);
     const account = { id: '1234', name: 'old name' } as Account;
     getAccountByID.mockReturnValueOnce(account);
 
@@ -71,9 +74,11 @@ describe('src/background/services/accounts/handlers/avalanche_renameAccount', ()
       params: ['uuid', 'Changed Name'],
       site: {
         domain: 'core.app',
+        tabId: 1,
       },
     } as any;
 
+    jest.mocked(canSkipApproval).mockResolvedValueOnce(true);
     const account = { id: '1234', name: 'old name' } as Account;
     getAccountByID.mockReturnValueOnce(account);
 
@@ -96,6 +101,7 @@ describe('src/background/services/accounts/handlers/avalanche_renameAccount', ()
       params: ['uuid', '  '],
       site: {
         domain: 'core.app',
+        tabId: 1,
       },
     } as any;
 
@@ -107,6 +113,8 @@ describe('src/background/services/accounts/handlers/avalanche_renameAccount', ()
   });
 
   it('returns error when renaming account fails', async () => {
+    jest.mocked(canSkipApproval).mockResolvedValueOnce(true);
+
     const handler = new AvalancheRenameAccountHandler({
       getAccountByID: jest.fn().mockReturnValueOnce({}),
       setAccountName: jest.fn().mockRejectedValueOnce(new Error('some error')),
@@ -117,6 +125,7 @@ describe('src/background/services/accounts/handlers/avalanche_renameAccount', ()
       params: ['uuid', 'Change Name'],
       site: {
         domain: 'core.app',
+        tabId: 1,
       },
     } as any;
 

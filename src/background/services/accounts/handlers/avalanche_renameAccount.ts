@@ -8,8 +8,8 @@ import {
 } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
 
-import { isSyncDomain } from '../../network/utils/getSyncDomain';
 import { AccountsService } from '../AccountsService';
 import { Action } from '../../actions/models';
 import { Account } from '../models';
@@ -33,7 +33,7 @@ export class AvalancheRenameAccountHandler extends DAppRequestHandler<
     const { request, scope } = rpcCall;
     const [accountId, newName] = request.params;
 
-    if (!request.site?.domain) {
+    if (!request.site?.domain || !request.site?.tabId) {
       return {
         ...request,
         error: ethErrors.rpc.invalidRequest({
@@ -62,7 +62,7 @@ export class AvalancheRenameAccountHandler extends DAppRequestHandler<
       };
     }
 
-    if (isSyncDomain(request.site.domain)) {
+    if (await canSkipApproval(request.site.domain, request.site.tabId)) {
       try {
         await this.accountsService.setAccountName(accountId, newName);
 
