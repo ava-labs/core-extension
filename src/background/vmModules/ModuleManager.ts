@@ -1,14 +1,13 @@
 import { Environment, Module } from '@avalabs/vm-module-types';
 import { BitcoinModule } from '@avalabs/bitcoin-module';
+import { AvalancheModule } from '@avalabs/avalanche-module';
+import { EvmModule } from '@avalabs/evm-module';
 import { ethErrors } from 'eth-rpc-errors';
 
 import { assertPresent } from '@src/utils/assertions';
 import { isDevelopment } from '@src/utils/environment';
 
 import { NetworkWithCaipId } from '../services/network/models';
-
-import { AVMModule } from './mocks/avm';
-import { EVMModule } from './mocks/evm';
 import { PVMModule } from './mocks/pvm';
 import { CoreEthModule } from './mocks/coreEth';
 import { VMModuleError } from './models';
@@ -38,7 +37,6 @@ class ModuleManager {
       : Environment.PRODUCTION;
 
     this.#modules = [
-      new EVMModule(),
       new BitcoinModule({
         environment,
         approvalController: {
@@ -53,7 +51,34 @@ class ModuleManager {
           },
         },
       }),
-      new AVMModule(),
+      new AvalancheModule({
+        environment,
+        approvalController: {
+          requestApproval: () => {
+            throw new Error('not implemented');
+          },
+          onTransactionConfirmed: () => {
+            throw new Error('not implemented');
+          },
+          onTransactionReverted: () => {
+            throw new Error('not implemented');
+          },
+        },
+      }),
+      new EvmModule({
+        environment,
+        approvalController: {
+          requestApproval: () => {
+            throw new Error('not implemented');
+          },
+          onTransactionConfirmed: () => {
+            throw new Error('not implemented');
+          },
+          onTransactionReverted: () => {
+            throw new Error('not implemented');
+          },
+        },
+      }),
       new CoreEthModule(),
       new PVMModule(),
     ];
