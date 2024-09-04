@@ -3,6 +3,7 @@ import { Route, Switch, SwitchProps } from 'react-router-dom';
 import { CircularProgress, Stack } from '@avalabs/core-k2-components';
 
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
+import { RenameAccount } from '@src/pages/Wallet/RenameAccount';
 
 const SignMessage = lazy(() => {
   return import('../pages/SignMessage/SignMessage').then((m) => ({
@@ -173,6 +174,9 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       </Route>
       <Route path="/switchAccount">
         <SwitchAccount />
+      </Route>
+      <Route path="/renameAccount">
+        <RenameAccount />
       </Route>
       <Route path="/networks/add-popup">
         <AddCustomNetworkPopup />
