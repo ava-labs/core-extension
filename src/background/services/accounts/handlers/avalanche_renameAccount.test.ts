@@ -85,6 +85,27 @@ describe('src/background/services/accounts/handlers/avalanche_renameAccount', ()
     expect(result).toEqual({ ...request, result: null });
   });
 
+  it('returns error when new account name is empty', async () => {
+    const handler = new AvalancheRenameAccountHandler({
+      getAccountByID: jest.fn().mockReturnValueOnce({}),
+      setAccountName: jest.fn().mockResolvedValueOnce(undefined),
+    } as any);
+    const request = {
+      id: '123',
+      method: DAppProviderRequest.ACCOUNT_RENAME,
+      params: ['uuid', '  '],
+      site: {
+        domain: 'core.app',
+      },
+    } as any;
+
+    const result = await handler.handleAuthenticated(buildRpcCall(request));
+    expect(result).toEqual({
+      ...request,
+      error: ethErrors.rpc.invalidParams('Invalid new name'),
+    });
+  });
+
   it('returns error when renaming account fails', async () => {
     const handler = new AvalancheRenameAccountHandler({
       getAccountByID: jest.fn().mockReturnValueOnce({}),

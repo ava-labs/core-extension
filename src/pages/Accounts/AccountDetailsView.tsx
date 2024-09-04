@@ -60,6 +60,7 @@ export const AccountDetailsView = () => {
     account,
     walletDetails?.type
   );
+  const [, setErrorToastId] = useState('');
   const { featureFlags } = useFeatureFlagContext();
   const canPrimaryAccountsBeRemoved =
     featureFlags[FeatureGates.PRIMARY_ACCOUNT_REMOVAL];
@@ -94,8 +95,18 @@ export const AccountDetailsView = () => {
       return;
     }
 
+    if (newName.trim().length === 0) {
+      setErrorToastId((prevToastId) => {
+        if (prevToastId) {
+          toast.dismiss(prevToastId);
+        }
+        return toast.error(t('New name is required'), { duration: 2000 });
+      });
+      return;
+    }
+
     setIsSaving(true);
-    renameAccount(accountId, newName)
+    renameAccount(accountId, newName.trim())
       .then(() => {
         setIsEditing(false);
         toast.success(t('Account renamed'));

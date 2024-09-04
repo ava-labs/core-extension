@@ -42,6 +42,15 @@ export class AvalancheRenameAccountHandler extends DAppRequestHandler<
       };
     }
 
+    if (newName.trim().length === 0) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message: 'Invalid new name',
+        }),
+      };
+    }
+
     const account = this.accountsService.getAccountByID(accountId);
 
     if (!account) {
