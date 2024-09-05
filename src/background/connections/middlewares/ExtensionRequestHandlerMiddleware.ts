@@ -1,4 +1,4 @@
-import { Middleware } from './models';
+import { Context, Middleware } from './models';
 import { resolve } from '@src/utils/promiseResolver';
 import {
   ExtensionConnectionMessage,
@@ -6,9 +6,13 @@ import {
   ExtensionRequestHandler,
 } from '../models';
 import * as Sentry from '@sentry/browser';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { Module } from '@avalabs/vm-module-types';
+import { runtime } from 'webextension-polyfill';
 
 export function ExtensionRequestHandlerMiddleware(
-  handlers: ExtensionRequestHandler<any, any>[]
+  handlers: ExtensionRequestHandler<any, any>[],
+  moduleManager: ModuleManager
 ): Middleware<
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse<any, any>
@@ -23,17 +27,28 @@ export function ExtensionRequestHandlerMiddleware(
   return async (context, next, onError) => {
     const method = context.request.params.request.method;
     const handler = handlerMap.get(method);
+    const [module] = handler
+      ? [null]
+      : await resolve(
+          moduleManager.loadModule(
+            context.request.params.scope,
+            context.request.params.request.method
+          )
+        );
 
-    if (!handler) {
-      onError(new Error('no handler for this request found'));
+    if (!handler && !module) {
+      onError(
+        new Error(
+          'Unable to handle request: ' + context.request.params.request.method
+        )
+      );
       return;
     }
+
     const sentryTracker = Sentry.startTransaction({
       name: `Handler: ${method}`,
     });
-    const promise = handler.handle({
-      ...context.request.params,
-    });
+    const promise = handleRequest(handler ?? module, context);
 
     context.response = await resolve(promise).then(([result, error]) => {
       error && console.error(error);
@@ -50,3 +65,40 @@ export function ExtensionRequestHandlerMiddleware(
     next();
   };
 }
+
+const handleRequest = async (
+  handlerOrModule: ExtensionRequestHandler<any, any> | Module,
+  context: Context<ExtensionConnectionMessage, any>
+) => {
+  if ('handle' in handlerOrModule) {
+    return handlerOrModule.handle({
+      ...context.request.params,
+    });
+  }
+
+  if (!context.network) {
+    throw new Error('Unrecognized network: ' + context.request.params.scope);
+  }
+
+  const response = await handlerOrModule.onRpcRequest(
+    {
+      chainId: context.network.caipId,
+      dappInfo: {
+        icon: runtime.getManifest().icons?.['192'] ?? '',
+        name: runtime.getManifest().name,
+        url: runtime.getURL(''),
+      },
+      requestId: context.request.id,
+      sessionId: context.request.params.sessionId,
+      method: context.request.params.request.method,
+      params: context.request.params.request.params,
+      context: context.request.context,
+    },
+    context.network
+  );
+
+  return {
+    ...context.request.params.request,
+    ...response,
+  };
+};

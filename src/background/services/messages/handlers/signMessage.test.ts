@@ -55,7 +55,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       getNetwork: () => activeNetworkMock,
     } as any;
 
-    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue({} as any);
     (paramsToMessageParams as jest.Mock).mockReturnValue(displayDataMock);
   });
 

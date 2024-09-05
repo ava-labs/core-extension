@@ -2,7 +2,6 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { NetworkFeeService } from './NetworkFeeService';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { NetworkWithCaipId } from '../network/models';
-import ModuleManager from '@src/background/vmModules/ModuleManager';
 import { serializeToJSON } from '@src/background/serialization/serialize';
 
 jest.mock('@src/utils/network/getProviderForNetwork');
@@ -38,15 +37,17 @@ describe('src/background/services/networkFee/NetworkFeeService', () => {
         high: { maxFeePerGas: 5n },
       });
 
-      jest
-        .spyOn(ModuleManager, 'loadModuleByNetwork')
-        .mockResolvedValueOnce({ getNetworkFee } as any);
+      const moduleManager = {
+        loadModuleByNetwork: jest
+          .fn()
+          .mockResolvedValue({ getNetworkFee } as any),
+      } as any;
 
-      const service = new NetworkFeeService();
+      const service = new NetworkFeeService(moduleManager);
 
       const result = await service.getNetworkFee(btc);
 
-      expect(ModuleManager.loadModuleByNetwork).toHaveBeenCalledWith(btc);
+      expect(moduleManager.loadModuleByNetwork).toHaveBeenCalledWith(btc);
       expect(getNetworkFee).toHaveBeenCalledWith(btc);
 
       // Jest has issues with objects containing BigInts, so we make it easier by using our own serializer
@@ -66,7 +67,7 @@ describe('src/background/services/networkFee/NetworkFeeService', () => {
 
       provider.getFeeData.mockResolvedValueOnce({ maxFeePerGas });
 
-      const service = new NetworkFeeService();
+      const service = new NetworkFeeService({} as any);
 
       expect(await service.getNetworkFee(evm)).toEqual({
         displayDecimals: 9, // use Gwei to display amount

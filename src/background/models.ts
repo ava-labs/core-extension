@@ -8,6 +8,7 @@ export interface DomainMetadata {
   name?: string;
   icon?: string;
   tabId?: number;
+  url?: string;
 }
 
 export interface EthCall {
@@ -77,3 +78,5 @@ export type Never<T> = {
 };
 
 export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
+
+export const ACTION_HANDLED_BY_MODULE = '__handled.via.vm.modules__';

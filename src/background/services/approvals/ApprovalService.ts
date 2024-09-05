@@ -14,27 +14,38 @@ export class ApprovalService {
 
   constructor(private actionsService: ActionsService) {}
 
-  async requestApproval(action: Action, route: string) {
-    const isInAppRequest = action.site?.domain === browser.runtime.id;
+  #isInAppRequest(action: Action): boolean {
+    if (action.site?.domain === browser.runtime.id) {
+      return true;
+    }
+
+    if (action.dappInfo) {
+      const vmModuleDappUrl = new URL(action.dappInfo.url);
+      return vmModuleDappUrl.hostname === browser.runtime.id;
+    }
+
+    return false;
+  }
+  async requestApproval(action: Action, route: string): Promise<Action> {
     const url = `${route}?actionId=${action.actionId}`;
 
-    if (isInAppRequest) {
+    if (this.#isInAppRequest(action)) {
       this.#eventEmitter.emit(ApprovalEvent.ApprovalRequested, {
         action,
         url,
       });
 
-      await this.actionsService.addAction(action);
-    } else {
-      // By having this extension window render here, we are popping the extension window before we send the completed request
-      // allowing the locked service to prompt the password input first, saving the previous request to be completed once logged in.
-      const windowData = await openExtensionNewWindow(url);
-
-      await this.actionsService.addAction({
-        ...action,
-        popupWindowId: windowData.id,
-      });
+      return this.actionsService.addAction(action);
     }
+
+    // By having this extension window render here, we are popping the extension window before we send the completed request
+    // allowing the locked service to prompt the password input first, saving the previous request to be completed once logged in.
+    const windowData = await openExtensionNewWindow(url);
+
+    return this.actionsService.addAction({
+      ...action,
+      popupWindowId: windowData.id,
+    });
   }
 
   addListener(event: string, callback: (data) => void) {

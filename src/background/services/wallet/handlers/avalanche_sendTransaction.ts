@@ -161,7 +161,11 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       };
     }
 
-    const actionData = {
+    const actionData: Action<{
+      unsignedTxJson: string;
+      txData: Avalanche.Tx;
+      vm: VM;
+    }> = {
       ...request,
       scope,
       displayData: {
@@ -217,7 +221,11 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
   }
 
   onActionApproved = async (
-    pendingAction: Action,
+    pendingAction: Action<{
+      unsignedTxJson: string;
+      txData: Avalanche.Tx;
+      vm: VM;
+    }>,
     result,
     onSuccess,
     onError,

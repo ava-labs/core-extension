@@ -7,6 +7,7 @@ import {
 import { PartialBy } from '../models';
 import { ethErrors, serializeError } from 'eth-rpc-errors';
 import AbstractConnection from '../utils/messaging/AbstractConnection';
+import { chainIdToCaip } from '../../utils/caipConversion';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import RequestRatelimiter from './utils/RequestRatelimiter';
 import {
@@ -69,9 +70,9 @@ export class ChainAgnosticProvider extends EventEmitter {
         method: 'provider_request',
         jsonrpc: '2.0',
         params: {
-          scope: `eip155:${
+          scope: chainIdToCaip(
             chainId ? parseInt(chainId) : ChainId.AVALANCHE_MAINNET_ID
-          }`,
+          ),
           sessionId,
           request: {
             params: [],

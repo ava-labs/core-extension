@@ -20,6 +20,7 @@ import { SelectAccountHandler } from '@src/background/services/accounts/handlers
 import { RenameAccountHandler } from '@src/background/services/accounts/handlers/renameAccount';
 import { AddAccountHandler } from '@src/background/services/accounts/handlers/addAccount';
 import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
+import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 
 const AccountsContext = createContext<{
   accounts: Accounts;
@@ -76,8 +77,10 @@ export function AccountsContextProvider({ children }: { children: any }) {
 
   const getAccount = useCallback(
     (address: string) =>
-      allAccounts.find(
-        (acc) => acc.addressC.toLowerCase() === address.toLowerCase()
+      allAccounts.find((acc) =>
+        getAllAddressesForAccount(acc)
+          .map((addy) => addy?.toLowerCase())
+          .includes(address.toLowerCase())
       ),
     [allAccounts]
   );

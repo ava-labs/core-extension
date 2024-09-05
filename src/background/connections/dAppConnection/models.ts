@@ -1,4 +1,5 @@
 import { Maybe } from '@avalabs/core-utils-sdk';
+import { RpcResponse } from '@avalabs/vm-module-types';
 import { DomainMetadata } from '@src/background/models';
 import { EthereumProviderError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
@@ -71,6 +72,7 @@ export interface JsonRpcRequest<Method extends string = any, Params = unknown> {
   readonly id: string;
   readonly method: 'provider_request';
   readonly params: JsonRpcRequestParams<Method, Params>;
+  readonly context?: { tabId?: number } & Record<string, unknown>;
 }
 
 interface JsonRpcRequestPayloadBase<Method extends string = any> {
@@ -100,4 +102,5 @@ export interface JsonRpcFailure {
 }
 export declare type JsonRpcResponse<T = unknown> =
   | JsonRpcSuccess<T>
-  | JsonRpcFailure;
+  | JsonRpcFailure
+  | RpcResponse;

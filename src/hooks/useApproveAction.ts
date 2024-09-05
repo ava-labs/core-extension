@@ -11,6 +11,7 @@ import {
   useIsSpecificContextContainer,
 } from './useIsSpecificContextContainer';
 import { useApprovalsContext } from '@src/contexts/ApprovalsProvider';
+import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
 
 export function useApproveAction<DisplayData = any>(actionId: string) {
   const { request } = useConnectionContext();
@@ -39,6 +40,10 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
             ...prevActionData.displayData,
             ...params.displayData,
           },
+          signingData: getUpdatedSigningData(
+            prevActionData.signingData,
+            params.signingData
+          ),
         };
       });
 
