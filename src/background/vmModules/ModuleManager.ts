@@ -8,7 +8,6 @@ import { assertPresent } from '@src/utils/assertions';
 import { isDevelopment } from '@src/utils/environment';
 
 import { NetworkWithCaipId } from '../services/network/models';
-import { PVMModule } from './mocks/pvm';
 import { CoreEthModule } from './mocks/coreEth';
 import { VMModuleError } from './models';
 
@@ -80,7 +79,6 @@ class ModuleManager {
         },
       }),
       new CoreEthModule(),
-      new PVMModule(),
     ];
   }
 
@@ -126,7 +124,6 @@ class ModuleManager {
         },
       });
     }
-
     return (
       (await this.#getModuleByChainId(chainId)) ??
       (await this.#getModuleByNamespace(namespace))
