@@ -50,8 +50,8 @@ export function RenameAccount() {
   };
 
   return (
-    <Stack>
-      <Stack sx={{ flexGrow: 1, width: 1 }}>
+    <Stack sx={{ width: 1, px: 2 }}>
+      <Stack sx={{ flexGrow: 1, width: 1, gap: 3 }}>
         <Typography variant="h4" sx={{ mt: 1.5, mb: 3.5 }}>
           {t('Rename account?')}
         </Typography>
