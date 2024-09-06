@@ -56,14 +56,15 @@
     bn.js "5.2.1"
     zod "3.23.8"
 
-"@avalabs/bridge-unified@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-2.1.0.tgz#2b247cf46df387aeac8633b016419a056e12567b"
-  integrity sha512-s0lmYoTqi3J9mtA5Ja6qOKLDT/XMsv8D9wGNaWS+bBTOePf0nMDxRZ8k+BhEBikR3upGuQY8gtOEl2j9vkxkrA==
+"@avalabs/bridge-unified@0.0.0-fix-make-sign-optional-for-gas-20240905074019":
+  version "0.0.0-fix-make-sign-optional-for-gas-20240905074019"
+  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-0.0.0-fix-make-sign-optional-for-gas-20240905074019.tgz#543a62a639ba36a7624ed4dca22cfbc47720a3eb"
+  integrity sha512-a1I1kWMe4u9MZsNvBFQahNtPHefFL2RMeT+oLfbR6CClHrDyvcPURdt4mV+oV9oDSSAwK2Lg28cdfxokfkdo3A==
   dependencies:
     abitype "0.9.3"
     lodash "4.17.21"
-    viem "1.19.8"
+    viem "2.11.1"
+    zod "3.23.8"
 
 "@avalabs/core-bridge-sdk@3.1.0-alpha.4":
   version "3.1.0-alpha.4"
@@ -6912,10 +6913,10 @@ abitype@0.9.3:
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.9.3.tgz#294d25288ee683d72baf4e1fed757034e3c8c277"
   integrity sha512-dz4qCQLurx97FQhnb/EIYTk/ldQ+oafEDUqC0VVIeQS1Q48/YWt/9YNfMmp9SLFqN41ktxny3c8aYxHjmFIB/w==
 
-abitype@0.9.8:
-  version "0.9.8"
-  resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.9.8.tgz#1f120b6b717459deafd213dfbf3a3dd1bf10ae8c"
-  integrity sha512-puLifILdm+8sjyss4S+fsUN09obiT1g2YW6CtcQF+QDzxR0euzgEB29MZujC6zMk2a6SVmtttq1fc6+YFA7WYQ==
+abitype@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.0.0.tgz#237176dace81d90d018bebf3a45cb42f2a2d9e97"
+  integrity sha512-NMeMah//6bJ56H5XRj8QCV4AwuW6hB6zqz2LnhhLdcWVQOsXki6/Pn3APeqxCma62nXIcmZWdu1DlHWS74umVQ==
 
 abort-controller@^3.0.0:
   version "3.0.0"
@@ -13238,10 +13239,10 @@ isobject@^3.0.1:
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
   integrity sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==
 
-isows@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/isows/-/isows-1.0.3.tgz#93c1cf0575daf56e7120bab5c8c448b0809d0d74"
-  integrity sha512-2cKei4vlmg2cxEjm3wVSqn8pcoRF/LX/wpifuuNquFO4SQmPwarClT+SUCA2lt+l581tTeZIPIZuIDo2jWN1fg==
+isows@1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/isows/-/isows-1.0.4.tgz#810cd0d90cc4995c26395d2aa4cfa4037ebdf061"
+  integrity sha512-hEzjY+x9u9hPmBom9IIAqdJCwNLax+xrPb51vEPpERoFlIxgmZcHzsT5jKG06nvInKOBGvReAVz80Umed5CczQ==
 
 isstream@~0.1.2:
   version "0.1.2"
@@ -20591,18 +20592,18 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-viem@1.19.8:
-  version "1.19.8"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-1.19.8.tgz#036c4a5f76adf8fcbcc279c82ee5bdf398d82adf"
-  integrity sha512-AgoZcLej7u4Zw/ojDsDWfonPSoz07EirrvXVndAMG78ikHf7VnRbxkFACAFg2SgNbCXmr5+ePHpgd53dMVIZ4Q==
+viem@2.11.1:
+  version "2.11.1"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.11.1.tgz#03ff205734c21748b7a0df8e5f956db61ebaf1c5"
+  integrity sha512-4iypXhxWkXoWO45XStxQvhj/vYZ5+3AtSEngHiOnuHOSNoiIsYfDvTMoTiAO53PeyYvExyVzJc9BFwejGHh7pg==
   dependencies:
     "@adraffy/ens-normalize" "1.10.0"
     "@noble/curves" "1.2.0"
     "@noble/hashes" "1.3.2"
     "@scure/bip32" "1.3.2"
     "@scure/bip39" "1.2.1"
-    abitype "0.9.8"
-    isows "1.0.3"
+    abitype "1.0.0"
+    isows "1.0.4"
     ws "8.13.0"
 
 vinyl-fs@^3.0.1:

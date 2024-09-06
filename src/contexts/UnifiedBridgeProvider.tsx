@@ -16,6 +16,8 @@ import {
   TokenType,
   createUnifiedBridgeService,
   BridgeTransfer,
+  getEnabledBridgeServices,
+  BridgeServicesMap,
 } from '@avalabs/bridge-unified';
 import { ethErrors } from 'eth-rpc-errors';
 import { filter, map } from 'rxjs';
@@ -125,25 +127,55 @@ export function UnifiedBridgeProvider({
   );
   const { featureFlags } = useFeatureFlagContext();
   const isCCTPDisabled = !featureFlags[FeatureGates.UNIFIED_BRIDGE_CCTP];
-  const disabledBridges = useMemo(
+  const disabledBridgeTypes = useMemo(
     () => (isCCTPDisabled ? [BridgeType.CCTP] : []),
     [isCCTPDisabled]
   );
 
+  const environment = useMemo(() => {
+    if (typeof activeNetwork?.isTestnet !== 'boolean') {
+      return null;
+    }
+
+    return activeNetwork.isTestnet ? Environment.TEST : Environment.PROD;
+  }, []);
+
+  const [enabledBridgeServices, setEnabledBridgeServices] =
+    useState<BridgeServicesMap>();
+
+  useEffect(() => {
+    if (!environment) {
+      return;
+    }
+
+    let isMounted = true;
+
+    getEnabledBridgeServices(environment, disabledBridgeTypes)
+      .then((bridges) => {
+        if (isMounted) setEnabledBridgeServices(bridges);
+      })
+      .catch((err) => {
+        console.log('Unable to initialize bridge services', err);
+        if (isMounted) setEnabledBridgeServices(undefined);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [environment, disabledBridgeTypes]);
+
   // Memoize the core instance of Unified Bridge based on the current
   // network environment & feature flags configuration
-  const core = useMemo(
-    () =>
-      activeNetwork
-        ? createUnifiedBridgeService({
-            environment: activeNetwork.isTestnet
-              ? Environment.TEST
-              : Environment.PROD,
-            disabledBridgeTypes: disabledBridges,
-          })
-        : null,
-    [activeNetwork, disabledBridges]
-  );
+  const core = useMemo(() => {
+    if (!environment || !enabledBridgeServices) {
+      return null;
+    }
+
+    return createUnifiedBridgeService({
+      environment,
+      enabledBridgeServices,
+    });
+  }, [environment, enabledBridgeServices]);
 
   // Whenever core instance is re-created, initialize it and update assets
   useEffect(() => {
@@ -153,12 +185,12 @@ export function UnifiedBridgeProvider({
 
     let isMounted = true;
 
-    core.init().then(async () => {
+    core.getAssets().then((chainAssetsMap) => {
       if (!isMounted) {
         return;
       }
 
-      setAssets(await core.getAssets());
+      setAssets(chainAssetsMap);
     });
 
     return () => {
@@ -167,7 +199,7 @@ export function UnifiedBridgeProvider({
   }, [core]);
 
   const buildChain = useCallback(
-    (chainId: number) => {
+    (chainId: number): Chain => {
       const network = getNetwork(chainId);
 
       assert(network, CommonError.UnknownNetwork);
@@ -221,14 +253,16 @@ export function UnifiedBridgeProvider({
   }, [events, request]);
 
   const supportsAsset = useCallback(
-    (lookupAddress: string, targetChainId: number) => {
+    (lookupAddressOrSymbol: string, targetChainId: number) => {
       if (!activeNetwork) {
         return false;
       }
 
       const sourceAssets = assets[getNetworkCaipId(activeNetwork)] ?? [];
-      const asset = sourceAssets.find(({ address }) => {
-        return lookupAddress === address;
+      const asset = sourceAssets.find((token) => {
+        return token.type === TokenType.NATIVE
+          ? token.symbol === lookupAddressOrSymbol
+          : token.address === lookupAddressOrSymbol;
       });
 
       if (!asset) {
@@ -300,8 +334,7 @@ export function UnifiedBridgeProvider({
       assert(activeNetwork, CommonError.NoActiveNetwork);
 
       const asset = getAsset(symbol, activeNetwork.chainId);
-
-      assert(asset?.address, UnifiedBridgeError.UnknownAsset);
+      assert(asset, UnifiedBridgeError.UnknownAsset);
 
       const feeMap = await core.getFees({
         asset,
@@ -310,17 +343,10 @@ export function UnifiedBridgeProvider({
         sourceChain: buildChain(activeNetwork.chainId),
       });
 
-      const fee = feeMap[asset.address];
+      const identifier =
+        asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
 
-      if (typeof fee !== 'bigint') {
-        throw ethErrors.rpc.invalidRequest({
-          data: {
-            reason: UnifiedBridgeError.InvalidFee,
-          },
-        });
-      }
-
-      return fee;
+      return feeMap[identifier] ?? 0n;
     },
     [activeNetwork, core, buildChain, getAsset]
   );

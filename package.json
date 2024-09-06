@@ -25,7 +25,7 @@
   "dependencies": {
     "@avalabs/avalanchejs": "4.0.5",
     "@avalabs/bitcoin-module": "0.5.0",
-    "@avalabs/bridge-unified": "2.1.0",
+    "@avalabs/bridge-unified": "0.0.0-fix-make-sign-optional-for-gas-20240905074019",
     "@avalabs/core-bridge-sdk": "3.1.0-alpha.4",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.4",
     "@avalabs/core-coingecko-sdk": "3.1.0-alpha.4",
