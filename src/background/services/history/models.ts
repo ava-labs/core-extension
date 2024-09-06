@@ -35,11 +35,12 @@ export interface TxHistoryItem {
 }
 
 export interface XPchainTxHistoryItem {
-  from: string[];
-  to: string[];
+  from: string[] | string;
+  to: string[] | string;
   isSender: boolean;
   timestamp: string;
   token: TxHistoryItemToken;
+  tokens: TxHistoryItemToken[];
   gasUsed: string;
   explorerLink: string;
   chainId: string; // chainId from ActiveNetwork used to fetch tx
@@ -47,11 +48,11 @@ export interface XPchainTxHistoryItem {
 }
 
 export interface PchainTxHistoryItem extends XPchainTxHistoryItem {
-  type: PChainTransactionType;
+  txType: PChainTransactionType;
   vmType: 'PVM';
 }
 export interface XchainTxHistoryItem extends XPchainTxHistoryItem {
-  type: XChainTransactionType;
+  txType: XChainTransactionType;
   vmType: 'AVM';
 }
 

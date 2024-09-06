@@ -7,7 +7,10 @@ import {
 export function isTxHistoryItem(
   tx: TxHistoryItem | PchainTxHistoryItem | XchainTxHistoryItem
 ): tx is TxHistoryItem {
-  return Object.keys(tx).includes('tokens');
+  if ('vmType' in tx) {
+    return false;
+  }
+  return true;
 }
 
 export function isPchainTxHistoryItem(
