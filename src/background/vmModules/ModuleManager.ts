@@ -8,10 +8,10 @@ import { isDevelopment } from '@src/utils/environment';
 import { NetworkWithCaipId } from '../services/network/models';
 
 import { AVMModule } from './mocks/avm';
-import { EVMModule } from './mocks/evm';
 import { PVMModule } from './mocks/pvm';
 import { CoreEthModule } from './mocks/coreEth';
 import { VMModuleError } from './models';
+import { EvmModule } from '@avalabs/evm-module';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2
@@ -38,7 +38,20 @@ class ModuleManager {
       : Environment.PRODUCTION;
 
     this.#modules = [
-      new EVMModule(),
+      new EvmModule({
+        environment,
+        approvalController: {
+          requestApproval: () => {
+            throw new Error('not implemented');
+          },
+          onTransactionConfirmed: () => {
+            throw new Error('not implemented');
+          },
+          onTransactionReverted: () => {
+            throw new Error('not implemented');
+          },
+        },
+      }),
       new BitcoinModule({
         environment,
         approvalController: {

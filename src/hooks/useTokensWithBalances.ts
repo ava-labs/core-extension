@@ -3,17 +3,14 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import {
-  TokenType,
-  TokenWithBalance,
-  isNewTokenBalance,
-} from '@src/background/services/balances/models';
+import { isNewTokenBalance } from '@src/background/services/balances/models';
 import { BN } from 'bn.js';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { GetTokensListHandler } from '@src/background/services/tokens/handlers/getTokenList';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { merge } from 'lodash';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 
 type UseTokensWithBalanceOptions = {
   // Requests the tokens WITH and WITHOUT balances
@@ -110,7 +107,8 @@ export const useTokensWithBalances = (
           tokensWithBalances[address.toLowerCase()] = {
             ...tokenData,
             type: TokenType.ERC20,
-            balance: bnZero,
+            balance: 0n,
+            balanceDisplayValue: '0',
           };
 
           return tokensWithBalances;
@@ -178,8 +176,8 @@ export const useTokensWithBalances = (
 
     const filteredTokens = unfilteredTokens.filter((token) => {
       return isNewTokenBalance(token)
-        ? token.balance > 0
-        : token.balance.gt(bnZero) || token.type === TokenType.NATIVE; // Always include the native token
+        ? token.balance > 0n
+        : token.balance > 0n || token.type === TokenType.NATIVE; // Always include the native token
     });
 
     return filteredTokens.length

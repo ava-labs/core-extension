@@ -2,12 +2,6 @@ import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { stringToBN } from '@avalabs/core-utils-sdk';
 
-import {
-  NetworkTokenWithBalance,
-  NftTokenWithBalance,
-  TokenType,
-  TokenWithBalanceEVM,
-} from '@src/background/services/balances/models';
 import { useQueryParams } from '@src/hooks/useQueryParams';
 import { isValidAddress } from '@src/utils/isAddressValid';
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
@@ -17,6 +11,12 @@ import { useValidAddressFromParams } from '../hooks/useValidAddressFromParams';
 import { useEVMSend } from '../hooks/useSend';
 import { SendOptions, SendPageProps } from '../models';
 import { SendForm } from './SendForm';
+import {
+  NetworkTokenWithBalance,
+  NftTokenWithBalance,
+  TokenType,
+  TokenWithBalanceEVM,
+} from '@avalabs/vm-module-types';
 
 type Props = SendPageProps<
   JsonRpcBatchInternal,
@@ -109,7 +109,9 @@ export const SendEVM = ({
       tokenList={tokenList}
       onContactChanged={(contact) => setAddress(contact?.address ?? '')}
       onAmountChanged={(newAmount) => setAmount(newAmount)}
-      onTokenChanged={(newToken) => setToken(newToken as TokenWithBalanceEVM)}
+      onTokenChanged={(newToken) =>
+        setToken(newToken as Exclude<TokenWithBalanceEVM, NftTokenWithBalance>)
+      }
       isSending={isSending}
       isValid={isValid}
       isValidating={isValidating}

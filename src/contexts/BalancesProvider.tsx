@@ -1,13 +1,9 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   Balances,
-  NftPageTokens,
-  NftTokenWithBalance,
-  TokenType,
   TotalPriceChange,
 } from '@src/background/services/balances/models';
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
-import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
 import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import {
@@ -35,11 +31,13 @@ import { getSmallImageForNFT } from '@src/background/services/balances/nft/utils
 import { parseRawAttributesString } from '@src/utils/nfts/metadataParser';
 import { TokensPriceShortData } from '@src/background/services/tokens/models';
 import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+
+export const IPFS_URL = 'https://ipfs.io';
 
 interface NftState {
   loading: boolean;
   items?: NftTokenWithBalance[];
-  pageTokens?: NftPageTokens;
   error?: string;
 }
 export interface BalancesState {
@@ -76,10 +74,6 @@ const BalancesContext = createContext<{
     chainId: string,
     tokenId: string
   ): Promise<void>;
-  updateNftBalances?: (
-    pageToken?: NftPageTokens,
-    callback?: () => void
-  ) => void;
   updateBalanceOnAllNetworks: (accounts: Account[]) => Promise<void>;
   registerSubscriber: () => void;
   unregisterSubscriber: () => void;
@@ -226,54 +220,6 @@ export function BalancesProvider({ children }: { children: any }) {
     setIsPolling(subscriberCount > 0);
   }, [subscriberCount]);
 
-  const updateNftBalances = useCallback(
-    async (pageTokens?: NftPageTokens, callback?: () => void) => {
-      if (
-        !pageTokens ||
-        (!pageTokens[TokenType.ERC1155] && !pageTokens[TokenType.ERC721])
-      ) {
-        setNfts({ loading: true });
-      }
-
-      request<GetNftBalancesHandler>({
-        method: ExtensionRequest.NFT_BALANCES_GET,
-        params: [pageTokens],
-      })
-        .then((result) => {
-          setNfts((prevState) => {
-            return {
-              items: pageTokens
-                ? [...(prevState.items ?? []), ...result.list]
-                : result.list,
-              pageTokens: result.pageTokens,
-              loading: false,
-            };
-          });
-        })
-        .catch((e) => {
-          setNfts((prevState) => {
-            return { ...prevState, ...{ loading: false, error: e } };
-          });
-        })
-        .finally(() => {
-          if (callback) {
-            callback();
-          }
-        });
-    },
-    [request]
-  );
-
-  useEffect(() => {
-    if (!activeAccount?.addressC || !network?.chainId) {
-      return;
-    }
-    updateNftBalances();
-
-    // trigger nft updates whenever the network has changed
-    // trigger nft updates whenever the account changes
-  }, [network?.chainId, activeAccount?.addressC, updateNftBalances]);
-
   const updateBalanceOnAllNetworks = useCallback(
     async (accounts: Account[]) => {
       if (!network) {
@@ -331,10 +277,9 @@ export function BalancesProvider({ children }: { children: any }) {
   return (
     <BalancesContext.Provider
       value={{
-        tokens,
         nfts,
+        tokens,
         refreshNftMetadata,
-        updateNftBalances,
         updateBalanceOnAllNetworks,
         registerSubscriber,
         unregisterSubscriber,

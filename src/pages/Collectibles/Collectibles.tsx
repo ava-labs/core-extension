@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   GridIcon,
@@ -18,10 +18,6 @@ import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import {
-  NftTokenWithBalance,
-  TokenType,
-} from '@src/background/services/balances/models';
-import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
@@ -39,7 +35,7 @@ interface CollectiblesProps {
 
 export function Collectibles({ listType, setListType }: CollectiblesProps) {
   const { t } = useTranslation();
-  const { nfts, updateNftBalances } = useBalancesContext();
+  const { nfts } = useBalancesContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
   const history = useHistory();
@@ -51,21 +47,6 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
   const visibleNfts = nfts.items?.filter((nft) => {
     return getCollectibleVisibility(nft);
   });
-  const [loading, setLoading] = useState(false);
-
-  const update = useCallback(() => {
-    if (loading || !updateNftBalances) {
-      return;
-    }
-
-    setLoading(true);
-    if (
-      nfts.pageTokens &&
-      (nfts.pageTokens[TokenType.ERC1155] || nfts.pageTokens[TokenType.ERC721])
-    ) {
-      updateNftBalances(nfts.pageTokens, () => setLoading(false));
-    }
-  }, [loading, updateNftBalances, nfts.pageTokens]);
 
   const handleClick = (type: ListType) => {
     setListType(type);
@@ -135,12 +116,12 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
       </Stack>
       {!nfts.loading && !!visibleNfts?.length && (
         <InfiniteScroll
-          loadMore={update}
+          loadMore={() => {}}
           hasMore={
             !!nfts.pageTokens?.[TokenType.ERC721] ||
             !!nfts.pageTokens?.[TokenType.ERC1155]
           }
-          loading={loading}
+          loading={nfts.loading}
           error={nfts.error?.toString()}
         >
           {listType === ListType.LIST ? (

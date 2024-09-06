@@ -20,11 +20,11 @@ import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { useTranslation } from 'react-i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
-import { TokenType } from '@src/background/services/balances/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
+import { TokenType } from '@avalabs/vm-module-types';
 
 type AttributeTypographyProps = Exclude<TypographyProps, 'variant' | 'sx'>;
 

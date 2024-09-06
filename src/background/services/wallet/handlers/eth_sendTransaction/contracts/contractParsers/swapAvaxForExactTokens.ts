@@ -11,9 +11,10 @@ import { Network } from '@avalabs/core-chains-sdk';
 import { TransactionDescription } from 'ethers';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import {
+  NetworkTokenWithBalance,
   TokenType,
-  TokenWithBalanceEVM,
-} from '@src/background/services/balances/models';
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
 
 export interface SwapAVAXForExactTokensData {
   /**
@@ -43,7 +44,7 @@ export async function swapAVAXForExactTokens(
   const lastTokenInPath = (await findToken(
     data.path[data.path.length - 1]?.toLowerCase() || '',
     network
-  )) as TokenWithBalanceEVM;
+  )) as TokenWithBalanceERC20 | NetworkTokenWithBalance;
 
   const receiveTokenList: TransactionToken[] = [];
 
@@ -58,14 +59,14 @@ export async function swapAVAXForExactTokens(
     logoUri: lastTokenInPath.logoUri,
 
     amount: BigInt(data.amountOut || data.amountOutMin),
-    usdValue: lastTokenInPath.priceUSD
-      ? Number(lastTokenInPath.priceUSD) *
+    usdValue: lastTokenInPath.priceInCurrency
+      ? Number(lastTokenInPath.priceInCurrency) *
         bigintToBig(
           data.amountOut || data.amountOutMin,
           lastTokenInPath.decimals
         ).toNumber()
       : undefined,
-    usdPrice: lastTokenInPath.priceUSD,
+    usdPrice: lastTokenInPath.priceInCurrency,
   });
 
   const result: TransactionDisplayValues = await parseBasicDisplayValues(

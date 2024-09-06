@@ -14,7 +14,6 @@ import { AccountType, PrimaryAccount } from '../../accounts/models';
 import { BtcTransactionResponse } from '../models';
 import { Action, ActionStatus } from './../../actions/models';
 import { AvalancheBridgeAsset } from './avalanche_bridgeAsset';
-import { TokenType } from '../../balances/models';
 import { BN } from 'bn.js';
 import {
   btcAsset,
@@ -28,6 +27,7 @@ import { buildRpcCall } from '@src/tests/test-utils';
 import { FeatureGates } from '../../featureFlags/models';
 import { getBtcInputUtxos } from '@src/utils/send/btcSendUtils';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { TokenType } from '@avalabs/vm-module-types';
 
 jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('@src/utils/send/btcSendUtils');

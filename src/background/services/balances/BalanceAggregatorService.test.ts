@@ -1,4 +1,3 @@
-import BN from 'bn.js';
 import * as Sentry from '@sentry/browser';
 import { Network, NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
 
@@ -7,13 +6,9 @@ import { SettingsService } from '../settings/SettingsService';
 import { Account, AccountType } from '../accounts/models';
 
 import { BalanceAggregatorService } from './BalanceAggregatorService';
-import {
-  BALANCES_CACHE_KEY,
-  BalanceServiceEvents,
-  NetworkTokenWithBalance,
-  TokenType,
-} from './models';
+import { BALANCES_CACHE_KEY, BalanceServiceEvents } from './models';
 import { LockService } from '../lock/LockService';
+import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');
@@ -111,7 +106,9 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   const network1TokenBalance: NetworkTokenWithBalance = {
     ...networkToken1,
     type: TokenType.NATIVE,
-    balance: new BN(100),
+    balance: 100n,
+    balanceDisplayValue: '0.00001',
+    coingeckoId: '',
   };
 
   const balanceForNetwork1 = {
@@ -123,7 +120,9 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   const network2TokenBalance: NetworkTokenWithBalance = {
     ...networkToken2,
     type: TokenType.NATIVE,
-    balance: new BN(100),
+    balance: 100n,
+    balanceDisplayValue: '0.00001',
+    coingeckoId: '',
   };
 
   const balanceForNetwork2 = {

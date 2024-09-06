@@ -12,8 +12,6 @@ import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import EthLogo from '@src/images/tokens/eth.png';
 import {
-  TokenWithBalance,
-  getTokenPrice,
   hasUnconfirmedBTCBalance,
   isAvaxWithUnavailableBalance,
 } from '@src/background/services/balances/models';
@@ -39,6 +37,7 @@ import { TokenEllipsis } from './TokenEllipsis';
 import { DropdownItem } from './Dropdown';
 import { useDisplaytokenlist } from '@src/hooks/useDisplayTokenList';
 import { TokenIcon } from './TokenIcon';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
 
 const InputContainer = styled(Card)`
   justify-content: space-between;
@@ -150,7 +149,7 @@ export function TokenSelect({
   });
 
   const formattedAmount = useMemo(() => {
-    const price = getTokenPrice(selectedToken);
+    const price = selectedToken?.priceInCurrency;
     const amount =
       inputAmount && !inputAmount.isZero() && price
         ? currencyFormatter(
@@ -291,7 +290,7 @@ export function TokenSelect({
     if (isAvaxWithUnavailableBalance(selectedToken)) {
       return (
         <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
-          {!!selectedToken?.balance.toNumber() && (
+          {!!selectedToken?.balance && (
             <Tooltip
               placement="top"
               title={`${t('Total Balance')}: ${

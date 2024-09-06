@@ -11,7 +11,6 @@ import { Contact } from '@avalabs/types';
 import { useTranslation } from 'react-i18next';
 
 import { TokenSelect } from '@src/components/common/TokenSelect';
-import { TokenWithBalance } from '@src/background/services/balances/models';
 import { SendErrorMessage } from '@src/utils/send/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
@@ -19,6 +18,7 @@ import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { ContactInput } from './ContactInput';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { getSendErrorMessage } from '../utils/sendErrorMessages';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
 
 type SendFormProps = {
   address?: string;

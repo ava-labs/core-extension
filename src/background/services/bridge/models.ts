@@ -5,7 +5,7 @@ import {
   WrapStatus,
 } from '@avalabs/core-bridge-sdk';
 import { Network } from '@avalabs/core-chains-sdk';
-import { TokenWithBalance } from '../balances/models';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
 
 export enum TransferEventType {
   WRAP_STATUS = 'wrap_status',

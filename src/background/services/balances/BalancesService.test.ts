@@ -4,15 +4,14 @@ import {
 } from '@avalabs/core-chains-sdk';
 import { BalancesService } from './BalancesService';
 import { AccountType } from '../accounts/models';
-import BN from 'bn.js';
 import { PrimaryNetworkAssetType } from '@avalabs/glacier-sdk';
+import { decorateWithCaipId } from '@src/utils/caipConversion';
 import {
   NetworkTokenWithBalance,
   TokenType,
   TokenWithBalanceAVM,
   TokenWithBalancePVM,
-} from './models';
-import { decorateWithCaipId } from '@src/utils/caipConversion';
+} from '@avalabs/vm-module-types';
 
 describe('src/background/services/balances/BalancesService.ts', () => {
   const balancesServiceEVMMock = {
@@ -80,16 +79,17 @@ describe('src/background/services/balances/BalancesService.ts', () => {
     decimals: 9,
     logoUri: 'logoUri.com',
     type: TokenType.NATIVE,
-    balance: new BN(2),
-    balanceUSD: 4,
+    balance: 2n,
+    balanceInCurrency: 4,
     balanceDisplayValue: '2',
-    balanceUsdDisplayValue: '4',
-    priceUSD: 2,
+    balanceCurrencyDisplayValue: '4',
+    priceInCurrency: 2,
+    coingeckoId: '',
 
-    available: new BN(1),
-    availableUSD: 2,
+    available: 1n,
+    availableInCurrency: 2,
     availableDisplayValue: '1',
-    availableUsdDisplayValue: '2',
+    availableCurrencyDisplayValue: '2',
     utxos: {
       unlockedUnstaked: [
         {
@@ -110,14 +110,16 @@ describe('src/background/services/balances/BalancesService.ts', () => {
       atomicMemoryUnlocked: [],
       atomicMemoryLocked: [],
     },
-    lockedStaked: 1,
-    lockedStakeable: 0,
-    lockedPlatform: 0,
-    atomicMemoryLocked: 0,
-    atomicMemoryUnlocked: 0,
-    unlockedUnstaked: 0,
-    unlockedStaked: 0,
-    pendingStaked: 0,
+    balancePerType: {
+      lockedStaked: 1,
+      lockedStakeable: 0,
+      lockedPlatform: 0,
+      atomicMemoryLocked: 0,
+      atomicMemoryUnlocked: 0,
+      unlockedUnstaked: 0,
+      unlockedStaked: 0,
+      pendingStaked: 0,
+    },
   };
 
   const xchainResult: TokenWithBalanceAVM = {
@@ -127,16 +129,17 @@ describe('src/background/services/balances/BalancesService.ts', () => {
     decimals: 9,
     logoUri: 'logoUri.com',
     type: TokenType.NATIVE,
-    balance: new BN(6),
-    balanceUSD: 36,
+    balance: 6n,
+    balanceInCurrency: 36,
     balanceDisplayValue: '6',
-    balanceUsdDisplayValue: '36',
-    priceUSD: 6,
+    balanceCurrencyDisplayValue: '36',
+    priceInCurrency: 6,
+    coingeckoId: '',
 
-    available: new BN(3),
-    availableUSD: 18,
+    available: 3n,
+    availableInCurrency: 18,
     availableDisplayValue: '3',
-    availableUsdDisplayValue: '18',
+    availableCurrencyDisplayValue: '18',
     utxos: {
       locked: [
         {
@@ -163,10 +166,13 @@ describe('src/background/services/balances/BalancesService.ts', () => {
       atomicMemoryUnlocked: [],
       atomicMemoryLocked: [],
     },
-    locked: 3,
-    unlocked: 3,
-    atomicMemoryLocked: 0,
-    atomicMemoryUnlocked: 0,
+
+    balancePerType: {
+      locked: 3,
+      unlocked: 3,
+      atomicMemoryLocked: 0,
+      atomicMemoryUnlocked: 0,
+    },
   };
 
   const glcacierResult: Record<
@@ -180,12 +186,13 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         description: 'description',
         decimals: 9,
         logoUri: 'logoUri.com',
+        coingeckoId: '',
         type: TokenType.NATIVE,
-        balance: new BN(3),
-        balanceUSD: 9,
+        balance: 3n,
+        balanceInCurrency: 9,
         balanceDisplayValue: '3',
-        balanceUsdDisplayValue: '9',
-        priceUSD: 3,
+        balanceCurrencyDisplayValue: '9',
+        priceInCurrency: 3,
       },
     },
   };
@@ -198,12 +205,13 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         description: 'description2',
         decimals: 9,
         logoUri: 'logoUri2.com',
+        coingeckoId: '',
         type: TokenType.NATIVE,
-        balance: new BN(4),
-        balanceUSD: 16,
+        balance: 4n,
+        balanceInCurrency: 16,
         balanceDisplayValue: '4',
-        balanceUsdDisplayValue: '16',
-        priceUSD: 4,
+        balanceCurrencyDisplayValue: '16',
+        priceInCurrency: 4,
       },
     },
   };
@@ -215,12 +223,13 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         description: 'description3',
         decimals: 9,
         logoUri: 'logoUri3.com',
+        coingeckoId: '',
         type: TokenType.NATIVE,
-        balance: new BN(5),
-        balanceUSD: 25,
+        balance: 5n,
+        balanceInCurrency: 25,
         balanceDisplayValue: '5',
-        balanceUsdDisplayValue: '25',
-        priceUSD: 5,
+        balanceCurrencyDisplayValue: '25',
+        priceInCurrency: 5,
       },
     },
   };
@@ -228,34 +237,8 @@ describe('src/background/services/balances/BalancesService.ts', () => {
   let service: BalancesService;
   beforeEach(() => {
     jest.resetAllMocks();
-    (balancesServiceEVMMock.getBalances as jest.Mock).mockResolvedValue(
-      evmResult
-    );
-    (balancesServiceBTCMock.getBalances as jest.Mock).mockResolvedValue(
-      btcResult
-    );
-    (balancesServicePVMMock.getBalances as jest.Mock).mockResolvedValue(
-      pchainResult
-    );
-    (balancesServiceAVMMock.getBalances as jest.Mock).mockResolvedValue(
-      xchainResult
-    );
-    (balanceServiceGlacierMock.getBalances as jest.Mock).mockResolvedValue(
-      glcacierResult
-    );
-    (glacierServiceMock.isNetworkSupported as jest.Mock).mockResolvedValue(
-      true
-    );
 
-    service = new BalancesService(
-      balancesServiceEVMMock,
-      balancesServiceBTCMock,
-      balancesServicePVMMock,
-      balancesServiceAVMMock,
-      {} as any,
-      balanceServiceGlacierMock,
-      glacierServiceMock
-    );
+    service = new BalancesService({} as any);
   });
 
   describe('getBalancesForNetwork', () => {

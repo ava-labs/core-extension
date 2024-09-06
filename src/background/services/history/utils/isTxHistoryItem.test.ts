@@ -1,10 +1,10 @@
+import { TokenType } from '@avalabs/vm-module-types';
 import {
   PchainTxHistoryItem,
   TransactionType,
   TxHistoryItem,
   XchainTxHistoryItem,
 } from '../models';
-import { TokenType } from '../../balances/models';
 import { isPchainTxHistoryItem, isTxHistoryItem } from './isTxHistoryItem';
 import {
   PChainTransactionType,

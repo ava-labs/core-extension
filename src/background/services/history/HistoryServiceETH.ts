@@ -15,7 +15,7 @@ import {
   getNormalTxs,
   NormalTx,
 } from '@avalabs/core-etherscan-sdk';
-import { TokenType } from '../balances/models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 @singleton()
 export class HistoryServiceETH {

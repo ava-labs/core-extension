@@ -23,15 +23,16 @@ import {
   useBridgeSDK,
   useGetTokenSymbolOnNetwork,
 } from '@avalabs/core-bridge-sdk';
-import { bigToBN, bigToLocaleString, bnToBig } from '@avalabs/core-utils-sdk';
+import {
+  bigToBigInt,
+  bigToBN,
+  bigToLocaleString,
+  bnToBig,
+} from '@avalabs/core-utils-sdk';
 import Big from 'big.js';
 import BN from 'bn.js';
 
 import { TokenSelect } from '@src/components/common/TokenSelect';
-import {
-  TokenType,
-  TokenWithBalance,
-} from '@src/background/services/balances/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Network } from '@src/background/services/network/models';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
@@ -48,6 +49,7 @@ import { isUnifiedBridgeAsset } from '../utils/isUnifiedBridgeAsset';
 
 import { NetworkSelector } from './NetworkSelector';
 import { useHasEnoughForGas } from '../hooks/useHasEnoughtForGas';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -157,7 +159,7 @@ export const BridgeForm = ({
     return {
       type: TokenType.ERC20,
       balanceDisplayValue: formatBalance(sourceBalance.balance),
-      balance: bigToBN(sourceBalance.balance || BIG_ZERO, denomination),
+      balance: bigToBigInt(sourceBalance.balance || BIG_ZERO, denomination),
       decimals: denomination,
       priceUSD: price,
       logoUri: sourceBalance.logoUri,

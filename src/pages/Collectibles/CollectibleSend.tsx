@@ -11,11 +11,6 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import {
-  NetworkTokenWithBalance,
-  NftTokenWithBalance,
-  TokenType,
-} from '@src/background/services/balances/models';
-import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
@@ -30,6 +25,11 @@ import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { LoadingSendForm } from '../Send/components/LoadingSendForm';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { SendEVMCollectible } from './SendEVMCollectible';
+import {
+  NetworkTokenWithBalance,
+  NftTokenWithBalance,
+  TokenType,
+} from '@avalabs/vm-module-types';
 
 export function CollectibleSend() {
   const { t } = useTranslation();

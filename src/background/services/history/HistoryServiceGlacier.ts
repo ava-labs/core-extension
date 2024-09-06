@@ -18,8 +18,8 @@ import { balanceToDisplayValue } from '@avalabs/core-utils-sdk';
 import { getNftMetadata } from '@src/utils/getNftMetadata';
 import { getSmallImageForNFT } from '../balances/nft/utils/getSmallImageForNFT';
 import { resolve } from '@src/utils/promiseResolver';
-import { TokenType } from '../balances/models';
 import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
+import { TokenType } from '@avalabs/vm-module-types';
 
 @singleton()
 export class HistoryServiceGlacier {

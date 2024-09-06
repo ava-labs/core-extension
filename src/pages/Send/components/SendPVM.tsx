@@ -2,7 +2,6 @@ import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { stringToBN } from '@avalabs/core-utils-sdk';
 
-import { TokenWithBalancePVM } from '@src/background/services/balances/models';
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
 
 import { SendPagePropsWithWalletPVM } from '../models';
@@ -12,6 +11,7 @@ import { useQueryParams } from '@src/hooks/useQueryParams';
 import { usePvmSend } from '../hooks/useSend';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
 import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
+import { TokenWithBalancePVM } from '@avalabs/vm-module-types';
 
 export const SendPVM = ({
   network,

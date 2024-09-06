@@ -1,109 +1,100 @@
-import { BalancesServiceEVM } from '@src/background/services/balances/BalancesServiceEVM';
-import { NetworkService } from '@src/background/services/network/NetworkService';
-import { BalancesServiceBTC } from '@src/background/services/balances/BalancesServiceBTC';
-import { BalancesServicePVM } from '@src/background/services/balances/BalancesServicePVM';
 import { singleton } from 'tsyringe';
-import {
-  GlacierUnhealthyError,
-  TokenWithBalance,
-} from '@src/background/services/balances/models';
-import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { Account } from '../accounts/models';
-import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
-import { BalancesServiceGlacier } from './BalancesServiceGlacier';
-import { GlacierService } from '../glacier/GlacierService';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
 import { TokensPriceShortData } from '../tokens/models';
-import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
-import { BalancesServiceAVM } from './BalancesServiceAVM';
 import { NetworkWithCaipId } from '../network/models';
+import ModuleManager from '@src/background/vmModules/ModuleManager';
+import { SettingsService } from '../settings/SettingsService';
+import { getPriceChangeValues } from './utils/getPriceChangeValues';
+import * as Sentry from '@sentry/browser';
+import { NetworkVMType, TokenWithBalance } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BalancesService {
-  constructor(
-    private balancesServiceEVM: BalancesServiceEVM,
-    private balancesServiceBTC: BalancesServiceBTC,
-    private balancesServicePVM: BalancesServicePVM,
-    private balancesServiceAVM: BalancesServiceAVM,
-    private networkService: NetworkService,
-    private balanceServiceGlacier: BalancesServiceGlacier,
-    private glacierService: GlacierService
-  ) {}
-
-  private getBalanceServiceByProvider(provider: any) {
-    const balanceService = [
-      this.balancesServiceEVM,
-      this.balancesServiceBTC,
-    ].find((service) => {
-      return !!service.getServiceForProvider(provider);
-    });
-
-    if (balanceService) return balanceService;
-    throw new Error('no balances service for this provider is supported');
-  }
+  constructor(private settingsService: SettingsService) {}
 
   async getBalancesForNetwork(
     network: NetworkWithCaipId,
     accounts: Account[],
     priceChanges?: TokensPriceShortData
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
-    if (isPchainNetwork(network)) {
-      const pChainBalances = await this.balancesServicePVM.getBalances({
-        accounts,
-        network,
-      });
-      return pChainBalances;
-    }
-
-    if (isXchainNetwork(network)) {
-      const xChainBalances = await this.balancesServiceAVM.getBalances({
-        accounts,
-        network,
-      });
-      return xChainBalances;
-    }
-
-    const isSupportedNetwork = await this.glacierService.isNetworkSupported(
-      network.chainId
-    );
-
-    if (isSupportedNetwork) {
-      try {
-        return await this.balanceServiceGlacier.getBalances(
-          accounts,
-          network,
-          priceChanges
-        );
-      } catch (error) {
-        if (error instanceof GlacierUnhealthyError) {
-          this.glacierService.setGlacierToUnhealthy();
-        } else {
-          throw error;
-        }
+    const sentryTracker = Sentry.startTransaction(
+      {
+        name: 'BalancesService: getBalances',
+      },
+      {
+        network: network.caipId,
       }
-    }
+    );
+    const module = await ModuleManager.loadModuleByNetwork(network);
 
-    // if the above fails in anyway we simply fallback to making the calls oursleves
+    const currency = (
+      await this.settingsService.getSettings()
+    ).currency.toLowerCase();
 
-    const getBalanceForProvider = (provider) => {
-      const balanceService = this.getBalanceServiceByProvider(provider);
-      return balanceService.getBalances(accounts, network, priceChanges);
-    };
+    const rawBalances = await module.getBalances({
+      // TODO: Use public key and module.getAddress instead to make this more modular
+      addresses: accounts
+        .map((account) => {
+          switch (network.vmName) {
+            case NetworkVMType.EVM:
+              return account.addressC;
+            case NetworkVMType.BITCOIN:
+              return account.addressBTC;
+            case NetworkVMType.AVM:
+              return account.addressAVM;
+            case NetworkVMType.PVM:
+              return account.addressPVM;
+            case NetworkVMType.CoreEth:
+              return account.addressCoreEth;
+            default:
+              return undefined;
+          }
+        })
+        .filter((address): address is string => !!address),
+      network,
+      currency,
+    });
 
-    const btcNetworks = [ChainId.BITCOIN, ChainId.BITCOIN_TESTNET];
+    // Apply price changes data, VM Modules don't do this yet
+    const balances = Object.keys(rawBalances).reduce(
+      (
+        accountBalances,
+        accountKey
+      ): Record<string, Record<string, TokenWithBalance>> => {
+        const rawAccountTokenList = rawBalances[accountKey];
+        if (!rawAccountTokenList || rawAccountTokenList?.error) {
+          return accountBalances;
+        }
 
-    if (btcNetworks.includes(network.chainId)) {
-      const provider = await this.networkService.getBitcoinProvider();
-      return getBalanceForProvider(provider);
-    } else if (isEthereumNetwork(network)) {
-      const provider = await this.networkService.getEthereumProvider();
-      return getBalanceForProvider(provider);
-    } else if (network.vmName === NetworkVMType.EVM) {
-      const provider = getProviderForNetwork(network, true);
-      return getBalanceForProvider(provider);
-    } else {
-      throw new Error('unsupported network');
-    }
+        return {
+          ...accountBalances,
+          key: Object.keys(rawAccountTokenList).reduce(
+            (tokens, tokenKey): Record<string, TokenWithBalance> => {
+              const tokenBalance = rawAccountTokenList[tokenKey];
+              if (tokenBalance?.error) {
+                return tokens;
+              }
+
+              return {
+                ...tokens,
+                tokenKey: {
+                  ...tokenBalance,
+                  priceChanges: getPriceChangeValues(
+                    tokenBalance.symbol,
+                    tokenBalance.balanceInCurrency,
+                    priceChanges
+                  ),
+                },
+              };
+            },
+            {}
+          ),
+        };
+      },
+      {}
+    );
+    sentryTracker.finish();
+
+    return balances;
   }
 }

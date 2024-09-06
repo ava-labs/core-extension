@@ -1,9 +1,8 @@
 import { getMaxTransferAmount } from '@avalabs/core-wallets-sdk';
 
-import { TokenType } from '@src/background/services/balances/models';
-
 import { validateBtcSend } from './btcSendUtils';
 import { SendErrorMessage } from './models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 jest.mock('@avalabs/core-wallets-sdk');
 

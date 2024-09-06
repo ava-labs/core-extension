@@ -1,8 +1,4 @@
 import {
-  NftTokenWithBalance,
-  TokenType,
-} from '@src/background/services/balances/models';
-import {
   Stack,
   Switch,
   Typography,
@@ -12,6 +8,7 @@ import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { CollectibleListEmpty } from '@src/pages/Collectibles/components/CollectibleListEmpty';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type ManageTokensListProps = {
   searchQuery: string;

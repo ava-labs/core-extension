@@ -1,4 +1,7 @@
-import { TokenWithBalance, TokenWithBalanceAVM } from '../models';
+import {
+  TokenWithBalance,
+  TokenWithBalanceAVM,
+} from '@avalabs/vm-module-types';
 
 export const isTokenWithBalanceAVM = (
   balance?: TokenWithBalance

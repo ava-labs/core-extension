@@ -1,77 +1,15 @@
-import { NetworkContractToken, NetworkToken } from '@avalabs/core-chains-sdk';
-import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import {
-  PChainBalance as GlacierPchainBalance,
-  XChainBalances as GlacierXchainBalance,
-} from '@avalabs/glacier-sdk';
+  TokenWithBalance,
+  TokenWithBalanceAVM,
+  TokenWithBalanceBTC,
+  TokenWithBalancePVM,
+} from '@avalabs/vm-module-types';
 import { EnsureDefined } from '@src/background/models';
-import BN from 'bn.js';
 
 export const BALANCES_CACHE_KEY = 'balances-service-cache';
 
 export enum BalanceServiceEvents {
   UPDATED = 'BalanceServiceEvents:updated',
-}
-
-interface TokenBalanceData {
-  type: TokenType;
-  name: string;
-  symbol: string;
-  balance: BN;
-  balanceUSD?: number;
-  balanceDisplayValue?: string;
-  balanceUsdDisplayValue?: string;
-  priceUSD?: number;
-  priceChanges?: {
-    percentage?: number;
-    value?: number;
-  };
-}
-
-interface TokenBalanceDataWithDecimals extends TokenBalanceData {
-  decimals: number;
-}
-
-// TODO: remove TokenType once all VM modules are integrated (it should no longer be needed at this point)
-export enum TokenType {
-  NATIVE = 'NATIVE',
-  ERC20 = 'ERC20',
-  ERC721 = 'ERC721',
-  ERC1155 = 'ERC1155',
-}
-
-export interface TokenWithBalancePVM extends NetworkTokenWithBalance {
-  available?: BN;
-  availableUSD?: number;
-  availableDisplayValue?: string;
-  availableUsdDisplayValue?: string;
-  utxos?: GlacierPchainBalance;
-  lockedStaked: number;
-  lockedStakeable: number;
-  lockedPlatform: number;
-  atomicMemoryLocked: number;
-  atomicMemoryUnlocked: number;
-  unlockedUnstaked: number;
-  unlockedStaked: number;
-  pendingStaked: number;
-}
-
-export interface TokenWithBalanceAVM extends NetworkTokenWithBalance {
-  available?: BN;
-  availableUSD?: number;
-  availableDisplayValue?: string;
-  availableUsdDisplayValue?: string;
-  utxos?: GlacierXchainBalance;
-  locked: number;
-  unlocked: number;
-  atomicMemoryUnlocked: number;
-  atomicMemoryLocked: number;
-}
-
-export interface TokenWithBalanceERC20
-  extends TokenBalanceDataWithDecimals,
-    NetworkContractToken {
-  type: TokenType.ERC20;
 }
 
 export type RawTokenAttribute = {
@@ -98,56 +36,6 @@ export interface TokenAttribute {
   name: string;
   value: string;
 }
-export interface NftTokenWithBalance extends TokenBalanceData {
-  type: TokenType.ERC721 | TokenType.ERC1155;
-  address: string;
-  description: string;
-  logoUri: string;
-  logoSmall: string;
-  name: string;
-  symbol: string;
-  tokenId: string;
-  attributes: TokenAttribute[];
-  collectionName: string;
-  updatedAt?: number;
-}
-
-export interface NftPageTokens {
-  [TokenType.ERC721]?: string;
-  [TokenType.ERC1155]?: string;
-}
-
-export interface NftBalanceResponse {
-  list: NftTokenWithBalance[];
-  pageTokens?: NftPageTokens;
-}
-
-export interface NetworkTokenWithBalance
-  extends NetworkToken,
-    TokenBalanceDataWithDecimals {
-  type: TokenType.NATIVE;
-}
-
-export type TokenWithBalanceEVM =
-  | NetworkTokenWithBalance
-  | TokenWithBalanceERC20;
-
-export type TokenWithBalance =
-  | TokenWithBalanceEVM
-  | TokenWithBalanceBTC
-  | TokenWithBalancePVM
-  | TokenWithBalanceAVM;
-
-export type SendableToken = TokenWithBalance | NftTokenWithBalance;
-
-export interface TokenListDict {
-  [contract: string]: TokenWithBalance;
-}
-
-export interface TokenListERC20 {
-  address: string;
-  chainId: number;
-}
 
 // store balances in the structure of network ID -> address -> tokens
 export interface Balances {
@@ -157,8 +45,6 @@ export interface Balances {
     };
   };
 }
-
-export const IPFS_URL = 'https://ipfs.io';
 
 export interface CachedBalancesInfo {
   totalBalance?: TotalBalance;
@@ -189,36 +75,15 @@ export const hasUnconfirmedBTCBalance = (
 
 export const isAvaxWithUnavailableBalance = (
   token?: TokenWithBalance
-): token is EnsureDefined<
-  TokenWithBalanceAVM | TokenWithBalancePVM,
-  'available'
-> =>
+): token is TokenWithBalanceAVM | TokenWithBalancePVM =>
   Boolean(
-    token &&
-      ('locked' in token || 'unlockedUnstaked' in token) &&
-      token.available?.toNumber() !== token.balance?.toNumber()
+    token && 'balancePerType' in token && token.available !== token.balance
   );
 
 export const isNewTokenBalance = (
   token?: TokenWithBalance
 ): token is TokenWithBalanceBTC =>
   !token ? false : typeof token.balance === 'bigint';
-
-export const getTokenPrice = (token?: TokenWithBalance | null) => {
-  if (!token) {
-    return;
-  }
-
-  return isNewTokenBalance(token) ? token.priceInCurrency : token.priceUSD;
-};
-
-export const getBalanceInCurrency = (token?: TokenWithBalance) => {
-  if (!token) {
-    return undefined;
-  }
-
-  return isNewTokenBalance(token) ? token.balanceInCurrency : token.balanceUSD;
-};
 
 export const getUnconfirmedBalanceInCurrency = (token?: TokenWithBalance) => {
   if (!token || !hasUnconfirmedBTCBalance(token)) {

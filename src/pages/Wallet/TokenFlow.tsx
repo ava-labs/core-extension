@@ -37,7 +37,6 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import {
-  getBalanceInCurrency,
   getUnconfirmedBalanceInCurrency,
   isNewTokenBalance,
 } from '@src/background/services/balances/models';
@@ -119,9 +118,9 @@ export function TokenFlow() {
 
   const balanceCurrencyValue =
     isBitcoin && hasUnconfirmedBalance(token)
-      ? (getBalanceInCurrency(token) ?? 0) +
+      ? (token.balanceInCurrency ?? 0) +
         (getUnconfirmedBalanceInCurrency(token) ?? 0)
-      : getBalanceInCurrency(token);
+      : token.balanceInCurrency;
 
   const totalBalance =
     token.balance && hasUnconfirmedBalance(token)

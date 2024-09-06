@@ -11,9 +11,10 @@ import {
 } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { TransactionDescription } from 'ethers';
 import {
+  NetworkTokenWithBalance,
   TokenType,
-  TokenWithBalanceEVM,
-} from '@src/background/services/balances/models';
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
 
 export interface AddLiquidityData {
   amountAMin: bigint;
@@ -40,14 +41,12 @@ export async function addLiquidityHandler(
   data: AddLiquidityData,
   txDetails: TransactionDescription | null
 ): Promise<TransactionDisplayValues> {
-  const tokenA = (await findToken(
-    data.tokenA.toLowerCase(),
-    network
-  )) as TokenWithBalanceEVM;
-  const tokenB = (await findToken(
-    data.tokenB.toLowerCase(),
-    network
-  )) as TokenWithBalanceEVM;
+  const tokenA = (await findToken(data.tokenA.toLowerCase(), network)) as
+    | TokenWithBalanceERC20
+    | NetworkTokenWithBalance;
+  const tokenB = (await findToken(data.tokenB.toLowerCase(), network)) as
+    | TokenWithBalanceERC20
+    | NetworkTokenWithBalance;
 
   const sendTokenList: TransactionToken[] = [];
 
@@ -60,11 +59,11 @@ export async function addLiquidityHandler(
 
     amount: BigInt(data.amountADesired),
     usdValue:
-      tokenA.priceUSD !== undefined
-        ? Number(tokenA.priceUSD) *
+      tokenA.priceInCurrency !== undefined
+        ? Number(tokenA.priceInCurrency) *
           bigintToBig(data.amountADesired, tokenA.decimals).toNumber()
         : undefined,
-    usdPrice: tokenA.priceUSD,
+    usdPrice: tokenA.priceInCurrency,
   });
 
   sendTokenList.push({
@@ -76,11 +75,11 @@ export async function addLiquidityHandler(
 
     amount: BigInt(data.amountBDesired),
     usdValue:
-      tokenB.priceUSD !== undefined
-        ? Number(tokenB.priceUSD) *
+      tokenB.priceInCurrency !== undefined
+        ? Number(tokenB.priceInCurrency) *
           bigintToBig(data.amountBDesired, tokenB.decimals).toNumber()
         : undefined,
-    usdPrice: tokenB.priceUSD,
+    usdPrice: tokenB.priceInCurrency,
   });
 
   const result: TransactionDisplayValues = await parseBasicDisplayValues(

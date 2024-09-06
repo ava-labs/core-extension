@@ -2,7 +2,6 @@ import BN from 'bn.js';
 import { stringToBN } from '@avalabs/core-utils-sdk';
 import { useCallback, useState } from 'react';
 
-import { TokenType } from '@src/background/services/balances/models';
 import { SendErrorMessage } from '@src/utils/send/models';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
@@ -23,6 +22,7 @@ import {
   SendOptions,
 } from '../../models';
 import { SendAdapterEVM } from './models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 export const useEVMSend: SendAdapterEVM = ({
   chainId,

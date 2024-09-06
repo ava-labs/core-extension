@@ -1,13 +1,10 @@
 import { TokenIcon as TokenImage } from '@src/components/common/TokenIcon';
 import { APIError } from 'paraswap';
-import {
-  TokenType,
-  TokenWithBalanceEVM,
-} from '@src/background/services/balances/models';
 import { stringToBN } from '@avalabs/core-utils-sdk';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { OptimalRate } from 'paraswap-core';
 import BN from 'bn.js';
+import { TokenWithBalanceEVM } from '@avalabs/vm-module-types';
 
 interface GetTokenIconProps {
   token?: TokenWithBalanceEVM;

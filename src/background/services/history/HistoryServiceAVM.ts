@@ -16,11 +16,11 @@ import { GlacierService } from '../glacier/GlacierService';
 import { TxHistoryItemToken, XchainTxHistoryItem } from './models';
 import Big from 'big.js';
 import { getAvaxAssetId } from './utils/getAvaxAssetId';
-import { TokenType } from '../balances/models';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
 import { getTokenValue } from '../balances/utils/getTokenValue';
+import { TokenType } from '@avalabs/vm-module-types';
 
 @singleton()
 export class HistoryServiceAVM {

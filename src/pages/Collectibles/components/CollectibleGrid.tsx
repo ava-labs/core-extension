@@ -1,12 +1,9 @@
-import {
-  NftTokenWithBalance,
-  TokenType,
-} from '@src/background/services/balances/models';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CollectibleMedia } from './CollectibleMedia';
 import { CollectibleWrapper } from './CollectibleWrapper';
 import { Button } from '@avalabs/core-k2-components';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 export function CollectibleGrid({
   onClick,
