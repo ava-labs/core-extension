@@ -64,6 +64,7 @@ export function Popup() {
   const dimensions = useAppDimensions();
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
+  const isSidePanel = useIsSpecificContextContainer(ContextContainer.SIDEPANEL);
   const isFullscreen = useIsSpecificContextContainer(
     ContextContainer.FULLSCREEN
   );
@@ -75,12 +76,27 @@ export function Popup() {
   const { featureFlags } = useFeatureFlagContext();
 
   const appWidth = useMemo(
-    () => (isMiniMode || isConfirm || isFullscreen ? '100%' : '1280px'),
-    [isMiniMode, isConfirm, isFullscreen]
+    () =>
+      isMiniMode || isConfirm || isFullscreen || isSidePanel
+        ? '100%'
+        : '1280px',
+    [isMiniMode, isConfirm, isFullscreen, isSidePanel]
   );
 
   useEffect(() => {
-    if (!isMiniMode) {
+    // Update CSS for Side Panel view
+    if (!isSidePanel || !dimensions.minWidth) {
+      return;
+    }
+    const popup = document.querySelector<HTMLDivElement>('#popup');
+
+    if (popup && window.location.pathname.startsWith('/sidepanel.html')) {
+      popup.style.minWidth = dimensions.minWidth;
+    }
+  }, [isSidePanel, dimensions.minWidth]);
+
+  useEffect(() => {
+    if (!isMiniMode && !isSidePanel) {
       return;
     }
 
@@ -118,7 +134,7 @@ export function Popup() {
   }
 
   const displayHeader =
-    isMiniMode &&
+    (isMiniMode || isSidePanel) &&
     !pagesWithoutHeader.some((path) => location.pathname.startsWith(path));
 
   return (
@@ -147,11 +163,13 @@ export function Popup() {
                                             <Stack
                                               sx={{
                                                 flexGrow: 1,
-                                                width: dimensions.width,
                                                 maxHeight: 'auto',
                                                 overflow: 'auto',
                                                 alignItems: 'center',
-                                                margin: 'auto',
+                                                margin: isSidePanel
+                                                  ? ''
+                                                  : 'auto',
+                                                ...dimensions,
                                               }}
                                             >
                                               {displayHeader && (
@@ -165,7 +183,10 @@ export function Popup() {
                                                 sx={{
                                                   flexGrow: 1,
                                                   justifyContent: 'center',
-                                                  py: isMiniMode ? 0 : 2,
+                                                  py:
+                                                    isMiniMode || isSidePanel
+                                                      ? 0
+                                                      : 2,
                                                   maxWidth: '100%',
                                                   maxHeight: '100%',
                                                   width: appWidth,

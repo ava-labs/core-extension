@@ -27,8 +27,9 @@ export function LoadingContent() {
   return (
     <Stack
       sx={{
-        width: dimensions.width || '100%',
+        width: 'width' in dimensions ? dimensions.width : '100%',
         height: dimensions.height || '100vh',
+        minWidth: 'minWidth' in dimensions ? dimensions.minWidth : undefined,
         flexGrow: 1,
         alignItems: 'center',
         justifyContent: 'center',

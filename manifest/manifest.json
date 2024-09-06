@@ -40,7 +40,8 @@
     "notifications",
     "tabs",
     "scripting",
-    "identity"
+    "identity",
+    "sidePanel"
   ],
   "host_permissions": ["file://*/*", "http://*/*", "https://*/*"],
   "oauth2": {

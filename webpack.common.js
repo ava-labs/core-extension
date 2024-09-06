@@ -108,6 +108,7 @@ module.exports = {
         { from: 'src/index.html', to: '../home.html' },
         { from: 'src/index.html', to: '../confirm.html' },
         { from: 'src/index.html', to: '../fullscreen.html' },
+        { from: 'src/index.html', to: '../sidepanel.html' },
         { from: 'src/images', to: '../images' },
         { from: 'src/localization/locales', to: '../locales', force: true },
       ],

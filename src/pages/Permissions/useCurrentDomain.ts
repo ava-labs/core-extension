@@ -3,6 +3,7 @@ import browser from 'webextension-polyfill';
 
 export function useCurrentDomain() {
   const [domain, setDomain] = useState<string>();
+  const [tabId, setTabId] = useState<number>();
 
   const updateDomain = useCallback(async () => {
     const [currentTab] = await browser.tabs.query({
@@ -15,6 +16,12 @@ export function useCurrentDomain() {
       setDomain(hostname);
     } else {
       setDomain('');
+    }
+
+    if (currentTab?.id) {
+      setTabId(currentTab.id);
+    } else {
+      setTabId(undefined);
     }
   }, [setDomain]);
 
@@ -31,5 +38,5 @@ export function useCurrentDomain() {
     };
   }, [updateDomain]);
 
-  return domain;
+  return { domain, tabId };
 }

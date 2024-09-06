@@ -21,6 +21,10 @@ import { usePersistedTabs } from '@src/hooks/usePersistedTabs';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { FAB } from '@src/components/common/fab/FAB';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 
 export enum PortfolioTabs {
   ASSETS,
@@ -148,13 +152,21 @@ export function Portfolio() {
       </Tabs>
     );
   }, [activeTab, handleChange, shouldShow, t]);
+  const isSidePanel = useIsSpecificContextContainer(ContextContainer.SIDEPANEL);
 
   return (
     <Stack sx={{ flexGrow: 1 }}>
       <WalletBalances />
       <FAB isContentScrolling={isScrolling} />
       <Stack sx={{ flexGrow: 1 }}>
-        <Box sx={{ mx: 2, mt: 1, borderBottom: 1, borderColor: 'divider' }}>
+        <Box
+          sx={{
+            mx: isSidePanel ? 1 : 2,
+            mt: 1,
+            borderBottom: 1,
+            borderColor: 'divider',
+          }}
+        >
           {tabs}
         </Box>
         <Stack sx={{ flexGrow: 1 }}>

@@ -25,6 +25,10 @@ import {
   isValidAvmAddress,
   isValidPvmAddress,
 } from '@src/utils/isAddressValid';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 
 const truncateName = (name: string) => {
   if (name.length < 28) return name;
@@ -145,8 +149,12 @@ export const ContactInput = ({
     return contactAddress;
   };
 
+  const isSidePanel = useIsSpecificContextContainer(ContextContainer.SIDEPANEL);
+
   return (
-    <Stack sx={{ position: 'relative', width: '100%', px: 2 }}>
+    <Stack
+      sx={{ position: 'relative', width: '100%', px: isSidePanel ? 1 : 2 }}
+    >
       <Stack ref={inputWrapperRef} sx={{ gap: 1 }}>
         <Tooltip
           // Tooltip does not render at all when title is empty. Falling back to a single space prevents the input from re-rendering and losing focus when users starts typing.

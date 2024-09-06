@@ -4,10 +4,12 @@ import { Button, Stack, Typography } from '@avalabs/core-k2-components';
 import { Overlay } from '@src/components/common/Overlay';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useState } from 'react';
+import { useAppDimensions } from '@src/hooks/useAppDimensions';
 
 export const LedgerTroubleshooting = () => {
   const { t } = useTranslation();
   const { popDeviceSelection } = useLedgerContext();
+	const { height, ...dimensions } = useAppDimensions(); // eslint-disable-line
 
   const [isConnected, setIsConnected] = useState(false);
 
@@ -15,7 +17,7 @@ export const LedgerTroubleshooting = () => {
     <Overlay isBackgroundFilled>
       <Stack
         sx={{
-          width: 375,
+          ...dimensions,
           p: 3,
           gap: 2,
           alignSelf: 'center',

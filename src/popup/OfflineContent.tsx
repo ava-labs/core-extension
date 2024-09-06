@@ -29,8 +29,7 @@ export function OfflineContent({ message }) {
   return (
     <Stack
       sx={{
-        width: dimensions.width,
-        height: dimensions.height,
+        ...dimensions,
         p: 2,
         flexGrow: 1,
         alignItems: 'center',

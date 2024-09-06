@@ -9,6 +9,10 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 import { ActiveNetworkWidget } from './ActiveNetworkWidget';
 import { NetworkList } from './NetworkList';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 
 export const tokensWithBalances = (tokenList?: TokenWithBalance[]) => {
   if (!tokenList) {
@@ -60,13 +64,15 @@ export const getNetworkTokensPriceChanges = (assetList: TokenWithBalance[]) => {
 export function NetworksWidget() {
   const activeNetworkAssetList = useTokensWithBalances();
 
+  const isSidePanel = useIsSpecificContextContainer(ContextContainer.SIDEPANEL);
+
   const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
   const activeNetworkPriceChanges = getNetworkTokensPriceChanges(
     activeNetworkAssetList
   );
 
   return (
-    <Stack sx={{ m: 2 }}>
+    <Stack sx={{ mx: isSidePanel ? 1 : 2, my: 2 }}>
       <ActiveNetworkWidget
         assetList={activeNetworkAssetList}
         activeNetworkBalance={activeNetworkBalance}

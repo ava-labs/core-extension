@@ -3,9 +3,15 @@ import {
   useIsSpecificContextContainer,
 } from './useIsSpecificContextContainer';
 
-export function useAppDimensions(): { width: string; height: string } {
+export function useAppDimensions(): {
+  height: string;
+  width: string;
+  minWidth?: string;
+  maxHeight?: string;
+} {
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
+  const isSidePanel = useIsSpecificContextContainer(ContextContainer.SIDEPANEL);
   const isFullscreen = useIsSpecificContextContainer(
     ContextContainer.FULLSCREEN
   );
@@ -24,6 +30,12 @@ export function useAppDimensions(): { width: string; height: string } {
     return {
       height: '100%',
       width: '100%',
+    };
+  } else if (isSidePanel) {
+    return {
+      width: '100%',
+      height: '100%',
+      minWidth: '360px',
     };
   }
 

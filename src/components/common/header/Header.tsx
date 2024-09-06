@@ -1,6 +1,9 @@
 import {
   Button,
   Divider,
+  IconButton,
+  SidebarCollapseIcon,
+  SidebarExpandIcon,
   Skeleton,
   Stack,
   Typography,
@@ -24,11 +27,16 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { AccountType } from '@src/background/services/accounts/models';
 import { WalletChip } from '../WalletChip';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
+import {
+  ContextContainer,
+  useIsSpecificContextContainer,
+} from '@src/hooks/useIsSpecificContextContainer';
 
 export function Header() {
-  const domain = useCurrentDomain();
+  const { domain, tabId } = useCurrentDomain();
   const { updateAccountPermission, isDomainConnectedToAccount } =
     usePermissionContext();
+  const isSidePanel = useIsSpecificContextContainer(ContextContainer.SIDEPANEL);
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -55,7 +63,7 @@ export function Header() {
   );
 
   return (
-    <Stack sx={{ gap: 0.5, py: 1.5, px: 2 }}>
+    <Stack sx={{ gap: 0.5, py: 1.5, px: isSidePanel ? 1 : 2 }}>
       <Stack
         direction="row"
         sx={{
@@ -139,6 +147,25 @@ export function Header() {
           <Skeleton variant="rectangular" width="102px" height="24px" />
         )}
         <NetworkSwitcher />
+        {tabId && (
+          <IconButton
+            size="medium"
+            onClick={async () => {
+              if (!isSidePanel) {
+                await chrome.sidePanel.open({
+                  tabId,
+                });
+              }
+              window.close();
+            }}
+          >
+            {isSidePanel ? (
+              <SidebarCollapseIcon size={24} />
+            ) : (
+              <SidebarExpandIcon size={24} />
+            )}
+          </IconButton>
+        )}
       </Stack>
       {address && walletDetails && showWalletInfo && (
         <Stack
