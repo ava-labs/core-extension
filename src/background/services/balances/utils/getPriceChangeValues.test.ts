@@ -48,7 +48,7 @@ describe('utils/getPriceChangeValues', () => {
       percentage: undefined,
     });
   });
-  it('should return an empty calculation because of the missing balanceUSD value', () => {
+  it('should return an empty calculation because of the missing balanceInCurrency value', () => {
     const changes = getPriceChangeValues(network1TokenBalance.symbol);
     expect(changes).toEqual({
       value: 0,

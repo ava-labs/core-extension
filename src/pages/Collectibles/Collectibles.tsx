@@ -27,6 +27,7 @@ import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteSc
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { ListType } from '../Home/components/Portfolio/Portfolio';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 
 interface CollectiblesProps {
   listType: ListType;
@@ -117,10 +118,7 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
       {!nfts.loading && !!visibleNfts?.length && (
         <InfiniteScroll
           loadMore={() => {}}
-          hasMore={
-            !!nfts.pageTokens?.[TokenType.ERC721] ||
-            !!nfts.pageTokens?.[TokenType.ERC1155]
-          }
+          hasMore={false}
           loading={nfts.loading}
           error={nfts.error?.toString()}
         >

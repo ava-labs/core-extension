@@ -3,8 +3,6 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { isNewTokenBalance } from '@src/background/services/balances/models';
-import { BN } from 'bn.js';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { GetTokensListHandler } from '@src/background/services/tokens/handlers/getTokenList';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
@@ -19,8 +17,6 @@ type UseTokensWithBalanceOptions = {
   disallowedAssets?: string[];
   chainId?: number;
 };
-
-const bnZero = new BN(0);
 
 const nativeTokensFirst = (tokens: TokenWithBalance[]): TokenWithBalance[] =>
   [...tokens].sort((t) => (t.type === TokenType.NATIVE ? -1 : 1));
@@ -75,7 +71,7 @@ export const useTokensWithBalances = (
       acc[address] = {
         ...tokenData,
         type: TokenType.ERC20,
-        balance: bnZero,
+        balance: 0n,
       };
 
       return acc;
@@ -175,9 +171,7 @@ export const useTokensWithBalances = (
     const defaultResult = nativeToken ? [nativeToken] : [];
 
     const filteredTokens = unfilteredTokens.filter((token) => {
-      return isNewTokenBalance(token)
-        ? token.balance > 0n
-        : token.balance > 0n || token.type === TokenType.NATIVE; // Always include the native token
+      return token.balance > 0n;
     });
 
     return filteredTokens.length

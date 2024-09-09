@@ -38,9 +38,10 @@ export function TokenList({ searchQuery }: TokenListProps) {
     useIsFunctionAvailable(FunctionNames.MANAGE_TOKEN);
 
   const firstAsset = tokensWithBalances[0];
-  const firstAssetBalance = firstAsset
-    ? normalizeBalance(firstAsset.balance, firstAsset.decimals) ?? new Big(0)
-    : new Big(0);
+  const firstAssetBalance =
+    firstAsset && 'decimals' in firstAsset
+      ? normalizeBalance(firstAsset.balance, firstAsset.decimals) ?? new Big(0)
+      : new Big(0);
   const hasNoFunds =
     tokensWithBalances.length === 1 && firstAssetBalance.eq(new Big(0));
 
@@ -93,7 +94,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
           name={token.name}
           symbol={token.symbol}
           balanceDisplayValue={token.balanceDisplayValue}
-          balanceUSD={token.balanceInCurrency?.toString()}
+          balanceInCurrency={token.balanceInCurrency?.toString()}
           priceChanges={token.priceChanges}
         >
           <TokenIcon

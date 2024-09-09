@@ -1,5 +1,3 @@
-import BN from 'bn.js';
-import { stringToBN } from '@avalabs/core-utils-sdk';
 import { useCallback, useState } from 'react';
 
 import { SendErrorMessage } from '@src/utils/send/models';
@@ -23,6 +21,7 @@ import {
 } from '../../models';
 import { SendAdapterEVM } from './models';
 import { TokenType } from '@avalabs/vm-module-types';
+import { stringToBigint } from '@src/utils/stringToBigint';
 
 export const useEVMSend: SendAdapterEVM = ({
   chainId,
@@ -85,7 +84,7 @@ export const useEVMSend: SendAdapterEVM = ({
     ({ address }: NftSendOptions) => {
       if (!address) {
         setError(SendErrorMessage.ADDRESS_REQUIRED);
-      } else if (nativeToken.balance.isZero()) {
+      } else if (nativeToken.balance === 0n) {
         setError(SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE);
       }
     },
@@ -96,9 +95,9 @@ export const useEVMSend: SendAdapterEVM = ({
     ({ address, token }: NftSendOptions) => {
       if (!address) {
         setError(SendErrorMessage.ADDRESS_REQUIRED);
-      } else if (token.balance.isZero()) {
+      } else if (token.balance === 0n) {
         setError(SendErrorMessage.INSUFFICIENT_BALANCE);
-      } else if (nativeToken.balance.isZero()) {
+      } else if (nativeToken.balance === 0n) {
         setError(SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE);
       }
     },
@@ -114,20 +113,17 @@ export const useEVMSend: SendAdapterEVM = ({
       // For ERC-20 and native tokens, we want to know the max. transfer amount
       // even if the validation as a whole fails (e.g. user did not provide
       // the target address yet).
-      const amountBN = stringToBN(amount || '0', token.decimals);
+      const amountBigInt = stringToBigint(amount || '0', token.decimals);
       const gasLimit = await getGasLimit({
         address: address || from, // gas used for transfer will be the same no matter the target address
         amount: amount || '0', // the amount does not change the gas costs
         token,
       } as SendOptions);
       const totalFee = gasLimit * maxFee;
-      const remainingBalance = BigInt(
-        nativeToken.balance.sub(amountBN).toString()
-      );
-      const feeAsBn = new BN(totalFee.toString());
+      const remainingBalance = nativeToken.balance - amountBigInt;
 
       if (token.type === TokenType.NATIVE) {
-        setMaxAmount(nativeToken.balance.sub(feeAsBn).toString());
+        setMaxAmount((nativeToken.balance - totalFee).toString());
 
         if (remainingBalance < totalFee) {
           setError(SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE);
@@ -147,12 +143,12 @@ export const useEVMSend: SendAdapterEVM = ({
         return;
       }
 
-      if (amountBN && (amountBN.isZero() || amountBN.isNeg())) {
+      if (amountBigInt && (amountBigInt === 0n || amountBigInt < 0)) {
         setError(SendErrorMessage.AMOUNT_REQUIRED);
         return;
       }
 
-      if (amountBN && token.balance.lt(amountBN)) {
+      if (amountBigInt && token.balance < amountBigInt) {
         setError(SendErrorMessage.INSUFFICIENT_BALANCE);
         return;
       }

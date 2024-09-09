@@ -1,6 +1,5 @@
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { stringToBN } from '@avalabs/core-utils-sdk';
 
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
 
@@ -12,6 +11,7 @@ import { usePvmSend } from '../hooks/useSend';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
 import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 import { TokenWithBalancePVM } from '@avalabs/vm-module-types';
+import { stringToBigint } from '@src/utils/stringToBigint';
 
 export const SendPVM = ({
   network,
@@ -99,7 +99,7 @@ export const SendPVM = ({
 
   const inputAmount = useMemo(
     () =>
-      amount ? stringToBN(amount, nativeToken?.decimals ?? 18) : undefined,
+      amount ? stringToBigint(amount, nativeToken?.decimals ?? 18) : undefined,
     [nativeToken, amount]
   );
 

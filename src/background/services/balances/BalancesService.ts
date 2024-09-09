@@ -71,7 +71,7 @@ export class BalancesService {
 
         return {
           ...accountBalances,
-          key: Object.keys(rawAccountTokenList).reduce(
+          [accountKey]: Object.keys(rawAccountTokenList).reduce(
             (tokens, tokenKey): Record<string, TokenWithBalance> => {
               const tokenBalance = rawAccountTokenList[tokenKey];
               if (tokenBalance?.error) {
@@ -80,7 +80,7 @@ export class BalancesService {
 
               return {
                 ...tokens,
-                tokenKey: {
+                [tokenKey]: {
                   ...tokenBalance,
                   priceChanges: getPriceChangeValues(
                     tokenBalance.symbol,

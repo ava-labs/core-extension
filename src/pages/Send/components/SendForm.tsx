@@ -1,4 +1,3 @@
-import BN from 'bn.js';
 import { useMemo, useRef, useState } from 'react';
 import {
   Typography,
@@ -22,7 +21,7 @@ import { TokenWithBalance } from '@avalabs/vm-module-types';
 
 type SendFormProps = {
   address?: string;
-  inputAmount?: BN;
+  inputAmount?: bigint;
   tokenList: TokenWithBalance[];
   token?: TokenWithBalance;
   isValid: boolean;
@@ -107,7 +106,7 @@ export const SendForm = ({
 
           <Stack sx={{ py: 0, px: 2, mt: 4, width: '100%' }}>
             <TokenSelect
-              maxAmount={maxAmount ? new BN(maxAmount) : undefined}
+              maxAmount={maxAmount ? BigInt(maxAmount) : undefined}
               tokensList={tokenList}
               selectedToken={token}
               onTokenChange={(newToken) => {

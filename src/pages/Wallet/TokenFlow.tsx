@@ -25,7 +25,6 @@ import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
-import BN from 'bn.js';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { openNewTab } from '@src/utils/extensionUtils';
@@ -36,10 +35,7 @@ import { hasUnconfirmedBalance } from '@src/utils/hasUnconfirmedBalance';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
-import {
-  getUnconfirmedBalanceInCurrency,
-  isNewTokenBalance,
-} from '@src/background/services/balances/models';
+import { getUnconfirmedBalanceInCurrency } from '@src/background/services/balances/models';
 
 export function TokenFlow() {
   const { t } = useTranslation();
@@ -88,11 +84,7 @@ export function TokenFlow() {
   }, [isPchain, activeAccount, isXchain]);
 
   useEffect(() => {
-    setShowSend(
-      isNewTokenBalance(token)
-        ? token.balance > 0n
-        : token?.balance.gt(new BN(0))
-    );
+    setShowSend(token && token.balance > 0n);
   }, [token]);
 
   useEffect(() => {
@@ -129,7 +121,11 @@ export function TokenFlow() {
           token.decimals,
           token.symbol
         )
-      : new TokenUnit(token.balance, token.decimals, token.symbol);
+      : new TokenUnit(
+          token.balance,
+          'decimals' in token ? token.decimals : 0,
+          token.symbol
+        );
 
   return (
     <Stack sx={{ width: '100%', position: 'relative' }}>

@@ -9,5 +9,7 @@ export const isTokenWithBalancePVM = (
   if (!balance) {
     return false;
   }
-  return Object.keys(balance).includes('lockedStaked');
+  return (
+    'balancePerType' in balance && 'lockedStaked' in balance.balancePerType
+  );
 };

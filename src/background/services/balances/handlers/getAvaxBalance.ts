@@ -4,9 +4,9 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../../network/NetworkService';
-import { NetworkTokenWithBalance } from '../models';
 import { BalancesService } from '../BalancesService';
 import { AccountType } from '../../accounts/models';
+import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCE_AVAX_GET,
@@ -54,7 +54,10 @@ export class GetAvaxBalanceHandler implements HandlerType {
     const nativeTokenWithBalance =
       balances[address]?.[avalancheNetwork.networkToken.symbol];
 
-    if (!nativeTokenWithBalance) {
+    if (
+      !nativeTokenWithBalance ||
+      nativeTokenWithBalance.type !== TokenType.NATIVE
+    ) {
       return {
         ...request,
         error: 'unable to fetch balance',
@@ -63,7 +66,7 @@ export class GetAvaxBalanceHandler implements HandlerType {
 
     return {
       ...request,
-      result: { balance: balances[address]?.[nativeTokenWithBalance] },
+      result: { balance: nativeTokenWithBalance },
     };
   };
 }

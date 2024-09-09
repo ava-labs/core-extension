@@ -1,6 +1,5 @@
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { stringToBN } from '@avalabs/core-utils-sdk';
 
 import { useQueryParams } from '@src/hooks/useQueryParams';
 import { isValidAddress } from '@src/utils/isAddressValid';
@@ -17,6 +16,7 @@ import {
   TokenType,
   TokenWithBalanceEVM,
 } from '@avalabs/vm-module-types';
+import { stringToBigint } from '@src/utils/stringToBigint';
 
 type Props = SendPageProps<
   JsonRpcBatchInternal,
@@ -97,7 +97,7 @@ export const SendEVM = ({
   }, [address, amount, isValid, onApproved, onFailure, onSuccess, send, token]);
 
   const inputAmount = useMemo(
-    () => (amount ? stringToBN(amount, token?.decimals ?? 18) : undefined),
+    () => (amount ? stringToBigint(amount, token?.decimals ?? 18) : undefined),
     [token, amount]
   );
 

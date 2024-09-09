@@ -109,6 +109,7 @@ function balancesReducer(
   state: BalancesState,
   action: BalanceAction
 ): BalancesState {
+  console.log(action);
   switch (action.type) {
     case BalanceActionType.SET_LOADING:
       return { ...state, loading: action.payload };

@@ -82,7 +82,11 @@ export function Assetlist({ assetList }: AssetListProps) {
                 token.decimals,
                 token.symbol
               )
-            : new TokenUnit(token.balance, token.decimals, token.symbol);
+            : new TokenUnit(
+                token.balance,
+                'decimals' in token ? token.decimals : 0,
+                token.symbol
+              );
 
         const balanceInCurrency = token.balanceInCurrency;
 

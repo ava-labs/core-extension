@@ -80,11 +80,6 @@ export const isAvaxWithUnavailableBalance = (
     token && 'balancePerType' in token && token.available !== token.balance
   );
 
-export const isNewTokenBalance = (
-  token?: TokenWithBalance
-): token is TokenWithBalanceBTC =>
-  !token ? false : typeof token.balance === 'bigint';
-
 export const getUnconfirmedBalanceInCurrency = (token?: TokenWithBalance) => {
   if (!token || !hasUnconfirmedBTCBalance(token)) {
     return undefined;

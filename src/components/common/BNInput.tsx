@@ -1,5 +1,4 @@
 import React, { WheelEvent, useEffect, useState } from 'react';
-import BN from 'bn.js';
 import Big from 'big.js';
 import {
   Stack,
@@ -9,20 +8,20 @@ import {
   styled,
   CircularProgress,
 } from '@avalabs/core-k2-components';
-import { bnToLocaleString, numberToBN } from '@avalabs/core-utils-sdk';
+import { bigToLocaleString } from '@avalabs/core-utils-sdk';
+import { stringToBigint } from '@src/utils/stringToBigint';
+import { bigintToBig } from '@src/utils/bigintToBig';
 
 Big.PE = 99;
 Big.NE = -18;
 
-const BN_ZERO = new BN(0);
-
 export interface BNInputProps {
-  value?: BN;
+  value?: bigint;
   denomination: number;
-  onChange?(val: { bn: BN; amount: string }): void;
+  onChange?(val: { bigint: bigint; amount: string }): void;
   placeholder?: string;
-  min?: BN;
-  max?: BN;
+  min?: bigint;
+  max?: bigint;
   isValueLoading?: boolean;
   disabled?: boolean;
   error?: boolean;
@@ -47,7 +46,7 @@ export function BNInput({
   value,
   denomination,
   onChange,
-  min = new BN(0),
+  min = 0n,
   max,
   isValueLoading,
   error,
@@ -66,7 +65,7 @@ export function BNInput({
       return;
     }
 
-    if (value.eq(new BN(0)) && Number(valStr) === 0) {
+    if (value === 0n && Number(valStr) === 0) {
       return;
     }
 
@@ -93,17 +92,19 @@ export function BNInput({
     const [, endValue] = splitBN(newValue);
 
     if (!endValue || endValue.length <= denomination) {
-      const valueToBn = numberToBN(newValue || 0, denomination);
+      const valueToBigint = stringToBigint(newValue || '0', denomination);
 
-      if (valueToBn.lt(min)) {
+      if (valueToBigint < min) {
         return;
       }
-      const oldValueToBn = numberToBN(valStr || 0, denomination);
-      if (!valueToBn.eq(oldValueToBn)) {
+      const oldValueToBigint = stringToBigint(valStr || '0', denomination);
+      if (valueToBigint !== oldValueToBigint) {
         onChange?.({
           // used to removing leading & trailing zeros
-          amount: newValue ? bnToLocaleString(valueToBn, denomination) : '0',
-          bn: valueToBn,
+          amount: newValue
+            ? bigToLocaleString(bigintToBig(valueToBigint, denomination))
+            : '0',
+          bigint: valueToBigint,
         });
       }
       setValStr(newValue);
@@ -120,7 +121,7 @@ export function BNInput({
     onValueChanged(big.toString());
   };
 
-  const isMaxBtnVisible = max?.gt(BN_ZERO);
+  const isMaxBtnVisible = max && max > 0n;
 
   return (
     <Stack sx={{ position: 'relative' }}>
