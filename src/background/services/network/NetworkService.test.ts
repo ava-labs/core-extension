@@ -563,13 +563,13 @@ describe('background/services/network/NetworkService', () => {
 
   describe('when config overrides are present', () => {
     const originalChainList = {
-      'eip155:1': {
+      '1': {
         vmName: NetworkVMType.EVM,
         caipId: 'eip155:1',
         chainId: 1,
         rpcUrl: 'http://avax.network/rpc',
       },
-      'eip155:1337': {
+      '1337': {
         vmName: NetworkVMType.EVM,
         caipId: 'eip155:1337',
         chainId: 1337,
@@ -579,7 +579,7 @@ describe('background/services/network/NetworkService', () => {
 
     beforeEach(() => {
       storageServiceMock.load.mockResolvedValue({
-        'eip155:1337': {
+        '1337': {
           vmName: NetworkVMType.EVM,
           rpcUrl: 'http://my.custom.rpc',
         },
@@ -600,8 +600,8 @@ describe('background/services/network/NetworkService', () => {
 
       expect(await networksPromise).toEqual({
         ...originalChainList,
-        'eip155:1337': {
-          ...originalChainList['eip155:1337'],
+        '1337': {
+          ...originalChainList['1337'],
           rpcUrl: 'http://my.custom.rpc',
         },
       });
@@ -621,8 +621,8 @@ describe('background/services/network/NetworkService', () => {
 
       expect(await networksPromise).toEqual({
         ...originalChainList,
-        'eip155:1337': {
-          ...originalChainList['eip155:1337'],
+        '1337': {
+          ...originalChainList['1337'],
           rpcUrl: 'http://my.custom.rpc',
         },
       });
@@ -640,12 +640,12 @@ describe('background/services/network/NetworkService', () => {
       .mockReturnValue({ isTestnet: false } as any);
 
     const allNetworks = {
-      'eip155:1': {
+      '1': {
         chainId: 1,
         vmName: 'EVM',
         isTestnet: false,
       },
-      'eip155:1337': {
+      '1337': {
         chainId: 1337,
         vmName: 'EVM',
         isTestnet: true,
@@ -655,8 +655,10 @@ describe('background/services/network/NetworkService', () => {
     // eslint-disable-next-line
     // @ts-expect-error
     networkService._allNetworks.dispatch(allNetworks);
+
     const mainnetNetworksPromise =
       await networkService.activeNetworks.promisify();
+
     expect(await mainnetNetworksPromise).toEqual({
       '1': {
         vmName: NetworkVMType.EVM,
@@ -688,13 +690,13 @@ describe('background/services/network/NetworkService', () => {
 
   it('filters pchain network by feature flag when dispatching allNetowrks signal', async () => {
     const allNetworks = {
-      'eip155:1': {
+      '1': {
         vmName: NetworkVMType.EVM,
         chainId: 1,
         caipId: 'eip155:1',
         isTestnet: false,
       },
-      ['avax:11111111111111111111111111111111LpoYY']: {
+      [ChainId.AVALANCHE_P]: {
         chainId: ChainId.AVALANCHE_P,
         vmName: NetworkVMType.PVM,
         caipId: 'avax:11111111111111111111111111111111LpoYY',
@@ -730,7 +732,7 @@ describe('background/services/network/NetworkService', () => {
 
     const result2 = await networkService.activeNetworks.promisify();
     expect(await result2).toEqual({
-      'eip155:1': {
+      '1': {
         caipId: 'eip155:1',
         vmName: 'EVM',
         chainId: 1,
