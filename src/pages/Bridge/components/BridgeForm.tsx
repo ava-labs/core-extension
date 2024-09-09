@@ -23,11 +23,7 @@ import {
   useBridgeSDK,
   useGetTokenSymbolOnNetwork,
 } from '@avalabs/core-bridge-sdk';
-import {
-  bigToBigInt,
-  bigToLocaleString,
-  bnToBig,
-} from '@avalabs/core-utils-sdk';
+import { bigToBigInt, bigToLocaleString } from '@avalabs/core-utils-sdk';
 import Big from 'big.js';
 
 import { TokenSelect } from '@src/components/common/TokenSelect';

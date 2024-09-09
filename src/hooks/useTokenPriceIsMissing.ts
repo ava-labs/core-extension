@@ -11,7 +11,7 @@ type UseTokenPriceMissingProps = {
 };
 
 export function useTokenPriceMissing(): UseTokenPriceMissingProps {
-  const { tokens, isTokensCached } = useBalancesContext();
+  const { balances, isTokensCached } = useBalancesContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -22,7 +22,7 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
       return {};
     }
 
-    const networkIds = Object.keys(tokens.balances ?? {});
+    const networkIds = Object.keys(balances.tokens ?? {});
     if (!networkIds.length) {
       return {};
     }
@@ -30,7 +30,7 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
     const networksIsMissingPrices = {};
 
     networkIds.forEach((networkId) => {
-      const tokensForNetwork = tokens.balances?.[networkId];
+      const tokensForNetwork = balances.tokens?.[networkId];
 
       // If the network does not have any tokens with balance do nothing,
       if (!tokensForNetwork) {
@@ -65,7 +65,7 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
     activeAccount?.addressBTC,
     activeAccount?.addressC,
     isTokensCached,
-    tokens.balances,
+    balances.tokens,
   ]);
 
   const favoriteNetworksMissingPrice = useMemo(

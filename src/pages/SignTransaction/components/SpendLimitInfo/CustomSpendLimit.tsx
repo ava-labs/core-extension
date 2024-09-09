@@ -1,4 +1,3 @@
-import BN from 'bn.js';
 import browser from 'webextension-polyfill';
 import { useState } from 'react';
 import {

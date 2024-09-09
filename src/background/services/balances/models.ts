@@ -38,10 +38,10 @@ export interface TokenAttribute {
 }
 
 // store balances in the structure of network ID -> address -> tokens
-export interface Balances {
+export interface Balances<TokenTypes = TokenWithBalance> {
   [networkId: string | number]: {
     [accountAddress: string]: {
-      [tokenAddressOrSymbol: string]: TokenWithBalance;
+      [tokenAddressOrSymbol: string]: TokenTypes;
     };
   };
 }

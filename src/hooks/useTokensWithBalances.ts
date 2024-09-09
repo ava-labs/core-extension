@@ -42,7 +42,7 @@ export const useTokensWithBalances = (
   }>({});
 
   const { request } = useConnectionContext();
-  const { tokens } = useBalancesContext();
+  const { balances } = useBalancesContext();
   const { showTokensWithoutBalances, customTokens } = useSettingsContext();
   const {
     accounts: { active: activeAccount },
@@ -146,7 +146,7 @@ export const useTokensWithBalances = (
       return [];
     }
 
-    const networkBalances = tokens.balances?.[selectedChainId]?.[address] ?? {};
+    const networkBalances = balances.tokens?.[selectedChainId]?.[address] ?? {};
 
     if (forceShowTokensWithoutBalances || showTokensWithoutBalances) {
       const merged = merge(
@@ -180,7 +180,7 @@ export const useTokensWithBalances = (
   }, [
     selectedChainId,
     activeAccount,
-    tokens.balances,
+    balances.tokens,
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,
     allTokensWithPlaceholderBalances,

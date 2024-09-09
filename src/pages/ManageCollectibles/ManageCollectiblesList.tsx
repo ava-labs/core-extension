@@ -4,11 +4,11 @@ import {
   Typography,
   Divider,
 } from '@avalabs/core-k2-components';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { CollectibleListEmpty } from '@src/pages/Collectibles/components/CollectibleListEmpty';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import { useNfts } from '@src/hooks/useNfts';
 
 type ManageTokensListProps = {
   searchQuery: string;
@@ -17,9 +17,9 @@ type ManageTokensListProps = {
 export const ManageCollectiblesList = ({
   searchQuery,
 }: ManageTokensListProps) => {
-  const { nfts } = useBalancesContext();
+  const nfts = useNfts();
 
-  if (nfts.items?.length === 0) {
+  if (nfts?.length === 0) {
     return (
       <Stack
         sx={{
@@ -35,7 +35,7 @@ export const ManageCollectiblesList = ({
     );
   }
 
-  const displayableNfts = nfts.items?.filter((nft) => {
+  const displayableNfts = nfts?.filter((nft) => {
     if (!searchQuery.length) {
       return true;
     }

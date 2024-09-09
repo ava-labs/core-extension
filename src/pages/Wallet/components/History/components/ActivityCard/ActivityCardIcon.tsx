@@ -9,7 +9,7 @@ import {
   SwapIcon,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
+import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
 import {
   TransactionType,
   TxHistoryItem,
@@ -67,7 +67,10 @@ export function ActivityCardIcon({ historyItem }: ActivityCardProp) {
         setTxIcon(getNftIcon(historyItem));
         break;
       case TransactionType.TRANSFER:
-        if (historyItem.tokens[0] && isNFT(historyItem.tokens[0]?.type)) {
+        if (
+          historyItem.tokens[0] &&
+          isNftTokenType(historyItem.tokens[0]?.type)
+        ) {
           setTxIcon(getNftIcon(historyItem));
         } else {
           setTxIcon(defaultIcon);

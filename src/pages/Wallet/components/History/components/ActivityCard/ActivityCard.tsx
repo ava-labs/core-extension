@@ -11,7 +11,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { weiToAvax } from '@avalabs/core-utils-sdk';
-import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
+import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
 import {
   TransactionType,
   TxHistoryItem,
@@ -45,7 +45,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
       historyItem.type === TransactionType.NFT_BUY ||
       (historyItem.type === TransactionType.TRANSFER &&
         historyItem.tokens[0] &&
-        isNFT(historyItem.tokens[0].type))
+        isNftTokenType(historyItem.tokens[0].type))
     ) {
       return true;
     }
@@ -92,7 +92,10 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
         case TransactionType.NFT_BUY:
           return t('NFT Buy');
         case TransactionType.TRANSFER:
-          if (historyItem.tokens[0] && isNFT(historyItem.tokens[0]?.type)) {
+          if (
+            historyItem.tokens[0] &&
+            isNftTokenType(historyItem.tokens[0]?.type)
+          ) {
             return historyItem.isSender ? t('NFT Sent') : t('NFT Received');
           } else {
             return t('Transfer');
