@@ -388,6 +388,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
             iconUrls: ['logo.png'],
           },
         ],
+        site: {
+          domain: 'google.app',
+          tabId: 3,
+        },
       };
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
@@ -418,6 +422,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
             isTestnet: 'ofc',
           },
         ],
+        site: {
+          domain: 'google.app',
+          tabId: 3,
+        },
       };
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
@@ -539,6 +547,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
             isTestnet: true,
           },
         ],
+        site: {
+          domain: 'google.app',
+          tabId: 3,
+        },
       };
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
