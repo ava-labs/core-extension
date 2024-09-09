@@ -60,15 +60,23 @@ export function ConnectionContextProvider({ children }: { children: any }) {
   }, []);
 
   const requestHandler: RequestHandlerType = useCallback(
-    async function requestHandler(message) {
+    async function requestHandler(message, context) {
       const activeEngine = await activeRequestEngine.promisify();
       const scope = await networkChanges.promisify();
 
-      return activeEngine({ ...message, tabId }, scope ?? '').then<any>(
-        (results) => {
-          return results.error ? Promise.reject(results.error) : results.result;
+      return activeEngine(
+        {
+          ...message,
+          tabId,
+        },
+        scope ?? '',
+        {
+          ...context,
+          tabId,
         }
-      );
+      ).then<any>((results) => {
+        return results.error ? Promise.reject(results.error) : results.result;
+      });
     },
     []
   );

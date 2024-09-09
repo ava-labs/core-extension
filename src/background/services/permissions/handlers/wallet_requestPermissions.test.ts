@@ -1,28 +1,19 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { ethErrors } from 'eth-rpc-errors';
-import { container } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AccountType } from '../../accounts/models';
-import { ActionsService } from '../../actions/ActionsService';
 import { Action, ActionStatus } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { WalletRequestPermissionsHandler } from './wallet_requestPermissions';
 import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
-jest.mock('@src/utils/extensionUtils', () => ({
-  openExtensionNewWindow: jest.fn().mockReturnValue({ id: 321 }),
-}));
-
+jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('../utils/getPermissionsConvertedToMetaMaskStructure');
 
 describe('background/services/permissions/handlers/wallet_requestPermissions.ts', () => {
-  beforeEach(() => {
-    container.clearInstances();
-  });
-
   describe('handleAuthenticated', () => {
     it('calls handle authenticated', async () => {
       const handler = new WalletRequestPermissionsHandler(
@@ -33,11 +24,6 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
         handler,
         'handleUnauthenticated'
       );
-
-      const actionsServiceMock = {
-        addAction: jest.fn(),
-      };
-      container.registerInstance(ActionsService, actionsServiceMock as any);
       const mockRequest = {
         id: '1234',
         method: DAppProviderRequest.WALLET_PERMISSIONS,
@@ -61,10 +47,6 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
         {} as PermissionsService,
         {} as AccountsService
       );
-      const actionsServiceMock = {
-        addAction: jest.fn(),
-      };
-      container.registerInstance(ActionsService, actionsServiceMock as any);
 
       const mockRequest = {
         id: '4321',
@@ -84,20 +66,10 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
         ...mockRequest,
         result: DEFERRED_RESPONSE,
       });
-      expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
-      expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
-        ...mockRequest,
-        actionId: '00000000-0000-0000-0000-000000000000',
-        displayData: {
-          domainIcon: 'icon.svg',
-          domainName: 'Example dapp',
-          domainUrl: 'example.com',
-        },
-        popupWindowId: 321,
-      });
-      expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
-      expect(openExtensionNewWindow).toHaveBeenCalledWith(
-        `permissions?actionId=00000000-0000-0000-0000-000000000000`
+      expect(openApprovalWindow).toHaveBeenCalledTimes(1);
+      expect(openApprovalWindow).toHaveBeenCalledWith(
+        expect.objectContaining({ id: '4321' }),
+        `permissions`
       );
     });
   });

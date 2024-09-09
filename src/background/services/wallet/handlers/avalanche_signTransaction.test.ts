@@ -104,7 +104,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     (utils.getManagerForVM as jest.Mock).mockReturnValue(codecManagerMock);
     txMock.getSigIndices.mockReturnValue([]);
     unsignedTxMock.toJSON.mockReturnValue(unsignedTxJson);
-    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue({} as any);
     (Avalanche.getUtxosByTxFromGlacier as jest.Mock).mockReturnValue(utxosMock);
     (getProvidedUtxos as jest.Mock).mockReturnValue(utxosMock);
   });

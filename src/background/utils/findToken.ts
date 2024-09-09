@@ -67,6 +67,7 @@ export async function findToken(
     );
     return {
       ...network.networkToken,
+      coingeckoId: network.pricingProviders?.coingecko.nativeTokenId ?? '',
       balance,
       balanceDisplayValue: bigIntToString(
         balance,

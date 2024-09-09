@@ -8,7 +8,7 @@ export const openApprovalWindow = async (action: Action, url: string) => {
   // using direct injection instead of the constructor to prevent circular dependencies
   const approvalService = container.resolve(ApprovalService);
 
-  approvalService.requestApproval(
+  return approvalService.requestApproval(
     {
       ...action,
       actionId,

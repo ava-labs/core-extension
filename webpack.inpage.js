@@ -28,8 +28,10 @@ const prodEvmProviderConfig = {
 };
 
 module.exports = (env, argv) => {
-  const evmProviderConfig =
-    argv.mode === 'production' ? prodEvmProviderConfig : devEvmProviderConfig;
+  const isDevBuild = argv.mode !== 'production';
+  const evmProviderConfig = isDevBuild
+    ? devEvmProviderConfig
+    : prodEvmProviderConfig;
   return {
     mode: 'development',
     devtool: 'hidden-source-map',
@@ -75,6 +77,10 @@ module.exports = (env, argv) => {
       new NodePolyfillPlugin(),
       new DefinePlugin({
         ...evmProviderConfig,
+        // For non-dev builds, it's replaced by actual version number later in the release process
+        CORE_EXTENSION_VERSION: isDevBuild
+          ? '"0.0.0"'
+          : '"CORE_EXTENSION_VERSION"',
       }),
     ],
   };

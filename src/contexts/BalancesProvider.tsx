@@ -32,6 +32,8 @@ import { parseRawAttributesString } from '@src/utils/nfts/metadataParser';
 import { TokensPriceShortData } from '@src/background/services/tokens/models';
 import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { Network } from '@src/background/services/network/models';
+import { getAddressForChain } from '@src/utils/getAddressForChain';
 
 export const IPFS_URL = 'https://ipfs.io';
 
@@ -74,6 +76,7 @@ const BalancesContext = createContext<{
     chainId: string,
     tokenId: string
   ): Promise<void>;
+  getTokenPrice(addressOrSymbol: string): number | undefined;
   updateBalanceOnAllNetworks: (accounts: Account[]) => Promise<void>;
   registerSubscriber: () => void;
   unregisterSubscriber: () => void;
@@ -88,6 +91,9 @@ const BalancesContext = createContext<{
 }>({
   tokens: { loading: true },
   nfts: { loading: false },
+  getTokenPrice() {
+    return undefined;
+  },
   async refreshNftMetadata() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   async updateBalanceOnAllNetworks() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
@@ -274,11 +280,38 @@ export function BalancesProvider({ children }: { children: any }) {
     [getAccount, favoriteNetworks, network, tokens.balances]
   );
 
+  const getTokenPrice = useCallback(
+    (addressOrSymbol: string, lookupNetwork?: Network) => {
+      if (!activeAccount) {
+        return;
+      }
+
+      const chainId = (lookupNetwork ?? network)?.chainId;
+
+      if (!chainId) {
+        return;
+      }
+
+      const addressForChain = getAddressForChain(chainId, activeAccount);
+
+      if (!addressForChain) {
+        return;
+      }
+
+      const token =
+        tokens.balances?.[chainId]?.[addressForChain]?.[addressOrSymbol];
+
+      return token?.priceInCurrency;
+    },
+    [tokens.balances, activeAccount, network]
+  );
+
   return (
     <BalancesContext.Provider
       value={{
         nfts,
         tokens,
+        getTokenPrice,
         refreshNftMetadata,
         updateBalanceOnAllNetworks,
         registerSubscriber,

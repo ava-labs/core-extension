@@ -7,6 +7,7 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 
 import { NetworkService } from '../NetworkService';
+import { chainIdToCaip } from '@src/utils/caipConversion';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SET_DEVELOPER_MODE,
@@ -22,19 +23,15 @@ export class SetDevelopermodeNetworkHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const [enableDeveloperMode] = request.params;
-
-    const network = await this.networkService.getNetwork(
-      enableDeveloperMode
-        ? ChainId.AVALANCHE_TESTNET_ID
-        : ChainId.AVALANCHE_MAINNET_ID
-    );
-
-    if (!network) {
-      throw new Error('Target network not found');
-    }
-
     const [, err] = await resolve(
-      this.networkService.setNetwork(runtime.id, network)
+      this.networkService.setNetwork(
+        runtime.id,
+        chainIdToCaip(
+          enableDeveloperMode
+            ? ChainId.AVALANCHE_TESTNET_ID
+            : ChainId.AVALANCHE_MAINNET_ID
+        )
+      )
     );
 
     if (err) {

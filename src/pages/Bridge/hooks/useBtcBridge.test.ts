@@ -206,15 +206,20 @@ describe('src/pages/Bridge/hooks/useBtcBridge', () => {
       await act(async () => {
         const hash = await hook.current.transfer();
 
-        expect(requestFn).toHaveBeenCalledWith({
-          method: DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
-          params: [
-            'bridge-btc-address',
-            String(btcToSatoshi(amount)),
-            Number(highFee),
-            { customApprovalScreenTitle: 'Confirm Bridge' },
-          ],
-        });
+        expect(requestFn).toHaveBeenCalledWith(
+          {
+            method: DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
+            params: {
+              from: 'user-btc-address',
+              to: 'bridge-btc-address',
+              amount: btcToSatoshi(amount),
+              feeRate: Number(highFee),
+            },
+          },
+          {
+            customApprovalScreenTitle: 'Confirm Bridge',
+          }
+        );
 
         expect(hash).toEqual(fakeHash);
       });

@@ -238,7 +238,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    service = new BalancesService({} as any);
+    service = new BalancesService({} as any, {} as any);
   });
 
   describe('getBalancesForNetwork', () => {

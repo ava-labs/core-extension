@@ -2,7 +2,7 @@ import { singleton } from 'tsyringe';
 import { Account } from '../accounts/models';
 import { TokensPriceShortData } from '../tokens/models';
 import { NetworkWithCaipId } from '../network/models';
-import ModuleManager from '@src/background/vmModules/ModuleManager';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { SettingsService } from '../settings/SettingsService';
 import { getPriceChangeValues } from './utils/getPriceChangeValues';
 import * as Sentry from '@sentry/browser';
@@ -10,7 +10,10 @@ import { NetworkVMType, TokenWithBalance } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BalancesService {
-  constructor(private settingsService: SettingsService) {}
+  constructor(
+    private settingsService: SettingsService,
+    private moduleManager: ModuleManager
+  ) {}
 
   async getBalancesForNetwork(
     network: NetworkWithCaipId,
@@ -25,7 +28,7 @@ export class BalancesService {
         network: network.caipId,
       }
     );
-    const module = await ModuleManager.loadModuleByNetwork(network);
+    const module = await this.moduleManager.loadModuleByNetwork(network);
 
     const currency = (
       await this.settingsService.getSettings()

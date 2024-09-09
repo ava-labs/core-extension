@@ -103,6 +103,38 @@ describe('background/services/network/NetworkService', () => {
   const avaxMainnet = mockNetwork(NetworkVMType.EVM, false, {
     chainId: 43114,
   });
+  const leetNetwork = mockNetwork(NetworkVMType.EVM, false, {
+    chainId: 1337,
+  });
+  const btcNetwork = mockNetwork(NetworkVMType.BITCOIN, false, {
+    chainId: ChainId.BITCOIN,
+  });
+  const sepolia = mockNetwork(NetworkVMType.EVM, true, {
+    chainId: 11155111,
+  });
+
+  const mockChainList = (instance: NetworkService) => {
+    // eslint-disable-next-line
+    // @ts-ignore
+    jest.spyOn(instance._rawNetworks, 'promisify').mockResolvedValue(
+      Promise.resolve({
+        [ethMainnet.chainId]: ethMainnet,
+        [avaxMainnet.chainId]: avaxMainnet,
+        [btcNetwork.chainId]: btcNetwork,
+        [leetNetwork.chainId]: leetNetwork,
+        [sepolia.chainId]: sepolia,
+      })
+    );
+    jest.spyOn(instance.allNetworks, 'promisify').mockResolvedValue(
+      Promise.resolve({
+        [ethMainnet.chainId]: ethMainnet,
+        [avaxMainnet.chainId]: avaxMainnet,
+        [btcNetwork.chainId]: btcNetwork,
+        [leetNetwork.chainId]: leetNetwork,
+        [sepolia.chainId]: sepolia,
+      })
+    );
+  };
 
   beforeAll(() => {
     process.env = {
@@ -115,27 +147,10 @@ describe('background/services/network/NetworkService', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    jest.mocked(getChainsAndTokens).mockResolvedValue({
-      [43114]: {
-        chainName: 'test chain',
-        chainId: 123,
-        vmName: NetworkVMType.EVM,
-        rpcUrl: 'https://rpcurl.example',
-        explorerUrl: 'https://explorer.url',
-        networkToken: {
-          name: 'test network token',
-          symbol: 'TNT',
-          description: '',
-          decimals: 18,
-          logoUri: '',
-        },
-        logoUri: '',
-        primaryColor: 'blue',
-        isTestnet: false,
-      },
-    });
+    jest.mocked(getChainsAndTokens).mockResolvedValue({});
 
     jest.mocked(FetchRequest).mockImplementation((url) => ({ url } as any));
+    mockChainList(service);
   });
 
   afterAll(() => {
@@ -143,18 +158,12 @@ describe('background/services/network/NetworkService', () => {
   });
 
   describe('.getInitialNetworkForDapp()', () => {
-    const leetNetwork = mockNetwork(NetworkVMType.EVM, false, {
-      chainId: 1337,
-    });
-    const btcNetwork = mockNetwork(NetworkVMType.BITCOIN, false, {
-      chainId: ChainId.BITCOIN,
-    });
-
     const chainlist = {
       [ethMainnet.chainId]: ethMainnet,
       [avaxMainnet.chainId]: avaxMainnet,
       [leetNetwork.chainId]: leetNetwork,
       [btcNetwork.chainId]: btcNetwork,
+      [sepolia.chainId]: sepolia,
     };
 
     it('returns the most recently active network for given domain', async () => {
@@ -181,7 +190,7 @@ describe('background/services/network/NetworkService', () => {
         .mockResolvedValueOnce(chainlist);
 
       await service.init();
-      await service.setNetwork(runtime.id, leetNetwork);
+      await service.setNetwork(runtime.id, leetNetwork.caipId);
 
       const network = await service.getInitialNetworkForDapp('test.app');
 
@@ -196,7 +205,7 @@ describe('background/services/network/NetworkService', () => {
         .mockResolvedValueOnce(chainlist);
 
       await service.init();
-      await service.setNetwork(runtime.id, btcNetwork);
+      await service.setNetwork(runtime.id, btcNetwork.caipId);
 
       const network = await service.getInitialNetworkForDapp('core.app');
 
@@ -211,7 +220,7 @@ describe('background/services/network/NetworkService', () => {
         .mockResolvedValueOnce(chainlist);
 
       await service.init();
-      await service.setNetwork(runtime.id, btcNetwork);
+      await service.setNetwork(runtime.id, btcNetwork.caipId);
 
       const network = await service.getInitialNetworkForDapp('test.app');
 
@@ -241,7 +250,7 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('persists current network for given domain', async () => {
-      await service.setNetwork('test.app', ethMainnet);
+      await service.setNetwork('test.app', ethMainnet.caipId);
 
       expect(storageServiceMock.save).toHaveBeenCalledWith(
         NETWORK_STORAGE_KEY,
@@ -258,7 +267,7 @@ describe('background/services/network/NetworkService', () => {
 
       service.dappScopeChanged.addOnce(listener);
 
-      await service.setNetwork('test.app', ethMainnet);
+      await service.setNetwork('test.app', ethMainnet.caipId);
 
       expect(listener).toHaveBeenCalledWith({
         domain: 'test.app',
@@ -267,17 +276,14 @@ describe('background/services/network/NetworkService', () => {
     });
 
     describe('when dApp network switch results in environment change', () => {
-      const sepolia = mockNetwork(NetworkVMType.EVM, true, {
-        chainId: 11155111,
-      });
-
       beforeEach(async () => {
         service = new NetworkService(
           storageServiceMock,
           featureFlagsServiceMock
         );
+        mockChainList(service);
         // Set Ethereum Mainnet directly for the frontend
-        await service.setNetwork(runtime.id, ethMainnet);
+        await service.setNetwork(runtime.id, ethMainnet.caipId);
         expect(service.uiActiveNetwork).toEqual(ethMainnet);
       });
 
@@ -285,7 +291,7 @@ describe('background/services/network/NetworkService', () => {
         storageServiceMock.load.mockResolvedValueOnce({
           [runtime.id]: sepolia.caipId,
         });
-        await service.setNetwork('app.uniswap.io', sepolia);
+        await service.setNetwork('app.uniswap.io', sepolia.caipId);
         expect(storageServiceMock.save).toHaveBeenCalledWith(
           NETWORK_STORAGE_KEY,
           expect.objectContaining({
@@ -300,7 +306,7 @@ describe('background/services/network/NetworkService', () => {
         storageServiceMock.load.mockResolvedValueOnce({
           [runtime.id]: sepolia.caipId,
         });
-        await service.setNetwork('app.uniswap.io', sepolia);
+        await service.setNetwork('app.uniswap.io', sepolia.caipId);
         expect(service.uiActiveNetwork).toEqual(sepolia);
         expect(storageServiceMock.save).toHaveBeenCalledWith(
           NETWORK_STORAGE_KEY,
@@ -318,7 +324,7 @@ describe('background/services/network/NetworkService', () => {
 
         service.developerModeChanged.addOnce(onDevModeChange);
 
-        await service.setNetwork('app.uniswap.io', sepolia);
+        await service.setNetwork('app.uniswap.io', sepolia.caipId);
         expect(service.uiActiveNetwork).toEqual(sepolia);
 
         expect(onDevModeChange).toHaveBeenCalledWith(true);
@@ -327,7 +333,7 @@ describe('background/services/network/NetworkService', () => {
 
     describe('when changing network for synchronized dApps', () => {
       it('uses the extension ID as domain', async () => {
-        await service.setNetwork('core.app', ethMainnet);
+        await service.setNetwork('core.app', ethMainnet.caipId);
 
         expect(storageServiceMock.save).toHaveBeenCalledWith(
           NETWORK_STORAGE_KEY,
@@ -340,12 +346,18 @@ describe('background/services/network/NetworkService', () => {
       });
 
       it('changes the network for the extension ui as well', async () => {
+        jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(
+          Promise.resolve({
+            [ethMainnet.chainId]: ethMainnet,
+            [avaxMainnet.chainId]: avaxMainnet,
+          })
+        );
         // Set Ethereum directly for the frontend
-        await service.setNetwork(runtime.id, ethMainnet);
+        await service.setNetwork(runtime.id, ethMainnet.caipId);
         expect(service.uiActiveNetwork).toEqual(ethMainnet);
 
         // Set C-Chain for core.app and expect it to change also for the extension UI
-        await service.setNetwork('core.app', avaxMainnet);
+        await service.setNetwork('core.app', avaxMainnet.caipId);
         expect(service.uiActiveNetwork).toEqual(avaxMainnet);
       });
 
@@ -353,8 +365,13 @@ describe('background/services/network/NetworkService', () => {
         const listener = jest.fn();
 
         service.dappScopeChanged.addOnce(listener);
+        jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(
+          Promise.resolve({
+            [ethMainnet.chainId]: ethMainnet,
+          })
+        );
 
-        await service.setNetwork('core.app', ethMainnet);
+        await service.setNetwork('core.app', ethMainnet.caipId);
 
         expect(listener).toHaveBeenCalledWith({
           domain: runtime.id,
@@ -373,6 +390,7 @@ describe('background/services/network/NetworkService', () => {
     it('saves custom RPC headers', async () => {
       const overrides = {
         chainId: 1337,
+        caipId: 'eip155:1337',
         customRpcHeaders: {
           'X-Glacier-Api-Key': 'my-elite-api-key',
         },
@@ -415,8 +433,13 @@ describe('background/services/network/NetworkService', () => {
       jest.spyOn(networkService._rawNetworks, 'promisify').mockResolvedValue({
         1337: activeNetwork,
       });
+      jest.spyOn(networkService.allNetworks, 'promisify').mockResolvedValue(
+        Promise.resolve({
+          1337: activeNetwork,
+        })
+      );
 
-      await networkService.setNetwork(runtime.id, activeNetwork);
+      await networkService.setNetwork(runtime.id, activeNetwork.caipId);
 
       await networkService.updateNetworkOverrides({
         caipId: 'eip155:1337',
@@ -437,24 +460,25 @@ describe('background/services/network/NetworkService', () => {
   describe('saveCustomNetwork()', () => {
     let customNetwork;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       customNetwork = mockNetwork(NetworkVMType.EVM, false);
     });
 
     it('should throw an error because of the chainlist failed to load', async () => {
       jest
         // eslint-disable-next-line
-        // @ts-expect-error
+        // @ts-ignore
         .spyOn(service._rawNetworks, 'promisify')
-        .mockResolvedValue(Promise.resolve(undefined));
-      expect(service.saveCustomNetwork(customNetwork)).rejects.toThrow(
+        .mockResolvedValueOnce(Promise.resolve(undefined));
+
+      await expect(service.saveCustomNetwork(customNetwork)).rejects.toThrow(
         'chainlist failed to load'
       );
     });
 
     it('should throw an error because of duplicated ID', async () => {
       const newCustomNetwork = { ...customNetwork, chainId: 43114 };
-      expect(service.saveCustomNetwork(newCustomNetwork)).rejects.toThrow(
+      await expect(service.saveCustomNetwork(newCustomNetwork)).rejects.toThrow(
         'chain ID already exists'
       );
     });
@@ -476,11 +500,8 @@ describe('background/services/network/NetworkService', () => {
         ...customNetwork,
         rpcUrl: newRpcUrl,
       };
-      await service.saveCustomNetwork(newCustomNetwork);
-
-      // Set it as active
-      const savedActiveNetwork = await service.getNetwork(
-        newCustomNetwork.chainId
+      const savedActiveNetwork = await service.saveCustomNetwork(
+        newCustomNetwork
       );
 
       expect(savedActiveNetwork?.rpcUrl).toBe(newRpcUrl);
@@ -542,13 +563,13 @@ describe('background/services/network/NetworkService', () => {
 
   describe('when config overrides are present', () => {
     const originalChainList = {
-      '1': {
+      'eip155:1': {
         vmName: NetworkVMType.EVM,
         caipId: 'eip155:1',
         chainId: 1,
         rpcUrl: 'http://avax.network/rpc',
       },
-      '1337': {
+      'eip155:1337': {
         vmName: NetworkVMType.EVM,
         caipId: 'eip155:1337',
         chainId: 1337,
@@ -558,7 +579,7 @@ describe('background/services/network/NetworkService', () => {
 
     beforeEach(() => {
       storageServiceMock.load.mockResolvedValue({
-        '1337': {
+        'eip155:1337': {
           vmName: NetworkVMType.EVM,
           rpcUrl: 'http://my.custom.rpc',
         },
@@ -579,8 +600,8 @@ describe('background/services/network/NetworkService', () => {
 
       expect(await networksPromise).toEqual({
         ...originalChainList,
-        '1337': {
-          ...originalChainList['1337'],
+        'eip155:1337': {
+          ...originalChainList['eip155:1337'],
           rpcUrl: 'http://my.custom.rpc',
         },
       });
@@ -600,8 +621,8 @@ describe('background/services/network/NetworkService', () => {
 
       expect(await networksPromise).toEqual({
         ...originalChainList,
-        '1337': {
-          ...originalChainList['1337'],
+        'eip155:1337': {
+          ...originalChainList['eip155:1337'],
           rpcUrl: 'http://my.custom.rpc',
         },
       });
@@ -619,12 +640,12 @@ describe('background/services/network/NetworkService', () => {
       .mockReturnValue({ isTestnet: false } as any);
 
     const allNetworks = {
-      '1': {
+      'eip155:1': {
         chainId: 1,
         vmName: 'EVM',
         isTestnet: false,
       },
-      '1337': {
+      'eip155:1337': {
         chainId: 1337,
         vmName: 'EVM',
         isTestnet: true,
@@ -634,10 +655,8 @@ describe('background/services/network/NetworkService', () => {
     // eslint-disable-next-line
     // @ts-expect-error
     networkService._allNetworks.dispatch(allNetworks);
-
     const mainnetNetworksPromise =
       await networkService.activeNetworks.promisify();
-
     expect(await mainnetNetworksPromise).toEqual({
       '1': {
         vmName: NetworkVMType.EVM,
@@ -669,13 +688,13 @@ describe('background/services/network/NetworkService', () => {
 
   it('filters pchain network by feature flag when dispatching allNetowrks signal', async () => {
     const allNetworks = {
-      '1': {
+      'eip155:1': {
         vmName: NetworkVMType.EVM,
         chainId: 1,
         caipId: 'eip155:1',
         isTestnet: false,
       },
-      [ChainId.AVALANCHE_P]: {
+      ['avax:11111111111111111111111111111111LpoYY']: {
         chainId: ChainId.AVALANCHE_P,
         vmName: NetworkVMType.PVM,
         caipId: 'avax:11111111111111111111111111111111LpoYY',
@@ -711,7 +730,7 @@ describe('background/services/network/NetworkService', () => {
 
     const result2 = await networkService.activeNetworks.promisify();
     expect(await result2).toEqual({
-      '1': {
+      'eip155:1': {
         caipId: 'eip155:1',
         vmName: 'EVM',
         chainId: 1,

@@ -1,6 +1,8 @@
 /* eslint-disable no-prototype-builtins */
 
 import { Runtime } from 'webextension-polyfill';
+import { RpcMethod } from '@avalabs/vm-module-types';
+
 import { ArrayElement } from '../models';
 import { ExtensionRequest } from './extensionConnection/models';
 import {
@@ -14,12 +16,12 @@ import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 import { DAppRequestHandler } from './dAppConnection/DAppRequestHandler';
 
 export interface ExtensionConnectionMessage<
-  Method extends ExtensionRequest | DAppProviderRequest = any,
+  Method extends ExtensionRequest | DAppProviderRequest | RpcMethod = any,
   Params = any
 > extends JsonRpcRequest<Method, Params> {}
 
 export type ExtensionConnectionMessageResponse<
-  Method extends ExtensionRequest | DAppProviderRequest = any,
+  Method extends ExtensionRequest | DAppProviderRequest | RpcMethod = any,
   Result = any,
   Params = any
 > = ExtensionConnectionMessage<Method, Params>['params']['request'] &
@@ -68,7 +70,7 @@ export function isConnectionResponse(
  * string
  */
 export interface ExtensionRequestHandler<
-  Method extends ExtensionRequest | DAppProviderRequest,
+  Method extends ExtensionRequest | DAppProviderRequest | RpcMethod,
   Result,
   Params = undefined
 > {
@@ -90,7 +92,13 @@ type ExtractHandlerTypes<Type> = Type extends ExtensionRequestHandler<
       Params: P;
       Result: R;
     }
-  : never;
+  : {
+      Method: RpcMethod;
+      Params: Type;
+      Result: string;
+    };
+
+type ModuleRequestPayload = Record<string, unknown>;
 
 /**
  * The `Handler` type argument is required and must be a reference to a class
@@ -98,17 +106,20 @@ type ExtractHandlerTypes<Type> = Type extends ExtensionRequestHandler<
  */
 export type RequestHandlerType = <
   // Reference to a class that implements ExtensionRequestHandler.
-  Handler extends
+  HandlerOrKnownParams extends
     | ExtensionRequestHandler<Method, Result, Params>
-    | DAppRequestHandler<Params, Result>,
+    | DAppRequestHandler<Params, Result>
+    | ModuleRequestPayload,
   // The following type arguments should NOT be provided, they are inferred.
   Method extends
     | ExtensionRequest
-    | DAppProviderRequest = ExtractHandlerTypes<Handler>['Method'],
-  Result = Exclude<ExtractHandlerTypes<Handler>['Result'], symbol>,
-  Params = ExtractHandlerTypes<Handler>['Params']
+    | DAppProviderRequest
+    | RpcMethod = ExtractHandlerTypes<HandlerOrKnownParams>['Method'],
+  Result = Exclude<ExtractHandlerTypes<HandlerOrKnownParams>['Result'], symbol>,
+  Params = ExtractHandlerTypes<HandlerOrKnownParams>['Params']
 >(
-  message: Omit<JsonRpcRequestPayload<Method, Params>, 'id'>
+  message: Omit<JsonRpcRequestPayload<Method, Params>, 'id'>,
+  context?: Record<string, unknown>
 ) => Promise<Result>;
 
 interface ConnectionEventEmitter {

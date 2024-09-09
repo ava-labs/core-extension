@@ -9,5 +9,6 @@ export const isTokenWithBalanceAVM = (
   if (!balance) {
     return false;
   }
-  return Object.keys(balance).includes('locked');
+
+  return 'balancePerType' in balance && 'locked' in balance.balancePerType;
 };

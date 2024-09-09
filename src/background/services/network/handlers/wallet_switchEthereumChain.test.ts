@@ -1,18 +1,14 @@
 import { WalletSwitchEthereumChainHandler } from './wallet_switchEthereumChain';
-import { openExtensionNewWindow } from './../../../../utils/extensionUtils';
 import { buildRpcCall } from './../../../../tests/test-utils';
 import { DAppProviderRequest } from './../../../connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from './../../../connections/middlewares/models';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ethErrors } from 'eth-rpc-errors';
-import { container } from 'tsyringe';
-import { ActionsService } from '../../actions/ActionsService';
 import { isCoreWeb } from '../../network/utils/isCoreWeb';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
-jest.mock('@src/utils/extensionUtils', () => ({
-  openExtensionNewWindow: jest.fn(),
-}));
 jest.mock('../../network/utils/isCoreWeb');
+jest.mock('@src/background/runtime/openApprovalWindow');
 
 const mockActiveNetwork: Network = {
   chainName: 'Avalanche (C-Chain)',
@@ -34,10 +30,6 @@ const mockActiveNetwork: Network = {
 };
 
 describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts', () => {
-  const actionsServiceMock = {
-    addAction: jest.fn(),
-  } as any;
-
   const networkServiceMock = {
     isValidRPCUrl: jest.fn(),
     allNetworks: {
@@ -64,7 +56,6 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
 
     setNetwork: () => Promise.resolve(),
   } as any;
-  container.registerInstance(ActionsService, actionsServiceMock);
   let handler: WalletSwitchEthereumChainHandler;
   const switchChainRequest = {
     id: '1234',
@@ -78,7 +69,6 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
 
   beforeEach(() => {
     jest.resetAllMocks();
-    (openExtensionNewWindow as jest.Mock).mockReturnValue({ id: 123 });
     (networkServiceMock.isValidRPCUrl as jest.Mock).mockResolvedValue(true);
 
     handler = new WalletSwitchEthereumChainHandler(networkServiceMock);
@@ -107,37 +97,11 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
         result: DEFERRED_RESPONSE,
       });
 
-      expect(openExtensionNewWindow).toHaveBeenCalledTimes(1);
-      expect(openExtensionNewWindow).toHaveBeenCalledWith(
-        'network/switch?actionId=uuid'
+      expect(openApprovalWindow).toHaveBeenCalledTimes(1);
+      expect(openApprovalWindow).toHaveBeenCalledWith(
+        expect.objectContaining({ id: '1234' }),
+        'network/switch'
       );
-      expect(actionsServiceMock.addAction).toHaveBeenCalledTimes(1);
-      expect(actionsServiceMock.addAction).toHaveBeenCalledWith({
-        ...switchChainRequest,
-        actionId: 'uuid',
-        displayData: {
-          network: {
-            chainId: 43113,
-            chainName: 'Avalanche (C-Chain)',
-            id: 43113,
-            logoUri: 'chain-logo.png',
-            vmName: NetworkVMType.EVM,
-            primaryColor: 'violet',
-            rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
-            explorerUrl: 'https://explorer.url',
-            subnetExplorerUriId: 'c-chain',
-            tokens: [],
-            networkToken: {
-              symbol: 'AVAX',
-              decimals: 18,
-              description: '',
-              name: 'Avalanche',
-              logoUri: 'token-logo.png',
-            },
-          },
-        },
-        popupWindowId: 123,
-      });
     });
 
     it('does not open approval dialog because the request comes from core web', async () => {
@@ -152,7 +116,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
         result: null,
       });
 
-      expect(openExtensionNewWindow).toHaveBeenCalledTimes(0);
+      expect(openApprovalWindow).toHaveBeenCalledTimes(0);
     });
 
     it('throws error when the requested network is not found', async () => {
@@ -178,7 +142,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
         }),
       });
 
-      expect(openExtensionNewWindow).toHaveBeenCalledTimes(0);
+      expect(openApprovalWindow).toHaveBeenCalledTimes(0);
     });
   });
 });

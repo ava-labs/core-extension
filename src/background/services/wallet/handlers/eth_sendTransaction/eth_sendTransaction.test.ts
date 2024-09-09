@@ -149,7 +149,7 @@ const displayValuesMock: TransactionDisplayValues = {
 
 describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransaction.ts', () => {
   const networkService = new NetworkService({} as any, {} as any);
-  const networkFeeService = new NetworkFeeService();
+  const networkFeeService = new NetworkFeeService({} as any);
   const balanceAggregatorService = new BalanceAggregatorService(
     {} as any,
     {} as any,
@@ -237,7 +237,7 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
       .captureEncryptedEvent.mockResolvedValue();
     jest.mocked(isBitcoinNetwork).mockReturnValue(false);
     (encryptAnalyticsData as jest.Mock).mockResolvedValue(mockedEncryptResult);
-    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue({} as any);
     jest.mocked(txToCustomEvmTx).mockReturnValue({
       maxFeePerGas: '0x54',
       maxPriorityFeePerGas: 1n,

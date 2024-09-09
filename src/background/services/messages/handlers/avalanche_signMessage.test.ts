@@ -30,7 +30,7 @@ describe('avalanche_signMessage', function () {
   };
 
   beforeEach(() => {
-    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue({} as any);
   });
 
   it('returns error when no message', async () => {

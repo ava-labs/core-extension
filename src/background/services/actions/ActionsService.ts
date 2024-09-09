@@ -15,6 +15,10 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 import { LockService } from '../lock/LockService';
 import { filterStaleActions } from './utils';
+import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
+import { ApprovalController } from '@src/background/vmModules/ApprovalController';
 
 @singleton()
 export class ActionsService implements OnStorageReady {
@@ -24,7 +28,8 @@ export class ActionsService implements OnStorageReady {
     @injectAll('DAppRequestHandler')
     private dAppRequestHandlers: DAppRequestHandler[],
     private storageService: StorageService,
-    private lockService: LockService
+    private lockService: LockService,
+    private approvalController: ApprovalController
   ) {}
 
   async onStorageReady() {
@@ -124,6 +129,7 @@ export class ActionsService implements OnStorageReady {
     result,
     error,
     displayData,
+    signingData,
     tabId,
   }: ActionUpdate) {
     const currentPendingActions = await this.getActions();
@@ -132,9 +138,14 @@ export class ActionsService implements OnStorageReady {
       return;
     }
 
-    if (status === ActionStatus.SUBMITTING) {
+    const isHandledByModule = pendingMessage[ACTION_HANDLED_BY_MODULE];
+
+    if (status === ActionStatus.SUBMITTING && isHandledByModule) {
+      this.approvalController.onApproved(pendingMessage);
+      this.removeAction(id);
+    } else if (status === ActionStatus.SUBMITTING) {
       const handler = this.dAppRequestHandlers.find((h) =>
-        h.methods.includes(pendingMessage.method)
+        h.methods.includes(pendingMessage.method as DAppProviderRequest)
       );
 
       if (!handler || !handler.onActionApproved) {
@@ -167,6 +178,12 @@ export class ActionsService implements OnStorageReady {
       );
     } else if (status === ActionStatus.COMPLETED) {
       await this.emitResult(id, pendingMessage, true, result ?? true);
+    } else if (
+      status === ActionStatus.ERROR_USER_CANCELED &&
+      isHandledByModule
+    ) {
+      this.approvalController.onRejected(pendingMessage);
+      this.removeAction(id);
     } else if (status === ActionStatus.ERROR_USER_CANCELED) {
       await this.emitResult(
         id,
@@ -183,6 +200,10 @@ export class ActionsService implements OnStorageReady {
             ...pendingMessage.displayData,
             ...displayData,
           },
+          signingData: getUpdatedSigningData(
+            pendingMessage.signingData,
+            signingData
+          ),
           status,
           result,
           error,
