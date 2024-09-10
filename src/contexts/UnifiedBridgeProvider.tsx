@@ -47,6 +47,7 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
+import { lowerCaseKeys } from '@src/utils/lowerCaseKeys';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(
@@ -54,7 +55,7 @@ export interface UnifiedBridgeContext {
     amount: bigint,
     targetChainId: number
   ): Promise<bigint>;
-  getAssetAddressOnTargetChain(
+  getAssetIdentifierOnTargetChain(
     symbol?: string,
     chainId?: number
   ): string | undefined;
@@ -63,6 +64,7 @@ export interface UnifiedBridgeContext {
     amount: bigint,
     targetChainId: number
   ): Promise<bigint>;
+  isBridgeAddress(...addresses: string[]): boolean;
   supportsAsset(address: string, targetChainId: number): boolean;
   transferAsset(
     symbol: string,
@@ -79,13 +81,16 @@ const DEFAULT_STATE = {
   estimateTransferGas() {
     throw new Error('Bridge not ready');
   },
-  getAssetAddressOnTargetChain() {
+  getAssetIdentifierOnTargetChain() {
     return undefined;
   },
   getErrorMessage() {
     return '';
   },
   supportsAsset() {
+    return false;
+  },
+  isBridgeAddress() {
     return false;
   },
   transferAsset() {
@@ -128,7 +133,10 @@ export function UnifiedBridgeProvider({
   const { featureFlags } = useFeatureFlagContext();
   const isCCTPDisabled = !featureFlags[FeatureGates.UNIFIED_BRIDGE_CCTP];
   const disabledBridgeTypes = useMemo(
-    () => (isCCTPDisabled ? [BridgeType.CCTP] : []),
+    () =>
+      isCCTPDisabled
+        ? [BridgeType.CCTP, BridgeType.ICTT_ERC20_ERC20]
+        : [BridgeType.ICTT_ERC20_ERC20],
     [isCCTPDisabled]
   );
 
@@ -138,7 +146,7 @@ export function UnifiedBridgeProvider({
     }
 
     return activeNetwork.isTestnet ? Environment.TEST : Environment.PROD;
-  }, []);
+  }, [activeNetwork?.isTestnet]);
 
   const [enabledBridgeServices, setEnabledBridgeServices] =
     useState<BridgeServicesMap>();
@@ -336,17 +344,19 @@ export function UnifiedBridgeProvider({
       const asset = getAsset(symbol, activeNetwork.chainId);
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
-      const feeMap = await core.getFees({
-        asset,
-        amount,
-        targetChain: buildChain(targetChainId),
-        sourceChain: buildChain(activeNetwork.chainId),
-      });
+      const feeMap = lowerCaseKeys(
+        await core.getFees({
+          asset,
+          amount,
+          targetChain: buildChain(targetChainId),
+          sourceChain: buildChain(activeNetwork.chainId),
+        })
+      );
 
       const identifier =
         asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
 
-      return feeMap[identifier] ?? 0n;
+      return feeMap[identifier.toLowerCase()] ?? 0n;
     },
     [activeNetwork, core, buildChain, getAsset]
   );
@@ -380,7 +390,7 @@ export function UnifiedBridgeProvider({
     [activeNetwork, core, buildParams, getAsset]
   );
 
-  const getAssetAddressOnTargetChain = useCallback(
+  const getAssetIdentifierOnTargetChain = useCallback(
     (symbol?: string, targetChainId?: number) => {
       if (!symbol || !targetChainId) {
         return;
@@ -388,7 +398,11 @@ export function UnifiedBridgeProvider({
 
       const asset = getAsset(symbol, targetChainId);
 
-      return asset?.address;
+      if (!asset) {
+        return;
+      }
+
+      return asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
     },
     [getAsset]
   );
@@ -502,13 +516,23 @@ export function UnifiedBridgeProvider({
     [t]
   );
 
+  const isBridgeAddress = useCallback(
+    (...addresses: string[]) => {
+      assert(core, CommonError.Unknown);
+
+      return core.isBridgeAddress(...addresses);
+    },
+    [core]
+  );
+
   return (
     <UnifiedBridgeContext.Provider
       value={{
         estimateTransferGas,
         getErrorMessage,
         state,
-        getAssetAddressOnTargetChain,
+        isBridgeAddress,
+        getAssetIdentifierOnTargetChain,
         getFee,
         supportsAsset,
         transferAsset,

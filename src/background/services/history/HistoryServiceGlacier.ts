@@ -90,10 +90,10 @@ export class HistoryServiceGlacier {
       return false;
     }
 
-    return [
-      ETHEREUM_ADDRESS,
-      ...this.unifiedBridgeService.state.addresses,
-    ].includes(address.toLowerCase());
+    return (
+      ETHEREUM_ADDRESS === address.toLowerCase() ||
+      this.unifiedBridgeService.isBridgeAddress(address)
+    );
   }
 
   private getHistoryItemCategories(

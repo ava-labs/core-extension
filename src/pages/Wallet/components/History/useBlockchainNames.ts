@@ -10,13 +10,12 @@ import {
   isPendingBridgeTransaction,
 } from '@src/utils/bridgeTransactionUtils';
 import { caipToChainId } from '@src/utils/caipConversion';
+import { getBridgedAssetSymbol } from '@src/utils/bridge/getBridgedAssetSymbol';
 
 export function useBlockchainNames(
   item: TxHistoryItem | BridgeTransaction | BridgeTransfer
 ) {
-  const {
-    state: { addresses },
-  } = useUnifiedBridgeContext();
+  const { isBridgeAddress } = useUnifiedBridgeContext();
   const pending = isPendingBridgeTransaction(item);
 
   if (pending) {
@@ -35,7 +34,7 @@ export function useBlockchainNames(
   }
 
   const isToAvalanche = isTxToAvalanche(item);
-  const txBlockchain = getTxBlockchain(item, addresses);
+  const txBlockchain = getTxBlockchain(item, isBridgeAddress);
 
   return {
     sourceBlockchain: isToAvalanche ? txBlockchain : 'Avalanche',
@@ -83,9 +82,11 @@ function isTxToAvalanche(
 
 function getTxBlockchain(
   tx: TxHistoryItem | BridgeTransaction | BridgeTransfer,
-  addresses: string[]
+  isBridgeAddress: (...addresses: string[]) => boolean
 ) {
-  const symbol = isBridgeTransaction(tx) ? tx.symbol : tx.tokens?.[0]?.symbol;
+  const symbol = isBridgeTransaction(tx)
+    ? getBridgedAssetSymbol(tx)
+    : tx.tokens?.[0]?.symbol;
   const ethereum = 'Ethereum';
   const bitcoin = 'Bitcoin';
 
@@ -98,10 +99,7 @@ function getTxBlockchain(
       return ethereum;
     }
 
-    if (
-      addresses.includes(tx.to.toLowerCase()) ||
-      addresses.includes(tx.from.toLowerCase())
-    ) {
+    if (isBridgeAddress(tx.to, tx.from)) {
       return ethereum;
     }
   }

@@ -56,10 +56,10 @@
     bn.js "5.2.1"
     zod "3.23.8"
 
-"@avalabs/bridge-unified@0.0.0-fix-make-sign-optional-for-gas-20240905074019":
-  version "0.0.0-fix-make-sign-optional-for-gas-20240905074019"
-  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-0.0.0-fix-make-sign-optional-for-gas-20240905074019.tgz#543a62a639ba36a7624ed4dca22cfbc47720a3eb"
-  integrity sha512-a1I1kWMe4u9MZsNvBFQahNtPHefFL2RMeT+oLfbR6CClHrDyvcPURdt4mV+oV9oDSSAwK2Lg28cdfxokfkdo3A==
+"@avalabs/bridge-unified@0.0.0-feat-is-bridge-address-20240909115936":
+  version "0.0.0-feat-is-bridge-address-20240909115936"
+  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-0.0.0-feat-is-bridge-address-20240909115936.tgz#1529f648d301db2bda671d46e8f3d5d6edb2a492"
+  integrity sha512-Y1AsYR3SKHJVvak6C8IyE68SFLKMmNj3U9hGLNTaB6zR6DyewGuHQByB5wJpVeompd+LHjZl7T0+juY8scneGQ==
   dependencies:
     abitype "0.9.3"
     lodash "4.17.21"

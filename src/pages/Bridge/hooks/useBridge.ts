@@ -57,7 +57,7 @@ export enum BridgeProviders {
   Unified,
 }
 
-export function useBridge(currentAssetAddress?: string): Bridge {
+export function useBridge(currentAssetIdentifier?: string): Bridge {
   const { targetBlockchain } = useBridgeSDK();
   const { supportsAsset } = useUnifiedBridgeContext();
 
@@ -99,7 +99,8 @@ export function useBridge(currentAssetAddress?: string): Bridge {
     bridgeFee,
     targetChainId,
     provider:
-      currentAssetAddress && supportsAsset(currentAssetAddress, targetChainId)
+      currentAssetIdentifier &&
+      supportsAsset(currentAssetIdentifier, targetChainId)
         ? BridgeProviders.Unified
         : BridgeProviders.Avalanche,
   };

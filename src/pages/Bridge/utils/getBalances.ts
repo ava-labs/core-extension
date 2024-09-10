@@ -6,7 +6,10 @@ import {
   TokenType,
   getTokenPrice,
 } from '@src/background/services/balances/models';
-import { BridgeAsset } from '@avalabs/bridge-unified';
+import {
+  BridgeAsset,
+  TokenType as UnifiedTokenType,
+} from '@avalabs/bridge-unified';
 import { isUnifiedBridgeAsset } from './isUnifiedBridgeAsset';
 import { normalizeBalance } from '@src/utils/normalizeBalance';
 
@@ -34,7 +37,11 @@ export function getBalances(
   return assets.map((asset) => {
     const symbol = asset.symbol;
     const token = isUnifiedBridgeAsset(asset)
-      ? tokensByAddress[asset.address?.toLowerCase() ?? asset.symbol]
+      ? tokensByAddress[
+          asset.type === UnifiedTokenType.NATIVE
+            ? asset.symbol.toLowerCase()
+            : asset.address.toLowerCase()
+        ]
       : isNativeAsset(asset)
       ? tokensByAddress[asset.symbol.toLowerCase()]
       : isBtcAsset(asset)

@@ -4,9 +4,12 @@ import {
   BridgeType,
   createUnifiedBridgeService,
   Environment,
+  getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
+import { wait } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
 
+import { getExponentialBackoffDelay } from '@src/utils/exponentialBackoff';
 import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
@@ -30,9 +33,10 @@ import sentryCaptureException, {
 
 @singleton()
 export class UnifiedBridgeService implements OnStorageReady {
-  #core: ReturnType<typeof createUnifiedBridgeService>;
+  #core?: ReturnType<typeof createUnifiedBridgeService>;
   #eventEmitter = new EventEmitter();
   #state = UNIFIED_BRIDGE_DEFAULT_STATE;
+  #failedInitAttempts = 0;
 
   // We'll re-create the #core instance when one of these flags is toggled.
   #flagStates: Partial<FeatureFlags> = {};
@@ -49,11 +53,11 @@ export class UnifiedBridgeService implements OnStorageReady {
     this.#flagStates = this.#getTrackedFlags(
       this.featureFlagService.featureFlags
     );
-    this.#core = this.#createService();
+    this.#recreateService();
 
     // When testnet mode is toggled, we need to recreate the instance.
     this.networkService.developerModeChanged.add(() => {
-      this.#core = this.#createService();
+      this.#recreateService();
     });
 
     // When some of the feature flags change, we need to recreate the instance.
@@ -65,7 +69,7 @@ export class UnifiedBridgeService implements OnStorageReady {
 
         if (JSON.stringify(newFlags) !== JSON.stringify(this.#flagStates)) {
           this.#flagStates = newFlags;
-          this.#core = this.#createService();
+          this.#recreateService();
         }
       }
     );
@@ -104,51 +108,77 @@ export class UnifiedBridgeService implements OnStorageReady {
       });
   }
 
-  #updateBridgeAddresses() {
-    const addresses: string[] = [];
-
-    this.#core.bridges.forEach((bridge) => {
-      if (bridge.config) {
-        addresses.push(
-          ...bridge.config.map(
-            ({ tokenRouterAddress }) => tokenRouterAddress as string
-          )
-        );
-      }
-    });
-
-    this.#saveState({
-      ...this.#state,
-      addresses,
-    });
-  }
-
   #getDisabledBridges(): BridgeType[] {
     const bridges: BridgeType[] = [];
 
     if (!this.#flagStates[FeatureGates.UNIFIED_BRIDGE_CCTP]) {
       bridges.push(BridgeType.CCTP);
     }
-
     return bridges;
   }
 
-  #createService() {
-    const core = createUnifiedBridgeService({
-      environment: this.networkService.isMainnet()
-        ? Environment.PROD
-        : Environment.TEST,
-      disabledBridgeTypes: this.#getDisabledBridges(),
-    });
-    core.init().then(async () => {
-      this.#updateBridgeAddresses();
-      this.#trackPendingTransfers();
-    });
+  async #recreateService() {
+    const environment = this.networkService.isMainnet()
+      ? Environment.PROD
+      : Environment.TEST;
 
-    return core;
+    try {
+      this.#core = createUnifiedBridgeService({
+        environment,
+        enabledBridgeServices: await getEnabledBridgeServices(
+          environment,
+          this.#getDisabledBridges()
+        ),
+      });
+      this.#failedInitAttempts = 0;
+      this.#trackPendingTransfers();
+    } catch (err: any) {
+      // If it failed, it's most likely a network issue.
+      // Wait a bit and try again.
+      this.#failedInitAttempts += 1;
+
+      const delay = getExponentialBackoffDelay({
+        attempt: this.#failedInitAttempts,
+        startsAfter: 1,
+      });
+
+      sentryCaptureException(err, SentryExceptionTypes.UNIFIED_BRIDGE);
+      console.log(
+        `Initialization of UnifiedBridgeService failed, attempt #${
+          this.#failedInitAttempts
+        }. Retry in ${delay / 1000}s`
+      );
+
+      await wait(delay);
+
+      // Do not attempt again if it succeded in the meantime
+      // (e.g. user switched developer mode or feature flags updated)
+      if (this.#failedInitAttempts > 0) {
+        this.#recreateService();
+      }
+    }
+  }
+
+  isBridgeAddress(...addresses: string[]): boolean {
+    if (!this.#core) {
+      return false;
+    }
+
+    return this.#core.isBridgeAddress(...addresses);
   }
 
   trackTransfer(bridgeTransfer: BridgeTransfer) {
+    if (!this.#core) {
+      // Just log that this happened. This is edge-casey, but technically possible.
+      sentryCaptureException(
+        new Error(
+          `UnifiedBridge - tracking attempted with no service insantiated.`
+        ),
+        SentryExceptionTypes.UNIFIED_BRIDGE
+      );
+      return;
+    }
+
     const { result } = this.#core.trackTransfer({
       bridgeTransfer,
       updateListener: async (transfer) => {

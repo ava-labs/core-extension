@@ -27,16 +27,12 @@ export class HistoryServiceBridgeHelper {
     const config = this.bridgeService.bridgeConfig;
     const ethereumAssets = config?.config?.critical.assets;
     const bitcoinAssets = config?.config?.criticalBitcoin?.bitcoinAssets;
-    const unifiedBridgeAddresses = this.unifiedBridgeService.state.addresses;
 
     if (!ethereumAssets || !bitcoinAssets) {
       return false;
     }
 
-    if (
-      unifiedBridgeAddresses.includes(tx.from.toLowerCase()) ||
-      unifiedBridgeAddresses.includes(tx.to.toLowerCase())
-    ) {
+    if (this.unifiedBridgeService.isBridgeAddress(tx.from, tx.to)) {
       return true;
     }
 

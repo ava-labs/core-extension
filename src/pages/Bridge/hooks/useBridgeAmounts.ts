@@ -39,7 +39,7 @@ export const useBridgeAmounts = (
 
   return {
     amount: isUnifiedBridgeTransfer(bridgeTx)
-      ? bigintToBig(bridgeTx.amount, bridgeTx.amountDecimals)
+      ? bigintToBig(bridgeTx.amount, bridgeTx.asset.decimals)
       : bridgeTx?.amount,
     sourceNetworkFee,
     targetNetworkFee,
