@@ -25,6 +25,7 @@
   "dependencies": {
     "@avalabs/avalanchejs": "4.0.5",
     "@avalabs/bitcoin-module": "0.0.0-feat-load-nfts-on-evm-20240909195259",
+    "@avalabs/avalanche-module": "0.0.0-feat-load-nfts-on-evm-20240909195259",
     "@avalabs/bridge-unified": "2.1.0",
     "@avalabs/core-bridge-sdk": "3.1.0-alpha.4",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.4",

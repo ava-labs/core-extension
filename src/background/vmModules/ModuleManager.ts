@@ -11,6 +11,7 @@ import { NetworkWithCaipId } from '../services/network/models';
 import { VMModuleError } from './models';
 import { EvmModule } from '@avalabs/evm-module';
 import { ApprovalController } from './ApprovalController';
+import { AvalancheModule } from '@avalabs/avalanche-module';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2
@@ -44,6 +45,10 @@ export class ModuleManager {
 
     this.#modules = [
       new EvmModule({
+        environment,
+        approvalController: this.#approvalController,
+      }),
+      new AvalancheModule({
         environment,
         approvalController: this.#approvalController,
       }),
