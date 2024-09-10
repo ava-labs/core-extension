@@ -5,6 +5,7 @@ import {
   BridgeType,
   TokenType,
   createUnifiedBridgeService,
+  getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
 
 import { useConnectionContext } from './ConnectionProvider';
@@ -133,7 +134,6 @@ describe('contexts/UnifiedBridgeProvider', () => {
     jest.resetAllMocks();
 
     core = {
-      init: jest.fn().mockResolvedValue(undefined),
       getAssets: async () => ({
         [chainIdToCaip(ethereum.chainId)]: [ethUSDC],
         [chainIdToCaip(avalanche.chainId)]: [avaxUSDC],
@@ -144,7 +144,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
     } as unknown as ReturnType<typeof createUnifiedBridgeService>;
 
     jest.mocked(createUnifiedBridgeService).mockReturnValue(core);
-
+    jest.mocked(getEnabledBridgeServices).mockResolvedValue({} as any);
     // Mock events flow
     eventsFn.mockReturnValue({
       pipe: jest.fn().mockReturnValue({
@@ -195,9 +195,9 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
       await waitFor(async () => {
         try {
-          await provider.current?.transferAsset('USDC', 1000n, 1);
+          await provider.current?.transferAsset('USDCC', 1000n, 1);
         } catch (err: any) {
-          expect(err.data.reason).toEqual(UnifiedBridgeError.UnknownAsset);
+          expect(err.data?.reason).toEqual(UnifiedBridgeError.UnknownAsset);
         }
       });
     });
@@ -368,7 +368,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
       await waitFor(async () => {
         try {
-          await provider.current?.getFee('USDC', 1000n, 1);
+          await provider.current?.getFee('USDCc', 1000n, 1);
         } catch (err: any) {
           expect(err.data.reason).toEqual(UnifiedBridgeError.UnknownAsset);
         }
