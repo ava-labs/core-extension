@@ -46,7 +46,20 @@ const previousSchema = Joi.object<PreviousSchema>({
       symbol: Joi.string(),
       requiredSourceConfirmationCount: Joi.number(),
       requiredTargetConfirmationCount: Joi.number(),
-      startBlockNumber: Joi.number(),
+      startBlockNumber: Joi.custom((value) => {
+        // Joi has no support for BigInt
+        if (
+          typeof value !== 'number' &&
+          typeof value !== 'bigint' &&
+          typeof value !== 'undefined'
+        ) {
+          return new Error(
+            `Expected bigint or number, received ${typeof value}`
+          );
+        }
+
+        return value;
+      }, 'bigint'),
       sourceChain: Joi.object({ chainId: Joi.string() }).unknown(true),
     }).unknown(true)
   ),
