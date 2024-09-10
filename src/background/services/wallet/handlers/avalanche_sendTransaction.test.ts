@@ -132,7 +132,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     issueTxHexMock.mockResolvedValue({ txID: 1 });
     getAvalanceProviderXPMock.mockResolvedValue(providerMock);
     getAddressesMock.mockReturnValue([]);
-    jest.mocked(openApprovalWindow).mockResolvedValue(undefined);
+    jest.mocked(openApprovalWindow).mockResolvedValue({} as any);
     (accountsServiceMock as any).activeAccount = activeAccountMock;
     (Avalanche.getVmByChainAlias as jest.Mock).mockReturnValue(AVM);
     (Avalanche.getUtxosByTxFromGlacier as jest.Mock).mockReturnValue(utxosMock);

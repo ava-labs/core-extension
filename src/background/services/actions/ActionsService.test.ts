@@ -11,6 +11,8 @@ import {
   ACTIONS_STORAGE_KEY,
 } from './models';
 import { filterStaleActions } from './utils';
+import { ApprovalController } from '@src/background/vmModules/ApprovalController';
+import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
 
 jest.mock('../storage/StorageService');
 jest.mock('../lock/LockService');
@@ -52,15 +54,23 @@ describe('background/services/actions/ActionsService.ts', () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { displayData, ...mockActionWithoutDisplaydata } = mockAction;
 
+  let approvalController: jest.Mocked<ApprovalController>;
+
   beforeEach(() => {
     jest.resetAllMocks();
     // jest is having issues mocking non static getters
     (lockService as any).locked = false;
 
+    approvalController = {
+      onApproved: jest.fn(),
+      onRejected: jest.fn(),
+    } as unknown as jest.Mocked<ApprovalController>;
+
     actionsService = new ActionsService(
       [handlerWithCallback, handlerWithoutCallback],
       storageService,
-      lockService
+      lockService,
+      approvalController
     );
     (filterStaleActions as jest.Mock).mockImplementation((a) => a);
   });
@@ -257,6 +267,25 @@ describe('background/services/actions/ActionsService.ts', () => {
     });
 
     describe('ActionStatus.SUBMITTING', () => {
+      it('calls ApprovalController when action originates from vm module', async () => {
+        const action = {
+          ...mockAction,
+          method: 'method-with-no-handler',
+          [ACTION_HANDLED_BY_MODULE]: true,
+        };
+        (storageService.load as jest.Mock).mockResolvedValue({
+          1: action,
+        });
+        jest.spyOn(actionsService, 'removeAction');
+        await actionsService.updateAction({
+          status: ActionStatus.SUBMITTING,
+          id: 1,
+        });
+
+        expect(approvalController.onApproved).toHaveBeenCalledWith(action);
+        expect(actionsService.removeAction).toHaveBeenCalledWith(1);
+      });
+
       it('emits error when handler not compatible or missing', async () => {
         const eventListener = jest.fn();
         actionsService.addListener(
@@ -393,6 +422,24 @@ describe('background/services/actions/ActionsService.ts', () => {
     });
 
     describe('ActionStatus.ERROR_USER_CANCELED', () => {
+      it('calls ApprovalController when action originates from vm module', async () => {
+        const action = {
+          ...mockAction,
+          method: 'method-with-no-handler',
+          [ACTION_HANDLED_BY_MODULE]: true,
+        };
+        (storageService.load as jest.Mock).mockResolvedValue({
+          1: action,
+        });
+        jest.spyOn(actionsService, 'removeAction');
+        await actionsService.updateAction({
+          status: ActionStatus.ERROR_USER_CANCELED,
+          id: 1,
+        });
+
+        expect(approvalController.onRejected).toHaveBeenCalledWith(action);
+        expect(actionsService.removeAction).toHaveBeenCalledWith(1);
+      });
       it('emits error when user rejects', async () => {
         const eventListener = jest.fn();
         actionsService.addListener(

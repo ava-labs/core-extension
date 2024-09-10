@@ -14,7 +14,6 @@ import {
   CustomNetworkPayload,
   ChainList,
   Network,
-  SYNCED_DOMAINS,
   ChainListWithCaipIds,
   NetworkWithCaipId,
 } from './models';
@@ -210,7 +209,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     const scope = this.#dappScopes[getSyncDomain(domain)];
     const storedNetwork = scope ? await this.getNetwork(scope) : null;
 
-    const isSynced = SYNCED_DOMAINS.includes(domain);
+    const isSynced = isSyncDomain(domain);
     // Synchronized dApps can handle our fake chain IDs
     const isActiveEvmBased = this.uiActiveNetwork?.vmName === NetworkVMType.EVM;
     const canFallbackToActive = isActiveEvmBased || isSynced;

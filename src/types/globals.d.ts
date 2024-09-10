@@ -13,6 +13,7 @@ declare global {
   const EVM_PROVIDER_INFO_ICON: `data:image/svg+xml;base64,${string}`;
   const EVM_PROVIDER_INFO_DESCRIPTION: string;
   const EVM_PROVIDER_INFO_RDNS: string;
+  const CORE_EXTENSION_VERSION: string;
 }
 
 export {};

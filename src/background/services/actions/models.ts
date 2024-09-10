@@ -1,7 +1,9 @@
+import { DappInfo, RpcMethod, SigningData } from '@avalabs/vm-module-types';
 import {
   DAppProviderRequest,
   JsonRpcRequestPayload,
 } from '@src/background/connections/dAppConnection/models';
+import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
 
 export enum ActionStatus {
   // user has been shown the UI and we are waiting on approval
@@ -14,10 +16,14 @@ export enum ActionStatus {
   ERROR_USER_CANCELED = 'error-user-canceled',
 }
 export type Action<DisplayData = any, Params = any> = JsonRpcRequestPayload<
-  DAppProviderRequest,
+  DAppProviderRequest | RpcMethod,
   Params
 > & {
   scope: string;
+  context?: Record<string, unknown>;
+  signingData?: SigningData;
+  dappInfo?: DappInfo;
+  [ACTION_HANDLED_BY_MODULE]?: boolean;
   time?: number;
   status?: ActionStatus;
   result?: any;
@@ -38,6 +44,7 @@ export interface ActionUpdate<DisplayData = any> {
   id: any;
   status: ActionStatus;
   displayData?: DisplayData;
+  signingData?: SigningData;
   result?: any;
   error?: string;
   tabId?: number;

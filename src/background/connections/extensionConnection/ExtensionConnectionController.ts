@@ -1,5 +1,5 @@
 import { injectable, injectAll, injectAllWithTransform } from 'tsyringe';
-import { Runtime } from 'webextension-polyfill';
+import { runtime, Runtime } from 'webextension-polyfill';
 import { DEFERRED_RESPONSE, Pipeline } from '../middlewares/models';
 import { ExtensionRequestHandlerMiddleware } from '../middlewares/ExtensionRequestHandlerMiddleware';
 import {
@@ -30,6 +30,9 @@ import sentryCaptureException, {
 } from '@src/monitoring/sentryCaptureException';
 
 import { DappHandlerToExtensionHandlerTransformer } from './DappHandlerToExtensionHandlerTransformer';
+import { NetworkService } from '@src/background/services/network/NetworkService';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
 
 @injectable()
 export class ExtensionConnectionController implements ConnectionController {
@@ -49,7 +52,9 @@ export class ExtensionConnectionController implements ConnectionController {
       DappHandlerToExtensionHandlerTransformer
     )
     private dappHandlers: ExtensionRequestHandler<any, any>[],
-    @injectAll('DAppEventEmitter') private dappEmitters: DAppEventEmitter[]
+    @injectAll('DAppEventEmitter') private dappEmitters: DAppEventEmitter[],
+    private networkService: NetworkService,
+    private moduleManager: ModuleManager
   ) {
     this.onMessage = this.onMessage.bind(this);
     this.disconnect = this.disconnect.bind(this);
@@ -60,10 +65,11 @@ export class ExtensionConnectionController implements ConnectionController {
     this.connection = connection;
 
     this.pipeline = RequestProcessorPipeline(
-      ExtensionRequestHandlerMiddleware([
-        ...this.handlers,
-        ...this.dappHandlers,
-      ])
+      ActiveNetworkMiddleware(this.networkService),
+      ExtensionRequestHandlerMiddleware(
+        [...this.handlers, ...this.dappHandlers],
+        this.moduleManager
+      )
     );
 
     connectionLog('Extension Provider');
@@ -107,6 +113,15 @@ export class ExtensionConnectionController implements ConnectionController {
         // always start with authenticated false, middlewares take care of context updates
         authenticated: false,
         request: deserializedRequest,
+        // Extension does not connect through ChainAgnosticProvider,
+        // therefore its requests do not have domainMetadata populated.
+        domainMetadata: {
+          domain: runtime.id,
+          url: runtime.getURL(''),
+          tabId: deserializedRequest.params.request.tabId,
+          icon: runtime.getManifest().icons?.['192'],
+          name: runtime.getManifest().name,
+        },
       })
     );
 

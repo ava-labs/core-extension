@@ -2,7 +2,6 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { Middleware } from './models';
 import { resolve } from '@src/utils/promiseResolver';
 import { engine } from '@src/utils/jsonRpcEngine';
-import { NetworkService } from '@src/background/services/network/NetworkService';
 import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
 import { ethErrors } from 'eth-rpc-errors';
 import {
@@ -11,10 +10,11 @@ import {
   JsonRpcRequestParams,
   JsonRpcResponse,
 } from '../dAppConnection/models';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],
-  networkService: NetworkService
+  moduleManager: ModuleManager
 ): Middleware<JsonRpcRequest, JsonRpcResponse<unknown>> {
   const handlerMap = handlers.reduce((acc, handler) => {
     for (const method of handler.methods) {
@@ -27,6 +27,15 @@ export function DAppRequestHandlerMiddleware(
     const handler = handlerMap.get(context.request.params.request.method);
     // Call correct handler method based on authentication status
     let promise: Promise<JsonRpcResponse<unknown>>;
+
+    if (!context.domainMetadata) {
+      context.response = {
+        error: ethErrors.rpc.invalidRequest('Unknown request domain'),
+      };
+
+      return next();
+    }
+
     if (handler) {
       const params: JsonRpcRequestParams<DAppProviderRequest> = {
         ...context.request.params,
@@ -39,20 +48,44 @@ export function DAppRequestHandlerMiddleware(
         ? handler.handleAuthenticated(params)
         : handler.handleUnauthenticated(params);
     } else {
-      const activeNetwork = await networkService.getNetwork(
-        context.request.params.scope
+      const [module] = await resolve(
+        moduleManager.loadModule(
+          context.request.params.scope,
+          context.request.params.request.method
+        )
       );
 
-      if (!activeNetwork) {
+      if (!context.network) {
         promise = Promise.reject(ethErrors.provider.disconnected());
       } else {
-        promise = engine(activeNetwork).then((e) =>
-          e.handle<unknown, unknown>({
-            ...context.request.params.request,
-            id: crypto.randomUUID(),
-            jsonrpc: '2.0',
-          })
-        );
+        if (module) {
+          promise = module.onRpcRequest(
+            {
+              chainId: context.network.caipId,
+              dappInfo: {
+                icon: context.domainMetadata.icon ?? '',
+                name: context.domainMetadata.name ?? '',
+                url: context.domainMetadata.url ?? '',
+              },
+              requestId: context.request.id,
+              sessionId: context.request.params.sessionId,
+              method: context.request.params.request.method,
+              params: context.request.params.request.params,
+              // Do not pass context from unknown sources.
+              // This field is for our internal use only (only used with extension's direct connection)
+              context: undefined,
+            },
+            context.network
+          );
+        } else {
+          promise = engine(context.network).then((e) =>
+            e.handle<unknown, unknown>({
+              ...context.request.params.request,
+              id: crypto.randomUUID(),
+              jsonrpc: '2.0',
+            })
+          );
+        }
       }
     }
 

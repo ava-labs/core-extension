@@ -10,7 +10,7 @@ export function RPCCallsMiddleware(
     const network = await networkService.getNetwork(
       context.request.params.scope
     );
-    const { method } = context.request;
+    const { method } = context.request.params.request;
     const declineMethodsPattern = /(^eth_|_watchAsset$)/;
     if (
       network &&

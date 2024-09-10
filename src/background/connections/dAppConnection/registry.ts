@@ -28,7 +28,6 @@ import { registry } from 'tsyringe';
 import { AvalancheGetAccountPubKeyHandler } from '@src/background/services/accounts/handlers/avalanche_getAccountPubKey';
 import { AvalancheSendTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_sendTransaction';
 import { AvalancheGetAddressesInRangeHandler } from '@src/background/services/accounts/handlers/avalanche_getAddressesInRange';
-import { BitcoinSendTransactionHandler } from '@src/background/services/wallet/handlers/bitcoin_sendTransaction';
 import { AvalancheSignTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_signTransaction';
 import { AvalancheSignMessageHandler } from '@src/background/services/messages/handlers/avalanche_signMessage';
 
@@ -54,7 +53,6 @@ import { AvalancheSignMessageHandler } from '@src/background/services/messages/h
   { token: 'DAppRequestHandler', useToken: AvalancheGetAccountPubKeyHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSendTransactionHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSignTransactionHandler },
-  { token: 'DAppRequestHandler', useToken: BitcoinSendTransactionHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSignMessageHandler },
   {
     token: 'DAppRequestHandler',

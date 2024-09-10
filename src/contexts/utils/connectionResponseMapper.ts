@@ -65,7 +65,8 @@ export function requestEngine(
   });
   return async (
     request: PartialBy<Omit<JsonRpcRequestPayload, 'id'>, 'params'>,
-    scope: string
+    scope: string,
+    context: { tabId?: number } & Record<string, unknown>
   ) => {
     const id = `${request.method}-${Math.floor(Math.random() * 10000000)}`;
 
@@ -82,6 +83,7 @@ export function requestEngine(
           ...request,
         },
       },
+      context,
     };
     const response = connectionRequest(requestWithId);
     isDevelopment() &&

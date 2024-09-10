@@ -27,6 +27,10 @@ export function initializeProvider(
   const evmProvider = new Proxy(
     new EVMProvider({
       maxListeners,
+      // Core Web needs to know which extension version it's working with
+      // For local (dev) builds, CORE_EXTENSION_VERSION is 0.0.0
+      // For release builds (alpha or production), it's replaced by semantic-release to the actual version number
+      walletVersion: CORE_EXTENSION_VERSION,
       info: {
         name: EVM_PROVIDER_INFO_NAME,
         uuid: EVM_PROVIDER_INFO_UUID,

@@ -5,7 +5,7 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { singleton } from 'tsyringe';
 import { FeeRate, NetworkFee, TransactionPriority } from './models';
 import { NetworkWithCaipId } from '../network/models';
-import ModuleManager from '@src/background/vmModules/ModuleManager';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 
 const EVM_BASE_TIP = BigInt(5e8); // 0.5 Gwei
 const EVM_TIP_MODIFIERS: Record<TransactionPriority, bigint> = {
@@ -16,7 +16,7 @@ const EVM_TIP_MODIFIERS: Record<TransactionPriority, bigint> = {
 
 @singleton()
 export class NetworkFeeService {
-  constructor() {}
+  constructor(private moduleManager: ModuleManager) {}
 
   async getNetworkFee(network: NetworkWithCaipId): Promise<NetworkFee | null> {
     if (network.vmName === NetworkVMType.EVM) {
@@ -26,7 +26,7 @@ export class NetworkFeeService {
         provider as JsonRpcBatchInternal
       );
     } else if (network.vmName === NetworkVMType.BITCOIN) {
-      const module = await ModuleManager.loadModuleByNetwork(network);
+      const module = await this.moduleManager.loadModuleByNetwork(network);
       const { low, medium, high, isFixedFee } = await module.getNetworkFee(
         network
       );

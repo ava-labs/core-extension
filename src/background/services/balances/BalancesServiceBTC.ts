@@ -7,13 +7,16 @@ import * as Sentry from '@sentry/browser';
 import { TokensPriceShortData } from '../tokens/models';
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { getPriceChangeValues } from './utils/getPriceChangeValues';
-import ModuleManager from '@src/background/vmModules/ModuleManager';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { NetworkWithCaipId } from '../network/models';
 import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BalancesServiceBTC {
-  constructor(private settingsService: SettingsService) {}
+  constructor(
+    private settingsService: SettingsService,
+    private moduleManager: ModuleManager
+  ) {}
 
   getServiceForProvider(provider: any) {
     if (provider instanceof BitcoinProvider) return this;
@@ -31,7 +34,7 @@ export class BalancesServiceBTC {
       await this.settingsService.getSettings()
     ).currency.toLowerCase();
 
-    const module = (await ModuleManager.loadModuleByNetwork(
+    const module = (await this.moduleManager.loadModuleByNetwork(
       network
     )) as BitcoinModule;
     const addresses = accounts
