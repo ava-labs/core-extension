@@ -25,7 +25,7 @@ export const addXPChainToFavoriteIfNeeded = async (
     accounts
   );
 
-  if (hasBalance(balances, accounts, ChainId.AVALANCHE_P)) {
+  if (hasBalance(balances.tokens, accounts, ChainId.AVALANCHE_P)) {
     await networkService.addFavoriteNetwork(ChainId.AVALANCHE_P);
   } else {
     const pChain = await networkService.getNetwork(ChainId.AVALANCHE_P);
@@ -43,7 +43,7 @@ export const addXPChainToFavoriteIfNeeded = async (
     }
   }
 
-  if (hasBalance(balances, accounts, ChainId.AVALANCHE_X)) {
+  if (hasBalance(balances.tokens, accounts, ChainId.AVALANCHE_X)) {
     await networkService.addFavoriteNetwork(ChainId.AVALANCHE_X);
   } else {
     const xChain = await networkService.getNetwork(ChainId.AVALANCHE_X);

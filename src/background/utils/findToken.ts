@@ -41,10 +41,12 @@ export async function findToken(
   let balances: Balances = balancesService.balances;
 
   if (!balances) {
-    balances = await balancesService.getBalancesForNetworks(
-      [network.chainId],
-      [accountsService.activeAccount]
-    );
+    balances = (
+      await balancesService.getBalancesForNetworks(
+        [network.chainId],
+        [accountsService.activeAccount]
+      )
+    ).tokens;
   }
 
   const token =

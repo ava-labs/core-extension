@@ -7,10 +7,11 @@ import { NetworkService } from '../../network/NetworkService';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 import { Balances } from '../models';
 import { caipToChainId } from '@src/utils/caipConversion';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_BALANCES_UPDATE,
-  Balances,
+  { tokens: Balances; nfts: Balances<NftTokenWithBalance> },
   [accounts?: Account[], networks?: number[]] | undefined
 >;
 

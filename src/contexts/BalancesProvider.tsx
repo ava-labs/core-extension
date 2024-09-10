@@ -33,7 +33,6 @@ import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { Network } from '@src/background/services/network/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
-import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 
 export const IPFS_URL = 'https://ipfs.io';
 
@@ -61,7 +60,10 @@ type BalanceAction =
   | {
       type: BalanceActionType.UPDATE_BALANCES;
       payload: {
-        balances?: Balances;
+        balances?: {
+          nfts: Balances<NftTokenWithBalance>;
+          tokens: Balances;
+        };
         isBalancesCached?: boolean;
       };
     }
@@ -121,16 +123,14 @@ function balancesReducer(
       if (!Object.keys(action.payload).length) {
         return { ...state };
       }
-
-      const { tokens, nfts } = sortTokensByType(action.payload.balances);
-
+      console.log({ ...state.nfts, ...action.payload.balances?.nfts });
       return {
         ...state,
         loading: false,
         cached: action.payload.isBalancesCached,
         // use deep merge to make sure we keep all accounts in there, even after a partial update
-        tokens: merge({}, state.tokens, tokens),
-        nfts: merge({}, state.nfts, nfts),
+        tokens: merge({}, state.tokens, action.payload.balances?.tokens),
+        nfts: { ...state.nfts, ...action.payload.balances?.nfts },
       };
     }
     case BalanceActionType.UPDATE_NFT_METADATA:
@@ -391,39 +391,3 @@ const updateMatchingNftMetadata = ({
     },
   };
 };
-
-function sortTokensByType(balances?: Balances): {
-  nfts: Balances<NftTokenWithBalance>;
-  tokens: Balances;
-} {
-  const nfts: Balances<NftTokenWithBalance> = {};
-  const tokens: Balances = {};
-  if (!balances) {
-    return { tokens, nfts };
-  }
-
-  for (const networkId in balances) {
-    nfts[networkId] = {};
-    tokens[networkId] = {};
-    for (const address in balances[networkId]) {
-      nfts[networkId][address] = {};
-      tokens[networkId][address] = {};
-      for (const tokenId in balances[networkId][address]) {
-        const token = balances[networkId][address][tokenId];
-        if (!token) {
-          continue;
-        }
-        if (isNFT(token)) {
-          nfts[networkId][address][tokenId] = token;
-        } else {
-          tokens[networkId][address][tokenId] = token;
-        }
-      }
-    }
-  }
-
-  return {
-    nfts,
-    tokens,
-  };
-}

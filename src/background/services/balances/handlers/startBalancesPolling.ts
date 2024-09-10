@@ -6,11 +6,15 @@ import { BalancePollingService } from '../BalancePollingService';
 import { Balances } from '../models';
 import { Account } from '../../accounts/models';
 import { caipToChainId } from '@src/utils/caipConversion';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_START_POLLING,
   {
-    balances: Balances;
+    balances: {
+      tokens: Balances;
+      nfts: Balances<NftTokenWithBalance>;
+    };
     isBalancesCached: boolean;
   },
   [account: Account, roundRobinChainIds: number[]]
@@ -37,12 +41,15 @@ export class StartBalancesPollingHandler implements HandlerType {
       );
     }
 
-    const { balances, isBalancesCached } = this.aggregatorService;
+    const { balances, nfts, isBalancesCached } = this.aggregatorService;
 
     return {
       ...request,
       result: {
-        balances,
+        balances: {
+          tokens: balances,
+          nfts,
+        },
         isBalancesCached,
       },
     };
