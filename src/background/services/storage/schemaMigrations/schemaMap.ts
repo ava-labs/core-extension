@@ -16,6 +16,8 @@ import { BALANCES_CACHE_KEY } from '../../balances/models';
 import balances_v2 from './migrations/balances_v2';
 import network_v3 from './migrations/network_v3';
 import network_v4 from './migrations/network_v4';
+import { UNIFIED_BRIDGE_STATE_STORAGE_KEY } from '../../unifiedBridge/models';
+import unified_bridge_v2 from './migrations/unified_bridge_v2';
 
 export type Migration = {
   previousSchema: Joi.Schema;
@@ -107,5 +109,9 @@ export const SCHEMA_MAP = {
         migration: balances_v2,
       },
     ],
+  },
+  [UNIFIED_BRIDGE_STATE_STORAGE_KEY]: {
+    latestVersion: 2,
+    migrations: [{ version: 2, migration: unified_bridge_v2 }],
   },
 } as const;
