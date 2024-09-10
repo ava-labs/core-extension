@@ -4,7 +4,7 @@ import { AccountsService } from '../accounts/AccountsService';
 import { isBitcoinChainId } from '../network/utils/isBitcoinNetwork';
 import { TxHistoryItem } from './models';
 import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
-import ModuleManager from '@src/background/vmModules/ModuleManager';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { NetworkWithCaipId } from '../network/models';
 import { Transaction } from '@avalabs/vm-module-types';
 
@@ -12,7 +12,8 @@ import { Transaction } from '@avalabs/vm-module-types';
 export class HistoryServiceGlacier {
   constructor(
     private accountsService: AccountsService,
-    private unifiedBridgeService: UnifiedBridgeService
+    private unifiedBridgeService: UnifiedBridgeService,
+    private moduleManager: ModuleManager
   ) {}
 
   async getHistory(
@@ -27,7 +28,7 @@ export class HistoryServiceGlacier {
     const address = this.accountsService.activeAccount?.addressC;
 
     if (address) {
-      const module = await ModuleManager.loadModuleByNetwork(network);
+      const module = await this.moduleManager.loadModuleByNetwork(network);
       const { transactions } = await module.getTransactionHistory({
         address,
         network,

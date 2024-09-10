@@ -3,12 +3,15 @@ import { singleton } from 'tsyringe';
 import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
 import { AccountsService } from '../accounts/AccountsService';
 
-import ModuleManager from '@src/background/vmModules/ModuleManager';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { NetworkWithCaipId } from '../network/models';
 
 @singleton()
 export class HistoryServicePVM {
-  constructor(private accountsService: AccountsService) {}
+  constructor(
+    private accountsService: AccountsService,
+    private moduleManager: ModuleManager
+  ) {}
 
   async getHistory(network: NetworkWithCaipId, otherAddress?: string) {
     if (!network?.chainId || !isPchainNetwork(network)) {
@@ -22,7 +25,7 @@ export class HistoryServicePVM {
       return [];
     }
 
-    const module = await ModuleManager.loadModuleByNetwork(network);
+    const module = await this.moduleManager.loadModuleByNetwork(network);
     const { transactions } = await module.getTransactionHistory({
       address,
       network,
