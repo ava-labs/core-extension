@@ -219,19 +219,21 @@ export function WalletRecentTxs({
     if (filter === FilterType.ALL) {
       return true;
     } else if (filter === FilterType.BRIDGE) {
-      return tx.isBridge;
+      return tx.txType === TransactionType.BRIDGE;
     } else if (filter === FilterType.SWAP) {
-      return tx.type === TransactionType.SWAP;
+      return tx.txType === TransactionType.SWAP;
     } else if (filter === FilterType.CONTRACT_CALL) {
-      return tx.isContractCall && tx.type !== TransactionType.SWAP;
+      return tx.isContractCall && tx.txType !== TransactionType.SWAP;
     } else if (filter === FilterType.INCOMING) {
       return tx.isIncoming;
     } else if (filter === FilterType.OUTGOING) {
       return tx.isOutgoing;
     } else if (filter === FilterType.NFTS) {
       return (
-        tx.type === TransactionType.NFT_BUY ||
-        (tx.type === TransactionType.TRANSFER &&
+        tx.txType === TransactionType.NFT_BUY ||
+        ((tx.txType === TransactionType.TRANSFER ||
+          tx.txType === TransactionType.NFT_RECEIVE ||
+          tx.txType === TransactionType.UNKNOWN) &&
           tx.tokens[0] &&
           isNFT(tx.tokens[0].type))
       );

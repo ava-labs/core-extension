@@ -15,7 +15,7 @@ export function ActivityCardDetails({ historyItem }: ActivityCardProp) {
   const theme = useTheme();
   const { t } = useTranslation();
 
-  if (historyItem.type === TransactionType.SWAP) {
+  if (historyItem.txType === TransactionType.SWAP) {
     return (
       <Stack sx={{ mt: 1, rowGap: 1 }}>
         {historyItem.tokens.map((token, i) => {
@@ -51,10 +51,15 @@ export function ActivityCardDetails({ historyItem }: ActivityCardProp) {
       </Stack>
     );
   } else if (
-    (historyItem.type === TransactionType.TRANSFER &&
+    ((historyItem.txType === TransactionType.TRANSFER ||
+      historyItem.txType === TransactionType.UNKNOWN) &&
       historyItem.tokens[0]?.type &&
       isNFT(historyItem.tokens[0].type)) ||
-    historyItem.type === TransactionType.NFT_BUY
+    historyItem.txType === TransactionType.NFT_BUY ||
+    historyItem.txType === TransactionType.NFT_RECEIVE ||
+    historyItem.txType === TransactionType.NFT_SEND ||
+    (historyItem.txType === TransactionType.SEND &&
+      historyItem.tokens[0]?.type === 'ERC1155')
   ) {
     return (
       <Stack

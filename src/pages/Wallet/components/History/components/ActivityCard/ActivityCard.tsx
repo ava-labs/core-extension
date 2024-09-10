@@ -32,6 +32,7 @@ export interface ActivityCardProp {
 }
 
 export function ActivityCard({ historyItem }: ActivityCardProp) {
+  console.log('historyItem: ', historyItem);
   const { network } = useNetworkContext();
   const [showDetails, setShowDetails] = useState(false);
 
@@ -41,9 +42,14 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
 
   const showDetailsOption = useMemo(() => {
     if (
-      historyItem.type === TransactionType.SWAP ||
-      historyItem.type === TransactionType.NFT_BUY ||
-      (historyItem.type === TransactionType.TRANSFER &&
+      historyItem.txType === TransactionType.SWAP ||
+      historyItem.txType === TransactionType.NFT_BUY ||
+      historyItem.txType === TransactionType.NFT_RECEIVE ||
+      historyItem.txType === TransactionType.NFT_SEND ||
+      (historyItem.txType === TransactionType.SEND &&
+        historyItem.tokens[0]?.type === 'ERC1155') ||
+      ((historyItem.txType === TransactionType.TRANSFER ||
+        historyItem.txType === TransactionType.UNKNOWN) &&
         historyItem.tokens[0] &&
         isNFT(historyItem.tokens[0].type))
     ) {
@@ -51,6 +57,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
     }
     return false;
   }, [historyItem]);
+  console.log('showDetailsOption: ', showDetailsOption);
 
   const gasDisplayAmount = useMemo(() => {
     if (network && isBitcoinNetwork(network)) {
@@ -80,7 +87,16 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
 
   const txTitle = useMemo(() => {
     if (network) {
-      switch (historyItem.type) {
+      if (historyItem.isBridge) {
+        return t('Bridge');
+      }
+      if (
+        historyItem.txType === TransactionType.SEND &&
+        historyItem.tokens[0]?.type === 'ERC1155'
+      ) {
+        return t('NFT Sent');
+      }
+      switch (historyItem.txType) {
         case TransactionType.BRIDGE:
           return t('Bridge');
         case TransactionType.SWAP:
@@ -91,12 +107,17 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
           return t('Received');
         case TransactionType.NFT_BUY:
           return t('NFT Buy');
+        case TransactionType.NFT_SEND:
+          return t('NFT Sent');
         case TransactionType.TRANSFER:
+        case TransactionType.UNKNOWN:
+        case TransactionType.NFT_RECEIVE:
           if (historyItem.tokens[0] && isNFT(historyItem.tokens[0]?.type)) {
             return historyItem.isSender ? t('NFT Sent') : t('NFT Received');
           } else {
             return t('Transfer');
           }
+
         default:
           if (historyItem.isContractCall) {
             return t('Contract Call');
@@ -105,13 +126,14 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
       }
     }
   }, [network, t, historyItem]);
+  console.log('txTitle: ', txTitle);
 
   return (
     <Card
       data-testid={
         historyItem.isContractCall
           ? 'Contract-call-activity-card'
-          : historyItem.type + '-activity-card'
+          : historyItem.txType + '-activity-card'
       }
       sx={{ p: 2, backgroundImage: 'none' }}
     >
@@ -138,7 +160,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
                 // We only want to know when it's being shown
                 capture('ActivityCardDetailShown', {
                   chainId: network?.chainId,
-                  type: historyItem.type,
+                  type: historyItem.txType,
                 });
               }
               setShowDetails(isToggledOnNow);
@@ -195,7 +217,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
               onClick={async () => {
                 await capture('ActivityCardLinkClicked', {
                   chainId: network?.chainId,
-                  type: historyItem.type,
+                  type: historyItem.txType,
                 });
                 window.open(historyItem.explorerLink, '_blank', 'noreferrer');
               }}

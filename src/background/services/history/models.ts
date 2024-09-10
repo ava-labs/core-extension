@@ -31,7 +31,7 @@ export interface TxHistoryItem {
   gasUsed: string;
   explorerLink: string;
   chainId: string; // chainId from ActiveNetwork used to fetch tx
-  type: TransactionType;
+  txType: TransactionType;
 }
 
 export interface XPchainTxHistoryItem {
@@ -65,7 +65,9 @@ export enum TransactionType {
   APPROVE = 'Approve',
   TRANSFER = 'Transfer',
   BASE_TX = 'BaseTx',
-  UNKNOWN = 'Unknown',
+  UNKNOWN = 'UNKNOWN',
+  NFT_RECEIVE = 'NFTReceive',
+  NFT_SEND = 'NFTSend',
 }
 
 export const NonContractCallTypes = [

@@ -50,7 +50,20 @@ export function ActivityCardIcon({ historyItem }: ActivityCardProp) {
       <ArrowDownIcon size={iconSize} />
     );
 
-    switch (historyItem.type) {
+    if (historyItem.isBridge) {
+      setTxIcon(<BridgeIcon size={iconSize} />);
+      return;
+    }
+
+    // TODO: check the vmmodules for the type
+    if (
+      historyItem.txType === TransactionType.SEND &&
+      historyItem.tokens[0]?.type === 'ERC1155'
+    ) {
+      setTxIcon(getNftIcon(historyItem));
+      return;
+    }
+    switch (historyItem.txType) {
       case TransactionType.BRIDGE:
         setTxIcon(<BridgeIcon size={iconSize} />);
         break;
@@ -64,20 +77,26 @@ export function ActivityCardIcon({ historyItem }: ActivityCardProp) {
         setTxIcon(<ArrowDownLeftIcon size={iconSize} />);
         break;
       case TransactionType.NFT_BUY:
+      case TransactionType.NFT_SEND:
+      case TransactionType.NFT_RECEIVE:
         setTxIcon(getNftIcon(historyItem));
         break;
+
       case TransactionType.TRANSFER:
+      case TransactionType.UNKNOWN:
         if (historyItem.tokens[0] && isNFT(historyItem.tokens[0]?.type)) {
           setTxIcon(getNftIcon(historyItem));
         } else {
           setTxIcon(defaultIcon);
         }
         break;
+
       default:
         if (historyItem.isContractCall) {
           setTxIcon(<NotesIcon size={iconSize} />);
           break;
         }
+
         setTxIcon(defaultIcon);
     }
   }, [t, theme, historyItem]);
