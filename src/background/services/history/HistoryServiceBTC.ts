@@ -42,7 +42,7 @@ export class HistoryServiceBTC {
           ...tx,
           // BitcoinModule is not able to recognize bridge txs at the moment, so we need to do it here.
           isBridge,
-          type: isBridge
+          txType: isBridge
             ? TransactionType.BRIDGE
             : tx.isSender
             ? TransactionType.SEND

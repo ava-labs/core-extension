@@ -8,7 +8,7 @@ import {
 } from '../../balances/models';
 import { PrimaryAccount } from '../../accounts/models';
 import BN from 'bn.js';
-import { Network } from '../../network/models';
+import { NetworkWithCaipId } from '../../network/models';
 import { isString } from 'lodash';
 import { container } from 'tsyringe';
 import { HistoryServicePVM } from '../../history/HistoryServicePVM';
@@ -66,7 +66,7 @@ export const addXPChainToFavoriteIfNeeded = async (
 async function hasChainActivity(
   historyService: HistoryServiceAVM | HistoryServicePVM,
   addresses: string[],
-  network: Network
+  network: NetworkWithCaipId
 ) {
   try {
     const results = await Promise.allSettled(

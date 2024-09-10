@@ -27,6 +27,7 @@ import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 import { indexOf } from 'lodash';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
 
 interface ContactSelectProps {
   selectedContact?: Contact;
@@ -81,7 +82,7 @@ export const ContactSelect = ({
         // filter out dupe to addresses
         return (
           index === self.findIndex((temp) => temp.to === tx.to) &&
-          tx.to !== '0x0000000000000000000000000000000000000000'
+          tx.to !== ETHEREUM_ADDRESS
         );
       });
 
@@ -93,9 +94,10 @@ export const ContactSelect = ({
           return acc;
         }
 
-        const addressIdentities = tx.to.map((toAddress) =>
-          identifyAddress(toAddress)
-        );
+        const addressIdentities = Array.isArray(tx.to)
+          ? tx.to.map((toAddress) => identifyAddress(toAddress))
+          : [identifyAddress(tx.to)];
+
         addressIdentities.forEach((identity) => {
           const addressToCheck = isBitcoinNetwork(network)
             ? identity.addressBTC

@@ -32,7 +32,6 @@ export interface ActivityCardProp {
 }
 
 export function ActivityCard({ historyItem }: ActivityCardProp) {
-  console.log('historyItem: ', historyItem);
   const { network } = useNetworkContext();
   const [showDetails, setShowDetails] = useState(false);
 
@@ -57,7 +56,6 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
     }
     return false;
   }, [historyItem]);
-  console.log('showDetailsOption: ', showDetailsOption);
 
   const gasDisplayAmount = useMemo(() => {
     if (network && isBitcoinNetwork(network)) {

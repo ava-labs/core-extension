@@ -28,7 +28,7 @@ export function ActivityCardAmount({ historyItem }: ActivityCardProp) {
     return tx.tokens.find((token) => token.to?.address === userAddress);
   }
 
-  if (historyItem.type === TransactionType.SWAP && activeAccount?.addressC) {
+  if (historyItem.txType === TransactionType.SWAP && activeAccount?.addressC) {
     const source = getSourceToken(historyItem);
     const target = getTargetToken(historyItem);
     return (

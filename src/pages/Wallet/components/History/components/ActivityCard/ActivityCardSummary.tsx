@@ -14,7 +14,7 @@ export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
     useBlockchainNames(historyItem);
   const { t } = useTranslation();
 
-  if (historyItem.type === TransactionType.BRIDGE) {
+  if (historyItem.txType === TransactionType.BRIDGE || historyItem.isBridge) {
     return (
       <Typography
         variant="caption"
@@ -23,7 +23,7 @@ export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
         {sourceBlockchain} -&gt; {targetBlockchain}
       </Typography>
     );
-  } else if (historyItem.type === TransactionType.SWAP) {
+  } else if (historyItem.txType === TransactionType.SWAP) {
     const sourceToken = historyItem.tokens.find(
       (token) => token.from?.address === activeAccount?.addressC
     );
