@@ -2,12 +2,13 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import { HistoryServiceBridgeHelper } from './HistoryServiceBridgeHelper';
-import { TransactionType, TxHistoryItem } from './models';
+import { TxHistoryItem } from './models';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { NetworkWithCaipId } from '../network/models';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { TransactionType } from '@avalabs/vm-module-types';
 
 @singleton()
 export class HistoryServiceBTC {

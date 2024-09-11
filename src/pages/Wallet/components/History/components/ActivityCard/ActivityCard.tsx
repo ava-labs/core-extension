@@ -12,10 +12,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { weiToAvax } from '@avalabs/core-utils-sdk';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
-import {
-  TransactionType,
-  TxHistoryItem,
-} from '@src/background/services/history/models';
+import { TxHistoryItem } from '@src/background/services/history/models';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -26,6 +23,7 @@ import { ActivityCardAmount } from './ActivityCardAmount';
 import { ActivityCardDetails } from './ActivityCardDetails';
 import { ActivityCardIcon } from './ActivityCardIcon';
 import { ActivityCardSummary } from './ActivityCardSummary';
+import { TransactionType } from '@avalabs/vm-module-types';
 
 export interface ActivityCardProp {
   historyItem: TxHistoryItem;

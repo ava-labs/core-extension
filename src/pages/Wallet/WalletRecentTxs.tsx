@@ -4,12 +4,7 @@ import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NoTransactions } from './components/NoTransactions';
 import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import {
-  PchainTxHistoryItem,
-  TransactionType,
-  TxHistoryItem,
-  XchainTxHistoryItem,
-} from '@src/background/services/history/models';
+import { TxHistoryItem } from '@src/background/services/history/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useTranslation } from 'react-i18next';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
@@ -42,11 +37,15 @@ import {
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { XchainActivityCard } from './components/History/components/ActivityCard/XchainActivityCard';
+import { Transaction, TransactionType } from '@avalabs/vm-module-types';
 
 type WalletRecentTxsProps = {
   isEmbedded?: boolean;
   tokenSymbolFilter?: string;
 };
+
+export type TxParam = TxHistoryItem | Transaction;
+export type TxsParam = TxHistoryItem[] | Transaction[];
 
 export enum FilterType {
   ALL = 'All',
@@ -120,9 +119,7 @@ export function WalletRecentTxs({
 
   const yesterday = endOfYesterday();
   const today = endOfToday();
-  const [unfilteredTxHistory, setUnfilteredTxHistory] = useState<
-    TxHistoryItem[] | PchainTxHistoryItem[] | XchainTxHistoryItem[]
-  >([]);
+  const [unfilteredTxHistory, setUnfilteredTxHistory] = useState<TxsParam>([]);
   const { network } = useNetworkContext();
 
   const [selectedFilter, setSelectedFilter] = useState<
@@ -192,9 +189,7 @@ export function WalletRecentTxs({
       );
     }
 
-    function shouldTxBeKept(
-      tx: TxHistoryItem | PchainTxHistoryItem | XchainTxHistoryItem
-    ) {
+    function shouldTxBeKept(tx: TxParam) {
       if (isTxHistoryItem(tx) && tx.isBridge && isPendingBridge(tx)) {
         return false;
       }
@@ -243,7 +238,7 @@ export function WalletRecentTxs({
   }
 
   function pchainTxHistoryItemFilter(
-    tx: PchainTxHistoryItem,
+    tx: TxHistoryItem,
     filter: FilterType | PchainFilterType | XchainFilterType
   ) {
     if (filter === PchainFilterType.ALL) {
@@ -258,14 +253,14 @@ export function WalletRecentTxs({
     const typeBasedOnFilter = PchainFilterTxTypeMap[filter];
 
     if (typeBasedOnFilter) {
-      return tx.type === typeBasedOnFilter;
+      return tx.txType === typeBasedOnFilter;
     }
 
     return false;
   }
 
   function xchainTxHistoryItemFilter(
-    tx: XchainTxHistoryItem,
+    tx: Transaction,
     filter: FilterType | PchainFilterType | XchainFilterType
   ) {
     if (filter === XchainFilterType.ALL) {
@@ -280,7 +275,7 @@ export function WalletRecentTxs({
     const typeBasedOnFilter = XchainFilterTxTypeMap[filter];
 
     if (typeBasedOnFilter) {
-      return tx.type === typeBasedOnFilter;
+      return tx.txType === typeBasedOnFilter;
     }
 
     return false;
@@ -288,7 +283,7 @@ export function WalletRecentTxs({
 
   const filteredTxHistory = useMemo(() => {
     function shouldTxBeKept(
-      tx: TxHistoryItem | PchainTxHistoryItem | XchainTxHistoryItem,
+      tx: TxParam,
       filter: FilterType | PchainFilterType | XchainFilterType
     ) {
       if (isTxHistoryItem(tx)) {

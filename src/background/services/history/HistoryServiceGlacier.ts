@@ -6,7 +6,6 @@ import { TxHistoryItem } from './models';
 import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { NetworkWithCaipId } from '../network/models';
-import { Transaction } from '@avalabs/vm-module-types';
 
 @singleton()
 export class HistoryServiceGlacier {
@@ -16,9 +15,7 @@ export class HistoryServiceGlacier {
     private moduleManager: ModuleManager
   ) {}
 
-  async getHistory(
-    network: NetworkWithCaipId
-  ): Promise<TxHistoryItem[] | Transaction[]> {
+  async getHistory(network: NetworkWithCaipId): Promise<TxHistoryItem[] | []> {
     const account = this.getAddress(network.chainId);
 
     if (!account) {

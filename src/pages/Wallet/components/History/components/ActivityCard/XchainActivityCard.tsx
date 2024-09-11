@@ -7,7 +7,6 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { XchainTxHistoryItem } from '@src/background/services/history/models';
 import { PrimaryNetworkMethodIcon } from './PrimaryNetworkMethodIcon';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { XChainTransactionType } from '@avalabs/glacier-sdk';
@@ -15,9 +14,10 @@ import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { truncateAddress } from '@avalabs/core-utils-sdk';
+import { Transaction } from '@avalabs/vm-module-types';
 
 export interface XchainActivityCardProp {
-  historyItem: XchainTxHistoryItem;
+  historyItem: Transaction;
 }
 
 export function XchainActivityCard({ historyItem }: XchainActivityCardProp) {
@@ -81,7 +81,9 @@ export function XchainActivityCard({ historyItem }: XchainActivityCardProp) {
                 alignItems: 'center',
               }}
             >
-              <PrimaryNetworkMethodIcon methodName={historyItem.txType} />
+              {historyItem.txType && (
+                <PrimaryNetworkMethodIcon methodName={historyItem.txType} />
+              )}
               <Stack sx={{ rowGap: 0.5 }}>
                 <Stack
                   sx={{

@@ -6,10 +6,10 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
-import { TransactionType } from '@src/background/services/history/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useTranslation } from 'react-i18next';
 import { ActivityCardProp } from './ActivityCard';
+import { TransactionType } from '@avalabs/vm-module-types';
 
 export function ActivityCardDetails({ historyItem }: ActivityCardProp) {
   const theme = useTheme();

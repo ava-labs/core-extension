@@ -1,11 +1,9 @@
 import { Stack, Typography } from '@avalabs/core-k2-components';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
-import {
-  TransactionType,
-  TxHistoryItem,
-} from '@src/background/services/history/models';
+import { TxHistoryItem } from '@src/background/services/history/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { ActivityCardProp } from './ActivityCard';
+import { TransactionType } from '@avalabs/vm-module-types';
 
 export function ActivityCardAmount({ historyItem }: ActivityCardProp) {
   const {

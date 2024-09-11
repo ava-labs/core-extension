@@ -3,7 +3,7 @@ import {
   RichAddress,
   XChainTransactionType,
 } from '@avalabs/glacier-sdk';
-import { TokenType } from '@avalabs/vm-module-types';
+import { TokenType, TransactionType } from '@avalabs/vm-module-types';
 
 export interface TxHistoryItemToken {
   decimal?: string;
@@ -31,7 +31,12 @@ export interface TxHistoryItem {
   gasUsed: string;
   explorerLink: string;
   chainId: string; // chainId from ActiveNetwork used to fetch tx
-  txType: TransactionType;
+  txType?:
+    | TransactionType
+    | PChainTransactionType
+    | XChainTransactionType
+    | 'CreateAssetTx'
+    | 'OperationTx';
 }
 
 export interface XPchainTxHistoryItem {
@@ -54,20 +59,6 @@ export interface PchainTxHistoryItem extends XPchainTxHistoryItem {
 export interface XchainTxHistoryItem extends XPchainTxHistoryItem {
   txType: XChainTransactionType;
   vmType: 'AVM';
-}
-
-export enum TransactionType {
-  BRIDGE = 'Bridge',
-  SWAP = 'Swap',
-  SEND = 'Send',
-  RECEIVE = 'Receive',
-  NFT_BUY = 'NFT Buy',
-  APPROVE = 'Approve',
-  TRANSFER = 'Transfer',
-  BASE_TX = 'BaseTx',
-  UNKNOWN = 'UNKNOWN',
-  NFT_RECEIVE = 'NFTReceive',
-  NFT_SEND = 'NFTSend',
 }
 
 export const NonContractCallTypes = [

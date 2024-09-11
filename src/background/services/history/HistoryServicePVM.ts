@@ -5,6 +5,7 @@ import { AccountsService } from '../accounts/AccountsService';
 
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { NetworkWithCaipId } from '../network/models';
+import { Transaction } from '@avalabs/vm-module-types';
 
 @singleton()
 export class HistoryServicePVM {
@@ -31,7 +32,7 @@ export class HistoryServicePVM {
       network,
     });
     return transactions.map((transaction) => {
-      return { ...transaction, vmType: 'PVM' };
+      return { ...transaction, vmType: 'PVM' } as Transaction;
     });
   }
 }

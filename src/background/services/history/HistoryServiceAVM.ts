@@ -3,6 +3,7 @@ import { AccountsService } from '../accounts/AccountsService';
 import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { NetworkWithCaipId } from '../network/models';
+import { Transaction } from '@avalabs/vm-module-types';
 
 @singleton()
 export class HistoryServiceAVM {
@@ -23,7 +24,7 @@ export class HistoryServiceAVM {
       network,
     });
     return transactions.map((transaction) => {
-      return { ...transaction, vmType: 'AVM' };
+      return { ...transaction, vmType: 'AVM' } as Transaction;
     });
   }
 }

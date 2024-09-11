@@ -1,14 +1,14 @@
-import { PchainTxHistoryItem, XchainTxHistoryItem } from './../models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { TxHistoryItem } from '../models';
 import { HistoryService } from './../HistoryService';
 import { NetworkService } from '../../network/NetworkService';
+import { Transaction } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.HISTORY_GET,
-  TxHistoryItem[] | PchainTxHistoryItem[] | XchainTxHistoryItem[]
+  TxHistoryItem[] | Transaction[]
 >;
 
 @injectable()
