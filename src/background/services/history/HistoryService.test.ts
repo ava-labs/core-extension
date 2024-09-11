@@ -9,13 +9,9 @@ import {
   NetworkVMType,
 } from '@avalabs/core-chains-sdk';
 import { HistoryService } from './HistoryService';
-import {
-  PchainTxHistoryItem,
-  TransactionType,
-  TxHistoryItem,
-  XchainTxHistoryItem,
-} from './models';
+import { TxHistoryItem } from './models';
 import { TokenType } from '../balances/models';
+import { Transaction, TransactionType } from '@avalabs/vm-module-types';
 
 describe('src/background/services/history/HistoryService.ts', () => {
   let service: HistoryService;
@@ -80,7 +76,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     gasUsed: 'gasUsed',
     explorerLink: 'explorerLink',
     chainId: 'chainId',
-    type: TransactionType.SEND,
+    txType: TransactionType.SEND,
   };
 
   const btcTxHistoryItem: TxHistoryItem = {
@@ -104,29 +100,35 @@ describe('src/background/services/history/HistoryService.ts', () => {
     gasUsed: 'gasUsed',
     explorerLink: 'explorerLink',
     chainId: 'chainId',
-    type: TransactionType.SEND,
+    txType: TransactionType.SEND,
   };
-  const pchainTxHistoryItem: PchainTxHistoryItem = {
+  const pchainTxHistoryItem: Transaction = {
+    isContractCall: true,
+    isIncoming: false,
+    isOutgoing: true,
     isSender: true,
-    timestamp: 'timestamp',
-    from: ['from'],
-    to: ['to'],
-    token: {
-      name: 'tokenName',
-      symbol: 'tokenSymbol',
-      amount: 'amount',
-      type: TokenType.NATIVE,
-    },
+    timestamp: 1111,
+    from: 'from',
+    to: 'to',
+    tokens: [
+      {
+        name: 'tokenName',
+        symbol: 'tokenSymbol',
+        amount: 'amount',
+        type: TokenType.NATIVE,
+      },
+    ],
     gasUsed: 'gasUsed',
     explorerLink: 'explorerLink',
     chainId: 'chainId',
-    type: PChainTransactionType.BASE_TX,
+    txType: PChainTransactionType.BASE_TX,
     vmType: 'PVM',
+    hash: 'hash',
   };
 
-  const xchainTxHistoryItem: XchainTxHistoryItem = {
+  const xchainTxHistoryItem: Transaction = {
     ...pchainTxHistoryItem,
-    type: XChainTransactionType.BASE_TX,
+    txType: XChainTransactionType.BASE_TX,
     vmType: 'AVM',
   };
 

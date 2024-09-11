@@ -39,28 +39,6 @@ export interface TxHistoryItem {
     | 'OperationTx';
 }
 
-export interface XPchainTxHistoryItem {
-  from: string[] | string;
-  to: string[] | string;
-  isSender: boolean;
-  timestamp: string;
-  token: TxHistoryItemToken;
-  tokens: TxHistoryItemToken[];
-  gasUsed: string;
-  explorerLink: string;
-  chainId: string; // chainId from ActiveNetwork used to fetch tx
-  type: PChainTransactionType | XChainTransactionType;
-}
-
-export interface PchainTxHistoryItem extends XPchainTxHistoryItem {
-  txType: PChainTransactionType;
-  vmType: 'PVM';
-}
-export interface XchainTxHistoryItem extends XPchainTxHistoryItem {
-  txType: XChainTransactionType;
-  vmType: 'AVM';
-}
-
 export const NonContractCallTypes = [
   TransactionType.BRIDGE,
   TransactionType.SEND,

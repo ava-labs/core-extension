@@ -1,15 +1,11 @@
-import {
-  PchainTxHistoryItem,
-  TransactionType,
-  TxHistoryItem,
-  XchainTxHistoryItem,
-} from '../models';
+import { TxHistoryItem } from '../models';
 import { TokenType } from '../../balances/models';
 import { isPchainTxHistoryItem, isTxHistoryItem } from './isTxHistoryItem';
 import {
   PChainTransactionType,
   XChainTransactionType,
 } from '@avalabs/glacier-sdk';
+import { Transaction, TransactionType } from '@avalabs/vm-module-types';
 
 describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
   const txHistoryItem: TxHistoryItem = {
@@ -33,29 +29,35 @@ describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
     gasUsed: 'gasUsed',
     explorerLink: 'explorerLink',
     chainId: 'chainId',
-    type: TransactionType.SEND,
+    txType: TransactionType.SEND,
   };
-  const pchainTxHistoryItem: PchainTxHistoryItem = {
+  const pchainTxHistoryItem: Transaction = {
+    isContractCall: true,
+    isIncoming: false,
+    isOutgoing: true,
     isSender: true,
-    timestamp: 'timestamp',
-    from: ['from'],
-    to: ['to'],
-    token: {
-      name: 'tokenName',
-      symbol: 'tokenSymbol',
-      amount: 'amount',
-      type: TokenType.NATIVE,
-    },
+    timestamp: 111111,
+    from: 'from',
+    to: 'to',
+    hash: 'hash',
+    tokens: [
+      {
+        name: 'tokenName',
+        symbol: 'tokenSymbol',
+        amount: 'amount',
+        type: TokenType.NATIVE,
+      },
+    ],
     gasUsed: 'gasUsed',
     explorerLink: 'explorerLink',
     chainId: 'chainId',
-    type: PChainTransactionType.BASE_TX,
+    txType: PChainTransactionType.BASE_TX,
     vmType: 'PVM',
   };
 
-  const xchainTxHistoryItem: XchainTxHistoryItem = {
+  const xchainTxHistoryItem: Transaction = {
     ...pchainTxHistoryItem,
-    type: XChainTransactionType.BASE_TX,
+    txType: XChainTransactionType.BASE_TX,
     vmType: 'AVM',
   };
 
