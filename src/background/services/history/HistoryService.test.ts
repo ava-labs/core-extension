@@ -165,7 +165,6 @@ describe('src/background/services/history/HistoryService.ts', () => {
       .mockResolvedValue([pchainTxHistoryItem]);
 
     service = new HistoryService(
-      glacierServiceMock,
       moduleManagereMock,
       accountsServiceMock,
       bridgeHistoryHelperServiceMock,

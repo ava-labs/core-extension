@@ -11,16 +11,14 @@ import BN from 'bn.js';
 import { NetworkWithCaipId } from '../../network/models';
 import { isString } from 'lodash';
 import { container } from 'tsyringe';
-import { HistoryServicePVM } from '../../history/HistoryServicePVM';
-import { HistoryServiceAVM } from '../../history/HistoryServiceAVM';
+import { HistoryService } from '../../history/HistoryService';
 
 export const addXPChainToFavoriteIfNeeded = async (
   accounts: PrimaryAccount[]
 ) => {
   const balanceService = container.resolve(BalanceAggregatorService);
   const networkService = container.resolve(NetworkService);
-  const historyServiceP = container.resolve(HistoryServicePVM);
-  const historyServiceX = container.resolve(HistoryServiceAVM);
+  const historyService = container.resolve(HistoryService);
   const balances = await balanceService.getBalancesForNetworks(
     [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
     accounts
@@ -33,7 +31,7 @@ export const addXPChainToFavoriteIfNeeded = async (
 
     if (pChain) {
       const hasPActivity = await hasChainActivity(
-        historyServiceP,
+        historyService,
         accounts.map(({ addressPVM }) => addressPVM).filter(isString),
         pChain
       );
@@ -51,7 +49,7 @@ export const addXPChainToFavoriteIfNeeded = async (
 
     if (xChain) {
       const hasXActivity = await hasChainActivity(
-        historyServiceX,
+        historyService,
         accounts.map(({ addressAVM }) => addressAVM).filter(isString),
         xChain
       );
@@ -64,13 +62,13 @@ export const addXPChainToFavoriteIfNeeded = async (
 };
 
 async function hasChainActivity(
-  historyService: HistoryServiceAVM | HistoryServicePVM,
+  historyService: HistoryService,
   addresses: string[],
   network: NetworkWithCaipId
 ) {
   try {
     const results = await Promise.allSettled(
-      addresses.map((address) => historyService.getHistory(network, address))
+      addresses.map((address) => historyService.getTxHistory(network, address))
     );
     const histories = results.map((result) =>
       result.status === 'fulfilled' ? result.value : []

@@ -2,7 +2,6 @@ import { singleton } from 'tsyringe';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 
 import { NetworkWithCaipId } from '../network/models';
-import { GlacierService } from '../glacier/GlacierService';
 import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
 import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
 
@@ -17,7 +16,6 @@ import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
 @singleton()
 export class HistoryService {
   constructor(
-    private glacierService: GlacierService,
     private moduleManager: ModuleManager,
     private accountsService: AccountsService,
     private bridgeHistoryHelperService: HistoryServiceBridgeHelper,
