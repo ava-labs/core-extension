@@ -4,11 +4,10 @@ import { injectable } from 'tsyringe';
 import { TxHistoryItem } from '../models';
 import { HistoryService } from './../HistoryService';
 import { NetworkService } from '../../network/NetworkService';
-import { Transaction } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.HISTORY_GET,
-  TxHistoryItem[] | Transaction[]
+  TxHistoryItem[]
 >;
 
 @injectable()

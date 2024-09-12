@@ -5,7 +5,7 @@ import {
   PChainTransactionType,
   XChainTransactionType,
 } from '@avalabs/glacier-sdk';
-import { Transaction, TransactionType } from '@avalabs/vm-module-types';
+import { TransactionType } from '@avalabs/vm-module-types';
 
 describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
   const txHistoryItem: TxHistoryItem = {
@@ -14,7 +14,7 @@ describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
     isIncoming: false,
     isOutgoing: true,
     isSender: true,
-    timestamp: 'timestamp',
+    timestamp: 1111,
     hash: 'hash',
     from: 'from',
     to: 'to',
@@ -31,7 +31,8 @@ describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
     chainId: 'chainId',
     txType: TransactionType.SEND,
   };
-  const pchainTxHistoryItem: Transaction = {
+  const pchainTxHistoryItem: TxHistoryItem = {
+    isBridge: false,
     isContractCall: true,
     isIncoming: false,
     isOutgoing: true,
@@ -55,7 +56,7 @@ describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
     vmType: 'PVM',
   };
 
-  const xchainTxHistoryItem: Transaction = {
+  const xchainTxHistoryItem: TxHistoryItem = {
     ...pchainTxHistoryItem,
     txType: XChainTransactionType.BASE_TX,
     vmType: 'AVM',

@@ -122,7 +122,6 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
       }
     }
   }, [network, t, historyItem]);
-  console.log('txTitle: ', txTitle);
 
   return (
     <Card

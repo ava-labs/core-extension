@@ -87,16 +87,7 @@ export const ContactSelect = ({
       });
 
       const contactHistory = filteredHistory.reduce((acc, tx) => {
-        if (isTxHistoryItem(tx)) {
-          const identifiedContact = identifyAddress(tx.to);
-          if (indexOf(acc, identifiedContact) === -1)
-            acc.push(identifyAddress(tx.to));
-          return acc;
-        }
-
-        const addressIdentities = Array.isArray(tx.to)
-          ? tx.to.map((toAddress) => identifyAddress(toAddress))
-          : [identifyAddress(tx.to)];
+        const addressIdentities = [identifyAddress(tx.to)];
 
         addressIdentities.forEach((identity) => {
           const addressToCheck = isBitcoinNetwork(network)

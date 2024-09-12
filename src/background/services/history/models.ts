@@ -1,42 +1,8 @@
-import {
-  PChainTransactionType,
-  RichAddress,
-  XChainTransactionType,
-} from '@avalabs/glacier-sdk';
-import { TokenType, TransactionType } from '@avalabs/vm-module-types';
+import { Transaction, TransactionType } from '@avalabs/vm-module-types';
 
-export interface TxHistoryItemToken {
-  decimal?: string;
-  name: string;
-  symbol: string;
-  amount: string;
-  imageUri?: string;
-  from?: RichAddress;
-  to?: RichAddress;
-  collectableTokenId?: string;
-  type: TokenType;
-}
-export interface TxHistoryItem {
+export interface TxHistoryItem extends Transaction {
   isBridge: boolean;
-  isContractCall: boolean;
-  isIncoming: boolean;
-  isOutgoing: boolean;
-  isSender: boolean;
-  timestamp: string | number;
-  hash: string;
-  from: string;
-  to: string;
-  tokens: TxHistoryItemToken[];
-  gasPrice?: string;
-  gasUsed: string;
-  explorerLink: string;
-  chainId: string; // chainId from ActiveNetwork used to fetch tx
-  txType?:
-    | TransactionType
-    | PChainTransactionType
-    | XChainTransactionType
-    | 'CreateAssetTx'
-    | 'OperationTx';
+  vmType?: 'PVM' | 'AVM';
 }
 
 export const NonContractCallTypes = [

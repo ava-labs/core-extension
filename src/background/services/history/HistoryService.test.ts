@@ -11,7 +11,7 @@ import {
 import { HistoryService } from './HistoryService';
 import { TxHistoryItem } from './models';
 import { TokenType } from '../balances/models';
-import { Transaction, TransactionType } from '@avalabs/vm-module-types';
+import { TransactionType } from '@avalabs/vm-module-types';
 
 describe('src/background/services/history/HistoryService.ts', () => {
   let service: HistoryService;
@@ -54,6 +54,17 @@ describe('src/background/services/history/HistoryService.ts', () => {
   const glacierServiceMock = {
     isNetworkSupported: jest.fn(),
   } as any;
+  const moduleManagereMock = {
+    loadModuleByNetwork: jest.fn(),
+  } as any;
+  const accountsServiceMock = {
+    activeAcount: {
+      addressC: 'addressC',
+    },
+  } as any;
+
+  const bridgeHistoryHelperServiceMock = {} as any;
+  const unifiedBridgeServiceMock = {} as any;
 
   const txHistoryItem: TxHistoryItem = {
     isBridge: false,
@@ -61,7 +72,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     isIncoming: false,
     isOutgoing: true,
     isSender: true,
-    timestamp: 'timestamp',
+    timestamp: 1111,
     hash: 'hash',
     from: 'from',
     to: 'to',
@@ -85,7 +96,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     isIncoming: false,
     isOutgoing: true,
     isSender: true,
-    timestamp: 'timestamp',
+    timestamp: 1111,
     hash: 'hash',
     from: 'from',
     to: 'to',
@@ -102,7 +113,8 @@ describe('src/background/services/history/HistoryService.ts', () => {
     chainId: 'chainId',
     txType: TransactionType.SEND,
   };
-  const pchainTxHistoryItem: Transaction = {
+  const pchainTxHistoryItem: TxHistoryItem = {
+    isBridge: false,
     isContractCall: true,
     isIncoming: false,
     isOutgoing: true,
@@ -126,7 +138,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     hash: 'hash',
   };
 
-  const xchainTxHistoryItem: Transaction = {
+  const xchainTxHistoryItem: TxHistoryItem = {
     ...pchainTxHistoryItem,
     txType: XChainTransactionType.BASE_TX,
     vmType: 'AVM',
@@ -153,12 +165,11 @@ describe('src/background/services/history/HistoryService.ts', () => {
       .mockResolvedValue([pchainTxHistoryItem]);
 
     service = new HistoryService(
-      btcHistoryServiceMock,
-      ethHistoryServiceMock,
-      glacierHistoryServiceMock,
       glacierServiceMock,
-      historyServiceAVMMock,
-      historyServicePVMMock
+      moduleManagereMock,
+      accountsServiceMock,
+      bridgeHistoryHelperServiceMock,
+      unifiedBridgeServiceMock
     );
   });
 

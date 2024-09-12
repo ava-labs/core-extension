@@ -44,9 +44,6 @@ type WalletRecentTxsProps = {
   tokenSymbolFilter?: string;
 };
 
-export type TxParam = TxHistoryItem | Transaction;
-export type TxsParam = TxHistoryItem[] | Transaction[];
-
 export enum FilterType {
   ALL = 'All',
   BRIDGE = 'Bridge',
@@ -119,7 +116,9 @@ export function WalletRecentTxs({
 
   const yesterday = endOfYesterday();
   const today = endOfToday();
-  const [unfilteredTxHistory, setUnfilteredTxHistory] = useState<TxsParam>([]);
+  const [unfilteredTxHistory, setUnfilteredTxHistory] = useState<
+    TxHistoryItem[]
+  >([]);
   const { network } = useNetworkContext();
 
   const [selectedFilter, setSelectedFilter] = useState<
@@ -189,7 +188,7 @@ export function WalletRecentTxs({
       );
     }
 
-    function shouldTxBeKept(tx: TxParam) {
+    function shouldTxBeKept(tx: TxHistoryItem) {
       if (isTxHistoryItem(tx) && tx.isBridge && isPendingBridge(tx)) {
         return false;
       }
@@ -283,7 +282,7 @@ export function WalletRecentTxs({
 
   const filteredTxHistory = useMemo(() => {
     function shouldTxBeKept(
-      tx: TxParam,
+      tx: TxHistoryItem,
       filter: FilterType | PchainFilterType | XchainFilterType
     ) {
       if (isTxHistoryItem(tx)) {

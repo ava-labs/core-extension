@@ -1,15 +1,14 @@
-import { TxParam } from '@src/pages/Wallet/WalletRecentTxs';
 import { TxHistoryItem } from '../models';
 
-export function isTxHistoryItem(tx: TxParam): tx is TxHistoryItem {
-  if ('vmType' in tx) {
-    return false;
+export function isTxHistoryItem(tx: TxHistoryItem): tx is TxHistoryItem {
+  if ('isBridge' in tx && !('vmType' in tx)) {
+    return true;
   }
-  return true;
+  return false;
 }
 
-export function isPchainTxHistoryItem(tx: TxParam): tx is TxHistoryItem {
-  if (isTxHistoryItem(tx)) {
+export function isPchainTxHistoryItem(tx: TxHistoryItem): tx is TxHistoryItem {
+  if (!('vmType' in tx)) {
     return false;
   }
   return tx.vmType === 'PVM';

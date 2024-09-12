@@ -1,9 +1,7 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-
 import { ModuleManager } from './ModuleManager';
 import { VMModuleError } from './models';
 import { ApprovalController } from './ApprovalController';
-
 describe('ModuleManager', () => {
   let manager: ModuleManager;
   let controller: ApprovalController;
@@ -60,7 +58,7 @@ describe('ModuleManager', () => {
       try {
         await manager.loadModule('eip155:1', 'evth_randomMethod');
       } catch (e: any) {
-        expect(e.data.reason).toBe(VMModuleError.UnsupportedChain);
+        expect(e.data.reason).toBe(VMModuleError.UnsupportedMethod);
       }
     });
 
