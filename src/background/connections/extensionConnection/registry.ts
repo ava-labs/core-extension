@@ -2,7 +2,6 @@ import { CaptureAnalyticsEventHandler } from '../../services/analytics/handlers/
 import { AccountsUpdatedEvents } from '@src/background/services/accounts/events/accountsUpdatedEvent';
 import { AddAccountHandler } from '@src/background/services/accounts/handlers/addAccount';
 import { GetAccountsHandler } from '@src/background/services/accounts/handlers/getAccounts';
-import { RenameAccountHandler } from '@src/background/services/accounts/handlers/renameAccount';
 import { SelectAccountHandler } from '@src/background/services/accounts/handlers/selectAccount';
 import { GetActionHandler } from '@src/background/services/actions/handlers/getActions';
 import { UpdateActionHandler } from '@src/background/services/actions/handlers/updateAction';
@@ -138,7 +137,6 @@ import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBrid
 @registry([
   { token: 'ExtensionRequestHandler', useToken: AddAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAccountsHandler },
-  { token: 'ExtensionRequestHandler', useToken: RenameAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: SelectAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: DeleteAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetActionHandler },

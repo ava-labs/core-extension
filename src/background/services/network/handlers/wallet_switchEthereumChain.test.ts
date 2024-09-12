@@ -4,11 +4,11 @@ import { DAppProviderRequest } from './../../../connections/dAppConnection/model
 import { DEFERRED_RESPONSE } from './../../../connections/middlewares/models';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ethErrors } from 'eth-rpc-errors';
-import { isCoreWeb } from '../../network/utils/isCoreWeb';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
-jest.mock('../../network/utils/isCoreWeb');
 jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@src/utils/canSkipApproval');
 
 const mockActiveNetwork: Network = {
   chainName: 'Avalanche (C-Chain)',
@@ -65,6 +65,10 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
         chainId: '0xa869', // 43113
       },
     ],
+    site: {
+      domain: 'core.app',
+      tabId: 1,
+    },
   };
 
   beforeEach(() => {
@@ -73,7 +77,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
 
     handler = new WalletSwitchEthereumChainHandler(networkServiceMock);
     (crypto.randomUUID as jest.Mock).mockReturnValue('uuid');
-    jest.mocked(isCoreWeb).mockResolvedValue(false);
+    jest.mocked(canSkipApproval).mockResolvedValue(false);
   });
 
   it('handleUnauthenticated', async () => {
@@ -105,7 +109,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
     });
 
     it('does not open approval dialog because the request comes from core web', async () => {
-      jest.mocked(isCoreWeb).mockResolvedValue(true);
+      jest.mocked(canSkipApproval).mockResolvedValue(true);
 
       const result = await handler.handleAuthenticated(
         buildRpcCall(switchChainRequest)
@@ -128,6 +132,10 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
             chainId: '0xa868', // 43112
           },
         ],
+        site: {
+          domain: 'core.app',
+          tabId: 1,
+        },
       };
 
       const result = await handler.handleAuthenticated(
