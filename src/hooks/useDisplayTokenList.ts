@@ -6,6 +6,7 @@ import { partition } from 'lodash';
 import { isUnifiedBridgeAsset } from '@src/pages/Bridge/utils/isUnifiedBridgeAsset';
 import { normalizeBalance } from '@src/utils/normalizeBalance';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
+import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -46,7 +47,7 @@ export const useDisplaytokenlist = ({
                 symbol: token.symbol,
                 displayValue: token.balanceDisplayValue ?? '',
                 token,
-                decimals: 'decimals' in token ? token.decimals : 0,
+                decimals: isNFT(token) ? 0 : token.decimals,
               };
             })
         : []),

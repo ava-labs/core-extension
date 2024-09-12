@@ -41,6 +41,8 @@ export class GetAvaxBalanceHandler implements HandlerType {
     const balances = await this.balancesService.getBalancesForNetwork(
       avalancheNetwork,
       [
+        // This handler is called during onboarding, when we don't have the accounts built yet,
+        // hence we're building it on-the-spot here.
         {
           addressC: address,
           type: AccountType.IMPORTED,
@@ -54,10 +56,7 @@ export class GetAvaxBalanceHandler implements HandlerType {
     const nativeTokenWithBalance =
       balances[address]?.[avalancheNetwork.networkToken.symbol];
 
-    if (
-      !nativeTokenWithBalance ||
-      nativeTokenWithBalance.type !== TokenType.NATIVE
-    ) {
+    if (nativeTokenWithBalance?.type !== TokenType.NATIVE) {
       return {
         ...request,
         error: 'unable to fetch balance',

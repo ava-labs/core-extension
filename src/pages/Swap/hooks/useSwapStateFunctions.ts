@@ -11,8 +11,8 @@ import {
   NetworkTokenWithBalance,
   TokenWithBalanceERC20,
 } from '@avalabs/vm-module-types';
-import { bigintToLocaleString } from '@src/utils/bigintToLocaleString';
 import { stringToBigint } from '@src/utils/stringToBigint';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 export function useSwapStateFunctions() {
   const tokensWBalances = useTokensWithBalances({
@@ -107,7 +107,11 @@ export function useSwapStateFunctions() {
       if (pageHistory.destinationInputField === 'from') {
         setToTokenValue({
           bigint: tokenValueBigint,
-          amount: bigintToLocaleString(tokenValueBigint),
+          amount: new TokenUnit(
+            tokenValueBigint,
+            pageHistory.selectedToToken?.decimals ?? 18,
+            ''
+          ).toDisplay(),
         });
       } else {
         setFromDefaultValue(tokenValueBigint);
@@ -115,7 +119,11 @@ export function useSwapStateFunctions() {
       calculateTokenValueToInput(
         {
           bigint: tokenValueBigint,
-          amount: bigintToLocaleString(tokenValueBigint),
+          amount: new TokenUnit(
+            tokenValueBigint,
+            pageHistory.selectedToToken?.decimals ?? 18,
+            ''
+          ).toDisplay(),
         },
         pageHistory.destinationInputField || 'to',
         historyFromToken,

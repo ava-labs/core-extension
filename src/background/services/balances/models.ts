@@ -77,7 +77,10 @@ export const isAvaxWithUnavailableBalance = (
   token?: TokenWithBalance
 ): token is TokenWithBalanceAVM | TokenWithBalancePVM =>
   Boolean(
-    token && 'balancePerType' in token && token.available !== token.balance
+    token &&
+      'balancePerType' in token &&
+      token.available &&
+      token.available !== token.balance
   );
 
 export const getUnconfirmedBalanceInCurrency = (token?: TokenWithBalance) => {

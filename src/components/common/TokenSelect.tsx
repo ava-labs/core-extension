@@ -15,7 +15,7 @@ import {
   hasUnconfirmedBTCBalance,
   isAvaxWithUnavailableBalance,
 } from '@src/background/services/balances/models';
-import { bigToLocaleString } from '@avalabs/core-utils-sdk';
+import { bigToLocaleString, TokenUnit } from '@avalabs/core-utils-sdk';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { AutoSizer } from 'react-virtualized';
@@ -38,7 +38,6 @@ import { useDisplaytokenlist } from '@src/hooks/useDisplayTokenList';
 import { TokenIcon } from './TokenIcon';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
 import { bigintToBig } from '@src/utils/bigintToBig';
-import { bigintToLocaleString } from '@src/utils/bigintToLocaleString';
 import { stringToBigint } from '@src/utils/stringToBigint';
 
 const InputContainer = styled(Card)`
@@ -126,7 +125,7 @@ export function TokenSelect({
 
   // Stringify maxAmount for referential equality in useEffect
   const maxAmountString = maxAmount
-    ? bigintToLocaleString(maxAmount, decimals)
+    ? new TokenUnit(maxAmount, decimals, '').toDisplay()
     : null;
   const [isMaxAmount, setIsMaxAmount] = useState(false);
 

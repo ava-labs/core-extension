@@ -123,7 +123,7 @@ function balancesReducer(
       if (!Object.keys(action.payload).length) {
         return { ...state };
       }
-      console.log({ ...state.nfts, ...action.payload.balances?.nfts });
+
       return {
         ...state,
         loading: false,

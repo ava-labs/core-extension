@@ -16,13 +16,11 @@ export function groupTokensByType(
     return { tokens, nfts };
   }
   for (const address in balances) {
-    nfts[address] = {};
-    tokens[address] = {};
-    const nftsForAddress = nfts[address];
-    const tokensForAddress = tokens[address];
+    const nftsForAddress = {};
+    const tokensForAddress = {};
     for (const tokenId in balances[address]) {
       const token = balances[address]?.[tokenId];
-      if (!token || !tokensForAddress || !nftsForAddress) {
+      if (!token) {
         continue;
       }
       if (isNFT(token)) {
@@ -31,6 +29,9 @@ export function groupTokensByType(
         tokensForAddress[tokenId] = token;
       }
     }
+
+    nfts[address] = nftsForAddress;
+    tokens[address] = tokensForAddress;
   }
 
   return {

@@ -29,10 +29,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@0.0.0-feat-load-nfts-on-evm-20240909195259":
-  version "0.0.0-feat-load-nfts-on-evm-20240909195259"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-load-nfts-on-evm-20240909195259.tgz#a9cac9a66ae2b2cfa86f7a695b3def876331b96b"
-  integrity sha512-f2++pnuugdXZyJzqGxYdC65nLe290S2UD3E8ZYYV4bngMvueaEmIVcLr3cQQ+3vq5mJr8NVRRp2sBTsiOu3Ovw==
+"@avalabs/avalanche-module@0.0.0-feat-load-nfts-on-evm-20240912071744":
+  version "0.0.0-feat-load-nfts-on-evm-20240912071744"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-load-nfts-on-evm-20240912071744.tgz#74d1795ae93792f72509a02749f1f3397e8b1e9f"
+  integrity sha512-6JhHqUw1cEkYXYWo04rlcsjEdze65iVAFXc90vwTqslPdi1l7w1144mHCt4cJL9IrFCvO5caI8xHA6kVv8M/AQ==
   dependencies:
     "@avalabs/avalanchejs" "4.0.5"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.5"
@@ -42,9 +42,8 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
     "@avalabs/glacier-sdk" "3.1.0-alpha.5"
     "@avalabs/types" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.0.0-feat-load-nfts-on-evm-20240909195259"
+    "@avalabs/vm-module-types" "0.0.0-feat-load-nfts-on-evm-20240912071744"
     "@metamask/rpc-errors" "6.3.0"
-    "@zodios/core" "10.9.6"
     big.js "6.2.1"
     bn.js "5.2.1"
     zod "3.23.8"
@@ -60,17 +59,16 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@0.0.0-feat-load-nfts-on-evm-20240909195259":
-  version "0.0.0-feat-load-nfts-on-evm-20240909195259"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-load-nfts-on-evm-20240909195259.tgz#864065ebac2cc9aa6c13e13007b7c4920a6b7c72"
-  integrity sha512-ge4iPQgSAIqYpyrB3tR4RriDVmdum8E1Twg2lKJ6ek+ZUfOPnfbabn7x57xqBUb3+/zRWokB1pckSYd2R+JYWg==
+"@avalabs/bitcoin-module@0.0.0-feat-load-nfts-on-evm-20240912071744":
+  version "0.0.0-feat-load-nfts-on-evm-20240912071744"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-load-nfts-on-evm-20240912071744.tgz#5657a523f016d3de3d7768f05b8389c981ec4892"
+  integrity sha512-L6Qe62081pKiwUK4VHW1V8A++lkN0biZ89S/z7LqZ85Ihyi8e2opJCnz0cKEoELGpqkDakfnDB56KYT3h8OBEA==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.5"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.5"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.0.0-feat-load-nfts-on-evm-20240909195259"
+    "@avalabs/vm-module-types" "0.0.0-feat-load-nfts-on-evm-20240912071744"
     "@metamask/rpc-errors" "6.3.0"
-    "@zodios/core" "10.9.6"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
     bn.js "5.2.1"
@@ -247,10 +245,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@0.0.0-feat-load-nfts-on-evm-20240909195259":
-  version "0.0.0-feat-load-nfts-on-evm-20240909195259"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-load-nfts-on-evm-20240909195259.tgz#73e5d51078961f2f9af748a8ed596a7780b85d0d"
-  integrity sha512-dYp7qCsjLWyAgLXGz2UX6tQC9WXgjuGK2XJlgkPqDG7pKSP3RCeWeEe06y+QufOjl+tKW50vsA41ZYerthh5Tg==
+"@avalabs/evm-module@0.0.0-feat-load-nfts-on-evm-20240912071744":
+  version "0.0.0-feat-load-nfts-on-evm-20240912071744"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-load-nfts-on-evm-20240912071744.tgz#d9a6d60727a09dd0a81351c779395c3f3ac26217"
+  integrity sha512-/eT+l9uaiI+higD7TUKK4c1NpMR4vlujQozxKREqdIDEf7vpl5Xdj6iZ6lMpS54+2P6nxKkLdatj8jBY4U7GNg==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.5"
     "@avalabs/core-etherscan-sdk" "3.1.0-alpha.5"
@@ -258,10 +256,9 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
     "@avalabs/glacier-sdk" "3.1.0-alpha.5"
     "@avalabs/types" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.0.0-feat-load-nfts-on-evm-20240909195259"
+    "@avalabs/vm-module-types" "0.0.0-feat-load-nfts-on-evm-20240912071744"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
-    "@zodios/core" "10.9.6"
     bn.js "5.2.1"
     lodash.startcase "4.4.0"
     zod "3.23.8"
@@ -297,10 +294,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.5.tgz#82dcb2cdb63b47186689186e09ad13e207180e8c"
   integrity sha512-OpHTXQL/RGzL9FOfQAN4mc6jD/kZVthRtzS2eCqoI6gAZmNzf3Paq46U6cKabti1coyJDIcrXrRl1U1qtCpoYg==
 
-"@avalabs/vm-module-types@0.0.0-feat-load-nfts-on-evm-20240909195259":
-  version "0.0.0-feat-load-nfts-on-evm-20240909195259"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-load-nfts-on-evm-20240909195259.tgz#b5292160167b195e3fc8a3035eb7311380ddc5a2"
-  integrity sha512-bwIcCKFgm+i6uuLQbMybf7Xg8LjgZGcECYHvORM51G5OO7hpxlIM24Xq91CW6PcUvK8qB2Lue0mQ2v1r/4EsuA==
+"@avalabs/vm-module-types@0.0.0-feat-load-nfts-on-evm-20240912071744":
+  version "0.0.0-feat-load-nfts-on-evm-20240912071744"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-load-nfts-on-evm-20240912071744.tgz#bba144e9d874b166fbe066d5060f36f0cf56de8c"
+  integrity sha512-vPROUC73rT/Ta6EKTp3sN1e6nug1QfsJdDhdHG8ZoinOqO8JFUjKiA8CXuPhicG07gydKpwmcu/HlHlNvLi7mg==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
     "@avalabs/glacier-sdk" "3.1.0-alpha.5"
@@ -6887,11 +6884,6 @@
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
-
-"@zodios/core@10.9.6":
-  version "10.9.6"
-  resolved "https://registry.yarnpkg.com/@zodios/core/-/core-10.9.6.tgz#64ad831216e6ffa71679ea6be8d1ed882bb04d83"
-  integrity sha512-aH4rOdb3AcezN7ws8vDgBfGboZMk2JGGzEq/DtW65MhnRxyTGRuLJRWVQ/2KxDgWvV2F5oTkAS+5pnjKbl0n+A==
 
 "@zxing/browser@^0.1.1":
   version "0.1.1"

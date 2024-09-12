@@ -8,7 +8,7 @@ import {
   styled,
   CircularProgress,
 } from '@avalabs/core-k2-components';
-import { bigToLocaleString } from '@avalabs/core-utils-sdk';
+import { bigToLocaleString, TokenUnit } from '@avalabs/core-utils-sdk';
 import { stringToBigint } from '@src/utils/stringToBigint';
 import { bigintToBig } from '@src/utils/bigintToBig';
 
@@ -84,30 +84,28 @@ export function BNInput({
     }
   }, [denomination, valStr, value]);
 
-  const onValueChanged = (newValue: string) => {
+  const onValueChanged = (newValueString: string) => {
     /**
      * Split the input and make sure the right side never exceeds
      * the denomination length
      */
-    const [, endValue] = splitBN(newValue);
+    const [, endValue] = splitBN(newValueString); // renamed callback param
 
     if (!endValue || endValue.length <= denomination) {
-      const valueToBigint = stringToBigint(newValue || '0', denomination);
+      const newValue = new TokenUnit(newValueString || '0', denomination, '');
 
-      if (valueToBigint < min) {
+      if (newValue.toSubUnit() < min) {
         return;
       }
-      const oldValueToBigint = stringToBigint(valStr || '0', denomination);
-      if (valueToBigint !== oldValueToBigint) {
+
+      const oldValue = new TokenUnit(valStr || '', denomination, '');
+      if (!newValue.eq(oldValue)) {
         onChange?.({
-          // used to removing leading & trailing zeros
-          amount: newValue
-            ? bigToLocaleString(bigintToBig(valueToBigint, denomination))
-            : '0',
-          bigint: valueToBigint,
+          amount: newValue.toDisplay(),
+          bigint: newValue.toSubUnit(),
         });
       }
-      setValStr(newValue);
+      setValStr(newValueString);
     }
   };
 
