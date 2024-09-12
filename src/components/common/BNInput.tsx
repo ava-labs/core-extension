@@ -8,9 +8,7 @@ import {
   styled,
   CircularProgress,
 } from '@avalabs/core-k2-components';
-import { bigToLocaleString, TokenUnit } from '@avalabs/core-utils-sdk';
-import { stringToBigint } from '@src/utils/stringToBigint';
-import { bigintToBig } from '@src/utils/bigintToBig';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 Big.PE = 99;
 Big.NE = -18;
