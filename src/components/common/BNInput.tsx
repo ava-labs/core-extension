@@ -9,6 +9,7 @@ import {
   CircularProgress,
 } from '@avalabs/core-k2-components';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { stringToBigint } from '@src/utils/stringToBigint';
 
 Big.PE = 99;
 Big.NE = -18;
@@ -90,13 +91,21 @@ export function BNInput({
     const [, endValue] = splitBN(newValueString); // renamed callback param
 
     if (!endValue || endValue.length <= denomination) {
-      const newValue = new TokenUnit(newValueString || '0', denomination, '');
+      const newValue = new TokenUnit(
+        stringToBigint(newValueString || '0', denomination),
+        denomination,
+        ''
+      );
 
       if (newValue.toSubUnit() < min) {
         return;
       }
 
-      const oldValue = new TokenUnit(valStr || '', denomination, '');
+      const oldValue = new TokenUnit(
+        stringToBigint(valStr || '0', denomination),
+        denomination,
+        ''
+      );
       if (!newValue.eq(oldValue)) {
         onChange?.({
           amount: newValue.toDisplay(),
