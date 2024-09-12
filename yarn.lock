@@ -29,10 +29,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@0.0.0-feat-load-nfts-on-evm-20240912071744":
-  version "0.0.0-feat-load-nfts-on-evm-20240912071744"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-load-nfts-on-evm-20240912071744.tgz#74d1795ae93792f72509a02749f1f3397e8b1e9f"
-  integrity sha512-6JhHqUw1cEkYXYWo04rlcsjEdze65iVAFXc90vwTqslPdi1l7w1144mHCt4cJL9IrFCvO5caI8xHA6kVv8M/AQ==
+"@avalabs/avalanche-module@0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.6.0.tgz#19c9711c16606b0ba4a5ffa6d6d7d0ea56e3dfed"
+  integrity sha512-e6YzasOU6w2rSnqZ3alThYSpjTu8TjgmXjny+lAenQTEomMDNc3/8XCXTcnSN7ItmrwcEXVjBsxGrVof5VFR4w==
   dependencies:
     "@avalabs/avalanchejs" "4.0.5"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.5"
@@ -42,7 +42,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
     "@avalabs/glacier-sdk" "3.1.0-alpha.5"
     "@avalabs/types" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.0.0-feat-load-nfts-on-evm-20240912071744"
+    "@avalabs/vm-module-types" "0.6.0"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -59,15 +59,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@0.0.0-feat-load-nfts-on-evm-20240912071744":
-  version "0.0.0-feat-load-nfts-on-evm-20240912071744"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-load-nfts-on-evm-20240912071744.tgz#5657a523f016d3de3d7768f05b8389c981ec4892"
-  integrity sha512-L6Qe62081pKiwUK4VHW1V8A++lkN0biZ89S/z7LqZ85Ihyi8e2opJCnz0cKEoELGpqkDakfnDB56KYT3h8OBEA==
+"@avalabs/bitcoin-module@0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.6.0.tgz#39d977dc76987e34bac98c74a43ca74e4d1f27a3"
+  integrity sha512-dFCV43j1nU7TL2/206/8O+TpnT2InUx5sH8N9bbwZ9yNHEX45T+iSGmALCSb2fnuYvD2uvNQOQ+UkEe8e9ttiQ==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.5"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.5"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.0.0-feat-load-nfts-on-evm-20240912071744"
+    "@avalabs/vm-module-types" "0.6.0"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -245,10 +245,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@0.0.0-feat-load-nfts-on-evm-20240912071744":
-  version "0.0.0-feat-load-nfts-on-evm-20240912071744"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-load-nfts-on-evm-20240912071744.tgz#d9a6d60727a09dd0a81351c779395c3f3ac26217"
-  integrity sha512-/eT+l9uaiI+higD7TUKK4c1NpMR4vlujQozxKREqdIDEf7vpl5Xdj6iZ6lMpS54+2P6nxKkLdatj8jBY4U7GNg==
+"@avalabs/evm-module@0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.6.0.tgz#b38f8f2a8050fd9028e1bf32fad122cec73a0e80"
+  integrity sha512-AwY2TMUEyZ1i2gbotBq92NoOq2SZY5mVd5F1uCGwZBAQSJ0WJwwWZiVIKtZEMBG1E6XJxWXOThwFNtmQROR5hA==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.5"
     "@avalabs/core-etherscan-sdk" "3.1.0-alpha.5"
@@ -256,7 +256,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
     "@avalabs/glacier-sdk" "3.1.0-alpha.5"
     "@avalabs/types" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.0.0-feat-load-nfts-on-evm-20240912071744"
+    "@avalabs/vm-module-types" "0.6.0"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     bn.js "5.2.1"
@@ -294,10 +294,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.5.tgz#82dcb2cdb63b47186689186e09ad13e207180e8c"
   integrity sha512-OpHTXQL/RGzL9FOfQAN4mc6jD/kZVthRtzS2eCqoI6gAZmNzf3Paq46U6cKabti1coyJDIcrXrRl1U1qtCpoYg==
 
-"@avalabs/vm-module-types@0.0.0-feat-load-nfts-on-evm-20240912071744":
-  version "0.0.0-feat-load-nfts-on-evm-20240912071744"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-load-nfts-on-evm-20240912071744.tgz#bba144e9d874b166fbe066d5060f36f0cf56de8c"
-  integrity sha512-vPROUC73rT/Ta6EKTp3sN1e6nug1QfsJdDhdHG8ZoinOqO8JFUjKiA8CXuPhicG07gydKpwmcu/HlHlNvLi7mg==
+"@avalabs/vm-module-types@0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.6.0.tgz#dc3ed2be67c52e1a9babd894cdee4665cb7598e2"
+  integrity sha512-4HGWDnH1qKQK1nBHe8/uCVT2pZcbh4YLltMWyMSsvsy0l+FXnU9RSaAxDIyPnok5IJQ6STIkLbkrSDTcbOtWLg==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
     "@avalabs/glacier-sdk" "3.1.0-alpha.5"
