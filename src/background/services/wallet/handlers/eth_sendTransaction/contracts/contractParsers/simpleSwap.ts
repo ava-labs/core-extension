@@ -2,10 +2,6 @@ import { ContractCall, ContractParser } from './models';
 import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { findToken } from '../../../../../../utils/findToken';
 import { Network } from '@avalabs/core-chains-sdk';
-import {
-  TokenType,
-  TokenWithBalanceEVM,
-} from '@src/background/services/balances/models';
 import { TransactionDescription } from 'ethers';
 import {
   EthSendTransactionParamsWithGas,
@@ -15,6 +11,11 @@ import {
 } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { isNetworkToken } from './utils/helpers';
+import {
+  NetworkTokenWithBalance,
+  TokenType,
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
 export interface SimpleSwapData {
   data: {
     beneficiary: string;
@@ -51,12 +52,12 @@ export async function simpleSwapHandler(
     isNetworkToken(data.fromToken)
       ? await findToken(network.networkToken.symbol, network)
       : await findToken(data.fromToken, network)
-  ) as TokenWithBalanceEVM;
+  ) as NetworkTokenWithBalance | TokenWithBalanceERC20;
   const toToken = (
     isNetworkToken(data.toToken)
       ? await findToken(network.networkToken.symbol, network)
       : await findToken(data.toToken, network)
-  ) as TokenWithBalanceEVM;
+  ) as NetworkTokenWithBalance | TokenWithBalanceERC20;
 
   const sendTokenList: TransactionToken[] = [];
   const receiveTokenList: TransactionToken[] = [];
@@ -72,11 +73,11 @@ export async function simpleSwapHandler(
     logoUri: fromToken.logoUri,
 
     amount: BigInt(data.fromAmount),
-    usdValue: fromToken.priceUSD
-      ? Number(fromToken.priceUSD) *
+    usdValue: fromToken.priceInCurrency
+      ? Number(fromToken.priceInCurrency) *
         bigintToBig(data.fromAmount, fromToken.decimals).toNumber()
       : undefined,
-    usdPrice: fromToken.priceUSD,
+    usdPrice: fromToken.priceInCurrency,
   });
 
   receiveTokenList.push({
@@ -88,11 +89,11 @@ export async function simpleSwapHandler(
     logoUri: toToken.logoUri,
 
     amount: BigInt(data.toAmount),
-    usdValue: toToken.priceUSD
-      ? Number(toToken.priceUSD) *
+    usdValue: toToken.priceInCurrency
+      ? Number(toToken.priceInCurrency) *
         bigintToBig(data.fromAmount, toToken.decimals).toNumber()
       : undefined,
-    usdPrice: toToken.priceUSD,
+    usdPrice: toToken.priceInCurrency,
   });
 
   const result: TransactionDisplayValues = await parseBasicDisplayValues(

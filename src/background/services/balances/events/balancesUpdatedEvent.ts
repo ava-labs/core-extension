@@ -6,9 +6,13 @@ import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { BalanceServiceEvents, Balances } from '../models';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 
 export interface BalancesInfo {
-  balances: Balances;
+  balances: {
+    tokens: Balances;
+    nfts: Balances<NftTokenWithBalance>;
+  };
   isBalancesCached: boolean;
 }
 @singleton()

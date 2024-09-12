@@ -11,10 +11,10 @@ import { Network } from '@avalabs/core-chains-sdk';
 import { TransactionDescription } from 'ethers';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import {
+  NetworkTokenWithBalance,
   TokenType,
-  TokenWithBalanceEVM,
-} from '@src/background/services/balances/models';
-
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
 export interface SwapExactTokensForAVAXData {
   amountOutMin: bigint;
   amountIn: bigint;
@@ -40,11 +40,11 @@ export async function swapExactTokensForAvax(
   const firstTokenInPath = (await findToken(
     data.path[0]?.toLowerCase() || '',
     network
-  )) as TokenWithBalanceEVM;
+  )) as NetworkTokenWithBalance | TokenWithBalanceERC20;
   const networkTokenWithBalance = (await findToken(
     network.networkToken.symbol,
     network
-  )) as TokenWithBalanceEVM;
+  )) as NetworkTokenWithBalance;
 
   const sendTokenList: TransactionToken[] = [];
 
@@ -60,11 +60,11 @@ export async function swapExactTokensForAvax(
 
     amount: data.amountIn ? BigInt(data.amountIn) : undefined,
     usdValue:
-      data.amountIn && firstTokenInPath.priceUSD
-        ? Number(firstTokenInPath.priceUSD) *
+      data.amountIn && firstTokenInPath.priceInCurrency
+        ? Number(firstTokenInPath.priceInCurrency) *
           bigintToBig(data.amountIn, firstTokenInPath.decimals).toNumber()
         : undefined,
-    usdPrice: firstTokenInPath.priceUSD,
+    usdPrice: firstTokenInPath.priceInCurrency,
   });
 
   const receiveTokenList: TransactionToken[] = [];
@@ -78,14 +78,14 @@ export async function swapExactTokensForAvax(
 
     amount: data.amountOutMin ? BigInt(data.amountOutMin) : undefined,
     usdValue:
-      data.amountOutMin && networkTokenWithBalance.priceUSD
-        ? networkTokenWithBalance.priceUSD *
+      data.amountOutMin && networkTokenWithBalance.priceInCurrency
+        ? networkTokenWithBalance.priceInCurrency *
           bigintToBig(
             data.amountOutMin,
             networkTokenWithBalance.decimals
           ).toNumber()
         : undefined,
-    usdPrice: networkTokenWithBalance.priceUSD,
+    usdPrice: networkTokenWithBalance.priceInCurrency,
   });
 
   const result: TransactionDisplayValues = await parseBasicDisplayValues(

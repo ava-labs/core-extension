@@ -1,4 +1,3 @@
-import BN from 'bn.js';
 import { useMemo, useRef, useState } from 'react';
 import {
   Typography,
@@ -11,7 +10,6 @@ import { Contact } from '@avalabs/types';
 import { useTranslation } from 'react-i18next';
 
 import { TokenSelect } from '@src/components/common/TokenSelect';
-import { TokenWithBalance } from '@src/background/services/balances/models';
 import { SendErrorMessage } from '@src/utils/send/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
@@ -19,10 +17,11 @@ import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { ContactInput } from './ContactInput';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { getSendErrorMessage } from '../utils/sendErrorMessages';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
 
 type SendFormProps = {
   address?: string;
-  inputAmount?: BN;
+  inputAmount?: bigint;
   tokenList: TokenWithBalance[];
   token?: TokenWithBalance;
   isValid: boolean;
@@ -107,7 +106,7 @@ export const SendForm = ({
 
           <Stack sx={{ py: 0, px: 2, mt: 4, width: '100%' }}>
             <TokenSelect
-              maxAmount={maxAmount ? new BN(maxAmount) : undefined}
+              maxAmount={maxAmount ? BigInt(maxAmount) : undefined}
               tokensList={tokenList}
               selectedToken={token}
               onTokenChange={(newToken) => {

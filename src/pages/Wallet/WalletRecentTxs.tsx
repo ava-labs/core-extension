@@ -25,7 +25,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
+import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
 import { usePendingBridgeTransactions } from '../Bridge/hooks/usePendingBridgeTransactions';
 import {
   isPchainTxHistoryItem,
@@ -233,7 +233,7 @@ export function WalletRecentTxs({
         tx.type === TransactionType.NFT_BUY ||
         (tx.type === TransactionType.TRANSFER &&
           tx.tokens[0] &&
-          isNFT(tx.tokens[0].type))
+          isNftTokenType(tx.tokens[0].type))
       );
     } else {
       return false;

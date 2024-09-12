@@ -2,7 +2,7 @@ import { TokensPriceShortData } from '../../tokens/models';
 
 export function getPriceChangeValues(
   tokenSymbol: string,
-  balanceUSD?: number,
+  balanceInCurrency?: number,
   priceChanges?: TokensPriceShortData
 ) {
   if (!priceChanges) {
@@ -14,7 +14,7 @@ export function getPriceChangeValues(
   const symbol = tokenSymbol.toLowerCase();
   const tokenChangePercentage = priceChanges[symbol]?.priceChangePercentage;
   const tokenChangeValue =
-    (balanceUSD || 0) *
+    (balanceInCurrency || 0) *
     ((priceChanges[symbol]?.priceChangePercentage || 0) / 100);
 
   return {

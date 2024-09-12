@@ -1,5 +1,7 @@
 import { ipfsResolver } from '@avalabs/core-utils-sdk';
-import { IPFS_URL } from '@src/background/services/balances/models';
+
+export const IPFS_URL = 'https://ipfs.io';
+
 export function ipfsResolverWithFallback(
   sourceUrl: string | undefined,
   desiredGatewayPrefix: string = IPFS_URL

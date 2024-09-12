@@ -1,14 +1,9 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import {
   Balances,
-  NftPageTokens,
-  NftTokenWithBalance,
-  TokenType,
   TotalPriceChange,
-  getTokenPrice as getTokenPriceFromBalance,
 } from '@src/background/services/balances/models';
 import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
-import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
 import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import {
@@ -33,22 +28,20 @@ import { StopBalancesPollingHandler } from '@src/background/services/balances/ha
 import { RefreshNftMetadataHandler } from '@src/background/services/balances/handlers/refreshNftMetadata';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { getSmallImageForNFT } from '@src/background/services/balances/nft/utils/getSmallImageForNFT';
-import { parseRawAttributesString } from '@src/utils/nfts/metadataParser';
 import { TokensPriceShortData } from '@src/background/services/tokens/models';
 import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { Network } from '@src/background/services/network/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 
-interface NftState {
-  loading: boolean;
-  items?: NftTokenWithBalance[];
-  pageTokens?: NftPageTokens;
-  error?: string;
-}
+export const IPFS_URL = 'https://ipfs.io';
+
 export interface BalancesState {
   loading: boolean;
-  balances?: Balances;
+  nfts?: Balances<NftTokenWithBalance>;
+  tokens?: Balances;
   cached?: boolean;
+  error?: string;
 }
 
 export interface TokensPriceData {
@@ -60,29 +53,37 @@ export interface TokensPriceData {
 enum BalanceActionType {
   UPDATE_BALANCES = 'UPDATE_BALANCES',
   SET_LOADING = 'SET_LOADING',
+  UPDATE_NFT_METADATA = 'UPDATE_NFT_METADATA',
 }
 type BalanceAction =
   | { type: BalanceActionType.SET_LOADING; payload: boolean }
   | {
       type: BalanceActionType.UPDATE_BALANCES;
       payload: {
-        balances?: Balances;
+        balances?: {
+          nfts: Balances<NftTokenWithBalance>;
+          tokens: Balances;
+        };
         isBalancesCached?: boolean;
+      };
+    }
+  | {
+      type: BalanceActionType.UPDATE_NFT_METADATA;
+      payload: {
+        address: string;
+        chainId: string;
+        tokenId: string;
+        updates: Erc721Token | Erc1155Token;
       };
     };
 
 const BalancesContext = createContext<{
-  tokens: BalancesState;
-  nfts: NftState;
+  balances: BalancesState;
   refreshNftMetadata(
     address: string,
     chainId: string,
     tokenId: string
   ): Promise<void>;
-  updateNftBalances?: (
-    pageToken?: NftPageTokens,
-    callback?: () => void
-  ) => void;
   getTokenPrice(addressOrSymbol: string): number | undefined;
   updateBalanceOnAllNetworks: (accounts: Account[]) => Promise<void>;
   registerSubscriber: () => void;
@@ -96,8 +97,7 @@ const BalancesContext = createContext<{
       }
     | undefined;
 }>({
-  tokens: { loading: true },
-  nfts: { loading: false },
+  balances: { loading: true },
   getTokenPrice() {
     return undefined;
   },
@@ -119,18 +119,31 @@ function balancesReducer(
   switch (action.type) {
     case BalanceActionType.SET_LOADING:
       return { ...state, loading: action.payload };
-    case BalanceActionType.UPDATE_BALANCES:
+    case BalanceActionType.UPDATE_BALANCES: {
       if (!Object.keys(action.payload).length) {
         return { ...state };
       }
+
       return {
         ...state,
         loading: false,
         cached: action.payload.isBalancesCached,
         // use deep merge to make sure we keep all accounts in there, even after a partial update
-        balances: merge({}, state.balances, action.payload.balances),
+        tokens: merge({}, state.tokens, action.payload.balances?.tokens),
+        nfts: { ...state.nfts, ...action.payload.balances?.nfts },
       };
-
+    }
+    case BalanceActionType.UPDATE_NFT_METADATA:
+      return {
+        ...state,
+        nfts: updateMatchingNftMetadata({
+          chainId: action.payload.chainId,
+          address: action.payload.address,
+          tokenId: action.payload.tokenId,
+          newTokenData: action.payload.updates,
+          nfts: state.nfts,
+        }),
+      };
     default:
       throw new Error();
   }
@@ -143,12 +156,11 @@ export function BalancesProvider({ children }: { children: any }) {
     accounts: { active: activeAccount },
     getAccount,
   } = useAccountsContext();
-  const [tokens, dispatch] = useReducer(balancesReducer, {
+  const [balances, dispatch] = useReducer(balancesReducer, {
     loading: true,
     cached: true,
   });
 
-  const [nfts, setNfts] = useState<NftState>({ loading: true });
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [isPolling, setIsPolling] = useState(false);
 
@@ -172,11 +184,9 @@ export function BalancesProvider({ children }: { children: any }) {
         map((evt) => evt.value)
       )
       .subscribe((balancesData) => {
-        const { balances, isBalancesCached } = balancesData;
-
         dispatch({
           type: BalanceActionType.UPDATE_BALANCES,
-          payload: { balances, isBalancesCached },
+          payload: balancesData,
         });
       });
 
@@ -193,11 +203,9 @@ export function BalancesProvider({ children }: { children: any }) {
     request<GetBalancesHandler>({
       method: ExtensionRequest.BALANCES_GET,
     }).then((balancesData) => {
-      const { balances, isBalancesCached } = balancesData;
-
       dispatch({
         type: BalanceActionType.UPDATE_BALANCES,
-        payload: { balances, isBalancesCached },
+        payload: balancesData,
       });
     });
   }, [request]);
@@ -212,11 +220,9 @@ export function BalancesProvider({ children }: { children: any }) {
         method: ExtensionRequest.BALANCES_START_POLLING,
         params: [activeAccount, polledChainIds],
       }).then((balancesData) => {
-        const { balances, isBalancesCached } = balancesData;
-
         dispatch({
           type: BalanceActionType.UPDATE_BALANCES,
-          payload: { balances, isBalancesCached },
+          payload: balancesData,
         });
       });
     }
@@ -233,68 +239,20 @@ export function BalancesProvider({ children }: { children: any }) {
     setIsPolling(subscriberCount > 0);
   }, [subscriberCount]);
 
-  const updateNftBalances = useCallback(
-    async (pageTokens?: NftPageTokens, callback?: () => void) => {
-      if (
-        !pageTokens ||
-        (!pageTokens[TokenType.ERC1155] && !pageTokens[TokenType.ERC721])
-      ) {
-        setNfts({ loading: true });
-      }
-
-      request<GetNftBalancesHandler>({
-        method: ExtensionRequest.NFT_BALANCES_GET,
-        params: [pageTokens],
-      })
-        .then((result) => {
-          setNfts((prevState) => {
-            return {
-              items: pageTokens
-                ? [...(prevState.items ?? []), ...result.list]
-                : result.list,
-              pageTokens: result.pageTokens,
-              loading: false,
-            };
-          });
-        })
-        .catch((e) => {
-          setNfts((prevState) => {
-            return { ...prevState, ...{ loading: false, error: e } };
-          });
-        })
-        .finally(() => {
-          if (callback) {
-            callback();
-          }
-        });
-    },
-    [request]
-  );
-
-  useEffect(() => {
-    if (!activeAccount?.addressC || !network?.chainId) {
-      return;
-    }
-    updateNftBalances();
-
-    // trigger nft updates whenever the network has changed
-    // trigger nft updates whenever the account changes
-  }, [network?.chainId, activeAccount?.addressC, updateNftBalances]);
-
   const updateBalanceOnAllNetworks = useCallback(
     async (accounts: Account[]) => {
       if (!network) {
         return;
       }
 
-      const balances = await request<UpdateBalancesForNetworkHandler>({
+      const updatedBalances = await request<UpdateBalancesForNetworkHandler>({
         method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
         params: [accounts],
       });
 
       dispatch({
         type: BalanceActionType.UPDATE_BALANCES,
-        payload: { balances, isBalancesCached: false },
+        payload: { balances: updatedBalances, isBalancesCached: false },
       });
     },
     [network, request]
@@ -308,31 +266,29 @@ export function BalancesProvider({ children }: { children: any }) {
       });
 
       if (result.metadata) {
-        setNfts((_nfts) => ({
-          ...nfts,
-          items: (_nfts.items ?? []).map(
-            updateMatchingNftMetadata(address, tokenId, result)
-          ),
-        }));
+        dispatch({
+          type: BalanceActionType.UPDATE_NFT_METADATA,
+          payload: { address, chainId, tokenId, updates: result },
+        });
       }
     },
-    [request, nfts]
+    [request]
   );
 
   const getTotalBalance = useCallback(
     (addressC: string) => {
-      if (tokens.balances) {
+      if (balances.tokens) {
         return calculateTotalBalance(
           network,
           getAccount(addressC),
           favoriteNetworks.map(({ chainId }) => chainId),
-          tokens.balances
+          balances.tokens
         );
       }
 
       return undefined;
     },
-    [getAccount, favoriteNetworks, network, tokens.balances]
+    [getAccount, favoriteNetworks, network, balances.tokens]
   );
 
   const getTokenPrice = useCallback(
@@ -354,25 +310,23 @@ export function BalancesProvider({ children }: { children: any }) {
       }
 
       const token =
-        tokens.balances?.[chainId]?.[addressForChain]?.[addressOrSymbol];
+        balances.tokens?.[chainId]?.[addressForChain]?.[addressOrSymbol];
 
-      return getTokenPriceFromBalance(token);
+      return token?.priceInCurrency;
     },
-    [tokens.balances, activeAccount, network]
+    [balances.tokens, activeAccount, network]
   );
 
   return (
     <BalancesContext.Provider
       value={{
-        tokens,
-        nfts,
+        balances,
         getTokenPrice,
         refreshNftMetadata,
-        updateNftBalances,
         updateBalanceOnAllNetworks,
         registerSubscriber,
         unregisterSubscriber,
-        isTokensCached: tokens.cached ?? true,
+        isTokensCached: balances.cached ?? true,
         totalBalance: activeAccount
           ? getTotalBalance(activeAccount.addressC)
           : undefined,
@@ -388,32 +342,52 @@ export function useBalancesContext() {
   return useContext(BalancesContext);
 }
 
-const updateMatchingNftMetadata =
-  (
-    address: string,
-    tokenId: string,
-    newTokenData: Erc721Token | Erc1155Token
-  ) =>
-  (item: NftTokenWithBalance) => {
-    if (item.address !== address || item.tokenId !== tokenId) {
-      return item;
-    }
+const updateMatchingNftMetadata = ({
+  address,
+  chainId,
+  tokenId,
+  nfts,
+  newTokenData,
+}: {
+  address: string;
+  chainId: string;
+  tokenId: string;
+  nfts?: Balances<NftTokenWithBalance>;
+  newTokenData: Erc721Token | Erc1155Token;
+}): Balances<NftTokenWithBalance> | undefined => {
+  const existingTokenData = nfts?.[chainId]?.[address]?.[tokenId];
+  if (!existingTokenData) {
+    return nfts;
+  }
 
-    const isErc721 = newTokenData.ercType === Erc721Token.ercType.ERC_721;
+  const isErc721 = newTokenData.ercType === Erc721Token.ercType.ERC_721;
 
-    const imageProps = newTokenData.metadata.imageUri
-      ? {
-          logoUri: ipfsResolverWithFallback(newTokenData.metadata.imageUri),
-          logoSmall: getSmallImageForNFT(newTokenData.metadata.imageUri),
-        }
-      : {};
+  const imageProps = newTokenData.metadata.imageUri
+    ? {
+        logoUri: ipfsResolverWithFallback(newTokenData.metadata.imageUri),
+        logoSmall: getSmallImageForNFT(newTokenData.metadata.imageUri),
+      }
+    : {};
 
-    return {
-      ...item,
-      updatedAt: newTokenData.metadata.metadataLastUpdatedTimestamp,
-      attributes: isErc721
-        ? parseRawAttributesString(newTokenData.metadata.attributes)
-        : parseRawAttributesString(newTokenData.metadata.properties),
-      ...imageProps,
-    };
+  return {
+    ...nfts,
+    [chainId]: {
+      ...nfts[chainId],
+      [address]: {
+        ...nfts[chainId]?.[address],
+        [tokenId]: {
+          ...existingTokenData,
+          metadata: {
+            description: newTokenData.metadata.description,
+            lastUpdatedTimestamp:
+              newTokenData.metadata.metadataLastUpdatedTimestamp,
+            properties: isErc721
+              ? newTokenData.metadata.attributes
+              : newTokenData.metadata.properties,
+          },
+          ...imageProps,
+        },
+      },
+    },
   };
+};

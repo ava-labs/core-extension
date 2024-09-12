@@ -1,13 +1,9 @@
 import { TokenIcon as TokenImage } from '@src/components/common/TokenIcon';
 import { APIError } from 'paraswap';
-import {
-  TokenType,
-  TokenWithBalanceEVM,
-} from '@src/background/services/balances/models';
-import { stringToBN } from '@avalabs/core-utils-sdk';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { OptimalRate } from 'paraswap-core';
-import BN from 'bn.js';
+import { TokenType, TokenWithBalanceEVM } from '@avalabs/vm-module-types';
+import { stringToBigint } from '@src/utils/stringToBigint';
 
 interface GetTokenIconProps {
   token?: TokenWithBalanceEVM;
@@ -48,7 +44,7 @@ export const getMaxValue = (token?: TokenWithBalanceEVM, fee?: string) => {
   }
 
   if (token.type === TokenType.NATIVE) {
-    return token.balance.sub(stringToBN(fee, token.decimals));
+    return token.balance - stringToBigint(fee, token.decimals);
   }
   return token.balance;
 };
@@ -110,6 +106,6 @@ export interface SwapRate extends OptimalRate {
 }
 
 export interface Amount {
-  bn: BN;
+  bigint: bigint;
   amount: string;
 }

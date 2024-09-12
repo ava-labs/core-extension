@@ -65,7 +65,6 @@ import { UpdateCollectiblesVisibilityHandler } from '../../services/settings/han
 import { NetworksUpdatedEvents } from '@src/background/services/network/events/networksUpdatedEvent';
 import { NetworkUpdatedEvents } from '@src/background/services/network/events/networkUpdatedEvent';
 import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
-import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
 import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
 import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
 import { LockStateChangedEvents } from '@src/background/services/lock/events/lockStateChangedEvent';
@@ -159,7 +158,6 @@ import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBrid
     useToken: UpdateBalancesForNetworkHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: GetBalancesHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetNftBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetConfigHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetStateHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeSetIsDevEnvHandler },

@@ -3,7 +3,6 @@ import { NetworkCard } from './common/NetworkCard';
 import { useHistory } from 'react-router-dom';
 import { ZeroWidget } from './ZeroWidget';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { TokenWithBalance } from '@src/background/services/balances/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
@@ -35,6 +34,7 @@ import { isTokenWithBalancePVM } from '@src/background/services/balances/utils/i
 import { isTokenWithBalanceAVM } from '@src/background/services/balances/utils/isTokenWithBalanceAVM';
 import { normalizeBalance } from '@src/utils/normalizeBalance';
 import Big from 'big.js';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];
@@ -80,9 +80,10 @@ export function ActiveNetworkWidget({
   };
 
   const firstAsset = assetList[0];
-  const funds = firstAsset
-    ? normalizeBalance(firstAsset.balance, firstAsset.decimals) ?? new Big(0)
-    : new Big(0);
+  const funds =
+    firstAsset && 'decimals' in firstAsset
+      ? normalizeBalance(firstAsset.balance, firstAsset.decimals) ?? new Big(0)
+      : new Big(0);
   const hasNoFunds = assetList.length === 1 && funds?.eq(new Big(0));
 
   const selectedAssetList = assetList[0];

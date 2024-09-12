@@ -4,7 +4,7 @@ import { Card, Stack, Typography } from '@avalabs/core-k2-components';
 interface TokenCardProps {
   name: string;
   balanceDisplayValue?: string | number;
-  balanceUSD?: string;
+  balanceInCurrency?: string;
   onClick?(): void;
 }
 
@@ -13,7 +13,7 @@ interface TokenCardProps {
 export function TokenCard({
   name,
   onClick,
-  balanceUSD,
+  balanceInCurrency,
   children,
 }: PropsWithChildren<TokenCardProps>) {
   return (
@@ -33,7 +33,7 @@ export function TokenCard({
           width: '100%',
           flexDirection: 'row',
         }}
-        data-testid={`${name}-${balanceUSD}`}
+        data-testid={`${name}-${balanceInCurrency}`}
       >
         <Stack sx={{ flexDirection: 'row' }}>{children}</Stack>
 
@@ -47,7 +47,9 @@ export function TokenCard({
           }}
         >
           <Typography varian="body2">{name}</Typography>
-          {balanceUSD && <Typography varian="body2">{balanceUSD}</Typography>}
+          {balanceInCurrency && (
+            <Typography varian="body2">{balanceInCurrency}</Typography>
+          )}
         </Stack>
       </Stack>
     </Card>

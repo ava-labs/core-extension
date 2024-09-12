@@ -1,4 +1,4 @@
-import { TokenType } from '../../balances/models';
+import { TokenType } from '@avalabs/vm-module-types';
 import { TransactionNft } from '../../wallet/handlers/eth_sendTransaction/models';
 import { DebankNFTItem } from '../models';
 

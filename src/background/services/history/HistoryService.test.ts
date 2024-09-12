@@ -15,7 +15,7 @@ import {
   TxHistoryItem,
   XchainTxHistoryItem,
 } from './models';
-import { TokenType } from '../balances/models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 describe('src/background/services/history/HistoryService.ts', () => {
   let service: HistoryService;

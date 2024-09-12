@@ -1,10 +1,6 @@
 import { NetworkToken } from '@avalabs/core-chains-sdk';
-import {
-  NetworkTokenWithBalance,
-  TokenType,
-} from '@src/background/services/balances/models';
-import BN from 'bn.js';
 import { getPriceChangeValues } from './getPriceChangeValues';
+import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 describe('utils/getPriceChangeValues', () => {
   const networkToken1: NetworkToken = {
@@ -18,8 +14,10 @@ describe('utils/getPriceChangeValues', () => {
   const network1TokenBalance: NetworkTokenWithBalance = {
     ...networkToken1,
     type: TokenType.NATIVE,
-    balance: new BN(100),
-    balanceUSD: 3,
+    balance: 100n,
+    balanceDisplayValue: '0.000001',
+    coingeckoId: '',
+    balanceInCurrency: 3,
   };
 
   const priceChanges = {
@@ -32,7 +30,7 @@ describe('utils/getPriceChangeValues', () => {
   it('should return the calculated changes', () => {
     const changes = getPriceChangeValues(
       network1TokenBalance.symbol,
-      network1TokenBalance.balanceUSD,
+      network1TokenBalance.balanceInCurrency,
       priceChanges
     );
     expect(changes).toEqual({
@@ -43,14 +41,14 @@ describe('utils/getPriceChangeValues', () => {
   it('should return an empty calculation because of the missing price changes', () => {
     const changes = getPriceChangeValues(
       network1TokenBalance.symbol,
-      network1TokenBalance.balanceUSD
+      network1TokenBalance.balanceInCurrency
     );
     expect(changes).toEqual({
       value: 0,
       percentage: undefined,
     });
   });
-  it('should return an empty calculation because of the missing balanceUSD value', () => {
+  it('should return an empty calculation because of the missing balanceInCurrency value', () => {
     const changes = getPriceChangeValues(network1TokenBalance.symbol);
     expect(changes).toEqual({
       value: 0,

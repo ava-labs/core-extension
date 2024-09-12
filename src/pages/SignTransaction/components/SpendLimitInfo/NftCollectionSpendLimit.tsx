@@ -4,10 +4,10 @@ import {
   ApprovalSection,
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
-import { TokenType } from '@src/background/services/balances/models';
 import { TransactionTokenCard } from '../TransactionTokenCard';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
 import { TransactionType } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 export function NftCollectionSpendLimit({
   type,

@@ -25,6 +25,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
 
     const aggregatorService = {
       balances: {},
+      nfts: { [123]: {} },
       isBalancesCached: false,
     } as unknown as BalanceAggregatorService;
 
@@ -43,7 +44,10 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
       );
 
       expect(result).toEqual({
-        balances: aggregatorService.balances,
+        balances: {
+          tokens: aggregatorService.balances,
+          nfts: aggregatorService.nfts,
+        },
         isBalancesCached: aggregatorService.isBalancesCached,
       });
     });
@@ -82,6 +86,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
 
     const aggregatorService = {
       balances: {},
+      nfts: { [123]: {} },
       isBalancesCached: undefined,
     } as unknown as BalanceAggregatorService;
 
@@ -100,7 +105,10 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
       );
 
       expect(result).toEqual({
-        balances: aggregatorService.balances,
+        balances: {
+          tokens: aggregatorService.balances,
+          nfts: aggregatorService.nfts,
+        },
         isBalancesCached: aggregatorService.isBalancesCached,
       });
     });

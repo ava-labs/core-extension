@@ -1,18 +1,17 @@
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { NetworkService } from '../../network/NetworkService';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import {
-  Balances,
-  TokenWithBalanceAVM,
-  TokenWithBalancePVM,
-} from '../../balances/models';
+import { Balances } from '../../balances/models';
 import { PrimaryAccount } from '../../accounts/models';
-import BN from 'bn.js';
 import { Network } from '../../network/models';
 import { isString } from 'lodash';
 import { container } from 'tsyringe';
 import { HistoryServicePVM } from '../../history/HistoryServicePVM';
 import { HistoryServiceAVM } from '../../history/HistoryServiceAVM';
+import {
+  TokenWithBalanceAVM,
+  TokenWithBalancePVM,
+} from '@avalabs/vm-module-types';
 
 export const addXPChainToFavoriteIfNeeded = async (
   accounts: PrimaryAccount[]
@@ -26,7 +25,7 @@ export const addXPChainToFavoriteIfNeeded = async (
     accounts
   );
 
-  if (hasBalance(balances, accounts, ChainId.AVALANCHE_P)) {
+  if (hasBalance(balances.tokens, accounts, ChainId.AVALANCHE_P)) {
     await networkService.addFavoriteNetwork(ChainId.AVALANCHE_P);
   } else {
     const pChain = await networkService.getNetwork(ChainId.AVALANCHE_P);
@@ -44,7 +43,7 @@ export const addXPChainToFavoriteIfNeeded = async (
     }
   }
 
-  if (hasBalance(balances, accounts, ChainId.AVALANCHE_X)) {
+  if (hasBalance(balances.tokens, accounts, ChainId.AVALANCHE_X)) {
     await networkService.addFavoriteNetwork(ChainId.AVALANCHE_X);
   } else {
     const xChain = await networkService.getNetwork(ChainId.AVALANCHE_X);
@@ -104,6 +103,6 @@ function hasBalance(
       | TokenWithBalanceAVM
       | TokenWithBalancePVM;
 
-    return avaxBalance && avaxBalance.balance.gt(new BN(0));
+    return avaxBalance && avaxBalance.balance > 0n;
   });
 }

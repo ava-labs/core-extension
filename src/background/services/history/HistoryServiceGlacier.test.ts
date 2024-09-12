@@ -24,7 +24,7 @@ import { HistoryServiceGlacier } from './HistoryServiceGlacier';
 import { TransactionType, HistoryItemCategories } from './models';
 import { getSmallImageForNFT } from '../balances/nft/utils/getSmallImageForNFT';
 import { getNftMetadata } from '@src/utils/getNftMetadata';
-import { TokenType } from '../balances/models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 jest.mock('@src/utils/getExplorerAddress', () => ({
   getExplorerAddressByNetwork: jest.fn(),

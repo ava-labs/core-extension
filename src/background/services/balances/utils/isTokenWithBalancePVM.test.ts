@@ -1,11 +1,10 @@
-import BN from 'bn.js';
-import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import {
   TokenType,
   TokenWithBalanceAVM,
+  TokenWithBalanceBTC,
   TokenWithBalanceEVM,
   TokenWithBalancePVM,
-} from '../models';
+} from '@avalabs/vm-module-types';
 import { isTokenWithBalancePVM } from './isTokenWithBalancePVM';
 
 describe('src/background/services/balances/utils/isTokenWithBalancePVM.ts', () => {
@@ -13,32 +12,40 @@ describe('src/background/services/balances/utils/isTokenWithBalancePVM.ts', () =
     type: TokenType.NATIVE,
     name: 'Avalanche',
     symbol: 'AVAX',
-    balance: new BN(1),
+    balance: 1n,
+    balanceDisplayValue: '1',
+    coingeckoId: '',
     decimals: 9,
     description: 'description',
     logoUri: 'logoUri',
-    locked: 1,
-    unlocked: 2,
-    atomicMemoryUnlocked: 3,
-    atomicMemoryLocked: 4,
+    balancePerType: {
+      locked: 1,
+      unlocked: 2,
+      atomicMemoryUnlocked: 3,
+      atomicMemoryLocked: 4,
+    },
   };
 
   const tokenWithBalancePVM: TokenWithBalancePVM = {
     type: TokenType.NATIVE,
     name: 'Avalanche',
     symbol: 'AVAX',
-    balance: new BN(1),
+    balance: 1n,
+    balanceDisplayValue: '1',
+    coingeckoId: '',
     decimals: 9,
     description: 'description',
     logoUri: 'logoUri',
-    lockedStaked: 1,
-    lockedStakeable: 2,
-    lockedPlatform: 3,
-    atomicMemoryLocked: 4,
-    atomicMemoryUnlocked: 5,
-    unlockedUnstaked: 6,
-    unlockedStaked: 7,
-    pendingStaked: 8,
+    balancePerType: {
+      lockedStaked: 1,
+      lockedStakeable: 2,
+      lockedPlatform: 3,
+      atomicMemoryLocked: 4,
+      atomicMemoryUnlocked: 5,
+      unlockedUnstaked: 6,
+      unlockedStaked: 7,
+      pendingStaked: 8,
+    },
   };
 
   const tokenWithBalanceBTC: TokenWithBalanceBTC = {
@@ -58,7 +65,9 @@ describe('src/background/services/balances/utils/isTokenWithBalancePVM.ts', () =
     type: TokenType.NATIVE,
     name: 'Avalanche',
     symbol: 'AVAX',
-    balance: new BN(1),
+    balance: 1n,
+    balanceDisplayValue: '1',
+    coingeckoId: 'avax',
     decimals: 9,
     description: 'description',
     logoUri: 'logoUri',

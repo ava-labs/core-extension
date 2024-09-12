@@ -1,7 +1,7 @@
 import { Stack, Typography } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
-import { TokenWithBalanceAVM } from '@src/background/services/balances/models';
+import { TokenWithBalanceAVM } from '@avalabs/vm-module-types';
 
 interface XchainActiveNetworkWidgetContentProps {
   balances?: TokenWithBalanceAVM;

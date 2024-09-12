@@ -1,9 +1,3 @@
-import {
-  TokenType,
-  TokenWithBalance,
-  getBalanceInCurrency,
-  getUnconfirmedBalanceInCurrency,
-} from '@src/background/services/balances/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -24,6 +18,8 @@ import { TokenEllipsis } from '@src/components/common/TokenEllipsis';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
 import { hasUnconfirmedBalance } from '@src/utils/hasUnconfirmedBalance';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import { getUnconfirmedBalanceInCurrency } from '@src/background/services/balances/models';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
@@ -72,9 +68,7 @@ export function Assetlist({ assetList }: AssetListProps) {
 
   const filteredAssetList = assetList
     .filter((asset) => getTokenVisibility(asset))
-    .sort(
-      (a, b) => (getBalanceInCurrency(b) ?? 0) - (getBalanceInCurrency(a) ?? 0)
-    );
+    .sort((a, b) => (b.balanceInCurrency ?? 0) - (a.balanceInCurrency ?? 0));
 
   const restAssetCount = filteredAssetList.length - maxAssetCount;
 
@@ -88,9 +82,13 @@ export function Assetlist({ assetList }: AssetListProps) {
                 token.decimals,
                 token.symbol
               )
-            : new TokenUnit(token.balance, token.decimals, token.symbol);
+            : new TokenUnit(
+                token.balance,
+                'decimals' in token ? token.decimals : 0,
+                token.symbol
+              );
 
-        const balanceInCurrency = getBalanceInCurrency(token);
+        const balanceInCurrency = token.balanceInCurrency;
 
         return (
           <AssetlistRow

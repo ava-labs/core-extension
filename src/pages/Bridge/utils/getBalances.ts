@@ -1,14 +1,14 @@
 import { Asset, isBtcAsset, isNativeAsset } from '@avalabs/core-bridge-sdk';
 import { AssetBalance } from '@src/pages/Bridge/models';
-import {
-  TokenWithBalanceERC20,
-  TokenWithBalance,
-  TokenType,
-  getTokenPrice,
-} from '@src/background/services/balances/models';
 import { BridgeAsset } from '@avalabs/bridge-unified';
 import { isUnifiedBridgeAsset } from './isUnifiedBridgeAsset';
 import { normalizeBalance } from '@src/utils/normalizeBalance';
+import {
+  NetworkTokenWithBalance,
+  TokenType,
+  TokenWithBalance,
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
 
 /**
  * Get balances of wrapped erc20 tokens on Avalanche
@@ -20,8 +20,15 @@ export function getBalances(
   tokens: TokenWithBalance[]
 ): AssetBalance[] {
   const tokensByAddress = tokens.reduce<{
-    [address: string]: TokenWithBalanceERC20 | TokenWithBalance | undefined;
+    [address: string]:
+      | TokenWithBalanceERC20
+      | NetworkTokenWithBalance
+      | undefined;
   }>((tokensMap, token) => {
+    if (token.type !== TokenType.ERC20 && token.type !== TokenType.NATIVE) {
+      return tokensMap;
+    }
+
     if (token.type !== TokenType.ERC20) {
       tokensMap[token.symbol.toLowerCase()] = token;
       return tokensMap;
@@ -44,7 +51,7 @@ export function getBalances(
 
     const balance = token && normalizeBalance(token.balance, token.decimals);
     const logoUri = token?.logoUri;
-    const price = getTokenPrice(token);
+    const price = token?.priceInCurrency;
 
     return { symbol, asset, balance, logoUri, price };
   });

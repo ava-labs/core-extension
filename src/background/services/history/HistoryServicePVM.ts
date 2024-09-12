@@ -16,10 +16,10 @@ import { PchainTxHistoryItem, TxHistoryItemToken } from './models';
 import Big from 'big.js';
 import { getAvaxAssetId } from './utils/getAvaxAssetId';
 import { isEmpty } from 'lodash';
-import { TokenType } from '../balances/models';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { getTokenValue } from '../balances/utils/getTokenValue';
+import { TokenType } from '@avalabs/vm-module-types';
 
 @singleton()
 export class HistoryServicePVM {

@@ -25,7 +25,6 @@ import { ethers } from 'ethers';
 import type { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { TokenType } from '@src/background/services/balances/models';
 import { BN } from 'bn.js';
 import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useNetworkFeeContext } from '../NetworkFeeProvider';
@@ -39,6 +38,7 @@ import {
   hasParaswapError,
   DISALLOWED_SWAP_ASSETS,
 } from './models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 

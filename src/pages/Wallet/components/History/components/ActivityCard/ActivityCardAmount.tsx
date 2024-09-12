@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@avalabs/core-k2-components';
-import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
+import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
 import {
   TransactionType,
   TxHistoryItem,
@@ -54,7 +54,10 @@ export function ActivityCardAmount({ historyItem }: ActivityCardProp) {
         </Typography>
       </Stack>
     );
-  } else if (historyItem.tokens[0] && isNFT(historyItem.tokens[0]?.type)) {
+  } else if (
+    historyItem.tokens[0] &&
+    isNftTokenType(historyItem.tokens[0]?.type)
+  ) {
     return (
       <Typography>#{historyItem.tokens?.[0]?.collectableTokenId}</Typography>
     );
