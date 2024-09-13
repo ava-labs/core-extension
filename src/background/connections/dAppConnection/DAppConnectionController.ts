@@ -22,7 +22,6 @@ import { PermissionsService } from '@src/background/services/permissions/Permiss
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 
 import './registry';
-import { RPCCallsMiddleware } from '../middlewares/RPCCallsMiddleware';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { DAppRequestHandler } from './DAppRequestHandler';
 import { LockService } from '@src/background/services/lock/LockService';
@@ -76,7 +75,6 @@ export class DAppConnectionController implements ConnectionController {
       // @ts-ignore
       LoggerMiddleware(SideToLog.REQUEST),
       SiteMetadataMiddleware(connection),
-      RPCCallsMiddleware(this.networkService),
       PermissionMiddleware(
         this.permissionsService,
         this.accountsService,

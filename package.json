@@ -23,9 +23,9 @@
     "sentry": "node sentryscript.js"
   },
   "dependencies": {
+    "@avalabs/avalanche-module": "0.7.0",
     "@avalabs/avalanchejs": "4.0.5",
-    "@avalabs/bitcoin-module": "0.6.0",
-    "@avalabs/avalanche-module": "0.6.0",
+    "@avalabs/bitcoin-module": "0.7.0",
     "@avalabs/bridge-unified": "2.1.0",
     "@avalabs/core-bridge-sdk": "3.1.0-alpha.4",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.4",
@@ -37,11 +37,11 @@
     "@avalabs/core-token-prices-sdk": "3.1.0-alpha.4",
     "@avalabs/core-utils-sdk": "3.1.0-alpha.4",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.4",
-    "@avalabs/evm-module": "0.6.0",
+    "@avalabs/evm-module": "0.7.0",
     "@avalabs/glacier-sdk": "3.1.0-alpha.4",
     "@avalabs/hw-app-avalanche": "0.14.1",
     "@avalabs/types": "3.1.0-alpha.3",
-    "@avalabs/vm-module-types": "0.6.0",
+    "@avalabs/vm-module-types": "0.7.0",
     "@blockaid/client": "0.10.0",
     "@coinbase/cbpay-js": "1.6.0",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
@@ -251,7 +251,10 @@
       "@avalabs/evm-module": false,
       "@avalabs/bitcoin-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/bitcoin-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
-      "@avalabs/bitcoin-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
+      "@avalabs/bitcoin-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
+      "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
+      "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
+      "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
     }
   }
 }
