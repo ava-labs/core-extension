@@ -15,8 +15,6 @@ import {
 } from '@src/hooks/useIsFunctionAvailable';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { TokenWithBalanceEVM } from '@src/background/services/balances/models';
-import BN from 'bn.js';
 import { useTranslation } from 'react-i18next';
 import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwapError } from './components/SwapError';
@@ -37,6 +35,10 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isUserRejectionError } from '@src/utils/errors';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
+import {
+  NetworkTokenWithBalance,
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -114,7 +116,7 @@ export function Swap() {
 
   const fromAmount = useMemo(() => {
     const result =
-      destinationInputField === 'from' ? new BN(destAmount) : defaultFromValue;
+      destinationInputField === 'from' ? BigInt(destAmount) : defaultFromValue;
 
     return result;
   }, [defaultFromValue, destAmount, destinationInputField]);
@@ -122,15 +124,15 @@ export function Swap() {
   const toAmount = useMemo(() => {
     const result =
       destinationInputField === 'to' && destAmount
-        ? new BN(destAmount)
-        : toTokenValue?.bn;
+        ? BigInt(destAmount)
+        : toTokenValue?.bigint;
 
     return result;
   }, [destAmount, destinationInputField, toTokenValue]);
 
   const maxFromAmount = useMemo(() => {
     if (isLoading || destinationInputField === 'to') return undefined;
-    if (destinationInputField === 'from') return maxFromValue ?? new BN(0);
+    if (destinationInputField === 'from') return maxFromValue ?? 0n;
   }, [destinationInputField, isLoading, maxFromValue]);
 
   async function performSwap() {
@@ -248,7 +250,9 @@ export function Swap() {
         >
           <TokenSelect
             label={t('From')}
-            onTokenChange={(token: TokenWithBalanceEVM) => {
+            onTokenChange={(
+              token: NetworkTokenWithBalance | TokenWithBalanceERC20
+            ) => {
               onTokenChange({
                 token,
                 destination: 'to',
@@ -332,7 +336,9 @@ export function Swap() {
           </Stack>
           <TokenSelect
             label={t('To')}
-            onTokenChange={(token: TokenWithBalanceEVM) => {
+            onTokenChange={(
+              token: NetworkTokenWithBalance | TokenWithBalanceERC20
+            ) => {
               onTokenChange({
                 token,
                 fromToken: selectedFromToken,

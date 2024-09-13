@@ -21,15 +21,23 @@ import {
 import { resolve } from '@avalabs/core-utils-sdk';
 import { SettingsService } from '../settings/SettingsService';
 import { isFulfilled } from '@src/utils/typeUtils';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { groupTokensByType } from './utils/groupTokensByType';
+import { BalancesInfo } from './events/balancesUpdatedEvent';
 
 @singleton()
 export class BalanceAggregatorService implements OnLock, OnUnlock {
   #eventEmitter = new EventEmitter();
   #balances: Balances = {};
+  #nfts: Balances<NftTokenWithBalance> = {};
   #isBalancesCached = true;
 
   get balances() {
     return this.#balances;
+  }
+
+  get nfts() {
+    return this.#nfts;
   }
 
   get isBalancesCached() {
@@ -47,7 +55,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
   async getBalancesForNetworks(
     chainIds: number[],
     accounts: Account[]
-  ): Promise<Balances> {
+  ): Promise<{ tokens: Balances; nfts: Balances<NftTokenWithBalance> }> {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
     });
@@ -85,26 +93,42 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       )
       .map(({ chainId }) => chainId);
 
-    const freshBalances = updatedNetworks.reduce<Balances>(
+    const freshBalances = updatedNetworks.reduce<{
+      nfts: Balances<NftTokenWithBalance>;
+      tokens: Balances;
+    }>(
       (balances, balanceOfNetwork) => {
         const { chainId, networkBalances } = balanceOfNetwork;
-        balances[chainId] = networkBalances;
+
+        const networkBalancesByType = groupTokensByType(networkBalances);
+        balances.tokens[chainId] = networkBalancesByType.tokens;
+        balances.nfts[chainId] = networkBalancesByType.nfts;
 
         return balances;
       },
-      {}
+      { tokens: {}, nfts: {} }
     );
 
-    const aggregatedBalances = merge({}, this.balances, freshBalances);
+    const aggregatedBalances = merge({}, this.balances, freshBalances.tokens);
+    // NFTs don't have balance = 0, if they are sent they should be removed
+    // from the list, hence deep merge doesn't work
+    const aggregatedNfts = {
+      ...this.nfts,
+      ...freshBalances.nfts,
+    };
     const hasChanges = networksWithChanges.length > 0;
 
     if (hasChanges && !this.lockService.locked) {
       this.#balances = aggregatedBalances;
+      this.#nfts = aggregatedNfts;
 
       this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
-        balances: aggregatedBalances,
+        balances: {
+          tokens: aggregatedBalances,
+          nfts: aggregatedNfts,
+        },
         isBalancesCached: false,
-      });
+      } as BalancesInfo);
       await this.#updateCachedBalancesInfo();
     }
 
@@ -112,7 +136,10 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
     sentryTracker.finish();
 
-    return aggregatedBalances;
+    return {
+      tokens: aggregatedBalances,
+      nfts: aggregatedNfts,
+    };
   }
 
   getPriceChangesData = async () => {
@@ -204,9 +231,12 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     this.#isBalancesCached = true;
 
     this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
-      balances: this.#balances,
+      balances: {
+        tokens: this.#balances,
+        nfts: this.#nfts,
+      },
       isBalancesCached: true,
-    });
+    } as BalancesInfo);
   }
 
   addListener<T = unknown>(

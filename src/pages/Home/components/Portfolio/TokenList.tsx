@@ -10,10 +10,6 @@ import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
-import {
-  TokenType,
-  getBalanceInCurrency,
-} from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from '@src/components/common/VirtualizedList';
@@ -21,6 +17,7 @@ import { Button, Stack, styled } from '@avalabs/core-k2-components';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { normalizeBalance } from '@src/utils/normalizeBalance';
 import Big from 'big.js';
+import { TokenType } from '@avalabs/vm-module-types';
 
 const TokenRow = styled('div')`
   padding: 0 10px 0 16px;
@@ -41,9 +38,10 @@ export function TokenList({ searchQuery }: TokenListProps) {
     useIsFunctionAvailable(FunctionNames.MANAGE_TOKEN);
 
   const firstAsset = tokensWithBalances[0];
-  const firstAssetBalance = firstAsset
-    ? normalizeBalance(firstAsset.balance, firstAsset.decimals) ?? new Big(0)
-    : new Big(0);
+  const firstAssetBalance =
+    firstAsset && 'decimals' in firstAsset
+      ? normalizeBalance(firstAsset.balance, firstAsset.decimals) ?? new Big(0)
+      : new Big(0);
   const hasNoFunds =
     tokensWithBalances.length === 1 && firstAssetBalance.eq(new Big(0));
 
@@ -60,8 +58,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
       )
         .filter((token) => getTokenVisibility(token))
         .sort(
-          (a, b) =>
-            (getBalanceInCurrency(b) ?? 0) - (getBalanceInCurrency(a) ?? 0)
+          (a, b) => (b.balanceInCurrency ?? 0) - (a.balanceInCurrency ?? 0)
         ),
     [searchQuery, tokensWithBalances, getTokenVisibility]
   );
@@ -97,7 +94,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
           name={token.name}
           symbol={token.symbol}
           balanceDisplayValue={token.balanceDisplayValue}
-          balanceUSD={getBalanceInCurrency(token)?.toString()}
+          balanceInCurrency={token.balanceInCurrency?.toString()}
           priceChanges={token.priceChanges}
         >
           <TokenIcon

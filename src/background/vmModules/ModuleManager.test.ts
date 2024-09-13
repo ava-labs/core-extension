@@ -2,6 +2,68 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ModuleManager } from './ModuleManager';
 import { VMModuleError } from './models';
 import { ApprovalController } from './ApprovalController';
+
+jest.mock('@avalabs/bitcoin-module', () => {
+  return {
+    BitcoinModule: jest.fn().mockImplementation(() => {
+      return {
+        getManifest: jest.fn().mockReturnValue({
+          name: 'bitcoin',
+          network: {
+            chainIds: [],
+            namespaces: ['bip122'],
+          },
+          permissions: {
+            rpc: {
+              methods: ['bitcoin_*'],
+            },
+          },
+        }),
+      };
+    }),
+  };
+});
+jest.mock('@avalabs/evm-module', () => {
+  return {
+    EvmModule: jest.fn().mockImplementation(() => {
+      return {
+        getManifest: jest.fn().mockReturnValue({
+          name: 'evm',
+          network: {
+            chainIds: ['eip155:1'],
+            namespaces: [],
+          },
+          permissions: {
+            rpc: {
+              methods: ['eth_*'],
+            },
+          },
+        }),
+      };
+    }),
+  };
+});
+jest.mock('@avalabs/avalanche-module', () => {
+  return {
+    AvalancheModule: jest.fn().mockImplementation(() => {
+      return {
+        getManifest: jest.fn().mockReturnValue({
+          name: 'avm',
+          network: {
+            chainIds: [],
+            namespaces: ['avax'],
+          },
+          permissions: {
+            rpc: {
+              methods: ['avalanche_*'],
+            },
+          },
+        }),
+      };
+    }),
+  };
+});
+
 describe('ModuleManager', () => {
   let manager: ModuleManager;
   let controller: ApprovalController;
@@ -31,8 +93,23 @@ describe('ModuleManager', () => {
       const params = [
         {
           chainId: 'bip122:000000000019d6689c085ae165831e93',
+          method: 'bitcoin_signTransaction',
+          name: NetworkVMType.BITCOIN,
+        },
+        {
+          chainId: 'bip122:123123123',
           method: 'bitcoin_sendTransaction',
           name: NetworkVMType.BITCOIN,
+        },
+        {
+          chainId: 'eip155:1',
+          method: 'eth_sendTransaction',
+          name: NetworkVMType.EVM,
+        },
+        {
+          chainId: 'avax:1123',
+          method: 'avalanche_sendTransaction',
+          name: NetworkVMType.AVM,
         },
       ];
 

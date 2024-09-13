@@ -1,25 +1,18 @@
 import { Stack } from '@avalabs/core-k2-components';
 
-import {
-  TokenWithBalance,
-  getBalanceInCurrency,
-  getUnconfirmedBalanceInCurrency,
-} from '@src/background/services/balances/models';
+import { getUnconfirmedBalanceInCurrency } from '@src/background/services/balances/models';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 import { ActiveNetworkWidget } from './ActiveNetworkWidget';
 import { NetworkList } from './NetworkList';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
 
 export const tokensWithBalances = (tokenList?: TokenWithBalance[]) => {
   if (!tokenList) {
     return;
   }
 
-  return tokenList.filter((token) =>
-    typeof token.balance === 'bigint'
-      ? token.balance > 0
-      : !token.balance.isZero()
-  );
+  return tokenList.filter((token) => token.balance > 0);
 };
 
 export const getNetworkBalance = (assetList: TokenWithBalance[]) => {
@@ -27,7 +20,7 @@ export const getNetworkBalance = (assetList: TokenWithBalance[]) => {
     return (
       prevAssetUSD +
       (getUnconfirmedBalanceInCurrency(currentAsset) ?? 0) +
-      (getBalanceInCurrency(currentAsset) ?? 0)
+      (currentAsset.balanceInCurrency ?? 0)
     );
   }, 0);
   return sum;

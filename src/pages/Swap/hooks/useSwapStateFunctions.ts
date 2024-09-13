@@ -1,16 +1,18 @@
-import { TokenWithBalanceEVM } from '@src/background/services/balances/models';
 import { t } from 'i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Amount, DestinationInput, getTokenAddress } from '../utils';
-import { stringToBN } from '@avalabs/core-utils-sdk';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
-import BN from 'bn.js';
-import { bnToLocaleString } from '@avalabs/core-utils-sdk';
 import { useSwap } from './useSwap';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
+import {
+  NetworkTokenWithBalance,
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
+import { stringToBigint } from '@src/utils/stringToBigint';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 export function useSwapStateFunctions() {
   const tokensWBalances = useTokensWithBalances({
@@ -21,8 +23,8 @@ export function useSwapStateFunctions() {
     useSendAnalyticsData();
   const { getPageHistoryData } = usePageHistory();
   const pageHistory: {
-    selectedFromToken?: TokenWithBalanceEVM;
-    selectedToToken?: TokenWithBalanceEVM;
+    selectedFromToken?: NetworkTokenWithBalance | TokenWithBalanceERC20;
+    selectedToToken?: NetworkTokenWithBalance | TokenWithBalanceERC20;
     destinationInputField?: DestinationInput;
     tokenValue?: Amount;
   } = getPageHistoryData();
@@ -30,15 +32,18 @@ export function useSwapStateFunctions() {
   const [destinationInputField, setDestinationInputField] =
     useState<DestinationInput>('');
 
-  const [selectedFromToken, setSelectedFromToken] =
-    useState<TokenWithBalanceEVM>();
-  const [selectedToToken, setSelectedToToken] = useState<TokenWithBalanceEVM>();
+  const [selectedFromToken, setSelectedFromToken] = useState<
+    NetworkTokenWithBalance | TokenWithBalanceERC20
+  >();
+  const [selectedToToken, setSelectedToToken] = useState<
+    NetworkTokenWithBalance | TokenWithBalanceERC20
+  >();
   const [isReversed, setIsReversed] = useState(false);
   const [swapWarning, setSwapWarning] = useState('');
-  const [defaultFromValue, setFromDefaultValue] = useState<BN>();
+  const [defaultFromValue, setFromDefaultValue] = useState<bigint>();
   const [fromTokenValue, setFromTokenValue] = useState<Amount>();
   const [toTokenValue, setToTokenValue] = useState<Amount>();
-  const [maxFromValue, setMaxFromValue] = useState<BN | undefined>();
+  const [maxFromValue, setMaxFromValue] = useState<bigint | undefined>();
   const isHistoryLoaded = useRef<boolean>(false);
 
   const {
@@ -54,8 +59,8 @@ export function useSwapStateFunctions() {
     (
       amount: Amount,
       destinationInput: DestinationInput,
-      sourceToken?: TokenWithBalanceEVM,
-      destinationToken?: TokenWithBalanceEVM
+      sourceToken?: NetworkTokenWithBalance | TokenWithBalanceERC20,
+      destinationToken?: NetworkTokenWithBalance | TokenWithBalanceERC20
     ) => {
       if (!sourceToken || !destinationToken) {
         return;
@@ -95,22 +100,30 @@ export function useSwapStateFunctions() {
           }
         : undefined;
       setSelectedToToken(historyToToken);
-      const tokenValueBN =
-        pageHistory.tokenValue && pageHistory.tokenValue.bn
-          ? pageHistory.tokenValue.bn
-          : new BN(0);
+      const tokenValueBigint =
+        pageHistory.tokenValue && pageHistory.tokenValue.bigint
+          ? pageHistory.tokenValue.bigint
+          : 0n;
       if (pageHistory.destinationInputField === 'from') {
         setToTokenValue({
-          bn: tokenValueBN,
-          amount: bnToLocaleString(tokenValueBN),
+          bigint: tokenValueBigint,
+          amount: new TokenUnit(
+            tokenValueBigint,
+            pageHistory.selectedToToken?.decimals ?? 18,
+            ''
+          ).toDisplay(),
         });
       } else {
-        setFromDefaultValue(tokenValueBN);
+        setFromDefaultValue(tokenValueBigint);
       }
       calculateTokenValueToInput(
         {
-          bn: tokenValueBN,
-          amount: bnToLocaleString(tokenValueBN),
+          bigint: tokenValueBigint,
+          amount: new TokenUnit(
+            tokenValueBigint,
+            pageHistory.selectedToToken?.decimals ?? 18,
+            ''
+          ).toDisplay(),
         },
         pageHistory.destinationInputField || 'to',
         historyFromToken,
@@ -139,8 +152,8 @@ export function useSwapStateFunctions() {
     toToken,
     fromValue,
   }: {
-    fromToken?: TokenWithBalanceEVM;
-    toToken?: TokenWithBalanceEVM;
+    fromToken?: NetworkTokenWithBalance | TokenWithBalanceERC20;
+    toToken?: NetworkTokenWithBalance | TokenWithBalanceERC20;
     fromValue?: Amount;
   }) => {
     if (!fromToken || !toToken) {
@@ -149,7 +162,10 @@ export function useSwapStateFunctions() {
     const amount = fromValue
       ? ({
           amount: fromValue.amount || '0',
-          bn: stringToBN(fromValue.amount || '0', fromToken.decimals || 18),
+          bigint: stringToBigint(
+            fromValue.amount || '0',
+            fromToken.decimals || 18
+          ),
         } as Amount)
       : undefined;
     if (amount) {
@@ -161,8 +177,8 @@ export function useSwapStateFunctions() {
 
   const reverseTokens = (
     reversed: boolean,
-    fromToken?: TokenWithBalanceEVM,
-    toToken?: TokenWithBalanceEVM,
+    fromToken?: NetworkTokenWithBalance | TokenWithBalanceERC20,
+    toToken?: NetworkTokenWithBalance | TokenWithBalanceERC20,
     fromValue?: Amount
   ) => {
     if (
@@ -195,10 +211,10 @@ export function useSwapStateFunctions() {
     fromToken,
     fromValue,
   }: {
-    token: TokenWithBalanceEVM;
+    token: NetworkTokenWithBalance | TokenWithBalanceERC20;
     destination: 'from' | 'to';
-    toToken?: TokenWithBalanceEVM;
-    fromToken?: TokenWithBalanceEVM;
+    toToken?: NetworkTokenWithBalance | TokenWithBalanceERC20;
+    fromToken?: NetworkTokenWithBalance | TokenWithBalanceERC20;
     fromValue?: Amount;
   }) => {
     setSwapWarning('');
@@ -221,7 +237,7 @@ export function useSwapStateFunctions() {
   };
 
   const onFromInputAmountChange = (value: Amount) => {
-    setFromDefaultValue(value.bn);
+    setFromDefaultValue(value.bigint);
     setFromTokenValue(value as any);
     calculateTokenValueToInput(value, 'to', selectedFromToken, selectedToToken);
     setNavigationHistoryData({

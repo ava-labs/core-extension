@@ -23,15 +23,10 @@ import {
   useBridgeSDK,
   useGetTokenSymbolOnNetwork,
 } from '@avalabs/core-bridge-sdk';
-import { bigToBN, bigToLocaleString, bnToBig } from '@avalabs/core-utils-sdk';
+import { bigToBigInt, bigToLocaleString } from '@avalabs/core-utils-sdk';
 import Big from 'big.js';
-import BN from 'bn.js';
 
 import { TokenSelect } from '@src/components/common/TokenSelect';
-import {
-  TokenType,
-  TokenWithBalance,
-} from '@src/background/services/balances/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Network } from '@src/background/services/network/models';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
@@ -48,6 +43,8 @@ import { isUnifiedBridgeAsset } from '../utils/isUnifiedBridgeAsset';
 
 import { NetworkSelector } from './NetworkSelector';
 import { useHasEnoughForGas } from '../hooks/useHasEnoughtForGas';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import { bigintToBig } from '@src/utils/bigintToBig';
 
 function formatBalance(balance: Big | undefined) {
   return balance ? formatTokenAmount(balance, 6) : '-';
@@ -145,8 +142,8 @@ export const BridgeForm = ({
     return sourceBalance.asset.denomination;
   }, [sourceBalance]);
 
-  const amountBN = useMemo(
-    () => bigToBN(amount, denomination),
+  const amountBigint = useMemo(
+    () => bigToBigInt(amount, denomination),
     [amount, denomination]
   );
 
@@ -157,7 +154,7 @@ export const BridgeForm = ({
     return {
       type: TokenType.ERC20,
       balanceDisplayValue: formatBalance(sourceBalance.balance),
-      balance: bigToBN(sourceBalance.balance || BIG_ZERO, denomination),
+      balance: bigToBigInt(sourceBalance.balance || BIG_ZERO, denomination),
       decimals: denomination,
       priceUSD: price,
       logoUri: sourceBalance.logoUri,
@@ -178,7 +175,7 @@ export const BridgeForm = ({
       unconfirmedBalanceDisplayValue: formatBalance(
         sourceBalance.unconfirmedBalance
       ),
-      unconfirmedBalance: bigToBN(
+      unconfirmedBalance: bigToBigInt(
         sourceBalance.unconfirmedBalance || BIG_ZERO,
         denomination
       ),
@@ -282,8 +279,8 @@ export const BridgeForm = ({
   }, [formatCurrency, hasValidAmount, price, receiveAmount]);
 
   const handleAmountChanged = useCallback(
-    (value: { bn: BN; amount: string }) => {
-      const bigValue = bnToBig(value.bn, denomination);
+    (value: { bigint: bigint; amount: string }) => {
+      const bigValue = bigintToBig(value.bigint, denomination);
       setNavigationHistoryData({
         selectedTokenAddress: currentAssetAddress,
         selectedToken: currentAsset,
@@ -471,15 +468,17 @@ export const BridgeForm = ({
                       }}
                     >
                       <TokenSelect
-                        maxAmount={maximum && bigToBN(maximum, denomination)}
+                        maxAmount={
+                          maximum && bigToBigInt(maximum, denomination)
+                        }
                         bridgeTokensList={assetsWithBalances}
                         selectedToken={selectedTokenForTokenSelect}
                         onTokenChange={handleSelect}
                         inputAmount={
                           // Reset BNInput when programmatically setting the amount to zero
-                          !sourceBalance || amountBN.isZero()
+                          !sourceBalance || amountBigint === 0n
                             ? undefined
-                            : amountBN
+                            : amountBigint
                         }
                         onInputAmountChange={handleAmountChanged}
                         onSelectToggle={() => {

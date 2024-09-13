@@ -43,37 +43,17 @@ export class ModuleManager {
       : Environment.PRODUCTION;
 
     this.#modules = [
-      new BitcoinModule({
+      new EvmModule({
         environment,
         approvalController: this.#approvalController,
       }),
       new AvalancheModule({
         environment,
-        approvalController: {
-          requestApproval: () => {
-            throw new Error('not implemented');
-          },
-          onTransactionConfirmed: () => {
-            throw new Error('not implemented');
-          },
-          onTransactionReverted: () => {
-            throw new Error('not implemented');
-          },
-        },
+        approvalController: this.#approvalController,
       }),
-      new EvmModule({
+      new BitcoinModule({
         environment,
-        approvalController: {
-          requestApproval: () => {
-            throw new Error('not implemented');
-          },
-          onTransactionConfirmed: () => {
-            throw new Error('not implemented');
-          },
-          onTransactionReverted: () => {
-            throw new Error('not implemented');
-          },
-        },
+        approvalController: this.#approvalController,
       }),
     ];
   }

@@ -1,9 +1,4 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  TokenType,
-  TokenWithBalance,
-  NftTokenWithBalance,
-} from '@src/background/services/balances/models';
 import { LockWalletHandler } from '@src/background/services/lock/handlers/lockWallet';
 import { settingsUpdatedEventListener } from '@src/background/services/settings/events/listeners';
 import { GetSettingsHandler } from '@src/background/services/settings/handlers/getSettings';
@@ -35,6 +30,11 @@ import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { getCurrencyFormatter } from './utils/getCurrencyFormatter';
 import { updateIfDifferent } from '@src/utils/updateIfDifferent';
+import {
+  NftTokenWithBalance,
+  TokenType,
+  TokenWithBalance,
+} from '@avalabs/vm-module-types';
 
 type SettingsFromProvider = SettingsState & {
   lockWallet(): Promise<true>;

@@ -11,7 +11,7 @@ import {
   NftSendOptions,
   SendOptions,
 } from '../models';
-import { TokenType } from '@src/background/services/balances/models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 export const buildErc20Tx = async (
   from: string,

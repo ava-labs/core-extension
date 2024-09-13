@@ -1,4 +1,4 @@
-import { TokenType } from '@src/background/services/balances/models';
+import { TokenType } from '@avalabs/vm-module-types';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import Big from 'big.js';

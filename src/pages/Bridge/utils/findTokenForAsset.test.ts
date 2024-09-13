@@ -1,17 +1,13 @@
 import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { findTokenForAsset } from './findTokenForAsset';
-import {
-  TokenType,
-  TokenWithBalance,
-} from '@src/background/services/balances/models';
-import { BN } from 'bn.js';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 
 describe('src/pages/Bridge/utils/findTokenForAsset', () => {
   const token: TokenWithBalance = {
     type: TokenType.ERC20,
-    balance: new BN(0),
+    balance: 0n,
+    balanceDisplayValue: '0',
     address: '0x000',
-    contractType: 'ERC-20',
     name: 'Wrapped ETH',
     symbol: 'WETH.e',
     decimals: 1,
@@ -43,6 +39,7 @@ describe('src/pages/Bridge/utils/findTokenForAsset', () => {
       {
         ...token,
         type: TokenType.NATIVE,
+        coingeckoId: '',
         symbol: 'ETH',
         name: 'Ether',
         description: '',
@@ -53,6 +50,7 @@ describe('src/pages/Bridge/utils/findTokenForAsset', () => {
     expect(result).toEqual({
       ...token,
       type: TokenType.NATIVE,
+      coingeckoId: '',
       symbol: 'ETH',
       name: 'Ether',
       description: '',
@@ -67,6 +65,7 @@ describe('src/pages/Bridge/utils/findTokenForAsset', () => {
       {
         ...token,
         type: TokenType.NATIVE,
+        coingeckoId: '',
         symbol: 'ETH',
         name: 'Ether',
         description: '',

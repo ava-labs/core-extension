@@ -12,7 +12,6 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { BN } from 'bn.js';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useMemo, useState } from 'react';
 import { useGetTransaction } from './hooks/useGetTransaction';
@@ -22,10 +21,6 @@ import { useLedgerDisconnectedDialog } from './hooks/useLedgerDisconnectedDialog
 import { TransactionProgressState } from './models';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import {
-  NetworkTokenWithBalance,
-  TokenType,
-} from '@src/background/services/balances/models';
 import { Trans, useTranslation } from 'react-i18next';
 import { RawTransactionData } from './components/RawTransactionData';
 import { CustomFees } from '@src/components/common/CustomFees';
@@ -53,6 +48,7 @@ import { SpendLimitInfo } from './components/SpendLimitInfo/SpendLimitInfo';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import { TxWarningBox } from '@src/components/common/TxWarningBox';
+import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 export function SignTransactionPage() {
   const { t } = useTranslation();
@@ -94,14 +90,12 @@ export function SignTransactionPage() {
   ) as NetworkTokenWithBalance; // This screen only shows up for EVM
 
   const hasEnoughForNetworkFee = useMemo(() => {
-    return nativeTokenWithBalance?.balance.gte(
-      new BN(
-        (transaction?.displayData?.displayValues?.gas.maxFeePerGas
-          ? transaction.displayData?.displayValues?.gas.maxFeePerGas *
-            BigInt(transaction.displayData?.displayValues?.gas.gasLimit || 0n)
-          : 0n
-        ).toString()
-      )
+    return (
+      nativeTokenWithBalance?.balance >=
+      (transaction?.displayData?.displayValues?.gas.maxFeePerGas
+        ? transaction.displayData?.displayValues?.gas.maxFeePerGas *
+          BigInt(transaction.displayData?.displayValues?.gas.gasLimit || 0n)
+        : 0n)
     );
   }, [
     nativeTokenWithBalance?.balance,

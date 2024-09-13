@@ -1,4 +1,3 @@
-import BN from 'bn.js';
 import * as Sentry from '@sentry/browser';
 import { Network, NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
 
@@ -7,13 +6,13 @@ import { SettingsService } from '../settings/SettingsService';
 import { Account, AccountType } from '../accounts/models';
 
 import { BalanceAggregatorService } from './BalanceAggregatorService';
-import {
-  BALANCES_CACHE_KEY,
-  BalanceServiceEvents,
-  NetworkTokenWithBalance,
-  TokenType,
-} from './models';
+import { BALANCES_CACHE_KEY, BalanceServiceEvents } from './models';
 import { LockService } from '../lock/LockService';
+import {
+  NetworkTokenWithBalance,
+  NftTokenWithBalance,
+  TokenType,
+} from '@avalabs/vm-module-types';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');
@@ -111,19 +110,39 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   const network1TokenBalance: NetworkTokenWithBalance = {
     ...networkToken1,
     type: TokenType.NATIVE,
-    balance: new BN(100),
+    balance: 100n,
+    balanceDisplayValue: '0.00001',
+    coingeckoId: '',
+  };
+
+  const network1NftTokenBalance: NftTokenWithBalance = {
+    type: TokenType.ERC721,
+    balance: 100n,
+    balanceDisplayValue: '0.00001',
+    address: '0x1',
+    logoUri: 'logouri',
+    logoSmall: '',
+    tokenId: '123',
+    tokenUri: 'tokenuri',
+    collectionName: 'unknown',
+    description: '',
+    name: 'name',
+    symbol: '',
   };
 
   const balanceForNetwork1 = {
     [account1.addressC]: {
       [networkToken1.symbol]: network1TokenBalance,
+      ['0x1-123']: network1NftTokenBalance,
     },
   };
 
   const network2TokenBalance: NetworkTokenWithBalance = {
     ...networkToken2,
     type: TokenType.NATIVE,
-    balance: new BN(100),
+    balance: 100n,
+    balanceDisplayValue: '0.00001',
+    coingeckoId: '',
   };
 
   const balanceForNetwork2 = {
@@ -201,8 +220,24 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       );
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(2);
       const expected = {
-        [network1.chainId]: balanceForNetwork1,
-        [network2.chainId]: balanceForNetwork2,
+        tokens: {
+          [network1.chainId]: {
+            [account1.addressC]: {
+              [networkToken1.symbol]: network1TokenBalance,
+            },
+          },
+          [network2.chainId]: balanceForNetwork2,
+        },
+        nfts: {
+          [network1.chainId]: {
+            [account1.addressC]: {
+              '0x1-123': network1NftTokenBalance,
+            },
+          },
+          [network2.chainId]: {
+            [account1.addressC]: {},
+          },
+        },
       };
       expect(balances).toEqual(expected);
     });
@@ -214,8 +249,20 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       );
 
       const expected = {
-        [network1.chainId]: balanceForTwoAccounts,
-        [network2.chainId]: balanceForTwoAccounts,
+        tokens: {
+          [network1.chainId]: balanceForTwoAccounts,
+          [network2.chainId]: balanceForTwoAccounts,
+        },
+        nfts: {
+          [network1.chainId]: {
+            [account1.addressC]: {},
+            [account2.addressC]: {},
+          },
+          [network2.chainId]: {
+            [account1.addressC]: {},
+            [account2.addressC]: {},
+          },
+        },
       };
 
       expect(result).toEqual(expected);
@@ -264,17 +311,40 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       );
 
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(2);
-      const expected = {
-        [network1.chainId]: balanceForNetwork1,
+      const expectedTokens = {
+        [network1.chainId]: {
+          [account1.addressC]: {
+            [networkToken1.symbol]: network1TokenBalance,
+          },
+        },
         [network2.chainId]: balanceForNetwork2,
       };
-      expect(service.balances).toEqual(expected);
+      expect(service.balances).toEqual(expectedTokens);
+      expect(service.nfts).toEqual({
+        [network1.chainId]: {
+          [account1.addressC]: {
+            '0x1-123': network1NftTokenBalance,
+          },
+        },
+        [network2.chainId]: {
+          [account1.addressC]: {},
+        },
+      });
 
       expect(eventListener).toHaveBeenCalledTimes(1);
       expect(eventListener).toHaveBeenCalledWith({
         balances: {
-          [network1.chainId]: balanceForNetwork1,
-          [network2.chainId]: balanceForNetwork2,
+          tokens: expectedTokens,
+          nfts: {
+            [network1.chainId]: {
+              [account1.addressC]: {
+                '0x1-123': network1NftTokenBalance,
+              },
+            },
+            [network2.chainId]: {
+              [account1.addressC]: {},
+            },
+          },
         },
         isBalancesCached: false,
       });

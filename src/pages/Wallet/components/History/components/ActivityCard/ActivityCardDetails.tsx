@@ -5,7 +5,7 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
+import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useTranslation } from 'react-i18next';
 import { ActivityCardProp } from './ActivityCard';
@@ -54,7 +54,7 @@ export function ActivityCardDetails({ historyItem }: ActivityCardProp) {
     ((historyItem.txType === TransactionType.TRANSFER ||
       historyItem.txType === TransactionType.UNKNOWN) &&
       historyItem.tokens[0]?.type &&
-      isNFT(historyItem.tokens[0].type)) ||
+      isNftTokenType(historyItem.tokens[0].type)) ||
     historyItem.txType === TransactionType.NFT_BUY ||
     historyItem.txType === TransactionType.NFT_RECEIVE ||
     historyItem.txType === TransactionType.NFT_SEND ||

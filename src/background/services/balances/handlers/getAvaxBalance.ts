@@ -4,8 +4,9 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../../network/NetworkService';
-import { BalancesServiceEVM } from '../BalancesServiceEVM';
-import { NetworkTokenWithBalance } from '../models';
+import { BalancesService } from '../BalancesService';
+import { AccountType } from '../../accounts/models';
+import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCE_AVAX_GET,
@@ -19,7 +20,7 @@ export class GetAvaxBalanceHandler implements HandlerType {
 
   constructor(
     private networkService: NetworkService,
-    private balancesServiceEVM: BalancesServiceEVM
+    private balancesService: BalancesService
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -37,15 +38,34 @@ export class GetAvaxBalanceHandler implements HandlerType {
       };
     }
 
-    const balance = await this.balancesServiceEVM.getNativeTokenBalance(
-      provider,
-      address,
-      avalancheNetwork
+    const balances = await this.balancesService.getBalancesForNetwork(
+      avalancheNetwork,
+      [
+        // This handler is called during onboarding, when we don't have the accounts built yet,
+        // hence we're building it on-the-spot here.
+        {
+          addressC: address,
+          type: AccountType.IMPORTED,
+          id: '',
+          name: '',
+          addressBTC: '',
+        },
+      ]
     );
+
+    const nativeTokenWithBalance =
+      balances[address]?.[avalancheNetwork.networkToken.symbol];
+
+    if (nativeTokenWithBalance?.type !== TokenType.NATIVE) {
+      return {
+        ...request,
+        error: 'unable to fetch balance',
+      };
+    }
 
     return {
       ...request,
-      result: { balance },
+      result: { balance: nativeTokenWithBalance },
     };
   };
 }

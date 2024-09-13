@@ -10,9 +10,10 @@ import { parseBasicDisplayValues } from './utils/parseBasicDisplayValues';
 import { TransactionDescription } from 'ethers';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import {
+  NetworkTokenWithBalance,
   TokenType,
-  TokenWithBalanceEVM,
-} from '@src/background/services/balances/models';
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
 
 type ApproveData = {
   spender: string;
@@ -39,7 +40,7 @@ export async function approveTxHandler(
   const tokenToBeApproved = (await findToken(
     request.to.toLowerCase(),
     network
-  )) as TokenWithBalanceEVM;
+  )) as TokenWithBalanceERC20 | NetworkTokenWithBalance;
 
   const displayData = await parseBasicDisplayValues(
     network,
@@ -63,11 +64,11 @@ export async function approveTxHandler(
 
       amount: amount ? BigInt(amount) : undefined,
       usdValue:
-        amount && tokenToBeApproved.priceUSD
-          ? Number(tokenToBeApproved.priceUSD) *
+        amount && tokenToBeApproved.priceInCurrency
+          ? Number(tokenToBeApproved.priceInCurrency) *
             bigintToBig(BigInt(amount), tokenToBeApproved.decimals).toNumber()
           : undefined,
-      usdPrice: tokenToBeApproved.priceUSD,
+      usdPrice: tokenToBeApproved.priceInCurrency,
     },
     spender: {
       address: data.spender,

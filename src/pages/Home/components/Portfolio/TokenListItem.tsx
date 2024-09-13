@@ -6,7 +6,7 @@ interface TokenListItemProps {
   symbol: string;
   balanceDisplayValue?: string;
   children: any;
-  balanceUSD?: string;
+  balanceInCurrency?: string;
   onClick(): void;
   priceChanges?: {
     percentage?: number | undefined;
@@ -19,7 +19,7 @@ export function TokenListItem({
   symbol,
   balanceDisplayValue,
   children,
-  balanceUSD,
+  balanceInCurrency,
   onClick,
   priceChanges,
 }: TokenListItemProps) {
@@ -30,7 +30,7 @@ export function TokenListItem({
       symbol={symbol}
       onClick={onClick}
       balanceDisplayValue={balanceDisplayValue}
-      balanceUSD={balanceUSD}
+      balanceInCurrency={balanceInCurrency}
       currencyFormatter={currencyFormatter}
       priceChanges={priceChanges}
     >

@@ -1,16 +1,16 @@
 import { Card, Stack, Tooltip, Typography } from '@avalabs/core-k2-components';
 import { useEffect, useRef, useState } from 'react';
 import { PAndL } from './ProfitAndLoss';
-import { TokenWithBalance } from '@src/background/services/balances/models';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
 
 interface TokenCardProps {
   name: string;
   symbol: string;
   balanceDisplayValue?: string | number;
   children?: JSX.Element;
-  balanceUSD?: string;
+  balanceInCurrency?: string;
   onClick?(): void;
-  currencyFormatter?: (balanceUSD: number) => string;
+  currencyFormatter?: (balanceInCurrency: number) => string;
   currency?: string;
   priceChanges?: TokenWithBalance['priceChanges'];
 }
@@ -20,7 +20,7 @@ export function TokenCardWithBalance({
   balanceDisplayValue,
   symbol,
   onClick,
-  balanceUSD,
+  balanceInCurrency,
   children,
   currencyFormatter,
   currency,
@@ -94,11 +94,11 @@ export function TokenCardWithBalance({
                 {name}
               </Typography>
             </Tooltip>
-            {balanceUSD && (
+            {balanceInCurrency && (
               <Typography variant="body2">
                 {currencyFormatter
-                  ? currencyFormatter(Number(balanceUSD))
-                  : balanceUSD}
+                  ? currencyFormatter(Number(balanceInCurrency))
+                  : balanceInCurrency}
                 {currency && ` ${currency}`}
               </Typography>
             )}

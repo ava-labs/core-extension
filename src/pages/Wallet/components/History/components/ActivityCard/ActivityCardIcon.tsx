@@ -10,7 +10,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { TransactionType } from '@avalabs/vm-module-types';
-import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
+import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
 import { TxHistoryItem } from '@src/background/services/history/models';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
 import { useEffect, useState } from 'react';
@@ -82,7 +82,10 @@ export function ActivityCardIcon({ historyItem }: ActivityCardProp) {
 
       case TransactionType.TRANSFER:
       case TransactionType.UNKNOWN:
-        if (historyItem.tokens[0] && isNFT(historyItem.tokens[0]?.type)) {
+        if (
+          historyItem.tokens[0] &&
+          isNftTokenType(historyItem.tokens[0]?.type)
+        ) {
           setTxIcon(getNftIcon(historyItem));
         } else {
           setTxIcon(defaultIcon);

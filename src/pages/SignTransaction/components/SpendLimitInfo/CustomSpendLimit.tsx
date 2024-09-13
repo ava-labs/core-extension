@@ -1,4 +1,3 @@
-import BN from 'bn.js';
 import browser from 'webextension-polyfill';
 import { useState } from 'react';
 import {
@@ -125,7 +124,7 @@ export function CustomSpendLimit({
               <BNInput
                 disabled
                 withMaxButton={false}
-                value={new BN(requestedApprovalLimit?.toString() ?? '0')}
+                value={requestedApprovalLimit ?? 0n}
                 denomination={token.decimals}
                 fullWidth
               />
@@ -143,13 +142,13 @@ export function CustomSpendLimit({
                 onChange={(value) => {
                   setCustomSpendLimit({
                     ...customSpendLimit,
-                    value: BigInt(value.bn.toString()),
+                    value: value.bigint,
                     limitType: Limit.CUSTOM,
                   });
                 }}
                 denomination={token.decimals}
                 placeholder={t('Maximum Limit')}
-                value={new BN(customSpendLimit.value?.toString() ?? 0)} // TODO: properly handle zero (BNInput sees zero as an empty value)
+                value={customSpendLimit.value ?? 0n} // TODO: properly handle zero (BNInput sees zero as an empty value)
                 fullWidth
               />
             </Box>

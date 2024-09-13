@@ -10,7 +10,6 @@ import {
   TriangleRightIcon,
   ArrowsMaximizeIcon,
 } from '@avalabs/core-k2-components';
-import BN from 'bn.js';
 
 const NftImage = styled(ImageWithFallback)<{
   width?: string;
@@ -71,7 +70,7 @@ interface CollectibleMediaProps {
   className?: string;
   borderRadius?: string;
   showBalance?: boolean;
-  balance?: BN;
+  balance?: bigint;
   showExpandOption?: boolean;
   noAction?: boolean;
 }
@@ -89,7 +88,7 @@ export function CollectibleMedia({
   className,
   borderRadius = '8px',
   showBalance = false,
-  balance = new BN(0),
+  balance = 0n,
   showExpandOption = false,
   noAction = false,
 }: CollectibleMediaProps) {

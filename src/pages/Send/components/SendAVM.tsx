@@ -1,8 +1,6 @@
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { stringToBN } from '@avalabs/core-utils-sdk';
 
-import { TokenWithBalanceAVM } from '@src/background/services/balances/models';
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
 
 import { SendPagePropsWithWalletAVM } from '../models';
@@ -12,6 +10,8 @@ import { useQueryParams } from '@src/hooks/useQueryParams';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
 import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 import { useAvmSend } from '../hooks/useSend';
+import { TokenWithBalanceAVM } from '@avalabs/vm-module-types';
+import { stringToBigint } from '@src/utils/stringToBigint';
 
 export const SendAVM = ({
   network,
@@ -89,7 +89,8 @@ export const SendAVM = ({
   ]);
 
   const inputAmount = useMemo(
-    () => (amount ? stringToBN(amount, nativeToken?.decimals ?? 9) : undefined),
+    () =>
+      amount ? stringToBigint(amount, nativeToken?.decimals ?? 9) : undefined,
     [nativeToken, amount]
   );
 

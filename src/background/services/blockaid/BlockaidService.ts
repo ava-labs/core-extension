@@ -10,7 +10,6 @@ import {
   TransactionToken,
   TransactionType,
 } from '../wallet/handlers/eth_sendTransaction/models';
-import { TokenType } from '../balances/models';
 import {
   NftDetails,
   TokenDetails,
@@ -21,6 +20,7 @@ import {
 import { FeatureGates } from '../featureFlags/models';
 import { JsonRpcRequestPayload } from '@src/background/connections/dAppConnection/models';
 import { MessageType } from '../messages/models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BlockaidService {

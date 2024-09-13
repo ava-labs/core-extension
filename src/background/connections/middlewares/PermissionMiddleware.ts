@@ -101,6 +101,7 @@ const CORE_METHODS = Object.freeze([
   'avalanche_getBridgeState',
   'avalanche_selectAccount',
   'avalanche_setDeveloperMode',
+  DAppProviderRequest.ACCOUNT_RENAME,
   DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
   DAppProviderRequest.AVALANCHE_SIGN_TRANSACTION,
   DAppProviderRequest.AVALANCHE_SIGN_MESSAGE,

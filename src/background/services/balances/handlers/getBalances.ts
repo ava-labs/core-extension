@@ -16,12 +16,15 @@ export class GetBalancesHandler implements HandlerType {
   constructor(private networkBalancesService: BalanceAggregatorService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const { balances, isBalancesCached } = this.networkBalancesService;
+    const { balances, nfts, isBalancesCached } = this.networkBalancesService;
 
     return {
       ...request,
       result: {
-        balances,
+        balances: {
+          tokens: balances,
+          nfts: nfts,
+        },
         isBalancesCached,
       },
     };

@@ -4,9 +4,8 @@ import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import ERC721 from '@openzeppelin/contracts/build/contracts/ERC721.json';
 import ERC1155 from '@openzeppelin/contracts/build/contracts/ERC1155.json';
 
-import { TokenType } from '@src/background/services/balances/models';
-
 import * as builder from './buildSendTx';
+import { TokenType } from '@avalabs/vm-module-types';
 
 jest.mock('ethers');
 
