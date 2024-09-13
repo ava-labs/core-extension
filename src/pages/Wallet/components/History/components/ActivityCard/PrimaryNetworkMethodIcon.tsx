@@ -17,14 +17,15 @@ import {
   PChainTransactionType,
   XChainTransactionType,
 } from '@avalabs/glacier-sdk';
+import { TransactionType } from '@avalabs/vm-module-types';
 export interface PrimaryNetworkMethodIconProp {
   methodName:
+    | TransactionType
     | PChainTransactionType
     | XChainTransactionType
     | 'CreateAssetTx'
     | 'OperationTx';
 }
-
 const METHOD_NAME_TO_ICON: Record<
   | PChainTransactionType
   | XChainTransactionType
