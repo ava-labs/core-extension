@@ -1,8 +1,12 @@
-import { Transaction, TransactionType } from '@avalabs/vm-module-types';
+import {
+  NetworkVMType,
+  Transaction,
+  TransactionType,
+} from '@avalabs/vm-module-types';
 
 export interface TxHistoryItem extends Transaction {
   isBridge: boolean;
-  vmType?: 'PVM' | 'AVM';
+  vmType?: NetworkVMType;
 }
 
 export const NonContractCallTypes = [

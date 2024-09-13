@@ -68,6 +68,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     explorerLink: 'explorerLink',
     chainId: 'chainId',
     txType: TransactionType.SEND,
+    vmType: NetworkVMType.EVM,
   };
 
   const btcTxHistoryItem: TxHistoryItem = {
@@ -92,7 +93,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     explorerLink: 'explorerLink',
     chainId: 'chainId',
     txType: TransactionType.SEND,
-    vmType: undefined,
+    vmType: NetworkVMType.BITCOIN,
   };
 
   beforeEach(() => {

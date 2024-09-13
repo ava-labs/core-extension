@@ -1,5 +1,5 @@
 import { TxHistoryItem } from '../models';
-import { TokenType } from '@avalabs/vm-module-types';
+import { NetworkVMType, TokenType } from '@avalabs/vm-module-types';
 import { isPchainTxHistoryItem, isTxHistoryItem } from './isTxHistoryItem';
 import {
   PChainTransactionType,
@@ -53,13 +53,13 @@ describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
     explorerLink: 'explorerLink',
     chainId: 'chainId',
     txType: PChainTransactionType.BASE_TX,
-    vmType: 'PVM',
+    vmType: NetworkVMType.PVM,
   };
 
   const xchainTxHistoryItem: TxHistoryItem = {
     ...pchainTxHistoryItem,
     txType: XChainTransactionType.BASE_TX,
-    vmType: 'AVM',
+    vmType: NetworkVMType.AVM,
   };
 
   beforeEach(() => {
