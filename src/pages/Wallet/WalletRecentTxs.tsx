@@ -213,11 +213,13 @@ export function WalletRecentTxs({
     if (filter === FilterType.ALL) {
       return true;
     } else if (filter === FilterType.BRIDGE) {
-      return tx.txType === TransactionType.BRIDGE;
+      return tx.txType === TransactionType.BRIDGE || tx.isBridge;
     } else if (filter === FilterType.SWAP) {
       return tx.txType === TransactionType.SWAP;
     } else if (filter === FilterType.CONTRACT_CALL) {
-      return tx.isContractCall && tx.txType !== TransactionType.SWAP;
+      return (
+        tx.isContractCall && !tx.isBridge && tx.txType !== TransactionType.SWAP
+      );
     } else if (filter === FilterType.INCOMING) {
       return tx.isIncoming;
     } else if (filter === FilterType.OUTGOING) {

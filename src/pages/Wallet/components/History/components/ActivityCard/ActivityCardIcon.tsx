@@ -53,7 +53,6 @@ export function ActivityCardIcon({ historyItem }: ActivityCardProp) {
       return;
     }
 
-    // TODO: check the vmmodules for the type
     if (
       historyItem.txType === TransactionType.SEND &&
       historyItem.tokens[0]?.type === 'ERC1155'

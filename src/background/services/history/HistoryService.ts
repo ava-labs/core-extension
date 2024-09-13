@@ -1,10 +1,6 @@
 import { singleton } from 'tsyringe';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-
 import { NetworkWithCaipId } from '../network/models';
-import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
-import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
-
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { AccountsService } from '../accounts/AccountsService';
 import { TxHistoryItem } from './models';
@@ -12,6 +8,10 @@ import { HistoryServiceBridgeHelper } from './HistoryServiceBridgeHelper';
 import { Transaction } from '@avalabs/vm-module-types';
 import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
 import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
+import { resolve } from '@src/utils/promiseResolver';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 @singleton()
 export class HistoryService {
@@ -32,7 +32,19 @@ export class HistoryService {
       return [];
     }
 
-    const module = await this.moduleManager.loadModuleByNetwork(network);
+    const [module] = await resolve(
+      this.moduleManager.loadModuleByNetwork(network)
+    );
+
+    if (!module) {
+      sentryCaptureException(
+        new Error(
+          `Fetching history failed. Module not found for ${network.caipId}`
+        ),
+        SentryExceptionTypes.VM_MODULES
+      );
+      return [];
+    }
     const { transactions } = await module.getTransactionHistory({
       address,
       network,
@@ -41,21 +53,11 @@ export class HistoryService {
 
     const txHistoryItem = transactions.map((transaction) => {
       const isBridge = this.#getIsBirdge(network, transaction);
-      const vmType = this.#getVmType(network);
+      const vmType = network.vmName;
       return { ...transaction, vmType, isBridge };
     }) as TxHistoryItem[];
 
     return txHistoryItem;
-  }
-
-  #getVmType(network: NetworkWithCaipId) {
-    if (isPchainNetwork(network)) {
-      return 'PVM';
-    }
-    if (isXchainNetwork(network)) {
-      return 'AVM';
-    }
-    return undefined;
   }
 
   #getIsBirdge(network: NetworkWithCaipId, transaction: Transaction) {
