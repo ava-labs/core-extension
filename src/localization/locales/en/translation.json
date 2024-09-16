@@ -813,6 +813,7 @@
   "The secret key can be assigned by the Fireblocks workspace admin": "The secret key can be assigned by the Fireblocks workspace admin",
   "The transaction has been reverted": "The transaction has been reverted",
   "The transaction timed out": "The transaction timed out",
+  "There are invalid fields in the form": "There are invalid fields in the form",
   "There is no search result.": "There is no search result.",
   "There was a problem with the transfer": "There was a problem with the transfer",
   "These are the addresses derived from your Keystone device": "These are the addresses derived from your Keystone device",
