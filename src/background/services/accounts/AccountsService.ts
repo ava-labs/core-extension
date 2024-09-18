@@ -291,12 +291,10 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   getAccounts(): Accounts {
-    console.log('this.accounts: ', this.accounts);
     return this.accounts;
   }
 
   getAccountList(): Account[] {
-    console.log('getAccountList this.accounts: ', this.accounts);
     return [
       ...Object.values(this.accounts.primary).flat(),
       ...Object.values(this.accounts.imported),
@@ -328,7 +326,6 @@ export class AccountsService implements OnLock, OnUnlock {
     return this.getAccountList().flatMap(getAllAddressesForAccount);
   }
 
-  //TODO
   async addPrimaryAccount({ walletId }: AddAccountParams) {
     const selectedWalletAccounts = this.accounts.primary[walletId] ?? [];
     const lastAccount = selectedWalletAccounts.at(-1);
@@ -492,11 +489,10 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   async deleteAccounts(ids: string[]) {
-    console.log('ids: ', ids);
     const { active } = this.accounts;
 
     const walletIds = Object.keys(this.accounts.primary);
-    console.log('walletIds: ', walletIds);
+
     const accountsCount = Object.values(this.accounts.primary).flat().length;
     const importedAccountIds = ids.filter((id) => id in this.accounts.imported);
     const primaryAccountIds = ids.filter(

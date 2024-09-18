@@ -1,8 +1,12 @@
 import { omit, pick } from 'lodash';
-import { container, singleton } from 'tsyringe';
+import { singleton } from 'tsyringe';
 
-import { AccountsService } from '../accounts/AccountsService';
-import { AccountType, ImportData, ImportType } from '../accounts/models';
+import {
+  Account,
+  AccountType,
+  ImportData,
+  ImportType,
+} from '../accounts/models';
 import { StorageService } from '../storage/StorageService';
 import {
   BtcWalletPolicyDetails,
@@ -163,24 +167,33 @@ export class SecretsService {
     }
   }
 
-  //TODO: move to accountsSerivce
-  getActiveWalletSecrets(walletKeys: WalletSecretInStorage) {
-    const accountsService = container.resolve(AccountsService);
-
-    const activeWalletId = isPrimaryAccount(accountsService.activeAccount)
-      ? accountsService.activeAccount.walletId
-      : accountsService.activeAccount?.id;
+  getActiveWalletSecrets(
+    walletKeys: WalletSecretInStorage,
+    activeAccount?: Account
+  ) {
+    if (!activeAccount) {
+      return null;
+    }
+    const activeWalletId = isPrimaryAccount(activeAccount)
+      ? activeAccount.walletId
+      : activeAccount?.id;
 
     return walletKeys.wallets.find((wallet) => wallet.id === activeWalletId);
   }
 
-  async getPrimaryAccountSecrets() {
+  async getPrimaryAccountSecrets(activeAccount?: Account) {
+    if (!activeAccount) {
+      return null;
+    }
     const walletKeys = await this.#loadSecrets(false);
 
     if (!walletKeys) {
       return null;
     }
-    const activeWalletSecrets = this.getActiveWalletSecrets(walletKeys);
+    const activeWalletSecrets = this.getActiveWalletSecrets(
+      walletKeys,
+      activeAccount
+    );
 
     if (!activeWalletSecrets) {
       return null;
@@ -227,18 +240,14 @@ export class SecretsService {
     throw new Error('Unsupported import type');
   }
 
-  //TODO: move to accountsService
-  async getActiveAccountSecrets() {
+  async getActiveAccountSecrets(activeAccount: Account) {
     const walletKeys = await this.#loadSecrets(true);
 
-    // But later on, we rely on the active account only.
-    // To resolve circular dependencies we are  getting accounts service on the fly instead of via constructor
-    const accountsService = container.resolve(AccountsService);
-
-    const { activeAccount } = accountsService;
-
     if (!activeAccount || activeAccount.type === AccountType.PRIMARY) {
-      const activeWalletSecrets = this.getActiveWalletSecrets(walletKeys);
+      const activeWalletSecrets = this.getActiveWalletSecrets(
+        walletKeys,
+        activeAccount
+      );
 
       if (!activeWalletSecrets) {
         throw new Error('There is no values for this account');
@@ -332,9 +341,10 @@ export class SecretsService {
     masterFingerprint: string,
     hmacHex: string,
     name: string,
-    walletId: string
+    walletId: string,
+    activeAccount: Account
   ) {
-    const secrets = await this.getActiveAccountSecrets();
+    const secrets = await this.getActiveAccountSecrets(activeAccount);
 
     if (
       secrets.secretType !== SecretType.Ledger &&
@@ -405,10 +415,15 @@ export class SecretsService {
     );
   }
 
-  async getBtcWalletPolicyDetails(): Promise<
+  async getBtcWalletPolicyDetails(
+    activeAccount?: Account
+  ): Promise<
     { accountIndex: number; details?: BtcWalletPolicyDetails } | undefined
   > {
-    const secrets = await this.getActiveAccountSecrets();
+    if (!activeAccount) {
+      return undefined;
+    }
+    const secrets = await this.getActiveAccountSecrets(activeAccount);
 
     if (secrets.secretType === SecretType.LedgerLive && secrets.account) {
       const accountIndex = secrets.account.index;
@@ -428,13 +443,16 @@ export class SecretsService {
     }
   }
 
+  async loadSecrets() {
+    return await this.#loadSecrets(true);
+  }
+
   async #loadSecrets(strict: true): Promise<WalletSecretInStorage | never>;
   async #loadSecrets(strict: false): Promise<WalletSecretInStorage | null>;
   async #loadSecrets(strict: boolean): Promise<WalletSecretInStorage | null> {
     const walletKeys = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
-    console.log('walletKeys: ', walletKeys);
 
     if (!walletKeys && strict) {
       throw new Error('Wallet is not initialized');

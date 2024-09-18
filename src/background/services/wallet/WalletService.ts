@@ -59,6 +59,7 @@ import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { Network } from '../network/models';
+import { AccountsService } from '../accounts/AccountsService';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -71,7 +72,8 @@ export class WalletService implements OnLock, OnUnlock {
     private keystoneService: KeystoneService,
     private walletConnectService: WalletConnectService,
     private fireblocksService: FireblocksService,
-    private secretService: SecretsService
+    private secretService: SecretsService,
+    private accountsService: AccountsService
   ) {}
 
   public get wallets(): WalletDetails[] {
@@ -168,7 +170,12 @@ export class WalletService implements OnLock, OnUnlock {
     tabId?: number;
     accountIndex?: number;
   }) {
-    const secrets = await this.secretService.getActiveAccountSecrets();
+    if (!this.accountsService.activeAccount) {
+      return;
+    }
+    const secrets = await this.secretService.getActiveAccountSecrets(
+      this.accountsService.activeAccount
+    );
     if (!secrets.account) {
       // wallet is not initialized
       return;
@@ -562,7 +569,12 @@ export class WalletService implements OnLock, OnUnlock {
    * @throws Will throw error for LedgerLive accounts that have not been added yet.
    */
   async getActiveAccountPublicKey(): Promise<PubKeyType> {
-    const secrets = await this.secretService.getActiveAccountSecrets();
+    if (!this.accountsService.activeAccount) {
+      throw new Error('There is no active account');
+    }
+    const secrets = await this.secretService.getActiveAccountSecrets(
+      this.accountsService.activeAccount
+    );
 
     if (secrets.secretType === SecretType.Fireblocks) {
       // TODO: We technically can fetch some public keys using the API,
@@ -797,7 +809,9 @@ export class WalletService implements OnLock, OnUnlock {
     isChange: boolean
   ) {
     const provXP = await this.networkService.getAvalanceProviderXP();
-    const secrets = await this.secretService.getPrimaryAccountSecrets();
+    const secrets = await this.secretService.getPrimaryAccountSecrets(
+      this.accountsService.activeAccount
+    );
 
     if (!secrets || !secrets.xpubXP) {
       return [];
@@ -819,7 +833,9 @@ export class WalletService implements OnLock, OnUnlock {
   }
 
   private async parseWalletPolicyDetails() {
-    const policyInfo = await this.secretService.getBtcWalletPolicyDetails();
+    const policyInfo = await this.secretService.getBtcWalletPolicyDetails(
+      this.accountsService.activeAccount
+    );
 
     if (!policyInfo || !policyInfo.details) {
       throw new Error('Error while parsing wallet policy: missing data.');
