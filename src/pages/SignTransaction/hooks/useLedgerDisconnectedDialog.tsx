@@ -48,14 +48,14 @@ export function useLedgerDisconnectedDialog(
   const showLedgerDisconnectedDialog = useCallback(() => {
     showDialog({
       title: t('Ledger Disconnected'),
-      content: <LedgerDisconnected />,
+      content: <LedgerDisconnected requiredAppType={requiredAppType} />,
       open: true,
       onClose: () => {
         onCancel();
         clearDialog();
       },
     });
-  }, [clearDialog, onCancel, showDialog, t]);
+  }, [clearDialog, onCancel, requiredAppType, showDialog, t]);
 
   const showIncorrectAppDialog = useCallback(() => {
     showDialog({
