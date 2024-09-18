@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ManageTokensList } from './ManageTokensList';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
@@ -44,9 +43,7 @@ export const ManageTokens = () => {
             <Typography sx={{ mx: 1 }}>{t('Add Custom Token')}</Typography>
           </Stack>
         </Button>
-        <Scrollbars style={{ marginBottom: '16px' }}>
-          <ManageTokensList searchQuery={searchQuery} />
-        </Scrollbars>
+        <ManageTokensList searchQuery={searchQuery} />
       </Stack>
     </Stack>
   );
