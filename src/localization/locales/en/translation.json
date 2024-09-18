@@ -183,7 +183,7 @@
   "Connect Software Wallet": "Connect Software Wallet",
   "Connect the Ledger device to your computer.": "Connect the Ledger device to your computer.",
   "Connect your Ledger": "Connect your Ledger",
-  "Connect your Ledger device and open the <bold>Avalanche App</bold> to approve this transaction": "Connect your Ledger device and open the <bold>Avalanche App</bold> to approve this transaction",
+  "Connect your Ledger device and open the <bold>{{appType}} App</bold> to approve this transaction": "Connect your Ledger device and open the <bold>{{appType}} App</bold> to approve this transaction",
   "Connect your Wallet": "Connect your Wallet",
   "Connect your wallet via the <br /> \"Connect Wallet\" button on the site": "Connect your wallet via the <br /> \"Connect Wallet\" button on the site",
   "Connected": "Connected",
