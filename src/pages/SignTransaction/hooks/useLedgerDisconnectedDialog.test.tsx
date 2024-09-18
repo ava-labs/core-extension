@@ -132,7 +132,9 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
       expect(translationMock).toBeCalledWith(translation);
       expect(showDialogMock).toBeCalledWith({
         title: translation,
-        content: <LedgerDisconnected />,
+        content: (
+          <LedgerDisconnected requiredAppType={LedgerAppType.AVALANCHE} />
+        ),
         open: true,
         onClose: expect.any(Function),
       });
