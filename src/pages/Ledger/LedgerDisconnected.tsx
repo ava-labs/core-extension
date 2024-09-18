@@ -8,8 +8,13 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
 import { tabs } from 'webextension-polyfill';
+import { LedgerAppType } from '@src/contexts/LedgerProvider';
 
-export const LedgerDisconnected = () => {
+export const LedgerDisconnected = ({
+  requiredAppType,
+}: {
+  requiredAppType: LedgerAppType;
+}) => {
   const { t } = useTranslation();
   const openTroubleshootingPopup = useCallback(() => {
     // Open in a full screen tab to avoid popup hell
@@ -29,9 +34,12 @@ export const LedgerDisconnected = () => {
         }}
       >
         <Trans
-          i18nKey="Connect your Ledger device and open the <bold>Avalanche App</bold> to approve this transaction"
+          i18nKey="Connect your Ledger device and open the <bold>{{appType}} App</bold> to approve this transaction"
           components={{
             bold: <Box component="span" sx={{ fontWeight: 600 }} />,
+          }}
+          values={{
+            appType: requiredAppType ?? LedgerAppType.AVALANCHE,
           }}
         />
       </Typography>
