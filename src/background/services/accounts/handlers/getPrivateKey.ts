@@ -7,6 +7,7 @@ import { AccountType, GetPrivateKeyErrorTypes } from '../models';
 import { utils } from '@avalabs/avalanchejs';
 import { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
+import { AccountsService } from '../AccountsService';
 
 interface GetPrivateKeyHandlerParamsProps {
   type: SecretType.Mnemonic | AccountType.IMPORTED;
@@ -27,7 +28,8 @@ export class GetPrivateKeyHandler implements HandlerType {
 
   constructor(
     private secretService: SecretsService,
-    private lockService: LockService
+    private lockService: LockService,
+    private accountsService: AccountsService
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -85,8 +87,9 @@ export class GetPrivateKeyHandler implements HandlerType {
         }
       }
 
-      const primaryAccount =
-        await this.secretService.getPrimaryAccountSecrets();
+      const primaryAccount = await this.secretService.getPrimaryAccountSecrets(
+        this.accountsService.activeAccount
+      );
 
       if (
         !primaryAccount ||

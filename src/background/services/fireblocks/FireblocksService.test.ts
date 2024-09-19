@@ -11,6 +11,7 @@ import sentryCaptureException, {
 } from '@src/monitoring/sentryCaptureException';
 import { CommonError } from '@src/utils/errors';
 import { ethErrors } from 'eth-rpc-errors';
+import { AccountsService } from '../accounts/AccountsService';
 
 jest.mock('ethers');
 jest.mock('../accounts/AccountsService');
@@ -59,8 +60,20 @@ const mockResponsesByPath =
   };
 
 describe('src/background/services/fireblocks/FireblocksService', () => {
+  const accountsService = new AccountsService(
+    {} as any,
+    {} as any,
+    {} as any,
+    {} as any,
+    {} as any,
+    {} as any,
+    {} as any
+  );
   const secretsService = jest.mocked(new SecretsService({} as any));
-  const secretsProvider = new FireblocksSecretsService(secretsService);
+  const secretsProvider = new FireblocksSecretsService(
+    secretsService,
+    accountsService
+  );
   let service: FireblocksService;
 
   beforeEach(() => {

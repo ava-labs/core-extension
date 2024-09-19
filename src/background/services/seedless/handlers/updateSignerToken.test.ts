@@ -3,9 +3,11 @@ import { UpdateSignerTokenHandler } from './updateSignerToken';
 import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { AccountsService } from '../../accounts/AccountsService';
 
 describe('src/background/services/seedless/handlers/updateSignerToken', () => {
   let secretsService;
+  let accountsService;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -16,6 +18,15 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       }),
       updateSecrets: jest.fn().mockResolvedValue('walletId'),
     } as any);
+    accountsService = new AccountsService(
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any
+    );
   });
 
   it('returns error when token is missing', async () => {
@@ -23,7 +34,8 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       {
         hasTokenExpired: true,
       } as any,
-      secretsService
+      secretsService,
+      accountsService
     );
 
     const result = await handler.handle(
@@ -42,7 +54,8 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       {
         hasTokenExpired: true,
       } as any,
-      secretsService
+      secretsService,
+      accountsService
     );
 
     const token = { token: 'bla bla bla' } as any;
@@ -63,7 +76,8 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       {
         hasTokenExpired: true,
       } as any,
-      secretsService
+      secretsService,
+      accountsService
     );
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
@@ -91,7 +105,8 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       {
         hasTokenExpired: true,
       } as any,
-      secretsService
+      secretsService,
+      accountsService
     );
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
@@ -111,7 +126,8 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       {
         hasTokenExpired: true,
       } as any,
-      secretsService
+      secretsService,
+      accountsService
     );
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
@@ -135,7 +151,8 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       {
         updateSignerToken,
       } as any,
-      secretsService
+      secretsService,
+      accountsService
     );
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
@@ -157,7 +174,8 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       {
         updateSignerToken,
       } as any,
-      secretsService
+      secretsService,
+      accountsService
     );
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
@@ -189,7 +207,8 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       {
         updateSignerToken,
       } as any,
-      secretsService
+      secretsService,
+      accountsService
     );
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;
@@ -222,7 +241,8 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       {
         updateSignerToken,
       } as any,
-      secretsService
+      secretsService,
+      accountsService
     );
 
     const token = { token: 'bla bla bla', session_info: { bla: 'bla' } } as any;

@@ -11,6 +11,7 @@ import { SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { PubKeyType } from '../../wallet/models';
 import { LedgerService } from '../LedgerService';
+import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_MIGRATE_MISSING_PUBKEYS,
@@ -23,12 +24,18 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
 
   constructor(
     private secretsService: SecretsService,
-    private ledgerService: LedgerService
+    private ledgerService: LedgerService,
+    private accountsService: AccountsService
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     try {
-      const secrets = await this.secretsService.getActiveAccountSecrets();
+      if (!this.accountsService.activeAccount) {
+        throw new Error('There is no active account');
+      }
+      const secrets = await this.secretsService.getActiveAccountSecrets(
+        this.accountsService.activeAccount
+      );
       if (
         secrets.secretType !== SecretType.Ledger &&
         secrets.secretType !== SecretType.LedgerLive

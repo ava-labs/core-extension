@@ -9,6 +9,7 @@ import { AccountWithSecrets, SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { StoreBtcWalletPolicyDetails } from './storeBtcWalletPolicyDetails';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { AccountsService } from '../../accounts/AccountsService';
 
 jest.mock('@avalabs/core-wallets-sdk');
 
@@ -28,6 +29,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     isMainnet: () => false,
   } as any;
 
+  const accountsServiceMock = jest.mocked({} as unknown as AccountsService);
+
   beforeEach(() => {
     jest.resetAllMocks();
   });
@@ -39,7 +42,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock
     );
 
     await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
@@ -56,7 +60,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     } as AccountWithSecrets);
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock
     );
 
     await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
@@ -76,7 +81,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock
     );
 
     await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
@@ -99,7 +105,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock
     );
 
     const result = await handler.handle(buildRpcCall(request));
@@ -131,7 +138,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock
     );
 
     const result = await handler.handle(buildRpcCall(request));
@@ -174,7 +182,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock
     );
 
     const result = await handler.handle(buildRpcCall(request));

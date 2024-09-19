@@ -169,11 +169,8 @@ export class SecretsService {
 
   getActiveWalletSecrets(
     walletKeys: WalletSecretInStorage,
-    activeAccount?: Account
+    activeAccount: Account
   ) {
-    if (!activeAccount) {
-      return null;
-    }
     const activeWalletId = isPrimaryAccount(activeAccount)
       ? activeAccount.walletId
       : activeAccount?.id;
@@ -453,6 +450,7 @@ export class SecretsService {
     const walletKeys = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
+    console.log('walletKeys: ', walletKeys);
 
     if (!walletKeys && strict) {
       throw new Error('Wallet is not initialized');

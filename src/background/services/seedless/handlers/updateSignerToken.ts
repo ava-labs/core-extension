@@ -8,6 +8,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { SeedlessSessionManager } from '../SeedlessSessionManager';
 import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
+import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
@@ -21,7 +22,8 @@ export class UpdateSignerTokenHandler implements HandlerType {
 
   constructor(
     private sessionMgr: SeedlessSessionManager,
-    private secretsService: SecretsService
+    private secretsService: SecretsService,
+    private accountsService: AccountsService
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -40,8 +42,13 @@ export class UpdateSignerTokenHandler implements HandlerType {
     if (!userId) {
       return { ...request, error: 'missing user ID' };
     }
+    if (!this.accountsService.activeAccount) {
+      return { ...request, error: 'missing active account' };
+    }
 
-    const secrets = await this.secretsService.getActiveAccountSecrets();
+    const secrets = await this.secretsService.getActiveAccountSecrets(
+      this.accountsService.activeAccount
+    );
 
     if (secrets.secretType !== SecretType.Seedless) {
       return {

@@ -22,12 +22,16 @@ export class SeedlessTokenStorage implements SignerSessionStorage {
   }
 
   async retrieve(): Promise<SignerSessionData> {
-    const secrets = await this.secretsService.getActiveAccountSecrets();
+    const secrets = await this.secretsService.loadSecrets();
 
-    if (secrets.secretType !== SecretType.Seedless) {
+    const seedlessSecrets = secrets.wallets.find(
+      (wallet) => wallet.secretType === SecretType.Seedless
+    );
+
+    if (!seedlessSecrets) {
       throw new Error('Incorrect secrets format found');
     }
 
-    return secrets.seedlessSignerToken;
+    return seedlessSecrets.seedlessSignerToken;
   }
 }

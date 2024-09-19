@@ -3,6 +3,7 @@ import { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { GetUnencryptedMnemonicHandler } from './getUnencryptedMnemonic';
+import { AccountsService } from '../../accounts/AccountsService';
 
 describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', () => {
   const lockService: jest.Mocked<LockService> = {
@@ -11,9 +12,22 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
   const secretsService: jest.Mocked<SecretsService> = {
     getActiveAccountSecrets: jest.fn(),
   } as any;
+  const accountsService = new AccountsService(
+    {} as any,
+    {} as any,
+    {} as any,
+    {} as any,
+    {} as any,
+    {} as any,
+    {} as any
+  );
 
   const buildHandler = () =>
-    new GetUnencryptedMnemonicHandler(secretsService, lockService);
+    new GetUnencryptedMnemonicHandler(
+      secretsService,
+      lockService,
+      accountsService
+    );
 
   it('returns error if password is invalid', async () => {
     lockService.verifyPassword.mockResolvedValue(false);
