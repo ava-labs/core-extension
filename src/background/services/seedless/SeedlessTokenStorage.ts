@@ -28,7 +28,7 @@ export class SeedlessTokenStorage implements SignerSessionStorage {
       (wallet) => wallet.secretType === SecretType.Seedless
     );
 
-    if (!seedlessSecrets) {
+    if (!seedlessSecrets || !('seedlessSignerToken' in seedlessSecrets)) {
       throw new Error('Incorrect secrets format found');
     }
 
