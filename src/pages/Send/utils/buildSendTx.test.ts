@@ -189,7 +189,7 @@ describe('src/pages/Send/utils/buildSendTx', () => {
       expect(builder.buildNativeTx(from, options)).toEqual({
         from,
         to: options.address,
-        value: stringToBN(options.amount, options.token.decimals).toString(),
+        value: '0x2bdc545d587500',
       });
     });
   });

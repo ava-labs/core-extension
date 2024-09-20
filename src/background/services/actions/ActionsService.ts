@@ -212,6 +212,26 @@ export class ActionsService implements OnStorageReady {
     }
   }
 
+  async updateTx(
+    id: string,
+    newData: { maxFeeRate?: bigint; maxTipRate?: bigint; data?: string }
+  ) {
+    const currentPendingRequests = await this.getActions();
+    const pendingRequest = currentPendingRequests[id];
+
+    if (!pendingRequest) {
+      throw new Error(`No request found with id: ${id}`);
+    }
+
+    await this.saveActions({
+      ...currentPendingRequests,
+      [id]: {
+        ...pendingRequest,
+        signingData: this.approvalController.updateTx(id, newData),
+      },
+    });
+  }
+
   addListener(
     event: ActionsEvent.ACTION_COMPLETED,
     callback: (data: {

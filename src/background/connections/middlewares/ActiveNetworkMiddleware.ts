@@ -7,6 +7,7 @@ import {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
 } from '../models';
+import { ethErrors } from 'eth-rpc-errors';
 
 export function ActiveNetworkMiddleware(
   networkService: NetworkService
@@ -25,6 +26,18 @@ export function ActiveNetworkMiddleware(
       if (!network) {
         error(new Error(`Unrecognized network: ${scope}`));
         return;
+      }
+
+      if (
+        Boolean(network.isTestnet) !==
+        Boolean(networkService.uiActiveNetwork?.isTestnet)
+      ) {
+        error(
+          ethErrors.rpc.invalidParams({
+            message: 'Provided ChainID is in a different environment',
+            data: { chainId: network.chainId },
+          })
+        );
       }
 
       context.network = network;

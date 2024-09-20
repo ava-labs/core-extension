@@ -5,6 +5,7 @@ import {
   ApprovalController as IApprovalController,
   RpcError,
   RpcMethod,
+  SigningData,
 } from '@avalabs/vm-module-types';
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { rpcErrors, JsonRpcError, providerErrors } from '@metamask/rpc-errors';
@@ -13,14 +14,13 @@ import { buildBtcTx } from '@src/utils/send/btcSendUtils';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 import { WalletService } from '../services/wallet/WalletService';
-import { Action } from '../services/actions/models';
+import { Action, ActionStatus } from '../services/actions/models';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
 import { NetworkService } from '../services/network/NetworkService';
 import { NetworkWithCaipId } from '../services/network/models';
 
 import { ApprovalParamsWithContext } from './models';
-import { buildBtcSendTransactionAction } from './helpers/buildBtcSendTransactionAction';
-import { EnsureDefined } from '../models';
+import { ACTION_HANDLED_BY_MODULE } from '../models';
 
 @singleton()
 export class ApprovalController implements IApprovalController {
@@ -136,18 +136,32 @@ export class ApprovalController implements IApprovalController {
     );
     if (actionError) return { error: actionError };
 
-    const action = (await openApprovalWindow(
-      preparedAction,
-      'approve/generic'
-    )) as EnsureDefined<Action, 'actionId'>;
+    const action = await openApprovalWindow(preparedAction, 'approve/generic');
 
     return new Promise((resolve) => {
-      this.#requests.set(action.actionId, {
+      this.#requests.set(action.actionId as string, {
         params,
         network,
         resolve,
       });
     });
+  };
+
+  updateTx = (
+    id: string,
+    newData: { maxFeeRate?: bigint; maxTipRate?: bigint; data?: string }
+  ): SigningData => {
+    const request = this.#requests.get(id);
+
+    if (!request) {
+      throw new Error(`No request found with id: ${id}`);
+    }
+
+    if (!request.params.updateTx) {
+      throw new Error(`No fee updater provided`);
+    }
+
+    return request.params.updateTx(newData);
   };
 
   #try<F extends (...args: any) => any>(
@@ -171,7 +185,11 @@ export class ApprovalController implements IApprovalController {
   ) => {
     const { signingData } = action;
 
-    if (signingData?.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
+    if (!signingData) {
+      throw new Error('No signing data provided');
+    }
+
+    if (signingData.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
       const { inputs, outputs } = await buildBtcTx(
         signingData.account,
         getProviderForNetwork(network) as BitcoinProvider,
@@ -190,16 +208,26 @@ export class ApprovalController implements IApprovalController {
       return await this.#walletService.sign({ inputs, outputs }, network);
     }
 
+    if (signingData.type === RpcMethod.ETH_SEND_TRANSACTION) {
+      return await this.#walletService.sign(signingData.data, network);
+    }
+
     throw new Error('Unrecognized method: ' + params.request.method);
   };
 
   #buildAction = (params: ApprovalParamsWithContext): Action => {
-    if (params.signingData.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
-      return buildBtcSendTransactionAction(params);
-    }
-
-    throw rpcErrors.methodNotSupported({
-      data: params.request.method,
-    });
+    return {
+      [ACTION_HANDLED_BY_MODULE]: true,
+      dappInfo: params.request.dappInfo,
+      signingData: params.signingData,
+      context: params.request.context,
+      status: ActionStatus.PENDING,
+      tabId: params.request.context?.tabId,
+      params: params.request.params,
+      displayData: params.displayData,
+      scope: params.request.chainId,
+      id: params.request.requestId,
+      method: params.request.method,
+    };
   };
 }

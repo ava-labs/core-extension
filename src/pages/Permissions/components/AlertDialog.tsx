@@ -6,7 +6,6 @@ import {
   useTheme,
   RemoveModeratorIcon,
 } from '@avalabs/core-k2-components';
-import { useTranslation } from 'react-i18next';
 
 interface AlertDialogProps {
   cancelHandler: () => void;
@@ -15,6 +14,7 @@ interface AlertDialogProps {
   title: string;
   text: string;
   rejectLabel: string;
+  proceedLabel: string;
 }
 
 export function AlertDialog({
@@ -24,9 +24,9 @@ export function AlertDialog({
   title,
   text,
   rejectLabel,
+  proceedLabel,
 }: AlertDialogProps) {
   const theme = useTheme();
-  const { t } = useTranslation();
   return (
     <Dialog
       open={open}
@@ -98,7 +98,7 @@ export function AlertDialog({
             size="large"
             color="secondary"
           >
-            {t('Proceed Anyway')}
+            {proceedLabel}
           </Button>
         </Stack>
       </Stack>

@@ -34,11 +34,10 @@ import {
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useAccountsContext } from './AccountsProvider';
-import { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
 import type { ContractTransaction } from 'ethers';
 import { useTranslation } from 'react-i18next';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 export interface BridgeContext {
   createBridgeTransaction(tx: PartialBridgeTransaction): Promise<void>;
@@ -229,8 +228,8 @@ function InnerBridgeProvider({ children }: { children: any }) {
         signAndSendEVM: (txData) => {
           const tx = txData as ContractTransaction;
 
-          return request<EthSendTransactionHandler>({
-            method: DAppProviderRequest.ETH_SEND_TX,
+          return request({
+            method: RpcMethod.BITCOIN_SEND_TRANSACTION,
             params: [
               {
                 ...tx,

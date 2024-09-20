@@ -12,6 +12,7 @@ import {
   SendOptions,
 } from '../models';
 import { TokenType } from '@avalabs/vm-module-types';
+import { stringToBigint } from '@src/utils/stringToBigint';
 
 export const buildErc20Tx = async (
   from: string,
@@ -86,7 +87,7 @@ export const buildNativeTx = (
 ): TransactionRequest => ({
   from,
   to: address,
-  value: stringToBN(amount, token.decimals).toString(),
+  value: `0x${stringToBigint(amount, token.decimals).toString(16)}`,
 });
 
 export const isNativeSend = (

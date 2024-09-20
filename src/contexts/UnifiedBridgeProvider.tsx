@@ -42,9 +42,8 @@ import { JsonRpcApiProvider } from 'ethers';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(
@@ -406,8 +405,8 @@ export function UnifiedBridgeProvider({
           assert(to, UnifiedBridgeError.InvalidTxPayload);
           assert(data, UnifiedBridgeError.InvalidTxPayload);
 
-          return request<EthSendTransactionHandler>({
-            method: DAppProviderRequest.ETH_SEND_TX,
+          return request({
+            method: RpcMethod.ETH_SEND_TRANSACTION,
             params: [
               {
                 from,

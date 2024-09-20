@@ -1,5 +1,5 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { errorCodes, providerErrors, rpcErrors } from '@metamask/rpc-errors';
+import { providerErrors, rpcErrors } from '@metamask/rpc-errors';
 import { DappInfo, DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
 import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
@@ -65,25 +65,6 @@ describe('src/background/vmModules/ApprovalController', () => {
         } as any)
       ).toEqual({
         error: expect.objectContaining({ message: 'Unsupported network' }),
-      });
-    });
-    it('returns error if signing data is of unknown format', async () => {
-      networkService.getNetwork.mockResolvedValue(btcNetwork);
-
-      expect(
-        await controller.requestApproval({
-          request: {
-            chainId: btcNetwork.chainId,
-            method: RpcMethod.BITCOIN_SEND_TRANSACTION,
-          },
-          signingData: {
-            type: 'weird-format',
-          },
-        } as any)
-      ).toEqual({
-        error: expect.objectContaining({
-          code: errorCodes.rpc.methodNotSupported,
-        }),
       });
     });
 

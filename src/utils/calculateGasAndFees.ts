@@ -39,17 +39,20 @@ export function calculateGasAndFees({
       ? maxPriorityFeePerGas * BigInt(gasLimit)
       : maxPriorityFeePerGas;
 
-  const fee = bigToLocaleString(bigintToBig(bnFee, tokenDecimals), 8);
+  const fee = bigToLocaleString(
+    bigintToBig(bnFee, tokenDecimals),
+    tokenDecimals
+  );
   const tip = bnTip
-    ? bigToLocaleString(bigintToBig(bnTip, tokenDecimals), 8)
+    ? bigToLocaleString(bigintToBig(bnTip, tokenDecimals), tokenDecimals)
     : null;
 
   const feeUSD = tokenPrice
-    ? parseFloat((parseFloat(fee) * tokenPrice).toFixed(4))
+    ? parseFloat((parseFloat(fee.replace(/,/g, '')) * tokenPrice).toFixed(4))
     : null;
   const tipUSD =
     tokenPrice && tip
-      ? parseFloat((parseFloat(tip) * tokenPrice).toFixed(4))
+      ? parseFloat((parseFloat(tip.replace(/,/g, '')) * tokenPrice).toFixed(4))
       : null;
 
   return {
