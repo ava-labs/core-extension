@@ -4,10 +4,14 @@ import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
+import { Account } from '../../accounts/models';
 
 describe('src/background/services/seedless/handlers/updateSignerToken', () => {
   let secretsService;
-  let accountsService;
+
+  const accountsService: jest.Mocked<AccountsService> = {
+    activeAccount: {} as unknown as Account,
+  } as any;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -18,15 +22,6 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
       }),
       updateSecrets: jest.fn().mockResolvedValue('walletId'),
     } as any);
-    accountsService = new AccountsService(
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any
-    );
   });
 
   it('returns error when token is missing', async () => {

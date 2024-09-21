@@ -266,12 +266,14 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.getAddresses).toHaveBeenNthCalledWith(
         1,
         0,
-        walletId
+        walletId,
+        networkService
       );
       expect(secretsService.getAddresses).toHaveBeenNthCalledWith(
         2,
         1,
-        walletId
+        walletId,
+        networkService
       );
       expect(secretsService.getImportedAddresses).toBeCalledTimes(3);
 
@@ -359,6 +361,7 @@ describe('background/services/accounts/AccountsService', () => {
     });
 
     it('correctly updates addresses for selected imported account', async () => {
+      const isMainnet = true;
       jest
         .mocked(secretsService.getImportedAddresses)
         .mockImplementation((id) => {
@@ -375,7 +378,8 @@ describe('background/services/accounts/AccountsService', () => {
       await accountsService.refreshAddressesForAccount('fb-acc');
 
       expect(secretsService.getImportedAddresses).toHaveBeenCalledWith(
-        'fb-acc'
+        'fb-acc',
+        isMainnet
       );
       expect(secretsService.getAddresses).toHaveBeenCalledTimes(0);
       expect(accountsService.getAccounts().imported['fb-acc']).toEqual({
@@ -494,7 +498,12 @@ describe('background/services/accounts/AccountsService', () => {
         walletId,
       });
       expect(secretsService.addAddress).toBeCalledTimes(1);
-      expect(secretsService.addAddress).toBeCalledWith(0, WALLET_ID);
+      expect(secretsService.addAddress).toBeCalledWith({
+        index: 0,
+        walletId: WALLET_ID,
+        networkService,
+        ledgerService,
+      });
 
       const accounts = accountsService.getAccounts();
       expect(accounts).toStrictEqual({
@@ -541,7 +550,12 @@ describe('background/services/accounts/AccountsService', () => {
 
       await accountsService.addPrimaryAccount({ walletId: WALLET_ID });
       expect(secretsService.addAddress).toBeCalledTimes(1);
-      expect(secretsService.addAddress).toBeCalledWith(2, WALLET_ID);
+      expect(secretsService.addAddress).toBeCalledWith({
+        index: 2,
+        walletId: WALLET_ID,
+        networkService,
+        ledgerService,
+      });
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
         '0x000000000'
@@ -577,7 +591,12 @@ describe('background/services/accounts/AccountsService', () => {
         walletId: WALLET_ID,
       });
       expect(secretsService.addAddress).toBeCalledTimes(1);
-      expect(secretsService.addAddress).toBeCalledWith(2, WALLET_ID);
+      expect(secretsService.addAddress).toBeCalledWith({
+        index: 2,
+        walletId: WALLET_ID,
+        networkService,
+        ledgerService,
+      });
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
         '0x000000000'
@@ -639,6 +658,7 @@ describe('background/services/accounts/AccountsService', () => {
     const commitMock = jest.fn();
 
     it('adds account to the imported list correctly', async () => {
+      const isMainnet = true;
       const options: ImportData = {
         importType: ImportType.PRIVATE_KEY,
         data: 'privateKey',
@@ -662,7 +682,10 @@ describe('background/services/accounts/AccountsService', () => {
         options,
       });
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
-      expect(secretsService.addImportedWallet).toBeCalledWith(options);
+      expect(secretsService.addImportedWallet).toBeCalledWith(
+        options,
+        isMainnet
+      );
       expect(commitMock).toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
@@ -695,6 +718,7 @@ describe('background/services/accounts/AccountsService', () => {
     });
 
     it('sets default name when no name is given', async () => {
+      const isMainnet = true;
       const options: ImportData = {
         importType: ImportType.PRIVATE_KEY,
         data: 'privateKey',
@@ -717,7 +741,10 @@ describe('background/services/accounts/AccountsService', () => {
 
       await accountsService.addImportedAccount({ options });
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
-      expect(secretsService.addImportedWallet).toBeCalledWith(options);
+      expect(secretsService.addImportedWallet).toBeCalledWith(
+        options,
+        isMainnet
+      );
       expect(commitMock).toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
@@ -791,6 +818,7 @@ describe('background/services/accounts/AccountsService', () => {
     });
 
     it('returns the existing account id on duplicated accounts imports', async () => {
+      const isMainnet = true;
       const options: ImportData = {
         importType: ImportType.PRIVATE_KEY,
         data: 'privateKey',
@@ -815,7 +843,10 @@ describe('background/services/accounts/AccountsService', () => {
         '0x1'
       );
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
-      expect(secretsService.addImportedWallet).toBeCalledWith(options);
+      expect(secretsService.addImportedWallet).toBeCalledWith(
+        options,
+        isMainnet
+      );
       expect(commitMock).not.toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).not.toHaveBeenCalled();
     });
@@ -1009,10 +1040,10 @@ describe('background/services/accounts/AccountsService', () => {
       expect(result).toStrictEqual(expectedAccounts);
       expect(eventListener).toHaveBeenCalledTimes(1);
       expect(eventListener).toHaveBeenCalledWith(expectedAccounts);
-      expect(secretsService.deleteImportedWallets).toHaveBeenCalledWith([
-        '0x1',
-        '0x2',
-      ]);
+      expect(secretsService.deleteImportedWallets).toHaveBeenCalledWith(
+        ['0x1', '0x2'],
+        walletConnectService
+      );
     });
 
     it('changes the active account if deleted', async () => {

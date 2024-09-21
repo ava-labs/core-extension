@@ -450,7 +450,6 @@ export class SecretsService {
     const walletKeys = await this.storageService.load<WalletSecretInStorage>(
       WALLET_STORAGE_KEY
     );
-    console.log('walletKeys: ', walletKeys);
 
     if (!walletKeys && strict) {
       throw new Error('Wallet is not initialized');

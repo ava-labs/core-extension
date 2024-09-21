@@ -4,7 +4,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { networks } from 'bitcoinjs-lib';
-import { AccountType } from '../../accounts/models';
+import { Account, AccountType } from '../../accounts/models';
 import { AccountWithSecrets, SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { StoreBtcWalletPolicyDetails } from './storeBtcWalletPolicyDetails';
@@ -29,7 +29,9 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     isMainnet: () => false,
   } as any;
 
-  const accountsServiceMock = jest.mocked({} as unknown as AccountsService);
+  const accountsServiceMock: jest.Mocked<AccountsService> = {
+    activeAccount: {} as unknown as Account,
+  } as any;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -155,7 +157,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       'masterFingerprint',
       'hmacHex',
       'name',
-      'wallet-id'
+      'wallet-id',
+      {}
     );
 
     expect(result).toStrictEqual({
@@ -199,7 +202,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       'masterFingerprint',
       'hmacHex',
       'name',
-      'wallet-id'
+      'wallet-id',
+      {}
     );
 
     expect(result).toStrictEqual({

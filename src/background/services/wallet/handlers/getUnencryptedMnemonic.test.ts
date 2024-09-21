@@ -4,6 +4,7 @@ import { SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { GetUnencryptedMnemonicHandler } from './getUnencryptedMnemonic';
 import { AccountsService } from '../../accounts/AccountsService';
+import { Account } from '../../accounts/models';
 
 describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', () => {
   const lockService: jest.Mocked<LockService> = {
@@ -12,15 +13,10 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
   const secretsService: jest.Mocked<SecretsService> = {
     getActiveAccountSecrets: jest.fn(),
   } as any;
-  const accountsService = new AccountsService(
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any
-  );
+
+  const accountsService: jest.Mocked<AccountsService> = {
+    activeAccount: {} as unknown as Account,
+  } as any;
 
   const buildHandler = () =>
     new GetUnencryptedMnemonicHandler(

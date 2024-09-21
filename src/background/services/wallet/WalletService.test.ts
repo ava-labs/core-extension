@@ -81,7 +81,9 @@ describe('background/services/wallet/WalletService.ts', () => {
   let walletConnectService: WalletConnectService;
   let fireblocksService: FireblocksService;
   let secretsService: jest.Mocked<SecretsService>;
-  let accountsService: AccountsService;
+  const accountsService: jest.Mocked<AccountsService> = {
+    activeAccount: {} as unknown as Account,
+  } as any;
 
   const privateKeyMock =
     '4ae3e293d0161fa90bfbf51028ceb1e51fe70bc6167afe4e0fe0927d86555503';
@@ -243,15 +245,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     networkService = new NetworkService({} as any, {} as any);
     ledgerService = new LedgerService();
     keystoneService = new KeystoneService();
-    accountsService = new AccountsService(
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any,
-      {} as any
-    );
+
     walletConnectService = new WalletConnectService(
       new WalletConnectStorage({} as any)
     );

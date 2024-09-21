@@ -1,6 +1,6 @@
 import { sha256 } from 'ethers';
 import { PeerType } from 'fireblocks-sdk';
-import { AccountType, FireblocksAccount } from '../accounts/models';
+import { Account, AccountType, FireblocksAccount } from '../accounts/models';
 import { SecretType } from '../secrets/models';
 import { SecretsService } from '../secrets/SecretsService';
 import { FireblocksSecretsService } from './FireblocksSecretsService';
@@ -60,15 +60,9 @@ const mockResponsesByPath =
   };
 
 describe('src/background/services/fireblocks/FireblocksService', () => {
-  const accountsService = new AccountsService(
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any
-  );
+  const accountsService: jest.Mocked<AccountsService> = {
+    activeAccount: {} as unknown as Account,
+  } as any;
   const secretsService = jest.mocked(new SecretsService({} as any));
   const secretsProvider = new FireblocksSecretsService(
     secretsService,

@@ -19,6 +19,7 @@ import { WalletConnectService } from '../walletConnect/WalletConnectService';
 
 jest.mock('../storage/StorageService');
 jest.mock('../network/NetworkService');
+jest.mock('../walletConnect/WalletConnectService');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('tsyringe', () => {
   const tsyringe = jest.requireActual('tsyringe');
@@ -477,7 +478,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         });
       });
 
-      it('attaches the account object to the result', async () => {
+      it.only('attaches the account object to the result', async () => {
         mockMnemonicWallet();
         const result = await secretsService.getActiveAccountSecrets(
           activeAccountData

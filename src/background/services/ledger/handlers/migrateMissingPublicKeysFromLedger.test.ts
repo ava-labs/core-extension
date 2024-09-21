@@ -10,6 +10,7 @@ import { LedgerTransport } from '../LedgerTransport';
 import { MigrateMissingPublicKeysFromLedgerHandler } from './migrateMissingPublicKeysFromLedger';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
+import { Account } from '../../accounts/models';
 
 jest.mock('../../secrets/SecretsService');
 jest.mock('@avalabs/core-wallets-sdk');
@@ -20,15 +21,9 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
     id: '123',
     method: ExtensionRequest.LEDGER_MIGRATE_MISSING_PUBKEYS,
   } as any;
-  const accountsService = new AccountsService(
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any,
-    {} as any
-  );
+  const accountsService: jest.Mocked<AccountsService> = {
+    activeAccount: {} as unknown as Account,
+  } as any;
 
   const secretsService = jest.mocked(new SecretsService({} as any));
   const ledgerService = {} as any;
