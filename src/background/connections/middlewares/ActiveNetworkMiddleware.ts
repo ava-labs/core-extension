@@ -7,7 +7,8 @@ import {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
 } from '../models';
-import { ethErrors } from 'eth-rpc-errors';
+import { RpcMethod } from '@avalabs/vm-module-types';
+import getTargetNetworkForTx from '@src/background/services/wallet/handlers/eth_sendTransaction/utils/getTargetNetworkForTx';
 
 export function ActiveNetworkMiddleware(
   networkService: NetworkService
@@ -16,32 +17,38 @@ export function ActiveNetworkMiddleware(
   JsonRpcResponse | ExtensionConnectionMessageResponse
 > {
   return async (context, next, error) => {
-    const { scope } = context.request.params;
+    const {
+      scope,
+      request: { method, params },
+    } = context.request.params;
 
-    if (scope) {
-      const network = await networkService.getNetwork(
-        context.request.params.scope
-      );
+    if (!scope) {
+      next();
+      return;
+    }
 
-      if (!network) {
-        error(new Error(`Unrecognized network: ${scope}`));
+    const isEthSendTx = method === RpcMethod.ETH_SEND_TRANSACTION;
+    const hasParams = Array.isArray(params) && typeof params[0] === 'object';
+
+    let network;
+
+    if (isEthSendTx && hasParams) {
+      try {
+        network = await getTargetNetworkForTx(params[0], networkService, scope);
+      } catch (err: any) {
+        error(err);
         return;
       }
-
-      if (
-        Boolean(network.isTestnet) !==
-        Boolean(networkService.uiActiveNetwork?.isTestnet)
-      ) {
-        error(
-          ethErrors.rpc.invalidParams({
-            message: 'Provided ChainID is in a different environment',
-            data: { chainId: network.chainId },
-          })
-        );
-      }
-
-      context.network = network;
+    } else {
+      network = await networkService.getNetwork(scope);
     }
+
+    if (!network) {
+      error(new Error(`Unrecognized network: ${scope}`));
+      return;
+    }
+
+    context.network = network;
 
     next();
   };

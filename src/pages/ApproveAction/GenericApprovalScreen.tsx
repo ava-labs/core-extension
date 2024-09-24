@@ -31,6 +31,7 @@ import { AlertBox } from '../Permissions/components/AlertBox';
 import { WarningBox } from '../Permissions/components/WarningBox';
 import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
+import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
 
 export function GenericApprovalScreen() {
   const { t } = useTranslation();
@@ -54,12 +55,12 @@ export function GenericApprovalScreen() {
   const { displayData, context } = action ?? {};
 
   useEffect(() => {
-    if (!action?.scope) {
+    if (!displayData?.network?.chainId) {
       return;
     }
 
-    setNetwork(getNetwork(action.scope));
-  }, [getNetwork, action?.scope]);
+    setNetwork(getNetwork(displayData.network.chainId));
+  }, [getNetwork, displayData?.network?.chainId]);
 
   const handleRejection = useCallback(() => {
     cancelHandler();
@@ -152,6 +153,9 @@ export function GenericApprovalScreen() {
                         item={item}
                       />
                     ))}
+                    {sectionIndex === 0 && network && (
+                      <NetworkDetails network={network} />
+                    )}
                   </ApprovalSectionBody>
                 </ApprovalSection>
               ))}
@@ -159,9 +163,7 @@ export function GenericApprovalScreen() {
                 <TxBalanceChange
                   ins={displayData.balanceChange.ins}
                   outs={displayData.balanceChange.outs}
-                  isSimulationSuccessful={
-                    displayData.isSimulationSuccessful === false // can be undefined
-                  }
+                  isSimulationSuccessful={displayData.isSimulationSuccessful}
                 />
               )}
               {displayData.tokenApprovals && (

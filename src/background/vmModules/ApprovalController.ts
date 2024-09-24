@@ -7,11 +7,7 @@ import {
   RpcMethod,
   SigningData,
 } from '@avalabs/vm-module-types';
-import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { rpcErrors, JsonRpcError, providerErrors } from '@metamask/rpc-errors';
-
-import { buildBtcTx } from '@src/utils/send/btcSendUtils';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
 import { WalletService } from '../services/wallet/WalletService';
 import { Action, ActionStatus } from '../services/actions/models';
@@ -137,7 +133,6 @@ export class ApprovalController implements IApprovalController {
     if (actionError) return { error: actionError };
 
     const action = await openApprovalWindow(preparedAction, 'approve/generic');
-
     return new Promise((resolve) => {
       this.#requests.set(action.actionId as string, {
         params,
@@ -189,30 +184,14 @@ export class ApprovalController implements IApprovalController {
       throw new Error('No signing data provided');
     }
 
-    if (signingData.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
-      const { inputs, outputs } = await buildBtcTx(
-        signingData.account,
-        getProviderForNetwork(network) as BitcoinProvider,
-        {
-          amount: signingData.data.amount,
-          address: signingData.data.to,
-          feeRate: signingData.data.feeRate,
-          token: signingData.data.balance,
-        }
-      );
+    switch (signingData.type) {
+      case RpcMethod.BITCOIN_SEND_TRANSACTION:
+      case RpcMethod.ETH_SEND_TRANSACTION:
+        return await this.#walletService.sign(signingData.data, network);
 
-      if (!inputs || !outputs) {
-        throw new Error('Unable to construct BTC transaction');
-      }
-
-      return await this.#walletService.sign({ inputs, outputs }, network);
+      default:
+        throw new Error('Unrecognized method: ' + params.request.method);
     }
-
-    if (signingData.type === RpcMethod.ETH_SEND_TRANSACTION) {
-      return await this.#walletService.sign(signingData.data, network);
-    }
-
-    throw new Error('Unrecognized method: ' + params.request.method);
   };
 
   #buildAction = (params: ApprovalParamsWithContext): Action => {

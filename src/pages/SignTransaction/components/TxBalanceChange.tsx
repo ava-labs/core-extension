@@ -17,7 +17,9 @@ import {
 import { NftAccordion } from './NftAccordion';
 import { BalanceChange } from '@avalabs/vm-module-types';
 
-type TxBalanceChangeProps = BalanceChange & { isSimulationSuccessful: boolean };
+type TxBalanceChangeProps = BalanceChange & {
+  isSimulationSuccessful?: boolean;
+};
 
 export const TxBalanceChange = ({
   ins,
@@ -29,6 +31,7 @@ export const TxBalanceChange = ({
   const hasSentItems = outs.length > 0;
   const hasReceivedItems = ins.length > 0;
 
+  const showNoPreExecWarning = isSimulationSuccessful === false; // may be undefined
   const showNoDataWarning =
     !hasSentItems && !hasReceivedItems && !isSimulationSuccessful;
 
@@ -37,18 +40,18 @@ export const TxBalanceChange = ({
       <ApprovalSectionHeader
         label={t('Balance Change')}
         tooltip={
-          isSimulationSuccessful
-            ? ''
-            : t(
+          showNoPreExecWarning
+            ? t(
                 'Transaction pre-exution is unavailable. The displayed token list might be incomplete.'
               )
+            : ''
         }
         tooltipIcon={
-          isSimulationSuccessful ? undefined : (
+          showNoPreExecWarning ? (
             <AlertTriangleIcon
               sx={{ color: 'warning.main', cursor: 'pointer' }}
             />
-          )
+          ) : undefined
         }
       />
       <ApprovalSectionBody>
