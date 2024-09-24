@@ -1,14 +1,8 @@
-import { container } from 'tsyringe';
 import { Avalanche, DerivationPath } from '@avalabs/core-wallets-sdk';
 
 import { CallbackManager } from '@src/background/runtime/CallbackManager';
 
-import {
-  Account,
-  AccountType,
-  ImportType,
-  PrimaryAccount,
-} from '../accounts/models';
+import { AccountType, ImportType, PrimaryAccount } from '../accounts/models';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
 import { PubKeyType, WALLET_STORAGE_KEY } from '../wallet/models';
@@ -33,8 +27,6 @@ jest.mock('tsyringe', () => {
   };
 });
 
-const walletId = 'wallet-id';
-
 const evmAddress = '0x000000000';
 const btcAddress = 'btc000000000';
 const avmAddress = 'X-';
@@ -45,7 +37,7 @@ const activeAccountData = {
   id: 'uuid1',
   name: 'Account 1',
   type: AccountType.PRIMARY,
-  walletId,
+  walletId: 'active-wallet-id',
   addressC: evmAddress,
   addressBTC: btcAddress,
   addressAVM: avmAddress,
@@ -71,10 +63,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    jest.mocked(container.resolve).mockReturnValue({
-      activeAccount,
-      getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
-    });
+
     getAddressMock = jest.fn().mockImplementation((pubkey, chain) => {
       return `${chain}-`;
     });
@@ -127,16 +116,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     return data;
   };
 
-  const mockMnemonicWallet = (
-    additionalData = {},
-    account?: Partial<Account>
-  ) => {
-    if (account) {
-      jest.mocked(container.resolve).mockReturnValue({
-        activeAccount: account,
-        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
-      });
-    }
+  const mockMnemonicWallet = (additionalData = {}) => {
     const data = {
       wallets: [
         {
@@ -155,17 +135,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     return data;
   };
 
-  const mockKeystoneWallet = (
-    additionalData = {},
-    account?: Partial<Account>
-  ) => {
-    if (account) {
-      jest.mocked(container.resolve).mockReturnValueOnce({
-        activeAccount: account,
-        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
-      });
-    }
-
+  const mockKeystoneWallet = (additionalData = {}) => {
     const data = {
       wallets: [
         {
@@ -183,17 +153,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     return data;
   };
 
-  const mockLedgerWallet = (
-    additionalData = {},
-    account?: Partial<Account>
-  ) => {
-    if (account) {
-      jest.mocked(container.resolve).mockReturnValueOnce({
-        activeAccount: account,
-        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
-      });
-    }
-
+  const mockLedgerWallet = (additionalData = {}) => {
     const data = {
       wallets: [
         {
@@ -211,17 +171,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     return data;
   };
 
-  const mockLedgerLiveWallet = (
-    additionalData = {},
-    account?: Partial<Account>
-  ) => {
-    if (account) {
-      jest.mocked(container.resolve).mockReturnValue({
-        activeAccount: account,
-        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
-      });
-    }
-
+  const mockLedgerLiveWallet = (additionalData = {}) => {
     const data = {
       wallets: [
         {
@@ -257,9 +207,9 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         wallets: [walletSecrets],
       });
 
-      await expect(secretsService.getPrimaryAccountSecrets()).resolves.toEqual(
-        walletSecrets
-      );
+      await expect(
+        secretsService.getPrimaryAccountSecrets(activeAccount)
+      ).resolves.toEqual(walletSecrets);
     });
   });
 
@@ -449,17 +399,15 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     describe('when no account is active', () => {
       beforeEach(() => {
         mockLedgerLiveWallet();
-
-        jest.mocked(container.resolve).mockReturnValue({
-          activeAccount: undefined,
-          getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
-        });
       });
 
       it('should throw an error because there is no active account', async () => {
         expect(
           async () =>
-            await secretsService.getActiveAccountSecrets(activeAccountData)
+            await secretsService.getActiveAccountSecrets({
+              ...activeAccountData,
+              walletId: 'invalid-wallet-id',
+            })
         ).rejects.toThrow();
       });
     });
@@ -471,20 +419,15 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         walletId: ACTIVE_WALLET_ID,
       };
 
-      beforeEach(() => {
-        jest.mocked(container.resolve).mockReturnValue({
-          activeAccount: account,
-          getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
-        });
-      });
+      beforeEach(() => {});
 
-      it.only('attaches the account object to the result', async () => {
+      it('attaches the account object to the result', async () => {
         mockMnemonicWallet();
         const result = await secretsService.getActiveAccountSecrets(
           activeAccountData
         );
 
-        expect(result.account).toBe(account);
+        expect(result.account).toEqual({ ...activeAccountData, ...account });
       });
 
       it('recognizes mnemonic wallets', async () => {
@@ -492,10 +435,11 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         const result = await secretsService.getActiveAccountSecrets(
           activeAccountData
         );
+        console.log('result: ', result);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { ...rest } = secrets.wallets[0];
         expect(result).toEqual({
-          account,
+          account: { ...account, ...activeAccountData },
           ...rest,
           id: ACTIVE_WALLET_ID,
         });
@@ -510,7 +454,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { ...rest } = secrets.wallets[0];
         expect(result).toEqual({
-          account,
+          account: { ...account, ...activeAccountData },
           btcWalletPolicyDetails: undefined,
           ...rest,
           secretType: SecretType.Ledger,
@@ -527,7 +471,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { ...rest } = secrets.wallets[0];
         expect(result).toEqual({
-          account,
+          account: { ...account, ...activeAccountData },
           ...rest,
           secretType: SecretType.LedgerLive,
           id: ACTIVE_WALLET_ID,
@@ -543,7 +487,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { ...rest } = secrets.wallets[0];
         expect(result).toEqual({
-          account,
+          account: { ...account, ...activeAccountData },
           ...rest,
           id: ACTIVE_WALLET_ID,
         });
@@ -561,10 +505,6 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       };
 
       beforeEach(() => {
-        jest.mocked(container.resolve).mockReturnValue({
-          activeAccount: account,
-          getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
-        });
         mockMnemonicWallet({
           importedAccounts: {
             [account.id]: secrets,
@@ -573,14 +513,15 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       });
 
       it(`returns the imported account's secrets along with the account`, async () => {
-        const result = await secretsService.getActiveAccountSecrets(
-          activeAccountData
-        );
+        const result = await secretsService.getActiveAccountSecrets({
+          ...activeAccountData,
+          ...account,
+        });
 
         expect(result).toEqual({
           secret: 'secret',
           secretType: SecretType.PrivateKey,
-          account,
+          account: { ...activeAccountData, ...account },
         });
       });
     });
@@ -800,10 +741,6 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     };
 
     beforeEach(() => {
-      jest.mocked(container.resolve).mockReturnValue({
-        activeAccount: account,
-        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
-      });
       mockMnemonicWallet({
         importedAccounts: {
           [account.id]: secrets,
@@ -812,15 +749,16 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     it(`returns the imported account's secrets along with the account`, async () => {
-      const result = await secretsService.getActiveAccountSecrets(
-        activeAccountData
-      );
+      const result = await secretsService.getActiveAccountSecrets({
+        ...activeAccountData,
+        ...account,
+      });
 
       expect(result).toEqual({
         addresses: { ...secrets.addresses },
         pubKey: { ...secrets.pubKey },
         secretType: SecretType.WalletConnect,
-        account,
+        account: { ...activeAccountData, ...account },
       });
     });
   });
@@ -843,10 +781,6 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     };
 
     beforeEach(() => {
-      jest.mocked(container.resolve).mockReturnValue({
-        activeAccount: account,
-        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
-      });
       mockMnemonicWallet({
         importedAccounts: {
           [account.id]: secrets,
@@ -855,16 +789,20 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     it(`returns the imported account's secrets along with the account`, async () => {
-      const result = await secretsService.getActiveAccountSecrets(
-        activeAccountData
-      );
+      const result = await secretsService.getActiveAccountSecrets({
+        ...activeAccountData,
+        ...account,
+      });
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { secretType, ...rest } = secrets;
       expect(result).toEqual({
         ...rest,
         secretType: SecretType.Fireblocks,
-        account,
+        account: {
+          ...activeAccountData,
+          ...account,
+        },
       });
     });
   });
@@ -886,24 +824,26 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     it('returns the policy details correctly for Ledger Live', async () => {
-      mockLedgerLiveWallet(
-        {
-          pubKeys: [
-            null,
-            {
-              btcWalletPolicyDetails,
-            } as PubKeyType,
-          ],
-        },
-        { type: AccountType.PRIMARY, index: 1, walletId: ACTIVE_WALLET_ID }
-      );
+      mockLedgerLiveWallet({
+        pubKeys: [
+          null,
+          {
+            btcWalletPolicyDetails,
+          } as PubKeyType,
+        ],
+      });
 
-      await expect(secretsService.getBtcWalletPolicyDetails()).resolves.toEqual(
-        {
-          accountIndex: 1,
-          details: btcWalletPolicyDetails,
-        }
-      );
+      await expect(
+        secretsService.getBtcWalletPolicyDetails({
+          ...activeAccountData,
+          type: AccountType.PRIMARY,
+          index: 1,
+          walletId: ACTIVE_WALLET_ID,
+        })
+      ).resolves.toEqual({
+        accountIndex: 1,
+        details: btcWalletPolicyDetails,
+      });
     });
 
     it('returns the policy details correctly for Ledger + BIP44', async () => {
@@ -911,12 +851,12 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         btcWalletPolicyDetails,
       });
 
-      await expect(secretsService.getBtcWalletPolicyDetails()).resolves.toEqual(
-        {
-          accountIndex: 0,
-          details: btcWalletPolicyDetails,
-        }
-      );
+      await expect(
+        secretsService.getBtcWalletPolicyDetails(activeAccountData)
+      ).resolves.toEqual({
+        accountIndex: 0,
+        details: btcWalletPolicyDetails,
+      });
     });
   });
 
@@ -973,16 +913,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     const masterFingerprint = '1234';
     const name = 'policy';
 
-    beforeEach(() => {
-      jest.mocked(container.resolve).mockReturnValue({
-        activeAccount: {
-          type: AccountType.PRIMARY,
-          index: 0,
-          walletId: ACTIVE_WALLET_ID,
-        },
-        getActiveWalletId: jest.fn().mockReturnValue(ACTIVE_WALLET_ID),
-      });
-    });
+    beforeEach(() => {});
 
     const storeBtcWalletPolicyDetails = async () =>
       secretsService.storeBtcWalletPolicyDetails(

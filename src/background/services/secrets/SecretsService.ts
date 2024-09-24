@@ -178,6 +178,7 @@ export class SecretsService {
     return walletKeys.wallets.find((wallet) => wallet.id === activeWalletId);
   }
 
+  // TODO: remove?
   async getPrimaryAccountSecrets(activeAccount?: Account) {
     if (!activeAccount) {
       return null;
@@ -239,8 +240,10 @@ export class SecretsService {
 
   async getActiveAccountSecrets(activeAccount: Account) {
     const walletKeys = await this.#loadSecrets(true);
+    console.log('activeAccount: ', activeAccount);
+    console.log('walletKeys: ', walletKeys);
 
-    if (!activeAccount || activeAccount.type === AccountType.PRIMARY) {
+    if (activeAccount.type === AccountType.PRIMARY) {
       const activeWalletSecrets = this.getActiveWalletSecrets(
         walletKeys,
         activeAccount
