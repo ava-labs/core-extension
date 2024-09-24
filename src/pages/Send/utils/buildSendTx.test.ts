@@ -51,7 +51,9 @@ describe('src/pages/Send/utils/buildSendTx', () => {
 
       expect(populateTransaction).toHaveBeenCalledWith(
         options.address,
-        `0x${stringToBigint(options.amount, options.token.decimals)}`
+        `0x${stringToBigint(options.amount, options.token.decimals).toString(
+          16
+        )}`
       );
     });
 
