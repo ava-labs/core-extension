@@ -20,6 +20,7 @@ import {
 import {
   AVALANCHE_XP_NETWORK,
   AVALANCHE_XP_TEST_NETWORK,
+  AVAX_TOKEN,
   BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
   ChainId,
@@ -47,6 +48,8 @@ import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { isXchainNetwork } from './utils/isAvalancheXchainNetwork';
 import { runtime } from 'webextension-polyfill';
 import {
+  ETNA_DEVNET_P_ID,
+  ETNA_DEVNET_X_ID,
   caipToChainId,
   chainIdToCaip,
   decorateWithCaipId,
@@ -376,6 +379,68 @@ export class NetworkService implements OnLock, OnStorageReady {
     return networkList;
   }
 
+  private _getPchainDevnet(): Network {
+    return decorateWithCaipId({
+      chainName: 'Avalanche Etna P-Devnet',
+      chainId: ETNA_DEVNET_P_ID,
+      vmName: NetworkVMType.PVM,
+      description: '',
+      platformChainId: '',
+      subnetId: '',
+      vmId: '',
+      rpcUrl: 'https://etna.avax-dev.network',
+      isTestnet: true,
+      isDevnet: true,
+      mainnetChainId: ETNA_DEVNET_P_ID,
+      logoUri:
+        'https://images.ctfassets.net/gcj8jwzm6086/42aMwoCLblHOklt6Msi6tm/1e64aa637a8cead39b2db96fe3225c18/pchain-square.svg', // from contentful
+      networkToken: {
+        ...AVAX_TOKEN,
+        logoUri:
+          'https://images.ctfassets.net/gcj8jwzm6086/5VHupNKwnDYJvqMENeV7iJ/3e4b8ff10b69bfa31e70080a4b142cd0/avalanche-avax-logo.svg', // from contentful
+      },
+      pricingProviders: {
+        coingecko: {
+          assetPlatformId: 'avalanche',
+          nativeTokenId: 'avalanche-2',
+        },
+      },
+      primaryColor: '#e84142',
+      explorerUrl: 'https://explorer-xp.avax-test.network/',
+    });
+  }
+
+  private _getXchainDevnet(): Network {
+    return decorateWithCaipId({
+      chainName: 'Avalanche Etna X-Devnet',
+      chainId: ETNA_DEVNET_X_ID,
+      vmName: NetworkVMType.AVM,
+      description: '',
+      platformChainId: '',
+      subnetId: '',
+      vmId: '',
+      rpcUrl: 'https://etna.avax-dev.network',
+      isTestnet: true,
+      isDevnet: true,
+      mainnetChainId: ETNA_DEVNET_X_ID,
+      logoUri:
+        'https://images.ctfassets.net/gcj8jwzm6086/5xiGm7IBR6G44eeVlaWrxi/1b253c4744a3ad21a278091e3119feba/xchain-square.svg', // from contentful
+      networkToken: {
+        ...AVAX_TOKEN,
+        logoUri:
+          'https://images.ctfassets.net/gcj8jwzm6086/5VHupNKwnDYJvqMENeV7iJ/3e4b8ff10b69bfa31e70080a4b142cd0/avalanche-avax-logo.svg', // from contentful
+      },
+      pricingProviders: {
+        coingecko: {
+          assetPlatformId: 'avalanche',
+          nativeTokenId: 'avalanche-2',
+        },
+      },
+      primaryColor: '#e84142',
+      explorerUrl: 'https://explorer-xp.avax-test.network/', // TODO: change to etna explorer when available
+    });
+  }
+
   private _getPchainNetwork(isTestnet: boolean): Network {
     const network = isTestnet
       ? AVALANCHE_XP_TEST_NETWORK
@@ -443,6 +508,8 @@ export class NetworkService implements OnLock, OnStorageReady {
           [ChainId.AVALANCHE_P]: this._getPchainNetwork(false),
           [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork(true),
           [ChainId.AVALANCHE_X]: this._getXchainNetwork(false),
+          [ETNA_DEVNET_P_ID]: this._getPchainDevnet(),
+          [ETNA_DEVNET_X_ID]: this._getXchainDevnet(),
         };
       } else {
         attempt += 1;
@@ -502,10 +569,24 @@ export class NetworkService implements OnLock, OnStorageReady {
   /**
    * Returns the provider used by Avalanche X/P/CoreEth chains.
    */
-  getAvalanceProviderXP(): Avalanche.JsonRpcProvider {
-    return getProviderForNetwork(
-      this.getAvalancheNetworkXP()
-    ) as Avalanche.JsonRpcProvider;
+  async getAvalanceProviderXP(): Promise<Avalanche.JsonRpcProvider> {
+    return new Avalanche.JsonRpcProvider('https://etna.avax-dev.network', {
+      addPrimaryNetworkDelegatorFee: 0n,
+      addPrimaryNetworkValidatorFee: 0n,
+      addSubnetDelegatorFee: 1000000n,
+      addSubnetValidatorFee: 1000000n,
+      avaxAssetID: '22jjRVdyTJiAEtcZciAVR8bTFyVDUVoo1T3o5PiDspQSZ2maXR',
+      baseTxFee: 1000000n,
+      cBlockchainID: 'vV3cui1DsEPC3nLCGH9rorwo8s6BYxM2Hz4QFE5gEYjwTqAu',
+      createAssetTxFee: 1000000n,
+      createBlockchainTxFee: 100000000n,
+      createSubnetTxFee: 100000000n,
+      hrp: 'custom',
+      networkID: 76,
+      pBlockchainID: '11111111111111111111111111111111LpoYY',
+      transformSubnetTxFee: 100000000n,
+      xBlockchainID: '2piQ2AVHCjnduiWXsSY15DtbVuwHE2cwMHYnEXHsLL73BBkdbV',
+    });
   }
 
   async getEthereumNetwork(): Promise<Network> {

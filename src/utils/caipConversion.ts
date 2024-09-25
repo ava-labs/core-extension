@@ -14,11 +14,15 @@ const BitcoinCaipId = {
   [ChainId.BITCOIN_TESTNET]: `${CaipNamespace.BIP122}:000000000933ea01ad0ee984209779ba`,
 };
 
+export const ETNA_DEVNET_P_ID = ChainId.AVALANCHE_TEST_X - 2;
+export const ETNA_DEVNET_X_ID = ChainId.AVALANCHE_TEST_X - 4;
 const AvaxCaipId = {
   [ChainId.AVALANCHE_P]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.pBlockchainID}`,
   [ChainId.AVALANCHE_X]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.xBlockchainID}`,
   [ChainId.AVALANCHE_TEST_P]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.pBlockchainID}`,
   [ChainId.AVALANCHE_TEST_X]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.xBlockchainID}`,
+  [ETNA_DEVNET_P_ID]: `${CaipNamespace.AVAX}:custom11111111111111111111111111111111LpoYY`,
+  [ETNA_DEVNET_X_ID]: `${CaipNamespace.AVAX}:custom2piQ2AVHCjnduiWXsSY15DtbVuwHE2cwMHYnEXHsLL73BBkdbV`,
 } as const;
 
 export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {

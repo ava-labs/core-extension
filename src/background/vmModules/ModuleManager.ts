@@ -1,4 +1,9 @@
-import { Environment, Module } from '@avalabs/vm-module-types';
+import {
+  Environment,
+  Module,
+  AppName,
+  AppInfo,
+} from '@avalabs/vm-module-types';
 import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { AvalancheModule } from '@avalabs/avalanche-module';
 import { EvmModule } from '@avalabs/evm-module';
@@ -11,6 +16,7 @@ import { isDevelopment } from '@src/utils/environment';
 import { NetworkWithCaipId } from '../services/network/models';
 import { VMModuleError } from './models';
 import { ApprovalController } from './ApprovalController';
+import { runtime } from 'webextension-polyfill';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2
@@ -42,18 +48,26 @@ export class ModuleManager {
       ? Environment.DEV
       : Environment.PRODUCTION;
 
+    const appInfo: AppInfo = {
+      name: AppName.CORE_EXTENSION,
+      version: runtime.getManifest().version,
+    };
+
     this.#modules = [
       new EvmModule({
         environment,
         approvalController: this.#approvalController,
+        appInfo,
       }),
       new AvalancheModule({
         environment,
         approvalController: this.#approvalController,
+        appInfo,
       }),
       new BitcoinModule({
         environment,
         approvalController: this.#approvalController,
+        appInfo,
       }),
     ];
   }

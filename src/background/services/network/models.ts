@@ -35,6 +35,7 @@ export interface AddEthereumChainParameter {
 export type Network = _Network &
   AdvancedNetworkConfig & {
     caipId?: string;
+    isDevnet?: boolean;
   };
 
 export type NetworkWithCaipId = EnsureDefined<Network, 'caipId'>;
