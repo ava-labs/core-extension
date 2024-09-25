@@ -178,7 +178,6 @@ export class SecretsService {
     return walletKeys.wallets.find((wallet) => wallet.id === activeWalletId);
   }
 
-  // TODO: remove?
   async getPrimaryAccountSecrets(activeAccount?: Account) {
     if (!activeAccount) {
       return null;

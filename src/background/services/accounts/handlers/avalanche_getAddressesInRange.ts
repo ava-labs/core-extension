@@ -5,6 +5,7 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { SecretsService } from '../../secrets/SecretsService';
 import { NetworkService } from '../../network/NetworkService';
+import { AccountsService } from '../AccountsService';
 
 @injectable()
 export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler {
@@ -12,7 +13,8 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler {
 
   constructor(
     private secretsService: SecretsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private accountsService: AccountsService
   ) {
     super();
   }
@@ -49,7 +51,9 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler {
       const correctedExternalLimit = getCorrectedLimit(externalLimit);
       const correctedInternalLimit = getCorrectedLimit(internalLimit);
       const provXP = await this.networkService.getAvalanceProviderXP();
-      const secrets = await this.secretsService.getPrimaryAccountSecrets();
+      const secrets = await this.secretsService.getPrimaryAccountSecrets(
+        this.accountsService.activeAccount
+      );
 
       const addresses: { external: string[]; internal: string[] } = {
         external: [],

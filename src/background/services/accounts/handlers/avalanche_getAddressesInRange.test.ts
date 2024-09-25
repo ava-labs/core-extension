@@ -3,6 +3,7 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAddressesInRangeHandler } from './avalanche_getAddressesInRange';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { AccountsService } from '../AccountsService';
 
 jest.mock('@avalabs/core-wallets-sdk');
 
@@ -17,10 +18,13 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
     getAvalanceProviderXP: jest.fn(),
   } as any;
 
+  const accountsService = jest.mocked<AccountsService>({} as any);
+
   const handleRequest = async (request) => {
     const handler = new AvalancheGetAddressesInRangeHandler(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsService
     );
 
     return handler.handleAuthenticated(request);
@@ -134,7 +138,8 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
   it('handleUnauthenticated', async () => {
     const handler = new AvalancheGetAddressesInRangeHandler(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsService
     );
     const request = {
       id: '123',
