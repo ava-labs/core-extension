@@ -42,7 +42,7 @@ import {
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
 import { LedgerService } from '../ledger/LedgerService';
-import { BaseWallet, Wallet } from 'ethers';
+import { BaseWallet, Wallet, isHexString } from 'ethers';
 import { networks, Transaction } from 'bitcoinjs-lib';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { ImportData, ImportType } from '../accounts/models';
@@ -65,6 +65,19 @@ import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { Network } from '../network/models';
+
+const hexToBytes = (hexString: string) => {
+  const unprefixed = hexString.startsWith('0x')
+    ? hexString.substring(2)
+    : hexString;
+  const matches = unprefixed.match(/.{1,2}/g);
+
+  if (matches) {
+    return Uint8Array.from(matches.map((byte) => parseInt(byte, 16)));
+  }
+
+  throw new Error('Invalid hex string');
+};
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -733,7 +746,10 @@ export class WalletService implements OnLock, OnUnlock {
       } else if (
         [MessageType.ETH_SIGN, MessageType.PERSONAL_SIGN].includes(messageType)
       ) {
-        return wallet.signMessage(data);
+        const isHex = isHexString(data); // we should likely sign it as bytes if that's the case
+        const dataToSign = isHex ? hexToBytes(data) : data;
+
+        return wallet.signMessage(dataToSign);
       } else {
         throw new Error(`this function is not supported on your wallet`);
       }
