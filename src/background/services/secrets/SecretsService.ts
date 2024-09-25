@@ -240,8 +240,6 @@ export class SecretsService {
 
   async getActiveAccountSecrets(activeAccount: Account) {
     const walletKeys = await this.#loadSecrets(true);
-    console.log('activeAccount: ', activeAccount);
-    console.log('walletKeys: ', walletKeys);
 
     if (activeAccount.type === AccountType.PRIMARY) {
       const activeWalletSecrets = this.getActiveWalletSecrets(

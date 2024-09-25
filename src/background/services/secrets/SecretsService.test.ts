@@ -1,31 +1,38 @@
-import { Avalanche, DerivationPath } from '@avalabs/core-wallets-sdk';
-
+import {
+  Avalanche,
+  DerivationPath,
+  getPubKeyFromTransport,
+  getAddressFromXPub,
+  getBech32AddressFromXPub,
+  getEvmAddressFromPubKey,
+  getBtcAddressFromPubKey,
+  getPublicKeyFromPrivateKey,
+} from '@avalabs/core-wallets-sdk';
 import { CallbackManager } from '@src/background/runtime/CallbackManager';
-
-import { AccountType, ImportType, PrimaryAccount } from '../accounts/models';
+import {
+  Account,
+  AccountType,
+  ImportType,
+  PrimaryAccount,
+} from '../accounts/models';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
 import { PubKeyType, WALLET_STORAGE_KEY } from '../wallet/models';
-
 import { SecretType } from './models';
 import { SecretsService } from './SecretsService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import { LedgerService } from '../ledger/LedgerService';
+import { LedgerTransport } from '../ledger/LedgerTransport';
+import { SeedlessWallet } from '../seedless/SeedlessWallet';
+import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { networks } from 'bitcoinjs-lib';
 
 jest.mock('../storage/StorageService');
 jest.mock('../network/NetworkService');
 jest.mock('../walletConnect/WalletConnectService');
 jest.mock('@avalabs/core-wallets-sdk');
-jest.mock('tsyringe', () => {
-  const tsyringe = jest.requireActual('tsyringe');
-
-  return {
-    ...tsyringe,
-    container: {
-      ...tsyringe.container,
-      resolve: jest.fn(),
-    },
-  };
-});
+jest.mock('../seedless/SeedlessWallet');
 
 const evmAddress = '0x000000000';
 const btcAddress = 'btc000000000';
@@ -44,6 +51,8 @@ const activeAccountData = {
   addressPVM: pvmAddress,
   addressCoreEth: coreEthAddress,
 };
+
+const WALLET_ID = 'wallet-id';
 
 const ACTIVE_WALLET_ID = 'active-wallet-id';
 describe('src/background/services/secrets/SecretsService.ts', () => {
@@ -116,9 +125,22 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     return data;
   };
 
-  const mockMnemonicWallet = (additionalData = {}) => {
-    const data = {
-      wallets: [
+  const mockMnemonicWallet = (additionalData = {}, additionalWallet = {}) => {
+    const wallets = (additionalWalletData) => {
+      if (Object.keys(additionalWalletData).length) {
+        return [
+          {
+            secretType: SecretType.Mnemonic,
+            mnemonic: 'mnemonic',
+            xpub: 'xpub',
+            xpubXP: 'xpubXP',
+            derivationPath: DerivationPath.BIP44,
+            id: ACTIVE_WALLET_ID,
+          },
+          additionalWalletData,
+        ];
+      }
+      return [
         {
           secretType: SecretType.Mnemonic,
           mnemonic: 'mnemonic',
@@ -127,7 +149,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           derivationPath: DerivationPath.BIP44,
           id: ACTIVE_WALLET_ID,
         },
-      ],
+      ];
+    };
+    const data = {
+      wallets: wallets(additionalWallet),
       ...additionalData,
     };
     jest.spyOn(storageService, 'load').mockResolvedValue(data);
@@ -185,6 +210,47 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     };
 
     jest.spyOn(storageService, 'load').mockResolvedValue(data);
+
+    return data;
+  };
+  const mockSeedlessWallet = (
+    additionalData: any = {},
+    account?: Partial<Account>
+  ) => {
+    const data = {
+      secretType: SecretType.Seedless,
+      derivationPath: DerivationPath.BIP44,
+      pubKeys: [{ evm: 'evm', xp: 'xp' }],
+      walletId: WALLET_ID,
+      name: 'seedles',
+      userId: '123',
+      userEmail: 'a@b.c',
+      ...additionalData,
+      account: {
+        type: AccountType.PRIMARY,
+        ...account,
+      },
+    };
+    secretsService.getPrimaryAccountSecrets = jest
+      .fn()
+      .mockResolvedValue(data as any);
+    secretsService.getActiveAccountSecrets = jest
+      .fn()
+      .mockResolvedValue(data as any);
+    secretsService.getWalletAccountsSecretsById = jest
+      .fn()
+      .mockResolvedValue(data as any);
+    secretsService.getPrimaryWalletsDetails = jest.fn().mockResolvedValue([
+      {
+        type: data.secretType,
+        derivationPath: data.derivationPath,
+        id: data.walletId,
+        name: data.name,
+        authProvider: data.authProvider,
+        userEmail: data.userEmail,
+        userId: data.userId,
+      },
+    ]);
 
     return data;
   };
@@ -1035,8 +1101,9 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       });
     });
   });
-  /*
+
   describe('addAddress', () => {
+    let ledgerService: LedgerService;
     const addressesMock = {
       addressC: 'addressC',
       addressBTC: 'addressBTC',
@@ -1047,15 +1114,25 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     let getAddressesSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      getAddressesSpy = jest.spyOn(walletService as any, 'getAddresses');
+      getAddressesSpy = jest.spyOn(secretsService as any, 'getAddresses');
+      getAddressesSpy.mockReturnValue(addressesMock);
+      ledgerService = new LedgerService();
     });
 
     it('returns the result of getAddresses', async () => {
       mockMnemonicWallet();
-      getAddressesSpy.mockReturnValueOnce(addressesMock);
 
-      const result = await walletService.addAddress(1, WALLET_ID);
-      expect(getAddressesSpy).toHaveBeenCalledWith(1, WALLET_ID);
+      const result = await secretsService.addAddress({
+        index: 1,
+        walletId: ACTIVE_WALLET_ID,
+        ledgerService,
+        networkService,
+      });
+      expect(getAddressesSpy).toHaveBeenCalledWith(
+        1,
+        ACTIVE_WALLET_ID,
+        networkService
+      );
       expect(result).toStrictEqual(addressesMock);
     });
 
@@ -1064,13 +1141,18 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         mockLedgerLiveWallet({
           pubKeys: [],
         });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ledgerService.recentTransport = undefined;
+        jest
+          .spyOn(ledgerService, 'recentTransport', 'get')
+          .mockReturnValue(undefined);
 
-        await expect(walletService.addAddress(1, WALLET_ID)).rejects.toThrow(
-          'Ledger transport not available'
-        );
+        await expect(
+          secretsService.addAddress({
+            index: 1,
+            walletId: ACTIVE_WALLET_ID,
+            ledgerService,
+            networkService,
+          })
+        ).rejects.toThrow('Ledger transport not available');
       });
 
       it('throws when it fails to get EVM pubkey from ledger', async () => {
@@ -1078,17 +1160,23 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         mockLedgerLiveWallet({
           pubKeys: [],
         });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ledgerService.recentTransport = transportMock;
+
+        jest
+          .spyOn(ledgerService, 'recentTransport', 'get')
+          .mockReturnValue(transportMock);
 
         (getPubKeyFromTransport as jest.Mock).mockReturnValueOnce(
           Buffer.from('')
         );
 
-        await expect(walletService.addAddress(1, WALLET_ID)).rejects.toThrow(
-          'Failed to get public key from device.'
-        );
+        await expect(
+          secretsService.addAddress({
+            index: 1,
+            walletId: ACTIVE_WALLET_ID,
+            ledgerService,
+            networkService,
+          })
+        ).rejects.toThrow('Failed to get public key from device.');
         expect(getPubKeyFromTransport).toHaveBeenCalledWith(
           transportMock,
           1,
@@ -1101,17 +1189,22 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         mockLedgerLiveWallet({
           pubKeys: [],
         });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ledgerService.recentTransport = transportMock;
+        jest
+          .spyOn(ledgerService, 'recentTransport', 'get')
+          .mockReturnValue(transportMock);
 
         (getPubKeyFromTransport as jest.Mock)
           .mockReturnValueOnce(Buffer.from('evm'))
           .mockReturnValueOnce(Buffer.from(''));
 
-        await expect(walletService.addAddress(1, WALLET_ID)).rejects.toThrow(
-          'Failed to get public key from device.'
-        );
+        await expect(
+          secretsService.addAddress({
+            index: 1,
+            walletId: ACTIVE_WALLET_ID,
+            ledgerService,
+            networkService,
+          })
+        ).rejects.toThrow('Failed to get public key from device.');
         expect(getPubKeyFromTransport).toHaveBeenCalledWith(
           transportMock,
           1,
@@ -1132,8 +1225,18 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           ],
         });
 
-        const result = await walletService.addAddress(0, WALLET_ID);
-        expect(getAddressesSpy).toHaveBeenCalledWith(0, WALLET_ID);
+        const result = await secretsService.addAddress({
+          index: 0,
+          walletId: ACTIVE_WALLET_ID,
+          ledgerService,
+          networkService,
+        });
+        expect(getAddressesSpy).toHaveBeenCalledWith(
+          0,
+          ACTIVE_WALLET_ID,
+          networkService
+        );
+        secretsService.updateSecrets = jest.fn();
         expect(getPubKeyFromTransport).not.toHaveBeenCalled();
         expect(result).toStrictEqual(addressesMock);
         expect(secretsService.updateSecrets).not.toHaveBeenCalled();
@@ -1143,20 +1246,31 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         const addressBuffEvm = Buffer.from('0x1');
         const addressBuffXP = Buffer.from('0x2');
         const transportMock = {} as LedgerTransport;
+        secretsService.updateSecrets = jest.fn();
         getAddressesSpy.mockReturnValueOnce(addressesMock);
         mockLedgerLiveWallet({
           pubKeys: [],
         });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ledgerService.recentTransport = transportMock;
+        jest
+          .spyOn(ledgerService, 'recentTransport', 'get')
+          .mockReturnValue(transportMock);
         (getPubKeyFromTransport as jest.Mock)
           .mockReturnValueOnce(addressBuffEvm)
           .mockReturnValueOnce(addressBuffXP);
 
-        const result = await walletService.addAddress(0, WALLET_ID);
-        expect(getAddressesSpy).toHaveBeenCalledWith(0, WALLET_ID);
+        const result = await secretsService.addAddress({
+          index: 0,
+          walletId: ACTIVE_WALLET_ID,
+          ledgerService,
+          networkService,
+        });
+        expect(getAddressesSpy).toHaveBeenCalledWith(
+          0,
+          ACTIVE_WALLET_ID,
+          networkService
+        );
         expect(result).toStrictEqual(addressesMock);
+
         expect(secretsService.updateSecrets).toHaveBeenCalledWith(
           {
             pubKeys: [
@@ -1166,7 +1280,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
               },
             ],
           },
-          WALLET_ID
+          ACTIVE_WALLET_ID
         );
       });
     });
@@ -1174,6 +1288,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     describe('seedless', () => {
       const oldKeys = [{ evm: 'evm', xp: 'xp' }];
       const newKeys = [...oldKeys, { evm: 'evm2', xp: 'xp2' }];
+      const seedlessWalletMock = Object.create(SeedlessWallet.prototype);
 
       describe('when public keys for given account are not known yet', () => {
         beforeEach(() => {
@@ -1187,12 +1302,19 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             .mockResolvedValue(newKeys);
 
           jest
-            .spyOn(walletService, 'getAddresses')
+            .spyOn(secretsService, 'getAddresses')
             .mockResolvedValueOnce(addressesMock as any);
         });
 
         it('calls addAccount on SeedlessWallet', async () => {
-          const result = await walletService.addAddress(1, WALLET_ID);
+          secretsService.updateSecrets = jest.fn();
+
+          const result = await secretsService.addAddress({
+            index: 1,
+            walletId: ACTIVE_WALLET_ID,
+            networkService,
+            ledgerService,
+          });
 
           expect(SeedlessWallet).toHaveBeenCalledWith({
             networkService,
@@ -1205,9 +1327,13 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             {
               pubKeys: newKeys,
             },
-            WALLET_ID
+            ACTIVE_WALLET_ID
           );
-          expect(getAddressesSpy).toHaveBeenCalledWith(1, WALLET_ID);
+          expect(getAddressesSpy).toHaveBeenCalledWith(
+            1,
+            ACTIVE_WALLET_ID,
+            networkService
+          );
           expect(result).toStrictEqual(addressesMock);
         });
       });
@@ -1220,6 +1346,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         });
 
         it('retrieves the addresses without contacting seedless api', async () => {
+          secretsService.updateSecrets = jest.fn();
           const addressBuffEvm = Buffer.from('0x1');
           const addressBuffXP = Buffer.from('0x2');
 
@@ -1230,20 +1357,27 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             .mockReturnValueOnce(addressBuffEvm as any)
             .mockReturnValueOnce(addressBuffXP as any);
 
-          const result = await walletService.addAddress(1, WALLET_ID);
+          const result = await secretsService.addAddress({
+            index: 1,
+            walletId: ACTIVE_WALLET_ID,
+            networkService,
+            ledgerService,
+          });
 
           expect(SeedlessWallet).not.toHaveBeenCalled();
           expect(secretsService.updateSecrets).not.toHaveBeenCalled();
 
-          expect(getAddressesSpy).toHaveBeenCalledWith(1, WALLET_ID);
+          expect(getAddressesSpy).toHaveBeenCalledWith(
+            1,
+            ACTIVE_WALLET_ID,
+            networkService
+          );
           expect(result).toStrictEqual(addressesMock);
         });
       });
     });
   });
-  */
 
-  /*
   describe('getAddresses', () => {
     const addressesMock = (addressC: string, addressBTC: string) => ({
       [NetworkVMType.EVM]: addressC,
@@ -1254,25 +1388,27 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     it('throws error if walletId is not provided', async () => {
-      await expect(walletService.getAddresses(0, '')).rejects.toThrow(
-        'Wallet id not provided'
-      );
+      await expect(
+        secretsService.getAddresses(0, '', networkService)
+      ).rejects.toThrow('Wallet id not provided');
     });
 
     it('throws if storage is empty', async () => {
-      mockMnemonicWallet({ secretType: 'unknown' });
-      await expect(walletService.getAddresses(0, WALLET_ID)).rejects.toThrow(
-        'No public key available'
+      mockMnemonicWallet(
+        {},
+        { secretType: 'unknown', id: 'seedless-wallet-id' }
       );
+      await expect(
+        secretsService.getAddresses(0, 'seedless-wallet-id', networkService)
+      ).rejects.toThrow('No public key available');
     });
 
     it('returns the addresses for xpub', async () => {
       mockLedgerWallet();
       (getAddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
       (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x2');
-      (networkService.isMainnet as jest.Mock).mockReturnValueOnce(false);
       await expect(
-        walletService.getAddresses(0, WALLET_ID)
+        secretsService.getAddresses(0, ACTIVE_WALLET_ID, networkService)
       ).resolves.toStrictEqual(addressesMock('0x1', '0x2'));
       expect(Avalanche.getAddressPublicKeyFromXpub).toBeCalledWith('xpubXP', 0);
       expect(getAddressFromXPub).toHaveBeenCalledWith('xpub', 0);
@@ -1289,9 +1425,9 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       });
       (networkService.isMainnet as jest.Mock).mockReturnValueOnce(false);
 
-      await expect(walletService.getAddresses(0, WALLET_ID)).rejects.toThrow(
-        'Account not added'
-      );
+      await expect(
+        secretsService.getAddresses(0, ACTIVE_WALLET_ID, networkService)
+      ).rejects.toThrow('Account not added');
     });
 
     it('returns the addresses for pubKey', async () => {
@@ -1304,7 +1440,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       (getBtcAddressFromPubKey as jest.Mock).mockReturnValueOnce('0x2');
 
       await expect(
-        walletService.getAddresses(0, WALLET_ID)
+        secretsService.getAddresses(0, ACTIVE_WALLET_ID, networkService)
       ).resolves.toStrictEqual(addressesMock('0x1', '0x2'));
 
       expect(getEvmAddressFromPubKey).toHaveBeenCalledWith(pubKeyBuff);
@@ -1329,11 +1465,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       );
     });
   });
-  */
 
-  /*
   describe('addImportedWallet', () => {
     const pubKeyBuffer = Buffer.from('0x111', 'hex');
+    const isMainnet = false;
 
     beforeEach(() => {
       (networkService.isMainnet as jest.Mock).mockReturnValue(false);
@@ -1343,16 +1478,22 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     it('saves the secret in storage', async () => {
+      secretsService.saveImportedWallet = jest.fn();
+
       const uuid = 'some unique id';
       (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
       mockMnemonicWallet({
         imported: {},
       });
 
-      const result = await walletService.addImportedWallet({
-        importType: ImportType.PRIVATE_KEY,
-        data: 'privateKey',
-      });
+      const result = await secretsService.addImportedWallet(
+        {
+          importType: ImportType.PRIVATE_KEY,
+          data: 'privateKey',
+        },
+        isMainnet
+      );
+      console.log('result: ', result);
 
       expect(result).toStrictEqual({
         account: {
@@ -1385,10 +1526,13 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       });
 
       await expect(
-        walletService.addImportedWallet({
-          importType: ImportType.PRIVATE_KEY,
-          data: 'privateKey',
-        })
+        secretsService.addImportedWallet(
+          {
+            importType: ImportType.PRIVATE_KEY,
+            data: 'privateKey',
+          },
+          isMainnet
+        )
       ).rejects.toThrow('Error while calculating addresses');
     });
 
@@ -1402,10 +1546,13 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       });
 
       await expect(
-        walletService.addImportedWallet({
-          importType: ImportType.PRIVATE_KEY,
-          data: 'privateKey',
-        })
+        secretsService.addImportedWallet(
+          {
+            importType: ImportType.PRIVATE_KEY,
+            data: 'privateKey',
+          },
+          isMainnet
+        )
       ).rejects.toThrow('Error while calculating addresses');
     });
 
@@ -1419,16 +1566,17 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       });
 
       await expect(
-        walletService.addImportedWallet({
-          importType: ImportType.PRIVATE_KEY,
-          data: 'privateKey',
-        })
+        secretsService.addImportedWallet(
+          {
+            importType: ImportType.PRIVATE_KEY,
+            data: 'privateKey',
+          },
+          isMainnet
+        )
       ).rejects.toThrow('Error while calculating addresses');
     });
   });
-  */
 
-  /*
   describe('getImportedAddresses', () => {
     const pubKeyBuffer = Buffer.from('0x111', 'hex');
 
@@ -1440,46 +1588,47 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     it('throws if imported account is missing from storage', async () => {
-      secretsService.getImportedAccountSecrets.mockRejectedValue(
+      secretsService.getImportedAccountSecrets = jest.fn();
+      (secretsService.getImportedAccountSecrets as jest.Mock).mockRejectedValue(
         new Error('No secrets found for imported account')
       );
 
-      await expect(walletService.getImportedAddresses('id')).rejects.toThrow(
-        'No secrets found for imported account'
-      );
+      await expect(
+        secretsService.getImportedAddresses('id', true)
+      ).rejects.toThrow('No secrets found for imported account');
     });
 
     it('throws if importType is not supported', async () => {
-      secretsService.getImportedAccountSecrets.mockResolvedValue({
-        secretType: 'unknown' as any,
-        secret: 'secret',
-      });
-
-      await expect(walletService.getImportedAddresses('id')).rejects.toThrow(
-        'Unsupported import type'
+      secretsService.getImportedAccountSecrets = jest.fn();
+      (secretsService.getImportedAccountSecrets as jest.Mock).mockResolvedValue(
+        { secretType: 'unknown' as any, secret: 'secret' }
       );
+
+      await expect(
+        secretsService.getImportedAddresses('id', true)
+      ).rejects.toThrow('Unsupported import type');
     });
 
     it('throws if addresses are missing', async () => {
-      secretsService.getImportedAccountSecrets.mockResolvedValue({
-        secretType: SecretType.PrivateKey,
-        secret: 'secret',
-      });
+      secretsService.getImportedAccountSecrets = jest.fn();
+      (secretsService.getImportedAccountSecrets as jest.Mock).mockResolvedValue(
+        { secretType: SecretType.PrivateKey, secret: 'secret' }
+      );
       (getEvmAddressFromPubKey as jest.Mock).mockReturnValueOnce('');
       (getBtcAddressFromPubKey as jest.Mock).mockReturnValueOnce('');
 
-      await expect(walletService.getImportedAddresses('id')).rejects.toThrow(
-        'Missing address'
-      );
+      await expect(
+        secretsService.getImportedAddresses('id', false)
+      ).rejects.toThrow('Missing address');
     });
 
     it('returns the addresses for PRIVATE_KEY correctly', async () => {
-      secretsService.getImportedAccountSecrets.mockResolvedValue({
-        secretType: SecretType.PrivateKey,
-        secret: 'secret',
-      });
+      secretsService.getImportedAccountSecrets = jest.fn();
+      (secretsService.getImportedAccountSecrets as jest.Mock).mockResolvedValue(
+        { secretType: SecretType.PrivateKey, secret: 'secret' }
+      );
 
-      const result = await walletService.getImportedAddresses('id');
+      const result = await secretsService.getImportedAddresses('id', false);
 
       expect(result).toStrictEqual({
         addressBTC: '0x2',
@@ -1512,13 +1661,11 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       );
     });
   });
-  */
 
-  /*
   describe('deleteImportedWallets', () => {
     it('deletes the provided ids from storage', async () => {
       mockMnemonicWallet({
-        imported: {
+        importedAccounts: {
           id1: {
             type: ImportType.PRIVATE_KEY,
             secret: 'secret1',
@@ -1533,42 +1680,42 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           },
         },
       });
-      secretsService.deleteImportedWallets.mockResolvedValue({
+
+      const result = await secretsService.deleteImportedWallets(
+        ['id2', 'id3'],
+        walletConnectService
+      );
+
+      expect(result).toEqual({
         id2: {
-          secretType: SecretType.PrivateKey,
+          type: ImportType.PRIVATE_KEY,
           secret: 'secret2',
         },
         id3: {
-          secretType: SecretType.PrivateKey,
+          type: ImportType.PRIVATE_KEY,
           secret: 'secret3',
         },
       });
-
-      await walletService.deleteImportedWallets(['id2', 'id3']);
-
-      expect(secretsService.deleteImportedWallets).toHaveBeenCalledWith([
-        'id2',
-        'id3',
-      ]);
     });
   });
-  */
-  /*
+
   describe('deletePrimaryWallets()', () => {
     it('should call the secretsService with the right ids', async () => {
-      const ids = ['wallet-id', 'wallet-id-2'];
-      await walletService.deletePrimaryWallets(ids);
-      expect(secretsService.deletePrimaryWallets).toHaveBeenCalledWith(ids);
+      mockMnemonicWallet();
+      const ids = ['active-wallet-id'];
+      const result = await secretsService.deletePrimaryWallets(ids);
+      expect(result).toBe(1);
     });
   });
+
   describe('getWalletType()', () => {
     it('should call the secretsService with the right id', async () => {
-      const id = 'wallet-id';
-      await walletService.getWalletType(id);
+      secretsService.getWalletAccountsSecretsById = jest.fn();
+      mockMnemonicWallet();
+      await secretsService.getWalletType(ACTIVE_WALLET_ID);
       expect(secretsService.getWalletAccountsSecretsById).toHaveBeenCalledWith(
-        id
+        ACTIVE_WALLET_ID
       );
     });
   });
-  */
 });
