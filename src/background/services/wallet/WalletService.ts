@@ -65,19 +65,7 @@ import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { Network } from '../network/models';
-
-const hexToBytes = (hexString: string) => {
-  const unprefixed = hexString.startsWith('0x')
-    ? hexString.substring(2)
-    : hexString;
-  const matches = unprefixed.match(/.{1,2}/g);
-
-  if (matches) {
-    return Uint8Array.from(matches.map((byte) => parseInt(byte, 16)));
-  }
-
-  throw new Error('Invalid hex string');
-};
+import { utils } from '@avalabs/avalanchejs';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -746,8 +734,7 @@ export class WalletService implements OnLock, OnUnlock {
       } else if (
         [MessageType.ETH_SIGN, MessageType.PERSONAL_SIGN].includes(messageType)
       ) {
-        const isHex = isHexString(data); // we should likely sign it as bytes if that's the case
-        const dataToSign = isHex ? hexToBytes(data) : data;
+        const dataToSign = isHexString(data) ? utils.hexToBuffer(data) : data;
 
         return wallet.signMessage(dataToSign);
       } else {
