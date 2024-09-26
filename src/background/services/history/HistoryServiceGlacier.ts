@@ -85,14 +85,11 @@ export class HistoryServiceGlacier {
     return method;
   }
 
-  private isBridgeAddress(address?: string) {
-    if (!address) {
-      return false;
-    }
-
+  private isBridgeTx({ from, to }: { from: string; to: string }) {
     return (
-      ETHEREUM_ADDRESS === address.toLowerCase() ||
-      this.unifiedBridgeService.isBridgeAddress(address)
+      ETHEREUM_ADDRESS === to?.toLowerCase() ||
+      ETHEREUM_ADDRESS === from?.toLowerCase() ||
+      this.unifiedBridgeService.isBridgeTx({ from: from ?? '', to: to ?? '' })
     );
   }
 
@@ -103,9 +100,10 @@ export class HistoryServiceGlacier {
     const nativeOnly = !erc20Transfers && !erc721Transfers;
     const method = this.parseRawMethod(nativeTransaction.method?.methodName);
 
-    const isBridge =
-      this.isBridgeAddress(erc20Transfers?.[0]?.from?.address) ||
-      this.isBridgeAddress(erc20Transfers?.[0]?.to?.address);
+    const isBridge = this.isBridgeTx({
+      from: erc20Transfers?.[0]?.from?.address ?? '',
+      to: erc20Transfers?.[0]?.to?.address ?? '',
+    });
 
     const isSwap = method.toLowerCase().includes('swap');
     const isNativeSend =

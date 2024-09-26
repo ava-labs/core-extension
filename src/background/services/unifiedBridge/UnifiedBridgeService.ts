@@ -5,6 +5,7 @@ import {
   createUnifiedBridgeService,
   Environment,
   getEnabledBridgeServices,
+  IsBridgeTxParams,
 } from '@avalabs/bridge-unified';
 import { wait } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
@@ -159,12 +160,12 @@ export class UnifiedBridgeService implements OnStorageReady {
     }
   }
 
-  isBridgeAddress(...addresses: string[]): boolean {
+  isBridgeTx(txInfo: IsBridgeTxParams): boolean {
     if (!this.#core) {
       return false;
     }
 
-    return this.#core.isBridgeAddress(...addresses);
+    return this.#core.isBridgeTx(txInfo);
   }
 
   trackTransfer(bridgeTransfer: BridgeTransfer) {

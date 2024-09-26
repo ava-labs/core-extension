@@ -56,10 +56,10 @@
     bn.js "5.2.1"
     zod "3.23.8"
 
-"@avalabs/bridge-unified@0.0.0-feat-is-bridge-address-20240909115936":
-  version "0.0.0-feat-is-bridge-address-20240909115936"
-  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-0.0.0-feat-is-bridge-address-20240909115936.tgz#1529f648d301db2bda671d46e8f3d5d6edb2a492"
-  integrity sha512-Y1AsYR3SKHJVvak6C8IyE68SFLKMmNj3U9hGLNTaB6zR6DyewGuHQByB5wJpVeompd+LHjZl7T0+juY8scneGQ==
+"@avalabs/bridge-unified@0.0.0-feat-is-bridge-address-20240926120228":
+  version "0.0.0-feat-is-bridge-address-20240926120228"
+  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-0.0.0-feat-is-bridge-address-20240926120228.tgz#5cd14896a519579f2de50c7c3bd7ce28835f756c"
+  integrity sha512-0k7S9Ft0QvX7En7BUv7uoKfkplWv5eQDzxEIGWkMVfvAS/89aaUY8cGbyIg0hG29ogQi811bcCZIDEo05rEiGg==
   dependencies:
     abitype "0.9.3"
     lodash "4.17.21"

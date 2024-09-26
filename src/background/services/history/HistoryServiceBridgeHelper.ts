@@ -32,7 +32,7 @@ export class HistoryServiceBridgeHelper {
       return false;
     }
 
-    if (this.unifiedBridgeService.isBridgeAddress(tx.from, tx.to)) {
+    if (this.unifiedBridgeService.isBridgeTx(tx)) {
       return true;
     }
 

@@ -76,7 +76,7 @@ const mockedAccountsService = {
   },
 } as any;
 const mockedUnifiedBridgeService = {
-  isBridgeAddress: jest.fn(),
+  isBridgeTx: jest.fn(),
 } as any;
 
 const senderAddress = 'Sender Address';
@@ -334,7 +334,7 @@ describe('background/services/history/HistoryServiceGlacier.test.ts', () => {
         ],
       })
     );
-    mockedUnifiedBridgeService.isBridgeAddress.mockReturnValue(false);
+    mockedUnifiedBridgeService.isBridgeTx.mockReturnValue(false);
     (Glacier as jest.Mock).mockImplementation(() => {
       return {
         evmTransactions: {

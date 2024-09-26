@@ -18,6 +18,7 @@ import {
   BridgeTransfer,
   getEnabledBridgeServices,
   BridgeServicesMap,
+  IsBridgeTxParams,
 } from '@avalabs/bridge-unified';
 import { ethErrors } from 'eth-rpc-errors';
 import { filter, map } from 'rxjs';
@@ -64,7 +65,7 @@ export interface UnifiedBridgeContext {
     amount: bigint,
     targetChainId: number
   ): Promise<bigint>;
-  isBridgeAddress(...addresses: string[]): boolean;
+  isBridgeTx(txInfo: IsBridgeTxParams): boolean;
   supportsAsset(address: string, targetChainId: number): boolean;
   transferAsset(
     symbol: string,
@@ -90,7 +91,7 @@ const DEFAULT_STATE = {
   supportsAsset() {
     return false;
   },
-  isBridgeAddress() {
+  isBridgeTx() {
     return false;
   },
   transferAsset() {
@@ -516,11 +517,11 @@ export function UnifiedBridgeProvider({
     [t]
   );
 
-  const isBridgeAddress = useCallback(
-    (...addresses: string[]) => {
+  const isBridgeTx = useCallback(
+    (txInfo: IsBridgeTxParams) => {
       assert(core, CommonError.Unknown);
 
-      return core.isBridgeAddress(...addresses);
+      return core.isBridgeTx(txInfo);
     },
     [core]
   );
@@ -531,7 +532,7 @@ export function UnifiedBridgeProvider({
         estimateTransferGas,
         getErrorMessage,
         state,
-        isBridgeAddress,
+        isBridgeTx,
         getAssetIdentifierOnTargetChain,
         getFee,
         supportsAsset,
