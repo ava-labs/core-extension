@@ -1,48 +1,103 @@
 import { singleton } from 'tsyringe';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-
 import { NetworkWithCaipId } from '../network/models';
-import { GlacierService } from '../glacier/GlacierService';
-import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
-import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
-import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
-
-import { HistoryServiceBTC } from './HistoryServiceBTC';
-import { HistoryServiceETH } from './HistoryServiceETH';
-import { HistoryServicePVM } from './HistoryServicePVM';
-import { HistoryServiceAVM } from './HistoryServiceAVM';
-import { HistoryServiceGlacier } from './HistoryServiceGlacier';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { AccountsService } from '../accounts/AccountsService';
+import { TxHistoryItem } from './models';
+import { HistoryServiceBridgeHelper } from './HistoryServiceBridgeHelper';
+import { Transaction } from '@avalabs/vm-module-types';
+import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
+import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
+import { resolve } from '@src/utils/promiseResolver';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 @singleton()
 export class HistoryService {
   constructor(
-    private btcHistoryService: HistoryServiceBTC,
-    private ethHistoryService: HistoryServiceETH,
-    private glacierHistoryService: HistoryServiceGlacier,
-    private glacierService: GlacierService,
-    private historyServiceAVM: HistoryServiceAVM,
-    private historyServicePVM: HistoryServicePVM
+    private moduleManager: ModuleManager,
+    private accountsService: AccountsService,
+    private bridgeHistoryHelperService: HistoryServiceBridgeHelper,
+    private unifiedBridgeService: UnifiedBridgeService
   ) {}
 
-  async getTxHistory(network: NetworkWithCaipId) {
-    const isSupportedNetwork = await this.glacierService.isNetworkSupported(
-      network.chainId
+  async getTxHistory(
+    network: NetworkWithCaipId,
+    otherAddress?: string
+  ): Promise<TxHistoryItem[]> {
+    const address = otherAddress ?? this.#getAddress(network);
+
+    if (!address) {
+      return [];
+    }
+
+    const [module] = await resolve(
+      this.moduleManager.loadModuleByNetwork(network)
     );
 
-    if (isSupportedNetwork) {
-      return await this.glacierHistoryService.getHistory(network);
+    if (!module) {
+      sentryCaptureException(
+        new Error(
+          `Fetching history failed. Module not found for ${network.caipId}`
+        ),
+        SentryExceptionTypes.VM_MODULES
+      );
+      return [];
     }
+    const { transactions } = await module.getTransactionHistory({
+      address,
+      network,
+      offset: 25,
+    });
 
+    const txHistoryItem = transactions.map((transaction) => {
+      const isBridge = this.#getIsBirdge(network, transaction);
+      const vmType = network.vmName;
+      return { ...transaction, vmType, isBridge };
+    }) as TxHistoryItem[];
+
+    return txHistoryItem;
+  }
+
+  #getIsBirdge(network: NetworkWithCaipId, transaction: Transaction) {
     if (network.vmName === NetworkVMType.BITCOIN) {
-      return await this.btcHistoryService.getHistory(network);
-    } else if (isEthereumNetwork(network)) {
-      return await this.ethHistoryService.getHistory(network);
-    } else if (isPchainNetwork(network)) {
-      return await this.historyServicePVM.getHistory(network);
-    } else if (isXchainNetwork(network)) {
-      return await this.historyServiceAVM.getHistory(network);
+      return this.bridgeHistoryHelperService.isBridgeTransactionBTC([
+        transaction.from,
+        transaction.to,
+      ]);
+    }
+    return (
+      this.#isBridgeAddress(transaction.from) ||
+      this.#isBridgeAddress(transaction.to)
+    );
+  }
+
+  #getAddress(network: NetworkWithCaipId) {
+    switch (network.vmName) {
+      case NetworkVMType.EVM:
+        return this.accountsService.activeAccount?.addressC;
+      case NetworkVMType.BITCOIN:
+        return this.accountsService.activeAccount?.addressBTC;
+      case NetworkVMType.AVM:
+        return this.accountsService.activeAccount?.addressAVM;
+      case NetworkVMType.PVM:
+        return this.accountsService.activeAccount?.addressPVM;
+      case NetworkVMType.CoreEth:
+        return this.accountsService.activeAccount?.addressCoreEth;
+      default:
+        return undefined;
+    }
+  }
+
+  #isBridgeAddress(address?: string) {
+    if (!address) {
+      return false;
     }
 
-    return [];
+    return [
+      ETHEREUM_ADDRESS,
+      ...this.unifiedBridgeService.state.addresses,
+    ].includes(address.toLowerCase());
   }
 }

@@ -1,5 +1,4 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-
 import { ModuleManager } from './ModuleManager';
 import { VMModuleError } from './models';
 import { ApprovalController } from './ApprovalController';

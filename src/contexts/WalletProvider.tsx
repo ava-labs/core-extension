@@ -12,11 +12,7 @@ import { WalletDetails } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useLedgerContext } from './LedgerProvider';
-import {
-  PchainTxHistoryItem,
-  TxHistoryItem,
-  XchainTxHistoryItem,
-} from '@src/background/services/history/models';
+import { TxHistoryItem } from '@src/background/services/history/models';
 import { UnlockWalletHandler } from '@src/background/services/lock/handlers/unlockWalletState';
 import { LockChangePasswordHandler } from '@src/background/services/lock/handlers/changeWalletPassword';
 import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
@@ -41,9 +37,7 @@ type WalletStateAndMethods = {
   ): Promise<boolean>;
   getWallet(id: string): WalletDetails | undefined;
   getUnencryptedMnemonic(password: string): Promise<string>;
-  getTransactionHistory(): Promise<
-    TxHistoryItem[] | PchainTxHistoryItem[] | XchainTxHistoryItem[]
-  >;
+  getTransactionHistory(): Promise<TxHistoryItem[]>;
 };
 const WalletContext = createContext<WalletStateAndMethods>({
   wallets: [],

@@ -1,19 +1,14 @@
-import {
-  PchainTxHistoryItem,
-  TxHistoryItem,
-  XchainTxHistoryItem,
-} from '../models';
+import { TxHistoryItem } from '../models';
 
-export function isTxHistoryItem(
-  tx: TxHistoryItem | PchainTxHistoryItem | XchainTxHistoryItem
-): tx is TxHistoryItem {
-  return Object.keys(tx).includes('tokens');
+export function isTxHistoryItem(tx: TxHistoryItem): tx is TxHistoryItem {
+  if ('isBridge' in tx && tx.vmType !== 'AVM' && tx.vmType !== 'PVM') {
+    return true;
+  }
+  return false;
 }
 
-export function isPchainTxHistoryItem(
-  tx: TxHistoryItem | PchainTxHistoryItem | XchainTxHistoryItem
-): tx is PchainTxHistoryItem {
-  if (isTxHistoryItem(tx)) {
+export function isPchainTxHistoryItem(tx: TxHistoryItem): tx is TxHistoryItem {
+  if (!('vmType' in tx)) {
     return false;
   }
   return tx.vmType === 'PVM';
