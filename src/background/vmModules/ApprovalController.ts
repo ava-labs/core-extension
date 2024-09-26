@@ -2,12 +2,14 @@ import { singleton } from 'tsyringe';
 import {
   ApprovalParams,
   ApprovalResponse,
+  BtcTxUpdateFn,
+  DisplayData,
+  EvmTxUpdateFn,
   ApprovalController as IApprovalController,
-  RpcError,
   RpcMethod,
   SigningData,
 } from '@avalabs/vm-module-types';
-import { rpcErrors, JsonRpcError, providerErrors } from '@metamask/rpc-errors';
+import { rpcErrors, providerErrors } from '@metamask/rpc-errors';
 
 import { WalletService } from '../services/wallet/WalletService';
 import { Action, ActionStatus } from '../services/actions/models';
@@ -127,12 +129,11 @@ export class ApprovalController implements IApprovalController {
       };
     }
 
-    const [preparedAction, actionError] = this.#try(() =>
-      this.#buildAction(params)
+    const action = await openApprovalWindow(
+      this.#buildAction(params),
+      'approve/generic'
     );
-    if (actionError) return { error: actionError };
 
-    const action = await openApprovalWindow(preparedAction, 'approve/generic');
     return new Promise((resolve) => {
       this.#requests.set(action.actionId as string, {
         params,
@@ -144,8 +145,8 @@ export class ApprovalController implements IApprovalController {
 
   updateTx = (
     id: string,
-    newData: { maxFeeRate?: bigint; maxTipRate?: bigint; data?: string }
-  ): SigningData => {
+    newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0]
+  ): { signingData: SigningData; displayData: DisplayData } => {
     const request = this.#requests.get(id);
 
     if (!request) {
@@ -158,20 +159,6 @@ export class ApprovalController implements IApprovalController {
 
     return request.params.updateTx(newData);
   };
-
-  #try<F extends (...args: any) => any>(
-    fn: F
-  ): [ReturnType<F>, null] | [null, RpcError] {
-    try {
-      return [fn(), null];
-    } catch (err: any) {
-      const safeError =
-        err instanceof JsonRpcError
-          ? err
-          : rpcErrors.internal({ message: 'Unknown error', data: err });
-      return [null, safeError];
-    }
-  }
 
   #handleApproval = async (
     params: ApprovalParams,

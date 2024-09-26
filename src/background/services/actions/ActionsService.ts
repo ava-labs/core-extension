@@ -19,6 +19,7 @@ import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
 import { ApprovalController } from '@src/background/vmModules/ApprovalController';
+import { BtcTxUpdateFn, EvmTxUpdateFn } from '@avalabs/vm-module-types';
 
 @singleton()
 export class ActionsService implements OnStorageReady {
@@ -214,7 +215,7 @@ export class ActionsService implements OnStorageReady {
 
   async updateTx(
     id: string,
-    newData: { maxFeeRate?: bigint; maxTipRate?: bigint; data?: string }
+    newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0]
   ) {
     const currentPendingRequests = await this.getActions();
     const pendingRequest = currentPendingRequests[id];
@@ -223,11 +224,17 @@ export class ActionsService implements OnStorageReady {
       throw new Error(`No request found with id: ${id}`);
     }
 
+    const { signingData, displayData } = this.approvalController.updateTx(
+      id,
+      newData
+    );
+
     await this.saveActions({
       ...currentPendingRequests,
       [id]: {
         ...pendingRequest,
-        signingData: this.approvalController.updateTx(id, newData),
+        signingData,
+        displayData,
       },
     });
   }

@@ -58,20 +58,6 @@ export const useFeeCustomizer = ({
     [tokens]
   ) as NetworkTokenWithBalance | null;
 
-  const updateFee = useCallback(
-    async (maxFeeRate: bigint, maxTipRate?: bigint) => {
-      if (!actionId) {
-        return;
-      }
-
-      await request<UpdateActionTxDataHandler>({
-        method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
-        params: [actionId, { maxFeeRate, maxTipRate }],
-      });
-    },
-    [actionId, request]
-  );
-
   const signingData = useMemo(() => {
     switch (action?.signingData?.type) {
       // Request types that we know may require a fee
@@ -84,6 +70,25 @@ export const useFeeCustomizer = ({
         return undefined;
     }
   }, [action]);
+
+  const updateFee = useCallback(
+    async (maxFeeRate: bigint, maxTipRate?: bigint) => {
+      if (!actionId) {
+        return;
+      }
+
+      const newFeeConfig =
+        signingData?.type === RpcMethod.BITCOIN_SEND_TRANSACTION
+          ? { feeRate: Number(maxFeeRate) }
+          : { maxFeeRate, maxTipRate };
+
+      await request<UpdateActionTxDataHandler>({
+        method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
+        params: [actionId, newFeeConfig],
+      });
+    },
+    [actionId, request, signingData?.type]
+  );
 
   const getFeeInfo = useCallback((data: SigningData) => {
     switch (data.type) {

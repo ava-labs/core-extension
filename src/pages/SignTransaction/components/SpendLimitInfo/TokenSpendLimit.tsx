@@ -7,9 +7,7 @@ import {
 import { useCallback, useState } from 'react';
 import { CustomSpendLimit } from './CustomSpendLimit';
 import { TransactionTokenCard } from '../TransactionTokenCard';
-import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { MaxUint256 } from 'ethers';
-import Web3 from 'web3';
 import {
   DisplayData,
   ERC20Token,
@@ -52,48 +50,41 @@ export function TokenSpendLimit({
 
   const setSpendLimit = useCallback(
     (customSpendData: SpendLimit) => {
-      let limitAmount = '';
+      let limitAmount = 0n;
 
       if (customSpendData.limitType === Limit.UNLIMITED) {
         setCustomSpendLimit({
           ...customSpendData,
           value: undefined,
         });
-        limitAmount = `0x${MaxUint256.toString(16)}`;
+        limitAmount = MaxUint256;
       } else {
         setCustomSpendLimit(customSpendData);
         limitAmount =
           customSpendData.limitType === Limit.CUSTOM
-            ? (customSpendData.value ?? 0n).toString()
-            : (approval.value ?? 0n).toString();
+            ? customSpendData.value ?? 0n
+            : BigInt(approval.value ?? 0n);
       }
-
-      // create hex string for approval amount
-      const web3 = new Web3();
-      const contract = new web3.eth.Contract(
-        ERC20.abi as any,
-        approval.token.address
-      );
-
-      const hashedCustomSpend =
-        limitAmount &&
-        contract.methods
-          .approve(approval.spenderAddress, limitAmount)
-          .encodeABI();
-
       request<UpdateActionTxDataHandler>({
         method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
-        params: [actionId, { data: hashedCustomSpend }],
+        params: [actionId, { approvalLimit: `0x${limitAmount.toString(16)}` }],
       });
     },
-    [
-      actionId,
-      request,
-      approval.token.address,
-      approval.value,
-      approval.spenderAddress,
-    ]
+    [actionId, request, approval.value]
   );
+
+  const isInfinite = customSpendLimit.limitType === Limit.UNLIMITED;
+  const diffItemValue = isInfinite
+    ? null
+    : new TokenUnit(
+        customSpendLimit.limitType === Limit.DEFAULT
+          ? typeof approval.value === 'string'
+            ? BigInt(approval.value)
+            : 0n
+          : customSpendLimit.value ?? '0',
+        approval.token.decimals,
+        ''
+      );
 
   return (
     <>
@@ -139,14 +130,16 @@ export function TokenSpendLimit({
             logoUri: approval.logoUri,
           }}
           diffItem={{
-            displayValue: new TokenUnit(
-              customSpendLimit.limitType === Limit.DEFAULT
-                ? approval.value ?? '0'
-                : customSpendLimit.value ?? '0',
-              approval.token.decimals,
-              ''
-            ).toDisplay(),
-            usdPrice: '0',
+            displayValue: isInfinite
+              ? t('Unlimited')
+              : (diffItemValue as TokenUnit).toDisplay(),
+            usdPrice:
+              isInfinite || !approval.usdPrice
+                ? undefined
+                : String(
+                    (diffItemValue as TokenUnit).toDisplay({ asNumber: true }) *
+                      Number(approval.usdPrice)
+                  ),
           }}
         />
       </Stack>

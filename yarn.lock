@@ -29,10 +29,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@0.0.0-feat-update-fee-config-20240920141050":
-  version "0.0.0-feat-update-fee-config-20240920141050"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-update-fee-config-20240920141050.tgz#368435c14e8b50aa1a4f94e58b45d6a96c868889"
-  integrity sha512-+xQ64RYrre07Qo8RABmpkoKWa894/ixyDDX+TRw4m5/oMlbctweQjwDuo0aAGvGX+cd02ywVMC3EQ1GsZY69xw==
+"@avalabs/avalanche-module@0.0.0-feat-update-fee-config-20240926100305":
+  version "0.0.0-feat-update-fee-config-20240926100305"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-update-fee-config-20240926100305.tgz#0972b88a1b4a39a8af505cc629cdceb7ee626b0b"
+  integrity sha512-Uy1tHPEaPxw+LPHz7/5Ls6c0CLbpt5MwgA0LbRh7NFUySMmStU9D/gCjDRA5EihyryUo/0Wk77j5HXTntA1+Qg==
   dependencies:
     "@avalabs/avalanchejs" "4.0.5"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.5"
@@ -42,7 +42,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
     "@avalabs/glacier-sdk" "3.1.0-alpha.5"
     "@avalabs/types" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.0.0-feat-update-fee-config-20240920141050"
+    "@avalabs/vm-module-types" "0.0.0-feat-update-fee-config-20240926100305"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -59,15 +59,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@0.0.0-feat-update-fee-config-20240920141050":
-  version "0.0.0-feat-update-fee-config-20240920141050"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-update-fee-config-20240920141050.tgz#df0c53811d7b187a0ab764da34afa36c79ff11a3"
-  integrity sha512-GUhK6Sh2hOI+lTfu06VfFiq5/Lt1JFYl6G/v6q3nyvvvivOh7T9HaF+q7oZbJQydw8sCUgfl2CmzqEQJAYNt4A==
+"@avalabs/bitcoin-module@0.0.0-feat-update-fee-config-20240926100305":
+  version "0.0.0-feat-update-fee-config-20240926100305"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-update-fee-config-20240926100305.tgz#231e6a5f68394d1d53741733930a873ce6cdaf39"
+  integrity sha512-1ULM72vokXWplSqHT7lg8qeJc4hp1b40ywU0m8GYglXHKCCiEnzvEgoK4VC8IE9hH2gQgdactNe6eDrbyMb9hQ==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.5"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.5"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.0.0-feat-update-fee-config-20240920141050"
+    "@avalabs/vm-module-types" "0.0.0-feat-update-fee-config-20240926100305"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -245,10 +245,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@0.0.0-feat-update-fee-config-20240920141050":
-  version "0.0.0-feat-update-fee-config-20240920141050"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-update-fee-config-20240920141050.tgz#876a343e10c1bbe7bb052c3d4ef8ab99e73731ca"
-  integrity sha512-gcc83FfibgdAFVAQ0MP9f+joxzcj7z6ooM+umXQA/u9zYntZOz7OSnSE6QEmrA1cxcXeoRCnb0fClHpWW/mf5Q==
+"@avalabs/evm-module@0.0.0-feat-update-fee-config-20240926100305":
+  version "0.0.0-feat-update-fee-config-20240926100305"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-update-fee-config-20240926100305.tgz#21ae6a35e20f7fa5d49ca4a1363b057d40f54788"
+  integrity sha512-IrYaE11vgV0VUvhUn/zkUl6DaPWJTgyqa0g+rC2S4BB6FMoYa3cdoNFHVANmPrEKFerhjdkaqffUjSxbdTQ4wg==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.5"
     "@avalabs/core-etherscan-sdk" "3.1.0-alpha.5"
@@ -256,7 +256,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
     "@avalabs/glacier-sdk" "3.1.0-alpha.5"
     "@avalabs/types" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.0.0-feat-update-fee-config-20240920141050"
+    "@avalabs/vm-module-types" "0.0.0-feat-update-fee-config-20240926100305"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -296,10 +296,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.5.tgz#82dcb2cdb63b47186689186e09ad13e207180e8c"
   integrity sha512-OpHTXQL/RGzL9FOfQAN4mc6jD/kZVthRtzS2eCqoI6gAZmNzf3Paq46U6cKabti1coyJDIcrXrRl1U1qtCpoYg==
 
-"@avalabs/vm-module-types@0.0.0-feat-update-fee-config-20240920141050":
-  version "0.0.0-feat-update-fee-config-20240920141050"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-update-fee-config-20240920141050.tgz#6c605b0ec3d50627d661c9179a938a770da092ba"
-  integrity sha512-0x1IEpmwlx/YsAHZMfXqgGUGxx2gu4xqrL77dhBaEmI2B5iqXGZ+mJvl8WiD4EH15a6x1vb5JHtEErzH/IA5dw==
+"@avalabs/vm-module-types@0.0.0-feat-update-fee-config-20240926100305":
+  version "0.0.0-feat-update-fee-config-20240926100305"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-update-fee-config-20240926100305.tgz#4b3117f11e48ba70e0399c59d00e0de16e155e12"
+  integrity sha512-Dbin5WG1zrepMBjDAsDJ3pEMXsZ/z13Hkv4QXw9A9Ekq5jiih+WupvsB7dB94qdsRQQBVyOaSwSXJNDbftW0lg==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
     "@avalabs/glacier-sdk" "3.1.0-alpha.5"

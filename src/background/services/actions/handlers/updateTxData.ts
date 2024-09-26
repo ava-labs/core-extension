@@ -1,15 +1,18 @@
+import { injectable } from 'tsyringe';
+import { EvmTxUpdateFn, BtcTxUpdateFn } from '@avalabs/vm-module-types';
+
+import { SendErrorMessage } from '@src/utils/send/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
-import { injectable } from 'tsyringe';
+
 import { ActionsService } from '../ActionsService';
-import { SendErrorMessage } from '@src/utils/send/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACTION_UPDATE_TX_DATA,
   null,
   [
     id: string,
-    newData: { maxFeeRate?: bigint; maxTipRate?: bigint; data?: string }
+    newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0]
   ]
 >;
 
