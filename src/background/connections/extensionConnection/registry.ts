@@ -2,7 +2,6 @@ import { CaptureAnalyticsEventHandler } from '../../services/analytics/handlers/
 import { AccountsUpdatedEvents } from '@src/background/services/accounts/events/accountsUpdatedEvent';
 import { AddAccountHandler } from '@src/background/services/accounts/handlers/addAccount';
 import { GetAccountsHandler } from '@src/background/services/accounts/handlers/getAccounts';
-import { RenameAccountHandler } from '@src/background/services/accounts/handlers/renameAccount';
 import { SelectAccountHandler } from '@src/background/services/accounts/handlers/selectAccount';
 import { GetActionHandler } from '@src/background/services/actions/handlers/getActions';
 import { UpdateActionHandler } from '@src/background/services/actions/handlers/updateAction';
@@ -65,7 +64,6 @@ import { UpdateCollectiblesVisibilityHandler } from '../../services/settings/han
 import { NetworksUpdatedEvents } from '@src/background/services/network/events/networksUpdatedEvent';
 import { NetworkUpdatedEvents } from '@src/background/services/network/events/networkUpdatedEvent';
 import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
-import { GetNftBalancesHandler } from '@src/background/services/balances/handlers/getNftBalances';
 import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
 import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
 import { LockStateChangedEvents } from '@src/background/services/lock/events/lockStateChangedEvent';
@@ -139,7 +137,6 @@ import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBrid
 @registry([
   { token: 'ExtensionRequestHandler', useToken: AddAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAccountsHandler },
-  { token: 'ExtensionRequestHandler', useToken: RenameAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: SelectAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: DeleteAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetActionHandler },
@@ -159,7 +156,6 @@ import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBrid
     useToken: UpdateBalancesForNetworkHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: GetBalancesHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetNftBalancesHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetConfigHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeGetStateHandler },
   { token: 'ExtensionRequestHandler', useToken: BridgeSetIsDevEnvHandler },

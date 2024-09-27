@@ -1,4 +1,4 @@
-import { NftTokenWithBalance } from '@src/background/services/balances/models';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { useHistory, useLocation } from 'react-router-dom';
 
 type SetCollectibleParams = {

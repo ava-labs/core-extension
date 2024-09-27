@@ -6,7 +6,6 @@ import { useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { TokenType } from '@src/background/services/balances/models';
 import { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
 import { GetTokenDataHandler } from '@src/background/services/settings/handlers/getTokenDataByAddress';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +18,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { TokenCardWithBalance } from '@src/components/common/TokenCardWithBalance';
 import { TokenIcon } from '@src/components/common/TokenIcon';
+import { TokenType } from '@avalabs/vm-module-types';
 
 export function AddToken() {
   const { t } = useTranslation();

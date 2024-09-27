@@ -2,15 +2,12 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import {
-  TokenType,
-  TokenWithBalance,
-} from '@src/background/services/balances/models';
-import {
   Divider,
   Stack,
   Switch,
   Typography,
 } from '@avalabs/core-k2-components';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 
 type ManageTokensListProps = {
   searchQuery: string;

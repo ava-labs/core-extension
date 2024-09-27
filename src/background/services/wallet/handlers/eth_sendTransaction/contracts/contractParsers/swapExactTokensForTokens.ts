@@ -11,9 +11,10 @@ import { Network } from '@avalabs/core-chains-sdk';
 import { TransactionDescription } from 'ethers';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import {
+  NetworkTokenWithBalance,
   TokenType,
-  TokenWithBalanceEVM,
-} from '@src/background/services/balances/models';
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
 
 export interface SwapExactTokensForTokenData {
   amountInMin: bigint;
@@ -46,11 +47,11 @@ export async function swapExactTokensForTokenHandler(
   const firstTokenInPath = (await findToken(
     data.path[0]?.toLowerCase() || '',
     network
-  )) as TokenWithBalanceEVM;
+  )) as NetworkTokenWithBalance | TokenWithBalanceERC20;
   const lastTokenInPath = (await findToken(
     data.path[data.path.length - 1]?.toLowerCase() || '',
     network
-  )) as TokenWithBalanceEVM;
+  )) as NetworkTokenWithBalance | TokenWithBalanceERC20;
 
   const sendTokenList: TransactionToken[] = [];
   const inAmount = data.amountIn || data.amountInMin || data.amountInMax;
@@ -66,11 +67,11 @@ export async function swapExactTokensForTokenHandler(
 
     amount: inAmount ? BigInt(inAmount) : undefined,
     usdValue:
-      inAmount && firstTokenInPath.priceUSD
-        ? Number(firstTokenInPath.priceUSD) *
-          bigintToBig(inAmount, firstTokenInPath.decimals).toNumber()
+      inAmount && firstTokenInPath.priceInCurrency
+        ? Number(firstTokenInPath.priceInCurrency) *
+          bigintToBig(inAmount, firstTokenInPath.priceInCurrency).toNumber()
         : undefined,
-    usdPrice: firstTokenInPath.priceUSD,
+    usdPrice: firstTokenInPath.priceInCurrency,
   });
 
   const receiveTokenList: TransactionToken[] = [];
@@ -87,11 +88,11 @@ export async function swapExactTokensForTokenHandler(
 
     amount: outAmout ? BigInt(outAmout) : undefined,
     usdValue:
-      outAmout && lastTokenInPath.priceUSD
-        ? Number(lastTokenInPath.priceUSD) *
+      outAmout && lastTokenInPath.priceInCurrency
+        ? Number(lastTokenInPath.priceInCurrency) *
           bigintToBig(outAmout, lastTokenInPath.decimals).toNumber()
         : undefined,
-    usdPrice: lastTokenInPath.priceUSD,
+    usdPrice: lastTokenInPath.priceInCurrency,
   });
 
   const result: TransactionDisplayValues = await parseBasicDisplayValues(

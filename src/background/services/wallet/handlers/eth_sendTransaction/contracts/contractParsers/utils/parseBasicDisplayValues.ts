@@ -8,7 +8,7 @@ import {
 } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { findToken } from '../../../../../../../utils/findToken';
-import { TokenWithBalanceEVM } from '@src/background/services/balances/models';
+import { TokenWithBalanceEVM } from '@avalabs/vm-module-types';
 
 export async function parseBasicDisplayValues(
   network: Network,
@@ -31,20 +31,20 @@ export async function parseBasicDisplayValues(
       name: network.networkToken.name,
       logoUri: network.networkToken.logoUri,
       amount: BigInt(request.value),
-      usdValue: networkTokenWithBalance.priceUSD
-        ? networkTokenWithBalance.priceUSD *
+      usdValue: networkTokenWithBalance.priceInCurrency
+        ? networkTokenWithBalance.priceInCurrency *
           bigintToBig(
             BigInt(request.value),
             network.networkToken.decimals
           ).toNumber()
         : undefined,
-      usdPrice: networkTokenWithBalance.priceUSD,
+      usdPrice: networkTokenWithBalance.priceInCurrency,
     });
   }
   const gasInfo = calculateGasAndFees({
     maxFeePerGas: BigInt(request.maxFeePerGas),
     gasLimit: Number(request.gasLimit),
-    tokenPrice: networkTokenWithBalance.priceUSD,
+    tokenPrice: networkTokenWithBalance.priceInCurrency,
     tokenDecimals: network.networkToken.decimals,
   });
 

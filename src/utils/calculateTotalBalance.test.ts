@@ -5,13 +5,9 @@ import {
   NetworkVMType,
 } from '@avalabs/core-chains-sdk';
 import { Account, AccountType } from '@src/background/services/accounts/models';
-import {
-  Balances,
-  NetworkTokenWithBalance,
-  TokenType,
-} from '@src/background/services/balances/models';
-import BN from 'bn.js';
+import { Balances } from '@src/background/services/balances/models';
 import { calculateTotalBalance } from './calculateTotalBalance';
+import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 describe('utils/calculateTotalBalance', () => {
   const account1: Account = {
@@ -45,24 +41,26 @@ describe('utils/calculateTotalBalance', () => {
   const network1TokenBalance: NetworkTokenWithBalance = {
     ...networkToken1,
     type: TokenType.NATIVE,
-    balance: new BN(100),
-    balanceUSD: 3,
+    balance: 100n,
+    balanceDisplayValue: '0.00001',
+    coingeckoId: '',
+    balanceInCurrency: 3,
   };
 
   const balances: Balances = {
-    [ChainId.AVALANCHE_MAINNET_ID]: {
+    [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
       [account1.addressC]: {
         [networkToken1.symbol]: {
           ...network1TokenBalance,
-          balance: new BN(3),
+          balance: 3n,
         },
       },
     },
-    [ChainId.DFK]: {
+    [ChainId.DFK.toString()]: {
       [account1.addressC]: {
         [networkToken1.symbol]: {
           ...network1TokenBalance,
-          balance: new BN(3),
+          balance: 3n,
         },
       },
     },

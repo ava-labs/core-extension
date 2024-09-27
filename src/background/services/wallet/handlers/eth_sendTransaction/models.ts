@@ -1,6 +1,6 @@
-import { TokenType } from '@src/background/services/balances/models';
 import { DomainMetadata, EnsureDefined } from '@src/background/models';
 import { TxDisplayOptions } from '../models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 export enum AvalancheChainStrings {
   AVM = 'X Chain',

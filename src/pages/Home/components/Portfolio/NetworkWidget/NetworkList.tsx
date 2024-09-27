@@ -38,7 +38,7 @@ export function NetworkList() {
   const { capture } = useAnalyticsContext();
   const { network, networks, setNetwork, favoriteNetworks, isCustomNetwork } =
     useNetworkContext();
-  const { tokens, isTokensCached } = useBalancesContext();
+  const { balances, isTokensCached } = useBalancesContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -53,7 +53,7 @@ export function NetworkList() {
     const networkAddress = activeAccount
       ? getAddressForChain(chainId, activeAccount) || ''
       : '';
-    const networkBalances = tokens.balances?.[chainId];
+    const networkBalances = balances.tokens?.[chainId];
     const networkAssetList = networkBalances
       ? tokensWithBalances(Object.values(networkBalances[networkAddress] ?? {}))
       : null;
@@ -96,7 +96,7 @@ export function NetworkList() {
             ...Object.values(legacyBridgeTxs),
             ...filteredUnifiedBridgeTxs,
           ];
-          const networkBalances = tokens.balances?.[favoriteNetwork.chainId];
+          const networkBalances = balances.tokens?.[favoriteNetwork.chainId];
           const networkBalance = getNetworkValue(favoriteNetwork);
 
           // show loading skeleton for each tile till we have the balance for them

@@ -1,5 +1,7 @@
 import { Environment, Module } from '@avalabs/vm-module-types';
 import { BitcoinModule } from '@avalabs/bitcoin-module';
+import { AvalancheModule } from '@avalabs/avalanche-module';
+import { EvmModule } from '@avalabs/evm-module';
 import { ethErrors } from 'eth-rpc-errors';
 import { singleton } from 'tsyringe';
 
@@ -7,7 +9,6 @@ import { assertPresent } from '@src/utils/assertions';
 import { isDevelopment } from '@src/utils/environment';
 
 import { NetworkWithCaipId } from '../services/network/models';
-
 import { VMModuleError } from './models';
 import { ApprovalController } from './ApprovalController';
 
@@ -42,6 +43,14 @@ export class ModuleManager {
       : Environment.PRODUCTION;
 
     this.#modules = [
+      new EvmModule({
+        environment,
+        approvalController: this.#approvalController,
+      }),
+      new AvalancheModule({
+        environment,
+        approvalController: this.#approvalController,
+      }),
       new BitcoinModule({
         environment,
         approvalController: this.#approvalController,
@@ -91,7 +100,6 @@ export class ModuleManager {
         },
       });
     }
-
     return (
       (await this.#getModuleByChainId(chainId)) ??
       (await this.#getModuleByNamespace(namespace))

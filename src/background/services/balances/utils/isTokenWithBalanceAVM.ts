@@ -1,4 +1,7 @@
-import { TokenWithBalance, TokenWithBalanceAVM } from '../models';
+import {
+  TokenWithBalance,
+  TokenWithBalanceAVM,
+} from '@avalabs/vm-module-types';
 
 export const isTokenWithBalanceAVM = (
   balance?: TokenWithBalance
@@ -6,5 +9,6 @@ export const isTokenWithBalanceAVM = (
   if (!balance) {
     return false;
   }
-  return Object.keys(balance).includes('locked');
+
+  return 'balancePerType' in balance && 'locked' in balance.balancePerType;
 };

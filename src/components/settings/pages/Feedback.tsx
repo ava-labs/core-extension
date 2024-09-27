@@ -84,7 +84,7 @@ export function Feedback({ goBack, navigateTo, width }) {
                 console.error(err);
               }
               window.open(
-                `https://portal.productboard.com/dndv9ahlkdfye4opdm8ksafi/tabs/1-core-browser-extension`,
+                'https://docs.google.com/forms/d/e/1FAIpQLSdQ9nOPPGjVPmrLXh3B9NR1NuXXUiW2fKW1ylrXpiW_vZB_hw/viewform?entry.2070152111=Core%20browser%20extension',
                 '_blank',
                 'noreferrer'
               );

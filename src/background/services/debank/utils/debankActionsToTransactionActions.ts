@@ -1,4 +1,3 @@
-import { TokenType } from '../../balances/models';
 import {
   TransactionAction,
   TransactionType,
@@ -6,6 +5,7 @@ import {
 import { TxAction } from '../models';
 import { mapNftToTransactionNft } from './mapNftToTransactionNft';
 import { mapTokenItemToTransactionToken } from './mapTokenItemToTransactionToken';
+import { TokenType } from '@avalabs/vm-module-types';
 
 export function debankActionsToTransactionActions(
   actions: TxAction[]

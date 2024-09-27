@@ -1,70 +1,12 @@
 import {
-  PChainTransactionType,
-  RichAddress,
-  XChainTransactionType,
-} from '@avalabs/glacier-sdk';
-import { TokenType } from '@avalabs/vm-module-types';
+  NetworkVMType,
+  Transaction,
+  TransactionType,
+} from '@avalabs/vm-module-types';
 
-export interface TxHistoryItemToken {
-  decimal?: string;
-  name: string;
-  symbol: string;
-  amount: string;
-  imageUri?: string;
-  from?: RichAddress;
-  to?: RichAddress;
-  collectableTokenId?: string;
-  type: TokenType;
-}
-export interface TxHistoryItem {
+export interface TxHistoryItem extends Transaction {
   isBridge: boolean;
-  isContractCall: boolean;
-  isIncoming: boolean;
-  isOutgoing: boolean;
-  isSender: boolean;
-  timestamp: string | number;
-  hash: string;
-  from: string;
-  to: string;
-  tokens: TxHistoryItemToken[];
-  gasPrice?: string;
-  gasUsed: string;
-  explorerLink: string;
-  chainId: string; // chainId from ActiveNetwork used to fetch tx
-  type: TransactionType;
-}
-
-export interface XPchainTxHistoryItem {
-  from: string[];
-  to: string[];
-  isSender: boolean;
-  timestamp: string;
-  token: TxHistoryItemToken;
-  gasUsed: string;
-  explorerLink: string;
-  chainId: string; // chainId from ActiveNetwork used to fetch tx
-  type: PChainTransactionType | XChainTransactionType;
-}
-
-export interface PchainTxHistoryItem extends XPchainTxHistoryItem {
-  type: PChainTransactionType;
-  vmType: 'PVM';
-}
-export interface XchainTxHistoryItem extends XPchainTxHistoryItem {
-  type: XChainTransactionType;
-  vmType: 'AVM';
-}
-
-export enum TransactionType {
-  BRIDGE = 'Bridge',
-  SWAP = 'Swap',
-  SEND = 'Send',
-  RECEIVE = 'Receive',
-  NFT_BUY = 'NFT Buy',
-  APPROVE = 'Approve',
-  TRANSFER = 'Transfer',
-  BASE_TX = 'BaseTx',
-  UNKNOWN = 'Unknown',
+  vmType?: NetworkVMType;
 }
 
 export const NonContractCallTypes = [

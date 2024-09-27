@@ -19,8 +19,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
   const getBalancesForNetworks = jest.fn();
   const getNetwork = jest.fn();
   const addFavoriteNetwork = jest.fn();
-  const getHistoryP = jest.fn();
-  const getHistoryX = jest.fn();
+  const getTxHistory = jest.fn();
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -29,19 +28,22 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
       .spyOn(container, 'resolve')
       .mockReturnValueOnce({ getBalancesForNetworks })
       .mockReturnValueOnce({ getNetwork, addFavoriteNetwork })
-      .mockReturnValueOnce({ getHistory: getHistoryP })
-      .mockReturnValueOnce({ getHistory: getHistoryX });
+      .mockReturnValueOnce({ getTxHistory })
+      .mockReturnValueOnce({ getTxHistory });
   });
 
   it('adds X-Chain if there is balance on one of the accounts', async () => {
     getBalancesForNetworks.mockResolvedValueOnce({
-      [ChainId.AVALANCHE_X]: {
-        [accounts[0].addressAVM]: {
-          AVAX: {
-            balance: new BN(1),
+      tokens: {
+        [ChainId.AVALANCHE_X]: {
+          [accounts[0].addressAVM]: {
+            AVAX: {
+              balance: new BN(1),
+            },
           },
         },
       },
+      nfts: {},
     });
 
     await addXPChainToFavoriteIfNeeded(accounts as any);
@@ -51,13 +53,16 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
 
   it('adds P-Chain if there is balance on one of the accounts', async () => {
     getBalancesForNetworks.mockResolvedValueOnce({
-      [ChainId.AVALANCHE_P]: {
-        [accounts[1].addressPVM]: {
-          AVAX: {
-            balance: new BN(1),
+      tokens: {
+        [ChainId.AVALANCHE_P]: {
+          [accounts[1].addressPVM]: {
+            AVAX: {
+              balance: new BN(1),
+            },
           },
         },
       },
+      nfts: {},
     });
 
     await addXPChainToFavoriteIfNeeded(accounts as any);
@@ -67,11 +72,14 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
 
   it('adds P-Chain if there was some activity on one of the accounts', async () => {
     getBalancesForNetworks.mockResolvedValue({
-      [ChainId.AVALANCHE_P]: {},
-      [ChainId.AVALANCHE_X]: {},
+      tokens: {
+        [ChainId.AVALANCHE_P]: {},
+        [ChainId.AVALANCHE_X]: {},
+      },
+      nfts: {},
     });
 
-    getHistoryP.mockResolvedValueOnce([{ anything: ':-)' } as any]); // P-chain info is fetched first
+    getTxHistory.mockResolvedValueOnce([{ anything: ':-)' } as any]); // P-chain info is fetched first
 
     await addXPChainToFavoriteIfNeeded(accounts as any);
 
@@ -80,15 +88,18 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
 
   it('adds X-Chain if there was some activity on one of the accounts', async () => {
     getBalancesForNetworks.mockResolvedValue({
-      [ChainId.AVALANCHE_P]: {},
-      [ChainId.AVALANCHE_X]: {},
+      tokens: {
+        [ChainId.AVALANCHE_P]: {},
+        [ChainId.AVALANCHE_X]: {},
+      },
+      nft: {},
     });
 
-    getHistoryP
+    getTxHistory
       .mockRejectedValueOnce([]) // P-chain call for account 1
       .mockRejectedValueOnce([]); // P-chain call for account 2
 
-    getHistoryX.mockResolvedValueOnce([{ anything: ':-)' } as any]); // X-chain call for account 1
+    getTxHistory.mockResolvedValueOnce([{ anything: ':-)' } as any]); // X-chain call for account 1
 
     await addXPChainToFavoriteIfNeeded(accounts as any);
 
@@ -97,8 +108,11 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
 
   it('does not add any networks if there is no balance or activity', async () => {
     getBalancesForNetworks.mockResolvedValue({
-      [ChainId.AVALANCHE_P]: {},
-      [ChainId.AVALANCHE_X]: {},
+      tokens: {
+        [ChainId.AVALANCHE_P]: {},
+        [ChainId.AVALANCHE_X]: {},
+      },
+      nfts: {},
     });
 
     await addXPChainToFavoriteIfNeeded(accounts as any);

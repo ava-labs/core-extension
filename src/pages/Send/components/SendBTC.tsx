@@ -1,6 +1,5 @@
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { stringToBN } from '@avalabs/core-utils-sdk';
 
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
 import { isBtcAddressInNetwork } from '@src/utils/isBtcAddressInNetwork';
@@ -11,6 +10,7 @@ import { SendPageProps } from '../models';
 import { SendForm } from './SendForm';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { stringToBigint } from '@src/utils/stringToBigint';
 
 export const SendBTC = ({
   network,
@@ -87,7 +87,8 @@ export const SendBTC = ({
   }, [address, amount, isValid, onApproved, onFailure, onSuccess, send]);
 
   const inputAmount = useMemo(
-    () => (amount ? stringToBN(amount, nativeToken?.decimals ?? 8) : undefined),
+    () =>
+      amount ? stringToBigint(amount, nativeToken?.decimals ?? 8) : undefined,
     [nativeToken, amount]
   );
 

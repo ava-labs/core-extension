@@ -11,9 +11,10 @@ import { bigintToBig } from '@src/utils/bigintToBig';
 import { TransactionDescription } from 'ethers';
 import { findToken } from '../../../../../../utils/findToken';
 import {
+  NetworkTokenWithBalance,
   TokenType,
-  TokenWithBalanceEVM,
-} from '@src/background/services/balances/models';
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
 
 export interface AddLiquidityAvaxData {
   amountAVAXMin: bigint;
@@ -38,10 +39,9 @@ export async function addLiquidityAvaxHandler(
   data: AddLiquidityAvaxData,
   txDetails: TransactionDescription | null
 ): Promise<TransactionDisplayValues> {
-  const token = (await findToken(
-    data.token.toLowerCase(),
-    network
-  )) as TokenWithBalanceEVM;
+  const token = (await findToken(data.token.toLowerCase(), network)) as
+    | NetworkTokenWithBalance
+    | TokenWithBalanceERC20;
   const sendTokenList: TransactionToken[] = [];
 
   sendTokenList.push({
@@ -53,11 +53,11 @@ export async function addLiquidityAvaxHandler(
 
     amount: BigInt(data.amountTokenDesired),
     usdValue:
-      token.priceUSD !== undefined
-        ? Number(token.priceUSD) *
+      token.priceInCurrency !== undefined
+        ? Number(token.priceInCurrency) *
           bigintToBig(data.amountTokenDesired, token.decimals).toNumber()
         : undefined,
-    usdPrice: token.priceUSD,
+    usdPrice: token.priceInCurrency,
   });
 
   const result: TransactionDisplayValues = await parseBasicDisplayValues(

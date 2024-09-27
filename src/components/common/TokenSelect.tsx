@@ -12,13 +12,10 @@ import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { AssetBalance } from '@src/pages/Bridge/models';
 import EthLogo from '@src/images/tokens/eth.png';
 import {
-  TokenWithBalance,
-  getTokenPrice,
   hasUnconfirmedBTCBalance,
   isAvaxWithUnavailableBalance,
 } from '@src/background/services/balances/models';
-import { bnToLocaleString, numberToBN } from '@avalabs/core-utils-sdk';
-import BN from 'bn.js';
+import { bigToLocaleString, TokenUnit } from '@avalabs/core-utils-sdk';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { AutoSizer } from 'react-virtualized';
@@ -39,6 +36,9 @@ import { TokenEllipsis } from './TokenEllipsis';
 import { DropdownItem } from './Dropdown';
 import { useDisplaytokenlist } from '@src/hooks/useDisplayTokenList';
 import { TokenIcon } from './TokenIcon';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
+import { bigintToBig } from '@src/utils/bigintToBig';
+import { stringToBigint } from '@src/utils/stringToBigint';
 
 const InputContainer = styled(Card)`
   justify-content: space-between;
@@ -72,9 +72,9 @@ const StyledDropdownMenuItem = styled(DropdownItem)`
 interface TokenSelectProps {
   selectedToken?: TokenWithBalance | null;
   onTokenChange(token: TokenWithBalance | AssetBalance): void;
-  maxAmount?: BN;
-  inputAmount?: BN;
-  onInputAmountChange?(data: { amount: string; bn: BN }): void;
+  maxAmount?: bigint;
+  inputAmount?: bigint;
+  onInputAmountChange?(data: { amount: string; bigint: bigint }): void;
   onSelectToggle?(): void;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -120,22 +120,23 @@ export function TokenSelect({
 
   const [amountInCurrency, setAmountInCurrency] = useState<string>();
 
-  const decimals = selectedToken?.decimals || 18;
+  const decimals =
+    selectedToken && 'decimals' in selectedToken ? selectedToken.decimals : 18;
 
   // Stringify maxAmount for referential equality in useEffect
   const maxAmountString = maxAmount
-    ? bnToLocaleString(maxAmount, decimals)
+    ? new TokenUnit(maxAmount, decimals, '').toDisplay()
     : null;
   const [isMaxAmount, setIsMaxAmount] = useState(false);
 
   const handleAmountChange = useCallback(
-    ({ amount, bn }: { amount: string; bn: BN }) => {
+    ({ amount, bigint }: { amount: string; bigint: bigint }) => {
       if (!maxAmountString) {
-        onInputAmountChange && onInputAmountChange({ amount, bn });
+        onInputAmountChange && onInputAmountChange({ amount, bigint });
         return;
       }
       setIsMaxAmount(maxAmountString === amount);
-      onInputAmountChange && onInputAmountChange({ amount, bn });
+      onInputAmountChange && onInputAmountChange({ amount, bigint });
     },
     [onInputAmountChange, maxAmountString]
   );
@@ -150,12 +151,15 @@ export function TokenSelect({
   });
 
   const formattedAmount = useMemo(() => {
-    const price = getTokenPrice(selectedToken);
+    const price = selectedToken?.priceInCurrency;
     const amount =
-      inputAmount && !inputAmount.isZero() && price
+      inputAmount && inputAmount !== 0n && price
         ? currencyFormatter(
             parseFloat(
-              bnToLocaleString(inputAmount, decimals).replace(/,/g, '')
+              bigToLocaleString(bigintToBig(inputAmount, decimals)).replace(
+                /,/g,
+                ''
+              )
             ) * price
           )
         : undefined;
@@ -171,7 +175,7 @@ export function TokenSelect({
     if (!isMaxAmount || !maxAmountString || skipHandleMaxAmount) return;
     handleAmountChange({
       amount: maxAmountString,
-      bn: numberToBN(maxAmountString, decimals),
+      bigint: stringToBigint(maxAmountString, decimals),
     });
   }, [
     maxAmountString,
@@ -291,7 +295,7 @@ export function TokenSelect({
     if (isAvaxWithUnavailableBalance(selectedToken)) {
       return (
         <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
-          {!!selectedToken?.balance.toNumber() && (
+          {!!selectedToken?.balance && (
             <Tooltip
               placement="top"
               title={`${t('Total Balance')}: ${
@@ -368,15 +372,7 @@ export function TokenSelect({
             isValueLoading={isValueLoading}
             data-testid="token-amount-input"
             max={
-              !isValueLoading
-                ? maxAmount ||
-                  (typeof selectedToken?.balance === 'bigint'
-                    ? new BN(
-                        selectedToken.balance.toString(16),
-                        selectedToken.decimals
-                      )
-                    : selectedToken?.balance)
-                : undefined
+              !isValueLoading ? maxAmount || selectedToken?.balance : undefined
             }
             withMaxButton={withMaxButton}
           />
@@ -397,13 +393,9 @@ export function TokenSelect({
           </Typography>
           <Stack sx={{ minHeight: '14px' }}>
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-              {getTokenPrice(selectedToken) !== undefined &&
-                (amountInCurrency
-                  ? `${amountInCurrency.replace(currency, '')} ${currency}`
-                  : `${currencyFormatter(0).replace(
-                      currency,
-                      ''
-                    )} ${currency}`)}
+              {amountInCurrency
+                ? `${amountInCurrency.replace(currency, '')} ${currency}`
+                : `${currencyFormatter(0).replace(currency, '')} ${currency}`}
             </Typography>
           </Stack>
         </Stack>

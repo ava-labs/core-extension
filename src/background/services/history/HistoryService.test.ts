@@ -1,21 +1,9 @@
-import {
-  PChainTransactionType,
-  XChainTransactionType,
-} from '@avalabs/glacier-sdk';
-import {
-  ChainId,
-  Network,
-  NetworkToken,
-  NetworkVMType,
-} from '@avalabs/core-chains-sdk';
+import { Network, NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { HistoryService } from './HistoryService';
-import {
-  PchainTxHistoryItem,
-  TransactionType,
-  TxHistoryItem,
-  XchainTxHistoryItem,
-} from './models';
-import { TokenType } from '../balances/models';
+import { TxHistoryItem } from './models';
+import { TokenType } from '@avalabs/vm-module-types';
+import { TransactionType } from '@avalabs/vm-module-types';
+import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
 
 describe('src/background/services/history/HistoryService.ts', () => {
   let service: HistoryService;
@@ -37,26 +25,25 @@ describe('src/background/services/history/HistoryService.ts', () => {
     logoUri: 'test.one.com/logo',
     primaryColor: 'purple',
   };
-  const networkServiceMock = {
-    activeNetwork: network1,
+
+  const moduleManagereMock = {
+    loadModuleByNetwork: jest.fn(),
   } as any;
-  const btcHistoryServiceMock = {
-    getHistory: jest.fn(),
+  const accountsServiceMock = {
+    activeAccount: {
+      addressC: 'addressC',
+      addressBTC: 'addressBtc',
+      addressPVM: 'addressBtc',
+      addressAVM: 'addressBtc',
+    },
   } as any;
-  const ethHistoryServiceMock = {
-    getHistory: jest.fn(),
+  const bridgeHistoryHelperServiceMock = {
+    isBridgeTransactionBTC: jest.fn(),
   } as any;
-  const historyServicePVMMock = {
-    getHistory: jest.fn(),
-  } as any;
-  const historyServiceAVMMock = {
-    getHistory: jest.fn(),
-  } as any;
-  const glacierHistoryServiceMock = {
-    getHistory: jest.fn(),
-  } as any;
-  const glacierServiceMock = {
-    isNetworkSupported: jest.fn(),
+  const unifiedBridgeServiceMock = {
+    state: {
+      addresses: [],
+    },
   } as any;
 
   const txHistoryItem: TxHistoryItem = {
@@ -65,7 +52,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     isIncoming: false,
     isOutgoing: true,
     isSender: true,
-    timestamp: 'timestamp',
+    timestamp: 1111,
     hash: 'hash',
     from: 'from',
     to: 'to',
@@ -80,7 +67,8 @@ describe('src/background/services/history/HistoryService.ts', () => {
     gasUsed: 'gasUsed',
     explorerLink: 'explorerLink',
     chainId: 'chainId',
-    type: TransactionType.SEND,
+    txType: TransactionType.SEND,
+    vmType: NetworkVMType.EVM,
   };
 
   const btcTxHistoryItem: TxHistoryItem = {
@@ -89,7 +77,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     isIncoming: false,
     isOutgoing: true,
     isSender: true,
-    timestamp: 'timestamp',
+    timestamp: 1111,
     hash: 'hash',
     from: 'from',
     to: 'to',
@@ -104,59 +92,18 @@ describe('src/background/services/history/HistoryService.ts', () => {
     gasUsed: 'gasUsed',
     explorerLink: 'explorerLink',
     chainId: 'chainId',
-    type: TransactionType.SEND,
-  };
-  const pchainTxHistoryItem: PchainTxHistoryItem = {
-    isSender: true,
-    timestamp: 'timestamp',
-    from: ['from'],
-    to: ['to'],
-    token: {
-      name: 'tokenName',
-      symbol: 'tokenSymbol',
-      amount: 'amount',
-      type: TokenType.NATIVE,
-    },
-    gasUsed: 'gasUsed',
-    explorerLink: 'explorerLink',
-    chainId: 'chainId',
-    type: PChainTransactionType.BASE_TX,
-    vmType: 'PVM',
-  };
-
-  const xchainTxHistoryItem: XchainTxHistoryItem = {
-    ...pchainTxHistoryItem,
-    type: XChainTransactionType.BASE_TX,
-    vmType: 'AVM',
+    txType: TransactionType.SEND,
+    vmType: NetworkVMType.BITCOIN,
   };
 
   beforeEach(() => {
     jest.resetAllMocks();
-    networkServiceMock.activeNetwork = network1;
-    jest
-      .mocked(btcHistoryServiceMock.getHistory)
-      .mockResolvedValue([btcTxHistoryItem]);
-    jest
-      .mocked(ethHistoryServiceMock.getHistory)
-      .mockResolvedValue([txHistoryItem]);
-    jest
-      .mocked(glacierHistoryServiceMock.getHistory)
-      .mockResolvedValue([txHistoryItem, btcTxHistoryItem]);
-    jest.mocked(glacierServiceMock.isNetworkSupported).mockResolvedValue(false);
-    jest
-      .mocked(historyServiceAVMMock.getHistory)
-      .mockResolvedValue([xchainTxHistoryItem]);
-    jest
-      .mocked(historyServicePVMMock.getHistory)
-      .mockResolvedValue([pchainTxHistoryItem]);
 
     service = new HistoryService(
-      btcHistoryServiceMock,
-      ethHistoryServiceMock,
-      glacierHistoryServiceMock,
-      glacierServiceMock,
-      historyServiceAVMMock,
-      historyServicePVMMock
+      moduleManagereMock,
+      accountsServiceMock,
+      bridgeHistoryHelperServiceMock,
+      unifiedBridgeServiceMock
     );
   });
 
@@ -164,55 +111,96 @@ describe('src/background/services/history/HistoryService.ts', () => {
     const result = await service.getTxHistory({ vmName: 'hmmmmmm' } as any);
     expect(result).toEqual([]);
   });
-  it('should return results from glacier if the network is supported', async () => {
+  it('should return empty array when theere is no addres for the network', async () => {
+    const result = await service.getTxHistory({
+      vmName: NetworkVMType.CoreEth,
+    } as any);
+    expect(result).toEqual([]);
+  });
+  it('should return empty array when there is no transactions in the past', async () => {
+    jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+      getTransactionHistory: jest.fn(() => {
+        return { transactions: [] };
+      }),
+    });
+    const result = await service.getTxHistory({
+      ...network1,
+      vmName: NetworkVMType.BITCOIN,
+      caipId: 'bip122:000000000019d6689c085ae165831e93',
+    });
+    expect(result).toEqual([]);
+  });
+
+  it('should return results from btc history', async () => {
+    jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+      getTransactionHistory: jest.fn(() => {
+        return { transactions: [btcTxHistoryItem] };
+      }),
+    });
     jest
-      .spyOn(glacierServiceMock, 'isNetworkSupported')
-      .mockResolvedValue(true);
-
-    const result = await service.getTxHistory({
-      chainId: ChainId.ETHEREUM_HOMESTEAD,
-    } as any);
-    expect(glacierServiceMock.isNetworkSupported).toHaveBeenCalledTimes(1);
-    expect(result).toEqual([txHistoryItem, btcTxHistoryItem]);
-  });
-
-  it('should return results from btc history service when not supported by glacier and network has bitcoin vmType', async () => {
+      .mocked(bridgeHistoryHelperServiceMock.isBridgeTransactionBTC)
+      .mockReturnValue(false);
     const result = await service.getTxHistory({
       ...network1,
       vmName: NetworkVMType.BITCOIN,
       caipId: 'bip122:000000000019d6689c085ae165831e93',
     });
-    expect(btcHistoryServiceMock.getHistory).toHaveBeenCalledTimes(1);
     expect(result).toEqual([btcTxHistoryItem]);
   });
-  it('should return results from btc history service when not supported by glacier and network has bitcoin vmType', async () => {
+  it('should return results with a BTC bridge transaction', async () => {
+    jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+      getTransactionHistory: jest.fn(() => {
+        return { transactions: [btcTxHistoryItem] };
+      }),
+    });
+    jest
+      .mocked(bridgeHistoryHelperServiceMock.isBridgeTransactionBTC)
+      .mockReturnValue(true);
     const result = await service.getTxHistory({
       ...network1,
       vmName: NetworkVMType.BITCOIN,
       caipId: 'bip122:000000000019d6689c085ae165831e93',
     });
-    expect(btcHistoryServiceMock.getHistory).toHaveBeenCalledTimes(1);
-    expect(result).toEqual([btcTxHistoryItem]);
+
+    expect(result).toEqual([{ ...btcTxHistoryItem, isBridge: true }]);
   });
-  it('should return results from eth history service when not supported by glacier and network has EVM vmType', async () => {
+  it('should return results with an ETH bridge transaction', async () => {
+    jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+      getTransactionHistory: jest.fn(() => {
+        return {
+          transactions: [
+            {
+              ...txHistoryItem,
+              from: ETHEREUM_ADDRESS,
+            },
+          ],
+        };
+      }),
+    });
     const result = await service.getTxHistory({
-      chainId: ChainId.ETHEREUM_HOMESTEAD,
-    } as any);
-    expect(ethHistoryServiceMock.getHistory).toHaveBeenCalledTimes(1);
-    expect(result).toEqual([txHistoryItem]);
+      ...network1,
+      vmName: NetworkVMType.EVM,
+      caipId: 'caip',
+    });
+    expect(result).toEqual([
+      { ...txHistoryItem, isBridge: true, from: ETHEREUM_ADDRESS },
+    ]);
   });
-  it('should return results from pvm history service when not supported by glacier and isPchainNetwork', async () => {
+  it('should return results with an pchain transaction', async () => {
+    jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+      getTransactionHistory: jest.fn(() => {
+        return {
+          transactions: [txHistoryItem],
+        };
+      }),
+    });
+
     const result = await service.getTxHistory({
+      ...network1,
       vmName: NetworkVMType.PVM,
-    } as any);
-    expect(historyServicePVMMock.getHistory).toHaveBeenCalledTimes(1);
-    expect(result).toEqual([pchainTxHistoryItem]);
-  });
-  it('should return results from avm history service when not supported by glacier and network has AVM vmType', async () => {
-    const result = await service.getTxHistory({
-      vmName: NetworkVMType.AVM,
-    } as any);
-    expect(historyServiceAVMMock.getHistory).toHaveBeenCalledTimes(1);
-    expect(result).toEqual([xchainTxHistoryItem]);
+      caipId: 'caip',
+    });
+
+    expect(result).toEqual([{ ...txHistoryItem, vmType: 'PVM' }]);
   });
 });

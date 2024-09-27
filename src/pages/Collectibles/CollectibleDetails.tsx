@@ -20,11 +20,12 @@ import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { useTranslation } from 'react-i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
-import { TokenType } from '@src/background/services/balances/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
+import { TokenType } from '@avalabs/vm-module-types';
+import { parseRawAttributesString } from '@src/utils/nfts/metadataParser';
 
 type AttributeTypographyProps = Exclude<TypographyProps, 'variant' | 'sx'>;
 
@@ -65,6 +66,10 @@ export function CollectibleDetails() {
 
     return !nft.updatedAt || currentTimestamp > nft.updatedAt + refreshBackoff;
   }, [nft, wasRefreshed]);
+
+  const metadata = useMemo(() => {
+    return parseRawAttributesString(nft?.metadata?.properties);
+  }, [nft]);
 
   const refreshMetadata = useCallback(async () => {
     if (!nft || !network) {
@@ -213,7 +218,7 @@ export function CollectibleDetails() {
             </Stack>
           </Stack>
 
-          {nft?.attributes && nft.attributes.length > 0 && (
+          {metadata.length > 0 && (
             <Typography variant="h5">{t('Properties')}</Typography>
           )}
           <Stack
@@ -222,7 +227,7 @@ export function CollectibleDetails() {
               pb: 4,
             }}
           >
-            {nft?.attributes?.map((attribute, i) => (
+            {metadata.map((attribute, i) => (
               <Stack key={i}>
                 {i !== 0 && <Divider sx={{ my: 2 }} />}
                 <AttributeLabel>{attribute.name}</AttributeLabel>

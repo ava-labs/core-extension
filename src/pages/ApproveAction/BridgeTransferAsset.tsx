@@ -22,7 +22,6 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useApproveAction } from '@src/hooks/useApproveAction';
-import { getTokenPrice } from '@src/background/services/balances/models';
 
 export function BridgeTransferAsset({
   action,
@@ -42,7 +41,7 @@ export function BridgeTransferAsset({
     GasFeeModifier.INSTANT
   );
 
-  const tokenPrice = getTokenPrice(displayData.token);
+  const tokenPrice = displayData?.token?.priceInCurrency;
   const fiatValue: Big | undefined =
     typeof tokenPrice === 'number'
       ? new Big(displayData.amountStr).times(tokenPrice)

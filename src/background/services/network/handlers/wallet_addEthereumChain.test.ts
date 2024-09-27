@@ -6,12 +6,12 @@ import { Action, ActionStatus } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { WalletAddEthereumChainHandler } from './wallet_addEthereumChain';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { isCoreWeb } from '../../network/utils/isCoreWeb';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { decorateWithCaipId } from '@src/utils/caipConversion';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
 
+jest.mock('@src/utils/canSkipApproval');
 jest.mock('../NetworkService');
-jest.mock('../../network/utils/isCoreWeb');
 jest.mock('@src/background/runtime/openApprovalWindow');
 
 const mockActiveNetwork: Network = {
@@ -40,7 +40,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
   beforeEach(() => {
     jest.resetAllMocks();
 
-    jest.mocked(isCoreWeb).mockResolvedValue(false);
+    jest.mocked(canSkipApproval).mockResolvedValue(false);
     mockNetworkService = new NetworkService({} as any, {} as any);
     (mockNetworkService.isValidRPCUrl as jest.Mock).mockReturnValue(true);
     jest.spyOn(mockNetworkService, 'setNetwork');
@@ -70,6 +70,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           blockExplorerUrls: ['https://snowtrace.io/'],
         },
       ],
+      site: {
+        domain: 'core.app',
+        tabId: 1,
+      },
     };
 
     jest
@@ -97,6 +101,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           blockExplorerUrls: ['https://snowtrace.io/'],
         },
       ],
+      site: {
+        domain: 'core.app',
+        tabId: 1,
+      },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -125,6 +133,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           blockExplorerUrls: ['https://snowtrace.io/'],
         },
       ],
+      site: {
+        domain: 'core.app',
+        tabId: 1,
+      },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -150,6 +162,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           blockExplorerUrls: ['https://snowtrace.io/'],
         },
       ],
+      site: {
+        domain: 'core.app',
+        tabId: 1,
+      },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -175,6 +191,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           nativeCurrency: { symbol: 'AVAX', name: 'Avalanche', decimals: 18 },
         },
       ],
+      site: {
+        domain: 'core.app',
+        tabId: 1,
+      },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -201,6 +221,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           nativeCurrency: { symbol: 'AVAX', decimals: 18 },
         },
       ],
+      site: {
+        domain: 'core.app',
+        tabId: 1,
+      },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -227,6 +251,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           nativeCurrency: { name: 'Avalanche', decimals: 18 },
         },
       ],
+      site: {
+        domain: 'core.app',
+        tabId: 1,
+      },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -255,6 +283,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           blockExplorerUrls: ['https://snowtrace.io/'],
         },
       ],
+      site: {
+        domain: 'core.app',
+        tabId: 1,
+      },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -288,6 +320,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           iconUrls: ['logo.png'],
         },
       ],
+      site: {
+        domain: 'google.app',
+        tabId: 1,
+      },
     };
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -319,6 +355,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
             requiresGlacierApiKey: true,
           },
         ],
+        site: {
+          domain: 'google.app',
+          tabId: 1,
+        },
       };
       const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -348,6 +388,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
             iconUrls: ['logo.png'],
           },
         ],
+        site: {
+          domain: 'google.app',
+          tabId: 3,
+        },
       };
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
@@ -378,6 +422,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
             isTestnet: 'ofc',
           },
         ],
+        site: {
+          domain: 'google.app',
+          tabId: 3,
+        },
       };
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
@@ -395,7 +443,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     });
 
     it('does not opens approval dialog and switch to a known network if the request is from core web', async () => {
-      jest.mocked(isCoreWeb).mockResolvedValue(true);
+      jest.mocked(canSkipApproval).mockResolvedValue(true);
 
       const request = {
         id: '852',
@@ -433,7 +481,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     });
 
     it('does not opens approval dialog and add and switch to a new network if the request is from a core domain', async () => {
-      jest.mocked(isCoreWeb).mockResolvedValue(true);
+      jest.mocked(canSkipApproval).mockResolvedValue(true);
 
       const request = {
         id: '852',
@@ -499,6 +547,10 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
             isTestnet: true,
           },
         ],
+        site: {
+          domain: 'google.app',
+          tabId: 3,
+        },
       };
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 

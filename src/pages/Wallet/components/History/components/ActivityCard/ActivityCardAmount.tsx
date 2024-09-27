@@ -1,11 +1,9 @@
 import { Stack, Typography } from '@avalabs/core-k2-components';
-import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
-import {
-  TransactionType,
-  TxHistoryItem,
-} from '@src/background/services/history/models';
+import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
+import { TxHistoryItem } from '@src/background/services/history/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { ActivityCardProp } from './ActivityCard';
+import { TransactionType } from '@avalabs/vm-module-types';
 
 export function ActivityCardAmount({ historyItem }: ActivityCardProp) {
   const {
@@ -28,7 +26,7 @@ export function ActivityCardAmount({ historyItem }: ActivityCardProp) {
     return tx.tokens.find((token) => token.to?.address === userAddress);
   }
 
-  if (historyItem.type === TransactionType.SWAP && activeAccount?.addressC) {
+  if (historyItem.txType === TransactionType.SWAP && activeAccount?.addressC) {
     const source = getSourceToken(historyItem);
     const target = getTargetToken(historyItem);
     return (
@@ -54,7 +52,10 @@ export function ActivityCardAmount({ historyItem }: ActivityCardProp) {
         </Typography>
       </Stack>
     );
-  } else if (historyItem.tokens[0] && isNFT(historyItem.tokens[0]?.type)) {
+  } else if (
+    historyItem.tokens[0] &&
+    isNftTokenType(historyItem.tokens[0]?.type)
+  ) {
     return (
       <Typography>#{historyItem.tokens?.[0]?.collectableTokenId}</Typography>
     );

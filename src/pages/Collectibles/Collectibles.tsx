@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   GridIcon,
@@ -15,12 +15,7 @@ import { CollectibleList } from './components/CollectibleList';
 import { CollectibleListEmpty } from './components/CollectibleListEmpty';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { usePageHistory } from '@src/hooks/usePageHistory';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import {
-  NftTokenWithBalance,
-  TokenType,
-} from '@src/background/services/balances/models';
 import {
   FunctionNames,
   useIsFunctionAvailable,
@@ -31,6 +26,9 @@ import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteSc
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { ListType } from '../Home/components/Portfolio/Portfolio';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { useNfts } from '@src/hooks/useNfts';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
 
 interface CollectiblesProps {
   listType: ListType;
@@ -39,7 +37,8 @@ interface CollectiblesProps {
 
 export function Collectibles({ listType, setListType }: CollectiblesProps) {
   const { t } = useTranslation();
-  const { nfts, updateNftBalances } = useBalancesContext();
+  const { balances } = useBalancesContext();
+  const nfts = useNfts();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
   const history = useHistory();
@@ -48,24 +47,9 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
   const { isFunctionSupported: isManageCollectiblesSupported } =
     useIsFunctionAvailable(FunctionNames.MANAGE_COLLECTIBLES);
   const { getCollectibleVisibility } = useSettingsContext();
-  const visibleNfts = nfts.items?.filter((nft) => {
+  const visibleNfts = nfts.filter((nft) => {
     return getCollectibleVisibility(nft);
   });
-  const [loading, setLoading] = useState(false);
-
-  const update = useCallback(() => {
-    if (loading || !updateNftBalances) {
-      return;
-    }
-
-    setLoading(true);
-    if (
-      nfts.pageTokens &&
-      (nfts.pageTokens[TokenType.ERC1155] || nfts.pageTokens[TokenType.ERC721])
-    ) {
-      updateNftBalances(nfts.pageTokens, () => setLoading(false));
-    }
-  }, [loading, updateNftBalances, nfts.pageTokens]);
 
   const handleClick = (type: ListType) => {
     setListType(type);
@@ -133,15 +117,12 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
           </Button>
         )}
       </Stack>
-      {!nfts.loading && !!visibleNfts?.length && (
+      {!balances.loading && !!visibleNfts?.length && (
         <InfiniteScroll
-          loadMore={update}
-          hasMore={
-            !!nfts.pageTokens?.[TokenType.ERC721] ||
-            !!nfts.pageTokens?.[TokenType.ERC1155]
-          }
-          loading={loading}
-          error={nfts.error?.toString()}
+          loadMore={() => {}}
+          hasMore={false}
+          loading={balances.loading}
+          error={balances.error?.toString()}
         >
           {listType === ListType.LIST ? (
             <CollectibleList onClick={handleItemClick} />
@@ -150,7 +131,7 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
           )}
         </InfiniteScroll>
       )}
-      {!nfts.loading && visibleNfts?.length === 0 && (
+      {!balances.loading && visibleNfts?.length === 0 && (
         <Stack
           sx={{
             flexGrow: 1,
@@ -163,8 +144,8 @@ export function Collectibles({ listType, setListType }: CollectiblesProps) {
           <CollectibleListEmpty />
         </Stack>
       )}
-      {nfts.loading && <CollectibleSkeleton />}
-      {nfts.error && (
+      {balances.loading && <CollectibleSkeleton />}
+      {balances.error && (
         <Stack
           sx={{
             flexGrow: 1,

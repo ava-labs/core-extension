@@ -1,18 +1,18 @@
 import { CollectibleMedia } from './CollectibleMedia';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { NftTokenWithBalance } from '@src/background/services/balances/models';
 import { Stack } from '@avalabs/core-k2-components';
 import { TokenCard } from '@src/components/common/TokenCard';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { useNfts } from '@src/hooks/useNfts';
 
 export function CollectibleList({
   onClick,
 }: {
   onClick: (nft: NftTokenWithBalance) => void;
 }) {
-  const { nfts } = useBalancesContext();
+  const nfts = useNfts();
   const { getCollectibleVisibility } = useSettingsContext();
-  const nftsToShow = nfts.items?.filter((nft) => {
+  const nftsToShow = nfts?.filter((nft) => {
     return getCollectibleVisibility(nft);
   });
 
@@ -22,7 +22,7 @@ export function CollectibleList({
         return (
           <TokenCard
             name={nft.name}
-            balanceUSD={`#${nft.tokenId}`}
+            balanceInCurrency={`#${nft.tokenId}`}
             key={`${nft.address}-${nft.tokenId}`}
             onClick={() => onClick(nft)}
           >

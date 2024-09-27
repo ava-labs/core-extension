@@ -5,13 +5,6 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import {
-  NetworkTokenWithBalance,
-  TokenType,
-  TokenWithBalanceAVM,
-  TokenWithBalanceEVM,
-  TokenWithBalancePVM,
-} from '@src/background/services/balances/models';
 import { useTranslation } from 'react-i18next';
 import { Stack, toast } from '@avalabs/core-k2-components';
 import {
@@ -42,7 +35,15 @@ import {
   isAvmCapableAccount,
   isPvmCapableAccount,
 } from './hooks/useSend/models';
-import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import {
+  NetworkTokenWithBalance,
+  NftTokenWithBalance,
+  TokenType,
+  TokenWithBalanceAVM,
+  TokenWithBalanceBTC,
+  TokenWithBalanceEVM,
+  TokenWithBalancePVM,
+} from '@avalabs/vm-module-types';
 
 export function SendPage() {
   const { t } = useTranslation();
@@ -157,7 +158,9 @@ export function SendPage() {
           maxFee={networkFee.low.maxFee}
           nativeToken={nativeToken as NetworkTokenWithBalance}
           provider={provider as JsonRpcBatchInternal}
-          tokenList={tokens as TokenWithBalanceEVM[]}
+          tokenList={
+            tokens as Exclude<TokenWithBalanceEVM, NftTokenWithBalance>[]
+          }
           onSuccess={onSuccess}
           onFailure={onFailure}
           onApproved={onApproved}

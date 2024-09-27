@@ -4,7 +4,6 @@ import { OptimalRate, SwapSide } from 'paraswap-core';
 import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
 import { Amount, DestinationInput, isAPIError } from '../utils';
 import { useTranslation } from 'react-i18next';
-import BN from 'bn.js';
 
 export interface SwapError {
   message?: string;
@@ -32,7 +31,7 @@ export function useSwap() {
       toTokenDecimals?: number;
       fromTokenDecimals?: number;
       destinationInputField?: DestinationInput;
-      fromTokenBalance?: BN;
+      fromTokenBalance?: bigint;
     }>({});
   }, []);
 
@@ -56,7 +55,7 @@ export function useSwap() {
             fromTokenDecimals &&
             toTokenDecimals
           ) {
-            const amountString = amount.bn.toString();
+            const amountString = amount.bigint.toString();
 
             if (amountString === '0') {
               setSwapError({ message: t('Please enter an amount') });
@@ -98,7 +97,7 @@ export function useSwap() {
                 if (
                   fromTokenBalance &&
                   destinationInputField === 'from' &&
-                  new BN(resultAmount ?? '').gt(fromTokenBalance)
+                  BigInt(resultAmount ?? '') > fromTokenBalance
                 ) {
                   setSwapError({ message: t('Insufficient balance.') });
                   return;
@@ -106,7 +105,7 @@ export function useSwap() {
                 if (
                   fromTokenBalance &&
                   destinationInputField === 'to' &&
-                  amount.bn.gt(fromTokenBalance)
+                  amount.bigint > fromTokenBalance
                 ) {
                   setSwapError({ message: t('Insufficient balance.') });
                   return;

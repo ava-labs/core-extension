@@ -1,28 +1,28 @@
 import { Network, NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import {
-  Balances,
-  TokenType,
-  TokenWithBalance,
-  TokenWithBalanceERC20,
-} from '@src/background/services/balances/models';
+import { Balances } from '@src/background/services/balances/models';
 import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
 import { TokenManagerService } from '@src/background/services/tokens/TokenManagerService';
-import BN from 'bn.js';
 import { ethers } from 'ethers';
 import { container } from 'tsyringe';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import {
+  TokenType,
+  TokenWithBalance,
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
+import { bigIntToString } from '@avalabs/core-utils-sdk';
 
 const UNKNOWN_TOKEN = (address: string): TokenWithBalanceERC20 => ({
   address,
   chainId: -1,
   type: TokenType.ERC20,
-  contractType: 'ERC-20',
   name: 'UNKNOWN TOKEN',
   symbol: '-',
-  balance: new BN(0),
+  balance: 0n,
+  balanceDisplayValue: '0',
   decimals: 0,
 });
 
@@ -41,10 +41,12 @@ export async function findToken(
   let balances: Balances = balancesService.balances;
 
   if (!balances) {
-    balances = await balancesService.getBalancesForNetworks(
-      [network.chainId],
-      [accountsService.activeAccount]
-    );
+    balances = (
+      await balancesService.getBalancesForNetworks(
+        [network.chainId],
+        [accountsService.activeAccount]
+      )
+    ).tokens;
   }
 
   const token =
@@ -62,12 +64,16 @@ export async function findToken(
   }
 
   if (addressOrSymbol === network.networkToken.symbol) {
+    const balance = await provider.getBalance(
+      accountsService.activeAccount.addressC
+    );
     return {
       ...network.networkToken,
-      balance: new BN(
-        (
-          await provider.getBalance(accountsService.activeAccount.addressC)
-        ).toString()
+      coingeckoId: network.pricingProviders?.coingecko.nativeTokenId ?? '',
+      balance,
+      balanceDisplayValue: bigIntToString(
+        balance,
+        network.networkToken.decimals
       ),
       type: TokenType.NATIVE,
     };
@@ -97,7 +103,7 @@ export async function findToken(
   return {
     ...tokenData,
     balance: balance,
+    balanceDisplayValue: bigIntToString(balance, tokenData.decimals),
     type: TokenType.ERC20,
-    contractType: 'ERC-20',
   };
 }

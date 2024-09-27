@@ -34,6 +34,7 @@ export enum DAppProviderRequest {
   AVALANCHE_SELECT_WALLET = 'avalanche_selectWallet',
   AVALANCHE_SET_DEVELOPER_MODE = 'avalanche_setDeveloperMode',
   ACCOUNT_SELECT = 'avalanche_selectAccount',
+  ACCOUNT_RENAME = 'avalanche_renameAccount',
   AVALANCHE_GET_ACCOUNT_PUB_KEY = 'avalanche_getAccountPubKey',
   AVALANCHE_SEND_TRANSACTION = 'avalanche_sendTransaction',
   AVALANCHE_SIGN_TRANSACTION = 'avalanche_signTransaction',

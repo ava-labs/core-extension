@@ -7,7 +7,6 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { PchainTxHistoryItem } from '@src/background/services/history/models';
 import { PrimaryNetworkMethodIcon } from './PrimaryNetworkMethodIcon';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { PChainTransactionType } from '@avalabs/glacier-sdk';
@@ -15,9 +14,10 @@ import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { truncateAddress } from '@avalabs/core-utils-sdk';
+import { Transaction } from '@avalabs/vm-module-types';
 
 export interface PchainActivityCardProp {
-  historyItem: PchainTxHistoryItem;
+  historyItem: Transaction;
 }
 
 export function PchainActivityCard({ historyItem }: PchainActivityCardProp) {
@@ -28,7 +28,7 @@ export function PchainActivityCard({ historyItem }: PchainActivityCardProp) {
 
   const txTitle = useMemo(() => {
     if (network) {
-      switch (historyItem.type) {
+      switch (historyItem.txType) {
         case PChainTransactionType.ADD_DELEGATOR_TX:
           return t('Add Delegator');
         case PChainTransactionType.ADD_SUBNET_VALIDATOR_TX:
@@ -72,7 +72,7 @@ export function PchainActivityCard({ historyItem }: PchainActivityCardProp) {
 
   return (
     <Card
-      data-testid={historyItem.type + '-activity-card'}
+      data-testid={historyItem.txType + '-activity-card'}
       sx={{ p: 2, backgroundImage: 'none' }}
     >
       <Stack
@@ -101,7 +101,9 @@ export function PchainActivityCard({ historyItem }: PchainActivityCardProp) {
                 alignItems: 'center',
               }}
             >
-              <PrimaryNetworkMethodIcon methodName={historyItem.type} />
+              {historyItem.txType && (
+                <PrimaryNetworkMethodIcon methodName={historyItem.txType} />
+              )}
               <Stack sx={{ rowGap: 0.5 }}>
                 <Stack
                   sx={{
@@ -117,13 +119,13 @@ export function PchainActivityCard({ historyItem }: PchainActivityCardProp) {
                       variant="body2"
                       sx={{ fontWeight: 'fontWeightSemibold' }}
                     >
-                      {historyItem.token.amount}
+                      {historyItem.tokens[0]?.amount}
                     </Typography>
                     <Typography
                       variant="body2"
                       sx={{ color: theme.palette.primary.dark }}
                     >
-                      {historyItem.token.symbol}
+                      {historyItem.tokens[0]?.symbol}
                     </Typography>
                   </Stack>
                 </Stack>
@@ -140,15 +142,26 @@ export function PchainActivityCard({ historyItem }: PchainActivityCardProp) {
                     {txDirection}:
                   </Typography>
                   <Stack>
-                    {Array.from(txAddressesToShow).map((address, i) => (
+                    {Array.isArray(txAddressesToShow) &&
+                      Array.from(txAddressesToShow).map((address, i) => (
+                        <Typography
+                          key={`${address}-${i}`}
+                          variant="caption"
+                          sx={{ color: theme.palette.primary.dark }}
+                        >
+                          {truncateAddress(address)}
+                        </Typography>
+                      ))}
+
+                    {!Array.isArray(txAddressesToShow) && (
                       <Typography
-                        key={`${address}-${i}`}
+                        key={`${txAddressesToShow}`}
                         variant="caption"
                         sx={{ color: theme.palette.primary.dark }}
                       >
-                        {truncateAddress(address)}
+                        {truncateAddress(txAddressesToShow)}
                       </Typography>
-                    ))}
+                    )}
                   </Stack>
                 </Stack>
               </Stack>
@@ -174,7 +187,7 @@ export function PchainActivityCard({ historyItem }: PchainActivityCardProp) {
               onClick={async () => {
                 capture('PchainActivityCardLinkClicked', {
                   chainId: network?.chainId,
-                  type: historyItem.type,
+                  type: historyItem.txType,
                 });
                 window.open(historyItem.explorerLink, '_blank', 'noreferrer');
               }}

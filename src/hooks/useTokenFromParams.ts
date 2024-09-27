@@ -1,12 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import {
-  TokenType,
-  TokenWithBalance,
-} from '@src/background/services/balances/models';
 import { useTokensWithBalances } from './useTokensWithBalances';
 import xss from 'xss';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 
 export function useTokenFromParams(
   withDefault = true

@@ -12,7 +12,7 @@
     "dev": "yarn run build:inpage && webpack -w --config webpack.dev.js",
     "lint": "eslint --fix -c ./.eslintrc.js \"src/**/*.ts*\"",
     "typecheck": "yarn tsc --skipLibCheck --noEmit",
-    "postinstall": "husky install",
+    "postinstall": "husky install && patch-package",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "setup": "yarn install && yarn allow-scripts",
     "test": "yarn jest",
@@ -23,9 +23,10 @@
     "sentry": "node sentryscript.js"
   },
   "dependencies": {
+    "@avalabs/avalanche-module": "0.7.0",
     "@avalabs/avalanchejs": "4.0.5",
-    "@avalabs/bitcoin-module": "0.5.0",
     "@avalabs/bridge-unified": "0.0.0-feat-is-bridge-address-20240926120228",
+    "@avalabs/bitcoin-module": "0.7.0",
     "@avalabs/core-bridge-sdk": "3.1.0-alpha.4",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.4",
     "@avalabs/core-coingecko-sdk": "3.1.0-alpha.4",
@@ -36,11 +37,11 @@
     "@avalabs/core-token-prices-sdk": "3.1.0-alpha.4",
     "@avalabs/core-utils-sdk": "3.1.0-alpha.4",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.4",
-    "@avalabs/evm-module": "0.5.0",
+    "@avalabs/evm-module": "0.7.0",
     "@avalabs/glacier-sdk": "3.1.0-alpha.4",
     "@avalabs/hw-app-avalanche": "0.14.1",
     "@avalabs/types": "3.1.0-alpha.3",
-    "@avalabs/vm-module-types": "0.5.0",
+    "@avalabs/vm-module-types": "0.7.0",
     "@blockaid/client": "0.10.0",
     "@coinbase/cbpay-js": "1.6.0",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
@@ -169,6 +170,7 @@
     "jest-environment-jsdom": "29.3.1",
     "lint-staged": "12.3.1",
     "node-polyfill-webpack-plugin": "1.1.4",
+    "patch-package": "8.0.0",
     "path-browserify": "1.0.1",
     "postinstall-postinstall": "2.1.0",
     "prettier": "2.5.1",
@@ -179,7 +181,7 @@
     "semantic-release": "19.0.3",
     "shell-quote": "1.8.1",
     "style-loader": "3.3.1",
-    "ts-jest": "29.0.5",
+    "ts-jest": "29.2.5",
     "ts-loader": "9.2.6",
     "typescript": "5.2.2",
     "webextension-polyfill": "0.10.0",
@@ -197,7 +199,8 @@
     "i18next-scanner/vinyl-fs/glob-stream/glob-parent": "5.1.2",
     "got": "11.8.5",
     "@ledgerhq/hw-app-eth": "6.36.1",
-    "@ledgerhq/hw-transport": "6.30.6"
+    "@ledgerhq/hw-transport": "6.30.6",
+    "jest-runner": "29.7.0"
   },
   "prettier": {
     "tabWidth": 2,
@@ -248,7 +251,10 @@
       "@avalabs/evm-module": false,
       "@avalabs/bitcoin-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/bitcoin-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
-      "@avalabs/bitcoin-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
+      "@avalabs/bitcoin-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
+      "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
+      "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
+      "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
     }
   }
 }

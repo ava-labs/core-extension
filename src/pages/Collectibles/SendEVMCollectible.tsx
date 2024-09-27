@@ -10,10 +10,6 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import {
-  NetworkTokenWithBalance,
-  NftTokenWithBalance,
-} from '@src/background/services/balances/models';
 import { useQueryParams } from '@src/hooks/useQueryParams';
 import { isValidAddress } from '@src/utils/isAddressValid';
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
@@ -29,6 +25,10 @@ import { SendOptions, SendPageProps } from '../Send/models';
 
 import { CollectibleMedia } from './components/CollectibleMedia';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
+import {
+  NetworkTokenWithBalance,
+  NftTokenWithBalance,
+} from '@avalabs/vm-module-types';
 
 type Props = SendPageProps<
   JsonRpcBatchInternal,
