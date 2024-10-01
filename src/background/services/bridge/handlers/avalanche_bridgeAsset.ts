@@ -163,10 +163,11 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     }
 
     // get the correct balance information for the asset
-    const balances = await this.balanceAggregatorService.getBalancesForNetworks(
-      [sourceNetwork.chainId],
-      [activeAccount]
-    );
+    const { tokens } =
+      await this.balanceAggregatorService.getBalancesForNetworks(
+        [sourceNetwork.chainId],
+        [activeAccount]
+      );
 
     const balanceAddress =
       sourceNetwork && isBitcoinNetwork(sourceNetwork)
@@ -179,7 +180,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
       findTokenForAsset(
         asset.symbol,
         asset.nativeNetwork,
-        Object.values(balances?.[sourceNetwork.chainId]?.[balanceAddress] ?? {})
+        Object.values(tokens?.[sourceNetwork.chainId]?.[balanceAddress] ?? {})
       );
 
     const action: Action<BridgeActionDisplayData> = {

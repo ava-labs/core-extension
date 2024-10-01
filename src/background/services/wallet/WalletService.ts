@@ -37,7 +37,7 @@ import {
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
 import { LedgerService } from '../ledger/LedgerService';
-import { BaseWallet, Wallet } from 'ethers';
+import { BaseWallet, Wallet, isHexString } from 'ethers';
 import { Transaction } from 'bitcoinjs-lib';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
@@ -60,6 +60,7 @@ import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { Network } from '../network/models';
 import { AccountsService } from '../accounts/AccountsService';
+import { utils } from '@avalabs/avalanchejs';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -739,7 +740,9 @@ export class WalletService implements OnLock, OnUnlock {
       } else if (
         [MessageType.ETH_SIGN, MessageType.PERSONAL_SIGN].includes(messageType)
       ) {
-        return wallet.signMessage(data);
+        const dataToSign = isHexString(data) ? utils.hexToBuffer(data) : data;
+
+        return wallet.signMessage(dataToSign);
       } else {
         throw new Error(`this function is not supported on your wallet`);
       }
