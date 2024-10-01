@@ -32,6 +32,11 @@ export const ManageTokensList = ({ searchQuery }: ManageTokensListProps) => {
                 token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
               : true)
         )
+        .sort(
+          (a, b) =>
+            (parseFloat(b.balanceDisplayValue) ?? 0) -
+            (parseFloat(a.balanceDisplayValue) ?? 0)
+        )
         .map((token) => (
           <ManageTokensListItem
             key={token.type === TokenType.ERC20 ? token.address : token.symbol}
