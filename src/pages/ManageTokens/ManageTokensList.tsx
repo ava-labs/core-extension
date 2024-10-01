@@ -57,7 +57,7 @@ export const ManageTokensList = ({
                 token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
               : true)
         )
-        .sort((a, b) => sortingTokens(a, b))
+        .sort(sortingTokens)
         .map((token) => (
           <ManageTokensListItem
             key={token.type === TokenType.ERC20 ? token.address : token.symbol}
