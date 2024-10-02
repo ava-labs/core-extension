@@ -80,7 +80,14 @@ const BridgeTransactionStatus = () => {
     [params.txHash, bridgeTransactions]
   );
 
-  const coingeckoId = useCoinGeckoId(bridgeTransaction?.symbol);
+  const symbol = useMemo(
+    () =>
+      isUnifiedBridgeTransfer(bridgeTransaction)
+        ? bridgeTransaction.asset.symbol
+        : bridgeTransaction?.symbol,
+    [bridgeTransaction]
+  );
+  const coingeckoId = useCoinGeckoId(symbol);
   const logoUri = useLogoUriForBridgeTransaction(bridgeTransaction);
   const { networks } = useNetworkContext();
 
@@ -157,7 +164,7 @@ const BridgeTransactionStatus = () => {
             ? errorMessage
             : t(`You transferred {{amount}} {{symbol}}!`, {
                 amount,
-                symbol: bridgeTransaction.symbol,
+                symbol,
               })}
         </ToastCard>,
         { duration: Infinity }
@@ -247,7 +254,7 @@ const BridgeTransactionStatus = () => {
                     variant="h6"
                     sx={{ ml: 1, color: 'text.secondary' }}
                   >
-                    {bridgeTransaction.symbol}
+                    {symbol}
                   </Typography>
                 </Stack>
               </Stack>
@@ -589,7 +596,7 @@ const BridgeTransactionStatus = () => {
                         /
                         {
                           isUnifiedBridgeTransfer(bridgeTransaction)
-                            ? bridgeTransaction.requiredTargetConfirmationCount
+                            ? bridgeTransaction.targetRequiredConfirmationCount
                             : 1 // With legacy Avalanche Bridge, we just need 1 confirmation on the destination network
                         }
                       </Typography>

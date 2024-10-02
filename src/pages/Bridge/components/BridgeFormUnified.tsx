@@ -11,7 +11,7 @@ type BridgeFormUnifiedProps = Omit<
 > & {
   amount: Big;
   targetChainId: number;
-  currentAssetAddress?: string;
+  currentAssetIdentifier?: string;
 
   onInitiated: () => void;
   onSuccess: (txHash: string) => void;
@@ -26,12 +26,12 @@ export const BridgeFormUnified = ({
   onRejected,
   ...props
 }: BridgeFormUnifiedProps) => {
-  const { amount, targetChainId, currentAssetAddress } = props;
+  const { amount, targetChainId, currentAssetIdentifier } = props;
 
   const { transfer, ...bridge } = useUnifiedBridge(
     amount,
     targetChainId,
-    currentAssetAddress
+    currentAssetIdentifier
   );
 
   const { onTransfer, isPending } = useBridgeTxHandling({

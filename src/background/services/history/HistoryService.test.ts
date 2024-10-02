@@ -41,9 +41,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     isBridgeTransactionBTC: jest.fn(),
   } as any;
   const unifiedBridgeServiceMock = {
-    state: {
-      addresses: [],
-    },
+    isBridgeTx: jest.fn().mockReturnValue(false),
   } as any;
 
   const txHistoryItem: TxHistoryItem = {
@@ -187,6 +185,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     ]);
   });
   it('should return results with an pchain transaction', async () => {
+    jest.mocked(unifiedBridgeServiceMock.isBridgeTx).mockReturnValue(false);
     jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
       getTransactionHistory: jest.fn(() => {
         return {

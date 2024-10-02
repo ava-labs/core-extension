@@ -37,6 +37,7 @@ import {
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { XchainActivityCard } from './components/History/components/ActivityCard/XchainActivityCard';
+import { getBridgedAssetSymbol } from '@src/utils/bridge/getBridgedAssetSymbol';
 import { Transaction, TransactionType } from '@avalabs/vm-module-types';
 
 type WalletRecentTxsProps = {
@@ -141,7 +142,7 @@ export function WalletRecentTxs({
 
   const filteredBridgeTransactions = tokenSymbolFilter
     ? Object.values(bridgeTransactions).filter(
-        (tx) => tx.symbol === tokenSymbolFilter
+        (tx) => getBridgedAssetSymbol(tx) === tokenSymbolFilter
       )
     : bridgeTransactions;
 

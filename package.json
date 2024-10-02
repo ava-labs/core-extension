@@ -25,8 +25,8 @@
   "dependencies": {
     "@avalabs/avalanche-module": "0.7.0",
     "@avalabs/avalanchejs": "4.0.5",
+    "@avalabs/bridge-unified": "0.0.0-feat-is-bridge-address-20240926120228",
     "@avalabs/bitcoin-module": "0.7.0",
-    "@avalabs/bridge-unified": "2.1.0",
     "@avalabs/core-bridge-sdk": "3.1.0-alpha.4",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.4",
     "@avalabs/core-coingecko-sdk": "3.1.0-alpha.4",

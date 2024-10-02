@@ -69,7 +69,8 @@ export class HistoryService {
     }
     return (
       this.#isBridgeAddress(transaction.from) ||
-      this.#isBridgeAddress(transaction.to)
+      this.#isBridgeAddress(transaction.to) ||
+      this.unifiedBridgeService.isBridgeTx(transaction)
     );
   }
 
@@ -95,9 +96,6 @@ export class HistoryService {
       return false;
     }
 
-    return [
-      ETHEREUM_ADDRESS,
-      ...this.unifiedBridgeService.state.addresses,
-    ].includes(address.toLowerCase());
+    return ETHEREUM_ADDRESS === address.toLowerCase();
   }
 }

@@ -1,5 +1,5 @@
 import { Blockchain, BridgeTransaction } from '@avalabs/core-bridge-sdk';
-import { BridgeTransfer } from '@avalabs/bridge-unified';
+import { BridgeTransfer, IsBridgeTxParams } from '@avalabs/bridge-unified';
 import { BITCOIN_NETWORK, ChainId } from '@avalabs/core-chains-sdk';
 import { TxHistoryItem } from '@src/background/services/history/models';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
@@ -10,13 +10,12 @@ import {
   isPendingBridgeTransaction,
 } from '@src/utils/bridgeTransactionUtils';
 import { caipToChainId } from '@src/utils/caipConversion';
+import { getBridgedAssetSymbol } from '@src/utils/bridge/getBridgedAssetSymbol';
 
 export function useBlockchainNames(
   item: TxHistoryItem | BridgeTransaction | BridgeTransfer
 ) {
-  const {
-    state: { addresses },
-  } = useUnifiedBridgeContext();
+  const { isBridgeTx } = useUnifiedBridgeContext();
   const pending = isPendingBridgeTransaction(item);
 
   if (pending) {
@@ -35,7 +34,7 @@ export function useBlockchainNames(
   }
 
   const isToAvalanche = isTxToAvalanche(item);
-  const txBlockchain = getTxBlockchain(item, addresses);
+  const txBlockchain = getTxBlockchain(item, isBridgeTx);
 
   return {
     sourceBlockchain: isToAvalanche ? txBlockchain : 'Avalanche',
@@ -83,9 +82,11 @@ function isTxToAvalanche(
 
 function getTxBlockchain(
   tx: TxHistoryItem | BridgeTransaction | BridgeTransfer,
-  addresses: string[]
+  isBridgeTx: (txInfo: IsBridgeTxParams) => boolean
 ) {
-  const symbol = isBridgeTransaction(tx) ? tx.symbol : tx.tokens?.[0]?.symbol;
+  const symbol = isBridgeTransaction(tx)
+    ? getBridgedAssetSymbol(tx)
+    : tx.tokens?.[0]?.symbol;
   const ethereum = 'Ethereum';
   const bitcoin = 'Bitcoin';
 
@@ -98,10 +99,7 @@ function getTxBlockchain(
       return ethereum;
     }
 
-    if (
-      addresses.includes(tx.to.toLowerCase()) ||
-      addresses.includes(tx.from.toLowerCase())
-    ) {
+    if (isBridgeTx(tx)) {
       return ethereum;
     }
   }
