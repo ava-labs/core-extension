@@ -16,7 +16,7 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     secretsService = jest.mocked<SecretsService>({
-      getActiveAccountSecrets: jest.fn().mockResolvedValue({
+      getAccountSecrets: jest.fn().mockResolvedValue({
         secretType: SecretType.Seedless,
         userEmail: 'x@y.z',
       }),
@@ -90,7 +90,7 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
 
   it('returns error when user ID do not match', async () => {
     secretsService = jest.mocked<SecretsService>({
-      getActiveAccountSecrets: jest.fn().mockResolvedValue({
+      getAccountSecrets: jest.fn().mockResolvedValue({
         secretType: SecretType.Seedless,
         userEmail: 'x@y.z',
         userId: '456',
@@ -190,7 +190,7 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
 
   it('does not attempts to update the signer token when userIds match', async () => {
     secretsService = jest.mocked<SecretsService>({
-      getActiveAccountSecrets: jest.fn().mockResolvedValue({
+      getAccountSecrets: jest.fn().mockResolvedValue({
         secretType: SecretType.Seedless,
         userEmail: undefined,
         userId: '123',
@@ -223,7 +223,7 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
 
   it('attempts to update the signer token with no change and returns null', async () => {
     secretsService = jest.mocked<SecretsService>({
-      getActiveAccountSecrets: jest.fn().mockResolvedValue({
+      getAccountSecrets: jest.fn().mockResolvedValue({
         secretType: SecretType.Seedless,
         userEmail: 'x@y.z',
         userId: '123',

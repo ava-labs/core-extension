@@ -33,7 +33,7 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
       if (!this.accountsService.activeAccount) {
         throw new Error('There is no active account');
       }
-      const secrets = await this.secretsService.getActiveAccountSecrets(
+      const secrets = await this.secretsService.getAccountSecrets(
         this.accountsService.activeAccount
       );
       if (

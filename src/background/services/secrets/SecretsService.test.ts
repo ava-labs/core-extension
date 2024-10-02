@@ -234,9 +234,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     secretsService.getPrimaryAccountSecrets = jest
       .fn()
       .mockResolvedValue(data as any);
-    secretsService.getActiveAccountSecrets = jest
-      .fn()
-      .mockResolvedValue(data as any);
+    secretsService.getAccountSecrets = jest.fn().mockResolvedValue(data as any);
     secretsService.getWalletAccountsSecretsById = jest
       .fn()
       .mockResolvedValue(data as any);
@@ -458,7 +456,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       storageService.load.mockResolvedValue(null);
 
       await expect(
-        secretsService.getActiveAccountSecrets(activeAccountData)
+        secretsService.getAccountSecrets(activeAccountData)
       ).rejects.toThrow('Wallet is not initialized');
     });
 
@@ -470,7 +468,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       it('should throw an error because there is no active account', async () => {
         expect(
           async () =>
-            await secretsService.getActiveAccountSecrets({
+            await secretsService.getAccountSecrets({
               ...activeAccountData,
               walletId: 'invalid-wallet-id',
             })
@@ -489,7 +487,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
       it('attaches the account object to the result', async () => {
         mockMnemonicWallet();
-        const result = await secretsService.getActiveAccountSecrets(
+        const result = await secretsService.getAccountSecrets(
           activeAccountData
         );
 
@@ -498,7 +496,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
       it('recognizes mnemonic wallets', async () => {
         const secrets = mockMnemonicWallet();
-        const result = await secretsService.getActiveAccountSecrets(
+        const result = await secretsService.getAccountSecrets(
           activeAccountData
         );
         console.log('result: ', result);
@@ -513,7 +511,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
       it('recognizes Ledger + BIP44 wallets', async () => {
         const secrets = mockLedgerWallet();
-        const result = await secretsService.getActiveAccountSecrets(
+        const result = await secretsService.getAccountSecrets(
           activeAccountData
         );
 
@@ -530,7 +528,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
       it('recognizes Ledger + LedgerLive wallets', async () => {
         const secrets = mockLedgerLiveWallet();
-        const result = await secretsService.getActiveAccountSecrets(
+        const result = await secretsService.getAccountSecrets(
           activeAccountData
         );
 
@@ -546,7 +544,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
       it('recognizes Keystone wallets', async () => {
         const secrets = mockKeystoneWallet();
-        const result = await secretsService.getActiveAccountSecrets(
+        const result = await secretsService.getAccountSecrets(
           activeAccountData
         );
 
@@ -579,7 +577,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       });
 
       it(`returns the imported account's secrets along with the account`, async () => {
-        const result = await secretsService.getActiveAccountSecrets({
+        const result = await secretsService.getAccountSecrets({
           ...activeAccountData,
           ...account,
         });
@@ -815,7 +813,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     it(`returns the imported account's secrets along with the account`, async () => {
-      const result = await secretsService.getActiveAccountSecrets({
+      const result = await secretsService.getAccountSecrets({
         ...activeAccountData,
         ...account,
       });
@@ -855,7 +853,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     it(`returns the imported account's secrets along with the account`, async () => {
-      const result = await secretsService.getActiveAccountSecrets({
+      const result = await secretsService.getAccountSecrets({
         ...activeAccountData,
         ...account,
       });

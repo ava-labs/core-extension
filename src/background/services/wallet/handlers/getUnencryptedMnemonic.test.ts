@@ -11,7 +11,7 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
     verifyPassword: jest.fn(),
   } as any;
   const secretsService: jest.Mocked<SecretsService> = {
-    getActiveAccountSecrets: jest.fn(),
+    getAccountSecrets: jest.fn(),
   } as any;
 
   const accountsService: jest.Mocked<AccountsService> = {
@@ -41,7 +41,7 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
 
   it('returns error if storage does not contain mnemonic', async () => {
     lockService.verifyPassword.mockResolvedValue(true);
-    secretsService.getActiveAccountSecrets.mockResolvedValue({
+    secretsService.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Ledger,
     } as any);
 
@@ -59,7 +59,7 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
   it('returns the mnemonic properly', async () => {
     const mnemonic = 'super-complex-mnemonic';
     lockService.verifyPassword.mockResolvedValue(true);
-    secretsService.getActiveAccountSecrets.mockResolvedValue({
+    secretsService.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Mnemonic,
       mnemonic,
     } as any);

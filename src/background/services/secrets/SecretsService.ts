@@ -167,13 +167,13 @@ export class SecretsService {
     }
   }
 
-  getActiveWalletSecrets(
+  getWalletSecretsForAcount(
     walletKeys: WalletSecretInStorage,
-    activeAccount: Account
+    account: Account
   ) {
-    const activeWalletId = isPrimaryAccount(activeAccount)
-      ? activeAccount.walletId
-      : activeAccount?.id;
+    const activeWalletId = isPrimaryAccount(account)
+      ? account.walletId
+      : account?.id;
 
     return walletKeys.wallets.find((wallet) => wallet.id === activeWalletId);
   }
@@ -187,7 +187,7 @@ export class SecretsService {
     if (!walletKeys) {
       return null;
     }
-    const activeWalletSecrets = this.getActiveWalletSecrets(
+    const activeWalletSecrets = this.getWalletSecretsForAcount(
       walletKeys,
       activeAccount
     );
@@ -237,13 +237,13 @@ export class SecretsService {
     throw new Error('Unsupported import type');
   }
 
-  async getActiveAccountSecrets(activeAccount: Account) {
+  async getAccountSecrets(account: Account) {
     const walletKeys = await this.#loadSecrets(true);
 
-    if (activeAccount.type === AccountType.PRIMARY) {
-      const activeWalletSecrets = this.getActiveWalletSecrets(
+    if (account.type === AccountType.PRIMARY) {
+      const activeWalletSecrets = this.getWalletSecretsForAcount(
         walletKeys,
-        activeAccount
+        account
       );
 
       if (!activeWalletSecrets) {
@@ -251,15 +251,15 @@ export class SecretsService {
       }
 
       return {
-        ...(activeAccount ? { account: activeAccount } : null),
+        ...(account ? { account: account } : null),
         ...activeWalletSecrets,
       };
     }
 
-    const secrets = await this.getImportedAccountSecrets(activeAccount.id);
+    const secrets = await this.getImportedAccountSecrets(account.id);
 
     return {
-      account: activeAccount,
+      account: account,
       ...secrets,
     };
   }
@@ -341,7 +341,7 @@ export class SecretsService {
     walletId: string,
     activeAccount: Account
   ) {
-    const secrets = await this.getActiveAccountSecrets(activeAccount);
+    const secrets = await this.getAccountSecrets(activeAccount);
 
     if (
       secrets.secretType !== SecretType.Ledger &&
@@ -420,7 +420,7 @@ export class SecretsService {
     if (!activeAccount) {
       return undefined;
     }
-    const secrets = await this.getActiveAccountSecrets(activeAccount);
+    const secrets = await this.getAccountSecrets(activeAccount);
 
     if (secrets.secretType === SecretType.LedgerLive && secrets.account) {
       const accountIndex = secrets.account.index;

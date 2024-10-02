@@ -174,7 +174,7 @@ export class WalletService implements OnLock, OnUnlock {
     if (!this.accountsService.activeAccount) {
       return;
     }
-    const secrets = await this.secretService.getActiveAccountSecrets(
+    const secrets = await this.secretService.getAccountSecrets(
       this.accountsService.activeAccount
     );
     if (!secrets.account) {
@@ -573,7 +573,7 @@ export class WalletService implements OnLock, OnUnlock {
     if (!this.accountsService.activeAccount) {
       throw new Error('There is no active account');
     }
-    const secrets = await this.secretService.getActiveAccountSecrets(
+    const secrets = await this.secretService.getAccountSecrets(
       this.accountsService.activeAccount
     );
 

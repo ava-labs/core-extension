@@ -46,7 +46,7 @@ export class GetUnencryptedMnemonicHandler implements HandlerType {
         error: 'there is no active account',
       };
     }
-    const secrets = await this.secretsService.getActiveAccountSecrets(
+    const secrets = await this.secretsService.getAccountSecrets(
       this.accountsService.activeAccount
     );
 

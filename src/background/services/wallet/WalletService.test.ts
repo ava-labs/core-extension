@@ -127,7 +127,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       },
     };
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
-    secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getAccountSecrets.mockResolvedValue(data as any);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
     secretsService.getPrimaryWalletsDetails.mockResolvedValue([
       {
@@ -159,7 +159,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       },
     };
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
-    secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getAccountSecrets.mockResolvedValue(data as any);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
     secretsService.getPrimaryWalletsDetails.mockResolvedValue([
       {
@@ -190,7 +190,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       },
     };
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
-    secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getAccountSecrets.mockResolvedValue(data as any);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
     secretsService.getPrimaryWalletsDetails.mockResolvedValue([
       {
@@ -223,7 +223,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       },
     };
     secretsService.getPrimaryAccountSecrets.mockResolvedValue(data as any);
-    secretsService.getActiveAccountSecrets.mockResolvedValue(data as any);
+    secretsService.getAccountSecrets.mockResolvedValue(data as any);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue(data as any);
     secretsService.getPrimaryWalletsDetails.mockResolvedValue([
       {
@@ -1270,7 +1270,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     describe('primary accounts', () => {
       it('throws if secrets are missing', async () => {
-        secretsService.getActiveAccountSecrets.mockRejectedValue(
+        secretsService.getAccountSecrets.mockRejectedValue(
           new Error('Wallet is not initialized')
         );
         await expect(walletService.getActiveAccountPublicKey()).rejects.toThrow(

@@ -46,7 +46,7 @@ export class UpdateSignerTokenHandler implements HandlerType {
       return { ...request, error: 'missing active account' };
     }
 
-    const secrets = await this.secretsService.getActiveAccountSecrets(
+    const secrets = await this.secretsService.getAccountSecrets(
       this.accountsService.activeAccount
     );
 

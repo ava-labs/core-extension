@@ -23,7 +23,7 @@ export class FireblocksSecretsService implements FireblocksSecretsProvider {
       throw new Error('There is no active account!');
     }
     // By default thought, we'll get the credentials directly from SecretsService
-    const secrets = await this.secretsService.getActiveAccountSecrets(
+    const secrets = await this.secretsService.getAccountSecrets(
       this.accountsService.activeAccount
     );
 
