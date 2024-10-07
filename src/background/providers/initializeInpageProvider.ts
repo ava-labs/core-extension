@@ -17,6 +17,7 @@ export function initializeProvider(
   maxListeners = 100,
   globalObject = window
 ): EVMProvider {
+  console.log('initializeProvider globalObject: ', globalObject);
   const chainAgnosticProvider = new Proxy(
     new ChainAgnosticProvider(connection),
     {
@@ -44,10 +45,27 @@ export function initializeProvider(
       deleteProperty: () => true,
     }
   );
+  const multiWalletProxy = createMultiWalletProxy(evmProvider);
 
-  setGlobalProvider(evmProvider, globalObject);
+  globalObject.addEventListener('eip6963:announceProvider', (event: any) => {
+    // console.log('event: ', event.detail);
+    multiWalletProxy.addProvider(
+      new Proxy(
+        {
+          info: { ...event.detail.info },
+          ...event.detail.provider,
+        },
+        {
+          deleteProperty: () => true,
+          set: () => true,
+        }
+      )
+    );
+  });
+
+  setGlobalProvider(evmProvider, globalObject, multiWalletProxy);
   setAvalancheGlobalProvider(evmProvider, globalObject);
-  setEvmproviders(evmProvider, globalObject);
+  // setEvmproviders(evmProvider, globalObject);
   announceWalletProvider(evmProvider, globalObject);
   announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
 
@@ -62,23 +80,28 @@ export function initializeProvider(
  */
 function setGlobalProvider(
   providerInstance: EVMProvider,
-  globalObject = window
+  globalObject = window,
+  multiWalletProxy
 ): void {
+  // console.log('globalObject: ', globalObject);
+  // console.log('globalObject.ethereum: ', globalObject.ethereum);
+  // console.log('globalObject.phatnom: ', globalObject.phantom);
   try {
-    const multiWalletProxy = createMultiWalletProxy(providerInstance);
+    // const multiWalletProxy = createMultiWalletProxy(providerInstance);
 
     // if we already have a wallet lets add it
-    if (globalObject.ethereum) {
-      multiWalletProxy.addProvider(globalObject.ethereum);
-    }
+    // if (globalObject.ethereum) {
+    //   console.log('addProvider globalObject.ethereum: ', globalObject.ethereum);
+    //   multiWalletProxy.addProvider(globalObject.ethereum);
+    // }
 
     Object.defineProperty(globalObject, 'ethereum', {
       get: () => {
         return multiWalletProxy;
       },
       // in case a wallet tries to overwrite us lets add them to the list
-      set: (value) => {
-        multiWalletProxy.addProvider(value);
+      set: () => {
+        return multiWalletProxy;
       },
     });
 

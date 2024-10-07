@@ -8,6 +8,7 @@ import { getWalletExtensionType } from './utils/getWalletExtensionType';
 import { Maybe } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
 import { EVMProvider } from '@avalabs/evm-module/dist/provider';
+import { EIP6963ProviderDetail } from '@avalabs/vm-module-types';
 
 export class MultiWalletProviderProxy extends EventEmitter {
   #_providers: unknown[] = [];
@@ -64,8 +65,10 @@ export class MultiWalletProviderProxy extends EventEmitter {
     });
   }
 
-  public addProvider(provider) {
+  public addProvider(providerDetail) {
+    console.log('providerDetail: ', providerDetail);
     // the COINBASE collects here the wallets
+    /*
     if (provider.providerMap) {
       for (const providerProxy of provider.providerMap.values()) {
         if (
@@ -77,14 +80,22 @@ export class MultiWalletProviderProxy extends EventEmitter {
       }
       return;
     }
+      */
 
     // the coinbase would add another proxy which is useless for us
-    if (provider.coinbaseWalletInstalls) {
-      return;
-    }
+    // if (providerDetail.coinbaseWalletInstalls) {
+    //   return;
+    // }
 
-    if (!this.#_providers.includes(provider)) {
-      this.#_providers.push(provider);
+    const isProviderAdded = this.#_providers.find(
+      (provider) => provider.info.uuid === providerDetail.info.uuid
+    );
+    console.log('isProviderAdded: ', isProviderAdded);
+    if (!isProviderAdded) {
+      console.log('providerDetail: ', providerDetail);
+      console.log('ADD -++++--_');
+      this.#_providers.push(providerDetail);
+      console.log('this.#_providers: ', this.#_providers);
     }
   }
 
@@ -105,6 +116,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
           return {
             index: i,
             type,
+            info: p.info,
           };
         }),
       ],

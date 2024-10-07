@@ -4,13 +4,17 @@ import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
-import { WalletExtensionButton } from '../Wallet/components/WalletExtensionButton';
+import {
+  NewButton,
+  WalletExtensionButton,
+} from '../Wallet/components/WalletExtensionButton';
 import { Trans } from 'react-i18next';
 import { Stack, Typography, WalletIcon } from '@avalabs/core-k2-components';
 
 export function SelectWallet() {
   const requestId = useGetRequestId();
   const { action: request, updateAction } = useApproveAction(requestId);
+  console.log('request: ', request);
 
   const selectWallet = useCallback(
     async (index: number | string) =>
@@ -46,15 +50,30 @@ export function SelectWallet() {
         </Typography>
       </Stack>
       <Stack>
-        {request.displayData.options.map((option, i) => (
-          <WalletExtensionButton
-            key={i}
+        {request.displayData.info.map((info, i) => {
+          if (info.rdns === 'app.core.extension') {
+            return (
+              <WalletExtensionButton
+                key={i}
+                onClick={() => {
+                  selectWallet(i);
+                }}
+                info={info}
+              />
+            );
+          }
+          return;
+        })}
+        {request.displayData.info.length > 1 && (
+          <NewButton
             onClick={() => {
-              selectWallet(i);
+              // selectWallet(i);
+              console.log('selectWAlelt');
             }}
-            type={option}
+            // info={info}
+            wallets={request.displayData.info}
           />
-        ))}
+        )}
       </Stack>
     </Stack>
   );
