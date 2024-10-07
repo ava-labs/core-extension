@@ -20,6 +20,7 @@ type Params = [
   externalLimit: number,
   internalLimit: number
 ];
+import { AccountsService } from '../AccountsService';
 
 @injectable()
 export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
@@ -30,7 +31,8 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
 
   constructor(
     private secretsService: SecretsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private accountsService: AccountsService
   ) {
     super();
   }
@@ -52,7 +54,9 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
     externalLimit,
   }) => {
     const provXP = await this.networkService.getAvalanceProviderXP();
-    const secrets = await this.secretsService.getPrimaryAccountSecrets();
+    const secrets = await this.secretsService.getPrimaryAccountSecrets(
+      this.accountsService.activeAccount
+    );
 
     const addresses: { external: string[]; internal: string[] } = {
       external: [],

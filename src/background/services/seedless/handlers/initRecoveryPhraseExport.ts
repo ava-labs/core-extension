@@ -11,6 +11,7 @@ import { NetworkService } from '../../network/NetworkService';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { UserExportInitResponse } from '@cubist-labs/cubesigner-sdk';
 import { isExportRequestOutdated } from '../utils';
+import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_INIT_RECOVERY_PHRASE_EXPORT,
@@ -24,11 +25,14 @@ export class InitRecoveryPhraseExportHandler implements HandlerType {
   constructor(
     private secretsService: SecretsService,
     private networkService: NetworkService,
-    private seedlessMfaService: SeedlessMfaService
+    private seedlessMfaService: SeedlessMfaService,
+    private accountsService: AccountsService
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const secrets = await this.secretsService.getPrimaryAccountSecrets();
+    const secrets = await this.secretsService.getPrimaryAccountSecrets(
+      this.accountsService.activeAccount
+    );
 
     if (secrets?.secretType !== SecretType.Seedless) {
       return {

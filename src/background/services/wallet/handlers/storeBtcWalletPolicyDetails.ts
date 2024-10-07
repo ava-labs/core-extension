@@ -10,6 +10,7 @@ import { AccountType } from '../../accounts/models';
 import { NetworkService } from '../../network/NetworkService';
 import { SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
+import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_STORE_BTC_WALLET_POLICY_DETAILS,
@@ -23,11 +24,17 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
 
   constructor(
     private secretsService: SecretsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private accountsService: AccountsService
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const secrets = await this.secretsService.getActiveAccountSecrets();
+    if (!this.accountsService.activeAccount) {
+      throw new Error('there is no active account');
+    }
+    const secrets = await this.secretsService.getAccountSecrets(
+      this.accountsService.activeAccount
+    );
 
     if (
       secrets.secretType !== SecretType.Ledger &&
@@ -68,7 +75,8 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
         masterFingerPrint,
         hmacHex,
         name,
-        secrets.id
+        secrets.id,
+        this.accountsService.activeAccount
       );
     }
 

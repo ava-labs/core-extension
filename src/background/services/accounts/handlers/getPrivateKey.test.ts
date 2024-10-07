@@ -5,6 +5,7 @@ import { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
 import { getWalletFromMnemonic } from '@avalabs/core-wallets-sdk';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { AccountsService } from '../AccountsService';
 
 jest.mock('@avalabs/core-wallets-sdk', () => ({
   ...jest.requireActual('@avalabs/core-wallets-sdk'),
@@ -20,6 +21,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
   const lockServiceMock: jest.Mocked<LockService> = {
     verifyPassword: jest.fn(),
   } as any;
+  const accountsServiceMock: jest.Mocked<AccountsService> = {} as any;
 
   const request = {
     id: '123',
@@ -28,7 +30,11 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
   } as any;
 
   const getHandler = () =>
-    new GetPrivateKeyHandler(sercretServiceMock, lockServiceMock);
+    new GetPrivateKeyHandler(
+      sercretServiceMock,
+      lockServiceMock,
+      accountsServiceMock
+    );
 
   beforeEach(() => {
     jest.resetAllMocks();

@@ -6,6 +6,7 @@ import { buildRpcCall } from '@src/tests/test-utils';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { AccountsService } from '../AccountsService';
 
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@src/utils/canSkipApproval');
@@ -22,10 +23,13 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
     getAvalanceProviderXP: jest.fn(),
   } as any;
 
+  const accountsService = jest.mocked<AccountsService>({} as any);
+
   const handleRequest = async (request) => {
     const handler = new AvalancheGetAddressesInRangeHandler(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsService
     );
 
     return handler.handleAuthenticated(request);
@@ -167,7 +171,8 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
   it('handleUnauthenticated', async () => {
     const handler = new AvalancheGetAddressesInRangeHandler(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsService
     );
     const request = getPayload({
       params: [0, 0, 10, 10],

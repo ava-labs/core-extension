@@ -15,6 +15,7 @@ import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { AccountsService } from '../../accounts/AccountsService';
 
 jest.mock('../SeedlessWallet');
 jest.mock('@cubist-labs/cubesigner-sdk');
@@ -26,12 +27,14 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
   } as any);
   const networkService = jest.mocked<NetworkService>({} as any);
   const mfaService = jest.mocked<SeedlessMfaService>({} as any);
+  const accountsService = jest.mocked<AccountsService>({} as any);
 
   const handle = () => {
     const handler = new CompleteRecoveryPhraseExportHandler(
       secretsService,
       networkService,
-      mfaService
+      mfaService,
+      accountsService
     );
 
     return handler.handle(
