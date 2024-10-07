@@ -162,11 +162,14 @@ describe('background/services/wallet/handlers/eth_sendTransaction/eth_sendTransa
     {} as any,
     {} as any,
     {} as any,
+    {} as any,
+    {} as any,
     {} as any
   );
 
   const tokenManagerService = new TokenManagerService({} as any, {} as any);
   const walletService = new WalletService(
+    {} as any,
     {} as any,
     {} as any,
     {} as any,
