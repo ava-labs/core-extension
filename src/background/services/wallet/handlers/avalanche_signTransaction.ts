@@ -20,6 +20,7 @@ import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { HEADERS } from '../../glacier/glacierConfig';
 
 type TxParams = {
   transactionHex: string;
@@ -91,6 +92,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
           isTestnet: !this.networkService.isMainnet(),
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,
+          headers: HEADERS,
         });
 
     try {
