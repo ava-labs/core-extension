@@ -217,8 +217,10 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
         this.networkService,
         pendingAction.scope
       );
+      console.log('network: ', network);
 
       const calculatedFee = await this.networkFeeService.getNetworkFee(network);
+      console.log('calculatedFee: ', calculatedFee);
 
       if (!network) {
         throw new Error('network not found');
