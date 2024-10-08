@@ -60,18 +60,19 @@ export const useTokensWithBalances = (
     if (!network?.chainId) {
       return {};
     }
-    const customTokenForActiveNetwork = customTokens[network?.chainId];
-    if (!customTokenForActiveNetwork) {
+    const customTokensForActiveNetwork = customTokens[network?.chainId];
+    if (!customTokensForActiveNetwork) {
       return {};
     }
 
-    return Object.entries(customTokenForActiveNetwork).reduce<{
+    return Object.entries(customTokensForActiveNetwork).reduce<{
       [address: string]: TokenWithBalance;
     }>((acc, [address, tokenData]) => {
       acc[address] = {
         ...tokenData,
         type: TokenType.ERC20,
         balance: 0n,
+        balanceDisplayValue: '0',
       };
 
       return acc;

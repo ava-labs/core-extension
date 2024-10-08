@@ -30,12 +30,12 @@ export function TokenSelector({
   const { t } = useTranslation();
   return (
     <Stack
-      onClick={onClick}
+      onClick={hideCaretIcon ? undefined : onClick}
       sx={{
         alignItems: 'center',
         width: '100%',
         flexDirection: 'row',
-        cursor: 'pointer',
+        cursor: hideCaretIcon ? 'default' : 'pointer',
         pr: 2,
       }}
     >
@@ -51,7 +51,11 @@ export function TokenSelector({
         <>
           {token.icon}
           <Typography variant="body2" sx={{ mx: 1 }} fontWeight={600}>
-            <TokenEllipsis maxLength={7} text={token.name || ''} />
+            <TokenEllipsis
+              maxLength={7}
+              text={token.name || ''}
+              sx={{ cursor: hideCaretIcon ? 'default' : 'pointer' }}
+            />
           </Typography>
           {!hideCaretIcon ? (
             isOpen ? (

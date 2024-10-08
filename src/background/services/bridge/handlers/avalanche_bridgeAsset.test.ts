@@ -167,7 +167,9 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     networkServiceMock.getBitcoinProvider.mockResolvedValue({
       waitForTx: jest.fn().mockResolvedValue(btcResult),
     });
-    balanceAggregatorServiceMock.getBalancesForNetworks.mockResolvedValue({});
+    balanceAggregatorServiceMock.getBalancesForNetworks.mockResolvedValue({
+      tokens: {},
+    });
     jest.mocked(openApprovalWindow).mockResolvedValue({} as any);
     jest.mocked(getAssets).mockReturnValue({
       BTC: btcAsset,

@@ -3,9 +3,9 @@ import {
   Button,
   Card,
   Divider,
-  InfoCircleIcon,
-  Link,
+  Grow,
   Scrollbars,
+  Slide,
   Stack,
   SwapIcon,
   Tooltip,
@@ -21,116 +21,81 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 import {
-  Asset,
-  BIG_ZERO,
-  Blockchain,
-  WrapStatus,
-  formatTokenAmount,
-  useBridgeSDK,
-  useGetTokenSymbolOnNetwork,
-} from '@avalabs/core-bridge-sdk';
-import { bigToBigInt, bigToLocaleString } from '@avalabs/core-utils-sdk';
-import Big from 'big.js';
+  NftTokenWithBalance,
+  TokenWithBalance,
+} from '@avalabs/vm-module-types';
 
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { Network } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
 import { NavigationHistoryDataState } from '@src/background/services/navigationHistory/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
-import { AssetBalance } from '../models';
-import { BridgeProviders } from '../hooks/useBridge';
-import { getTokenAddress } from '../utils/getTokenAddress';
-import { blockchainToNetwork } from '../utils/blockchainConversion';
-import { isUnifiedBridgeAsset } from '../utils/isUnifiedBridgeAsset';
+import { useBridge } from '../hooks/useBridge';
+import { useHasEnoughForGas } from '../hooks/useHasEnoughtForGas';
 
 import { NetworkSelector } from './NetworkSelector';
-import { useHasEnoughForGas } from '../hooks/useHasEnoughtForGas';
-import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
-import { bigintToBig } from '@src/utils/bigintToBig';
+import { findMatchingBridgeAsset } from '../utils/findMatchingBridgeAsset';
+import { BridgeTypeFootnote } from './BridgeTypeFootnote';
 
-function formatBalance(balance: Big | undefined) {
-  return balance ? formatTokenAmount(balance, 6) : '-';
-}
-
-export type BridgeFormProps = {
-  // VM-specific props
-  minimum?: Big;
-  maximum?: Big;
-  receiveAmount?: Big;
-  sourceBalance?: AssetBalance;
-  assetsWithBalances?: AssetBalance[];
-  price?: number;
-  loading?: boolean;
-  wrapStatus?: WrapStatus;
-  estimateGas(amount: Big, asset?: Asset): Promise<bigint | undefined>;
-
+export type BridgeFormProps = ReturnType<typeof useBridge> & {
   isPending: boolean;
 
   // Generic props
-  currentAssetIdentifier?: string;
-  provider: BridgeProviders;
-  amount: Big;
   isAmountTooLow: boolean;
   setIsAmountTooLow: Dispatch<SetStateAction<boolean>>;
-  availableBlockchains: Blockchain[];
-  targetNetwork?: Network;
+
+  price?: number;
+  loading: boolean;
+
+  sourceBalance?: Exclude<TokenWithBalance, NftTokenWithBalance>;
   bridgeError: string;
   setBridgeError: (err: string) => void;
-  setCurrentAssetIdentifier: (assetAddress?: string) => void;
+
   setNavigationHistoryData: (data: NavigationHistoryDataState) => void;
-  setAmount: (amount: Big) => void;
   onTransfer: () => void;
-  handleBlockchainChange: (blockchain: Blockchain) => void;
+
+  handleSourceChainChange: (network: NetworkWithCaipId) => void;
 };
 
 export const BridgeForm = ({
-  currentAssetIdentifier,
-  provider,
   amount,
+  asset,
+  setAsset,
   isAmountTooLow,
   setIsAmountTooLow,
-  availableBlockchains,
   minimum,
   maximum,
   receiveAmount,
   sourceBalance,
-  assetsWithBalances,
-  targetNetwork,
+  targetChain,
+  setTargetChain,
   price,
   loading,
   estimateGas,
   bridgeError,
   setBridgeError,
-  setCurrentAssetIdentifier,
   setNavigationHistoryData,
   setAmount,
   onTransfer,
-  handleBlockchainChange,
   isPending,
+  handleSourceChainChange,
+  availableChainIds,
+  possibleTargetChains,
+  bridgableTokens,
+  transferableAssets,
 }: BridgeFormProps) => {
-  const {
-    bridgeConfig,
-    currentAsset,
-    currentAssetData,
-    setCurrentAsset,
-    currentBlockchain,
-    targetBlockchain,
-  } = useBridgeSDK();
-
   const { t } = useTranslation();
   const theme = useTheme();
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const { setNetwork, networks } = useNetworkContext();
+  const { setNetwork, network } = useNetworkContext();
   const { currencyFormatter, currency } = useSettingsContext();
-  const { getAssetIdentifierOnTargetChain } = useUnifiedBridgeContext();
-  const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
 
@@ -138,81 +103,20 @@ export const BridgeForm = ({
 
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
 
-  const hasValidAmount = !isAmountTooLow && amount.gt(BIG_ZERO);
-
   const denomination = useMemo(() => {
     if (!sourceBalance) {
       return 0;
     }
 
-    if (isUnifiedBridgeAsset(sourceBalance.asset)) {
-      return sourceBalance?.asset.decimals;
-    }
-
-    return sourceBalance.asset.denomination;
+    return sourceBalance.decimals;
   }, [sourceBalance]);
 
-  const amountBigint = useMemo(
-    () => bigToBigInt(amount, denomination),
-    [amount, denomination]
-  );
-
-  const selectedTokenForTokenSelect: TokenWithBalance | null = useMemo(() => {
-    if (!currentAsset || !sourceBalance) {
-      return null;
-    }
-    return {
-      type: TokenType.ERC20,
-      balanceDisplayValue: formatBalance(sourceBalance.balance),
-      balance: bigToBigInt(sourceBalance.balance || BIG_ZERO, denomination),
-      decimals: denomination,
-      priceUSD: price,
-      logoUri: sourceBalance.logoUri,
-      name: isUnifiedBridgeAsset(sourceBalance.asset)
-        ? sourceBalance.asset.symbol
-        : getTokenSymbolOnNetwork(
-            sourceBalance.asset.symbol,
-            currentBlockchain
-          ),
-      symbol: isUnifiedBridgeAsset(sourceBalance.asset)
-        ? sourceBalance.asset.symbol
-        : getTokenSymbolOnNetwork(
-            sourceBalance.asset.symbol,
-            currentBlockchain
-          ),
-      address: sourceBalance.asset.symbol,
-      contractType: 'ERC-20',
-      unconfirmedBalanceDisplayValue: formatBalance(
-        sourceBalance.unconfirmedBalance
-      ),
-      unconfirmedBalance: bigToBigInt(
-        sourceBalance.unconfirmedBalance || BIG_ZERO,
-        denomination
-      ),
-    };
-  }, [
-    currentAsset,
-    currentBlockchain,
-    denomination,
-    getTokenSymbolOnNetwork,
-    price,
-    sourceBalance,
-  ]);
-
-  const gasToken = useMemo(
-    () =>
-      currentBlockchain === Blockchain.AVALANCHE
-        ? 'AVAX'
-        : currentBlockchain === Blockchain.BITCOIN
-        ? 'BTC'
-        : 'ETH',
-    [currentBlockchain]
-  );
+  const gasToken = network?.networkToken.symbol ?? '';
 
   const [neededGas, setNeededGas] = useState(0n);
 
   useEffect(() => {
-    if (minimum && amount.lt(minimum)) {
+    if (minimum && amount && amount < minimum) {
       setIsAmountTooLow(true);
     } else {
       setIsAmountTooLow(false);
@@ -222,8 +126,8 @@ export const BridgeForm = ({
   useEffect(() => {
     let isMounted = true;
 
-    if (amount && amount.gt(BIG_ZERO)) {
-      estimateGas(amount, currentAssetData).then((limit) => {
+    if (amount && !isAmountTooLow) {
+      estimateGas().then((limit) => {
         if (isMounted && typeof limit === 'bigint') {
           setNeededGas(limit);
         }
@@ -233,41 +137,35 @@ export const BridgeForm = ({
         isMounted = false;
       };
     }
-  }, [estimateGas, amount, currentAssetData]);
+  }, [estimateGas, amount, isAmountTooLow]);
 
   const hasEnoughForNetworkFee = useHasEnoughForGas(neededGas);
 
   const errorTooltipContent = useMemo(() => {
-    return (
-      <>
-        {!hasEnoughForNetworkFee && (
-          <Typography variant="caption">
-            <Trans
-              i18nKey="Insufficient balance to cover gas costs. <br />Please add {{token}}."
-              values={{
-                token: gasToken,
-              }}
-            />
-          </Typography>
-        )}
-        {isAmountTooLow && (
-          <Typography variant="caption">
-            {t(`Amount too low -- minimum is {{minimum}}`, {
-              minimum: minimum?.toFixed(9) ?? 0,
-            })}
-          </Typography>
-        )}
-        {bridgeError && (
-          <Typography variant="caption">{bridgeError}</Typography>
-        )}
-      </>
-    );
+    if (!hasEnoughForNetworkFee) {
+      return t(
+        'Insufficient balance to cover gas costs. <br />Please add {{token}}.',
+        {
+          token: gasToken,
+        }
+      );
+    }
+
+    if (amount && minimum && isAmountTooLow) {
+      return t(`Amount too low -- minimum is {{minimum}}`, {
+        minimum: new TokenUnit(minimum, denomination, '').toDisplay(),
+      });
+    }
+
+    return bridgeError ?? '';
   }, [
     bridgeError,
     gasToken,
     hasEnoughForNetworkFee,
     isAmountTooLow,
     minimum,
+    amount,
+    denomination,
     t,
   ]);
 
@@ -281,35 +179,37 @@ export const BridgeForm = ({
   );
 
   const formattedReceiveAmount = useMemo(() => {
-    const unit = currentAsset ? ` ${currentAsset}` : '';
-    return hasValidAmount && receiveAmount
-      ? `${bigToLocaleString(receiveAmount, denomination)}${unit}`
-      : '-';
-  }, [currentAsset, hasValidAmount, receiveAmount, denomination]);
+    if (typeof receiveAmount !== 'bigint' || !asset) {
+      return '-';
+    }
+
+    const unit = new TokenUnit(receiveAmount, asset.decimals, asset.symbol);
+
+    return `${unit.toDisplay()} ${unit.getSymbol()}`;
+  }, [receiveAmount, asset]);
 
   const formattedReceiveAmountCurrency = useMemo(() => {
-    const result =
-      hasValidAmount && price && receiveAmount
-        ? `~${formatCurrency(price * receiveAmount.toNumber())}`
-        : '-';
+    if (!price || typeof receiveAmount !== 'bigint' || !asset) {
+      return '-';
+    }
 
-    return result;
-  }, [formatCurrency, hasValidAmount, price, receiveAmount]);
+    const unit = new TokenUnit(receiveAmount, asset.decimals, asset.symbol);
+
+    return `~${formatCurrency(price * unit.toDisplay({ asNumber: true }))}`;
+  }, [formatCurrency, price, receiveAmount, asset]);
 
   const handleAmountChanged = useCallback(
     (value: { bigint: bigint; amount: string }) => {
-      const bigValue = bigintToBig(value.bigint, denomination);
       setNavigationHistoryData({
-        selectedTokenAddress: currentAssetIdentifier,
-        selectedToken: currentAsset,
-        inputAmount: bigValue,
+        selectedToken: asset ? asset.symbol : undefined,
+        inputAmount: String(value.bigint),
       });
 
-      setAmount(bigValue);
+      setAmount(value.bigint);
       sendAmountEnteredAnalytics('Bridge');
 
       // When there is no balance for given token, maximum is undefined
-      if (!maximum || (maximum && bigValue && maximum.lt(bigValue))) {
+      if (!maximum || (maximum && value.bigint && value.bigint > maximum)) {
         const errorMessage = t('Insufficient balance');
 
         if (errorMessage === bridgeError) {
@@ -325,12 +225,10 @@ export const BridgeForm = ({
       setBridgeError('');
     },
     [
+      asset,
       bridgeError,
       capture,
-      currentAsset,
-      currentAssetIdentifier,
       setBridgeError,
-      denomination,
       maximum,
       sendAmountEnteredAnalytics,
       setAmount,
@@ -340,74 +238,50 @@ export const BridgeForm = ({
   );
 
   const handleSelect = useCallback(
-    (token: AssetBalance) => {
-      const symbol = token.symbol;
-      const address = getTokenAddress(token);
+    (token: Exclude<TokenWithBalance, NftTokenWithBalance>) => {
+      const foundAsset = findMatchingBridgeAsset(transferableAssets, token);
 
-      setCurrentAssetIdentifier(address);
+      if (!foundAsset) {
+        return;
+      }
+
       setNavigationHistoryData({
-        selectedToken: symbol,
-        selectedTokenAddress: address,
+        selectedToken: foundAsset.symbol,
         inputAmount: undefined,
       });
-      setAmount(BIG_ZERO);
-      setCurrentAsset(symbol);
+      setAmount(0n);
+      setAsset(foundAsset);
       sendTokenSelectedAnalytics('Bridge');
-
-      if (!hasEnoughForNetworkFee) {
-        capture('BridgeTokenSelectError', {
-          errorMessage: 'Insufficent balance to cover gas costs.',
-        });
-      }
     },
     [
-      capture,
-      hasEnoughForNetworkFee,
+      setAsset,
       sendTokenSelectedAnalytics,
       setAmount,
-      setCurrentAsset,
-      setCurrentAssetIdentifier,
       setNavigationHistoryData,
+      transferableAssets,
     ]
   );
 
   const handleBlockchainSwap = useCallback(() => {
-    if (targetBlockchain) {
-      // convert blockChain to Network
-      const blockChainNetwork = blockchainToNetwork(
-        targetBlockchain,
-        networks,
-        bridgeConfig
-      );
-
-      if (blockChainNetwork) {
-        const assetAddressOnOppositeChain = getAssetIdentifierOnTargetChain(
-          currentAsset,
-          blockChainNetwork.chainId
-        );
-
-        setCurrentAssetIdentifier(assetAddressOnOppositeChain);
-        setNavigationHistoryData({
-          selectedTokenAddress: assetAddressOnOppositeChain,
-          selectedToken: currentAsset,
-          inputAmount: undefined,
-        });
-        setAmount(BIG_ZERO);
-        setNetwork(blockChainNetwork);
-        setBridgeError('');
-      }
+    if (targetChain && network) {
+      setNavigationHistoryData({
+        selectedToken: asset ? asset.symbol : undefined,
+        inputAmount: undefined,
+      });
+      setAmount(0n);
+      setTargetChain(network);
+      setNetwork(targetChain);
+      setBridgeError('');
     }
   }, [
-    bridgeConfig,
-    getAssetIdentifierOnTargetChain,
-    networks,
     setNetwork,
     setBridgeError,
-    setCurrentAssetIdentifier,
-    currentAsset,
     setAmount,
     setNavigationHistoryData,
-    targetBlockchain,
+    targetChain,
+    asset,
+    network,
+    setTargetChain,
   ]);
 
   const disableTransfer = useMemo(
@@ -416,7 +290,7 @@ export const BridgeForm = ({
       loading ||
       isPending ||
       isAmountTooLow ||
-      BIG_ZERO.eq(amount) ||
+      !amount ||
       !hasEnoughForNetworkFee,
     [
       amount,
@@ -428,6 +302,10 @@ export const BridgeForm = ({
     ]
   );
 
+  if (!network) {
+    return null; // TODO: loading screen
+  }
+
   return (
     <>
       <Scrollbars>
@@ -435,7 +313,7 @@ export const BridgeForm = ({
           sx={{
             flex: 1,
             px: 2,
-            pb: provider === BridgeProviders.Unified ? 14 : 10,
+            // pb: provider === BridgeProviders.Unified ? 14 : 10, TODO: recognize CCTP
           }}
         >
           <Stack
@@ -453,6 +331,7 @@ export const BridgeForm = ({
                     p: 0,
                     backgroundColor: 'grey.850',
                     overflow: 'unset',
+                    zIndex: 1,
                   }}
                 >
                   <Stack sx={{ width: '100%' }}>
@@ -473,9 +352,9 @@ export const BridgeForm = ({
                       </Typography>
                       <NetworkSelector
                         testId="bridge-from-chain-selector"
-                        selected={currentBlockchain}
-                        onSelect={handleBlockchainChange}
-                        chains={availableBlockchains}
+                        selected={network}
+                        onSelect={handleSourceChainChange}
+                        chainIds={availableChainIds}
                       />
                     </Stack>
                     <Stack
@@ -486,17 +365,13 @@ export const BridgeForm = ({
                       }}
                     >
                       <TokenSelect
-                        maxAmount={
-                          maximum && bigToBigInt(maximum, denomination)
-                        }
-                        bridgeTokensList={assetsWithBalances}
-                        selectedToken={selectedTokenForTokenSelect}
+                        maxAmount={maximum}
+                        tokensList={bridgableTokens}
+                        selectedToken={sourceBalance}
                         onTokenChange={handleSelect}
                         inputAmount={
                           // Reset BNInput when programmatically setting the amount to zero
-                          !sourceBalance || amountBigint === 0n
-                            ? undefined
-                            : amountBigint
+                          !sourceBalance || amount === 0n ? undefined : amount
                         }
                         onInputAmountChange={handleAmountChanged}
                         onSelectToggle={() => {
@@ -520,17 +395,8 @@ export const BridgeForm = ({
                         justifyContent: 'center',
                       }}
                     >
-                      {(bridgeError ||
-                        isAmountTooLow ||
-                        !hasEnoughForNetworkFee) && (
-                        <Tooltip
-                          placement="bottom"
-                          title={
-                            <Stack sx={{ rowGap: 2, p: 1 }}>
-                              {errorTooltipContent}
-                            </Stack>
-                          }
-                        >
+                      {errorTooltipContent && (
+                        <Tooltip placement="bottom" title={errorTooltipContent}>
                           <Stack
                             sx={{
                               flexDirection: 'row',
@@ -557,86 +423,99 @@ export const BridgeForm = ({
                 </Card>
 
                 {/* Switch to swap from and to */}
-                <Stack sx={{ alignItems: 'center', mt: -2.5, pb: 1 }}>
-                  <Tooltip title={<Typography>{t('Switch')}</Typography>}>
-                    <Button
-                      data-testid="bridge-switch-button"
-                      usehigherzindex={isTokenSelectOpen ? '0' : '1'}
-                      onClick={handleBlockchainSwap}
-                      disabled={!targetBlockchain}
-                      sx={{ width: 40, height: 40 }}
-                    >
-                      <SwapIcon
-                        size={20}
-                        sx={{
-                          transform: 'rotate(90deg)',
-                        }}
-                      />
-                    </Button>
-                  </Tooltip>
-                </Stack>
-
-                {/* To section */}
-                <Card sx={{ background: 'none', zIndex: 1 }}>
-                  <Stack sx={{ width: '100%', p: 2, pt: 1, rowGap: 2 }}>
-                    <Stack
-                      direction="row"
-                      sx={{
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        sx={{ fontWeight: 'fontWeightSemibold' }}
+                <Grow
+                  in={possibleTargetChains.length > 0}
+                  unmountOnExit
+                  mountOnEnter
+                >
+                  <Stack
+                    sx={{ alignItems: 'center', mt: -2.5, pb: 1, zIndex: 1 }}
+                  >
+                    <Tooltip title={<Typography>{t('Switch')}</Typography>}>
+                      <Button
+                        data-testid="bridge-switch-button"
+                        usehigherzindex={isTokenSelectOpen ? '0' : '1'}
+                        onClick={handleBlockchainSwap}
+                        disabled={!targetChain}
+                        sx={{ width: 40, height: 40 }}
                       >
-                        {t('To')}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{ fontWeight: 'fontWeightSemibold' }}
-                      >
-                        {targetNetwork ? targetNetwork.chainName : ''}
-                      </Typography>
-                    </Stack>
-                    <Divider divider={<Divider />} sx={{ rowGap: 2 }} />
-                    <Stack>
-                      <Stack
-                        sx={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          mb: 1,
-                        }}
-                      >
-                        <Typography>{t('Receive')}</Typography>
-
-                        <Typography>{formattedReceiveAmount}</Typography>
-                      </Stack>
-                      <Stack
-                        sx={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <Typography
-                          variant="caption"
-                          color={theme.palette.text.secondary}
-                        >
-                          {t('Estimated')}
-                        </Typography>
-
-                        <Typography
-                          variant="caption"
-                          color={theme.palette.text.secondary}
-                        >
-                          {formattedReceiveAmountCurrency}
-                        </Typography>
-                      </Stack>
-                    </Stack>
+                        <SwapIcon
+                          size={20}
+                          sx={{
+                            transform: 'rotate(90deg)',
+                          }}
+                        />
+                      </Button>
+                    </Tooltip>
                   </Stack>
-                </Card>
+                </Grow>
+
+                <Slide
+                  in={possibleTargetChains.length > 0}
+                  mountOnEnter
+                  unmountOnExit
+                >
+                  <Card sx={{ background: 'none', zIndex: 1 }}>
+                    <Stack sx={{ width: '100%', p: 2, pt: 1, rowGap: 2 }}>
+                      <Stack
+                        direction="row"
+                        sx={{
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 'fontWeightSemibold' }}
+                        >
+                          {t('To')}
+                        </Typography>
+                        <NetworkSelector
+                          testId="bridge-to-chain-selector"
+                          selected={targetChain}
+                          onSelect={setTargetChain}
+                          chainIds={possibleTargetChains}
+                        />
+                      </Stack>
+                      <Divider divider={<Divider />} sx={{ rowGap: 2 }} />
+                      <Stack>
+                        <Stack
+                          sx={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            mb: 1,
+                          }}
+                        >
+                          <Typography>{t('Receive')}</Typography>
+
+                          <Typography>{formattedReceiveAmount}</Typography>
+                        </Stack>
+                        <Stack
+                          sx={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            color={theme.palette.text.secondary}
+                          >
+                            {t('Estimated')}
+                          </Typography>
+
+                          <Typography
+                            variant="caption"
+                            color={theme.palette.text.secondary}
+                          >
+                            {formattedReceiveAmountCurrency}
+                          </Typography>
+                        </Stack>
+                      </Stack>
+                    </Stack>
+                  </Card>
+                </Slide>
               </Stack>
             </Card>
           </Stack>
@@ -658,54 +537,8 @@ export const BridgeForm = ({
           gap: 2,
         }}
       >
-        {/* FIXME: Unified SDK can handle multiple bridges, but for now it's just the CCTP */}
-        {provider === BridgeProviders.Unified && (
-          <Stack
-            direction="row"
-            sx={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 0.5,
-            }}
-          >
-            <Typography variant="caption">{t('Powered by')}</Typography>
-
-            <img
-              src="/images/logos/circle.png"
-              style={{ height: 14 }}
-              alt="Circle"
-            />
-            <Tooltip
-              PopperProps={{
-                sx: { maxWidth: 188 },
-              }}
-              title={
-                <Trans
-                  i18nKey="{{symbol}} is routed through {{bridgeName}}. <faqLink>Bridge FAQs</faqLink>"
-                  values={{
-                    symbol: currentAsset,
-                    bridgeName: `Circle's Cross-Chain Transfer Protocol`,
-                  }}
-                  components={{
-                    faqLink: (
-                      <Link
-                        href="https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
-                        target="_blank"
-                        rel="noreferrer"
-                        sx={{
-                          fontSize: 'caption.fontSize',
-                          display: 'inline-flex',
-                          color: 'secondary.dark',
-                        }}
-                      />
-                    ),
-                  }}
-                />
-              }
-            >
-              <InfoCircleIcon sx={{ cursor: 'pointer' }} />
-            </Tooltip>
-          </Stack>
+        {asset && targetChain && (
+          <BridgeTypeFootnote asset={asset} targetChain={targetChain} />
         )}
         <Button
           data-testid="bridger-transfer-button"

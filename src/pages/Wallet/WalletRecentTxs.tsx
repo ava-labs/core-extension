@@ -190,7 +190,11 @@ export function WalletRecentTxs({
     }
 
     function shouldTxBeKept(tx: TxHistoryItem) {
-      if (isTxHistoryItem(tx) && tx.isBridge && isPendingBridge(tx)) {
+      if (
+        isTxHistoryItem(tx) &&
+        tx.bridgeAnalysis.isBridgeTx &&
+        isPendingBridge(tx)
+      ) {
         return false;
       }
       return true;
@@ -214,12 +218,16 @@ export function WalletRecentTxs({
     if (filter === FilterType.ALL) {
       return true;
     } else if (filter === FilterType.BRIDGE) {
-      return tx.txType === TransactionType.BRIDGE || tx.isBridge;
+      return (
+        tx.txType === TransactionType.BRIDGE || tx.bridgeAnalysis.isBridgeTx
+      );
     } else if (filter === FilterType.SWAP) {
       return tx.txType === TransactionType.SWAP;
     } else if (filter === FilterType.CONTRACT_CALL) {
       return (
-        tx.isContractCall && !tx.isBridge && tx.txType !== TransactionType.SWAP
+        tx.isContractCall &&
+        !tx.bridgeAnalysis.isBridgeTx &&
+        tx.txType !== TransactionType.SWAP
       );
     } else if (filter === FilterType.INCOMING) {
       return tx.isIncoming;

@@ -1,11 +1,12 @@
 import { singleton } from 'tsyringe';
 import {
+  AnalyzeTxParams,
+  AnalyzeTxResult,
   BridgeTransfer,
   BridgeType,
   createUnifiedBridgeService,
   Environment,
   getEnabledBridgeServices,
-  IsBridgeTxParams,
 } from '@avalabs/bridge-unified';
 import { wait } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
@@ -160,12 +161,14 @@ export class UnifiedBridgeService implements OnStorageReady {
     }
   }
 
-  isBridgeTx(txInfo: IsBridgeTxParams): boolean {
+  analyzeTx(txInfo: AnalyzeTxParams): AnalyzeTxResult {
     if (!this.#core) {
-      return false;
+      return {
+        isBridgeTx: false,
+      };
     }
 
-    return this.#core.isBridgeTx(txInfo);
+    return this.#core.analyzeTx(txInfo);
   }
 
   trackTransfer(bridgeTransfer: BridgeTransfer) {

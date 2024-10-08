@@ -1,107 +1,206 @@
-import Big from 'big.js';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  BIG_ZERO,
-  Blockchain,
-  useBridgeSDK,
-  useBridgeFeeEstimate,
-  WrapStatus,
-  useMinimumTransferAmount,
-  Asset,
-} from '@avalabs/core-bridge-sdk';
-import { useMemo, useState } from 'react';
+  BridgeAsset,
+  TokenType as BridgeTokenType,
+} from '@avalabs/bridge-unified';
+import {
+  NftTokenWithBalance,
+  TokenType,
+  TokenWithBalance,
+} from '@avalabs/vm-module-types';
 
-import { AssetBalance } from '../models';
-import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { ChainId } from '@avalabs/core-chains-sdk';
-import { BridgeStepDetails } from '@avalabs/bridge-unified';
+import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 
-export interface BridgeAdapter {
-  address?: string;
-  sourceBalance?: AssetBalance;
-  targetBalance?: AssetBalance;
-  assetsWithBalances?: AssetBalance[];
-  loading?: boolean;
-  networkFee?: Big;
-  bridgeFee?: Big;
-  /** Amount minus network and bridge fees */
-  receiveAmount?: Big;
-  /** Maximum transfer amount */
-  maximum?: Big;
-  /** Minimum transfer amount */
-  minimum?: Big;
-  /** Price for the current asset & currency code */
-  price?: number;
-  wrapStatus?: WrapStatus;
-  txHash?: string;
-  /**
-   * Transfer funds to the target blockchain
-   * @returns the transaction hash
-   */
-  transfer: () => Promise<string>;
-  estimateGas(amount: Big, asset?: Asset): Promise<bigint | undefined>;
-  bridgeStep?: BridgeStepDetails;
-}
+import { findMatchingBridgeAsset } from '../utils/findMatchingBridgeAsset';
 
 interface Bridge {
-  amount: Big;
-  setAmount: (amount: Big) => void;
-  bridgeFee: Big;
-  provider: BridgeProviders;
-  minimum: Big;
-  targetChainId: number;
+  amount?: bigint;
+  setAmount: (amount: bigint) => void;
+  availableChainIds: string[];
+  estimateGas: () => Promise<bigint>;
+  isReady: boolean;
+  targetChain?: NetworkWithCaipId;
+  setTargetChain: (targetChain: NetworkWithCaipId) => void;
+  asset?: BridgeAsset;
+  setAsset: (asset: BridgeAsset) => void;
+  sourceBalance?: Exclude<TokenWithBalance, NftTokenWithBalance>;
+  possibleTargetChains: string[];
+  minimum?: bigint;
+  maximum?: bigint;
+  receiveAmount?: bigint;
+  bridgeFee?: bigint;
+  bridgableTokens: Exclude<TokenWithBalance, NftTokenWithBalance>[];
+  transferableAssets: BridgeAsset[];
+  transfer: () => Promise<string>;
 }
 
-export enum BridgeProviders {
-  Avalanche,
-  Unified,
-}
+export function useBridge(): Bridge {
+  const { network, getNetwork } = useNetworkContext();
+  const { capture } = useAnalyticsContext();
+  const {
+    availableChainIds,
+    estimateTransferGas,
+    getFee,
+    isReady,
+    transferableAssets,
+    transferAsset,
+  } = useUnifiedBridgeContext();
+  const [amount, setAmount] = useState<bigint>();
+  const [asset, setAsset] = useState<BridgeAsset>();
+  const firstTargetChainId = Object.keys(asset?.destinations ?? {})[0] ?? '';
+  const [targetChain, setTargetChain] = useState(
+    firstTargetChainId ? getNetwork(firstTargetChainId) : undefined
+  );
 
-export function useBridge(currentAssetIdentifier?: string): Bridge {
-  const { targetBlockchain } = useBridgeSDK();
-  const { supportsAsset } = useUnifiedBridgeContext();
+  const [receiveAmount, setReceiveAmount] = useState<bigint>();
+  const [maximum, setMaximum] = useState<bigint>();
+  const [minimum, setMinimum] = useState<bigint>();
+  const [bridgeFee, setBridgeFee] = useState<bigint>();
+  const balances = useTokensWithBalances({
+    chainId: network?.chainId,
+    forceShowTokensWithoutBalances: true,
+  });
 
-  const [amount, setAmount] = useState<Big>(BIG_ZERO);
+  const bridgableTokens = useMemo(() => {
+    const nonNFTs = balances.filter(
+      (t): t is Exclude<TokenWithBalance, NftTokenWithBalance> => !isNFT(t)
+    );
 
-  const bridgeFee = useBridgeFeeEstimate(amount) || BIG_ZERO;
-  const minimum = useMinimumTransferAmount(amount);
-  const { isDeveloperMode } = useNetworkContext();
+    return nonNFTs.filter((t) =>
+      findMatchingBridgeAsset(transferableAssets, t)
+    );
+  }, [balances, transferableAssets]);
 
-  const targetChainId = useMemo(() => {
-    switch (targetBlockchain) {
-      case Blockchain.ETHEREUM:
-        return isDeveloperMode
-          ? ChainId.ETHEREUM_TEST_SEPOLIA
-          : ChainId.ETHEREUM_HOMESTEAD;
-
-      case Blockchain.AVALANCHE:
-        return isDeveloperMode
-          ? ChainId.AVALANCHE_TESTNET_ID
-          : ChainId.AVALANCHE_MAINNET_ID;
-
-      case Blockchain.BITCOIN:
-        return isDeveloperMode ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN;
-
-      default:
-        // NOTE: this will only happen for Ethereum and is safe for now,
-        // since we're only using this piece of code for Unified Bridge (CCTP).
-        // Needs revisiting when we migrate Avalanche Bridge to @avalabs/bridge-unified package.
-        return isDeveloperMode
-          ? ChainId.ETHEREUM_TEST_SEPOLIA
-          : ChainId.ETHEREUM_HOMESTEAD;
+  const sourceBalance = useMemo(() => {
+    if (!asset) {
+      return;
     }
-  }, [isDeveloperMode, targetBlockchain]);
+
+    return bridgableTokens.find((token) => {
+      if (
+        asset.type === BridgeTokenType.NATIVE &&
+        token.type === TokenType.NATIVE
+      ) {
+        return asset.symbol.toLowerCase() === token.symbol.toLowerCase();
+      }
+
+      if (
+        asset.type === BridgeTokenType.ERC20 &&
+        token.type === TokenType.ERC20
+      ) {
+        return asset.address.toLowerCase() === token.address.toLowerCase();
+      }
+
+      return false;
+    });
+  }, [asset, bridgableTokens]);
+
+  const possibleTargetChains = useMemo(() => {
+    return Object.keys(asset?.destinations ?? {});
+  }, [asset?.destinations]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (asset && amount && targetChain) {
+      getFee(asset.symbol, amount, targetChain.caipId).then((fee) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setBridgeFee(fee);
+        setMinimum(fee);
+        setReceiveAmount(amount - fee);
+      });
+
+      setMaximum(sourceBalance?.balance);
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [amount, asset, getFee, targetChain, sourceBalance?.balance]);
+
+  const estimateGas = useCallback(async () => {
+    if (!asset?.symbol || !amount || !targetChain?.caipId) {
+      return 0n;
+    }
+
+    return estimateTransferGas(asset.symbol, amount, targetChain?.caipId);
+  }, [estimateTransferGas, targetChain?.caipId, asset?.symbol, amount]);
+
+  const transfer = useCallback(async () => {
+    capture('unifedBridgeTransferStarted', {
+      bridgeType: 'CCTP', // TODO: no longer CCTP only
+      sourceBlockchain: network?.caipId,
+      targetBlockchain: targetChain?.caipId,
+    });
+
+    if (!amount) {
+      throw new Error('No amount chosen');
+    }
+
+    if (!asset) {
+      throw new Error('No asset chosen');
+    }
+
+    if (!network?.caipId) {
+      throw new Error('No source chain chosen');
+    }
+
+    if (!targetChain?.caipId) {
+      throw new Error('No target chain chosen');
+    }
+
+    const hash = await transferAsset(asset.symbol, amount, targetChain?.caipId);
+
+    return hash;
+  }, [
+    amount,
+    asset,
+    targetChain?.caipId,
+    transferAsset,
+    capture,
+    network?.caipId,
+  ]);
+
+  useEffect(() => {
+    if (targetChain && possibleTargetChains.includes(targetChain.caipId)) {
+      return;
+    }
+
+    if (possibleTargetChains[0]) {
+      const foundChain = getNetwork(possibleTargetChains[0]);
+
+      if (foundChain) {
+        setTargetChain(foundChain);
+      }
+    }
+  }, [getNetwork, targetChain, possibleTargetChains]);
 
   return {
     amount,
     setAmount,
-    minimum,
+    bridgableTokens: bridgableTokens,
+    availableChainIds,
     bridgeFee,
-    targetChainId,
-    provider:
-      currentAssetIdentifier &&
-      supportsAsset(currentAssetIdentifier, targetChainId)
-        ? BridgeProviders.Unified
-        : BridgeProviders.Avalanche,
+    estimateGas,
+    isReady,
+    minimum,
+    maximum,
+    receiveAmount,
+    asset,
+    setAsset,
+    sourceBalance,
+    targetChain,
+    setTargetChain,
+    possibleTargetChains,
+    transferableAssets,
+    transfer,
   };
 }

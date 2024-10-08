@@ -22,7 +22,7 @@ export const useHasEnoughForGas = (gasLimit?: bigint): boolean => {
 
     // get gasPrice of network
     const balance = token && token.balance;
-    const estimatedGasCost = networkFee.low.maxFee * gasLimit;
+    const estimatedGasCost = (networkFee.low.maxFee / 2n) * gasLimit;
     // check if balance > gasPrice
     if (balance && estimatedGasCost) {
       setHasEnough(

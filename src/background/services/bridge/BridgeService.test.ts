@@ -54,9 +54,11 @@ const addressBTC = 'tb01234';
 
 const networkBalancesService = {
   getBalancesForNetworks: async () => ({
-    [ChainId.BITCOIN_TESTNET]: {
-      [addressBTC]: {
-        BTC: {},
+    tokens: {
+      [ChainId.BITCOIN_TESTNET]: {
+        [addressBTC]: {
+          BTC: {},
+        },
       },
     },
   }),

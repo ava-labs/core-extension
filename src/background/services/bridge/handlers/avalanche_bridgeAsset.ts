@@ -310,7 +310,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
             0
         );
 
-        const token = balances[network.chainId]?.[addressBTC]?.[
+        const token = balances.tokens[network.chainId]?.[addressBTC]?.[
           'BTC'
         ] as TokenWithBalanceBTC;
 

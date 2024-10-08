@@ -48,7 +48,7 @@ export function ActivityCardIcon({ historyItem }: ActivityCardProp) {
       <ArrowDownIcon size={iconSize} />
     );
 
-    if (historyItem.isBridge) {
+    if (historyItem.bridgeAnalysis.isBridgeTx) {
       setTxIcon(<BridgeIcon size={iconSize} />);
       return;
     }

@@ -9,7 +9,6 @@ import {
 } from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
-import { AssetBalance } from '@src/pages/Bridge/models';
 import EthLogo from '@src/images/tokens/eth.png';
 import {
   hasUnconfirmedBTCBalance,
@@ -45,7 +44,6 @@ const InputContainer = styled(Card)`
   align-items: center;
   padding: 8px 16px;
   background: ${({ theme }) => theme.palette.grey[850]};
-  cursor: pointer;
   display: flex;
 `;
 
@@ -71,7 +69,7 @@ const StyledDropdownMenuItem = styled(DropdownItem)`
 
 interface TokenSelectProps {
   selectedToken?: TokenWithBalance | null;
-  onTokenChange(token: TokenWithBalance | AssetBalance): void;
+  onTokenChange(token: TokenWithBalance): void;
   maxAmount?: bigint;
   inputAmount?: bigint;
   onInputAmountChange?(data: { amount: string; bigint: bigint }): void;
@@ -83,7 +81,6 @@ interface TokenSelectProps {
   label?: string;
   selectorLabel?: string;
   tokensList?: TokenWithBalance[];
-  bridgeTokensList?: AssetBalance[];
   isValueLoading?: boolean;
   hideErrorMessage?: boolean;
   skipHandleMaxAmount?: boolean;
@@ -107,7 +104,6 @@ export function TokenSelect({
   isValueLoading,
   hideErrorMessage,
   skipHandleMaxAmount,
-  bridgeTokensList,
   setIsOpen,
   containerRef,
   withMaxButton = true,
@@ -140,13 +136,10 @@ export function TokenSelect({
     },
     [onInputAmountChange, maxAmountString]
   );
-  const hideTokenDropdown =
-    (bridgeTokensList && bridgeTokensList.length < 2) ||
-    (tokensList && tokensList.length < 2);
+  const hideTokenDropdown = tokensList && tokensList.length < 2;
 
   const displayTokenList = useDisplaytokenlist({
     tokensList,
-    bridgeTokensList,
     searchQuery,
   });
 
@@ -187,9 +180,8 @@ export function TokenSelect({
 
   useEffect(() => {
     // when only one token is present, auto select it
-    const tokens = bridgeTokensList ?? tokensList;
-    const hasOnlyOneToken = tokens?.length === 1;
-    const theOnlyToken = hasOnlyOneToken ? tokens[0] : undefined;
+    const hasOnlyOneToken = tokensList?.length === 1;
+    const theOnlyToken = hasOnlyOneToken ? tokensList[0] : undefined;
     const isOnlyTokenNotSelected =
       theOnlyToken && theOnlyToken?.symbol !== selectedToken?.symbol;
 
@@ -198,17 +190,16 @@ export function TokenSelect({
       return;
     }
     // when selected token is not supported, clear it
-    const supportedSymbols =
-      tokens?.flatMap((tok) => [tok.symbol, tok.symbolOnNetwork]) ?? [];
+    const supportedSymbols = tokensList?.flatMap((tok) => tok.symbol) ?? [];
 
     if (
       selectedToken &&
-      tokens?.[0] &&
+      tokensList?.[0] &&
       !supportedSymbols.includes(selectedToken.symbol)
     ) {
-      onTokenChange(tokens[0]);
+      onTokenChange(tokensList[0]);
     }
-  }, [bridgeTokensList, tokensList, onTokenChange, selectedToken]);
+  }, [tokensList, onTokenChange, selectedToken]);
 
   const rowRenderer = useCallback(
     ({ key, index, style }) => {
