@@ -18,13 +18,13 @@ import {
   BridgeTransfer,
   getEnabledBridgeServices,
   BridgeServicesMap,
-  IsBridgeTxParams,
+  AnalyzeTxParams,
+  AnalyzeTxResult,
 } from '@avalabs/bridge-unified';
 import { ethErrors } from 'eth-rpc-errors';
 import { filter, map } from 'rxjs';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { chainIdToCaip } from '@src/utils/caipConversion';
 import {
   UNIFIED_BRIDGE_DEFAULT_STATE,
   UnifiedBridgeError,
@@ -39,7 +39,6 @@ import { CommonError, ErrorCode } from '@src/utils/errors';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { getNetworkCaipId } from '@src/utils/caipConversion';
 import { useAccountsContext } from './AccountsProvider';
 import { JsonRpcApiProvider } from 'ethers';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
@@ -54,23 +53,23 @@ export interface UnifiedBridgeContext {
   estimateTransferGas(
     symbol: string,
     amount: bigint,
-    targetChainId: number
+    targetChainId: string
   ): Promise<bigint>;
   getAssetIdentifierOnTargetChain(
     symbol?: string,
-    chainId?: number
+    chainId?: string
   ): string | undefined;
   getFee(
     symbol: string,
     amount: bigint,
-    targetChainId: number
+    targetChainId: string
   ): Promise<bigint>;
-  isBridgeTx(txInfo: IsBridgeTxParams): boolean;
-  supportsAsset(address: string, targetChainId: number): boolean;
+  analyzeTx(txInfo: AnalyzeTxParams): AnalyzeTxResult;
+  supportsAsset(address: string, targetChainId: string): boolean;
   transferAsset(
     symbol: string,
     amount: bigint,
-    targetChainId: number
+    targetChainId: string
   ): Promise<any>;
   getErrorMessage(errorCode: UnifiedBridgeErrorCode): string;
   transferableAssets: BridgeAsset[];
@@ -91,8 +90,8 @@ const DEFAULT_STATE = {
   supportsAsset() {
     return false;
   },
-  isBridgeTx() {
-    return false;
+  analyzeTx(): AnalyzeTxResult {
+    return { isBridgeTx: false };
   },
   transferAsset() {
     throw new Error('Bridge not ready');
@@ -208,13 +207,13 @@ export function UnifiedBridgeProvider({
   }, [core]);
 
   const buildChain = useCallback(
-    (chainId: number): Chain => {
+    (chainId: string): Chain => {
       const network = getNetwork(chainId);
 
       assert(network, CommonError.UnknownNetwork);
 
       return {
-        chainId: chainIdToCaip(network.chainId),
+        chainId,
         chainName: network.chainName,
         rpcUrl: network.rpcUrl,
         networkToken: {
@@ -237,7 +236,7 @@ export function UnifiedBridgeProvider({
     // UnifiedBridge SDK returns the chain IDs in CAIP2 format.
     // This is good, but we need to translate it to numeric chain ids
     // until we make the switch in extension:
-    return assets[getNetworkCaipId(activeNetwork)] ?? [];
+    return assets[activeNetwork.caipId] ?? [];
   }, [activeNetwork, assets]);
 
   useEffect(() => {
@@ -262,12 +261,12 @@ export function UnifiedBridgeProvider({
   }, [events, request]);
 
   const supportsAsset = useCallback(
-    (lookupAddressOrSymbol: string, targetChainId: number) => {
+    (lookupAddressOrSymbol: string, targetChainId: string) => {
       if (!activeNetwork) {
         return false;
       }
 
-      const sourceAssets = assets[getNetworkCaipId(activeNetwork)] ?? [];
+      const sourceAssets = assets[activeNetwork.caipId] ?? [];
       const asset = sourceAssets.find((token) => {
         return token.type === TokenType.NATIVE
           ? token.symbol === lookupAddressOrSymbol
@@ -278,14 +277,14 @@ export function UnifiedBridgeProvider({
         return false;
       }
 
-      return chainIdToCaip(targetChainId) in asset.destinations;
+      return targetChainId in asset.destinations;
     },
     [assets, activeNetwork]
   );
 
   const getAsset = useCallback(
-    (symbol: string, chainId: number) => {
-      const chainAssets = assets[chainIdToCaip(chainId)] ?? [];
+    (symbol: string, chainId: string) => {
+      const chainAssets = assets[chainId] ?? [];
 
       const asset = chainAssets.find(
         ({ symbol: assetSymbol }) => assetSymbol === symbol
@@ -298,10 +297,10 @@ export function UnifiedBridgeProvider({
 
   const buildParams = useCallback(
     (
-      targetChainId: number
+      targetChainId: string
     ): {
       sourceChain: Chain;
-      sourceChainId: number;
+      sourceChainId: string;
       targetChain: Chain;
       provider: JsonRpcApiProvider;
       fromAddress: `0x${string}`;
@@ -313,7 +312,7 @@ export function UnifiedBridgeProvider({
         UnifiedBridgeError.UnsupportedNetwork
       );
 
-      const sourceChain = buildChain(activeNetwork.chainId);
+      const sourceChain = buildChain(activeNetwork.caipId);
       const targetChain = buildChain(targetChainId);
 
       const provider = getProviderForNetwork(
@@ -324,7 +323,7 @@ export function UnifiedBridgeProvider({
 
       return {
         sourceChain,
-        sourceChainId: activeNetwork.chainId,
+        sourceChainId: activeNetwork.caipId,
         targetChain,
         provider,
         fromAddress,
@@ -337,12 +336,12 @@ export function UnifiedBridgeProvider({
     async (
       symbol: string,
       amount: bigint,
-      targetChainId: number
+      targetChainId: string
     ): Promise<bigint> => {
       assert(core, CommonError.Unknown);
       assert(activeNetwork, CommonError.NoActiveNetwork);
 
-      const asset = getAsset(symbol, activeNetwork.chainId);
+      const asset = getAsset(symbol, activeNetwork.caipId);
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
       const feeMap = lowerCaseKeys(
@@ -350,7 +349,7 @@ export function UnifiedBridgeProvider({
           asset,
           amount,
           targetChain: buildChain(targetChainId),
-          sourceChain: buildChain(activeNetwork.chainId),
+          sourceChain: buildChain(activeNetwork.caipId),
         })
       );
 
@@ -366,12 +365,12 @@ export function UnifiedBridgeProvider({
     async (
       symbol: string,
       amount: bigint,
-      targetChainId: number
+      targetChainId: string
     ): Promise<bigint> => {
       assert(core, CommonError.Unknown);
       assert(activeNetwork, CommonError.NoActiveNetwork);
 
-      const asset = getAsset(symbol, activeNetwork.chainId);
+      const asset = getAsset(symbol, activeNetwork.caipId);
 
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
@@ -392,7 +391,7 @@ export function UnifiedBridgeProvider({
   );
 
   const getAssetIdentifierOnTargetChain = useCallback(
-    (symbol?: string, targetChainId?: number) => {
+    (symbol?: string, targetChainId?: string) => {
       if (!symbol || !targetChainId) {
         return;
       }
@@ -419,11 +418,11 @@ export function UnifiedBridgeProvider({
   );
 
   const transferAsset = useCallback(
-    async (symbol: string, amount: bigint, targetChainId: number) => {
+    async (symbol: string, amount: bigint, targetChainId: string) => {
       assert(core, CommonError.Unknown);
       assert(activeNetwork, CommonError.NoActiveNetwork);
 
-      const asset = getAsset(symbol, activeNetwork.chainId);
+      const asset = getAsset(symbol, activeNetwork.caipId);
 
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
@@ -517,11 +516,11 @@ export function UnifiedBridgeProvider({
     [t]
   );
 
-  const isBridgeTx = useCallback(
-    (txInfo: IsBridgeTxParams) => {
+  const analyzeTx = useCallback(
+    (txInfo: AnalyzeTxParams) => {
       assert(core, CommonError.Unknown);
 
-      return core.isBridgeTx(txInfo);
+      return core.analyzeTx(txInfo);
     },
     [core]
   );
@@ -532,7 +531,7 @@ export function UnifiedBridgeProvider({
         estimateTransferGas,
         getErrorMessage,
         state,
-        isBridgeTx,
+        analyzeTx,
         getAssetIdentifierOnTargetChain,
         getFee,
         supportsAsset,

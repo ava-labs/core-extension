@@ -9,7 +9,9 @@ import { TransactionType } from '@avalabs/vm-module-types';
 
 describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
   const txHistoryItem: TxHistoryItem = {
-    isBridge: false,
+    bridgeAnalysis: {
+      isBridgeTx: false,
+    },
     isContractCall: true,
     isIncoming: false,
     isOutgoing: true,
@@ -32,7 +34,9 @@ describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
     txType: TransactionType.SEND,
   };
   const pchainTxHistoryItem: TxHistoryItem = {
-    isBridge: false,
+    bridgeAnalysis: {
+      isBridgeTx: false,
+    },
     isContractCall: true,
     isIncoming: false,
     isOutgoing: true,
