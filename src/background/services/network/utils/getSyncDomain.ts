@@ -5,6 +5,8 @@ const SYNCED_DOMAINS = [
   'core.app',
   'test.core.app',
   runtime.id,
+  'develop.avacloud-app.pages.dev',
+  'avacloud.io',
 ];
 
 export const isSyncDomain = (domain: string) => {
