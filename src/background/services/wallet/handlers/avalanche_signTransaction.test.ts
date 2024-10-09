@@ -14,6 +14,7 @@ import { Action } from '../../actions/models';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { HEADERS } from '../../glacier/glacierConfig';
 
 jest.mock('@avalabs/avalanchejs');
 jest.mock('@avalabs/core-wallets-sdk');
@@ -226,6 +227,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         isTestnet: true,
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
+        headers: HEADERS,
       });
       expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledWith({
         tx: txMock,
@@ -273,6 +275,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         isTestnet: true,
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
+        headers: HEADERS,
       });
       expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledWith({
         tx: txMock,
@@ -327,6 +330,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         isTestnet: true,
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
+        headers: HEADERS,
       });
       expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledWith({
         tx: txMock,
@@ -383,6 +387,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         isTestnet: true,
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
+        headers: HEADERS,
       });
       expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledWith({
         tx: txMock,
@@ -524,6 +529,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             isTestnet: true,
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
+            headers: HEADERS,
           });
         });
       });
@@ -712,6 +718,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             isTestnet: true,
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
+            headers: HEADERS,
           });
         });
       });

@@ -9,6 +9,8 @@ import { SecretsService } from '../../secrets/SecretsService';
 import { LedgerTransport } from '../LedgerTransport';
 import { MigrateMissingPublicKeysFromLedgerHandler } from './migrateMissingPublicKeysFromLedger';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { AccountsService } from '../../accounts/AccountsService';
+import { Account } from '../../accounts/models';
 
 jest.mock('../../secrets/SecretsService');
 jest.mock('@avalabs/core-wallets-sdk');
@@ -19,13 +21,17 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
     id: '123',
     method: ExtensionRequest.LEDGER_MIGRATE_MISSING_PUBKEYS,
   } as any;
+  const accountsService: jest.Mocked<AccountsService> = {
+    activeAccount: {} as unknown as Account,
+  } as any;
 
   const secretsService = jest.mocked(new SecretsService({} as any));
   const ledgerService = {} as any;
   const handleRequest = async () => {
     const handler = new MigrateMissingPublicKeysFromLedgerHandler(
       secretsService,
-      ledgerService
+      ledgerService,
+      accountsService
     );
     return handler.handle(buildRpcCall(request));
   };
@@ -36,7 +42,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
   });
 
   it('returns error if storage is empty', async () => {
-    secretsService.getActiveAccountSecrets.mockRejectedValue(
+    secretsService.getAccountSecrets.mockRejectedValue(
       new Error('Wallet is not initialized')
     );
 
@@ -46,7 +52,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
   });
 
   it('does nothing if wallet type is incorrect', async () => {
-    secretsService.getActiveAccountSecrets.mockResolvedValue({
+    secretsService.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Mnemonic,
     } as any);
     const result = await handleRequest();
@@ -57,7 +63,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
   it('returns error if transport is missing', async () => {
     (ledgerService as any).recentTransport = undefined;
-    secretsService.getActiveAccountSecrets.mockResolvedValue({
+    secretsService.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Ledger,
       id: WALLET_ID,
     } as any);
@@ -69,7 +75,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
   describe('Derivation path: BIP44', () => {
     it('terminates early if there is nothing to update', async () => {
-      secretsService.getActiveAccountSecrets.mockResolvedValue({
+      secretsService.getAccountSecrets.mockResolvedValue({
         secretType: SecretType.Ledger,
         xpub: 'xpub',
         xpubXP: 'xpubXP',
@@ -84,7 +90,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
     });
 
     it('updates the extended public key correctly', async () => {
-      secretsService.getActiveAccountSecrets.mockResolvedValue({
+      secretsService.getAccountSecrets.mockResolvedValue({
         secretType: SecretType.Ledger,
         xpub: 'xpub',
         derivationPath: DerivationPath.BIP44,
@@ -106,7 +112,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
   describe('Derivation path: Ledger Live', () => {
     it('terminates early if there is nothing to update', async () => {
-      secretsService.getActiveAccountSecrets.mockResolvedValue({
+      secretsService.getAccountSecrets.mockResolvedValue({
         secretType: SecretType.LedgerLive,
         pubKeys: [],
         derivationPath: DerivationPath.LedgerLive,
@@ -124,7 +130,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
         { evm: 'evm2', xp: '' },
         { evm: 'evm3', xp: '' },
       ];
-      secretsService.getActiveAccountSecrets.mockResolvedValue({
+      secretsService.getAccountSecrets.mockResolvedValue({
         secretType: SecretType.LedgerLive,
         pubKeys,
         derivationPath: DerivationPath.LedgerLive,
@@ -178,7 +184,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
         { evm: 'evm3', xp: '' },
       ];
 
-      secretsService.getActiveAccountSecrets.mockResolvedValue({
+      secretsService.getAccountSecrets.mockResolvedValue({
         secretType: SecretType.LedgerLive,
         pubKeys,
         derivationPath: DerivationPath.LedgerLive,

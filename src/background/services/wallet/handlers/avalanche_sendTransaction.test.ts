@@ -17,6 +17,7 @@ import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { measureDuration } from '@src/utils/measureDuration';
+import { HEADERS } from '../../glacier/glacierConfig';
 
 jest.mock('@avalabs/avalanchejs');
 jest.mock('@avalabs/core-wallets-sdk');
@@ -335,6 +336,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
             isTestnet: true,
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
+            headers: HEADERS,
           });
           checkExpected(request, result, tx);
         });
@@ -415,6 +417,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
             isTestnet: true,
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
+            headers: HEADERS,
           });
         });
       });

@@ -3,8 +3,14 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAddressesInRangeHandler } from './avalanche_getAddressesInRange';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { AccountsService } from '../AccountsService';
 
 jest.mock('@avalabs/core-wallets-sdk');
+jest.mock('@src/utils/canSkipApproval');
+jest.mock('@src/background/runtime/openApprovalWindow');
 
 describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts', () => {
   const getPrimaryAccountSecretsMock = jest.fn();
@@ -17,10 +23,13 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
     getAvalanceProviderXP: jest.fn(),
   } as any;
 
+  const accountsService = jest.mocked<AccountsService>({} as any);
+
   const handleRequest = async (request) => {
     const handler = new AvalancheGetAddressesInRangeHandler(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsService
     );
 
     return handler.handleAuthenticated(request);
@@ -30,22 +39,25 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
     ({
       id: '1234',
       method: DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+      site: {
+        domain: 'core.app',
+        tabId: 3,
+      },
       ...payload,
     } as const);
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.mocked(canSkipApproval).mockResolvedValue(true);
   });
 
   describe('handleAuthenticated', () => {
     it('returns error on error', async () => {
       const error = new Error('some error');
       getPrimaryAccountSecretsMock.mockRejectedValueOnce(error);
-      const request = {
-        id: '123',
-        method: DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+      const request = getPayload({
         params: [0, 0, 10, 10],
-      } as any;
+      });
 
       const result = await handleRequest(buildRpcCall(request));
       expect(result).toEqual({
@@ -109,6 +121,31 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
         expect(Avalanche.getAddressFromXpub).toHaveBeenCalledTimes(4);
       });
 
+      it('asks for approval for non-Core dApps', async () => {
+        jest.mocked(canSkipApproval).mockResolvedValueOnce(false);
+
+        const request = getPayload({ params: [0, 0, 2, 2] });
+        const { result } = await handleRequest(buildRpcCall(request));
+        expect(result).toEqual(DEFERRED_RESPONSE);
+        expect(openApprovalWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            displayData: expect.objectContaining({
+              indices: {
+                internalStart: 0,
+                internalLimit: 2,
+                externalStart: 0,
+                externalLimit: 2,
+              },
+              addresses: {
+                external: getExpectedResult('external', 2),
+                internal: getExpectedResult('internal', 2),
+              },
+            }),
+          }),
+          'getAddressesInRange'
+        );
+      });
+
       it('sets the limit to 0 if not provided', async () => {
         const { result } = await handleRequest(
           buildRpcCall(getPayload({ params: [0, 0] }))
@@ -134,13 +171,12 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
   it('handleUnauthenticated', async () => {
     const handler = new AvalancheGetAddressesInRangeHandler(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsService
     );
-    const request = {
-      id: '123',
-      method: DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+    const request = getPayload({
       params: [0, 0, 10, 10],
-    } as any;
+    });
 
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
     expect(result).toEqual({

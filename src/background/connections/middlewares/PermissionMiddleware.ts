@@ -89,6 +89,7 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   'web3_sha3',
   'avalanche_getIsDefaultExtensionState',
   'avalanche_selectWallet',
+  DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
 ]);
 
 const CORE_METHODS = Object.freeze([
@@ -106,7 +107,6 @@ const CORE_METHODS = Object.freeze([
   DAppProviderRequest.AVALANCHE_SIGN_TRANSACTION,
   DAppProviderRequest.AVALANCHE_SIGN_MESSAGE,
   DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
-  DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
   DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
   DAppProviderRequest.WALLET_GET_CHAIN,
 ]);
