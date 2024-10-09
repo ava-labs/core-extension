@@ -35,12 +35,12 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
     return handler.handleAuthenticated(request);
   };
 
-  const getPayload = (payload) =>
+  const getPayload = (payload, domain = 'core.app') =>
     ({
       id: '1234',
       method: DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
       site: {
-        domain: 'core.app',
+        domain,
         tabId: 3,
       },
       ...payload,
@@ -143,6 +143,21 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
             }),
           }),
           'getAddressesInRange'
+        );
+      });
+
+      it('should call `canSkipApproval` with whitelisted domains', async () => {
+        const EXPOSED_DOMAINS = [
+          'develop.avacloud-app.pages.dev',
+          'avacloud.io',
+          'staging--ava-cloud.avacloud-app.pages.dev',
+        ];
+        const request = getPayload({ params: [0, 0, 2, 2] });
+        await handleRequest(buildRpcCall(request));
+        expect(canSkipApproval).toHaveBeenCalledWith(
+          'core.app',
+          3,
+          EXPOSED_DOMAINS
         );
       });
 
