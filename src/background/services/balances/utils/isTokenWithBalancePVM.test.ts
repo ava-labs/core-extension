@@ -19,10 +19,10 @@ describe('src/background/services/balances/utils/isTokenWithBalancePVM.ts', () =
     description: 'description',
     logoUri: 'logoUri',
     balancePerType: {
-      locked: 1,
-      unlocked: 2,
-      atomicMemoryUnlocked: 3,
-      atomicMemoryLocked: 4,
+      locked: 1n,
+      unlocked: 2n,
+      atomicMemoryUnlocked: 3n,
+      atomicMemoryLocked: 4n,
     },
   };
 
@@ -37,14 +37,14 @@ describe('src/background/services/balances/utils/isTokenWithBalancePVM.ts', () =
     description: 'description',
     logoUri: 'logoUri',
     balancePerType: {
-      lockedStaked: 1,
-      lockedStakeable: 2,
-      lockedPlatform: 3,
-      atomicMemoryLocked: 4,
-      atomicMemoryUnlocked: 5,
-      unlockedUnstaked: 6,
-      unlockedStaked: 7,
-      pendingStaked: 8,
+      lockedStaked: 1n,
+      lockedStakeable: 2n,
+      lockedPlatform: 3n,
+      atomicMemoryLocked: 4n,
+      atomicMemoryUnlocked: 5n,
+      unlockedUnstaked: 6n,
+      unlockedStaked: 7n,
+      pendingStaked: 8n,
     },
   };
 

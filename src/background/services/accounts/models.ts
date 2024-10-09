@@ -125,3 +125,18 @@ export enum GetPrivateKeyErrorTypes {
   DerivePath = 'derivePath',
   Mnemonic = 'mnemonic',
 }
+
+export type GetAddressesInRangeResponse = {
+  internal: string[];
+  external: string[];
+};
+
+export type GetAddressesInRangeDisplayData = {
+  indices: {
+    externalStart: number;
+    internalStart: number;
+    externalLimit: number;
+    internalLimit: number;
+  };
+  addresses: GetAddressesInRangeResponse;
+};

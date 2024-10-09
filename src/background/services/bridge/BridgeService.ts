@@ -197,7 +197,7 @@ export class BridgeService implements OnLock, OnStorageReady {
         [this.accountsService.activeAccount]
       );
 
-      const token = balances[btcNetwork.chainId]?.[addressBtc]?.[
+      const token = balances.tokens[btcNetwork.chainId]?.[addressBtc]?.[
         'BTC'
       ] as TokenWithBalanceBTC;
 
