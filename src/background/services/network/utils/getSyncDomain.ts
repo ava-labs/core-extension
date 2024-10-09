@@ -5,13 +5,13 @@ const SYNCED_DOMAINS = [
   'core.app',
   'test.core.app',
   runtime.id,
-  'develop.avacloud-app.pages.dev',
-  'avacloud.io',
-  'staging--ava-cloud.avacloud-app.pages.dev',
 ];
 
-export const isSyncDomain = (domain: string) => {
-  return SYNCED_DOMAINS.some((syncDomain) => {
+export const isSyncDomain = (
+  domain: string,
+  exposedDomainList: string[] = []
+) => {
+  return [...SYNCED_DOMAINS, ...exposedDomainList].some((syncDomain) => {
     // Match exact domains, but also allow subdomains (i.e. develop.core-web.pages.dev)
     return syncDomain === domain || domain.endsWith(`.${syncDomain}`);
   });
