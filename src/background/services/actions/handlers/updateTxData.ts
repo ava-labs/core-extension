@@ -34,13 +34,13 @@ export class UpdateActionTxDataHandler implements HandlerType {
     const actions = await this.actionsService.getActions();
 
     if (!actions) {
-      return { ...request, error: 'no messages found' };
+      return { ...request, error: 'no pending requests found' };
     }
 
     const action = actions[id];
 
     if (!action) {
-      return { ...request, error: 'no message found with that id' };
+      return { ...request, error: 'no request found with that id' };
     }
 
     try {
