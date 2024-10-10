@@ -3,6 +3,7 @@ import { GetPrivateKeyHandler } from './getPrivateKey';
 import {
   AccountType,
   GetPrivateKeyErrorTypes,
+  PrimaryAccount,
   PrivateKeyChain,
 } from '../models';
 import { LockService } from '../../lock/LockService';
@@ -17,7 +18,7 @@ jest.mock('@avalabs/core-wallets-sdk', () => ({
 }));
 
 describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
-  const sercretServiceMock = {
+  const secretServiceMock = {
     getWalletSecrets: jest.fn(),
     getPrimaryAccountSecrets: jest.fn(),
     getImportedAccountSecrets: jest.fn(),
@@ -25,7 +26,9 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
   const lockServiceMock: jest.Mocked<LockService> = {
     verifyPassword: jest.fn(),
   } as any;
-  const accountsServiceMock: jest.Mocked<AccountsService> = {} as any;
+  const accountsServiceMock: jest.Mocked<AccountsService> = {
+    getAccountByID: jest.fn(),
+  } as any;
 
   const request = {
     id: '123',
@@ -35,7 +38,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
 
   const getHandler = () =>
     new GetPrivateKeyHandler(
-      sercretServiceMock,
+      secretServiceMock,
       lockServiceMock,
       accountsServiceMock
     );
@@ -154,8 +157,9 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
     });
   });
 
-  it('should return null when the secrets has no values', async () => {
-    sercretServiceMock.getPrimaryAccountSecrets.mockResolvedValue(null);
+  it('should return an error when account is not found', async () => {
+    secretServiceMock.getPrimaryAccountSecrets.mockResolvedValue(null);
+    accountsServiceMock.getAccountByID.mockReturnValue(undefined);
     const handler = getHandler();
     const params = [
       {
@@ -176,15 +180,49 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       params,
       error: {
         type: GetPrivateKeyErrorTypes.Mnemonic,
-        message: 'There is no mnemonic found',
+        message: 'Account not found',
       },
     });
   });
+
+  it('should return error when the secrets has no values', async () => {
+    accountsServiceMock.getAccountByID.mockReturnValue({
+      index: 0,
+    } as PrimaryAccount);
+    secretServiceMock.getPrimaryAccountSecrets.mockResolvedValue(null);
+    const handler = getHandler();
+    const params = [
+      {
+        type: SecretType.Mnemonic,
+        index: 0,
+        password: 'asd',
+        chain: PrivateKeyChain.C,
+      },
+    ];
+    const result = await handler.handle(
+      buildRpcCall({
+        ...request,
+        params,
+      })
+    );
+    expect(result).toEqual({
+      ...request,
+      params,
+      error: {
+        type: GetPrivateKeyErrorTypes.Mnemonic,
+        message: 'Mnemonic not found',
+      },
+    });
+  });
+
   it('should return an error when the `signer.path` is undefined', async () => {
     (getWalletFromMnemonic as jest.Mock).mockReturnValue({
       path: undefined,
     });
-    sercretServiceMock.getPrimaryAccountSecrets.mockResolvedValue({
+    accountsServiceMock.getAccountByID.mockReturnValue({
+      index: 0,
+    } as PrimaryAccount);
+    secretServiceMock.getPrimaryAccountSecrets.mockResolvedValue({
       mnemonic: 'some-words-here',
       secretType: SecretType.Mnemonic,
     });
@@ -213,8 +251,12 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       },
     });
   });
+
   it('should return the private key for the given account for C chain', async () => {
-    sercretServiceMock.getPrimaryAccountSecrets.mockResolvedValue({
+    accountsServiceMock.getAccountByID.mockReturnValue({
+      index: 0,
+    } as PrimaryAccount);
+    secretServiceMock.getPrimaryAccountSecrets.mockResolvedValue({
       mnemonic: 'some-words-here',
       secretType: SecretType.Mnemonic,
     });
@@ -225,6 +267,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
         index: 0,
         password: 'asd',
         chain: PrivateKeyChain.C,
+        id: '123-123-123',
       },
     ];
     const result = await handler.handle(
@@ -238,10 +281,22 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       params,
       result: '123123123',
     });
+
+    expect(accountsServiceMock.getAccountByID).toHaveBeenCalledTimes(1);
+    expect(accountsServiceMock.getAccountByID).toHaveBeenCalledWith(
+      '123-123-123'
+    );
+    expect(secretServiceMock.getPrimaryAccountSecrets).toHaveBeenCalledTimes(1);
+    expect(secretServiceMock.getPrimaryAccountSecrets).toHaveBeenCalledWith({
+      index: 0,
+    });
   });
 
   it('should return the private key for the given account for X/P chain', async () => {
-    sercretServiceMock.getPrimaryAccountSecrets.mockResolvedValue({
+    accountsServiceMock.getAccountByID.mockReturnValue({
+      index: 0,
+    } as PrimaryAccount);
+    secretServiceMock.getPrimaryAccountSecrets.mockResolvedValue({
       mnemonic: 'fake mnemonic worlds',
       secretType: SecretType.Mnemonic,
     });
@@ -277,7 +332,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
         chain: PrivateKeyChain.C,
       },
     ];
-    sercretServiceMock.getImportedAccountSecrets.mockResolvedValue({
+    secretServiceMock.getImportedAccountSecrets.mockResolvedValue({
       secretType: SecretType.PrivateKey,
       secret: 'secretKey',
     });
@@ -303,7 +358,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
         chain: PrivateKeyChain.C,
       },
     ];
-    sercretServiceMock.getImportedAccountSecrets.mockResolvedValue({
+    secretServiceMock.getImportedAccountSecrets.mockResolvedValue({
       type: 'walletConnect',
       secret: 'secretKey',
     });

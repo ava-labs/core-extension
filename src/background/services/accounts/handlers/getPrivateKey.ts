@@ -113,8 +113,20 @@ export class GetPrivateKeyHandler implements HandlerType {
         }
       }
 
+      const account = this.accountsService.getAccountByID(accountId);
+
+      if (!account) {
+        return {
+          ...request,
+          error: {
+            type: GetPrivateKeyErrorTypes.Mnemonic,
+            message: 'Account not found',
+          },
+        };
+      }
+
       const primaryAccount = await this.secretService.getPrimaryAccountSecrets(
-        this.accountsService.activeAccount
+        account
       );
 
       if (
@@ -125,7 +137,7 @@ export class GetPrivateKeyHandler implements HandlerType {
           ...request,
           error: {
             type: GetPrivateKeyErrorTypes.Mnemonic,
-            message: 'There is no mnemonic found',
+            message: 'Mnemonic not found',
           },
         };
       }
@@ -145,7 +157,7 @@ export class GetPrivateKeyHandler implements HandlerType {
             ...request,
             error: {
               type: GetPrivateKeyErrorTypes.DerivePath,
-              message: 'The derive path is missing',
+              message: 'The derived path is missing',
             },
           };
         }
