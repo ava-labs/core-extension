@@ -2,18 +2,28 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { SecretsService } from '../../secrets/SecretsService';
-import { getWalletFromMnemonic } from '@avalabs/core-wallets-sdk';
-import { AccountType, GetPrivateKeyErrorTypes } from '../models';
+import {
+  getAddressDerivationPath,
+  getWalletFromMnemonic,
+} from '@avalabs/core-wallets-sdk';
+import {
+  AccountType,
+  GetPrivateKeyErrorTypes,
+  PrivateKeyChain,
+} from '../models';
 import { utils } from '@avalabs/avalanchejs';
 import { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
 import { AccountsService } from '../AccountsService';
+import { mnemonicToSeedSync } from 'bip39';
+import { fromSeed } from 'bip32';
 
 interface GetPrivateKeyHandlerParamsProps {
   type: SecretType.Mnemonic | AccountType.IMPORTED;
   index: number;
   id: string;
   password: string;
+  chain: PrivateKeyChain;
 }
 
 type HandlerType = ExtensionRequestHandler<
@@ -34,7 +44,23 @@ export class GetPrivateKeyHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const [params] = request.params;
-    const { type, index: accountIndex, id: accountId, password } = params;
+    const {
+      type,
+      index: accountIndex,
+      id: accountId,
+      password,
+      chain,
+    } = params;
+
+    if (!chain || ![PrivateKeyChain.C, PrivateKeyChain.XP].includes(chain)) {
+      return {
+        ...request,
+        error: {
+          type: GetPrivateKeyErrorTypes.Chain,
+          message: 'Invalid chain',
+        },
+      };
+    }
 
     if (!password) {
       return {
@@ -87,8 +113,20 @@ export class GetPrivateKeyHandler implements HandlerType {
         }
       }
 
+      const account = this.accountsService.getAccountByID(accountId);
+
+      if (!account) {
+        return {
+          ...request,
+          error: {
+            type: GetPrivateKeyErrorTypes.Mnemonic,
+            message: 'Mnemonic not found',
+          },
+        };
+      }
+
       const primaryAccount = await this.secretService.getPrimaryAccountSecrets(
-        this.accountsService.activeAccount
+        account
       );
 
       if (
@@ -99,8 +137,34 @@ export class GetPrivateKeyHandler implements HandlerType {
           ...request,
           error: {
             type: GetPrivateKeyErrorTypes.Mnemonic,
-            message: 'There is no mnemonic found',
+            message: 'Mnemonic not found',
           },
+        };
+      }
+
+      if (chain === PrivateKeyChain.XP) {
+        const seed = mnemonicToSeedSync(primaryAccount.mnemonic);
+        const master = fromSeed(seed);
+        const pvmNode = master.derivePath(
+          getAddressDerivationPath(
+            accountIndex,
+            primaryAccount.derivationPath,
+            'PVM'
+          )
+        );
+        if (!pvmNode.privateKey) {
+          return {
+            ...request,
+            error: {
+              type: GetPrivateKeyErrorTypes.DerivePath,
+              message: 'The derived path is missing',
+            },
+          };
+        }
+
+        return {
+          ...request,
+          result: `0x${pvmNode.privateKey.toString('hex')}`,
         };
       }
 
