@@ -22,8 +22,7 @@ import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve'
 import Big from 'big.js';
 import { resolve } from '@src/utils/promiseResolver';
 import { ethers } from 'ethers';
-import type { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { BN } from 'bn.js';
 import { useAnalyticsContext } from '../AnalyticsProvider';
@@ -38,7 +37,6 @@ import {
   hasParaswapError,
   DISALLOWED_SWAP_ASSETS,
 } from './models';
-import { TokenType } from '@avalabs/vm-module-types';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -360,8 +358,8 @@ export function SwapContextProvider({ children }: { children: any }) {
               sourceAmount
             );
             const [hash, signError] = await resolve(
-              request<EthSendTransactionHandler>({
-                method: DAppProviderRequest.ETH_SEND_TX,
+              request({
+                method: RpcMethod.ETH_SEND_TRANSACTION,
                 params: [
                   {
                     chainId: ChainId.AVALANCHE_MAINNET_ID.toString(),
@@ -427,8 +425,8 @@ export function SwapContextProvider({ children }: { children: any }) {
       }
 
       const [swapTxHash, signError] = await resolve(
-        request<EthSendTransactionHandler>({
-          method: DAppProviderRequest.ETH_SEND_TX,
+        request({
+          method: RpcMethod.ETH_SEND_TRANSACTION,
           params: [
             {
               chainId: ChainId.AVALANCHE_MAINNET_ID.toString(),

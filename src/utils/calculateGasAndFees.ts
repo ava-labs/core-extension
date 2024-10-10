@@ -1,5 +1,4 @@
-import { bigToLocaleString } from '@avalabs/core-utils-sdk';
-import { bigintToBig } from './bigintToBig';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 type GasPriceArgs =
   | {
@@ -39,25 +38,21 @@ export function calculateGasAndFees({
       ? maxPriorityFeePerGas * BigInt(gasLimit)
       : maxPriorityFeePerGas;
 
-  const fee = bigToLocaleString(bigintToBig(bnFee, tokenDecimals), 8);
-  const tip = bnTip
-    ? bigToLocaleString(bigintToBig(bnTip, tokenDecimals), 8)
-    : null;
-
-  const feeUSD = tokenPrice
-    ? parseFloat((parseFloat(fee) * tokenPrice).toFixed(4))
-    : null;
-  const tipUSD =
-    tokenPrice && tip
-      ? parseFloat((parseFloat(tip) * tokenPrice).toFixed(4))
-      : null;
+  const fee = new TokenUnit(bnFee, tokenDecimals, '');
+  const tip = bnTip ? new TokenUnit(bnTip, tokenDecimals, '') : null;
+  const price = tokenPrice ? new TokenUnit(tokenPrice, 0, '') : null;
 
   return {
     maxFeePerGas: maxFeePerGas,
     gasLimit: gasLimit || 0,
-    fee,
+    fee: fee.toDisplay({ asNumber: true }).toLocaleString(),
     bnFee,
-    feeUSD,
-    tipUSD,
+    feeUSD: price
+      ? price.mul(fee).toDisplay({ fixedDp: 4, asNumber: true })
+      : null,
+    tipUSD:
+      price && tip
+        ? price.mul(tip).toDisplay({ fixedDp: 4, asNumber: true })
+        : null,
   };
 }

@@ -413,7 +413,6 @@
   "Instant": "Instant",
   "Insufficient balance": "Insufficient balance",
   "Insufficient balance for fee": "Insufficient balance for fee",
-  "Insufficient balance to cover gas costs. <br /> Please add {{symbol}}.": "Insufficient balance to cover gas costs. <br /> Please add {{symbol}}.",
   "Insufficient balance to cover gas costs. <br />Please add {{tokenSymbol}}.": "Insufficient balance to cover gas costs. <br />Please add {{tokenSymbol}}.",
   "Insufficient balance to cover gas costs. <br />Please add {{token}}.": "Insufficient balance to cover gas costs. <br />Please add {{token}}.",
   "Insufficient balance.": "Insufficient balance.",

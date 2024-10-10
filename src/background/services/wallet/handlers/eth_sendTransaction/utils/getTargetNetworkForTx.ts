@@ -3,7 +3,6 @@ import { NetworkService } from '@src/background/services/network/NetworkService'
 import { ethErrors } from 'eth-rpc-errors';
 import { EthSendTransactionParams } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { Network } from '@src/background/services/network/models';
-import { EnsureDefined } from '@src/background/models';
 
 const assertSameEnvironment = (networkA: Network, activeNetwork?: Network) => {
   if (Boolean(networkA.isTestnet) !== Boolean(activeNetwork?.isTestnet)) {
@@ -15,10 +14,14 @@ const assertSameEnvironment = (networkA: Network, activeNetwork?: Network) => {
 };
 
 const getTargetNetworkForTx = async (
-  tx: EnsureDefined<EthSendTransactionParams, 'chainId'>,
+  tx: EthSendTransactionParams,
   networkService: NetworkService,
   activeScope: string
 ) => {
+  if (typeof tx.chainId === 'undefined') {
+    return networkService.getNetwork(activeScope);
+  }
+
   const { uiActiveNetwork } = networkService;
 
   const chainId = parseInt(tx.chainId);

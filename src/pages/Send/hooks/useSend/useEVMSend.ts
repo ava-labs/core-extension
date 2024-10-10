@@ -1,10 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { SendErrorMessage } from '@src/utils/send/models';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import type { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
-import { EthSendTransactionParams } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 
 import {
   buildTx,
@@ -20,7 +17,7 @@ import {
   SendOptions,
 } from '../../models';
 import { SendAdapterEVM } from './models';
-import { TokenType } from '@avalabs/vm-module-types';
+import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@src/utils/stringToBigint';
 
 export const useEVMSend: SendAdapterEVM = ({
@@ -49,15 +46,11 @@ export const useEVMSend: SendAdapterEVM = ({
 
         const tx = await getTx(options);
 
-        const hash = await request<
-          EthSendTransactionHandler,
-          DAppProviderRequest.ETH_SEND_TX,
-          string
-        >({
-          method: DAppProviderRequest.ETH_SEND_TX,
+        const hash = await request({
+          method: RpcMethod.ETH_SEND_TRANSACTION,
           params: [
             {
-              ...(tx as EthSendTransactionParams),
+              ...tx,
               chainId,
             },
           ],

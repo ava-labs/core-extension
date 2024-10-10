@@ -106,17 +106,6 @@ jest.mock('@blockaid/client', () => {
   }));
 });
 
-const txMock = {
-  chainId: '0xa86a',
-  from: 'fromAddress',
-  to: 'toAddress',
-  value: '200000000000000000',
-  type: 2,
-  maxFeePerGas: '0xbfda3a300',
-  maxPriorityFeePerGas: '0x1dcd6500',
-  gasLimit: '0x5208',
-};
-
 const networkMock = {
   chainName: 'test chain',
   chainId: 123,
@@ -147,38 +136,6 @@ describe('background/services/blockaid/BlockaidService', () => {
     } as any;
   });
 
-  it('should throw an error because the `BLOCKAID_TRANSACTION_SCAN` feature flag is disabled', async () => {
-    featureFlagService = {
-      featureFlags: {
-        [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: false,
-      },
-    } as any;
-    const service = new BlockaidService(featureFlagService);
-    await expect(
-      service.parseTransaction('core.test', networkMock, txMock)
-    ).rejects.toThrow('The transaction scanning is disabled');
-  });
-
-  it('should call the blockaid transaction scan', async () => {
-    const service = new BlockaidService(featureFlagService);
-    const transactionScanSpy = jest.spyOn(service, 'transactionScan');
-    await service.parseTransaction('core.test', networkMock, txMock);
-    expect(transactionScanSpy).toHaveBeenCalled();
-  });
-
-  it('should return the `isMalicious` as true', async () => {
-    const service = new BlockaidService(featureFlagService);
-    const result = await service.parseTransaction(
-      'core.test',
-      networkMock,
-      txMock
-    );
-    expect(result).toMatchObject({
-      isMalicious: true,
-      isSuspicious: false,
-      preExecSuccess: true,
-    });
-  });
   it('should return `null` because the `JSONRPC SCAN` feature flag is disabled', async () => {
     featureFlagService = {
       featureFlags: {
@@ -204,67 +161,6 @@ describe('background/services/blockaid/BlockaidService', () => {
     expect(result?.validation).toEqual({
       result_type: 'Being',
       status: 'Success',
-    });
-  });
-
-  it('should return the `isMalicious` as true', async () => {
-    const service = new BlockaidService(featureFlagService);
-    const result = await service.parseTransaction(
-      'core.test',
-      networkMock,
-      txMock
-    );
-    expect(result).toMatchObject({
-      isMalicious: true,
-      isSuspicious: false,
-      preExecSuccess: true,
-    });
-  });
-
-  it('should parse the token data correctly', async () => {
-    const service = new BlockaidService(featureFlagService);
-    const result = await service.parseTransaction(
-      'core.test',
-      networkMock,
-      txMock
-    );
-    expect(result).toMatchObject({
-      fromAddress: 'fromAddress',
-      balanceChange: {
-        usdValueChange: 1,
-        sendTokenList: [
-          {
-            usdValue: 7.266,
-            amount: BigInt(rawValue),
-            symbol: tokenDetails.symbol,
-            name: tokenDetails.name,
-            decimals: tokenDetails.decimals,
-            address: 'avax',
-          },
-        ],
-      },
-    });
-  });
-
-  it('should parse the nft data correctly', async () => {
-    const service = new BlockaidService(featureFlagService);
-    const result = await service.parseTransaction(
-      'core.test',
-      networkMock,
-      txMock
-    );
-    expect(result).toMatchObject({
-      fromAddress: 'fromAddress',
-      balanceChange: {
-        sendNftList: [
-          {
-            amount: BigInt(nftValue),
-            symbol: nftDetails.symbol,
-            name: nftDetails.name,
-            address: nftDetails.address,
-          },
-        ],
-      },
     });
   });
 });
