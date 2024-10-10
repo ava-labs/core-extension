@@ -1,4 +1,10 @@
-import { Environment, Module } from '@avalabs/vm-module-types';
+import {
+  AppInfo,
+  AppName,
+  Environment,
+  Module,
+} from '@avalabs/vm-module-types';
+import { runtime } from 'webextension-polyfill';
 import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { AvalancheModule } from '@avalabs/avalanche-module';
 import { EvmModule } from '@avalabs/evm-module';
@@ -42,18 +48,26 @@ export class ModuleManager {
       ? Environment.DEV
       : Environment.PRODUCTION;
 
+    const appInfo: AppInfo = {
+      name: AppName.CORE_EXTENSION,
+      version: runtime.getManifest().version,
+    };
+
     this.#modules = [
       new EvmModule({
         environment,
         approvalController: this.#approvalController,
+        appInfo,
       }),
       new AvalancheModule({
         environment,
         approvalController: this.#approvalController,
+        appInfo,
       }),
       new BitcoinModule({
         environment,
         approvalController: this.#approvalController,
+        appInfo,
       }),
     ];
   }

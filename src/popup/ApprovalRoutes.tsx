@@ -3,7 +3,6 @@ import { Route, Switch, SwitchProps } from 'react-router-dom';
 import { CircularProgress, Stack } from '@avalabs/core-k2-components';
 
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
-import { RenameAccount } from '@src/pages/Wallet/RenameAccount';
 
 const SignMessage = lazy(() => {
   return import('../pages/SignMessage/SignMessage').then((m) => ({
@@ -101,6 +100,18 @@ const ApproveAction = lazy(() => {
   }));
 });
 
+const RenameAccount = lazy(() => {
+  return import('../pages/Wallet/RenameAccount').then((m) => ({
+    default: m.RenameAccount,
+  }));
+});
+
+const GetAddressesInRange = lazy(() => {
+  return import('../pages/Wallet/GetAddressesInRange').then((m) => ({
+    default: m.GetAddressesInRange,
+  }));
+});
+
 export const ApprovalRoutes = (props: SwitchProps) => (
   <Suspense
     fallback={
@@ -177,6 +188,9 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       </Route>
       <Route path="/renameAccount">
         <RenameAccount />
+      </Route>
+      <Route path="/getAddressesInRange">
+        <GetAddressesInRange />
       </Route>
       <Route path="/networks/add-popup">
         <AddCustomNetworkPopup />

@@ -310,7 +310,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
             0
         );
 
-        const token = balances[network.chainId]?.[addressBTC]?.[
+        const token = balances.tokens[network.chainId]?.[addressBTC]?.[
           'BTC'
         ] as TokenWithBalanceBTC;
 
@@ -319,17 +319,20 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
         const utxos = await getBtcInputUtxos(btcProvider, token, highFeeRate);
 
         const hash = await transferAssetBTC({
+          fromAccount: addressBTC,
           config: this.#getConfig(),
-          amount: String(btcToSatoshi(amount)),
-          feeRate: highFeeRate,
+          amount: btcToSatoshi(amount),
+          feeRate:
+            Number(pendingAction.displayData.gasSettings?.maxFeePerGas ?? 0) ||
+            highFeeRate,
           onStatusChange: () => {},
           onTxHashChange: () => {},
-          signAndSendBTC: async ([address, amountAsString, feeRate]) => {
+          signAndSendBTC: async ({ amount: signAmount, feeRate, to, from }) => {
             const error = validateBtcSend(
-              addressBTC,
+              from,
               {
-                address,
-                amount: Number(amountAsString),
+                address: to,
+                amount: signAmount,
                 feeRate,
                 token,
               },
@@ -347,8 +350,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
               addressBTC,
               btcProvider,
               {
-                amount: Number(amountAsString),
-                address,
+                amount: signAmount,
+                address: to,
                 token,
                 feeRate,
               }
