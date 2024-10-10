@@ -3,11 +3,14 @@ import {
   KeyIcon,
   Stack,
   TextField,
+  Typography,
   styled,
 } from '@avalabs/core-k2-components';
+import { PrivateKeyChain } from '@src/background/services/accounts/models';
+import { Dropdown, DropdownItem } from '@src/components/common/Dropdown';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { Dispatch, SetStateAction } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
@@ -23,23 +26,23 @@ export const IconWrapper = styled(Stack)`
 `;
 
 interface EnterPassword {
-  setPassword: Dispatch<SetStateAction<string>>;
-  onSubmit: () => void;
+  onSubmit: (password: string, chain: PrivateKeyChain) => void;
   isLoading: boolean;
   errorMessage?: string;
-  password?: string;
 }
 
 export function EnterPassword({
-  setPassword,
   errorMessage,
   isLoading,
   onSubmit,
-  password,
 }: EnterPassword) {
   const history = useHistory();
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
+  const [privateKeyChain, setPrivateKeyChain] = useState<PrivateKeyChain>(
+    PrivateKeyChain.C
+  );
+  const [password, setPassword] = useState('');
 
   return (
     <>
@@ -63,6 +66,50 @@ export function EnterPassword({
           </IconWrapper>
         </Stack>
         <Stack sx={{ px: 2, mt: 3 }}>
+          <Dropdown
+            SelectProps={{
+              defaultValue: PrivateKeyChain.C,
+              native: false,
+              displayEmpty: false,
+              renderValue: () => {
+                switch (privateKeyChain) {
+                  case PrivateKeyChain.C:
+                    return <Typography>{t('C-Chain')}</Typography>;
+                  case PrivateKeyChain.XP:
+                    return <Typography>{t('X/P-Chain')}</Typography>;
+                }
+              },
+              onChange: (e) => {
+                const chain = e.target.value;
+                if (chain && chain !== privateKeyChain) {
+                  setPrivateKeyChain(chain as PrivateKeyChain);
+                }
+              },
+              // We need the @ts-ignore, because MUI's "nested props" (such as SelectProps)
+              // do not allow passing data-attributes.
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              'data-testid': 'private-key-chain-dropdown',
+            }}
+            label={t('Select chain')}
+          >
+            <DropdownItem
+              value={PrivateKeyChain.C}
+              selected={privateKeyChain === PrivateKeyChain.C}
+              data-testid="private-key-chain-dropdown-item"
+            >
+              <Typography>{t('C-Chain')}</Typography>
+            </DropdownItem>
+            <DropdownItem
+              value={PrivateKeyChain.XP}
+              selected={privateKeyChain === PrivateKeyChain.XP}
+              data-testid="private-key-chain-dropdown-item"
+            >
+              <Typography>{t('X/P-Chain')}</Typography>
+            </DropdownItem>
+          </Dropdown>
+        </Stack>
+        <Stack sx={{ px: 2, mt: 2 }}>
           <TextField
             data-testid="password-input"
             type="password"
@@ -76,7 +123,7 @@ export function EnterPassword({
             autoFocus
             onKeyPress={(e) => {
               if (e.key === 'Enter') {
-                onSubmit();
+                onSubmit(password, privateKeyChain);
               }
             }}
           />
@@ -115,7 +162,7 @@ export function EnterPassword({
             color="primary"
             size="large"
             onClick={() => {
-              onSubmit();
+              onSubmit(password, privateKeyChain);
             }}
             data-testid="export-private-key-enter-password-next"
             type="primary"

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { EnterPassword } from './EnterPassword';
 import { ShowPrivateKey } from './ShowPrivateKey';
-import { Stack, useTheme } from '@avalabs/core-k2-components';
+import { Stack, Typography, useTheme } from '@avalabs/core-k2-components';
 import { GetPrivateKeyHandler } from '@src/background/services/accounts/handlers/getPrivateKey';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
@@ -10,6 +10,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import {
   AccountType,
   GetPrivateKeyErrorTypes,
+  PrivateKeyChain,
 } from '@src/background/services/accounts/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTranslation } from 'react-i18next';
@@ -33,36 +34,42 @@ export function ExportPrivateKey() {
 
   const [privateKey, setPrivateKey] = useState<string | null>(null);
   const [error, setError] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = useCallback(() => {
-    if (!type) {
-      capture('ExportPrivateKeyErrorInvalidType');
-      throw new Error('Invalid type!');
-    }
-    setIsLoading(true);
-    request<GetPrivateKeyHandler>({
-      method: ExtensionRequest.ACCOUNT_GET_PRIVATEKEY,
-      params: [{ type, index, id, password }],
-    })
-      .then((res) => {
-        setPrivateKey(res);
-        capture('ExportPrivateKeySuccessful');
+  const onSubmit = useCallback(
+    (password: string, chain: PrivateKeyChain) => {
+      if (!type) {
+        capture('ExportPrivateKeyErrorInvalidType');
+        throw new Error('Invalid type!');
+      }
+      setIsLoading(true);
+      request<GetPrivateKeyHandler>({
+        method: ExtensionRequest.ACCOUNT_GET_PRIVATEKEY,
+        params: [{ type, index, id, password, chain }],
       })
-      .catch((e: { type: GetPrivateKeyErrorTypes; message: string }) => {
-        if (e.type === GetPrivateKeyErrorTypes.Password) {
-          setError(t('Invalid Password'));
-          capture('ExportPrivateKeyErrorInvalidPassword');
-          return;
-        }
-        setError(t('Something bad happened please try again later!'));
-        capture('ExportPrivateKeyFailed');
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [capture, id, index, password, request, t, type]);
+        .then((res) => {
+          setPrivateKey(res);
+          capture('ExportPrivateKeySuccessful', { chain });
+        })
+        .catch((e: { type: GetPrivateKeyErrorTypes; message: string }) => {
+          if (e.type === GetPrivateKeyErrorTypes.Password) {
+            setError(t('Invalid Password'));
+            capture('ExportPrivateKeyErrorInvalidPassword');
+            return;
+          } else if (e.type === GetPrivateKeyErrorTypes.Chain) {
+            setError(t('Invalid Chain'));
+            capture('ExportPrivateKeyErrorInvalidChain');
+            return;
+          }
+          setError(t('Something bad happened please try again later!'));
+          capture('ExportPrivateKeyFailed');
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    [capture, id, index, request, t, type]
+  );
 
   useEffect(() => {
     const url = new URLSearchParams(search);
@@ -98,13 +105,13 @@ export function ExportPrivateKey() {
         }}
       >
         {!privateKey && (
-          <EnterPassword
-            errorMessage={error}
-            setPassword={setPassword}
-            isLoading={isLoading}
-            onSubmit={onSubmit}
-            password={password}
-          />
+          <>
+            <EnterPassword
+              errorMessage={error}
+              isLoading={isLoading}
+              onSubmit={onSubmit}
+            />
+          </>
         )}
         {privateKey && <ShowPrivateKey privateKey={privateKey} />}
       </Stack>
