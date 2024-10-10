@@ -22,6 +22,12 @@ type Params = [
 ];
 import { AccountsService } from '../AccountsService';
 
+const EXPOSED_DOMAINS = [
+  'develop.avacloud-app.pages.dev',
+  'avacloud.io',
+  'staging--ava-cloud.avacloud-app.pages.dev',
+];
+
 @injectable()
 export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
   Params,
@@ -140,7 +146,13 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
         externalLimit: correctedExternalLimit,
       });
 
-      if (await canSkipApproval(request.site.domain, request.site.tabId)) {
+      if (
+        await canSkipApproval(
+          request.site.domain,
+          request.site.tabId,
+          EXPOSED_DOMAINS
+        )
+      ) {
         return {
           ...request,
           result: addresses,
