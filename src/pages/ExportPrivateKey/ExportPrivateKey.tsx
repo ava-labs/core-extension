@@ -28,7 +28,7 @@ export function ExportPrivateKey() {
 
   const [type, setType] = useState<
     SecretType.Mnemonic | AccountType.IMPORTED | null
-  >();
+  >(null);
   const [index, setIndex] = useState(0);
   const [id, setId] = useState('');
 
@@ -107,6 +107,7 @@ export function ExportPrivateKey() {
         {!privateKey && (
           <>
             <EnterPassword
+              accountType={type}
               errorMessage={error}
               isLoading={isLoading}
               onSubmit={onSubmit}

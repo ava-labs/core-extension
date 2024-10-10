@@ -6,7 +6,11 @@ import {
   Typography,
   styled,
 } from '@avalabs/core-k2-components';
-import { PrivateKeyChain } from '@src/background/services/accounts/models';
+import {
+  AccountType,
+  PrivateKeyChain,
+} from '@src/background/services/accounts/models';
+import { SecretType } from '@src/background/services/secrets/models';
 import { Dropdown, DropdownItem } from '@src/components/common/Dropdown';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
@@ -26,12 +30,14 @@ export const IconWrapper = styled(Stack)`
 `;
 
 interface EnterPassword {
+  accountType: SecretType.Mnemonic | AccountType.IMPORTED | null;
   onSubmit: (password: string, chain: PrivateKeyChain) => void;
   isLoading: boolean;
   errorMessage?: string;
 }
 
 export function EnterPassword({
+  accountType,
   errorMessage,
   isLoading,
   onSubmit,
@@ -65,50 +71,52 @@ export function EnterPassword({
             <KeyIcon size={32} />
           </IconWrapper>
         </Stack>
-        <Stack sx={{ px: 2, mt: 3 }}>
-          <Dropdown
-            SelectProps={{
-              defaultValue: PrivateKeyChain.C,
-              native: false,
-              displayEmpty: false,
-              renderValue: () => {
-                switch (privateKeyChain) {
-                  case PrivateKeyChain.C:
-                    return <Typography>{t('C-Chain')}</Typography>;
-                  case PrivateKeyChain.XP:
-                    return <Typography>{t('X/P-Chain')}</Typography>;
-                }
-              },
-              onChange: (e) => {
-                const chain = e.target.value;
-                if (chain && chain !== privateKeyChain) {
-                  setPrivateKeyChain(chain as PrivateKeyChain);
-                }
-              },
-              // We need the @ts-ignore, because MUI's "nested props" (such as SelectProps)
-              // do not allow passing data-attributes.
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              'data-testid': 'private-key-chain-dropdown',
-            }}
-            label={t('Select chain')}
-          >
-            <DropdownItem
-              value={PrivateKeyChain.C}
-              selected={privateKeyChain === PrivateKeyChain.C}
-              data-testid="private-key-chain-dropdown-item"
+        {accountType === SecretType.Mnemonic && (
+          <Stack sx={{ px: 2, mt: 3 }}>
+            <Dropdown
+              SelectProps={{
+                defaultValue: PrivateKeyChain.C,
+                native: false,
+                displayEmpty: false,
+                renderValue: () => {
+                  switch (privateKeyChain) {
+                    case PrivateKeyChain.C:
+                      return <Typography>{t('C-Chain')}</Typography>;
+                    case PrivateKeyChain.XP:
+                      return <Typography>{t('X/P-Chain')}</Typography>;
+                  }
+                },
+                onChange: (e) => {
+                  const chain = e.target.value;
+                  if (chain && chain !== privateKeyChain) {
+                    setPrivateKeyChain(chain as PrivateKeyChain);
+                  }
+                },
+                // We need the @ts-ignore, because MUI's "nested props" (such as SelectProps)
+                // do not allow passing data-attributes.
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                'data-testid': 'private-key-chain-dropdown',
+              }}
+              label={t('Select chain')}
             >
-              <Typography>{t('C-Chain')}</Typography>
-            </DropdownItem>
-            <DropdownItem
-              value={PrivateKeyChain.XP}
-              selected={privateKeyChain === PrivateKeyChain.XP}
-              data-testid="private-key-chain-dropdown-item"
-            >
-              <Typography>{t('X/P-Chain')}</Typography>
-            </DropdownItem>
-          </Dropdown>
-        </Stack>
+              <DropdownItem
+                value={PrivateKeyChain.C}
+                selected={privateKeyChain === PrivateKeyChain.C}
+                data-testid="private-key-chain-dropdown-item"
+              >
+                <Typography>{t('C-Chain')}</Typography>
+              </DropdownItem>
+              <DropdownItem
+                value={PrivateKeyChain.XP}
+                selected={privateKeyChain === PrivateKeyChain.XP}
+                data-testid="private-key-chain-dropdown-item"
+              >
+                <Typography>{t('X/P-Chain')}</Typography>
+              </DropdownItem>
+            </Dropdown>
+          </Stack>
+        )}
         <Stack sx={{ px: 2, mt: 2 }}>
           <TextField
             data-testid="password-input"
