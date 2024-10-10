@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { EnterPassword } from './EnterPassword';
 import { ShowPrivateKey } from './ShowPrivateKey';
-import { Stack, Typography, useTheme } from '@avalabs/core-k2-components';
+import { Stack, useTheme } from '@avalabs/core-k2-components';
 import { GetPrivateKeyHandler } from '@src/background/services/accounts/handlers/getPrivateKey';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
@@ -22,7 +22,7 @@ export function ExportPrivateKey() {
   const { request } = useConnectionContext();
   const { search } = useLocation();
   const { accounts } = useAccountsContext();
-  const { walletDetails } = useWalletContext();
+  const { wallets } = useWalletContext();
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
 
@@ -79,20 +79,27 @@ export function ExportPrivateKey() {
 
     const isImported = !!(accountId && accounts.imported[accountId]) || false;
 
-    const isMnemonic = walletDetails?.type === SecretType.Mnemonic;
     if (isImported) {
       setType(AccountType.IMPORTED);
+      return;
     }
-    if (!isImported && isMnemonic) {
+
+    const account = Object.values(accounts.primary)
+      .flat()
+      .find((primaryAccount) => {
+        return primaryAccount.id === accountId;
+      });
+
+    if (!account) {
+      return;
+    }
+
+    const wallet = wallets.find((w) => w.id === account.walletId);
+    if (wallet?.type === SecretType.Mnemonic) {
+      setIndex(account.index);
       setType(SecretType.Mnemonic);
-      const account = Object.values(accounts.primary)
-        .flat()
-        .find((primaryAccount) => {
-          return primaryAccount.id === accountId;
-        });
-      account && setIndex(account?.index);
     }
-  }, [accounts, index, search, walletDetails, walletDetails?.type]);
+  }, [accounts, index, search, wallets]);
 
   return (
     <>
