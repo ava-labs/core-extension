@@ -120,7 +120,7 @@ export class GetPrivateKeyHandler implements HandlerType {
           ...request,
           error: {
             type: GetPrivateKeyErrorTypes.Mnemonic,
-            message: 'Account not found',
+            message: 'Mnemonic not found',
           },
         };
       }

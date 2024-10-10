@@ -180,7 +180,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       params,
       error: {
         type: GetPrivateKeyErrorTypes.Mnemonic,
-        message: 'Account not found',
+        message: 'Mnemonic not found',
       },
     });
   });

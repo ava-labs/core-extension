@@ -103,14 +103,14 @@ export function EnterPassword({
               <DropdownItem
                 value={PrivateKeyChain.C}
                 selected={privateKeyChain === PrivateKeyChain.C}
-                data-testid="private-key-chain-dropdown-item"
+                data-testid="private-key-chain-dropdown-item-c"
               >
                 <Typography>{t('C-Chain')}</Typography>
               </DropdownItem>
               <DropdownItem
                 value={PrivateKeyChain.XP}
                 selected={privateKeyChain === PrivateKeyChain.XP}
-                data-testid="private-key-chain-dropdown-item"
+                data-testid="private-key-chain-dropdown-item-xp"
               >
                 <Typography>{t('X/P-Chain')}</Typography>
               </DropdownItem>
