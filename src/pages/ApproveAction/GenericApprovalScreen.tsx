@@ -53,6 +53,10 @@ export function GenericApprovalScreen() {
   });
 
   const { displayData, context } = action ?? {};
+  const hasFeeSelector = action?.displayData.networkFeeSelector;
+  const isFeeValid =
+    !hasFeeSelector ||
+    (!feeError && !isCalculatingFee && hasEnoughForNetworkFee);
 
   useEffect(() => {
     if (!displayData?.network?.chainId) {
@@ -147,15 +151,15 @@ export function GenericApprovalScreen() {
                     <ApprovalSectionHeader label={section.title} />
                   )}
                   <ApprovalSectionBody sx={{ py: 1 }}>
+                    {sectionIndex === 0 && network && (
+                      <NetworkDetails network={network} />
+                    )}
                     {section.items.map((item, index) => (
                       <TransactionDetailItem
                         key={`tx-detail.${sectionIndex}.${index}`}
                         item={item}
                       />
                     ))}
-                    {sectionIndex === 0 && network && (
-                      <NetworkDetails network={network} />
-                    )}
                   </ApprovalSectionBody>
                 </ApprovalSection>
               ))}
@@ -210,9 +214,7 @@ export function GenericApprovalScreen() {
           disabled={
             !displayData ||
             action.status === ActionStatus.SUBMITTING ||
-            Boolean(feeError) ||
-            isCalculatingFee ||
-            !hasEnoughForNetworkFee
+            !isFeeValid
           }
           isLoading={
             action.status === ActionStatus.SUBMITTING || isCalculatingFee
