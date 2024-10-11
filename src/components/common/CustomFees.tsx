@@ -203,7 +203,7 @@ export function CustomFees({
 
       // update
       const updatedFees = calculateGasAndFees({
-        maxFeePerGas: rate.maxFee,
+        maxFeePerGas: rate.maxFeePerGas,
         tokenPrice,
         tokenDecimals: network?.networkToken.decimals,
         gasLimit,
@@ -214,8 +214,8 @@ export function CustomFees({
         // call cb with limit and gas
         onChange({
           customGasLimit: customGasLimit,
-          maxFeePerGas: rate.maxFee,
-          maxPriorityFeePerGas: rate.maxTip,
+          maxFeePerGas: rate.maxFeePerGas,
+          maxPriorityFeePerGas: rate.maxPriorityFeePerGas,
           feeType: modifier,
         });
         return;
@@ -224,8 +224,8 @@ export function CustomFees({
       // call cb with limit and gas
       onChange({
         customGasLimit: customGasLimit,
-        maxFeePerGas: rate.maxFee,
-        maxPriorityFeePerGas: rate.maxTip,
+        maxFeePerGas: rate.maxFeePerGas,
+        maxPriorityFeePerGas: rate.maxPriorityFeePerGas,
         feeType: modifier,
       });
     },
@@ -242,7 +242,7 @@ export function CustomFees({
   const getFeeRateForCustomGasPrice = useCallback(
     (customFeePerGas: string, fee: NetworkFee): FeeRate => {
       const maxFee = parseUnits(customFeePerGas, fee.displayDecimals);
-      const { baseMaxFee } = fee;
+      const { baseFee: baseMaxFee } = fee;
       // When the user manually sets a max. fee, we also use it to calculate
       // the max. priority fee (tip) for EVM transactions.
       // If the custom max. fee is greater than the current base fee,
@@ -251,8 +251,8 @@ export function CustomFees({
         baseMaxFee && maxFee > baseMaxFee ? maxFee - baseMaxFee : undefined;
 
       return {
-        maxFee,
-        maxTip,
+        maxFeePerGas: maxFee,
+        maxPriorityFeePerGas: maxTip,
       };
     },
     []
@@ -359,7 +359,7 @@ export function CustomFees({
             <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
               {getGasFeeToDisplay(
                 getUpToTwoDecimals(
-                  networkFee.low.maxFee,
+                  networkFee.low.maxFeePerGas,
                   networkFee.displayDecimals
                 ),
                 networkFee
@@ -384,7 +384,7 @@ export function CustomFees({
                 <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
                   {getGasFeeToDisplay(
                     getUpToTwoDecimals(
-                      networkFee.medium.maxFee,
+                      networkFee.medium.maxFeePerGas,
                       networkFee.displayDecimals
                     ),
                     networkFee
@@ -409,7 +409,7 @@ export function CustomFees({
                 <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
                   {getGasFeeToDisplay(
                     getUpToTwoDecimals(
-                      networkFee.high.maxFee,
+                      networkFee.high.maxFeePerGas,
                       networkFee.displayDecimals
                     ),
                     networkFee
@@ -438,7 +438,7 @@ export function CustomFees({
                   type="number"
                   value={getGasFeeToDisplay(
                     getUpToTwoDecimals(
-                      customFee?.maxFee ?? 0n,
+                      customFee?.maxFeePerGas ?? 0n,
                       networkFee.displayDecimals
                     ),
                     networkFee
@@ -518,21 +518,21 @@ export function CustomFees({
         open={Boolean(
           network?.vmName === NetworkVMType.EVM &&
             showEditGasLimit &&
-            customFee?.maxFee
+            customFee?.maxFeePerGas
         )}
       >
         <CustomGasSettings
           isLimitReadonly={isLimitReadonly}
           feeDisplayDecimals={networkFee.displayDecimals}
           gasLimit={gasLimit}
-          maxFeePerGas={customFee?.maxFee || 0n}
-          maxPriorityFeePerGas={customFee?.maxTip || 0n}
+          maxFeePerGas={customFee?.maxFeePerGas || 0n}
+          maxPriorityFeePerGas={customFee?.maxPriorityFeePerGas || 0n}
           onCancel={() => setShowEditGasLimit(false)}
           onSave={(data) => {
             setCustomGasLimit(data.customGasLimit);
             setCustomFee({
-              maxFee: data.maxFeePerGas,
-              maxTip: data.maxPriorityFeePerGas,
+              maxFeePerGas: data.maxFeePerGas,
+              maxPriorityFeePerGas: data.maxPriorityFeePerGas,
             });
             setSelectedFee(GasFeeModifier.CUSTOM);
             setShowEditGasLimit(false);

@@ -38,8 +38,9 @@ export function txToCustomEvmTx(
   }
 
   return {
-    maxFeePerGas: maxFeePerGas || gasPrice || networkFee.low.maxFee,
-    maxPriorityFeePerGas: maxPriorityFeePerGas || networkFee.low.maxTip,
+    maxFeePerGas: maxFeePerGas || gasPrice || networkFee.low.maxFeePerGas,
+    maxPriorityFeePerGas:
+      maxPriorityFeePerGas || networkFee.low.maxPriorityFeePerGas,
     gasLimit: gasLimit,
     to,
     from,

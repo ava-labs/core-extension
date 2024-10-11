@@ -402,9 +402,9 @@ export class EthSendTransactionHandler extends DAppRequestHandler<
     tx: EnsureDefined<EthSendTransactionParams, 'chainId'>
   ): Promise<EnsureDefined<EthSendTransactionParamsWithGas, 'chainId'>> {
     const fees = await this.networkFeeService.getNetworkFee(network);
-    const maxFeePerGas = fees?.low.maxFee ?? 0n;
-    const maxPriorityFeePerGas = fees?.low.maxTip
-      ? BigInt(fees?.low.maxTip)
+    const maxFeePerGas = fees?.low.maxFeePerGas ?? 0n;
+    const maxPriorityFeePerGas = fees?.low.maxPriorityFeePerGas
+      ? BigInt(fees?.low.maxPriorityFeePerGas)
       : undefined;
     const typeFromPayload = tx.maxFeePerGas ? 2 : 0;
 
