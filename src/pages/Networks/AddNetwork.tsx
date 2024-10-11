@@ -114,10 +114,10 @@ export const AddNetwork = () => {
   };
 
   return (
-    <Stack sx={{ width: 1, px: 2 }}>
-      <PageTitle margin="8 0 12px">{t('Add Network')}</PageTitle>
+    <Stack sx={{ width: 1 }}>
+      <PageTitle>{t('Add Network')}</PageTitle>
       <FlexScrollbars ref={scrollbarRef}>
-        <Stack sx={{ gap: 1 }}>
+        <Stack sx={{ gap: 1, px: 2 }}>
           {errorMessage && (
             <Typography
               variant="body2"
@@ -143,6 +143,7 @@ export const AddNetwork = () => {
           alignItems: 'center',
           py: 3,
           gap: 1,
+          px: 2,
         }}
       >
         <Button

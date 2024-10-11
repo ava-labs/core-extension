@@ -1,7 +1,6 @@
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import ERC721 from '@openzeppelin/contracts/build/contracts/ERC721.json';
 import ERC1155 from '@openzeppelin/contracts/build/contracts/ERC1155.json';
-import { stringToBN } from '@avalabs/core-utils-sdk';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { Contract, TransactionRequest } from 'ethers';
 
@@ -12,6 +11,9 @@ import {
   SendOptions,
 } from '../models';
 import { TokenType } from '@avalabs/vm-module-types';
+import { stringToBigint } from '@src/utils/stringToBigint';
+
+const asHex = (value: bigint) => `0x${value.toString(16)}`;
 
 export const buildErc20Tx = async (
   from: string,
@@ -22,7 +24,7 @@ export const buildErc20Tx = async (
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const populatedTransaction = await contract.transfer!.populateTransaction(
     address,
-    stringToBN(amount, token.decimals).toString()
+    asHex(stringToBigint(amount, token.decimals))
   );
   const unsignedTx: TransactionRequest = {
     ...populatedTransaction, // only includes `to` and `data`
@@ -86,7 +88,7 @@ export const buildNativeTx = (
 ): TransactionRequest => ({
   from,
   to: address,
-  value: stringToBN(amount, token.decimals).toString(),
+  value: asHex(stringToBigint(amount, token.decimals)),
 });
 
 export const isNativeSend = (

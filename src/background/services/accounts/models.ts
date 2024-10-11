@@ -122,6 +122,27 @@ export enum AccountsEvents {
 export enum GetPrivateKeyErrorTypes {
   Password = 'password',
   Type = 'type',
+  Chain = 'chain',
   DerivePath = 'derivePath',
   Mnemonic = 'mnemonic',
+}
+
+export type GetAddressesInRangeResponse = {
+  internal: string[];
+  external: string[];
+};
+
+export type GetAddressesInRangeDisplayData = {
+  indices: {
+    externalStart: number;
+    internalStart: number;
+    externalLimit: number;
+    internalLimit: number;
+  };
+  addresses: GetAddressesInRangeResponse;
+};
+
+export enum PrivateKeyChain {
+  C = 'C',
+  XP = 'XP',
 }

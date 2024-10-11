@@ -244,6 +244,7 @@ export function PermissionsPage() {
       </Stack>
       {featureFlags[FeatureGates.BLOCKAID_DAPP_SCAN] && isMaliciousDApp && (
         <AlertDialog
+          proceedLabel={t('Proceed Anyway')}
           cancelHandler={() => {
             cancelHandler();
             window.close();

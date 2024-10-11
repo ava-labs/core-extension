@@ -64,6 +64,7 @@ describe('background/services/actions/ActionsService.ts', () => {
     approvalController = {
       onApproved: jest.fn(),
       onRejected: jest.fn(),
+      updateTx: jest.fn(),
     } as unknown as jest.Mocked<ApprovalController>;
 
     actionsService = new ActionsService(
@@ -73,6 +74,47 @@ describe('background/services/actions/ActionsService.ts', () => {
       approvalController
     );
     (filterStaleActions as jest.Mock).mockImplementation((a) => a);
+  });
+
+  describe('updateTx()', () => {
+    it('throws error if the request does not exist', async () => {
+      await expect(actionsService.updateTx('weird-id', {})).rejects.toThrow(
+        /No request found with id/
+      );
+    });
+
+    it('uses the ApprovalController.updateTx() to fetch the new action data & saves it', async () => {
+      const pendingActions = {
+        'id-0': {
+          actionId: 'id-0',
+        },
+        'id-1': {
+          actionId: 'id-1',
+        },
+      };
+      jest
+        .spyOn(actionsService, 'getActions')
+        .mockResolvedValueOnce(pendingActions as any);
+
+      const signingData = { outputs: [], inputs: [] } as any;
+      const newDisplayData = { ...displayData };
+      const updatedActionData = {
+        signingData,
+        displayData: newDisplayData,
+      } as any;
+
+      approvalController.updateTx.mockReturnValueOnce(updatedActionData);
+
+      await actionsService.updateTx('id-1', { feeRate: 5 });
+
+      expect(storageService.save).toHaveBeenCalledWith(ACTIONS_STORAGE_KEY, {
+        ...pendingActions,
+        'id-1': {
+          ...pendingActions['id-1'],
+          ...updatedActionData,
+        },
+      });
+    });
   });
 
   describe('getActions', () => {

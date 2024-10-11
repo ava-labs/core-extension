@@ -21,7 +21,7 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { chainIdToCaip } from '@src/utils/caipConversion';
 import { CommonError } from '@src/utils/errors';
 import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { RpcMethod } from '@avalabs/vm-module-types';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
@@ -261,7 +261,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
         });
 
         expect(requestFn).toHaveBeenCalledWith({
-          method: DAppProviderRequest.ETH_SEND_TX,
+          method: RpcMethod.ETH_SEND_TRANSACTION,
           params: [
             { ...allowanceTx },
             {
@@ -274,7 +274,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
           ],
         });
         expect(requestFn).toHaveBeenCalledWith({
-          method: DAppProviderRequest.ETH_SEND_TX,
+          method: RpcMethod.ETH_SEND_TRANSACTION,
           params: [
             { ...transferTx },
             {

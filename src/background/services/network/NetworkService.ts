@@ -466,7 +466,9 @@ export class NetworkService implements OnLock, OnStorageReady {
   ): Promise<NetworkWithCaipId | undefined> {
     const chainId =
       typeof scopeOrChainId === 'string'
-        ? caipToChainId(scopeOrChainId)
+        ? scopeOrChainId.startsWith('0x')
+          ? Number(scopeOrChainId)
+          : caipToChainId(scopeOrChainId)
         : scopeOrChainId;
 
     const activeNetworks = await this.allNetworks.promisify();

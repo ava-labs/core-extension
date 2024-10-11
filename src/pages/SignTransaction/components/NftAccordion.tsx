@@ -5,25 +5,34 @@ import {
   Typography,
   AccordionDetails,
 } from '@avalabs/core-k2-components';
-import { TransactionNft } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
 import {
   TransactionTokenCard,
   TransactionTokenCardVariant,
 } from './TransactionTokenCard';
+import {
+  NetworkContractToken,
+  NetworkToken,
+  TokenDiffItem,
+} from '@avalabs/vm-module-types';
 
 interface NftAccordionProps {
-  nftList: TransactionNft[] | undefined;
+  diffItems: TokenDiffItem[];
+  token: NetworkContractToken | NetworkToken;
+  variant: TransactionTokenCardVariant;
 }
 
-export const NftAccordion = ({ nftList }: NftAccordionProps) => {
-  if (!nftList) {
+export const NftAccordion = ({
+  token,
+  diffItems,
+  variant,
+}: NftAccordionProps) => {
+  if (!diffItems.length) {
     return null;
   }
 
-  const firstNft = nftList[0];
   return (
-    <Accordion sx={{ border: 'none', p: 0, m: 0 }}>
+    <Accordion sx={{ border: 'none', p: 0, m: 0, mt: -1 }}>
       <AccordionSummary sx={{ p: 0, m: 0 }}>
         <Stack
           sx={{
@@ -37,7 +46,7 @@ export const NftAccordion = ({ nftList }: NftAccordionProps) => {
             height="32px"
             width="auto"
             maxWidth="32px"
-            url={firstNft?.logoUri}
+            url={token.logoUri}
             hover={false}
             showPlayIcon={false}
           />
@@ -46,35 +55,26 @@ export const NftAccordion = ({ nftList }: NftAccordionProps) => {
             fontWeight="fontWeightSemibold"
             sx={{ ml: 2 }}
           >
-            {firstNft?.name} {firstNft?.size && `(${firstNft?.size})`}
+            {token.name} {diffItems.length ? `(${diffItems.length})` : ''}
           </Typography>
         </Stack>
       </AccordionSummary>
 
-      {nftList.map((nft, index) => {
-        return (
-          <AccordionDetails
-            key={`r-nft-${nft.address}-${index}`}
-            sx={{ border: 'none', p: 0 }}
-          >
+      <AccordionDetails sx={{ border: 'none', p: 0 }}>
+        <Stack sx={{ gap: 1.5 }}>
+          {diffItems.map((item, index) => (
             <TransactionTokenCard
-              token={nft}
-              variant={TransactionTokenCardVariant.RECEIVE}
+              key={`token-group-${variant}-${
+                'address' in token ? token.address : token.symbol
+              }-${index}`}
+              token={token}
+              diffItem={item}
+              variant={variant}
               sx={{ p: 0 }}
-            >
-              <CollectibleMedia
-                height="32px"
-                width="auto"
-                maxWidth="32px"
-                url={nft?.logoUri}
-                hover={false}
-                margin="8px 0"
-                showPlayIcon={false}
-              />
-            </TransactionTokenCard>
-          </AccordionDetails>
-        );
-      })}
+            />
+          ))}
+        </Stack>
+      </AccordionDetails>
     </Accordion>
   );
 };

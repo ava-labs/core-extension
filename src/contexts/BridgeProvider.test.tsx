@@ -19,7 +19,7 @@ import {
   useBridgeContext,
 } from './BridgeProvider';
 import { act } from 'react-dom/test-utils';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
 
@@ -196,7 +196,7 @@ describe('contexts/BridgeProvider', () => {
         signAndSendEVM(fakeDepositTx);
 
         expect(requestFn).toHaveBeenCalledWith({
-          method: DAppProviderRequest.ETH_SEND_TX,
+          method: RpcMethod.BITCOIN_SEND_TRANSACTION,
           params: [
             { ...fakeDepositTx },
             {
@@ -220,7 +220,7 @@ describe('contexts/BridgeProvider', () => {
         signAndSendEVM(fakeTransferTx);
 
         expect(requestFn).toHaveBeenCalledWith({
-          method: DAppProviderRequest.ETH_SEND_TX,
+          method: RpcMethod.BITCOIN_SEND_TRANSACTION,
           params: [
             { ...fakeTransferTx },
             {

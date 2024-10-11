@@ -10,6 +10,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import {
   AccountType,
   GetPrivateKeyErrorTypes,
+  PrivateKeyChain,
 } from '@src/background/services/accounts/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTranslation } from 'react-i18next';
@@ -21,48 +22,54 @@ export function ExportPrivateKey() {
   const { request } = useConnectionContext();
   const { search } = useLocation();
   const { accounts } = useAccountsContext();
-  const { walletDetails } = useWalletContext();
+  const { wallets } = useWalletContext();
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
 
   const [type, setType] = useState<
     SecretType.Mnemonic | AccountType.IMPORTED | null
-  >();
+  >(null);
   const [index, setIndex] = useState(0);
   const [id, setId] = useState('');
 
   const [privateKey, setPrivateKey] = useState<string | null>(null);
   const [error, setError] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = useCallback(() => {
-    if (!type) {
-      capture('ExportPrivateKeyErrorInvalidType');
-      throw new Error('Invalid type!');
-    }
-    setIsLoading(true);
-    request<GetPrivateKeyHandler>({
-      method: ExtensionRequest.ACCOUNT_GET_PRIVATEKEY,
-      params: [{ type, index, id, password }],
-    })
-      .then((res) => {
-        setPrivateKey(res);
-        capture('ExportPrivateKeySuccessful');
+  const onSubmit = useCallback(
+    (password: string, chain: PrivateKeyChain) => {
+      if (!type) {
+        capture('ExportPrivateKeyErrorInvalidType');
+        throw new Error('Invalid type!');
+      }
+      setIsLoading(true);
+      request<GetPrivateKeyHandler>({
+        method: ExtensionRequest.ACCOUNT_GET_PRIVATEKEY,
+        params: [{ type, index, id, password, chain }],
       })
-      .catch((e: { type: GetPrivateKeyErrorTypes; message: string }) => {
-        if (e.type === GetPrivateKeyErrorTypes.Password) {
-          setError(t('Invalid Password'));
-          capture('ExportPrivateKeyErrorInvalidPassword');
-          return;
-        }
-        setError(t('Something bad happened please try again later!'));
-        capture('ExportPrivateKeyFailed');
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [capture, id, index, password, request, t, type]);
+        .then((res) => {
+          setPrivateKey(res);
+          capture('ExportPrivateKeySuccessful', { chain });
+        })
+        .catch((e: { type: GetPrivateKeyErrorTypes; message: string }) => {
+          if (e.type === GetPrivateKeyErrorTypes.Password) {
+            setError(t('Invalid Password'));
+            capture('ExportPrivateKeyErrorInvalidPassword');
+            return;
+          } else if (e.type === GetPrivateKeyErrorTypes.Chain) {
+            setError(t('Invalid Chain'));
+            capture('ExportPrivateKeyErrorInvalidChain');
+            return;
+          }
+          setError(t('Something bad happened please try again later!'));
+          capture('ExportPrivateKeyFailed');
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    [capture, id, index, request, t, type]
+  );
 
   useEffect(() => {
     const url = new URLSearchParams(search);
@@ -72,20 +79,27 @@ export function ExportPrivateKey() {
 
     const isImported = !!(accountId && accounts.imported[accountId]) || false;
 
-    const isMnemonic = walletDetails?.type === SecretType.Mnemonic;
     if (isImported) {
       setType(AccountType.IMPORTED);
+      return;
     }
-    if (!isImported && isMnemonic) {
+
+    const account = Object.values(accounts.primary)
+      .flat()
+      .find((primaryAccount) => {
+        return primaryAccount.id === accountId;
+      });
+
+    if (!account) {
+      return;
+    }
+
+    const wallet = wallets.find((w) => w.id === account.walletId);
+    if (wallet?.type === SecretType.Mnemonic) {
+      setIndex(account.index);
       setType(SecretType.Mnemonic);
-      const account = Object.values(accounts.primary)
-        .flat()
-        .find((primaryAccount) => {
-          return primaryAccount.id === accountId;
-        });
-      account && setIndex(account?.index);
     }
-  }, [accounts, index, search, walletDetails, walletDetails?.type]);
+  }, [accounts, index, search, wallets]);
 
   return (
     <>
@@ -98,13 +112,14 @@ export function ExportPrivateKey() {
         }}
       >
         {!privateKey && (
-          <EnterPassword
-            errorMessage={error}
-            setPassword={setPassword}
-            isLoading={isLoading}
-            onSubmit={onSubmit}
-            password={password}
-          />
+          <>
+            <EnterPassword
+              accountType={type}
+              errorMessage={error}
+              isLoading={isLoading}
+              onSubmit={onSubmit}
+            />
+          </>
         )}
         {privateKey && <ShowPrivateKey privateKey={privateKey} />}
       </Stack>
