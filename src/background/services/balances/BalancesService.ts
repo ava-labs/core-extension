@@ -6,7 +6,11 @@ import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { SettingsService } from '../settings/SettingsService';
 import { getPriceChangeValues } from './utils/getPriceChangeValues';
 import * as Sentry from '@sentry/browser';
-import { NetworkVMType, TokenWithBalance } from '@avalabs/vm-module-types';
+import {
+  NetworkVMType,
+  TokenType,
+  TokenWithBalance,
+} from '@avalabs/vm-module-types';
 
 @singleton()
 export class BalancesService {
@@ -30,9 +34,11 @@ export class BalancesService {
     );
     const module = await this.moduleManager.loadModuleByNetwork(network);
 
-    const currency = (
-      await this.settingsService.getSettings()
-    ).currency.toLowerCase();
+    const settings = await this.settingsService.getSettings();
+    const currency = settings.currency.toLowerCase();
+    const customTokens = Object.values(
+      settings.customTokens[network.chainId] ?? {}
+    ).map((t) => ({ ...t, type: TokenType.ERC20 as const }));
 
     const rawBalances = await module.getBalances({
       // TODO: Use public key and module.getAddress instead to make this more modular
@@ -56,6 +62,7 @@ export class BalancesService {
         .filter((address): address is string => !!address),
       network,
       currency,
+      customTokens,
     });
 
     // Apply price changes data, VM Modules don't do this yet

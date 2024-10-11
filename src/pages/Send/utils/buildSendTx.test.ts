@@ -1,11 +1,11 @@
 import { Contract } from 'ethers';
-import { stringToBN } from '@avalabs/core-utils-sdk';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import ERC721 from '@openzeppelin/contracts/build/contracts/ERC721.json';
 import ERC1155 from '@openzeppelin/contracts/build/contracts/ERC1155.json';
 
 import * as builder from './buildSendTx';
 import { TokenType } from '@avalabs/vm-module-types';
+import { stringToBigint } from '@src/utils/stringToBigint';
 
 jest.mock('ethers');
 
@@ -51,7 +51,9 @@ describe('src/pages/Send/utils/buildSendTx', () => {
 
       expect(populateTransaction).toHaveBeenCalledWith(
         options.address,
-        stringToBN(options.amount, options.token.decimals).toString()
+        `0x${stringToBigint(options.amount, options.token.decimals).toString(
+          16
+        )}`
       );
     });
 
@@ -189,7 +191,7 @@ describe('src/pages/Send/utils/buildSendTx', () => {
       expect(builder.buildNativeTx(from, options)).toEqual({
         from,
         to: options.address,
-        value: stringToBN(options.amount, options.token.decimals).toString(),
+        value: '0x2bdc545d587500',
       });
     });
   });

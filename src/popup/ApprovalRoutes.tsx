@@ -16,12 +16,6 @@ const PermissionsPage = lazy(() => {
   }));
 });
 
-const SignTransactionPage = lazy(() => {
-  return import('../pages/SignTransaction/SignTransaction').then((m) => ({
-    default: m.SignTransactionPage,
-  }));
-});
-
 const SeedlessAuthPopup = lazy(() => {
   return import('../pages/SeedlessPopups/SeedlessAuthPopup').then((m) => ({
     default: m.SeedlessAuthPopup,
@@ -128,11 +122,6 @@ export const ApprovalRoutes = (props: SwitchProps) => (
     }
   >
     <Switch {...props}>
-      <Route path="/sign/transaction">
-        <SignTxErrorBoundary variant="OpenError">
-          <SignTransactionPage />
-        </SignTxErrorBoundary>
-      </Route>
       <Route path="/approve/generic">
         <SignTxErrorBoundary variant="OpenError">
           <GenericApprovalScreen />
