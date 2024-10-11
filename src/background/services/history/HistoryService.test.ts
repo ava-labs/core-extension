@@ -160,7 +160,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     });
 
     expect(result).toEqual([
-      { ...btcTxHistoryItem, bridgeAnalysis: { isBridgeTx: true } },
+      { ...btcTxHistoryItem, bridgeAnalysis: { isBridgeTx: false } },
     ]);
   });
   it('should return results with an ETH bridge transaction', async () => {
@@ -188,7 +188,10 @@ describe('src/background/services/history/HistoryService.ts', () => {
     expect(result).toEqual([
       {
         ...txHistoryItem,
-        bridgeAnalysis: { isBridgeTx: true },
+        bridgeAnalysis: {
+          bridgeType: BridgeType.AVALANCHE_EVM,
+          isBridgeTx: true,
+        },
         from: ETHEREUM_ADDRESS,
       },
     ]);

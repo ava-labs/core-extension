@@ -80,18 +80,22 @@ describe('contexts/UnifiedBridgeProvider', () => {
     vmName: NetworkVMType.EVM,
     isTestnet: false,
     chainId: 43114,
+    caipId: 'eip155:43114',
   };
 
   const ethereum = {
     vmName: NetworkVMType.EVM,
     isTestnet: false,
     chainId: 1,
+    caipId: 'eip155:1',
   };
 
   const networkContext = {
     network: avalanche,
     getNetwork(chainId) {
-      return chainId === 43114 ? avalanche : ethereum;
+      return chainId === 43114 || chainId === 'eip155:43114'
+        ? avalanche
+        : ethereum;
     },
     avalancheProvider: {
       waitForTransaction: jest.fn(),
