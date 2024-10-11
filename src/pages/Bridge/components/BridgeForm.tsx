@@ -383,7 +383,7 @@ export const BridgeForm = ({
       if (blockChainNetwork) {
         const assetAddressOnOppositeChain = getAssetIdentifierOnTargetChain(
           currentAsset,
-          blockChainNetwork.chainId
+          blockChainNetwork.caipId
         );
 
         setCurrentAssetIdentifier(assetAddressOnOppositeChain);

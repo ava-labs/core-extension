@@ -255,7 +255,7 @@ export function Bridge() {
         setNetwork(blockChainNetwork);
         const assetAddressOnOppositeChain = getAssetIdentifierOnTargetChain(
           currentAsset,
-          blockChainNetwork.chainId
+          blockChainNetwork.caipId
         );
 
         setCurrentAssetIdentifier(assetAddressOnOppositeChain);

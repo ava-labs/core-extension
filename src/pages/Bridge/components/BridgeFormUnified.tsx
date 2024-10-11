@@ -10,7 +10,7 @@ type BridgeFormUnifiedProps = Omit<
   keyof ReturnType<typeof useUnifiedBridge> | 'onTransfer' | 'isPending'
 > & {
   amount: Big;
-  targetChainId: number;
+  targetChainId: string;
   currentAssetIdentifier?: string;
 
   onInitiated: () => void;

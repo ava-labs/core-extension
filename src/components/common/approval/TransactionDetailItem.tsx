@@ -113,7 +113,7 @@ const FundsRecipientInfo = ({ item }: { item: FundsRecipientItem }) => {
   const { getAccount } = useAccountsContext();
   const { getTokenPrice } = useBalancesContext();
 
-  const token = new TokenUnit(item.value, item.maxDecimals, item.symbol);
+  const token = new TokenUnit(item.amount, item.maxDecimals, item.symbol);
   const tokenPrice = getTokenPrice(item.symbol);
   const contact = getAccount(item.label) ?? getContactByAddress(item.label);
 

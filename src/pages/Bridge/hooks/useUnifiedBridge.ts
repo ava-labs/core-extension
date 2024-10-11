@@ -23,7 +23,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
  */
 export function useUnifiedBridge(
   amount: Big,
-  targetChainId: number,
+  targetChainId: string,
   currentAssetIdentifier?: string
 ): BridgeAdapter {
   const {
