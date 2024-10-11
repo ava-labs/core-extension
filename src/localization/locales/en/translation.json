@@ -720,7 +720,6 @@
   "Select chain": "Select chain",
   "Select derivation path": "Select derivation path",
   "Select one of the available verification methods below to proceed.": "Select one of the available verification methods below to proceed.",
-  "Select target chain": "Select target chain",
   "Select the Core wallet.": "Select the Core wallet.",
   "Select the first word": "Select the first word",
   "Select the word that comes after": "Select the word that comes after",
@@ -793,6 +792,7 @@
   "Swap transaction succeeded! 🎉": "Swap transaction succeeded! 🎉",
   "Swiss Franc": "Swiss Franc",
   "Switch": "Switch",
+  "Switch to {{chainName}}": "Switch to {{chainName}}",
   "Switch to {{chainName}} Network?": "Switch to {{chainName}} Network?",
   "Switch to {{name}}?": "Switch to {{name}}?",
   "Symbol": "Symbol",
@@ -895,7 +895,6 @@
   "Try typing the information again or go back to the account manager.": "Try typing the information again or go back to the account manager.",
   "Turkish": "Turkish",
   "URI": "URI",
-  "USDC is routed through Circle's Cross-Chain Transfer Protocol. <faqLink>Bridge FAQs</faqLink>": "USDC is routed through Circle's Cross-Chain Transfer Protocol. <faqLink>Bridge FAQs</faqLink>",
   "Unable to connect. View the troubleshoot guide <linkText>here</linkText>": "Unable to connect. View the troubleshoot guide <linkText>here</linkText>",
   "Unable to connect?": "Unable to connect?",
   "Unable to set TOTP configuration": "Unable to set TOTP configuration",
@@ -1028,5 +1027,6 @@
   "{{functionName}} is currently unavailable.": "{{functionName}} is currently unavailable.",
   "{{length}} Bytes": "{{length}} Bytes",
   "{{name}} successfully removed!": "{{name}} successfully removed!",
+  "{{symbol}} is routed through {{bridgeName}}. <faqLink>Bridge FAQs</faqLink>": "{{symbol}} is routed through {{bridgeName}}. <faqLink>Bridge FAQs</faqLink>",
   "{{walletName}} Added": "{{walletName}} Added"
 }
