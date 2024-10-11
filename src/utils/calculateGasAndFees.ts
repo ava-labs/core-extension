@@ -45,7 +45,7 @@ export function calculateGasAndFees({
   return {
     maxFeePerGas: maxFeePerGas,
     gasLimit: gasLimit || 0,
-    fee: fee.toDisplay({ asNumber: true }).toLocaleString(),
+    fee: fee.toDisplay({ fixedDp: 6 }).toLocaleString(),
     bnFee,
     feeUSD: price
       ? price.mul(fee).toDisplay({ fixedDp: 4, asNumber: true })

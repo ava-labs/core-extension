@@ -228,39 +228,44 @@ function InnerBridgeProvider({ children }: { children: any }) {
         signAndSendEVM: (txData) => {
           const tx = txData as ContractTransaction;
 
-          return request({
-            method: RpcMethod.BITCOIN_SEND_TRANSACTION,
-            params: [
-              {
-                ...tx,
-                // erase gasPrice if maxFeePerGas can be used
-                gasPrice: tx.maxFeePerGas
-                  ? undefined
-                  : tx.gasPrice ?? undefined,
-                type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
-              },
-              {
-                customApprovalScreenTitle: t('Confirm Bridge'),
-                contextInformation:
-                  requiredSignatures > currentSignature
-                    ? {
-                        title: t(
-                          'This operation requires {{total}} approvals.',
-                          {
-                            total: requiredSignatures,
-                          }
-                        ),
-                        notice: t(
-                          'You will be prompted {{remaining}} more time(s).',
-                          {
-                            remaining: requiredSignatures - currentSignature,
-                          }
-                        ),
-                      }
-                    : undefined,
-              },
-            ],
-          });
+          return request(
+            {
+              method: RpcMethod.ETH_SEND_TRANSACTION,
+              params: [
+                {
+                  ...tx,
+                  chainId:
+                    typeof tx.chainId === 'number' ||
+                    typeof tx.chainId === 'bigint'
+                      ? `0x${tx.chainId.toString(16)}`
+                      : tx.chainId,
+                  // erase gasPrice if maxFeePerGas can be used
+                  gasPrice: tx.maxFeePerGas
+                    ? undefined
+                    : tx.gasPrice ?? undefined,
+                  type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
+                },
+              ],
+            },
+            {
+              customApprovalScreenTitle: t('Confirm Bridge'),
+              alert:
+                requiredSignatures > currentSignature
+                  ? {
+                      type: 'info',
+                      title: t('This operation requires {{total}} approvals.', {
+                        total: requiredSignatures,
+                      }),
+                      notice: t(
+                        'You will be prompted {{remaining}} more time(s).',
+                        {
+                          remaining: requiredSignatures - currentSignature,
+                        }
+                      ),
+                    }
+                  : undefined,
+            }
+          );
         },
       });
 
