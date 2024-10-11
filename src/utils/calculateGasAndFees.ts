@@ -45,14 +45,14 @@ export function calculateGasAndFees({
   return {
     maxFeePerGas: maxFeePerGas,
     gasLimit: gasLimit || 0,
-    fee: fee.toDisplay({ fixedDp: 6 }).toLocaleString(),
+    fee: fee.toDisplay(),
     bnFee,
     feeUSD: price
-      ? price.mul(fee).toDisplay({ fixedDp: 4, asNumber: true })
+      ? price.mul(fee).toDisplay({ fixedDp: 2, asNumber: true })
       : null,
     tipUSD:
       price && tip
-        ? price.mul(tip).toDisplay({ fixedDp: 4, asNumber: true })
+        ? price.mul(tip).toDisplay({ fixedDp: 2, asNumber: true })
         : null,
   };
 }
