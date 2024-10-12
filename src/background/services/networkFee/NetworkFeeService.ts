@@ -11,15 +11,11 @@ export class NetworkFeeService {
   constructor(private moduleManager: ModuleManager) {}
 
   async getNetworkFee(network: NetworkWithCaipId): Promise<NetworkFee | null> {
+    const module = await this.moduleManager.loadModuleByNetwork(network);
     if (network.vmName === NetworkVMType.EVM) {
-      console.log('network: ', network);
-      const module = await this.moduleManager.loadModuleByNetwork(network);
-
       const fees = await module.getNetworkFee(network);
-      console.log('fees: ', fees);
       return { ...fees, displayDecimals: fees.displayDecimals || 9 };
     } else if (network.vmName === NetworkVMType.BITCOIN) {
-      const module = await this.moduleManager.loadModuleByNetwork(network);
       const { low, medium, high, isFixedFee } = await module.getNetworkFee(
         network
       );
