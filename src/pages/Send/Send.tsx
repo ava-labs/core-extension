@@ -137,7 +137,7 @@ export function SendPage() {
   const isNetworkFeeReady =
     isPchainNetwork(network) || isXchainNetwork(network)
       ? !!provider
-      : !!networkFee?.low?.maxFee;
+      : !!networkFee?.low?.maxFeePerGas;
 
   const isLoading =
     !active ||
@@ -155,7 +155,7 @@ export function SendPage() {
         <SendEVM
           network={network}
           fromAddress={fromAddress}
-          maxFee={networkFee.low.maxFee}
+          maxFee={networkFee.low.maxFeePerGas}
           nativeToken={nativeToken as NetworkTokenWithBalance}
           provider={provider as JsonRpcBatchInternal}
           tokenList={
@@ -170,7 +170,7 @@ export function SendPage() {
         <SendBTC
           network={network}
           fromAddress={fromAddress}
-          maxFee={networkFee.low.maxFee}
+          maxFee={networkFee.low.maxFeePerGas}
           nativeToken={nativeToken as TokenWithBalanceBTC}
           provider={provider as BitcoinProvider}
           tokenList={tokens as [TokenWithBalanceBTC]}

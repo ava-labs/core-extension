@@ -151,7 +151,7 @@ export function useGetTransaction(requestId: string) {
       networkFee &&
       action?.displayData.displayValues?.gas.gasLimit &&
       calculateGasAndFees({
-        maxFeePerGas: customGas?.maxFeePerGas ?? networkFee.low.maxFee,
+        maxFeePerGas: customGas?.maxFeePerGas ?? networkFee.low.maxFeePerGas,
         gasLimit:
           customGas?.gasLimit ?? action?.displayData.displayValues.gas.gasLimit,
         tokenPrice,
