@@ -260,28 +260,29 @@ describe('contexts/UnifiedBridgeProvider', () => {
           sign: expect.any(Function),
         });
 
-        expect(requestFn).toHaveBeenCalledWith({
-          method: RpcMethod.ETH_SEND_TRANSACTION,
-          params: [
-            { ...allowanceTx },
-            {
-              customApprovalScreenTitle: 'Confirm Bridge',
-              contextInformation: {
-                title: 'This operation requires {{total}} approvals.',
-                notice: 'You will be prompted {{remaining}} more time(s).',
-              },
+        expect(requestFn).toHaveBeenCalledWith(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [{ ...allowanceTx }],
+          },
+          {
+            customApprovalScreenTitle: 'Confirm Bridge',
+            alert: {
+              type: 'info',
+              title: 'This operation requires {{total}} approvals.',
+              notice: 'You will be prompted {{remaining}} more time(s).',
             },
-          ],
-        });
-        expect(requestFn).toHaveBeenCalledWith({
-          method: RpcMethod.ETH_SEND_TRANSACTION,
-          params: [
-            { ...transferTx },
-            {
-              customApprovalScreenTitle: 'Confirm Bridge',
-            },
-          ],
-        });
+          }
+        );
+        expect(requestFn).toHaveBeenCalledWith(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [{ ...transferTx }],
+          },
+          {
+            customApprovalScreenTitle: 'Confirm Bridge',
+          }
+        );
         expect(requestFn).toHaveBeenCalledWith({
           method: ExtensionRequest.UNIFIED_BRIDGE_TRACK_TRANSFER,
           params: [transfer],
