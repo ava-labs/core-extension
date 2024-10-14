@@ -48,7 +48,6 @@ export function initializeProvider(
   const multiWalletProxy = createMultiWalletProxy(evmProvider);
 
   globalObject.addEventListener('eip6963:announceProvider', (event: any) => {
-    // console.log('event: ', event.detail);
     multiWalletProxy.addProvider(
       new Proxy(
         {
@@ -65,7 +64,6 @@ export function initializeProvider(
 
   setGlobalProvider(evmProvider, globalObject, multiWalletProxy);
   setAvalancheGlobalProvider(evmProvider, globalObject);
-  // setEvmproviders(evmProvider, globalObject);
   announceWalletProvider(evmProvider, globalObject);
   announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
 
@@ -150,16 +148,6 @@ function setAvalancheGlobalProvider(
     writable: false,
   });
   globalObject.dispatchEvent(new Event('avalanche#initialized'));
-}
-
-function setEvmproviders(
-  providerInstance: EVMProvider,
-  globalObject = window
-): void {
-  globalObject.evmproviders = globalObject.evmproviders || {};
-  globalObject.evmproviders.core = providerInstance;
-
-  globalObject.dispatchEvent(new Event('evmproviders#initialized'));
 }
 
 function announceWalletProvider(

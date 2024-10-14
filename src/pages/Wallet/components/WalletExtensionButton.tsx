@@ -4,18 +4,13 @@ import {
   ButtonGroup,
   ChevronDownIcon,
   ClickAwayListener,
-  CoinbaseWalletIcon,
-  CoreIcon,
   Grow,
-  KeyIcon,
   MenuItem,
   MenuList,
-  MetaMaskIcon,
   Popper,
   Stack,
   styled,
   Typography,
-  WalletIcon,
 } from '@avalabs/core-k2-components';
 
 import { WalletExtensionType } from '@src/background/services/web3/models';
@@ -25,7 +20,7 @@ import { useRef, useState } from 'react';
 interface WalletExtensionButtonProps {
   type?: WalletExtensionType;
   info?: EIP6963ProviderInfo;
-  onClick: () => void;
+  onClick: (index: number) => void;
   wallets?: EIP6963ProviderInfo[];
 }
 
@@ -40,7 +35,7 @@ const StyledButtonGroup = styled(ButtonGroup)`
   border-radius: 999px;
 `;
 
-export function WalletExtensionButton({
+export function CoreExtensionButton({
   info,
   onClick,
 }: WalletExtensionButtonProps) {
@@ -55,30 +50,21 @@ export function WalletExtensionButton({
       onClick={onClick}
       fullWidth
     >
-      {/* {getWalletLogo(type)}
-      {getWalletDisplayName(type)} */}
       <img src={info?.icon} width={24} height={24} />
       {info?.name || t('Unknown')}
     </Button>
   );
 }
 
-export function NewButton({
-  info,
-  onClick,
+export function WalletExtensionButton({
   wallets,
+  onClick,
 }: WalletExtensionButtonProps) {
-  console.log('wallets: ', wallets);
   const { t } = useTranslation();
   const toggleButtonRef = useRef();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
-    <StyledButtonGroup
-      // disabled={disabled}
-      color="secondary"
-      variant="contained"
-      fullWidth
-    >
+    <StyledButtonGroup color="secondary" variant="contained" fullWidth>
       <ClickAwayListener onClickAway={() => setIsMenuOpen(false)}>
         <Stack sx={{ flexDirection: 'row', width: '100%' }}>
           <Button
@@ -90,7 +76,6 @@ export function NewButton({
               borderBottomLeftRadius: '999px !important',
             }}
             data-testid={'add-primary-account'}
-            // disabled={isButtonDisabled}
           >
             {t('Other Wallets')}
           </Button>
@@ -131,27 +116,27 @@ export function NewButton({
                       width: '180px',
                     }}
                   >
-                    {wallets.map((wallet) => {
-                      if (wallet.rdns === 'app.core.extension') {
-                        return;
-                      }
-                      return (
-                        <StyledMenuItem
-                          onClick={() => console.log('StyledMenuItem onclick')}
-                          data-testid="add-import-account"
-                          key={wallet.name}
-                          sx={{ py: 1 }}
-                        >
-                          <img
-                            src={wallet.icon}
-                            // width={24}
-                            height={24}
-                            style={{ paddingRight: '16px' }}
-                          />
-                          <Typography>{wallet.name}</Typography>
-                        </StyledMenuItem>
-                      );
-                    })}
+                    {wallets &&
+                      wallets.map((wallet, index) => {
+                        if (wallet.rdns === 'app.core.extension') {
+                          return;
+                        }
+                        return (
+                          <StyledMenuItem
+                            onClick={() => onClick(index)}
+                            data-testid="add-import-account"
+                            key={wallet.name}
+                            sx={{ py: 1 }}
+                          >
+                            <img
+                              src={wallet.icon}
+                              height={24}
+                              style={{ paddingRight: '16px' }}
+                            />
+                            <Typography>{wallet.name}</Typography>
+                          </StyledMenuItem>
+                        );
+                      })}
                   </MenuList>
                 </Grow>
               )}

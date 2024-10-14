@@ -8,10 +8,9 @@ import { getWalletExtensionType } from './utils/getWalletExtensionType';
 import { Maybe } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
 import { EVMProvider } from '@avalabs/evm-module/dist/provider';
-import { EIP6963ProviderDetail } from '@avalabs/vm-module-types';
 
 export class MultiWalletProviderProxy extends EventEmitter {
-  #_providers: unknown[] = [];
+  #_providers: EVMProvider[] = [];
   #isWalletSelected = false;
   #defaultProvider;
 
@@ -66,41 +65,21 @@ export class MultiWalletProviderProxy extends EventEmitter {
   }
 
   public addProvider(providerDetail) {
-    console.log('providerDetail: ', providerDetail);
-    // the COINBASE collects here the wallets
-    /*
-    if (provider.providerMap) {
-      for (const providerProxy of provider.providerMap.values()) {
-        if (
-          !providerProxy.isAvalanche && // we exclude Core being duplicated
-          !this.#_providers.includes(providerProxy)
-        ) {
-          this.#_providers.push(providerProxy);
-        }
-      }
-      return;
-    }
-      */
-
-    // the coinbase would add another proxy which is useless for us
-    // if (providerDetail.coinbaseWalletInstalls) {
-    //   return;
-    // }
-
     const isProviderAdded = this.#_providers.find(
       (provider) => provider.info.uuid === providerDetail.info.uuid
     );
-    console.log('isProviderAdded: ', isProviderAdded);
+
     if (!isProviderAdded) {
-      console.log('providerDetail: ', providerDetail);
-      console.log('ADD -++++--_');
       this.#_providers.push(providerDetail);
-      console.log('this.#_providers: ', this.#_providers);
     }
   }
 
   async #toggleWalletSelection(): Promise<void> {
     // no need to select a wallet when there is only one
+    console.log(
+      'toggleWalletSelection this.#isWalletSelected: ',
+      this.#isWalletSelected
+    );
     if (this.#_providers.length === 1 || this.#isWalletSelected) {
       return;
     }
@@ -121,6 +100,8 @@ export class MultiWalletProviderProxy extends EventEmitter {
         }),
       ],
     });
+
+    console.log('selectedIndex: ', selectedIndex);
 
     if (
       selectedIndex === undefined ||
@@ -153,6 +134,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
     if (this.#_providers[selectedIndex]) {
       this.#isWalletSelected = true;
     }
+    console.log(' this.#isWalletSelected: ', this.#isWalletSelected);
 
     // set default wallet for this connection
     this.#defaultProvider =
@@ -278,7 +260,7 @@ export function createMultiWalletProxy(evmProvider: EVMProvider) {
     // intercept unknow calls that are meant to be handled by the current provider
     // and forward them if needed so that we don't have to implement all the custom
     // functions any given wallet provider might expose
-    get: (target, prop, receiver) => {
+    get: (_, prop, receiver) => {
       // if the proxy has the function call it
       if (proxyProvider[prop]) {
         return proxyProvider[prop];
@@ -292,7 +274,7 @@ export function createMultiWalletProxy(evmProvider: EVMProvider) {
       // check if the request param is an extension defined by the dApp
       return Reflect.get(walletProviderExtensions, prop, receiver);
     },
-    set(obj, prop, value) {
+    set(_, prop, value) {
       Reflect.set(walletProviderExtensions, prop, value);
       return true;
     },
