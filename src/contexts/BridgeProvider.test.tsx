@@ -198,7 +198,9 @@ describe('contexts/BridgeProvider', () => {
         expect(requestFn).toHaveBeenCalledWith(
           {
             method: RpcMethod.ETH_SEND_TRANSACTION,
-            params: [{ ...fakeDepositTx }],
+            params: [
+              { ...fakeDepositTx, maxFeePerGas: '0x32', gasPrice: undefined },
+            ],
           },
           {
             customApprovalScreenTitle: 'Confirm Bridge',
@@ -223,7 +225,9 @@ describe('contexts/BridgeProvider', () => {
         expect(requestFn).toHaveBeenCalledWith(
           {
             method: RpcMethod.ETH_SEND_TRANSACTION,
-            params: [{ ...fakeTransferTx }],
+            params: [
+              { ...fakeTransferTx, maxFeePerGas: '0x37', gasPrice: undefined },
+            ],
           },
           {
             customApprovalScreenTitle: 'Confirm Bridge',
