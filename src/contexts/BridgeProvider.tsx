@@ -35,7 +35,7 @@ import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
 import { useAccountsContext } from './AccountsProvider';
-import type { ContractTransaction } from 'ethers';
+import { toBeHex, type ContractTransaction } from 'ethers';
 import { useTranslation } from 'react-i18next';
 import { RpcMethod } from '@avalabs/vm-module-types';
 
@@ -233,17 +233,13 @@ function InnerBridgeProvider({ children }: { children: any }) {
               method: RpcMethod.ETH_SEND_TRANSACTION,
               params: [
                 {
-                  ...tx,
-                  chainId:
-                    typeof tx.chainId === 'number' ||
-                    typeof tx.chainId === 'bigint'
-                      ? `0x${tx.chainId.toString(16)}`
-                      : tx.chainId,
+                  ...mapNumberishToHex(tx),
                   // erase gasPrice if maxFeePerGas can be used
                   gasPrice: tx.maxFeePerGas
                     ? undefined
-                    : tx.gasPrice ?? undefined,
-                  type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
+                    : tx.gasPrice
+                    ? toBeHex(tx.gasPrice)
+                    : undefined,
                 },
               ],
             },
@@ -299,3 +295,13 @@ function InnerBridgeProvider({ children }: { children: any }) {
     </bridgeContext.Provider>
   );
 }
+
+const mapNumberishToHex = (tx: ContractTransaction) =>
+  Object.fromEntries(
+    Object.entries(tx).map(([key, value]) => [
+      key,
+      typeof value === 'number' || typeof value === 'bigint'
+        ? toBeHex(value)
+        : value,
+    ])
+  );
