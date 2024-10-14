@@ -154,11 +154,10 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
         ];
         const request = getPayload({ params: [0, 0, 2, 2] });
         await handleRequest(buildRpcCall(request));
-        expect(canSkipApproval).toHaveBeenCalledWith(
-          'core.app',
-          3,
-          EXPOSED_DOMAINS
-        );
+        expect(canSkipApproval).toHaveBeenCalledWith('core.app', 3, {
+          allowInactiveTabs: true,
+          domainWhitelist: EXPOSED_DOMAINS,
+        });
       });
 
       it('sets the limit to 0 if not provided', async () => {
