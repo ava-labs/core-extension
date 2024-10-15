@@ -147,11 +147,10 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
       });
 
       if (
-        await canSkipApproval(
-          request.site.domain,
-          request.site.tabId,
-          EXPOSED_DOMAINS
-        )
+        await canSkipApproval(request.site.domain, request.site.tabId, {
+          domainWhitelist: EXPOSED_DOMAINS,
+          allowInactiveTabs: true,
+        })
       ) {
         return {
           ...request,
