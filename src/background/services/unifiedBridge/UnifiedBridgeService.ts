@@ -111,7 +111,10 @@ export class UnifiedBridgeService implements OnStorageReady {
   }
 
   #getDisabledBridges(): BridgeType[] {
-    const bridges: BridgeType[] = [];
+    const bridges: BridgeType[] = [
+      BridgeType.ICTT_ERC20_ERC20,
+      BridgeType.AVALANCHE_EVM,
+    ];
 
     if (!this.#flagStates[FeatureGates.UNIFIED_BRIDGE_CCTP]) {
       bridges.push(BridgeType.CCTP);

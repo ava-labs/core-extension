@@ -134,8 +134,12 @@ export function UnifiedBridgeProvider({
   const disabledBridgeTypes = useMemo(
     () =>
       isCCTPDisabled
-        ? [BridgeType.CCTP, BridgeType.ICTT_ERC20_ERC20]
-        : [BridgeType.ICTT_ERC20_ERC20],
+        ? [
+            BridgeType.CCTP,
+            BridgeType.ICTT_ERC20_ERC20,
+            BridgeType.AVALANCHE_EVM,
+          ]
+        : [BridgeType.AVALANCHE_EVM, BridgeType.ICTT_ERC20_ERC20],
     [isCCTPDisabled]
   );
 
