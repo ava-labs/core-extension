@@ -5,6 +5,7 @@ import {
   BridgeType,
   TokenType,
   createUnifiedBridgeService,
+  getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
 
 import { useConnectionContext } from './ConnectionProvider';
@@ -79,18 +80,22 @@ describe('contexts/UnifiedBridgeProvider', () => {
     vmName: NetworkVMType.EVM,
     isTestnet: false,
     chainId: 43114,
+    caipId: 'eip155:43114',
   };
 
   const ethereum = {
     vmName: NetworkVMType.EVM,
     isTestnet: false,
     chainId: 1,
+    caipId: 'eip155:1',
   };
 
   const networkContext = {
     network: avalanche,
     getNetwork(chainId) {
-      return chainId === 43114 ? avalanche : ethereum;
+      return chainId === 43114 || chainId === 'eip155:43114'
+        ? avalanche
+        : ethereum;
     },
     avalancheProvider: {
       waitForTransaction: jest.fn(),
@@ -133,7 +138,6 @@ describe('contexts/UnifiedBridgeProvider', () => {
     jest.resetAllMocks();
 
     core = {
-      init: jest.fn().mockResolvedValue(undefined),
       getAssets: async () => ({
         [chainIdToCaip(ethereum.chainId)]: [ethUSDC],
         [chainIdToCaip(avalanche.chainId)]: [avaxUSDC],
@@ -144,7 +148,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
     } as unknown as ReturnType<typeof createUnifiedBridgeService>;
 
     jest.mocked(createUnifiedBridgeService).mockReturnValue(core);
-
+    jest.mocked(getEnabledBridgeServices).mockResolvedValue({} as any);
     // Mock events flow
     eventsFn.mockReturnValue({
       pipe: jest.fn().mockReturnValue({
@@ -183,7 +187,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
       await waitFor(async () => {
         try {
-          await provider.current?.transferAsset('USDC', 1000n, 1);
+          await provider.current?.transferAsset('USDC', 1000n, 'eip155:1');
         } catch (err: any) {
           expect(err.data.reason).toEqual(CommonError.Unknown);
         }
@@ -195,9 +199,9 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
       await waitFor(async () => {
         try {
-          await provider.current?.transferAsset('USDC', 1000n, 1);
+          await provider.current?.transferAsset('USDCC', 1000n, 'eip155:1');
         } catch (err: any) {
-          expect(err.data.reason).toEqual(UnifiedBridgeError.UnknownAsset);
+          expect(err.data?.reason).toEqual(UnifiedBridgeError.UnknownAsset);
         }
       });
     });
@@ -242,9 +246,9 @@ describe('contexts/UnifiedBridgeProvider', () => {
       const provider = getBridgeProvider();
 
       await waitFor(async () => {
-        expect(await provider.current?.transferAsset('USDC', 1000n, 1)).toEqual(
-          transfer.sourceTxHash
-        );
+        expect(
+          await provider.current?.transferAsset('USDC', 1000n, 'eip155:1')
+        ).toEqual(transfer.sourceTxHash);
 
         expect(core.transferAsset).toHaveBeenCalledWith({
           asset: expect.objectContaining({ symbol: 'USDC' }),
@@ -302,7 +306,11 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
       await waitFor(async () => {
         try {
-          await provider.current?.estimateTransferGas('USDC', 1000n, 1);
+          await provider.current?.estimateTransferGas(
+            'USDC',
+            1000n,
+            'eip155:1'
+          );
         } catch (err: any) {
           expect(err.data.reason).toEqual(CommonError.Unknown);
         }
@@ -314,7 +322,11 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
       await waitFor(async () => {
         try {
-          await provider.current?.estimateTransferGas('USDC', 1000n, 1);
+          await provider.current?.estimateTransferGas(
+            'USDC',
+            1000n,
+            'eip155:1'
+          );
         } catch (err: any) {
           expect(err.data.reason).toEqual(UnifiedBridgeError.UnknownAsset);
         }
@@ -328,7 +340,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
       await waitFor(async () => {
         expect(
-          await provider.current?.estimateTransferGas('USDC', 1000n, 1)
+          await provider.current?.estimateTransferGas('USDC', 1000n, 'eip155:1')
         ).toEqual(555n);
 
         expect(core.estimateGas).toHaveBeenCalledWith({
@@ -357,7 +369,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
       await waitFor(async () => {
         try {
-          await provider.current?.getFee('USDC', 1000n, 1);
+          await provider.current?.getFee('USDC', 1000n, 'eip155:1');
         } catch (err: any) {
           expect(err.data.reason).toEqual(CommonError.Unknown);
         }
@@ -369,7 +381,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
       await waitFor(async () => {
         try {
-          await provider.current?.getFee('USDC', 1000n, 1);
+          await provider.current?.getFee('USDCc', 1000n, 'eip155:1');
         } catch (err: any) {
           expect(err.data.reason).toEqual(UnifiedBridgeError.UnknownAsset);
         }
@@ -383,7 +395,9 @@ describe('contexts/UnifiedBridgeProvider', () => {
       const provider = getBridgeProvider();
 
       await waitFor(async () => {
-        expect(await provider.current?.getFee('USDC', 1000n, 1)).toEqual(300n);
+        expect(
+          await provider.current?.getFee('USDC', 1000n, 'eip155:1')
+        ).toEqual(300n);
 
         expect(core.getFees).toHaveBeenCalledWith({
           asset: expect.objectContaining({ symbol: 'USDC' }),

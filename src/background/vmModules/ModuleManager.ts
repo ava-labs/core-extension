@@ -59,6 +59,7 @@ export class ModuleManager {
         approvalController: this.#approvalController,
         appInfo,
       }),
+
       new AvalancheModule({
         environment,
         approvalController: this.#approvalController,

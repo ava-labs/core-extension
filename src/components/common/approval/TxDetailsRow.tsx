@@ -1,6 +1,7 @@
 import { Stack, Typography, useTheme } from '@avalabs/core-k2-components';
+import React from 'react';
 
-type TxDetailsRowProps = { label: string };
+type TxDetailsRowProps = { label: string | React.ReactNode };
 
 export const TxDetailsRow: React.FC<TxDetailsRowProps> = ({
   children,
@@ -17,9 +18,13 @@ export const TxDetailsRow: React.FC<TxDetailsRowProps> = ({
         gap: 1,
       }}
     >
-      <Typography variant="caption" color="text.secondary">
-        {label}
-      </Typography>
+      {typeof label === 'string' ? (
+        <Typography variant="caption" color="text.secondary">
+          {label}
+        </Typography>
+      ) : (
+        label
+      )}
       <Stack
         sx={{
           flexDirection: 'row',

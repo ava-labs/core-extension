@@ -65,7 +65,7 @@ export function InProgressBridgeActivityCard({
 
     if (isUnifiedBridgeTransfer(tx)) {
       const totalConfirmationsRequired =
-        tx.requiredSourceConfirmationCount + tx.requiredTargetConfirmationCount;
+        tx.sourceRequiredConfirmationCount + tx.targetRequiredConfirmationCount;
       const totalConfirmationsObtained =
         tx.sourceConfirmationCount + tx.targetConfirmationCount;
 
@@ -85,9 +85,13 @@ export function InProgressBridgeActivityCard({
     return (currentCount / confirmationCount) * 100;
   }, [tx]);
 
+  const symbol = useMemo(
+    () => (isUnifiedBridgeTransfer(tx) ? tx.asset.symbol : tx?.symbol),
+    [tx]
+  );
   const amount = useMemo(() => {
     if (isUnifiedBridgeTransfer(tx)) {
-      return bigintToBig(tx.amount, tx.amountDecimals);
+      return bigintToBig(tx.amount, tx.asset.decimals);
     }
 
     return tx.amount;
@@ -114,7 +118,7 @@ export function InProgressBridgeActivityCard({
           {isSuccessful
             ? t(`You transferred {{amount}} {{symbol}}`, {
                 amount,
-                symbol: tx.symbol,
+                symbol,
               })
             : tx.errorCode
             ? getErrorMessage(tx.errorCode)
@@ -127,7 +131,15 @@ export function InProgressBridgeActivityCard({
     }
 
     removeBridgeTransaction(tx.sourceTxHash);
-  }, [removeBridgeTransaction, t, toastShown, tx, amount, getErrorMessage]);
+  }, [
+    removeBridgeTransaction,
+    t,
+    toastShown,
+    tx,
+    amount,
+    getErrorMessage,
+    symbol,
+  ]);
 
   const errorCode = isUnifiedBridgeTransfer(tx) ? tx.errorCode : undefined;
   const hasError = typeof errorCode !== 'undefined';
@@ -188,7 +200,7 @@ export function InProgressBridgeActivityCard({
                       variant="body2"
                       sx={{ color: theme.palette.primary.dark }}
                     >
-                      {tx.symbol}
+                      {symbol}
                     </Typography>
                   </Stack>
                 </Stack>

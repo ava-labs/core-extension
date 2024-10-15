@@ -12,7 +12,15 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Asset,
@@ -65,15 +73,16 @@ export type BridgeFormProps = {
   isPending: boolean;
 
   // Generic props
-  currentAssetAddress?: string;
+  currentAssetIdentifier?: string;
   provider: BridgeProviders;
   amount: Big;
   isAmountTooLow: boolean;
+  setIsAmountTooLow: Dispatch<SetStateAction<boolean>>;
   availableBlockchains: Blockchain[];
   targetNetwork?: Network;
   bridgeError: string;
   setBridgeError: (err: string) => void;
-  setCurrentAssetAddress: (assetAddress?: string) => void;
+  setCurrentAssetIdentifier: (assetAddress?: string) => void;
   setNavigationHistoryData: (data: NavigationHistoryDataState) => void;
   setAmount: (amount: Big) => void;
   onTransfer: () => void;
@@ -81,10 +90,11 @@ export type BridgeFormProps = {
 };
 
 export const BridgeForm = ({
-  currentAssetAddress,
+  currentAssetIdentifier,
   provider,
   amount,
   isAmountTooLow,
+  setIsAmountTooLow,
   availableBlockchains,
   minimum,
   maximum,
@@ -97,7 +107,7 @@ export const BridgeForm = ({
   estimateGas,
   bridgeError,
   setBridgeError,
-  setCurrentAssetAddress,
+  setCurrentAssetIdentifier,
   setNavigationHistoryData,
   setAmount,
   onTransfer,
@@ -119,7 +129,7 @@ export const BridgeForm = ({
 
   const { setNetwork, networks } = useNetworkContext();
   const { currencyFormatter, currency } = useSettingsContext();
-  const { getAssetAddressOnTargetChain } = useUnifiedBridgeContext();
+  const { getAssetIdentifierOnTargetChain } = useUnifiedBridgeContext();
   const { getTokenSymbolOnNetwork } = useGetTokenSymbolOnNetwork();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
@@ -202,6 +212,14 @@ export const BridgeForm = ({
   const [neededGas, setNeededGas] = useState(0n);
 
   useEffect(() => {
+    if (minimum && amount.lt(minimum)) {
+      setIsAmountTooLow(true);
+    } else {
+      setIsAmountTooLow(false);
+    }
+  }, [minimum, amount, setIsAmountTooLow]);
+
+  useEffect(() => {
     let isMounted = true;
 
     if (amount && amount.gt(BIG_ZERO)) {
@@ -282,7 +300,7 @@ export const BridgeForm = ({
     (value: { bigint: bigint; amount: string }) => {
       const bigValue = bigintToBig(value.bigint, denomination);
       setNavigationHistoryData({
-        selectedTokenAddress: currentAssetAddress,
+        selectedTokenAddress: currentAssetIdentifier,
         selectedToken: currentAsset,
         inputAmount: bigValue,
       });
@@ -310,7 +328,7 @@ export const BridgeForm = ({
       bridgeError,
       capture,
       currentAsset,
-      currentAssetAddress,
+      currentAssetIdentifier,
       setBridgeError,
       denomination,
       maximum,
@@ -326,7 +344,7 @@ export const BridgeForm = ({
       const symbol = token.symbol;
       const address = getTokenAddress(token);
 
-      setCurrentAssetAddress(address);
+      setCurrentAssetIdentifier(address);
       setNavigationHistoryData({
         selectedToken: symbol,
         selectedTokenAddress: address,
@@ -348,7 +366,7 @@ export const BridgeForm = ({
       sendTokenSelectedAnalytics,
       setAmount,
       setCurrentAsset,
-      setCurrentAssetAddress,
+      setCurrentAssetIdentifier,
       setNavigationHistoryData,
     ]
   );
@@ -363,12 +381,12 @@ export const BridgeForm = ({
       );
 
       if (blockChainNetwork) {
-        const assetAddressOnOppositeChain = getAssetAddressOnTargetChain(
+        const assetAddressOnOppositeChain = getAssetIdentifierOnTargetChain(
           currentAsset,
-          blockChainNetwork.chainId
+          blockChainNetwork.caipId
         );
 
-        setCurrentAssetAddress(assetAddressOnOppositeChain);
+        setCurrentAssetIdentifier(assetAddressOnOppositeChain);
         setNavigationHistoryData({
           selectedTokenAddress: assetAddressOnOppositeChain,
           selectedToken: currentAsset,
@@ -381,11 +399,11 @@ export const BridgeForm = ({
     }
   }, [
     bridgeConfig,
-    getAssetAddressOnTargetChain,
+    getAssetIdentifierOnTargetChain,
     networks,
     setNetwork,
     setBridgeError,
-    setCurrentAssetAddress,
+    setCurrentAssetIdentifier,
     currentAsset,
     setAmount,
     setNavigationHistoryData,
