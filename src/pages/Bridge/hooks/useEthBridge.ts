@@ -40,13 +40,14 @@ export function useEthBridge(
   );
 
   const receiveAmount = amount.gt(minimum) ? amount.minus(bridgeFee) : BIG_ZERO;
+  const sourceBalanceAsString = sourceBalance?.balance?.toString();
 
   useEffect(() => {
     if (
       !currentAsset ||
       !isEthereumBridge ||
       !bridgeConfig.config ||
-      !sourceBalance?.balance ||
+      !sourceBalanceAsString ||
       !ethereumProvider
     ) {
       return;
@@ -61,7 +62,7 @@ export function useEthBridge(
 
     getMaxTransferAmount({
       currentBlockchain,
-      balance: sourceBalance.balance,
+      balance: new Big(sourceBalanceAsString),
       currentAsset,
       assets: ethereumAssets,
       provider: ethereumProvider,
@@ -83,7 +84,7 @@ export function useEthBridge(
     currentBlockchain,
     ethereumProvider,
     isEthereumBridge,
-    sourceBalance?.balance,
+    sourceBalanceAsString,
   ]);
 
   const transfer = useCallback(async () => {

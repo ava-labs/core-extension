@@ -6,6 +6,9 @@ import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
 import { AlertType, DisplayData } from '@avalabs/vm-module-types';
 import {
+  Alert,
+  AlertContent,
+  AlertTitle,
   Box,
   Button,
   Scrollbars,
@@ -32,6 +35,21 @@ import { WarningBox } from '../Permissions/components/WarningBox';
 import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
+
+type WithContextAlert = {
+  alert: { type: 'info'; title: string; notice: string };
+};
+
+function hasContextInfo(
+  context?: Record<string, unknown>
+): context is WithContextAlert {
+  return (
+    typeof context === 'object' &&
+    context !== null &&
+    'alert' in context &&
+    Boolean(context.alert)
+  );
+}
 
 export function GenericApprovalScreen() {
   const { t } = useTranslation();
@@ -139,6 +157,20 @@ export function GenericApprovalScreen() {
                 text={displayData.alert.details.description}
               />
             )}
+          </Stack>
+        )}
+
+        {hasContextInfo(context) && (
+          <Stack sx={{ width: 1, px: 2 }}>
+            <Alert
+              severity={context.alert.type}
+              sx={{ width: 1, py: 0, mb: 1, mt: -1 }}
+            >
+              <AlertTitle>{context.alert.title}</AlertTitle>
+              {context.alert.notice && (
+                <AlertContent>{context.alert.notice}</AlertContent>
+              )}
+            </Alert>
           </Stack>
         )}
 

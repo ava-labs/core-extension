@@ -108,7 +108,7 @@ export const useFeeCustomizer = ({
       case RpcMethod.BITCOIN_SEND_TRANSACTION: {
         return {
           feeRate: BigInt(data.data.feeRate),
-          limit: Math.ceil(data.data.fee / data.data.feeRate),
+          limit: Math.ceil(data.data.fee / data.data.feeRate) || 0,
         };
       }
 
