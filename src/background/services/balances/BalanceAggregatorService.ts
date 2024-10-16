@@ -114,10 +114,15 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     const aggregatedBalances = merge({}, this.balances, freshBalances.tokens);
     // NFTs don't have balance = 0, if they are sent they should be removed
     // from the list, hence deep merge doesn't work
-    const aggregatedNfts = {
-      ...this.nfts,
-      ...freshBalances.nfts,
-    };
+    const hasFetchedNfts =
+      tokenTypes.includes(TokenType.ERC721) ||
+      tokenTypes.includes(TokenType.ERC1155);
+    const aggregatedNfts = hasFetchedNfts
+      ? {
+          ...this.nfts,
+          ...freshBalances.nfts,
+        }
+      : this.nfts;
     const hasChanges = networksWithChanges.length > 0;
 
     if (hasChanges && !this.lockService.locked) {

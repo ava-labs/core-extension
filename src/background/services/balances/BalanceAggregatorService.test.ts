@@ -222,7 +222,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       const balances = await service.getBalancesForNetworks(
         [network1.chainId, network2.chainId],
         [account1],
-        [TokenType.NATIVE]
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721]
       );
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(2);
       const expected = {
