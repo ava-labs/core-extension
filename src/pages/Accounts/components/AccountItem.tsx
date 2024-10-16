@@ -5,7 +5,6 @@ import {
   Collapse,
   Stack,
   Tooltip,
-  Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
 import { useHistory } from 'react-router-dom';
@@ -35,6 +34,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { SecretType } from '@src/background/services/secrets/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
+import AccountName from './AccountName';
 
 type AccountItemProps = {
   account: Account;
@@ -76,6 +76,7 @@ export const AccountItem = forwardRef(
     const totalBalance = (balanceTotalUSD && balanceTotalUSD.sum) ?? null;
     const isBitcoinActive = network && isBitcoinNetwork(network);
     const address = network ? getAddressForChain(network.chainId, account) : '';
+    const [cardHovered, setCardHovered] = useState<boolean>(false);
 
     const toggle = useCallback(
       (accountId: string) => {
@@ -163,6 +164,8 @@ export const AccountItem = forwardRef(
         onClick={isManageMode ? undefined : handleAccountClick}
         onClickCapture={isManageMode ? handleAccountClick : undefined}
         data-testid={`account-li-item-${account.id}`}
+        onMouseEnter={() => setCardHovered(true)}
+        onMouseLeave={() => setCardHovered(false)}
       >
         <Collapse in={isManageMode} orientation="horizontal" unmountOnExit>
           <Stack
@@ -196,7 +199,7 @@ export const AccountItem = forwardRef(
                 direction="row"
                 sx={{ gap: 1, justifyContent: 'space-between' }}
               >
-                <Typography
+                {/* <Typography
                   variant="h6"
                   data-testid="account-name"
                   sx={{
@@ -206,7 +209,12 @@ export const AccountItem = forwardRef(
                   }}
                 >
                   {account.name}
-                </Typography>
+                </Typography> */}
+                <AccountName
+                  accountName={account.name}
+                  accountId={account.id}
+                  cardHovered={cardHovered}
+                />
                 <Stack direction="row" sx={{ alignItems: 'center' }}>
                   <AccountBalance
                     refreshBalance={getBalance}
