@@ -29,10 +29,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.8.0.tgz#351638b9329cfdad66528414d4691b77fdf95158"
-  integrity sha512-htySDIDj0s91fNKQAb3krR62sKxtRhMTiFybp+PmxJka8B8phduwnvLL37ysQfG5cM8W4LOVGg6CnRXLjU3OyA==
+"@avalabs/avalanche-module@0.0.0-feat-allow-choosing-token-type-20241016090237":
+  version "0.0.0-feat-allow-choosing-token-type-20241016090237"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-allow-choosing-token-type-20241016090237.tgz#9dd1e383bc6b231cb72ddf932ac0135719d43aad"
+  integrity sha512-wE1aiUOI/KJCdjiKuR5sKM2i7e6VZ8u5OQGUeSQGJqX8xZJiYp1Ma3JFvkZNVo5KVuGSUp8lbZoXzIcvOI+Wdg==
   dependencies:
     "@avalabs/avalanchejs" "4.0.5"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.7"
@@ -42,7 +42,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.7"
     "@avalabs/glacier-sdk" "3.1.0-alpha.7"
     "@avalabs/types" "3.1.0-alpha.7"
-    "@avalabs/vm-module-types" "0.8.0"
+    "@avalabs/vm-module-types" "0.0.0-feat-allow-choosing-token-type-20241016090237"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -59,15 +59,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.8.0.tgz#ff96d03f5aad9370000710ef001e92ce21e96e0e"
-  integrity sha512-R50LqzGWOKas9TkEyeD0hK8V5gy1SHZ/b7isF5bb2N+B4ZL9rtOmEfwW5Lx7U+uUNL5BIO4B/LRSjP6KrI1uCQ==
+"@avalabs/bitcoin-module@0.0.0-feat-allow-choosing-token-type-20241016090237":
+  version "0.0.0-feat-allow-choosing-token-type-20241016090237"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-allow-choosing-token-type-20241016090237.tgz#6be88fd686290e1ca624c3e7ea98a4b233011bfd"
+  integrity sha512-dcIQdL4xUk12ID14v5NfaO2e+nkBJtEiJQK/bZN+LgOkT/+gOCPNYUAM0KDX8LB4JfckC6nPxWwxIrrshUTwiw==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.7"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.7"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.7"
-    "@avalabs/vm-module-types" "0.8.0"
+    "@avalabs/vm-module-types" "0.0.0-feat-allow-choosing-token-type-20241016090237"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -191,10 +191,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.8.0.tgz#fec3a4db15980ca5b8647b3f901f1d01a03a5a4f"
-  integrity sha512-jrYAhOmPebc5uEh6tFBEL2q4iFaKxO06nNV8F0s8krE98vXPDDF61Jr4HO9V0XiEKXx7Znsk2Z11hZAZUFjUdg==
+"@avalabs/evm-module@0.0.0-feat-allow-choosing-token-type-20241016090237":
+  version "0.0.0-feat-allow-choosing-token-type-20241016090237"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-allow-choosing-token-type-20241016090237.tgz#6d05550de39c3454c1b326ece0111957ce5a851f"
+  integrity sha512-MsPCmVXHWQv/mvDsmMZoMei86E/XSs6en8CglhSutzNJ2sfI1nBD5MsPuytN8JKS9Nbhja89jNb9tkgGfnBVgw==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.7"
     "@avalabs/core-etherscan-sdk" "3.1.0-alpha.7"
@@ -202,7 +202,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.7"
     "@avalabs/glacier-sdk" "3.1.0-alpha.7"
     "@avalabs/types" "3.1.0-alpha.7"
-    "@avalabs/vm-module-types" "0.8.0"
+    "@avalabs/vm-module-types" "0.0.0-feat-allow-choosing-token-type-20241016090237"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -237,10 +237,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.7.tgz#c93ac3d5551001d9187040cd1adaf504512ee238"
   integrity sha512-7s38LcB09QMx0fzd4/mb7nFcSPexiMsjx+vvdm0uDFpcwMTt0MgADQLgEpfUFfAMUMrm8QOTrRd6nWsuY9Om3Q==
 
-"@avalabs/vm-module-types@0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.8.0.tgz#aea593b7f6ae422090e278e8fb99c94a0436106f"
-  integrity sha512-L6BlU/3GqoAxgXzoP1HrEFknattNcFQ3p1/a7hKldn41/tflBaWJl80lTlcpfe/LMPkP007mtNWh8ADvRogwgg==
+"@avalabs/vm-module-types@0.0.0-feat-allow-choosing-token-type-20241016090237":
+  version "0.0.0-feat-allow-choosing-token-type-20241016090237"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-allow-choosing-token-type-20241016090237.tgz#19d8f5caf5891fee4b8fa068f84a3fdbe58e6802"
+  integrity sha512-cfMzpPXe6yVSojoeaCtoDxFwnwWuovqRGDsREnbLAFzT/ulvzfP5fxJILE9BM9wrcN2Gj7RMz8SM5W1niUdFmw==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.7"
     "@avalabs/glacier-sdk" "3.1.0-alpha.7"

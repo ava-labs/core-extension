@@ -11,6 +11,9 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import LRUCache from 'lru-cache';
+
+const cacheStorage = new LRUCache({ max: 100, ttl: 60 * 1000 });
 
 @singleton()
 export class BalancesService {
@@ -22,6 +25,7 @@ export class BalancesService {
   async getBalancesForNetwork(
     network: NetworkWithCaipId,
     accounts: Account[],
+    tokenTypes: TokenType[],
     priceChanges?: TokensPriceShortData
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const sentryTracker = Sentry.startTransaction(
@@ -63,6 +67,8 @@ export class BalancesService {
       network,
       currency,
       customTokens,
+      tokenTypes,
+      storage: cacheStorage,
     });
 
     // Apply price changes data, VM Modules don't do this yet

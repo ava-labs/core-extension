@@ -204,11 +204,16 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     });
 
     it('calls BalancesService.getBalancesForNetwork() with proper params', async () => {
-      await service.getBalancesForNetworks([network1.chainId], [account1]);
+      await service.getBalancesForNetworks(
+        [network1.chainId],
+        [account1],
+        [TokenType.NATIVE]
+      );
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(1);
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledWith(
         network1,
         [account1],
+        [TokenType.NATIVE],
         undefined
       );
     });
@@ -216,7 +221,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     it('can fetch the balance for multiple networks and one account', async () => {
       const balances = await service.getBalancesForNetworks(
         [network1.chainId, network2.chainId],
-        [account1]
+        [account1],
+        [TokenType.NATIVE]
       );
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(2);
       const expected = {
@@ -245,7 +251,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     it('fetches the balances for multiple networks and accounts', async () => {
       const result = await service.getBalancesForNetworks(
         [network1.chainId, network2.chainId],
-        [account1, account2]
+        [account1, account2],
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721]
       );
 
       const expected = {
@@ -286,7 +293,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
 
       const updatePromise = service.getBalancesForNetworks(
         [network1.chainId],
-        [account1]
+        [account1],
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721]
       );
 
       // eslint-disable-next-line
@@ -307,7 +315,8 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
 
       await service.getBalancesForNetworks(
         [network1.chainId, network2.chainId],
-        [account1]
+        [account1],
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721]
       );
 
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(2);
@@ -395,7 +404,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         balances: cachedBalances,
       });
 
-      await service.getBalancesForNetworks([network2.chainId], [account1]);
+      await service.getBalancesForNetworks([network2.chainId], [account1], []);
 
       await service.onUnlock();
 

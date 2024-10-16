@@ -21,7 +21,7 @@ import {
 import { resolve } from '@avalabs/core-utils-sdk';
 import { SettingsService } from '../settings/SettingsService';
 import { isFulfilled } from '@src/utils/typeUtils';
-import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { groupTokensByType } from './utils/groupTokensByType';
 import { BalancesInfo } from './events/balancesUpdatedEvent';
 
@@ -54,7 +54,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
   async getBalancesForNetworks(
     chainIds: number[],
-    accounts: Account[]
+    accounts: Account[],
+    tokenTypes: TokenType[]
   ): Promise<{ tokens: Balances; nfts: Balances<NftTokenWithBalance> }> {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
@@ -72,6 +73,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           await this.balancesService.getBalancesForNetwork(
             network,
             accounts,
+            tokenTypes,
             priceChangesData
           );
 

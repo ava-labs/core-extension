@@ -30,6 +30,7 @@ import {
   Typography,
   toast,
 } from '@avalabs/core-k2-components';
+import { TokenType } from '@avalabs/vm-module-types';
 import {
   FunctionNames,
   useIsFunctionAvailable,
@@ -45,8 +46,10 @@ import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 
+const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
+
 export function Bridge() {
-  useLiveBalance(); // Make sure we always use the latest balances.
+  useLiveBalance(POLLED_BALANCES); // Make sure we always use fresh balances of bridgable tokens.
   useSyncBridgeConfig(); // keep bridge config up-to-date
   useSetBridgeChainFromNetwork();
 

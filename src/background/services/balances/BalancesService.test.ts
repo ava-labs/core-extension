@@ -6,6 +6,7 @@ import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import * as Sentry from '@sentry/browser';
 import { SettingsService } from '../settings/SettingsService';
+import LRUCache from 'lru-cache';
 
 jest.mock('@src/background/vmModules/ModuleManager');
 jest.mock('@sentry/browser', () => {
@@ -205,9 +206,11 @@ describe('src/background/services/balances/BalancesService.ts', () => {
     it('should get balances for P-Chain', async () => {
       moduleMock.getBalances.mockResolvedValue(pvmResult);
       const network = { vmName: NetworkVMType.PVM, caipId: 'pvm' };
-      const result = await service.getBalancesForNetwork(network as any, [
-        account,
-      ]);
+      const result = await service.getBalancesForNetwork(
+        network as any,
+        [account],
+        []
+      );
 
       expect(result).toEqual({
         ['networkId2']: {
@@ -226,13 +229,19 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         currency: 'eur',
         network,
         customTokens: [],
+        tokenTypes: [],
+        storage: expect.any(LRUCache),
       });
     });
 
     it('should get balances for X-Chain', async () => {
       moduleMock.getBalances.mockResolvedValue(avmResult);
       const network = { vmName: NetworkVMType.AVM, caipId: 'avm' } as any;
-      const result = await service.getBalancesForNetwork(network, [account]);
+      const result = await service.getBalancesForNetwork(
+        network,
+        [account],
+        []
+      );
 
       expect(result).toEqual({
         ['networkId2']: {
@@ -251,6 +260,8 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         currency: 'eur',
         network,
         customTokens: [],
+        tokenTypes: [],
+        storage: expect.any(LRUCache),
       });
     });
 
@@ -279,7 +290,11 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         caipId: 'eip155:1337',
         chainId: 1337,
       } as any;
-      const result = await service.getBalancesForNetwork(network, [account]);
+      const result = await service.getBalancesForNetwork(
+        network,
+        [account],
+        [TokenType.NATIVE, TokenType.ERC20]
+      );
 
       expect(result).toEqual({
         ['networkId2']: {
@@ -299,13 +314,19 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         currency: 'usd',
         network,
         customTokens: [{ ...customToken, type: TokenType.ERC20 }],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        storage: expect.any(LRUCache),
       });
     });
 
     it('should get balances for Bitcoin', async () => {
       moduleMock.getBalances.mockResolvedValue(btcResult);
       const network = { vmName: NetworkVMType.BITCOIN, caipId: 'btc' } as any;
-      const result = await service.getBalancesForNetwork(network, [account]);
+      const result = await service.getBalancesForNetwork(
+        network,
+        [account],
+        []
+      );
 
       expect(result).toEqual({
         ['networkId3']: {
@@ -325,15 +346,22 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         currency: 'eur',
         network,
         customTokens: [],
+        tokenTypes: [],
+        storage: expect.any(LRUCache),
       });
     });
 
     it('should calculate price changes if provided', async () => {
       moduleMock.getBalances.mockResolvedValue(evmResult);
       const network = { vmName: NetworkVMType.EVM, caipId: 'evm' } as any;
-      const result = await service.getBalancesForNetwork(network, [account], {
-        test2: { priceChangePercentage: 25 },
-      });
+      const result = await service.getBalancesForNetwork(
+        network,
+        [account],
+        [],
+        {
+          test2: { priceChangePercentage: 25 },
+        }
+      );
 
       expect(result).toEqual({
         ['networkId2']: {
@@ -353,6 +381,8 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         currency: 'eur',
         network,
         customTokens: [],
+        tokenTypes: [],
+        storage: expect.any(LRUCache),
       });
     });
   });

@@ -4,6 +4,7 @@ import { BalancePollingService } from '../BalancePollingService';
 import { StartBalancesPollingHandler } from './startBalancesPolling';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { caipToChainId } from '@src/utils/caipConversion';
+import { TokenType } from '@avalabs/vm-module-types';
 
 jest.mock('@src/utils/caipConversion');
 
@@ -64,7 +65,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
           {
             id: '123',
             method: ExtensionRequest.BALANCES_START_POLLING,
-            params: [account, chainIds],
+            params: [account, chainIds, [TokenType.ERC20]],
           },
           scope
         )
@@ -73,7 +74,8 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
       expect(balancePollingService.startPolling).toHaveBeenCalledWith(
         account,
         caipToChainId(scope),
-        chainIds
+        chainIds,
+        [TokenType.ERC20]
       );
     });
   });
