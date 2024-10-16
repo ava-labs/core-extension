@@ -33,7 +33,7 @@ import {
 import Big from 'big.js';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { FeatureGates } from '../featureFlags/models';
-import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { TokenType, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {
@@ -194,7 +194,8 @@ export class BridgeService implements OnLock, OnStorageReady {
 
       const balances = await this.networkBalancesService.getBalancesForNetworks(
         [btcNetwork.chainId],
-        [this.accountsService.activeAccount]
+        [this.accountsService.activeAccount],
+        [TokenType.NATIVE] // We only care about BTC here, which is a native token
       );
 
       const token = balances.tokens[btcNetwork.chainId]?.[addressBtc]?.[
