@@ -4,7 +4,6 @@ import {
   JsonRpcRequestPayload,
   JsonRpcResponse,
 } from '../connections/dAppConnection/models';
-import { getWalletExtensionType } from './utils/getWalletExtensionType';
 import { Maybe } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
 import { EVMProvider } from '@avalabs/evm-module/dist/provider';
@@ -65,9 +64,9 @@ export class MultiWalletProviderProxy extends EventEmitter {
   }
 
   public addProvider(providerDetail) {
-    const isProviderAdded = this.#_providers.find(
-      (provider) => provider.info.uuid === providerDetail.info.uuid
-    );
+    const isProviderAdded = this.#_providers.find((provider) => {
+      return provider.info.uuid === providerDetail.info.uuid;
+    });
 
     if (!isProviderAdded) {
       this.#_providers.push(providerDetail);
@@ -76,10 +75,6 @@ export class MultiWalletProviderProxy extends EventEmitter {
 
   async #toggleWalletSelection(): Promise<void> {
     // no need to select a wallet when there is only one
-    console.log(
-      'toggleWalletSelection this.#isWalletSelected: ',
-      this.#isWalletSelected
-    );
     if (this.#_providers.length === 1 || this.#isWalletSelected) {
       return;
     }
@@ -90,17 +85,13 @@ export class MultiWalletProviderProxy extends EventEmitter {
       params: [
         // using any since we don't really know what kind of provider they are
         this.#_providers.map((p: any, i) => {
-          const type = getWalletExtensionType(p);
-
           return {
             index: i,
-            type,
             info: p.info,
           };
         }),
       ],
     });
-
     console.log('selectedIndex: ', selectedIndex);
 
     if (
@@ -134,7 +125,6 @@ export class MultiWalletProviderProxy extends EventEmitter {
     if (this.#_providers[selectedIndex]) {
       this.#isWalletSelected = true;
     }
-    console.log(' this.#isWalletSelected: ', this.#isWalletSelected);
 
     // set default wallet for this connection
     this.#defaultProvider =
@@ -150,12 +140,15 @@ export class MultiWalletProviderProxy extends EventEmitter {
     }
 
     const { method } = args;
+    console.log('method: ', method);
+    console.log('this.#_providers: ', this.#_providers);
 
     // trigger wallet selection flow at connect in case multiple providers are available
     if (
       method === DAppProviderRequest.CONNECT_METHOD &&
       this.#_providers.length > 1
     ) {
+      console.log('waiting');
       await this.#toggleWalletSelection();
     }
 
