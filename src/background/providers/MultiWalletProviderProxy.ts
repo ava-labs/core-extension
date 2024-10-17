@@ -92,7 +92,6 @@ export class MultiWalletProviderProxy extends EventEmitter {
         }),
       ],
     });
-    console.log('selectedIndex: ', selectedIndex);
 
     if (
       selectedIndex === undefined ||
@@ -140,15 +139,12 @@ export class MultiWalletProviderProxy extends EventEmitter {
     }
 
     const { method } = args;
-    console.log('method: ', method);
-    console.log('this.#_providers: ', this.#_providers);
 
     // trigger wallet selection flow at connect in case multiple providers are available
     if (
       method === DAppProviderRequest.CONNECT_METHOD &&
       this.#_providers.length > 1
     ) {
-      console.log('waiting');
       await this.#toggleWalletSelection();
     }
 
