@@ -5,6 +5,7 @@ import {
   ChevronDownIcon,
   ClickAwayListener,
   Grow,
+  keyframes,
   MenuItem,
   MenuList,
   Popper,
@@ -24,10 +25,38 @@ interface WalletExtensionButtonProps {
   wallets?: EIP6963ProviderInfo[];
 }
 
+const flip = keyframes`
+  from {
+    transform: rotateX(0deg);
+  }
+
+  to {
+    transform: rotateX(360deg);
+  }
+`;
+
 const StyledMenuItem = styled(MenuItem)`
+  img {
+    transition: transform 0.3s ease-in-out;
+  }
   color: ${({ theme }) => theme.palette.text.secondary};
   &:hover {
     color: ${({ theme }) => theme.palette.text.primary};
+    img {
+      animation: ${flip} 0.5s ease-in-out;
+    }
+  }
+`;
+const CoreButton = styled(Button)`
+  img {
+    transition: transform 0.3s ease-in-out;
+  }
+  color: ${({ theme }) => theme.palette.text.secondary};
+  &:hover {
+    color: ${({ theme }) => theme.palette.text.primary};
+    img {
+      animation: ${flip} 0.5s ease-in-out;
+    }
   }
 `;
 
@@ -39,11 +68,10 @@ export function CoreExtensionButton({
   info,
   onClick,
 }: WalletExtensionButtonProps) {
-  console.log('info: ', info);
   const { t } = useTranslation();
 
   return (
-    <Button
+    <CoreButton
       color="secondary"
       size="large"
       sx={{ gap: 1, my: 2 }}
@@ -52,7 +80,7 @@ export function CoreExtensionButton({
     >
       <img src={info?.icon} width={24} height={24} />
       {info?.name || t('Unknown')}
-    </Button>
+    </CoreButton>
   );
 }
 
