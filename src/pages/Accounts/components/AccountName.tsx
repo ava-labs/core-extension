@@ -61,6 +61,7 @@ export default function AccountName({
         setIsAccountNameEditing(false);
       });
   }, [accountId, accountName, newName, renameAccount, t]);
+
   return (
     <Stack sx={{ flexDirection: 'row' }}>
       {!isAccountNameEditing && (
@@ -89,7 +90,12 @@ export default function AccountName({
           <Stack>
             <EditIcon
               size={16}
-              sx={{ cursor: 'pointer' }}
+              sx={{
+                cursor: 'pointer',
+                // transform: 'rotate(90deg)',
+                // transition: 'transform .5s ease-in-out',
+                // transformStyle: 'preserve-3d',
+              }}
               onClick={(e) => {
                 e.stopPropagation();
                 setIsAccountNameEditing(true);
