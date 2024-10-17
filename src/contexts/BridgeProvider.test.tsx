@@ -19,7 +19,7 @@ import {
   useBridgeContext,
 } from './BridgeProvider';
 import { act } from 'react-dom/test-utils';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
 
@@ -195,19 +195,22 @@ describe('contexts/BridgeProvider', () => {
         onStatusChange(WrapStatus.WAITING_FOR_DEPOSIT_CONFIRMATION);
         signAndSendEVM(fakeDepositTx);
 
-        expect(requestFn).toHaveBeenCalledWith({
-          method: DAppProviderRequest.ETH_SEND_TX,
-          params: [
-            { ...fakeDepositTx },
-            {
-              customApprovalScreenTitle: 'Confirm Bridge',
-              contextInformation: {
-                title: 'This operation requires {{total}} approvals.',
-                notice: 'You will be prompted {{remaining}} more time(s).',
-              },
+        expect(requestFn).toHaveBeenCalledWith(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [
+              { ...fakeDepositTx, maxFeePerGas: '0x32', gasPrice: undefined },
+            ],
+          },
+          {
+            customApprovalScreenTitle: 'Confirm Bridge',
+            alert: {
+              type: 'info',
+              title: 'This operation requires {{total}} approvals.',
+              notice: 'You will be prompted {{remaining}} more time(s).',
             },
-          ],
-        });
+          }
+        );
 
         // Mock the transfer TX being prompted and signed
         const fakeTransferTx = {
@@ -219,15 +222,17 @@ describe('contexts/BridgeProvider', () => {
         onStatusChange(WrapStatus.WAITING_FOR_CONFIRMATION);
         signAndSendEVM(fakeTransferTx);
 
-        expect(requestFn).toHaveBeenCalledWith({
-          method: DAppProviderRequest.ETH_SEND_TX,
-          params: [
-            { ...fakeTransferTx },
-            {
-              customApprovalScreenTitle: 'Confirm Bridge',
-            },
-          ],
-        });
+        expect(requestFn).toHaveBeenCalledWith(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [
+              { ...fakeTransferTx, maxFeePerGas: '0x37', gasPrice: undefined },
+            ],
+          },
+          {
+            customApprovalScreenTitle: 'Confirm Bridge',
+          }
+        );
       });
     });
 

@@ -4,9 +4,11 @@ import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useEffect, useState } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
-import { DisplayData } from '@avalabs/vm-module-types';
-import { LedgerAppType } from '@src/contexts/LedgerProvider';
+import { AlertType, DisplayData } from '@avalabs/vm-module-types';
 import {
+  Alert,
+  AlertContent,
+  AlertTitle,
   Box,
   Button,
   Scrollbars,
@@ -27,6 +29,27 @@ import { useFeeCustomizer } from './hooks/useFeeCustomizer';
 import { DeviceApproval } from './components/DeviceApproval';
 import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { TxBalanceChange } from '../SignTransaction/components/TxBalanceChange';
+import { AlertBox } from '../Permissions/components/AlertBox';
+import { WarningBox } from '../Permissions/components/WarningBox';
+import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
+import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
+import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
+
+type WithContextAlert = {
+  alert: { type: 'info'; title: string; notice: string };
+};
+
+function hasContextInfo(
+  context?: Record<string, unknown>
+): context is WithContextAlert {
+  return (
+    typeof context === 'object' &&
+    context !== null &&
+    'alert' in context &&
+    Boolean(context.alert)
+  );
+}
 
 export function GenericApprovalScreen() {
   const { t } = useTranslation();
@@ -37,7 +60,12 @@ export function GenericApprovalScreen() {
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const [network, setNetwork] = useState<NetworkWithCaipId>();
   const { getNetwork } = useNetworkContext();
-  const { isCalculatingFee, feeError, renderFeeWidget } = useFeeCustomizer({
+  const {
+    isCalculatingFee,
+    feeError,
+    hasEnoughForNetworkFee,
+    renderFeeWidget,
+  } = useFeeCustomizer({
     actionId: requestId,
     network,
   });
@@ -45,12 +73,12 @@ export function GenericApprovalScreen() {
   const { displayData, context } = action ?? {};
 
   useEffect(() => {
-    if (!action?.scope) {
+    if (!displayData?.network?.chainId) {
       return;
     }
 
-    setNetwork(getNetwork(action.scope));
-  }, [getNetwork, action?.scope]);
+    setNetwork(getNetwork(displayData.network.chainId));
+  }, [getNetwork, displayData?.network?.chainId]);
 
   const handleRejection = useCallback(() => {
     cancelHandler();
@@ -67,7 +95,7 @@ export function GenericApprovalScreen() {
   }, [requestId, updateAction, isUsingLedgerWallet, isUsingKeystoneWallet]);
 
   // Make the user switch to the correct app or close the window
-  useLedgerDisconnectedDialog(handleRejection, LedgerAppType.BITCOIN);
+  useLedgerDisconnectedDialog(handleRejection);
 
   if (!action || !displayData) {
     return <LoadingOverlay />;
@@ -103,6 +131,45 @@ export function GenericApprovalScreen() {
           </Typography>
         </Box>
 
+        {displayData.alert && (
+          <Stack sx={{ width: 1, px: 2, mb: 1 }}>
+            {displayData.alert.type === AlertType.DANGER ? (
+              <>
+                <MaliciousTxAlert
+                  showAlert
+                  cancelHandler={handleRejection}
+                  actionTitles={displayData.alert.details.actionTitles}
+                  title={displayData.alert.details.title}
+                  description={displayData.alert.details.description}
+                />
+                <AlertBox
+                  title={displayData.alert.details.title}
+                  text={displayData.alert.details.description}
+                />
+              </>
+            ) : (
+              <WarningBox
+                title={displayData.alert.details.title}
+                text={displayData.alert.details.description}
+              />
+            )}
+          </Stack>
+        )}
+
+        {hasContextInfo(context) && (
+          <Stack sx={{ width: 1, px: 2 }}>
+            <Alert
+              severity={context.alert.type}
+              sx={{ width: 1, py: 0, mb: 1, mt: -1 }}
+            >
+              <AlertTitle>{context.alert.title}</AlertTitle>
+              {context.alert.notice && (
+                <AlertContent>{context.alert.notice}</AlertContent>
+              )}
+            </Alert>
+          </Stack>
+        )}
+
         <Scrollbars>
           <Stack sx={{ flex: 1, width: 1, px: 2, gap: 2, pb: 3 }}>
             <Stack sx={{ width: '100%', gap: 3, pt: 1 }}>
@@ -118,9 +185,25 @@ export function GenericApprovalScreen() {
                         item={item}
                       />
                     ))}
+                    {sectionIndex === 0 && network && (
+                      <NetworkDetails network={network} />
+                    )}
                   </ApprovalSectionBody>
                 </ApprovalSection>
               ))}
+              {displayData.balanceChange && (
+                <TxBalanceChange
+                  ins={displayData.balanceChange.ins}
+                  outs={displayData.balanceChange.outs}
+                  isSimulationSuccessful={displayData.isSimulationSuccessful}
+                />
+              )}
+              {displayData.tokenApprovals && (
+                <SpendLimitInfo
+                  {...displayData.tokenApprovals}
+                  actionId={requestId}
+                />
+              )}
             </Stack>
             {displayData.networkFeeSelector && renderFeeWidget()}
           </Stack>
@@ -160,7 +243,8 @@ export function GenericApprovalScreen() {
             !displayData ||
             action.status === ActionStatus.SUBMITTING ||
             Boolean(feeError) ||
-            isCalculatingFee
+            isCalculatingFee ||
+            !hasEnoughForNetworkFee
           }
           isLoading={
             action.status === ActionStatus.SUBMITTING || isCalculatingFee

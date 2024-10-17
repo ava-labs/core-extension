@@ -31,8 +31,10 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
   const secretsServiceMock = new SecretsService({} as any);
   const accountServiceMock = new AccountsService(
     {} as any,
-    {} as any,
     networkServiceMock,
+    {} as any,
+    {} as any,
+    {} as any,
     {} as any,
     {} as any
   );

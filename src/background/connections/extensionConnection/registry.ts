@@ -128,6 +128,7 @@ import { StartBalancesPollingHandler } from '@src/background/services/balances/h
 import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
 import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
+import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -141,6 +142,7 @@ import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBrid
   { token: 'ExtensionRequestHandler', useToken: DeleteAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetActionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateActionHandler },
+  { token: 'ExtensionRequestHandler', useToken: UpdateActionTxDataHandler },
   { token: 'ExtensionRequestHandler', useToken: ClearAnalyticsIdsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAnalyticsIdsHandler },
   { token: 'ExtensionRequestHandler', useToken: InitAnalyticsIdsHandler },

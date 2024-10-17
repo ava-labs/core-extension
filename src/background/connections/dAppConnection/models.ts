@@ -15,7 +15,6 @@ export enum DAppProviderRequest {
   WALLET_GET_CHAIN = 'wallet_getEthereumChain',
   WALLET_SWITCH_ETHEREUM_CHAIN = 'wallet_switchEthereumChain',
   WALLET_WATCH_ASSET = 'wallet_watchAsset',
-  ETH_SEND_TX = 'eth_sendTransaction',
   PERSONAL_EC_RECOVER = 'personal_ecRecover',
   PERSONAL_SIGN = 'personal_sign',
   ETH_SIGN_TYPED_DATA_V4 = 'eth_signTypedData_v4',
@@ -81,6 +80,7 @@ interface JsonRpcRequestPayloadBase<Method extends string = any> {
   readonly method: Method;
   readonly site?: DomainMetadata;
   readonly tabId?: number;
+  readonly context?: Record<string, unknown>;
 }
 
 interface JsonRpcRequestPayloadWithParams<

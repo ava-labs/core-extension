@@ -6,6 +6,7 @@ import {
   Scrollbars,
   ScrollbarsRef,
   Stack,
+  Tooltip,
   Typography,
   styled,
   toast,
@@ -68,6 +69,9 @@ export const AddNetwork = () => {
   );
 
   useEffect(() => {
+    if (Object.keys(pageHistoryData).length) {
+      setShowErrors(true);
+    }
     setNetwork({ ...defaultNetworkValues, ...pageHistoryData });
   }, [defaultNetworkValues, pageHistoryData]);
 
@@ -110,10 +114,10 @@ export const AddNetwork = () => {
   };
 
   return (
-    <Stack sx={{ width: 1, px: 2 }}>
-      <PageTitle margin="8 0 12px">{t('Add Network')}</PageTitle>
+    <Stack sx={{ width: 1 }}>
+      <PageTitle>{t('Add Network')}</PageTitle>
       <FlexScrollbars ref={scrollbarRef}>
-        <Stack sx={{ gap: 1 }}>
+        <Stack sx={{ gap: 1, px: 2 }}>
           {errorMessage && (
             <Typography
               variant="body2"
@@ -139,6 +143,7 @@ export const AddNetwork = () => {
           alignItems: 'center',
           py: 3,
           gap: 1,
+          px: 2,
         }}
       >
         <Button
@@ -147,25 +152,32 @@ export const AddNetwork = () => {
           size="large"
           fullWidth
           onClick={history.goBack}
+          sx={{ px: 0 }}
         >
           {t('Cancel')}
         </Button>
-        <Button
-          color="primary"
-          data-testid="add-network-save"
-          size="large"
-          fullWidth
-          disabled={isSaving}
-          isLoading={isSaving}
-          onClick={() => {
-            setShowErrors(true);
-            if (isFormValid) {
-              handleSave();
-            }
-          }}
+        <Tooltip
+          title={!isFormValid && t('There are invalid fields in the form')}
+          sx={{ boxSizing: 'border-box', width: '100%' }}
         >
-          {t('Save')}
-        </Button>
+          <Button
+            color="primary"
+            data-testid="add-network-save"
+            size="large"
+            fullWidth
+            disabled={!isFormValid || isSaving}
+            isLoading={isSaving}
+            onClick={() => {
+              setShowErrors(true);
+              if (isFormValid) {
+                handleSave();
+              }
+            }}
+            sx={{ px: 0 }}
+          >
+            {t('Save')}
+          </Button>
+        </Tooltip>
       </Stack>
     </Stack>
   );

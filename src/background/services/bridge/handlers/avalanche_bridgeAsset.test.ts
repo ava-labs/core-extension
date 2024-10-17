@@ -167,7 +167,10 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     networkServiceMock.getBitcoinProvider.mockResolvedValue({
       waitForTx: jest.fn().mockResolvedValue(btcResult),
     });
-    balanceAggregatorServiceMock.getBalancesForNetworks.mockResolvedValue({});
+    balanceAggregatorServiceMock.getBalancesForNetworks.mockResolvedValue({
+      tokens: {},
+      nfts: {},
+    });
     jest.mocked(openApprovalWindow).mockResolvedValue({} as any);
     jest.mocked(getAssets).mockReturnValue({
       BTC: btcAsset,
@@ -421,13 +424,15 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
 
       const balanceServiceMock = {
         getBalancesForNetworks: jest.fn().mockResolvedValueOnce({
-          [43113]: {
-            C_address: {
-              WETH: {
-                symbol: 'WETH',
-                type: TokenType.ERC20,
-                balance: new BN(100),
-                decimals: 1,
+          tokens: {
+            [43113]: {
+              C_address: {
+                WETH: {
+                  symbol: 'WETH',
+                  type: TokenType.ERC20,
+                  balance: new BN(100),
+                  decimals: 1,
+                },
               },
             },
           },
@@ -605,7 +610,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       expect(transferAssetBTC).toHaveBeenCalledTimes(1);
       expect(transferAssetBTC).toHaveBeenCalledWith(
         expect.objectContaining({
-          amount: String(btcToSatoshi(amount)),
+          amount: btcToSatoshi(amount),
         })
       );
 

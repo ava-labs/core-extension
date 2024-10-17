@@ -42,9 +42,8 @@ import { JsonRpcApiProvider } from 'ethers';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(
@@ -406,36 +405,36 @@ export function UnifiedBridgeProvider({
           assert(to, UnifiedBridgeError.InvalidTxPayload);
           assert(data, UnifiedBridgeError.InvalidTxPayload);
 
-          return request<EthSendTransactionHandler>({
-            method: DAppProviderRequest.ETH_SEND_TX,
-            params: [
-              {
-                from,
-                to,
-                data,
-              },
-              {
-                customApprovalScreenTitle: t('Confirm Bridge'),
-                contextInformation:
-                  requiredSignatures > currentSignature
-                    ? {
-                        title: t(
-                          'This operation requires {{total}} approvals.',
-                          {
-                            total: requiredSignatures,
-                          }
-                        ),
-                        notice: t(
-                          'You will be prompted {{remaining}} more time(s).',
-                          {
-                            remaining: requiredSignatures - currentSignature,
-                          }
-                        ),
-                      }
-                    : undefined,
-              },
-            ],
-          });
+          return request(
+            {
+              method: RpcMethod.ETH_SEND_TRANSACTION,
+              params: [
+                {
+                  from,
+                  to,
+                  data,
+                },
+              ],
+            },
+            {
+              customApprovalScreenTitle: t('Confirm Bridge'),
+              alert:
+                requiredSignatures > currentSignature
+                  ? {
+                      type: 'info',
+                      title: t('This operation requires {{total}} approvals.', {
+                        total: requiredSignatures,
+                      }),
+                      notice: t(
+                        'You will be prompted {{remaining}} more time(s).',
+                        {
+                          remaining: requiredSignatures - currentSignature,
+                        }
+                      ),
+                    }
+                  : undefined,
+            }
+          );
         },
       });
 

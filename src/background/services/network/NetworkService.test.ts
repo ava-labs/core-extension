@@ -157,6 +157,32 @@ describe('background/services/network/NetworkService', () => {
     process.env = env;
   });
 
+  describe('.getNetwork()', () => {
+    beforeEach(() => {
+      jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(
+        Promise.resolve({
+          [ethMainnet.chainId]: ethMainnet,
+          [avaxMainnet.chainId]: avaxMainnet,
+        })
+      );
+    });
+
+    it('works with hexadecimal chain ids', async () => {
+      expect(await service.getNetwork('0x1')).toEqual(ethMainnet);
+      expect(await service.getNetwork('0xa86a')).toEqual(avaxMainnet);
+    });
+
+    it('works with numeric chain ids', async () => {
+      expect(await service.getNetwork(1)).toEqual(ethMainnet);
+      expect(await service.getNetwork(43114)).toEqual(avaxMainnet);
+    });
+
+    it('works with caip ids', async () => {
+      expect(await service.getNetwork('eip155:1')).toEqual(ethMainnet);
+      expect(await service.getNetwork('eip155:43114')).toEqual(avaxMainnet);
+    });
+  });
+
   describe('.getInitialNetworkForDapp()', () => {
     const chainlist = {
       [ethMainnet.chainId]: ethMainnet,

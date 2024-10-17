@@ -48,7 +48,9 @@ export type AddCustomTokenData = {
 };
 
 type CustomTokens = {
-  [chain: string]: NetworkContractToken;
+  [chain: string]: {
+    [tokenAddress: string]: NetworkContractToken;
+  };
 };
 
 export interface SettingsState {

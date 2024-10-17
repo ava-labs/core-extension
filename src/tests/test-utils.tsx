@@ -40,3 +40,5 @@ export const buildRpcCall = <M extends string>(
 
 export * from '@testing-library/react';
 export { customRender as render };
+
+export const matchingPayload = (payload) => expect.objectContaining(payload);

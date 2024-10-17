@@ -6,6 +6,7 @@ import {
 import { singleton } from 'tsyringe';
 import { Account } from '../accounts/models';
 import { BalanceAggregatorService } from './BalanceAggregatorService';
+import { TokenType } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BalancePollingService implements OnLock, OnAllExtensionClosed {
@@ -28,13 +29,19 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
   async startPolling(
     account: Account,
     activeChainId: number,
-    roundRobinChainIds: number[]
+    roundRobinChainIds: number[],
+    tokenTypes: TokenType[]
   ) {
     // Stop any polling that may be occurring already
     this.stopPolling();
     // Start a new interval
     // this._preventSchedulingNextUpdate = false;
-    return this.pollBalances(account, activeChainId, roundRobinChainIds);
+    return this.pollBalances(
+      account,
+      activeChainId,
+      roundRobinChainIds,
+      tokenTypes
+    );
   }
 
   onAllExtensionsClosed() {
@@ -52,7 +59,8 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
   private async pollBalances(
     account: Account,
     activeChainId: number,
-    roundRobinChainIds: number[]
+    roundRobinChainIds: number[],
+    tokenTypes: TokenType[]
   ) {
     const thisPollingStartedAt = performance.now();
     this.#lastPollingStartedAt = thisPollingStartedAt;
@@ -67,7 +75,11 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     ]);
 
     try {
-      await this.balanceAggregator.getBalancesForNetworks(chainIds, [account]);
+      await this.balanceAggregator.getBalancesForNetworks(
+        chainIds,
+        [account],
+        tokenTypes
+      );
     } catch {
       // Do nothing, just schedule another attempt
     }
@@ -75,18 +87,30 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     // Only schedule the next update if another polling was not started
     // while we were waiting for balance results.
     if (thisPollingStartedAt === this.#lastPollingStartedAt) {
-      this.scheduleNextUpdate(account, activeChainId, roundRobinChainIds);
+      this.scheduleNextUpdate(
+        account,
+        activeChainId,
+        roundRobinChainIds,
+        tokenTypes
+      );
     }
   }
 
   private scheduleNextUpdate(
     account: Account,
     activeChainId: number,
-    roundRobinChainIds: number[]
+    roundRobinChainIds: number[],
+    tokenTypes: TokenType[]
   ) {
     this.#pollingIteration += 1;
     this.#timer = setTimeout(
-      () => this.pollBalances(account, activeChainId, roundRobinChainIds),
+      () =>
+        this.pollBalances(
+          account,
+          activeChainId,
+          roundRobinChainIds,
+          tokenTypes
+        ),
       BalancePollingService.INTERVAL
     );
   }

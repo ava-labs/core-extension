@@ -41,7 +41,7 @@ export function BridgeTransferAsset({
     GasFeeModifier.INSTANT
   );
 
-  const tokenPrice = displayData.token.priceInCurrency;
+  const tokenPrice = displayData?.token?.priceInCurrency;
   const fiatValue: Big | undefined =
     typeof tokenPrice === 'number'
       ? new Big(displayData.amountStr).times(tokenPrice)

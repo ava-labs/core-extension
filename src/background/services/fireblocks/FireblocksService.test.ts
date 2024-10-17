@@ -1,6 +1,6 @@
 import { sha256 } from 'ethers';
 import { PeerType } from 'fireblocks-sdk';
-import { AccountType, FireblocksAccount } from '../accounts/models';
+import { Account, AccountType, FireblocksAccount } from '../accounts/models';
 import { SecretType } from '../secrets/models';
 import { SecretsService } from '../secrets/SecretsService';
 import { FireblocksSecretsService } from './FireblocksSecretsService';
@@ -11,6 +11,7 @@ import sentryCaptureException, {
 } from '@src/monitoring/sentryCaptureException';
 import { CommonError } from '@src/utils/errors';
 import { ethErrors } from 'eth-rpc-errors';
+import { AccountsService } from '../accounts/AccountsService';
 
 jest.mock('ethers');
 jest.mock('../accounts/AccountsService');
@@ -59,15 +60,21 @@ const mockResponsesByPath =
   };
 
 describe('src/background/services/fireblocks/FireblocksService', () => {
+  const accountsService: jest.Mocked<AccountsService> = {
+    activeAccount: {} as unknown as Account,
+  } as any;
   const secretsService = jest.mocked(new SecretsService({} as any));
-  const secretsProvider = new FireblocksSecretsService(secretsService);
+  const secretsProvider = new FireblocksSecretsService(
+    secretsService,
+    accountsService
+  );
   let service: FireblocksService;
 
   beforeEach(() => {
     jest.resetAllMocks();
 
     jest.mocked(sha256).mockReturnValue('0x1234');
-    secretsService.getActiveAccountSecrets.mockResolvedValue({
+    secretsService.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Fireblocks,
       addresses: {
         addressC: 'addressC',
