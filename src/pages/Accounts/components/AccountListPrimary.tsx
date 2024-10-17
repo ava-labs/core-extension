@@ -1,10 +1,8 @@
 import {
-  Chip,
   Scrollbars,
   ScrollbarsRef,
   Stack,
   SxProps,
-  Typography,
 } from '@avalabs/core-k2-components';
 import { useEffect, useRef } from 'react';
 
@@ -15,9 +13,9 @@ import {
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 import { AccountItem } from './AccountItem';
-import { t } from 'i18next';
 import { SelectionMode } from './AccountList';
 import { useWalletContext } from '@src/contexts/WalletProvider';
+import WalletHeader from './WalletHeader';
 
 type AccountListProps = {
   primaryAccount: Record<WalletId, PrimaryAccount[]>;
@@ -34,6 +32,9 @@ export const AccountListPrimary = ({
     accounts: { active },
   } = useAccountsContext();
   const { walletDetails: activeWalletDetails, wallets } = useWalletContext();
+
+  console.log('wallets: ', wallets);
+
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const activeAccountRef = useRef<HTMLDivElement>(null);
 
@@ -69,14 +70,10 @@ export const AccountListPrimary = ({
           if (walletAccounts && walletAccounts.length > 0) {
             return (
               <Stack sx={{ gap: 1.5, pt: 1, width: 1 }} key={walletId}>
-                <Stack direction="row" sx={{ gap: 1, px: 2 }}>
-                  <Typography variant="button">
-                    {walletDetails?.name}
-                  </Typography>
-                  {isActive && (
-                    <Chip size="small" color="success" label={t('Active')} />
-                  )}
-                </Stack>
+                <WalletHeader
+                  walletDetails={walletDetails}
+                  isActive={isActive}
+                />
                 {walletAccounts.map((account) => (
                   <AccountItem
                     key={account.id}

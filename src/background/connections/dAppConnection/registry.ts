@@ -30,6 +30,7 @@ import { AvalancheGetAddressesInRangeHandler } from '@src/background/services/ac
 import { AvalancheSignTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_signTransaction';
 import { AvalancheSignMessageHandler } from '@src/background/services/messages/handlers/avalanche_signMessage';
 import { AvalancheRenameAccountHandler } from '@src/background/services/accounts/handlers/avalanche_renameAccount';
+import { AvalancheRenameWalletHandler } from '@src/background/services/secrets/handlers/avalanche_renameWallet';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -70,6 +71,7 @@ import { AvalancheRenameAccountHandler } from '@src/background/services/accounts
   { token: 'DAppRequestHandler', useToken: WalletWatchAssetHandler },
   { token: 'DAppRequestHandler', useToken: ConnectRequestHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheGetProviderState },
+  { token: 'DAppRequestHandler', useToken: AvalancheRenameWalletHandler },
   {
     token: 'DAppRequestHandler',
     useToken: AvalancheSendDomainMetadataHandler,
