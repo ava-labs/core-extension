@@ -70,7 +70,6 @@ export function AvalancheSignTx() {
     LedgerAppType.AVALANCHE,
     network
   );
-  useWindowGetsClosedOrHidden(() => handleRejection());
 
   const signTx = useCallback(async () => {
     await updateAction(

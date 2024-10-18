@@ -33,6 +33,7 @@ type TxParams = {
   externalIndices?: number[];
   internalIndices?: number[];
   utxos?: string[];
+  feeTolerance?: number;
 };
 
 @injectable()
@@ -63,6 +64,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       externalIndices,
       internalIndices,
       utxos: providedUtxoHexes,
+      feeTolerance,
     } = (request.params ?? {}) as TxParams;
 
     if (!transactionHex || !chainAlias) {
@@ -73,7 +75,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         }),
       };
     }
-
+    const network = await this.networkService.getAvalancheNetworkXP();
     const vm = Avalanche.getVmByChainAlias(chainAlias);
     const txBytes = utils.hexToBuffer(transactionHex);
     const provider = await this.networkService.getAvalanceProviderXP();
@@ -100,6 +102,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       : await Avalanche.getUtxosByTxFromGlacier({
           transactionHex,
           chainAlias,
+          isDevnet: network.isDevnet || network.chainId === 43117, // FIXME: just a temporary condition
           isTestnet: !this.networkService.isMainnet(),
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,
@@ -151,7 +154,10 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
     const txData = await Avalanche.parseAvalancheTx(
       unsignedTx,
       provider,
-      currentAddress
+      currentAddress,
+      {
+        feeTolerance,
+      }
     );
 
     if (txData.type === 'unknown') {

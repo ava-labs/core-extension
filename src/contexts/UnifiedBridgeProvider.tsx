@@ -299,15 +299,15 @@ export function UnifiedBridgeProvider({
   );
 
   const buildParams = useCallback(
-    (
+    async (
       targetChainId: string
-    ): {
+    ): Promise<{
       sourceChain: Chain;
       sourceChainId: string;
       targetChain: Chain;
       provider: JsonRpcApiProvider;
       fromAddress: `0x${string}`;
-    } => {
+    }> => {
       assert(activeAccount, CommonError.NoActiveAccount);
       assert(activeNetwork, CommonError.NoActiveNetwork);
       assert(
@@ -318,9 +318,9 @@ export function UnifiedBridgeProvider({
       const sourceChain = buildChain(activeNetwork.caipId);
       const targetChain = buildChain(targetChainId);
 
-      const provider = getProviderForNetwork(
+      const provider = (await getProviderForNetwork(
         activeNetwork
-      ) as JsonRpcBatchInternal;
+      )) as JsonRpcBatchInternal;
 
       const fromAddress = activeAccount.addressC as `0x${string}`;
 
@@ -377,8 +377,9 @@ export function UnifiedBridgeProvider({
 
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
-      const { fromAddress, sourceChain, targetChain } =
-        buildParams(targetChainId);
+      const { fromAddress, sourceChain, targetChain } = await buildParams(
+        targetChainId
+      );
 
       const gasLimit = await core.estimateGas({
         asset,
@@ -429,8 +430,9 @@ export function UnifiedBridgeProvider({
 
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
-      const { fromAddress, sourceChain, targetChain } =
-        buildParams(targetChainId);
+      const { fromAddress, sourceChain, targetChain } = await buildParams(
+        targetChainId
+      );
 
       let requiredSignatures = 1;
       let currentSignature = 1;

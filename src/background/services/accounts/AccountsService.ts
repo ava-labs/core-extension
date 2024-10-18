@@ -26,6 +26,7 @@ import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 import { SecretsService } from '../secrets/SecretsService';
 import { LedgerService } from '../ledger/LedgerService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import { Network } from '../network/models';
 
 type AddAccountParams = {
   walletId: string;
@@ -98,7 +99,23 @@ export class AccountsService implements OnLock, OnUnlock {
     // refresh addresses so in case the user switches to testnet mode,
     // as the BTC address needs to be updated
     this.networkService.developerModeChanged.add(this.onDeveloperModeChanged);
+    this.networkService.uiActiveNetworkChanged.add(
+      this.#onActiveNetworkChanged
+    );
   }
+
+  #wasDevnet = false;
+
+  #onActiveNetworkChanged = async (network?: Network) => {
+    if (!network) {
+      return;
+    }
+
+    if (Boolean(network.isDevnet) !== this.#wasDevnet) {
+      this.#wasDevnet = Boolean(network?.isDevnet || network.chainId === 43117);
+      await this.onDeveloperModeChanged(network?.isTestnet);
+    }
+  };
 
   onLock() {
     this.accounts = {
@@ -109,6 +126,9 @@ export class AccountsService implements OnLock, OnUnlock {
 
     this.networkService.developerModeChanged.remove(
       this.onDeveloperModeChanged
+    );
+    this.networkService.uiActiveNetworkChanged.remove(
+      this.#onActiveNetworkChanged
     );
   }
 
@@ -201,8 +221,10 @@ export class AccountsService implements OnLock, OnUnlock {
 
   async getAddressesForAccount(account: Account): Promise<DerivedAddresses> {
     if (account.type !== AccountType.PRIMARY) {
-      const isMainnet = this.networkService.isMainnet();
-      return this.secretsService.getImportedAddresses(account.id, isMainnet);
+      return this.secretsService.getImportedAddresses(
+        account.id,
+        this.networkService
+      );
     }
 
     const addresses = await this.secretsService.getAddresses(
@@ -385,10 +407,9 @@ export class AccountsService implements OnLock, OnUnlock {
     name?: string;
   }) {
     try {
-      const isMainnet = this.networkService.isMainnet();
       const { account, commit } = await this.secretsService.addImportedWallet(
         options,
-        isMainnet
+        this.networkService
       );
 
       const existingAccount = this.#findAccountByAddress(account.addressC);

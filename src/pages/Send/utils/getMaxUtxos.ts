@@ -28,6 +28,7 @@ export async function getMaxUtxoSet(
         utxos: utxos.getUTXOs(),
         sizeSupportedTx: Avalanche.SizeSupportedTx.BaseP,
         limit: isLedgerWallet ? LEDGER_TX_SIZE_LIMIT_BYTES : undefined,
+        feeState: await provider.getApiP().getFeeState(),
       });
     } catch (error) {
       console.error('Error calculating maximum utxo set', {

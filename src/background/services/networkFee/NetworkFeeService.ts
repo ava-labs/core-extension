@@ -32,7 +32,7 @@ export class NetworkFeeService {
       return null;
     }
 
-    const provider = getProviderForNetwork(network);
+    const provider = await getProviderForNetwork(network);
     const nonce = await (provider as JsonRpcBatchInternal).getTransactionCount(
       from
     );
