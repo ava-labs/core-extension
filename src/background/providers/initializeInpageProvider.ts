@@ -17,7 +17,6 @@ export function initializeProvider(
   maxListeners = 100,
   globalObject = window
 ): EVMProvider {
-  console.log('initializeProvider globalObject: ', globalObject);
   const chainAgnosticProvider = new Proxy(
     new ChainAgnosticProvider(connection),
     {
@@ -81,18 +80,7 @@ function setGlobalProvider(
   globalObject = window,
   multiWalletProxy
 ): void {
-  // console.log('globalObject: ', globalObject);
-  // console.log('globalObject.ethereum: ', globalObject.ethereum);
-  // console.log('globalObject.phatnom: ', globalObject.phantom);
   try {
-    // const multiWalletProxy = createMultiWalletProxy(providerInstance);
-
-    // if we already have a wallet lets add it
-    // if (globalObject.ethereum) {
-    //   console.log('addProvider globalObject.ethereum: ', globalObject.ethereum);
-    //   multiWalletProxy.addProvider(globalObject.ethereum);
-    // }
-
     Object.defineProperty(globalObject, 'ethereum', {
       get: () => {
         return multiWalletProxy;
