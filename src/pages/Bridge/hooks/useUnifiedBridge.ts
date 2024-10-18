@@ -23,8 +23,8 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
  */
 export function useUnifiedBridge(
   amount: Big,
-  targetChainId: number,
-  currentAssetAddress?: string
+  targetChainId: string,
+  currentAssetIdentifier?: string
 ): BridgeAdapter {
   const {
     currentAsset,
@@ -48,14 +48,14 @@ export function useUnifiedBridge(
     isEthereum ? Blockchain.ETHEREUM : Blockchain.AVALANCHE
   );
   const sourceBalance = useMemo(() => {
-    if (!currentAsset || !currentAssetAddress || !network) {
+    if (!currentAsset || !currentAssetIdentifier || !network) {
       return undefined;
     }
 
     return assetsWithBalances.find(({ asset }) => {
       return isUnifiedBridgeAsset(asset) && asset.symbol === currentAsset;
     });
-  }, [network, assetsWithBalances, currentAssetAddress, currentAsset]);
+  }, [network, assetsWithBalances, currentAssetIdentifier, currentAsset]);
 
   useEffect(() => {
     if (!maximum && sourceBalance?.balance) {
@@ -69,9 +69,9 @@ export function useUnifiedBridge(
     if (
       currentAsset &&
       currentAssetData &&
-      currentAssetAddress &&
+      currentAssetIdentifier &&
       amount &&
-      supportsAsset(currentAssetAddress, targetChainId)
+      supportsAsset(currentAssetIdentifier, targetChainId)
     ) {
       const hasAmount = amount && !amount.eq(BIG_ZERO);
 
@@ -103,7 +103,7 @@ export function useUnifiedBridge(
   }, [
     currentAsset,
     currentAssetData,
-    currentAssetAddress,
+    currentAssetIdentifier,
     amount,
     targetChainId,
     getFee,

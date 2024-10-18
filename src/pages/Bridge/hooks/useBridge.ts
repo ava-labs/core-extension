@@ -15,6 +15,7 @@ import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { BridgeStepDetails } from '@avalabs/bridge-unified';
+import { chainIdToCaip } from '@src/utils/caipConversion';
 
 export interface BridgeAdapter {
   address?: string;
@@ -49,7 +50,7 @@ interface Bridge {
   bridgeFee: Big;
   provider: BridgeProviders;
   minimum: Big;
-  targetChainId: number;
+  targetChainId: string;
 }
 
 export enum BridgeProviders {
@@ -57,7 +58,7 @@ export enum BridgeProviders {
   Unified,
 }
 
-export function useBridge(currentAssetAddress?: string): Bridge {
+export function useBridge(currentAssetIdentifier?: string): Bridge {
   const { targetBlockchain } = useBridgeSDK();
   const { supportsAsset } = useUnifiedBridgeContext();
 
@@ -97,9 +98,10 @@ export function useBridge(currentAssetAddress?: string): Bridge {
     setAmount,
     minimum,
     bridgeFee,
-    targetChainId,
+    targetChainId: chainIdToCaip(targetChainId),
     provider:
-      currentAssetAddress && supportsAsset(currentAssetAddress, targetChainId)
+      currentAssetIdentifier &&
+      supportsAsset(currentAssetIdentifier, chainIdToCaip(targetChainId))
         ? BridgeProviders.Unified
         : BridgeProviders.Avalanche,
   };

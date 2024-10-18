@@ -1,6 +1,7 @@
 import {
   Environment,
   createUnifiedBridgeService,
+  getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
 import { UnifiedBridgeService } from './UnifiedBridgeService';
 import { FeatureGates } from '../featureFlags/models';
@@ -49,10 +50,10 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
       getAssets: jest.fn().mockResolvedValue({}),
       trackTransfer,
       transferAsset,
-      init: jest.fn().mockResolvedValue(undefined),
     } as any;
 
     jest.mocked(createUnifiedBridgeService).mockReturnValue(core);
+    jest.mocked(getEnabledBridgeServices).mockResolvedValue({} as any);
 
     networkService.isMainnet.mockReturnValue(false);
     networkService.getNetwork.mockImplementation(async (chainId) => ({
@@ -62,10 +63,12 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     new UnifiedBridgeService(networkService, storageService, flagsService);
   });
 
-  it('creates core instance with proper environment', () => {
+  it('creates core instance with proper environment', async () => {
     networkService.isMainnet.mockReturnValue(true);
 
     new UnifiedBridgeService(networkService, storageService, flagsService);
+
+    await new Promise(process.nextTick); // Await getEnabledBridgeServices() call
 
     expect(createUnifiedBridgeService).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -84,20 +87,25 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     );
   });
 
-  it('recreates the core instance on testnet mode switch', () => {
+  it('recreates the core instance on testnet mode switch', async () => {
     const mockTestnetModeChange = (
       networkService.developerModeChanged.add as jest.Mock
     ).mock.lastCall[0];
 
+    await new Promise(process.nextTick); // Await getEnabledBridgeServices() call
     expect(createUnifiedBridgeService).toHaveBeenCalledTimes(1);
+
     mockTestnetModeChange();
+
+    await new Promise(process.nextTick); // Await getEnabledBridgeServices() call
     expect(createUnifiedBridgeService).toHaveBeenCalledTimes(2);
   });
 
-  it('recreates the core instance when certain feature flags are toggled', () => {
+  it('recreates the core instance when certain feature flags are toggled', async () => {
     const mockFeatureFlagChanges = (flagsService.addListener as jest.Mock).mock
       .lastCall[1];
 
+    await new Promise(process.nextTick); // Await getEnabledBridgeServices() call
     expect(createUnifiedBridgeService).toHaveBeenCalledTimes(1);
 
     // Toggle an irrelevant flag off
@@ -105,6 +113,8 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
       [FeatureGates.UNIFIED_BRIDGE_CCTP]: true,
       [FeatureGates.IMPORT_FIREBLOCKS]: false,
     });
+
+    await new Promise(process.nextTick); // Await getEnabledBridgeServices() call
     expect(createUnifiedBridgeService).toHaveBeenCalledTimes(1);
 
     // Toggle a relevant flag off
@@ -112,6 +122,8 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
       [FeatureGates.UNIFIED_BRIDGE_CCTP]: false,
       [FeatureGates.IMPORT_FIREBLOCKS]: false,
     });
+
+    await new Promise(process.nextTick); // Await getEnabledBridgeServices() call
     expect(createUnifiedBridgeService).toHaveBeenCalledTimes(2);
   });
 

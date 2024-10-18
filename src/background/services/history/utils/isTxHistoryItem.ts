@@ -1,7 +1,7 @@
 import { TxHistoryItem } from '../models';
 
 export function isTxHistoryItem(tx: TxHistoryItem): tx is TxHistoryItem {
-  if ('isBridge' in tx && tx.vmType !== 'AVM' && tx.vmType !== 'PVM') {
+  if ('bridgeAnalysis' in tx && tx.vmType !== 'AVM' && tx.vmType !== 'PVM') {
     return true;
   }
   return false;

@@ -173,6 +173,7 @@ export class ApprovalController implements IApprovalController {
 
     switch (signingData.type) {
       case RpcMethod.BITCOIN_SEND_TRANSACTION:
+      case RpcMethod.BITCOIN_SIGN_TRANSACTION:
       case RpcMethod.ETH_SEND_TRANSACTION:
         return await this.#walletService.sign(signingData.data, network);
 

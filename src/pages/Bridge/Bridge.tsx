@@ -53,9 +53,10 @@ export function Bridge() {
   useSyncBridgeConfig(); // keep bridge config up-to-date
   useSetBridgeChainFromNetwork();
 
-  const [currentAssetAddress, setCurrentAssetAddress] = useState<string>();
+  const [currentAssetIdentifier, setCurrentAssetIdentifier] =
+    useState<string>();
   const { amount, setAmount, bridgeFee, provider, minimum, targetChainId } =
-    useBridge(currentAssetAddress);
+    useBridge(currentAssetIdentifier);
 
   const {
     bridgeConfig,
@@ -69,7 +70,7 @@ export function Bridge() {
   const bridgeConfigError = bridgeConfig.error;
   const { t } = useTranslation();
   const availableBlockchains = useAvailableBlockchains();
-  const { getAssetAddressOnTargetChain } = useUnifiedBridgeContext();
+  const { getAssetIdentifierOnTargetChain } = useUnifiedBridgeContext();
 
   const { isFunctionAvailable } = useIsFunctionAvailable(FunctionNames.BRIDGE);
 
@@ -143,7 +144,7 @@ export function Bridge() {
       // that also calls setCurrentAsset :(
       const timer = setTimeout(() => {
         setCurrentAsset(symbol);
-        setCurrentAssetAddress(
+        setCurrentAssetIdentifier(
           bridgePageHistoryData.selectedTokenAddress ?? ''
         );
       }, 1);
@@ -156,7 +157,7 @@ export function Bridge() {
     bridgePageHistoryData.selectedToken,
     bridgePageHistoryData.selectedTokenAddress,
     currentAsset,
-    currentAssetAddress,
+    currentAssetIdentifier,
     setCurrentAsset,
     sourceAssets,
     bridgeConfig,
@@ -164,8 +165,7 @@ export function Bridge() {
     targetBlockchain,
   ]);
 
-  const isAmountTooLow =
-    amount && !amount.eq(BIG_ZERO) && amount.lt(minimum || BIG_ZERO);
+  const [isAmountTooLow, setIsAmountTooLow] = useState(false);
 
   const onInitiated = useCallback(() => {
     captureEncrypted('BridgeTransferStarted', {
@@ -256,12 +256,12 @@ export function Bridge() {
 
       if (blockChainNetwork) {
         setNetwork(blockChainNetwork);
-        const assetAddressOnOppositeChain = getAssetAddressOnTargetChain(
+        const assetAddressOnOppositeChain = getAssetIdentifierOnTargetChain(
           currentAsset,
-          blockChainNetwork.chainId
+          blockChainNetwork.caipId
         );
 
-        setCurrentAssetAddress(assetAddressOnOppositeChain);
+        setCurrentAssetIdentifier(assetAddressOnOppositeChain);
         setNavigationHistoryData({
           selectedTokenAddress: assetAddressOnOppositeChain,
           selectedToken: currentAsset,
@@ -276,14 +276,14 @@ export function Bridge() {
     [
       amount,
       bridgeConfig,
-      getAssetAddressOnTargetChain,
+      getAssetIdentifierOnTargetChain,
       currentAsset,
       networks,
       setAmount,
       setNavigationHistoryData,
       setNetwork,
       setBridgeError,
-      setCurrentAssetAddress,
+      setCurrentAssetIdentifier,
     ]
   );
 
@@ -329,13 +329,14 @@ export function Bridge() {
     availableBlockchains,
     bridgeError,
     isAmountTooLow,
+    setIsAmountTooLow,
     provider,
     setAmount,
     setBridgeError,
-    setCurrentAssetAddress,
+    setCurrentAssetIdentifier,
     setNavigationHistoryData,
     targetNetwork,
-    currentAssetAddress,
+    currentAssetIdentifier,
   };
 
   if (
@@ -351,7 +352,7 @@ export function Bridge() {
         onBackClick={() => {
           // We need to reset the current asset when the user purposefully navigates away from Bridge.
           // That's because this kind of action will clear the data we saved in NavigationHistoryService,
-          // therefore leaving us with no "currentAssetAddress", without which we cannot distinguish between
+          // therefore leaving us with no "currentAssetIdentifier", without which we cannot distinguish between
           // USDC and USDC.e
           // Closing & reopening of the extension will still work & load the previous form values,
           // because this action does not clear the data in NavigationHistoryService.
