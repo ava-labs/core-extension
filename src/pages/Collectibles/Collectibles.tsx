@@ -33,7 +33,7 @@ import { useLiveBalance } from '@src/hooks/useLiveBalance';
 
 interface CollectiblesProps {
   listType: ListType;
-  setListType: Dispatch<SetStateAction<ListType>>;
+  setListType: Dispatch<SetStateAction<ListType | undefined>>;
 }
 
 const POLLED_BALANCES = [TokenType.ERC721, TokenType.ERC1155];

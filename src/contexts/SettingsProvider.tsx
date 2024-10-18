@@ -27,6 +27,7 @@ import {
   SetStateAction,
 } from 'react';
 import { filter, map } from 'rxjs';
+import { omit, set } from 'lodash';
 import { useConnectionContext } from './ConnectionProvider';
 import { getCurrencyFormatter } from './utils/getCurrencyFormatter';
 import { updateIfDifferent } from '@src/utils/updateIfDifferent';
@@ -146,29 +147,28 @@ export function SettingsContextProvider({ children }: { children: any }) {
   );
 
   async function toggleCollectibleVisibility(nft: NftTokenWithBalance) {
-    const key = nft.address;
-    const collectiblesVisibility = settings?.collectiblesVisibility ?? {};
+    const key = `${nft.address}-${nft.tokenId}`;
+    const visibility = settings?.collectiblesVisibility ?? {};
+    // We used to (wrongly) index by address only.
+    const isHidden = (visibility[key] ?? visibility[nft.address]) === false;
+    // If token is now hidde, just remove it from the dictionary,
+    // otherwise set it to false.
+    const updatedVisibility = isHidden
+      ? omit(visibility, [nft.address, key])
+      : set(visibility, key, false);
+
     return request<UpdateCollectiblesVisibilityHandler>({
       method: ExtensionRequest.SETTINGS_UPDATE_COLLECTIBLES_VISIBILITY,
-      params: [
-        {
-          ...collectiblesVisibility,
-          [key]:
-            collectiblesVisibility[key] !== undefined
-              ? !collectiblesVisibility[key]
-              : false,
-        },
-      ],
+      params: [updatedVisibility],
     });
   }
 
   const getCollectibleVisibility = useCallback(
     (nft: NftTokenWithBalance) => {
-      const key = nft.address;
-      const collectiblesVisibility = settings?.collectiblesVisibility ?? {};
-      return (
-        collectiblesVisibility[key] || collectiblesVisibility[key] === undefined
-      );
+      const key = `${nft.address}-${nft.tokenId}`;
+      const visibility = settings?.collectiblesVisibility ?? {};
+      // We used to index by address only.
+      return (visibility[key] ?? visibility[nft.address]) !== false;
     },
     [settings?.collectiblesVisibility]
   );
