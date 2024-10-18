@@ -384,7 +384,6 @@ export class NetworkService implements OnLock, OnStorageReady {
           rpcUrl: 'https://etna.avax-dev.network',
         }
       : AVALANCHE_XP_NETWORK;
-
     return decorateWithCaipId({
       ...network,
       isTestnet,
@@ -428,7 +427,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       },
       explorerUrl: isTestnet
         ? 'https://495e3bcd.subnets.pages.dev/x-chain'
-        : 'https://subnets.avax.network/p-chain',
+        : 'https://subnets.avax.network/x-chain',
     });
   }
 
