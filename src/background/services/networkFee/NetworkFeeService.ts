@@ -20,7 +20,7 @@ export class NetworkFeeService {
 
   async getNetworkFee(network: NetworkWithCaipId): Promise<NetworkFee | null> {
     if (network.vmName === NetworkVMType.EVM) {
-      const provider = getProviderForNetwork(network);
+      const provider = await getProviderForNetwork(network);
       return this.getEip1559NetworkFeeRates(
         network,
         provider as JsonRpcBatchInternal
@@ -96,7 +96,7 @@ export class NetworkFeeService {
       return null;
     }
 
-    const provider = getProviderForNetwork(network);
+    const provider = await getProviderForNetwork(network);
     const nonce = await (provider as JsonRpcBatchInternal).getTransactionCount(
       from
     );

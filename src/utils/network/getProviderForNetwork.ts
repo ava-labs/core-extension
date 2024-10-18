@@ -9,11 +9,17 @@ import { FetchRequest, Network as EthersNetwork } from 'ethers';
 import { Network } from '@src/background/services/network/models';
 
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
+import { Info } from '@avalabs/avalanchejs';
 
-export const getProviderForNetwork = (
+export type SupportedProvider =
+  | BitcoinProvider
+  | JsonRpcBatchInternal
+  | Avalanche.JsonRpcProvider;
+
+export const getProviderForNetwork = async (
   network: Network,
   useMulticall = false
-): BitcoinProvider | JsonRpcBatchInternal | Avalanche.JsonRpcProvider => {
+): Promise<SupportedProvider> => {
   if (network.vmName === NetworkVMType.BITCOIN) {
     return new BitcoinProvider(
       !network.isTestnet,
@@ -57,9 +63,10 @@ export const getProviderForNetwork = (
     network.vmName === NetworkVMType.AVM ||
     network.vmName === NetworkVMType.PVM
   ) {
+    const upgradesInfo = await new Info(network.rpcUrl).getUpgradesInfo();
     return network.isTestnet
-      ? Avalanche.JsonRpcProvider.getDefaultFujiProvider()
-      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider();
+      ? Avalanche.JsonRpcProvider.getDefaultDevnetProvider(upgradesInfo)
+      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider(upgradesInfo);
   } else {
     throw new Error('unsupported network');
   }

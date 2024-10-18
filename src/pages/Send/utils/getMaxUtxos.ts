@@ -23,12 +23,13 @@ export async function getMaxUtxoSet(
 
   if (isPchainNetwork(network)) {
     try {
-      filteredUtxos = Avalanche.getMaximumUtxoSet(
+      filteredUtxos = Avalanche.getMaximumUtxoSet({
         wallet,
-        utxos.getUTXOs(),
-        Avalanche.SizeSupportedTx.BaseP,
-        isLedgerWallet ? LEDGER_TX_SIZE_LIMIT_BYTES : undefined
-      );
+        utxos: utxos.getUTXOs(),
+        sizeSupportedTx: Avalanche.SizeSupportedTx.BaseP,
+        limit: isLedgerWallet ? LEDGER_TX_SIZE_LIMIT_BYTES : undefined,
+        feeState: await provider.getApiP().getFeeState(),
+      });
     } catch (error) {
       console.error('Error calculating maximum utxo set', {
         e: error,

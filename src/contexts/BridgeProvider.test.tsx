@@ -300,7 +300,7 @@ describe('contexts/BridgeProvider', () => {
         jest.mocked(useNetworkContext).mockReturnValue({
           ...networkContext,
           ethereumProvider: undefined,
-          avalancheProvider: undefined,
+          avalancheProviderC: undefined,
         });
       });
 

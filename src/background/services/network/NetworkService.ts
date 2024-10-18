@@ -377,15 +377,17 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   private _getPchainNetwork(isTestnet: boolean): Network {
-    const network = isTestnet
-      ? AVALANCHE_XP_TEST_NETWORK
-      : AVALANCHE_XP_NETWORK;
+    const network = {
+      ...AVALANCHE_XP_TEST_NETWORK,
+      isDevnet: true,
+      rpcUrl: 'https://etna.avax-dev.network',
+    };
     return decorateWithCaipId({
       ...network,
       isTestnet,
       vmName: NetworkVMType.PVM,
       chainId: isTestnet ? ChainId.AVALANCHE_TEST_P : ChainId.AVALANCHE_P,
-      chainName: 'Avalanche (P-Chain)',
+      chainName: isTestnet ? 'Avalanche (Etna-P-Chain)' : 'Avalanche (P-Chain)',
       logoUri:
         'https://images.ctfassets.net/gcj8jwzm6086/42aMwoCLblHOklt6Msi6tm/1e64aa637a8cead39b2db96fe3225c18/pchain-square.svg', // from contentful
       networkToken: {
@@ -394,21 +396,23 @@ export class NetworkService implements OnLock, OnStorageReady {
           'https://images.ctfassets.net/gcj8jwzm6086/5VHupNKwnDYJvqMENeV7iJ/3e4b8ff10b69bfa31e70080a4b142cd0/avalanche-avax-logo.svg', // from contentful
       },
       explorerUrl: isTestnet
-        ? 'https://subnets-test.avax.network/p-chain'
+        ? 'https://495e3bcd.subnets.pages.dev/p-chain'
         : 'https://subnets.avax.network/p-chain',
     });
   }
 
   private _getXchainNetwork(isTestnet: boolean): Network {
-    const network = isTestnet
-      ? AVALANCHE_XP_TEST_NETWORK
-      : AVALANCHE_XP_NETWORK;
+    const network = {
+      ...AVALANCHE_XP_TEST_NETWORK,
+      isDevnet: true,
+      rpcUrl: 'https://etna.avax-dev.network',
+    };
     return decorateWithCaipId({
       ...network,
       chainId: isTestnet ? ChainId.AVALANCHE_TEST_X : ChainId.AVALANCHE_X,
       isTestnet,
       vmName: NetworkVMType.AVM,
-      chainName: 'Avalanche (X-Chain)',
+      chainName: isTestnet ? 'Avalanche (Etna-X-Chain)' : 'Avalanche (X-Chain)',
       logoUri:
         'https://images.ctfassets.net/gcj8jwzm6086/5xiGm7IBR6G44eeVlaWrxi/1b253c4744a3ad21a278091e3119feba/xchain-square.svg', // from contentful
       networkToken: {
@@ -417,8 +421,8 @@ export class NetworkService implements OnLock, OnStorageReady {
           'https://images.ctfassets.net/gcj8jwzm6086/5VHupNKwnDYJvqMENeV7iJ/3e4b8ff10b69bfa31e70080a4b142cd0/avalanche-avax-logo.svg', // from contentful
       },
       explorerUrl: isTestnet
-        ? 'https://subnets-test.avax.network/x-chain'
-        : 'https://subnets.avax.network/x-chain',
+        ? 'https://495e3bcd.subnets.pages.dev/x-chain'
+        : 'https://subnets.avax.network/p-chain',
     });
   }
 
@@ -498,16 +502,16 @@ export class NetworkService implements OnLock, OnStorageReady {
    */
   async getAvalancheProvider(): Promise<JsonRpcBatchInternal> {
     const network = await this.getAvalancheNetwork();
-    return getProviderForNetwork(network) as JsonRpcBatchInternal;
+    return (await getProviderForNetwork(network)) as JsonRpcBatchInternal;
   }
 
   /**
    * Returns the provider used by Avalanche X/P/CoreEth chains.
    */
-  getAvalanceProviderXP(): Avalanche.JsonRpcProvider {
-    return getProviderForNetwork(
+  async getAvalanceProviderXP(): Promise<Avalanche.JsonRpcProvider> {
+    return (await getProviderForNetwork(
       this.getAvalancheNetworkXP()
-    ) as Avalanche.JsonRpcProvider;
+    )) as Avalanche.JsonRpcProvider;
   }
 
   async getEthereumNetwork(): Promise<Network> {
@@ -521,7 +525,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async getEthereumProvider() {
     const network = await this.getEthereumNetwork();
-    return getProviderForNetwork(network) as JsonRpcBatchInternal;
+    return (await getProviderForNetwork(network)) as JsonRpcBatchInternal;
   }
 
   async getBitcoinNetwork(): Promise<NetworkWithCaipId> {
@@ -535,7 +539,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async getBitcoinProvider(): Promise<BitcoinProvider> {
     const network = await this.getBitcoinNetwork();
-    return getProviderForNetwork(network) as BitcoinProvider;
+    return (await getProviderForNetwork(network)) as BitcoinProvider;
   }
 
   /**
@@ -553,7 +557,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       return txHash;
     }
 
-    const provider = getProviderForNetwork(network);
+    const provider = await getProviderForNetwork(network);
     if (provider instanceof JsonRpcBatchInternal) {
       return (await provider.broadcastTransaction(signedTx)).hash;
     }

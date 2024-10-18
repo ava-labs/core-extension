@@ -79,7 +79,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
   const { t } = useTranslation();
   const { request, events } = useConnectionContext();
   const { currentBlockchain, bridgeConfig } = useBridgeSDK();
-  const { network, avalancheProvider, ethereumProvider } = useNetworkContext();
+  const { network, avaxProviderC, ethereumProvider } = useNetworkContext();
   const {
     accounts: { active },
   } = useAccountsContext();
@@ -165,7 +165,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         !isEvmSourceChain ||
         !active?.addressC ||
         !ethereumProvider ||
-        !avalancheProvider ||
+        !avaxProviderC ||
         !bridgeConfig.config
       ) {
         return;
@@ -177,7 +177,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         asset as Exclude<Asset, BitcoinConfigAsset>,
         {
           ethereum: ethereumProvider,
-          avalanche: avalancheProvider,
+          avalanche: avaxProviderC,
         },
         bridgeConfig.config,
         currentBlockchain
@@ -186,7 +186,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
     [
       currentBlockchain,
       active?.addressC,
-      avalancheProvider,
+      avaxProviderC,
       ethereumProvider,
       bridgeConfig.config,
     ]
@@ -209,7 +209,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         amount,
         account: active?.addressC as string,
         asset,
-        avalancheProvider: avalancheProvider!,
+        avalancheProvider: avaxProviderC!,
         ethereumProvider: ethereumProvider!,
         config: bridgeConfig.config!,
         onStatusChange: (status) => {
@@ -269,7 +269,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
     },
     [
       active?.addressC,
-      avalancheProvider,
+      avaxProviderC,
       bridgeConfig.config,
       currentBlockchain,
       ethereumProvider,
