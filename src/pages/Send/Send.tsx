@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
@@ -14,7 +14,10 @@ import {
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import {
+  SupportedProvider,
+  getProviderForNetwork,
+} from '@src/utils/network/getProviderForNetwork';
 import {
   Avalanche,
   BitcoinProvider,
@@ -62,10 +65,25 @@ export function SendPage() {
 
   const nativeToken = tokens.find(({ type }) => type === TokenType.NATIVE);
 
-  const provider = useMemo(
-    () => (network ? getProviderForNetwork(network) : undefined),
-    [network]
-  );
+  const [provider, setProvider] = useState<SupportedProvider>();
+
+  useEffect(() => {
+    if (!network) {
+      setProvider(undefined);
+    } else {
+      let isMounted = true;
+
+      getProviderForNetwork(network).then((p) => {
+        if (isMounted) {
+          setProvider(p);
+        }
+      });
+
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [network]);
 
   const fromAddress = useMemo(() => {
     if (network?.vmName === NetworkVMType.EVM) {
