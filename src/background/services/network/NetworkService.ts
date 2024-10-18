@@ -377,11 +377,13 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   private _getPchainNetwork(isTestnet: boolean): Network {
-    const network = {
-      ...AVALANCHE_XP_TEST_NETWORK,
-      isDevnet: true,
-      rpcUrl: 'https://etna.avax-dev.network',
-    };
+    const network = isTestnet
+      ? {
+          ...AVALANCHE_XP_TEST_NETWORK,
+          isDevnet: true,
+          rpcUrl: 'https://etna.avax-dev.network',
+        }
+      : AVALANCHE_XP_NETWORK;
     return decorateWithCaipId({
       ...network,
       isTestnet,
@@ -402,11 +404,14 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   private _getXchainNetwork(isTestnet: boolean): Network {
-    const network = {
-      ...AVALANCHE_XP_TEST_NETWORK,
-      isDevnet: true,
-      rpcUrl: 'https://etna.avax-dev.network',
-    };
+    const network = isTestnet
+      ? {
+          ...AVALANCHE_XP_TEST_NETWORK,
+          chainName: 'Avalanche (Etna-X-Chain)',
+          rpcUrl: 'https://etna.avax-dev.network',
+          explorerUrl: 'https://495e3bcd.subnets.pages.dev/x-chain',
+        }
+      : AVALANCHE_XP_NETWORK;
     return decorateWithCaipId({
       ...network,
       chainId: isTestnet ? ChainId.AVALANCHE_TEST_X : ChainId.AVALANCHE_X,
