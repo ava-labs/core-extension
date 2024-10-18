@@ -21,7 +21,7 @@ import {
 import { resolve } from '@avalabs/core-utils-sdk';
 import { SettingsService } from '../settings/SettingsService';
 import { isFulfilled } from '@src/utils/typeUtils';
-import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { groupTokensByType } from './utils/groupTokensByType';
 import { BalancesInfo } from './events/balancesUpdatedEvent';
 
@@ -54,7 +54,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
   async getBalancesForNetworks(
     chainIds: number[],
-    accounts: Account[]
+    accounts: Account[],
+    tokenTypes: TokenType[]
   ): Promise<{ tokens: Balances; nfts: Balances<NftTokenWithBalance> }> {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
@@ -72,6 +73,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           await this.balancesService.getBalancesForNetwork(
             network,
             accounts,
+            tokenTypes,
             priceChangesData
           );
 
@@ -112,10 +114,15 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     const aggregatedBalances = merge({}, this.balances, freshBalances.tokens);
     // NFTs don't have balance = 0, if they are sent they should be removed
     // from the list, hence deep merge doesn't work
-    const aggregatedNfts = {
-      ...this.nfts,
-      ...freshBalances.nfts,
-    };
+    const hasFetchedNfts =
+      tokenTypes.includes(TokenType.ERC721) ||
+      tokenTypes.includes(TokenType.ERC1155);
+    const aggregatedNfts = hasFetchedNfts
+      ? {
+          ...this.nfts,
+          ...freshBalances.nfts,
+        }
+      : this.nfts;
     const hasChanges = networksWithChanges.length > 0;
 
     if (hasChanges && !this.lockService.locked) {

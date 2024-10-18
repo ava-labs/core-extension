@@ -6,7 +6,7 @@ import { BalancePollingService } from '../BalancePollingService';
 import { Balances } from '../models';
 import { Account } from '../../accounts/models';
 import { caipToChainId } from '@src/utils/caipConversion';
-import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_START_POLLING,
@@ -17,7 +17,7 @@ type HandlerType = ExtensionRequestHandler<
     };
     isBalancesCached: boolean;
   },
-  [account: Account, roundRobinChainIds: number[]]
+  [account: Account, roundRobinChainIds: number[], tokenTypes: TokenType[]]
 >;
 
 @injectable()
@@ -32,12 +32,13 @@ export class StartBalancesPollingHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request, scope }) => {
     if (scope && !this.pollingService.isPollingActive) {
       const activeChainId = caipToChainId(scope);
-      const [account, roundRobinChainIds] = request.params;
+      const [account, roundRobinChainIds, tokenTypes] = request.params;
 
       this.pollingService.startPolling(
         account,
         activeChainId,
-        roundRobinChainIds
+        roundRobinChainIds,
+        tokenTypes
       );
     }
 

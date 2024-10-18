@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { TokenType } from '@avalabs/vm-module-types';
 
-export const useLiveBalance = () => {
+export const useLiveBalance = (tokenTypes: TokenType[]) => {
   const { registerSubscriber, unregisterSubscriber } = useBalancesContext();
 
   useEffect(() => {
-    registerSubscriber();
+    registerSubscriber(tokenTypes);
 
     return () => {
-      unregisterSubscriber();
+      unregisterSubscriber(tokenTypes);
     };
-  }, [registerSubscriber, unregisterSubscriber]);
+  }, [registerSubscriber, unregisterSubscriber, tokenTypes]);
 };

@@ -26,16 +26,20 @@ import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteSc
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { ListType } from '../Home/components/Portfolio/Portfolio';
-import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { useNfts } from '@src/hooks/useNfts';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useLiveBalance } from '@src/hooks/useLiveBalance';
 
 interface CollectiblesProps {
   listType: ListType;
   setListType: Dispatch<SetStateAction<ListType>>;
 }
 
+const POLLED_BALANCES = [TokenType.ERC721, TokenType.ERC1155];
+
 export function Collectibles({ listType, setListType }: CollectiblesProps) {
+  useLiveBalance(POLLED_BALANCES);
   const { t } = useTranslation();
   const { balances } = useBalancesContext();
   const nfts = useNfts();
