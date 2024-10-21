@@ -60,7 +60,7 @@ export function AddWalletWithSeedPhrase() {
   const { capture } = useAnalyticsContext();
   const getErrorMessage = useErrorMessage();
   const formatCurrency = useConvertedCurrencyFormatter();
-  const { updateBalanceOnAllNetworks, getTotalBalance } = useBalancesContext();
+  const { updateBalanceOnNetworks, getTotalBalance } = useBalancesContext();
 
   const { isImporting, importSeedphrase } = useImportSeedphrase();
 
@@ -96,13 +96,13 @@ export function AddWalletWithSeedPhrase() {
 
       setIsKnownPhrase(false);
       setIsBalanceLoading(true);
-      await updateBalanceOnAllNetworks(
+      await updateBalanceOnNetworks(
         addies.map((addressC) => ({ addressC })) as Account[]
       );
       setIsBalanceLoading(false);
       setAddresses(addies);
     },
-    [allAccounts, updateBalanceOnAllNetworks]
+    [allAccounts, updateBalanceOnNetworks]
   );
 
   const onContinue = useCallback(() => {
