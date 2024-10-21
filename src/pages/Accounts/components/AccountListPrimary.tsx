@@ -32,7 +32,6 @@ export const AccountListPrimary = ({
     accounts: { active },
   } = useAccountsContext();
   const { walletDetails: activeWalletDetails, wallets } = useWalletContext();
-
   console.log('wallets: ', wallets);
 
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
@@ -64,6 +63,10 @@ export const AccountListPrimary = ({
           const walletDetails = wallets.find(
             (wallet) => wallet.id === walletId
           );
+
+          if (!walletDetails) {
+            return;
+          }
 
           const isActive = activeWalletDetails?.id === walletId;
 

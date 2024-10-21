@@ -86,6 +86,8 @@ export class WalletService implements OnLock, OnUnlock {
   }
 
   async emitsWalletsInfo(wallets: WalletDetails[]) {
+    console.log('WalletEvents.WALLET_STATE_UPDATE: ', wallets);
+    this._wallets = wallets;
     this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, wallets);
   }
 

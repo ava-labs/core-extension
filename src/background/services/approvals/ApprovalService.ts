@@ -28,6 +28,7 @@ export class ApprovalService {
   }
   async requestApproval(action: Action, route: string): Promise<Action> {
     const url = `${route}?actionId=${action.actionId}`;
+    console.log('route: ', route);
 
     if (this.#isInAppRequest(action)) {
       this.#eventEmitter.emit(ApprovalEvent.ApprovalRequested, {

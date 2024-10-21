@@ -45,6 +45,7 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
       };
     }
 
+    console.log('newName.trim(): ', newName.trim().length);
     if (newName.trim().length === 0) {
       return {
         ...request,
@@ -125,6 +126,7 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
   ) => {
     try {
       const { walletId, newName } = pendingAction.displayData;
+
       const wallet = await this.secretsService.getWalletAccountsSecretsById(
         walletId
       );

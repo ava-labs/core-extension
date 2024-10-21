@@ -1,6 +1,7 @@
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from 'react';
 import { AccountNameInput } from './AccountNameInput';
 import {
+  ClickAwayListener,
   EditIcon,
   Slide,
   Stack,
@@ -14,10 +15,11 @@ interface AccountNameProps {
   accountId: string;
   accountName: string;
   cardHovered: boolean;
+  isActive?: boolean;
 }
 
 const commonTransitionProps = {
-  timeout: 300,
+  timeout: 200,
   easing: 'ease-in-out',
   appear: true,
 };
@@ -26,6 +28,7 @@ export default function AccountName({
   accountName,
   accountId,
   cardHovered,
+  isActive,
 }: AccountNameProps) {
   const { t } = useTranslation();
   const { renameAccount } = useAccountsContext();
@@ -35,7 +38,6 @@ export default function AccountName({
   const [, setErrorToastId] = useState('');
 
   const onSave = useCallback(() => {
-    console.log('save');
     if (newName === accountName) {
       setIsAccountNameEditing(false);
       return;
@@ -63,47 +65,54 @@ export default function AccountName({
   }, [accountId, accountName, newName, renameAccount, t]);
 
   return (
-    <Stack sx={{ flexDirection: 'row' }}>
-      {!isAccountNameEditing && (
-        <Typography variant="button">{accountName}</Typography>
-      )}
-      {isAccountNameEditing && (
-        <AccountNameInput
-          data-testid="wallet-name-input"
-          defaultValue={accountName}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => {
-            setNewName(e.target.value);
-          }}
-          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === 'Enter') {
-              onSave();
-            } else if (e.key === 'Escape') {
-              e.preventDefault();
-              setIsAccountNameEditing(false);
-            }
-          }}
-          autoFocus
-        />
-      )}
-      {cardHovered && !isAccountNameEditing && (
-        <Slide direction="left" {...commonTransitionProps} in>
-          <Stack>
-            <EditIcon
-              size={16}
-              sx={{
-                cursor: 'pointer',
-                // transform: 'rotate(90deg)',
-                // transition: 'transform .5s ease-in-out',
-                // transformStyle: 'preserve-3d',
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsAccountNameEditing(true);
-              }}
-            />
-          </Stack>
-        </Slide>
-      )}
-    </Stack>
+    <ClickAwayListener
+      mouseEvent="onMouseDown"
+      onClickAway={() => setIsAccountNameEditing(false)}
+    >
+      <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
+        {!isAccountNameEditing && (
+          <Typography variant="h6">{accountName}</Typography>
+        )}
+        {isAccountNameEditing && (
+          <AccountNameInput
+            data-testid="wallet-name-input"
+            defaultValue={accountName}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setNewName(e.target.value);
+            }}
+            onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === 'Enter') {
+                onSave();
+              } else if (e.key === 'Escape') {
+                e.preventDefault();
+                setIsAccountNameEditing(false);
+              }
+            }}
+            onClick={(e) => e.stopPropagation()}
+            typography="h6"
+            align="left"
+            autoFocus
+            isActive={isActive}
+          />
+        )}
+        {cardHovered && !isAccountNameEditing && (
+          <Slide direction="down" {...commonTransitionProps} in>
+            <Stack>
+              <EditIcon
+                size={16}
+                sx={{
+                  cursor: 'pointer',
+                  ml: 1,
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsAccountNameEditing(true);
+                }}
+              />
+            </Stack>
+          </Slide>
+        )}
+      </Stack>
+    </ClickAwayListener>
   );
 }
