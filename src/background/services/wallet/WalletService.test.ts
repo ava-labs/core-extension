@@ -1466,9 +1466,9 @@ describe('background/services/wallet/WalletService.ts', () => {
     it('throws if it fails to find policy details', async () => {
       secretsService.getBtcWalletPolicyDetails.mockResolvedValueOnce(undefined);
 
-      await expect(walletService['parseWalletPolicyDetails']()).rejects.toThrow(
-        'Error while parsing wallet policy: missing data.'
-      );
+      await expect(
+        walletService['parseWalletPolicyDetails']({} as Account)
+      ).rejects.toThrow('Error while parsing wallet policy: missing data.');
     });
 
     it('returns the correct data for Ledger Live', async () => {
@@ -1485,7 +1485,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       (createWalletPolicy as jest.Mock).mockReturnValueOnce(walletPolicy);
 
       await expect(
-        walletService['parseWalletPolicyDetails']()
+        walletService['parseWalletPolicyDetails']({} as Account)
       ).resolves.toStrictEqual({
         hmac: Buffer.from(hmacHex, 'hex'),
         policy: walletPolicy,
@@ -1513,7 +1513,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       (createWalletPolicy as jest.Mock).mockReturnValueOnce(walletPolicy);
 
       await expect(
-        walletService['parseWalletPolicyDetails']()
+        walletService['parseWalletPolicyDetails']({} as Account)
       ).resolves.toStrictEqual({
         hmac: Buffer.from(hmacHex, 'hex'),
         policy: walletPolicy,
