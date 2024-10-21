@@ -21,7 +21,7 @@ export class GetBtcWalletPolicyDetails implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     try {
-      const activeAccount = this.accountService.activeAccount;
+      const { activeAccount } = this.accountService;
 
       if (!activeAccount) {
         throw new Error('no account selected');
@@ -31,7 +31,9 @@ export class GetBtcWalletPolicyDetails implements HandlerType {
         throw new Error('incorrect account type');
       }
 
-      const policyInfo = await this.secretsService.getBtcWalletPolicyDetails();
+      const policyInfo = await this.secretsService.getBtcWalletPolicyDetails(
+        activeAccount
+      );
 
       return {
         ...request,
