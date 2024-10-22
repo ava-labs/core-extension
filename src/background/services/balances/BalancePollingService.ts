@@ -35,7 +35,6 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     // Stop any polling that may be occurring already
     this.stopPolling();
     // Start a new interval
-    // this._preventSchedulingNextUpdate = false;
     return this.pollBalances(
       account,
       activeChainId,
