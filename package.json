@@ -256,7 +256,10 @@
       "@avalabs/bitcoin-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
       "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
-      "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
+      "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
+      "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
+      "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
+      "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
     }
   }
 }
