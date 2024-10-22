@@ -87,7 +87,10 @@ const BalancesContext = createContext<{
     tokenId: string
   ): Promise<void>;
   getTokenPrice(addressOrSymbol: string): number | undefined;
-  updateBalanceOnAllNetworks: (accounts: Account[]) => Promise<void>;
+  updateBalanceOnNetworks: (
+    accounts: Account[],
+    chainIds?: number[]
+  ) => Promise<void>;
   registerSubscriber: (tokenTypes: TokenType[]) => void;
   unregisterSubscriber: (tokenTypes: TokenType[]) => void;
   isTokensCached: boolean;
@@ -104,7 +107,7 @@ const BalancesContext = createContext<{
     return undefined;
   },
   async refreshNftMetadata() {}, // eslint-disable-line @typescript-eslint/no-empty-function
-  async updateBalanceOnAllNetworks() {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  async updateBalanceOnNetworks() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   unregisterSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   isTokensCached: true,
@@ -268,15 +271,15 @@ export function BalancesProvider({ children }: { children: any }) {
     setIsPolling(Object.values(subscribers).some((count) => count > 0));
   }, [subscribers]);
 
-  const updateBalanceOnAllNetworks = useCallback(
-    async (accounts: Account[]) => {
-      if (!network) {
+  const updateBalanceOnNetworks = useCallback(
+    async (accounts: Account[], chainIds?: number[]) => {
+      if (!network && !chainIds?.length) {
         return;
       }
 
       const updatedBalances = await request<UpdateBalancesForNetworkHandler>({
         method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
-        params: [accounts],
+        params: [accounts, chainIds],
       });
 
       dispatch({
@@ -352,7 +355,7 @@ export function BalancesProvider({ children }: { children: any }) {
         balances,
         getTokenPrice,
         refreshNftMetadata,
-        updateBalanceOnAllNetworks,
+        updateBalanceOnNetworks,
         registerSubscriber,
         unregisterSubscriber,
         isTokensCached: balances.cached ?? true,
