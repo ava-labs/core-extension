@@ -45,7 +45,6 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
       };
     }
 
-    console.log('newName.trim(): ', newName.trim().length);
     if (newName.trim().length === 0) {
       return {
         ...request,
@@ -74,10 +73,6 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
           { ...wallet, name: newName },
           walletId
         );
-
-        const wallets = await this.secretsService.getPrimaryWalletsDetails();
-
-        this.walletService.emitsWalletsInfo(wallets);
 
         return {
           ...request,
@@ -135,10 +130,6 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
         { ...wallet, name: newName },
         walletId
       );
-
-      const wallets = await this.secretsService.getPrimaryWalletsDetails();
-
-      this.walletService.emitsWalletsInfo(wallets);
 
       onSuccess(null);
     } catch (e) {

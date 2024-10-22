@@ -30,7 +30,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import {
   personalSign,
   signTypedData,
@@ -63,9 +63,8 @@ import { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
 
 @singleton()
-export class WalletService implements OnLock, OnUnlock {
+export class WalletService implements OnUnlock {
   private eventEmitter = new EventEmitter();
-  private _wallets: WalletDetails[] = [];
 
   constructor(
     private networkService: NetworkService,
@@ -77,17 +76,7 @@ export class WalletService implements OnLock, OnUnlock {
     private accountsService: AccountsService
   ) {}
 
-  public get wallets(): WalletDetails[] {
-    return this._wallets;
-  }
-
-  private async emitWalletsInfo() {
-    this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, this.wallets);
-  }
-
   async emitsWalletsInfo(wallets: WalletDetails[]) {
-    console.log('WalletEvents.WALLET_STATE_UPDATE: ', wallets);
-    this._wallets = wallets;
     this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, wallets);
   }
 
@@ -106,9 +95,7 @@ export class WalletService implements OnLock, OnUnlock {
       throw new Error('Wallet initialization failed, no key found');
     }
 
-    this._wallets = wallets;
-
-    const hasSeedlessWallet = this._wallets.some(
+    const hasSeedlessWallet = wallets.some(
       ({ type }) => type === SecretType.Seedless
     );
 
@@ -117,8 +104,6 @@ export class WalletService implements OnLock, OnUnlock {
       const sessionManager = container.resolve(SeedlessSessionManager);
       sessionManager.refreshSession();
     }
-
-    this.emitWalletsInfo();
   }
 
   /**
@@ -132,17 +117,9 @@ export class WalletService implements OnLock, OnUnlock {
     return walletId;
   }
 
-  onLock() {
-    this._wallets = [];
-    this.emitWalletsInfo();
-  }
-
   async addPrimaryWallet(secrets: AddPrimaryWalletSecrets) {
     this.#validateSecretsType(secrets);
     const walletId = await this.secretService.addSecrets(secrets);
-    this._wallets = await this.secretService.getPrimaryWalletsDetails();
-
-    this.emitWalletsInfo();
 
     return walletId;
   }

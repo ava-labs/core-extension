@@ -15,6 +15,7 @@ import {
   AddPrimaryWalletSecrets,
   WalletDetails,
   PubKeyType,
+  WalletEvents,
 } from '../wallet/models';
 import {
   ImportedAccountSecrets,
@@ -40,12 +41,16 @@ import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { LedgerService } from '../ledger/LedgerService';
 import { NetworkService } from '../network/NetworkService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import EventEmitter from 'events';
+import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 
 /**
  * Use this service to fetch, save or delete account secrets.
  */
 @singleton()
-export class SecretsService {
+export class SecretsService implements OnUnlock {
+  #eventEmitter = new EventEmitter();
+
   constructor(private storageService: StorageService) {}
 
   async #getDefaultName(secrets: AddPrimaryWalletSecrets) {
@@ -63,6 +68,20 @@ export class SecretsService {
     const nextNumber = exisitingCount + 1;
     const walletNumber = nextNumber < 10 ? `0${nextNumber}` : nextNumber;
     return `${defaultNames[secrets.secretType]} ${walletNumber}`;
+  }
+
+  private async emitWalletsInfo() {
+    const wallets = await this.getPrimaryWalletsDetails();
+
+    this.#eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, wallets);
+  }
+
+  addListener(event: WalletEvents, callback: (data: unknown) => void) {
+    this.#eventEmitter.on(event, callback);
+  }
+
+  async onUnlock(): Promise<void> {
+    await this.emitWalletsInfo();
   }
 
   async addSecrets(secrets: AddPrimaryWalletSecrets) {
@@ -83,6 +102,9 @@ export class SecretsService {
         wallets,
       }
     );
+
+    await this.emitWalletsInfo();
+
     return walletId;
   }
 
@@ -139,6 +161,7 @@ export class SecretsService {
           wallets: [...updatedWalletSecrets] as PrimaryWalletSecrets[],
         }
       );
+      await this.emitWalletsInfo();
       return walletId;
     }
 
@@ -165,6 +188,7 @@ export class SecretsService {
         }
       );
     }
+    await this.emitWalletsInfo();
   }
 
   getWalletSecretsForAcount(
@@ -317,6 +341,8 @@ export class SecretsService {
       ...importedSecrets,
       wallets: newWallets,
     });
+
+    await this.emitWalletsInfo();
 
     return wallets.length - newWallets.length;
   }

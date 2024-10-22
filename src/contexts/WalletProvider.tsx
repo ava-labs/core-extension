@@ -19,7 +19,7 @@ import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/h
 import { GetWalletDetailsHandler } from '@src/background/services/wallet/handlers/getWalletDetails';
 import { GetHistoryHandler } from '@src/background/services/history/handlers/getHistory';
 import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
-import { walletStateChangedEventListener } from '@src/background/services/wallet/events/WalletUpdatedEventListener';
+import { walletStateChangedEventListener } from '@src/background/services/secrets/events/WalletUpdatedEventListener';
 import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
 import { useAccountsContext } from './AccountsProvider';
 import { AccountType } from '@src/background/services/accounts/models';
