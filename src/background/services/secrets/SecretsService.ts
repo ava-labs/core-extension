@@ -528,7 +528,10 @@ export class SecretsService {
     return walletSecrets?.secretType;
   }
 
-  async addImportedWallet(importData: ImportData, isMainnet: boolean) {
+  async addImportedWallet(
+    importData: ImportData,
+    networkService: NetworkService
+  ) {
     const id = crypto.randomUUID();
 
     // let the AccountService validate the account's uniqueness and save the secret using this callback
@@ -573,7 +576,10 @@ export class SecretsService {
       return {
         account: {
           id,
-          ...this.#calculateAddressesForPrivateKey(importData.data, isMainnet),
+          ...this.#calculateAddressesForPrivateKey(
+            importData.data,
+            networkService
+          ),
         },
         commit,
       };
@@ -582,7 +588,10 @@ export class SecretsService {
     throw new Error('Unknown import type');
   }
 
-  #calculateAddressesForPrivateKey(privateKey: string, isMainnet: boolean) {
+  async #calculateAddressesForPrivateKey(
+    privateKey: string,
+    networkService: NetworkService
+  ) {
     const addresses = {
       addressBTC: '',
       addressC: '',
@@ -591,16 +600,14 @@ export class SecretsService {
       addressCoreEth: '',
     };
 
-    const provXP = isMainnet
-      ? Avalanche.JsonRpcProvider.getDefaultMainnetProvider()
-      : Avalanche.JsonRpcProvider.getDefaultFujiProvider();
+    const provXP = await networkService.getAvalanceProviderXP();
 
     try {
       const publicKey = getPublicKeyFromPrivateKey(privateKey);
       addresses.addressC = getEvmAddressFromPubKey(publicKey);
       addresses.addressBTC = getBtcAddressFromPubKey(
         publicKey,
-        isMainnet ? networks.bitcoin : networks.testnet
+        networkService.isMainnet() ? networks.bitcoin : networks.testnet
       );
       addresses.addressAVM = provXP.getAddress(publicKey, 'X');
       addresses.addressPVM = provXP.getAddress(publicKey, 'P');
@@ -793,7 +800,7 @@ export class SecretsService {
     throw new Error('No public key available');
   }
 
-  async getImportedAddresses(id: string, isMainnet: boolean) {
+  async getImportedAddresses(id: string, networkService: NetworkService) {
     const secrets = await this.getImportedAccountSecrets(id);
 
     if (
@@ -804,7 +811,10 @@ export class SecretsService {
     }
 
     if (secrets.secretType === SecretType.PrivateKey) {
-      return this.#calculateAddressesForPrivateKey(secrets.secret, isMainnet);
+      return this.#calculateAddressesForPrivateKey(
+        secrets.secret,
+        networkService
+      );
     }
 
     throw new Error('Unsupported import type');
