@@ -1,6 +1,6 @@
 import { TxHistoryItem } from '../models';
 import { NetworkVMType, TokenType } from '@avalabs/vm-module-types';
-import { isPchainTxHistoryItem, isTxHistoryItem } from './isTxHistoryItem';
+import { isPchainTxHistoryItem, isNonXPHistoryItem } from './isTxHistoryItem';
 import {
   PChainTransactionType,
   XChainTransactionType,
@@ -72,13 +72,13 @@ describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
 
   describe('isTxHistoryItem', () => {
     it('should return true when the tx is txHistoryItem', () => {
-      const result = isTxHistoryItem(txHistoryItem);
+      const result = isNonXPHistoryItem(txHistoryItem);
       expect(result).toBe(true);
     });
     it('should return false when the tx is not txHistoryItem', () => {
-      const result = isTxHistoryItem(pchainTxHistoryItem);
+      const result = isNonXPHistoryItem(pchainTxHistoryItem);
       expect(result).toBe(false);
-      const result2 = isTxHistoryItem(xchainTxHistoryItem);
+      const result2 = isNonXPHistoryItem(xchainTxHistoryItem);
       expect(result2).toBe(false);
     });
   });
