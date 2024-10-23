@@ -387,10 +387,9 @@ export class AccountsService implements OnLock, OnUnlock {
     name?: string;
   }) {
     try {
-      const isMainnet = this.networkService.isMainnet();
       const { account, commit } = await this.secretsService.addImportedWallet(
         options,
-        isMainnet
+        this.networkService
       );
 
       const existingAccount = this.#findAccountByAddress(account.addressC);

@@ -573,13 +573,14 @@ export class SecretsService {
     }
 
     if (importData.importType === ImportType.PRIVATE_KEY) {
+      const addresses = await this.#calculateAddressesForPrivateKey(
+        importData.data,
+        networkService
+      );
       return {
         account: {
           id,
-          ...this.#calculateAddressesForPrivateKey(
-            importData.data,
-            networkService
-          ),
+          ...addresses,
         },
         commit,
       };
