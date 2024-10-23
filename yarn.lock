@@ -29,10 +29,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@0.0.0-hotfix-mandatory-to-20241023092015":
-  version "0.0.0-hotfix-mandatory-to-20241023092015"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-hotfix-mandatory-to-20241023092015.tgz#34237b621be41cd71c930b44973add37dd5e55c4"
-  integrity sha512-1vKiJXIaFJVNy4Gfd9XWVJuxS30GgD67LbLqv+pFeHZnlMvSG+VTGuh0tG8w96U9of8kxTgSZvkzdA6kYzfh7A==
+"@avalabs/avalanche-module@0.11.2":
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.11.2.tgz#265d0a9c781d623cd0ae61495a161c9649972f26"
+  integrity sha512-8oMmaQrTBV3iGntZA2VQYSLP5NKCRRD3rbcMa9WkzxCe16DWhT+tiygH6gqU48dI5pP5ELGcpoD6Bmg3JGN2QA==
   dependencies:
     "@avalabs/avalanchejs" "4.1.0-alpha.7"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.10"
@@ -42,7 +42,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.10"
     "@avalabs/glacier-sdk" "3.1.0-alpha.10"
     "@avalabs/types" "3.1.0-alpha.10"
-    "@avalabs/vm-module-types" "0.0.0-hotfix-mandatory-to-20241023092015"
+    "@avalabs/vm-module-types" "0.11.2"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -59,15 +59,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@0.0.0-hotfix-mandatory-to-20241023092015":
-  version "0.0.0-hotfix-mandatory-to-20241023092015"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-hotfix-mandatory-to-20241023092015.tgz#17e81e81c65058eb5e2929e1306134cccb9be265"
-  integrity sha512-ztCIFZE8xQswOjvtRHGhQzLnB5Y/JWRYymR9kHF/1ImacsKIFEY+E0MvXINNEQhXxVdibafhNqu+EV2qfq4BnQ==
+"@avalabs/bitcoin-module@0.11.2":
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.11.2.tgz#1603d00481bd6ecc3e30e67abc41c0f7866278f9"
+  integrity sha512-BpyyEN0M0YHXPX1erHHfNeTvbVZ80zEdy9W9zS6m9Eeep9P/1fAxs1NndLZpQOzjP3J+pSzr+pNDkeJfIz/lPw==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.10"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.10"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.10"
-    "@avalabs/vm-module-types" "0.0.0-hotfix-mandatory-to-20241023092015"
+    "@avalabs/vm-module-types" "0.11.2"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -191,10 +191,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@0.0.0-hotfix-mandatory-to-20241023092015":
-  version "0.0.0-hotfix-mandatory-to-20241023092015"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-hotfix-mandatory-to-20241023092015.tgz#20afa6ad898e4aca9447109922bd60ffa63b8527"
-  integrity sha512-S4N1I6wGvMezsNhzzFhy9w5Gm9G1YcsH5EtK8BBRCIUPYkYSIlJ+a3XzC4FPMlFjet6X29fcgTURM4kUHHyIeA==
+"@avalabs/evm-module@0.11.2":
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.11.2.tgz#9f91ddc4c198f63e4a7b4a5045c59c4ad77408bc"
+  integrity sha512-2es5NKGurKUXq87a7xYH+zL3kvprjZ4DtcL+CVLIVCIsmVXSYRIAnNl7JgM1SakqrIeI+BAUuBi+OxMhBMc2HA==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.10"
     "@avalabs/core-etherscan-sdk" "3.1.0-alpha.10"
@@ -202,7 +202,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.10"
     "@avalabs/glacier-sdk" "3.1.0-alpha.10"
     "@avalabs/types" "3.1.0-alpha.10"
-    "@avalabs/vm-module-types" "0.0.0-hotfix-mandatory-to-20241023092015"
+    "@avalabs/vm-module-types" "0.11.2"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -232,10 +232,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.10.tgz#408766fce72882b0dc04ac045e5f3e95d21503d3"
   integrity sha512-MgWAsW9K+y75tDMK8JCNdRLT4Lkdr1LysiPhlAaYg8Ino7KsZZmGzbIcLHakQwjSbY4CWQblDlB5y4SHN+fdmA==
 
-"@avalabs/vm-module-types@0.0.0-hotfix-mandatory-to-20241023092015":
-  version "0.0.0-hotfix-mandatory-to-20241023092015"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-hotfix-mandatory-to-20241023092015.tgz#5db7e7b2600800ec382a93aad15c5291179db3d8"
-  integrity sha512-5XCkpiUzSYcE/rFrsMu0s5GhLuGcP9nHd0BbYc1MczAmfPVDDNCAruuRBKrAQ7xddLmBw1nnTdKzpvUu3Oxl7Q==
+"@avalabs/vm-module-types@0.11.2":
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.11.2.tgz#faa2df6533da181f5d7c6f4cd6e366196c653c91"
+  integrity sha512-PdMCNSKy+jPfDWbNoj6sIzJc1T5XwXfnsAJFonEF+KKHW7j/Vy0WvOyL7bHRECIrvfGdUYFhnfVLragfGBGARQ==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.10"
     "@avalabs/glacier-sdk" "3.1.0-alpha.10"
