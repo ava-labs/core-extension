@@ -64,13 +64,17 @@ export const getProviderForNetwork = async (
     network.vmName === NetworkVMType.AVM ||
     network.vmName === NetworkVMType.PVM
   ) {
-    const upgradesInfo = await new Info(network.rpcUrl)
-      .getUpgradesInfo()
-      .catch(() => ({} as GetUpgradesInfoResponse)); // If we can't get the upgrades info, return an empty object. This will result in pre-Etna behavior
+    if (network.isDevnet) {
+      const upgradesInfo = await new Info(network.rpcUrl)
+        .getUpgradesInfo()
+        .catch(() => ({} as GetUpgradesInfoResponse)); // If we can't get the upgrades info, return an empty object. This will result in pre-Etna behavior
+
+      return Avalanche.JsonRpcProvider.getDefaultDevnetProvider(upgradesInfo);
+    }
 
     return network.isTestnet
-      ? Avalanche.JsonRpcProvider.getDefaultDevnetProvider(upgradesInfo)
-      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider(upgradesInfo);
+      ? Avalanche.JsonRpcProvider.getDefaultFujiProvider()
+      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider();
   } else {
     throw new Error('unsupported network');
   }
