@@ -1,10 +1,11 @@
 import { TxHistoryItem } from '../models';
-import { NetworkVMType, TokenType } from '@avalabs/vm-module-types';
-import { isPchainTxHistoryItem, isTxHistoryItem } from './isTxHistoryItem';
 import {
+  NetworkVMType,
   PChainTransactionType,
+  TokenType,
   XChainTransactionType,
-} from '@avalabs/glacier-sdk';
+} from '@avalabs/vm-module-types';
+import { isPchainTxHistoryItem, isTxHistoryItem } from './isTxHistoryItem';
 import { TransactionType } from '@avalabs/vm-module-types';
 
 describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
