@@ -18,8 +18,10 @@ import {
   NetworkWithCaipId,
 } from './models';
 import {
+  AVALANCHE_P_DEV_NETWORK,
   AVALANCHE_XP_NETWORK,
   AVALANCHE_XP_TEST_NETWORK,
+  AVALANCHE_X_DEV_NETWORK,
   BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
   ChainId,
@@ -375,21 +377,24 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     return networkList;
   }
+  private _getPchainDevnet(): Network {
+    return decorateWithCaipId(AVALANCHE_P_DEV_NETWORK);
+  }
+
+  private _getXchainDevnet(): Network {
+    return decorateWithCaipId(AVALANCHE_X_DEV_NETWORK);
+  }
 
   private _getPchainNetwork(isTestnet: boolean): Network {
     const network = isTestnet
-      ? {
-          ...AVALANCHE_XP_TEST_NETWORK,
-          isDevnet: true,
-          rpcUrl: 'https://etna.avax-dev.network',
-        }
+      ? AVALANCHE_XP_TEST_NETWORK
       : AVALANCHE_XP_NETWORK;
     return decorateWithCaipId({
       ...network,
       isTestnet,
       vmName: NetworkVMType.PVM,
       chainId: isTestnet ? ChainId.AVALANCHE_TEST_P : ChainId.AVALANCHE_P,
-      chainName: isTestnet ? 'Avalanche (Etna-P-Chain)' : 'Avalanche (P-Chain)',
+      chainName: 'Avalanche (P-Chain)',
       logoUri:
         'https://images.ctfassets.net/gcj8jwzm6086/42aMwoCLblHOklt6Msi6tm/1e64aa637a8cead39b2db96fe3225c18/pchain-square.svg', // from contentful
       networkToken: {
@@ -405,11 +410,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   private _getXchainNetwork(isTestnet: boolean): Network {
     const network = isTestnet
-      ? {
-          ...AVALANCHE_XP_TEST_NETWORK,
-          isDevnet: true,
-          rpcUrl: 'https://etna.avax-dev.network',
-        }
+      ? AVALANCHE_XP_TEST_NETWORK
       : AVALANCHE_XP_NETWORK;
 
     return decorateWithCaipId({
@@ -417,7 +418,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       chainId: isTestnet ? ChainId.AVALANCHE_TEST_X : ChainId.AVALANCHE_X,
       isTestnet,
       vmName: NetworkVMType.AVM,
-      chainName: isTestnet ? 'Avalanche (Etna-X-Chain)' : 'Avalanche (X-Chain)',
+      chainName: 'Avalanche (X-Chain)',
       logoUri:
         'https://images.ctfassets.net/gcj8jwzm6086/5xiGm7IBR6G44eeVlaWrxi/1b253c4744a3ad21a278091e3119feba/xchain-square.svg', // from contentful
       networkToken: {
@@ -452,6 +453,8 @@ export class NetworkService implements OnLock, OnStorageReady {
           [ChainId.AVALANCHE_P]: this._getPchainNetwork(false),
           [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork(true),
           [ChainId.AVALANCHE_X]: this._getXchainNetwork(false),
+          [ChainId.AVALANCHE_DEVNET_P]: this._getPchainDevnet(),
+          [ChainId.AVALANCHE_DEVNET_X]: this._getXchainDevnet(),
         };
       } else {
         attempt += 1;
@@ -488,7 +491,11 @@ export class NetworkService implements OnLock, OnStorageReady {
    * Returns the network object for Avalanche X/P Chains
    */
   getAvalancheNetworkXP() {
-    return this._getXchainNetwork(!this.isMainnet());
+    const isDevnetActive =
+      this.uiActiveNetwork?.isDevnet || this.uiActiveNetwork?.chainId === 43117;
+    return isDevnetActive
+      ? this._getXchainDevnet()
+      : this._getXchainNetwork(!this.isMainnet());
   }
 
   async getAvalancheNetwork() {
