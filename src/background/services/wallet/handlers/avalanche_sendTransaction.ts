@@ -73,13 +73,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         }),
       };
     }
-    const network = await this.networkService.getNetwork(scope);
-    if (!network) {
-      return {
-        ...request,
-        error: ethErrors.rpc.invalidParams('Unknown network'),
-      };
-    }
+    const network = await this.networkService.getAvalancheNetworkXP();
     const vm = Avalanche.getVmByChainAlias(chainAlias);
     const txBytes = utils.hexToBuffer(transactionHex);
     const provider = await this.networkService.getAvalanceProviderXP();

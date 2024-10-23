@@ -80,13 +80,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
 
     const tx = utils.unpackWithManager(vm, txBytes) as avaxSerial.AvaxTx;
 
-    const network = await this.networkService.getNetwork(scope);
-    if (!network) {
-      return {
-        ...request,
-        error: ethErrors.rpc.invalidParams('Unknown network'),
-      };
-    }
+    const network = await this.networkService.getAvalancheNetworkXP();
     const providedUtxos = getProvidedUtxos({
       utxoHexes: providedUtxoHexes,
       vm,
