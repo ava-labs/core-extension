@@ -33,6 +33,7 @@ type TxParams = {
   externalIndices?: number[];
   internalIndices?: number[];
   utxos?: string[];
+  feeTolerance?: number;
 };
 
 @injectable()
@@ -63,6 +64,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       externalIndices,
       internalIndices,
       utxos: providedUtxoHexes,
+      feeTolerance,
     } = (request.params ?? {}) as TxParams;
 
     if (!transactionHex || !chainAlias) {
@@ -152,7 +154,10 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
     const txData = await Avalanche.parseAvalancheTx(
       unsignedTx,
       provider,
-      currentAddress
+      currentAddress,
+      {
+        feeTolerance,
+      }
     );
 
     if (txData.type === 'unknown') {
