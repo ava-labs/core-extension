@@ -90,9 +90,7 @@ export class AccountsService implements OnLock, OnUnlock {
     private secretsService: SecretsService,
     private ledgerService: LedgerService,
     private walletConnectService: WalletConnectService
-  ) {
-    console.log('eventEmitter: ', this.eventEmitter);
-  }
+  ) {}
 
   async onUnlock(): Promise<void> {
     await this.init();

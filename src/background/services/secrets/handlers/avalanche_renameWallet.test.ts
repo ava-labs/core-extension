@@ -10,7 +10,7 @@ jest.mock('@src/utils/canSkipApproval');
 
 jest.mock('@src/background/runtime/openApprovalWindow');
 
-describe('src/background/services/accounts/handlers/avalanche_renameAccount', () => {
+describe('src/background/services/accounts/handlers/avalanche_renameWallet', () => {
   const secretsService = new SecretsService({} as any);
   it('should return error when domain info is not known', async () => {
     const handler = new AvalancheRenameWalletHandler(secretsService);

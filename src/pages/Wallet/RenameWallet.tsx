@@ -28,8 +28,6 @@ export function RenameWallet() {
   const { action, updateAction, cancelHandler } =
     useApproveAction<{ walletId: string; newName: string }>(requestId);
 
-  console.log('action: ', action);
-
   if (!action) {
     return (
       <Stack
@@ -45,8 +43,6 @@ export function RenameWallet() {
     );
   }
 
-  console.log('action.displayData: ', action.displayData);
-
   const site: DomainMetadata = action.site ?? {
     domain: '#',
     name: t('Unknown website'),
@@ -59,13 +55,13 @@ export function RenameWallet() {
           {t('Rename Wallet?')}
         </Typography>
         <ApprovalSection>
-          <ApprovalSectionHeader label={t('Action Details')} />
+          <ApprovalSectionHeader label={t('Wallet Details')} />
           <ApprovalSectionBody sx={{ py: 1, px: 2, gap: 1 }}>
             <WebsiteDetails site={site} />
           </ApprovalSectionBody>
         </ApprovalSection>
         <ApprovalSection>
-          <ApprovalSectionHeader label={t('Account Details')} />
+          <ApprovalSectionHeader label={t('Wallet Details')} />
           <ApprovalSectionBody sx={{ py: 1, px: 2, gap: 1 }}>
             <AccountDetails
               address={action.displayData.walletId}
@@ -84,7 +80,7 @@ export function RenameWallet() {
           <Button
             color="secondary"
             size="large"
-            data-testid="switch-account-reject-btn"
+            data-testid="rename-wallet-reject-btn"
             onClick={() => {
               cancelHandler();
               window.close();
@@ -94,7 +90,7 @@ export function RenameWallet() {
             {t('Reject')}
           </Button>
           <Button
-            data-testid="switch-account-approve-btn"
+            data-testid="rename-wallet-approve-btn"
             size="large"
             color="primary"
             onClick={() => {

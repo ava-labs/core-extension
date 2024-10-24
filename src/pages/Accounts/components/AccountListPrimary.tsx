@@ -32,7 +32,6 @@ export const AccountListPrimary = ({
     accounts: { active },
   } = useAccountsContext();
   const { walletDetails: activeWalletDetails, wallets } = useWalletContext();
-  console.log('wallets: ', wallets);
 
   const scrollbarsRef = useRef<ScrollbarsRef>(null);
   const activeAccountRef = useRef<HTMLDivElement>(null);
