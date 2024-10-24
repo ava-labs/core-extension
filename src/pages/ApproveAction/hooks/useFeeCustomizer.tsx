@@ -54,6 +54,7 @@ export const useFeeCustomizer = ({
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
     GasFeeModifier.NORMAL
   );
+  const isFeeSelectorEnabled = Boolean(action?.displayData.networkFeeSelector);
 
   const tokens = useTokensWithBalances({
     chainId: network?.chainId,
@@ -65,6 +66,10 @@ export const useFeeCustomizer = ({
   ) as NetworkTokenWithBalance | null;
 
   const signingData = useMemo(() => {
+    if (!isFeeSelectorEnabled) {
+      return undefined;
+    }
+
     switch (action?.signingData?.type) {
       // Request types that we know may require a fee
       case RpcMethod.BITCOIN_SEND_TRANSACTION:
@@ -75,11 +80,11 @@ export const useFeeCustomizer = ({
       default:
         return undefined;
     }
-  }, [action]);
+  }, [action, isFeeSelectorEnabled]);
 
   const updateFee = useCallback(
     async (maxFeeRate: bigint, maxTipRate?: bigint) => {
-      if (!actionId) {
+      if (!actionId || !isFeeSelectorEnabled) {
         return;
       }
 
@@ -93,7 +98,7 @@ export const useFeeCustomizer = ({
         params: [actionId, newFeeConfig],
       });
     },
-    [actionId, request, signingData?.type]
+    [actionId, isFeeSelectorEnabled, request, signingData?.type]
   );
 
   const getFeeInfo = useCallback((data: SigningData) => {
@@ -151,7 +156,7 @@ export const useFeeCustomizer = ({
   useEffect(() => {
     const nativeBalance = nativeToken?.balance;
 
-    if (!nativeBalance || !signingData) {
+    if (!nativeBalance || !signingData || !isFeeSelectorEnabled) {
       return;
     }
 
@@ -163,7 +168,7 @@ export const useFeeCustomizer = ({
         ? undefined
         : SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE
     );
-  }, [getFeeInfo, nativeToken?.balance, signingData]);
+  }, [getFeeInfo, isFeeSelectorEnabled, nativeToken?.balance, signingData]);
 
   const [maxFeePerGas, setMaxFeePerGas] = useState(
     getInitialFeeRate(signingData)
@@ -173,14 +178,14 @@ export const useFeeCustomizer = ({
   );
 
   useEffect(() => {
-    if (!networkFee) {
+    if (!networkFee || !isFeeSelectorEnabled) {
       return;
     }
 
     // Initialize fee config with default values if they are not set at all
     setMaxFeePerGas((previous) => previous ?? networkFee.low.maxFee);
     setMaxPriorityFeePerGas((previous) => previous ?? networkFee.low.maxTip);
-  }, [networkFee]);
+  }, [networkFee, isFeeSelectorEnabled]);
 
   const setCustomFee = useCallback(
     (values: {
@@ -198,7 +203,7 @@ export const useFeeCustomizer = ({
   useEffect(() => {
     let isMounted = true;
 
-    if (!network) {
+    if (!network || !isFeeSelectorEnabled) {
       return;
     }
     // If the request comes from a dApp, a different network may be active,
@@ -212,10 +217,10 @@ export const useFeeCustomizer = ({
     return () => {
       isMounted = false;
     };
-  }, [getNetworkFee, network]);
+  }, [getNetworkFee, isFeeSelectorEnabled, network]);
 
   useEffect(() => {
-    if (typeof maxFeePerGas === 'undefined') {
+    if (typeof maxFeePerGas === 'undefined' || !isFeeSelectorEnabled) {
       return;
     }
 
@@ -240,7 +245,7 @@ export const useFeeCustomizer = ({
     return () => {
       isMounted = false;
     };
-  }, [maxFeePerGas, maxPriorityFeePerGas, updateFee]);
+  }, [isFeeSelectorEnabled, maxFeePerGas, maxPriorityFeePerGas, updateFee]);
 
   const renderFeeWidget = useCallback(() => {
     if (!networkFee || !signingData) {

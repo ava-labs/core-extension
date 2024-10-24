@@ -83,7 +83,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
 
   const txTitle = useMemo(() => {
     if (network) {
-      if (historyItem.isBridge) {
+      if (historyItem.bridgeAnalysis.isBridgeTx) {
         return t('Bridge');
       }
       if (
