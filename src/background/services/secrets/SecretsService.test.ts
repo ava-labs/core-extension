@@ -926,7 +926,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       mockMnemonicWallet();
 
       await expect(
-        secretsService.getBtcWalletPolicyDetails()
+        secretsService.getBtcWalletPolicyDetails(activeAccountData)
       ).resolves.toBeUndefined();
     });
 

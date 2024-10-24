@@ -8,6 +8,7 @@ import { isString } from 'lodash';
 import { container } from 'tsyringe';
 import { HistoryService } from '../../history/HistoryService';
 import {
+  TokenType,
   TokenWithBalanceAVM,
   TokenWithBalancePVM,
 } from '@avalabs/vm-module-types';
@@ -20,7 +21,8 @@ export const addXPChainToFavoriteIfNeeded = async (
   const historyService = container.resolve(HistoryService);
   const balances = await balanceService.getBalancesForNetworks(
     [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
-    accounts
+    accounts,
+    [TokenType.NATIVE]
   );
 
   if (hasBalance(balances.tokens, accounts, ChainId.AVALANCHE_P)) {

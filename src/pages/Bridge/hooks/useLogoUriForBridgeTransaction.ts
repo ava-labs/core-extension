@@ -8,6 +8,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { findTokenForAsset } from '../utils/findTokenForAsset';
 import { networkToBlockchain } from '../utils/blockchainConversion';
 import { caipToChainId } from '@src/utils/caipConversion';
+import { getBridgedAssetSymbol } from '@src/utils/bridge/getBridgedAssetSymbol';
 
 export function useLogoUriForBridgeTransaction(
   bridgeTransaction: BridgeTransaction | BridgeTransfer | undefined
@@ -50,7 +51,7 @@ export function useLogoUriForBridgeTransaction(
   }
 
   const token = findTokenForAsset(
-    bridgeTransaction.symbol,
+    getBridgedAssetSymbol(bridgeTransaction),
     targetBlockchain,
     tokens
   );

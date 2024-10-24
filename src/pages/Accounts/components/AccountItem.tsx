@@ -61,7 +61,7 @@ export const AccountItem = forwardRef(
     const history = useHistory();
     const { capture } = useAnalyticsContext();
     const { network } = useNetworkContext();
-    const { updateBalanceOnAllNetworks } = useBalancesContext();
+    const { updateBalanceOnNetworks } = useBalancesContext();
     const [isBalanceLoading, setIsBalanceLoading] = useState(false);
 
     const isActive = isActiveAccount(account.id);
@@ -143,9 +143,9 @@ export const AccountItem = forwardRef(
 
     const getBalance = useCallback(async () => {
       setIsBalanceLoading(true);
-      await updateBalanceOnAllNetworks([account]);
+      await updateBalanceOnNetworks([account]);
       setIsBalanceLoading(false);
-    }, [account, updateBalanceOnAllNetworks]);
+    }, [account, updateBalanceOnNetworks]);
 
     return (
       <Stack

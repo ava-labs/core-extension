@@ -132,17 +132,17 @@ export const useAvmSend: SendAdapterAVM = ({
         const amountBigInt = bigToBigInt(Big(amount), token.decimals);
         const changeAddress = utils.parse(account.addressAVM)[2];
 
-        const unsignedTx = wallet.baseTX(
-          utxos.utxos,
-          XCHAIN_ALIAS,
-          address,
-          {
+        const unsignedTx = wallet.baseTX({
+          utxoSet: utxos.utxos,
+          chain: XCHAIN_ALIAS,
+          toAddress: address,
+          amountsPerAsset: {
             [avax]: amountBigInt,
           },
-          {
+          options: {
             changeAddresses: [changeAddress],
-          }
-        );
+          },
+        });
 
         const manager = utils.getManagerForVM(unsignedTx.getVM());
         const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());

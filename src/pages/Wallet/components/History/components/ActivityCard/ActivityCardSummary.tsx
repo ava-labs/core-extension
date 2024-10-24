@@ -14,13 +14,17 @@ export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
     useBlockchainNames(historyItem);
   const { t } = useTranslation();
 
-  if (historyItem.txType === TransactionType.BRIDGE || historyItem.isBridge) {
+  if (
+    historyItem.txType === TransactionType.BRIDGE ||
+    historyItem.bridgeAnalysis.isBridgeTx
+  ) {
     return (
       <Typography
         variant="caption"
         sx={(theme) => ({ color: theme.palette.primary.dark })}
       >
-        {sourceBlockchain} -&gt; {targetBlockchain}
+        {sourceBlockchain ?? t('Unknown')} -&gt;{' '}
+        {targetBlockchain ?? t('Unknown')}
       </Typography>
     );
   } else if (historyItem.txType === TransactionType.SWAP) {
