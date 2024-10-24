@@ -174,7 +174,7 @@ export const useFeeCustomizer = ({
     getInitialFeeRate(signingData)
   );
   const [maxPriorityFeePerGas, setMaxPriorityFeePerGas] = useState(
-    networkFee?.low?.maxTip
+    networkFee?.low?.maxPriorityFeePerGas
   );
 
   useEffect(() => {
@@ -183,8 +183,10 @@ export const useFeeCustomizer = ({
     }
 
     // Initialize fee config with default values if they are not set at all
-    setMaxFeePerGas((previous) => previous ?? networkFee.low.maxFee);
-    setMaxPriorityFeePerGas((previous) => previous ?? networkFee.low.maxTip);
+    setMaxFeePerGas((previous) => previous ?? networkFee.low.maxFeePerGas);
+    setMaxPriorityFeePerGas(
+      (previous) => previous ?? networkFee.low.maxPriorityFeePerGas
+    );
   }, [networkFee, isFeeSelectorEnabled]);
 
   const setCustomFee = useCallback(

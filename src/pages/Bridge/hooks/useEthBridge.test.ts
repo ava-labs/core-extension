@@ -98,10 +98,10 @@ describe('src/pages/Bridge/hooks/useEthBridge', () => {
     jest.mocked(useNetworkFeeContext).mockReturnValue({
       networkFee: {
         high: {
-          maxFee: highFee,
+          maxFeePerGas: highFee,
         },
         low: {
-          maxFee: lowFee,
+          maxFeePerGas: lowFee,
         },
         displayDecimals: 8,
       },
