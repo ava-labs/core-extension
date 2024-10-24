@@ -44,10 +44,25 @@ export function initializeProvider(
       deleteProperty: () => true,
     }
   );
+  const multiWalletProxy = createMultiWalletProxy(evmProvider);
 
-  setGlobalProvider(evmProvider, globalObject);
+  globalObject.addEventListener('eip6963:announceProvider', (event: any) => {
+    multiWalletProxy.addProvider(
+      new Proxy(
+        {
+          info: { ...event.detail.info },
+          ...event.detail.provider,
+        },
+        {
+          deleteProperty: () => true,
+          set: () => true,
+        }
+      )
+    );
+  });
+
+  setGlobalProvider(evmProvider, globalObject, multiWalletProxy);
   setAvalancheGlobalProvider(evmProvider, globalObject);
-  setEvmproviders(evmProvider, globalObject);
   announceWalletProvider(evmProvider, globalObject);
   announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
 
@@ -62,23 +77,17 @@ export function initializeProvider(
  */
 function setGlobalProvider(
   providerInstance: EVMProvider,
-  globalObject = window
+  globalObject = window,
+  multiWalletProxy
 ): void {
   try {
-    const multiWalletProxy = createMultiWalletProxy(providerInstance);
-
-    // if we already have a wallet lets add it
-    if (globalObject.ethereum) {
-      multiWalletProxy.addProvider(globalObject.ethereum);
-    }
-
     Object.defineProperty(globalObject, 'ethereum', {
       get: () => {
         return multiWalletProxy;
       },
       // in case a wallet tries to overwrite us lets add them to the list
-      set: (value) => {
-        multiWalletProxy.addProvider(value);
+      set: () => {
+        return multiWalletProxy;
       },
     });
 
@@ -127,16 +136,6 @@ function setAvalancheGlobalProvider(
     writable: false,
   });
   globalObject.dispatchEvent(new Event('avalanche#initialized'));
-}
-
-function setEvmproviders(
-  providerInstance: EVMProvider,
-  globalObject = window
-): void {
-  globalObject.evmproviders = globalObject.evmproviders || {};
-  globalObject.evmproviders.core = providerInstance;
-
-  globalObject.dispatchEvent(new Event('evmproviders#initialized'));
 }
 
 function announceWalletProvider(

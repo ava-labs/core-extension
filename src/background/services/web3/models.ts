@@ -4,4 +4,7 @@ export enum WalletExtensionType {
   UNKNOWN = 'UNKNOWN',
   RABBY = 'RABBY',
   COINBASE = 'COINBASE',
+  PHANTOM = 'PHANTOM',
+  ZERION = 'ZERION',
+  KEPLR = 'KEPLR',
 }
