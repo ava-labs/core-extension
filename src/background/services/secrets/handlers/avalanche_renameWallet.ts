@@ -12,7 +12,6 @@ import { canSkipApproval } from '@src/utils/canSkipApproval';
 
 import { Action } from '../../actions/models';
 import { SecretsService } from '../SecretsService';
-import { WalletService } from '../../wallet/WalletService';
 
 type Params = [walletId: string, newName: string];
 
@@ -23,10 +22,7 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
 > {
   methods = [DAppProviderRequest.WALLET_RENAME];
 
-  constructor(
-    private secretsService: SecretsService,
-    private walletService: WalletService
-  ) {
+  constructor(private secretsService: SecretsService) {
     super();
   }
 
@@ -67,7 +63,11 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
       };
     }
 
-    if (await canSkipApproval(request.site.domain, request.site.tabId)) {
+    const canSkip = await canSkipApproval(
+      request.site.domain,
+      request.site.tabId
+    );
+    if (canSkip) {
       try {
         await this.secretsService.updateSecrets(
           { ...wallet, name: newName },
