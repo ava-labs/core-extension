@@ -36,7 +36,7 @@ type DerivedAddresses = {
 
 export function ImportPrivateKey() {
   const { currency, currencyFormatter } = useSettingsContext();
-  const { updateBalanceOnAllNetworks } = useBalancesContext();
+  const { updateBalanceOnNetworks } = useBalancesContext();
   const { network } = useNetworkContext();
   const { capture } = useAnalyticsContext();
   const theme = useTheme();
@@ -97,13 +97,13 @@ export function ImportPrivateKey() {
   }, [network?.isTestnet, privateKey]);
 
   useEffect(() => {
-    if (derivedAddresses && updateBalanceOnAllNetworks) {
+    if (derivedAddresses && updateBalanceOnNetworks) {
       setIsBalanceLoading(true);
-      updateBalanceOnAllNetworks([derivedAddresses as Account]).finally(() =>
+      updateBalanceOnNetworks([derivedAddresses as Account]).finally(() =>
         setIsBalanceLoading(false)
       );
     }
-  }, [derivedAddresses, updateBalanceOnAllNetworks]);
+  }, [derivedAddresses, updateBalanceOnNetworks]);
 
   return (
     <Stack

@@ -1,6 +1,6 @@
 import {
   Glacier,
-  PrimaryNetwork,
+  Network as GlacierNetwork,
   PrimaryNetworkChainName,
 } from '@avalabs/glacier-sdk';
 import { GlacierService } from './GlacierService';
@@ -32,7 +32,7 @@ const pchainBalance = {
   },
   chainInfo: {
     chainName: PrimaryNetworkChainName.P_CHAIN,
-    network: PrimaryNetwork.FUJI,
+    network: GlacierNetwork.FUJI,
   },
 };
 

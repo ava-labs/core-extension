@@ -19,6 +19,8 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
 
 const getInitialFeeRate = (data?: SigningData): bigint | undefined => {
   if (data?.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
@@ -38,6 +40,10 @@ export const useFeeCustomizer = ({
   network?: NetworkWithCaipId;
 }) => {
   const { action } = useApproveAction<DisplayData>(actionId);
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
+  const { updateBalanceOnNetworks } = useBalancesContext();
   const { request } = useConnectionContext();
   const [networkFee, setNetworkFee] = useState<NetworkFee | null>();
 
@@ -137,6 +143,15 @@ export const useFeeCustomizer = ({
 
     return nativeToken.balance > need;
   }, [getFeeInfo, nativeToken?.balance, signingData]);
+
+  // Make sure we have gas token balances for the transaction's chain
+  useEffect(() => {
+    if (!activeAccount || !network?.chainId) {
+      return;
+    }
+
+    updateBalanceOnNetworks([activeAccount], [network.chainId]);
+  }, [activeAccount, network?.chainId, updateBalanceOnNetworks]);
 
   useEffect(() => {
     const nativeBalance = nativeToken?.balance;
