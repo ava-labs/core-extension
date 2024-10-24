@@ -35,7 +35,7 @@ import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
 import { useAccountsContext } from './AccountsProvider';
-import type { ContractTransaction } from 'ethers';
+import { toBeHex, type ContractTransaction } from 'ethers';
 import { useTranslation } from 'react-i18next';
 import { RpcMethod } from '@avalabs/vm-module-types';
 
@@ -228,39 +228,40 @@ function InnerBridgeProvider({ children }: { children: any }) {
         signAndSendEVM: (txData) => {
           const tx = txData as ContractTransaction;
 
-          return request({
-            method: RpcMethod.BITCOIN_SEND_TRANSACTION,
-            params: [
-              {
-                ...tx,
-                // erase gasPrice if maxFeePerGas can be used
-                gasPrice: tx.maxFeePerGas
-                  ? undefined
-                  : tx.gasPrice ?? undefined,
-                type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
-              },
-              {
-                customApprovalScreenTitle: t('Confirm Bridge'),
-                contextInformation:
-                  requiredSignatures > currentSignature
-                    ? {
-                        title: t(
-                          'This operation requires {{total}} approvals.',
-                          {
-                            total: requiredSignatures,
-                          }
-                        ),
-                        notice: t(
-                          'You will be prompted {{remaining}} more time(s).',
-                          {
-                            remaining: requiredSignatures - currentSignature,
-                          }
-                        ),
-                      }
+          return request(
+            {
+              method: RpcMethod.ETH_SEND_TRANSACTION,
+              params: [
+                {
+                  ...mapNumberishToHex(tx),
+                  // erase gasPrice if maxFeePerGas can be used
+                  gasPrice: tx.maxFeePerGas
+                    ? undefined
+                    : tx.gasPrice
+                    ? toBeHex(tx.gasPrice)
                     : undefined,
-              },
-            ],
-          });
+                },
+              ],
+            },
+            {
+              customApprovalScreenTitle: t('Confirm Bridge'),
+              alert:
+                requiredSignatures > currentSignature
+                  ? {
+                      type: 'info',
+                      title: t('This operation requires {{total}} approvals.', {
+                        total: requiredSignatures,
+                      }),
+                      notice: t(
+                        'You will be prompted {{remaining}} more time(s).',
+                        {
+                          remaining: requiredSignatures - currentSignature,
+                        }
+                      ),
+                    }
+                  : undefined,
+            }
+          );
         },
       });
 
@@ -294,3 +295,13 @@ function InnerBridgeProvider({ children }: { children: any }) {
     </bridgeContext.Provider>
   );
 }
+
+const mapNumberishToHex = (tx: ContractTransaction) =>
+  Object.fromEntries(
+    Object.entries(tx).map(([key, value]) => [
+      key,
+      typeof value === 'number' || typeof value === 'bigint'
+        ? toBeHex(value)
+        : value,
+    ])
+  );

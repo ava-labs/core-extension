@@ -5,6 +5,7 @@ import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { formatUnits, parseUnits } from 'ethers';
 import { Trans, useTranslation } from 'react-i18next';
+import { TokenType } from '@avalabs/vm-module-types';
 import {
   FeeRate,
   NetworkFee,
@@ -146,6 +147,8 @@ export const getGasFeeToDisplay = (fee: string, networkFee: NetworkFee) => {
   }
 };
 
+const POLLED_BALANCES = [TokenType.NATIVE];
+
 export function CustomFees({
   maxFeePerGas,
   limit,
@@ -185,7 +188,7 @@ export function CustomFees({
       : selectedGasFeeModifier || GasFeeModifier.NORMAL
   );
 
-  useLiveBalance(); // Make sure we always use the latest balances.
+  useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest native balance.
 
   useEffect(() => {
     if (!customFee && networkFee) {

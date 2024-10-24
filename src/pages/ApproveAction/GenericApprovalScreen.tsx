@@ -6,6 +6,9 @@ import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
 import { AlertType, DisplayData } from '@avalabs/vm-module-types';
 import {
+  Alert,
+  AlertContent,
+  AlertTitle,
   Box,
   Button,
   Scrollbars,
@@ -33,6 +36,21 @@ import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
 
+type WithContextAlert = {
+  alert: { type: 'info'; title: string; notice: string };
+};
+
+function hasContextInfo(
+  context?: Record<string, unknown>
+): context is WithContextAlert {
+  return (
+    typeof context === 'object' &&
+    context !== null &&
+    'alert' in context &&
+    Boolean(context.alert)
+  );
+}
+
 export function GenericApprovalScreen() {
   const { t } = useTranslation();
   const requestId = useGetRequestId();
@@ -53,6 +71,10 @@ export function GenericApprovalScreen() {
   });
 
   const { displayData, context } = action ?? {};
+  const hasFeeSelector = action?.displayData.networkFeeSelector;
+  const isFeeValid =
+    !hasFeeSelector ||
+    (!feeError && !isCalculatingFee && hasEnoughForNetworkFee);
 
   useEffect(() => {
     if (!displayData?.network?.chainId) {
@@ -138,6 +160,20 @@ export function GenericApprovalScreen() {
           </Stack>
         )}
 
+        {hasContextInfo(context) && (
+          <Stack sx={{ width: 1, px: 2 }}>
+            <Alert
+              severity={context.alert.type}
+              sx={{ width: 1, py: 0, mb: 1, mt: -1 }}
+            >
+              <AlertTitle>{context.alert.title}</AlertTitle>
+              {context.alert.notice && (
+                <AlertContent>{context.alert.notice}</AlertContent>
+              )}
+            </Alert>
+          </Stack>
+        )}
+
         <Scrollbars>
           <Stack sx={{ flex: 1, width: 1, px: 2, gap: 2, pb: 3 }}>
             <Stack sx={{ width: '100%', gap: 3, pt: 1 }}>
@@ -147,15 +183,15 @@ export function GenericApprovalScreen() {
                     <ApprovalSectionHeader label={section.title} />
                   )}
                   <ApprovalSectionBody sx={{ py: 1 }}>
+                    {sectionIndex === 0 && network && (
+                      <NetworkDetails network={network} />
+                    )}
                     {section.items.map((item, index) => (
                       <TransactionDetailItem
                         key={`tx-detail.${sectionIndex}.${index}`}
                         item={item}
                       />
                     ))}
-                    {sectionIndex === 0 && network && (
-                      <NetworkDetails network={network} />
-                    )}
                   </ApprovalSectionBody>
                 </ApprovalSection>
               ))}
@@ -210,9 +246,7 @@ export function GenericApprovalScreen() {
           disabled={
             !displayData ||
             action.status === ActionStatus.SUBMITTING ||
-            Boolean(feeError) ||
-            isCalculatingFee ||
-            !hasEnoughForNetworkFee
+            !isFeeValid
           }
           isLoading={
             action.status === ActionStatus.SUBMITTING || isCalculatingFee

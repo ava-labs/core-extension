@@ -30,7 +30,7 @@ import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { getSmallImageForNFT } from '@src/background/services/balances/nft/utils/getSmallImageForNFT';
 import { TokensPriceShortData } from '@src/background/services/tokens/models';
 import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
-import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { Network } from '@src/background/services/network/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 
@@ -49,6 +49,8 @@ export interface TokensPriceData {
   lastUpdatedAt: number;
   tokensData: TokensPriceShortData;
 }
+
+type BalanceSubscribers = Partial<Record<TokenType, number>>;
 
 enum BalanceActionType {
   UPDATE_BALANCES = 'UPDATE_BALANCES',
@@ -85,9 +87,12 @@ const BalancesContext = createContext<{
     tokenId: string
   ): Promise<void>;
   getTokenPrice(addressOrSymbol: string): number | undefined;
-  updateBalanceOnAllNetworks: (accounts: Account[]) => Promise<void>;
-  registerSubscriber: () => void;
-  unregisterSubscriber: () => void;
+  updateBalanceOnNetworks: (
+    accounts: Account[],
+    chainIds?: number[]
+  ) => Promise<void>;
+  registerSubscriber: (tokenTypes: TokenType[]) => void;
+  unregisterSubscriber: (tokenTypes: TokenType[]) => void;
   isTokensCached: boolean;
   totalBalance?: { sum: number | null; priceChange: TotalPriceChange };
   getTotalBalance: (addressC: string) =>
@@ -102,7 +107,7 @@ const BalancesContext = createContext<{
     return undefined;
   },
   async refreshNftMetadata() {}, // eslint-disable-line @typescript-eslint/no-empty-function
-  async updateBalanceOnAllNetworks() {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  async updateBalanceOnNetworks() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   unregisterSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
   isTokensCached: true,
@@ -161,7 +166,7 @@ export function BalancesProvider({ children }: { children: any }) {
     cached: true,
   });
 
-  const [subscriberCount, setSubscriberCount] = useState(0);
+  const [subscribers, setSubscribers] = useState<BalanceSubscribers>({});
   const [isPolling, setIsPolling] = useState(false);
 
   const polledChainIds = useMemo(
@@ -169,12 +174,28 @@ export function BalancesProvider({ children }: { children: any }) {
     [favoriteNetworks]
   );
 
-  const registerSubscriber = useCallback(() => {
-    setSubscriberCount((count) => count + 1);
+  const registerSubscriber = useCallback((tokenTypes: TokenType[]) => {
+    setSubscribers((oldSubscribers) =>
+      tokenTypes.reduce<BalanceSubscribers>(
+        (newSubscribers, tokenType) => ({
+          ...newSubscribers,
+          [tokenType]: (newSubscribers[tokenType] ?? 0) + 1,
+        }),
+        oldSubscribers
+      )
+    );
   }, []);
 
-  const unregisterSubscriber = useCallback(() => {
-    setSubscriberCount((count) => count - 1);
+  const unregisterSubscriber = useCallback((tokenTypes: TokenType[]) => {
+    setSubscribers((oldSubscribers) =>
+      tokenTypes.reduce(
+        (newSubscribers, tokenType) => ({
+          ...newSubscribers,
+          [tokenType]: Math.max((newSubscribers[tokenType] ?? 0) - 1, 0),
+        }),
+        oldSubscribers
+      )
+    );
   }, []);
 
   useEffect(() => {
@@ -216,9 +237,13 @@ export function BalancesProvider({ children }: { children: any }) {
     }
 
     if (isPolling) {
+      const tokenTypes = Object.entries(subscribers)
+        .filter(([, subscriberCount]) => subscriberCount > 0)
+        .map(([tokenType]) => tokenType as TokenType);
+
       request<StartBalancesPollingHandler>({
         method: ExtensionRequest.BALANCES_START_POLLING,
-        params: [activeAccount, polledChainIds],
+        params: [activeAccount, polledChainIds, tokenTypes],
       }).then((balancesData) => {
         dispatch({
           type: BalanceActionType.UPDATE_BALANCES,
@@ -232,22 +257,29 @@ export function BalancesProvider({ children }: { children: any }) {
         method: ExtensionRequest.BALANCES_STOP_POLLING,
       });
     };
-  }, [request, isPolling, activeAccount, network?.chainId, polledChainIds]);
+  }, [
+    request,
+    isPolling,
+    activeAccount,
+    network?.chainId,
+    polledChainIds,
+    subscribers,
+  ]);
 
   useEffect(() => {
     // Toggle balance polling based on the amount of dependent components.
-    setIsPolling(subscriberCount > 0);
-  }, [subscriberCount]);
+    setIsPolling(Object.values(subscribers).some((count) => count > 0));
+  }, [subscribers]);
 
-  const updateBalanceOnAllNetworks = useCallback(
-    async (accounts: Account[]) => {
-      if (!network) {
+  const updateBalanceOnNetworks = useCallback(
+    async (accounts: Account[], chainIds?: number[]) => {
+      if (!network && !chainIds?.length) {
         return;
       }
 
       const updatedBalances = await request<UpdateBalancesForNetworkHandler>({
         method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
-        params: [accounts],
+        params: [accounts, chainIds],
       });
 
       dispatch({
@@ -323,7 +355,7 @@ export function BalancesProvider({ children }: { children: any }) {
         balances,
         getTokenPrice,
         refreshNftMetadata,
-        updateBalanceOnAllNetworks,
+        updateBalanceOnNetworks,
         registerSubscriber,
         unregisterSubscriber,
         isTokensCached: balances.cached ?? true,

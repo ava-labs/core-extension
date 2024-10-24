@@ -195,19 +195,22 @@ describe('contexts/BridgeProvider', () => {
         onStatusChange(WrapStatus.WAITING_FOR_DEPOSIT_CONFIRMATION);
         signAndSendEVM(fakeDepositTx);
 
-        expect(requestFn).toHaveBeenCalledWith({
-          method: RpcMethod.BITCOIN_SEND_TRANSACTION,
-          params: [
-            { ...fakeDepositTx },
-            {
-              customApprovalScreenTitle: 'Confirm Bridge',
-              contextInformation: {
-                title: 'This operation requires {{total}} approvals.',
-                notice: 'You will be prompted {{remaining}} more time(s).',
-              },
+        expect(requestFn).toHaveBeenCalledWith(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [
+              { ...fakeDepositTx, maxFeePerGas: '0x32', gasPrice: undefined },
+            ],
+          },
+          {
+            customApprovalScreenTitle: 'Confirm Bridge',
+            alert: {
+              type: 'info',
+              title: 'This operation requires {{total}} approvals.',
+              notice: 'You will be prompted {{remaining}} more time(s).',
             },
-          ],
-        });
+          }
+        );
 
         // Mock the transfer TX being prompted and signed
         const fakeTransferTx = {
@@ -219,15 +222,17 @@ describe('contexts/BridgeProvider', () => {
         onStatusChange(WrapStatus.WAITING_FOR_CONFIRMATION);
         signAndSendEVM(fakeTransferTx);
 
-        expect(requestFn).toHaveBeenCalledWith({
-          method: RpcMethod.BITCOIN_SEND_TRANSACTION,
-          params: [
-            { ...fakeTransferTx },
-            {
-              customApprovalScreenTitle: 'Confirm Bridge',
-            },
-          ],
-        });
+        expect(requestFn).toHaveBeenCalledWith(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [
+              { ...fakeTransferTx, maxFeePerGas: '0x37', gasPrice: undefined },
+            ],
+          },
+          {
+            customApprovalScreenTitle: 'Confirm Bridge',
+          }
+        );
       });
     });
 

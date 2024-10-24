@@ -3,6 +3,7 @@ import { AccountsService } from '@src/background/services/accounts/AccountsServi
 import {
   AppConfig,
   Asset,
+  AssetType,
   Assets,
   BitcoinConfigAsset,
   Blockchain,
@@ -41,7 +42,7 @@ import {
   validateBtcSend,
 } from '@src/utils/send/btcSendUtils';
 import { resolve } from '@src/utils/promiseResolver';
-import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { TokenType, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 
@@ -166,7 +167,12 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     const { tokens } =
       await this.balanceAggregatorService.getBalancesForNetworks(
         [sourceNetwork.chainId],
-        [activeAccount]
+        [activeAccount],
+        [
+          asset.assetType === AssetType.ERC20
+            ? TokenType.ERC20
+            : TokenType.NATIVE,
+        ]
       );
 
     const balanceAddress =
@@ -302,7 +308,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
         const balances =
           await this.balanceAggregatorService.getBalancesForNetworks(
             [network.chainId],
-            [account]
+            [account],
+            [TokenType.NATIVE] // We only care about BTC here, which is a native token
           );
 
         const highFeeRate = Number(

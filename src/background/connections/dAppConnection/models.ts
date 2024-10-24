@@ -80,6 +80,7 @@ interface JsonRpcRequestPayloadBase<Method extends string = any> {
   readonly method: Method;
   readonly site?: DomainMetadata;
   readonly tabId?: number;
+  readonly context?: Record<string, unknown>;
 }
 
 interface JsonRpcRequestPayloadWithParams<

@@ -1,5 +1,6 @@
 import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { NetworkWithCaipId } from '@src/background/services/network/models';
@@ -13,7 +14,7 @@ const getTxInfoForLedger = (
   signingData: SigningData,
   network: NetworkWithCaipId
 ) => {
-  if (signingData?.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
+  if (signingData.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
     return {
       amount: satoshiToBtc(signingData.data.amount).toFixed(8),
       fee: satoshiToBtc(signingData.data.fee).toFixed(8),
@@ -23,9 +24,26 @@ const getTxInfoForLedger = (
     };
   }
 
-  throw new Error(
-    `Getting tx info for ledger not implemented yet for ${signingData?.type}`
-  );
+  if (signingData.type === RpcMethod.ETH_SEND_TRANSACTION) {
+    const { maxFeePerGas, gasPrice, gasLimit } = signingData.data;
+    const pricePerGas = maxFeePerGas ?? gasPrice ?? 0;
+    const feeBigInt = gasLimit ? BigInt(pricePerGas) * BigInt(gasLimit) : 0;
+    const fee = feeBigInt
+      ? new TokenUnit(
+          feeBigInt,
+          network.networkToken.decimals,
+          network.networkToken.symbol
+        )
+      : undefined;
+
+    return {
+      fee: fee?.toString(),
+      feeSymbol: network.networkToken.symbol,
+      to: signingData.data.to as string,
+    };
+  }
+
+  return null;
 };
 
 export const DeviceApproval = ({

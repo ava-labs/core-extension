@@ -1,15 +1,18 @@
 import { TxHistoryItem } from '../models';
-import { NetworkVMType, TokenType } from '@avalabs/vm-module-types';
-import { isPchainTxHistoryItem, isTxHistoryItem } from './isTxHistoryItem';
 import {
+  NetworkVMType,
+  TransactionType,
   PChainTransactionType,
+  TokenType,
   XChainTransactionType,
-} from '@avalabs/glacier-sdk';
-import { TransactionType } from '@avalabs/vm-module-types';
+} from '@avalabs/vm-module-types';
+import { isPchainTxHistoryItem, isNonXPHistoryItem } from './isTxHistoryItem';
 
 describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
   const txHistoryItem: TxHistoryItem = {
-    isBridge: false,
+    bridgeAnalysis: {
+      isBridgeTx: false,
+    },
     isContractCall: true,
     isIncoming: false,
     isOutgoing: true,
@@ -32,7 +35,9 @@ describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
     txType: TransactionType.SEND,
   };
   const pchainTxHistoryItem: TxHistoryItem = {
-    isBridge: false,
+    bridgeAnalysis: {
+      isBridgeTx: false,
+    },
     isContractCall: true,
     isIncoming: false,
     isOutgoing: true,
@@ -68,13 +73,13 @@ describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
 
   describe('isTxHistoryItem', () => {
     it('should return true when the tx is txHistoryItem', () => {
-      const result = isTxHistoryItem(txHistoryItem);
+      const result = isNonXPHistoryItem(txHistoryItem);
       expect(result).toBe(true);
     });
     it('should return false when the tx is not txHistoryItem', () => {
-      const result = isTxHistoryItem(pchainTxHistoryItem);
+      const result = isNonXPHistoryItem(pchainTxHistoryItem);
       expect(result).toBe(false);
-      const result2 = isTxHistoryItem(xchainTxHistoryItem);
+      const result2 = isNonXPHistoryItem(xchainTxHistoryItem);
       expect(result2).toBe(false);
     });
   });
