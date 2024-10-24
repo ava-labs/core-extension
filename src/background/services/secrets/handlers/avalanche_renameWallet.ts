@@ -53,6 +53,7 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
     const wallet = await this.secretsService.getWalletAccountsSecretsById(
       walletId
     );
+    console.log('wallet: ', wallet);
 
     if (!wallet) {
       return {
@@ -89,12 +90,14 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
     const actionData: Action<{
       walletId: string;
       newName: string;
+      walletName: string;
     }> = {
       ...request,
       scope,
       displayData: {
         walletId,
         newName,
+        walletName: wallet.name,
       },
     };
 

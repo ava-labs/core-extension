@@ -15,10 +15,7 @@ import {
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
 import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
-import {
-  AccountDetails,
-  WebsiteDetails,
-} from '../SignTransaction/components/ApprovalTxDetails';
+import { WebsiteDetails } from '../SignTransaction/components/ApprovalTxDetails';
 import { DomainMetadata } from '@src/background/models';
 
 export function RenameWallet() {
@@ -26,7 +23,9 @@ export function RenameWallet() {
   const requestId = useGetRequestId();
 
   const { action, updateAction, cancelHandler } =
-    useApproveAction<{ walletId: string; newName: string }>(requestId);
+    useApproveAction<{ walletId: string; newName: string; walletName: string }>(
+      requestId
+    );
 
   if (!action) {
     return (
@@ -63,10 +62,11 @@ export function RenameWallet() {
         <ApprovalSection>
           <ApprovalSectionHeader label={t('Wallet Details')} />
           <ApprovalSectionBody sx={{ py: 1, px: 2, gap: 1 }}>
-            <AccountDetails
-              address={action.displayData.walletId}
-              label={t('Wallet ID to rename')}
-            />
+            <TxDetailsRow label={t('Old Wallet Name')}>
+              <Typography variant="caption">
+                {action.displayData.walletName}
+              </Typography>
+            </TxDetailsRow>
             <TxDetailsRow label={t('New Wallet Name')}>
               <Typography variant="caption">
                 {action.displayData.newName}
