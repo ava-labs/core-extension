@@ -63,7 +63,7 @@ describe('src/background/services/networkFee/NetworkFeeService', () => {
       );
     });
 
-    it.only('provides base information and three rate presets', async () => {
+    it('provides base information and three rate presets', async () => {
       const networkFees = {
         isFixedFee: false,
         low: { maxFeePerGas: 3n },

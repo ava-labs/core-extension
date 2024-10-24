@@ -12,30 +12,13 @@ export class NetworkFeeService {
 
   async getNetworkFee(network: NetworkWithCaipId): Promise<NetworkFee | null> {
     const module = await this.moduleManager.loadModuleByNetwork(network);
-    if (network.vmName === NetworkVMType.EVM) {
-      const fees = await module.getNetworkFee(network);
-      return { ...fees, displayDecimals: fees.displayDecimals || 9 };
-    } else if (network.vmName === NetworkVMType.BITCOIN) {
-      const { low, medium, high, isFixedFee } = await module.getNetworkFee(
-        network
-      );
+    const displayDecimals = network.vmName === NetworkVMType.BITCOIN ? 0 : 9;
 
-      return {
-        isFixedFee,
-        low: {
-          maxFeePerGas: low.maxFeePerGas,
-        },
-        medium: {
-          maxFeePerGas: medium.maxFeePerGas,
-        },
-        high: {
-          maxFeePerGas: high.maxFeePerGas,
-        },
-        displayDecimals: 0, // display btc fees in satoshi
-      };
-    }
-
-    return null;
+    const fees = await module.getNetworkFee(network);
+    return {
+      ...fees,
+      displayDecimals: fees.displayDecimals || displayDecimals,
+    };
   }
 
   async estimateGasLimit(
