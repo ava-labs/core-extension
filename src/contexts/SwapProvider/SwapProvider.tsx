@@ -42,7 +42,7 @@ export const SwapContext = createContext<SwapContextAPI>({} as any);
 
 export function SwapContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
-  const { network: activeNetwork, avalancheProvider } = useNetworkContext();
+  const { network: activeNetwork, avaxProviderC } = useNetworkContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -296,7 +296,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         throw new Error('Account address missing');
       }
 
-      if (!avalancheProvider) {
+      if (!avaxProviderC) {
         throw new Error('RPC provider is not available');
       }
 
@@ -330,7 +330,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         const contract = new ethers.Contract(
           srcTokenAddress,
           ERC20.abi,
-          avalancheProvider
+          avaxProviderC
         );
 
         if (!contract.allowance) {
@@ -447,7 +447,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         throwError(signError);
       }
 
-      avalancheProvider.waitForTransaction(swapTxHash).then(async (tx) => {
+      avaxProviderC.waitForTransaction(swapTxHash).then(async (tx) => {
         const isSuccessful = tx && tx.status === 1;
 
         captureEncrypted(isSuccessful ? 'SwapSuccessful' : 'SwapFailed', {
@@ -502,7 +502,7 @@ export function SwapContextProvider({ children }: { children: any }) {
     [
       activeAccount?.addressC,
       activeNetwork,
-      avalancheProvider,
+      avaxProviderC,
       buildTx,
       captureEncrypted,
       getParaswapSpender,

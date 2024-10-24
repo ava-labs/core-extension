@@ -129,18 +129,22 @@ export const usePvmSend: SendAdapterPVM = ({
 
         const avax = provider.getAvaxID();
         const amountBigInt = bigToBigInt(Big(amount), token.decimals);
-        const changeAddress = utils.parse(account.addressPVM)[2];
+        const changeAddress = utils.parse(
+          account.addressPVM //.replace('fuji', 'custom') // TODO: just testing
+        )[2];
 
+        const feeState = await provider.getApiP().getFeeState();
         const unsignedTx = wallet.baseTX({
           utxoSet: utxos,
           chain: PCHAIN_ALIAS,
-          toAddress: address,
+          toAddress: address, //.replace('fuji', 'custom'), // TODO: just testing
           amountsPerAsset: {
             [avax]: amountBigInt,
           },
           options: {
             changeAddresses: [changeAddress],
           },
+          feeState,
         });
         const manager = utils.getManagerForVM(unsignedTx.getVM());
         const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());
@@ -151,6 +155,7 @@ export const usePvmSend: SendAdapterPVM = ({
           utxos: unsignedTx.utxos.map((utxo) =>
             utils.bufferToHex(utxo.toBytes(codec))
           ),
+          feeTolerance: 100,
         };
         return await request<AvalancheSendTransactionHandler>({
           method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,

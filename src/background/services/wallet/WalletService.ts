@@ -183,7 +183,7 @@ export class WalletService implements OnLock, OnUnlock {
       return;
     }
 
-    const provider = getProviderForNetwork(network);
+    const provider = await getProviderForNetwork(network);
     const { secretType } = secrets;
 
     // Seedless wallet uses a universal signer class (one for all tx types)

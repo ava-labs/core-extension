@@ -201,8 +201,10 @@ export class AccountsService implements OnLock, OnUnlock {
 
   async getAddressesForAccount(account: Account): Promise<DerivedAddresses> {
     if (account.type !== AccountType.PRIMARY) {
-      const isMainnet = this.networkService.isMainnet();
-      return this.secretsService.getImportedAddresses(account.id, isMainnet);
+      return this.secretsService.getImportedAddresses(
+        account.id,
+        this.networkService
+      );
     }
 
     const addresses = await this.secretsService.getAddresses(
@@ -385,10 +387,9 @@ export class AccountsService implements OnLock, OnUnlock {
     name?: string;
   }) {
     try {
-      const isMainnet = this.networkService.isMainnet();
       const { account, commit } = await this.secretsService.addImportedWallet(
         options,
-        isMainnet
+        this.networkService
       );
 
       const existingAccount = this.#findAccountByAddress(account.addressC);

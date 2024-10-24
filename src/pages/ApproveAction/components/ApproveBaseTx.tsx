@@ -6,11 +6,10 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
-import { bigIntToString, bigToLocaleString } from '@avalabs/core-utils-sdk';
+import { TokenUnit, bigIntToString } from '@avalabs/core-utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { AvalancheChainStrings } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
-import { bigintToBig } from '@src/utils/bigintToBig';
 import { PVM } from '@avalabs/avalanchejs';
 
 export function BaseTxView({
@@ -40,6 +39,8 @@ export function BaseTxView({
       bigIntToString(value, decimals).replace(/,/g, '') // Remove thousand separators which makes Number to return NaN
     );
   };
+
+  const fee = new TokenUnit(txFee, 9, 'AVAX');
 
   return (
     <Stack>
@@ -270,7 +271,7 @@ export function BaseTxView({
                     fontWeight: 'fontWeightSemibold',
                   }}
                 >
-                  {bigToLocaleString(bigintToBig(txFee, 9), 6)} AVAX
+                  {fee.toDisplay()} AVAX
                 </Typography>
                 <Typography
                   variant="caption"
@@ -280,7 +281,7 @@ export function BaseTxView({
                   }}
                 >
                   {currencyFormatter(
-                    bigintToBig(txFee, 9).times(avaxPrice).toNumber()
+                    fee.toDisplay({ asNumber: true }) * avaxPrice
                   )}
                 </Typography>
               </Stack>

@@ -80,6 +80,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
 
     const tx = utils.unpackWithManager(vm, txBytes) as avaxSerial.AvaxTx;
 
+    const network = await this.networkService.getAvalancheNetworkXP();
     const providedUtxos = getProvidedUtxos({
       utxoHexes: providedUtxoHexes,
       vm,
@@ -89,6 +90,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
       : await Avalanche.getUtxosByTxFromGlacier({
           transactionHex,
           chainAlias,
+          isDevnet: network.isDevnet || network.chainId === 43117, // FIXME: just a temporary condition
           isTestnet: !this.networkService.isMainnet(),
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,

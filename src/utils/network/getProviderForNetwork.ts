@@ -9,11 +9,18 @@ import { FetchRequest, Network as EthersNetwork } from 'ethers';
 import { Network } from '@src/background/services/network/models';
 
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
+import { Info } from '@avalabs/avalanchejs';
+import { GetUpgradesInfoResponse } from '@avalabs/avalanchejs/dist/info/model';
 
-export const getProviderForNetwork = (
+export type SupportedProvider =
+  | BitcoinProvider
+  | JsonRpcBatchInternal
+  | Avalanche.JsonRpcProvider;
+
+export const getProviderForNetwork = async (
   network: Network,
   useMulticall = false
-): BitcoinProvider | JsonRpcBatchInternal | Avalanche.JsonRpcProvider => {
+): Promise<SupportedProvider> => {
   if (network.vmName === NetworkVMType.BITCOIN) {
     return new BitcoinProvider(
       !network.isTestnet,
@@ -57,6 +64,14 @@ export const getProviderForNetwork = (
     network.vmName === NetworkVMType.AVM ||
     network.vmName === NetworkVMType.PVM
   ) {
+    if (network.isDevnet) {
+      const upgradesInfo = await new Info(network.rpcUrl)
+        .getUpgradesInfo()
+        .catch(() => ({} as GetUpgradesInfoResponse)); // If we can't get the upgrades info, return an empty object. This will result in pre-Etna behavior
+
+      return Avalanche.JsonRpcProvider.getDefaultDevnetProvider(upgradesInfo);
+    }
+
     return network.isTestnet
       ? Avalanche.JsonRpcProvider.getDefaultFujiProvider()
       : Avalanche.JsonRpcProvider.getDefaultMainnetProvider();

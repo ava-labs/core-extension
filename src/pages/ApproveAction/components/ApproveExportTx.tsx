@@ -7,11 +7,10 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
-import { bigToLocaleString } from '@avalabs/core-utils-sdk';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { AvalancheChainStrings } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
-import { bigintToBig } from '@src/utils/bigintToBig';
 
 export function ExportTxView({
   tx,
@@ -22,8 +21,9 @@ export function ExportTxView({
 }) {
   const { t } = useTranslation();
   const { currencyFormatter } = useSettingsContext();
-  const { amount, chain, destination, type, txFee } = tx;
-  const fee = bigintToBig(txFee, 9);
+  const { amount: amountRaw, chain, destination, type, txFee } = tx;
+  const amount = new TokenUnit(amountRaw, 9, 'AVAX');
+  const fee = new TokenUnit(txFee, 9, 'AVAX');
 
   return (
     <Stack>
@@ -145,7 +145,7 @@ export function ExportTxView({
                   fontWeight: 'fontWeightSemibold',
                 }}
               >
-                {bigToLocaleString(bigintToBig(amount, 9), 4)} AVAX
+                {amount.toDisplay()} AVAX
               </Typography>
               <Typography
                 variant="caption"
@@ -155,7 +155,7 @@ export function ExportTxView({
                 }}
               >
                 {currencyFormatter(
-                  bigintToBig(amount, 9).times(avaxPrice).toNumber()
+                  amount.toDisplay({ asNumber: true }) * avaxPrice
                 )}
               </Typography>
             </Stack>
@@ -200,7 +200,7 @@ export function ExportTxView({
                   fontWeight: 'fontWeightSemibold',
                 }}
               >
-                {bigToLocaleString(fee, 6)} AVAX
+                {fee.toString()} AVAX
               </Typography>
               <Typography
                 variant="caption"
@@ -209,7 +209,9 @@ export function ExportTxView({
                   color: 'text.secondary',
                 }}
               >
-                {currencyFormatter(fee.times(avaxPrice).toNumber())}
+                {currencyFormatter(
+                  fee.toDisplay({ asNumber: true }) * avaxPrice
+                )}
               </Typography>
             </Stack>
           </Stack>
