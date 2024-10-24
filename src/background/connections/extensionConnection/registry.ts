@@ -85,7 +85,7 @@ import { KeystoneRequestEvents } from '@src/background/services/keystone/events/
 import { SubmitKeystoneSignature } from '@src/background/services/keystone/handlers/keystoneSubmitSignature';
 import { StoreBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/storeBtcWalletPolicyDetails';
 import { GetBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/getBtcWalletPolicyDetails';
-import { WalletUpdatedEvents } from '@src/background/services/wallet/events/WalletUpdatedEvent';
+import { WalletUpdatedEvents } from '@src/background/services/secrets/events/WalletUpdatedEvent';
 import { GetDefiPortfolioHandler } from '@src/background/services/defi/handlers/getDefiPortfolio';
 import { CurrencyRatesUpdatedEvents } from '@src/background/services/currency/events/currencyRatesUpdatedEvent';
 import { GetCurrencyExchangeRatesHandler } from '@src/background/services/currency/handlers/getCurrencyExchangeRates';

@@ -3,6 +3,7 @@ import { AccountType } from '../models';
 import { AvalancheGetAccountsHandler } from './avalanche_getAccounts';
 import { SecretType } from '../../secrets/models';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { SecretsService } from '../../secrets/SecretsService';
 
 const walletName = 'Wallet-Name-001';
 describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () => {
@@ -36,15 +37,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
     activeAccount: accounts[0],
   } as any;
 
-  const walletServiceMock = {
-    wallets: [
-      {
-        type: SecretType.Mnemonic,
-        name: walletName,
-      },
-    ],
-  } as any;
-
+  const secretsService = new SecretsService({} as any);
   const request = {
     id: '123',
     method: DAppProviderRequest.AVALANCHE_GET_ACCOUNTS,
@@ -52,12 +45,18 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
 
   beforeEach(() => {
     jest.resetAllMocks();
+    secretsService.getPrimaryWalletsDetails = jest.fn().mockResolvedValue([
+      {
+        type: SecretType.Mnemonic,
+        name: walletName,
+      },
+    ]);
   });
 
   it('handleAuthenticated', async () => {
     const handler = new AvalancheGetAccountsHandler(
       accountServiceMock,
-      walletServiceMock
+      secretsService
     );
     const result = await handler.handleAuthenticated(buildRpcCall(request));
 
@@ -101,7 +100,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
   it('handleUnauthenticated', async () => {
     const handler = new AvalancheGetAccountsHandler(
       accountServiceMock,
-      walletServiceMock
+      secretsService
     );
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 

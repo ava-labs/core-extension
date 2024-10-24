@@ -39,6 +39,7 @@ export enum DAppProviderRequest {
   AVALANCHE_SIGN_TRANSACTION = 'avalanche_signTransaction',
   AVALANCHE_SIGN_MESSAGE = 'avalanche_signMessage',
   BITCOIN_SEND_TRANSACTION = 'bitcoin_sendTransaction',
+  WALLET_RENAME = 'avalanche_renameWallet',
 }
 
 export enum Web3Event {

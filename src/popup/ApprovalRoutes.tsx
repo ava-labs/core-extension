@@ -106,6 +106,12 @@ const GetAddressesInRange = lazy(() => {
   }));
 });
 
+const RenameWallet = lazy(() => {
+  return import('../pages/Wallet/RenameWallet').then((m) => ({
+    default: m.RenameWallet,
+  }));
+});
+
 export const ApprovalRoutes = (props: SwitchProps) => (
   <Suspense
     fallback={
@@ -186,6 +192,9 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       </Route>
       <Route path="/network/switch">
         <SwitchActiveNetwork />
+      </Route>
+      <Route path="/renameWallet">
+        <RenameWallet />
       </Route>
     </Switch>
   </Suspense>

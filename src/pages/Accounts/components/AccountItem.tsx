@@ -5,7 +5,6 @@ import {
   Collapse,
   Stack,
   Tooltip,
-  Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
 import { useHistory } from 'react-router-dom';
@@ -35,6 +34,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { SecretType } from '@src/background/services/secrets/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
+import AccountName from './AccountName';
 
 type AccountItemProps = {
   account: Account;
@@ -68,6 +68,7 @@ export const AccountItem = forwardRef(
 
     const isImportedAccount = account.type !== AccountType.PRIMARY;
     const isSelected = selectedAccounts.includes(account.id);
+
     const isSelectable =
       walletType === SecretType.Seedless
         ? false
@@ -76,6 +77,7 @@ export const AccountItem = forwardRef(
     const totalBalance = (balanceTotalUSD && balanceTotalUSD.sum) ?? null;
     const isBitcoinActive = network && isBitcoinNetwork(network);
     const address = network ? getAddressForChain(network.chainId, account) : '';
+    const [cardHovered, setCardHovered] = useState(false);
 
     const toggle = useCallback(
       (accountId: string) => {
@@ -154,6 +156,7 @@ export const AccountItem = forwardRef(
           px: 2,
           width: 1,
           cursor: 'pointer',
+
           opacity: isManageMode ? (isSelectable ? 1 : 0.6) : isActive ? 1 : 0.6,
           transition: theme.transitions.create('opacity'),
           ':hover': {
@@ -163,6 +166,8 @@ export const AccountItem = forwardRef(
         onClick={isManageMode ? undefined : handleAccountClick}
         onClickCapture={isManageMode ? handleAccountClick : undefined}
         data-testid={`account-li-item-${account.id}`}
+        onMouseEnter={() => setCardHovered(true)}
+        onMouseLeave={() => setCardHovered(false)}
       >
         <Collapse in={isManageMode} orientation="horizontal" unmountOnExit>
           <Stack
@@ -187,7 +192,14 @@ export const AccountItem = forwardRef(
             </Tooltip>
           </Stack>
         </Collapse>
-        <Card elevation={1} sx={{ flexGrow: 1, backgroundColor: 'grey.850' }}>
+        <Card
+          elevation={1}
+          sx={{
+            flexGrow: 1,
+            backgroundColor: isActive ? 'primary.main' : 'grey.850',
+            color: isActive ? 'grey.900' : 'default',
+          }}
+        >
           <CardContent
             sx={{ px: 2, py: 1, height: isImportedAccount ? 86 : 64 }}
           >
@@ -196,17 +208,12 @@ export const AccountItem = forwardRef(
                 direction="row"
                 sx={{ gap: 1, justifyContent: 'space-between' }}
               >
-                <Typography
-                  variant="h6"
-                  data-testid="account-name"
-                  sx={{
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {account.name}
-                </Typography>
+                <AccountName
+                  accountName={account.name}
+                  accountId={account.id}
+                  cardHovered={cardHovered}
+                  isActive={isActive}
+                />
                 <Stack direction="row" sx={{ alignItems: 'center' }}>
                   <AccountBalance
                     refreshBalance={getBalance}
@@ -230,7 +237,7 @@ export const AccountItem = forwardRef(
                     <SimpleAddress
                       address={address}
                       iconColor="text.secondary"
-                      textColor="text.secondary"
+                      textColor={isActive ? 'grey.900' : 'text.secondary'}
                       copyCallback={() => {
                         const eventName = isBitcoinActive
                           ? 'AccountSelectorBtcAddressCopied'

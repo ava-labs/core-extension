@@ -19,11 +19,13 @@ import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/h
 import { GetWalletDetailsHandler } from '@src/background/services/wallet/handlers/getWalletDetails';
 import { GetHistoryHandler } from '@src/background/services/history/handlers/getHistory';
 import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
-import { walletStateChangedEventListener } from '@src/background/services/wallet/events/WalletUpdatedEventListener';
+import { walletStateChangedEventListener } from '@src/background/services/secrets/events/WalletUpdatedEventListener';
 import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
 import { useAccountsContext } from './AccountsProvider';
 import { AccountType } from '@src/background/services/accounts/models';
 import { SecretType } from '@src/background/services/secrets/models';
+import { AvalancheRenameWalletHandler } from '@src/background/services/secrets/handlers/avalanche_renameWallet';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 
 type WalletStateAndMethods = {
   isWalletLoading: boolean;
@@ -38,7 +40,9 @@ type WalletStateAndMethods = {
   getWallet(id: string): WalletDetails | undefined;
   getUnencryptedMnemonic(password: string): Promise<string>;
   getTransactionHistory(): Promise<TxHistoryItem[]>;
+  renameWallet(id: string, name: string): Promise<any>;
 };
+
 const WalletContext = createContext<WalletStateAndMethods>({
   wallets: [],
 } as any);
@@ -161,6 +165,16 @@ export function WalletContextProvider({ children }: { children: any }) {
     });
   }, [request]);
 
+  const renameWallet = useCallback(
+    (id: string, name: string) => {
+      return request<AvalancheRenameWalletHandler>({
+        method: DAppProviderRequest.WALLET_RENAME,
+        params: [id, name],
+      });
+    },
+    [request]
+  );
+
   if (!isWalletLoading && isWalletLocked) {
     return <WalletLocked unlockWallet={unlockWallet} />;
   }
@@ -177,6 +191,7 @@ export function WalletContextProvider({ children }: { children: any }) {
         changeWalletPassword,
         getUnencryptedMnemonic,
         getTransactionHistory,
+        renameWallet,
       }}
     >
       {children}

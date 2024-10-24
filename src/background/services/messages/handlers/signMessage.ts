@@ -13,6 +13,7 @@ import { TypedDataEncoder } from 'ethers';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { BlockaidService } from '../../blockaid/BlockaidService';
 import { getValidationResultType } from '../../blockaid/utils';
+import { SecretsService } from '../../secrets/SecretsService';
 
 @injectable()
 export class PersonalSignHandler extends DAppRequestHandler {
@@ -28,7 +29,8 @@ export class PersonalSignHandler extends DAppRequestHandler {
   constructor(
     private walletService: WalletService,
     private networkService: NetworkService,
-    private blockaidService: BlockaidService
+    private blockaidService: BlockaidService,
+    private secretsService: SecretsService
   ) {
     super();
   }
@@ -41,7 +43,8 @@ export class PersonalSignHandler extends DAppRequestHandler {
   };
 
   handleAuthenticated = async ({ request, scope }) => {
-    if (this.walletService.wallets.length === 0) {
+    const wallets = await this.secretsService.getPrimaryWalletsDetails();
+    if (wallets.length === 0) {
       return {
         ...request,
         error: 'wallet undefined',
