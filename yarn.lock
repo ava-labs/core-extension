@@ -29,7 +29,7 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@^0.11.2":
+"@avalabs/avalanche-module@0.11.2":
   version "0.11.2"
   resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.11.2.tgz#265d0a9c781d623cd0ae61495a161c9649972f26"
   integrity sha512-8oMmaQrTBV3iGntZA2VQYSLP5NKCRRD3rbcMa9WkzxCe16DWhT+tiygH6gqU48dI5pP5ELGcpoD6Bmg3JGN2QA==
@@ -59,7 +59,7 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@^0.11.2":
+"@avalabs/bitcoin-module@0.11.2":
   version "0.11.2"
   resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.11.2.tgz#1603d00481bd6ecc3e30e67abc41c0f7866278f9"
   integrity sha512-BpyyEN0M0YHXPX1erHHfNeTvbVZ80zEdy9W9zS6m9Eeep9P/1fAxs1NndLZpQOzjP3J+pSzr+pNDkeJfIz/lPw==
@@ -194,7 +194,7 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@^0.11.2":
+"@avalabs/evm-module@0.11.2":
   version "0.11.2"
   resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.11.2.tgz#9f91ddc4c198f63e4a7b4a5045c59c4ad77408bc"
   integrity sha512-2es5NKGurKUXq87a7xYH+zL3kvprjZ4DtcL+CVLIVCIsmVXSYRIAnNl7JgM1SakqrIeI+BAUuBi+OxMhBMc2HA==
@@ -235,7 +235,7 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.10.tgz#408766fce72882b0dc04ac045e5f3e95d21503d3"
   integrity sha512-MgWAsW9K+y75tDMK8JCNdRLT4Lkdr1LysiPhlAaYg8Ino7KsZZmGzbIcLHakQwjSbY4CWQblDlB5y4SHN+fdmA==
 
-"@avalabs/vm-module-types@0.11.2", "@avalabs/vm-module-types@^0.11.2":
+"@avalabs/vm-module-types@0.11.2":
   version "0.11.2"
   resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.11.2.tgz#faa2df6533da181f5d7c6f4cd6e366196c653c91"
   integrity sha512-PdMCNSKy+jPfDWbNoj6sIzJc1T5XwXfnsAJFonEF+KKHW7j/Vy0WvOyL7bHRECIrvfGdUYFhnfVLragfGBGARQ==
