@@ -1,23 +1,15 @@
-import { Blockchain, BridgeTransaction } from '@avalabs/core-bridge-sdk';
+import { BridgeTransaction } from '@avalabs/core-bridge-sdk';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
-import { BITCOIN_NETWORK, ChainId } from '@avalabs/core-chains-sdk';
+
 import { TxHistoryItem } from '@src/background/services/history/models';
-import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
-import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
-import { isUnifiedBridgeTransfer } from '@src/pages/Bridge/utils/isUnifiedBridgeTransfer';
-import {
-  ETHEREUM_ADDRESS,
-  isPendingBridgeTransaction,
-} from '@src/utils/bridgeTransactionUtils';
-import { caipToChainId } from '@src/utils/caipConversion';
+import { isPendingBridgeTransaction } from '@src/utils/bridgeTransactionUtils';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 export function useBlockchainNames(
   item: TxHistoryItem | BridgeTransaction | BridgeTransfer
 ) {
-  const {
-    state: { addresses },
-  } = useUnifiedBridgeContext();
   const pending = isPendingBridgeTransaction(item);
+  const { getNetwork } = useNetworkContext();
 
   if (pending) {
     return {
@@ -34,86 +26,25 @@ export function useBlockchainNames(
     };
   }
 
-  const isToAvalanche = isTxToAvalanche(item);
-  const txBlockchain = getTxBlockchain(item, addresses);
+  if (!item.bridgeAnalysis.isBridgeTx) {
+    return {
+      sourceBlockchain: undefined,
+      targetBlockchain: undefined,
+    };
+  }
+
+  const { sourceChainId, targetChainId } = item.bridgeAnalysis;
 
   return {
-    sourceBlockchain: isToAvalanche ? txBlockchain : 'Avalanche',
-    targetBlockchain: isToAvalanche ? 'Avalanche' : txBlockchain,
+    sourceBlockchain: sourceChainId
+      ? getNetwork(sourceChainId)?.chainName ?? sourceChainId
+      : undefined,
+    targetBlockchain: targetChainId
+      ? getNetwork(targetChainId)?.chainName ?? targetChainId
+      : undefined,
   };
 }
 
 function titleCase(name: string) {
   return (name[0] || '').toUpperCase() + name.slice(1);
-}
-
-function isBridgeTransaction(
-  tx: TxHistoryItem | BridgeTransaction | BridgeTransfer
-): tx is BridgeTransaction | BridgeTransfer {
-  return 'targetChain' in tx;
-}
-
-function isTxToAvalanche(
-  tx: TxHistoryItem | BridgeTransaction | BridgeTransfer
-): boolean {
-  if (isBridgeTransaction(tx)) {
-    if (isUnifiedBridgeTransfer(tx)) {
-      return (
-        caipToChainId(tx.targetChain.chainId) === ChainId.ETHEREUM_HOMESTEAD ||
-        caipToChainId(tx.targetChain.chainId) === ChainId.ETHEREUM_TEST_GOERLY
-      );
-    }
-
-    return tx.targetChain === Blockchain.AVALANCHE;
-  } else if (tx.from === ETHEREUM_ADDRESS) {
-    return true;
-  } else if (tx.isOutgoing) {
-    return (
-      tx.chainId !== ChainId.AVALANCHE_MAINNET_ID.toString() &&
-      tx.chainId !== ChainId.AVALANCHE_TESTNET_ID.toString()
-    );
-  } else if (tx.isIncoming) {
-    return (
-      tx.chainId === ChainId.AVALANCHE_MAINNET_ID.toString() ||
-      tx.chainId === ChainId.AVALANCHE_TESTNET_ID.toString()
-    );
-  }
-  return false;
-}
-
-function getTxBlockchain(
-  tx: TxHistoryItem | BridgeTransaction | BridgeTransfer,
-  addresses: string[]
-) {
-  const symbol = isBridgeTransaction(tx) ? tx.symbol : tx.tokens?.[0]?.symbol;
-  const ethereum = 'Ethereum';
-  const bitcoin = 'Bitcoin';
-
-  if (symbol === BITCOIN_NETWORK.networkToken.symbol) {
-    return bitcoin;
-  }
-
-  if (!isBridgeTransaction(tx)) {
-    if (isEthereumChainId(Number(tx.chainId))) {
-      return ethereum;
-    }
-
-    if (
-      addresses.includes(tx.to.toLowerCase()) ||
-      addresses.includes(tx.from.toLowerCase())
-    ) {
-      return ethereum;
-    }
-  }
-
-  const symbolPostfix = symbol?.split('.')[1];
-
-  switch (symbolPostfix) {
-    case 'e':
-      return ethereum;
-    case 'b':
-      return bitcoin;
-    default:
-      return 'N/A';
-  }
 }

@@ -52,7 +52,7 @@ export const ManageCollectiblesList = ({
       {displayableNfts?.map((nft) => (
         <ManageCollectiblesListItem
           nft={nft}
-          key={`collectible-${nft.name.toLowerCase()}`}
+          key={`collectible-${nft.address}-${nft.tokenId}`}
         />
       ))}
     </Stack>

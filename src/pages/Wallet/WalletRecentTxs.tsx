@@ -24,7 +24,7 @@ import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNF
 import { usePendingBridgeTransactions } from '../Bridge/hooks/usePendingBridgeTransactions';
 import {
   isPchainTxHistoryItem,
-  isTxHistoryItem,
+  isNonXPHistoryItem,
 } from '@src/background/services/history/utils/isTxHistoryItem';
 import { PchainActivityCard } from './components/History/components/ActivityCard/PchainActivityCard';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
@@ -37,6 +37,7 @@ import {
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { XchainActivityCard } from './components/History/components/ActivityCard/XchainActivityCard';
+import { getBridgedAssetSymbol } from '@src/utils/bridge/getBridgedAssetSymbol';
 import { Transaction, TransactionType } from '@avalabs/vm-module-types';
 
 type WalletRecentTxsProps = {
@@ -141,7 +142,7 @@ export function WalletRecentTxs({
 
   const filteredBridgeTransactions = tokenSymbolFilter
     ? Object.values(bridgeTransactions).filter(
-        (tx) => tx.symbol === tokenSymbolFilter
+        (tx) => getBridgedAssetSymbol(tx) === tokenSymbolFilter
       )
     : bridgeTransactions;
 
@@ -189,7 +190,11 @@ export function WalletRecentTxs({
     }
 
     function shouldTxBeKept(tx: TxHistoryItem) {
-      if (isTxHistoryItem(tx) && tx.isBridge && isPendingBridge(tx)) {
+      if (
+        isNonXPHistoryItem(tx) &&
+        tx.bridgeAnalysis.isBridgeTx &&
+        isPendingBridge(tx)
+      ) {
         return false;
       }
       return true;
@@ -197,7 +202,7 @@ export function WalletRecentTxs({
 
     return unfilteredTxHistory
       .filter((tx) => {
-        if (tokenSymbolFilter && isTxHistoryItem(tx)) {
+        if (tokenSymbolFilter && isNonXPHistoryItem(tx)) {
           return tokenSymbolFilter === tx.tokens?.[0]?.symbol;
         } else {
           return true;
@@ -213,12 +218,16 @@ export function WalletRecentTxs({
     if (filter === FilterType.ALL) {
       return true;
     } else if (filter === FilterType.BRIDGE) {
-      return tx.txType === TransactionType.BRIDGE || tx.isBridge;
+      return (
+        tx.txType === TransactionType.BRIDGE || tx.bridgeAnalysis.isBridgeTx
+      );
     } else if (filter === FilterType.SWAP) {
       return tx.txType === TransactionType.SWAP;
     } else if (filter === FilterType.CONTRACT_CALL) {
       return (
-        tx.isContractCall && !tx.isBridge && tx.txType !== TransactionType.SWAP
+        tx.isContractCall &&
+        !tx.bridgeAnalysis.isBridgeTx &&
+        tx.txType !== TransactionType.SWAP
       );
     } else if (filter === FilterType.INCOMING) {
       return tx.isIncoming;
@@ -287,7 +296,7 @@ export function WalletRecentTxs({
       tx: TxHistoryItem,
       filter: FilterType | PchainFilterType | XchainFilterType
     ) {
-      if (isTxHistoryItem(tx)) {
+      if (isNonXPHistoryItem(tx)) {
         return txHistoryItemFilter(tx, filter);
       } else if (isPchainTxHistoryItem(tx)) {
         return pchainTxHistoryItemFilter(tx, filter);
@@ -485,7 +494,7 @@ export function WalletRecentTxs({
                       {getDayString(tx.timestamp)}
                     </Typography>
                   )}
-                  {isTxHistoryItem(tx) ? (
+                  {isNonXPHistoryItem(tx) ? (
                     <ActivityCard historyItem={tx} />
                   ) : isPchainTxHistoryItem(tx) ? (
                     <PchainActivityCard historyItem={tx} />

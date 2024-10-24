@@ -61,6 +61,7 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { Network } from '../network/models';
 import { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
+import { Account } from '../accounts/models';
 
 @singleton()
 export class WalletService implements OnLock, OnUnlock {
@@ -327,7 +328,9 @@ export class WalletService implements OnLock, OnUnlock {
           throw new Error('Ledger transport not available');
         }
 
-        const walletPolicy = await this.parseWalletPolicyDetails();
+        const walletPolicy = await this.parseWalletPolicyDetails(
+          this.accountsService.activeAccount
+        );
         const accountIndexToUse =
           accountIndex === undefined ? secrets.account.index : accountIndex;
 
@@ -358,7 +361,9 @@ export class WalletService implements OnLock, OnUnlock {
           throw new Error('Account public key not available');
         }
 
-        const walletPolicy = await this.parseWalletPolicyDetails();
+        const walletPolicy = await this.parseWalletPolicyDetails(
+          secrets.account
+        );
 
         return new BitcoinLedgerWallet(
           Buffer.from(addressPublicKey.evm, 'hex'),
@@ -835,9 +840,9 @@ export class WalletService implements OnLock, OnUnlock {
     );
   }
 
-  private async parseWalletPolicyDetails() {
+  private async parseWalletPolicyDetails(account: Account) {
     const policyInfo = await this.secretService.getBtcWalletPolicyDetails(
-      this.accountsService.activeAccount
+      account
     );
 
     if (!policyInfo || !policyInfo.details) {

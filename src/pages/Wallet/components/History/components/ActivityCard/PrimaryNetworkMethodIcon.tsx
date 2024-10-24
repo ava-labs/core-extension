@@ -5,11 +5,16 @@ import {
   ArrowRightIcon,
   ArrowUpRightIcon,
   BlockchainIcon,
+  BuildIcon,
+  ChevronDoubleUpIcon,
   ClockIcon,
+  DownloadIcon,
   HelpCircleIcon,
   MinusCircleIcon,
+  RefreshIcon,
   ShareIcon,
   Stack,
+  ValidatorIcon,
   useTheme,
 } from '@avalabs/core-k2-components';
 import { useMemo } from 'react';
@@ -26,6 +31,7 @@ export interface PrimaryNetworkMethodIconProp {
     | 'CreateAssetTx'
     | 'OperationTx';
 }
+
 const METHOD_NAME_TO_ICON: Record<
   | PChainTransactionType
   | XChainTransactionType
@@ -53,6 +59,11 @@ const METHOD_NAME_TO_ICON: Record<
   RemoveSubnetValidatorTx: MinusCircleIcon,
   RewardValidatorTx: AirdropIcon,
   AdvanceTimeTx: ClockIcon,
+  [PChainTransactionType.CONVERT_SUBNET_TX]: RefreshIcon,
+  [PChainTransactionType.REGISTER_SUBNET_VALIDATOR_TX]: ValidatorIcon,
+  [PChainTransactionType.SET_SUBNET_VALIDATOR_WEIGHT_TX]: BuildIcon,
+  [PChainTransactionType.DISABLE_SUBNET_VALIDATOR_TX]: DownloadIcon,
+  [PChainTransactionType.INCREASE_BALANCE_TX]: ChevronDoubleUpIcon,
   UNKNOWN: HelpCircleIcon,
 };
 

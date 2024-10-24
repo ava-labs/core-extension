@@ -413,14 +413,14 @@ export class SecretsService {
   }
 
   async getBtcWalletPolicyDetails(
-    activeAccount?: Account
+    account: Account
   ): Promise<
     { accountIndex: number; details?: BtcWalletPolicyDetails } | undefined
   > {
-    if (!activeAccount) {
+    if (!account) {
       return undefined;
     }
-    const secrets = await this.getAccountSecrets(activeAccount);
+    const secrets = await this.getAccountSecrets(account);
 
     if (secrets.secretType === SecretType.LedgerLive && secrets.account) {
       const accountIndex = secrets.account.index;

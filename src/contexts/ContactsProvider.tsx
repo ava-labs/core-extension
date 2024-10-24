@@ -1,5 +1,11 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { ContactsState } from '@src/background/services/contacts/models';
@@ -15,6 +21,7 @@ type ContactsFromProvider = ContactsState & {
   removeContact(contact: Contact): Promise<any>;
   updateContact(contact: Contact): Promise<any>;
   getContactById(contactId: string): Contact | undefined;
+  getContactByAddress(address: string): Contact | undefined;
 };
 
 const ContactsContext = createContext<ContactsFromProvider>({} as any);
@@ -76,6 +83,16 @@ export function ContactsContextProvider({ children }: { children: any }) {
     });
   }
 
+  const getContactByAddress = useCallback(
+    (lookupAddress: string) =>
+      contacts.contacts.find(({ address, addressBTC, addressXP }) =>
+        [address, addressBTC, addressXP]
+          .map((a) => (a ?? '').toLowerCase())
+          .includes(lookupAddress)
+      ),
+    [contacts.contacts]
+  );
+
   return (
     <ContactsContext.Provider
       value={{
@@ -84,6 +101,7 @@ export function ContactsContextProvider({ children }: { children: any }) {
         removeContact,
         updateContact,
         getContactById,
+        getContactByAddress,
       }}
     >
       {children}

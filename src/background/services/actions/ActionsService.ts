@@ -142,7 +142,7 @@ export class ActionsService implements OnStorageReady {
     const isHandledByModule = pendingMessage[ACTION_HANDLED_BY_MODULE];
 
     if (status === ActionStatus.SUBMITTING && isHandledByModule) {
-      this.approvalController.onApproved(pendingMessage);
+      await this.approvalController.onApproved(pendingMessage);
       this.removeAction(id);
     } else if (status === ActionStatus.SUBMITTING) {
       const handler = this.dAppRequestHandlers.find((h) =>
@@ -183,7 +183,7 @@ export class ActionsService implements OnStorageReady {
       status === ActionStatus.ERROR_USER_CANCELED &&
       isHandledByModule
     ) {
-      this.approvalController.onRejected(pendingMessage);
+      await this.approvalController.onRejected(pendingMessage);
       this.removeAction(id);
     } else if (status === ActionStatus.ERROR_USER_CANCELED) {
       await this.emitResult(

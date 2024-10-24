@@ -16,14 +16,12 @@ export enum UnifiedBridgeError {
 
 export type UnifiedBridgeState = {
   pendingTransfers: Record<string, BridgeTransfer>;
-  addresses: string[];
 };
 
 export const UNIFIED_BRIDGE_TRACKED_FLAGS = [FeatureGates.UNIFIED_BRIDGE_CCTP];
 
 export const UNIFIED_BRIDGE_DEFAULT_STATE: UnifiedBridgeState = {
   pendingTransfers: {},
-  addresses: [],
 };
 
 export const UNIFIED_BRIDGE_STATE_STORAGE_KEY = 'UNIFIED_BRIDGE_STATE';

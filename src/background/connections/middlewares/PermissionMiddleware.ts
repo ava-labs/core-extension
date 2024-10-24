@@ -23,6 +23,7 @@ const RESTRICTED_METHODS = Object.freeze([] as string[]);
  * "method not found" error.
  */
 export const UNRESTRICTED_METHODS = Object.freeze([
+  'bitcoin_signTransaction',
   'eth_accounts',
   'eth_requestAccounts',
   'eth_baseFee',

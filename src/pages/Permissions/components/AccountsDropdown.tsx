@@ -45,7 +45,7 @@ export const AccountsDropdown = ({
   const { t } = useTranslation();
   const [selectedAccount, setSelectedAccount] = useState(activeAccount);
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
-  const { updateBalanceOnAllNetworks } = useBalancesContext();
+  const { updateBalanceOnNetworks } = useBalancesContext();
   const { currency, currencyFormatter } = useSettingsContext();
   const accountBalance = useBalanceTotalInCurrency(selectedAccount);
 
@@ -57,7 +57,7 @@ export const AccountsDropdown = ({
   useEffect(() => {
     const getBalance = async () => {
       setIsBalanceLoading(true);
-      await updateBalanceOnAllNetworks?.(selectedAccount);
+      await updateBalanceOnNetworks?.(selectedAccount);
       setIsBalanceLoading(false);
     };
 
@@ -69,7 +69,7 @@ export const AccountsDropdown = ({
     }
 
     getBalance();
-  }, [activeAccount, selectedAccount, updateBalanceOnAllNetworks]);
+  }, [activeAccount, selectedAccount, updateBalanceOnNetworks]);
 
   // Update balance & notify parent component about changes when account is selected
   useEffect(() => {
