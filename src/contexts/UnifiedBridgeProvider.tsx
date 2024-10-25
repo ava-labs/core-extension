@@ -73,9 +73,13 @@ export interface UnifiedBridgeContext {
   getErrorMessage(errorCode: UnifiedBridgeErrorCode): string;
   transferableAssets: BridgeAsset[];
   state: UnifiedBridgeState;
+  assets: ChainAssetMap;
+  availableChainIds: string[];
+  isReady: boolean;
 }
 
 const DEFAULT_STATE = {
+  assets: {},
   state: UNIFIED_BRIDGE_DEFAULT_STATE,
   estimateTransferGas() {
     throw new Error('Bridge not ready');
@@ -99,6 +103,8 @@ const DEFAULT_STATE = {
     throw new Error('Bridge not ready');
   },
   transferableAssets: [],
+  availableChainIds: [],
+  isReady: false,
 };
 
 const UnifiedBridgeContext = createContext<UnifiedBridgeContext>(DEFAULT_STATE);
@@ -129,19 +135,26 @@ export function UnifiedBridgeProvider({
   const [state, setState] = useState<UnifiedBridgeState>(
     UNIFIED_BRIDGE_DEFAULT_STATE
   );
+  const [isReady, setIsReady] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
   const isCCTPDisabled = !featureFlags[FeatureGates.UNIFIED_BRIDGE_CCTP];
-  const disabledBridgeTypes = useMemo(
-    () =>
-      isCCTPDisabled
-        ? [
-            BridgeType.CCTP,
-            BridgeType.ICTT_ERC20_ERC20,
-            BridgeType.AVALANCHE_EVM,
-          ]
-        : [BridgeType.AVALANCHE_EVM, BridgeType.ICTT_ERC20_ERC20],
-    [isCCTPDisabled]
-  );
+  const isICTTDisabled = false; // TODO: feature flag it
+  const isABDisabled = false; // TODO: feature flag it
+  const disabledBridgeTypes = useMemo(() => {
+    const disabledBridges: BridgeType[] = [];
+
+    if (isCCTPDisabled) {
+      disabledBridges.push(BridgeType.CCTP);
+    }
+    if (isICTTDisabled) {
+      disabledBridges.push(BridgeType.ICTT_ERC20_ERC20);
+    }
+    if (isABDisabled) {
+      disabledBridges.push(BridgeType.AVALANCHE_EVM);
+    }
+
+    return disabledBridges;
+  }, [isCCTPDisabled, isABDisabled, isICTTDisabled]);
 
   const environment = useMemo(() => {
     if (typeof activeNetwork?.isTestnet !== 'boolean') {
@@ -202,12 +215,15 @@ export function UnifiedBridgeProvider({
       }
 
       setAssets(chainAssetsMap);
+      setIsReady(true);
     });
 
     return () => {
       isMounted = false;
     };
   }, [core]);
+
+  const availableChainIds = useMemo(() => Object.keys(assets ?? {}), [assets]);
 
   const buildChain = useCallback(
     (chainId: string): Chain => {
@@ -216,7 +232,7 @@ export function UnifiedBridgeProvider({
       assert(network, CommonError.UnknownNetwork);
 
       return {
-        chainId,
+        chainId: network.caipId,
         chainName: network.chainName,
         rpcUrl: network.rpcUrl,
         networkToken: {
@@ -236,9 +252,6 @@ export function UnifiedBridgeProvider({
       return [];
     }
 
-    // UnifiedBridge SDK returns the chain IDs in CAIP2 format.
-    // This is good, but we need to translate it to numeric chain ids
-    // until we make the switch in extension:
     return assets[activeNetwork.caipId] ?? [];
   }, [activeNetwork, assets]);
 
@@ -358,6 +371,8 @@ export function UnifiedBridgeProvider({
 
       const identifier =
         asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
+
+      assert(identifier, UnifiedBridgeError.InvalidFee);
 
       return feeMap[identifier.toLowerCase()] ?? 0n;
     },
@@ -531,8 +546,11 @@ export function UnifiedBridgeProvider({
   return (
     <UnifiedBridgeContext.Provider
       value={{
+        assets,
+        availableChainIds,
         estimateTransferGas,
         getErrorMessage,
+        isReady,
         state,
         analyzeTx,
         getAssetIdentifierOnTargetChain,
