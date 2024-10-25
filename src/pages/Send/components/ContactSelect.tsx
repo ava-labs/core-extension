@@ -22,7 +22,7 @@ import {
   MyAccountContacts,
 } from './AddressDropdownListMyAccounts';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { isTxHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
+import { isNonXPHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 import { indexOf } from 'lodash';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
@@ -76,7 +76,7 @@ export const ContactSelect = ({
     }
     getTransactionHistory().then((history) => {
       const filteredHistory = history.filter((tx, index, self) => {
-        if (!tx.isSender || (isTxHistoryItem(tx) && tx.isContractCall)) {
+        if (!tx.isSender || (isNonXPHistoryItem(tx) && tx.isContractCall)) {
           return false;
         }
         // filter out dupe to addresses

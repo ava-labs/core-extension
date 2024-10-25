@@ -1,8 +1,10 @@
-import { render, waitFor } from '@src/tests/test-utils';
+import { matchingPayload, render, waitFor } from '@src/tests/test-utils';
 import { createRef, forwardRef, useImperativeHandle } from 'react';
 import {
+  BridgeService,
   BridgeSignatureReason,
   BridgeType,
+  Environment,
   TokenType,
   createUnifiedBridgeService,
   getEnabledBridgeServices,
@@ -22,7 +24,7 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { chainIdToCaip } from '@src/utils/caipConversion';
 import { CommonError } from '@src/utils/errors';
 import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { RpcMethod } from '@avalabs/vm-module-types';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
@@ -80,18 +82,22 @@ describe('contexts/UnifiedBridgeProvider', () => {
     vmName: NetworkVMType.EVM,
     isTestnet: false,
     chainId: 43114,
+    caipId: 'eip155:43114',
   };
 
   const ethereum = {
     vmName: NetworkVMType.EVM,
     isTestnet: false,
     chainId: 1,
+    caipId: 'eip155:1',
   };
 
   const networkContext = {
     network: avalanche,
     getNetwork(chainId) {
-      return chainId === 43114 ? avalanche : ethereum;
+      return chainId === 43114 || chainId === 'eip155:43114'
+        ? avalanche
+        : ethereum;
     },
     avalancheProvider: {
       waitForTransaction: jest.fn(),
@@ -169,6 +175,53 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
     await waitFor(() =>
       expect(provider.current?.transferableAssets).toEqual([avaxUSDC])
+    );
+  });
+
+  it('initializes with test environment when in testnet mode', async () => {
+    jest.mocked(useNetworkContext).mockReturnValue({
+      ...networkContext,
+      network: {
+        ...avalanche,
+        isTestnet: true,
+      },
+    });
+
+    getBridgeProvider();
+
+    await waitFor(() =>
+      expect(createUnifiedBridgeService).toHaveBeenCalledWith(
+        matchingPayload({ environment: Environment.TEST })
+      )
+    );
+  });
+
+  it('initializes with prod environment when not in testnet mode', async () => {
+    getBridgeProvider();
+
+    await waitFor(() =>
+      expect(createUnifiedBridgeService).toHaveBeenCalledWith(
+        matchingPayload({ environment: Environment.PROD })
+      )
+    );
+  });
+
+  it('initializes without AvalancheBridge and ICTT', async () => {
+    const serviceMap = new Map([[BridgeType.CCTP, {} as BridgeService]]);
+    jest.mocked(getEnabledBridgeServices).mockResolvedValueOnce(serviceMap);
+
+    getBridgeProvider();
+
+    await waitFor(() =>
+      expect(getEnabledBridgeServices).toHaveBeenCalledWith(Environment.PROD, [
+        BridgeType.AVALANCHE_EVM,
+        BridgeType.ICTT_ERC20_ERC20,
+      ])
+    );
+    await waitFor(() =>
+      expect(createUnifiedBridgeService).toHaveBeenCalledWith(
+        matchingPayload({ enabledBridgeServices: serviceMap })
+      )
     );
   });
 
@@ -260,28 +313,29 @@ describe('contexts/UnifiedBridgeProvider', () => {
           sign: expect.any(Function),
         });
 
-        expect(requestFn).toHaveBeenCalledWith({
-          method: DAppProviderRequest.ETH_SEND_TX,
-          params: [
-            { ...allowanceTx },
-            {
-              customApprovalScreenTitle: 'Confirm Bridge',
-              contextInformation: {
-                title: 'This operation requires {{total}} approvals.',
-                notice: 'You will be prompted {{remaining}} more time(s).',
-              },
+        expect(requestFn).toHaveBeenCalledWith(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [{ ...allowanceTx }],
+          },
+          {
+            customApprovalScreenTitle: 'Confirm Bridge',
+            alert: {
+              type: 'info',
+              title: 'This operation requires {{total}} approvals.',
+              notice: 'You will be prompted {{remaining}} more time(s).',
             },
-          ],
-        });
-        expect(requestFn).toHaveBeenCalledWith({
-          method: DAppProviderRequest.ETH_SEND_TX,
-          params: [
-            { ...transferTx },
-            {
-              customApprovalScreenTitle: 'Confirm Bridge',
-            },
-          ],
-        });
+          }
+        );
+        expect(requestFn).toHaveBeenCalledWith(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [{ ...transferTx }],
+          },
+          {
+            customApprovalScreenTitle: 'Confirm Bridge',
+          }
+        );
         expect(requestFn).toHaveBeenCalledWith({
           method: ExtensionRequest.UNIFIED_BRIDGE_TRACK_TRANSFER,
           params: [transfer],

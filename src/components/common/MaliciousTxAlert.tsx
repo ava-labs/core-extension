@@ -5,11 +5,20 @@ import { useTranslation } from 'react-i18next';
 interface MaliciousTxAlertProps {
   cancelHandler: () => void;
   showAlert?: boolean;
+  title?: string;
+  description?: string;
+  actionTitles?: {
+    reject: string;
+    proceed: string;
+  };
 }
 
 export function MaliciousTxAlert({
   showAlert,
+  title,
+  description,
   cancelHandler,
+  actionTitles,
 }: MaliciousTxAlertProps) {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(true);
   const { t } = useTranslation();
@@ -21,9 +30,12 @@ export function MaliciousTxAlert({
           open={isAlertDialogOpen}
           cancelHandler={cancelHandler}
           onClose={() => setIsAlertDialogOpen(false)}
-          title={t('Scam Transaction')}
-          text={t('This transaction is malicious do not proceed.')}
-          rejectLabel={t('Reject Transaction')}
+          title={title || t('Scam Transaction')}
+          text={
+            description || t('This transaction is malicious do not proceed.')
+          }
+          proceedLabel={actionTitles?.proceed || t('Proceed Anyway')}
+          rejectLabel={actionTitles?.reject || t('Reject Transaction')}
         />
       )}
     </>

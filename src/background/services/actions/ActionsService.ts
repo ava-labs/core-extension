@@ -19,6 +19,7 @@ import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
 import { ApprovalController } from '@src/background/vmModules/ApprovalController';
+import { BtcTxUpdateFn, EvmTxUpdateFn } from '@avalabs/vm-module-types';
 
 @singleton()
 export class ActionsService implements OnStorageReady {
@@ -141,7 +142,7 @@ export class ActionsService implements OnStorageReady {
     const isHandledByModule = pendingMessage[ACTION_HANDLED_BY_MODULE];
 
     if (status === ActionStatus.SUBMITTING && isHandledByModule) {
-      this.approvalController.onApproved(pendingMessage);
+      await this.approvalController.onApproved(pendingMessage);
       this.removeAction(id);
     } else if (status === ActionStatus.SUBMITTING) {
       const handler = this.dAppRequestHandlers.find((h) =>
@@ -182,7 +183,7 @@ export class ActionsService implements OnStorageReady {
       status === ActionStatus.ERROR_USER_CANCELED &&
       isHandledByModule
     ) {
-      this.approvalController.onRejected(pendingMessage);
+      await this.approvalController.onRejected(pendingMessage);
       this.removeAction(id);
     } else if (status === ActionStatus.ERROR_USER_CANCELED) {
       await this.emitResult(
@@ -210,6 +211,32 @@ export class ActionsService implements OnStorageReady {
         },
       });
     }
+  }
+
+  async updateTx(
+    id: string,
+    newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0]
+  ) {
+    const currentPendingRequests = await this.getActions();
+    const pendingRequest = currentPendingRequests[id];
+
+    if (!pendingRequest) {
+      throw new Error(`No request found with id: ${id}`);
+    }
+
+    const { signingData, displayData } = this.approvalController.updateTx(
+      id,
+      newData
+    );
+
+    await this.saveActions({
+      ...currentPendingRequests,
+      [id]: {
+        ...pendingRequest,
+        signingData,
+        displayData,
+      },
+    });
   }
 
   addListener(

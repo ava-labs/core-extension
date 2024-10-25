@@ -93,7 +93,7 @@ export function useBridge(): Bridge {
         asset.type === BridgeTokenType.ERC20 &&
         token.type === TokenType.ERC20
       ) {
-        return asset.address.toLowerCase() === token.address.toLowerCase();
+        return asset.address?.toLowerCase() === token.address.toLowerCase();
       }
 
       return false;

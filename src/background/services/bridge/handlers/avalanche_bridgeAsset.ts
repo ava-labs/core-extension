@@ -3,6 +3,7 @@ import { AccountsService } from '@src/background/services/accounts/AccountsServi
 import {
   AppConfig,
   Asset,
+  AssetType,
   Assets,
   BitcoinConfigAsset,
   Blockchain,
@@ -41,7 +42,7 @@ import {
   validateBtcSend,
 } from '@src/utils/send/btcSendUtils';
 import { resolve } from '@src/utils/promiseResolver';
-import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { TokenType, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 
@@ -166,7 +167,12 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     const { tokens } =
       await this.balanceAggregatorService.getBalancesForNetworks(
         [sourceNetwork.chainId],
-        [activeAccount]
+        [activeAccount],
+        [
+          asset.assetType === AssetType.ERC20
+            ? TokenType.ERC20
+            : TokenType.NATIVE,
+        ]
       );
 
     const balanceAddress =
@@ -302,7 +308,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
         const balances =
           await this.balanceAggregatorService.getBalancesForNetworks(
             [network.chainId],
-            [account]
+            [account],
+            [TokenType.NATIVE] // We only care about BTC here, which is a native token
           );
 
         const highFeeRate = Number(
@@ -319,17 +326,20 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
         const utxos = await getBtcInputUtxos(btcProvider, token, highFeeRate);
 
         const hash = await transferAssetBTC({
+          fromAccount: addressBTC,
           config: this.#getConfig(),
-          amount: String(btcToSatoshi(amount)),
-          feeRate: highFeeRate,
+          amount: btcToSatoshi(amount),
+          feeRate:
+            Number(pendingAction.displayData.gasSettings?.maxFeePerGas ?? 0) ||
+            highFeeRate,
           onStatusChange: () => {},
           onTxHashChange: () => {},
-          signAndSendBTC: async ([address, amountAsString, feeRate]) => {
+          signAndSendBTC: async ({ amount: signAmount, feeRate, to, from }) => {
             const error = validateBtcSend(
-              addressBTC,
+              from,
               {
-                address,
-                amount: Number(amountAsString),
+                address: to,
+                amount: signAmount,
                 feeRate,
                 token,
               },
@@ -347,8 +357,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
               addressBTC,
               btcProvider,
               {
-                amount: Number(amountAsString),
-                address,
+                amount: signAmount,
+                address: to,
                 token,
                 feeRate,
               }

@@ -29,29 +29,29 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.7.0.tgz#6c6b62bcc5a98e2aadb51495fbb70635bc567302"
-  integrity sha512-Pp9tsJZ0kOL9WxLLmYTTUcVi3vFZN/OmMHMiar1p7Ij0IpMFimzK67rcVJIwCQrmYP0lDu+jQylv5A40r8J9Kg==
+"@avalabs/avalanche-module@0.11.2":
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.11.2.tgz#265d0a9c781d623cd0ae61495a161c9649972f26"
+  integrity sha512-8oMmaQrTBV3iGntZA2VQYSLP5NKCRRD3rbcMa9WkzxCe16DWhT+tiygH6gqU48dI5pP5ELGcpoD6Bmg3JGN2QA==
   dependencies:
-    "@avalabs/avalanchejs" "4.0.5"
-    "@avalabs/core-chains-sdk" "3.1.0-alpha.5"
-    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.5"
-    "@avalabs/core-etherscan-sdk" "3.1.0-alpha.5"
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.5"
-    "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
-    "@avalabs/glacier-sdk" "3.1.0-alpha.5"
-    "@avalabs/types" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.7.0"
+    "@avalabs/avalanchejs" "4.1.0-alpha.7"
+    "@avalabs/core-chains-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-etherscan-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-wallets-sdk" "3.1.0-alpha.10"
+    "@avalabs/glacier-sdk" "3.1.0-alpha.10"
+    "@avalabs/types" "3.1.0-alpha.10"
+    "@avalabs/vm-module-types" "0.11.2"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
     zod "3.23.8"
 
-"@avalabs/avalanchejs@4.0.5":
-  version "4.0.5"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanchejs/-/avalanchejs-4.0.5.tgz#c2d2e1920fb6d824fe1444759fa4df5c2e1a939e"
-  integrity sha512-WgJYhGXx1kENxRaY5FwSz5Qbw8aTSQXQCgqrhN1mJKMx5tQbHx3ovtion5/dJPGGyE3SaHerj+mBPIXz/HQoEQ==
+"@avalabs/avalanchejs@4.1.0-alpha.7":
+  version "4.1.0-alpha.7"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanchejs/-/avalanchejs-4.1.0-alpha.7.tgz#480a4bf29abd78833ca759cbc23387e750e4fbd5"
+  integrity sha512-Oouj54ujsYzVNd24W01Bbj2XH35BU2FB3A2reHdX0uU2X3Nt3rCeHx2BcxA73x8oSan/d99DfbAsFvwcQ9tjhw==
   dependencies:
     "@noble/curves" "1.3.0"
     "@noble/hashes" "1.3.3"
@@ -59,90 +59,71 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.7.0.tgz#ab16ea50bc774056a8090481534a9a9cdaa094be"
-  integrity sha512-IaCI/cd44oedtAM54WmKaMUmtDu/TAnK9r9QD6eU2K0IkikMscl+G65MhOFsZf8jTTArlYFHxANeGme96Ri7BA==
+"@avalabs/bitcoin-module@0.11.2":
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.11.2.tgz#1603d00481bd6ecc3e30e67abc41c0f7866278f9"
+  integrity sha512-BpyyEN0M0YHXPX1erHHfNeTvbVZ80zEdy9W9zS6m9Eeep9P/1fAxs1NndLZpQOzjP3J+pSzr+pNDkeJfIz/lPw==
   dependencies:
-    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.5"
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.5"
-    "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.7.0"
+    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-wallets-sdk" "3.1.0-alpha.10"
+    "@avalabs/vm-module-types" "0.11.2"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
     bn.js "5.2.1"
     zod "3.23.8"
 
-"@avalabs/bridge-unified@0.0.0-feat-ictt-configs-20241008120400":
-  version "0.0.0-feat-ictt-configs-20241008120400"
-  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-0.0.0-feat-ictt-configs-20241008120400.tgz#6451a8db94a6d7c320f243e83e74f6293b87ac9a"
-  integrity sha512-lUfC4n/R4F6ZqkI4mx5paf3yPNIEecBfZfrkJCMjXmy8I0lhiPQbjUC2/wraX/72W64Y/dyp0AIeiLfG9/RLiA==
+"@avalabs/bridge-unified@0.0.0-CP-8544-BTC-bridge-2-20241024221835":
+  version "0.0.0-CP-8544-BTC-bridge-2-20241024221835"
+  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-0.0.0-CP-8544-BTC-bridge-2-20241024221835.tgz#45422cc3ef3ccbe15032e3ebbd628299105bd0e6"
+  integrity sha512-vURh0FTQhBrfWX8nNJMnbAd0bdeo9ZZdlKHyI9jcHyWyer+8hFAeFUAXNuzp2FNorR4/JZWfoWej72AOc2nBJQ==
   dependencies:
-    "@noble/hashes" "1.3.3"
-    "@scure/base" "1.1.5"
+    "@noble/hashes" "1.5.0"
+    "@scure/base" "1.1.9"
+    "@scure/btc-signer" "1.3.2"
     abitype "0.9.3"
+    coinselect "3.1.13"
     lodash "4.17.21"
     viem "2.11.1"
     zod "3.23.8"
 
-"@avalabs/core-bridge-sdk@3.1.0-alpha.4":
-  version "3.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-bridge-sdk/-/core-bridge-sdk-3.1.0-alpha.4.tgz#6ece296b5f8ae056517896fc193ee92f5e2aeebd"
-  integrity sha512-Qq8Z2N7NN+IvapArlhAFqDoFF5LL+dcB28s1Y5BVtSU28Ve8ccX8SGCuQ+meUjGi2xTeU+RBJhqru5WjTEMJNA==
+"@avalabs/core-bridge-sdk@3.1.0-alpha.10":
+  version "3.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-bridge-sdk/-/core-bridge-sdk-3.1.0-alpha.10.tgz#1bcfb84f8ecd3f2e3e5eaef28403a88a4ad338d7"
+  integrity sha512-pu70aALpM57DuBu+9nhe4/UsiKJ+J4Nbbs2xc2TLdygmaNgQ1E3Eib7BRXKDfNsVrWRPvd21EJDBtSJrAaiEIw==
   dependencies:
-    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.4"
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.4"
-    "@avalabs/core-wallets-sdk" "3.1.0-alpha.4"
+    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-wallets-sdk" "3.1.0-alpha.10"
 
-"@avalabs/core-chains-sdk@3.1.0-alpha.4":
-  version "3.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-chains-sdk/-/core-chains-sdk-3.1.0-alpha.4.tgz#72b71681e8780034585f796aa1a65b0ebfbaaf1d"
-  integrity sha512-WX9N/XqFmwprzbL16TDuNy9Mq6afnJaYPcN8CjV/soGwyCBDg67kPAeXYKuszexc6HqBGgBbymANS29XWzFZIA==
+"@avalabs/core-chains-sdk@3.1.0-alpha.10":
+  version "3.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-chains-sdk/-/core-chains-sdk-3.1.0-alpha.10.tgz#131fa0732ca42f14f4b8941988dd26fb62be9f55"
+  integrity sha512-a8tBpKcq35iYRx2kixJqHHtbsLtztBdFIYq0bz6Qfk4UI4FKFcpGQFZYjsSJrf5nxZojpfGXxexjacgQ7OkdYQ==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.4"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.10"
 
-"@avalabs/core-chains-sdk@3.1.0-alpha.5":
-  version "3.1.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-chains-sdk/-/core-chains-sdk-3.1.0-alpha.5.tgz#f8b1b00af81577d5c4ade1e8eda56238edb7f7b9"
-  integrity sha512-oaXbhjmjNy4pEDDX+cLn/e5GXK08V0GjUxdrVefEecRXabow13zaN+NQHPcqQOwKpbOAg8WPNlVKK5hCMmpGOA==
+"@avalabs/core-coingecko-sdk@3.1.0-alpha.10":
+  version "3.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-coingecko-sdk/-/core-coingecko-sdk-3.1.0-alpha.10.tgz#cd3a24fa74678f9d89aab338bd9a04fbddd1ffd6"
+  integrity sha512-ynBMHBEcNNPHpjTQcAoSIrtl5xlc9fhrTw50whLz8zyi+JQ4XD7jD/PjWqnAhtGmlH8ATpjMGGcnqo6jTlvW6w==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.5"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.10"
 
-"@avalabs/core-coingecko-sdk@3.1.0-alpha.4":
-  version "3.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-coingecko-sdk/-/core-coingecko-sdk-3.1.0-alpha.4.tgz#8f864c09cf5d8a12fb4e6be098cc7e5f5082e867"
-  integrity sha512-bm/Hk+sxQzBTPT/birp6ymfNfpsGPZ9jDBdhRNEZlKm9dhCoQM7QXhiGsrY8Wj/maGd4sg+k0PbZw96jUDw1Gg==
+"@avalabs/core-covalent-sdk@3.1.0-alpha.10":
+  version "3.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-covalent-sdk/-/core-covalent-sdk-3.1.0-alpha.10.tgz#69d3d7d11658b2e13f22af9603befff3d396872f"
+  integrity sha512-np6Us1e2kokZxeOLfo3B7UUy87U14+1xmz+q1/LnlYKZmUQv4GCxYlYmTC+Hm2z6oD4zp91vUBvylXvgX5dv2Q==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.4"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.10"
 
-"@avalabs/core-coingecko-sdk@3.1.0-alpha.5":
-  version "3.1.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-coingecko-sdk/-/core-coingecko-sdk-3.1.0-alpha.5.tgz#c6609ee44f60f5372174338ea9c26219e63ed2e9"
-  integrity sha512-m4eoUSZd/d6qqUtHQiUcRpFi1kWHu5ftbJqBHxddleBt7QzuYBSXEuygzna70Vqo1u8hKK+b6gbtGZQJApOR1Q==
+"@avalabs/core-etherscan-sdk@3.1.0-alpha.10":
+  version "3.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-etherscan-sdk/-/core-etherscan-sdk-3.1.0-alpha.10.tgz#0f34e9e23c21f009fcc3770ec53be7787bc5ade9"
+  integrity sha512-3DARUurEPSMQA5SsKt1Ef+PRl9QDDOpeoCrTXlGy7yl3KxMkLF1ufYTSThKNPfnGct+N91M60NAshqIIHRynNA==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.5"
-
-"@avalabs/core-covalent-sdk@3.1.0-alpha.4":
-  version "3.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-covalent-sdk/-/core-covalent-sdk-3.1.0-alpha.4.tgz#5f8b78363edc4211973defe11f812e51f7d800e3"
-  integrity sha512-n//l+oGV5KCfYW2CyCXMiLh8WZ4axUp05yMhHcomOAZSlaE178mLJMwInd3NU2yEaaxG3CIFzp82hHskfWIOmg==
-  dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.4"
-
-"@avalabs/core-etherscan-sdk@3.1.0-alpha.4":
-  version "3.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-etherscan-sdk/-/core-etherscan-sdk-3.1.0-alpha.4.tgz#e9a44a00e45205678d35c0c00498066f9c1fb6e1"
-  integrity sha512-JUyXR1N+5b6GHTQQKxppPy+VAzRUFU1hWOcqAxbBNMT0SdR6BCyhUheNqXiPgS2s49ZhNwjfBFR80lNgPFEROA==
-  dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.4"
-
-"@avalabs/core-etherscan-sdk@3.1.0-alpha.5":
-  version "3.1.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-etherscan-sdk/-/core-etherscan-sdk-3.1.0-alpha.5.tgz#da2d32fd5cb51106a1c559b3e847e634cf2156b8"
-  integrity sha512-frJH1WNsEsCB3D1jL88t0ImY6ueWCPpFu8XGKwGjKlzOv1uTLAIYSHKDar1tv/cSDxaKpdjTal3VNW79IPjZCQ==
-  dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.5"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.10"
 
 "@avalabs/core-k2-components@4.18.0-alpha.47":
   version "4.18.0-alpha.47"
@@ -167,47 +148,38 @@
     react-hotkeys-hook "4.4.3"
     uuid "9.0.1"
 
-"@avalabs/core-snowtrace-sdk@3.1.0-alpha.4":
-  version "3.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-snowtrace-sdk/-/core-snowtrace-sdk-3.1.0-alpha.4.tgz#23cf1f408e1e05f5200f47ffd0f639b0e1c8f847"
-  integrity sha512-AKO6Z98JsCm9UIzWSWu/ThkgNflrGueWsBTfHYZt3JHYHd3fmpZ0AaJw5BXQ3Sph/CB5XjqpYgNdmNqW/3VziA==
+"@avalabs/core-snowtrace-sdk@3.1.0-alpha.10":
+  version "3.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-snowtrace-sdk/-/core-snowtrace-sdk-3.1.0-alpha.10.tgz#5e9787629ce09f49b06ab7e737daf0980c91c86a"
+  integrity sha512-jtw8DuJe9LV3hm8vYXPc0V6ibRjqvXeQsyS09QW22VhX858mWI8rCdBm/po0Oj6JRCfQrFEey9sswB7adc0enA==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.4"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.10"
 
-"@avalabs/core-token-prices-sdk@3.1.0-alpha.4":
-  version "3.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-token-prices-sdk/-/core-token-prices-sdk-3.1.0-alpha.4.tgz#b52e0c2447c6a5d6907d08f3d63eca733f6fd699"
-  integrity sha512-T2AlGOe2ltNf1j3355523nmePtIzhVJyNEU+Q78Dd0h6+jGQzcT+ZTQ7820wKs5anlA10d/fX2o2c/8d7CMlLQ==
+"@avalabs/core-token-prices-sdk@3.1.0-alpha.10":
+  version "3.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-token-prices-sdk/-/core-token-prices-sdk-3.1.0-alpha.10.tgz#760c966dae5aba23f66d2d11d572acb4640aa38a"
+  integrity sha512-MRDNpJO1VNLLBsew8PCWPfOLWGUsTRRFbslZDoMiW3PIjCEmvlj/iaX4LC1D5dhLAYS+g464kISYtdjmGZXJJw==
   dependencies:
-    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.4"
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.4"
+    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.10"
 
-"@avalabs/core-utils-sdk@3.1.0-alpha.4":
-  version "3.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-utils-sdk/-/core-utils-sdk-3.1.0-alpha.4.tgz#360c73f6b9ebb9821c22e75709b8b84701258d8b"
-  integrity sha512-Is0kF1likZwOLyoS1zBxI++6ItGELxftahMGWXOMj7X3p2jg6QgxHos4RHhgCcjI2j9oxpnMADnOnI6zRr3rKA==
+"@avalabs/core-utils-sdk@3.1.0-alpha.10":
+  version "3.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-utils-sdk/-/core-utils-sdk-3.1.0-alpha.10.tgz#813388b9ebeaa0c8c9b736b9890127234839bc1a"
+  integrity sha512-e4ZKBTAxxeDVPKEQyCkoJJyMCzt98ZHOsNhNsLHq/pQSPhxw91GatZFhniGv0fjoIgubLstf6GLo54IQdh+77g==
   dependencies:
-    "@avalabs/avalanchejs" "4.0.5"
+    "@avalabs/avalanchejs" "4.1.0-alpha.7"
     "@hpke/core" "1.2.5"
     is-ipfs "6.0.2"
 
-"@avalabs/core-utils-sdk@3.1.0-alpha.5":
-  version "3.1.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-utils-sdk/-/core-utils-sdk-3.1.0-alpha.5.tgz#f4ce19298cdc264a99503f6889218cdd8d1b4821"
-  integrity sha512-cylqLT9hDmUhZbPkyBO4mN8ZHZeL2zxrjZ7+yfydot++IP79RNo6nDLU7mkrZgG57Ui1otDJsFAUTq8w8Ml0Gg==
+"@avalabs/core-wallets-sdk@3.1.0-alpha.10":
+  version "3.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-wallets-sdk/-/core-wallets-sdk-3.1.0-alpha.10.tgz#624e4ec426fc8952af36e3570c363236a73afa16"
+  integrity sha512-zx95Wts+ZPepKZar8N1f18+KaWGPD6IwY8uP1XbuzSM1WBJN7sDK6i7iupPUHqlablNzSDkT8e4k8ofdXjQ1yw==
   dependencies:
-    "@avalabs/avalanchejs" "4.0.5"
-    "@hpke/core" "1.2.5"
-    is-ipfs "6.0.2"
-
-"@avalabs/core-wallets-sdk@3.1.0-alpha.4":
-  version "3.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-wallets-sdk/-/core-wallets-sdk-3.1.0-alpha.4.tgz#53b8d76d9b0b5be4873dc8174724a64325b8d6bd"
-  integrity sha512-hISEAvIPQBHS2o+RIL0kY+eQ/BBhzTFsSjze6HOeH1GBYmyHyA5P4ZJ7pc7+wtRU5kjHsGWx1sDySklbUYZDuQ==
-  dependencies:
-    "@avalabs/avalanchejs" "4.0.5"
-    "@avalabs/core-chains-sdk" "3.1.0-alpha.4"
-    "@avalabs/glacier-sdk" "3.1.0-alpha.4"
+    "@avalabs/avalanchejs" "4.1.0-alpha.7"
+    "@avalabs/core-chains-sdk" "3.1.0-alpha.10"
+    "@avalabs/glacier-sdk" "3.1.0-alpha.10"
     "@avalabs/hw-app-avalanche" "0.14.1"
     "@ledgerhq/hw-app-btc" "10.2.4"
     "@ledgerhq/hw-app-eth" "6.36.1"
@@ -224,57 +196,30 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/core-wallets-sdk@3.1.0-alpha.5":
-  version "3.1.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-wallets-sdk/-/core-wallets-sdk-3.1.0-alpha.5.tgz#d6456fdd0b3874011e79501ef5a5650f4be6124d"
-  integrity sha512-MIBwJhAf0n9/8gaXZ1ivUtSIV5epbN53/IiATFNZ3PB/TSc062t4NSrExgYX+SWPhZ2BUO0t0J/+lswpv8jAsQ==
+"@avalabs/evm-module@0.11.2":
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.11.2.tgz#9f91ddc4c198f63e4a7b4a5045c59c4ad77408bc"
+  integrity sha512-2es5NKGurKUXq87a7xYH+zL3kvprjZ4DtcL+CVLIVCIsmVXSYRIAnNl7JgM1SakqrIeI+BAUuBi+OxMhBMc2HA==
   dependencies:
-    "@avalabs/avalanchejs" "4.0.5"
-    "@avalabs/core-chains-sdk" "3.1.0-alpha.5"
-    "@avalabs/glacier-sdk" "3.1.0-alpha.5"
-    "@avalabs/hw-app-avalanche" "0.14.1"
-    "@ledgerhq/hw-app-btc" "10.2.4"
-    "@ledgerhq/hw-app-eth" "6.36.1"
-    "@ledgerhq/hw-transport" "6.30.6"
-    "@metamask/eth-sig-util" "7.0.2"
-    "@openzeppelin/contracts" "4.9.6"
-    bip32 "2.0.6"
-    bip32-path "0.4.2"
-    bip39 "3.0.4"
-    bitcoinjs-lib "5.2.0"
-    coinselect "3.1.13"
-    create-hash "1.2.0"
-    hdkey "2.0.1"
-    ledger-bitcoin "0.2.3"
-    xss "1.0.14"
-
-"@avalabs/evm-module@0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.7.0.tgz#c9215ef101261b421e6f8867a68215d0703b3b4a"
-  integrity sha512-mKP/N2MaGeB86IwNzp9NwmmlcYLZ8zMBfnZqt3SkF+nMaf/zlAbpGwRw0xWaW8A04qZhQ5Jk9eRO9cd7tNg9iw==
-  dependencies:
-    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.5"
-    "@avalabs/core-etherscan-sdk" "3.1.0-alpha.5"
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.5"
-    "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
-    "@avalabs/glacier-sdk" "3.1.0-alpha.5"
-    "@avalabs/types" "3.1.0-alpha.5"
-    "@avalabs/vm-module-types" "0.7.0"
+    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-etherscan-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.10"
+    "@avalabs/core-wallets-sdk" "3.1.0-alpha.10"
+    "@avalabs/glacier-sdk" "3.1.0-alpha.10"
+    "@avalabs/types" "3.1.0-alpha.10"
+    "@avalabs/vm-module-types" "0.11.2"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
+    "@openzeppelin/contracts" "4.9.6"
     bn.js "5.2.1"
     lodash.startcase "4.4.0"
+    xss "1.0.13"
     zod "3.23.8"
 
-"@avalabs/glacier-sdk@3.1.0-alpha.4":
-  version "3.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.4.tgz#6dfcbe965f085ba752c9d99140ea8d02bfdeecfa"
-  integrity sha512-lS1vSl/cogouZTs1QEvxjU6ikH6MR0OLbVSqWEypYn53BO794U+6Yagufbg8leRigHDelqk8/YKhxkLDkYVwhQ==
-
-"@avalabs/glacier-sdk@3.1.0-alpha.5":
-  version "3.1.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.5.tgz#54b141a2cc88805067be5519db20c444128d013c"
-  integrity sha512-RbSqfDhdp5iiMv8ERuU3vGSBNjtR1cfwKMpopVVjURQuuV3+BIFmGsy1nwqlbeax22Lr8445kD0SQbNQn7vjuA==
+"@avalabs/glacier-sdk@3.1.0-alpha.10":
+  version "3.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.10.tgz#c0711d5b3e841e3928fdd8d45cfbe7c3032185b7"
+  integrity sha512-XolZv8o9BkU9sTC+oaaLSX9KP38WUUy6crgmmJ8JmokHNqFDvPF5Py0GapooNgcgG5QS3InnBFDtCnOa8pXx1g==
 
 "@avalabs/hw-app-avalanche@0.14.1":
   version "0.14.1"
@@ -287,23 +232,18 @@
     ledger-bitcoin "^0.2.1"
     sha3 "2.1.4"
 
-"@avalabs/types@3.1.0-alpha.3":
-  version "3.1.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.3.tgz#3b7fb8cb8e2f124e0b11406788a903142753b5a0"
-  integrity sha512-WN6NyPsF9XpmQp2SN4UbwjBT+XYH8di8gvL9rppQxz4d43xRLI1T2WVt/LXJgYdOauhuaSelb6zB4yNqGyKutQ==
+"@avalabs/types@3.1.0-alpha.10":
+  version "3.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.10.tgz#408766fce72882b0dc04ac045e5f3e95d21503d3"
+  integrity sha512-MgWAsW9K+y75tDMK8JCNdRLT4Lkdr1LysiPhlAaYg8Ino7KsZZmGzbIcLHakQwjSbY4CWQblDlB5y4SHN+fdmA==
 
-"@avalabs/types@3.1.0-alpha.5":
-  version "3.1.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.5.tgz#82dcb2cdb63b47186689186e09ad13e207180e8c"
-  integrity sha512-OpHTXQL/RGzL9FOfQAN4mc6jD/kZVthRtzS2eCqoI6gAZmNzf3Paq46U6cKabti1coyJDIcrXrRl1U1qtCpoYg==
-
-"@avalabs/vm-module-types@0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.7.0.tgz#f6eaa5b0b3b6d1a657b9460a58638d59d7a909cd"
-  integrity sha512-wDLQ7xUfgmWxjElrguhx35KEo7ptqpN9IFvt8PEHzTPcFisYDCME25XbTNM3iDdT8O4fE4BWFVxij/Uzq8j4uQ==
+"@avalabs/vm-module-types@0.11.2":
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.11.2.tgz#faa2df6533da181f5d7c6f4cd6e366196c653c91"
+  integrity sha512-PdMCNSKy+jPfDWbNoj6sIzJc1T5XwXfnsAJFonEF+KKHW7j/Vy0WvOyL7bHRECIrvfGdUYFhnfVLragfGBGARQ==
   dependencies:
-    "@avalabs/core-wallets-sdk" "3.1.0-alpha.5"
-    "@avalabs/glacier-sdk" "3.1.0-alpha.5"
+    "@avalabs/core-wallets-sdk" "3.1.0-alpha.10"
+    "@avalabs/glacier-sdk" "3.1.0-alpha.10"
     "@metamask/rpc-errors" "6.3.0"
     bitcoinjs-lib "5.2.0"
     zod "3.23.8"
@@ -4478,6 +4418,13 @@
   dependencies:
     "@noble/hashes" "1.3.3"
 
+"@noble/curves@~1.4.0":
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.4.2.tgz#40309198c76ed71bc6dbf7ba24e81ceb4d0d1fe9"
+  integrity sha512-TavHr8qycMChk8UwMld0ZDRvatedkzWfH8IiaeGCfymOP5i0hSCozz9vHOL0nkwk7HRMlFnAiKpS2jrUmSybcw==
+  dependencies:
+    "@noble/hashes" "1.4.0"
+
 "@noble/hashes@1.2.0", "@noble/hashes@~1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.2.0.tgz#a3150eeb09cc7ab207ebf6d7b9ad311a9bdbed12"
@@ -4493,10 +4440,15 @@
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.3.3.tgz#39908da56a4adc270147bb07968bf3b16cfe1699"
   integrity sha512-V7/fPHgl+jsVPXqqeOzT8egNj2iBIVt+ECeMMG8TdcnTikP3oaBtUVqpT/gYCR68aEBJSF+XbYUxStjbFMqIIA==
 
-"@noble/hashes@^1.3.1":
+"@noble/hashes@1.4.0", "@noble/hashes@^1.3.1", "@noble/hashes@~1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.4.0.tgz#45814aa329f30e4fe0ba49426f49dfccdd066426"
   integrity sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg==
+
+"@noble/hashes@1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.5.0.tgz#abadc5ca20332db2b1b2aa3e496e9af1213570b0"
+  integrity sha512-1j6kQFb7QRru7eKN3ZDvRcP13rugwdxZqCjbiAVZfIJwgj2A65UmT4TgARXGlXgnRkORLTDTrO19ZErt7+QXgA==
 
 "@noble/secp256k1@1.7.1", "@noble/secp256k1@^1.7.1", "@noble/secp256k1@~1.7.0":
   version "1.7.1"
@@ -5036,6 +4988,11 @@
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.5.tgz#1d85d17269fe97694b9c592552dd9e5e33552157"
   integrity sha512-Brj9FiG2W1MRQSTB212YVPRrcbjkv48FoZi/u4l/zds/ieRrqsh7aUf6CLwkAq61oKXr/ZlTzlY66gLIj3TFTQ==
 
+"@scure/base@1.1.9", "@scure/base@~1.1.6":
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.9.tgz#e5e142fbbfe251091f9c5f1dd4c834ac04c3dbd1"
+  integrity sha512-8YKhl8GHiNI/pU2VMaofa2Tor7PJRAjwQLBBuilkJ9L5+13yVbC7JO/wS7piioAvPSwR3JKM1IJ/u4xQzbcXKg==
+
 "@scure/base@^1.1.1":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.3.tgz#8584115565228290a6c6c4961973e0903bb3df2f"
@@ -5101,6 +5058,16 @@
   dependencies:
     "@noble/hashes" "~1.3.2"
     "@scure/base" "~1.1.4"
+
+"@scure/btc-signer@1.3.2":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@scure/btc-signer/-/btc-signer-1.3.2.tgz#56cf02a2e318097b1e4f531fac8ef114bdf4ddc8"
+  integrity sha512-BmcQHvxaaShKwgbFC0vDk0xzqbMhNtNmgXm6u7cz07FNtGsVItUuHow6NbgHmc+oJSBZJRym5dz8+Uu0JoEJhQ==
+  dependencies:
+    "@noble/curves" "~1.4.0"
+    "@noble/hashes" "~1.4.0"
+    "@scure/base" "~1.1.6"
+    micro-packed "~0.6.2"
 
 "@semantic-release/commit-analyzer@9.0.2", "@semantic-release/commit-analyzer@^9.0.2":
   version "9.0.2"
@@ -15352,6 +15319,13 @@ micro-packed@~0.5.1:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/micro-packed/-/micro-packed-0.5.2.tgz#5537f97f74fe00d3b3d761d697bb38b9d96d241e"
   integrity sha512-l8sgdeDNz4KMFdEyk2o0qt+GfmzGZH7sV5+XcHRyBS8LQLCHh/7LYlFlQ5k+axqz7hgANsn8SqzDxRe7O2DIIg==
+  dependencies:
+    "@scure/base" "~1.1.5"
+
+micro-packed@~0.6.2:
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/micro-packed/-/micro-packed-0.6.3.tgz#125e36bcfd4aa03dbdb31c81cda3bfea84367ae0"
+  integrity sha512-VmVkyc7lIzAq/XCPFuLc/CwQ7Ehs5XDK3IwqsZHiBIDttAI9Gs7go6Lv4lNRuAIKrGKcRTtthFKUNyHS0S4wJQ==
   dependencies:
     "@scure/base" "~1.1.5"
 

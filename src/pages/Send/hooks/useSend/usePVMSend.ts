@@ -131,17 +131,17 @@ export const usePvmSend: SendAdapterPVM = ({
         const amountBigInt = bigToBigInt(Big(amount), token.decimals);
         const changeAddress = utils.parse(account.addressPVM)[2];
 
-        const unsignedTx = wallet.baseTX(
-          utxos,
-          PCHAIN_ALIAS,
-          address,
-          {
+        const unsignedTx = wallet.baseTX({
+          utxoSet: utxos,
+          chain: PCHAIN_ALIAS,
+          toAddress: address,
+          amountsPerAsset: {
             [avax]: amountBigInt,
           },
-          {
+          options: {
             changeAddresses: [changeAddress],
-          }
-        );
+          },
+        });
         const manager = utils.getManagerForVM(unsignedTx.getVM());
         const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());
 
@@ -156,6 +156,9 @@ export const usePvmSend: SendAdapterPVM = ({
           method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
           params,
         });
+      } catch (err) {
+        console.error(err);
+        throw err;
       } finally {
         setIsSending(false);
       }

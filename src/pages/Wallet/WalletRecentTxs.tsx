@@ -24,7 +24,7 @@ import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNF
 import { usePendingBridgeTransactions } from '../Bridge/hooks/usePendingBridgeTransactions';
 import {
   isPchainTxHistoryItem,
-  isTxHistoryItem,
+  isNonXPHistoryItem,
 } from '@src/background/services/history/utils/isTxHistoryItem';
 import { PchainActivityCard } from './components/History/components/ActivityCard/PchainActivityCard';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
@@ -191,7 +191,7 @@ export function WalletRecentTxs({
 
     function shouldTxBeKept(tx: TxHistoryItem) {
       if (
-        isTxHistoryItem(tx) &&
+        isNonXPHistoryItem(tx) &&
         tx.bridgeAnalysis.isBridgeTx &&
         isPendingBridge(tx)
       ) {
@@ -202,7 +202,7 @@ export function WalletRecentTxs({
 
     return unfilteredTxHistory
       .filter((tx) => {
-        if (tokenSymbolFilter && isTxHistoryItem(tx)) {
+        if (tokenSymbolFilter && isNonXPHistoryItem(tx)) {
           return tokenSymbolFilter === tx.tokens?.[0]?.symbol;
         } else {
           return true;
@@ -296,7 +296,7 @@ export function WalletRecentTxs({
       tx: TxHistoryItem,
       filter: FilterType | PchainFilterType | XchainFilterType
     ) {
-      if (isTxHistoryItem(tx)) {
+      if (isNonXPHistoryItem(tx)) {
         return txHistoryItemFilter(tx, filter);
       } else if (isPchainTxHistoryItem(tx)) {
         return pchainTxHistoryItemFilter(tx, filter);
@@ -494,7 +494,7 @@ export function WalletRecentTxs({
                       {getDayString(tx.timestamp)}
                     </Typography>
                   )}
-                  {isTxHistoryItem(tx) ? (
+                  {isNonXPHistoryItem(tx) ? (
                     <ActivityCard historyItem={tx} />
                   ) : isPchainTxHistoryItem(tx) ? (
                     <PchainActivityCard historyItem={tx} />

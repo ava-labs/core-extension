@@ -7,6 +7,7 @@ import { WalletBalances } from './WalletBalances';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
+  CircularProgress,
   Scrollbars,
   Stack,
   Tab,
@@ -57,7 +58,7 @@ export function Portfolio() {
   const { featureFlags } = useFeatureFlagContext();
   const { activeTab, setActiveTab } = usePersistedTabs(PortfolioTabs.ASSETS);
   const { isReady, checkIsFunctionSupported } = useIsFunctionAvailable();
-  const [listType, setListType] = useState(ListType.GRID);
+  const [listType, setListType] = useState<ListType>();
   const [hadDefiEnabled, setHadDefiEnabled] = useState(false);
   const { getPageHistoryData, isHistoryLoading } = usePageHistory();
 
@@ -176,7 +177,11 @@ export function Portfolio() {
               sx={{ height: '100%' }}
             >
               {shouldShow(PortfolioTabs.COLLECTIBLES) ? (
-                <Collectibles listType={listType} setListType={setListType} />
+                listType ? (
+                  <Collectibles listType={listType} setListType={setListType} />
+                ) : (
+                  <CircularProgress size={60} />
+                )
               ) : (
                 isReady && ( // Only redirect when we have all the context needed to decide
                   <Redirect to={'/'} />

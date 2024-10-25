@@ -4,6 +4,7 @@ import { injectable } from 'tsyringe';
 import { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
+import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_UNENCRYPTED_MNEMONIC,
@@ -17,7 +18,8 @@ export class GetUnencryptedMnemonicHandler implements HandlerType {
 
   constructor(
     private secretsService: SecretsService,
-    private lockService: LockService
+    private lockService: LockService,
+    private accountsService: AccountsService
   ) {}
   handle: HandlerType['handle'] = async ({ request }) => {
     const [password] = request.params;
@@ -38,7 +40,15 @@ export class GetUnencryptedMnemonicHandler implements HandlerType {
       };
     }
 
-    const secrets = await this.secretsService.getActiveAccountSecrets();
+    if (!this.accountsService.activeAccount) {
+      return {
+        ...request,
+        error: 'there is no active account',
+      };
+    }
+    const secrets = await this.secretsService.getAccountSecrets(
+      this.accountsService.activeAccount
+    );
 
     if (secrets.secretType !== SecretType.Mnemonic) {
       return {

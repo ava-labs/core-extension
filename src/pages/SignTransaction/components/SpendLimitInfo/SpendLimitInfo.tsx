@@ -1,55 +1,50 @@
-import {
-  Transaction,
-  TransactionType,
-} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { TokenSpendLimit } from './TokenSpendLimit';
 import { NftSpendLimit } from './NftSpendLimit';
-import { NftCollectionSpendLimit } from './NftCollectionSpendLimit';
-import { Action } from '@src/background/services/actions/models';
+import {
+  ERC1155Token,
+  ERC20Token,
+  ERC721Token,
+  TokenApproval,
+  TokenApprovals,
+  TokenType,
+} from '@avalabs/vm-module-types';
+
+type SpendLimitInfoProps = TokenApprovals & { actionId: string };
 
 export const SpendLimitInfo = ({
-  transaction,
-  updateTransaction,
-}: {
-  transaction: Action<Transaction> | null;
-  updateTransaction: (update: any) => Promise<true>;
-}) => {
-  const approveTransactions =
-    transaction?.displayData?.displayValues?.actions.filter((action) =>
-      [
-        TransactionType.APPROVE_TOKEN,
-        TransactionType.REVOKE_TOKEN_APPROVAL,
-        TransactionType.APPROVE_NFT,
-        TransactionType.REVOKE_NFT_APPROVAL,
-        TransactionType.APPROVE_NFT_COLLECTION,
-        TransactionType.REVOKE_NFT_COLLECTION_APPROVAL,
-      ].includes(action.type)
-    );
-
-  if (!approveTransactions?.length || !transaction) {
-    return null;
-  }
-
+  approvals,
+  isEditable,
+  actionId,
+}: SpendLimitInfoProps) => {
   return (
     <>
-      {approveTransactions.map((action, index) => {
-        switch (action.type) {
-          case TransactionType.APPROVE_TOKEN:
-          case TransactionType.REVOKE_TOKEN_APPROVAL:
+      {approvals.map((approval) => {
+        switch (approval.token.type) {
+          case TokenType.ERC721:
+          case TokenType.ERC1155:
             return (
-              <TokenSpendLimit
-                key={index}
-                transaction={transaction}
-                updateTransaction={updateTransaction}
-                {...action}
+              <NftSpendLimit
+                approval={
+                  approval as TokenApproval & {
+                    token: ERC1155Token | ERC721Token;
+                  }
+                }
               />
             );
-          case TransactionType.APPROVE_NFT:
-          case TransactionType.REVOKE_NFT_APPROVAL:
-            return <NftSpendLimit {...action} />;
-          case TransactionType.APPROVE_NFT_COLLECTION:
-          case TransactionType.REVOKE_NFT_COLLECTION_APPROVAL:
-            return <NftCollectionSpendLimit key={index} {...action} />;
+
+          case TokenType.ERC20:
+            return (
+              <TokenSpendLimit
+                actionId={actionId}
+                approval={
+                  approval as TokenApproval & {
+                    token: ERC20Token;
+                  }
+                }
+                isEditable={isEditable}
+              />
+            );
+
           default:
             return null;
         }

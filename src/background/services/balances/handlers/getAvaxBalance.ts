@@ -50,7 +50,8 @@ export class GetAvaxBalanceHandler implements HandlerType {
           name: '',
           addressBTC: '',
         },
-      ]
+      ],
+      [TokenType.NATIVE]
     );
 
     const nativeTokenWithBalance =

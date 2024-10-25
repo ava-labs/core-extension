@@ -39,16 +39,14 @@ import { CommonError, ErrorCode } from '@src/utils/errors';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { getNetworkCaipId } from '@src/utils/caipConversion';
 import { useAccountsContext } from './AccountsProvider';
 import { JsonRpcApiProvider } from 'ethers';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { lowerCaseKeys } from '@src/utils/lowerCaseKeys';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(
@@ -228,8 +226,8 @@ export function UnifiedBridgeProvider({
   const availableChainIds = useMemo(() => Object.keys(assets ?? {}), [assets]);
 
   const buildChain = useCallback(
-    (caipId: string): Chain => {
-      const network = getNetwork(caipId);
+    (chainId: string): Chain => {
+      const network = getNetwork(chainId);
 
       assert(network, CommonError.UnknownNetwork);
 
@@ -284,7 +282,7 @@ export function UnifiedBridgeProvider({
         return false;
       }
 
-      const sourceAssets = assets[getNetworkCaipId(activeNetwork)] ?? [];
+      const sourceAssets = assets[activeNetwork.caipId] ?? [];
       const asset = sourceAssets.find((token) => {
         return token.type === TokenType.NATIVE
           ? token.symbol === lookupAddressOrSymbol
@@ -318,7 +316,7 @@ export function UnifiedBridgeProvider({
       targetChainId: string
     ): {
       sourceChain: Chain;
-      sourceChainId: number;
+      sourceChainId: string;
       targetChain: Chain;
       provider: JsonRpcApiProvider;
       fromAddress: `0x${string}`;
@@ -341,7 +339,7 @@ export function UnifiedBridgeProvider({
 
       return {
         sourceChain,
-        sourceChainId: activeNetwork.chainId,
+        sourceChainId: activeNetwork.caipId,
         targetChain,
         provider,
         fromAddress,
@@ -373,6 +371,8 @@ export function UnifiedBridgeProvider({
 
       const identifier =
         asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
+
+      assert(identifier, UnifiedBridgeError.InvalidFee);
 
       return feeMap[identifier.toLowerCase()] ?? 0n;
     },
@@ -464,36 +464,36 @@ export function UnifiedBridgeProvider({
           assert(to, UnifiedBridgeError.InvalidTxPayload);
           assert(data, UnifiedBridgeError.InvalidTxPayload);
 
-          return request<EthSendTransactionHandler>({
-            method: DAppProviderRequest.ETH_SEND_TX,
-            params: [
-              {
-                from,
-                to,
-                data,
-              },
-              {
-                customApprovalScreenTitle: t('Confirm Bridge'),
-                contextInformation:
-                  requiredSignatures > currentSignature
-                    ? {
-                        title: t(
-                          'This operation requires {{total}} approvals.',
-                          {
-                            total: requiredSignatures,
-                          }
-                        ),
-                        notice: t(
-                          'You will be prompted {{remaining}} more time(s).',
-                          {
-                            remaining: requiredSignatures - currentSignature,
-                          }
-                        ),
-                      }
-                    : undefined,
-              },
-            ],
-          });
+          return request(
+            {
+              method: RpcMethod.ETH_SEND_TRANSACTION,
+              params: [
+                {
+                  from,
+                  to,
+                  data,
+                },
+              ],
+            },
+            {
+              customApprovalScreenTitle: t('Confirm Bridge'),
+              alert:
+                requiredSignatures > currentSignature
+                  ? {
+                      type: 'info',
+                      title: t('This operation requires {{total}} approvals.', {
+                        total: requiredSignatures,
+                      }),
+                      notice: t(
+                        'You will be prompted {{remaining}} more time(s).',
+                        {
+                          remaining: requiredSignatures - currentSignature,
+                        }
+                      ),
+                    }
+                  : undefined,
+            }
+          );
         },
       });
 

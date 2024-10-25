@@ -15,6 +15,7 @@ import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { TokenType } from '@avalabs/vm-module-types';
 import {
   FunctionNames,
   useIsFunctionAvailable,
@@ -30,8 +31,10 @@ import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
 import { useBridgeTxHandling } from './hooks/useBridgeTxHandling';
 import { BridgeFormSkeleton } from './components/BridgeFormSkeleton';
 
+const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
+
 export function Bridge() {
-  useLiveBalance(); // Make sure we always use the latest balances.
+  useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest balances.
 
   const {
     amount,

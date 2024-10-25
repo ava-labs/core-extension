@@ -169,6 +169,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
     });
     balanceAggregatorServiceMock.getBalancesForNetworks.mockResolvedValue({
       tokens: {},
+      nfts: {},
     });
     jest.mocked(openApprovalWindow).mockResolvedValue({} as any);
     jest.mocked(getAssets).mockReturnValue({
@@ -609,7 +610,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       expect(transferAssetBTC).toHaveBeenCalledTimes(1);
       expect(transferAssetBTC).toHaveBeenCalledWith(
         expect.objectContaining({
-          amount: String(btcToSatoshi(amount)),
+          amount: btcToSatoshi(amount),
         })
       );
 

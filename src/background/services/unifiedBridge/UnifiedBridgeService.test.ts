@@ -1,13 +1,18 @@
 import {
+  BridgeService,
+  BridgeType,
   Environment,
   createUnifiedBridgeService,
   getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
 import { UnifiedBridgeService } from './UnifiedBridgeService';
 import { FeatureGates } from '../featureFlags/models';
+import { wait } from '@avalabs/core-utils-sdk';
 
 jest.mock('@avalabs/bridge-unified');
+jest.mock('@avalabs/core-utils-sdk');
 jest.mock('@src/utils/network/getProviderForNetwork');
+jest.mock('@src/monitoring/sentryCaptureException');
 
 describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
   let core: ReturnType<typeof createUnifiedBridgeService>;
@@ -59,8 +64,6 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     networkService.getNetwork.mockImplementation(async (chainId) => ({
       chainId,
     }));
-
-    new UnifiedBridgeService(networkService, storageService, flagsService);
   });
 
   it('creates core instance with proper environment', async () => {
@@ -79,6 +82,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     networkService.isMainnet.mockReturnValue(false);
 
     new UnifiedBridgeService(networkService, storageService, flagsService);
+    await new Promise(process.nextTick); // Await getEnabledBridgeServices() call
 
     expect(createUnifiedBridgeService).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -88,6 +92,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
   });
 
   it('recreates the core instance on testnet mode switch', async () => {
+    new UnifiedBridgeService(networkService, storageService, flagsService);
     const mockTestnetModeChange = (
       networkService.developerModeChanged.add as jest.Mock
     ).mock.lastCall[0];
@@ -102,6 +107,8 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
   });
 
   it('recreates the core instance when certain feature flags are toggled', async () => {
+    new UnifiedBridgeService(networkService, storageService, flagsService);
+
     const mockFeatureFlagChanges = (flagsService.addListener as jest.Mock).mock
       .lastCall[1];
 
@@ -147,5 +154,57 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     expect(trackTransfer).toHaveBeenCalledWith(
       expect.objectContaining({ bridgeTransfer: { sourceTxHash: '0x2345' } })
     );
+  });
+
+  describe('when building bridge services fails', () => {
+    const serviceMap = new Map([[BridgeType.CCTP, {} as BridgeService]]);
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest
+        .mocked(getEnabledBridgeServices)
+        .mockRejectedValueOnce(new Error('Failed to fetch'))
+        .mockRejectedValueOnce(new Error('Failed to fetch'))
+        .mockRejectedValueOnce(new Error('Failed to fetch'))
+        .mockResolvedValueOnce(serviceMap);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('retries using an exponential backoff delay', async () => {
+      networkService.isMainnet.mockReturnValue(true);
+      storageService.load.mockResolvedValue({
+        pendingTransfers: {},
+      });
+
+      new UnifiedBridgeService(networkService, storageService, flagsService);
+      await jest.runAllTicks();
+
+      expect(getEnabledBridgeServices).toHaveBeenCalledTimes(1);
+      expect(wait).toHaveBeenNthCalledWith(1, 2000);
+
+      jest.advanceTimersByTime(2000);
+      await jest.runOnlyPendingTimers();
+      await jest.runAllTicks();
+
+      expect(getEnabledBridgeServices).toHaveBeenCalledTimes(2);
+      expect(wait).toHaveBeenNthCalledWith(2, 4000);
+
+      jest.advanceTimersByTime(4000);
+      await jest.runOnlyPendingTimers();
+      await jest.runAllTicks();
+
+      expect(getEnabledBridgeServices).toHaveBeenCalledTimes(3);
+      expect(wait).toHaveBeenNthCalledWith(3, 8000);
+
+      jest.advanceTimersByTime(8000);
+      await jest.runOnlyPendingTimers();
+      await jest.runAllTicks();
+
+      expect(getEnabledBridgeServices).toHaveBeenCalledTimes(4);
+      expect(createUnifiedBridgeService).toHaveBeenCalled();
+    });
   });
 });

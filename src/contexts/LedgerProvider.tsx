@@ -292,7 +292,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
    * Get the extended public key for the given path (m/44'/60'/0' by default)
    * @returns Promise<extended public key>
    */
-  async function getExtendedPublicKey(path?: string) {
+  const getExtendedPublicKey = useCallback(async (path?: string) => {
     if (!transportRef.current) {
       throw new Error('no device detected');
     }
@@ -303,23 +303,22 @@ export function LedgerContextProvider({ children }: { children: any }) {
       throw new Error(pubKeyError);
     }
     return pubKey;
-  }
+  }, []);
 
-  async function getPublicKey(
-    accountIndex: number,
-    pathType: DerivationPath,
-    vm: VM = 'EVM'
-  ) {
-    if (!transportRef.current) {
-      throw new Error('no device detected');
-    }
-    return getPubKeyFromTransport(
-      transportRef.current,
-      accountIndex,
-      pathType,
-      vm
-    );
-  }
+  const getPublicKey = useCallback(
+    async (accountIndex: number, pathType: DerivationPath, vm: VM = 'EVM') => {
+      if (!transportRef.current) {
+        throw new Error('no device detected');
+      }
+      return getPubKeyFromTransport(
+        transportRef.current,
+        accountIndex,
+        pathType,
+        vm
+      );
+    },
+    []
+  );
 
   /**
    * When the user plugs-in/connects their ledger for the first time a

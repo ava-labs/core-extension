@@ -44,7 +44,8 @@ export async function findToken(
     balances = (
       await balancesService.getBalancesForNetworks(
         [network.chainId],
-        [accountsService.activeAccount]
+        [accountsService.activeAccount],
+        [TokenType.NATIVE, TokenType.ERC20]
       )
     ).tokens;
   }
