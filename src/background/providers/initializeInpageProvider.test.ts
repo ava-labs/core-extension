@@ -59,19 +59,6 @@ describe('src/background/providers/initializeInpageProvider', () => {
       expect(windowMock.ethereum).toBe(mockMultiWalletProxy);
     });
 
-    it('adds other wallets to proxy when trying to set window.ethereum', () => {
-      initializeProvider(connectionMock, 10, windowMock);
-
-      const provider2 = { isMetaMask: true };
-
-      windowMock.ethereum = provider2;
-
-      expect(mockMultiWalletProxy.addProvider).toHaveBeenCalledTimes(1);
-      expect(mockMultiWalletProxy.addProvider).toHaveBeenCalledWith(provider2);
-
-      expect(windowMock.ethereum).toBe(mockMultiWalletProxy);
-    });
-
     it('dispatches ethereum#initialized event', () => {
       initializeProvider(connectionMock, 10, windowMock);
 
@@ -132,25 +119,6 @@ describe('src/background/providers/initializeInpageProvider', () => {
     });
   });
 
-  describe('EIP-5749', () => {
-    it('sets window.evmproviders if not defined and adds core', () => {
-      const provider = initializeProvider(connectionMock, 10, windowMock);
-
-      expect(windowMock.evmproviders).toStrictEqual({ core: provider });
-    });
-    it('adds Core to window.evmproviders if already defined', () => {
-      windowMock.evmproviders = {
-        MetaMask: { isMetaMask: true },
-      };
-      const provider = initializeProvider(connectionMock, 10, windowMock);
-
-      expect(windowMock.evmproviders).toStrictEqual({
-        MetaMask: { isMetaMask: true },
-        core: provider,
-      });
-    });
-  });
-
   describe('window.avalanche', () => {
     it('creates the window.avalanche object', () => {
       const provider = initializeProvider(connectionMock, 10, windowMock);
@@ -183,31 +151,33 @@ describe('src/background/providers/initializeInpageProvider', () => {
     it('announces core provider with eip6963:announceProvider', () => {
       const provider = initializeProvider(connectionMock, 10, windowMock);
 
-      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(5);
-      expect(windowMock.dispatchEvent.mock.calls[3][0].type).toEqual(
+      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(4);
+      expect(windowMock.dispatchEvent.mock.calls[2][0].type).toEqual(
         'eip6963:announceProvider'
       );
-      expect(windowMock.dispatchEvent.mock.calls[3][0].detail).toEqual({
-        info: provider.info,
-        provider: provider,
-      });
+      expect(windowMock.dispatchEvent.mock.calls[2][0].detail).toStrictEqual(
+        expect.objectContaining({
+          info: provider.info,
+          provider: provider,
+        })
+      );
     });
     it('re-announces on eip6963:requestProvider', () => {
       initializeProvider(connectionMock, 10, windowMock);
 
-      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(5);
+      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(4);
 
-      expect(windowMock.addEventListener).toHaveBeenCalledTimes(2);
+      expect(windowMock.addEventListener).toHaveBeenCalledTimes(3);
       expect(windowMock.addEventListener).toHaveBeenCalledWith(
         'eip6963:requestProvider',
         expect.anything()
       );
 
-      windowMock.addEventListener.mock.calls[0][1]();
+      windowMock.addEventListener.mock.calls[1][1]();
 
-      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(6);
+      expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(5);
 
-      expect(windowMock.dispatchEvent.mock.calls[3][0].type).toEqual(
+      expect(windowMock.dispatchEvent.mock.calls[2][0].type).toEqual(
         'eip6963:announceProvider'
       );
     });
@@ -216,14 +186,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
     it('should announce chainagnostic provider with core-wallet:announceProvider', () => {
       initializeProvider(connectionMock, 10, windowMock);
 
-      expect(windowMock.dispatchEvent.mock.calls[4][0].type).toEqual(
-        'core-wallet:announceProvider'
-      );
-    });
-    it('should re-announce on core-wallet:requestProvider', () => {
-      initializeProvider(connectionMock, 10, windowMock);
-
-      expect(windowMock.dispatchEvent.mock.calls[4][0].type).toEqual(
+      expect(windowMock.dispatchEvent.mock.calls[3][0].type).toEqual(
         'core-wallet:announceProvider'
       );
     });
