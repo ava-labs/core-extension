@@ -542,7 +542,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         const result = await secretsService.getAccountSecrets(
           activeAccountData
         );
-        console.log('result: ', result);
+
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { ...rest } = secrets.wallets[0];
         expect(result).toEqual({
@@ -1534,7 +1534,6 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         },
         isMainnet
       );
-      console.log('result: ', result);
 
       expect(result).toStrictEqual({
         account: {

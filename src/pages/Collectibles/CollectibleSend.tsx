@@ -120,7 +120,7 @@ export function CollectibleSend() {
     !network ||
     !fromAddress ||
     !provider ||
-    !networkFee?.low?.maxFee ||
+    !networkFee?.low?.maxFeePerGas ||
     !nativeToken ||
     !tokenList.length;
 
@@ -132,7 +132,7 @@ export function CollectibleSend() {
         <SendEVMCollectible
           fromAddress={fromAddress}
           network={network}
-          maxFee={networkFee.low.maxFee}
+          maxFee={networkFee.low.maxFeePerGas}
           nativeToken={nativeToken as NetworkTokenWithBalance}
           provider={provider as JsonRpcBatchInternal}
           tokenList={tokenList as [NftTokenWithBalance]}
