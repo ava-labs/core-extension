@@ -12,6 +12,7 @@ export enum UnifiedBridgeError {
   InvalidFee = 'invalid-fee',
   UnsupportedNetwork = 'unsupported-network',
   InvalidTxPayload = 'invalid-tx-payload',
+  NonBitcoinAccount = 'non-bitcoin-account',
 }
 
 export type UnifiedBridgeState = {
