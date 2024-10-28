@@ -9,11 +9,7 @@ import {
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
-import {
-  AddPrimaryWalletSecrets,
-  AvalancheTransactionRequest,
-  WalletEvents,
-} from './models';
+import { AddPrimaryWalletSecrets, AvalancheTransactionRequest } from './models';
 import { AVALANCHE_XP_TEST_NETWORK } from '@avalabs/core-chains-sdk';
 import {
   BitcoinLedgerWallet,
@@ -54,7 +50,6 @@ jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
 jest.mock('../ledger/LedgerService');
 jest.mock('../keystone/KeystoneService');
-jest.mock('../lock/LockService');
 jest.mock('./utils/prepareBtcTxForLedger');
 jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('@avalabs/core-wallets-sdk');
@@ -282,81 +277,18 @@ describe('background/services/wallet/WalletService.ts', () => {
     );
   });
 
-  describe('onLock', () => {
-    it('clears the wallets details and triggers an event', async () => {
-      mockMnemonicWallet();
-
-      await walletService.onUnlock();
-      expect(walletService.wallets).toEqual([
-        {
-          id: WALLET_ID,
-          type: SecretType.Mnemonic,
-          derivationPath: DerivationPath.BIP44,
-          name: 'mnemonic',
-        },
-      ]);
-
-      const eventListener = jest.fn();
-      walletService.addListener(
-        WalletEvents.WALLET_STATE_UPDATE,
-        eventListener
-      );
-
-      walletService.onLock();
-
-      expect(walletService.wallets).toEqual([]);
-      expect(eventListener).toHaveBeenCalledWith([]);
-    });
-
-    it('clears the wallet details and triggers an event for Ledger wallets', async () => {
-      mockLedgerWallet();
-
-      await walletService.onUnlock();
-      expect(walletService.wallets).toEqual([
-        {
-          id: WALLET_ID,
-          type: SecretType.Ledger,
-          derivationPath: DerivationPath.BIP44,
-          name: 'ledger',
-        },
-      ]);
-
-      const eventListener = jest.fn();
-      walletService.addListener(
-        WalletEvents.WALLET_STATE_UPDATE,
-        eventListener
-      );
-
-      walletService.onLock();
-      expect(walletService.wallets).toEqual([]);
-      expect(eventListener).toHaveBeenCalledWith([]);
-    });
-  });
-
   describe('onUnlock', () => {
     it('returns early if storage is empty', async () => {
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.wallets).toEqual([]);
+      const wallets = await secretsService.getPrimaryWalletsDetails();
+      expect(wallets).toEqual([]);
     });
 
     it('sets the walletType as mnemonic', async () => {
       mockMnemonicWallet();
-      const eventListener = jest.fn();
-      walletService.addListener(
-        WalletEvents.WALLET_STATE_UPDATE,
-        eventListener
-      );
+      const wallets = await secretsService.getPrimaryWalletsDetails();
 
-      await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.wallets).toEqual([
-        {
-          id: WALLET_ID,
-          type: SecretType.Mnemonic,
-          derivationPath: DerivationPath.BIP44,
-          name: 'mnemonic',
-        },
-      ]);
-      expect(eventListener).toHaveBeenCalledWith([
+      expect(wallets).toEqual([
         {
           id: WALLET_ID,
           type: SecretType.Mnemonic,
@@ -369,22 +301,10 @@ describe('background/services/wallet/WalletService.ts', () => {
     it('sets the walletType as ledger if xpub is present', async () => {
       mockLedgerWallet();
 
-      const eventListener = jest.fn();
-      walletService.addListener(
-        WalletEvents.WALLET_STATE_UPDATE,
-        eventListener
-      );
+      const wallets = await secretsService.getPrimaryWalletsDetails();
 
       await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.wallets).toEqual([
-        {
-          id: WALLET_ID,
-          type: SecretType.Ledger,
-          derivationPath: DerivationPath.BIP44,
-          name: 'ledger',
-        },
-      ]);
-      expect(eventListener).toHaveBeenCalledWith([
+      expect(wallets).toEqual([
         {
           id: WALLET_ID,
           type: SecretType.Ledger,
@@ -397,22 +317,9 @@ describe('background/services/wallet/WalletService.ts', () => {
     it('sets the walletType as ledger if pubKeys is present', async () => {
       mockLedgerLiveWallet();
 
-      const eventListener = jest.fn();
-      walletService.addListener(
-        WalletEvents.WALLET_STATE_UPDATE,
-        eventListener
-      );
+      const wallets = await secretsService.getPrimaryWalletsDetails();
 
-      await expect(walletService.onUnlock()).resolves.toBeUndefined();
-      expect(walletService.wallets).toEqual([
-        {
-          id: WALLET_ID,
-          type: SecretType.LedgerLive,
-          derivationPath: DerivationPath.LedgerLive,
-          name: 'ledger live',
-        },
-      ]);
-      expect(eventListener).toHaveBeenCalledWith([
+      expect(wallets).toEqual([
         {
           id: WALLET_ID,
           type: SecretType.LedgerLive,
@@ -441,14 +348,15 @@ describe('background/services/wallet/WalletService.ts', () => {
     });
 
     it('throws when storage contains malformed data', async () => {
-      mockMnemonicWallet({
-        secretType: 'unknown lol',
-      });
+      secretsService.getPrimaryWalletsDetails.mockResolvedValueOnce([
+        {
+          secretType: 'unknown lol',
+        },
+      ] as any);
 
       await expect(walletService.onUnlock()).rejects.toThrow(
         'Wallet initialization failed, no key found'
       );
-      expect(walletService.wallets).toEqual([]);
     });
   });
 

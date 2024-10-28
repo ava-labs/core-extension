@@ -12,6 +12,7 @@ import {
   MenuList,
   MoreHorizontalIcon,
   Popper,
+  useTheme,
 } from '@avalabs/core-k2-components';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -37,6 +38,7 @@ export const AccountItemMenu = ({
 }: AccountItemMenuProps) => {
   const { t } = useTranslation();
   const history = useHistory();
+  const theme = useTheme();
 
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLButtonElement>(null);
@@ -68,7 +70,7 @@ export const AccountItemMenu = ({
         }}
       >
         {isActive ? (
-          <ChevronRightIcon size={20} />
+          <ChevronRightIcon size={20} color={theme.palette.grey[900]} />
         ) : (
           <MoreHorizontalIcon size={24} />
         )}

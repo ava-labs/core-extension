@@ -34,6 +34,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
   let networkServiceMock;
 
   let blockaidServiceMock;
+  let secretsServiceMock;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -55,6 +56,14 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       getNetwork: () => activeNetworkMock,
     } as any;
 
+    secretsServiceMock = {
+      getPrimaryWalletsDetails: jest.fn().mockResolvedValue([
+        {
+          type: SecretType.Mnemonic,
+        },
+      ]),
+    };
+
     jest.mocked(openApprovalWindow).mockResolvedValue({} as any);
     (paramsToMessageParams as jest.Mock).mockReturnValue(displayDataMock);
   });
@@ -63,7 +72,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
     const handler = new PersonalSignHandler(
       walletServiceMock,
       networkServiceMock,
-      blockaidServiceMock
+      blockaidServiceMock,
+      secretsServiceMock
     );
 
     const request = {
@@ -85,7 +95,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
     const handler = new PersonalSignHandler(
       walletServiceMock,
       networkServiceMock,
-      blockaidServiceMock
+      blockaidServiceMock,
+      secretsServiceMock
     );
 
     expect(handler.methods).toStrictEqual([
@@ -100,11 +111,12 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
   describe('handleAuthenticated', () => {
     it('throws if walletType is undefined', async () => {
-      walletServiceMock.wallets = [];
+      secretsServiceMock.getPrimaryWalletsDetails.mockResolvedValueOnce([]);
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock
       );
 
       const request = {
@@ -128,7 +140,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock
       );
 
       const request = {
@@ -154,7 +167,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock
       );
 
       const request = {
@@ -190,7 +204,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock
       );
 
       const methodsWithoutTypeCheck = [
@@ -245,7 +260,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock
       );
 
       const messageParamsMock: MessageParams = {
@@ -325,7 +341,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock
       );
 
       const request = {
@@ -379,7 +396,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock
       );
 
       (walletServiceMock.signMessage as jest.Mock).mockResolvedValueOnce(
@@ -406,7 +424,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock
       );
 
       (walletServiceMock.signMessage as jest.Mock).mockRejectedValueOnce(error);
