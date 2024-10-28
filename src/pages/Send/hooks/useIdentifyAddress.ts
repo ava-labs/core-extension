@@ -24,7 +24,12 @@ export const useIdentifyAddress = () => {
   const identifyAddress = useCallback(
     (address: string): Contact => {
       if (!address)
-        return { ...UNSAVED_CONTACT_BASE, address: '', addressBTC: '' };
+        return {
+          ...UNSAVED_CONTACT_BASE,
+          address: '',
+          addressBTC: '',
+          addressXP: '',
+        };
       const addressLowerCase = address.toLowerCase();
       for (const contact of contacts) {
         if (
@@ -57,13 +62,13 @@ export const useIdentifyAddress = () => {
             ? { addressBTC: account.addressBTC, address: '' }
             : isPchainNetwork(network)
             ? {
-                addressXP: account.addressPVM ? account.addressPVM : '',
+                addressXP: address,
                 address: '',
                 addressBTC: '',
               }
             : isXchainNetwork(network)
             ? {
-                addressXP: account.addressAVM ? account.addressAVM : '',
+                addressXP: address,
                 address: '',
                 addressBTC: '',
               }

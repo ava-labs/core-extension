@@ -110,7 +110,7 @@ export const SendAVM = ({
       token={nativeToken}
       tokenList={tokenList}
       onContactChanged={(contact) => {
-        if (contact?.addressXP) setAddress(contact.addressXP);
+        setAddress(contact?.addressXP ?? '');
       }}
       onAmountChanged={(newAmount) => setAmount(newAmount)}
       onTokenChanged={() => {}} // noop, AVAX has only one token
