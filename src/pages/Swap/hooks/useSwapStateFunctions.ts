@@ -221,6 +221,7 @@ export function useSwapStateFunctions() {
     if (destination === 'to') {
       setSelectedFromToken(token);
       setMaxFromValue(token?.balance);
+      toToken && setSelectedToToken(toToken);
     } else {
       setSelectedToToken(token);
     }
