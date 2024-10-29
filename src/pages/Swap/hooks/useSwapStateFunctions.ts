@@ -14,7 +14,13 @@ import {
 import { stringToBigint } from '@src/utils/stringToBigint';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 
-export function useSwapStateFunctions() {
+export function useSwapStateFunctions({
+  defaultFromToken,
+  defaultToToken,
+}: {
+  defaultFromToken: NetworkTokenWithBalance | TokenWithBalanceERC20;
+  defaultToToken: NetworkTokenWithBalance | TokenWithBalanceERC20;
+}) {
   const tokensWBalances = useTokensWithBalances({
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
@@ -130,8 +136,18 @@ export function useSwapStateFunctions() {
         historyToToken
       );
       isHistoryLoaded.current = true;
+      return;
     }
-  }, [calculateTokenValueToInput, pageHistory]);
+    if (defaultFromToken && defaultFromToken) {
+      setSelectedFromToken(defaultFromToken);
+      setSelectedToToken(defaultToToken);
+    }
+  }, [
+    calculateTokenValueToInput,
+    defaultFromToken,
+    defaultToToken,
+    pageHistory,
+  ]);
 
   const resetValues = () => {
     setFromTokenValue(undefined);

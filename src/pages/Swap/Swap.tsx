@@ -1,6 +1,6 @@
 import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { resolve } from '@src/utils/promiseResolver';
 import { TransactionDetails } from './components/TransactionDetails';
 import { PageTitle } from '@src/components/common/PageTitle';
@@ -82,6 +82,13 @@ export function Swap() {
     useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
+  const AVAX_TOKEN = tokensWBalances.find(
+    (token) => token.symbol === 'AVAX'
+  ) as NetworkTokenWithBalance | TokenWithBalanceERC20;
+  const USDC_TOKEN = allTokensOnNetwork.find(
+    (token) => token.symbol === 'USDC'
+  ) as TokenWithBalanceERC20;
+
   const {
     calculateTokenValueToInput,
     reverseTokens,
@@ -103,31 +110,10 @@ export function Swap() {
     maxFromValue,
     optimalRate,
     destAmount,
-  } = useSwapStateFunctions();
-
-  useEffect(() => {
-    if (!selectedFromToken && !selectedToToken) {
-      const AVAX_TOKEN = tokensWBalances.find(
-        (token) => token.symbol === 'AVAX'
-      ) as NetworkTokenWithBalance | TokenWithBalanceERC20;
-      const USDC_TOKEN = allTokensOnNetwork.find(
-        (token) => token.symbol === 'USDC'
-      ) as TokenWithBalanceERC20;
-
-      onTokenChange({
-        token: AVAX_TOKEN,
-        fromToken: AVAX_TOKEN,
-        toToken: USDC_TOKEN,
-        destination: 'to',
-      });
-    }
-  }, [
-    allTokensOnNetwork,
-    onTokenChange,
-    selectedFromToken,
-    selectedToToken,
-    tokensWBalances,
-  ]);
+  } = useSwapStateFunctions({
+    defaultFromToken: AVAX_TOKEN,
+    defaultToToken: USDC_TOKEN,
+  });
 
   const activeAddress = useMemo(
     () =>
