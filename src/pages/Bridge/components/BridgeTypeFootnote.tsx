@@ -1,5 +1,6 @@
 import {
   InfoCircleIcon,
+  AvalancheAchromaticIcon,
   Link,
   Stack,
   Tooltip,
@@ -17,13 +18,16 @@ export const BridgeTypeFootnote = ({
   asset: BridgeAsset;
   targetChain: NetworkWithCaipId;
 }) => {
-  const availableBridges = asset.destinations[targetChain.caipId] ?? [];
+  // NOTE: we operate on the assumption that UnifiedBridge SDK will
+  // use the first matching bridge from the `destinations` array
+  const [bridgeType] = asset.destinations[targetChain.caipId] ?? [];
 
-  // NOTE: we assume that UnifiedBridge SDK will use the first matching bridge from the `destinations` map
-  const isCCTP = availableBridges[0] === BridgeType.CCTP;
-
-  if (isCCTP) {
+  if (bridgeType === BridgeType.CCTP) {
     return <CTTPFootnote />;
+  }
+
+  if (bridgeType === BridgeType.ICTT_ERC20_ERC20) {
+    return <ICTTFootnote />;
   }
 
   return null;
@@ -69,6 +73,57 @@ const CTTPFootnote = () => {
       >
         <InfoCircleIcon sx={{ cursor: 'pointer' }} />
       </Tooltip>
+    </Stack>
+  );
+};
+
+const ICTTFootnote = () => {
+  const { t } = useTranslation();
+
+  return (
+    <Stack
+      sx={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 0,
+      }}
+    >
+      <Typography variant="caption" fontSize={10}>
+        {t('Powered by')}
+      </Typography>
+      <Stack sx={{ gap: 0.5, flexDirection: 'row', alignItems: 'center' }}>
+        <AvalancheAchromaticIcon size={20} sx={{ filter: 'invert(1)' }} />
+        <Typography variant="caption" fontSize={10}>
+          <b>AVALANCHE</b> ICM
+        </Typography>
+
+        <Tooltip
+          PopperProps={{
+            sx: { maxWidth: 188 },
+          }}
+          title={
+            <Trans
+              i18nKey="Briding this token pair utilizes Avalanche Interchain Messaging. <faqLink>Bridge FAQs</faqLink>"
+              components={{
+                faqLink: (
+                  <Link
+                    href="https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+                    target="_blank"
+                    rel="noreferrer"
+                    sx={{
+                      fontSize: 'caption.fontSize',
+                      display: 'inline-flex',
+                      color: 'secondary.dark',
+                    }}
+                  />
+                ),
+              }}
+            />
+          }
+        >
+          <InfoCircleIcon sx={{ cursor: 'pointer' }} />
+        </Tooltip>
+      </Stack>
     </Stack>
   );
 };

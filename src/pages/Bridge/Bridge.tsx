@@ -112,8 +112,12 @@ export function Bridge() {
   ]);
 
   useEffect(() => {
+    if (!asset || transferableAssets.length === 0) {
+      return;
+    }
+
     const sourceSymbols = transferableAssets.map(({ symbol }) => symbol);
-    const prevSymbol = bridgePageHistoryData.selectedToken;
+    const prevSymbol = asset.symbol;
 
     if (prevSymbol && sourceSymbols.length) {
       const prevAsset = transferableAssets.find(
@@ -124,7 +128,7 @@ export function Bridge() {
         setAsset(prevAsset);
       }
     }
-  }, [bridgePageHistoryData.selectedToken, setAsset, transferableAssets]);
+  }, [asset, setAsset, transferableAssets]);
 
   const [isAmountTooLow, setIsAmountTooLow] = useState(false);
 

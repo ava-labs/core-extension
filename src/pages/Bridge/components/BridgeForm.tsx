@@ -93,6 +93,7 @@ export const BridgeForm = ({
   const { t } = useTranslation();
   const theme = useTheme();
   const cardRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
 
   const { setNetwork, network } = useNetworkContext();
   const { currencyFormatter, currency } = useSettingsContext();
@@ -308,14 +309,17 @@ export const BridgeForm = ({
 
   return (
     <>
-      <Scrollbars>
-        <Stack
-          sx={{
-            flex: 1,
-            px: 2,
-            // pb: provider === BridgeProviders.Unified ? 14 : 10, TODO: recognize CCTP
-          }}
-        >
+      <Stack
+        sx={{
+          flex: 1,
+          flexGrow: 1,
+          px: 2,
+          height: 1,
+          mb: isTokenSelectOpen ? 2 : 0,
+        }}
+        ref={formRef}
+      >
+        <Scrollbars>
           <Stack
             sx={{
               flex: 1,
@@ -323,7 +327,7 @@ export const BridgeForm = ({
               pointerEvents: isPending ? 'none' : 'auto',
             }}
           >
-            <Card ref={cardRef} sx={{ p: 0, overflow: 'unset' }}>
+            <Stack ref={cardRef} sx={{ p: 0, overflow: 'unset' }}>
               <Stack sx={{ width: '100%' }}>
                 {/* From section */}
                 <Card
@@ -383,7 +387,9 @@ export const BridgeForm = ({
                         padding="0 16px 8px"
                         skipHandleMaxAmount
                         label=""
-                        containerRef={cardRef}
+                        containerRef={
+                          possibleTargetChains.length > 0 ? cardRef : formRef
+                        }
                       />
                     </Stack>
                     <Stack
@@ -423,8 +429,9 @@ export const BridgeForm = ({
                 </Card>
 
                 {/* Switch to swap from and to */}
+                {/* TODO: this chain swap sometimes breaks and we end up with Avalanche -> Avalanche o.O */}
                 <Grow
-                  in={possibleTargetChains.length > 0}
+                  in={!isTokenSelectOpen && possibleTargetChains.length > 0}
                   unmountOnExit
                   mountOnEnter
                 >
@@ -455,7 +462,14 @@ export const BridgeForm = ({
                   mountOnEnter
                   unmountOnExit
                 >
-                  <Card sx={{ background: 'none', zIndex: 1 }}>
+                  <Card
+                    sx={{
+                      background: 'background.paper',
+                      zIndex: 0,
+                      pt: 6,
+                      mt: -6,
+                    }}
+                  >
                     <Stack sx={{ width: '100%', p: 2, pt: 1, rowGap: 2 }}>
                       <Stack
                         direction="row"
@@ -517,24 +531,23 @@ export const BridgeForm = ({
                   </Card>
                 </Slide>
               </Stack>
-            </Card>
+            </Stack>
           </Stack>
-        </Stack>
-      </Scrollbars>
+        </Scrollbars>
+      </Stack>
 
       <Stack
         sx={{
-          position: 'fixed',
           display: isTokenSelectOpen ? 'none' : 'flex',
           bottom: 0,
           width: 1,
           maxWidth: 375,
           px: 2,
           pt: 1.5,
-          pb: 3,
+          pb: 2,
           backgroundColor: 'rgba(0,0,0,0.85)',
           backdropFilter: 'blur(12px)',
-          gap: 2,
+          gap: 1,
         }}
       >
         {asset && targetChain && (
