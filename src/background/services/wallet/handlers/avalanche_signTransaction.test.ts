@@ -15,6 +15,7 @@ import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { HEADERS } from '../../glacier/glacierConfig';
+import { AVALANCHE_XP_TEST_NETWORK } from '@avalabs/core-chains-sdk';
 
 jest.mock('@avalabs/avalanchejs');
 jest.mock('@avalabs/core-wallets-sdk');
@@ -93,6 +94,9 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     (Avalanche.getVmByChainAlias as jest.Mock).mockReturnValue(AVM);
     (utils.hexToBuffer as jest.Mock).mockReturnValue(txBytes);
     networkServiceMock.getAvalanceProviderXP.mockReturnValue(providerMock);
+    networkServiceMock.getAvalancheNetworkXP.mockReturnValueOnce(
+      AVALANCHE_XP_TEST_NETWORK
+    );
     (utils.unpackWithManager as jest.Mock).mockReturnValue(txMock);
     (utils.addressesFromBytes as jest.Mock).mockReturnValue([
       signerAddressMock,
@@ -225,6 +229,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         transactionHex: request.params.transactionHex,
         chainAlias: request.params.chainAlias,
         isTestnet: true,
+        isDevnet: false,
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
         headers: HEADERS,
@@ -273,6 +278,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         transactionHex: request.params.transactionHex,
         chainAlias: request.params.chainAlias,
         isTestnet: true,
+        isDevnet: false,
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
         headers: HEADERS,
@@ -328,6 +334,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         transactionHex: request.params.transactionHex,
         chainAlias: request.params.chainAlias,
         isTestnet: true,
+        isDevnet: false,
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
         headers: HEADERS,
@@ -385,6 +392,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         transactionHex: request.params.transactionHex,
         chainAlias: request.params.chainAlias,
         isTestnet: true,
+        isDevnet: false,
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
         headers: HEADERS,
@@ -527,6 +535,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             transactionHex: request.params.transactionHex,
             chainAlias: request.params.chainAlias,
             isTestnet: true,
+            isDevnet: false,
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
             headers: HEADERS,
@@ -534,7 +543,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         });
       });
 
-      describe('(partially) signex tx', () => {
+      describe('(partially) signed tx', () => {
         const checkExpected = (req, result, signaturesMock) => {
           expect(result).toEqual({
             ...req,
@@ -716,6 +725,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             transactionHex: request.params.transactionHex,
             chainAlias: request.params.chainAlias,
             isTestnet: true,
+            isDevnet: false,
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
             headers: HEADERS,
@@ -780,9 +790,6 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(
         signedTransactionHex
       );
-      networkServiceMock.getAvalancheNetworkXP.mockReturnValueOnce(
-        providerMock
-      );
 
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
@@ -837,10 +844,6 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(
         signedTransactionHex
       );
-      networkServiceMock.getAvalancheNetworkXP.mockReturnValueOnce(
-        providerMock
-      );
-
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
@@ -873,9 +876,6 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       (avaxSerial.SignedTx as unknown as jest.Mock) = signedTxInstanceMock;
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(
         signedTransactionHex
-      );
-      networkServiceMock.getAvalancheNetworkXP.mockReturnValueOnce(
-        providerMock
       );
 
       const handler = new AvalancheSignTransactionHandler(
@@ -913,7 +913,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         {
           tx: mockedTx,
         },
-        providerMock,
+        AVALANCHE_XP_TEST_NETWORK,
         frontendTabId
       );
       expect(signedTxMock.getCredentials).toHaveBeenCalled();

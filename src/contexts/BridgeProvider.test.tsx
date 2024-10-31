@@ -93,7 +93,7 @@ describe('contexts/BridgeProvider', () => {
         symbol: 'AVAX',
       },
     },
-    avalancheProvider: {
+    avaxProviderC: {
       waitForTransaction: jest.fn(),
     },
     ethereumProvider: {
@@ -249,7 +249,7 @@ describe('contexts/BridgeProvider', () => {
           amount,
           asset: currentAssetData,
           account: accountsContext.accounts.active.addressC,
-          avalancheProvider: networkContext.avalancheProvider,
+          avalancheProvider: networkContext.avaxProviderC,
           ethereumProvider: networkContext.ethereumProvider,
           config: bridgeSDKContext.bridgeConfig.config,
           onStatusChange: expect.any(Function),
@@ -300,7 +300,7 @@ describe('contexts/BridgeProvider', () => {
         jest.mocked(useNetworkContext).mockReturnValue({
           ...networkContext,
           ethereumProvider: undefined,
-          avalancheProviderC: undefined,
+          avaxProviderC: undefined,
         });
       });
 
@@ -337,7 +337,7 @@ describe('contexts/BridgeProvider', () => {
           asset,
           {
             ethereum: networkContext.ethereumProvider,
-            avalanche: networkContext.avalancheProvider,
+            avalanche: networkContext.avaxProviderC,
           },
           bridgeSDKContext.bridgeConfig.config,
           bridgeSDKContext.currentBlockchain

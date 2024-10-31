@@ -69,6 +69,7 @@ describe('src/background/services/networkFee/NetworkFeeService', () => {
         low: { maxFeePerGas: 3n },
         medium: { maxFeePerGas: 4n },
         high: { maxFeePerGas: 5n },
+        displayDecimals: 9,
       };
       const getNetworkFee = jest.fn().mockResolvedValue(networkFees);
 
@@ -84,10 +85,7 @@ describe('src/background/services/networkFee/NetworkFeeService', () => {
 
       expect(moduleManager.loadModuleByNetwork).toHaveBeenCalledWith(evm);
 
-      expect(fees).toEqual({
-        displayDecimals: 9,
-        ...networkFees,
-      });
+      expect(fees).toEqual(networkFees);
     });
   });
 });

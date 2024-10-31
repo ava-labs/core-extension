@@ -15,11 +15,10 @@ module.exports = merge(prod, {
           from: '**/*.json',
           to: '../',
           transform: transformManifestFiles({
-            name: 'Core ETNA BUILD',
+            name: 'Core Beta DEVELOPMENT BUILD',
             shortName: 'Core Beta',
-            actionDefaultTitle: 'Core Beta Browser Extension ETNA BUILD',
+            actionDefaultTitle: 'Core Beta Browser Extension DEVELOPMENT BUILD',
             oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
-            publicKey: process.env.EXTENSION_PUBLIC_KEY,
           }),
           force: true,
         },
