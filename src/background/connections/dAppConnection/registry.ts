@@ -52,7 +52,7 @@ import { AvalancheRenameWalletHandler } from '@src/background/services/secrets/h
   { token: 'DAppRequestHandler', useToken: AvalancheSelectWalletHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSelectAccountHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheGetAccountPubKeyHandler },
-  { token: 'DAppRequestHandler', useToken: AvalancheSendTransactionHandler },
+  // { token: 'DAppRequestHandler', useToken: AvalancheSendTransactionHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSignTransactionHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSignMessageHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheRenameAccountHandler },

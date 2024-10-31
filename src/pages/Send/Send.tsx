@@ -152,10 +152,17 @@ export function SendPage() {
     return <FunctionIsOffline functionName={FunctionNames.SEND} />;
   }
 
-  const isNetworkFeeReady =
-    isPchainNetwork(network) || isXchainNetwork(network)
-      ? !!provider
-      : !!networkFee?.low?.maxFeePerGas;
+  const isNetworkFeeReady = !!networkFee?.low?.maxFeePerGas;
+  const isProviderReady =
+    provider &&
+    network &&
+    ((network.vmName === NetworkVMType.EVM &&
+      provider instanceof JsonRpcBatchInternal) ||
+      ((network.vmName === NetworkVMType.PVM ||
+        network.vmName === NetworkVMType.AVM) &&
+        provider instanceof Avalanche.JsonRpcProvider) ||
+      (network.vmName === NetworkVMType.BITCOIN &&
+        provider instanceof BitcoinProvider));
 
   const isLoading =
     !active ||
@@ -163,7 +170,8 @@ export function SendPage() {
     !fromAddress ||
     !provider ||
     !isNetworkFeeReady ||
-    !nativeToken;
+    !nativeToken ||
+    !isProviderReady;
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }}>
@@ -198,14 +206,14 @@ export function SendPage() {
         />
       )}
       {!isLoading &&
+        networkFee &&
         network.vmName === NetworkVMType.PVM &&
         isPvmCapableAccount(active) && (
           <SendPVM
             network={network}
             fromAddress={fromAddress}
-            maxFee={
-              (provider as Avalanche.JsonRpcProvider).getContext().baseTxFee
-            }
+            maxFee={networkFee.low.maxFeePerGas}
+            networkFee={networkFee}
             nativeToken={nativeToken as TokenWithBalancePVM}
             provider={provider as Avalanche.JsonRpcProvider}
             tokenList={tokens as [TokenWithBalancePVM]}

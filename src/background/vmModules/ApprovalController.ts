@@ -19,6 +19,8 @@ import { NetworkWithCaipId } from '../services/network/models';
 
 import { ApprovalParamsWithContext } from './models';
 import { ACTION_HANDLED_BY_MODULE } from '../models';
+import { EVM, EVMUnsignedTx, UnsignedTx } from '@avalabs/avalanchejs';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 
 @singleton()
 export class ApprovalController implements IApprovalController {
@@ -180,6 +182,37 @@ export class ApprovalController implements IApprovalController {
           network,
           action.tabId
         );
+      case RpcMethod.AVALANCHE_SEND_TRANSACTION: {
+        const result = await this.#walletService.sign(
+          {
+            tx:
+              signingData.vm === EVM
+                ? EVMUnsignedTx.fromJSON(signingData.unsignedTxJson)
+                : UnsignedTx.fromJSON(signingData.unsignedTxJson),
+            internalIndices: signingData.internalIndices,
+            externalIndices: signingData.externalIndices,
+          },
+          network,
+          action.tabId
+        );
+
+        if ('txHash' in result) {
+          return result;
+        }
+
+        const signedTransaction =
+          signingData.vm === EVM
+            ? EVMUnsignedTx.fromJSON(result.signedTx)
+            : UnsignedTx.fromJSON(result.signedTx);
+
+        if (!signedTransaction.hasAllSignatures()) {
+          throw new Error('Signing error, missing signatures.');
+        }
+
+        return {
+          signedTx: Avalanche.signedTxToHex(signedTransaction.getSignedTx()),
+        };
+      }
 
       default:
         throw new Error('Unrecognized method: ' + params.request.method);

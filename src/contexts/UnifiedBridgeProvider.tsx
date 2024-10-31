@@ -21,7 +21,6 @@ import {
   AnalyzeTxParams,
   AnalyzeTxResult,
 } from '@avalabs/bridge-unified';
-import { ethErrors } from 'eth-rpc-errors';
 import { filter, map } from 'rxjs';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
@@ -35,7 +34,7 @@ import { isUnifiedBridgeStateUpdate } from '@src/background/services/unifiedBrid
 
 import { useNetworkContext } from './NetworkProvider';
 import { useConnectionContext } from './ConnectionProvider';
-import { CommonError, ErrorCode } from '@src/utils/errors';
+import { CommonError } from '@src/utils/errors';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
@@ -47,6 +46,7 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { lowerCaseKeys } from '@src/utils/lowerCaseKeys';
 import { RpcMethod } from '@avalabs/vm-module-types';
+import { assert } from '@src/utils/assertions';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(
@@ -102,17 +102,6 @@ const DEFAULT_STATE = {
 };
 
 const UnifiedBridgeContext = createContext<UnifiedBridgeContext>(DEFAULT_STATE);
-
-function assert(
-  value: unknown,
-  reason?: ErrorCode
-): asserts value is NonNullable<unknown> {
-  if (!value) {
-    throw ethErrors.rpc.internal({
-      data: { reason: reason ?? CommonError.Unknown },
-    });
-  }
-}
 
 export function UnifiedBridgeProvider({
   children,

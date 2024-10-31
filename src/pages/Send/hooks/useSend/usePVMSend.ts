@@ -2,7 +2,7 @@ import Big from 'big.js';
 import { utils } from '@avalabs/avalanchejs';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { bigToBigInt } from '@avalabs/core-utils-sdk';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { resolve } from '@src/utils/promiseResolver';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
@@ -19,8 +19,10 @@ import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
 import { PVMSendOptions } from '../../models';
 import { SendAdapterPVM } from './models';
 import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
+import { FeeState } from '@avalabs/avalanchejs/dist/vms/pvm';
 
 const PCHAIN_ALIAS = 'P' as const;
+const AVAX_DECIMALS = 9;
 
 export const usePvmSend: SendAdapterPVM = ({
   network,
@@ -37,6 +39,34 @@ export const usePvmSend: SendAdapterPVM = ({
   const [isValidating, setIsValidating] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [maxAmount, setMaxAmount] = useState('0');
+  const [estimatedFee, setEstimatedFee] = useState(0n);
+  const [feeState, setFeeState] = useState<FeeState>();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (provider.isEtnaEnabled()) {
+      provider
+        .getApiP()
+        .getFeeState()
+        .then((state) => {
+          if (!isMounted) {
+            return;
+          }
+
+          setFeeState(state);
+        })
+        .catch(() => {
+          setError(SendErrorMessage.INVALID_NETWORK_FEE);
+        });
+    } else {
+      setFeeState(undefined);
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [provider]);
 
   const wallet = useMemo(() => {
     return new Avalanche.AddressWallet(
@@ -59,9 +89,85 @@ export const usePvmSend: SendAdapterPVM = ({
     setIsValidating(false);
   }
 
+  const getFeeState = useCallback(
+    (gasPrice?: bigint) => {
+      if (!gasPrice) {
+        return feeState;
+      }
+
+      if (!feeState) {
+        return;
+      }
+
+      return {
+        ...feeState,
+        price: gasPrice,
+      };
+    },
+    [feeState]
+  );
+
+  const buildTransaction = useCallback(
+    async ({ address, amount, gasPrice }: PVMSendOptions) => {
+      const avax = provider.getAvaxID();
+      const amountBigInt = bigToBigInt(Big(amount), AVAX_DECIMALS);
+      const changeAddress = utils.parse(account.addressPVM)[2];
+      const { utxos } = await getMaxUtxoSet(
+        isLedgerWallet,
+        provider,
+        wallet,
+        network,
+        getFeeState(gasPrice)
+      );
+
+      return wallet.baseTX({
+        utxoSet: utxos,
+        chain: PCHAIN_ALIAS,
+        toAddress: correctAddressByPrefix(address, 'P-'),
+        amountsPerAsset: {
+          [avax]: amountBigInt,
+        },
+        options: {
+          changeAddresses: [changeAddress],
+        },
+        feeState:
+          feeState && gasPrice ? { ...feeState, price: gasPrice } : feeState,
+      });
+    },
+    [
+      account.addressPVM,
+      provider,
+      wallet,
+      feeState,
+      isLedgerWallet,
+      network,
+      getFeeState,
+    ]
+  );
+
+  const parseTx = useCallback(
+    async ({ address, amount, gasPrice }: PVMSendOptions) => {
+      const unsignedTx = await buildTransaction({
+        address,
+        amount,
+        gasPrice,
+      });
+
+      const parsedTx = await Avalanche.parseAvalancheTx(
+        unsignedTx,
+        provider,
+        account.addressPVM,
+        { feeTolerance: 100 }
+      );
+
+      return parsedTx;
+    },
+    [buildTransaction, provider, account.addressPVM]
+  );
+
   const validate = useCallback(
     async (options: PVMSendOptions) => {
-      const { address, token, amount } = options;
+      const { address, amount, gasPrice } = options;
       const amountToUse = amount ? amount : '0';
 
       setIsValidating(true);
@@ -73,15 +179,38 @@ export const usePvmSend: SendAdapterPVM = ({
         return setErrorAndEndValidating(errorReason);
       }
 
+      if (typeof gasPrice === 'bigint' && feeState) {
+        if (feeState.price > gasPrice) {
+          return setErrorAndEndValidating(SendErrorMessage.INVALID_NETWORK_FEE);
+        } else if (gasPrice > feeState.price * 2n) {
+          return setErrorAndEndValidating(
+            SendErrorMessage.EXCESSIVE_NETWORK_FEE
+          );
+        }
+      }
+
+      if (provider.isEtnaEnabled() && !feeState) {
+        // Fee state has not been fetched yet, we can't proceed with other validations.
+        // If there is an error with fetching the fee state when it's required,
+        // that error is captured outside of the validate() function.
+        return;
+      }
+
       // using filtered UTXOs because there is size limit
       const [utxos, utxosError] = await resolve(
-        getMaxUtxoSet(isLedgerWallet, provider, wallet, network)
+        getMaxUtxoSet(
+          isLedgerWallet,
+          provider,
+          wallet,
+          network,
+          getFeeState(gasPrice)
+        )
       );
 
       if (utxosError) {
         return setErrorAndEndValidating(SendErrorMessage.UNABLE_TO_FETCH_UTXOS);
       }
-      const amountBigInt = bigToBigInt(Big(amountToUse), token.decimals);
+      const amountBigInt = bigToBigInt(Big(amountToUse), 9);
       // maxMount calculation
       const available = utxos?.balance.available ?? BigInt(0);
       const maxAvailable = available - maxFee;
@@ -103,6 +232,10 @@ export const usePvmSend: SendAdapterPVM = ({
 
       setIsValidating(false);
       setError(undefined);
+
+      const parsedTx = await parseTx({ address, amount, gasPrice });
+
+      setEstimatedFee(parsedTx.txFee);
     },
     [
       checkFunctionAvailability,
@@ -111,57 +244,45 @@ export const usePvmSend: SendAdapterPVM = ({
       network,
       provider,
       wallet,
+      getFeeState,
+      parseTx,
+      feeState,
     ]
   );
 
   const send = useCallback(
-    async ({ address, token, amount }: PVMSendOptions) => {
+    async ({ address, amount, gasPrice }: PVMSendOptions) => {
       checkFunctionAvailability();
-
       setIsSending(true);
 
       try {
-        const { utxos } = await getMaxUtxoSet(
-          isLedgerWallet,
-          provider,
-          wallet,
-          network
-        );
-
-        const avax = provider.getAvaxID();
-        const amountBigInt = bigToBigInt(Big(amount), token.decimals);
-        const changeAddress = utils.parse(
-          account.addressPVM //.replace('fuji', 'custom') // TODO: just testing
-        )[2];
-
-        const feeState = await provider.getApiP().getFeeState();
-        const unsignedTx = wallet.baseTX({
-          utxoSet: utxos,
-          chain: PCHAIN_ALIAS,
-          toAddress: correctAddressByPrefix(address, 'P-'),
-          amountsPerAsset: {
-            [avax]: amountBigInt,
-          },
-          options: {
-            changeAddresses: [changeAddress],
-          },
-          feeState,
+        const unsignedTx = await buildTransaction({
+          address,
+          amount,
+          gasPrice,
         });
         const manager = utils.getManagerForVM(unsignedTx.getVM());
         const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());
 
         const params = {
-          transactionHex: Buffer.from(unsignedTx.toBytes()).toString('hex'),
+          transactionHex: `0x${Buffer.from(unsignedTx.toBytes()).toString(
+            'hex'
+          )}`,
           chainAlias: PCHAIN_ALIAS,
           utxos: unsignedTx.utxos.map((utxo) =>
             utils.bufferToHex(utxo.toBytes(codec))
           ),
           feeTolerance: 100,
         };
-        return await request<AvalancheSendTransactionHandler>({
-          method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
-          params,
-        });
+        return await request<AvalancheSendTransactionHandler>(
+          {
+            method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
+            params,
+          },
+          {
+            currentAddress: account.addressPVM,
+          }
+        );
       } catch (err) {
         console.error(err);
         throw err;
@@ -169,15 +290,7 @@ export const usePvmSend: SendAdapterPVM = ({
         setIsSending(false);
       }
     },
-    [
-      account,
-      checkFunctionAvailability,
-      isLedgerWallet,
-      network,
-      provider,
-      request,
-      wallet,
-    ]
+    [buildTransaction, checkFunctionAvailability, request, account.addressPVM]
   );
 
   return {
@@ -188,5 +301,6 @@ export const usePvmSend: SendAdapterPVM = ({
     maxAmount,
     send,
     validate,
+    estimatedFee,
   };
 };
