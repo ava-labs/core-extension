@@ -21,7 +21,6 @@ import {
   AVALANCHE_P_DEV_NETWORK,
   AVALANCHE_XP_NETWORK,
   AVALANCHE_XP_TEST_NETWORK,
-  AVALANCHE_X_DEV_NETWORK,
   BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
   ChainId,
@@ -54,6 +53,7 @@ import {
   decorateWithCaipId,
 } from '@src/utils/caipConversion';
 import { getSyncDomain, isSyncDomain } from './utils/getSyncDomain';
+import { isDevnet } from '@src/utils/isDevnet';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -381,10 +381,6 @@ export class NetworkService implements OnLock, OnStorageReady {
     return decorateWithCaipId(AVALANCHE_P_DEV_NETWORK);
   }
 
-  private _getXchainDevnet(): Network {
-    return decorateWithCaipId(AVALANCHE_X_DEV_NETWORK);
-  }
-
   private _getPchainNetwork(isTestnet: boolean): Network {
     const network = isTestnet
       ? AVALANCHE_XP_TEST_NETWORK
@@ -403,7 +399,7 @@ export class NetworkService implements OnLock, OnStorageReady {
           'https://images.ctfassets.net/gcj8jwzm6086/5VHupNKwnDYJvqMENeV7iJ/3e4b8ff10b69bfa31e70080a4b142cd0/avalanche-avax-logo.svg', // from contentful
       },
       explorerUrl: isTestnet
-        ? 'https://495e3bcd.subnets.pages.dev/p-chain'
+        ? 'https://subnets-test.avax.network/p-chain'
         : 'https://subnets.avax.network/p-chain',
     });
   }
@@ -427,7 +423,7 @@ export class NetworkService implements OnLock, OnStorageReady {
           'https://images.ctfassets.net/gcj8jwzm6086/5VHupNKwnDYJvqMENeV7iJ/3e4b8ff10b69bfa31e70080a4b142cd0/avalanche-avax-logo.svg', // from contentful
       },
       explorerUrl: isTestnet
-        ? 'https://495e3bcd.subnets.pages.dev/x-chain'
+        ? 'https://subnets-test.avax.network/x-chain'
         : 'https://subnets.avax.network/x-chain',
     });
   }
@@ -454,7 +450,6 @@ export class NetworkService implements OnLock, OnStorageReady {
           [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork(true),
           [ChainId.AVALANCHE_X]: this._getXchainNetwork(false),
           [ChainId.AVALANCHE_DEVNET_P]: this._getPchainDevnet(),
-          [ChainId.AVALANCHE_DEVNET_X]: this._getXchainDevnet(),
         };
       } else {
         attempt += 1;
@@ -491,10 +486,12 @@ export class NetworkService implements OnLock, OnStorageReady {
    * Returns the network object for Avalanche X/P Chains
    */
   getAvalancheNetworkXP() {
+    // TODO(@meeh0w): clean up after E-upgrade activation on Fuji
     const isDevnetActive =
-      this.uiActiveNetwork?.isDevnet || this.uiActiveNetwork?.chainId === 43117;
+      this.uiActiveNetwork && isDevnet(this.uiActiveNetwork);
+
     return isDevnetActive
-      ? this._getXchainDevnet()
+      ? this._getPchainDevnet()
       : this._getXchainNetwork(!this.isMainnet());
   }
 

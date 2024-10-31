@@ -57,7 +57,7 @@ export const SendPVM = ({
   });
 
   useEffect(() => {
-    validate({ address, amount, gasPrice });
+    validate({ address, amount, gasPrice, token: nativeToken });
 
     if (address || amount) {
       setStateInParams({
@@ -88,7 +88,9 @@ export const SendPVM = ({
       hasError,
       result: txHash,
       error: txError,
-    } = await handleTxOutcome(send({ address, amount, gasPrice }));
+    } = await handleTxOutcome(
+      send({ address, amount, gasPrice, token: nativeToken })
+    );
 
     if (isApproved) {
       onApproved();
@@ -108,6 +110,7 @@ export const SendPVM = ({
     onSuccess,
     send,
     gasPrice,
+    nativeToken,
   ]);
 
   const inputAmount = useMemo(

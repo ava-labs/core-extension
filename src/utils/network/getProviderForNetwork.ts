@@ -5,12 +5,12 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { FetchRequest, Network as EthersNetwork } from 'ethers';
+import { Info } from '@avalabs/avalanchejs';
 
 import { Network } from '@src/background/services/network/models';
 
+import { isDevnet } from '../isDevnet';
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
-import { Info } from '@avalabs/avalanchejs';
-import { GetUpgradesInfoResponse } from '@avalabs/avalanchejs/dist/info/model';
 
 export type SupportedProvider =
   | BitcoinProvider
@@ -64,17 +64,15 @@ export const getProviderForNetwork = async (
     network.vmName === NetworkVMType.AVM ||
     network.vmName === NetworkVMType.PVM
   ) {
-    if (network.isDevnet) {
-      const upgradesInfo = await new Info(network.rpcUrl)
-        .getUpgradesInfo()
-        .catch(() => ({} as GetUpgradesInfoResponse)); // If we can't get the upgrades info, return an empty object. This will result in pre-Etna behavior
+    const upgradesInfo = await new Info(network.rpcUrl)
+      .getUpgradesInfo()
+      .catch(() => undefined);
 
-      return Avalanche.JsonRpcProvider.getDefaultDevnetProvider(upgradesInfo);
-    }
-
-    return network.isTestnet
-      ? Avalanche.JsonRpcProvider.getDefaultFujiProvider()
-      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider();
+    return isDevnet(network)
+      ? Avalanche.JsonRpcProvider.getDefaultDevnetProvider(upgradesInfo)
+      : network.isTestnet
+      ? Avalanche.JsonRpcProvider.getDefaultFujiProvider(upgradesInfo)
+      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider(upgradesInfo);
   } else {
     throw new Error('unsupported network');
   }

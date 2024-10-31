@@ -7,6 +7,7 @@ import {
   TokenWithBalanceAVM,
   TokenWithBalanceBTC,
   TokenWithBalanceERC20,
+  TokenWithBalancePVM,
 } from '@avalabs/vm-module-types';
 import { NetworkFee } from '@src/background/services/networkFee/models';
 
@@ -60,6 +61,7 @@ export type AVMSendOptions = BaseSendOptions & {
 };
 
 export type PVMSendOptions = BaseSendOptions & {
+  token: TokenWithBalancePVM;
   gasPrice?: bigint;
 };
 

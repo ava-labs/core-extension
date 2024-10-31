@@ -119,7 +119,7 @@ export function BaseTxView({
                       <AvalancheColorIcon size={'32px'} sx={{ mr: 1 }} />
                     )}
                     <Typography variant="h6">
-                      {out.assetDescription?.symbol}
+                      {out.assetDescription?.symbol ?? (out.isAvax && 'AVAX')}
                     </Typography>
                   </Stack>
                   <Stack>
@@ -134,7 +134,8 @@ export function BaseTxView({
                         out.amount,
                         out.assetDescription?.denomination ||
                           defaultDenomination
-                      )}
+                      )}{' '}
+                      {out.assetDescription?.symbol ?? (out.isAvax && 'AVAX')}
                     </Typography>
                     {out.isAvax && (
                       <Typography

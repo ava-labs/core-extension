@@ -37,6 +37,7 @@ import { isNetworkUpdatedEvent } from '@src/background/services/network/events/i
 import { SetActiveNetworkHandler } from '@src/background/services/network/handlers/setActiveNetwork';
 import { updateIfDifferent } from '@src/utils/updateIfDifferent';
 import { getNetworkCaipId } from '@src/utils/caipConversion';
+import { isDevnet } from '@src/utils/isDevnet';
 import { networkChanged } from './NetworkProvider/networkChanges';
 
 const NetworkContext = createContext<{
@@ -141,7 +142,11 @@ export function NetworkContextProvider({ children }: { children: any }) {
         : ChainId.AVALANCHE_MAINNET_ID
     );
     const avaxNetworkP = getNetwork(
-      network.isTestnet ? ChainId.AVALANCHE_TEST_P : ChainId.AVALANCHE_P
+      isDevnet(network)
+        ? ChainId.AVALANCHE_DEVNET_P
+        : network.isTestnet
+        ? ChainId.AVALANCHE_TEST_P
+        : ChainId.AVALANCHE_P
     );
     const ethNetwork = getNetwork(
       network.isTestnet

@@ -39,9 +39,10 @@ import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useAccountsContext } from './AccountsProvider';
-import { JsonRpcApiProvider } from 'ethers';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
+import {
+  SupportedProvider,
+  getProviderForNetwork,
+} from '@src/utils/network/getProviderForNetwork';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { lowerCaseKeys } from '@src/utils/lowerCaseKeys';
@@ -294,7 +295,7 @@ export function UnifiedBridgeProvider({
       sourceChain: Chain;
       sourceChainId: string;
       targetChain: Chain;
-      provider: JsonRpcApiProvider;
+      provider: SupportedProvider;
       fromAddress: `0x${string}`;
     }> => {
       assert(activeAccount, CommonError.NoActiveAccount);
@@ -307,9 +308,7 @@ export function UnifiedBridgeProvider({
       const sourceChain = buildChain(activeNetwork.caipId);
       const targetChain = buildChain(targetChainId);
 
-      const provider = (await getProviderForNetwork(
-        activeNetwork
-      )) as JsonRpcBatchInternal;
+      const provider = await getProviderForNetwork(activeNetwork);
 
       const fromAddress = activeAccount.addressC as `0x${string}`;
 

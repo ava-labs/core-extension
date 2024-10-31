@@ -22,7 +22,6 @@ import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
 import { FeeState } from '@avalabs/avalanchejs/dist/vms/pvm';
 
 const PCHAIN_ALIAS = 'P' as const;
-const AVAX_DECIMALS = 9;
 
 export const usePvmSend: SendAdapterPVM = ({
   network,
@@ -91,12 +90,8 @@ export const usePvmSend: SendAdapterPVM = ({
 
   const getFeeState = useCallback(
     (gasPrice?: bigint) => {
-      if (!gasPrice) {
+      if (!gasPrice || !feeState) {
         return feeState;
-      }
-
-      if (!feeState) {
-        return;
       }
 
       return {
@@ -108,9 +103,9 @@ export const usePvmSend: SendAdapterPVM = ({
   );
 
   const buildTransaction = useCallback(
-    async ({ address, amount, gasPrice }: PVMSendOptions) => {
+    async ({ address, amount, gasPrice, token }: PVMSendOptions) => {
       const avax = provider.getAvaxID();
-      const amountBigInt = bigToBigInt(Big(amount), AVAX_DECIMALS);
+      const amountBigInt = bigToBigInt(Big(amount), token.decimals);
       const changeAddress = utils.parse(account.addressPVM)[2];
       const { utxos } = await getMaxUtxoSet(
         isLedgerWallet,
@@ -146,11 +141,12 @@ export const usePvmSend: SendAdapterPVM = ({
   );
 
   const parseTx = useCallback(
-    async ({ address, amount, gasPrice }: PVMSendOptions) => {
+    async ({ address, amount, gasPrice, token }: PVMSendOptions) => {
       const unsignedTx = await buildTransaction({
         address,
         amount,
         gasPrice,
+        token,
       });
 
       const parsedTx = await Avalanche.parseAvalancheTx(
@@ -167,7 +163,7 @@ export const usePvmSend: SendAdapterPVM = ({
 
   const validate = useCallback(
     async (options: PVMSendOptions) => {
-      const { address, amount, gasPrice } = options;
+      const { address, amount, gasPrice, token } = options;
       const amountToUse = amount ? amount : '0';
 
       setIsValidating(true);
@@ -210,7 +206,7 @@ export const usePvmSend: SendAdapterPVM = ({
       if (utxosError) {
         return setErrorAndEndValidating(SendErrorMessage.UNABLE_TO_FETCH_UTXOS);
       }
-      const amountBigInt = bigToBigInt(Big(amountToUse), 9);
+      const amountBigInt = bigToBigInt(Big(amountToUse), token.decimals);
       // maxMount calculation
       const available = utxos?.balance.available ?? BigInt(0);
       const maxAvailable = available - maxFee;
@@ -233,7 +229,7 @@ export const usePvmSend: SendAdapterPVM = ({
       setIsValidating(false);
       setError(undefined);
 
-      const parsedTx = await parseTx({ address, amount, gasPrice });
+      const parsedTx = await parseTx({ address, amount, gasPrice, token });
 
       setEstimatedFee(parsedTx.txFee);
     },
@@ -251,7 +247,7 @@ export const usePvmSend: SendAdapterPVM = ({
   );
 
   const send = useCallback(
-    async ({ address, amount, gasPrice }: PVMSendOptions) => {
+    async ({ address, amount, gasPrice, token }: PVMSendOptions) => {
       checkFunctionAvailability();
       setIsSending(true);
 
@@ -259,30 +255,24 @@ export const usePvmSend: SendAdapterPVM = ({
         const unsignedTx = await buildTransaction({
           address,
           amount,
+          token,
           gasPrice,
         });
         const manager = utils.getManagerForVM(unsignedTx.getVM());
         const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());
-
+        const feeTolerance = getFeeTolerance(gasPrice, feeState);
         const params = {
-          transactionHex: `0x${Buffer.from(unsignedTx.toBytes()).toString(
-            'hex'
-          )}`,
+          transactionHex: Buffer.from(unsignedTx.toBytes()).toString('hex'),
           chainAlias: PCHAIN_ALIAS,
           utxos: unsignedTx.utxos.map((utxo) =>
             utils.bufferToHex(utxo.toBytes(codec))
           ),
-          feeTolerance: 100,
+          feeTolerance,
         };
-        return await request<AvalancheSendTransactionHandler>(
-          {
-            method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
-            params,
-          },
-          {
-            currentAddress: account.addressPVM,
-          }
-        );
+        return await request<AvalancheSendTransactionHandler>({
+          method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
+          params,
+        });
       } catch (err) {
         console.error(err);
         throw err;
@@ -290,7 +280,7 @@ export const usePvmSend: SendAdapterPVM = ({
         setIsSending(false);
       }
     },
-    [buildTransaction, checkFunctionAvailability, request, account.addressPVM]
+    [buildTransaction, checkFunctionAvailability, request, feeState]
   );
 
   return {
@@ -303,4 +293,20 @@ export const usePvmSend: SendAdapterPVM = ({
     validate,
     estimatedFee,
   };
+};
+
+const getFeeTolerance = (chosenGasPrice?: bigint, feeState?: FeeState) => {
+  if (!chosenGasPrice || !feeState) {
+    return;
+  }
+
+  const marketGasPrice = feeState.price;
+  // Technically this should never be negative, but let's safe-guard
+  const difference = Math.abs(Number(chosenGasPrice - marketGasPrice));
+
+  // Cap between 1 and 100
+  return Math.min(
+    100,
+    Math.max(1, Math.ceil((difference / Number(marketGasPrice)) * 100))
+  );
 };

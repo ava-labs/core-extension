@@ -6,7 +6,7 @@ const SYNCED_DOMAINS = [
   'test.core.app',
   runtime.id,
   // Helpful for Core Web devs:
-  // 'localhost',
+  'localhost',
   '127.0.0.1',
 ];
 

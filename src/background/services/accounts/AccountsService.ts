@@ -27,6 +27,7 @@ import { SecretsService } from '../secrets/SecretsService';
 import { LedgerService } from '../ledger/LedgerService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { Network } from '../network/models';
+import { isDevnet } from '@src/utils/isDevnet';
 
 type AddAccountParams = {
   walletId: string;
@@ -99,6 +100,9 @@ export class AccountsService implements OnLock, OnUnlock {
     // refresh addresses so in case the user switches to testnet mode,
     // as the BTC address needs to be updated
     this.networkService.developerModeChanged.add(this.onDeveloperModeChanged);
+
+    // TODO(@meeh0w):
+    // Remove this listener after E-upgrade activation on Fuji. It will be no longer needed.
     this.networkService.uiActiveNetworkChanged.add(
       this.#onActiveNetworkChanged
     );
@@ -111,8 +115,8 @@ export class AccountsService implements OnLock, OnUnlock {
       return;
     }
 
-    if (Boolean(network.isDevnet) !== this.#wasDevnet) {
-      this.#wasDevnet = Boolean(network?.isDevnet || network.chainId === 43117);
+    if (isDevnet(network) !== this.#wasDevnet) {
+      this.#wasDevnet = isDevnet(network);
       await this.onDeveloperModeChanged(network?.isTestnet);
     }
   };

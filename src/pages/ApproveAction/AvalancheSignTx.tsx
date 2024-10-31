@@ -37,7 +37,6 @@ import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
-import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();

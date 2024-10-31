@@ -153,16 +153,7 @@ export function SendPage() {
   }
 
   const isNetworkFeeReady = !!networkFee?.low?.maxFeePerGas;
-  const isProviderReady =
-    provider &&
-    network &&
-    ((network.vmName === NetworkVMType.EVM &&
-      provider instanceof JsonRpcBatchInternal) ||
-      ((network.vmName === NetworkVMType.PVM ||
-        network.vmName === NetworkVMType.AVM) &&
-        provider instanceof Avalanche.JsonRpcProvider) ||
-      (network.vmName === NetworkVMType.BITCOIN &&
-        provider instanceof BitcoinProvider));
+  const isProviderReady = doesProviderMatchTheNetwork(network, provider);
 
   const isLoading =
     !active ||
@@ -244,3 +235,30 @@ export function SendPage() {
     </Stack>
   );
 }
+
+// Helper utility for checking if the provider network & provider match.
+// This is useful, since updates of `network` and `provider` may come
+// in different render runs, in which case we should still wait.
+const doesProviderMatchTheNetwork = (
+  network?: Network,
+  provider?: SupportedProvider
+) => {
+  if (!network || !provider) {
+    return false;
+  }
+
+  switch (network.vmName) {
+    case NetworkVMType.EVM:
+      return provider instanceof JsonRpcBatchInternal;
+
+    case NetworkVMType.AVM:
+    case NetworkVMType.PVM:
+      return provider instanceof Avalanche.JsonRpcProvider;
+
+    case NetworkVMType.BITCOIN:
+      return provider instanceof BitcoinProvider;
+
+    default:
+      return false;
+  }
+};

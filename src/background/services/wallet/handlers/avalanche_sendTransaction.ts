@@ -26,6 +26,7 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { measureDuration } from '@src/utils/measureDuration';
 import { HEADERS } from '../../glacier/glacierConfig';
+import { isDevnet } from '@src/utils/isDevnet';
 
 type TxParams = {
   transactionHex: string;
@@ -102,7 +103,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       : await Avalanche.getUtxosByTxFromGlacier({
           transactionHex,
           chainAlias,
-          isDevnet: network.isDevnet || network.chainId === 43117, // FIXME: just a temporary condition
+          isDevnet: isDevnet(network),
           isTestnet: !this.networkService.isMainnet(),
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,
