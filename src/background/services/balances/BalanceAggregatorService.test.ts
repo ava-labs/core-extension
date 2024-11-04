@@ -414,5 +414,73 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
 
       expect(balances).toEqual(freshBalances);
     });
+
+    it.only('emits the BalanceServiceEvents.UPDATED if balances did change', async () => {
+      // Cached balances include two accounts: account1, account2
+      const cachedBalances = {
+        [network2.chainId]: {
+          ...balanceForNetwork2,
+          [account2.addressC]: network1TokenBalance,
+        },
+      };
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        balances: cachedBalances,
+      });
+
+      await service.onUnlock();
+
+      // Fresh balances include only one account (account2) and the values for it HAVE changed
+      balancesServiceMock.getBalancesForNetwork.mockResolvedValueOnce({
+        [account2.addressC]: {
+          [networkToken2.symbol]: {
+            ...network1TokenBalance,
+            balance: 200n,
+            balanceDisplayValue: '0.00002',
+          },
+        },
+      });
+
+      const updatesListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, updatesListener);
+
+      await service.getBalancesForNetworks([network2.chainId], [account2], []);
+      await new Promise(process.nextTick);
+
+      // The fresh balances include new information, therefore an event should be emitted.
+      expect(updatesListener).toHaveBeenCalled();
+    });
+
+    it.only('DOES NOT emit the BalanceServiceEvents.UPDATED if balances did not change', async () => {
+      // Cached balances include two accounts: account1, account2
+      const cachedBalances = {
+        [network2.chainId]: {
+          ...balanceForNetwork2,
+          [account2.addressC]: balanceForNetwork1,
+        },
+      };
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        balances: cachedBalances,
+      });
+
+      await service.onUnlock();
+
+      // Fresh balances include only one account (account1) and the values for it DID NOT change
+      balancesServiceMock.getBalancesForNetwork.mockResolvedValueOnce(
+        balanceForNetwork2
+      );
+
+      const updatesListener = jest.fn();
+      service.addListener(BalanceServiceEvents.UPDATED, updatesListener);
+
+      await service.getBalancesForNetworks([network2.chainId], [account1], []);
+      await new Promise(process.nextTick);
+
+      // Cached & fresh balances as a whole are different,
+      // but the fresh balances do not include any new information,
+      // therefore no event should be emitted.
+      expect(updatesListener).not.toHaveBeenCalled();
+    });
   });
 });
