@@ -18,6 +18,7 @@ import type { AvalancheSendTransactionHandler } from '@src/background/services/w
 import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
 import { PVMSendOptions } from '../../models';
 import { SendAdapterPVM } from './models';
+import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
 
 const PCHAIN_ALIAS = 'P' as const;
 
@@ -134,7 +135,7 @@ export const usePvmSend: SendAdapterPVM = ({
         const unsignedTx = wallet.baseTX({
           utxoSet: utxos,
           chain: PCHAIN_ALIAS,
-          toAddress: address,
+          toAddress: correctAddressByPrefix(address, 'P-'),
           amountsPerAsset: {
             [avax]: amountBigInt,
           },

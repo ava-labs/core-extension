@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { correctAddressByPrefix } from '../utils/correctAddressByPrefix';
 
 const UNSAVED_CONTACT_BASE = {
   id: '',
@@ -24,14 +25,21 @@ export const useIdentifyAddress = () => {
   const identifyAddress = useCallback(
     (address: string): Contact => {
       if (!address)
-        return { ...UNSAVED_CONTACT_BASE, address: '', addressBTC: '' };
+        return {
+          ...UNSAVED_CONTACT_BASE,
+          address: '',
+          addressBTC: '',
+          addressXP: '',
+        };
       const addressLowerCase = address.toLowerCase();
       for (const contact of contacts) {
         if (
           contact.address.toLowerCase() === addressLowerCase ||
           contact.addressBTC?.toLowerCase() === addressLowerCase ||
-          `p-${contact.addressXP?.toLowerCase()}` === addressLowerCase ||
-          `x-${contact.addressXP?.toLowerCase()}` === addressLowerCase
+          `p-${contact.addressXP?.toLowerCase()}` ===
+            correctAddressByPrefix(addressLowerCase, 'p-') ||
+          `x-${contact.addressXP?.toLowerCase()}` ===
+            correctAddressByPrefix(addressLowerCase, 'x-')
         ) {
           const addressToUse = isBitcoin(network)
             ? { addressBTC: address, address: '', addressPVM: '' }
@@ -50,20 +58,22 @@ export const useIdentifyAddress = () => {
         if (
           account.addressC.toLowerCase() === addressLowerCase ||
           account.addressBTC?.toLocaleLowerCase() === addressLowerCase ||
-          account.addressPVM?.toLocaleLowerCase() === addressLowerCase ||
-          account.addressAVM?.toLowerCase() === addressLowerCase
+          account.addressPVM?.toLocaleLowerCase() ===
+            correctAddressByPrefix(addressLowerCase, 'p-') ||
+          account.addressAVM?.toLowerCase() ===
+            correctAddressByPrefix(addressLowerCase, 'x-')
         ) {
           const addressToUse = isBitcoin(network)
             ? { addressBTC: account.addressBTC, address: '' }
             : isPchainNetwork(network)
             ? {
-                addressXP: account.addressPVM ? account.addressPVM : '',
+                addressXP: address,
                 address: '',
                 addressBTC: '',
               }
             : isXchainNetwork(network)
             ? {
-                addressXP: account.addressAVM ? account.addressAVM : '',
+                addressXP: address,
                 address: '',
                 addressBTC: '',
               }
