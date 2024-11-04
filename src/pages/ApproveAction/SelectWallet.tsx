@@ -14,7 +14,6 @@ import { Stack, Typography, WalletIcon } from '@avalabs/core-k2-components';
 export function SelectWallet() {
   const requestId = useGetRequestId();
   const { action: request, updateAction } = useApproveAction(requestId);
-  console.log('request: ', request);
 
   const selectWallet = useCallback(
     async (index: number | string) =>
@@ -51,8 +50,6 @@ export function SelectWallet() {
       </Stack>
       <Stack>
         {request.displayData.info.map((info, index) => {
-          console.log('index: ', index);
-          console.log('info: ', info);
           if (info.rdns === 'app.core.extension') {
             return (
               <CoreExtensionButton
@@ -69,7 +66,6 @@ export function SelectWallet() {
         {request.displayData.info.length > 1 && (
           <WalletExtensionButton
             onClick={(index) => {
-              console.log('selectWallet' + index);
               selectWallet(index);
             }}
             wallets={request.displayData.info}

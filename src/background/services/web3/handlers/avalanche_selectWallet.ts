@@ -13,7 +13,6 @@ export class AvalancheSelectWalletHandler extends DAppRequestHandler {
   handleUnauthenticated = async (rpcCall) => {
     const { request } = rpcCall;
     const [availableExtensions] = request.params;
-    console.log('availableExtensions: ', availableExtensions);
 
     if (!availableExtensions || availableExtensions.length === 0) {
       return {
