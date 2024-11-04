@@ -1,17 +1,17 @@
-import { WalletService } from '../WalletService';
-import { WalletEvents } from '../models';
+import { WalletEvents } from '../../wallet/models';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
+import { SecretsService } from '../SecretsService';
 
 @singleton()
 export class WalletUpdatedEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
-  constructor(private walletService: WalletService) {
-    this.walletService.addListener(
+  constructor(private secretsService: SecretsService) {
+    this.secretsService.addListener(
       WalletEvents.WALLET_STATE_UPDATE,
       (wallet) => {
         this.eventEmitter.emit('update', {

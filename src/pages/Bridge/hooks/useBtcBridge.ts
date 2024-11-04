@@ -71,7 +71,7 @@ export function useBtcBridge(amountInBtc: Big): BridgeAdapter {
     // defaulting to cheaper preset makes testing easier.
     const preset: TransactionPriority = isDeveloperMode ? 'low' : 'high';
 
-    return Number(currentFeeInfo[preset].maxFee);
+    return Number(currentFeeInfo[preset].maxFeePerGas);
   }, [currentFeeInfo, isDeveloperMode]);
 
   // Calculate the maximum bridgable BTC amount whwnever

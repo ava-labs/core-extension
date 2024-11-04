@@ -1,11 +1,11 @@
 export type FeeRate = {
-  maxFee: bigint;
-  maxTip?: bigint;
+  maxFeePerGas: bigint;
+  maxPriorityFeePerGas?: bigint;
 };
 
 export interface NetworkFee {
   displayDecimals: number;
-  baseMaxFee?: bigint;
+  baseFee?: bigint;
   low: FeeRate;
   medium: FeeRate;
   high: FeeRate;

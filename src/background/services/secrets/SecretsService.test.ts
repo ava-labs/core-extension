@@ -17,7 +17,7 @@ import {
 } from '../accounts/models';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
-import { PubKeyType, WALLET_STORAGE_KEY } from '../wallet/models';
+import { PubKeyType, WALLET_STORAGE_KEY, WalletEvents } from '../wallet/models';
 import { SecretType } from './models';
 import { SecretsService } from './SecretsService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
@@ -253,6 +253,35 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     return data;
   };
 
+  describe('onUnlock', () => {
+    it('should emit the `WALLET_STATE_UPDATE` event with an empty array', async () => {
+      const eventListener = jest.fn();
+      secretsService.addListener(
+        WalletEvents.WALLET_STATE_UPDATE,
+        eventListener
+      );
+      await secretsService.onUnlock();
+      expect(eventListener).toHaveBeenCalledWith([]);
+    });
+    it('should emit the `WALLET_STATE_UPDATE` event with the correct data', async () => {
+      mockMnemonicWallet();
+      const eventListener = jest.fn();
+      secretsService.addListener(
+        WalletEvents.WALLET_STATE_UPDATE,
+        eventListener
+      );
+      await secretsService.onUnlock();
+      expect(eventListener).toHaveBeenCalledWith([
+        {
+          derivationPath: DerivationPath.BIP44,
+          id: ACTIVE_WALLET_ID,
+          name: undefined,
+          type: SecretType.Mnemonic,
+        },
+      ]);
+    });
+  });
+
   describe('getPrimaryAccountSecrets', () => {
     it('returns null if no secrets are saved', async () => {
       storageService.load.mockResolvedValue(null);
@@ -293,7 +322,13 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
   });
 
   describe('addSecrets()', () => {
-    it('should save a new wallet to the `wallets` array', async () => {
+    it('should save a new wallet to the `wallets` array and emits the `WALLET_STATE_UPDATE` event', async () => {
+      const eventListener = jest.fn();
+      secretsService.addListener(
+        WalletEvents.WALLET_STATE_UPDATE,
+        eventListener
+      );
+
       const uuid = 'uuid';
       (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
       const existingWallets = [
@@ -329,6 +364,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           },
         ],
       });
+      expect(eventListener).toHaveBeenCalled();
     });
 
     it('should save a new wallet to the `wallets` array with default name when name is missing', async () => {
@@ -405,7 +441,12 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
   });
 
   describe('updateSecrets', () => {
-    it('does not implicitly remove existing secrets in storage', async () => {
+    it('does not implicitly remove existing secrets in storage and emit `WALLET_STATE_UPDATE` event', async () => {
+      const eventListener = jest.fn();
+      secretsService.addListener(
+        WalletEvents.WALLET_STATE_UPDATE,
+        eventListener
+      );
       const existingSecrets = {
         xpub: 'xpub',
         wallets: [
@@ -425,6 +466,8 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         ...existingSecrets,
         wallets: [{ ...existingSecrets.wallets[0], xpubXP: 'xpubXP' }],
       });
+
+      expect(eventListener).toHaveBeenCalled();
     });
   });
 

@@ -211,8 +211,8 @@ export function Accounts() {
             setActiveTab(tab);
           }}
           sx={{
-            mt: 2,
             ml: 2,
+            my: 2,
             minHeight: '24px',
             height: '24px',
           }}

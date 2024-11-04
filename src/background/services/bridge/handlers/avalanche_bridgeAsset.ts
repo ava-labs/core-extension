@@ -313,8 +313,8 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
           );
 
         const highFeeRate = Number(
-          (await this.networkFeeService.getNetworkFee(network))?.high.maxFee ??
-            0
+          (await this.networkFeeService.getNetworkFee(network))?.high
+            .maxFeePerGas ?? 0
         );
 
         const token = balances.tokens[network.chainId]?.[addressBTC]?.[
@@ -438,9 +438,10 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
             // then use current instant (high) fee rate as a fallback.
             const customGasSettings = pendingAction.displayData.gasSettings;
             const maxFeePerGas =
-              customGasSettings?.maxFeePerGas ?? feeData?.high.maxFee;
+              customGasSettings?.maxFeePerGas ?? feeData?.high.maxFeePerGas;
             const maxPriorityFeePerGas =
-              customGasSettings?.maxPriorityFeePerGas ?? feeData?.high.maxTip;
+              customGasSettings?.maxPriorityFeePerGas ??
+              feeData?.high.maxPriorityFeePerGas;
 
             if (!maxFeePerGas) {
               throw new Error('Required option missing: maxFeePerGas');
