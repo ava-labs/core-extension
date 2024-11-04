@@ -26,6 +26,7 @@ export class AvalancheSelectWalletHandler extends DAppRequestHandler {
         ...request,
         displayData: {
           options: availableExtensions.map((o) => o.type),
+          info: availableExtensions.map((extension) => extension.info),
         },
       },
       `approve/select-wallet`

@@ -542,7 +542,6 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         const result = await secretsService.getAccountSecrets(
           activeAccountData
         );
-
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { ...rest } = secrets.wallets[0];
         expect(result).toEqual({
