@@ -80,7 +80,7 @@ export function TokenSpendLimit({
         customSpendLimit.limitType === Limit.DEFAULT
           ? typeof approval.value === 'string'
             ? BigInt(approval.value)
-            : 0n
+            : approval.value ?? 0n
           : customSpendLimit.value ?? '0',
         approval.token.decimals,
         ''

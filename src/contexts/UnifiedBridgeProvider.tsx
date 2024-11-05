@@ -10,7 +10,6 @@ import {
   BridgeAsset,
   BridgeType,
   Chain,
-  ChainAssetMap,
   Environment,
   ErrorCode as UnifiedBridgeErrorCode,
   TokenType,
@@ -24,6 +23,7 @@ import {
   BtcSigner,
   BitcoinFunctions,
   BridgeInitializer,
+  GasSettings,
 } from '@avalabs/bridge-unified';
 import { ethErrors } from 'eth-rpc-errors';
 import { filter, map } from 'rxjs';
@@ -73,18 +73,17 @@ export interface UnifiedBridgeContext {
   transferAsset(
     symbol: string,
     amount: bigint,
-    targetChainId: string
+    targetChainId: string,
+    gasSettings?: GasSettings
   ): Promise<any>;
   getErrorMessage(errorCode: UnifiedBridgeErrorCode): string;
   transferableAssets: BridgeAsset[];
   state: UnifiedBridgeState;
-  assets: ChainAssetMap;
   availableChainIds: string[];
   isReady: boolean;
 }
 
 const DEFAULT_STATE = {
-  assets: {},
   state: UNIFIED_BRIDGE_DEFAULT_STATE,
   estimateTransferGas() {
     throw new Error('Bridge not ready');
@@ -140,11 +139,9 @@ export function UnifiedBridgeProvider({
     bitcoinProvider,
   } = useNetworkContext();
   const { events, request } = useConnectionContext();
-  const [assets, setAssets] = useState<ChainAssetMap>({});
   const [state, setState] = useState<UnifiedBridgeState>(
     UNIFIED_BRIDGE_DEFAULT_STATE
   );
-  const [isReady, setIsReady] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
   const isCCTPEnabled = featureFlags[FeatureGates.UNIFIED_BRIDGE_CCTP];
   const enabledBridgeTypes = useMemo(() => {
@@ -176,7 +173,11 @@ export function UnifiedBridgeProvider({
 
   const evmSigner: EvmSigner = useMemo(
     () => ({
-      sign: async ({ from, data, to }) => {
+      sign: async (
+        { from, data, to },
+        _,
+        { currentSignature, requiredSignatures }
+      ) => {
         assert(to, UnifiedBridgeError.InvalidTxPayload);
         assert(from, UnifiedBridgeError.InvalidTxPayload);
         assert(data, UnifiedBridgeError.InvalidTxPayload);
@@ -191,36 +192,40 @@ export function UnifiedBridgeProvider({
                 data,
               },
             ],
+          },
+          {
+            customApprovalScreenTitle: t('Confirm Bridge'),
+            alert:
+              requiredSignatures > currentSignature
+                ? {
+                    type: 'info',
+                    title: t('This operation requires {{total}} approvals.', {
+                      total: requiredSignatures,
+                    }),
+                    notice: t(
+                      'You will be prompted {{remaining}} more time(s).',
+                      {
+                        remaining: requiredSignatures - currentSignature,
+                      }
+                    ),
+                  }
+                : undefined,
           }
-          // {
-          //   customApprovalScreenTitle: t('Confirm Bridge'),
-          //   alert:
-          //     requiredSignatures > currentSignature
-          //       ? {
-          //           type: 'info',
-          //           title: t('This operation requires {{total}} approvals.', {
-          //             total: requiredSignatures,
-          //           }),
-          //           notice: t(
-          //             'You will be prompted {{remaining}} more time(s).',
-          //             {
-          //               remaining: requiredSignatures - currentSignature,
-          //             }
-          //           ),
-          //         }
-          //       : undefined,
-          // }
         );
 
         return result as `0x${string}`;
       },
     }),
-    [request]
+    [request, t]
   );
 
   const btcSigner: BtcSigner = useMemo(
     () => ({
-      sign: async ({ inputs, outputs }) => {
+      sign: async (
+        { inputs, outputs },
+        _,
+        { requiredSignatures, currentSignature }
+      ) => {
         const result = await request(
           {
             method: RpcMethod.BITCOIN_SIGN_TRANSACTION,
@@ -228,31 +233,31 @@ export function UnifiedBridgeProvider({
               inputs,
               outputs,
             },
+          },
+          {
+            customApprovalScreenTitle: t('Confirm Bridge'),
+            alert:
+              requiredSignatures > currentSignature
+                ? {
+                    type: 'info',
+                    title: t('This operation requires {{total}} approvals.', {
+                      total: requiredSignatures,
+                    }),
+                    notice: t(
+                      'You will be prompted {{remaining}} more time(s).',
+                      {
+                        remaining: requiredSignatures - currentSignature,
+                      }
+                    ),
+                  }
+                : undefined,
           }
-          // {
-          //   customApprovalScreenTitle: t('Confirm Bridge'),
-          //   alert:
-          //     requiredSignatures > currentSignature
-          //       ? {
-          //           type: 'info',
-          //           title: t('This operation requires {{total}} approvals.', {
-          //             total: requiredSignatures,
-          //           }),
-          //           notice: t(
-          //             'You will be prompted {{remaining}} more time(s).',
-          //             {
-          //               remaining: requiredSignatures - currentSignature,
-          //             }
-          //           ),
-          //         }
-          //       : undefined,
-          // }
         );
 
         return result as `0x${string}`;
       },
     }),
-    [request]
+    [request, t]
   );
 
   const getInitializerForBridgeType = useCallback(
@@ -331,29 +336,10 @@ export function UnifiedBridgeProvider({
     });
   }, [environment, activeBridgeTypes]);
 
-  // Whenever core instance is re-created, initialize it and update assets
-  useEffect(() => {
-    if (!core) {
-      return;
-    }
-
-    let isMounted = true;
-
-    core.getAssets().then((chainAssetsMap) => {
-      if (!isMounted) {
-        return;
-      }
-
-      setAssets(chainAssetsMap);
-      setIsReady(true);
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [core]);
-
-  const availableChainIds = useMemo(() => Object.keys(assets ?? {}), [assets]);
+  const availableChainIds = useMemo(
+    () => Object.keys(core?.getAssets() ?? {}),
+    [core]
+  );
 
   const buildChain = useCallback(
     (chainId: string): Chain => {
@@ -378,12 +364,12 @@ export function UnifiedBridgeProvider({
   );
 
   const transferableAssets = useMemo(() => {
-    if (!activeNetwork) {
+    if (!activeNetwork || !core) {
       return [];
     }
 
-    return assets[activeNetwork.caipId] ?? [];
-  }, [activeNetwork, assets]);
+    return core.getAssets()[activeNetwork.caipId] ?? [];
+  }, [activeNetwork, core]);
 
   useEffect(() => {
     request<UnifiedBridgeGetState>({
@@ -408,11 +394,11 @@ export function UnifiedBridgeProvider({
 
   const supportsAsset = useCallback(
     (lookupAddressOrSymbol: string, targetChainId: string) => {
-      if (!activeNetwork) {
+      if (!activeNetwork || !core) {
         return false;
       }
 
-      const sourceAssets = assets[activeNetwork.caipId] ?? [];
+      const sourceAssets = core?.getAssets()[activeNetwork.caipId] ?? [];
       const asset = sourceAssets.find((token) => {
         return token.type === TokenType.NATIVE
           ? token.symbol === lookupAddressOrSymbol
@@ -425,12 +411,12 @@ export function UnifiedBridgeProvider({
 
       return targetChainId in asset.destinations;
     },
-    [assets, activeNetwork]
+    [core, activeNetwork]
   );
 
   const getAsset = useCallback(
     (symbol: string, chainId: string) => {
-      const chainAssets = assets[chainId] ?? [];
+      const chainAssets = core?.getAssets()[chainId] ?? [];
 
       const asset = chainAssets.find(
         ({ symbol: assetSymbol }) => assetSymbol === symbol
@@ -438,7 +424,7 @@ export function UnifiedBridgeProvider({
 
       return asset;
     },
-    [assets]
+    [core]
   );
 
   const getAddresses = useCallback(
@@ -550,13 +536,12 @@ export function UnifiedBridgeProvider({
 
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
-      const { fromAddress, toAddress, sourceChain, targetChain } =
+      const { fromAddress, sourceChain, targetChain } =
         buildParams(targetChainId);
 
       const gasLimit = await core.estimateGas({
         asset,
         fromAddress,
-        toAddress,
         amount,
         sourceChain,
         targetChain,
@@ -595,7 +580,12 @@ export function UnifiedBridgeProvider({
   );
 
   const transferAsset = useCallback(
-    async (symbol: string, amount: bigint, targetChainId: string) => {
+    async (
+      symbol: string,
+      amount: bigint,
+      targetChainId: string,
+      gasSettings?: GasSettings
+    ) => {
       assert(core, CommonError.Unknown);
       assert(activeNetwork, CommonError.NoActiveNetwork);
 
@@ -613,6 +603,7 @@ export function UnifiedBridgeProvider({
         amount,
         sourceChain,
         targetChain,
+        gasSettings,
       });
 
       await trackBridgeTransfer(bridgeTransfer);
@@ -656,11 +647,10 @@ export function UnifiedBridgeProvider({
   return (
     <UnifiedBridgeContext.Provider
       value={{
-        assets,
         availableChainIds,
         estimateTransferGas,
         getErrorMessage,
-        isReady,
+        isReady: !!core,
         state,
         analyzeTx,
         getAssetIdentifierOnTargetChain,

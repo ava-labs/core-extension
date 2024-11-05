@@ -7,21 +7,13 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { Trans, useTranslation } from 'react-i18next';
-import { BridgeAsset, BridgeType } from '@avalabs/bridge-unified';
-
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { BridgeType } from '@avalabs/bridge-unified';
 
 export const BridgeTypeFootnote = ({
-  asset,
-  targetChain,
+  bridgeType,
 }: {
-  asset: BridgeAsset;
-  targetChain: NetworkWithCaipId;
+  bridgeType?: BridgeType;
 }) => {
-  // NOTE: we operate on the assumption that UnifiedBridge SDK will
-  // use the first matching bridge from the `destinations` array
-  const [bridgeType] = asset.destinations[targetChain.caipId] ?? [];
-
   if (bridgeType === BridgeType.CCTP) {
     return <CTTPFootnote />;
   }
@@ -103,7 +95,7 @@ const ICTTFootnote = () => {
           }}
           title={
             <Trans
-              i18nKey="Briding this token pair utilizes Avalanche Interchain Messaging. <faqLink>Bridge FAQs</faqLink>"
+              i18nKey="Bridging this token pair utilizes Avalanche Interchain Messaging. <faqLink>Bridge FAQs</faqLink>"
               components={{
                 faqLink: (
                   <Link

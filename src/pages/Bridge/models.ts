@@ -1,4 +1,4 @@
-import { BridgeAsset } from '@avalabs/bridge-unified';
+import { BridgeAsset, BridgeType, GasSettings } from '@avalabs/bridge-unified';
 import Big from 'big.js';
 
 export interface AssetBalance {
@@ -10,3 +10,8 @@ export interface AssetBalance {
   price?: number;
   unconfirmedBalance?: Big;
 }
+
+export type BridgeOptions = {
+  bridgeType?: BridgeType;
+  gasSettings?: GasSettings;
+};

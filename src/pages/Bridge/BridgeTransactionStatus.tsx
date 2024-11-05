@@ -89,7 +89,7 @@ const BridgeTransactionStatus = () => {
   );
   const coingeckoId = useCoinGeckoId(symbol);
   const logoUri = useLogoUriForBridgeTransaction(bridgeTransaction);
-  const { networks } = useNetworkContext();
+  const { networks, getNetwork } = useNetworkContext();
 
   const { bridgeConfig } = useBridgeSDK();
   useSyncBridgeConfig();
@@ -312,7 +312,8 @@ const BridgeTransactionStatus = () => {
                           getExplorerAddress(
                             bridgeTransaction.sourceChain,
                             bridgeTransaction.sourceTxHash,
-                            isMainnet
+                            isMainnet,
+                            getNetwork
                           ),
                           '_blank',
                           'noreferrer'
@@ -504,7 +505,8 @@ const BridgeTransactionStatus = () => {
                           getExplorerAddress(
                             bridgeTransaction.targetChain,
                             bridgeTransaction.targetTxHash || '',
-                            isMainnet
+                            isMainnet,
+                            getNetwork
                           ),
                           '_blank',
                           'noreferrer'

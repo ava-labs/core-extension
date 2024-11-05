@@ -74,10 +74,10 @@
     bn.js "5.2.1"
     zod "3.23.8"
 
-"@avalabs/bridge-unified@0.0.0-CP-8544-BTC-bridge-2-20241025172224":
-  version "0.0.0-CP-8544-BTC-bridge-2-20241025172224"
-  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-0.0.0-CP-8544-BTC-bridge-2-20241025172224.tgz#22c9f83a7f142c57c2f6cfe06563f0856d533330"
-  integrity sha512-HNe3ITSF5ZW9chAfJ4GEK4Zh4aP+9X6Mc69TyfLIJZi0Pm/uS6ji7Y46662ajowGffGPMqJIBLfsJHR4kq0Jmg==
+"@avalabs/bridge-unified@0.0.0-feat-ab-missing-features-20241105143650":
+  version "0.0.0-feat-ab-missing-features-20241105143650"
+  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-0.0.0-feat-ab-missing-features-20241105143650.tgz#090865160e9db31f62323af2319a17a88f56ab56"
+  integrity sha512-Yeu8LbCGV9pmPnNp/huHUN0YHV63rqBFFf809mP9AhKILSRNTaYZPEnE7RhRBq+O4T5Nvv8/1L9j9YzPwuanYg==
   dependencies:
     "@noble/hashes" "1.5.0"
     "@scure/base" "1.1.9"

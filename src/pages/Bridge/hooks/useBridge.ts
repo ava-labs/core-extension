@@ -17,6 +17,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 
 import { findMatchingBridgeAsset } from '../utils/findMatchingBridgeAsset';
+import { BridgeOptions } from '../models';
 
 interface Bridge {
   amount?: bigint;
@@ -36,7 +37,7 @@ interface Bridge {
   bridgeFee?: bigint;
   bridgableTokens: Exclude<TokenWithBalance, NftTokenWithBalance>[];
   transferableAssets: BridgeAsset[];
-  transfer: () => Promise<string>;
+  transfer: (options: BridgeOptions) => Promise<string>;
 }
 
 export function useBridge(): Bridge {
@@ -134,40 +135,48 @@ export function useBridge(): Bridge {
     return estimateTransferGas(asset.symbol, amount, targetChain?.caipId);
   }, [estimateTransferGas, targetChain?.caipId, asset?.symbol, amount]);
 
-  const transfer = useCallback(async () => {
-    capture('unifedBridgeTransferStarted', {
-      bridgeType: 'CCTP', // TODO: no longer CCTP only
-      sourceBlockchain: network?.caipId,
-      targetBlockchain: targetChain?.caipId,
-    });
+  const transfer = useCallback(
+    async (options: BridgeOptions) => {
+      if (!amount) {
+        throw new Error('No amount chosen');
+      }
 
-    if (!amount) {
-      throw new Error('No amount chosen');
-    }
+      if (!asset) {
+        throw new Error('No asset chosen');
+      }
 
-    if (!asset) {
-      throw new Error('No asset chosen');
-    }
+      if (!network?.caipId) {
+        throw new Error('No source chain chosen');
+      }
 
-    if (!network?.caipId) {
-      throw new Error('No source chain chosen');
-    }
+      if (!targetChain?.caipId) {
+        throw new Error('No target chain chosen');
+      }
 
-    if (!targetChain?.caipId) {
-      throw new Error('No target chain chosen');
-    }
+      capture('unifedBridgeTransferStarted', {
+        bridgeType: options.bridgeType,
+        sourceBlockchain: network.caipId,
+        targetBlockchain: targetChain.caipId,
+      });
 
-    const hash = await transferAsset(asset.symbol, amount, targetChain?.caipId);
+      const hash = await transferAsset(
+        asset.symbol,
+        amount,
+        targetChain?.caipId,
+        options.gasSettings
+      );
 
-    return hash;
-  }, [
-    amount,
-    asset,
-    targetChain?.caipId,
-    transferAsset,
-    capture,
-    network?.caipId,
-  ]);
+      return hash;
+    },
+    [
+      amount,
+      asset,
+      targetChain?.caipId,
+      transferAsset,
+      capture,
+      network?.caipId,
+    ]
+  );
 
   useEffect(() => {
     if (targetChain && possibleTargetChains.includes(targetChain.caipId)) {
