@@ -107,7 +107,7 @@ export const BridgeForm = ({
   const { capture } = useAnalyticsContext();
 
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
-  const [feeRate, setFeeRate] = useState(networkFee.low.maxFee);
+  const [feeRate, setFeeRate] = useState(networkFee.low.maxFeePerGas);
 
   const denomination = useMemo(() => {
     if (!sourceBalance) {
@@ -531,7 +531,7 @@ export const BridgeForm = ({
           {withFeeBox && neededGas && (
             <Stack sx={{ pt: 2 }}>
               <CustomFees
-                maxFeePerGas={networkFee.low.maxFee}
+                maxFeePerGas={networkFee.low.maxFeePerGas}
                 limit={Number(neededGas)}
                 networkFee={networkFee}
                 network={network}
