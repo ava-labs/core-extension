@@ -212,7 +212,7 @@ export const BridgeForm = ({
   const [neededGas, setNeededGas] = useState(0n);
 
   useEffect(() => {
-    if (minimum && amount.lt(minimum)) {
+    if (minimum && amount.gt(0) && amount.lt(minimum)) {
       setIsAmountTooLow(true);
     } else {
       setIsAmountTooLow(false);
