@@ -133,13 +133,7 @@ export function TokenSpendLimit({
             displayValue: isInfinite
               ? t('Unlimited')
               : (diffItemValue as TokenUnit).toDisplay(),
-            usdPrice:
-              isInfinite || !approval.usdPrice
-                ? undefined
-                : String(
-                    (diffItemValue as TokenUnit).toDisplay({ asNumber: true }) *
-                      Number(approval.usdPrice)
-                  ),
+            usdPrice: isInfinite ? undefined : approval.usdPrice,
           }}
         />
       </Stack>
