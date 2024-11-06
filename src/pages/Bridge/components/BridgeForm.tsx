@@ -45,7 +45,7 @@ import { BridgeTypeFootnote } from './BridgeTypeFootnote';
 import { BridgeOptions } from '../models';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { CustomFees } from '@src/components/common/CustomFees';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { NetworkFee } from '@src/background/services/networkFee/models';
 
 export type BridgeFormProps = ReturnType<typeof useBridge> & {
   isPending: boolean;
@@ -53,13 +53,13 @@ export type BridgeFormProps = ReturnType<typeof useBridge> & {
   // Generic props
   isAmountTooLow: boolean;
   setIsAmountTooLow: Dispatch<SetStateAction<boolean>>;
+  networkFee: NetworkFee;
 
   price?: number;
-  loading: boolean;
 
   sourceBalance?: Exclude<TokenWithBalance, NftTokenWithBalance>;
   bridgeError: string;
-  setBridgeError: (err: string) => void;
+  setBridgeError: Dispatch<SetStateAction<string>>;
 
   setNavigationHistoryData: (data: NavigationHistoryDataState) => void;
   onTransfer: (bridgeOptions: BridgeOptions) => void;
@@ -76,11 +76,11 @@ export const BridgeForm = ({
   minimum,
   maximum,
   receiveAmount,
+  networkFee,
   sourceBalance,
   targetChain,
   setTargetChain,
   price,
-  loading,
   estimateGas,
   bridgeError,
   setBridgeError,
@@ -100,7 +100,6 @@ export const BridgeForm = ({
   const formRef = useRef<HTMLDivElement>(null);
 
   const { setNetwork, network } = useNetworkContext();
-  const { networkFee } = useNetworkFeeContext();
   const { currencyFormatter, currency } = useSettingsContext();
   const { sendTokenSelectedAnalytics, sendAmountEnteredAnalytics } =
     useSendAnalyticsData();
@@ -108,6 +107,7 @@ export const BridgeForm = ({
   const { capture } = useAnalyticsContext();
 
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
+  const [feeRate, setFeeRate] = useState(networkFee.low.maxFee);
 
   const denomination = useMemo(() => {
     if (!sourceBalance) {
@@ -145,7 +145,25 @@ export const BridgeForm = ({
     }
   }, [estimateGas, amount, isAmountTooLow]);
 
-  const hasEnoughForNetworkFee = useHasEnoughForGas(neededGas);
+  useEffect(() => {
+    if (typeof maximum === 'bigint' && amount && amount > maximum) {
+      const errorMessage = t('Insufficient balance');
+
+      setBridgeError((prevError) => {
+        if (prevError === errorMessage) {
+          return prevError;
+        }
+
+        capture('BridgeTokenSelectError', {
+          errorMessage,
+        });
+
+        return errorMessage;
+      });
+    }
+  }, [amount, capture, maximum, setBridgeError, t]);
+
+  const hasEnoughForNetworkFee = useHasEnoughForGas(amount, feeRate, neededGas);
 
   const errorTooltipContent = useMemo(() => {
     if (!hasEnoughForNetworkFee) {
@@ -213,34 +231,8 @@ export const BridgeForm = ({
 
       setAmount(value.bigint);
       sendAmountEnteredAnalytics('Bridge');
-
-      // When there is no balance for given token, maximum is undefined
-      if (!maximum || (maximum && value.bigint && value.bigint > maximum)) {
-        const errorMessage = t('Insufficient balance');
-
-        if (errorMessage === bridgeError) {
-          return;
-        }
-
-        setBridgeError(errorMessage);
-        capture('BridgeTokenSelectError', {
-          errorMessage,
-        });
-        return;
-      }
-      setBridgeError('');
     },
-    [
-      asset,
-      bridgeError,
-      capture,
-      setBridgeError,
-      maximum,
-      sendAmountEnteredAnalytics,
-      setAmount,
-      setNavigationHistoryData,
-      t,
-    ]
+    [asset, sendAmountEnteredAnalytics, setAmount, setNavigationHistoryData]
   );
 
   const handleSelect = useCallback(
@@ -293,7 +285,6 @@ export const BridgeForm = ({
   const disableTransfer = useMemo(
     () =>
       bridgeError.length > 0 ||
-      loading ||
       isPending ||
       isAmountTooLow ||
       !amount ||
@@ -305,21 +296,13 @@ export const BridgeForm = ({
       hasEnoughForNetworkFee,
       isAmountTooLow,
       isPending,
-      loading,
       networkFee,
     ]
   );
-
-  const [feeRate, setFeeRate] = useState(networkFee?.low.maxFee);
   // NOTE: we operate on the assumption that UnifiedBridge SDK will
   // use the first matching bridge from the `destinations` array
   const [bridgeType] = asset?.destinations[targetChain?.caipId ?? ''] ?? [];
-
-  if (!network || !networkFee) {
-    return null; // TODO: loading screen
-  }
-
-  const withFeeBox = isBitcoinNetwork(network);
+  const withFeeBox = network ? isBitcoinNetwork(network) : false;
 
   return (
     <>
@@ -396,7 +379,6 @@ export const BridgeForm = ({
                           setIsTokenSelectOpen(!isTokenSelectOpen);
                         }}
                         isOpen={isTokenSelectOpen}
-                        isValueLoading={loading}
                         setIsOpen={setIsTokenSelectOpen}
                         padding="0 16px 8px"
                         skipHandleMaxAmount
@@ -592,7 +574,7 @@ export const BridgeForm = ({
                 withFeeBox && feeRate ? { price: feeRate } : undefined,
             })
           }
-          isLoading={loading || isPending}
+          isLoading={isPending}
         >
           {isPending ? t('Bridging...') : t('Bridge')}
         </Button>

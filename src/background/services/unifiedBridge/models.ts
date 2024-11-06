@@ -19,7 +19,13 @@ export type UnifiedBridgeState = {
   pendingTransfers: Record<string, BridgeTransfer>;
 };
 
-export const UNIFIED_BRIDGE_TRACKED_FLAGS = [FeatureGates.UNIFIED_BRIDGE_CCTP];
+export const UNIFIED_BRIDGE_TRACKED_FLAGS = [
+  FeatureGates.UNIFIED_BRIDGE_CCTP,
+  FeatureGates.UNIFIED_BRIDGE_ICTT,
+  FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC,
+  FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA,
+  FeatureGates.UNIFIED_BRIDGE_AB_EVM,
+];
 
 export const UNIFIED_BRIDGE_DEFAULT_STATE: UnifiedBridgeState = {
   pendingTransfers: {},

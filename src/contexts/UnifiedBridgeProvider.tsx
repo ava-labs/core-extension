@@ -42,7 +42,6 @@ import { useConnectionContext } from './ConnectionProvider';
 import { CommonError, ErrorCode } from '@src/utils/errors';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useAccountsContext } from './AccountsProvider';
 import { JsonRpcApiProvider } from 'ethers';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
@@ -52,6 +51,7 @@ import { lowerCaseKeys } from '@src/utils/lowerCaseKeys';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { isBitcoinCaipId } from '@src/utils/caipConversion';
 import { Account } from '@src/background/services/accounts/models';
+import { getEnabledBridgeTypes } from '@src/utils/getEnabledBridgeTypes';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(
@@ -143,22 +143,10 @@ export function UnifiedBridgeProvider({
     UNIFIED_BRIDGE_DEFAULT_STATE
   );
   const { featureFlags } = useFeatureFlagContext();
-  const isCCTPEnabled = featureFlags[FeatureGates.UNIFIED_BRIDGE_CCTP];
-  const enabledBridgeTypes = useMemo(() => {
-    const enabled: BridgeType[] = [];
-
-    if (isCCTPEnabled) {
-      enabled.push(BridgeType.CCTP);
-    }
-
-    // TODO: feature flag those
-    enabled.push(BridgeType.ICTT_ERC20_ERC20);
-    enabled.push(BridgeType.AVALANCHE_EVM);
-    enabled.push(BridgeType.AVALANCHE_AVA_BTC);
-    enabled.push(BridgeType.AVALANCHE_BTC_AVA);
-
-    return enabled;
-  }, [isCCTPEnabled]);
+  const enabledBridgeTypes = useMemo(
+    () => getEnabledBridgeTypes(featureFlags),
+    [featureFlags]
+  );
 
   const environment = useMemo(() => {
     if (typeof activeNetwork?.isTestnet !== 'boolean') {

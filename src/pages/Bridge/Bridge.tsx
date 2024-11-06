@@ -24,12 +24,15 @@ import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 import { useBridge } from './hooks/useBridge';
 import { BridgeForm } from './components/BridgeForm';
 import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
 import { useBridgeTxHandling } from './hooks/useBridgeTxHandling';
 import { BridgeFormSkeleton } from './components/BridgeFormSkeleton';
+import { BridgeSanctions } from './components/BridgeSanctions';
+import { isAddressBlockedError } from './utils/isAddressBlockedError';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
@@ -65,6 +68,7 @@ export function Bridge() {
 
   const history = useHistory();
   const { captureEncrypted } = useAnalyticsContext();
+  const { networkFee } = useNetworkFeeContext();
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
   const getTranslatedError = useErrorMessage();
 
@@ -155,6 +159,8 @@ export function Bridge() {
     bridgeFee,
   ]);
 
+  const [isAddressBlocked, setIsAddressBlocked] = useState(false);
+
   const onFailure = useCallback(
     (transferError: unknown) => {
       setBridgeError(t('There was a problem with the transfer'));
@@ -163,6 +169,11 @@ export function Bridge() {
         sourceBlockchain: network?.caipId,
         targetBlockchain: targetChain?.caipId,
       });
+
+      if (isAddressBlockedError(transferError)) {
+        setIsAddressBlocked(true);
+        return;
+      }
 
       const { title, hint } = getTranslatedError(transferError);
 
@@ -269,7 +280,6 @@ export function Bridge() {
     receiveAmount,
     setTargetChain,
     possibleTargetChains,
-    loading: false, // TODO: load balances
     bridgableTokens,
     sourceBalance,
   };
@@ -291,17 +301,9 @@ export function Bridge() {
     );
   }
 
-  // TODO: implement in UnifiedBridge SDK?
-  // if (
-  // activeAccount &&
-  // isAddressBlocklisted({
-  //   addressEVM: activeAccount.addressC,
-  //   addressBTC: activeAccount.addressBTC,
-  //   bridgeConfig,
-  // })
-  // ) {
-  //   return <BridgeSanctions />;
-  // }
+  if (isAddressBlocked) {
+    return <BridgeSanctions />;
+  }
 
   if (isReady && transferableAssets.length === 0) {
     return (
@@ -322,7 +324,11 @@ export function Bridge() {
       >
         {t('Bridge')}
       </PageTitle>
-      {isReady ? <BridgeForm {...formProps} /> : <BridgeFormSkeleton />}
+      {isReady && networkFee ? (
+        <BridgeForm {...formProps} networkFee={networkFee} />
+      ) : (
+        <BridgeFormSkeleton />
+      )}
     </Stack>
   );
 }

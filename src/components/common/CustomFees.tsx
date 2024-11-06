@@ -511,7 +511,7 @@ export function CustomFees({
         <Stack sx={{ py: 0.5 }}>
           <Typography variant="caption" sx={{ color: 'error.main' }}>
             <Trans
-              i18nKey="Insufficient balance to cover gas costs. <br />Please add {{tokenSymbol}}."
+              i18nKey="Insufficient balance to cover gas costs. Please add {{tokenSymbol}}."
               values={{ tokenSymbol: network?.networkToken.symbol }}
             />
           </Typography>
