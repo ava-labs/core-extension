@@ -231,7 +231,8 @@ describe('src/background/vmModules/ApprovalController', () => {
             inputs: btcTx.inputs,
             outputs: btcTx.outputs,
           }),
-          btcNetwork
+          btcNetwork,
+          action.tabId
         );
 
         expect(await promise).toEqual({
@@ -270,7 +271,8 @@ describe('src/background/vmModules/ApprovalController', () => {
             inputs: btcTx.inputs,
             outputs: btcTx.outputs,
           }),
-          btcNetwork
+          btcNetwork,
+          action.tabId
         );
 
         expect(await promise).toEqual({ signedData: signedTx });
