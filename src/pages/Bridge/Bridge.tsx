@@ -106,6 +106,7 @@ export function Bridge() {
     selectedToken?: string;
     inputAmount?: Big;
     selectedTokenAddress?: string;
+    isLoading: boolean;
   } = getPageHistoryData();
 
   // derive blockchain/network from network
