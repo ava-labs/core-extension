@@ -13,9 +13,10 @@ import { GetNavigationHistoryDataHandler } from '@src/background/services/naviga
 
 export function usePageHistory() {
   const { request } = useConnectionContext();
-  const [historyDataState, setHistoryDataState] = useState<Record<string, any>>(
-    { isLoading: true }
-  );
+  const [historyDataState, setHistoryDataState] = useState<{
+    isLoading: boolean;
+    [key: string]: any;
+  }>({ isLoading: true });
   const [historyState, setHistoryState] = useState<NavigationHistoryState>({});
 
   const setNavigationHistoryData = useCallback(

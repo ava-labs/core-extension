@@ -33,7 +33,7 @@ export function useSwapStateFunctions({
     selectedToToken?: NetworkTokenWithBalance | TokenWithBalanceERC20;
     destinationInputField?: DestinationInput;
     tokenValue?: Amount;
-    isLoading?: boolean;
+    isLoading: boolean;
   } = getPageHistoryData();
 
   const [destinationInputField, setDestinationInputField] =
