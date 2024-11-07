@@ -71,7 +71,9 @@ export default function AccountName({
     >
       <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
         {!isAccountNameEditing && (
-          <Typography variant="h6">{accountName}</Typography>
+          <Typography data-testid="account-name" variant="h6">
+            {accountName}
+          </Typography>
         )}
         {isAccountNameEditing && (
           <AccountNameInput
