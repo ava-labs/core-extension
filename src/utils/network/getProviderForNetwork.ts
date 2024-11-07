@@ -5,7 +5,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { FetchRequest, Network as EthersNetwork } from 'ethers';
-import { Info } from '@avalabs/avalanchejs';
+import { info } from '@avalabs/avalanchejs';
 
 import { Network } from '@src/background/services/network/models';
 
@@ -64,7 +64,7 @@ export const getProviderForNetwork = async (
     network.vmName === NetworkVMType.AVM ||
     network.vmName === NetworkVMType.PVM
   ) {
-    const upgradesInfo = await new Info(network.rpcUrl)
+    const upgradesInfo = await new info.InfoApi(network.rpcUrl)
       .getUpgradesInfo()
       .catch(() => undefined);
 

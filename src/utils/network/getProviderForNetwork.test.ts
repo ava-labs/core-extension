@@ -251,13 +251,13 @@ describe('src/utils/network/getProviderForNetwork', () => {
     ).toHaveBeenCalledTimes(1);
   });
 
-  // it('returns error when VM is not supported', () => {
-  //   const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
-  //   expect(() => {
-  //     getProviderForNetwork({
-  //       ...mockEVMNetwork,
-  //       vmName: 'CRAPPYVM' as unknown as NetworkVMType,
-  //     });
-  //   }).toThrow(new Error('unsupported network'));
-  // });
+  it('returns error when VM is not supported', async () => {
+    const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
+    await expect(
+      getProviderForNetwork({
+        ...mockEVMNetwork,
+        vmName: 'CRAPPYVM' as unknown as NetworkVMType,
+      })
+    ).rejects.toThrow(new Error('unsupported network'));
+  });
 });
