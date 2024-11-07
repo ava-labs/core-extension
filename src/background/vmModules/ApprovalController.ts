@@ -175,7 +175,11 @@ export class ApprovalController implements IApprovalController {
       case RpcMethod.BITCOIN_SEND_TRANSACTION:
       case RpcMethod.BITCOIN_SIGN_TRANSACTION:
       case RpcMethod.ETH_SEND_TRANSACTION:
-        return await this.#walletService.sign(signingData.data, network);
+        return await this.#walletService.sign(
+          signingData.data,
+          network,
+          action.tabId
+        );
 
       default:
         throw new Error('Unrecognized method: ' + params.request.method);
