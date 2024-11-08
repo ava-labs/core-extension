@@ -57,7 +57,27 @@ const NetworkContext = createContext<{
   avaxProviderC?: JsonRpcBatchInternal;
   ethereumProvider?: JsonRpcBatchInternal;
   bitcoinProvider?: BitcoinProvider;
-}>({} as any);
+}>({
+  network: undefined,
+  setNetwork() {},
+  networks: [],
+  setDeveloperMode() {},
+  async saveCustomNetwork() {},
+  async updateDefaultNetwork() {},
+  async removeCustomNetwork() {},
+  isDeveloperMode: false,
+  favoriteNetworks: [],
+  addFavoriteNetwork() {},
+  removeFavoriteNetwork() {},
+  isFavoriteNetwork: () => false,
+  customNetworks: [],
+  isCustomNetwork: () => false,
+  isChainIdExist: () => false,
+  getNetwork: () => undefined,
+  avaxProviderC: undefined,
+  ethereumProvider: undefined,
+  bitcoinProvider: undefined,
+});
 
 /**
  * Network is being saved to chrome storage so we can share it across all contexts. With that when the
