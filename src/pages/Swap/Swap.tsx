@@ -66,6 +66,7 @@ export function Swap() {
   const tokensWBalances = useTokensWithBalances({
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
+
   const allTokensOnNetwork = useTokensWithBalances({
     forceShowTokensWithoutBalances: true,
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
@@ -80,6 +81,13 @@ export function Swap() {
   const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] =
     useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+
+  const AVAX_TOKEN = tokensWBalances.find(
+    (token) => token.symbol === 'AVAX'
+  ) as NetworkTokenWithBalance | TokenWithBalanceERC20;
+  const USDC_TOKEN = allTokensOnNetwork.find(
+    (token) => token.symbol === 'USDC'
+  ) as TokenWithBalanceERC20;
 
   const {
     calculateTokenValueToInput,
@@ -102,7 +110,10 @@ export function Swap() {
     maxFromValue,
     optimalRate,
     destAmount,
-  } = useSwapStateFunctions();
+  } = useSwapStateFunctions({
+    defaultFromToken: AVAX_TOKEN,
+    defaultToToken: USDC_TOKEN,
+  });
 
   const activeAddress = useMemo(
     () =>
