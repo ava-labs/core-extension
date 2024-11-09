@@ -23,7 +23,7 @@
     "sentry": "node sentryscript.js"
   },
   "dependencies": {
-    "@avalabs/avalanche-module": "0.11.2",
+    "@avalabs/avalanche-module": "0.0.0-fix-x-chain-burnt-amount-calcu-20241109192233",
     "@avalabs/avalanchejs": "4.1.0-alpha.7",
     "@avalabs/bitcoin-module": "0.11.2",
     "@avalabs/bridge-unified": "0.0.0-feat-ictt-configs-20241009072139",
