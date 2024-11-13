@@ -11,27 +11,30 @@ import { Account, AccountType } from '@src/background/services/accounts/models';
 
 interface AccountItemChipProps {
   account: Account;
+  isActive?: boolean;
 }
 
-export function AccountItemChip({ account }: AccountItemChipProps) {
+export function AccountItemChip({ account, isActive }: AccountItemChipProps) {
   const { t } = useTranslation();
   const { type: accountType } = account;
+
+  const fontColor = isActive ? 'white' : 'default';
 
   const icon = useMemo(() => {
     switch (accountType) {
       case AccountType.IMPORTED:
-        return <KeyIcon />;
+        return <KeyIcon color={fontColor} />;
 
       case AccountType.FIREBLOCKS:
-        return <FireblocksIcon />;
+        return <FireblocksIcon color={fontColor} />;
 
       case AccountType.WALLET_CONNECT:
-        return <WalletConnectIcon />;
+        return <WalletConnectIcon color={fontColor} />;
 
       default:
         return null;
     }
-  }, [accountType]);
+  }, [accountType, fontColor]);
 
   const label = useMemo(() => {
     switch (accountType) {
@@ -58,7 +61,11 @@ export function AccountItemChip({ account }: AccountItemChipProps) {
       icon={icon}
       label={label}
       size="small"
-      sx={{ fontWeight: 'normal' }}
+      sx={{
+        fontWeight: isActive ? '600' : 'normal',
+        color: fontColor,
+        backgroundColor: isActive ? 'grey.400' : 'default',
+      }}
     />
   );
 }
