@@ -19,6 +19,8 @@ import {
 } from '@avalabs/core-k2-components';
 import { DerivationPathDropdown } from '@src/pages/Onboarding/components/DerivationPathDropDown';
 import { DerivedAddresses } from '@src/pages/Onboarding/components/DerivedAddresses';
+import { SecretType } from '@src/background/services/secrets/models';
+import { useImportLedger } from '@src/pages/Accounts/hooks/useImportLedger';
 
 export interface AddressType {
   address: string;
@@ -48,11 +50,13 @@ export interface LedgerConnectorData {
 interface LedgerConnectorProps {
   onSuccess: (data: LedgerConnectorData) => void;
   onTroubleshoot: () => void;
+  checkWalletIsExist?: boolean;
 }
 
 export function LedgerConnector({
   onSuccess,
   onTroubleshoot,
+  checkWalletIsExist,
 }: LedgerConnectorProps) {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
@@ -69,6 +73,7 @@ export function LedgerConnector({
   const [publicKeyState, setPublicKeyState] = useState<LedgerStatus>(
     LedgerStatus.LEDGER_UNINITIATED
   );
+  const [isLedgerExistsError, setIsLedgerExistsError] = useState(false);
 
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
     DerivationPath.BIP44
@@ -77,6 +82,7 @@ export function LedgerConnector({
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
   const [dropdownDisabled, setDropdownDisabled] = useState(true);
   const { t } = useTranslation();
+  const { importLedger } = useImportLedger();
 
   const resetStates = () => {
     setPublicKeyState(LedgerStatus.LEDGER_LOADING);
@@ -110,12 +116,42 @@ export function LedgerConnector({
     [capture, getAvaxBalance]
   );
 
+  const checkLedgerWalletIsExist = useCallback(
+    async ({ xpub, xpubXP, publicKeys, derivationPath }) => {
+      setIsLedgerExistsError(false);
+      try {
+        return await importLedger({
+          xpub,
+          xpubXP,
+          pubKeys: publicKeys,
+          secretType:
+            derivationPath === DerivationPath.BIP44
+              ? SecretType.Ledger
+              : SecretType.LedgerLive,
+          onlyCheckWalletIsExist: true,
+        });
+      } catch (e) {
+        setIsLedgerExistsError(true);
+        throw new Error('wallet already exists');
+      }
+    },
+    [importLedger]
+  );
+
   const getXPublicKey = useCallback(async () => {
     try {
       const xpubValue = await getExtendedPublicKey();
       const xpubXPValue = await getExtendedPublicKey(
         Avalanche.LedgerWallet.getAccountPath('X')
       );
+      if (checkWalletIsExist) {
+        await checkLedgerWalletIsExist({
+          xpub: xpubValue,
+          xpubXP: xpubXPValue,
+          publicKeys: undefined,
+          derivationPath: DerivationPath.BIP44,
+        });
+      }
       setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
       capture('OnboardingLedgerConnected');
       await getAddressFromXpubKey(xpubValue, 0);
@@ -133,6 +169,8 @@ export function LedgerConnector({
     }
   }, [
     capture,
+    checkLedgerWalletIsExist,
+    checkWalletIsExist,
     getAddressFromXpubKey,
     getExtendedPublicKey,
     onSuccess,
@@ -187,6 +225,14 @@ export function LedgerConnector({
             ...pubKeys,
             { evm: pubKey.toString('hex'), xp: pubKeyXP.toString('hex') },
           ];
+          if (checkWalletIsExist) {
+            await checkLedgerWalletIsExist({
+              xpub: '',
+              xpubXP: '',
+              publicKeys: publicKeyValue,
+              derivationPath: DerivationPath.LedgerLive,
+            });
+          }
           setHasPublicKeys(true);
           onSuccess({
             xpub: '',
@@ -202,7 +248,15 @@ export function LedgerConnector({
         popDeviceSelection();
       }
     },
-    [capture, getAvaxBalance, getPublicKey, onSuccess, popDeviceSelection]
+    [
+      capture,
+      checkLedgerWalletIsExist,
+      checkWalletIsExist,
+      getAvaxBalance,
+      getPublicKey,
+      onSuccess,
+      popDeviceSelection,
+    ]
   );
 
   const tryPublicKey = useCallback(async () => {
@@ -336,21 +390,26 @@ export function LedgerConnector({
                 variant="caption"
                 sx={{ color: theme.palette.error.main }}
               >
-                <Trans
-                  i18nKey="Unable to connect. View the troubleshoot guide <linkText>here</linkText>"
-                  components={{
-                    linkText: (
-                      <span
-                        onClick={() => onTroubleshoot()}
-                        style={{
-                          cursor: 'pointer',
-                          textDecoration: 'underline',
-                          textDecorationColor: theme.palette.error.main,
-                        }}
-                      />
-                    ),
-                  }}
-                />
+                {!isLedgerExistsError && (
+                  <Trans
+                    i18nKey={
+                      'Unable to connect. View the troubleshoot guide <linkText>here</linkText>'
+                    }
+                    components={{
+                      linkText: (
+                        <span
+                          onClick={() => onTroubleshoot()}
+                          style={{
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            textDecorationColor: theme.palette.error.main,
+                          }}
+                        />
+                      ),
+                    }}
+                  />
+                )}
+                {isLedgerExistsError && t('This wallet already exists')}
               </Typography>
             </Stack>
             <Button onClick={() => tryPublicKey()} fullWidth>

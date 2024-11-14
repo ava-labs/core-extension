@@ -851,6 +851,7 @@
   "This transaction is malicious do not proceed.": "This transaction is malicious do not proceed.",
   "This transaction requires multiple approvals.": "This transaction requires multiple approvals.",
   "This transaction requires two approvals": "This transaction requires two approvals",
+  "This wallet already exists": "This wallet already exists",
   "This website": "This website",
   "Threshold": "Threshold",
   "Time Elapsed": "Time Elapsed",

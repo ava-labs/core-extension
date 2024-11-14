@@ -23,6 +23,7 @@ export type ImportLedgerWalletParams = {
   pubKeys?: PubKeyType[];
   secretType: SecretType.Ledger | SecretType.LedgerLive;
   name?: string;
+  onlyCheckWalletIsExist?: boolean;
 };
 
 export type ImportWalletResult = {
