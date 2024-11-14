@@ -28,11 +28,13 @@ export function DuplicatedAccountDialog({
       {...props}
     >
       <DialogTitle>
-        <Typography variant="h5">{t('Import Account?')}</Typography>
+        <Typography variant="h5">{t('Import Duplicate Account?')}</Typography>
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2">
-          {t('Do you still wish to import a duplicate account into Core? ')}
+          {t(
+            'This account has already been imported, do you want to continue?'
+          )}
         </Typography>
       </DialogContent>
       <DialogActions sx={{ gap: 1 }}>
