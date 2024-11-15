@@ -39,9 +39,8 @@ export class ImportLedgerHandler implements HandlerType {
   }
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [
-      { xpub, xpubXP, pubKeys, secretType, name, onlyCheckWalletIsExist },
-    ] = request.params;
+    const [{ xpub, xpubXP, pubKeys, secretType, name, dryRun }] =
+      request.params;
 
     if (
       secretType !== SecretType.Ledger &&
@@ -70,11 +69,12 @@ export class ImportLedgerHandler implements HandlerType {
       };
     }
 
-    if (onlyCheckWalletIsExist) {
+    if (dryRun) {
       return {
         ...request,
         result: {
           id: '0',
+          name,
           type: secretType,
         },
       };
