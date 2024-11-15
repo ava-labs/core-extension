@@ -17,12 +17,13 @@ export async function getMaxUtxoSet(
   provider: Avalanche.JsonRpcProvider,
   wallet: Avalanche.AddressWallet,
   network: Network,
-  feeState?: FeeState
+  feeState?: FeeState,
+  preloadedUtxoSet?: utils.UtxoSet
 ) {
   const chainAliasToUse = isPchainNetwork(network)
     ? CHAIN_ALIAS.P
     : CHAIN_ALIAS.X;
-  const utxos = await wallet.getUTXOs(chainAliasToUse);
+  const utxos = preloadedUtxoSet ?? (await wallet.getUTXOs(chainAliasToUse));
   let filteredUtxos = Avalanche.sortUTXOsByAmount(utxos.getUTXOs(), true);
 
   if (isPchainNetwork(network)) {

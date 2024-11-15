@@ -20,6 +20,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
 import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
+import { Network } from '@avalabs/glacier-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { ChainId } from '@avalabs/core-chains-sdk';
@@ -103,8 +104,11 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       : await Avalanche.getUtxosByTxFromGlacier({
           transactionHex,
           chainAlias,
-          isDevnet: isDevnet(network),
-          isTestnet: !this.networkService.isMainnet(),
+          network: isDevnet(network)
+            ? Network.DEVNET
+            : network.isTestnet
+            ? Network.FUJI
+            : Network.MAINNET,
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,
           headers: HEADERS,

@@ -415,7 +415,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       expect(balances).toEqual(freshBalances);
     });
 
-    it.only('emits the BalanceServiceEvents.UPDATED if balances did change', async () => {
+    it('emits the BalanceServiceEvents.UPDATED if balances did change', async () => {
       // Cached balances include two accounts: account1, account2
       const cachedBalances = {
         [network2.chainId]: {
@@ -451,7 +451,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       expect(updatesListener).toHaveBeenCalled();
     });
 
-    it.only('DOES NOT emit the BalanceServiceEvents.UPDATED if balances did not change', async () => {
+    it('DOES NOT emit the BalanceServiceEvents.UPDATED if balances did not change', async () => {
       // Cached balances include two accounts: account1, account2
       const cachedBalances = {
         [network2.chainId]: {

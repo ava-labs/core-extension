@@ -1,5 +1,5 @@
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
@@ -29,10 +29,12 @@ import {
 } from '@src/components/common/approval/ApprovalSection';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { CustomGasSettings } from './CustomGasSettings';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 interface CustomGasFeesProps {
   maxFeePerGas: bigint;
   limit: number;
+  estimatedFee?: bigint;
   onChange(values: {
     customGasLimit?: number;
     maxFeePerGas: bigint;
@@ -166,6 +168,7 @@ const POLLED_BALANCES = [TokenType.NATIVE];
 export function CustomFees({
   maxFeePerGas,
   limit,
+  estimatedFee,
   onChange,
   onModifierChangeCallback,
   gasPriceEditDisabled = false,
@@ -318,6 +321,22 @@ export function CustomFees({
       updateGasFee(selectedGasFeeModifier);
     }
   }, [networkFee?.isFixedFee, selectedGasFeeModifier, updateGasFee]);
+
+  const feeAmount = useMemo(() => {
+    if (!network?.networkToken) {
+      return '-';
+    }
+
+    if (typeof estimatedFee === 'bigint') {
+      return new TokenUnit(
+        estimatedFee,
+        network?.networkToken.decimals,
+        network?.networkToken.symbol
+      ).toString();
+    }
+
+    return newFees.fee;
+  }, [network?.networkToken, estimatedFee, newFees.fee]);
 
   if (!networkFee) {
     return null;
@@ -505,7 +524,7 @@ export function CustomFees({
               data-testid="network-fee-token-amount"
               sx={{ fontWeight: 'fontWeightSemibold' }}
             >
-              {newFees.fee} {network?.networkToken.symbol}
+              {feeAmount} {network?.networkToken.symbol}
             </Typography>
           </Stack>
           <Stack
@@ -535,7 +554,7 @@ export function CustomFees({
         <CustomGasSettings
           isLimitReadonly={isLimitReadonly}
           feeDisplayDecimals={networkFee.displayDecimals}
-          gasLimit={gasLimit}
+          gasLimit={gasLimit ?? 0}
           maxFeePerGas={customFee?.maxFeePerGas || 0n}
           maxPriorityFeePerGas={customFee?.maxPriorityFeePerGas || 0n}
           onCancel={() => setShowEditGasLimit(false)}

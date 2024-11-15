@@ -228,8 +228,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
         transactionHex: request.params.transactionHex,
         chainAlias: request.params.chainAlias,
-        isTestnet: true,
-        isDevnet: false,
+        network: 'fuji',
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
         headers: HEADERS,
@@ -277,8 +276,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
         transactionHex: request.params.transactionHex,
         chainAlias: request.params.chainAlias,
-        isTestnet: true,
-        isDevnet: false,
+        network: 'fuji',
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
         headers: HEADERS,
@@ -333,8 +331,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
         transactionHex: request.params.transactionHex,
         chainAlias: request.params.chainAlias,
-        isTestnet: true,
-        isDevnet: false,
+        network: 'fuji',
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
         headers: HEADERS,
@@ -391,8 +388,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
         transactionHex: request.params.transactionHex,
         chainAlias: request.params.chainAlias,
-        isTestnet: true,
-        isDevnet: false,
+        network: 'fuji',
         url: process.env.GLACIER_URL,
         token: process.env.GLACIER_API_KEY,
         headers: HEADERS,
@@ -534,8 +530,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
             transactionHex: request.params.transactionHex,
             chainAlias: request.params.chainAlias,
-            isTestnet: true,
-            isDevnet: false,
+            network: 'fuji',
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
             headers: HEADERS,
@@ -724,8 +719,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
             transactionHex: request.params.transactionHex,
             chainAlias: request.params.chainAlias,
-            isTestnet: true,
-            isDevnet: false,
+            network: 'fuji',
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
             headers: HEADERS,

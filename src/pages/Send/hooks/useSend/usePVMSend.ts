@@ -40,6 +40,38 @@ export const usePvmSend: SendAdapterPVM = ({
   const [maxAmount, setMaxAmount] = useState('0');
   const [estimatedFee, setEstimatedFee] = useState(0n);
   const [feeState, setFeeState] = useState<FeeState>();
+  const [utxoSet, setUtxoSet] = useState<utils.UtxoSet>();
+
+  const wallet = useMemo(() => {
+    return new Avalanche.AddressWallet(
+      account.addressC,
+      stripAddressPrefix(account.addressCoreEth),
+      [stripAddressPrefix(account.addressPVM)],
+      stripAddressPrefix(account.addressPVM),
+      provider as Avalanche.JsonRpcProvider
+    );
+  }, [account, provider]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    wallet
+      .getUTXOs('P')
+      .then((u) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setUtxoSet(u);
+      })
+      .catch(() => {
+        setError(SendErrorMessage.UNABLE_TO_FETCH_UTXOS);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [wallet]);
 
   useEffect(() => {
     let isMounted = true;
@@ -66,16 +98,6 @@ export const usePvmSend: SendAdapterPVM = ({
       isMounted = false;
     };
   }, [provider]);
-
-  const wallet = useMemo(() => {
-    return new Avalanche.AddressWallet(
-      account.addressC,
-      stripAddressPrefix(account.addressCoreEth),
-      [stripAddressPrefix(account.addressPVM)],
-      stripAddressPrefix(account.addressPVM),
-      provider as Avalanche.JsonRpcProvider
-    );
-  }, [account, provider]);
 
   const checkFunctionAvailability = useCallback(() => {
     if (!featureFlags[FeatureGates.SEND_P_CHAIN]) {
@@ -112,7 +134,8 @@ export const usePvmSend: SendAdapterPVM = ({
         provider,
         wallet,
         network,
-        getFeeState(gasPrice)
+        getFeeState(gasPrice),
+        utxoSet
       );
 
       return wallet.baseTX({
@@ -137,6 +160,7 @@ export const usePvmSend: SendAdapterPVM = ({
       isLedgerWallet,
       network,
       getFeeState,
+      utxoSet,
     ]
   );
 
@@ -149,16 +173,17 @@ export const usePvmSend: SendAdapterPVM = ({
         token,
       });
 
+      const feeTolerance = getFeeTolerance(gasPrice, feeState);
       const parsedTx = await Avalanche.parseAvalancheTx(
         unsignedTx,
         provider,
         account.addressPVM,
-        { feeTolerance: 100 }
+        { feeTolerance }
       );
 
       return parsedTx;
     },
-    [buildTransaction, provider, account.addressPVM]
+    [buildTransaction, provider, account.addressPVM, feeState]
   );
 
   const validate = useCallback(
@@ -199,7 +224,8 @@ export const usePvmSend: SendAdapterPVM = ({
           provider,
           wallet,
           network,
-          getFeeState(gasPrice)
+          getFeeState(gasPrice),
+          utxoSet
         )
       );
 
@@ -243,6 +269,7 @@ export const usePvmSend: SendAdapterPVM = ({
       getFeeState,
       parseTx,
       feeState,
+      utxoSet,
     ]
   );
 

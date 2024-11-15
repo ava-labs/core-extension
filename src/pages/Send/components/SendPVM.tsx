@@ -164,9 +164,8 @@ export const SendPVM = ({
             networkFee={networkFee}
             maxFeePerGas={gasPrice}
             maxGasPrice={(networkFee.baseFee ?? 0n) * 2n}
-            limit={
-              gasPrice ? Math.round(Number(estimatedFee) / Number(gasPrice)) : 0
-            }
+            estimatedFee={estimatedFee}
+            limit={0}
             onChange={onFeeCustomized}
           />
         </Stack>

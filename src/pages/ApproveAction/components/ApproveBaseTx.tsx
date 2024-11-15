@@ -135,7 +135,8 @@ export function BaseTxView({
                         out.assetDescription?.denomination ||
                           defaultDenomination
                       )}{' '}
-                      {out.assetDescription?.symbol ?? (out.isAvax && 'AVAX')}
+                      {out.assetDescription?.symbol ??
+                        (out.isAvax ? 'AVAX' : '')}
                     </Typography>
                     {out.isAvax && (
                       <Typography
