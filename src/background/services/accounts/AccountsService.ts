@@ -28,6 +28,7 @@ import { LedgerService } from '../ledger/LedgerService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { Network } from '../network/models';
 import { isDevnet } from '@src/utils/isDevnet';
+import { getAddressResolutionOptions } from '@src/background/utils/getAddressResolutionOptions';
 
 type AddAccountParams = {
   walletId: string;
@@ -224,17 +225,21 @@ export class AccountsService implements OnLock, OnUnlock {
   };
 
   async getAddressesForAccount(account: Account): Promise<DerivedAddresses> {
+    const addressResolutionOptions = await getAddressResolutionOptions(
+      this.networkService
+    );
+
     if (account.type !== AccountType.PRIMARY) {
       return this.secretsService.getImportedAddresses(
         account.id,
-        this.networkService
+        addressResolutionOptions
       );
     }
 
     const addresses = await this.secretsService.getAddresses(
       account.index,
       account.walletId,
-      this.networkService
+      addressResolutionOptions
     );
 
     return {
@@ -367,8 +372,8 @@ export class AccountsService implements OnLock, OnUnlock {
     const addresses = await this.secretsService.addAddress({
       index: nextIndex,
       walletId,
-      networkService: this.networkService,
       ledgerService: this.ledgerService,
+      options: await getAddressResolutionOptions(this.networkService),
     });
 
     const id = crypto.randomUUID();
@@ -413,7 +418,7 @@ export class AccountsService implements OnLock, OnUnlock {
     try {
       const { account, commit } = await this.secretsService.addImportedWallet(
         options,
-        this.networkService
+        await getAddressResolutionOptions(this.networkService)
       );
 
       const existingAccount = this.#findAccountByAddress(account.addressC);

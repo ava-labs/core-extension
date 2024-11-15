@@ -20,6 +20,7 @@ import { OnboardingService } from '../OnboardingService';
 import { LockService } from '../../lock/LockService';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
+import { getAddressResolutionOptions } from '@src/background/utils/getAddressResolutionOptions';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_ONBOARDING_SUBMIT,
@@ -72,7 +73,9 @@ export class SeedlessOnboardingHandler implements HandlerType {
 
     const memorySessionStorage = new MemorySessionStorage(seedlessSignerToken);
     const seedlessWallet = new SeedlessWallet({
-      networkService: this.networkService,
+      addressResolutionOptions: await getAddressResolutionOptions(
+        this.networkService
+      ),
       sessionStorage: memorySessionStorage,
     });
 

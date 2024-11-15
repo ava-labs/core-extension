@@ -17,6 +17,7 @@ import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
 import { AccountsService } from '../../accounts/AccountsService';
+import { getAddressResolutionOptions } from '@src/background/utils/getAddressResolutionOptions';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_COMPLETE_RECOVERY_PHRASE_EXPORT,
@@ -47,7 +48,9 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
     }
 
     const wallet = new SeedlessWallet({
-      networkService: this.networkService,
+      addressResolutionOptions: await getAddressResolutionOptions(
+        this.networkService
+      ),
       sessionStorage: new SeedlessTokenStorage(this.secretsService),
       addressPublicKey: secrets.pubKeys[0],
       mfaService: this.seedlessMfaService,

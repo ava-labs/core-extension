@@ -12,6 +12,7 @@ import { SeedlessMfaService } from '../SeedlessMfaService';
 import { UserExportInitResponse } from '@cubist-labs/cubesigner-sdk';
 import { isExportRequestOutdated } from '../utils';
 import { AccountsService } from '../../accounts/AccountsService';
+import { getAddressResolutionOptions } from '@src/background/utils/getAddressResolutionOptions';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_GET_RECOVERY_PHRASE_EXPORT_STATE,
@@ -42,7 +43,9 @@ export class GetRecoveryPhraseExportStateHandler implements HandlerType {
     }
 
     const wallet = new SeedlessWallet({
-      networkService: this.networkService,
+      addressResolutionOptions: await getAddressResolutionOptions(
+        this.networkService
+      ),
       sessionStorage: new SeedlessTokenStorage(this.secretsService),
       addressPublicKey: secrets.pubKeys[0],
       mfaService: this.seedlessMfaService,

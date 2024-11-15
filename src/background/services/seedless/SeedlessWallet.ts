@@ -24,7 +24,6 @@ import {
   typedSignatureHash,
 } from '@metamask/eth-sig-util';
 
-import { NetworkService } from '../network/NetworkService';
 import { PubKeyType } from '../wallet/models';
 import { MessageParams, MessageType } from '../messages/models';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
@@ -37,9 +36,10 @@ import { isTokenExpiredError } from './utils';
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { toUtf8 } from 'ethereumjs-util';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { AddressResolutionOptions } from '@src/background/models';
 
 type ConstructorOpts = {
-  networkService: NetworkService;
+  addressResolutionOptions: AddressResolutionOptions;
   sessionStorage: cs.SessionStorage<cs.SignerSessionData>;
   addressPublicKey?: PubKeyType;
   network?: Network;
@@ -48,7 +48,7 @@ type ConstructorOpts = {
 };
 
 export class SeedlessWallet {
-  #networkService: NetworkService;
+  #addressResolutionOptions: AddressResolutionOptions;
   #sessionStorage: cs.SessionStorage<cs.SignerSessionData>;
   #addressPublicKey?: PubKeyType;
   #network?: Network;
@@ -57,14 +57,14 @@ export class SeedlessWallet {
   #mfaService?: SeedlessMfaService;
 
   constructor({
-    networkService,
+    addressResolutionOptions,
     sessionStorage,
     addressPublicKey,
     network,
     sessionManager,
     mfaService,
   }: ConstructorOpts) {
-    this.#networkService = networkService;
+    this.#addressResolutionOptions = addressResolutionOptions;
     this.#sessionStorage = sessionStorage;
     this.#addressPublicKey = addressPublicKey;
     this.#network = network;
@@ -393,12 +393,13 @@ export class SeedlessWallet {
     }
 
     const isEvmTx = request.tx.getVM() === 'EVM';
-    const isMainnet = this.#networkService.isMainnet();
     const session = await this.#getSession();
     const key = isEvmTx
       ? await this.#getSigningKey(cs.Secp256k1.Evm, this.#addressPublicKey.evm)
       : await this.#getSigningKey(
-          isMainnet ? cs.Secp256k1.Ava : cs.Secp256k1.AvaTest,
+          this.#addressResolutionOptions.isMainnet
+            ? cs.Secp256k1.Ava
+            : cs.Secp256k1.AvaTest,
           this.#addressPublicKey.xp
         );
 
@@ -483,8 +484,8 @@ export class SeedlessWallet {
         throw new Error('X/P public key not available');
       }
 
-      const xpProvider = await this.#networkService.getAvalanceProviderXP();
-      const addressAVM = await xpProvider
+      const { providerXP } = this.#addressResolutionOptions;
+      const addressAVM = await providerXP
         .getAddress(Buffer.from(this.#addressPublicKey.xp, 'hex'), 'X')
         .slice(2); // remove chain prefix
       const message = toUtf8(messageParams.data);

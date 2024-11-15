@@ -62,6 +62,7 @@ import { Network } from '../network/models';
 import { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
 import { Account } from '../accounts/models';
+import { getAddressResolutionOptions } from '@src/background/utils/getAddressResolutionOptions';
 
 @singleton()
 export class WalletService implements OnUnlock {
@@ -181,7 +182,9 @@ export class WalletService implements OnUnlock {
       }
 
       const wallet = new SeedlessWallet({
-        networkService: this.networkService,
+        addressResolutionOptions: await getAddressResolutionOptions(
+          this.networkService
+        ),
         sessionStorage: new SeedlessTokenStorage(this.secretService),
         addressPublicKey,
         network,

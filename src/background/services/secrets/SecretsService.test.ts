@@ -1166,13 +1166,12 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         index: 1,
         walletId: ACTIVE_WALLET_ID,
         ledgerService,
-        networkService,
+        options: { isMainnet: true, providerXP: getDefaultFujiProviderMock() },
       });
-      expect(getAddressesSpy).toHaveBeenCalledWith(
-        1,
-        ACTIVE_WALLET_ID,
-        networkService
-      );
+      expect(getAddressesSpy).toHaveBeenCalledWith(1, ACTIVE_WALLET_ID, {
+        isMainnet: true,
+        providerXP: getDefaultFujiProviderMock(),
+      });
       expect(result).toStrictEqual(addressesMock);
     });
 
@@ -1190,7 +1189,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             index: 1,
             walletId: ACTIVE_WALLET_ID,
             ledgerService,
-            networkService,
+            options: {
+              isMainnet: true,
+              providerXP: getDefaultFujiProviderMock(),
+            },
           })
         ).rejects.toThrow('Ledger transport not available');
       });
@@ -1214,7 +1216,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             index: 1,
             walletId: ACTIVE_WALLET_ID,
             ledgerService,
-            networkService,
+            options: {
+              isMainnet: true,
+              providerXP: getDefaultFujiProviderMock(),
+            },
           })
         ).rejects.toThrow('Failed to get public key from device.');
         expect(getPubKeyFromTransport).toHaveBeenCalledWith(
@@ -1242,7 +1247,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             index: 1,
             walletId: ACTIVE_WALLET_ID,
             ledgerService,
-            networkService,
+            options: {
+              isMainnet: true,
+              providerXP: getDefaultFujiProviderMock(),
+            },
           })
         ).rejects.toThrow('Failed to get public key from device.');
         expect(getPubKeyFromTransport).toHaveBeenCalledWith(
@@ -1269,13 +1277,15 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           index: 0,
           walletId: ACTIVE_WALLET_ID,
           ledgerService,
-          networkService,
+          options: {
+            isMainnet: true,
+            providerXP: getDefaultFujiProviderMock(),
+          },
         });
-        expect(getAddressesSpy).toHaveBeenCalledWith(
-          0,
-          ACTIVE_WALLET_ID,
-          networkService
-        );
+        expect(getAddressesSpy).toHaveBeenCalledWith(0, ACTIVE_WALLET_ID, {
+          isMainnet: true,
+          providerXP: getDefaultFujiProviderMock(),
+        });
         secretsService.updateSecrets = jest.fn();
         expect(getPubKeyFromTransport).not.toHaveBeenCalled();
         expect(result).toStrictEqual(addressesMock);
@@ -1302,13 +1312,15 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           index: 0,
           walletId: ACTIVE_WALLET_ID,
           ledgerService,
-          networkService,
+          options: {
+            isMainnet: true,
+            providerXP: getDefaultFujiProviderMock(),
+          },
         });
-        expect(getAddressesSpy).toHaveBeenCalledWith(
-          0,
-          ACTIVE_WALLET_ID,
-          networkService
-        );
+        expect(getAddressesSpy).toHaveBeenCalledWith(0, ACTIVE_WALLET_ID, {
+          isMainnet: true,
+          providerXP: getDefaultFujiProviderMock(),
+        });
         expect(result).toStrictEqual(addressesMock);
 
         expect(secretsService.updateSecrets).toHaveBeenCalledWith(
@@ -1352,12 +1364,18 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           const result = await secretsService.addAddress({
             index: 1,
             walletId: ACTIVE_WALLET_ID,
-            networkService,
+            options: {
+              isMainnet: true,
+              providerXP: getDefaultFujiProviderMock(),
+            },
             ledgerService,
           });
 
           expect(SeedlessWallet).toHaveBeenCalledWith({
-            networkService,
+            addressResolutionOptions: {
+              isMainnet: true,
+              providerXP: getDefaultFujiProviderMock(),
+            },
             sessionStorage: expect.any(SeedlessTokenStorage),
             addressPublicKey: { evm: 'evm', xp: 'xp' },
           });
@@ -1369,11 +1387,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             },
             ACTIVE_WALLET_ID
           );
-          expect(getAddressesSpy).toHaveBeenCalledWith(
-            1,
-            ACTIVE_WALLET_ID,
-            networkService
-          );
+          expect(getAddressesSpy).toHaveBeenCalledWith(1, ACTIVE_WALLET_ID, {
+            isMainnet: true,
+            providerXP: getDefaultFujiProviderMock(),
+          });
           expect(result).toStrictEqual(addressesMock);
         });
       });
@@ -1400,18 +1417,20 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           const result = await secretsService.addAddress({
             index: 1,
             walletId: ACTIVE_WALLET_ID,
-            networkService,
+            options: {
+              isMainnet: true,
+              providerXP: getDefaultFujiProviderMock(),
+            },
             ledgerService,
           });
 
           expect(SeedlessWallet).not.toHaveBeenCalled();
           expect(secretsService.updateSecrets).not.toHaveBeenCalled();
 
-          expect(getAddressesSpy).toHaveBeenCalledWith(
-            1,
-            ACTIVE_WALLET_ID,
-            networkService
-          );
+          expect(getAddressesSpy).toHaveBeenCalledWith(1, ACTIVE_WALLET_ID, {
+            isMainnet: true,
+            providerXP: getDefaultFujiProviderMock(),
+          });
           expect(result).toStrictEqual(addressesMock);
         });
       });
@@ -1429,7 +1448,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
     it('throws error if walletId is not provided', async () => {
       await expect(
-        secretsService.getAddresses(0, '', networkService)
+        secretsService.getAddresses(0, '', {
+          isMainnet: true,
+          providerXP: getDefaultFujiProviderMock(),
+        })
       ).rejects.toThrow('Wallet id not provided');
     });
 
@@ -1439,7 +1461,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         { secretType: 'unknown', id: 'seedless-wallet-id' }
       );
       await expect(
-        secretsService.getAddresses(0, 'seedless-wallet-id', networkService)
+        secretsService.getAddresses(0, 'seedless-wallet-id', {
+          isMainnet: true,
+          providerXP: getDefaultFujiProviderMock(),
+        })
       ).rejects.toThrow('No public key available');
     });
 
@@ -1448,7 +1473,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       (getAddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
       (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x2');
       await expect(
-        secretsService.getAddresses(0, ACTIVE_WALLET_ID, networkService)
+        secretsService.getAddresses(0, ACTIVE_WALLET_ID, {
+          isMainnet: false,
+          providerXP: getDefaultFujiProviderMock(),
+        })
       ).resolves.toStrictEqual(addressesMock('0x1', '0x2'));
       expect(Avalanche.getAddressPublicKeyFromXpub).toBeCalledWith('xpubXP', 0);
       expect(getAddressFromXPub).toHaveBeenCalledWith('xpub', 0);
@@ -1466,7 +1494,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       (networkService.isMainnet as jest.Mock).mockReturnValueOnce(false);
 
       await expect(
-        secretsService.getAddresses(0, ACTIVE_WALLET_ID, networkService)
+        secretsService.getAddresses(0, ACTIVE_WALLET_ID, {
+          isMainnet: true,
+          providerXP: getDefaultFujiProviderMock(),
+        })
       ).rejects.toThrow('Account not added');
     });
 
@@ -1480,7 +1511,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       (getBtcAddressFromPubKey as jest.Mock).mockReturnValueOnce('0x2');
 
       await expect(
-        secretsService.getAddresses(0, ACTIVE_WALLET_ID, networkService)
+        secretsService.getAddresses(0, ACTIVE_WALLET_ID, {
+          isMainnet: false,
+          providerXP: getDefaultFujiProviderMock(),
+        })
       ).resolves.toStrictEqual(addressesMock('0x1', '0x2'));
 
       expect(getEvmAddressFromPubKey).toHaveBeenCalledWith(pubKeyBuff);
@@ -1530,7 +1564,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           importType: ImportType.PRIVATE_KEY,
           data: 'privateKey',
         },
-        networkService
+        { isMainnet: false, providerXP: getDefaultFujiProviderMock() }
       );
 
       expect(result).toStrictEqual({
@@ -1569,7 +1603,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             importType: ImportType.PRIVATE_KEY,
             data: 'privateKey',
           },
-          networkService
+          { isMainnet: false, providerXP: getDefaultFujiProviderMock() }
         )
       ).rejects.toThrow('Error while calculating addresses');
     });
@@ -1589,7 +1623,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             importType: ImportType.PRIVATE_KEY,
             data: 'privateKey',
           },
-          networkService
+          { isMainnet: false, providerXP: getDefaultFujiProviderMock() }
         )
       ).rejects.toThrow('Error while calculating addresses');
     });
@@ -1609,7 +1643,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             importType: ImportType.PRIVATE_KEY,
             data: 'privateKey',
           },
-          networkService
+          { isMainnet: false, providerXP: getDefaultFujiProviderMock() }
         )
       ).rejects.toThrow('Error while calculating addresses');
     });
@@ -1632,7 +1666,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       );
 
       await expect(
-        secretsService.getImportedAddresses('id', networkService)
+        secretsService.getImportedAddresses('id', {
+          isMainnet: true,
+          providerXP: getDefaultFujiProviderMock(),
+        })
       ).rejects.toThrow('No secrets found for imported account');
     });
 
@@ -1643,7 +1680,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       );
 
       await expect(
-        secretsService.getImportedAddresses('id', networkService)
+        secretsService.getImportedAddresses('id', {
+          isMainnet: true,
+          providerXP: getDefaultFujiProviderMock(),
+        })
       ).rejects.toThrow('Unsupported import type');
     });
 
@@ -1657,7 +1697,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       (getBtcAddressFromPubKey as jest.Mock).mockReturnValueOnce('');
 
       await expect(
-        secretsService.getImportedAddresses('id', networkService)
+        secretsService.getImportedAddresses('id', {
+          isMainnet: false,
+          providerXP: getDefaultFujiProviderMock(),
+        })
       ).rejects.toThrow('Missing address');
     });
 
@@ -1668,10 +1711,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         { secretType: SecretType.PrivateKey, secret: 'secret' }
       );
 
-      const result = await secretsService.getImportedAddresses(
-        'id',
-        networkService
-      );
+      const result = await secretsService.getImportedAddresses('id', {
+        isMainnet: false,
+        providerXP: getDefaultFujiProviderMock(),
+      });
 
       expect(result).toStrictEqual({
         addressBTC: '0x2',
