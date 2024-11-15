@@ -14,7 +14,13 @@ import {
 import { stringToBigint } from '@src/utils/stringToBigint';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 
-export function useSwapStateFunctions() {
+export function useSwapStateFunctions({
+  defaultFromToken,
+  defaultToToken,
+}: {
+  defaultFromToken: NetworkTokenWithBalance | TokenWithBalanceERC20;
+  defaultToToken: NetworkTokenWithBalance | TokenWithBalanceERC20;
+}) {
   const tokensWBalances = useTokensWithBalances({
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
@@ -27,6 +33,7 @@ export function useSwapStateFunctions() {
     selectedToToken?: NetworkTokenWithBalance | TokenWithBalanceERC20;
     destinationInputField?: DestinationInput;
     tokenValue?: Amount;
+    isLoading: boolean;
   } = getPageHistoryData();
 
   const [destinationInputField, setDestinationInputField] =
@@ -35,6 +42,7 @@ export function useSwapStateFunctions() {
   const [selectedFromToken, setSelectedFromToken] = useState<
     NetworkTokenWithBalance | TokenWithBalanceERC20
   >();
+
   const [selectedToToken, setSelectedToToken] = useState<
     NetworkTokenWithBalance | TokenWithBalanceERC20
   >();
@@ -84,7 +92,11 @@ export function useSwapStateFunctions() {
 
   // reload and recalculate the data from the history
   useEffect(() => {
-    if (Object.keys(pageHistory).length && !isHistoryLoaded.current) {
+    if (
+      Object.keys(pageHistory).length > 1 &&
+      !pageHistory.isLoading &&
+      !isHistoryLoaded.current
+    ) {
       const historyFromToken = pageHistory.selectedFromToken
         ? {
             ...pageHistory.selectedFromToken,
@@ -129,9 +141,28 @@ export function useSwapStateFunctions() {
         historyFromToken,
         historyToToken
       );
+
       isHistoryLoaded.current = true;
     }
-  }, [calculateTokenValueToInput, pageHistory]);
+
+    if (
+      !pageHistory.selectedFromToken &&
+      !pageHistory.selectedToToken &&
+      !pageHistory.isLoading &&
+      !isHistoryLoaded.current &&
+      defaultFromToken &&
+      defaultFromToken
+    ) {
+      setSelectedFromToken(defaultFromToken);
+      setSelectedToToken(defaultToToken);
+      isHistoryLoaded.current = true;
+    }
+  }, [
+    calculateTokenValueToInput,
+    defaultFromToken,
+    defaultToToken,
+    pageHistory,
+  ]);
 
   const resetValues = () => {
     setFromTokenValue(undefined);
@@ -221,13 +252,14 @@ export function useSwapStateFunctions() {
     if (destination === 'to') {
       setSelectedFromToken(token);
       setMaxFromValue(token?.balance);
+      toToken && setSelectedToToken(toToken);
     } else {
       setSelectedToToken(token);
     }
     const data =
       destination === 'to'
-        ? { fromToken: token, toToken, fromValue }
-        : { fromToken, toToken: token, fromValue };
+        ? { selectedFromToken: token, selectedToToken: toToken, fromValue }
+        : { selectedFromToken: fromToken, selectedToToken: token, fromValue };
     calculateSwapValue(data);
     setNavigationHistoryData({
       ...data,
