@@ -375,10 +375,7 @@ export function LedgerConnector({
               }}
             >
               <Divider flexItem />
-              <DerivedAddresses
-                addresses={addresses}
-                hideLoadinSkeleton={pathSpec === DerivationPath.BIP44}
-              />
+              <DerivedAddresses addresses={addresses} />
             </Stack>
           )}
       </Stack>

@@ -13,14 +13,17 @@ import {
   useTheme,
   Tooltip,
 } from '@avalabs/core-k2-components';
+import { useMemo } from 'react';
 
 interface DerivedAddressesProps {
   addresses: AddressType[];
-  hideLoadinSkeleton?: boolean;
 }
 export function DerivedAddresses({ addresses }: DerivedAddressesProps) {
   const theme = useTheme();
   const { t } = useTranslation();
+  const hasBalance = useMemo(() => {
+    return addresses.find((address) => address.balance !== '0');
+  }, [addresses]);
 
   return (
     <Card
@@ -37,6 +40,9 @@ export function DerivedAddresses({ addresses }: DerivedAddressesProps) {
           </Typography>
           <Stack alignItems="space-between" divider={<Divider flexItem />}>
             {addresses.map((addressData, index) => {
+              if (hasBalance && addressData.balance === '0') {
+                return;
+              }
               const explorerLink = getAvalancheAddressLink(addressData.address);
 
               return (

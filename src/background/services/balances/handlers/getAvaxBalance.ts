@@ -53,6 +53,8 @@ export class GetAvaxBalanceHandler implements HandlerType {
       ],
       [TokenType.NATIVE]
     );
+    //TODO: make sure we will have something if the balance is nothing
+    console.log('balances: ', balances);
 
     const nativeTokenWithBalance =
       balances[address]?.[avalancheNetwork.networkToken.symbol];
