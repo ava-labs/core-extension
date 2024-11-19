@@ -34,6 +34,7 @@ import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { Overlay } from '@src/components/common/Overlay';
 import { AppBackground } from '@src/components/common/AppBackground';
+import browser from 'webextension-polyfill';
 
 enum Step {
   Import,
@@ -315,6 +316,14 @@ export function AddWalletWithLedger() {
                   onClick={() => setStep(Step.Name)}
                 >
                   {t('Next')}
+                </Button>
+                <Button
+                  onClick={async () => {
+                    browser.action.openPopup();
+                    window.close();
+                  }}
+                >
+                  {t('Cancel')}
                 </Button>
                 <LedgerLiveSupportButton />
               </Stack>
