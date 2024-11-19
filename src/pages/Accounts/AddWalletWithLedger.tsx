@@ -311,20 +311,25 @@ export function AddWalletWithLedger() {
                 />
               </Stack>
               <Stack sx={{ p: 2, mb: 2, rowGap: 1 }}>
-                <Button
-                  disabled={!hasPublicKeys}
-                  onClick={() => setStep(Step.Name)}
-                >
-                  {t('Next')}
-                </Button>
-                <Button
-                  onClick={async () => {
-                    browser.action.openPopup();
-                    window.close();
-                  }}
-                >
-                  {t('Cancel')}
-                </Button>
+                <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
+                  <Button
+                    color="secondary"
+                    onClick={() => {
+                      browser.action.openPopup();
+                      window.close();
+                    }}
+                    fullWidth
+                  >
+                    {t('Cancel')}
+                  </Button>
+                  <Button
+                    disabled={!hasPublicKeys}
+                    onClick={() => setStep(Step.Name)}
+                    fullWidth
+                  >
+                    {t('Next')}
+                  </Button>
+                </Stack>
                 <LedgerLiveSupportButton />
               </Stack>
             </Stack>
