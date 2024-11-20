@@ -4,6 +4,7 @@ import {
   ExternalLinkIcon,
   Grid,
   Stack,
+  Tooltip,
   Typography,
   toast,
   useTheme,
@@ -312,19 +313,28 @@ export function AddWalletWithLedger() {
               </Stack>
               <Stack sx={{ p: 2, mb: 2, rowGap: 1 }}>
                 <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
-                  <Button
-                    color="secondary"
-                    onClick={() => {
-                      browser.action.openPopup();
-                      window.close();
-                    }}
-                    fullWidth
-                  >
-                    {t('Cancel')}
-                  </Button>
+                  <Stack sx={{ width: '50%' }}>
+                    <Tooltip
+                      title={t(
+                        'Clicking the cancel button will close the tab and open the extension for you. If the extension doesn’t open automatically, please open it manually.'
+                      )}
+                    >
+                      <Button
+                        color="secondary"
+                        onClick={() => {
+                          browser.action.openPopup();
+                          window.close();
+                        }}
+                        fullWidth
+                      >
+                        {t('Cancel')}
+                      </Button>
+                    </Tooltip>
+                  </Stack>
                   <Button
                     disabled={!hasPublicKeys}
                     onClick={() => setStep(Step.Name)}
+                    sx={{ width: '50%' }}
                     fullWidth
                   >
                     {t('Next')}
