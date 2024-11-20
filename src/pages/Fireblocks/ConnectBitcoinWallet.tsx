@@ -15,7 +15,6 @@ import { FireblocksAvatar } from './components/FireblocksAvatar';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useCallback, useState } from 'react';
-import { AccountsTab } from '../Accounts/Accounts';
 import { TextFieldLabel } from '@src/components/common/TextFieldLabel';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import { FireblocksUpdateApiCredentialsHandler } from '@src/background/services/fireblocks/handlers/fireblocksUpdateApiCredentials';
@@ -39,7 +38,7 @@ export default function ConnectBitcoinWallet() {
 
   const onNextStep = useCallback(() => {
     toast.success(t('New Account Added!'), { duration: 2000 });
-    history.push(`/accounts?activeTab=${AccountsTab.Imported}`);
+    history.push('/accounts');
   }, [history, t]);
 
   const onConnect = useCallback(() => {

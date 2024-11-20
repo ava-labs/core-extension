@@ -15,6 +15,7 @@ import {
   ListIcon,
   Typography,
   TypographyProps,
+  PlusIcon,
 } from '@avalabs/core-k2-components';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -136,16 +137,19 @@ export const AccountsActionButton = ({
         sx={{
           display: 'flex',
           width: '100%',
-          mr: 0.5,
         }}
       >
         <Button
           onClick={onAddNewAccount}
-          sx={{ gap: 1 }}
+          sx={{
+            mr: '1px !important',
+            borderRadius: '24px 0 0 24px !important',
+          }}
           data-testid={'add-primary-account'}
           disabled={isButtonDisabled}
+          startIcon={<PlusIcon size={24} />}
         >
-          {t('Create Account')}
+          {t('Add Account')}
         </Button>
       </Tooltip>
 
@@ -153,11 +157,14 @@ export const AccountsActionButton = ({
         <Button
           ref={toggleButtonRef}
           onClick={() => setIsMenuOpen((open) => !open)}
-          sx={{ width: '56px' }}
+          sx={{
+            width: '56px',
+            borderRadius: '0 24px 24px 0 !important',
+          }}
           data-testid="account-options"
         >
           <ChevronDownIcon
-            size={24}
+            size={20}
             sx={{
               transition: 'transform ease-in-out .15s',
               transform: isMenuOpen ? 'rotateX(180deg)' : 'none',

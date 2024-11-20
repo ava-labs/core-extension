@@ -1,136 +1,127 @@
+import { useState } from 'react';
 import {
+  ChevronUpIcon,
   Chip,
-  ClickAwayListener,
-  EditIcon,
+  Grow,
+  IconButton,
   LedgerIcon,
-  Slide,
+  PencilRoundIcon,
   Stack,
-  toast,
   Typography,
-  useTheme,
 } from '@avalabs/core-k2-components';
+import { useTranslation } from 'react-i18next';
+
 import { SecretType } from '@src/background/services/secrets/models';
 import { WalletDetails } from '@src/background/services/wallet/models';
-import { AccountNameInput } from './AccountNameInput';
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+
+import { useAccountManager } from '../providers/AccountManagerProvider';
+import { OverflowingTypography } from './OverflowingTypography';
+import { useWalletRename } from '../hooks/useWalletRename';
 
 const commonTransitionProps = {
   timeout: 200,
   easing: 'ease-in-out',
   appear: true,
 };
-interface WalletHeaderProps {
-  walletDetails: WalletDetails;
+type WalletHeaderProps = {
   isActive: boolean;
-}
+  isExpanded: boolean;
+  toggle: () => void;
+} & (
+  | {
+      walletDetails: WalletDetails;
+      name?: never;
+    }
+  | { name: string; walletDetails?: never }
+);
 
 export default function WalletHeader({
   walletDetails,
+  name,
   isActive,
+  isExpanded,
+  toggle,
 }: WalletHeaderProps) {
-  const [isWalletNameEditing, setIsWalletNameEditing] = useState(false);
-  const [newWalletName, setNewWalletName] = useState(walletDetails?.name);
   const { t } = useTranslation();
-  const theme = useTheme();
-  const { renameWallet } = useWalletContext();
-  const [cardHovered, setCardHovered] = useState(false);
-  const [, setErrorToastId] = useState('');
+  const { isManageMode } = useAccountManager();
+  const [isHovered, setIsHovered] = useState(false);
 
-  const onSave = useCallback(() => {
-    setIsWalletNameEditing(false);
-
-    if (!newWalletName || newWalletName.trim().length === 0) {
-      setErrorToastId((prevToastId) => {
-        if (prevToastId) {
-          toast.dismiss(prevToastId);
-        }
-        setIsWalletNameEditing(false);
-        return toast.error(t('New Wallet Name is Required'), {
-          duration: 2000,
-        });
-      });
-      return;
-    }
-    renameWallet(walletDetails.id, newWalletName.trim())
-      .then(() => {
-        toast.success(t('Wallet Renamed'));
-      })
-      .catch(() => {
-        toast.error(t('Renaming Failed'));
-      })
-      .finally(() => {
-        setIsWalletNameEditing(false);
-      });
-  }, [newWalletName, renameWallet, t, walletDetails]);
+  const { prompt: promptRename, renderDialog: renameDialog } =
+    useWalletRename(walletDetails);
 
   return (
-    <ClickAwayListener
-      mouseEvent="onMouseDown"
-      onClickAway={() => setIsWalletNameEditing(false)}
+    <Stack
+      sx={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        pl: 2,
+        pr: 1,
+        py: 1,
+        gap: 2,
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <Stack
         sx={{
           gap: 1,
-          px: 2,
           alignItems: 'center',
           flexDirection: 'row',
+          minWidth: 0,
         }}
-        onMouseEnter={() => setCardHovered(true)}
-        onMouseLeave={() => setCardHovered(false)}
-        onClick={() => setIsWalletNameEditing(true)}
       >
         {(walletDetails?.type === SecretType.Ledger ||
           walletDetails?.type == SecretType.LedgerLive) && (
-          <LedgerIcon size={13} />
+          <LedgerIcon size={16} />
         )}
-        {!isWalletNameEditing && (
-          <Typography variant="button">{walletDetails?.name}</Typography>
-        )}
-        {isWalletNameEditing && (
-          <AccountNameInput
-            data-testid="wallet-name-input"
-            defaultValue={walletDetails?.name}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              setNewWalletName(e.target.value);
-            }}
-            onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === 'Enter') {
-                onSave();
-              } else if (e.key === 'Escape') {
-                e.preventDefault();
-                setIsWalletNameEditing(false);
-              }
-            }}
-            typography="button"
-            align="left"
-            autoFocus
-            sx={{
-              boxShadow: `0 0 5px 2px ${theme.palette.grey[500]}`,
-              padding: 0.5,
-              borderRadius: 1,
-              width: 200,
-            }}
+        <OverflowingTypography
+          variant="h6"
+          fontSize={14}
+          fontWeight={600}
+          lineHeight="16px"
+        >
+          {walletDetails?.name ?? name}
+        </OverflowingTypography>
+        <Grow in={isActive} unmountOnExit>
+          <Chip
+            size="small"
+            sx={{ fontSize: 10, height: 16 }}
+            color="success"
+            label={t('Active')}
           />
-        )}
-        {isActive && !isWalletNameEditing && (
-          <Chip size="small" color="success" label={t('Active')} />
-        )}
-        {(cardHovered || isWalletNameEditing) && (
-          <Slide direction="down" {...commonTransitionProps} in>
-            <Stack>
-              <EditIcon
-                size={16}
-                sx={{
-                  cursor: 'pointer',
-                }}
-                onClick={() => setIsWalletNameEditing(true)}
-              />
-            </Stack>
-          </Slide>
+        </Grow>
+        {/* Section for the imported accounts has no WalletDetails, therefore cannot be renamed */}
+        {walletDetails && (
+          <Grow {...commonTransitionProps} in={isHovered && !isManageMode}>
+            <IconButton size="small" onClick={promptRename}>
+              <PencilRoundIcon size={16} />
+            </IconButton>
+          </Grow>
         )}
       </Stack>
-    </ClickAwayListener>
+
+      <Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 0.5 }}>
+        <Typography
+          variant="caption"
+          fontWeight={500}
+          fontSize={14}
+          textAlign="end"
+          color="text.secondary"
+        >
+          {/* TODO: total balance of the entire wallet */}
+        </Typography>
+        <IconButton size="small" onClick={toggle}>
+          <ChevronUpIcon
+            size={16}
+            sx={{
+              transition: 'transform .2s ease-in-out',
+              transform: isExpanded ? 'rotateX(0deg)' : 'rotateX(180deg)',
+            }}
+          />
+        </IconButton>
+      </Stack>
+      {walletDetails && renameDialog()}
+    </Stack>
   );
 }
