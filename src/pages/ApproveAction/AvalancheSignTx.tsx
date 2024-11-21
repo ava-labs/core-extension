@@ -37,6 +37,11 @@ import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
+import { ApproveConvertSubnetToL1 } from './components/ApproveConvertSubnetToL1';
+import { ApproveRegisterL1Validator } from './components/ApproveRegisterL1Validator';
+import { ApproveIncreaseL1ValidatorBalance } from './components/ApproveIncreaseL1ValidatorBalance';
+import { ApproveDisableL1Validator } from './components/ApproveDisableL1Validator';
+import { ApproveSetL1ValidatorWeight } from './components/ApproveSetL1ValidatorWeight';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -136,6 +141,18 @@ export function AvalancheSignTx() {
         return <ImportTxView tx={tx} avaxPrice={tokenPrice}></ImportTxView>;
       } else if (Avalanche.isBaseTx(tx)) {
         return <BaseTxView tx={tx} avaxPrice={tokenPrice}></BaseTxView>;
+      } else if (Avalanche.isConvertSubnetToL1Tx(tx)) {
+        return <ApproveConvertSubnetToL1 tx={tx} avaxPrice={tokenPrice} />;
+      } else if (Avalanche.isRegisterL1ValidatorTx(tx)) {
+        return <ApproveRegisterL1Validator tx={tx} avaxPrice={tokenPrice} />;
+      } else if (Avalanche.isDisableL1ValidatorTx(tx)) {
+        return <ApproveDisableL1Validator tx={tx} avaxPrice={tokenPrice} />;
+      } else if (Avalanche.isSetL1ValidatorWeightTx(tx)) {
+        return <ApproveSetL1ValidatorWeight tx={tx} avaxPrice={tokenPrice} />;
+      } else if (Avalanche.isIncreaseL1ValidatorBalance(tx)) {
+        return (
+          <ApproveIncreaseL1ValidatorBalance tx={tx} avaxPrice={tokenPrice} />
+        );
       } else if (Avalanche.isCreateSubnetTx(tx)) {
         return (
           <ApproveCreateSubnet
