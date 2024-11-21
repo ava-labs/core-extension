@@ -9,7 +9,6 @@ import {
 import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ChainId } from '@avalabs/core-chains-sdk';
 import { networksUpdatedEventListener } from '@src/background/services/network/events/networksUpdatedEventListener';
 import { useAnalyticsContext } from './AnalyticsProvider';
 import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
@@ -29,12 +28,14 @@ import {
   NetworkOverrides,
   NetworkWithCaipId,
 } from '@src/background/services/network/models';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { isNetworkUpdatedEvent } from '@src/background/services/network/events/isNetworkUpdatedEvent';
 import { SetActiveNetworkHandler } from '@src/background/services/network/handlers/setActiveNetwork';
 import { updateIfDifferent } from '@src/utils/updateIfDifferent';
 import { getNetworkCaipId } from '@src/utils/caipConversion';
 import { networkChanged } from './NetworkProvider/networkChanges';
+import { useBitcoinProvider } from '@src/hooks/useBitcoinProvider';
+import { useEthereumProvider } from '@src/hooks/useEthereumProvider';
+import { useAvalancheCProvider } from '@src/hooks/useAvalancheCProvider';
 
 const NetworkContext = createContext<{
   network?: NetworkWithCaipId | undefined;
@@ -53,10 +54,30 @@ const NetworkContext = createContext<{
   isCustomNetwork(chainId: number): boolean;
   isChainIdExist(chainId: number): boolean;
   getNetwork(chainId: number | string): NetworkWithCaipId | undefined;
-  avalancheProvider?: JsonRpcBatchInternal;
+  avaxProviderC?: JsonRpcBatchInternal;
   ethereumProvider?: JsonRpcBatchInternal;
   bitcoinProvider?: BitcoinProvider;
-}>({} as any);
+}>({
+  network: undefined,
+  setNetwork() {},
+  networks: [],
+  setDeveloperMode() {},
+  async saveCustomNetwork() {},
+  async updateDefaultNetwork() {},
+  async removeCustomNetwork() {},
+  isDeveloperMode: false,
+  favoriteNetworks: [],
+  addFavoriteNetwork() {},
+  removeFavoriteNetwork() {},
+  isFavoriteNetwork: () => false,
+  customNetworks: [],
+  isCustomNetwork: () => false,
+  isChainIdExist: () => false,
+  getNetwork: () => undefined,
+  avaxProviderC: undefined,
+  ethereumProvider: undefined,
+  bitcoinProvider: undefined,
+});
 
 /**
  * Network is being saved to chrome storage so we can share it across all contexts. With that when the
@@ -113,45 +134,9 @@ export function NetworkContextProvider({ children }: { children: any }) {
     [networks]
   );
 
-  const avalancheProvider = useMemo(() => {
-    const avaxNetwork = getNetwork(
-      network?.isTestnet
-        ? ChainId.AVALANCHE_TESTNET_ID
-        : ChainId.AVALANCHE_MAINNET_ID
-    );
-
-    if (!avaxNetwork) {
-      return;
-    }
-
-    return getProviderForNetwork(avaxNetwork) as JsonRpcBatchInternal;
-  }, [network?.isTestnet, getNetwork]);
-
-  const ethereumProvider = useMemo(() => {
-    const ethNetwork = getNetwork(
-      network?.isTestnet
-        ? ChainId.ETHEREUM_TEST_SEPOLIA
-        : ChainId.ETHEREUM_HOMESTEAD
-    );
-
-    if (!ethNetwork) {
-      return;
-    }
-
-    return getProviderForNetwork(ethNetwork) as JsonRpcBatchInternal;
-  }, [network?.isTestnet, getNetwork]);
-
-  const bitcoinProvider = useMemo(() => {
-    const btcNetwork = getNetwork(
-      network?.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
-    );
-
-    if (!btcNetwork) {
-      return;
-    }
-
-    return getProviderForNetwork(btcNetwork) as BitcoinProvider;
-  }, [network?.isTestnet, getNetwork]);
+  const bitcoinProvider = useBitcoinProvider(Boolean(network?.isTestnet));
+  const ethereumProvider = useEthereumProvider(Boolean(network?.isTestnet));
+  const avaxProviderC = useAvalancheCProvider(Boolean(network?.isTestnet));
 
   const getNetworkState = useCallback(() => {
     return request<GetNetworksStateHandler>({
@@ -278,7 +263,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
         isCustomNetwork,
         isChainIdExist,
         getNetwork,
-        avalancheProvider,
+        avaxProviderC,
         bitcoinProvider,
         ethereumProvider,
       }}

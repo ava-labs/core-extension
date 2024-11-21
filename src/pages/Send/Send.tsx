@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
@@ -14,7 +14,10 @@ import {
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import {
+  SupportedProvider,
+  getProviderForNetwork,
+} from '@src/utils/network/getProviderForNetwork';
 import {
   Avalanche,
   BitcoinProvider,
@@ -62,10 +65,25 @@ export function SendPage() {
 
   const nativeToken = tokens.find(({ type }) => type === TokenType.NATIVE);
 
-  const provider = useMemo(
-    () => (network ? getProviderForNetwork(network) : undefined),
-    [network]
-  );
+  const [provider, setProvider] = useState<SupportedProvider>();
+
+  useEffect(() => {
+    if (!network) {
+      setProvider(undefined);
+    } else {
+      let isMounted = true;
+
+      getProviderForNetwork(network).then((p) => {
+        if (isMounted) {
+          setProvider(p);
+        }
+      });
+
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [network]);
 
   const fromAddress = useMemo(() => {
     if (network?.vmName === NetworkVMType.EVM) {
@@ -134,10 +152,8 @@ export function SendPage() {
     return <FunctionIsOffline functionName={FunctionNames.SEND} />;
   }
 
-  const isNetworkFeeReady =
-    isPchainNetwork(network) || isXchainNetwork(network)
-      ? !!provider
-      : !!networkFee?.low?.maxFeePerGas;
+  const isNetworkFeeReady = !!networkFee?.low?.maxFeePerGas;
+  const isProviderReady = doesProviderMatchTheNetwork(network, provider);
 
   const isLoading =
     !active ||
@@ -145,7 +161,8 @@ export function SendPage() {
     !fromAddress ||
     !provider ||
     !isNetworkFeeReady ||
-    !nativeToken;
+    !nativeToken ||
+    !isProviderReady;
 
   return (
     <Stack sx={{ width: '100%', height: '100%' }}>
@@ -180,14 +197,14 @@ export function SendPage() {
         />
       )}
       {!isLoading &&
+        networkFee &&
         network.vmName === NetworkVMType.PVM &&
         isPvmCapableAccount(active) && (
           <SendPVM
             network={network}
             fromAddress={fromAddress}
-            maxFee={
-              (provider as Avalanche.JsonRpcProvider).getContext().baseTxFee
-            }
+            maxFee={networkFee.low.maxFeePerGas}
+            networkFee={networkFee}
             nativeToken={nativeToken as TokenWithBalancePVM}
             provider={provider as Avalanche.JsonRpcProvider}
             tokenList={tokens as [TokenWithBalancePVM]}
@@ -218,3 +235,30 @@ export function SendPage() {
     </Stack>
   );
 }
+
+// Helper utility for checking if the provider network & provider match.
+// This is useful, since updates of `network` and `provider` may come
+// in different render runs, in which case we should still wait.
+const doesProviderMatchTheNetwork = (
+  network?: Network,
+  provider?: SupportedProvider
+) => {
+  if (!network || !provider) {
+    return false;
+  }
+
+  switch (network.vmName) {
+    case NetworkVMType.EVM:
+      return provider instanceof JsonRpcBatchInternal;
+
+    case NetworkVMType.AVM:
+    case NetworkVMType.PVM:
+      return provider instanceof Avalanche.JsonRpcProvider;
+
+    case NetworkVMType.BITCOIN:
+      return provider instanceof BitcoinProvider;
+
+    default:
+      return false;
+  }
+};

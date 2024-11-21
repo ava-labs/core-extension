@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
@@ -49,10 +49,25 @@ export function CollectibleSend() {
 
   const nativeToken = tokens.find(({ type }) => type === TokenType.NATIVE);
 
-  const provider = useMemo(
-    () => (network ? getProviderForNetwork(network) : undefined),
-    [network]
-  );
+  const [provider, setProvider] = useState<JsonRpcBatchInternal>();
+
+  useEffect(() => {
+    if (!network) {
+      setProvider(undefined);
+    } else {
+      let isMounted = true;
+
+      getProviderForNetwork(network).then((p) => {
+        if (isMounted && p instanceof JsonRpcBatchInternal) {
+          setProvider(p);
+        }
+      });
+
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [network]);
 
   const fromAddress = useMemo(() => {
     if (network?.vmName === NetworkVMType.EVM) {
