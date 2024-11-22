@@ -1,4 +1,6 @@
 import {
+  Dispatch,
+  SetStateAction,
   createContext,
   useCallback,
   useContext,
@@ -9,6 +11,7 @@ import {
 import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { networksUpdatedEventListener } from '@src/background/services/network/events/networksUpdatedEventListener';
 import { useAnalyticsContext } from './AnalyticsProvider';
 import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
@@ -19,6 +22,7 @@ import { SaveCustomNetworkHandler } from '@src/background/services/network/handl
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
 import {
+  Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
 } from '@avalabs/core-wallets-sdk';
@@ -28,14 +32,12 @@ import {
   NetworkOverrides,
   NetworkWithCaipId,
 } from '@src/background/services/network/models';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { isNetworkUpdatedEvent } from '@src/background/services/network/events/isNetworkUpdatedEvent';
 import { SetActiveNetworkHandler } from '@src/background/services/network/handlers/setActiveNetwork';
 import { updateIfDifferent } from '@src/utils/updateIfDifferent';
 import { getNetworkCaipId } from '@src/utils/caipConversion';
 import { networkChanged } from './NetworkProvider/networkChanges';
-import { useBitcoinProvider } from '@src/hooks/useBitcoinProvider';
-import { useEthereumProvider } from '@src/hooks/useEthereumProvider';
-import { useAvalancheCProvider } from '@src/hooks/useAvalancheCProvider';
 
 const NetworkContext = createContext<{
   network?: NetworkWithCaipId | undefined;
@@ -55,6 +57,7 @@ const NetworkContext = createContext<{
   isChainIdExist(chainId: number): boolean;
   getNetwork(chainId: number | string): NetworkWithCaipId | undefined;
   avaxProviderC?: JsonRpcBatchInternal;
+  avaxProviderP?: Avalanche.JsonRpcProvider;
   ethereumProvider?: JsonRpcBatchInternal;
   bitcoinProvider?: BitcoinProvider;
 }>({
@@ -134,9 +137,63 @@ export function NetworkContextProvider({ children }: { children: any }) {
     [networks]
   );
 
-  const bitcoinProvider = useBitcoinProvider(Boolean(network?.isTestnet));
-  const ethereumProvider = useEthereumProvider(Boolean(network?.isTestnet));
-  const avaxProviderC = useAvalancheCProvider(Boolean(network?.isTestnet));
+  const [bitcoinProvider, setBitcoinProvider] = useState<BitcoinProvider>();
+  const [ethereumProvider, setEthereumProvider] =
+    useState<JsonRpcBatchInternal>();
+  const [avaxProviderC, setAvaxProviderC] = useState<JsonRpcBatchInternal>();
+
+  useEffect(() => {
+    if (!network) {
+      setBitcoinProvider(undefined);
+      setEthereumProvider(undefined);
+      setAvaxProviderC(undefined);
+      return;
+    }
+
+    let isMounted = true;
+
+    const avaxNetworkC = getNetwork(
+      network.isTestnet
+        ? ChainId.AVALANCHE_TESTNET_ID
+        : ChainId.AVALANCHE_MAINNET_ID
+    );
+    const ethNetwork = getNetwork(
+      network.isTestnet
+        ? ChainId.ETHEREUM_TEST_SEPOLIA
+        : ChainId.ETHEREUM_HOMESTEAD
+    );
+    const btcNetwork = getNetwork(
+      network.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
+    );
+
+    function updateIfMounted(setter: Dispatch<SetStateAction<any>>) {
+      return (p) => {
+        if (isMounted) {
+          setter(p);
+        }
+      };
+    }
+
+    if (avaxNetworkC) {
+      getProviderForNetwork(avaxNetworkC).then(
+        updateIfMounted(setAvaxProviderC)
+      );
+    }
+    if (ethNetwork) {
+      getProviderForNetwork(ethNetwork).then(
+        updateIfMounted(setEthereumProvider)
+      );
+    }
+    if (btcNetwork) {
+      getProviderForNetwork(btcNetwork).then(
+        updateIfMounted(setBitcoinProvider)
+      );
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [getNetwork, network]);
 
   const getNetworkState = useCallback(() => {
     return request<GetNetworksStateHandler>({

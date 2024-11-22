@@ -136,7 +136,7 @@ const formatGasPrice = (value: bigint, decimals: number): string => {
     return wholes;
   }
 
-  return formatted;
+  return fraction.length > 2 ? Number(formatted).toFixed(2) : formatted;
 };
 
 export const getGasFeeToDisplay = (fee: string, networkFee: NetworkFee) => {
