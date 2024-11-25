@@ -388,7 +388,8 @@ export function SwapContextProvider({ children }: { children: any }) {
                 params: [
                   {
                     chainId: ChainId.AVALANCHE_MAINNET_ID.toString(),
-                    gasLimit: String(approveGasLimit || gasLimit),
+                    gas:
+                      '0x' + Number(approveGasLimit || gasLimit).toString(16),
                     data,
                     from: activeAccount.addressC,
                     to: srcTokenAddress,
@@ -455,7 +456,7 @@ export function SwapContextProvider({ children }: { children: any }) {
           params: [
             {
               chainId: ChainId.AVALANCHE_MAINNET_ID.toString(),
-              gasLimit: String(txBuildData.gas),
+              gas: '0x' + Number(txBuildData.gas).toString(16),
               data: txBuildData.data,
               to: txBuildData.to,
               from: activeAccount.addressC,
