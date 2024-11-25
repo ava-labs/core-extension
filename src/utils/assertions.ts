@@ -39,3 +39,14 @@ export function assertTrue(condition: unknown): asserts condition is true {
     });
   }
 }
+
+export function assert(
+  value: unknown,
+  reason?: ErrorCode
+): asserts value is NonNullable<unknown> {
+  if (!value) {
+    throw ethErrors.rpc.internal({
+      data: { reason: reason ?? CommonError.Unknown },
+    });
+  }
+}

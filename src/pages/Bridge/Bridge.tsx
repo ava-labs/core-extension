@@ -90,6 +90,7 @@ export function Bridge() {
   const bridgePageHistoryData: {
     selectedToken?: string;
     inputAmount?: string;
+    isLoading: boolean;
   } = getPageHistoryData();
 
   useEffect(() => {

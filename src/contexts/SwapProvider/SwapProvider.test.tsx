@@ -98,7 +98,7 @@ describe('contexts/SwapProvider', () => {
         symbol: 'AVAX',
       },
     },
-    avalancheProvider: {
+    avaxProviderC: {
       waitForTransaction: jest.fn(),
     },
   } as any;
@@ -339,7 +339,7 @@ describe('contexts/SwapProvider', () => {
       } as SwapParams);
 
     beforeEach(() => {
-      networkContext.avalancheProvider.waitForTransaction.mockResolvedValue({
+      networkContext.avaxProviderC.waitForTransaction.mockResolvedValue({
         status: 1,
       });
     });

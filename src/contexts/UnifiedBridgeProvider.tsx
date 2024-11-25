@@ -25,7 +25,6 @@ import {
   BridgeInitializer,
   GasSettings,
 } from '@avalabs/bridge-unified';
-import { ethErrors } from 'eth-rpc-errors';
 import { filter, map } from 'rxjs';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
@@ -39,19 +38,21 @@ import { isUnifiedBridgeStateUpdate } from '@src/background/services/unifiedBrid
 
 import { useNetworkContext } from './NetworkProvider';
 import { useConnectionContext } from './ConnectionProvider';
-import { CommonError, ErrorCode } from '@src/utils/errors';
+import { CommonError } from '@src/utils/errors';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { useAccountsContext } from './AccountsProvider';
-import { JsonRpcApiProvider } from 'ethers';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { lowerCaseKeys } from '@src/utils/lowerCaseKeys';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { isBitcoinCaipId } from '@src/utils/caipConversion';
 import { Account } from '@src/background/services/accounts/models';
 import { getEnabledBridgeTypes } from '@src/utils/getEnabledBridgeTypes';
+import {
+  SupportedProvider,
+  getProviderForNetwork,
+} from '@src/utils/network/getProviderForNetwork';
+import { assert } from '@src/utils/assertions';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(
@@ -112,17 +113,6 @@ const DEFAULT_STATE = {
 };
 
 const UnifiedBridgeContext = createContext<UnifiedBridgeContext>(DEFAULT_STATE);
-
-function assert(
-  value: unknown,
-  reason?: ErrorCode
-): asserts value is NonNullable<unknown> {
-  if (!value) {
-    throw ethErrors.rpc.internal({
-      data: { reason: reason ?? CommonError.Unknown },
-    });
-  }
-}
 
 export function UnifiedBridgeProvider({
   children,
@@ -442,25 +432,24 @@ export function UnifiedBridgeProvider({
   );
 
   const buildParams = useCallback(
-    (
+    async (
       targetChainId: string
-    ): {
+    ): Promise<{
       sourceChain: Chain;
       sourceChainId: string;
       targetChain: Chain;
-      provider: JsonRpcApiProvider;
+      provider: SupportedProvider;
       fromAddress: string;
       toAddress: string;
-    } => {
+    }> => {
+      assert(activeAccount, CommonError.NoActiveAccount);
       assert(activeNetwork, CommonError.NoActiveNetwork);
       assert(activeAccount, CommonError.NoActiveAccount);
 
       const sourceChain = buildChain(activeNetwork.caipId);
       const targetChain = buildChain(targetChainId);
 
-      const provider = getProviderForNetwork(
-        activeNetwork
-      ) as JsonRpcBatchInternal;
+      const provider = await getProviderForNetwork(activeNetwork);
 
       const { fromAddress, toAddress } = getAddresses(
         activeAccount,
@@ -524,8 +513,9 @@ export function UnifiedBridgeProvider({
 
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
-      const { fromAddress, sourceChain, targetChain } =
-        buildParams(targetChainId);
+      const { fromAddress, sourceChain, targetChain } = await buildParams(
+        targetChainId
+      );
 
       const gasLimit = await core.estimateGas({
         asset,
@@ -582,7 +572,7 @@ export function UnifiedBridgeProvider({
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
       const { fromAddress, toAddress, sourceChain, targetChain } =
-        buildParams(targetChainId);
+        await buildParams(targetChainId);
 
       const bridgeTransfer = await core.transferAsset({
         asset,

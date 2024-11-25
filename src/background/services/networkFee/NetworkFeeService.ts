@@ -12,12 +12,10 @@ export class NetworkFeeService {
 
   async getNetworkFee(network: NetworkWithCaipId): Promise<NetworkFee | null> {
     const module = await this.moduleManager.loadModuleByNetwork(network);
-    const displayDecimals = network.vmName === NetworkVMType.BITCOIN ? 0 : 9;
-
     const fees = await module.getNetworkFee(network);
     return {
       ...fees,
-      displayDecimals: fees.displayDecimals || displayDecimals,
+      displayDecimals: fees.displayDecimals ?? 0,
     };
   }
 
@@ -32,7 +30,7 @@ export class NetworkFeeService {
       return null;
     }
 
-    const provider = getProviderForNetwork(network);
+    const provider = await getProviderForNetwork(network);
     const nonce = await (provider as JsonRpcBatchInternal).getTransactionCount(
       from
     );

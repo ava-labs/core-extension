@@ -9,6 +9,7 @@ import {
   TokenWithBalanceERC20,
   TokenWithBalancePVM,
 } from '@avalabs/vm-module-types';
+import { NetworkFee } from '@src/background/services/networkFee/models';
 
 export type SendPageProps<Provider, Token, Tokens> = {
   network: Network;
@@ -35,6 +36,7 @@ export type SendPagePropsWithWalletPVM<Provider, Token, Tokens> = SendPageProps<
   Tokens
 > & {
   account: PvmCapableAccount;
+  networkFee: NetworkFee;
 };
 
 export type SendPagePropsWithWalletAVM<Provider, Token, Tokens> = SendPageProps<
@@ -60,6 +62,7 @@ export type AVMSendOptions = BaseSendOptions & {
 
 export type PVMSendOptions = BaseSendOptions & {
   token: TokenWithBalancePVM;
+  gasPrice?: bigint;
 };
 
 export type Erc20SendOptions = BaseSendOptions & {
