@@ -485,6 +485,16 @@ describe('contexts/SwapProvider', () => {
       };
 
       beforeEach(() => {
+        jest.spyOn(global, 'fetch').mockResolvedValue({
+          json: jest.fn().mockResolvedValue({
+            data: 'data',
+            to: '0xParaswapContractAddress',
+            from: '0x123',
+            value: '0x0',
+            chainId: 123,
+          }),
+        } as any);
+
         allowanceMock = jest.fn().mockResolvedValue(0);
         requestMock = jest.fn().mockResolvedValue('0xALLOWANCE_HASH');
 
@@ -528,6 +538,10 @@ describe('contexts/SwapProvider', () => {
         json: jest.fn().mockResolvedValue({
           data: 'data',
           to: '0xParaswapContractAddress',
+          from: '0x123',
+          value: '0x0',
+          chainId: 123,
+          someExtraParam: '123',
         }),
       } as any);
 
@@ -585,12 +599,120 @@ describe('contexts/SwapProvider', () => {
       );
     });
 
+    it('verifies Paraswap API response for correct parameters', async () => {
+      const requestMock = jest.fn();
+
+      jest.spyOn(global, 'fetch').mockResolvedValue({
+        json: jest.fn().mockResolvedValue({
+          data: '',
+          to: '',
+          from: '0x123',
+          value: '0x0',
+          chainId: 123,
+        }),
+      } as any);
+
+      jest.mocked(Contract).mockReturnValueOnce({
+        allowance: jest.fn().mockResolvedValue(Infinity),
+      } as any);
+
+      jest.mocked(useConnectionContext).mockReturnValue({
+        request: requestMock.mockResolvedValue('0xSwapHash'),
+        events: jest.fn(),
+      } as any);
+
+      const { swap } = getSwapProvider();
+
+      const {
+        destAmount,
+        destDecimals,
+        destToken,
+        srcAmount,
+        srcDecimals,
+        srcToken,
+        priceRoute,
+        gasLimit,
+        slippage,
+      } = getSwapParams();
+
+      await expect(
+        swap({
+          srcToken,
+          srcDecimals,
+          srcAmount,
+          destToken,
+          destDecimals,
+          destAmount,
+          gasLimit,
+          priceRoute,
+          slippage,
+        })
+      ).rejects.toThrow('Data Error: Error: Invalid transaction params');
+    });
+
+    it('handles Paraswap API error responses', async () => {
+      const requestMock = jest.fn();
+
+      jest.spyOn(global, 'fetch').mockResolvedValue({
+        json: jest
+          .fn()
+          .mockResolvedValue({ message: 'Some API error happened' }),
+      } as any);
+
+      jest.mocked(Contract).mockReturnValueOnce({
+        allowance: jest.fn().mockResolvedValue(Infinity),
+      } as any);
+
+      jest.mocked(useConnectionContext).mockReturnValue({
+        request: requestMock.mockResolvedValue('0xSwapHash'),
+        events: jest.fn(),
+      } as any);
+
+      const { swap } = getSwapProvider();
+
+      const {
+        destAmount,
+        destDecimals,
+        destToken,
+        srcAmount,
+        srcDecimals,
+        srcToken,
+        priceRoute,
+        gasLimit,
+        slippage,
+      } = getSwapParams();
+
+      await expect(
+        swap({
+          srcToken,
+          srcDecimals,
+          srcAmount,
+          destToken,
+          destDecimals,
+          destAmount,
+          gasLimit,
+          priceRoute,
+          slippage,
+        })
+      ).rejects.toThrow('Data Error: Error: Some API error happened');
+    });
+
     describe('when everything goes right', () => {
       let allowanceMock;
       let requestMock;
 
       beforeEach(() => {
         allowanceMock = jest.fn().mockResolvedValue(0);
+
+        jest.spyOn(global, 'fetch').mockResolvedValue({
+          json: async () => ({
+            data: 'data',
+            to: '0xParaswapContractAddress',
+            from: '0x123',
+            value: '0x0',
+            chainId: 123,
+          }),
+        } as any);
 
         requestMock = jest
           .fn()

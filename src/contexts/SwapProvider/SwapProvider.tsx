@@ -37,6 +37,8 @@ import {
   hasParaswapError,
   DISALLOWED_SWAP_ASSETS,
 } from './models';
+import Joi from 'joi';
+import { isAPIError } from '@src/pages/Swap/utils';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -198,6 +200,16 @@ export function SwapContextProvider({ children }: { children: any }) {
         throw new Error(`Feature (SWAP) is currently unavailable`);
       }
 
+      const responseSchema = Joi.object({
+        to: Joi.string().required(),
+        from: Joi.string().required(),
+        value: Joi.string().required(),
+        data: Joi.string().required(),
+        chainId: Joi.number().required(),
+        gas: Joi.string().optional(),
+        gasPrice: Joi.string().optional(),
+      }).unknown();
+
       const query = new URLSearchParams(options as Record<string, string>);
       const txURL = `${
         (paraswap as any).apiURL
@@ -226,7 +238,20 @@ export function SwapContextProvider({ children }: { children: any }) {
         },
         body: JSON.stringify(txConfig),
       });
-      return await response.json();
+      const transactionParamsOrError: Transaction | APIError =
+        await response.json();
+      const validationResult = responseSchema.validate(
+        transactionParamsOrError
+      );
+
+      if (validationResult.error) {
+        if (isAPIError(transactionParamsOrError)) {
+          throw new Error(transactionParamsOrError.message);
+        }
+        throw new Error('Invalid transaction params');
+      }
+
+      return transactionParamsOrError;
     },
     [featureFlags, paraswap]
   );
