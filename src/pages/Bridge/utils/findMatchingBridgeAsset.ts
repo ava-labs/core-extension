@@ -15,7 +15,7 @@ export const findMatchingBridgeAsset = (
 ): BridgeAsset | undefined => {
   return assets.find((a) => {
     if (a.type === BridgeTokenType.NATIVE && token.type === TokenType.NATIVE) {
-      return a.symbol.toLowerCase() === a.symbol.toLowerCase();
+      return a.symbol.toLowerCase() === token.symbol.toLowerCase();
     }
 
     if (a.type === BridgeTokenType.ERC20 && token.type === TokenType.ERC20) {
