@@ -231,12 +231,12 @@ export function Accounts() {
         )}
         {!isManageMode && (
           <AccountsActionButton
-            disabled={addAccountLoading}
-            isButtonDisabled={!canCreateAccount}
-            onAddNewAccount={addAccountAndFocus}
-            disabledButtonTooltipText={
+            isLoading={addAccountLoading}
+            canCreateAccount={canCreateAccount}
+            createAccountTooltip={
               canCreateAccount ? '' : t('Please select a wallet')
             }
+            onAddNewAccount={addAccountAndFocus}
           />
         )}
       </Stack>
