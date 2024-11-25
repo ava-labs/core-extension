@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { PropsWithChildren, useMemo, useRef, useState } from 'react';
 import {
   Typography,
   Button,
@@ -35,10 +35,17 @@ type SendFormProps = {
   onSend(): void;
 };
 
-const errorsToExcludeForTokenSelect: string[] = [
+const generalErrors: string[] = [
   SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE,
+  SendErrorMessage.EXCESSIVE_NETWORK_FEE,
+  SendErrorMessage.INVALID_NETWORK_FEE,
+  SendErrorMessage.UNABLE_TO_FETCH_UTXOS,
+];
+
+const errorsToExcludeForTokenSelect: string[] = [
   SendErrorMessage.ADDRESS_REQUIRED,
   SendErrorMessage.INVALID_ADDRESS,
+  ...generalErrors,
 ];
 
 export const SendForm = ({
@@ -55,7 +62,8 @@ export const SendForm = ({
   onTokenChanged,
   onSend,
   tokenList,
-}: SendFormProps) => {
+  children,
+}: PropsWithChildren<SendFormProps>) => {
   const { t } = useTranslation();
   const identifyAddress = useIdentifyAddress();
   const contact = useMemo(
@@ -131,6 +139,14 @@ export const SendForm = ({
               setIsOpen={(open) => setIsTokenSelectOpen(open)}
             />
           </Stack>
+          {children}
+          {error && generalErrors.includes(error) && (
+            <Stack sx={{ py: 0, px: 2, mt: 2, width: '100%' }}>
+              <Typography variant="caption" color="error.main">
+                {getSendErrorMessage(error)}
+              </Typography>
+            </Stack>
+          )}
         </Stack>
       </Scrollbars>
       {!isContactsOpen && !isTokenSelectOpen && (

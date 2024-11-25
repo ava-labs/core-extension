@@ -7,6 +7,7 @@ import {
   AVM,
   utils,
   EVM,
+  PVM,
 } from '@avalabs/avalanchejs';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { Action } from '../../actions/models';
@@ -309,6 +310,40 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           checkExpected(requestWithUtxos, result, tx);
         });
 
+        it('passes feeTolerance to the parsing util', async () => {
+          const tx = { vm: PVM };
+          (utils.unpackWithManager as jest.Mock).mockReturnValueOnce(tx);
+          getAddressesByIndicesMock.mockResolvedValue([]);
+          (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
+            type: 'import',
+          });
+          (utils.parse as jest.Mock).mockReturnValueOnce([
+            undefined,
+            undefined,
+            new Uint8Array([0, 1, 2]),
+          ]);
+          (
+            Avalanche.createAvalancheUnsignedTx as jest.Mock
+          ).mockReturnValueOnce(unsignedTxMock);
+
+          await handler.handleAuthenticated(
+            buildRpcCall({
+              ...request,
+              params: {
+                ...request.params,
+                feeTolerance: 25,
+              },
+            })
+          );
+
+          expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
+            unsignedTxMock,
+            providerMock,
+            expect.anything(),
+            { feeTolerance: 25 }
+          );
+        });
+
         it('works without provided UTXOs', async () => {
           const tx = { vm: AVM };
           (utils.unpackWithManager as jest.Mock).mockReturnValueOnce(tx);
@@ -333,7 +368,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
             transactionHex: request.params.transactionHex,
             chainAlias: request.params.chainAlias,
-            isTestnet: true,
+            network: 'mainnet',
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
             headers: HEADERS,
@@ -414,7 +449,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
             transactionHex: request.params.transactionHex,
             chainAlias: request.params.chainAlias,
-            isTestnet: true,
+            network: 'mainnet',
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
             headers: HEADERS,

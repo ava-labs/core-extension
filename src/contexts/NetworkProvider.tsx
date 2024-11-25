@@ -1,4 +1,6 @@
 import {
+  Dispatch,
+  SetStateAction,
   createContext,
   useCallback,
   useContext,
@@ -20,6 +22,7 @@ import { SaveCustomNetworkHandler } from '@src/background/services/network/handl
 import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
 import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
 import {
+  Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
 } from '@avalabs/core-wallets-sdk';
@@ -53,10 +56,31 @@ const NetworkContext = createContext<{
   isCustomNetwork(chainId: number): boolean;
   isChainIdExist(chainId: number): boolean;
   getNetwork(chainId: number | string): NetworkWithCaipId | undefined;
-  avalancheProvider?: JsonRpcBatchInternal;
+  avaxProviderC?: JsonRpcBatchInternal;
+  avaxProviderP?: Avalanche.JsonRpcProvider;
   ethereumProvider?: JsonRpcBatchInternal;
   bitcoinProvider?: BitcoinProvider;
-}>({} as any);
+}>({
+  network: undefined,
+  setNetwork() {},
+  networks: [],
+  setDeveloperMode() {},
+  async saveCustomNetwork() {},
+  async updateDefaultNetwork() {},
+  async removeCustomNetwork() {},
+  isDeveloperMode: false,
+  favoriteNetworks: [],
+  addFavoriteNetwork() {},
+  removeFavoriteNetwork() {},
+  isFavoriteNetwork: () => false,
+  customNetworks: [],
+  isCustomNetwork: () => false,
+  isChainIdExist: () => false,
+  getNetwork: () => undefined,
+  avaxProviderC: undefined,
+  ethereumProvider: undefined,
+  bitcoinProvider: undefined,
+});
 
 /**
  * Network is being saved to chrome storage so we can share it across all contexts. With that when the
@@ -113,45 +137,63 @@ export function NetworkContextProvider({ children }: { children: any }) {
     [networks]
   );
 
-  const avalancheProvider = useMemo(() => {
-    const avaxNetwork = getNetwork(
-      network?.isTestnet
+  const [bitcoinProvider, setBitcoinProvider] = useState<BitcoinProvider>();
+  const [ethereumProvider, setEthereumProvider] =
+    useState<JsonRpcBatchInternal>();
+  const [avaxProviderC, setAvaxProviderC] = useState<JsonRpcBatchInternal>();
+
+  useEffect(() => {
+    if (!network) {
+      setBitcoinProvider(undefined);
+      setEthereumProvider(undefined);
+      setAvaxProviderC(undefined);
+      return;
+    }
+
+    let isMounted = true;
+
+    const avaxNetworkC = getNetwork(
+      network.isTestnet
         ? ChainId.AVALANCHE_TESTNET_ID
         : ChainId.AVALANCHE_MAINNET_ID
     );
-
-    if (!avaxNetwork) {
-      return;
-    }
-
-    return getProviderForNetwork(avaxNetwork) as JsonRpcBatchInternal;
-  }, [network?.isTestnet, getNetwork]);
-
-  const ethereumProvider = useMemo(() => {
     const ethNetwork = getNetwork(
-      network?.isTestnet
+      network.isTestnet
         ? ChainId.ETHEREUM_TEST_SEPOLIA
         : ChainId.ETHEREUM_HOMESTEAD
     );
-
-    if (!ethNetwork) {
-      return;
-    }
-
-    return getProviderForNetwork(ethNetwork) as JsonRpcBatchInternal;
-  }, [network?.isTestnet, getNetwork]);
-
-  const bitcoinProvider = useMemo(() => {
     const btcNetwork = getNetwork(
-      network?.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
+      network.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
     );
 
-    if (!btcNetwork) {
-      return;
+    function updateIfMounted(setter: Dispatch<SetStateAction<any>>) {
+      return (p) => {
+        if (isMounted) {
+          setter(p);
+        }
+      };
     }
 
-    return getProviderForNetwork(btcNetwork) as BitcoinProvider;
-  }, [network?.isTestnet, getNetwork]);
+    if (avaxNetworkC) {
+      getProviderForNetwork(avaxNetworkC).then(
+        updateIfMounted(setAvaxProviderC)
+      );
+    }
+    if (ethNetwork) {
+      getProviderForNetwork(ethNetwork).then(
+        updateIfMounted(setEthereumProvider)
+      );
+    }
+    if (btcNetwork) {
+      getProviderForNetwork(btcNetwork).then(
+        updateIfMounted(setBitcoinProvider)
+      );
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [getNetwork, network]);
 
   const getNetworkState = useCallback(() => {
     return request<GetNetworksStateHandler>({
@@ -278,7 +320,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
         isCustomNetwork,
         isChainIdExist,
         getNetwork,
-        avalancheProvider,
+        avaxProviderC,
         bitcoinProvider,
         ethereumProvider,
       }}

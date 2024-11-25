@@ -18,6 +18,7 @@ import {
   NetworkWithCaipId,
 } from './models';
 import {
+  AVALANCHE_P_DEV_NETWORK,
   AVALANCHE_XP_NETWORK,
   AVALANCHE_XP_TEST_NETWORK,
   BITCOIN_NETWORK,
@@ -52,6 +53,7 @@ import {
   decorateWithCaipId,
 } from '@src/utils/caipConversion';
 import { getSyncDomain, isSyncDomain } from './utils/getSyncDomain';
+import { isDevnet } from '@src/utils/isDevnet';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -375,6 +377,9 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     return networkList;
   }
+  private _getPchainDevnet(): Network {
+    return decorateWithCaipId(AVALANCHE_P_DEV_NETWORK);
+  }
 
   private _getPchainNetwork(isTestnet: boolean): Network {
     const network = isTestnet
@@ -403,6 +408,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     const network = isTestnet
       ? AVALANCHE_XP_TEST_NETWORK
       : AVALANCHE_XP_NETWORK;
+
     return decorateWithCaipId({
       ...network,
       chainId: isTestnet ? ChainId.AVALANCHE_TEST_X : ChainId.AVALANCHE_X,
@@ -443,6 +449,7 @@ export class NetworkService implements OnLock, OnStorageReady {
           [ChainId.AVALANCHE_P]: this._getPchainNetwork(false),
           [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork(true),
           [ChainId.AVALANCHE_X]: this._getXchainNetwork(false),
+          [ChainId.AVALANCHE_DEVNET_P]: this._getPchainDevnet(),
         };
       } else {
         attempt += 1;
@@ -479,7 +486,13 @@ export class NetworkService implements OnLock, OnStorageReady {
    * Returns the network object for Avalanche X/P Chains
    */
   getAvalancheNetworkXP() {
-    return this._getXchainNetwork(!this.isMainnet());
+    // TODO(@meeh0w): clean up after E-upgrade activation on Fuji
+    const isDevnetActive =
+      this.uiActiveNetwork && isDevnet(this.uiActiveNetwork);
+
+    return isDevnetActive
+      ? this._getPchainDevnet()
+      : this._getXchainNetwork(!this.isMainnet());
   }
 
   async getAvalancheNetwork() {
@@ -498,16 +511,16 @@ export class NetworkService implements OnLock, OnStorageReady {
    */
   async getAvalancheProvider(): Promise<JsonRpcBatchInternal> {
     const network = await this.getAvalancheNetwork();
-    return getProviderForNetwork(network) as JsonRpcBatchInternal;
+    return (await getProviderForNetwork(network)) as JsonRpcBatchInternal;
   }
 
   /**
    * Returns the provider used by Avalanche X/P/CoreEth chains.
    */
-  getAvalanceProviderXP(): Avalanche.JsonRpcProvider {
-    return getProviderForNetwork(
+  async getAvalanceProviderXP(): Promise<Avalanche.JsonRpcProvider> {
+    return (await getProviderForNetwork(
       this.getAvalancheNetworkXP()
-    ) as Avalanche.JsonRpcProvider;
+    )) as Avalanche.JsonRpcProvider;
   }
 
   async getEthereumNetwork(): Promise<Network> {
@@ -521,7 +534,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async getEthereumProvider() {
     const network = await this.getEthereumNetwork();
-    return getProviderForNetwork(network) as JsonRpcBatchInternal;
+    return (await getProviderForNetwork(network)) as JsonRpcBatchInternal;
   }
 
   async getBitcoinNetwork(): Promise<NetworkWithCaipId> {
@@ -535,7 +548,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async getBitcoinProvider(): Promise<BitcoinProvider> {
     const network = await this.getBitcoinNetwork();
-    return getProviderForNetwork(network) as BitcoinProvider;
+    return (await getProviderForNetwork(network)) as BitcoinProvider;
   }
 
   /**
@@ -553,7 +566,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       return txHash;
     }
 
-    const provider = getProviderForNetwork(network);
+    const provider = await getProviderForNetwork(network);
     if (provider instanceof JsonRpcBatchInternal) {
       return (await provider.broadcastTransaction(signedTx)).hash;
     }
