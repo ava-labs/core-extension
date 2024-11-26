@@ -81,6 +81,14 @@ export const ExistingWalletOptions = forwardRef(function ExistingWalletOptions(
                   history.push(OnboardingURLs.KEYSTONE_USB);
                 }}
               />
+              <ExistingWalletButton
+                data-testid="access-with-keystone-usb"
+                icon={<KeystoneIcon size={30} />}
+                text={t('Add using Keystone Usb')}
+                onClick={() => {
+                  history.push(OnboardingURLs.KEYSTONE_USB);
+                }}
+              />
             </Stack>
           )}
         </Stack>

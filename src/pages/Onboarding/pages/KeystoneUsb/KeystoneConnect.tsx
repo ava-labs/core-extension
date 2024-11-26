@@ -57,8 +57,6 @@ export function KeystoneConnect() {
   const [step, setStep] = useState<KeystoneConnectStep>(
     KeystoneConnectStep.CONNECT_DEVICE
   );
-  // const [step1Complete, setStep1Complete] = useState<boolean>(false);
-  // const [step2Complete, setStep2Complete] = useState<boolean>(false);
 
   useEffect(() => {
     setOnboardingPhase(OnboardingPhase.KEYSTONE);
@@ -89,7 +87,6 @@ export function KeystoneConnect() {
     setXpubXP(data.xpubXP);
     setPublicKeys(data.publicKeys);
     setHasPublicKeys(data.hasPublicKeys);
-    // history.push(OnboardingURLs.CREATE_PASSWORD);
   };
 
   const onTroubleshoot = () => {
