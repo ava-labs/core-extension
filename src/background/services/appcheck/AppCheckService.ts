@@ -3,7 +3,6 @@ import { FirebaseApp, initializeApp } from 'firebase/app';
 import { getToken } from 'firebase/messaging';
 import {
   AppCheck,
-  AppCheckToken,
   CustomProvider,
   initializeAppCheck,
   setTokenAutoRefreshEnabled,
@@ -39,7 +38,6 @@ type AppCheckRegistrationChallenge = {
 export class AppCheckService implements OnUnlock, OnLock {
   #app: FirebaseApp;
   #appCheck: AppCheck | undefined;
-  #appCheckToken: AppCheckToken | undefined;
   #fcmToken: string | undefined;
   #unsubscribe: Unsubscribe | undefined;
   #lastChallengeRequest:
@@ -65,136 +63,131 @@ export class AppCheckService implements OnUnlock, OnLock {
       getMessaging(this.#app),
       this.#handleMessage.bind(this)
     );
-  }
 
-  async onUnlock(): Promise<void> {
-    if (!this.#app) {
-      return;
-    }
+    globalThis.addEventListener('activate', async () => {
+      this.#fcmToken = await getToken(getMessaging(this.#app), {
+        serviceWorkerRegistration: globalThis.registration,
+      });
 
-    this.#fcmToken = await getToken(getMessaging(this.#app), {
-      serviceWorkerRegistration: globalThis.registration,
-    });
+      this.#appCheck = initializeAppCheck(this.#app, {
+        provider: new CustomProvider({
+          getToken: async () => {
+            let timer: NodeJS.Timer;
 
-    this.#appCheck = initializeAppCheck(this.#app, {
-      provider: new CustomProvider({
-        getToken: async () => {
-          let timer;
-          console.log('getToken');
-
-          if (!this.#fcmToken) {
-            throw new Error('fcm token is missing');
-          }
-
-          this.#lastChallengeRequest = { id: crypto.randomUUID() };
-
-          console.log(`generated request ID`, this.#lastChallengeRequest);
-
-          const registerResponse = await fetch(
-            'http://localhost:3000/v1/ext/register',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                token: this.#fcmToken,
-                requestId: this.#lastChallengeRequest.id,
-              }),
+            if (!this.#fcmToken) {
+              throw new Error('fcm token is missing');
             }
-          );
 
-          console.log({ registerResponse });
+            this.#lastChallengeRequest = { id: crypto.randomUUID() };
 
-          if (!registerResponse.ok) {
-            this.#lastChallengeRequest = undefined;
+            console.log(`generated request ID`, this.#lastChallengeRequest);
 
-            throw new Error(
-              `error during appcheck registration: ${registerResponse.statusText}`
-            );
-          }
-
-          console.log(
-            `registered for appcheck token challenge`,
-            this.#lastChallengeRequest
-          );
-
-          const promise = () =>
-            new Promise<undefined>((res, rej) => {
-              let attempts = 10;
-
-              timer = setInterval(() => {
-                console.log(`waiting for challenge... attempt: ${attempts}`);
-                attempts--;
-
-                if (
-                  this.#lastChallengeRequest?.registrationId &&
-                  this.#lastChallengeRequest.solution
-                ) {
-                  console.log(
-                    `challenge received: ${JSON.stringify(
-                      this.#lastChallengeRequest
-                    )}`
-                  );
-                  res(undefined);
-                } else if (attempts < 1) {
-                  rej('timeout');
-                }
-              }, 500);
-            });
-
-          try {
-            await promise().finally(() => clearInterval(timer));
-
-            const appCheckTokenResponse = await fetch(
-              'http://localhost:3000/v1/ext/verify',
+            const registerResponse = await fetch(
+              'http://localhost:3000/v1/ext/register',
               {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  registrationId: this.#lastChallengeRequest?.registrationId,
-                  solution: this.#lastChallengeRequest?.solution,
+                  token: this.#fcmToken,
+                  requestId: this.#lastChallengeRequest.id,
                 }),
               }
             );
 
-            if (!appCheckTokenResponse.ok) {
+            console.log({ registerResponse });
+
+            if (!registerResponse.ok) {
               this.#lastChallengeRequest = undefined;
 
               throw new Error(
-                `error during appcheck challenge verification: ${registerResponse.statusText}`
+                `error during appcheck registration: ${registerResponse.statusText}`
               );
             }
 
-            const appCheckToken = await appCheckTokenResponse.json();
+            console.log(
+              `registered for appcheck token challenge`,
+              this.#lastChallengeRequest
+            );
 
-            console.log(appCheckToken);
+            const promise = () =>
+              new Promise<undefined>((res, rej) => {
+                let attempts = 10;
 
-            return {
-              token: appCheckToken.token,
-              expireTimeMillis: appCheckToken.exp,
-            };
-          } catch (err) {
-            console.log(`failed to get token: ${(err as Error).message}`);
-            this.#lastChallengeRequest = undefined;
-            throw err;
-          }
-        },
-      }),
-      isTokenAutoRefreshEnabled: true,
+                timer = setInterval(() => {
+                  console.log(`waiting for challenge... attempt: ${attempts}`);
+                  attempts--;
+
+                  if (
+                    this.#lastChallengeRequest?.registrationId &&
+                    this.#lastChallengeRequest.solution
+                  ) {
+                    console.log(
+                      `challenge received: ${JSON.stringify(
+                        this.#lastChallengeRequest
+                      )}`
+                    );
+                    res(undefined);
+                  } else if (attempts < 1) {
+                    rej('timeout');
+                  }
+                }, 500);
+              });
+
+            try {
+              await promise().finally(() => clearInterval(timer));
+
+              const appCheckTokenResponse = await fetch(
+                'http://localhost:3000/v1/ext/verify',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    registrationId: this.#lastChallengeRequest?.registrationId,
+                    solution: this.#lastChallengeRequest?.solution,
+                  }),
+                }
+              );
+
+              if (!appCheckTokenResponse.ok) {
+                this.#lastChallengeRequest = undefined;
+
+                throw new Error(
+                  `error during appcheck challenge verification: ${registerResponse.statusText}`
+                );
+              }
+
+              const appCheckToken = await appCheckTokenResponse.json();
+
+              return {
+                token: appCheckToken.token,
+                expireTimeMillis: appCheckToken.exp,
+              };
+            } catch (err) {
+              console.log(`failed to get token: ${(err as Error).message}`);
+              this.#lastChallengeRequest = undefined;
+              throw err;
+            }
+          },
+        }),
+        isTokenAutoRefreshEnabled: true,
+      });
     });
+  }
 
-    console.log(await getAppCheckToken(this.#appCheck));
+  async onUnlock(): Promise<void> {
+    if (!this.#appCheck) {
+      return;
+    }
+
+    console.log(await getAppCheckToken(this.#appCheck, true));
   }
 
   onLock(): void {
     this.#unsubscribe?.();
-
-    if (this.#appCheck) {
-      setTokenAutoRefreshEnabled(this.#appCheck, false);
-    }
   }
 
   #handleMessage(payload: MessagePayload) {
