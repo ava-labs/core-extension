@@ -25,6 +25,7 @@ import { chainIdToCaip } from '@src/utils/caipConversion';
 import { CommonError } from '@src/utils/errors';
 import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
 import { RpcMethod } from '@avalabs/vm-module-types';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
 
@@ -163,7 +164,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
     });
 
     // Mock state initialization response
-    requestFn.mockResolvedValueOnce({
+    requestFn.mockResolvedValue({
       pendingTransfers: {},
       addresses: [],
     });
@@ -179,6 +180,54 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
     await waitFor(() =>
       expect(provider.current?.transferableAssets).toEqual([avaxUSDC])
+    );
+  });
+
+  it('does not initialize with dev environment when not in testnet mode', async () => {
+    jest.mocked(useNetworkContext).mockReturnValue({
+      ...networkContext,
+      network: {
+        ...avalanche,
+        isTestnet: false,
+      },
+    });
+
+    requestFn.mockImplementation(async (params) => {
+      if (params.method === ExtensionRequest.BRIDGE_GET_STATE) {
+        return { isDevEnv: true };
+      }
+    });
+
+    getBridgeProvider();
+
+    await waitFor(() =>
+      expect(createUnifiedBridgeService).toHaveBeenCalledWith(
+        matchingPayload({ environment: Environment.PROD })
+      )
+    );
+  });
+
+  it('initializes with dev environment when needed', async () => {
+    jest.mocked(useNetworkContext).mockReturnValue({
+      ...networkContext,
+      network: {
+        ...avalanche,
+        isTestnet: true,
+      },
+    });
+
+    requestFn.mockImplementation(async (params) => {
+      if (params.method === ExtensionRequest.BRIDGE_GET_STATE) {
+        return { isDevEnv: true };
+      }
+    });
+
+    getBridgeProvider();
+
+    await waitFor(() =>
+      expect(createUnifiedBridgeService).toHaveBeenCalledWith(
+        matchingPayload({ environment: Environment.DEV })
+      )
     );
   });
 

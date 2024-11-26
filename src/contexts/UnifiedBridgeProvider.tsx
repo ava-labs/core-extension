@@ -53,6 +53,8 @@ import {
   getProviderForNetwork,
 } from '@src/utils/network/getProviderForNetwork';
 import { assert } from '@src/utils/assertions';
+import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
+import { isBridgeStateUpdateEventListener } from '@src/background/services/bridge/events/listeners';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(
@@ -140,6 +142,7 @@ export function UnifiedBridgeProvider({
   const [state, setState] = useState<UnifiedBridgeState>(
     UNIFIED_BRIDGE_DEFAULT_STATE
   );
+  const [isBridgeDevEnv, setIsBridgeDevEnv] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
   const enabledBridgeTypes = useMemo(
     () => getEnabledBridgeTypes(featureFlags),
@@ -151,8 +154,12 @@ export function UnifiedBridgeProvider({
       return null;
     }
 
-    return activeNetwork.isTestnet ? Environment.TEST : Environment.PROD;
-  }, [activeNetwork?.isTestnet]);
+    return isBridgeDevEnv
+      ? Environment.DEV
+      : activeNetwork.isTestnet
+      ? Environment.TEST
+      : Environment.PROD;
+  }, [activeNetwork?.isTestnet, isBridgeDevEnv]);
 
   const [activeBridgeTypes, setActiveBridgeTypes] =
     useState<BridgeServicesMap>();
@@ -245,6 +252,34 @@ export function UnifiedBridgeProvider({
     }),
     [request, t]
   );
+
+  useEffect(() => {
+    if (!events || !request) {
+      return;
+    }
+
+    if (!activeNetwork?.isTestnet) {
+      setIsBridgeDevEnv(false);
+      return;
+    }
+
+    request<BridgeGetStateHandler>({
+      method: ExtensionRequest.BRIDGE_GET_STATE,
+    }).then((bridgeState) => {
+      setIsBridgeDevEnv(bridgeState.isDevEnv);
+    });
+
+    const subscription = events()
+      .pipe(
+        filter(isBridgeStateUpdateEventListener),
+        map((evt) => evt.value)
+      )
+      .subscribe((bridgeState) => {
+        setIsBridgeDevEnv(bridgeState.isDevEnv);
+      });
+
+    return () => subscription.unsubscribe();
+  }, [events, request, activeNetwork?.isTestnet]);
 
   const getInitializerForBridgeType = useCallback(
     (
