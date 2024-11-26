@@ -306,7 +306,7 @@ export function AddWalletWithLedger() {
                 <LedgerConnector
                   onSuccess={onSuccess}
                   onTroubleshoot={() => setStep(Step.Troubleshoot)}
-                  checkWalletExists
+                  isWalletExist
                 />
               </Stack>
               <Stack sx={{ p: 2, mb: 2, rowGap: 1 }}>

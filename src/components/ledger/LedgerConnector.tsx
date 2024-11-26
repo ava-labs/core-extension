@@ -50,13 +50,13 @@ export interface LedgerConnectorData {
 interface LedgerConnectorProps {
   onSuccess: (data: LedgerConnectorData) => void;
   onTroubleshoot: () => void;
-  checkWalletExists?: boolean;
+  isWalletExist?: boolean;
 }
 
 export function LedgerConnector({
   onSuccess,
   onTroubleshoot,
-  checkWalletExists,
+  isWalletExist,
 }: LedgerConnectorProps) {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
@@ -116,7 +116,7 @@ export function LedgerConnector({
     [capture, getAvaxBalance]
   );
 
-  const checkLedgerWalletIsExist = useCallback(
+  const isLedgerWalletExist = useCallback(
     async ({ xpub, xpubXP, publicKeys, derivationPath }) => {
       setIsLedgerExistsError(false);
       try {
@@ -144,8 +144,8 @@ export function LedgerConnector({
       const xpubXPValue = await getExtendedPublicKey(
         Avalanche.LedgerWallet.getAccountPath('X')
       );
-      if (checkWalletExists) {
-        await checkLedgerWalletIsExist({
+      if (isWalletExist) {
+        await isLedgerWalletExist({
           xpub: xpubValue,
           xpubXP: xpubXPValue,
           publicKeys: undefined,
@@ -169,8 +169,8 @@ export function LedgerConnector({
     }
   }, [
     capture,
-    checkLedgerWalletIsExist,
-    checkWalletExists,
+    isLedgerWalletExist,
+    isWalletExist,
     getAddressFromXpubKey,
     getExtendedPublicKey,
     onSuccess,
@@ -225,8 +225,8 @@ export function LedgerConnector({
             ...pubKeys,
             { evm: pubKey.toString('hex'), xp: pubKeyXP.toString('hex') },
           ];
-          if (checkWalletExists) {
-            await checkLedgerWalletIsExist({
+          if (isWalletExist) {
+            await isLedgerWalletExist({
               xpub: '',
               xpubXP: '',
               publicKeys: publicKeyValue,
@@ -250,8 +250,8 @@ export function LedgerConnector({
     },
     [
       capture,
-      checkLedgerWalletIsExist,
-      checkWalletExists,
+      isLedgerWalletExist,
+      isWalletExist,
       getAvaxBalance,
       getPublicKey,
       onSuccess,
