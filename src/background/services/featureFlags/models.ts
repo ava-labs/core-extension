@@ -13,6 +13,7 @@ export enum FeatureGates {
   BUY_MOONPAY = 'buy-feature-moonpay',
   BUY_COINBASE = 'buy-feature-coinbase',
   KEYSTONE = 'keystone',
+  KEYSTONE_USB = 'keystone-usb',
   NFT_MARKETPLACE = 'nft-marketplace',
   BOTTOM_NAVIGATION = 'bottom-navigation',
   DEFI = 'defi-feature',
