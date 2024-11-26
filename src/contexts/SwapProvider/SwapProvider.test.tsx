@@ -481,6 +481,7 @@ describe('contexts/SwapProvider', () => {
       let requestMock;
 
       const mockedTx = {
+        gas: '0x2710', // 10000n
         data: 'approval-tx-data',
       };
 
@@ -491,6 +492,7 @@ describe('contexts/SwapProvider', () => {
             to: '0xParaswapContractAddress',
             from: '0x123',
             value: '0x0',
+            gas: '1223',
             chainId: 123,
           }),
         } as any);

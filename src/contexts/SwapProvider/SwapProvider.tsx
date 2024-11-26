@@ -244,7 +244,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         transactionParamsOrError
       );
 
-      if (validationResult.error) {
+      if (!response.ok || validationResult.error) {
         if (isAPIError(transactionParamsOrError)) {
           throw new Error(transactionParamsOrError.message);
         }
