@@ -168,7 +168,7 @@ export const BridgeForm = ({
   const errorTooltipContent = useMemo(() => {
     if (!hasEnoughForNetworkFee) {
       return t(
-        'Insufficient balance to cover gas costs. <br />Please add {{token}}.',
+        'Insufficient balance to cover gas costs. Please add {{token}} or slightly lower the amount.',
         {
           token: gasToken,
         }

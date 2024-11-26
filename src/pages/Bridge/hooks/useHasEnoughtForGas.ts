@@ -34,7 +34,7 @@ export const useHasEnoughForGas = (
 
     // check if balance > gasPrice
     if (balance && estimatedGasCost) {
-      setHasEnough(balance > sendAmount + estimatedGasCost);
+      setHasEnough(balance >= sendAmount + estimatedGasCost);
     }
   }, [tokens, feeRate, sendAmount, gasLimit]);
 

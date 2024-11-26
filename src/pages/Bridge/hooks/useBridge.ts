@@ -50,6 +50,7 @@ export function useBridge(): Bridge {
     isReady,
     transferableAssets,
     transferAsset,
+    getMinimumTransferAmount,
   } = useUnifiedBridgeContext();
   const [amount, setAmount] = useState<bigint>();
   const [asset, setAsset] = useState<BridgeAsset>();
@@ -106,6 +107,10 @@ export function useBridge(): Bridge {
   }, [asset?.destinations]);
 
   useEffect(() => {
+    setMaximum(sourceBalance?.balance);
+  }, [sourceBalance?.balance]);
+
+  useEffect(() => {
     let isMounted = true;
 
     if (asset && amount && targetChain) {
@@ -115,17 +120,30 @@ export function useBridge(): Bridge {
         }
 
         setBridgeFee(fee);
-        setMinimum(fee);
         setReceiveAmount(amount - fee);
       });
 
-      setMaximum(sourceBalance?.balance);
+      getMinimumTransferAmount(asset, amount, targetChain.caipId).then(
+        (min) => {
+          if (!isMounted) {
+            return;
+          }
+          setMinimum(min);
+        }
+      );
     }
 
     return () => {
       isMounted = false;
     };
-  }, [amount, asset, getFee, targetChain, sourceBalance?.balance]);
+  }, [
+    amount,
+    asset,
+    getFee,
+    targetChain,
+    sourceBalance?.balance,
+    getMinimumTransferAmount,
+  ]);
 
   const estimateGas = useCallback(async () => {
     if (!asset?.symbol || !amount || !targetChain?.caipId) {

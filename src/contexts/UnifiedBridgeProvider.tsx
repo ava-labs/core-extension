@@ -78,6 +78,11 @@ export interface UnifiedBridgeContext {
     gasSettings?: GasSettings
   ): Promise<any>;
   getErrorMessage(errorCode: UnifiedBridgeErrorCode): string;
+  getMinimumTransferAmount(
+    asset: BridgeAsset,
+    amount: bigint,
+    targetChainId: string
+  ): Promise<bigint>;
   transferableAssets: BridgeAsset[];
   state: UnifiedBridgeState;
   availableChainIds: string[];
@@ -105,6 +110,9 @@ const DEFAULT_STATE = {
     throw new Error('Bridge not ready');
   },
   getFee() {
+    throw new Error('Bridge not ready');
+  },
+  getMinimumTransferAmount() {
     throw new Error('Bridge not ready');
   },
   transferableAssets: [],
@@ -622,6 +630,21 @@ export function UnifiedBridgeProvider({
     [core]
   );
 
+  const getMinimumTransferAmount = useCallback(
+    async (asset: BridgeAsset, amount: bigint, targetChainId: string) => {
+      assert(core, CommonError.Unknown);
+      assert(activeNetwork, CommonError.NoActiveNetwork);
+
+      return core.getMinimumTransferAmount({
+        asset,
+        amount,
+        sourceChain: buildChain(activeNetwork.caipId),
+        targetChain: buildChain(targetChainId),
+      });
+    },
+    [core, buildChain, activeNetwork]
+  );
+
   return (
     <UnifiedBridgeContext.Provider
       value={{
@@ -632,6 +655,7 @@ export function UnifiedBridgeProvider({
         state,
         analyzeTx,
         getAssetIdentifierOnTargetChain,
+        getMinimumTransferAmount,
         getFee,
         supportsAsset,
         transferAsset,
