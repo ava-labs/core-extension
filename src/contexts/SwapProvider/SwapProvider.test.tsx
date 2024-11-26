@@ -77,7 +77,7 @@ jest.mock('react-i18next', () => ({
 
 jest.mock('ethers');
 
-describe('contexts/SwapProvider', () => {
+describe.only('contexts/SwapProvider', () => {
   const connectionContext = {
     request: jest.fn(),
     events: jest.fn(),
@@ -108,6 +108,7 @@ describe('contexts/SwapProvider', () => {
 
     jest.spyOn(global, 'fetch').mockResolvedValue({
       json: async () => ({}),
+      ok: true,
     } as any);
 
     jest.mocked(useConnectionContext).mockReturnValue(connectionContext);
@@ -279,6 +280,7 @@ describe('contexts/SwapProvider', () => {
           json: () => ({
             error: 'Invalid tokens',
           }),
+          ok: true,
         } as any);
       });
 
@@ -301,6 +303,7 @@ describe('contexts/SwapProvider', () => {
             destAmount: 1000,
           },
         }),
+        ok: true,
       } as any);
 
       const { getRate } = getSwapProvider();
@@ -495,6 +498,7 @@ describe('contexts/SwapProvider', () => {
             gas: '1223',
             chainId: 123,
           }),
+          ok: true,
         } as any);
 
         allowanceMock = jest.fn().mockResolvedValue(0);
@@ -545,6 +549,7 @@ describe('contexts/SwapProvider', () => {
           chainId: 123,
           someExtraParam: '123',
         }),
+        ok: true,
       } as any);
 
       jest.mocked(Contract).mockReturnValueOnce({
@@ -612,6 +617,7 @@ describe('contexts/SwapProvider', () => {
           value: '0x0',
           chainId: 123,
         }),
+        ok: true,
       } as any);
 
       jest.mocked(Contract).mockReturnValueOnce({
@@ -659,6 +665,7 @@ describe('contexts/SwapProvider', () => {
         json: jest
           .fn()
           .mockResolvedValue({ message: 'Some API error happened' }),
+        ok: true,
       } as any);
 
       jest.mocked(Contract).mockReturnValueOnce({
@@ -699,6 +706,58 @@ describe('contexts/SwapProvider', () => {
       ).rejects.toThrow('Data Error: Error: Some API error happened');
     });
 
+    it('handles API HTTP errors', async () => {
+      const requestMock = jest.fn();
+
+      jest.spyOn(global, 'fetch').mockResolvedValue({
+        json: jest.fn().mockResolvedValue({
+          data: 'data',
+          to: '0xParaswapContractAddress',
+          from: '0x123',
+          value: '0x0',
+          chainId: 123,
+        }),
+        ok: false,
+      } as any);
+
+      jest.mocked(Contract).mockReturnValueOnce({
+        allowance: jest.fn().mockResolvedValue(Infinity),
+      } as any);
+
+      jest.mocked(useConnectionContext).mockReturnValue({
+        request: requestMock.mockResolvedValue('0xSwapHash'),
+        events: jest.fn(),
+      } as any);
+
+      const { swap } = getSwapProvider();
+
+      const {
+        destAmount,
+        destDecimals,
+        destToken,
+        srcAmount,
+        srcDecimals,
+        srcToken,
+        priceRoute,
+        gasLimit,
+        slippage,
+      } = getSwapParams();
+
+      await expect(
+        swap({
+          srcToken,
+          srcDecimals,
+          srcAmount,
+          destToken,
+          destDecimals,
+          destAmount,
+          gasLimit,
+          priceRoute,
+          slippage,
+        })
+      ).rejects.toThrow('Data Error: Error: Invalid transaction params');
+    });
+
     describe('when everything goes right', () => {
       let allowanceMock;
       let requestMock;
@@ -714,6 +773,7 @@ describe('contexts/SwapProvider', () => {
             value: '0x0',
             chainId: 123,
           }),
+          ok: true,
         } as any);
 
         requestMock = jest
