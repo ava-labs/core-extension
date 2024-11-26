@@ -15,6 +15,7 @@ module.exports = {
     '^.+\\.(js|jsx)$': 'babel-jest',
   },
   transformIgnorePatterns: [`/node_modules/(?!micro-eth-signer)`],
+  modulePathIgnorePatterns: ['<rootDir>/dist/'],
   globals: {
     EVM_PROVIDER_INFO_NAME: 'EVM_PROVIDER_INFO_NAME',
     EVM_PROVIDER_INFO_UUID: 'EVM_PROVIDER_INFO_UUID',
