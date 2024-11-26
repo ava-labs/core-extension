@@ -73,11 +73,13 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
     const { result } = await handle({
       secretType: SecretType.Ledger,
       xpub: 'xpubValue',
-      onlyCheckWalletIsExist: true,
+      name: 'name',
+      dryRun: true,
     });
 
     expect(result).toEqual({
       id: '0',
+      name: 'name',
       type: SecretType.Ledger,
     });
   });

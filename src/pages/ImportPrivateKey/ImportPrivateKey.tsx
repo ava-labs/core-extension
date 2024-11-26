@@ -70,8 +70,6 @@ export function ImportPrivateKey() {
     [allAccounts]
   );
 
-  console.log('allAccounts: ', allAccounts);
-
   const isLoading = hasFocus && !derivedAddresses && !error;
 
   const handleImport = async () => {
