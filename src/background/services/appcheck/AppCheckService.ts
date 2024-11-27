@@ -1,26 +1,24 @@
-import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import {
   AppCheck,
   CustomProvider,
+  getToken,
   initializeAppCheck,
-  getToken as getAppCheckToken,
 } from 'firebase/app-check';
 import { MessagePayload } from 'firebase/messaging/sw';
 import { singleton } from 'tsyringe';
 import { FirebaseService } from '../firebase/FirebaseService';
 import { FcmMessageEvents, FirebaseEvents } from '../firebase/models';
-import { AppCheckRegistrationChallenge } from './models';
+import { AppCheckRegistrationChallenge, ChallengeRequest } from './models';
+import registerForChallenge from './utils/registerForChallenge';
+import verifyChallenge from './utils/verifyChallenge';
+
+const WAIT_FOR_CHALLENGE_ATTEMPT_COUNT = 10;
+const WAIT_FOR_CHALLENGE_DELAY_MS = 500;
 
 @singleton()
-export class AppCheckService implements OnUnlock {
-  #appCheck: AppCheck | undefined;
-  #lastChallengeRequest:
-    | {
-        id: string;
-        registrationId?: string;
-        solution?: string;
-      }
-    | undefined;
+export class AppCheckService {
+  #appCheck?: AppCheck;
+  #lastChallengeRequest?: ChallengeRequest;
 
   constructor(private firebaseService: FirebaseService) {}
 
@@ -36,102 +34,66 @@ export class AppCheckService implements OnUnlock {
     );
   }
 
-  async onUnlock(): Promise<void> {
+  async getAppcheckToken(forceRefresh = false) {
     if (!this.#appCheck) {
       return;
     }
 
-    await getAppCheckToken(this.#appCheck, true);
+    return getToken(this.#appCheck, forceRefresh);
   }
 
-  #setupAppcheck(): void {
+  #setupAppcheck() {
     this.#appCheck = initializeAppCheck(this.firebaseService.getFirebaseApp(), {
       provider: new CustomProvider({
         getToken: async () => {
-          console.log(`getToken started at ${new Date()}`);
-          let timer: NodeJS.Timer;
+          const fcmToken = this.firebaseService.getFcmToken();
 
-          if (!this.firebaseService.getFcmToken()) {
+          if (!fcmToken) {
             throw new Error('fcm token is missing');
           }
 
           this.#lastChallengeRequest = { id: crypto.randomUUID() };
 
-          const registerResponse = await fetch(
-            'http://localhost:3000/v1/ext/register',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                token: this.firebaseService.getFcmToken(),
-                requestId: this.#lastChallengeRequest.id,
-              }),
-            }
-          );
+          const waitForChallenge = () =>
+            new Promise<{ registrationId: string; solution: string }>(
+              (res, rej) => {
+                let attempts = WAIT_FOR_CHALLENGE_ATTEMPT_COUNT;
 
-          if (!registerResponse.ok) {
-            this.#lastChallengeRequest = undefined;
+                const timer = setInterval(() => {
+                  const registrationId =
+                    this.#lastChallengeRequest?.registrationId;
+                  const solution = this.#lastChallengeRequest?.solution;
 
-            throw new Error(
-              `error during appcheck registration: ${registerResponse.statusText}`
-            );
-          }
+                  attempts--;
 
-          const promise = () =>
-            new Promise<undefined>((res, rej) => {
-              let attempts = 10;
-
-              timer = setInterval(() => {
-                attempts--;
-
-                if (
-                  this.#lastChallengeRequest?.registrationId &&
-                  this.#lastChallengeRequest.solution
-                ) {
-                  res(undefined);
-                } else if (attempts < 1) {
-                  rej('timeout');
-                }
-              }, 500);
-            });
-
-          try {
-            await promise().finally(() => clearInterval(timer));
-
-            const appCheckTokenResponse = await fetch(
-              'http://localhost:3000/v1/ext/verify',
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  registrationId: this.#lastChallengeRequest?.registrationId,
-                  solution: this.#lastChallengeRequest?.solution,
-                }),
+                  if (registrationId && solution) {
+                    clearInterval(timer);
+                    res({ registrationId, solution });
+                  } else if (attempts < 1) {
+                    clearInterval(timer);
+                    rej('timeout');
+                  }
+                }, WAIT_FOR_CHALLENGE_DELAY_MS);
               }
             );
 
-            if (!appCheckTokenResponse.ok) {
-              this.#lastChallengeRequest = undefined;
+          try {
+            await registerForChallenge({
+              token: fcmToken,
+              requestId: this.#lastChallengeRequest.id,
+            });
 
-              throw new Error(
-                `error during appcheck challenge verification: ${registerResponse.statusText}`
-              );
-            }
-
-            const appCheckToken = await appCheckTokenResponse.json();
-
-            console.log(`getToken finished at ${new Date()}`, appCheckToken);
+            const { registrationId, solution } = await waitForChallenge();
+            const { token, exp: expireTimeMillis } = await verifyChallenge({
+              registrationId,
+              solution,
+            });
 
             return {
-              token: appCheckToken.token,
-              expireTimeMillis: appCheckToken.exp,
+              token,
+              expireTimeMillis,
             };
           } catch (err) {
-            console.log(`failed to get token: ${(err as Error).message}`);
             this.#lastChallengeRequest = undefined;
             throw err;
           }
@@ -145,7 +107,7 @@ export class AppCheckService implements OnUnlock {
     const event = payload.data?.event;
 
     if (event !== FcmMessageEvents.ID_CHALLENGE) {
-      throw new Error(`Unsupported event provided: "${event}"`);
+      throw new Error(`Unsupported event: "${event}"`);
     }
 
     return this.#handleIdChallenge(payload);
@@ -155,7 +117,6 @@ export class AppCheckService implements OnUnlock {
     const challenge = payload.data as AppCheckRegistrationChallenge;
 
     if (challenge.requestId !== this.#lastChallengeRequest?.id) {
-      console.log('incorrect request ID');
       return;
     }
 

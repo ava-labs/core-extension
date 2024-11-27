@@ -15,7 +15,7 @@ declare const globalThis: ServiceWorkerGlobalScope;
 @singleton()
 export class FirebaseService implements OnLock {
   #app: FirebaseApp;
-  #fcmToken: string | undefined;
+  #fcmToken?: string;
   #fcmUnsubscriber: Unsubscribe;
   #firebaseEventEmitter = new EventEmitter();
   #fcmMessageEventEmitter = new EventEmitter();
@@ -45,7 +45,7 @@ export class FirebaseService implements OnLock {
     });
   }
 
-  onLock(): void {
+  onLock() {
     this.#fcmUnsubscriber?.();
     this.#firebaseEventEmitter.removeAllListeners();
     this.#fcmMessageEventEmitter.removeAllListeners();
