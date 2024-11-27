@@ -18,7 +18,7 @@ export function AccountItemChip({ account, isActive }: AccountItemChipProps) {
   const { t } = useTranslation();
   const { type: accountType } = account;
 
-  const fontColor = isActive ? 'white' : 'default';
+  const fontColor = isActive ? 'white' : 'inherit';
 
   const icon = useMemo(() => {
     switch (accountType) {
@@ -64,7 +64,7 @@ export function AccountItemChip({ account, isActive }: AccountItemChipProps) {
       sx={{
         fontWeight: isActive ? '600' : 'normal',
         color: fontColor,
-        backgroundColor: isActive ? 'grey.400' : 'default',
+        backgroundColor: isActive ? 'grey.400' : 'rgba(255, 255, 255, 0.16)',
       }}
     />
   );
