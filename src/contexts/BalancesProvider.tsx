@@ -167,8 +167,6 @@ export function BalancesProvider({ children }: { children: any }) {
   });
 
   const [subscribers, setSubscribers] = useState<BalanceSubscribers>({});
-  const [isPolling, setIsPolling] = useState(false);
-
   const polledChainIds = useMemo(
     () => favoriteNetworks.map(({ chainId }) => chainId),
     [favoriteNetworks]
@@ -236,11 +234,11 @@ export function BalancesProvider({ children }: { children: any }) {
       return;
     }
 
-    if (isPolling) {
-      const tokenTypes = Object.entries(subscribers)
-        .filter(([, subscriberCount]) => subscriberCount > 0)
-        .map(([tokenType]) => tokenType as TokenType);
+    const tokenTypes = Object.entries(subscribers)
+      .filter(([, subscriberCount]) => subscriberCount > 0)
+      .map(([tokenType]) => tokenType as TokenType);
 
+    if (tokenTypes.length > 0) {
       request<StartBalancesPollingHandler>({
         method: ExtensionRequest.BALANCES_START_POLLING,
         params: [activeAccount, polledChainIds, tokenTypes],
@@ -250,6 +248,10 @@ export function BalancesProvider({ children }: { children: any }) {
           payload: balancesData,
         });
       });
+    } else {
+      request<StopBalancesPollingHandler>({
+        method: ExtensionRequest.BALANCES_STOP_POLLING,
+      });
     }
 
     return () => {
@@ -257,19 +259,7 @@ export function BalancesProvider({ children }: { children: any }) {
         method: ExtensionRequest.BALANCES_STOP_POLLING,
       });
     };
-  }, [
-    request,
-    isPolling,
-    activeAccount,
-    network?.chainId,
-    polledChainIds,
-    subscribers,
-  ]);
-
-  useEffect(() => {
-    // Toggle balance polling based on the amount of dependent components.
-    setIsPolling(Object.values(subscribers).some((count) => count > 0));
-  }, [subscribers]);
+  }, [request, activeAccount, network?.chainId, polledChainIds, subscribers]);
 
   const updateBalanceOnNetworks = useCallback(
     async (accounts: Account[], chainIds?: number[]) => {

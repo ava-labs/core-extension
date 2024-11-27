@@ -12,7 +12,6 @@ import {
 } from '@avalabs/core-k2-components';
 import { t } from 'i18next';
 import { useHistory } from 'react-router-dom';
-import { TokenType } from '@avalabs/vm-module-types';
 
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
@@ -20,7 +19,6 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/components/LedgerApprovalDialog';
 
 import { AccountType } from '@src/background/services/accounts/models';
-import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { useScopedToast } from '@src/hooks/useScopedToast';
 import { NetworkSwitcher } from '@src/components/common/header/NetworkSwitcher';
 import { Overlay } from '@src/components/common/Overlay';
@@ -35,8 +33,6 @@ import { AccountListPrimary } from './components/AccountListPrimary';
 import { AccountListImported } from './components/AccountListImported';
 import { AccountsActionButton } from './components/AccountsActionButton';
 import { OverflowingTypography } from './components/OverflowingTypography';
-
-const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
 export function Accounts() {
   const {
@@ -63,8 +59,6 @@ export function Accounts() {
     () => (active?.addressC ? getTotalBalance(active.addressC) : null),
     [active?.addressC, getTotalBalance]
   );
-
-  useLiveBalance(POLLED_BALANCES);
 
   const addAccountAndFocus = async () => {
     setAddAccountLoading(true);

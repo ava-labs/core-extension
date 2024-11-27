@@ -7,8 +7,8 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isImportedAccount } from '@src/background/services/accounts/utils/typeGuards';
 
 import { SelectionMode } from '../providers/AccountManagerProvider';
-import WalletHeaderNew from './WalletHeader';
 import { AccountItem } from './AccountItem';
+import WalletHeader from './WalletHeader';
 
 type AccountListProps = {
   accounts: Account[];
@@ -22,8 +22,9 @@ export const AccountListImported = ({ accounts }: AccountListProps) => {
 
   return (
     <Stack sx={{ pt: 0.75, width: 1 }}>
-      <WalletHeaderNew
+      <WalletHeader
         name={t('Imported')}
+        isLoading={false} // TODO
         isActive={isImportedAccount(active)}
         isExpanded={isExpanded}
         toggle={() => setIsExpanded((e) => !e)}
