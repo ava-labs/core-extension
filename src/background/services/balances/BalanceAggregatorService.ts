@@ -143,6 +143,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       for (const [chainId, chainBalances] of freshData) {
         for (const [address, addressBalance] of Object.entries(chainBalances)) {
           aggregatedBalances[chainId] = {
+            ...aggregatedBalances[chainId],
             ...chainBalances,
             [address]: addressBalance,
           };
