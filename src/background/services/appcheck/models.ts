@@ -6,6 +6,8 @@ export type ChallengeRequest = {
   solution?: string;
 };
 
+export type ChallengeSolver = (details: string) => string | Promise<string>;
+
 export enum ChallengeTypes {
   BASIC = 'BASIC',
 }

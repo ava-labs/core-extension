@@ -11,6 +11,7 @@ import { FcmMessageEvents, FirebaseEvents } from '../firebase/models';
 import { AppCheckRegistrationChallenge, ChallengeRequest } from './models';
 import registerForChallenge from './utils/registerForChallenge';
 import verifyChallenge from './utils/verifyChallenge';
+import solveChallenge from './utils/solveChallenge';
 
 const WAIT_FOR_CHALLENGE_ATTEMPT_COUNT = 10;
 const WAIT_FOR_CHALLENGE_DELAY_MS = 500;
@@ -113,7 +114,7 @@ export class AppCheckService {
     return this.#handleIdChallenge(payload);
   }
 
-  #handleIdChallenge(payload: MessagePayload) {
+  async #handleIdChallenge(payload: MessagePayload) {
     const challenge = payload.data as AppCheckRegistrationChallenge;
 
     if (challenge.requestId !== this.#lastChallengeRequest?.id) {
@@ -121,6 +122,9 @@ export class AppCheckService {
     }
 
     this.#lastChallengeRequest.registrationId = challenge.registrationId;
-    this.#lastChallengeRequest.solution = JSON.parse(challenge.details).token;
+    this.#lastChallengeRequest.solution = await solveChallenge({
+      type: challenge.type,
+      challengeDetails: challenge.details,
+    });
   }
 }
