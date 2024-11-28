@@ -145,7 +145,6 @@ export function KeystoneConnector({
       if (!derivationPathSpec) {
         return;
       }
-      console.log('getDerivationPathValue: ', derivationPathSpec, pathSpec);
       await initKeystoneTransport();
     },
     [initKeystoneTransport]
@@ -163,6 +162,7 @@ export function KeystoneConnector({
       pubKeys: PubKeyType[] = []
     ) => {
       try {
+        console.log('accountIndex', accountIndex);
         const pubKey = await getPublicKey(accountIndex, derivationPathSpec);
         const pubKeyXP = await getPublicKey(
           accountIndex,
@@ -208,25 +208,28 @@ export function KeystoneConnector({
   );
 
   const tryPublicKey = useCallback(async () => {
+    console.error('trying public key');
     capture('OnboardingLedgerRetry');
     setPublicKeyState(KeystoneStatus.KEYSTONE_LOADING);
     setDropdownDisabled(true);
-
     if (!hasLedgerTransport) {
+      console.error('no transport');
       // make sure we have a transport
       await initKeystoneTransport();
+    } else {
+      console.error('has transport');
     }
     if (pathSpec === DerivationPath.BIP44) {
       await getXPublicKey();
       setDropdownDisabled(false);
       return;
     }
-    if (pathSpec === DerivationPath.LedgerLive) {
-      setAddresses([]);
-      await getPubKeys(pathSpec);
-      setDropdownDisabled(false);
-      return;
-    }
+    // if (pathSpec === DerivationPath.LedgerLive) {
+    //   setAddresses([]);
+    //   await getPubKeys(pathSpec);
+    //   setDropdownDisabled(false);
+    //   return;
+    // }
   }, [
     capture,
     getPubKeys,

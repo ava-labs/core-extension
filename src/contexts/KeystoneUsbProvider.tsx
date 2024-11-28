@@ -9,10 +9,12 @@ import {
 import { useConnectionContext } from './ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
-import {
-  createKeystoneTransport,
-  TransportWebUSB,
-} from '@keystonehq/hw-transport-webusb';
+import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
+import Base from '@keystonehq/hw-app-base';
+import KeystoneSDK, {
+  Curve,
+  DerivationAlgorithm,
+} from '@keystonehq/keystone-sdk';
 import { resolve } from '@src/utils/promiseResolver';
 import {
   delay,
@@ -24,7 +26,7 @@ import {
   tap,
   map,
 } from 'rxjs';
-import { getLedgerTransport } from '@src/contexts/utils/getLedgerTransport';
+import { getKeystoneTransport } from '@src/contexts/utils/getKeystoneTransport';
 import AppAvalanche from '@avalabs/hw-app-avalanche';
 import {
   AppClient as Btc,
@@ -197,7 +199,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
     };
   }, [request]);
 
-  const initLedgerApp = useCallback(
+  const initKeystoneApp = useCallback(
     async (transport?: Transport | null): Promise<Btc | AppAvalanche | Eth> => {
       if (!transport) {
         throw new Error('Ledger not connected');
@@ -229,6 +231,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
 
       // check if btc app is selected
       const btcAppInstance = new Btc(transport);
+      console.error('btcAppInstance', btcAppInstance);
 
       if (btcAppInstance) {
         const appInfo = await getLedgerAppInfo(transport);
@@ -248,6 +251,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
   );
 
   useEffect(() => {
+    console.error('initialized changed:', initialized);
     const subscription = of([initialized])
       .pipe(
         filter(([isInitialized]) => !!isInitialized),
@@ -257,10 +261,10 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
             params: [],
           })
         ),
-        switchMap(() => getLedgerTransport()),
+        switchMap(() => getKeystoneTransport()),
         switchMap((transport) => {
           transportRef.current = transport;
-          return initLedgerApp(transport);
+          return initKeystoneApp(transport);
         }),
         tap(() => {
           setWasTransportAttempted(true);
@@ -290,7 +294,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [initialized, initLedgerApp, request]);
+  }, [initialized, initKeystoneApp, request]);
 
   /**
    * Get the extended public key for the given path (m/44'/60'/0' by default)
@@ -300,9 +304,31 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
     if (!transportRef.current) {
       throw new Error('no device detected');
     }
-    const [pubKey, pubKeyError] = await resolve(
-      getLedgerExtendedPublicKey(transportRef.current, false, path)
-    );
+    console.error('getExtendedPublicKey called............');
+
+    const baseApp = new Base(transportRef.current);
+    const REQUIRED_KEYSTONE_PATHS = ["m/44'/60'/0'", "m/44'9000'/0'/0/0"];
+
+    for (const path of REQUIRED_KEYSTONE_PATHS) {
+      const res = await baseApp.getURAccount(
+        path,
+        Curve.secp256k1,
+        DerivationAlgorithm.slip10
+      );
+      console.error('res', res);
+
+      // The KeystoneSDK should exist since the QR integration
+      // just use the parseMultiAccounts to get the public keys
+      const sdk = new KeystoneSDK({
+        origin: 'Keplr Extension',
+      });
+      const account = sdk.parseMultiAccounts(res.toUR());
+      keys.push(account.keys[0]);
+      device = account.device;
+      deviceId = account.deviceId;
+      masterFingerprint = account.masterFingerprint;
+      console.error('account', account);
+    }
     if (pubKeyError) {
       throw new Error(pubKeyError);
     }
@@ -314,6 +340,30 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
       if (!transportRef.current) {
         throw new Error('no device detected');
       }
+      console.error('get pubkey called');
+      // const transport = await createKeystoneTransport();
+      // const baseApp = new Base(transport);
+      // const REQUIRED_KEYSTONE_PATHS = ["m/44'/60'/0'", "m/44'9000'/0'/0/0"];
+
+      // for (const path of REQUIRED_KEYSTONE_PATHS) {
+      //   const res = await baseApp.getURAccount(
+      //     path,
+      //     Curve.secp256k1,
+      //     DerivationAlgorithm.slip10
+      //   );
+
+      //   // The KeystoneSDK should exist since the QR integration
+      //   // just use the parseMultiAccounts to get the public keys
+      //   const sdk = new KeystoneSDK({
+      //     origin: 'Keplr Extension',
+      //   });
+      //   const account = sdk.parseMultiAccounts(res.toUR());
+      //   keys.push(account.keys[0]);
+      //   device = account.device;
+      //   deviceId = account.deviceId;
+      //   masterFingerprint = account.masterFingerprint;
+      //   console.log('account', account);
+      // }
       return getPubKeyFromTransport(
         transportRef.current,
         accountIndex,
@@ -351,7 +401,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
     if (initialized) {
       return;
     }
-    console.log('initKeystoneTransport');
+    console.error('initKeystoneTransport');
     await request<InitLedgerTransportHandler>({
       method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
       params: [LEDGER_INSTANCE_UUID],

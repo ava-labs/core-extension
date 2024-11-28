@@ -199,6 +199,8 @@ export function LedgerContextProvider({ children }: { children: any }) {
         throw new Error('Ledger not connected');
       }
 
+      console.error('ledger transport', transport);
+
       // first try to get the avalanche App instance
       const avaxAppInstance = new AppAvalanche(transport);
       if (avaxAppInstance) {

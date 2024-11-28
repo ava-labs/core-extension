@@ -4101,6 +4101,15 @@
     bs58check "^2.1.2"
     tslib "^2.3.0"
 
+"@keystonehq/bc-ur-registry@0.7.0", "@keystonehq/bc-ur-registry@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry/-/bc-ur-registry-0.7.0.tgz#d0322d6a5cd2796dd0e40662c47b5a95ec917d9a"
+  integrity sha512-E6NUd6Y+YYM+IcYGOEXfO9+MU1s63Qjm8brtHftvNhxbdXhGtTYIsa4FQmqZ6q34q91bMkMqUQFsQYPmIxcxfg==
+  dependencies:
+    "@ngraveio/bc-ur" "^1.1.5"
+    bs58check "^2.1.2"
+    tslib "^2.3.0"
+
 "@keystonehq/bc-ur-registry@^0.4.4":
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry/-/bc-ur-registry-0.4.4.tgz#3073fdd4b33cdcbd04526a313a7685891a4b4583"
@@ -4119,14 +4128,16 @@
     bs58check "^2.1.2"
     tslib "^2.3.0"
 
-"@keystonehq/bc-ur-registry@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry/-/bc-ur-registry-0.7.0.tgz#d0322d6a5cd2796dd0e40662c47b5a95ec917d9a"
-  integrity sha512-E6NUd6Y+YYM+IcYGOEXfO9+MU1s63Qjm8brtHftvNhxbdXhGtTYIsa4FQmqZ6q34q91bMkMqUQFsQYPmIxcxfg==
+"@keystonehq/hw-app-base@0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@keystonehq/hw-app-base/-/hw-app-base-0.1.7.tgz#1f2304b3032168b82c3c98188e765b86bca3d71b"
+  integrity sha512-lo5fsLFzUJGMUdm66xyTJz30Ql19XmhgSf4OjVUtrMIHN41PV94D7R5hueoaikRdBFyYNBTqvQTede9THFliEQ==
   dependencies:
-    "@ngraveio/bc-ur" "^1.1.5"
-    bs58check "^2.1.2"
-    tslib "^2.3.0"
+    "@keystonehq/bc-ur-registry" "0.7.0"
+    "@keystonehq/hw-transport-error" "^0.0.2"
+    "@keystonehq/hw-transport-webusb" "^0.4.0"
+    "@ngraveio/bc-ur" "^1.1.6"
+    uuid "^8.3.2"
 
 "@keystonehq/hw-transport-error@^0.0.2":
   version "0.0.2"
@@ -4148,6 +4159,14 @@
   dependencies:
     "@keystonehq/hw-transport-error" "^0.0.2"
     "@keystonehq/hw-transport-usb" "^0.1.1"
+    buffer "^6.0.3"
+
+"@keystonehq/hw-transport-webusb@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@keystonehq/hw-transport-webusb/-/hw-transport-webusb-0.4.0.tgz#9a566b149f01e0f1880a891d42bcef5f8eac4ab0"
+  integrity sha512-fICp9ptKbOpWHY2AJaJgVH86Tw6GHFsrEgcQt6tmwmtvW63EpQYnJC0lIRBkjfbRqF/EPpVvUsxnAENvHu6new==
+  dependencies:
+    "@keystonehq/hw-transport-error" "^0.0.2"
     buffer "^6.0.3"
 
 "@keystonehq/keystone-sdk@0.8.0":
