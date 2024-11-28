@@ -14,7 +14,7 @@ import { useLanguage } from '@src/hooks/useLanguages';
 import { TypographyLink } from '../../components/TypographyLink';
 import { KeystoneTroubleSteps } from '../../../../components/keystone/KeystoneTroublesSteps';
 
-export function LedgerTrouble() {
+export function KeystoneTrouble() {
   const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
@@ -29,7 +29,7 @@ export function LedgerTrouble() {
       }}
     >
       <OnboardingStepHeader
-        testId="ledger-trouble"
+        testId="keystone-trouble"
         title={t('Trouble Connecting')}
       />
       <Stack
@@ -82,28 +82,29 @@ export function LedgerTrouble() {
             {t('Back')}
           </Button>
           <Button
-            data-testid="page-nav-next-button"
+            data-testid="page-nav-retry-button"
             onClick={() => {
-              history.push(OnboardingURLs.ONBOARDING_HOME);
+              // Retry logic
+              console.log('Retrying connection...');
             }}
             sx={{
               width: theme.spacing(21),
             }}
           >
-            {t('Cancel')}
+            {t('Retry')}
           </Button>
         </Stack>
         <Stack sx={{ justifyContent: 'center', flexDirection: 'row' }}>
           <TypographyLink
             as="a"
-            href={`https://support.ledger.com/hc/${
+            href={`https://support.keystone.com/hc/${
               currentLanguage?.code || 'en-us'
             }/categories/4404376139409?docs=true`}
             target="_blank"
             rel="noopener noreferrer"
             variant="body2"
           >
-            {t('Ledger Live Support')}
+            {t('Keystone Support')}
           </TypographyLink>
           <ExternalLinkIcon
             size={16}

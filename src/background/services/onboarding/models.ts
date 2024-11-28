@@ -32,7 +32,7 @@ export enum OnboardingURLs {
   CREATE_PASSWORD = '/onboarding/create-password',
   ANALYTICS_CONSENT = '/onboarding/analytics-consent',
   LEDGER_TROUBLE = '/onboarding/ledger-trouble',
-  KEYSTONE_TROUBLE = '/onboarding/ledger-trouble',
+  KEYSTONE_TROUBLE = '/onboarding/keystone-trouble',
   SIGN_IN = '/onboarding/sign-in',
   RECOVERY_METHODS = '/onboarding/recovery-methods',
   RECOVERY_METHODS_LOGIN = '/onboarding/recovery-methods-login',

@@ -5,9 +5,9 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import { LedgerWrongVersionOverlay } from '../../../Ledger/LedgerWrongVersionOverlay';
 import {
-  Button,
-  ExternalLinkIcon,
   InfoCircleIcon,
+  MenuItem,
+  Select,
   Stack,
   Tooltip,
   Typography,
@@ -20,41 +20,19 @@ import {
   OnboardingURLs,
 } from '@src/background/services/onboarding/models';
 import { useHistory } from 'react-router-dom';
-import {
-  KeystoneConnector,
-  KeystoneConnectorData,
-} from '@src/components/keystone/KeystoneConnector';
 import { WalletType } from '@avalabs/types';
-
-export interface AddressType {
-  address: string;
-  balance: string;
-}
-
-export enum KeystoneStatus {
-  KEYSTONE_UNINITIATED = 'uninitiated',
-  KEYSTONE_LOADING = 'loading',
-  KEYSTONE_CONNECTED = 'connected',
-  KEYSTONE_CONNECTION_FAILED = 'failed',
-}
-
-/**
- * Waiting this amount of time otherwise this screen would be a blip and the user wouldnt even know it happened
- */
-export const WAIT_1500_MILLI_FOR_USER = 1500;
+import { KeystoneConnector } from '@src/components/keystone/KeystoneConnector';
 
 export function KeystoneConnect() {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
-  const {
-    setXpub,
-    setXpubXP,
-    setPublicKeys,
-    setOnboardingPhase,
-    setOnboardingWalletType,
-  } = useOnboardingContext();
-  const [hasPublicKeys, setHasPublicKeys] = useState(false);
-
+  const { setOnboardingPhase, setOnboardingWalletType } =
+    useOnboardingContext();
+  const [selectedDevice, setSelectedDevice] = useState<string>('Keystone 3');
+  const [showKeystoneConnector, setShowKeystoneConnector] =
+    useState<boolean>(false);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { t } = useTranslation();
   const history = useHistory();
 
@@ -64,12 +42,27 @@ export function KeystoneConnect() {
     capture(ONBOARDING_EVENT_NAMES.keystone);
   }, [capture, setOnboardingPhase, setOnboardingWalletType]);
 
-  function onSuccess(data: KeystoneConnectorData) {
-    setXpub(data.xpub);
-    setXpubXP(data.xpubXP);
-    setPublicKeys(data.publicKeys);
-    setHasPublicKeys(data.hasPublicKeys);
-  }
+  const handleDeviceChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setSelectedDevice(event.target.value as string);
+  };
+
+  const handleNext = () => {
+    setIsProcessing(true);
+    if (selectedDevice === 'Keystone 3') {
+      setShowKeystoneConnector(true);
+    } else {
+      history.push(OnboardingURLs.KEYSTONE);
+    }
+  };
+
+  const onSuccess = () => {
+    console.log('Keystone connection successful!');
+    history.push(OnboardingURLs.CREATE_PASSWORD);
+  };
+
+  const onTroubleshoot = () => {
+    history.push(OnboardingURLs.KEYSTONE_TROUBLE);
+  };
 
   const Content = (
     <Trans
@@ -88,13 +81,25 @@ export function KeystoneConnect() {
         zIndex: 1,
       }}
     >
-      <OnboardingStepHeader
+      {/* <OnboardingStepHeader
         testId="connect-keystone-usb"
         title={t('Connect your Keystone')}
+      /> */}
+
+      <OnboardingStepHeader
+        testId="connect-keystone-usb"
+        title={
+          <Typography
+            variant="h1"
+            sx={{ fontSize: '30px', fontWeight: 'bold' }}
+          >
+            {t('Connect your Keystone')}
+          </Typography>
+        }
       />
-      <Stack sx={{ flexGrow: 1, pt: 1, px: 6 }}>
+      <Stack sx={{ flexGrow: 1, pt: 1, px: 6, width: '100%' }}>
         <Typography variant="body2">
-          {t('Select a derivation path to see your derived addresses.')}
+          {t('Select the device you are using to proceed.')}
           <Tooltip
             title={Content}
             sx={{
@@ -102,18 +107,57 @@ export function KeystoneConnect() {
               cursor: 'pointer',
               pl: theme.spacing(1),
               verticalAlign: 'middle',
+              textAlign: 'center',
+            }}
+          ></Tooltip>
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 2, mt: 20 }}>
+          {t('Select your device')}
+        </Typography>
+
+        <Select
+          value={selectedDevice}
+          onChange={handleDeviceChange}
+          displayEmpty
+          disabled={isProcessing}
+          fullWidth
+          sx={{
+            width: '100%',
+            maxWidth: '700px',
+            alignSelf: 'flex-start',
+            mt: 0,
+          }}
+        >
+          <MenuItem value="Keystone 3">Keystone 3</MenuItem>
+          <MenuItem value="Keystone Essential/Pro">
+            Keystone Essential/Pro
+          </MenuItem>
+        </Select>
+
+        {errorMessage && (
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'error.main',
+              fontSize: 10,
+              mt: 1,
+              textAlign: 'left',
+              width: '100%',
             }}
           >
-            <InfoCircleIcon size={14} />
-          </Tooltip>
-        </Typography>
-        <Stack sx={{ mt: 7.5 }}>
-          <KeystoneConnector
-            onSuccess={onSuccess}
-            onTroubleshoot={() => history.push(OnboardingURLs.KEYSTONE_TROUBLE)}
-          />
-        </Stack>
+            {errorMessage}
+          </Typography>
+        )}
       </Stack>
+
+      {showKeystoneConnector && (
+        <KeystoneConnector
+          errorMessage={errorMessage}
+          onSuccess={onSuccess}
+          onTroubleshoot={onTroubleshoot}
+        />
+      )}
+
       <PageNav
         onBack={() => {
           capture('OnboardingCancelled', {
@@ -121,8 +165,8 @@ export function KeystoneConnect() {
           });
           history.goBack();
         }}
-        onNext={() => history.push(OnboardingURLs.CREATE_PASSWORD)}
-        disableNext={!hasPublicKeys}
+        onNext={handleNext}
+        disableNext={isProcessing}
         expand={true}
         steps={3}
         activeStep={0}

@@ -52,6 +52,7 @@ interface KeystoneConnectorProps {
 }
 
 export function KeystoneConnector({
+  errorMessage,
   onSuccess,
   onTroubleshoot,
 }: KeystoneConnectorProps) {
@@ -303,67 +304,49 @@ export function KeystoneConnector({
   ]);
 
   return (
-    <Stack>
+    <Stack
+      sx={{
+        width: '100%',
+        height: '100%',
+        textAlign: 'center',
+        mt: 4,
+      }}
+    >
+      {publicKeyState === KeystoneStatus.KEYSTONE_CONNECTION_FAILED && (
+        <Typography variant="body2">
+          {errorMessage ||
+            'Please reconnect the Keystone on home screen and reauthorize.'}
+        </Typography>
+      )}
+
       <Stack
         sx={{
-          width: theme.spacing(44),
+          width: '80%',
+          maxWidth: theme.spacing(44),
           alignSelf: 'center',
-          mt: 7.5,
+          mt: 5,
         }}
-      >
-        <DerivationPathDropdown
-          pathSpec={pathSpec}
-          onPathSelected={onPathSelected}
-          isDisabled={dropdownDisabled}
-        />
-        {pathSpec &&
-          publicKeyState !== KeystoneStatus.KEYSTONE_UNINITIATED &&
-          publicKeyState !== KeystoneStatus.KEYSTONE_CONNECTION_FAILED && (
-            <Stack
-              sx={{
-                mt: 4,
-                rowGap: 3,
-              }}
-            >
-              <Divider flexItem />
-              <DerivedAddresses
-                addresses={addresses}
-                hideLoadinSkeleton={pathSpec === DerivationPath.BIP44}
-              />
-            </Stack>
-          )}
-      </Stack>
-      <Stack sx={{ alignItems: 'center' }}>
-        {publicKeyState === KeystoneStatus.KEYSTONE_CONNECTION_FAILED && (
-          <Stack sx={{ mt: 1, rowGap: 3, width: theme.spacing(44) }}>
-            <Stack direction="row">
-              <Typography
-                variant="caption"
-                sx={{ color: theme.palette.error.main }}
-              >
-                <Trans
-                  i18nKey="Unable to connect. View the troubleshoot guide <linkText>here</linkText>"
-                  components={{
-                    linkText: (
-                      <span
-                        onClick={() => onTroubleshoot()}
-                        style={{
-                          cursor: 'pointer',
-                          textDecoration: 'underline',
-                          textDecorationColor: theme.palette.error.main,
-                        }}
-                      />
-                    ),
-                  }}
-                />
-              </Typography>
-            </Stack>
-            <Button onClick={() => tryPublicKey()} fullWidth>
-              {t('Retry')}
-            </Button>
-          </Stack>
-        )}
-      </Stack>
+      ></Stack>
+
+      {publicKeyState === KeystoneStatus.KEYSTONE_CONNECTION_FAILED && (
+        <Stack
+          sx={{
+            width: '80%',
+            maxWidth: theme.spacing(44),
+            alignSelf: 'center',
+            mt: 3,
+          }}
+        >
+          <Button
+            onClick={() => tryPublicKey()}
+            fullWidth
+            variant="contained"
+            color="primary"
+          >
+            {t('Retry')}
+          </Button>
+        </Stack>
+      )}
     </Stack>
   );
 }
