@@ -55,7 +55,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
   async getBalancesForNetworks(
     chainIds: number[],
     accounts: Account[],
-    tokenTypes: TokenType[]
+    tokenTypes: TokenType[],
+    cacheResponse = true
   ): Promise<{ tokens: Balances; nfts: Balances<NftTokenWithBalance> }> {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
@@ -151,7 +152,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       }
     }
 
-    if (hasChanges && !this.lockService.locked) {
+    if (cacheResponse && hasChanges && !this.lockService.locked) {
       this.#balances = aggregatedBalances;
       this.#nfts = aggregatedNfts;
 

@@ -30,6 +30,7 @@ type WalletHeaderProps = {
   isExpanded: boolean;
   isLoading: boolean;
   totalBalance?: number;
+  hasBalanceError: boolean;
   toggle: () => void;
 } & (
   | {

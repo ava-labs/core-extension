@@ -4,6 +4,7 @@ import {
   ChevronLeftIcon,
   Divider,
   IconButton,
+  LoadingDotsIcon,
   Scrollbars,
   Stack,
   TrashIcon,
@@ -33,6 +34,8 @@ import { AccountListPrimary } from './components/AccountListPrimary';
 import { AccountListImported } from './components/AccountListImported';
 import { AccountsActionButton } from './components/AccountsActionButton';
 import { OverflowingTypography } from './components/OverflowingTypography';
+import { useWalletTotalBalance } from './hooks/useWalletTotalBalance';
+import { useWalletTotalBalanceContext } from './providers/WalletTotalBalanceProvider';
 
 export function Accounts() {
   const {
@@ -51,6 +54,11 @@ export function Accounts() {
   const theme = useTheme();
   const history = useHistory();
   const { walletDetails } = useWalletContext();
+  const { isLoading, totalBalanceInCurrency: activeWalletTotalBalance } =
+    useWalletTotalBalance(
+      isPrimaryAccount(active) ? active.walletId : undefined
+    );
+  const { fetchBalanceForWallet } = useWalletTotalBalanceContext();
 
   const canCreateAccount = active?.type === AccountType.PRIMARY;
   const { getTotalBalance } = useBalancesContext();
@@ -69,6 +77,11 @@ export function Accounts() {
         walletType: walletDetails?.type,
       });
       await selectAccount(id);
+
+      // Refresh total balance of the wallet after adding an account
+      if (walletDetails?.id) {
+        fetchBalanceForWallet(walletDetails.id);
+      }
     } catch (e) {
       toast.error(t('An error occurred, please try again later'));
     }
@@ -153,7 +166,11 @@ export function Accounts() {
               textAlign="end"
               color="text.secondary"
             >
-              {/* TODO: total balance of the active wallet */}
+              {isLoading ? (
+                <LoadingDotsIcon size={20} orientation="horizontal" />
+              ) : typeof activeWalletTotalBalance === 'number' ? (
+                currencyFormatter(activeWalletTotalBalance)
+              ) : null}
             </Typography>
           )}
         </Stack>
@@ -196,7 +213,7 @@ export function Accounts() {
       <Divider sx={{ borderColor: theme.palette.grey[800] }} />
 
       <Scrollbars>
-        <AccountListPrimary primaryAccount={primaryAccounts} />
+        <AccountListPrimary primaryAccounts={primaryAccounts} />
 
         {hasImportedAccounts && (
           <AccountListImported accounts={Object.values(importedAccounts)} />

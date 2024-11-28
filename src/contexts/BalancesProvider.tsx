@@ -299,18 +299,17 @@ export function BalancesProvider({ children }: { children: any }) {
 
   const getTotalBalance = useCallback(
     (addressC: string) => {
-      if (balances.tokens) {
+      if (balances.tokens && network?.chainId) {
         return calculateTotalBalance(
-          network,
           getAccount(addressC),
-          favoriteNetworks.map(({ chainId }) => chainId),
+          [network.chainId, ...favoriteNetworks.map(({ chainId }) => chainId)],
           balances.tokens
         );
       }
 
       return undefined;
     },
-    [getAccount, favoriteNetworks, network, balances.tokens]
+    [getAccount, favoriteNetworks, network?.chainId, balances.tokens]
   );
 
   const getTokenPrice = useCallback(

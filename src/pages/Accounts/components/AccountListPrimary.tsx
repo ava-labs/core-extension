@@ -9,20 +9,20 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { WalletContainer } from './WalletContainer';
 
 type AccountListProps = {
-  primaryAccount: Record<WalletId, PrimaryAccount[]>;
+  primaryAccounts: Record<WalletId, PrimaryAccount[]>;
   sx?: SxProps;
 };
 
 export const AccountListPrimary = ({
-  primaryAccount,
+  primaryAccounts,
   sx,
 }: AccountListProps) => {
   const { walletDetails: activeWalletDetails, wallets } = useWalletContext();
 
   return (
     <Stack sx={{ gap: 1, width: 1, ...sx }}>
-      {Object.keys(primaryAccount).map((walletId) => {
-        const walletAccounts = primaryAccount[walletId];
+      {Object.keys(primaryAccounts).map((walletId) => {
+        const walletAccounts = primaryAccounts[walletId];
         const walletDetails = wallets.find((wallet) => wallet.id === walletId);
 
         if (!walletDetails) {

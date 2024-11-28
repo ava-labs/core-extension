@@ -11,12 +11,12 @@ import { useTranslation } from 'react-i18next';
 import { SecretType } from '@src/background/services/secrets/models';
 import { WalletDetails } from '@src/background/services/wallet/models';
 import { PrimaryAccount } from '@src/background/services/accounts/models';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 import { useWalletTotalBalance } from '../hooks/useWalletTotalBalance';
 import { SelectionMode } from '../providers/AccountManagerProvider';
 import { AccountItem } from './AccountItem';
 import WalletHeader from './WalletHeader';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 export const WalletContainer = ({
   walletDetails,
@@ -33,11 +33,10 @@ export const WalletContainer = ({
   const [isExpanded, setIsExpanded] = useState(true);
   const {
     isLoading,
-    // hasBalanceOfUnknownFiatValue,
-    hasBalanceOnUnderivedAccounts,
-    // hasErrorOccurred,
+    hasErrorOccurred,
     totalBalanceInCurrency,
-  } = useWalletTotalBalance(walletDetails);
+    hasBalanceOnUnderivedAccounts,
+  } = useWalletTotalBalance(walletDetails.id);
 
   return (
     <Stack sx={{ pt: 0.75, width: 1 }}>
@@ -46,6 +45,7 @@ export const WalletContainer = ({
         isActive={isActive}
         isExpanded={isExpanded}
         isLoading={isLoading}
+        hasBalanceError={hasErrorOccurred}
         totalBalance={totalBalanceInCurrency}
         toggle={() => setIsExpanded((e) => !e)}
       />

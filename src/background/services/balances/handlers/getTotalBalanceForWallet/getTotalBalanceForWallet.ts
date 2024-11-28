@@ -1,7 +1,6 @@
 import { injectable } from 'tsyringe';
 import { Network } from '@avalabs/glacier-sdk';
 import { TokenType } from '@avalabs/vm-module-types';
-import { uniq } from 'lodash';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
@@ -13,18 +12,23 @@ import { NetworkService } from '../../../network/NetworkService';
 import { BalanceAggregatorService } from '../../BalanceAggregatorService';
 import { Account } from '../../../accounts/models';
 
-import { GetWalletsWithActivityParams, TotalBalanceForWallet } from './models';
+import {
+  GetTotalBalanceForWalletParams,
+  TotalBalanceForWallet,
+  isImportedAccountsRequest,
+} from './models';
 import {
   calculateTotalBalanceForAddresses,
   getAccountsWithActivity,
   getAllAddressesForAccounts,
   getIncludedNetworks,
+  getXPChainIds,
 } from './helpers';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,
   TotalBalanceForWallet,
-  GetWalletsWithActivityParams
+  GetTotalBalanceForWalletParams
 >;
 
 @injectable()
@@ -45,70 +49,106 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       network: this.networkService.isMainnet() ? Network.MAINNET : Network.FUJI,
     });
 
-  handle: HandlerType['handle'] = async ({ request }) => {
-    const { walletId } = request.params;
+  async #findUnderivedAccounts(walletId: string, derivedAccounts: Account[]) {
     const secrets = await this.secretService.getWalletAccountsSecretsById(
       walletId
     );
 
-    if (!secrets.xpubXP) {
-      return {
-        ...request,
-        error: 'not available for this wallet', // TODO
-      };
-    }
+    const derivedWalletAddresses = getAllAddressesForAccounts(
+      derivedAccounts ?? []
+    );
+    const derivedAddressesUnprefixed = derivedWalletAddresses.map((addr) =>
+      addr.replace(/^[PXC]-/i, '')
+    );
+    const underivedXPChainAddresses = secrets.xpubXP
+      ? Object.keys(
+          await getAccountsWithActivity(
+            secrets.xpubXP,
+            await this.networkService.getAvalanceProviderXP(),
+            this.#getAddressesActivity
+          )
+        ).filter((address) => !derivedAddressesUnprefixed.includes(address))
+      : [];
+
+    return underivedXPChainAddresses.map<Partial<Account>>((address) => ({
+      addressPVM: `P-${address}`,
+      addressAVM: `X-${address}`,
+    }));
+  }
+
+  handle: HandlerType['handle'] = async ({ request }) => {
+    const { walletId } = request.params;
+    const requestsImportedAccounts = isImportedAccountsRequest(walletId);
 
     try {
-      const walletAccounts =
-        this.accountsService.getPrimaryAccountsByWalletId(walletId);
-      const derivedWaletAddresses = getAllAddressesForAccounts(walletAccounts);
+      const allAccounts = this.accountsService.getAccounts();
+      const derivedAccounts = requestsImportedAccounts
+        ? Object.values(allAccounts.imported ?? {})
+        : allAccounts.primary[walletId] ?? [];
 
-      const underivedPChainAddresses = Object.keys(
-        await getAccountsWithActivity(
-          secrets.xpubXP,
-          await this.networkService.getAvalanceProviderXP(),
-          this.#getAddressesActivity
-        )
-      ).filter(
-        (address) => !derivedWaletAddresses.includes(address.toLowerCase())
-      );
+      if (!derivedAccounts.length) {
+        return {
+          ...request,
+          result: {
+            totalBalanceInCurrency: 0,
+            hasBalanceOnUnderivedAccounts: false,
+          },
+        };
+      }
 
-      const networksIncludedInRollup = getIncludedNetworks(
+      const underivedAccounts = requestsImportedAccounts
+        ? []
+        : await this.#findUnderivedAccounts(walletId, derivedAccounts);
+
+      const networksIncludedInTotal = getIncludedNetworks(
         this.networkService.isMainnet(),
         await this.networkService.activeNetworks.promisify(),
         await this.networkService.getFavoriteNetworks()
       );
 
-      await this.balanceAggregatorService.getBalancesForNetworks(
-        networksIncludedInRollup,
-        [
-          ...walletAccounts,
-          ...underivedPChainAddresses.map<Account>(
-            (address) =>
-              ({
-                walletId,
-                addressPVM: address,
-                addressAVM: address,
-              } as Account)
-          ),
-        ],
-        [TokenType.NATIVE, TokenType.ERC20]
-      );
+      // Get balance for derived addresses
+      const { tokens: derivedAddressesBalances } =
+        await this.balanceAggregatorService.getBalancesForNetworks(
+          networksIncludedInTotal,
+          derivedAccounts,
+          [TokenType.NATIVE, TokenType.ERC20]
+        );
 
-      const allWalletAddresses = uniq([
-        ...derivedWaletAddresses,
-        ...underivedPChainAddresses,
-      ]);
-
-      const result = calculateTotalBalanceForAddresses(
-        this.balanceAggregatorService.balances,
-        allWalletAddresses,
-        networksIncludedInRollup
+      let totalBalanceInCurrency = calculateTotalBalanceForAddresses(
+        derivedAddressesBalances,
+        derivedAccounts,
+        networksIncludedInTotal
       );
+      let hasBalanceOnUnderivedAccounts = false;
+
+      if (underivedAccounts.length > 0) {
+        // Get balance for underived addresses for X- and P-Chain.
+        // We DO NOT cache this response. When fetching balances for multiple X/P addresses at once,
+        // Glacier responds with all the balances aggregated into one record and the Avalanche Module
+        // returns it with the first address as the key. If cached, we'd save incorrect data.
+        const { tokens: underivedAddressesBalances } =
+          await this.balanceAggregatorService.getBalancesForNetworks(
+            getXPChainIds(this.networkService.isMainnet()),
+            underivedAccounts as Account[],
+            [TokenType.NATIVE],
+            false // Don't cache this
+          );
+
+        const underivedAccountsTotal = calculateTotalBalanceForAddresses(
+          underivedAddressesBalances,
+          underivedAccounts,
+          getXPChainIds(this.networkService.isMainnet())
+        );
+        totalBalanceInCurrency += underivedAccountsTotal;
+        hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;
+      }
 
       return {
         ...request,
-        result,
+        result: {
+          totalBalanceInCurrency,
+          hasBalanceOnUnderivedAccounts,
+        },
       };
     } catch (e: any) {
       return {

@@ -5,18 +5,19 @@ import {
   GLACIER_ADDRESS_FETCH_LIMIT,
   ITERATION_LIMIT,
   SearchSpace,
-  TotalBalanceForWallet,
   XPAddressDictionary,
 } from './models';
 import { ChainListWithCaipIds } from '@src/background/services/network/models';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { isString, toLower, uniq } from 'lodash';
+import { isString, uniq } from 'lodash';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
+
 import { Account } from '@src/background/services/accounts/models';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
-import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { getAddressesInRange } from '@src/background/services/accounts/utils/getAddressesInRange';
+import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
+
 import { Balances } from '../../models';
-import { isNFT } from '../../nft/utils/isNFT';
 
 function isDone(currentGap: number) {
   return currentGap > ADDRESS_GAP_LIMIT;
@@ -57,6 +58,13 @@ async function processGlacierAddresses(
   }
 }
 
+function getXPChainIds(isMainnet: boolean) {
+  const xChainId = isMainnet ? ChainId.AVALANCHE_X : ChainId.AVALANCHE_TEST_X;
+  const pChainId = isMainnet ? ChainId.AVALANCHE_P : ChainId.AVALANCHE_TEST_P;
+
+  return [pChainId, xChainId];
+}
+
 function getIncludedNetworks(
   isMainnet: boolean,
   currentChainList: ChainListWithCaipIds,
@@ -65,23 +73,17 @@ function getIncludedNetworks(
   const cChainId = isMainnet
     ? ChainId.AVALANCHE_MAINNET_ID
     : ChainId.AVALANCHE_TESTNET_ID;
-  const xChainId = isMainnet ? ChainId.AVALANCHE_X : ChainId.AVALANCHE_TEST_X;
-  const pChainId = isMainnet ? ChainId.AVALANCHE_P : ChainId.AVALANCHE_TEST_P;
   const currentEnvNetworks = Object.keys(currentChainList).map(Number);
 
   return uniq(
-    [cChainId, pChainId, xChainId, ...favoriteChainIds].filter((chainId) =>
-      currentEnvNetworks.includes(chainId)
+    [cChainId, ...getXPChainIds(isMainnet), ...favoriteChainIds].filter(
+      (chainId) => currentEnvNetworks.includes(chainId)
     )
   );
 }
 
 function getAllAddressesForAccounts(accounts: Account[]): string[] {
-  return accounts
-    .flatMap(getAllAddressesForAccount)
-    .filter(isString)
-    .map(toLower)
-    .map((addr) => addr.replace(/^[PXC]-/i, ''));
+  return accounts.flatMap(getAllAddressesForAccount).filter(isString);
 }
 
 async function getAccountsWithActivity(
@@ -145,62 +147,20 @@ async function getAccountsWithActivity(
 
 function calculateTotalBalanceForAddresses(
   balances: Balances,
-  addresses: string[],
+  accounts: Partial<Account>[],
   chainIds: number[]
-): TotalBalanceForWallet {
-  const allBalances = Object.entries(balances);
-  const stringChainIds = chainIds.map(String);
-
-  const result = {
-    totalBalanceInCurrency: 0,
-    hasBalanceOnUnderivedAccounts: false,
-    hasBalanceOfUnknownFiatValue: false,
-  };
-
-  for (const [chainId, chainBalances] of allBalances) {
-    if (!stringChainIds.includes(chainId)) {
-      console.log('DEBUG skipping not-favorite chain', chainId);
-      continue;
-    }
-
-    for (const [address, addressBalanceOnChain] of Object.entries(
-      chainBalances
-    )) {
-      if (!addresses.includes(address.toLowerCase())) {
-        console.log('DEBUG skipping address', address.toLowerCase());
-        continue;
-      }
-
-      for (const tokenBalance of Object.values(addressBalanceOnChain)) {
-        if (isNFT(tokenBalance)) {
-          console.log('DEBUG skipping NFT', tokenBalance);
-          continue;
-        }
-
-        if (typeof tokenBalance.balanceInCurrency !== 'number') {
-          result.hasBalanceOfUnknownFiatValue = true;
-          continue;
-        }
-
-        if (
-          !result.hasBalanceOnUnderivedAccounts &&
-          addresses.includes(address)
-        ) {
-          result.hasBalanceOnUnderivedAccounts = true;
-        }
-
-        result.totalBalanceInCurrency += tokenBalance.balanceInCurrency;
-      }
-    }
-  }
-
-  return result;
+): number {
+  return accounts.reduce((sum: number, account: Partial<Account>) => {
+    const accountBalance = calculateTotalBalance(account, chainIds, balances);
+    return sum + (accountBalance.sum ?? 0);
+  }, 0);
 }
 
 export {
   calculateTotalBalanceForAddresses,
   getAccountsWithActivity,
   getAllAddressesForAccounts,
+  getXPChainIds,
   getIncludedNetworks,
   isDone,
   processGlacierAddresses,
