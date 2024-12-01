@@ -18,7 +18,7 @@ import {
   isImportedAccountsRequest,
 } from './models';
 import {
-  calculateTotalBalanceForAddresses,
+  calculateTotalBalanceForAccounts,
   getAccountsWithActivity,
   getAllAddressesForAccounts,
   getIncludedNetworks,
@@ -61,7 +61,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       addr.replace(/^[PXC]-/i, '')
     );
     const underivedXPChainAddresses = secrets.xpubXP
-      ? Object.keys(
+      ? (
           await getAccountsWithActivity(
             secrets.xpubXP,
             await this.networkService.getAvalanceProviderXP(),
@@ -114,7 +114,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
           [TokenType.NATIVE, TokenType.ERC20]
         );
 
-      let totalBalanceInCurrency = calculateTotalBalanceForAddresses(
+      let totalBalanceInCurrency = calculateTotalBalanceForAccounts(
         derivedAddressesBalances,
         derivedAccounts,
         networksIncludedInTotal
@@ -134,7 +134,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             false // Don't cache this
           );
 
-        const underivedAccountsTotal = calculateTotalBalanceForAddresses(
+        const underivedAccountsTotal = calculateTotalBalanceForAccounts(
           underivedAddressesBalances,
           underivedAccounts,
           getXPChainIds(this.networkService.isMainnet())
