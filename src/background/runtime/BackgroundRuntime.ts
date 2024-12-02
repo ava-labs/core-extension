@@ -5,6 +5,7 @@ import { singleton } from 'tsyringe';
 import { LockService } from '@src/background/services/lock/LockService';
 import { OnboardingService } from '@src/background/services/onboarding/OnboardingService';
 import { ModuleManager } from '../vmModules/ModuleManager';
+import { BridgeService } from '@avalabs/bridge-unified';
 
 @singleton()
 export class BackgroundRuntime {
@@ -12,6 +13,8 @@ export class BackgroundRuntime {
     private connectionService: ConnectionService,
     private lockService: LockService,
     private onboardingService: OnboardingService,
+    // we try to fetch the bridge configs as soon as possible
+    private bridgeService: BridgeService,
     private moduleManager: ModuleManager
   ) {}
 
