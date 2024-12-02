@@ -262,7 +262,7 @@ export const AccountItem = forwardRef(
 
               {isImportedAccount && (
                 <Stack direction="row">
-                  <AccountItemChip account={account} />
+                  <AccountItemChip account={account} isActive={isActive} />
                 </Stack>
               )}
             </Stack>
