@@ -361,7 +361,6 @@ describe('background/services/accounts/AccountsService', () => {
     });
 
     it('correctly updates addresses for selected imported account', async () => {
-      const isMainnet = true;
       jest
         .mocked(secretsService.getImportedAddresses)
         .mockImplementation((id) => {
@@ -379,7 +378,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(secretsService.getImportedAddresses).toHaveBeenCalledWith(
         'fb-acc',
-        isMainnet
+        networkService
       );
       expect(secretsService.getAddresses).toHaveBeenCalledTimes(0);
       expect(accountsService.getAccounts().imported['fb-acc']).toEqual({
@@ -658,7 +657,6 @@ describe('background/services/accounts/AccountsService', () => {
     const commitMock = jest.fn();
 
     it('adds account to the imported list correctly', async () => {
-      const isMainnet = true;
       const options: ImportData = {
         importType: ImportType.PRIVATE_KEY,
         data: 'privateKey',
@@ -684,7 +682,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
       expect(secretsService.addImportedWallet).toBeCalledWith(
         options,
-        isMainnet
+        networkService
       );
       expect(commitMock).toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
@@ -718,7 +716,6 @@ describe('background/services/accounts/AccountsService', () => {
     });
 
     it('sets default name when no name is given', async () => {
-      const isMainnet = true;
       const options: ImportData = {
         importType: ImportType.PRIVATE_KEY,
         data: 'privateKey',
@@ -743,7 +740,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
       expect(secretsService.addImportedWallet).toBeCalledWith(
         options,
-        isMainnet
+        networkService
       );
       expect(commitMock).toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
@@ -818,7 +815,6 @@ describe('background/services/accounts/AccountsService', () => {
     });
 
     it('returns the existing account id on duplicated accounts imports', async () => {
-      const isMainnet = true;
       const options: ImportData = {
         importType: ImportType.PRIVATE_KEY,
         data: 'privateKey',
@@ -845,7 +841,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
       expect(secretsService.addImportedWallet).toBeCalledWith(
         options,
-        isMainnet
+        networkService
       );
       expect(commitMock).not.toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).not.toHaveBeenCalled();

@@ -5,15 +5,22 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { FetchRequest, Network as EthersNetwork } from 'ethers';
+import { info } from '@avalabs/avalanchejs';
 
 import { Network } from '@src/background/services/network/models';
 
+import { isDevnet } from '../isDevnet';
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 
-export const getProviderForNetwork = (
+export type SupportedProvider =
+  | BitcoinProvider
+  | JsonRpcBatchInternal
+  | Avalanche.JsonRpcProvider;
+
+export const getProviderForNetwork = async (
   network: Network,
   useMulticall = false
-): BitcoinProvider | JsonRpcBatchInternal | Avalanche.JsonRpcProvider => {
+): Promise<SupportedProvider> => {
   if (network.vmName === NetworkVMType.BITCOIN) {
     return new BitcoinProvider(
       !network.isTestnet,
@@ -57,9 +64,15 @@ export const getProviderForNetwork = (
     network.vmName === NetworkVMType.AVM ||
     network.vmName === NetworkVMType.PVM
   ) {
-    return network.isTestnet
-      ? Avalanche.JsonRpcProvider.getDefaultFujiProvider()
-      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider();
+    const upgradesInfo = await new info.InfoApi(network.rpcUrl)
+      .getUpgradesInfo()
+      .catch(() => undefined);
+
+    return isDevnet(network)
+      ? Avalanche.JsonRpcProvider.getDefaultDevnetProvider(upgradesInfo)
+      : network.isTestnet
+      ? Avalanche.JsonRpcProvider.getDefaultFujiProvider(upgradesInfo)
+      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider(upgradesInfo);
   } else {
     throw new Error('unsupported network');
   }

@@ -18,9 +18,11 @@ import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
 import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
+import { Network } from '@avalabs/glacier-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { HEADERS } from '../../glacier/glacierConfig';
+import { isDevnet } from '@src/utils/isDevnet';
 
 type TxParams = {
   transactionHex: string;
@@ -80,6 +82,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
 
     const tx = utils.unpackWithManager(vm, txBytes) as avaxSerial.AvaxTx;
 
+    const network = await this.networkService.getAvalancheNetworkXP();
     const providedUtxos = getProvidedUtxos({
       utxoHexes: providedUtxoHexes,
       vm,
@@ -89,7 +92,11 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
       : await Avalanche.getUtxosByTxFromGlacier({
           transactionHex,
           chainAlias,
-          isTestnet: !this.networkService.isMainnet(),
+          network: isDevnet(network)
+            ? Network.DEVNET
+            : network.isTestnet
+            ? Network.FUJI
+            : Network.MAINNET,
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,
           headers: HEADERS,

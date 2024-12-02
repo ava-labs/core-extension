@@ -5,7 +5,12 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { Network } from '@avalabs/core-chains-sdk';
 
-import { BaseSendOptions, NativeSendOptions, SendOptions } from '../../models';
+import {
+  BaseSendOptions,
+  NativeSendOptions,
+  PVMSendOptions,
+  SendOptions,
+} from '../../models';
 
 import { Account } from '@src/background/services/accounts/models';
 import { EnsureDefined } from '@src/background/models';
@@ -66,7 +71,8 @@ type SendAdapter<
   Provider = unknown,
   NetworkSendOptions = unknown,
   CustomOptions = unknown,
-  Token = NetworkTokenWithBalance
+  Token = NetworkTokenWithBalance,
+  AdditionalOutput = Record<string, unknown>
 > = (options: CommonAdapterOptions<Provider, Token> & CustomOptions) => {
   isSending: boolean;
   isValidating: boolean;
@@ -76,7 +82,7 @@ type SendAdapter<
 
   send(options: NetworkSendOptions): Promise<string>;
   validate(options: Partial<NetworkSendOptions>): Promise<void>;
-};
+} & AdditionalOutput;
 
 export type SendAdapterEVM = SendAdapter<
   JsonRpcBatchInternal,
@@ -94,9 +100,12 @@ export type SendAdapterBTC = SendAdapter<
 
 export type SendAdapterPVM = SendAdapter<
   Avalanche.JsonRpcProvider,
-  NativeSendOptions,
+  PVMSendOptions,
   AdapterOptionsP,
-  TokenWithBalancePVM
+  TokenWithBalancePVM,
+  {
+    estimatedFee: bigint;
+  }
 >;
 
 export type SendAdapterAVM = SendAdapter<

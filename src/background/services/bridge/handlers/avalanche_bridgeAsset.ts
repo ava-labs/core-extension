@@ -426,9 +426,9 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
           signAndSendEVM: async (txData) => {
             const tx = txData as ContractTransaction; // TODO: update types in the SDK?
 
-            const provider = getProviderForNetwork(
+            const provider = (await getProviderForNetwork(
               network
-            ) as JsonRpcBatchInternal;
+            )) as JsonRpcBatchInternal;
 
             const nonce = await provider.getTransactionCount(
               this.#getSourceAccount().addressC
