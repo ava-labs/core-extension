@@ -28,6 +28,7 @@ import { AccountsTab } from '../Accounts/Accounts';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
 import { utils } from '@avalabs/avalanchejs';
 import { usePrivateKeyImport } from '../Accounts/hooks/usePrivateKeyImport';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 type DerivedAddresses = {
   addressC: string;
@@ -49,6 +50,7 @@ export function ImportPrivateKey() {
   const balance = useBalanceTotalInCurrency(derivedAddresses as Account);
   const { isImporting: isImportLoading, importPrivateKey } =
     usePrivateKeyImport();
+  const { selectAccount } = useAccountsContext();
   const history = useHistory();
 
   const isLoading = hasFocus && !derivedAddresses && !error;
@@ -56,13 +58,13 @@ export function ImportPrivateKey() {
   const handleImport = async () => {
     capture('ImportPrivateKeyClicked');
     try {
-      await importPrivateKey(privateKey);
+      const importedAccountId = await importPrivateKey(privateKey);
+      await selectAccount(importedAccountId);
       toast.success(t('Private Key Imported'), { duration: 2000 });
       capture('ImportPrivateKeySucceeded');
       history.replace(`/accounts?activeTab=${AccountsTab.Imported}`);
     } catch (err) {
       toast.error(t('Private Key Import Failed'), { duration: 2000 });
-      console.error(err);
     }
   };
 
