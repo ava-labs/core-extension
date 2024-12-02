@@ -50,13 +50,13 @@ export interface LedgerConnectorData {
 interface LedgerConnectorProps {
   onSuccess: (data: LedgerConnectorData) => void;
   onTroubleshoot: () => void;
-  isWalletExist?: boolean;
+  checkIfWalletExists?: boolean;
 }
 
 export function LedgerConnector({
   onSuccess,
   onTroubleshoot,
-  isWalletExist,
+  checkIfWalletExists,
 }: LedgerConnectorProps) {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
@@ -131,8 +131,10 @@ export function LedgerConnector({
           dryRun: true,
         });
       } catch (e) {
-        setIsLedgerExistsError(true);
-        throw new Error('wallet already exists');
+        if (typeof e === 'string' && e === 'This wallet already exists') {
+          setIsLedgerExistsError(true);
+        }
+        throw new Error(String(e));
       }
     },
     [importLedger]
@@ -144,7 +146,7 @@ export function LedgerConnector({
       const xpubXPValue = await getExtendedPublicKey(
         Avalanche.LedgerWallet.getAccountPath('X')
       );
-      if (isWalletExist) {
+      if (checkIfWalletExists) {
         await isLedgerWalletExist({
           xpub: xpubValue,
           xpubXP: xpubXPValue,
@@ -170,7 +172,7 @@ export function LedgerConnector({
   }, [
     capture,
     isLedgerWalletExist,
-    isWalletExist,
+    checkIfWalletExists,
     getAddressFromXpubKey,
     getExtendedPublicKey,
     onSuccess,
@@ -225,7 +227,7 @@ export function LedgerConnector({
             ...pubKeys,
             { evm: pubKey.toString('hex'), xp: pubKeyXP.toString('hex') },
           ];
-          if (isWalletExist) {
+          if (checkIfWalletExists) {
             await isLedgerWalletExist({
               xpub: '',
               xpubXP: '',
@@ -251,7 +253,7 @@ export function LedgerConnector({
     [
       capture,
       isLedgerWalletExist,
-      isWalletExist,
+      checkIfWalletExists,
       getAvaxBalance,
       getPublicKey,
       onSuccess,
