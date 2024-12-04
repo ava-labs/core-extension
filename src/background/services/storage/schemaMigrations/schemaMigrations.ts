@@ -34,7 +34,10 @@ export const migrateToLatest = async <T>(
         return result;
       }
 
-      if (currentMigration.migration.previousSchema.validate(result).error) {
+      const { error: validationError } =
+        currentMigration.migration.previousSchema.validate(result);
+
+      if (validationError) {
         throw new Error(
           `Error while upgrading ${key} to version ${currentMigration.version}`
         );

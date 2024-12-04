@@ -107,7 +107,7 @@ export const ContainedDropdown = ({
         width: width ?? '100%',
         borderRadius: borderRadius ?? spacing(0, 0, 1, 1),
         margin: margin ?? '0',
-        height: isOpen ? `${height || calculatedHeight}px` : 0,
+        height: isOpen ? `${height || calculatedHeight - top}px` : 0,
         top,
         opacity: isOpen ? 1 : 0,
       }}

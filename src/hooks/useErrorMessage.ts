@@ -104,6 +104,10 @@ export const useErrorMessage = () => {
         [UnifiedBridgeError.UnsupportedNetwork]: {
           title: t('Unsupported network'),
         },
+        [UnifiedBridgeError.NonBitcoinAccount]: {
+          title: t('Unsupported account'),
+          hint: t(`The active account does not support Bitcoin.`),
+        },
       }),
       [t]
     );
