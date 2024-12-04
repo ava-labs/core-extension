@@ -59,7 +59,7 @@ export async function findToken(
     return token;
   }
 
-  const provider = getProviderForNetwork(network);
+  const provider = await getProviderForNetwork(network);
   if (!(provider instanceof JsonRpcBatchInternal)) {
     return UNKNOWN_TOKEN(addressOrSymbol);
   }

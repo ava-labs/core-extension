@@ -86,7 +86,6 @@ export function ImportPrivateKey() {
       history.replace(`/accounts?activeTab=${AccountsTab.Imported}`);
     } catch (err) {
       toast.error(t('Private Key Import Failed'), { duration: 2000 });
-      console.error(err);
     }
   };
 

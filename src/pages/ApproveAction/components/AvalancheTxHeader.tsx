@@ -39,6 +39,27 @@ const useAvalancheTxHeader = (tx: Avalanche.Tx) => {
     case Avalanche.TxType.Base:
       return t('Approve Transaction');
 
+    case Avalanche.TxType.ConvertSubnetToL1:
+      return t('Convert Subnet to L1');
+
+    case Avalanche.TxType.DisableL1Validator:
+      return t('Disable L1 Validator');
+
+    case Avalanche.TxType.IncreaseL1ValidatorBalance:
+      return t('Increase L1 Validator Balance');
+
+    case Avalanche.TxType.RegisterL1Validator:
+      return t('Register L1 Validator');
+
+    case Avalanche.TxType.SetL1ValidatorWeight:
+      return t('Set L1 Validator Weight');
+
+    case Avalanche.TxType.TransformSubnet:
+      return t('Transform Subnet');
+
+    case Avalanche.TxType.TransferSubnetOwnership:
+      return t('Transfer Subnet Ownership');
+
     default:
       return t('Unknown Transaction');
   }

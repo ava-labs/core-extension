@@ -20,12 +20,14 @@ import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
 import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
+import { Network } from '@avalabs/glacier-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { measureDuration } from '@src/utils/measureDuration';
 import { HEADERS } from '../../glacier/glacierConfig';
+import { isDevnet } from '@src/utils/isDevnet';
 
 type TxParams = {
   transactionHex: string;
@@ -33,6 +35,7 @@ type TxParams = {
   externalIndices?: number[];
   internalIndices?: number[];
   utxos?: string[];
+  feeTolerance?: number;
 };
 
 @injectable()
@@ -63,6 +66,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       externalIndices,
       internalIndices,
       utxos: providedUtxoHexes,
+      feeTolerance,
     } = (request.params ?? {}) as TxParams;
 
     if (!transactionHex || !chainAlias) {
@@ -73,7 +77,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         }),
       };
     }
-
+    const network = await this.networkService.getAvalancheNetworkXP();
     const vm = Avalanche.getVmByChainAlias(chainAlias);
     const txBytes = utils.hexToBuffer(transactionHex);
     const provider = await this.networkService.getAvalanceProviderXP();
@@ -100,7 +104,11 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       : await Avalanche.getUtxosByTxFromGlacier({
           transactionHex,
           chainAlias,
-          isTestnet: !this.networkService.isMainnet(),
+          network: isDevnet(network)
+            ? Network.DEVNET
+            : network.isTestnet
+            ? Network.FUJI
+            : Network.MAINNET,
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,
           headers: HEADERS,
@@ -151,7 +159,10 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
     const txData = await Avalanche.parseAvalancheTx(
       unsignedTx,
       provider,
-      currentAddress
+      currentAddress,
+      {
+        feeTolerance,
+      }
     );
 
     if (txData.type === 'unknown') {

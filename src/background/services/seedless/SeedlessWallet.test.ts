@@ -972,7 +972,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         mockPsbt();
         jest
           .mocked(getProviderForNetwork)
-          .mockReturnValue(new BitcoinProvider());
+          .mockResolvedValue(new BitcoinProvider());
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
@@ -1000,7 +1000,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         jest
           .spyOn(bitcoinProvider, 'getNetwork')
           .mockReturnValue(networks.bitcoin);
-        jest.mocked(getProviderForNetwork).mockReturnValue(bitcoinProvider);
+        jest.mocked(getProviderForNetwork).mockResolvedValue(bitcoinProvider);
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
