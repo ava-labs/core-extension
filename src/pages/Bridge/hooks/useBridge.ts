@@ -131,19 +131,16 @@ export function useBridge(): Bridge {
           setMinimum(min);
         }
       );
+    } else {
+      setMinimum(undefined);
+      setBridgeFee(undefined);
+      setReceiveAmount(undefined);
     }
 
     return () => {
       isMounted = false;
     };
-  }, [
-    amount,
-    asset,
-    getFee,
-    targetChain,
-    sourceBalance?.balance,
-    getMinimumTransferAmount,
-  ]);
+  }, [amount, asset, getFee, targetChain, getMinimumTransferAmount]);
 
   const estimateGas = useCallback(async () => {
     if (!asset?.symbol || !amount || !targetChain?.caipId) {
