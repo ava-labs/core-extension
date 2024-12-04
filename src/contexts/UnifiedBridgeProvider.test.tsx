@@ -442,7 +442,9 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
     it('uses the SDK to calculate fees', async () => {
       jest.mocked(core.getFees).mockResolvedValue({
-        [avaxUSDC.address]: 300n,
+        'eip155:1': {
+          [avaxUSDC.address]: 300n,
+        },
       });
       const provider = getBridgeProvider();
 

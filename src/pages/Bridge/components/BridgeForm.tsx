@@ -22,7 +22,7 @@ import {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { TokenUnit, bigIntToString } from '@avalabs/core-utils-sdk';
 import {
   NftTokenWithBalance,
   TokenWithBalance,
@@ -182,7 +182,7 @@ export const BridgeForm = ({
 
     if (amount && minimum && isAmountTooLow) {
       return t(`Amount too low -- minimum is {{minimum}}`, {
-        minimum: new TokenUnit(minimum, denomination, '').toDisplay(),
+        minimum: bigIntToString(minimum, denomination),
       });
     }
 
@@ -212,9 +212,7 @@ export const BridgeForm = ({
       return '-';
     }
 
-    const unit = new TokenUnit(receiveAmount, asset.decimals, asset.symbol);
-
-    return `${unit.toDisplay()} ${unit.getSymbol()}`;
+    return `${bigIntToString(receiveAmount, asset.decimals)} ${asset.symbol}`;
   }, [receiveAmount, asset]);
 
   const formattedReceiveAmountCurrency = useMemo(() => {

@@ -74,10 +74,10 @@
     bn.js "5.2.1"
     zod "3.23.8"
 
-"@avalabs/bridge-unified@3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-3.1.0.tgz#563be60cb5c1399b9cfea457fd82fee5fe43177c"
-  integrity sha512-1+bEf3wy6m0DLDmF5nQCfCHDnCN3hlBt9424B0gGgRnC5RaoSNHudJSBrNxR3UrI1kAZQDAlFfqGSxm2qmjH2A==
+"@avalabs/bridge-unified@4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/bridge-unified/-/bridge-unified-4.0.0.tgz#28c55878db43fbaab241c8eed7a6b417dede3416"
+  integrity sha512-Opn2DEHlSkohcQWf1vnTiiQ1PCrIMORjwPQiW/Kpg6QNorELr7TX6DhlWVi0/f1yuM580A7fzDoKxFeq8PkMdQ==
   dependencies:
     "@noble/hashes" "1.5.0"
     "@scure/base" "1.1.9"
