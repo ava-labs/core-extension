@@ -1,5 +1,4 @@
 import React, { WheelEvent, useEffect, useState } from 'react';
-import Big from 'big.js';
 import {
   Stack,
   TextField,
@@ -8,11 +7,8 @@ import {
   styled,
   CircularProgress,
 } from '@avalabs/core-k2-components';
-import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { stringToBigint } from '@src/utils/stringToBigint';
-
-Big.PE = 99;
-Big.NE = -18;
 
 export interface BNInputProps {
   value?: bigint;
@@ -37,7 +33,7 @@ const InputNumber = styled(TextField)`
   padding: 0;
 `;
 
-function splitBN(val: string) {
+function splitValue(val: string) {
   return val.includes('.') ? val.split('.') : [val, null];
 }
 
@@ -69,16 +65,15 @@ export function BNInput({
     }
 
     if (value) {
-      const valueAsBig = new Big(value.toString()).div(
-        Math.pow(10, denomination)
-      );
+      const valueAsString = bigIntToString(value, denomination);
+      const oldValue = stringToBigint(valStr, denomination);
       /**
        * When deleting zeros after decimal, all zeros delete without this check.
        * This also preserves zeros in the input ui.
        */
 
-      if (!valStr || !valueAsBig.eq(valStr)) {
-        setValStr(valueAsBig.toString());
+      if (!valStr || value !== oldValue) {
+        setValStr(valueAsString);
       }
     }
   }, [denomination, valStr, value]);
@@ -88,28 +83,21 @@ export function BNInput({
      * Split the input and make sure the right side never exceeds
      * the denomination length
      */
-    const [, endValue] = splitBN(newValueString); // renamed callback param
+    const [, endValue] = splitValue(newValueString); // renamed callback param
 
     if (!endValue || endValue.length <= denomination) {
-      const newValue = new TokenUnit(
-        stringToBigint(newValueString || '0', denomination),
-        denomination,
-        ''
-      );
+      const newValue = stringToBigint(newValueString || '0', denomination);
 
-      if (newValue.toSubUnit() < min) {
+      if (newValue < min) {
         return;
       }
 
-      const oldValue = new TokenUnit(
-        stringToBigint(valStr || '0', denomination),
-        denomination,
-        ''
-      );
-      if (!newValue.eq(oldValue)) {
+      const oldValue = stringToBigint(valStr || '0', denomination);
+
+      if (newValue !== oldValue) {
         onChange?.({
-          amount: newValue.toDisplay(),
-          bigint: newValue.toSubUnit(),
+          amount: bigIntToString(newValue || 0n, denomination),
+          bigint: newValue,
         });
       }
       setValStr(newValueString);
@@ -122,8 +110,7 @@ export function BNInput({
       return;
     }
 
-    const big = new Big(max.toString()).div(Math.pow(10, denomination));
-    onValueChanged(big.toString());
+    onValueChanged(bigIntToString(max, denomination));
   };
 
   const isMaxBtnVisible = max && max > 0n;
