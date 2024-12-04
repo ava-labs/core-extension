@@ -2,12 +2,14 @@ import { singleton } from 'tsyringe';
 import {
   AnalyzeTxParams,
   AnalyzeTxResult,
+  BridgeInitializer,
   BridgeTransfer,
   BridgeType,
   createUnifiedBridgeService,
   Environment,
   getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
+import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { wait } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
 
@@ -32,6 +34,7 @@ import {
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { getEnabledBridgeTypes } from '@src/utils/getEnabledBridgeTypes';
 
 @singleton()
 export class UnifiedBridgeService implements OnStorageReady {
@@ -110,16 +113,49 @@ export class UnifiedBridgeService implements OnStorageReady {
       });
   }
 
-  #getDisabledBridges(): BridgeType[] {
-    const bridges: BridgeType[] = [
-      BridgeType.ICTT_ERC20_ERC20,
-      BridgeType.AVALANCHE_EVM,
-    ];
+  #getBridgeInitializers(
+    bitcoinProvider: BitcoinProvider
+  ): BridgeInitializer[] {
+    return getEnabledBridgeTypes(this.#flagStates).map((type) =>
+      this.#getInitializerForBridgeType(type, bitcoinProvider)
+    );
+  }
 
-    if (!this.#flagStates[FeatureGates.UNIFIED_BRIDGE_CCTP]) {
-      bridges.push(BridgeType.CCTP);
+  #getInitializerForBridgeType(
+    type: BridgeType,
+    bitcoinProvider: BitcoinProvider
+  ): BridgeInitializer {
+    // This backend service is only used for transaction tracking purposes,
+    // therefore we don't need to provide true signing capabilities.
+    const dummySigner = {
+      async sign() {
+        return '0x' as const;
+      },
+    };
+
+    switch (type) {
+      case BridgeType.CCTP:
+      case BridgeType.ICTT_ERC20_ERC20:
+      case BridgeType.AVALANCHE_EVM:
+        return {
+          type,
+          signer: dummySigner,
+        };
+
+      case BridgeType.AVALANCHE_AVA_BTC:
+        return {
+          type,
+          signer: dummySigner,
+          bitcoinFunctions: bitcoinProvider,
+        };
+
+      case BridgeType.AVALANCHE_BTC_AVA:
+        return {
+          type,
+          signer: dummySigner,
+          bitcoinFunctions: bitcoinProvider,
+        };
     }
-    return bridges;
   }
 
   async #recreateService() {
@@ -128,11 +164,13 @@ export class UnifiedBridgeService implements OnStorageReady {
       : Environment.TEST;
 
     try {
+      const bitcoinProvider = await this.networkService.getBitcoinProvider();
+
       this.#core = createUnifiedBridgeService({
         environment,
         enabledBridgeServices: await getEnabledBridgeServices(
           environment,
-          this.#getDisabledBridges()
+          this.#getBridgeInitializers(bitcoinProvider)
         ),
       });
       this.#failedInitAttempts = 0;

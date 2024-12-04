@@ -55,10 +55,10 @@ export function ImportPrivateKey() {
   const history = useHistory();
   const { allAccounts } = useAccountsContext();
   const [isKnownAccount, setIsKnownAccount] = useState(false);
-  const [isDuplicatedAccountDialogOpen, setIsDuplicatedDialogDialogOpen] =
+  const [isDuplicatedAccountDialogOpen, setIsDuplicatedAccountDialogOpen] =
     useState(false);
 
-  const checkAccount = useCallback(
+  const checkIfAccountExists = useCallback(
     (address) => {
       const findAccount = allAccounts.find(
         ({ addressC }) => addressC.toLowerCase() === address.toLowerCase()
@@ -75,7 +75,7 @@ export function ImportPrivateKey() {
   const handleImport = async () => {
     capture('ImportPrivateKeyClicked');
     if (isKnownAccount && !isDuplicatedAccountDialogOpen) {
-      setIsDuplicatedDialogDialogOpen(true);
+      setIsDuplicatedAccountDialogOpen(true);
       return;
     }
     try {
@@ -86,7 +86,6 @@ export function ImportPrivateKey() {
       history.replace(`/accounts?activeTab=${AccountsTab.Imported}`);
     } catch (err) {
       toast.error(t('Private Key Import Failed'), { duration: 2000 });
-      console.error(err);
     }
   };
 
@@ -103,7 +102,7 @@ export function ImportPrivateKey() {
         const publicKey = getPublicKeyFromPrivateKey(strippedPk);
 
         const addressC = getEvmAddressFromPubKey(publicKey);
-        checkAccount(addressC);
+        checkIfAccountExists(addressC);
 
         const addressBTC = getBtcAddressFromPubKey(
           publicKey,
@@ -121,7 +120,7 @@ export function ImportPrivateKey() {
     } else {
       errorHandler();
     }
-  }, [checkAccount, isKnownAccount, network?.isTestnet, privateKey]);
+  }, [checkIfAccountExists, isKnownAccount, network?.isTestnet, privateKey]);
 
   useEffect(() => {
     if (derivedAddresses && updateBalanceOnNetworks) {
@@ -136,7 +135,7 @@ export function ImportPrivateKey() {
     <>
       {isKnownAccount && (
         <DuplicatedAccountDialog
-          onClose={() => setIsDuplicatedDialogDialogOpen(false)}
+          onClose={() => setIsDuplicatedAccountDialogOpen(false)}
           onConfirm={() => handleImport()}
           open={isDuplicatedAccountDialogOpen}
         />

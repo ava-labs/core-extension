@@ -76,5 +76,5 @@ To report an error to Sentry, use the `console.error` method. Unhandled exceptio
 - **DO** be careful about consecutive events. For example, a token selection event itself does not identify the transaction, but with an amount and the timestamp of pushing the send button, it's easy to figure out the source.
 - **DO** add analytics events for new features
 - **DO** default to the less bad when integrating feature flags. If the feature flag service is down, should we disable the feature by default or is it worse if we can't disable it?
-- **DO** make sure your new Fetaure Flags are added to both environments and have the correct default values before merging your PR.
-- **DO** fix the bugs and handle the exceptions fund in Sentry.
+- **DO** make sure your new Feature Flags are added to both environments and have the correct default values before merging your PR.
+- **DO** fix the bugs and handle the exceptions found in Sentry.

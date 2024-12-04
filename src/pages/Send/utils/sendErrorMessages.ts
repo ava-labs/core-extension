@@ -18,6 +18,7 @@ export function getSendErrorMessage(key: SendErrorMessage): string {
     ),
     [SendErrorMessage.UNSUPPORTED_TOKEN]: t('Unsupported token'),
     [SendErrorMessage.UNKNOWN_ERROR]: t('Unknown error'),
+    [SendErrorMessage.EXCESSIVE_NETWORK_FEE]: t('Selected fee is too high'),
   };
 
   return translations[key] ?? key;
