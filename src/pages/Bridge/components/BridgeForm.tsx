@@ -27,6 +27,7 @@ import {
   NftTokenWithBalance,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import { isNativeAsset } from '@avalabs/bridge-unified';
 
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -163,7 +164,11 @@ export const BridgeForm = ({
     }
   }, [amount, capture, maximum, setBridgeError, t]);
 
-  const hasEnoughForNetworkFee = useHasEnoughForGas(amount, feeRate, neededGas);
+  const hasEnoughForNetworkFee = useHasEnoughForGas(
+    asset && isNativeAsset(asset) ? amount : 0n, // Bridge amount does not matter if we're not bridging the native token
+    feeRate,
+    neededGas
+  );
 
   const errorTooltipContent = useMemo(() => {
     if (!hasEnoughForNetworkFee) {
