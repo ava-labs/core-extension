@@ -29,6 +29,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     isMainnet: jest.fn(),
     getNetwork: jest.fn(),
     getProviderForNetwork: jest.fn(),
+    getBitcoinProvider: jest.fn(),
     sendTransaction: jest.fn(),
   } as any;
 
@@ -41,6 +42,10 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     featureFlags: {
       [FeatureGates.IMPORT_FIREBLOCKS]: true,
       [FeatureGates.UNIFIED_BRIDGE_CCTP]: true,
+      [FeatureGates.UNIFIED_BRIDGE_ICTT]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: true,
     },
     addListener: jest.fn(),
   } as any;
@@ -64,6 +69,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     networkService.getNetwork.mockImplementation(async (chainId) => ({
       chainId,
     }));
+    networkService.getBitcoinProvider.mockResolvedValue({} as any);
   });
 
   it('creates core instance with proper environment', async () => {
@@ -118,6 +124,10 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     // Toggle an irrelevant flag off
     mockFeatureFlagChanges({
       [FeatureGates.UNIFIED_BRIDGE_CCTP]: true,
+      [FeatureGates.UNIFIED_BRIDGE_ICTT]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: true,
       [FeatureGates.IMPORT_FIREBLOCKS]: false,
     });
 
@@ -127,6 +137,10 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     // Toggle a relevant flag off
     mockFeatureFlagChanges({
       [FeatureGates.UNIFIED_BRIDGE_CCTP]: false,
+      [FeatureGates.UNIFIED_BRIDGE_ICTT]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: true,
       [FeatureGates.IMPORT_FIREBLOCKS]: false,
     });
 
@@ -180,30 +194,13 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
       });
 
       new UnifiedBridgeService(networkService, storageService, flagsService);
-      await jest.runAllTicks();
-
-      expect(getEnabledBridgeServices).toHaveBeenCalledTimes(1);
-      expect(wait).toHaveBeenNthCalledWith(1, 2000);
-
-      jest.advanceTimersByTime(2000);
-      await jest.runOnlyPendingTimers();
-      await jest.runAllTicks();
-
-      expect(getEnabledBridgeServices).toHaveBeenCalledTimes(2);
-      expect(wait).toHaveBeenNthCalledWith(2, 4000);
-
-      jest.advanceTimersByTime(4000);
-      await jest.runOnlyPendingTimers();
-      await jest.runAllTicks();
-
-      expect(getEnabledBridgeServices).toHaveBeenCalledTimes(3);
-      expect(wait).toHaveBeenNthCalledWith(3, 8000);
-
-      jest.advanceTimersByTime(8000);
-      await jest.runOnlyPendingTimers();
+      await jest.runAllTimersAsync();
       await jest.runAllTicks();
 
       expect(getEnabledBridgeServices).toHaveBeenCalledTimes(4);
+      expect(wait).toHaveBeenNthCalledWith(1, 2000);
+      expect(wait).toHaveBeenNthCalledWith(2, 4000);
+      expect(wait).toHaveBeenNthCalledWith(3, 8000);
       expect(createUnifiedBridgeService).toHaveBeenCalled();
     });
   });
