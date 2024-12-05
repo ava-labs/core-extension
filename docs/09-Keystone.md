@@ -6,7 +6,7 @@ The current firmware version is M-10.3
 ## What we have discovered so far
 
 There is an App for Core. It requires beta firmware for the time being.
-Go to the Menu -> Software Waller -> Core Wallet and select it by tapping on Confirm in the top right corner.
+Go to the Menu -> Software Wallet -> Core Wallet and select it by tapping on Confirm in the top right corner.
 
 ### Create Wallet
 

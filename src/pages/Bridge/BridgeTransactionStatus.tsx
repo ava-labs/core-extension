@@ -31,7 +31,6 @@ import {
 } from '@avalabs/core-k2-components';
 
 import Dialog from '@src/components/common/Dialog';
-import { bigintToBig } from '@src/utils/bigintToBig';
 import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { ConfirmationTracker } from '@src/components/common/ConfirmationTracker';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -49,6 +48,7 @@ import { BridgeCard } from './components/BridgeCard';
 import { OffloadTimerTooltip } from './components/OffloadTimerTooltip';
 import { usePendingBridgeTransactions } from './hooks/usePendingBridgeTransactions';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 const BridgeTransactionStatus = () => {
   const { t } = useTranslation();
@@ -89,7 +89,7 @@ const BridgeTransactionStatus = () => {
   );
   const coingeckoId = useCoinGeckoId(symbol);
   const logoUri = useLogoUriForBridgeTransaction(bridgeTransaction);
-  const { networks } = useNetworkContext();
+  const { networks, getNetwork } = useNetworkContext();
 
   const { bridgeConfig } = useBridgeSDK();
   useSyncBridgeConfig();
@@ -189,6 +189,17 @@ const BridgeTransactionStatus = () => {
     history.push('/home');
     return null;
   }
+
+  const bridgeAmount = bridgeTransaction
+    ? isUnifiedBridgeTransfer(bridgeTransaction)
+      ? new TokenUnit(
+          bridgeTransaction.amount,
+          bridgeTransaction.asset.decimals,
+          bridgeTransaction.asset.symbol
+        ).toDisplay()
+      : bridgeTransaction.amount.toString()
+    : '';
+
   return (
     <Stack
       sx={{
@@ -245,11 +256,7 @@ const BridgeTransactionStatus = () => {
                   {t('Sending Amount')}
                 </Typography>
                 <Stack sx={{ flexDirection: 'row' }}>
-                  <Typography variant="h6">
-                    {isUnifiedBridgeTransfer(bridgeTransaction)
-                      ? bigintToBig(bridgeTransaction.amount, 6).toNumber()
-                      : bridgeTransaction.amount?.toNumber()}
-                  </Typography>
+                  <Typography variant="h6">{bridgeAmount}</Typography>
                   <Typography
                     variant="h6"
                     sx={{ ml: 1, color: 'text.secondary' }}
@@ -305,7 +312,8 @@ const BridgeTransactionStatus = () => {
                           getExplorerAddress(
                             bridgeTransaction.sourceChain,
                             bridgeTransaction.sourceTxHash,
-                            isMainnet
+                            isMainnet,
+                            getNetwork
                           ),
                           '_blank',
                           'noreferrer'
@@ -497,7 +505,8 @@ const BridgeTransactionStatus = () => {
                           getExplorerAddress(
                             bridgeTransaction.targetChain,
                             bridgeTransaction.targetTxHash || '',
-                            isMainnet
+                            isMainnet,
+                            getNetwork
                           ),
                           '_blank',
                           'noreferrer'

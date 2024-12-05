@@ -1,27 +1,5 @@
-import {
-  BIG_ZERO,
-  Blockchain,
-  useBridgeSDK,
-  isAddressBlocklisted,
-} from '@avalabs/core-bridge-sdk';
-import { PageTitle } from '@src/components/common/PageTitle';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { BridgeProviders, useBridge } from './hooks/useBridge';
-import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
-import { usePageHistory } from '@src/hooks/usePageHistory';
-import { useSyncBridgeConfig } from './hooks/useSyncBridgeConfig';
-import Big from 'big.js';
-import { useSetBridgeChainFromNetwork } from './hooks/useSetBridgeChainFromNetwork';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { BridgeSanctions } from './components/BridgeSanctions';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import {
-  blockchainToNetwork,
-  networkToBlockchain,
-} from './utils/blockchainConversion';
-import { useAvailableBlockchains } from './hooks/useAvailableBlockchains';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
@@ -30,6 +8,13 @@ import {
   Typography,
   toast,
 } from '@avalabs/core-k2-components';
+
+import { PageTitle } from '@src/components/common/PageTitle';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
+import { usePageHistory } from '@src/hooks/usePageHistory';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { TokenType } from '@avalabs/vm-module-types';
 import {
   FunctionNames,
@@ -37,40 +22,45 @@ import {
 } from '@src/hooks/useIsFunctionAvailable';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
-
-import { BridgeFormETH } from './components/BridgeFormETH';
-import { BridgeFormAVAX } from './components/BridgeFormAVAX';
-import { BridgeFormBTC } from './components/BridgeFormBTC';
-import { BridgeFormUnified } from './components/BridgeFormUnified';
-import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
-import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+
+import { useBridge } from './hooks/useBridge';
+import { BridgeForm } from './components/BridgeForm';
+import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
+import { useBridgeTxHandling } from './hooks/useBridgeTxHandling';
+import { BridgeFormSkeleton } from './components/BridgeFormSkeleton';
+import { BridgeSanctions } from './components/BridgeSanctions';
+import { isAddressBlockedError } from './utils/isAddressBlockedError';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
 export function Bridge() {
-  useLiveBalance(POLLED_BALANCES); // Make sure we always use fresh balances of bridgable tokens.
-  useSyncBridgeConfig(); // keep bridge config up-to-date
-  useSetBridgeChainFromNetwork();
-
-  const [currentAssetIdentifier, setCurrentAssetIdentifier] =
-    useState<string>();
-  const { amount, setAmount, bridgeFee, provider, minimum, targetChainId } =
-    useBridge(currentAssetIdentifier);
+  useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest balances.
 
   const {
-    bridgeConfig,
-    currentAsset,
-    setCurrentAsset,
-    currentBlockchain,
-    setCurrentBlockchain,
-    targetBlockchain,
-    sourceAssets,
-  } = useBridgeSDK();
-  const bridgeConfigError = bridgeConfig.error;
+    amount,
+    setAmount,
+    bridgableTokens,
+    availableChainIds,
+    bridgeFee,
+    estimateGas,
+    isReady,
+    minimum,
+    maximum,
+    receiveAmount,
+    setTargetChain,
+    possibleTargetChains,
+    asset,
+    setAsset,
+    targetChain,
+    transferableAssets,
+    sourceBalance,
+    transfer,
+  } = useBridge();
+
   const { t } = useTranslation();
-  const availableBlockchains = useAvailableBlockchains();
-  const { getAssetIdentifierOnTargetChain } = useUnifiedBridgeContext();
 
   const { isFunctionAvailable } = useIsFunctionAvailable(FunctionNames.BRIDGE);
 
@@ -78,13 +68,14 @@ export function Bridge() {
 
   const history = useHistory();
   const { captureEncrypted } = useAnalyticsContext();
+  const { networkFee } = useNetworkFeeContext();
   const { getPageHistoryData, setNavigationHistoryData } = usePageHistory();
   const getTranslatedError = useErrorMessage();
 
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-  const { network, setNetwork, networks } = useNetworkContext();
+  const { network, setNetwork } = useNetworkContext();
 
   const activeAddress = useMemo(
     () =>
@@ -96,109 +87,94 @@ export function Bridge() {
     [activeAccount?.addressBTC, activeAccount?.addressC, network]
   );
 
-  const targetNetwork = useMemo(() => {
-    if (targetBlockchain) {
-      return blockchainToNetwork(targetBlockchain, networks, bridgeConfig);
-    }
-  }, [bridgeConfig, networks, targetBlockchain]);
-
   const bridgePageHistoryData: {
     selectedToken?: string;
-    inputAmount?: Big;
-    selectedTokenAddress?: string;
+    inputAmount?: string;
     isLoading: boolean;
   } = getPageHistoryData();
 
-  // derive blockchain/network from network
   useEffect(() => {
-    const networkBlockchain = networkToBlockchain(network);
-    if (currentBlockchain !== networkBlockchain) {
-      setCurrentBlockchain(networkBlockchain);
-    }
-  }, [network, currentBlockchain, setCurrentBlockchain]);
+    if (!asset && bridgePageHistoryData.selectedToken) {
+      const matchingAsset = transferableAssets.find(
+        (a) => a.symbol === bridgePageHistoryData.selectedToken
+      );
 
-  // Set source blockchain & amount from page storage
-  useEffect(() => {
-    if (!amount && bridgePageHistoryData.inputAmount) {
-      setAmount(new Big(bridgePageHistoryData.inputAmount));
+      if (matchingAsset) {
+        setAsset(matchingAsset);
+      }
+    }
+    if (typeof amount !== 'bigint' && bridgePageHistoryData.inputAmount) {
+      setAmount(BigInt(bridgePageHistoryData.inputAmount));
     }
   }, [
     amount,
+    asset,
+    setAsset,
+    transferableAssets,
     bridgePageHistoryData.inputAmount,
-    setAmount,
-    networks,
-    setNetwork,
-  ]);
-
-  // Set token from page storage
-  useEffect(() => {
-    const sourceSymbols = Object.keys(sourceAssets);
-    const symbol = bridgePageHistoryData.selectedToken;
-
-    if (
-      symbol &&
-      !currentAsset &&
-      sourceSymbols.length &&
-      sourceSymbols.includes(symbol) // make sure we have the selected token available on the network to prevent an infinite loop
-    ) {
-      // Workaround for a race condition with useEffect in BridgeSDKProvider
-      // that also calls setCurrentAsset :(
-      const timer = setTimeout(() => {
-        setCurrentAsset(symbol);
-        setCurrentAssetIdentifier(
-          bridgePageHistoryData.selectedTokenAddress ?? ''
-        );
-      }, 1);
-
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [
     bridgePageHistoryData.selectedToken,
-    bridgePageHistoryData.selectedTokenAddress,
-    currentAsset,
-    currentAssetIdentifier,
-    setCurrentAsset,
-    sourceAssets,
-    bridgeConfig,
-    networks,
-    targetBlockchain,
+    setAmount,
   ]);
+
+  useEffect(() => {
+    if (!asset || transferableAssets.length === 0) {
+      return;
+    }
+
+    const sourceSymbols = transferableAssets.map(({ symbol }) => symbol);
+    const prevSymbol = asset.symbol;
+
+    if (prevSymbol && sourceSymbols.length) {
+      const prevAsset = transferableAssets.find(
+        ({ symbol }) => symbol === prevSymbol
+      );
+
+      if (prevAsset) {
+        setAsset(prevAsset);
+      }
+    }
+  }, [asset, setAsset, transferableAssets]);
 
   const [isAmountTooLow, setIsAmountTooLow] = useState(false);
 
   const onInitiated = useCallback(() => {
     captureEncrypted('BridgeTransferStarted', {
       address: activeAddress,
-      sourceBlockchain: currentBlockchain,
-      targetBlockchain,
+      sourceBlockchain: network?.caipId,
+      targetBlockchain: targetChain?.caipId,
     });
-  }, [captureEncrypted, activeAddress, currentBlockchain, targetBlockchain]);
+  }, [captureEncrypted, activeAddress, network?.caipId, targetChain?.caipId]);
 
   const onRejected = useCallback(() => {
     captureEncrypted('BridgeTransferRequestUserRejectedError', {
       address: activeAddress,
-      sourceBlockchain: currentBlockchain,
-      targetBlockchain,
-      fee: bridgeFee?.toNumber(),
+      sourceBlockchain: network?.caipId,
+      targetBlockchain: targetChain?.caipId,
+      fee: Number(bridgeFee ?? 0),
     });
   }, [
     activeAddress,
-    bridgeFee,
     captureEncrypted,
-    currentBlockchain,
-    targetBlockchain,
+    network?.caipId,
+    targetChain?.caipId,
+    bridgeFee,
   ]);
+
+  const [isAddressBlocked, setIsAddressBlocked] = useState(false);
 
   const onFailure = useCallback(
     (transferError: unknown) => {
       setBridgeError(t('There was a problem with the transfer'));
       captureEncrypted('BridgeTransferRequestError', {
         address: activeAddress,
-        sourceBlockchain: currentBlockchain,
-        targetBlockchain,
+        sourceBlockchain: network?.caipId,
+        targetBlockchain: targetChain?.caipId,
       });
+
+      if (isAddressBlockedError(transferError)) {
+        setIsAddressBlocked(true);
+        return;
+      }
 
       const { title, hint } = getTranslatedError(transferError);
 
@@ -215,10 +191,10 @@ export function Bridge() {
     [
       activeAddress,
       captureEncrypted,
-      currentBlockchain,
-      targetBlockchain,
       getTranslatedError,
+      network?.caipId,
       t,
+      targetChain?.caipId,
     ]
   );
 
@@ -227,72 +203,89 @@ export function Bridge() {
       captureEncrypted('BridgeTransferRequestSucceeded', {
         address: activeAddress,
         txHash: hash,
-        sourceBlockchain: currentBlockchain,
-        targetBlockchain,
+        sourceBlockchain: network?.caipId,
+        targetBlockchain: targetChain?.caipId,
       });
 
       const timestamp = Date.now();
 
       // Navigate to transaction status page
       history.push(
-        `/bridge/transaction-status/${currentBlockchain}/${hash}/${timestamp}`
+        `/bridge/transaction-status/${network?.caipId}/${hash}/${timestamp}`
       );
     },
     [
       activeAddress,
       captureEncrypted,
-      currentBlockchain,
       history,
-      targetBlockchain,
+      network?.caipId,
+      targetChain?.caipId,
     ]
   );
 
-  const handleBlockchainChange = useCallback(
-    (blockchain: Blockchain) => {
-      const blockChainNetwork = blockchainToNetwork(
-        blockchain,
-        networks,
-        bridgeConfig
-      );
-
-      if (blockChainNetwork) {
-        setNetwork(blockChainNetwork);
-        const assetAddressOnOppositeChain = getAssetIdentifierOnTargetChain(
-          currentAsset,
-          blockChainNetwork.caipId
-        );
-
-        setCurrentAssetIdentifier(assetAddressOnOppositeChain);
-        setNavigationHistoryData({
-          selectedTokenAddress: assetAddressOnOppositeChain,
-          selectedToken: currentAsset,
-          inputAmount: amount,
-        });
-      }
+  const handleSourceChainChange = useCallback(
+    (chain: NetworkWithCaipId) => {
+      setNetwork(chain);
+      setNavigationHistoryData({
+        selectedToken: asset ? asset.symbol : undefined,
+        inputAmount: amount,
+      });
 
       // Reset because a denomination change will change its value
-      setAmount(BIG_ZERO);
+      setAmount(0n);
       setBridgeError('');
     },
     [
       amount,
-      bridgeConfig,
-      getAssetIdentifierOnTargetChain,
-      currentAsset,
-      networks,
+      asset,
       setAmount,
       setNavigationHistoryData,
       setNetwork,
       setBridgeError,
-      setCurrentAssetIdentifier,
     ]
   );
 
-  if (
-    bridgeConfigError ||
-    !isFunctionAvailable ||
-    availableBlockchains.length < 2 // we need at least to blockchains to bridge between
-  ) {
+  const { onTransfer, isPending } = useBridgeTxHandling({
+    transfer,
+    onInitiated,
+    onSuccess,
+    onFailure,
+    onRejected,
+  });
+
+  const formProps = {
+    onInitiated,
+    onSuccess,
+    onFailure,
+    onRejected,
+    handleSourceChainChange,
+    amount,
+    bridgeError,
+    isAmountTooLow,
+    isReady,
+    asset,
+    setAsset,
+    availableChainIds,
+    transferableAssets,
+    transfer,
+    onTransfer,
+    isPending,
+    setIsAmountTooLow,
+    setAmount,
+    setBridgeError,
+    setNavigationHistoryData,
+    targetChain,
+    estimateGas,
+    minimum,
+    maximum,
+    receiveAmount,
+    setTargetChain,
+    possibleTargetChains,
+    bridgableTokens,
+    sourceBalance,
+  };
+
+  if (!isFunctionAvailable) {
     return (
       <FunctionIsOffline functionName={FunctionNames.BRIDGE}>
         <Button
@@ -309,88 +302,33 @@ export function Bridge() {
     );
   }
 
-  if (
-    activeAccount &&
-    isAddressBlocklisted({
-      addressEVM: activeAccount.addressC,
-      addressBTC: activeAccount.addressBTC,
-      bridgeConfig,
-    })
-  ) {
+  if (isAddressBlocked) {
     return <BridgeSanctions />;
   }
 
-  const sharedProps = {
-    onInitiated,
-    onSuccess,
-    onFailure,
-    onRejected,
-    handleBlockchainChange,
-    amount,
-    availableBlockchains,
-    bridgeError,
-    isAmountTooLow,
-    setIsAmountTooLow,
-    provider,
-    setAmount,
-    setBridgeError,
-    setCurrentAssetIdentifier,
-    setNavigationHistoryData,
-    targetNetwork,
-    currentAssetIdentifier,
-  };
-
-  if (
-    currentBlockchain === Blockchain.UNKNOWN ||
-    !availableBlockchains.includes(currentBlockchain)
-  ) {
-    return <BridgeUnknownNetwork onSelect={handleBlockchainChange} />;
+  if (isReady && transferableAssets.length === 0) {
+    return (
+      <BridgeUnknownNetwork
+        onSelect={handleSourceChainChange}
+        availableChainIds={availableChainIds}
+        network={network}
+      />
+    );
   }
 
   return (
     <Stack sx={{ height: '100%', width: '100%' }}>
       <PageTitle
         onBackClick={() => {
-          // We need to reset the current asset when the user purposefully navigates away from Bridge.
-          // That's because this kind of action will clear the data we saved in NavigationHistoryService,
-          // therefore leaving us with no "currentAssetIdentifier", without which we cannot distinguish between
-          // USDC and USDC.e
-          // Closing & reopening of the extension will still work & load the previous form values,
-          // because this action does not clear the data in NavigationHistoryService.
-          setCurrentAsset('');
           history.replace('/home');
         }}
       >
         {t('Bridge')}
       </PageTitle>
-      {provider === BridgeProviders.Avalanche ? (
-        <>
-          {currentBlockchain === Blockchain.ETHEREUM && (
-            <BridgeFormETH
-              {...sharedProps}
-              bridgeFee={bridgeFee}
-              minimum={minimum}
-            />
-          )}
-
-          {currentBlockchain === Blockchain.BITCOIN && (
-            <BridgeFormBTC
-              {...sharedProps}
-              bridgeFee={bridgeFee}
-              minimum={minimum}
-            />
-          )}
-
-          {currentBlockchain === Blockchain.AVALANCHE && (
-            <BridgeFormAVAX
-              {...sharedProps}
-              bridgeFee={bridgeFee}
-              minimum={minimum}
-            />
-          )}
-        </>
+      {isReady && networkFee ? (
+        <BridgeForm {...formProps} networkFee={networkFee} />
       ) : (
-        <BridgeFormUnified {...sharedProps} targetChainId={targetChainId} />
+        <BridgeFormSkeleton />
       )}
     </Stack>
   );

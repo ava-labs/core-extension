@@ -1,10 +1,9 @@
-import { Asset, Blockchain } from '@avalabs/core-bridge-sdk';
-import { BridgeAsset } from '@avalabs/bridge-unified';
+import { BridgeAsset, BridgeType, GasSettings } from '@avalabs/bridge-unified';
 import Big from 'big.js';
 
 export interface AssetBalance {
   symbol: string;
-  asset: Asset | BridgeAsset;
+  asset: BridgeAsset;
   balance: Big | undefined;
   symbolOnNetwork?: string;
   logoUri?: string;
@@ -12,15 +11,7 @@ export interface AssetBalance {
   unconfirmedBalance?: Big;
 }
 
-export const blockchainDisplayNameMap = new Map([
-  [Blockchain.AVALANCHE, 'Avalanche C-Chain'],
-  [Blockchain.ETHEREUM, 'Ethereum'],
-  [Blockchain.BITCOIN, 'Bitcoin'],
-  [Blockchain.UNKNOWN, ''],
-]);
-
-export const SUPPORTED_CHAINS = [
-  Blockchain.AVALANCHE,
-  Blockchain.ETHEREUM,
-  Blockchain.BITCOIN,
-];
+export type BridgeOptions = {
+  bridgeType?: BridgeType;
+  gasSettings?: GasSettings;
+};
