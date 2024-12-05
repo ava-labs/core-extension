@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
-import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { FirebaseApp, initializeApp } from 'firebase/app';
-import { getToken, Unsubscribe } from 'firebase/messaging';
+import { getToken } from 'firebase/messaging';
 import {
   getMessaging,
   MessagePayload,
@@ -13,10 +12,9 @@ import { FcmMessageEvents, FirebaseEvents, FcmMessageListener } from './models';
 declare const globalThis: ServiceWorkerGlobalScope;
 
 @singleton()
-export class FirebaseService implements OnLock {
+export class FirebaseService {
   #app: FirebaseApp;
   #fcmToken?: string;
-  #fcmUnsubscriber: Unsubscribe;
   #firebaseEventEmitter = new EventEmitter();
   #fcmMessageEventEmitter = new EventEmitter();
 
@@ -29,12 +27,9 @@ export class FirebaseService implements OnLock {
       JSON.parse(Buffer.from(process.env.FIREBASE_CONFIG, 'base64').toString())
     );
 
-    this.#fcmUnsubscriber = onBackgroundMessage(
-      getMessaging(this.#app),
-      (payload) => {
-        this.#handleMessage(payload);
-      }
-    );
+    onBackgroundMessage(getMessaging(this.#app), (payload) => {
+      this.#handleMessage(payload);
+    });
 
     globalThis.addEventListener('activate', async () => {
       this.#fcmToken = await getToken(getMessaging(this.#app), {
@@ -43,12 +38,6 @@ export class FirebaseService implements OnLock {
 
       this.#firebaseEventEmitter.emit(FirebaseEvents.FCM_READY);
     });
-  }
-
-  onLock() {
-    this.#fcmUnsubscriber?.();
-    this.#firebaseEventEmitter.removeAllListeners();
-    this.#fcmMessageEventEmitter.removeAllListeners();
   }
 
   getFirebaseApp() {
