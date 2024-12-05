@@ -223,7 +223,13 @@ export function AddWalletWithLedger() {
                   'Please close this tab and open the Core Browser Extension to see the newly imported wallet.'
                 )}
               </Typography>
-              <Button onClick={window.close} sx={{ width: '50%' }}>
+              <Button
+                onClick={() => {
+                  browser.action.openPopup();
+                  window.close();
+                }}
+                sx={{ width: '50%' }}
+              >
                 {t('Close')}
               </Button>
             </Stack>
