@@ -67,6 +67,22 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
     expect(error).toEqual('This wallet already exists');
   });
+  it('should return with the id as `0` and the given `SecretType` after it checked the wallet is exist', async () => {
+    secretsService.isKnownSecret.mockResolvedValueOnce(false);
+
+    const { result } = await handle({
+      secretType: SecretType.Ledger,
+      xpub: 'xpubValue',
+      name: 'name',
+      dryRun: true,
+    });
+
+    expect(result).toEqual({
+      id: '0',
+      name: 'name',
+      type: SecretType.Ledger,
+    });
+  });
 
   it('returns an ImportWalletResult if Ledger import is successful', async () => {
     const walletId = crypto.randomUUID();
