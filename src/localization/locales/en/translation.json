@@ -156,6 +156,7 @@
   "Click close below.": "Click close below.",
   "Click on the 'Get Signature' button after signing the transaction with your Keystone device.": "Click on the 'Get Signature' button after signing the transaction with your Keystone device.",
   "Click on the “Scan” button at the bottom to scan the QR code displayed on the Keystone device.": "Click on the “Scan” button at the bottom to scan the QR code displayed on the Keystone device.",
+  "Clicking the cancel button will close the tab and open the extension for you. If the extension doesn’t open automatically, please open it manually.": "Clicking the cancel button will close the tab and open the extension for you. If the extension doesn’t open automatically, please open it manually.",
   "Close": "Close",
   "Closing the settings menu will require you to restart the 2 day waiting period.": "Closing the settings menu will require you to restart the 2 day waiting period.",
   "Code": "Code",
