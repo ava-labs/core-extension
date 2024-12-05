@@ -8,6 +8,9 @@ import {
 } from 'firebase/messaging/sw';
 import { singleton } from 'tsyringe';
 import { FcmMessageEvents, FirebaseEvents, FcmMessageListener } from './models';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 declare const globalThis: ServiceWorkerGlobalScope;
 
@@ -32,11 +35,16 @@ export class FirebaseService {
     });
 
     globalThis.addEventListener('activate', async () => {
-      this.#fcmToken = await getToken(getMessaging(this.#app), {
-        serviceWorkerRegistration: globalThis.registration,
-      });
+      try {
+        this.#fcmToken = await getToken(getMessaging(this.#app), {
+          serviceWorkerRegistration: globalThis.registration,
+        });
 
-      this.#firebaseEventEmitter.emit(FirebaseEvents.FCM_READY);
+        this.#firebaseEventEmitter.emit(FirebaseEvents.FCM_READY);
+      } catch (err) {
+        console.warn('FCM init failed');
+        sentryCaptureException(err as Error, SentryExceptionTypes.FIREBASE);
+      }
     });
   }
 
