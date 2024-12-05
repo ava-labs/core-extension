@@ -39,7 +39,8 @@ export class ImportLedgerHandler implements HandlerType {
   }
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [{ xpub, xpubXP, pubKeys, secretType, name }] = request.params;
+    const [{ xpub, xpubXP, pubKeys, secretType, name, dryRun }] =
+      request.params;
 
     if (
       secretType !== SecretType.Ledger &&
@@ -65,6 +66,17 @@ export class ImportLedgerHandler implements HandlerType {
       return {
         ...request,
         error: `This wallet already exists`,
+      };
+    }
+
+    if (dryRun) {
+      return {
+        ...request,
+        result: {
+          id: '0',
+          name,
+          type: secretType,
+        },
       };
     }
 
