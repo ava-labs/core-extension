@@ -25,7 +25,10 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
   const secretsService = jest.mocked<SecretsService>({
     getPrimaryAccountSecrets: jest.fn(),
   } as any);
-  const networkService = jest.mocked<NetworkService>({} as any);
+  const networkService = jest.mocked<NetworkService>({
+    isMainnet: jest.fn(),
+    getAvalanceProviderXP: jest.fn(),
+  } as any);
   const mfaService = jest.mocked<SeedlessMfaService>({} as any);
   const accountsService = jest.mocked<AccountsService>({} as any);
 

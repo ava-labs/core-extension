@@ -141,6 +141,8 @@ describe('background/services/accounts/AccountsService', () => {
     };
   };
 
+  const providerXP = { getAddress: jest.fn() } as any;
+
   beforeEach(() => {
     jest.resetAllMocks();
     (storageService.load as jest.Mock).mockResolvedValue(emptyAccounts);
@@ -154,6 +156,9 @@ describe('background/services/accounts/AccountsService', () => {
     });
     networkService.developerModeChanged.add = jest.fn();
     networkService.developerModeChanged.remove = jest.fn();
+    jest
+      .spyOn(networkService, 'getAvalanceProviderXP')
+      .mockResolvedValue(providerXP);
     accountsService = new AccountsService(
       storageService,
       networkService,
@@ -267,13 +272,13 @@ describe('background/services/accounts/AccountsService', () => {
         1,
         0,
         walletId,
-        networkService
+        { isMainnet: true, providerXP }
       );
       expect(secretsService.getAddresses).toHaveBeenNthCalledWith(
         2,
         1,
         walletId,
-        networkService
+        { isMainnet: true, providerXP }
       );
       expect(secretsService.getImportedAddresses).toBeCalledTimes(3);
 
@@ -378,7 +383,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(secretsService.getImportedAddresses).toHaveBeenCalledWith(
         'fb-acc',
-        networkService
+        { isMainnet: true, providerXP }
       );
       expect(secretsService.getAddresses).toHaveBeenCalledTimes(0);
       expect(accountsService.getAccounts().imported['fb-acc']).toEqual({
@@ -500,7 +505,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.addAddress).toBeCalledWith({
         index: 0,
         walletId: WALLET_ID,
-        networkService,
+        options: { isMainnet: true, providerXP },
         ledgerService,
       });
 
@@ -552,7 +557,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.addAddress).toBeCalledWith({
         index: 2,
         walletId: WALLET_ID,
-        networkService,
+        options: { isMainnet: true, providerXP },
         ledgerService,
       });
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
@@ -593,7 +598,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.addAddress).toBeCalledWith({
         index: 2,
         walletId: WALLET_ID,
-        networkService,
+        options: { isMainnet: true, providerXP },
         ledgerService,
       });
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
@@ -680,10 +685,10 @@ describe('background/services/accounts/AccountsService', () => {
         options,
       });
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
-      expect(secretsService.addImportedWallet).toBeCalledWith(
-        options,
-        networkService
-      );
+      expect(secretsService.addImportedWallet).toBeCalledWith(options, {
+        isMainnet: true,
+        providerXP,
+      });
       expect(commitMock).toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
@@ -738,10 +743,10 @@ describe('background/services/accounts/AccountsService', () => {
 
       await accountsService.addImportedAccount({ options });
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
-      expect(secretsService.addImportedWallet).toBeCalledWith(
-        options,
-        networkService
-      );
+      expect(secretsService.addImportedWallet).toBeCalledWith(options, {
+        isMainnet: true,
+        providerXP,
+      });
       expect(commitMock).toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
@@ -839,10 +844,10 @@ describe('background/services/accounts/AccountsService', () => {
         '0x1'
       );
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
-      expect(secretsService.addImportedWallet).toBeCalledWith(
-        options,
-        networkService
-      );
+      expect(secretsService.addImportedWallet).toBeCalledWith(options, {
+        isMainnet: true,
+        providerXP,
+      });
       expect(commitMock).not.toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).not.toHaveBeenCalled();
     });

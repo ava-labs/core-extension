@@ -12,8 +12,6 @@ import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
 import { networks } from 'bitcoinjs-lib';
 import { JsonRpcProvider, getBytes, hashMessage } from 'ethers';
 
-import { NetworkService } from '../network/NetworkService';
-
 import {
   validKeySet,
   avaKey,
@@ -45,7 +43,6 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 jest.mock('@cubist-labs/cubesigner-sdk');
 jest.mock('@cubist-labs/cubesigner-sdk-ethers-v6');
 jest.mock('@avalabs/core-wallets-sdk');
-jest.mock('../network/NetworkService');
 jest.mock('./SeedlessBtcSigner');
 jest.mock('./SeedlessMfaService');
 jest.mock('@src/utils/network/getProviderForNetwork');
@@ -53,9 +50,6 @@ jest.mock('@src/utils/network/getProviderForNetwork');
 describe('src/background/services/seedless/SeedlessWallet', () => {
   const sessionStorage = jest.mocked<SeedlessTokenStorage>(
     new SeedlessTokenStorage({} as any)
-  );
-  const networkService = jest.mocked<NetworkService>(
-    new NetworkService({} as any, {} as any)
   );
   const sessionManager = jest.mocked<SeedlessSessionManager>({
     notifyTokenExpired: jest.fn(),
@@ -68,6 +62,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
   } as any);
 
   let wallet: SeedlessWallet;
+
+  const providerXP = {
+    getAddress: jest.fn(),
+  } as any;
+  const addressResolutionOptions = {
+    isMainnet: false,
+    providerXP,
+  };
 
   const itCorrectlyHandlesExpiredSession = ({
     additionalSetup,
@@ -112,7 +114,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         .mocked(cs.SignerSession.loadSignerSession)
         .mockRejectedValue(connectionError);
 
-      wallet = new SeedlessWallet({ networkService, sessionStorage });
+      wallet = new SeedlessWallet({ addressResolutionOptions, sessionStorage });
     });
 
     it('fails the requests', async () => {
@@ -127,7 +129,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           keys: jest.fn().mockResolvedValue([]),
         } as any);
 
-        wallet = new SeedlessWallet({ networkService, sessionStorage });
+        wallet = new SeedlessWallet({
+          addressResolutionOptions,
+          sessionStorage,
+        });
       });
 
       it('raises an error', async () => {
@@ -143,7 +148,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           keys: jest.fn().mockResolvedValue([evmKey]),
         } as any);
 
-        wallet = new SeedlessWallet({ networkService, sessionStorage });
+        wallet = new SeedlessWallet({
+          addressResolutionOptions,
+          sessionStorage,
+        });
       });
 
       it('raises an error', async () => {
@@ -159,7 +167,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           keys: jest.fn().mockResolvedValue(validKeySet),
         } as any);
 
-        wallet = new SeedlessWallet({ networkService, sessionStorage });
+        wallet = new SeedlessWallet({
+          addressResolutionOptions,
+          sessionStorage,
+        });
       });
 
       it('correctly extracts the public keys', async () => {
@@ -178,7 +189,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           keys: jest.fn().mockResolvedValue(validKeySetWithTwoAccounts),
         } as any);
 
-        wallet = new SeedlessWallet({ networkService, sessionStorage });
+        wallet = new SeedlessWallet({
+          addressResolutionOptions,
+          sessionStorage,
+        });
       });
 
       it(`sorts them by derivation path's account index`, async () => {
@@ -207,7 +221,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             ]),
         } as any);
 
-        wallet = new SeedlessWallet({ networkService, sessionStorage });
+        wallet = new SeedlessWallet({
+          addressResolutionOptions,
+          sessionStorage,
+        });
       });
 
       it('extracts the public keys from the first valid set', async () => {
@@ -230,7 +247,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when public key is not provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet({ networkService, sessionStorage });
+        wallet = new SeedlessWallet({
+          addressResolutionOptions,
+          sessionStorage,
+        });
       });
 
       it('raises an error', async () => {
@@ -243,7 +263,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     describe('when target network is not provided', () => {
       beforeEach(() => {
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: {
             evm: 'la la la',
@@ -262,7 +282,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       beforeEach(() => {
         jest.mocked(getProviderForNetwork).mockReturnValue({} as any);
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: {
             evm: 'la la la',
@@ -295,7 +315,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         jest.mocked(Signer).mockImplementation(signerConstructorSpy);
 
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: {
             evm: evmKey.publicKey,
@@ -370,7 +390,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when public key is not provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet({ networkService, sessionStorage });
+        wallet = new SeedlessWallet({
+          addressResolutionOptions,
+          sessionStorage,
+        });
       });
 
       it('raises an error', async () => {
@@ -395,7 +418,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       beforeEach(() => {
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: {
             evm: strip0x(evmKey.publicKey),
@@ -465,7 +488,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       beforeEach(() => {
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: {
             evm: strip0x(evmKey.publicKey),
@@ -486,9 +509,6 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       describe('in testnet mode', () => {
-        beforeEach(() => {
-          networkService.isMainnet.mockReturnValue(false);
-        });
         it('uses the testnet Avalanche keys', async () => {
           await wallet.signAvalancheTx(txRequest as any);
 
@@ -501,8 +521,21 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       describe('in mainnet mode', () => {
         beforeEach(() => {
-          networkService.isMainnet.mockReturnValue(true);
+          wallet = new SeedlessWallet({
+            addressResolutionOptions: {
+              ...addressResolutionOptions,
+              isMainnet: true,
+            },
+            sessionStorage,
+            addressPublicKey: {
+              evm: strip0x(evmKey.publicKey),
+              xp: strip0x(avaKey.publicKey),
+            },
+            network: {} as any,
+            sessionManager,
+          });
         });
+
         it('uses the mainnet Avalanche keys', async () => {
           await wallet.signAvalancheTx(txRequest as any);
 
@@ -565,7 +598,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when public key is not provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet({ networkService, sessionStorage });
+        wallet = new SeedlessWallet({
+          addressResolutionOptions,
+          sessionStorage,
+        });
       });
 
       it('raises an error', async () => {
@@ -578,7 +614,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     describe('when network is not provided', () => {
       beforeEach(() => {
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: {} as any,
         });
@@ -594,7 +630,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     describe('with EVM messages', () => {
       beforeEach(() => {
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: {
             evm: strip0x(evmKey.publicKey),
@@ -707,12 +743,12 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('with Avalanche messages', () => {
       beforeEach(() => {
-        networkService.getAvalanceProviderXP.mockReturnValue({
-          getAddress: () => `X-${avaKey.materialId}`,
-        } as any);
+        jest
+          .mocked(providerXP.getAddress)
+          .mockReturnValue(`X-${avaKey.materialId}`);
 
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: {
             evm: strip0x(evmKey.publicKey),
@@ -724,7 +760,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('validates presence of X/P public key', async () => {
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: {
             evm: strip0x(evmKey.publicKey),
@@ -762,7 +798,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     it('returns the obtained signature', async () => {
       wallet = new SeedlessWallet({
-        networkService,
+        addressResolutionOptions,
         sessionStorage,
         addressPublicKey: {
           evm: strip0x(evmKey.publicKey),
@@ -800,7 +836,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         .mockResolvedValue(session);
 
       wallet = new SeedlessWallet({
-        networkService,
+        addressResolutionOptions,
         sessionStorage,
         addressPublicKey: {
           evm: strip0x(evmKey.publicKey),
@@ -834,7 +870,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       beforeEach(() => {
         global.fetch = jest.fn().mockRejectedValue(new Error('Timeout'));
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: {
             evm: 'unpaired-public-key',
@@ -919,7 +955,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     describe('when no network is provided', () => {
       beforeEach(() => {
-        wallet = new SeedlessWallet({ networkService, sessionStorage });
+        wallet = new SeedlessWallet({
+          addressResolutionOptions,
+          sessionStorage,
+        });
       });
 
       it('raises an error', async () => {
@@ -932,7 +971,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     describe('when non-Bitcoin network is provided', () => {
       beforeEach(() => {
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           network: {
             chainId: ChainId.ETHEREUM_HOMESTEAD,
@@ -951,7 +990,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       beforeEach(() => {
         jest.mocked(getProviderForNetwork).mockReturnValue({} as any);
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: {
             evm: 'la la la',
@@ -974,7 +1013,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           .mocked(getProviderForNetwork)
           .mockResolvedValue(new BitcoinProvider());
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           network: {
             chainId: ChainId.BITCOIN,
@@ -1002,7 +1041,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           .mockReturnValue(networks.bitcoin);
         jest.mocked(getProviderForNetwork).mockResolvedValue(bitcoinProvider);
         wallet = new SeedlessWallet({
-          networkService,
+          addressResolutionOptions,
           sessionStorage,
           addressPublicKey: pubKey,
           network,
@@ -1108,7 +1147,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         .mockResolvedValue(session);
 
       wallet = new SeedlessWallet({
-        networkService,
+        addressResolutionOptions,
         sessionStorage,
         addressPublicKey: {
           evm: strip0x(evmKey.publicKey),

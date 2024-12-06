@@ -10,6 +10,7 @@ import { SeedlessTokenStorage } from '../SeedlessTokenStorage';
 import { NetworkService } from '../../network/NetworkService';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { AccountsService } from '../../accounts/AccountsService';
+import { getAddressResolutionOptions } from '@src/background/utils/getAddressResolutionOptions';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_CANCEL_RECOVERY_PHRASE_EXPORT,
@@ -40,7 +41,9 @@ export class CancelRecoveryPhraseExportHandler implements HandlerType {
     }
 
     const wallet = new SeedlessWallet({
-      networkService: this.networkService,
+      addressResolutionOptions: await getAddressResolutionOptions(
+        this.networkService
+      ),
       sessionStorage: new SeedlessTokenStorage(this.secretsService),
       addressPublicKey: secrets.pubKeys[0],
       mfaService: this.seedlessMfaService,
