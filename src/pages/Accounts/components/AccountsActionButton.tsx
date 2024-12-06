@@ -117,8 +117,6 @@ export const AccountsActionButton = ({
     browser.tabs.create({
       url: `/fullscreen.html#/accounts/add-wallet/ledger`,
     });
-
-    // history.push('/accounts/add-wallet/ledger');
   }, [capture]);
 
   const goToWalletConnectScreen = useCallback(() => {

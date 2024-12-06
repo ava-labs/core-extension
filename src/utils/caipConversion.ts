@@ -92,3 +92,6 @@ export const decorateWithCaipId = (
   ...network,
   caipId: getNetworkCaipId(network),
 });
+
+export const isBitcoinCaipId = (caipId: string) =>
+  Object.values(BitcoinCaipId).includes(caipId);

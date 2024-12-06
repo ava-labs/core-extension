@@ -142,8 +142,8 @@ export const ContactSelect = ({
         return;
       }
       const result = walletAccount.map(
-        ({ addressC, name, addressBTC, addressPVM, addressAVM }) => ({
-          id: '',
+        ({ id, addressC, name, addressBTC, addressPVM, addressAVM }) => ({
+          id,
           address: network?.vmName == NetworkVMType.EVM ? addressC : '',
           addressBTC:
             network?.vmName === NetworkVMType.BITCOIN ? addressBTC : '',
@@ -166,8 +166,8 @@ export const ContactSelect = ({
     }
 
     const formattedImported = importedAccountToPrep?.map(
-      ({ addressC, name, addressBTC, addressPVM, addressAVM }) => ({
-        id: '',
+      ({ id, addressC, name, addressBTC, addressPVM, addressAVM }) => ({
+        id,
         address: network?.vmName == NetworkVMType.EVM ? addressC : '',
         addressBTC:
           network?.vmName === NetworkVMType.BITCOIN && addressBTC

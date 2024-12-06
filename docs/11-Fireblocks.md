@@ -41,7 +41,7 @@ Then the user can provide us with 2 info.
 2. API Secret (This is the content of .key file from creating a CSR file.)
 
 We store these encrypted like other secrets like private keys.
-The API credentials can't be added, edited, and delted separately right now.
+The API credentials can't be added, edited, and deleted separately right now.
 So the user will have to delete the imported Fireblocks account and then re-import it if they would like to change the info.
 
 ## Signing Flow
@@ -55,7 +55,7 @@ Each policy will decide how many people out of the people listed in the policy n
 
 1. The user submit the request in Core Browser Extension. The user will see the pending state on the confirmation screen.
 2. Core Browser Extension request fireblocks to process the request using API using an unique external transaction ID.
-3. Fireblocks uses the TAP to get all required appovals. If any needed. Auto approval is also possible.
+3. Fireblocks uses the TAP to get all required approvals. If any needed. Auto approval is also possible.
 4. Core Browser Extension fetch the result based on an unique external transaction ID and wait until the returned state has an error or a txHash.
 5. Core Browser Extension returns the txHash (If successful)/ error (If not successful) to UI
 6. The UI closes the confirmation screen and show the toast with link to the transaction in explorer (If successful)/ the error (If not successful)
@@ -162,6 +162,6 @@ We should probably inform the users about that when they start bridging using Fi
 We are going to introduce 2 features in the future.
 
 1. Pending fireblocks tx tracker
-   We would like to let users to be able to use the extension while they wait when the approval process in Fireblocks is taking awile.
+   We would like to let users to be able to use the extension while they wait when the approval process in Fireblocks is taking awhile.
 2. API credential editor
    We would like to let users add, update, and delete the API credential whenever they would like. Right not, they would have to delete then re-import the fireblocks account.

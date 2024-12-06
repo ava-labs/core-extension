@@ -4,8 +4,8 @@ import { ConnectionService } from '@src/background/connections/ConnectionService
 import { singleton } from 'tsyringe';
 import { LockService } from '@src/background/services/lock/LockService';
 import { OnboardingService } from '@src/background/services/onboarding/OnboardingService';
-import { BridgeService } from '@src/background/services/bridge/BridgeService';
 import { ModuleManager } from '../vmModules/ModuleManager';
+import { BridgeService } from '../services/bridge/BridgeService';
 
 @singleton()
 export class BackgroundRuntime {
@@ -13,6 +13,7 @@ export class BackgroundRuntime {
     private connectionService: ConnectionService,
     private lockService: LockService,
     private onboardingService: OnboardingService,
+    // we try to fetch the bridge configs as soon as possible
     private bridgeService: BridgeService,
     private moduleManager: ModuleManager
   ) {}

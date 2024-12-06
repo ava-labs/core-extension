@@ -2,7 +2,7 @@
 
 ## Overview
 
-Core integrates CubeSigner to provide Seedless onboarding and sign in functionality. This allows users to sign into Core using their supported OIDC provider such as Google and a choosen MFA device.
+Core integrates CubeSigner to provide Seedless onboarding and sign in functionality. This allows users to sign into Core using their supported OIDC provider such as Google and a chosen MFA device.
 
 ## Resources
 
@@ -17,12 +17,12 @@ Runbook documenting production access, and incident handling procedures: https:/
 
 ## Key management
 
-Tokens are managed strough the Typescript SDK and through the CLI. Both of them do the token refresh process on their own, automatically. To keep the refreshed token up-to-date in the storage, we need to implement our own storage interface and feed it to the SDK.
+Tokens are managed through the Typescript SDK and through the CLI. Both of them do the token refresh process on their own, automatically. To keep the refreshed token up-to-date in the storage, we need to implement our own storage interface and feed it to the SDK.
 During the implementation you will meet 4 types of tokens:
 
 ### OIDC token
 
-OIDC tokens are JWT tokens aquired from the integrated authentication providers like Google. They are used for registration and authentication of the user. Users usually have to be prompted via authentication propups so that they can select the account they want to use. During the onboarding flow they are exchanged for Signer and Management tokens.
+OIDC tokens are JWT tokens aquired from the integrated authentication providers like Google. They are used for registration and authentication of the user. Users usually have to be prompted via authentication popups so that they can select the account they want to use. During the onboarding flow they are exchanged for Signer and Management tokens.
 
 ### Signer session token
 
@@ -34,7 +34,7 @@ Signer session tokens expire either if the session lifetime expires (maximalized
 The two most important tokens in the signer session token are:
 
 - `id_token`: has a very limited lifetime (5 min), used for authentication to CubeSigner
-- `refresh_token`: used for refreshing the `id_token`. When refreshing the `id_token`, the `refresh_token` is also updated. It has a longer (90 day) lifetime. If this token experies, for example Core was not used in the past 90 days, the user has to re-authenticate using OIDC.
+- `refresh_token`: used for refreshing the `id_token`. When refreshing the `id_token`, the `refresh_token` is also updated. It has a longer (90 day) lifetime. If this token expires, for example Core was not used in the past 90 days, the user has to re-authenticate using OIDC.
 
 ### Managment token
 
@@ -45,18 +45,18 @@ They can be aquired either via exchanging the OIDC token and using the configure
 
 ### Limited scoped management token
 
-Used on the backend API. Since the owner's managent token is waay too powerful for an API deployment, we are utilizing a scoped token, which can only do what it absolutely must have to.
+Used on the backend API. Since the owner's management token is way too powerful for an API deployment, we are utilizing a scoped token, which can only do what it absolutely must have to.
 Scopes can be configured, e.g: only allow new user and key creation, but don't allow key re-assignment
 
 ## Onboarding flow
 
 The onboarding flow requires communication with both the Core seedless backend and with CubeSigner.
 
-1. Extension aquires OIDC from Authentication provider
+1. Extension acquires OIDC from Authentication provider
 2. Extension get a Proof of authentication from CubeSigner. This step is required to avoid sending OIDC tokens to our backend directly.
 3. Core Backend verifies the Proof. After verification, it creates the users and the keys for the first account if the user does not exists yet.
 4. For new users, extension exchanges the OIDC token for a signer session token and prompts the user to configure MFA options.
-5. For existing users, the extension prompts the user to use the previously configured MFA device and exchnages the OIDC token for a signer session token.
+5. For existing users, the extension prompts the user to use the previously configured MFA device and exchanges the OIDC token for a signer session token.
 6. Using the session token, extension configures the account list and initializes the seedless wallet.
 
 <img src="images/seedless-onboarding-flow.png" />
