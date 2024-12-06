@@ -66,7 +66,7 @@ export function BNInput({
 
     if (value) {
       const valueAsString = bigIntToString(value, denomination);
-      const oldValue = stringToBigint(valStr, denomination);
+      const oldValue = stringToBigint(valStr || '0', denomination);
       /**
        * When deleting zeros after decimal, all zeros delete without this check.
        * This also preserves zeros in the input ui.
