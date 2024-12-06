@@ -33,6 +33,7 @@ import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { Network } from '@src/background/services/network/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
+import { getDefaultChainIds } from '@src/utils/getDefaultChainIds';
 
 export const IPFS_URL = 'https://ipfs.io';
 
@@ -302,14 +303,24 @@ export function BalancesProvider({ children }: { children: any }) {
       if (balances.tokens && network?.chainId) {
         return calculateTotalBalance(
           getAccount(addressC),
-          [network.chainId, ...favoriteNetworks.map(({ chainId }) => chainId)],
+          [
+            network.chainId,
+            ...getDefaultChainIds(!network?.isTestnet),
+            ...favoriteNetworks.map(({ chainId }) => chainId),
+          ],
           balances.tokens
         );
       }
 
       return undefined;
     },
-    [getAccount, favoriteNetworks, network?.chainId, balances.tokens]
+    [
+      getAccount,
+      favoriteNetworks,
+      network?.chainId,
+      network?.isTestnet,
+      balances.tokens,
+    ]
   );
 
   const getTokenPrice = useCallback(

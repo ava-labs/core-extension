@@ -22,8 +22,8 @@ import {
   getAccountsWithActivity,
   getAllAddressesForAccounts,
   getIncludedNetworks,
-  getXPChainIds,
 } from './helpers';
+import { getXPChainIds } from '@src/utils/getDefaultChainIds';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,
