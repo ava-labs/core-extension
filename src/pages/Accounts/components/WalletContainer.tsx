@@ -64,7 +64,7 @@ export const WalletContainer = ({
             />
           ))}
         </Stack>
-        <Grow in={hasBalanceOnUnderivedAccounts}>
+        <Grow in={isActive && hasBalanceOnUnderivedAccounts}>
           <Stack
             sx={{
               flexDirection: 'row',
