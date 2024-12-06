@@ -5,6 +5,7 @@ import {
   Grow,
   IconButton,
   LedgerIcon,
+  LoadingDotsIcon,
   PencilRoundIcon,
   Stack,
   Typography,
@@ -17,6 +18,7 @@ import { WalletDetails } from '@src/background/services/wallet/models';
 import { useAccountManager } from '../providers/AccountManagerProvider';
 import { OverflowingTypography } from './OverflowingTypography';
 import { useWalletRename } from '../hooks/useWalletRename';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 const commonTransitionProps = {
   timeout: 200,
@@ -26,6 +28,9 @@ const commonTransitionProps = {
 type WalletHeaderProps = {
   isActive: boolean;
   isExpanded: boolean;
+  isLoading: boolean;
+  totalBalance?: number;
+  hasBalanceError: boolean;
   toggle: () => void;
 } & (
   | {
@@ -40,10 +45,13 @@ export default function WalletHeader({
   name,
   isActive,
   isExpanded,
+  isLoading,
+  totalBalance,
   toggle,
 }: WalletHeaderProps) {
   const { t } = useTranslation();
   const { isManageMode } = useAccountManager();
+  const { currencyFormatter } = useSettingsContext();
   const [isHovered, setIsHovered] = useState(false);
 
   const { prompt: promptRename, renderDialog: renameDialog } =
@@ -109,7 +117,11 @@ export default function WalletHeader({
           textAlign="end"
           color="text.secondary"
         >
-          {/* TODO: total balance of the entire wallet */}
+          {isLoading ? (
+            <LoadingDotsIcon size={20} orientation="horizontal" />
+          ) : typeof totalBalance === 'number' ? (
+            currencyFormatter(totalBalance)
+          ) : null}
         </Typography>
         <IconButton size="small" onClick={toggle}>
           <ChevronUpIcon

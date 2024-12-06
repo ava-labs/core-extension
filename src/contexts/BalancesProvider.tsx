@@ -33,6 +33,7 @@ import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { Network } from '@src/background/services/network/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
+import { getDefaultChainIds } from '@src/utils/getDefaultChainIds';
 
 export const IPFS_URL = 'https://ipfs.io';
 
@@ -167,8 +168,6 @@ export function BalancesProvider({ children }: { children: any }) {
   });
 
   const [subscribers, setSubscribers] = useState<BalanceSubscribers>({});
-  const [isPolling, setIsPolling] = useState(false);
-
   const polledChainIds = useMemo(
     () => favoriteNetworks.map(({ chainId }) => chainId),
     [favoriteNetworks]
@@ -236,11 +235,11 @@ export function BalancesProvider({ children }: { children: any }) {
       return;
     }
 
-    if (isPolling) {
-      const tokenTypes = Object.entries(subscribers)
-        .filter(([, subscriberCount]) => subscriberCount > 0)
-        .map(([tokenType]) => tokenType as TokenType);
+    const tokenTypes = Object.entries(subscribers)
+      .filter(([, subscriberCount]) => subscriberCount > 0)
+      .map(([tokenType]) => tokenType as TokenType);
 
+    if (tokenTypes.length > 0) {
       request<StartBalancesPollingHandler>({
         method: ExtensionRequest.BALANCES_START_POLLING,
         params: [activeAccount, polledChainIds, tokenTypes],
@@ -250,6 +249,10 @@ export function BalancesProvider({ children }: { children: any }) {
           payload: balancesData,
         });
       });
+    } else {
+      request<StopBalancesPollingHandler>({
+        method: ExtensionRequest.BALANCES_STOP_POLLING,
+      });
     }
 
     return () => {
@@ -257,19 +260,7 @@ export function BalancesProvider({ children }: { children: any }) {
         method: ExtensionRequest.BALANCES_STOP_POLLING,
       });
     };
-  }, [
-    request,
-    isPolling,
-    activeAccount,
-    network?.chainId,
-    polledChainIds,
-    subscribers,
-  ]);
-
-  useEffect(() => {
-    // Toggle balance polling based on the amount of dependent components.
-    setIsPolling(Object.values(subscribers).some((count) => count > 0));
-  }, [subscribers]);
+  }, [request, activeAccount, network?.chainId, polledChainIds, subscribers]);
 
   const updateBalanceOnNetworks = useCallback(
     async (accounts: Account[], chainIds?: number[]) => {
@@ -309,18 +300,27 @@ export function BalancesProvider({ children }: { children: any }) {
 
   const getTotalBalance = useCallback(
     (addressC: string) => {
-      if (balances.tokens) {
+      if (balances.tokens && network?.chainId) {
         return calculateTotalBalance(
-          network,
           getAccount(addressC),
-          favoriteNetworks.map(({ chainId }) => chainId),
+          [
+            network.chainId,
+            ...getDefaultChainIds(!network?.isTestnet),
+            ...favoriteNetworks.map(({ chainId }) => chainId),
+          ],
           balances.tokens
         );
       }
 
       return undefined;
     },
-    [getAccount, favoriteNetworks, network, balances.tokens]
+    [
+      getAccount,
+      favoriteNetworks,
+      network?.chainId,
+      network?.isTestnet,
+      balances.tokens,
+    ]
   );
 
   const getTokenPrice = useCallback(

@@ -244,7 +244,7 @@ export const AccountItem = forwardRef(
                 />
                 {address && (
                   <Stack direction="row">
-                    <Tooltip title={address}>
+                    <Tooltip title={address} disableInteractive>
                       <Typography
                         variant="caption"
                         color={isActive ? 'text.primary' : 'text.secondary'}

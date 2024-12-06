@@ -187,6 +187,14 @@ const AccountManagerProvider = lazy(() => {
   );
 });
 
+const WalletTotalBalanceProvider = lazy(() => {
+  return import('../pages/Accounts/providers/WalletTotalBalanceProvider').then(
+    (m) => ({
+      default: m.WalletTotalBalanceProvider,
+    })
+  );
+});
+
 const AccountDetailsView = lazy(() => {
   return import('../pages/Accounts/AccountDetailsView').then((m) => ({
     default: m.AccountDetailsView,
@@ -303,7 +311,9 @@ export const AppRoutes = () => (
     <Route path="/accounts" exact>
       <Suspense fallback={<CircularProgress />}>
         <AccountManagerProvider>
-          <Accounts />
+          <WalletTotalBalanceProvider>
+            <Accounts />
+          </WalletTotalBalanceProvider>
         </AccountManagerProvider>
       </Suspense>
     </Route>

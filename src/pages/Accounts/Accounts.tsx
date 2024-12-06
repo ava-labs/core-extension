@@ -4,6 +4,7 @@ import {
   ChevronLeftIcon,
   Divider,
   IconButton,
+  LoadingDotsIcon,
   Scrollbars,
   Stack,
   TrashIcon,
@@ -12,7 +13,6 @@ import {
 } from '@avalabs/core-k2-components';
 import { t } from 'i18next';
 import { useHistory } from 'react-router-dom';
-import { TokenType } from '@avalabs/vm-module-types';
 
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
@@ -20,7 +20,6 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/components/LedgerApprovalDialog';
 
 import { AccountType } from '@src/background/services/accounts/models';
-import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { useScopedToast } from '@src/hooks/useScopedToast';
 import { NetworkSwitcher } from '@src/components/common/header/NetworkSwitcher';
 import { Overlay } from '@src/components/common/Overlay';
@@ -35,8 +34,8 @@ import { AccountListPrimary } from './components/AccountListPrimary';
 import { AccountListImported } from './components/AccountListImported';
 import { AccountsActionButton } from './components/AccountsActionButton';
 import { OverflowingTypography } from './components/OverflowingTypography';
-
-const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
+import { useWalletTotalBalance } from './hooks/useWalletTotalBalance';
+import { useWalletTotalBalanceContext } from './providers/WalletTotalBalanceProvider';
 
 export function Accounts() {
   const {
@@ -55,6 +54,11 @@ export function Accounts() {
   const theme = useTheme();
   const history = useHistory();
   const { walletDetails } = useWalletContext();
+  const { isLoading, totalBalanceInCurrency: activeWalletTotalBalance } =
+    useWalletTotalBalance(
+      isPrimaryAccount(active) ? active.walletId : undefined
+    );
+  const { fetchBalanceForWallet } = useWalletTotalBalanceContext();
 
   const canCreateAccount = active?.type === AccountType.PRIMARY;
   const { getTotalBalance } = useBalancesContext();
@@ -63,8 +67,6 @@ export function Accounts() {
     () => (active?.addressC ? getTotalBalance(active.addressC) : null),
     [active?.addressC, getTotalBalance]
   );
-
-  useLiveBalance(POLLED_BALANCES);
 
   const addAccountAndFocus = async () => {
     setAddAccountLoading(true);
@@ -75,6 +77,11 @@ export function Accounts() {
         walletType: walletDetails?.type,
       });
       await selectAccount(id);
+
+      // Refresh total balance of the wallet after adding an account
+      if (walletDetails?.id) {
+        fetchBalanceForWallet(walletDetails.id);
+      }
     } catch (e) {
       toast.error(t('An error occurred, please try again later'));
     }
@@ -158,8 +165,14 @@ export function Accounts() {
               fontSize={13}
               textAlign="end"
               color="text.secondary"
+              // Prevents UI from jumping due to LoadingDotsIcon being larger than they appear
+              sx={isLoading ? { height: 15, overflow: 'hidden' } : null}
             >
-              {/* TODO: total balance of the active wallet */}
+              {isLoading ? (
+                <LoadingDotsIcon size={20} orientation="horizontal" />
+              ) : typeof activeWalletTotalBalance === 'number' ? (
+                currencyFormatter(activeWalletTotalBalance)
+              ) : null}
             </Typography>
           )}
         </Stack>
@@ -202,7 +215,7 @@ export function Accounts() {
       <Divider sx={{ borderColor: theme.palette.grey[800] }} />
 
       <Scrollbars>
-        <AccountListPrimary primaryAccount={primaryAccounts} />
+        <AccountListPrimary primaryAccounts={primaryAccounts} />
 
         {hasImportedAccounts && (
           <AccountListImported accounts={Object.values(importedAccounts)} />
