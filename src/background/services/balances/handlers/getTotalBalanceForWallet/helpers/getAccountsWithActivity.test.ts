@@ -43,10 +43,6 @@ describe('src/background/services/balances/handlers/getTotalBalanceForWallet/hel
         gap: 21,
         result: [],
       });
-    // mockedActivityFetcher
-    //   .mockImplementationOnce(makeActiveAddresses) // First batch, external addresses
-    //   .mockImplementationOnce(makeActiveAddresses) // First batch, internal addresses
-    //   .mockImplementation(() => ({ addresses: [] })); // All subsequent batches
   });
 
   it(`iterates until it finds a set number of addresses with no activity`, async () => {
