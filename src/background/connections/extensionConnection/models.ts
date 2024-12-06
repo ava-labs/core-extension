@@ -25,6 +25,7 @@ export enum ExtensionRequest {
   BALANCES_GET = 'balances_get',
   BALANCES_START_POLLING = 'balances_start_polling',
   BALANCES_STOP_POLLING = 'balances_stop_polling',
+  BALANCES_GET_TOTAL_FOR_WALLET = 'balance_get_total_for_wallet',
   NETWORK_BALANCES_UPDATE = 'network_balances_update',
   NFT_BALANCES_GET = 'nft_balances_get',
   NFT_REFRESH_METADATA = 'nft_refresh_metadata',

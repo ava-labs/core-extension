@@ -5,23 +5,25 @@ import {
   toast,
   CopyIcon,
   TypographyProps,
+  StackProps,
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
 import { truncateAddress } from '@src/utils/truncateAddress';
 
-export interface SimpleAddressProps {
+export type SimpleAddressProps = StackProps & {
   address: string;
   textColor?: TypographyProps['color'];
   iconColor?: TypographyProps['color'];
   copyCallback?: () => void;
-}
+};
 
 export function SimpleAddress({
   address,
   iconColor,
   textColor,
   copyCallback,
+  ...props
 }: SimpleAddressProps) {
   const { t } = useTranslation();
 
@@ -45,6 +47,7 @@ export function SimpleAddress({
         textAlign: 'center',
       }}
       onClick={copyAddress}
+      {...props}
     >
       <CopyIcon
         sx={{

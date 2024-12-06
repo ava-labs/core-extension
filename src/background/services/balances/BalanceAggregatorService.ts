@@ -6,7 +6,7 @@ import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
 import { EventEmitter } from 'events';
 import * as Sentry from '@sentry/browser';
-import { isEqual, pick } from 'lodash';
+import { isEqual, omit, pick } from 'lodash';
 
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
@@ -55,7 +55,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
   async getBalancesForNetworks(
     chainIds: number[],
     accounts: Account[],
-    tokenTypes: TokenType[]
+    tokenTypes: TokenType[],
+    cacheResponse = true
   ): Promise<{ tokens: Balances; nfts: Balances<NftTokenWithBalance> }> {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
@@ -143,6 +144,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       for (const [chainId, chainBalances] of freshData) {
         for (const [address, addressBalance] of Object.entries(chainBalances)) {
           aggregatedBalances[chainId] = {
+            ...omit(aggregatedBalances[chainId], address), // Keep cached balances for other accounts
             ...chainBalances,
             [address]: addressBalance,
           };
@@ -150,7 +152,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       }
     }
 
-    if (hasChanges && !this.lockService.locked) {
+    if (cacheResponse && hasChanges && !this.lockService.locked) {
       this.#balances = aggregatedBalances;
       this.#nfts = aggregatedNfts;
 

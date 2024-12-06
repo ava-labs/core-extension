@@ -2,7 +2,6 @@ import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { SecretsService } from '../../secrets/SecretsService';
 import { NetworkService } from '../../network/NetworkService';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
@@ -21,6 +20,7 @@ type Params = [
   internalLimit: number
 ];
 import { AccountsService } from '../AccountsService';
+import { getAddressesInRange } from '../utils/getAddressesInRange';
 
 const EXPOSED_DOMAINS = [
   'develop.avacloud-app.pages.dev',
@@ -71,38 +71,23 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
 
     if (secrets?.xpubXP) {
       if (externalLimit > 0) {
-        for (
-          let index = externalStart;
-          index < externalStart + externalLimit;
-          index++
-        ) {
-          addresses.external.push(
-            Avalanche.getAddressFromXpub(
-              secrets.xpubXP,
-              index,
-              provXP,
-              'X'
-            ).split('-')[1] as string // since addresses are the same for X/P we return them without the chain alias prefix (e.g.: fuji1jsduya7thx2ayrawf9dnw7v9jz7vc6xjycra2m)
-          );
-        }
+        addresses.external = getAddressesInRange(
+          secrets.xpubXP,
+          provXP,
+          false,
+          externalStart,
+          externalLimit
+        );
       }
 
       if (internalLimit > 0) {
-        for (
-          let index = internalStart;
-          index < internalStart + internalLimit;
-          index++
-        ) {
-          addresses.internal.push(
-            Avalanche.getAddressFromXpub(
-              secrets.xpubXP,
-              index,
-              provXP,
-              'X',
-              true
-            ).split('-')[1] as string // only X has "internal" (change) addresses, but we remove the chain alias here as well to make it consistent with the external address list
-          );
-        }
+        addresses.internal = getAddressesInRange(
+          secrets.xpubXP,
+          provXP,
+          true,
+          internalStart,
+          internalLimit
+        );
       }
     }
 
