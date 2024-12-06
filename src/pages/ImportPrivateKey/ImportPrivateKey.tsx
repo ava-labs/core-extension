@@ -5,7 +5,6 @@ import {
   Stack,
   TextField,
   Typography,
-  toast,
   useTheme,
 } from '@avalabs/core-k2-components';
 import {
@@ -24,10 +23,10 @@ import { networks } from 'bitcoinjs-lib';
 import { t } from 'i18next';
 import { KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { AccountsTab } from '../Accounts/Accounts';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
 import { utils } from '@avalabs/avalanchejs';
 import { usePrivateKeyImport } from '../Accounts/hooks/usePrivateKeyImport';
+import { useScopedToast } from '@src/hooks/useScopedToast';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { DuplicatedAccountDialog } from './components/DuplicatedAccountDialog';
 
@@ -42,6 +41,7 @@ export function ImportPrivateKey() {
   const { network } = useNetworkContext();
   const { capture } = useAnalyticsContext();
   const theme = useTheme();
+  const toast = useScopedToast('account-switcher');
   const [hasFocus, setHasFocus] = useState(false);
   const [privateKey, setPrivateKey] = useState('');
   const [derivedAddresses, setDerivedAddresses] = useState<DerivedAddresses>();
@@ -81,11 +81,12 @@ export function ImportPrivateKey() {
     try {
       const importedAccountId = await importPrivateKey(privateKey);
       await selectAccount(importedAccountId);
-      toast.success(t('Private Key Imported'), { duration: 2000 });
+      toast.success(t('Private Key Imported'), { duration: 1000 });
       capture('ImportPrivateKeySucceeded');
-      history.replace(`/accounts?activeTab=${AccountsTab.Imported}`);
+      history.replace(`/accounts`);
     } catch (err) {
-      toast.error(t('Private Key Import Failed'), { duration: 2000 });
+      toast.error(t('Private Key Import Failed'), { duration: 1000 });
+      console.error(err);
     }
   };
 

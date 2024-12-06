@@ -333,6 +333,10 @@ export class AccountsService implements OnLock, OnUnlock {
     );
   }
 
+  getPrimaryAccountsByWalletId(walletId: string) {
+    return this.accounts.primary[walletId] ?? [];
+  }
+
   #buildAccount(
     accountData,
     importType: ImportType,
