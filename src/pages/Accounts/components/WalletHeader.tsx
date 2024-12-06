@@ -118,7 +118,7 @@ export default function WalletHeader({
           color="text.secondary"
         >
           {isLoading ? (
-            <LoadingDotsIcon size={24} orientation="horizontal" />
+            <LoadingDotsIcon size={20} orientation="horizontal" />
           ) : typeof totalBalance === 'number' ? (
             currencyFormatter(totalBalance)
           ) : null}

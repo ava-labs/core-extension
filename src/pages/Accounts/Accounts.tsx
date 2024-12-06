@@ -165,6 +165,8 @@ export function Accounts() {
               fontSize={13}
               textAlign="end"
               color="text.secondary"
+              // Prevents UI from jumping due to LoadingDotsIcon being larger than they appear
+              sx={isLoading ? { height: 15, overflow: 'hidden' } : null}
             >
               {isLoading ? (
                 <LoadingDotsIcon size={20} orientation="horizontal" />
