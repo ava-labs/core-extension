@@ -218,6 +218,63 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       );
     });
 
+    it('only updates the balances of the requested accounts', async () => {
+      // Mock the existing balances for other accounts
+      (balancesServiceMock.getBalancesForNetwork as jest.Mock).mockReset();
+
+      balancesServiceMock.getBalancesForNetwork
+        .mockResolvedValueOnce({
+          [account2.addressC]: {
+            [networkToken1.symbol]: network1TokenBalance,
+          },
+        })
+        .mockResolvedValueOnce({
+          [account1.addressC]: {
+            [networkToken1.symbol]: network1TokenBalance,
+          },
+        });
+
+      // Get balances for the `account2` so they get cached
+      await service.getBalancesForNetworks(
+        [network1.chainId],
+        [account2],
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721]
+      );
+
+      expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledTimes(
+        1
+      );
+
+      expect(service.balances).toEqual({
+        [network1.chainId]: {
+          [account2.addressC]: {
+            [networkToken1.symbol]: network1TokenBalance,
+          },
+        },
+      });
+
+      // Now get the balances for the first account and verify the `account2` balances are kept in cache
+      await service.getBalancesForNetworks(
+        [network1.chainId],
+        [account1],
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721]
+      );
+
+      expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledTimes(
+        2
+      );
+      expect(service.balances).toEqual({
+        [network1.chainId]: {
+          [account1.addressC]: {
+            [networkToken1.symbol]: network1TokenBalance,
+          },
+          [account2.addressC]: {
+            [networkToken1.symbol]: network1TokenBalance,
+          },
+        },
+      });
+    });
+
     it('can fetch the balance for multiple networks and one account', async () => {
       const balances = await service.getBalancesForNetworks(
         [network1.chainId, network2.chainId],

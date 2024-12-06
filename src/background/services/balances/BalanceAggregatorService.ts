@@ -6,7 +6,7 @@ import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
 import { EventEmitter } from 'events';
 import * as Sentry from '@sentry/browser';
-import { isEqual, pick } from 'lodash';
+import { isEqual, omit, pick } from 'lodash';
 
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
@@ -144,7 +144,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       for (const [chainId, chainBalances] of freshData) {
         for (const [address, addressBalance] of Object.entries(chainBalances)) {
           aggregatedBalances[chainId] = {
-            ...aggregatedBalances[chainId],
+            ...omit(aggregatedBalances[chainId], address), // Keep cached balances for other accounts
             ...chainBalances,
             [address]: addressBalance,
           };
