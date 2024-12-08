@@ -209,7 +209,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
       const result = await service.getBalancesForNetwork(
         network as any,
         [account],
-        []
+        [],
       );
 
       expect(result).toEqual({
@@ -240,7 +240,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
       const result = await service.getBalancesForNetwork(
         network,
         [account],
-        []
+        [],
       );
 
       expect(result).toEqual({
@@ -293,7 +293,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
       const result = await service.getBalancesForNetwork(
         network,
         [account],
-        [TokenType.NATIVE, TokenType.ERC20]
+        [TokenType.NATIVE, TokenType.ERC20],
       );
 
       expect(result).toEqual({
@@ -325,7 +325,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
       const result = await service.getBalancesForNetwork(
         network,
         [account],
-        []
+        [],
       );
 
       expect(result).toEqual({
@@ -360,7 +360,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         [],
         {
           test2: { priceChangePercentage: 25 },
-        }
+        },
       );
 
       expect(result).toEqual({

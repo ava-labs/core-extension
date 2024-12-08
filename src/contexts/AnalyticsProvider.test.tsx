@@ -13,7 +13,7 @@ import { AnalyticsConsent } from '@src/background/services/settings/models';
 const renderWithAnalytics = (ui, { ...renderOptions }) => {
   return render(
     <AnalyticsContextProvider>{ui}</AnalyticsContextProvider>,
-    renderOptions
+    renderOptions,
   );
 };
 
@@ -108,12 +108,12 @@ describe('contexts/AnalyticsProvider', () => {
     it('reports event when IDs are available', async () => {
       const connectionMocks = useConnectionContext();
       (connectionMocks.request as jest.Mock).mockResolvedValue(
-        mockAnalyticsIds
+        mockAnalyticsIds,
       );
 
       renderWithAnalytics(
         <TestComponent captureParams={captureParams} initParams={[true]} />,
-        {}
+        {},
       );
       await new Promise(process.nextTick);
 
@@ -145,7 +145,7 @@ describe('contexts/AnalyticsProvider', () => {
 
       renderWithAnalytics(
         <TestComponent captureParams={captureParams} initParams={[true]} />,
-        {}
+        {},
       );
       await new Promise(process.nextTick);
 
@@ -185,7 +185,7 @@ describe('contexts/AnalyticsProvider', () => {
 
       renderWithAnalytics(
         <TestComponent captureParams={captureParams} initParams={[true]} />,
-        {}
+        {},
       );
       await new Promise(process.nextTick);
 
@@ -222,7 +222,7 @@ describe('contexts/AnalyticsProvider', () => {
     it('captures events with useEncryption param set to true', () => {
       renderWithAnalytics(
         <TestComponent captureParams={captureParams} initParams={[true]} />,
-        {}
+        {},
       );
 
       const connectionMocks = useConnectionContext();
@@ -249,7 +249,7 @@ describe('contexts/AnalyticsProvider', () => {
     it('captures events', () => {
       renderWithAnalytics(
         <TestComponent captureParams={captureParams} initParams={[true]} />,
-        {}
+        {},
       );
 
       const connectionMocks = useConnectionContext();
@@ -277,7 +277,7 @@ describe('contexts/AnalyticsProvider', () => {
       });
       renderWithAnalytics(
         <TestComponent captureParams={captureParams} initParams={[true]} />,
-        {}
+        {},
       );
 
       const connectionMocks = useConnectionContext();
@@ -300,7 +300,7 @@ describe('contexts/AnalyticsProvider', () => {
       });
       renderWithAnalytics(
         <TestComponent captureParams={params} initParams={[true]} />,
-        {}
+        {},
       );
 
       const connectionMocks = useConnectionContext();
@@ -327,7 +327,7 @@ describe('contexts/AnalyticsProvider', () => {
     it('intitializes analytics ids with store in storage param true', () => {
       renderWithAnalytics(
         <TestComponent captureParams={captureParams} initParams={[true]} />,
-        {}
+        {},
       );
 
       const connectionMocks = useConnectionContext();
@@ -345,7 +345,7 @@ describe('contexts/AnalyticsProvider', () => {
     it('intitializes analytics ids with store in storage param false', () => {
       renderWithAnalytics(
         <TestComponent captureParams={captureParams} initParams={[false]} />,
-        {}
+        {},
       );
 
       const connectionMocks = useConnectionContext();
@@ -365,7 +365,7 @@ describe('contexts/AnalyticsProvider', () => {
     it('requests to stop data collection', () => {
       renderWithAnalytics(
         <TestComponent captureParams={captureParams} initParams={[true]} />,
-        {}
+        {},
       );
 
       const connectionMocks = useConnectionContext();

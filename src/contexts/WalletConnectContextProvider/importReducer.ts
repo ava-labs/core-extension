@@ -44,7 +44,7 @@ type ImportAction =
 
 export const importReducer = (
   state: AccountImportState,
-  action: ImportAction
+  action: ImportAction,
 ): AccountImportState => {
   const { status, payload } = action;
   switch (status) {
@@ -75,7 +75,7 @@ export const importReducer = (
 
     default:
       throw new Error(
-        `WalletConnectContextProvider: Unknown connection status: "${AccountImportStatus[status]}"`
+        `WalletConnectContextProvider: Unknown connection status: "${AccountImportStatus[status]}"`,
       );
   }
 };

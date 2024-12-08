@@ -185,7 +185,7 @@ export function CustomFees({
   const [customGasLimit, setCustomGasLimit] = useState<number | undefined>();
   const gasLimit = customGasLimit || limit;
   const [customFee, setCustomFee] = useState<FeeRate | undefined>(
-    networkFee?.low
+    networkFee?.low,
   );
   const [newFees, setNewFees] = useState<
     ReturnType<typeof calculateGasAndFees>
@@ -195,7 +195,7 @@ export function CustomFees({
       tokenPrice,
       tokenDecimals: network?.networkToken.decimals,
       gasLimit,
-    })
+    }),
   );
   const [isCollapsed, setIsCollapsed] = useState(isCollapsible);
   const customInputRef = useRef<HTMLInputElement>(null);
@@ -203,7 +203,7 @@ export function CustomFees({
   const [selectedFee, setSelectedFee] = useState<GasFeeModifier>(
     networkFee?.isFixedFee
       ? GasFeeModifier.NORMAL
-      : selectedGasFeeModifier || GasFeeModifier.NORMAL
+      : selectedGasFeeModifier || GasFeeModifier.NORMAL,
   );
 
   useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest native balance.
@@ -248,7 +248,7 @@ export function CustomFees({
       customGasLimit,
       maxGasPrice,
       onChange,
-    ]
+    ],
   );
 
   const getFeeRateForCustomGasPrice = useCallback(
@@ -267,7 +267,7 @@ export function CustomFees({
         maxPriorityFeePerGas: maxTip,
       };
     },
-    []
+    [],
   );
 
   const updateGasFee = useCallback(
@@ -294,7 +294,7 @@ export function CustomFees({
           handleGasChange(networkFee.low, GasFeeModifier.NORMAL);
       }
     },
-    [handleGasChange, networkFee, customFee]
+    [handleGasChange, networkFee, customFee],
   );
 
   const handleModifierClick = useCallback(
@@ -305,7 +305,7 @@ export function CustomFees({
         onModifierChangeCallback(modifier);
       }
     },
-    [updateGasFee, onModifierChangeCallback]
+    [updateGasFee, onModifierChangeCallback],
   );
 
   useEffect(() => {
@@ -331,7 +331,7 @@ export function CustomFees({
       return new TokenUnit(
         estimatedFee,
         network?.networkToken.decimals,
-        network?.networkToken.symbol
+        network?.networkToken.symbol,
       ).toString();
     }
 
@@ -354,7 +354,7 @@ export function CustomFees({
         tooltip={
           isMaxFeeUsed
             ? t(
-                'Core estimates the maximum gas (maxFeePerGas) a transaction could consume based on network conditions. This transaction will likely consume less gas than estimated.'
+                'Core estimates the maximum gas (maxFeePerGas) a transaction could consume based on network conditions. This transaction will likely consume less gas than estimated.',
               )
             : undefined
         }
@@ -406,7 +406,7 @@ export function CustomFees({
               <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
                 {formatGasPrice(
                   networkFee.low.maxFeePerGas,
-                  networkFee.displayDecimals
+                  networkFee.displayDecimals,
                 )}
               </Typography>
             </FeeButton>
@@ -430,7 +430,7 @@ export function CustomFees({
                   <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
                     {formatGasPrice(
                       networkFee.medium.maxFeePerGas,
-                      networkFee.displayDecimals
+                      networkFee.displayDecimals,
                     )}
                   </Typography>
                 </FeeButton>
@@ -452,7 +452,7 @@ export function CustomFees({
                   <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
                     {formatGasPrice(
                       networkFee.high.maxFeePerGas,
-                      networkFee.displayDecimals
+                      networkFee.displayDecimals,
                     )}
                   </Typography>
                 </FeeButton>
@@ -478,7 +478,7 @@ export function CustomFees({
                     type="number"
                     value={formatGasPrice(
                       customFee?.maxFeePerGas ?? 0n,
-                      networkFee.displayDecimals
+                      networkFee.displayDecimals,
                     )}
                     min={1}
                     step={1}
@@ -486,9 +486,9 @@ export function CustomFees({
                       handleGasChange(
                         getFeeRateForCustomGasPrice(
                           e.target.value || '0',
-                          networkFee
+                          networkFee,
                         ),
-                        GasFeeModifier.CUSTOM
+                        GasFeeModifier.CUSTOM,
                       );
                     }}
                     onBlur={(e) => {
@@ -548,7 +548,7 @@ export function CustomFees({
         open={Boolean(
           network?.vmName === NetworkVMType.EVM &&
             showEditGasLimit &&
-            customFee?.maxFeePerGas
+            customFee?.maxFeePerGas,
         )}
       >
         <CustomGasSettings
@@ -572,7 +572,7 @@ export function CustomFees({
                 tokenPrice,
                 tokenDecimals: network?.networkToken.decimals,
                 gasLimit: data.customGasLimit,
-              })
+              }),
             );
             onChange({
               customGasLimit: data.customGasLimit,

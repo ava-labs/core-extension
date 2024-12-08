@@ -22,7 +22,7 @@ export function SelectWallet() {
         id: requestId,
         result: index,
       }),
-    [requestId, updateAction]
+    [requestId, updateAction],
   );
 
   if (!request) {

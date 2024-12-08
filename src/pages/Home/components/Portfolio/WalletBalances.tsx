@@ -48,7 +48,7 @@ export function WalletBalances() {
   const balanceTotal =
     balanceTotalUSDSum !== null && balanceTotalUSDSum !== undefined
       ? balanceTotalUSDSum
-      : totalBalanceSum ?? null;
+      : (totalBalanceSum ?? null);
 
   useLiveBalance(POLLED_BALANCES); // Make sure we show the latest balances.
 
@@ -93,7 +93,7 @@ export function WalletBalances() {
               (favoriteNetworksMissingPrice || activeNetworkMissingPrice) && (
                 <Tooltip
                   title={t(
-                    'The prices of some tokens are missing. The balance might not be accurate currently.'
+                    'The prices of some tokens are missing. The balance might not be accurate currently.',
                   )}
                   placement="bottom"
                 >

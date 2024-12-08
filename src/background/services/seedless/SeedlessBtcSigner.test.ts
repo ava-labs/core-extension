@@ -17,8 +17,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           0,
           [],
           networks.bitcoin,
-          {} as any
-        )
+          {} as any,
+        ),
     ).toThrow('Invalid public key');
 
     expect(
@@ -29,8 +29,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           0,
           [],
           networks.bitcoin,
-          {} as any
-        )
+          {} as any,
+        ),
     ).not.toThrow();
   });
 
@@ -43,13 +43,13 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       0,
       [],
       networks.bitcoin,
-      {} as any
+      {} as any,
     );
 
     expect(signer.address).toEqual('my-btc-address');
     expect(getBtcAddressFromPubKey).toHaveBeenCalledWith(
       Buffer.from(evmKey.publicKey, 'hex'),
-      networks.bitcoin
+      networks.bitcoin,
     );
   });
 
@@ -62,7 +62,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       0,
       [],
       networks.bitcoin,
-      {} as any
+      {} as any,
     );
 
     const pubKey = Buffer.from(strip0x(evmKey.publicKey), 'hex');
@@ -136,7 +136,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         0,
         psbt.txInputs,
         networks.bitcoin,
-        session
+        session,
       );
     });
 
@@ -169,7 +169,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       expect(session.signBtc).toHaveBeenCalledWith(
         signer.address,
-        getExpectedSignPayload(0)
+        getExpectedSignPayload(0),
       );
 
       const nextInputSigner = new SeedlessBtcSigner(
@@ -178,14 +178,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         1,
         psbt.txInputs,
         networks.bitcoin,
-        session
+        session,
       );
 
       await nextInputSigner.sign();
 
       expect(session.signBtc).toHaveBeenCalledWith(
         nextInputSigner.address,
-        getExpectedSignPayload(1)
+        getExpectedSignPayload(1),
       );
     });
 
@@ -197,7 +197,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       await expect(signer.sign()).rejects.toThrow(
-        /Unexpected signature length/
+        /Unexpected signature length/,
       );
     });
 
@@ -210,7 +210,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       });
 
       expect(await signer.sign()).toEqual(
-        Buffer.from(strip0x(mockedSignature), 'hex').subarray(0, 64)
+        Buffer.from(strip0x(mockedSignature), 'hex').subarray(0, 64),
       );
     });
   });

@@ -27,7 +27,7 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
   }
 
   handleAuthenticated = async (
-    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>,
   ) => {
     const { request, scope } = rpcCall;
     const [walletId, newName] = request.params;
@@ -50,9 +50,8 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
       };
     }
 
-    const wallet = await this.secretsService.getWalletAccountsSecretsById(
-      walletId
-    );
+    const wallet =
+      await this.secretsService.getWalletAccountsSecretsById(walletId);
 
     if (!wallet) {
       return {
@@ -65,20 +64,20 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
 
     const canSkip = await canSkipApproval(
       request.site.domain,
-      request.site.tabId
+      request.site.tabId,
     );
     if (canSkip) {
       try {
         await this.secretsService.updateSecrets(
           { ...wallet, name: newName },
-          walletId
+          walletId,
         );
 
         return {
           ...request,
           result: null,
         };
-      } catch (err) {
+      } catch (_err) {
         return {
           ...request,
           error: ethErrors.rpc.internal('Wallet renaming failed'),
@@ -119,18 +118,17 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
     pendingAction: Action<{ walletId: string; newName: string }>,
     _,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const { walletId, newName } = pendingAction.displayData;
 
-      const wallet = await this.secretsService.getWalletAccountsSecretsById(
-        walletId
-      );
+      const wallet =
+        await this.secretsService.getWalletAccountsSecretsById(walletId);
 
       await this.secretsService.updateSecrets(
         { ...wallet, name: newName },
-        walletId
+        walletId,
       );
 
       onSuccess(null);

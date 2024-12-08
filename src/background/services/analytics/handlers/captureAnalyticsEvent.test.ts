@@ -30,7 +30,7 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
   it('captures event', async () => {
     const handler = new CaptureAnalyticsEventHandler(
       analyticsServicePosthogMock,
-      featureFlagServiceMock
+      featureFlagServiceMock,
     );
 
     const request = {
@@ -44,14 +44,14 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
     expect(result).toEqual({ ...request, result: null });
     expect(analyticsServicePosthogMock.captureEvent).toHaveBeenCalledTimes(1);
     expect(analyticsServicePosthogMock.captureEvent).toHaveBeenCalledWith(
-      mockEvent
+      mockEvent,
     );
   });
 
   it('uses encryption when requested', async () => {
     const handler = new CaptureAnalyticsEventHandler(
       analyticsServicePosthogMock,
-      featureFlagServiceMock
+      featureFlagServiceMock,
     );
 
     const request = {
@@ -64,10 +64,10 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
 
     expect(result).toEqual({ ...request, result: null });
     expect(
-      analyticsServicePosthogMock.captureEncryptedEvent
+      analyticsServicePosthogMock.captureEncryptedEvent,
     ).toHaveBeenCalledTimes(1);
     expect(
-      analyticsServicePosthogMock.captureEncryptedEvent
+      analyticsServicePosthogMock.captureEncryptedEvent,
     ).toHaveBeenCalledWith(mockEvent);
   });
 
@@ -80,7 +80,7 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
           ...featureFlagServiceMock.featureFlags,
           [FeatureGates.EVENTS]: false,
         },
-      }
+      },
     );
 
     const request = {
@@ -98,11 +98,11 @@ describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
   it('returns error when tracking fails', async () => {
     const handler = new CaptureAnalyticsEventHandler(
       analyticsServicePosthogMock,
-      featureFlagServiceMock
+      featureFlagServiceMock,
     );
 
     (analyticsServicePosthogMock.captureEvent as jest.Mock).mockRejectedValue(
-      new Error('some error')
+      new Error('some error'),
     );
 
     const request = {

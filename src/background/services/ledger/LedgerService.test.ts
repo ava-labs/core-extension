@@ -34,7 +34,7 @@ describe('src/background/services/ledger/LedgerService.ts', () => {
     jest.resetAllMocks();
 
     ledgerDeviceRequestMock.subscribe.mockReturnValue(
-      ledgerRequestSubscriptionMock
+      ledgerRequestSubscriptionMock,
     );
 
     (Subject as unknown as jest.Mock)
@@ -49,21 +49,21 @@ describe('src/background/services/ledger/LedgerService.ts', () => {
 
   it('handles events correctly on unlock', () => {
     expect(ledgerDeviceRequestMock.subscribe).toBeCalledWith(
-      expect.any(Function) // we test the actual callback below
+      expect.any(Function), // we test the actual callback below
     );
     expect(eventEmitterMock.emit).toBeCalledWith(
-      LedgerEvent.DISCOVER_TRANSPORTS
+      LedgerEvent.DISCOVER_TRANSPORTS,
     );
     expect(eventEmitterMock.emit).not.toBeCalledWith(
       LedgerEvent.TRANSPORT_REQUEST,
-      undefined
+      undefined,
     );
 
     // execute ledger request callback manually
     ledgerDeviceRequestMock.subscribe.mock.calls[0][0]();
     expect(eventEmitterMock.emit).toBeCalledWith(
       LedgerEvent.TRANSPORT_REQUEST,
-      undefined
+      undefined,
     );
   });
 
@@ -87,7 +87,7 @@ describe('src/background/services/ledger/LedgerService.ts', () => {
     lruCacheMock.get.mockReturnValueOnce(transportMock);
 
     expect(ledgerService.getTransport(transportId)).toStrictEqual(
-      transportMock
+      transportMock,
     );
     expect(lruCacheMock.get).toBeCalledWith(transportId);
   });
@@ -120,7 +120,7 @@ describe('src/background/services/ledger/LedgerService.ts', () => {
     await expect(promise).resolves.toBe(true);
     expect(eventEmitterMock.emit).toHaveBeenCalledWith(
       LedgerEvent.TRANSPORT_CLOSE_REQUEST,
-      {}
+      {},
     );
     jest.useRealTimers();
   });
@@ -140,12 +140,12 @@ describe('src/background/services/ledger/LedgerService.ts', () => {
     ledgerService.initTransport(transportId);
     expect(lruCacheMock.set).toBeCalledWith(
       transportId,
-      expect.any(LedgerTransport)
+      expect.any(LedgerTransport),
     );
     expect(LedgerTransport).toBeCalledWith(
       ledgerDeviceRequestMock,
       ledgerDeviceResponseMock,
-      transportId
+      transportId,
     );
   });
 

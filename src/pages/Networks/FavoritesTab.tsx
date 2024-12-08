@@ -12,7 +12,7 @@ export function FavoritesTab({ searchTerm }: NetworkTabProps) {
   const { favoriteNetworks } = useNetworkContext();
 
   const filteredNetworks = favoriteNetworks.filter(
-    (networkItem) => searchTerm && networkItem.chainName.match(searchTerm)
+    (networkItem) => searchTerm && networkItem.chainName.match(searchTerm),
   );
 
   const hasFavorites = favoriteNetworks.length > 0;

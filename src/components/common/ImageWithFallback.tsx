@@ -19,7 +19,7 @@ export function ImageWithFallback({
   const [fallbackImage, setFallbackImage] = useState('');
 
   const imageOnErrorHandler = (
-    event: React.SyntheticEvent<HTMLImageElement, Event>
+    event: React.SyntheticEvent<HTMLImageElement, Event>,
   ) => {
     setFallbackImage('images/no_image.svg');
     onError?.(event);

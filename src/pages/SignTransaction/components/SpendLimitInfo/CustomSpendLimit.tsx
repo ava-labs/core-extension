@@ -101,7 +101,7 @@ export function CustomSpendLimit({
         </Stack>
         <RadioGroup
           sx={{ gap: 2 }}
-          onChange={(ev, limitType) => {
+          onChange={(_ev, limitType) => {
             setCustomSpendLimit({
               ...customSpendLimit,
               limitType: limitType as Limit,

@@ -30,7 +30,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     account: Account,
     activeChainId: number,
     roundRobinChainIds: number[],
-    tokenTypes: TokenType[]
+    tokenTypes: TokenType[],
   ) {
     // Stop any polling that may be occurring already
     this.stopPolling();
@@ -39,7 +39,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
       account,
       activeChainId,
       roundRobinChainIds,
-      tokenTypes
+      tokenTypes,
     );
   }
 
@@ -59,7 +59,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     account: Account,
     activeChainId: number,
     roundRobinChainIds: number[],
-    tokenTypes: TokenType[]
+    tokenTypes: TokenType[],
   ) {
     const thisPollingStartedAt = performance.now();
     this.#lastPollingStartedAt = thisPollingStartedAt;
@@ -69,7 +69,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
       ...this.getNetworksToUpdate(
         roundRobinChainIds,
         this.#pollingIteration,
-        15
+        15,
       ),
     ]);
 
@@ -77,7 +77,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
       await this.balanceAggregator.getBalancesForNetworks(
         chainIds,
         [account],
-        tokenTypes
+        tokenTypes,
       );
     } catch {
       // Do nothing, just schedule another attempt
@@ -90,7 +90,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
         account,
         activeChainId,
         roundRobinChainIds,
-        tokenTypes
+        tokenTypes,
       );
     }
   }
@@ -99,7 +99,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     account: Account,
     activeChainId: number,
     roundRobinChainIds: number[],
-    tokenTypes: TokenType[]
+    tokenTypes: TokenType[],
   ) {
     this.#pollingIteration += 1;
     this.#timer = setTimeout(
@@ -108,27 +108,27 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
           account,
           activeChainId,
           roundRobinChainIds,
-          tokenTypes
+          tokenTypes,
         ),
-      BalancePollingService.INTERVAL
+      BalancePollingService.INTERVAL,
     );
   }
 
   private getNetworksToUpdate(
     networkIds: number[],
     iteration: number,
-    updatePeriod: number
+    updatePeriod: number,
   ) {
     // Always load all chains for the first request.
     if (iteration === 0) {
       return networkIds;
     }
     const numberOfNetworksToUpdate = Math.ceil(
-      networkIds.length / updatePeriod
+      networkIds.length / updatePeriod,
     );
 
     const roundsWithUpdates = Math.ceil(
-      networkIds.length / numberOfNetworksToUpdate
+      networkIds.length / numberOfNetworksToUpdate,
     );
 
     if (iteration % updatePeriod < roundsWithUpdates) {
@@ -138,7 +138,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
 
       return networkIds.slice(
         startIndex,
-        startIndex + numberOfNetworksToUpdate
+        startIndex + numberOfNetworksToUpdate,
       );
     }
 

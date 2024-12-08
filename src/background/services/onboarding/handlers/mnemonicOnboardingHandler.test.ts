@@ -77,7 +77,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
       walletServiceMock,
       onboardingServiceMock,
       lockServiceMock,
-      networkServiceMock
+      networkServiceMock,
     );
 
   const getRequest = (params: unknown[]) =>
@@ -85,7 +85,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
       id: '123',
       method: ExtensionRequest.MNEMONIC_ONBOARDING_SUBMIT,
       params,
-    } as any);
+    }) as any;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -124,11 +124,11 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     expect(walletServiceMock.init).toHaveBeenCalledWith(
       expect.objectContaining({
         mnemonic: mnemonic.toLowerCase(),
-      })
+      }),
     );
     expect(getXpubFromMnemonic).toHaveBeenCalledWith(mnemonic.toLowerCase());
     expect(Avalanche.getXpubFromMnemonic).toHaveBeenCalledWith(
-      mnemonic.toLowerCase()
+      mnemonic.toLowerCase(),
     );
 
     expect(result).toEqual({
@@ -139,10 +139,10 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
 
   it('sets up an mnemonic wallet correctly', async () => {
     (getXpubFromMnemonic as jest.Mock).mockResolvedValueOnce(
-      'xpubFromMnemonic'
+      'xpubFromMnemonic',
     );
     (Avalanche.getXpubFromMnemonic as jest.Mock).mockReturnValueOnce(
-      'xpubFromMnemonicXP'
+      'xpubFromMnemonicXP',
     );
 
     const handler = getHandler();
@@ -163,7 +163,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
 
     expect(getXpubFromMnemonic).toHaveBeenCalledWith('mnemonic');
     expect(storageServiceMock.createStorageKey).toHaveBeenCalledWith(
-      'password'
+      'password',
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
       mnemonic: 'mnemonic',
@@ -181,7 +181,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);
 
     expect(
-      analyticsServiceMock.saveTemporaryAnalyticsIds
+      analyticsServiceMock.saveTemporaryAnalyticsIds,
     ).not.toHaveBeenCalled();
 
     expect(addXPChainToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);

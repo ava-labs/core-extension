@@ -127,14 +127,13 @@ export function TokenSelect({
 
   const handleAmountChange = useCallback(
     ({ amount, bigint }: { amount: string; bigint: bigint }) => {
+      onInputAmountChange?.({ amount, bigint });
       if (!maxAmountString) {
-        onInputAmountChange && onInputAmountChange({ amount, bigint });
         return;
       }
       setIsMaxAmount(maxAmountString === amount);
-      onInputAmountChange && onInputAmountChange({ amount, bigint });
     },
-    [onInputAmountChange, maxAmountString]
+    [onInputAmountChange, maxAmountString],
   );
   const hideTokenDropdown = tokensList && tokensList.length < 2;
 
@@ -151,9 +150,9 @@ export function TokenSelect({
             parseFloat(
               bigToLocaleString(bigintToBig(inputAmount, decimals)).replace(
                 /,/g,
-                ''
-              )
-            ) * price
+                '',
+              ),
+            ) * price,
           )
         : undefined;
     return amount;
@@ -216,7 +215,7 @@ export function TokenSelect({
           key={key}
           onClick={() => {
             onTokenChange(token.token);
-            onSelectToggle && onSelectToggle();
+            onSelectToggle?.();
           }}
         >
           <Stack
@@ -253,7 +252,7 @@ export function TokenSelect({
         </StyledDropdownMenuItem>
       );
     },
-    [displayTokenList, onSelectToggle, onTokenChange]
+    [displayTokenList, onSelectToggle, onTokenChange],
   );
 
   const renderTokenLabel = useCallback(() => {

@@ -44,10 +44,9 @@ describe('background/services/storage/schemaMigrations/migrations/wallet_v4', ()
   });
 
   it('should throw an `invalid wallet type` error', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { xpub, ...rest } = validInput;
     expect(() => wallet_v4.up(rest)).rejects.toThrow(
-      'Cannot get the secret type for a primary account'
+      'Cannot get the secret type for a primary account',
     );
   });
 
@@ -82,7 +81,7 @@ describe('background/services/storage/schemaMigrations/migrations/wallet_v4', ()
 
   it('migrates to v4 successfully', async () => {
     const result = await wallet_v4.up(validInput);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const { imported, ...restInput } = validInput;
     expect(result).toStrictEqual({
       wallets: [

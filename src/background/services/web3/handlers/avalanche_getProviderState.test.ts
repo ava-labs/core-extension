@@ -24,7 +24,7 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
       } as AccountsService);
 
       expect(
-        await handler.handleUnauthenticated(buildRpcCall(mockRequest))
+        await handler.handleUnauthenticated(buildRpcCall(mockRequest)),
       ).toEqual({
         ...mockRequest,
         result: {
@@ -41,11 +41,11 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         {
           getInitialNetworkForDapp: () => ({ chainId: 1 }),
         } as unknown as NetworkService,
-        { activeAccount: { addressC: '0x000000' } } as AccountsService
+        { activeAccount: { addressC: '0x000000' } } as AccountsService,
       );
 
       expect(
-        await handler.handleUnauthenticated(buildRpcCall(mockRequest))
+        await handler.handleUnauthenticated(buildRpcCall(mockRequest)),
       ).toEqual({
         ...mockRequest,
         result: {
@@ -69,7 +69,7 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
       } as AccountsService);
 
       expect(
-        await handler.handleAuthenticated(buildRpcCall(mockRequest))
+        await handler.handleAuthenticated(buildRpcCall(mockRequest)),
       ).toEqual({
         ...mockRequest,
         result: {
@@ -86,11 +86,11 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         {
           getInitialNetworkForDapp: () => ({ chainId: 1 }),
         } as unknown as NetworkService,
-        { activeAccount: { addressC: '0x000000' } } as AccountsService
+        { activeAccount: { addressC: '0x000000' } } as AccountsService,
       );
 
       expect(
-        await handler.handleAuthenticated(buildRpcCall(mockRequest))
+        await handler.handleAuthenticated(buildRpcCall(mockRequest)),
       ).toEqual({
         ...mockRequest,
         result: {
@@ -107,11 +107,11 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         {
           getInitialNetworkForDapp: () => ({ chainId: 43114 }),
         } as unknown as NetworkService,
-        { activeAccount: undefined } as AccountsService
+        { activeAccount: undefined } as AccountsService,
       );
 
       expect(
-        await handler.handleAuthenticated(buildRpcCall(mockRequest))
+        await handler.handleAuthenticated(buildRpcCall(mockRequest)),
       ).toEqual({
         ...mockRequest,
         result: {

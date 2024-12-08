@@ -17,21 +17,21 @@ export interface DAppRequestHandler {
     result: any,
     onSuccess: (result: unknown) => Promise<void>,
     onError: (error: Error) => Promise<void>,
-    tabId?: number
+    tabId?: number,
   ) => Promise<void>;
 }
 
 export abstract class DAppRequestHandler<
   RequestParams = unknown,
-  ResponseParams = any
+  ResponseParams = any,
 > {
   abstract methods: DAppProviderRequest[];
 
   abstract handleAuthenticated: (
-    rpcCall: JsonRpcRequestParams<DAppProviderRequest, RequestParams>
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, RequestParams>,
   ) => Promise<JsonRpcResponse<ResponseParams>>;
 
   abstract handleUnauthenticated: (
-    rpcCall: JsonRpcRequestParams<DAppProviderRequest, RequestParams>
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, RequestParams>,
   ) => Promise<JsonRpcResponse<ResponseParams>>;
 }

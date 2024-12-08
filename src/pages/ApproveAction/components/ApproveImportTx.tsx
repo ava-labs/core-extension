@@ -156,7 +156,7 @@ export function ImportTxView({
                 }}
               >
                 {currencyFormatter(
-                  amount.toDisplay({ asNumber: true }) * avaxPrice
+                  amount.toDisplay({ asNumber: true }) * avaxPrice,
                 )}
               </Typography>
             </Stack>
@@ -211,7 +211,7 @@ export function ImportTxView({
                 }}
               >
                 {currencyFormatter(
-                  fee.toDisplay({ asNumber: true }) * avaxPrice
+                  fee.toDisplay({ asNumber: true }) * avaxPrice,
                 )}
               </Typography>
             </Stack>

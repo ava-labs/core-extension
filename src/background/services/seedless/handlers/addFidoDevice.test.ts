@@ -19,7 +19,7 @@ describe('src/background/services/seedless/handlers/addFidoDevice', () => {
         id: 'abcd-1234',
         params: [name, type],
         tabId: 1234,
-      })
+      }),
     );
   };
 
@@ -29,7 +29,7 @@ describe('src/background/services/seedless/handlers/addFidoDevice', () => {
 
   it('returns error if request fails', async () => {
     seedlessMfaService.addFidoDevice.mockRejectedValueOnce(
-      new Error('Session expired')
+      new Error('Session expired'),
     );
 
     const result = await handle('yubi', KeyType.Yubikey);
@@ -62,14 +62,14 @@ describe('src/background/services/seedless/handlers/addFidoDevice', () => {
     expect(seedlessMfaService.addFidoDevice).toHaveBeenCalledWith(
       'yubi',
       KeyType.Yubikey,
-      1234
+      1234,
     );
 
     await handle('paskij', KeyType.Passkey);
     expect(seedlessMfaService.addFidoDevice).toHaveBeenCalledWith(
       'paskij',
       KeyType.Passkey,
-      1234
+      1234,
     );
   });
 });

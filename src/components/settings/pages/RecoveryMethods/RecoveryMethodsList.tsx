@@ -35,7 +35,7 @@ export const RecoveryMethodsList = ({
           methodIcon={<QRCodeIcon size={24} sx={{ width: 28 }} />}
           methodName={t('Authenticator')}
           methodDescription={t(
-            'Use an authenticator app as a recovery method.'
+            'Use an authenticator app as a recovery method.',
           )}
         />
       )}

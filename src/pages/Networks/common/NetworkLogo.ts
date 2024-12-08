@@ -26,8 +26,11 @@ export const AnimatedGlobeIconContainer = styled('div')<{
     top: ${({ position }) => (position ? `-${position * 65}px` : 0)};
     left: 40px;
     transform: scale(0);
-    transition: top 500ms ease-in-out, opacity 750ms ease-in-out,
-      left 500ms ease-in-out, transform 550ms ease-in-out;
+    transition:
+      top 500ms ease-in-out,
+      opacity 750ms ease-in-out,
+      left 500ms ease-in-out,
+      transform 550ms ease-in-out;
   }
 `;
 
@@ -51,7 +54,10 @@ export const AnimatedNetworkLogo = styled('img')<{
     top: ${({ position }) => (position ? `-${position * 65}px` : 0)};
     left: 40px;
     transform: scale(0);
-    transition: top 500ms ease-in-out, opacity 750ms ease-in-out,
-      left 500ms ease-in-out, transform 550ms ease-in-out;
+    transition:
+      top 500ms ease-in-out,
+      opacity 750ms ease-in-out,
+      left 500ms ease-in-out,
+      transform 550ms ease-in-out;
   }
 `;

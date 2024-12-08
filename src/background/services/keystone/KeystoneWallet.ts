@@ -24,7 +24,7 @@ export class KeystoneWallet {
     private activeAccountIndex: number,
     private keystoneTransport: KeystoneTransport,
     private chainId?: number,
-    private tabId?: number
+    private tabId?: number,
   ) {}
 
   async signTransaction(txRequest: TransactionRequest): Promise<string> {
@@ -32,9 +32,9 @@ export class KeystoneWallet {
       await this.buildSignatureRequest(
         txRequest,
         this.fingerprint,
-        this.activeAccountIndex
+        this.activeAccountIndex,
       ),
-      this.tabId
+      this.tabId,
     );
     const signature = ETHSignature.fromCBOR(cborBuffer).getSignature();
 
@@ -54,7 +54,7 @@ export class KeystoneWallet {
   private async buildSignatureRequest(
     txRequest: TransactionRequest,
     fingerprint: string,
-    activeAccountIndex: number
+    activeAccountIndex: number,
   ): Promise<CBOR> {
     const chainId = txRequest.chainId ?? this.chainId;
     const isLegacyTx = typeof txRequest.gasPrice !== 'undefined';
@@ -80,7 +80,7 @@ export class KeystoneWallet {
       keyPath,
       fingerprint,
       crypto.randomUUID(),
-      Number(chainId)
+      Number(chainId),
     );
 
     const ur = ethSignRequest.toUR();
@@ -93,7 +93,7 @@ export class KeystoneWallet {
 
   private async getTxFromTransactionRequest(
     txRequest: TransactionRequest,
-    signature?: { r: string; s: string; v: number }
+    signature?: { r: string; s: string; v: number },
   ) {
     return typeof txRequest.gasPrice !== 'undefined'
       ? Transaction.fromTxData(
@@ -105,7 +105,7 @@ export class KeystoneWallet {
             common: Common.custom({
               chainId: Number(txRequest.chainId ?? this.chainId),
             }),
-          }
+          },
         )
       : FeeMarketEIP1559Transaction.fromTxData(
           { ...this.txRequestToFeeMarketTxData(txRequest), ...signature },
@@ -117,14 +117,14 @@ export class KeystoneWallet {
                 // to use the new TX props (maxFeePerGas and maxPriorityFeePerGas) in combination
                 // with the custom chainId.
                 hardfork: Hardfork.London,
-              }
+              },
             ),
-          }
+          },
         );
   }
 
   private txRequestToFeeMarketTxData(
-    txRequest: TransactionRequest
+    txRequest: TransactionRequest,
   ): FeeMarketEIP1559TxData {
     const {
       to,

@@ -18,7 +18,7 @@ describe('src/utils/seedless/authenticateWithApple', () => {
 
   it('should throw an error when the Ouath is not configured', () => {
     expect(authenticateWithApple()).rejects.toThrow(
-      'Apple OAuth not configured'
+      'Apple OAuth not configured',
     );
   });
 
@@ -47,7 +47,7 @@ describe('src/utils/seedless/authenticateWithApple', () => {
 
     expect(globalThis.URL).toHaveBeenCalledTimes(1);
     expect(globalThis.URL).toHaveBeenCalledWith(
-      'https://appleid.apple.com/auth/authorize'
+      'https://appleid.apple.com/auth/authorize',
     );
 
     const searchParams = [
@@ -86,7 +86,7 @@ describe('src/utils/seedless/authenticateWithApple', () => {
     }
 
     expect(launchWebAuthFlow).toHaveBeenCalledWith(
-      jest.mocked(global.URL).mock.instances[0]
+      jest.mocked(global.URL).mock.instances[0],
     );
   });
 });

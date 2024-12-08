@@ -28,10 +28,10 @@ const up = async (cache: PreviousSchema) => {
 
   const newPolygonBalances = Object.fromEntries(
     Object.entries(oldPolygonBalances).map(([address, addressBalances]) => {
-      const { MATIC, ...addressBalancesWithoutMatic } = addressBalances; // eslint-disable-line
+      const { MATIC, ...addressBalancesWithoutMatic } = addressBalances;
 
       return [address, addressBalancesWithoutMatic];
-    })
+    }),
   );
 
   return {

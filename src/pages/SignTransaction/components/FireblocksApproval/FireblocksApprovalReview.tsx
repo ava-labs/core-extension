@@ -60,7 +60,7 @@ export function FireblocksApprovalReview({
 
   const isBtcNetwork = useMemo(
     () => (activeNetwork ? isBitcoinNetwork(activeNetwork) : false),
-    [activeNetwork]
+    [activeNetwork],
   );
 
   return (

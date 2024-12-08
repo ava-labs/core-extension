@@ -52,7 +52,7 @@ export const useFeeCustomizer = ({
 
   const [isCalculatingFee, setIsCalculatingFee] = useState(false);
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
-    GasFeeModifier.NORMAL
+    GasFeeModifier.NORMAL,
   );
   const isFeeSelectorEnabled = Boolean(action?.displayData.networkFeeSelector);
 
@@ -62,7 +62,7 @@ export const useFeeCustomizer = ({
 
   const nativeToken = useMemo(
     () => tokens.find(({ type }) => type === TokenType.NATIVE) ?? null,
-    [tokens]
+    [tokens],
   ) as NetworkTokenWithBalance | null;
 
   const signingData = useMemo(() => {
@@ -98,7 +98,7 @@ export const useFeeCustomizer = ({
         params: [actionId, newFeeConfig],
       });
     },
-    [actionId, isFeeSelectorEnabled, request, signingData?.type]
+    [actionId, isFeeSelectorEnabled, request, signingData?.type],
   );
 
   const getFeeInfo = useCallback((data: SigningData) => {
@@ -107,7 +107,7 @@ export const useFeeCustomizer = ({
       case RpcMethod.ETH_SIGN:
       case RpcMethod.PERSONAL_SIGN: {
         throw new Error(
-          `Unable to render fee widget for non-transaction (${data.type})`
+          `Unable to render fee widget for non-transaction (${data.type})`,
         );
       }
 
@@ -166,15 +166,15 @@ export const useFeeCustomizer = ({
     setFeeError(
       nativeToken.balance >= need
         ? undefined
-        : SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE
+        : SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE,
     );
   }, [getFeeInfo, isFeeSelectorEnabled, nativeToken?.balance, signingData]);
 
   const [maxFeePerGas, setMaxFeePerGas] = useState(
-    getInitialFeeRate(signingData)
+    getInitialFeeRate(signingData),
   );
   const [maxPriorityFeePerGas, setMaxPriorityFeePerGas] = useState(
-    networkFee?.low?.maxPriorityFeePerGas
+    networkFee?.low?.maxPriorityFeePerGas,
   );
 
   useEffect(() => {
@@ -185,7 +185,7 @@ export const useFeeCustomizer = ({
     // Initialize fee config with default values if they are not set at all
     setMaxFeePerGas((previous) => previous ?? networkFee.low.maxFeePerGas);
     setMaxPriorityFeePerGas(
-      (previous) => previous ?? networkFee.low.maxPriorityFeePerGas
+      (previous) => previous ?? networkFee.low.maxPriorityFeePerGas,
     );
   }, [networkFee, isFeeSelectorEnabled]);
 
@@ -199,7 +199,7 @@ export const useFeeCustomizer = ({
       setMaxPriorityFeePerGas(values.maxPriorityFeePerGas);
       setGasFeeModifier(values.feeType);
     },
-    []
+    [],
   );
 
   useEffect(() => {

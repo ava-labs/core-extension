@@ -26,8 +26,10 @@ export function RenameAccount() {
   const { t } = useTranslation();
   const requestId = useGetRequestId();
 
-  const { action, updateAction, cancelHandler } =
-    useApproveAction<{ account: Account; newName: string }>(requestId);
+  const { action, updateAction, cancelHandler } = useApproveAction<{
+    account: Account;
+    newName: string;
+  }>(requestId);
 
   if (!action) {
     return (

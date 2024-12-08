@@ -19,7 +19,7 @@ describe('background/services/balances/handlers/stopBalancesPolling.ts', () => {
       buildRpcCall({
         id: '123',
         method: ExtensionRequest.BALANCES_STOP_POLLING,
-      })
+      }),
     );
 
     expect(balancePollingService.stopPolling).toHaveBeenCalled();

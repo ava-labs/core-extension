@@ -82,7 +82,7 @@ export const WalletContainer = ({
                     isDeveloperMode ? 'test.' : ''
                   }core.app/tools/utxo-manager`,
                   '_blank',
-                  'noreferrer'
+                  'noreferrer',
                 );
               }}
               endIcon={<OutboundIcon />}

@@ -77,7 +77,7 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
       walletServiceMock,
       onboardingServiceMock,
       lockServiceMock,
-      networkServiceMock
+      networkServiceMock,
     );
 
   const getRequest = (params: unknown[]) =>
@@ -85,7 +85,7 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
       id: '123',
       method: ExtensionRequest.KEYSTONE_ONBOARDING_SUBMIT,
       params,
-    } as any);
+    }) as any;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -125,7 +125,7 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
     expect(getXpubFromMnemonic).not.toHaveBeenCalled();
     expect(Avalanche.getXpubFromMnemonic).not.toHaveBeenCalled();
     expect(storageServiceMock.createStorageKey).toHaveBeenCalledWith(
-      'password'
+      'password',
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
       xpub: 'xpub',
@@ -141,7 +141,7 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);
 
     expect(
-      analyticsServiceMock.saveTemporaryAnalyticsIds
+      analyticsServiceMock.saveTemporaryAnalyticsIds,
     ).not.toHaveBeenCalled();
 
     expect(addXPChainToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);

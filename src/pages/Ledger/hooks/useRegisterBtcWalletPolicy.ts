@@ -32,7 +32,7 @@ const useRegisterBtcWalletPolicy = () => {
   useEffect(() => {
     const fetchWalletPolicyDetails = async (
       account: PrimaryAccount,
-      details: WalletDetails
+      details: WalletDetails,
     ) => {
       const { masterFingerprint } =
         (await request<GetBtcWalletPolicyDetails>({
