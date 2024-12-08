@@ -49,7 +49,7 @@ export function KeystoneContextProvider({ children }: { children: any }) {
         method: ExtensionRequest.KEYSTONE_SUBMIT_SIGNATURE,
         params: [response],
       }),
-    [request]
+    [request],
   );
 
   const resetKeystoneRequest = useCallback(() => {

@@ -57,7 +57,7 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
       const isMissingPrices = Object.values(tokensForActiveAccount)
         .filter(getTokenVisibility) // Disregard hidden tokens
         .some(
-          (token) => token.balance > 0n && token.priceInCurrency === undefined // Only look at tokens that actually have some balance
+          (token) => token.balance > 0n && token.priceInCurrency === undefined, // Only look at tokens that actually have some balance
         );
 
       networksIsMissingPrices[networkId] = isMissingPrices;
@@ -75,9 +75,9 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
   const favoriteNetworksMissingPrice = useMemo(
     () =>
       favoriteNetworks.some(
-        (network) => networksMissingPrice[network.chainId] === true
+        (network) => networksMissingPrice[network.chainId] === true,
       ),
-    [favoriteNetworks, networksMissingPrice]
+    [favoriteNetworks, networksMissingPrice],
   );
 
   const activeNetworkMissingPrice = useMemo(() => {
@@ -91,7 +91,7 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
     (networkId: number) => {
       return networksMissingPrice[networkId] === true;
     },
-    [networksMissingPrice]
+    [networksMissingPrice],
   );
 
   return {

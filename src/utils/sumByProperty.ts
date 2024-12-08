@@ -2,7 +2,7 @@ import { formatAndLog } from './logging';
 
 export const sumByProperty = <O extends Record<T, unknown>, T extends keyof O>(
   values: O[],
-  key: T
+  key: T,
 ): number => {
   return values.reduce((acc, curr, index) => {
     const value = curr[key];
@@ -14,9 +14,9 @@ export const sumByProperty = <O extends Record<T, unknown>, T extends keyof O>(
     // Log out instances when provided list contains non-numeric values
     formatAndLog(
       `sumByProperty(): object at index ${index} was ignored. Property ${String(
-        key
+        key,
       )} does not contain a number:`,
-      curr
+      curr,
     );
 
     return acc;

@@ -45,7 +45,7 @@ export const AccountItemMenu = ({
   const [isOpen, setIsOpen] = useState(false);
   const { isPrivateKeyAvailable, showPrivateKey } = usePrivateKeyExport(
     account,
-    walletType
+    walletType,
   );
   const isDeletable = isAccountSelectable(account);
 
@@ -54,7 +54,7 @@ export const AccountItemMenu = ({
       e.stopPropagation();
       history.push(`/accounts/${account.id}`);
     },
-    [history, account.id]
+    [history, account.id],
   );
 
   return (

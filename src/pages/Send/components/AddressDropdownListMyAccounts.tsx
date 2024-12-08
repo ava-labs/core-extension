@@ -58,8 +58,8 @@ export const AddressDropdownListMyAccounts = ({
   const addressType = useBtcAddress
     ? 'addressBTC'
     : useXpAddress
-    ? 'addressXP'
-    : 'address';
+      ? 'addressXP'
+      : 'address';
   const selectedAddress = selectedContact?.[addressType]?.toLowerCase();
 
   const { setIsSettingsOpen, setSettingsActivePage } = useSettingsContext();

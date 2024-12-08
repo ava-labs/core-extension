@@ -98,7 +98,7 @@ export const SendEVM = ({
 
   const inputAmount = useMemo(
     () => (amount ? stringToBigint(amount, token?.decimals ?? 18) : undefined),
-    [token, amount]
+    [token, amount],
   );
 
   return (

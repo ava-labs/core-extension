@@ -15,7 +15,7 @@ export class BackgroundRuntime {
     private onboardingService: OnboardingService,
     // we try to fetch the bridge configs as soon as possible
     private bridgeService: BridgeService,
-    private moduleManager: ModuleManager
+    private moduleManager: ModuleManager,
   ) {}
 
   activate() {

@@ -90,7 +90,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
                   success: {
                     duration: 2000,
                   },
-                }
+                },
               );
               goBack();
             }}

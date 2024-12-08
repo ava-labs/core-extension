@@ -29,7 +29,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
     const handler = new AvalancheGetAddressesInRangeHandler(
       secretsServiceMock,
       networkServiceMock,
-      accountsService
+      accountsService,
     );
 
     return handler.handleAuthenticated(request);
@@ -44,7 +44,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
         tabId: 3,
       },
       ...payload,
-    } as const);
+    }) as const;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -83,36 +83,36 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
           .mocked(Avalanche.getAddressFromXpub)
           .mockImplementation(
             (_, index, __, ___, isChange) =>
-              `X-${isChange ? 'internal' : 'external'}_address${index}`
+              `X-${isChange ? 'internal' : 'external'}_address${index}`,
           );
       });
 
       it('throws if external start index is incorrect', async () => {
         const { error } = await handleRequest(
-          buildRpcCall(getPayload({ params: [-1, 0] }))
+          buildRpcCall(getPayload({ params: [-1, 0] })),
         );
 
         expect(error).toEqual(
           ethErrors.rpc.invalidParams({
             message: 'Invalid start index',
-          })
+          }),
         );
       });
 
       it('throws if internal start index is incorrect', async () => {
         const { error } = await handleRequest(
-          buildRpcCall(getPayload({ params: [0, -1] }))
+          buildRpcCall(getPayload({ params: [0, -1] })),
         );
         expect(error).toEqual(
           ethErrors.rpc.invalidParams({
             message: 'Invalid start index',
-          })
+          }),
         );
       });
 
       it('returns the address list correctly', async () => {
         const { result } = await handleRequest(
-          buildRpcCall(getPayload({ params: [0, 0, 2, 2] }))
+          buildRpcCall(getPayload({ params: [0, 0, 2, 2] })),
         );
         expect(result).toEqual({
           external: getExpectedResult('external', 2),
@@ -142,7 +142,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
               },
             }),
           }),
-          'getAddressesInRange'
+          'getAddressesInRange',
         );
       });
 
@@ -162,7 +162,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
 
       it('sets the limit to 0 if not provided', async () => {
         const { result } = await handleRequest(
-          buildRpcCall(getPayload({ params: [0, 0] }))
+          buildRpcCall(getPayload({ params: [0, 0] })),
         );
         expect(result).toStrictEqual({
           external: [],
@@ -173,7 +173,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
 
       it('sets the limit to 100 if the provided is over 100', async () => {
         const { result } = await handleRequest(
-          buildRpcCall(getPayload({ params: [0, 0, 1000, 1000] }))
+          buildRpcCall(getPayload({ params: [0, 0, 1000, 1000] })),
         );
         expect(result.external).toHaveLength(100);
         expect(result.internal).toHaveLength(100);
@@ -186,7 +186,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
     const handler = new AvalancheGetAddressesInRangeHandler(
       secretsServiceMock,
       networkServiceMock,
-      accountsService
+      accountsService,
     );
     const request = getPayload({
       params: [0, 0, 10, 10],

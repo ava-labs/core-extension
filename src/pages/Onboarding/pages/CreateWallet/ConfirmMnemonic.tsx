@@ -88,12 +88,15 @@ export function ConfirmMnemonic({
       };
       setWordsToConfirm(newState);
 
-      onConfirmedChange &&
-        onConfirmedChange(
-          Object.values(newState).every(
-            (item) => item.index >= 0 && words[item.index] === item.selected
-          )
-        );
+      if (!onConfirmedChange) {
+        return;
+      }
+
+      onConfirmedChange(
+        Object.values(newState).every(
+          (item) => item.index >= 0 && words[item.index] === item.selected,
+        ),
+      );
     }
   };
 

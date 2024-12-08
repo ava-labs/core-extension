@@ -38,7 +38,7 @@ const AUTHENTICATION_RESPONSE_SCHEMA = Joi.object<
 
 export const isValidResponse = (
   endpoint: FIDOApiEndpoint,
-  response: unknown
+  response: unknown,
 ) => {
   // The schemas allow additional properties to be defined,
   // but we care about the ones that are specified in the schema.
@@ -52,7 +52,7 @@ export const isValidResponse = (
     const messages = error.details.map(({ message }) => message);
     sentryCaptureException(
       new Error(`Invalid Identity API response: ${messages.join(' | ')}`),
-      SentryExceptionTypes.SEEDLESS
+      SentryExceptionTypes.SEEDLESS,
     );
 
     return false;

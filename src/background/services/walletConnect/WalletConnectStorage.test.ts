@@ -52,7 +52,7 @@ describe('src/background/services/walletConnect/WalletConnectStorage.ts', () => 
       WALLET_CONNECT_STORAGE_KEY,
       {
         'dummy-key': 123,
-      }
+      },
     );
   });
 
@@ -122,7 +122,7 @@ describe('src/background/services/walletConnect/WalletConnectStorage.ts', () => 
     const service = new WalletConnectStorage(storageEngine);
 
     expect(() => service.getItem('dummy-key')).rejects.toThrow(
-      'Missing encryption key'
+      'Missing encryption key',
     );
   });
 
@@ -167,35 +167,35 @@ describe('src/background/services/walletConnect/WalletConnectStorage.ts', () => 
     expect(storageEngine.save).toHaveBeenNthCalledWith(
       1,
       WALLET_CONNECT_STORAGE_KEY,
-      { 'key-1': 1 }
+      { 'key-1': 1 },
     );
 
     // Call: setItem('key-2', 2)
     expect(storageEngine.save).toHaveBeenNthCalledWith(
       2,
       WALLET_CONNECT_STORAGE_KEY,
-      { 'key-1': 1, 'key-2': 2 }
+      { 'key-1': 1, 'key-2': 2 },
     );
 
     // Call: setItem('key-3', 3)
     expect(storageEngine.save).toHaveBeenNthCalledWith(
       3,
       WALLET_CONNECT_STORAGE_KEY,
-      { 'key-1': 1, 'key-2': 2, 'key-3': 3 }
+      { 'key-1': 1, 'key-2': 2, 'key-3': 3 },
     );
 
     // Call: removeItem('key-2')
     expect(storageEngine.save).toHaveBeenNthCalledWith(
       4,
       WALLET_CONNECT_STORAGE_KEY,
-      { 'key-1': 1, 'key-3': 3 } // key-2 was removed
+      { 'key-1': 1, 'key-3': 3 }, // key-2 was removed
     );
 
     // Call: setItem('key-4', 4)
     expect(storageEngine.save).toHaveBeenNthCalledWith(
       5,
       WALLET_CONNECT_STORAGE_KEY,
-      { 'key-1': 1, 'key-3': 3, 'key-4': 4 }
+      { 'key-1': 1, 'key-3': 3, 'key-4': 4 },
     );
   });
 });

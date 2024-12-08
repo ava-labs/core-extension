@@ -167,7 +167,7 @@ export const BridgeForm = ({
   const hasEnoughForNetworkFee = useHasEnoughForGas(
     asset && isNativeAsset(asset) ? amount : 0n, // Bridge amount does not matter if we're not bridging the native token
     feeRate,
-    neededGas
+    neededGas,
   );
 
   const errorTooltipContent = useMemo(() => {
@@ -176,7 +176,7 @@ export const BridgeForm = ({
         'Insufficient balance to cover gas costs. Please add {{token}} or slightly lower the amount.',
         {
           token: gasToken,
-        }
+        },
       );
     }
 
@@ -204,7 +204,7 @@ export const BridgeForm = ({
         ? `${currencyFormatter(targetAmount).replace(currency, '')} ${currency}`
         : '-';
     },
-    [currency, currencyFormatter]
+    [currency, currencyFormatter],
   );
 
   const formattedReceiveAmount = useMemo(() => {
@@ -235,7 +235,7 @@ export const BridgeForm = ({
       setAmount(value.bigint);
       sendAmountEnteredAnalytics('Bridge');
     },
-    [asset, sendAmountEnteredAnalytics, setAmount, setNavigationHistoryData]
+    [asset, sendAmountEnteredAnalytics, setAmount, setNavigationHistoryData],
   );
 
   const handleSelect = useCallback(
@@ -260,7 +260,7 @@ export const BridgeForm = ({
       setAmount,
       setNavigationHistoryData,
       transferableAssets,
-    ]
+    ],
   );
 
   const handleBlockchainSwap = useCallback(() => {
@@ -300,7 +300,7 @@ export const BridgeForm = ({
       isAmountTooLow,
       isPending,
       networkFee,
-    ]
+    ],
   );
   // NOTE: we operate on the assumption that UnifiedBridge SDK will
   // use the first matching bridge from the `destinations` array

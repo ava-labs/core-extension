@@ -294,7 +294,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
           id: '1',
           params: [],
         },
-        requestAccountsCallback
+        requestAccountsCallback,
       );
 
       expect(requestAccountsCallback).not.toHaveBeenCalled();
@@ -346,7 +346,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       const requestAccountsCallback = jest.fn();
       mwpp.send(
         { method: 'eth_requestAccounts', id: '1', params: [] },
-        requestAccountsCallback
+        requestAccountsCallback,
       );
 
       expect(requestAccountsCallback).not.toHaveBeenCalled();

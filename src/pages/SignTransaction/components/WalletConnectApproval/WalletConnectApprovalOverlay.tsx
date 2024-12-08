@@ -44,7 +44,7 @@ export function WalletConnectApprovalOverlay({
   const activeStep = useMemo(
     () => getActiveStep(requestSent, activeSession, isNewConnectionRequired),
 
-    [requestSent, isNewConnectionRequired, activeSession]
+    [requestSent, isNewConnectionRequired, activeSession],
   );
 
   const pageTitle = useMemo(() => {
@@ -97,12 +97,12 @@ export function WalletConnectApprovalOverlay({
             <WalletConnectApprovalConnect
               reconnectionAddress={activeAccount?.addressC as string}
               customMessage={t(
-                'Please reconnect using Wallet Connect to add this network to authorized networks.'
+                'Please reconnect using Wallet Connect to add this network to authorized networks.',
               )}
               onConnect={() => {
                 establishRequiredSession(
                   activeAccount?.addressC as string,
-                  activeNetwork?.chainId as number
+                  activeNetwork?.chainId as number,
                 );
               }}
             />

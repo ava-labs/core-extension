@@ -26,7 +26,7 @@ export const BridgeUnknownNetwork = ({
         <Typography variant="h5">{t('Network not supported.')}</Typography>
         <Typography variant="body1" sx={{ mt: 1, mb: 3, textAlign: 'center' }}>
           {t(
-            'Network is not supported. Change network to supported network to continue.'
+            'Network is not supported. Change network to supported network to continue.',
           )}
         </Typography>
         <NetworkSelector

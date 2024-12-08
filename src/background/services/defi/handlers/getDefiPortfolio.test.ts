@@ -30,7 +30,7 @@ describe('src/background/services/defi/handlers/getDefiPortfolio.ts', () => {
         id: '1',
         params: ['0x1234'],
         method: ExtensionRequest.DEFI_GET_PORTFOLIO,
-      })
+      }),
     );
 
     expect(response).toEqual({
@@ -56,7 +56,7 @@ describe('src/background/services/defi/handlers/getDefiPortfolio.ts', () => {
           id: '1',
           params: ['0x1234'],
           method: ExtensionRequest.DEFI_GET_PORTFOLIO,
-        })
+        }),
       );
 
       expect(response).toEqual({

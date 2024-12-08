@@ -48,7 +48,7 @@ export const usePvmSend: SendAdapterPVM = ({
       stripAddressPrefix(account.addressCoreEth),
       [stripAddressPrefix(account.addressPVM)],
       stripAddressPrefix(account.addressPVM),
-      provider as Avalanche.JsonRpcProvider
+      provider as Avalanche.JsonRpcProvider,
     );
   }, [account, provider]);
 
@@ -121,7 +121,7 @@ export const usePvmSend: SendAdapterPVM = ({
         price: gasPrice,
       };
     },
-    [feeState]
+    [feeState],
   );
 
   const buildTransaction = useCallback(
@@ -135,7 +135,7 @@ export const usePvmSend: SendAdapterPVM = ({
         wallet,
         network,
         getFeeState(gasPrice),
-        utxoSet
+        utxoSet,
       );
 
       return wallet.baseTX({
@@ -161,7 +161,7 @@ export const usePvmSend: SendAdapterPVM = ({
       network,
       getFeeState,
       utxoSet,
-    ]
+    ],
   );
 
   const parseTx = useCallback(
@@ -178,12 +178,12 @@ export const usePvmSend: SendAdapterPVM = ({
         unsignedTx,
         provider,
         account.addressPVM,
-        { feeTolerance }
+        { feeTolerance },
       );
 
       return parsedTx;
     },
-    [buildTransaction, provider, account.addressPVM, feeState]
+    [buildTransaction, provider, account.addressPVM, feeState],
   );
 
   const validate = useCallback(
@@ -205,7 +205,7 @@ export const usePvmSend: SendAdapterPVM = ({
           return setErrorAndEndValidating(SendErrorMessage.INVALID_NETWORK_FEE);
         } else if (gasPrice > feeState.price * 2n) {
           return setErrorAndEndValidating(
-            SendErrorMessage.EXCESSIVE_NETWORK_FEE
+            SendErrorMessage.EXCESSIVE_NETWORK_FEE,
           );
         }
       }
@@ -225,8 +225,8 @@ export const usePvmSend: SendAdapterPVM = ({
           wallet,
           network,
           getFeeState(gasPrice),
-          utxoSet
-        )
+          utxoSet,
+        ),
       );
 
       if (utxosError) {
@@ -270,7 +270,7 @@ export const usePvmSend: SendAdapterPVM = ({
       parseTx,
       feeState,
       utxoSet,
-    ]
+    ],
   );
 
   const send = useCallback(
@@ -292,7 +292,7 @@ export const usePvmSend: SendAdapterPVM = ({
           transactionHex: Buffer.from(unsignedTx.toBytes()).toString('hex'),
           chainAlias: PCHAIN_ALIAS,
           utxos: unsignedTx.utxos.map((utxo) =>
-            utils.bufferToHex(utxo.toBytes(codec))
+            utils.bufferToHex(utxo.toBytes(codec)),
           ),
           feeTolerance,
         };
@@ -307,7 +307,7 @@ export const usePvmSend: SendAdapterPVM = ({
         setIsSending(false);
       }
     },
-    [buildTransaction, checkFunctionAvailability, request, feeState]
+    [buildTransaction, checkFunctionAvailability, request, feeState],
   );
 
   return {
@@ -334,6 +334,6 @@ const getFeeTolerance = (chosenGasPrice?: bigint, feeState?: FeeState) => {
   // Cap between 1 and 100
   return Math.min(
     100,
-    Math.max(1, Math.ceil((difference / Number(marketGasPrice)) * 100))
+    Math.max(1, Math.ceil((difference / Number(marketGasPrice)) * 100)),
   );
 };

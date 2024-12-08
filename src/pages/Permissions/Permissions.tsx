@@ -46,7 +46,7 @@ export function PermissionsPage() {
   const [displayDialog, setDisplayDialog] = useState(true);
 
   const isConfirmContainer = useIsSpecificContextContainer(
-    ContextContainer.CONFIRM
+    ContextContainer.CONFIRM,
   );
   const dAppScanning = useDAppScan();
   const { featureFlags } = useFeatureFlagContext();
@@ -85,10 +85,10 @@ export function PermissionsPage() {
       activeAccount &&
       isDomainConnectedToAccount(
         action.displayData.domainUrl,
-        activeAccount.addressC
+        activeAccount.addressC,
       ) &&
       isConfirmContainer,
-    [action, activeAccount, isDomainConnectedToAccount, isConfirmContainer]
+    [action, activeAccount, isDomainConnectedToAccount, isConfirmContainer],
   );
 
   // If the domain already has permissions for the active account, close the popup

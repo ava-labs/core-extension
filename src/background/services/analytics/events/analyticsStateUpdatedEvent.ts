@@ -18,7 +18,7 @@ export class AnalyticsUpdatedEvents implements ExtensionEventEmitter {
           name: AnalyticsEvents.ANALYTICS_STATE_UPDATED,
           value: contacts,
         });
-      }
+      },
     );
   }
 
@@ -27,7 +27,7 @@ export class AnalyticsUpdatedEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

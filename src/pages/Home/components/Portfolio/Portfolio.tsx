@@ -101,7 +101,7 @@ export function Portfolio() {
 
       return checkIsFunctionSupported(idToCheck);
     },
-    [checkIsFunctionSupported, hadDefiEnabled]
+    [checkIsFunctionSupported, hadDefiEnabled],
   );
 
   const handleChange = useCallback(
@@ -115,7 +115,7 @@ export function Portfolio() {
         capture('PortfolioDefiClicked');
       }
     },
-    [capture, setActiveTab]
+    [capture, setActiveTab],
   );
 
   const tabs = useMemo(() => {
@@ -126,10 +126,10 @@ export function Portfolio() {
           tab === PortfolioTabs.ASSETS
             ? t('Assets')
             : tab === PortfolioTabs.COLLECTIBLES
-            ? t('Collectibles')
-            : tab === PortfolioTabs.DEFI
-            ? t('DeFi')
-            : null;
+              ? t('Collectibles')
+              : tab === PortfolioTabs.DEFI
+                ? t('DeFi')
+                : null;
         return {
           label,
           tab,

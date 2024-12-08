@@ -30,7 +30,7 @@ describe('background/services/network/handlers/wallet_getEthereumChain.ts', () =
   it('handleAuthenticated inactive', async () => {
     const handler = new WalletGetEthereumChainHandler(networkServiceInactive);
     const result = await handler.handleAuthenticated(
-      buildRpcCall(getChainRequest)
+      buildRpcCall(getChainRequest),
     );
     expect(result).toEqual({
       ...getChainRequest,
@@ -41,10 +41,10 @@ describe('background/services/network/handlers/wallet_getEthereumChain.ts', () =
   });
   it('handleAuthenticated mainnet', async () => {
     const handler = new WalletGetEthereumChainHandler(
-      networkServiceMockMainnet
+      networkServiceMockMainnet,
     );
     const { result } = await handler.handleAuthenticated(
-      buildRpcCall(getChainRequest)
+      buildRpcCall(getChainRequest),
     );
     expect(result).toEqual(networkToGetEthChainResponse(BITCOIN_NETWORK));
     expect(result.chainName).toEqual(BITCOIN_NETWORK.chainName);
@@ -53,25 +53,25 @@ describe('background/services/network/handlers/wallet_getEthereumChain.ts', () =
   });
   it('handleAuthenticated testnet', async () => {
     const handler = new WalletGetEthereumChainHandler(
-      networkServiceMockTestnet
+      networkServiceMockTestnet,
     );
     const { result } = await handler.handleAuthenticated(
-      buildRpcCall(getChainRequest)
+      buildRpcCall(getChainRequest),
     );
     expect(result).toEqual(networkToGetEthChainResponse(BITCOIN_TEST_NETWORK));
     expect(result.chainName).toEqual(BITCOIN_TEST_NETWORK.chainName);
     expect(result.chainId).toEqual(
-      `0x${BITCOIN_TEST_NETWORK.chainId.toString(16)}`
+      `0x${BITCOIN_TEST_NETWORK.chainId.toString(16)}`,
     );
     expect(result.isTestnet).toEqual(true);
   });
 
   it('handleUnauthenticated', async () => {
     const handler = new WalletGetEthereumChainHandler(
-      networkServiceMockMainnet
+      networkServiceMockMainnet,
     );
     const result = await handler.handleUnauthenticated(
-      buildRpcCall(getChainRequest)
+      buildRpcCall(getChainRequest),
     );
     expect(result).toEqual({
       ...getChainRequest,

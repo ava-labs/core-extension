@@ -22,12 +22,12 @@ export class GetRecoveryMethodsHandler implements HandlerType {
   constructor(
     private secretsService: SecretsService,
     private seedlessMfaService: SeedlessMfaService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const secrets = await this.secretsService.getPrimaryAccountSecrets(
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
 
     if (secrets?.secretType !== SecretType.Seedless) {
@@ -38,7 +38,7 @@ export class GetRecoveryMethodsHandler implements HandlerType {
     }
 
     const [result, error] = await resolve(
-      this.seedlessMfaService.getRecoveryMethods()
+      this.seedlessMfaService.getRecoveryMethods(),
     );
 
     return {

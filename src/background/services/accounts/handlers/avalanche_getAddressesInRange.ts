@@ -17,7 +17,7 @@ type Params = [
   externalStart: number,
   internalStart: number,
   externalLimit: number,
-  internalLimit: number
+  internalLimit: number,
 ];
 import { AccountsService } from '../AccountsService';
 import { getAddressesInRange } from '../utils/getAddressesInRange';
@@ -38,7 +38,7 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
   constructor(
     private secretsService: SecretsService,
     private networkService: NetworkService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {
     super();
   }
@@ -61,7 +61,7 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
   }) => {
     const provXP = await this.networkService.getAvalanceProviderXP();
     const secrets = await this.secretsService.getPrimaryAccountSecrets(
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
 
     const addresses: { external: string[]; internal: string[] } = {
@@ -76,7 +76,7 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
           provXP,
           false,
           externalStart,
-          externalLimit
+          externalLimit,
         );
       }
 
@@ -86,7 +86,7 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
           provXP,
           true,
           internalStart,
-          internalLimit
+          internalLimit,
         );
       }
     }
@@ -183,7 +183,7 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
   onActionApproved = async (
     pendingAction: Action<GetAddressesInRangeDisplayData>,
     _,
-    onSuccess
+    onSuccess,
   ) => {
     onSuccess(pendingAction.displayData.addresses);
   };

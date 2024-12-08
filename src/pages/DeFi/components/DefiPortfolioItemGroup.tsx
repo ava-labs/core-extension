@@ -29,20 +29,23 @@ export const DefiPortfolioItemGroup = ({ group }: Props) => {
   const { t } = useTranslation();
   const header = useMemo(
     () => (group.name === 'Rewards' ? t('Pool') : t('Supplied')),
-    [group.name, t]
+    [group.name, t],
   );
   const itemsByType = useMemo(
     () =>
-      group.items.reduce((grouped, item) => {
-        if (!grouped[item.type]) {
-          grouped[item.type] = [item];
-        } else {
-          grouped[item.type].push(item);
-        }
+      group.items.reduce(
+        (grouped, item) => {
+          if (!grouped[item.type]) {
+            grouped[item.type] = [item];
+          } else {
+            grouped[item.type].push(item);
+          }
 
-        return grouped;
-      }, {} as Record<DefiItemType, DefiItem[]>),
-    [group]
+          return grouped;
+        },
+        {} as Record<DefiItemType, DefiItem[]>,
+      ),
+    [group],
   );
 
   return (

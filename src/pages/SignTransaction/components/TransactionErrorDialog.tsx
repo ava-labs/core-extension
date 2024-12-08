@@ -7,7 +7,7 @@ export const TransactionErrorDialog = ({ onConfirm }) => {
     <>
       <Typography variant="body2" sx={{ textAlign: 'center', mt: 1 }}>
         {t(
-          'The provided chainID does not match the selected network. Pressing “Continue” will reject the transaction. Please switch networks and try again.'
+          'The provided chainID does not match the selected network. Pressing “Continue” will reject the transaction. Please switch networks and try again.',
         )}
       </Typography>
       <Stack

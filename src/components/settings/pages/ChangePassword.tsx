@@ -45,7 +45,7 @@ export function ChangePassword({
     isFieldsFilled,
     newPassword,
     confirmPassword,
-    newPasswordStrength
+    newPasswordStrength,
   );
 
   const canSubmit = !error && isFieldsFilled;
@@ -95,7 +95,7 @@ export function ChangePassword({
             <AlertTriangleIcon sx={{ color: 'warning.main', fontSize: 24 }} />
             <Typography variant="body2" sx={{ ml: 2 }}>
               {t(
-                'Avoid using a password that you use with other websites or that might be easy for someone to guess.'
+                'Avoid using a password that you use with other websites or that might be easy for someone to guess.',
               )}
             </Typography>
           </Stack>

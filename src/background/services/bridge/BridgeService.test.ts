@@ -16,7 +16,7 @@ import { StorageService } from '../storage/StorageService';
 import { BridgeService } from './BridgeService';
 
 jest.mock('@avalabs/core-bridge-sdk', () => {
-  const { mockConfig } = require('./fixtures/mockBridgeConfig');
+  const { mockConfig } = jest.requireActual('./fixtures/mockBridgeConfig');
 
   return {
     ...jest.requireActual('@avalabs/core-bridge-sdk'),
@@ -82,7 +82,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
         networkService,
         accountsService,
         featureFlagService,
-        networkBalancesService
+        networkBalancesService,
       );
       await service.onStorageReady();
     });
@@ -98,7 +98,11 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
 
       it('uses byteLength as gas limit estimation', async () => {
         expect(
-          await service.estimateGas(Blockchain.BITCOIN, new Big('1'), {} as any)
+          await service.estimateGas(
+            Blockchain.BITCOIN,
+            new Big('1'),
+            {} as any,
+          ),
         ).toEqual(10000n);
       });
     });
@@ -110,7 +114,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
         const result = await service.estimateGas(
           Blockchain.ETHEREUM,
           new Big('1'),
-          {} as any
+          {} as any,
         );
 
         expect(estimateGas).toHaveBeenCalledWith(
@@ -122,7 +126,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
             avalanche: networkService.getAvalancheProvider(),
           },
           service.bridgeConfig.config,
-          Blockchain.ETHEREUM
+          Blockchain.ETHEREUM,
         );
 
         expect(result).toEqual(12345n);

@@ -26,7 +26,7 @@ export enum TransactionTokenCardVariant {
 }
 
 const isNftToken = (
-  token: NetworkToken | NetworkContractToken
+  token: NetworkToken | NetworkContractToken,
 ): token is ERC721Token | ERC1155Token =>
   'type' in token &&
   (token.type === TokenType.ERC1155 || token.type === TokenType.ERC721);
@@ -69,8 +69,8 @@ export const TransactionTokenCard = ({
     variant === TransactionTokenCardVariant.SEND
       ? 'error.light'
       : variant === TransactionTokenCardVariant.RECEIVE
-      ? 'success.light'
-      : 'text.primary';
+        ? 'success.light'
+        : 'text.primary';
 
   return (
     <Card

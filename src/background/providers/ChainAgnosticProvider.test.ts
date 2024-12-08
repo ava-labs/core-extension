@@ -75,7 +75,7 @@ describe('src/background/providers/ChainAgnosticProvider', () => {
               method: DAppProviderRequest.DOMAIN_METADATA_METHOD,
             }),
           }),
-        })
+        }),
       );
     });
   });
@@ -137,8 +137,8 @@ describe('src/background/providers/ChainAgnosticProvider', () => {
       expect(firstCallCallback).toHaveBeenCalledWith('success');
       expect(secondCallCallback).toHaveBeenCalledWith(
         ethErrors.rpc.resourceUnavailable(
-          `Request of type eth_requestAccounts already pending for origin. Please wait.`
-        )
+          `Request of type eth_requestAccounts already pending for origin. Please wait.`,
+        ),
       );
     });
     it('shoud not use the rate limits on `random_method` requests', async () => {

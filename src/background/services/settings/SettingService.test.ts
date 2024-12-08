@@ -97,7 +97,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     jest.resetAllMocks();
     storageServiceMock.load.mockResolvedValue(storedSettings);
     storageServiceMock.loadUnencrypted.mockResolvedValue(
-      storedUnencryptedSettings
+      storedUnencryptedSettings,
     );
     (isTokenSupported as jest.Mock).mockResolvedValue(false);
     service = new SettingsService(storageServiceMock, networkServiceMock);
@@ -205,7 +205,7 @@ describe('background/services/settings/SettingsService.ts', () => {
         SETTINGS_UNENCRYPTED_STORAGE_KEY,
         {
           language: storedSettings.language,
-        }
+        },
       );
 
       const newState = {
@@ -218,7 +218,7 @@ describe('background/services/settings/SettingsService.ts', () => {
       };
       expect(storageServiceMock.save).toBeCalledWith(
         SETTINGS_STORAGE_KEY,
-        newState
+        newState,
       );
 
       expect(eventListener).toHaveBeenCalledWith(newState);
@@ -390,7 +390,7 @@ describe('background/services/settings/SettingsService.ts', () => {
         });
         expect(storageServiceMock.saveUnencrypted).toHaveBeenCalledWith(
           SETTINGS_UNENCRYPTED_STORAGE_KEY,
-          { language: Languages.HI }
+          { language: Languages.HI },
         );
       });
     });

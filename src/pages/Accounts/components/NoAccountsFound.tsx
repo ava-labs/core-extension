@@ -5,9 +5,8 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useHistory } from 'react-router-dom';
+import { useGoBack } from '@src/hooks/useGoBack';
 
 export enum Origin {
   Search,
@@ -20,15 +19,8 @@ type NoAccountsFoundProps = {
 
 export const NoAccountsFound = ({ origin }: NoAccountsFoundProps) => {
   const { t } = useTranslation();
-  const history = useHistory();
 
-  const close = useCallback(() => {
-    if (history.length <= 2) {
-      history.replace('/accounts');
-    } else {
-      history.goBack();
-    }
-  }, [history]);
+  const close = useGoBack('/accounts');
 
   return (
     <Stack
@@ -49,7 +41,7 @@ export const NoAccountsFound = ({ origin }: NoAccountsFoundProps) => {
           <Typography variant="h5">{t('No search results found')}</Typography>
           <Typography variant="body2">
             {t(
-              'Try typing the information again or go back to the account manager.'
+              'Try typing the information again or go back to the account manager.',
             )}
           </Typography>
         </>

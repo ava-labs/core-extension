@@ -173,7 +173,7 @@ describe('src/background/vmModules/ApprovalController', () => {
           request: {
             chainId: 'abcd-1234',
           },
-        } as any)
+        } as any),
       ).toEqual({
         error: expect.objectContaining({ message: 'Unsupported network' }),
       });
@@ -187,7 +187,7 @@ describe('src/background/vmModules/ApprovalController', () => {
 
         expect(openApprovalWindow).toHaveBeenCalledWith(
           getExpectedAction(approvalParams),
-          'approve/generic'
+          'approve/generic',
         );
       });
 
@@ -232,7 +232,7 @@ describe('src/background/vmModules/ApprovalController', () => {
             outputs: btcTx.outputs,
           }),
           btcNetwork,
-          action.tabId
+          action.tabId,
         );
 
         expect(await promise).toEqual({
@@ -272,7 +272,7 @@ describe('src/background/vmModules/ApprovalController', () => {
             outputs: btcTx.outputs,
           }),
           btcNetwork,
-          action.tabId
+          action.tabId,
         );
 
         expect(await promise).toEqual({ signedData: signedTx });

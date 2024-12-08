@@ -73,7 +73,7 @@ export const ContactInput = ({
 
   function changeAndCloseDropdown(
     selectedContact: Contact,
-    selectedTab: string
+    selectedTab: string,
   ) {
     onChange(selectedContact, selectedTab);
     setIsOpen(!isContactsOpen);
@@ -90,8 +90,8 @@ export const ContactInput = ({
   const contactAddress = isBitcoin(network)
     ? contact?.addressBTC
     : isPchainNetwork(network) || isXchainNetwork(network)
-    ? contact?.addressXP
-    : contact?.address;
+      ? contact?.addressXP
+      : contact?.address;
 
   const [cursor, setCursor] = useState<number | null>(null);
 

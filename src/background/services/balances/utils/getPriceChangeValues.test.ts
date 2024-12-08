@@ -31,7 +31,7 @@ describe('utils/getPriceChangeValues', () => {
     const changes = getPriceChangeValues(
       network1TokenBalance.symbol,
       network1TokenBalance.balanceInCurrency,
-      priceChanges
+      priceChanges,
     );
     expect(changes).toEqual({
       value: 3,
@@ -41,7 +41,7 @@ describe('utils/getPriceChangeValues', () => {
   it('should return an empty calculation because of the missing price changes', () => {
     const changes = getPriceChangeValues(
       network1TokenBalance.symbol,
-      network1TokenBalance.balanceInCurrency
+      network1TokenBalance.balanceInCurrency,
     );
     expect(changes).toEqual({
       value: 0,

@@ -21,7 +21,7 @@ export class NavigationHistoryService {
   private async loadFromStorage(): Promise<NavigationHistoryStorage> {
     return (
       (await this.storageService.load<NavigationHistoryStorage>(
-        NAVIGATION_HISTORY_STORAGE_KEY
+        NAVIGATION_HISTORY_STORAGE_KEY,
       )) ?? { state: {}, data: {} }
     );
   }
@@ -29,7 +29,7 @@ export class NavigationHistoryService {
   private async saveToStorage(data: NavigationHistoryStorage) {
     await this.storageService.save<NavigationHistoryStorage>(
       NAVIGATION_HISTORY_STORAGE_KEY,
-      data
+      data,
     );
   }
 
@@ -40,7 +40,7 @@ export class NavigationHistoryService {
   }
 
   async setHistory(
-    state: NavigationHistoryState
+    state: NavigationHistoryState,
   ): Promise<NavigationHistoryState> {
     const current = await this.loadFromStorage();
     if (this.excludedPathNames.includes(state.location.pathname)) {
@@ -59,7 +59,7 @@ export class NavigationHistoryService {
           ...historyData,
         };
       },
-      {}
+      {},
     );
 
     await this.saveToStorage({
@@ -76,7 +76,7 @@ export class NavigationHistoryService {
   }
 
   async setHistoryData(
-    data: NavigationHistoryDataState
+    data: NavigationHistoryDataState,
   ): Promise<NavigationHistoryDataState> {
     const current = await this.loadFromStorage();
 

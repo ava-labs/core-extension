@@ -18,7 +18,7 @@ export class BridgeStateUpdateEvents implements ExtensionEventEmitter {
           name: BridgeEvents.BRIDGE_STATE_UPDATE_EVENT,
           value: value,
         });
-      }
+      },
     );
   }
 
@@ -27,7 +27,7 @@ export class BridgeStateUpdateEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

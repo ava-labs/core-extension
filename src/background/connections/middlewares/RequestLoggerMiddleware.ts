@@ -21,7 +21,7 @@ export enum SideToLog {
 }
 
 export function LoggerMiddleware(
-  sideToLog: SideToLog
+  sideToLog: SideToLog,
 ): Middleware<
   ExtensionConnectionMessage | JsonRpcRequest,
   ExtensionConnectionMessageResponse<any, any> | JsonRpcResponse
@@ -31,12 +31,12 @@ export function LoggerMiddleware(
       if (sideToLog === SideToLog.REQUEST) {
         requestLog(
           `Web3 request (${context.request.params.request.method})`,
-          context.request
+          context.request,
         );
       } else if (sideToLog === SideToLog.RESPONSE) {
         responseLog(
           `Web3 response (${context.request.params.request.method})`,
-          context.response
+          context.response,
         );
       }
     }

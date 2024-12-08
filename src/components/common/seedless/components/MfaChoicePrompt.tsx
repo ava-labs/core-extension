@@ -28,7 +28,7 @@ export const MfaChoicePrompt = ({ mfaChoice, onChosen }: Props) => {
       <DialogContent>
         <Typography variant="body1">
           {t(
-            'Select one of the available verification methods below to proceed.'
+            'Select one of the available verification methods below to proceed.',
           )}
         </Typography>
       </DialogContent>

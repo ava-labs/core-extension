@@ -1,6 +1,6 @@
 function incrementAndCall<T>(
   prom: () => Promise<T>,
-  interval = 0
+  interval = 0,
 ): Promise<T | never> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -24,7 +24,7 @@ export async function incrementalPromiseResolve<T>(
   prom: () => Promise<T>,
   errorParser: (res: any) => boolean,
   increment = 0,
-  maxTries = 10
+  maxTries = 10,
 ) {
   try {
     const res = await incrementAndCall<T>(prom, increment);
@@ -34,7 +34,7 @@ export async function incrementalPromiseResolve<T>(
         prom,
         errorParser,
         increment + 1,
-        maxTries
+        maxTries,
       );
     }
     return res;
@@ -46,7 +46,7 @@ export async function incrementalPromiseResolve<T>(
         prom,
         errorParser,
         increment + 1,
-        maxTries
+        maxTries,
       );
     }
     throw typeof err === 'string' ? new Error(err) : err;

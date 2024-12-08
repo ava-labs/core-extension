@@ -31,7 +31,7 @@ const TYPED_MESSAGE_SCHEMA = Joi.object<TypedMessage>({
 const ensureMessageFormatIsValid = (
   messageType: MessageType,
   data: Record<string, unknown>,
-  activeChainId: number
+  activeChainId: number,
 ) => {
   if (
     messageType === MessageType.SIGN_TYPED_DATA_V3 ||

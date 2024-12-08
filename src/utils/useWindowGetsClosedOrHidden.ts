@@ -7,7 +7,7 @@ import { filter, first, fromEventPattern, merge } from 'rxjs';
 
 export function useWindowGetsClosedOrHidden(cancelHandler: () => void) {
   const isConfirmPopup = useIsSpecificContextContainer(
-    ContextContainer.CONFIRM
+    ContextContainer.CONFIRM,
   );
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export function useWindowGetsClosedOrHidden(cancelHandler: () => void) {
         },
         (handler) => {
           window.removeEventListener('unload', handler);
-        }
+        },
       ),
       fromEventPattern(
         (handler) => {
@@ -26,12 +26,12 @@ export function useWindowGetsClosedOrHidden(cancelHandler: () => void) {
         },
         (handler) => {
           window.removeEventListener('visibilitychange', handler);
-        }
+        },
       ).pipe(
         filter(() => {
           return document.visibilityState === 'hidden';
-        })
-      )
+        }),
+      ),
     )
       .pipe(first())
       .subscribe(() => {

@@ -7,7 +7,7 @@ import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { useEffect, useState } from 'react';
 
 const TOKEN_IMAGE_BORDER_RADIUS = '50%';
-const TOKEN_IMAGE_DFEAULT_SIZE = '32px';
+const TOKEN_IMAGE_DEFAULT_SIZE = '32px';
 
 const getTokenIconInitials = (name: string | undefined) => {
   const names = (name || '').split(' ');
@@ -17,8 +17,8 @@ const getTokenIconInitials = (name: string | undefined) => {
     firstName && lastName
       ? firstName.substring(0, 1) + lastName.substring(0, 1)
       : firstName
-      ? firstName.substring(0, 1)
-      : '';
+        ? firstName.substring(0, 1)
+        : '';
 
   return initials;
 };
@@ -58,10 +58,13 @@ export function TokenIcon({
       img.src = ipfsResolverWithFallback(src);
     })
       .then(() => {
-        !isCancelled && setState({ success: true });
+        setState({ success: true });
       })
       .catch(() => {
-        !isCancelled && setState({ error: true });
+        if (isCancelled) {
+          return;
+        }
+        setState({ error: true });
       });
 
     return () => {
@@ -78,8 +81,8 @@ export function TokenIcon({
         sx={{
           borderRadius: TOKEN_IMAGE_BORDER_RADIUS,
           backgroundColor: 'grey.600',
-          width: width || TOKEN_IMAGE_DFEAULT_SIZE,
-          height: height || TOKEN_IMAGE_DFEAULT_SIZE,
+          width: width || TOKEN_IMAGE_DEFAULT_SIZE,
+          height: height || TOKEN_IMAGE_DEFAULT_SIZE,
           flexShrink: 0,
         }}
         {...rest}
@@ -95,8 +98,8 @@ export function TokenIcon({
         direction="row"
         sx={{
           borderRadius: TOKEN_IMAGE_BORDER_RADIUS,
-          width: width || TOKEN_IMAGE_DFEAULT_SIZE,
-          height: height || TOKEN_IMAGE_DFEAULT_SIZE,
+          width: width || TOKEN_IMAGE_DEFAULT_SIZE,
+          height: height || TOKEN_IMAGE_DEFAULT_SIZE,
           flexShrink: 0,
         }}
         {...rest}
@@ -118,8 +121,8 @@ export function TokenIcon({
           sx={{
             borderRadius: TOKEN_IMAGE_BORDER_RADIUS,
             backgroundColor: 'grey.600',
-            width: width || TOKEN_IMAGE_DFEAULT_SIZE,
-            height: height || TOKEN_IMAGE_DFEAULT_SIZE,
+            width: width || TOKEN_IMAGE_DEFAULT_SIZE,
+            height: height || TOKEN_IMAGE_DEFAULT_SIZE,
             flexShrink: 0,
           }}
           {...rest}

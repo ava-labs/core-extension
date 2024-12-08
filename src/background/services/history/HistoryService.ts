@@ -17,12 +17,12 @@ export class HistoryService {
   constructor(
     private moduleManager: ModuleManager,
     private accountsService: AccountsService,
-    private unifiedBridgeService: UnifiedBridgeService
+    private unifiedBridgeService: UnifiedBridgeService,
   ) {}
 
   async getTxHistory(
     network: NetworkWithCaipId,
-    otherAddress?: string
+    otherAddress?: string,
   ): Promise<TxHistoryItem[]> {
     const address = otherAddress ?? this.#getAddress(network);
 
@@ -31,15 +31,15 @@ export class HistoryService {
     }
 
     const [module] = await resolve(
-      this.moduleManager.loadModuleByNetwork(network)
+      this.moduleManager.loadModuleByNetwork(network),
     );
 
     if (!module) {
       sentryCaptureException(
         new Error(
-          `Fetching history failed. Module not found for ${network.caipId}`
+          `Fetching history failed. Module not found for ${network.caipId}`,
         ),
-        SentryExceptionTypes.VM_MODULES
+        SentryExceptionTypes.VM_MODULES,
       );
       return [];
     }

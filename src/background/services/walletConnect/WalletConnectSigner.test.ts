@@ -62,7 +62,7 @@ describe('src/background/services/walletConnect/WalletConnectSigner.ts', () => {
       testChainId,
       testAddress,
       testTabId,
-      requestExpiry
+      requestExpiry,
     );
 
     jest.mocked(makeBNLike).mockImplementation((input) => input as BNLike);
@@ -114,14 +114,14 @@ describe('src/background/services/walletConnect/WalletConnectSigner.ts', () => {
           },
         ],
       },
-      transportTestOptions
+      transportTestOptions,
     );
     expect(makeBNLike).toBeCalledTimes(5);
     expect(makeBNLike).toHaveBeenNthCalledWith(1, txParams.nonce);
     expect(makeBNLike).toHaveBeenNthCalledWith(2, txParams.maxFeePerGas);
     expect(makeBNLike).toHaveBeenNthCalledWith(
       3,
-      txParams.maxPriorityFeePerGas
+      txParams.maxPriorityFeePerGas,
     );
     expect(makeBNLike).toHaveBeenNthCalledWith(4, txParams.gasLimit);
     expect(makeBNLike).toHaveBeenNthCalledWith(5, txParams.value);
@@ -163,7 +163,7 @@ describe('src/background/services/walletConnect/WalletConnectSigner.ts', () => {
           ...transportTestOptions,
           chainId: testSession.chains[0],
           expiry: requestExpiry,
-        }
+        },
       );
     });
 
@@ -191,7 +191,7 @@ describe('src/background/services/walletConnect/WalletConnectSigner.ts', () => {
             internalIndices: [2],
           },
         },
-        { ...transportTestOptions, chainId: testSession.chains[0] }
+        { ...transportTestOptions, chainId: testSession.chains[0] },
       );
     });
 
@@ -222,7 +222,7 @@ describe('src/background/services/walletConnect/WalletConnectSigner.ts', () => {
             internalIndices: [2],
           },
         },
-        transportTestOptions
+        transportTestOptions,
       );
     });
   });

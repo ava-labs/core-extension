@@ -12,7 +12,7 @@ describe('src/utils/exponentialBackoff.ts', () => {
       'returns $expectedDelay for attempt $attempt',
       ({ attempt, expectedDelay }) => {
         expect(getExponentialBackoffDelay({ attempt })).toEqual(expectedDelay);
-      }
+      },
     );
 
     it('maxes out on 30000ms', () => {
@@ -30,20 +30,20 @@ describe('src/utils/exponentialBackoff.ts', () => {
       'returns $expectedDelay for attempt $attempt',
       ({ attempt, expectedDelay }) => {
         expect(getExponentialBackoffDelay({ attempt, startsAfter: 1 })).toEqual(
-          expectedDelay
+          expectedDelay,
         );
-      }
+      },
     );
   });
 
   describe('with custom "maxDelay" setting', () => {
     it('does not grow larger than said setting', () => {
       expect(
-        getExponentialBackoffDelay({ attempt: 10, maxDelay: 1000 })
+        getExponentialBackoffDelay({ attempt: 10, maxDelay: 1000 }),
       ).toEqual(1000);
 
       expect(
-        getExponentialBackoffDelay({ attempt: 100, maxDelay: 5000 })
+        getExponentialBackoffDelay({ attempt: 100, maxDelay: 5000 }),
       ).toEqual(5000);
     });
   });

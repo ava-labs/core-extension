@@ -16,7 +16,7 @@ const assertSameEnvironment = (networkA: Network, activeNetwork?: Network) => {
 const getTargetNetworkForTx = async (
   tx: EthSendTransactionParams,
   networkService: NetworkService,
-  activeScope: string
+  activeScope: string,
 ) => {
   if (typeof tx.chainId === 'undefined') {
     return networkService.getNetwork(activeScope);

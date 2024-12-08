@@ -83,7 +83,7 @@ export function AccountBalance({
         setSkeletonWidth(balanceTextRef.current?.offsetWidth);
       }
     },
-    [refreshBalance]
+    [refreshBalance],
   );
 
   const onRefreshClicked = useCallback(
@@ -93,7 +93,7 @@ export function AccountBalance({
         type: accountType,
       });
     },
-    [handleClick, capture, accountType]
+    [handleClick, capture, accountType],
   );
 
   const onViewBalanceClicked = useCallback(
@@ -103,7 +103,7 @@ export function AccountBalance({
         type: accountType,
       });
     },
-    [handleClick, capture, accountType]
+    [handleClick, capture, accountType],
   );
 
   return (

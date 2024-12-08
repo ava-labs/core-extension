@@ -44,7 +44,7 @@ type SettingsFromProvider = SettingsState & {
   toggleTokenVisibility(token: TokenWithBalance): Promise<true | undefined>;
   getTokenVisibility(token: TokenWithBalance): boolean;
   toggleCollectibleVisibility(
-    token: NftTokenWithBalance
+    token: NftTokenWithBalance,
   ): Promise<true | undefined>;
   getCollectibleVisibility(token: NftTokenWithBalance): boolean;
   updateTheme(theme: ThemeVariant): Promise<boolean>;
@@ -55,7 +55,7 @@ type SettingsFromProvider = SettingsState & {
   setIsSettingsOpen: (isOpen: boolean) => Dispatch<SetStateAction<boolean>>;
   settingsActivePage: SettingsPages;
   setSettingsActivePage: (
-    activePage: SettingsPages
+    activePage: SettingsPages,
   ) => Dispatch<SetStateAction<SettingsPages>>;
 };
 
@@ -66,7 +66,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
   const [settings, setSettings] = useState<SettingsState>();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsActivePage, setSettingsActivePage] = useState<SettingsPages>(
-    SettingsPages.MAIN_PAGE
+    SettingsPages.MAIN_PAGE,
   );
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
     const subscription = events()
       .pipe(
         filter(settingsUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((newSettings) => {
         updateIfDifferent(setSettings, newSettings);
@@ -94,7 +94,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
 
   const currencyFormatter = useMemo(
     () => getCurrencyFormatter(settings?.currency ?? 'USD'),
-    [settings?.currency]
+    [settings?.currency],
   );
 
   function lockWallet() {
@@ -143,7 +143,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
       const tokensVisibility = settings?.tokensVisibility ?? {};
       return tokensVisibility[key] || tokensVisibility[key] === undefined;
     },
-    [settings?.tokensVisibility]
+    [settings?.tokensVisibility],
   );
 
   async function toggleCollectibleVisibility(nft: NftTokenWithBalance) {
@@ -170,7 +170,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
       // We used to index by address only.
       return (visibility[key] ?? visibility[nft.address]) !== false;
     },
-    [settings?.collectiblesVisibility]
+    [settings?.collectiblesVisibility],
   );
 
   function updateTheme(theme: ThemeVariant) {

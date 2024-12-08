@@ -32,7 +32,7 @@ export class AccountsChangedEvents implements DAppEventEmitter {
 
   constructor(
     private accountsService: AccountsService,
-    private permissionsService: PermissionsService
+    private permissionsService: PermissionsService,
   ) {
     this.permissionsService.addListener(
       PermissionEvents.PERMISSIONS_STATE_UPDATE,
@@ -42,18 +42,18 @@ export class AccountsChangedEvents implements DAppEventEmitter {
             ? (permissions as Permissions)[this._connectionInfo.domain]
             : undefined;
         this.emitAccountsChanged(currentPermissions);
-      }
+      },
     );
     this.accountsService.addListener(
       AccountsEvents.ACCOUNTS_UPDATED,
       async () => {
         const currentPermissions = this._connectionInfo?.domain
           ? await this.permissionsService.getPermissionsForDomain(
-              this._connectionInfo.domain
+              this._connectionInfo.domain,
             )
           : undefined;
         this.emitAccountsChanged(currentPermissions);
-      }
+      },
     );
   }
 
@@ -87,7 +87,7 @@ export class AccountsChangedEvents implements DAppEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

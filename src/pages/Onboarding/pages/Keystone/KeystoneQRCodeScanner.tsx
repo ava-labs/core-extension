@@ -77,7 +77,7 @@ export const KeystoneQRCodeScanner = ({
         onSuccess();
       }
     },
-    [capture, onSuccess, setMasterFingerPrint, setXPubKey]
+    [capture, onSuccess, setMasterFingerPrint, setXPubKey],
   );
 
   const handleError = useCallback(
@@ -101,7 +101,7 @@ export const KeystoneQRCodeScanner = ({
         attempts.current = [];
       }
     },
-    [capture]
+    [capture],
   );
 
   const pageContent = useKeystoneScannerContents({

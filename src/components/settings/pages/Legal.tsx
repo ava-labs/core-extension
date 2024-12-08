@@ -46,7 +46,7 @@ export function Legal({ goBack, navigateTo, width }) {
               window.open(
                 `https://core.app/terms/core`,
                 '_blank',
-                'noreferrer'
+                'noreferrer',
               );
             }}
             data-testid="terms-of-use-link"
@@ -73,7 +73,7 @@ export function Legal({ goBack, navigateTo, width }) {
               window.open(
                 `https://www.avalabs.org/privacy-policy`,
                 '_blank',
-                'noreferrer'
+                'noreferrer',
               );
             }}
             data-testid="privacy-policy-link"

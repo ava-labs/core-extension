@@ -4,7 +4,7 @@ import { formatDistance } from 'date-fns';
 
 const formatedOffloadDelaySeconds = (
   seconds: number,
-  includeSeconds?: boolean
+  includeSeconds?: boolean,
 ) => {
   return formatDistance(0, seconds * 1000, { includeSeconds });
 };
@@ -37,7 +37,7 @@ export function OffloadTimerTooltip({
         <Trans
           i18nKey={`Bridging from Avalanche to Bitcoin takes approximately ${formatedOffloadDelaySeconds(
             offloadDelaySeconds,
-            true
+            true,
           )}. Please see
           the <FaqLink>FAQ</FaqLink> for additional info.`}
           components={{ FaqLink: faqLink }}

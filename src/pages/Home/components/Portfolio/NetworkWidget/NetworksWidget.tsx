@@ -45,7 +45,7 @@ export const getNetworkTokensPriceChanges = (assetList: TokenWithBalance[]) => {
     {
       percentage: [],
       value: 0,
-    }
+    },
   );
   return changes;
 };
@@ -55,7 +55,7 @@ export function NetworksWidget() {
 
   const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
   const activeNetworkPriceChanges = getNetworkTokensPriceChanges(
-    activeNetworkAssetList
+    activeNetworkAssetList,
   );
 
   return (

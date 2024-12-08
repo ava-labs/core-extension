@@ -13,12 +13,12 @@ describe('src/background/services/seedless/handlers/hasSignerTokenExpired', () =
         buildRpcCall({
           method: ExtensionRequest.SEEDLESS_HAS_TOKEN_EXPIRED,
           id: 'abcd-1234',
-        })
-      )
+        }),
+      ),
     ).toEqual(
       expect.objectContaining({
         result: true,
-      })
+      }),
     );
   });
 
@@ -32,12 +32,12 @@ describe('src/background/services/seedless/handlers/hasSignerTokenExpired', () =
         buildRpcCall({
           method: ExtensionRequest.SEEDLESS_HAS_TOKEN_EXPIRED,
           id: 'abcd-1234',
-        })
-      )
+        }),
+      ),
     ).toEqual(
       expect.objectContaining({
         result: false,
-      })
+      }),
     );
   });
 });

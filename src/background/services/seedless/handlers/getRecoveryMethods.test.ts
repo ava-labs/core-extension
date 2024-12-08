@@ -24,14 +24,14 @@ describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {
     const handler = new GetRecoveryMethodsHandler(
       secretsService,
       seedlessMfaService,
-      accountsService
+      accountsService,
     );
 
     return handler.handle(
       buildRpcCall({
         method: ExtensionRequest.SEEDLESS_GET_RECOVERY_METHODS,
         id: 'abcd-1234',
-      })
+      }),
     );
   };
 
@@ -59,7 +59,7 @@ describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {
     } as any);
 
     seedlessMfaService.getRecoveryMethods.mockRejectedValueOnce(
-      new Error('Session expired')
+      new Error('Session expired'),
     );
 
     const result = await handle();

@@ -44,7 +44,7 @@ export function CollectibleSend() {
   const { nft } = useCollectibleFromParams();
 
   const { isFunctionAvailable, isFunctionSupported } = useIsFunctionAvailable(
-    FunctionNames.COLLECTIBLES
+    FunctionNames.COLLECTIBLES,
   );
 
   const nativeToken = tokens.find(({ type }) => type === TokenType.NATIVE);
@@ -93,7 +93,7 @@ export function CollectibleSend() {
 
       history.push('/home');
     },
-    [fromAddress, network, captureEncrypted, history, t, nft?.type]
+    [fromAddress, network, captureEncrypted, history, t, nft?.type],
   );
 
   const onFailure = useCallback(() => {

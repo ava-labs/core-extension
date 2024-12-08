@@ -51,7 +51,7 @@ jest.mock('@avalabs/core-chains-sdk', () => ({
 const mockNetwork = (
   vmName: NetworkVMType,
   isTestnet?: boolean,
-  overrides = {}
+  overrides = {},
 ) =>
   decorateWithCaipId({
     chainName: 'test chain',
@@ -81,7 +81,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
   beforeEach(() => {
     (addGlacierAPIKeyIfNeeded as jest.Mock).mockImplementation((v) => v);
     (JsonRpcBatchInternal as unknown as jest.Mock).mockReturnValue(
-      mockJsonRpcBatchInternalInstance
+      mockJsonRpcBatchInternalInstance,
     );
     (BitcoinProvider as jest.Mock).mockReturnValue(mockBitcoinProviderInstance);
     (
@@ -90,7 +90,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
     (
       Avalanche.JsonRpcProvider.getDefaultMainnetProvider as jest.Mock
     ).mockReturnValue(mockMainnetProviderInstance);
-    jest.mocked(FetchRequest).mockImplementation((url) => ({ url } as any));
+    jest.mocked(FetchRequest).mockImplementation((url) => ({ url }) as any);
   });
 
   it('returns a json rpc provider for evm chains', async () => {
@@ -101,7 +101,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
     expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
       40,
       expect.objectContaining({ url: mockEVMNetwork.rpcUrl }),
-      new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
+      new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId),
     );
     expect((provider as JsonRpcBatchInternal).pollingInterval).toEqual(2000);
     expect(provider).toBe(mockJsonRpcBatchInternalInstance);
@@ -124,14 +124,14 @@ describe('src/utils/network/getProviderForNetwork', () => {
     expect(fetchConfig.setHeader).toHaveBeenCalledTimes(1);
     expect(fetchConfig.setHeader).toHaveBeenCalledWith(
       'X-Glacier-Api-Key',
-      'my-elite-key'
+      'my-elite-key',
     );
 
     expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
     expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
       40,
       fetchConfig,
-      new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
+      new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId),
     );
   });
 
@@ -144,7 +144,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
           multicall: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
         },
       },
-      true
+      true,
     );
 
     expect(provider).toBe(mockJsonRpcBatchInternalInstance);
@@ -155,13 +155,13 @@ describe('src/utils/network/getProviderForNetwork', () => {
         multiContractAddress: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
       },
       expect.objectContaining({ url: mockEVMNetwork.rpcUrl }),
-      new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
+      new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId),
     );
   });
 
   it('adds glacier api key for glacier urls', async () => {
     (addGlacierAPIKeyIfNeeded as jest.Mock).mockReturnValue(
-      'https://urlwithglacierkey.example'
+      'https://urlwithglacierkey.example',
     );
 
     const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
@@ -169,19 +169,19 @@ describe('src/utils/network/getProviderForNetwork', () => {
 
     expect(provider).toBe(mockJsonRpcBatchInternalInstance);
     expect(addGlacierAPIKeyIfNeeded).toHaveBeenCalledWith(
-      mockEVMNetwork.rpcUrl
+      mockEVMNetwork.rpcUrl,
     );
     expect(JsonRpcBatchInternal).toHaveBeenCalledTimes(1);
     expect(JsonRpcBatchInternal).toHaveBeenCalledWith(
       40,
       expect.objectContaining({ url: 'https://urlwithglacierkey.example' }),
-      new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId)
+      new Network(mockEVMNetwork.chainName, mockEVMNetwork.chainId),
     );
   });
 
   it('returns bitcoin provider for BTC testnet', async () => {
     const provider = await getProviderForNetwork(
-      decorateWithCaipId(BITCOIN_TEST_NETWORK)
+      decorateWithCaipId(BITCOIN_TEST_NETWORK),
     );
 
     expect(provider).toBe(mockBitcoinProviderInstance);
@@ -191,13 +191,13 @@ describe('src/utils/network/getProviderForNetwork', () => {
       undefined,
       `${process.env.PROXY_URL}/proxy/nownodes/btcbook-testnet`,
       `${process.env.PROXY_URL}/proxy/nownodes/btc-testnet`,
-      { token: process.env.GLACIER_API_KEY }
+      { token: process.env.GLACIER_API_KEY },
     );
   });
 
   it('returns bitcoin provider for BTC mainnet', async () => {
     const provider = await getProviderForNetwork(
-      decorateWithCaipId(BITCOIN_NETWORK)
+      decorateWithCaipId(BITCOIN_NETWORK),
     );
 
     expect(provider).toBe(mockBitcoinProviderInstance);
@@ -207,7 +207,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
       undefined,
       `${process.env.PROXY_URL}/proxy/nownodes/btcbook`,
       `${process.env.PROXY_URL}/proxy/nownodes/btc`,
-      { token: process.env.GLACIER_API_KEY }
+      { token: process.env.GLACIER_API_KEY },
     );
   });
 
@@ -217,7 +217,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
 
     expect(provider).toBe(mockFujiProviderInstance);
     expect(
-      Avalanche.JsonRpcProvider.getDefaultFujiProvider
+      Avalanche.JsonRpcProvider.getDefaultFujiProvider,
     ).toHaveBeenCalledTimes(1);
   });
 
@@ -227,7 +227,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
 
     expect(provider).toBe(mockMainnetProviderInstance);
     expect(
-      Avalanche.JsonRpcProvider.getDefaultMainnetProvider
+      Avalanche.JsonRpcProvider.getDefaultMainnetProvider,
     ).toHaveBeenCalledTimes(1);
   });
 
@@ -237,7 +237,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
 
     expect(provider).toBe(mockFujiProviderInstance);
     expect(
-      Avalanche.JsonRpcProvider.getDefaultFujiProvider
+      Avalanche.JsonRpcProvider.getDefaultFujiProvider,
     ).toHaveBeenCalledTimes(1);
   });
 
@@ -247,7 +247,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
 
     expect(provider).toBe(mockMainnetProviderInstance);
     expect(
-      Avalanche.JsonRpcProvider.getDefaultMainnetProvider
+      Avalanche.JsonRpcProvider.getDefaultMainnetProvider,
     ).toHaveBeenCalledTimes(1);
   });
 
@@ -257,7 +257,7 @@ describe('src/utils/network/getProviderForNetwork', () => {
       getProviderForNetwork({
         ...mockEVMNetwork,
         vmName: 'CRAPPYVM' as unknown as NetworkVMType,
-      })
+      }),
     ).rejects.toThrow(new Error('unsupported network'));
   });
 });

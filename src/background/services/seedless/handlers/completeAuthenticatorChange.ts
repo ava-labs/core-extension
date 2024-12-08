@@ -25,7 +25,7 @@ export class CompleteAuthenticatorChangeHandler implements HandlerType {
         ...request,
         result: await this.seedlessMfaService.completeAuthenticatorChange(
           totpId,
-          code
+          code,
         ),
       };
     } catch (error: any) {

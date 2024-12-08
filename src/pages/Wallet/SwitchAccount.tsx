@@ -128,14 +128,14 @@ export function SwitchAccount() {
               <Tooltip title={action.displayData.selectedAccount?.addressC}>
                 <Typography variant="body2">
                   {truncateAddress(
-                    action.displayData.selectedAccount?.addressC
+                    action.displayData.selectedAccount?.addressC,
                   )}
                 </Typography>
               </Tooltip>
               <IconButton
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    action.displayData.selectedAccount.addressC
+                    action.displayData.selectedAccount.addressC,
                   );
                   toast.success(t('Copied!'), { duration: 2000 });
                 }}

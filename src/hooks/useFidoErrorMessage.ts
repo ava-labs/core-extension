@@ -11,7 +11,7 @@ export const useFidoErrorMessage = (code?: AuthErrorCode): string => {
 
   if (code === AuthErrorCode.FidoChallengeFailed) {
     return t(
-      'The operation either timed out or was not allowed. Please try again.'
+      'The operation either timed out or was not allowed. Please try again.',
     );
   }
 

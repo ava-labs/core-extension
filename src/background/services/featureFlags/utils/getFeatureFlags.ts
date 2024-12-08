@@ -5,7 +5,7 @@ export async function getFeatureFlags(
   userId?: string,
   posthogUrl?: string,
   ver = '1.20.0',
-  v = '3'
+  v = '3',
 ) {
   if (!token) {
     throw new Error('Invalid token');

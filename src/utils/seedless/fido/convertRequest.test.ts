@@ -30,11 +30,11 @@ describe('src/utils/seedless/fido/convertRequest', () => {
       expect(
         convertRequest(endpoint, {
           rpId: 'cubist.dev',
-        } as any)
+        } as any),
       ).toEqual(
         JSON.stringify({
           rpId: 'cubist.dev',
-        })
+        }),
       );
     });
   });
@@ -69,21 +69,21 @@ describe('src/utils/seedless/fido/convertRequest', () => {
             id: 'cubist.dev',
             name: 'Cubist',
           },
-        } as any)
+        } as any),
       ).toEqual(
         JSON.stringify({
           rp: {
             id: 'cubist.dev',
             name: 'Cubist',
           },
-        })
+        }),
       );
     });
   });
 
   it('raises an error for unknown API endpoints', () => {
     expect(() =>
-      convertRequest('IDontKnow' as FIDOApiEndpoint, {} as any)
+      convertRequest('IDontKnow' as FIDOApiEndpoint, {} as any),
     ).toThrow('Unsupported FIDO identity endpoint');
   });
 });

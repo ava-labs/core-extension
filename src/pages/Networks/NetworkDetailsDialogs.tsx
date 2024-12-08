@@ -32,7 +32,7 @@ export const NetworkDetailsDialogs = ({
     bodyText: string,
     primaryButtonFn: NetworkDetailsDialogOptions,
     primaryButtonText: string,
-    secondaryButtonText: string
+    secondaryButtonText: string,
   ) => {
     return (
       <Stack sx={{ justifyContent: 'center', width: '100%' }}>
@@ -76,7 +76,7 @@ export const NetworkDetailsDialogs = ({
             t('Are you sure you want to delete this network?'),
             NetworkDetailsDialogOptions.DELETE_DIALOG,
             t('Delete'),
-            t('Cancel')
+            t('Cancel'),
           )}
           bgColorDefault
         />
@@ -90,7 +90,7 @@ export const NetworkDetailsDialogs = ({
             t("Resetting the RPC URL will put it back to it's default URL."),
             NetworkDetailsDialogOptions.RESET_RPC_URL_DIALOG,
             t('Reset Url'),
-            t('Back')
+            t('Back'),
           )}
           bgColorDefault
         />
@@ -104,7 +104,7 @@ export const NetworkDetailsDialogs = ({
             t('Core functionality may be unstable with custom RPC URLs.'),
             NetworkDetailsDialogOptions.UPDATE_RPC_URL_DIALOG,
             t('Confirm Save'),
-            t('Back')
+            t('Back'),
           )}
           bgColorDefault
         />

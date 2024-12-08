@@ -10,7 +10,7 @@ export class AvalancheGetProviderState extends DAppRequestHandler {
 
   constructor(
     private networkService: NetworkService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {
     super();
   }

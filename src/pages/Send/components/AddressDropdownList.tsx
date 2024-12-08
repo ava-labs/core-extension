@@ -60,8 +60,8 @@ export const AddressDropdownList = ({
                 useBtcAddress
                   ? 'addressBTC'
                   : useXPAddress
-                  ? 'addressXP'
-                  : 'address'
+                    ? 'addressXP'
+                    : 'address'
               ]?.toLowerCase() === selectedAddress
             }
             onChange={onChange}

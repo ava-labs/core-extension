@@ -99,7 +99,7 @@ export class ModuleManager {
 
   async loadModuleByNetwork(
     network: NetworkWithCaipId,
-    method?: string
+    method?: string,
   ): Promise<Module> {
     return this.loadModule(network.caipId, method);
   }
@@ -123,13 +123,13 @@ export class ModuleManager {
 
   async #getModuleByChainId(chainId: string): Promise<Module | undefined> {
     return this.#modules.find((module) =>
-      module.getManifest()?.network.chainIds.includes(chainId)
+      module.getManifest()?.network.chainIds.includes(chainId),
     );
   }
 
   async #getModuleByNamespace(namespace: string): Promise<Module | undefined> {
     return this.#modules.find((module) =>
-      module.getManifest()?.network.namespaces.includes(namespace)
+      module.getManifest()?.network.namespaces.includes(namespace),
     );
   }
 

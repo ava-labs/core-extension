@@ -50,7 +50,7 @@ export function InProgressBridgeActivityCard({
     const networkData = blockchainToNetwork(
       tx.sourceChain,
       networks,
-      bridgeConfig
+      bridgeConfig,
     );
     if (networkData) {
       return getExplorerAddressByNetwork(networkData, tx.sourceTxHash);
@@ -71,7 +71,7 @@ export function InProgressBridgeActivityCard({
 
       return Math.min(
         100,
-        (totalConfirmationsObtained / totalConfirmationsRequired) * 100
+        (totalConfirmationsObtained / totalConfirmationsRequired) * 100,
       );
     }
 
@@ -87,7 +87,7 @@ export function InProgressBridgeActivityCard({
 
   const symbol = useMemo(
     () => (isUnifiedBridgeTransfer(tx) ? tx.asset.symbol : tx?.symbol),
-    [tx]
+    [tx],
   );
   const amount = useMemo(() => {
     if (isUnifiedBridgeTransfer(tx)) {
@@ -121,12 +121,12 @@ export function InProgressBridgeActivityCard({
                 symbol,
               })
             : tx.errorCode
-            ? getErrorMessage(tx.errorCode)
-            : ''}
+              ? getErrorMessage(tx.errorCode)
+              : ''}
         </ToastCard>,
         {
           duration: Infinity,
-        }
+        },
       );
     }
 
@@ -230,7 +230,7 @@ export function InProgressBridgeActivityCard({
                           : networkToBlockchain(tx.sourceChain);
 
                       history.push(
-                        `/bridge/transaction-status/${chainName}/${tx.sourceTxHash}/${tx.sourceStartedAt}`
+                        `/bridge/transaction-status/${chainName}/${tx.sourceTxHash}/${tx.sourceStartedAt}`,
                       );
                     }}
                   >

@@ -53,8 +53,8 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
       await act(
         async () =>
           await expect(hook.current.isValidKeystoreFile(file)).resolves.toBe(
-            true
-          )
+            true,
+          ),
       );
     });
 
@@ -69,8 +69,8 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
       await act(
         async () =>
           await expect(hook.current.isValidKeystoreFile(file)).resolves.toBe(
-            false
-          )
+            false,
+          ),
       );
     });
 
@@ -82,8 +82,8 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
       await act(
         async () =>
           await expect(hook.current.isValidKeystoreFile(file)).resolves.toBe(
-            false
-          )
+            false,
+          ),
       );
     });
   });
@@ -103,7 +103,7 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
 
       await act(
         async () =>
-          await hook.current.importKeystoreFile(file, KEYSTORE_V2.password)
+          await hook.current.importKeystoreFile(file, KEYSTORE_V2.password),
       );
 
       expect(importSeedphrase).toHaveBeenCalledTimes(2);
@@ -129,12 +129,15 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
 
       await act(
         async () =>
-          await hook.current.importKeystoreFile(file, KEYSTORE_V6_PKEY.password)
+          await hook.current.importKeystoreFile(
+            file,
+            KEYSTORE_V6_PKEY.password,
+          ),
       );
 
       const rawKey = KEYSTORE_V6_PKEY.expectedPhrases[0].key;
       const expectedKey = Buffer.from(
-        utils.base58check.decode(rawKey.replace('PrivateKey-', ''))
+        utils.base58check.decode(rawKey.replace('PrivateKey-', '')),
       ).toString('hex');
 
       expect(importPrivateKey).toHaveBeenCalledTimes(1);
@@ -162,8 +165,8 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
       await act(
         async () =>
           await expect(
-            hook.current.importKeystoreFile(file, KEYSTORE_V2.password)
-          ).resolves.not.toThrow()
+            hook.current.importKeystoreFile(file, KEYSTORE_V2.password),
+          ).resolves.not.toThrow(),
       );
 
       expect(importSeedphrase).toHaveBeenCalledTimes(2);
@@ -214,12 +217,12 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
           await expect(
             hook.current.getKeyCounts(
               getFile(KEYSTORE_V2.file),
-              KEYSTORE_V2.password
-            )
+              KEYSTORE_V2.password,
+            ),
           ).resolves.toEqual({
             privateKeysCount: 0,
             seedPhrasesCount: 2,
-          })
+          }),
       );
 
       await act(
@@ -227,12 +230,12 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
           await expect(
             hook.current.getKeyCounts(
               getFile(KEYSTORE_V6_PKEY.file),
-              KEYSTORE_V6_PKEY.password
-            )
+              KEYSTORE_V6_PKEY.password,
+            ),
           ).resolves.toEqual({
             privateKeysCount: 1,
             seedPhrasesCount: 0,
-          })
+          }),
       );
     });
   });

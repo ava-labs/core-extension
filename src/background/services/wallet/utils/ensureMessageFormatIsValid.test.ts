@@ -36,7 +36,7 @@ describe('src/background/services/wallet/utils/ensureMessageFormatIsValid.test.t
       const payload = getPayload('types');
 
       expect(() => ensureMessageFormatIsValid(messageType, payload, 1)).toThrow(
-        '"types" is required'
+        '"types" is required',
       );
     });
 
@@ -44,7 +44,7 @@ describe('src/background/services/wallet/utils/ensureMessageFormatIsValid.test.t
       const payload = getPayload('types');
 
       expect(() =>
-        ensureMessageFormatIsValid(messageType, { ...payload, types: {} }, 1)
+        ensureMessageFormatIsValid(messageType, { ...payload, types: {} }, 1),
       ).toThrow('"types.EIP712Domain" is required');
     });
 
@@ -52,7 +52,7 @@ describe('src/background/services/wallet/utils/ensureMessageFormatIsValid.test.t
       const payload = getPayload('primaryType');
 
       expect(() => ensureMessageFormatIsValid(messageType, payload, 1)).toThrow(
-        '"primaryType" is required'
+        '"primaryType" is required',
       );
     });
 
@@ -60,7 +60,7 @@ describe('src/background/services/wallet/utils/ensureMessageFormatIsValid.test.t
       const payload = getPayload('domain');
 
       expect(() => ensureMessageFormatIsValid(messageType, payload, 1)).toThrow(
-        '"domain" is required'
+        '"domain" is required',
       );
     });
 
@@ -68,7 +68,7 @@ describe('src/background/services/wallet/utils/ensureMessageFormatIsValid.test.t
       const payload = getPayload('message');
 
       expect(() => ensureMessageFormatIsValid(messageType, payload, 1)).toThrow(
-        '"message" is required'
+        '"message" is required',
       );
     });
 
@@ -77,10 +77,10 @@ describe('src/background/services/wallet/utils/ensureMessageFormatIsValid.test.t
       const payloadWithHexChainId = getPayload(undefined, true);
 
       expect(() => ensureMessageFormatIsValid(messageType, payload, 1)).toThrow(
-        'target chainId does not match the currently active one'
+        'target chainId does not match the currently active one',
       );
       expect(() =>
-        ensureMessageFormatIsValid(messageType, payloadWithHexChainId, 1)
+        ensureMessageFormatIsValid(messageType, payloadWithHexChainId, 1),
       ).toThrow('target chainId does not match the currently active one');
     });
 
@@ -89,10 +89,10 @@ describe('src/background/services/wallet/utils/ensureMessageFormatIsValid.test.t
       const payloadWithHexChainId = getPayload(undefined, true);
 
       expect(
-        ensureMessageFormatIsValid(messageType, payload, 2)
+        ensureMessageFormatIsValid(messageType, payload, 2),
       ).toBeUndefined();
       expect(
-        ensureMessageFormatIsValid(messageType, payloadWithHexChainId, 2)
+        ensureMessageFormatIsValid(messageType, payloadWithHexChainId, 2),
       ).toBeUndefined();
     });
   });

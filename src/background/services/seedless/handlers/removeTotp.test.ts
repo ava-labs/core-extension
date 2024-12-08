@@ -17,7 +17,7 @@ describe('src/background/services/seedless/handlers/removeFidoDevice', () => {
         method: ExtensionRequest.SEEDLESS_REMOVE_TOTP,
         id: 'abcd-1234',
         tabId: 1234,
-      })
+      }),
     );
   };
 
@@ -27,7 +27,7 @@ describe('src/background/services/seedless/handlers/removeFidoDevice', () => {
 
   it('returns error if request fails', async () => {
     seedlessMfaService.removeTotp.mockRejectedValueOnce(
-      new Error('Session expired')
+      new Error('Session expired'),
     );
 
     const result = await handle();

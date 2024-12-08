@@ -14,7 +14,7 @@ describe('deserialize', () => {
   const buffer = Buffer.from('This is a text');
   const serializableValues: [
     value: SerializableValue,
-    serializedValue: DeserializableValue
+    serializedValue: DeserializableValue,
   ][] = [
     [new Big(bigString), { type: 'Big', value: bigString }],
     [new BN(bigString), { type: 'BN', value: bigString }],
@@ -31,7 +31,7 @@ describe('deserialize', () => {
       };
 
       const deserializedRequestJSON = deserializeFromJSON(
-        JSON.stringify(request)
+        JSON.stringify(request),
       );
 
       expect(deserializedRequestJSON).toEqual({ ...request, params: value });
@@ -73,7 +73,7 @@ describe('deserialize', () => {
       };
 
       const deserializedRequestJSON = deserializeFromJSON(
-        JSON.stringify(request)
+        JSON.stringify(request),
       );
 
       expect(deserializedRequestJSON).toEqual({
@@ -113,7 +113,7 @@ describe('deserialize', () => {
       };
 
       const deserializedRequestJSON = deserializeFromJSON(
-        JSON.stringify(request)
+        JSON.stringify(request),
       );
 
       expect(deserializedRequestJSON).toEqual({

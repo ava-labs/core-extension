@@ -5,7 +5,7 @@ import { EthSendTransactionParams } from '../../wallet/handlers/eth_sendTransact
 
 export function txParamsToTransactionData(
   network: Network,
-  tx: EthSendTransactionParams
+  tx: EthSendTransactionParams,
 ): DebankTransactionData {
   return {
     from: tx.from,

@@ -91,11 +91,11 @@ export function ElapsedTimer({
           <CheckIcon size="12" sx={{ ml: 0.5 }} />
         )
       ) : (
-        offloadDelayTooltip ?? (
+        (offloadDelayTooltip ?? (
           <Tooltip title={t('Time Elapsed')}>
             <InfoCircleIcon />
           </Tooltip>
-        )
+        ))
       )}
     </TimeElapsed>
   );

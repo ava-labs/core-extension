@@ -1,5 +1,4 @@
 import { PropsWithChildren } from 'react';
-import { useHistory } from 'react-router-dom';
 import { ImageWithFallback } from '@src/components/common/ImageWithFallback';
 import {
   ChevronLeftIcon,
@@ -9,6 +8,7 @@ import {
   styled,
   keyframes,
 } from '@avalabs/core-k2-components';
+import { useGoBack } from '@src/hooks/useGoBack';
 
 const ShowThumbnailImageAnimation = keyframes`
   0% {
@@ -50,13 +50,7 @@ export const PageTitle = ({
   thumbnailImage,
   margin = '8px 0',
 }: PropsWithChildren<PageTitleProps>) => {
-  const history = useHistory();
-
-  const goBack = () => {
-    // history can be empty when the extension is opened and the last
-    // location is loaded back from localstorage
-    history.length <= 2 ? history.replace('/home') : history.goBack();
-  };
+  const goBack = useGoBack();
 
   return (
     <Stack

@@ -41,7 +41,7 @@ type WithContextAlert = {
 };
 
 function hasContextInfo(
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
 ): context is WithContextAlert {
   return (
     typeof context === 'object' &&
@@ -94,7 +94,7 @@ export function GenericApprovalScreen() {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       },
-      isUsingLedgerWallet || isUsingKeystoneWallet
+      isUsingLedgerWallet || isUsingKeystoneWallet,
     );
   }, [requestId, updateAction, isUsingLedgerWallet, isUsingKeystoneWallet]);
 

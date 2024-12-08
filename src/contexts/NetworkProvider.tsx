@@ -105,36 +105,36 @@ export function NetworkContextProvider({ children }: { children: any }) {
             (network?.isTestnet && n.isTestnet)
           );
         }),
-    [favoriteNetworks, network, networks]
+    [favoriteNetworks, network, networks],
   );
 
   const getCustomNetworks = useMemo(
     () =>
       networks.filter((networkItem) =>
-        customNetworks.includes(networkItem.chainId)
+        customNetworks.includes(networkItem.chainId),
       ),
-    [customNetworks, networks]
+    [customNetworks, networks],
   );
 
   const isChainIdExist = useCallback(
     (lookupChainId: number) =>
       (networks ?? []).some(({ chainId }) => chainId === lookupChainId),
-    [networks]
+    [networks],
   );
 
   const isCustomNetwork = useCallback(
     (chainId: number) => customNetworks.includes(chainId),
-    [customNetworks]
+    [customNetworks],
   );
 
   const getNetwork = useCallback(
     (lookupChainId: number | string) => {
       return networks.find(
         ({ chainId, caipId }) =>
-          chainId === lookupChainId || caipId === lookupChainId
+          chainId === lookupChainId || caipId === lookupChainId,
       );
     },
-    [networks]
+    [networks],
   );
 
   const [bitcoinProvider, setBitcoinProvider] = useState<BitcoinProvider>();
@@ -155,15 +155,15 @@ export function NetworkContextProvider({ children }: { children: any }) {
     const avaxNetworkC = getNetwork(
       network.isTestnet
         ? ChainId.AVALANCHE_TESTNET_ID
-        : ChainId.AVALANCHE_MAINNET_ID
+        : ChainId.AVALANCHE_MAINNET_ID,
     );
     const ethNetwork = getNetwork(
       network.isTestnet
         ? ChainId.ETHEREUM_TEST_SEPOLIA
-        : ChainId.ETHEREUM_HOMESTEAD
+        : ChainId.ETHEREUM_HOMESTEAD,
     );
     const btcNetwork = getNetwork(
-      network.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN
+      network.isTestnet ? ChainId.BITCOIN_TESTNET : ChainId.BITCOIN,
     );
 
     function updateIfMounted(setter: Dispatch<SetStateAction<any>>) {
@@ -176,17 +176,17 @@ export function NetworkContextProvider({ children }: { children: any }) {
 
     if (avaxNetworkC) {
       getProviderForNetwork(avaxNetworkC).then(
-        updateIfMounted(setAvaxProviderC)
+        updateIfMounted(setAvaxProviderC),
       );
     }
     if (ethNetwork) {
       getProviderForNetwork(ethNetwork).then(
-        updateIfMounted(setEthereumProvider)
+        updateIfMounted(setEthereumProvider),
       );
     }
     if (btcNetwork) {
       getProviderForNetwork(btcNetwork).then(
-        updateIfMounted(setBitcoinProvider)
+        updateIfMounted(setBitcoinProvider),
       );
     }
 
@@ -234,7 +234,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
     const activeNetworkSubscription = events()
       .pipe(
         filter(isNetworkUpdatedEvent),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe(async (newNetwork) => {
         if (!newNetwork) {
@@ -248,7 +248,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
     const networksSubscription = events()
       .pipe(
         filter(networksUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe(async (result) => {
         updateIfDifferent(setNetworks, result.networks);
@@ -260,7 +260,7 @@ export function NetworkContextProvider({ children }: { children: any }) {
           return newNetwork;
         });
         setCustomNetworks(
-          Object.values(result.customNetworks).map(({ chainId }) => chainId)
+          Object.values(result.customNetworks).map(({ chainId }) => chainId),
         );
       });
 

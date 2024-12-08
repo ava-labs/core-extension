@@ -19,7 +19,7 @@ export class AddCustomTokenHandler implements HandlerType {
   constructor(
     private settingsService: SettingsService,
     private tokenManagerService: TokenManagerService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request, scope }) => {
@@ -34,7 +34,7 @@ export class AddCustomTokenHandler implements HandlerType {
 
     const [tokenAddress] = request.params;
     const [tokenData, err] = await resolve(
-      this.tokenManagerService.getTokenData(tokenAddress, network)
+      this.tokenManagerService.getTokenData(tokenAddress, network),
     );
 
     if (!tokenData || err) {
@@ -45,7 +45,7 @@ export class AddCustomTokenHandler implements HandlerType {
     }
 
     const [, saveError] = await resolve(
-      this.settingsService.addCustomToken(tokenData)
+      this.settingsService.addCustomToken(tokenData),
     );
 
     if (saveError) {

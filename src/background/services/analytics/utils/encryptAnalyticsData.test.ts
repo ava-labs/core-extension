@@ -32,7 +32,7 @@ describe('src/background/services/analytics/utils/encryptAnalyticsData', () => {
 
     it('raises an error', async () => {
       await expect(encryptAnalyticsData('heyo')).rejects.toThrow(
-        'Encryption setting missing'
+        'Encryption setting missing',
       );
     });
   });
@@ -60,7 +60,7 @@ describe('src/background/services/analytics/utils/encryptAnalyticsData', () => {
     const result = await encryptAnalyticsData('heyo');
 
     expect(
-      DhkemP521HkdfSha512.prototype.deserializePublicKey
+      DhkemP521HkdfSha512.prototype.deserializePublicKey,
     ).toHaveBeenCalledWith(Buffer.from(publicKey, 'base64'));
 
     expect(CipherSuite.prototype.createSenderContext).toHaveBeenCalledWith({

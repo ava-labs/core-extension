@@ -56,7 +56,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
   it('handleAuthenticated', async () => {
     const handler = new AvalancheGetAccountsHandler(
       accountServiceMock,
-      secretsService
+      secretsService,
     );
     const result = await handler.handleAuthenticated(buildRpcCall(request));
 
@@ -100,7 +100,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
   it('handleUnauthenticated', async () => {
     const handler = new AvalancheGetAccountsHandler(
       accountServiceMock,
-      secretsService
+      secretsService,
     );
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 

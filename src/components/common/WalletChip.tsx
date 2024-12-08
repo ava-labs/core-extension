@@ -23,7 +23,7 @@ export const WalletChip = ({
   const onLabelChange = useCallback((label: HTMLSpanElement) => {
     if (label?.parentElement) {
       setIsOverflowing(
-        label.parentElement.scrollWidth > label.parentElement.offsetWidth
+        label.parentElement.scrollWidth > label.parentElement.offsetWidth,
       );
     }
   }, []);

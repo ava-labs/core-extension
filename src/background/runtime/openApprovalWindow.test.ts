@@ -20,7 +20,7 @@ describe('src/background/runtime/openApprovalWindow', () => {
         id: '123',
         actionId: crypto.randomUUID(), // this is mocked
       },
-      'approval/screen'
+      'approval/screen',
     );
   });
 });

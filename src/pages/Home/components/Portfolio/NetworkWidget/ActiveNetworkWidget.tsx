@@ -82,7 +82,8 @@ export function ActiveNetworkWidget({
   const firstAsset = assetList[0];
   const funds =
     firstAsset && 'decimals' in firstAsset
-      ? normalizeBalance(firstAsset.balance, firstAsset.decimals) ?? new Big(0)
+      ? (normalizeBalance(firstAsset.balance, firstAsset.decimals) ??
+        new Big(0))
       : new Big(0);
   const hasNoFunds = assetList.length === 1 && funds?.eq(new Big(0));
 

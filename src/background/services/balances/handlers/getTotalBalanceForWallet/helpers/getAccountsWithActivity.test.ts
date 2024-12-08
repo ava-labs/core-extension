@@ -18,7 +18,7 @@ describe('src/background/services/balances/handlers/getTotalBalanceForWallet/hel
       .spyOn(Avalanche, 'getAddressFromXpub')
       .mockImplementation(
         (_, index, __, prefix, internal) =>
-          `${prefix}-address${index}/${internal}`
+          `${prefix}-address${index}/${internal}`,
       );
 
     jest
@@ -55,31 +55,31 @@ describe('src/background/services/balances/handlers/getTotalBalanceForWallet/hel
       1,
       expect.any(Array),
       mockedActivityFetcher,
-      0
+      0,
     );
     expect(processGlacierAddresses).toHaveBeenNthCalledWith(
       2,
       expect.any(Array),
       mockedActivityFetcher,
-      0
+      0,
     );
     expect(processGlacierAddresses).toHaveBeenNthCalledWith(
       3,
       expect.any(Array),
       mockedActivityFetcher,
-      5
+      5,
     );
     expect(processGlacierAddresses).toHaveBeenNthCalledWith(
       4,
       expect.any(Array),
       mockedActivityFetcher,
-      9
+      9,
     );
   });
 
   it('returns the addresses with activity', async () => {
     expect(
-      await getAccountsWithActivity(xpubXP, providerXP, mockedActivityFetcher)
+      await getAccountsWithActivity(xpubXP, providerXP, mockedActivityFetcher),
     ).toEqual([
       'ext-address-0',
       'ext-address-15',

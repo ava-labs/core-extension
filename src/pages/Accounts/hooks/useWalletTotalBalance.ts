@@ -14,6 +14,6 @@ export const useWalletTotalBalance = (walletId?: string) => {
         isLoading: false,
         hasErrorOccurred: false,
       },
-    [walletBalances, walletId]
+    [walletBalances, walletId],
   );
 };

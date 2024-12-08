@@ -82,7 +82,7 @@ export function CollectibleDetails() {
       await refreshNftMetadata(
         nft.address,
         String(network.chainId),
-        nft.tokenId
+        nft.tokenId,
       );
       toast.success(t('NFT metadata was refreshed successfully!'));
       setWasRefreshed(true);
@@ -98,7 +98,7 @@ export function CollectibleDetails() {
             </Typography>
           )}
         </ToastCard>,
-        { duration: 5000 }
+        { duration: 5000 },
       );
     } finally {
       setIsRefreshing(false);

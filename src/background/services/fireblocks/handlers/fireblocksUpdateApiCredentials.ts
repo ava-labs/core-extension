@@ -31,7 +31,7 @@ export class FireblocksUpdateApiCredentialsHandler implements HandlerType {
   constructor(
     private accountsService: AccountsService,
     private networkService: NetworkService,
-    private secretsService: SecretsService
+    private secretsService: SecretsService,
   ) {}
 
   async #getVaultAccountId(address: string) {
@@ -45,12 +45,12 @@ export class FireblocksUpdateApiCredentialsHandler implements HandlerType {
 
     const id = await this.#fireblocksService.fetchVaultAccountByWalletAddress(
       address,
-      assetIds
+      assetIds,
     );
 
     if (!id) {
       throw new FireblocksBtcAccessError(
-        FireblocksBtcAccessErrorCode.VaultAccountNotFound
+        FireblocksBtcAccessErrorCode.VaultAccountNotFound,
       );
     }
 
@@ -64,12 +64,12 @@ export class FireblocksUpdateApiCredentialsHandler implements HandlerType {
 
     const address = await this.#fireblocksService.getBtcAddressByAccountId(
       vaultAccountId,
-      this.networkService.isMainnet()
+      this.networkService.isMainnet(),
     );
 
     if (!address) {
       throw new FireblocksBtcAccessError(
-        FireblocksBtcAccessErrorCode.BTCAddressNotFound
+        FireblocksBtcAccessErrorCode.BTCAddressNotFound,
       );
     }
 
@@ -78,7 +78,7 @@ export class FireblocksUpdateApiCredentialsHandler implements HandlerType {
 
   async #getSecretsProvider(
     apiKey: string,
-    secretKey: string
+    secretKey: string,
   ): Promise<FireblocksSecretsProvider> {
     try {
       const privateKey = await importPKCS8(secretKey, 'RS256');
@@ -92,7 +92,7 @@ export class FireblocksUpdateApiCredentialsHandler implements HandlerType {
       };
     } catch {
       throw new FireblocksBtcAccessError(
-        FireblocksBtcAccessErrorCode.InvalidSecretKey
+        FireblocksBtcAccessErrorCode.InvalidSecretKey,
       );
     }
   }
@@ -102,7 +102,7 @@ export class FireblocksUpdateApiCredentialsHandler implements HandlerType {
 
     try {
       this.#fireblocksService = new FireblocksService(
-        await this.#getSecretsProvider(apiKey, secretKey)
+        await this.#getSecretsProvider(apiKey, secretKey),
       );
 
       const account = this.accountsService.getAccountByID(coreAccountId);
@@ -113,7 +113,7 @@ export class FireblocksUpdateApiCredentialsHandler implements HandlerType {
 
       if (account.type !== AccountType.FIREBLOCKS) {
         throw new FireblocksBtcAccessError(
-          FireblocksBtcAccessErrorCode.WrongAccountType
+          FireblocksBtcAccessErrorCode.WrongAccountType,
         );
       }
 

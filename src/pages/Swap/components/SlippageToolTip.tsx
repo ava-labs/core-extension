@@ -7,7 +7,7 @@ export function SlippageToolTip() {
   return (
     <Tooltip
       title={t(
-        'Suggested slippage – your transaction will fail if the price changes unfavorably more than this percentage'
+        'Suggested slippage – your transaction will fail if the price changes unfavorably more than this percentage',
       )}
     >
       <InfoCircleIcon size="14px" />

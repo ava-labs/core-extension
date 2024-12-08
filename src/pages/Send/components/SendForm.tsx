@@ -68,7 +68,7 @@ export const SendForm = ({
   const identifyAddress = useIdentifyAddress();
   const contact = useMemo(
     () => (address ? identifyAddress(address) : undefined),
-    [address, identifyAddress]
+    [address, identifyAddress],
   );
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);

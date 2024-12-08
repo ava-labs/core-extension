@@ -62,7 +62,7 @@ export const useBtcSend: SendAdapterBTC = ({
         const amountInSatoshis = amountBN.toNumber();
         const maxTransferAmount = Math.max(
           getMaxTransferAmount(utxos, address, from, Number(maxFee)),
-          0
+          0,
         );
 
         setMaxAmount(maxTransferAmount.toString());
@@ -76,7 +76,7 @@ export const useBtcSend: SendAdapterBTC = ({
             token: nativeToken,
           },
           utxos,
-          isMainnet
+          isMainnet,
         );
 
         if (validationError) {
@@ -89,7 +89,7 @@ export const useBtcSend: SendAdapterBTC = ({
         setIsValidating(false);
       }
     },
-    [utxos, maxFee, from, isMainnet, nativeToken]
+    [utxos, maxFee, from, isMainnet, nativeToken],
   );
 
   const send = useCallback(
@@ -113,7 +113,7 @@ export const useBtcSend: SendAdapterBTC = ({
         setIsSending(false);
       }
     },
-    [from, maxFee, nativeToken.decimals, request]
+    [from, maxFee, nativeToken.decimals, request],
   );
 
   return {

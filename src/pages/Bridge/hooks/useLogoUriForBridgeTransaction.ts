@@ -11,7 +11,7 @@ import { caipToChainId } from '@src/utils/caipConversion';
 import { getBridgedAssetSymbol } from '@src/utils/bridge/getBridgedAssetSymbol';
 
 export function useLogoUriForBridgeTransaction(
-  bridgeTransaction: BridgeTransaction | BridgeTransfer | undefined
+  bridgeTransaction: BridgeTransaction | BridgeTransfer | undefined,
 ): string | undefined {
   const { network, networks } = useNetworkContext();
 
@@ -21,8 +21,8 @@ export function useLogoUriForBridgeTransaction(
     ? networkToBlockchain(
         networks.find(
           ({ chainId }) =>
-            caipToChainId(bridgeTransaction.targetChain.chainId) === chainId
-        )
+            caipToChainId(bridgeTransaction.targetChain.chainId) === chainId,
+        ),
       )
     : bridgeTransaction?.targetChain;
 
@@ -37,8 +37,8 @@ export function useLogoUriForBridgeTransaction(
           ? ChainId.BITCOIN
           : ChainId.BITCOIN_TESTNET
         : isMainnet
-        ? ChainId.AVALANCHE_MAINNET_ID
-        : ChainId.AVALANCHE_TESTNET_ID;
+          ? ChainId.AVALANCHE_MAINNET_ID
+          : ChainId.AVALANCHE_TESTNET_ID;
   }
 
   const tokens = useTokensWithBalances({
@@ -53,7 +53,7 @@ export function useLogoUriForBridgeTransaction(
   const token = findTokenForAsset(
     getBridgedAssetSymbol(bridgeTransaction),
     targetBlockchain,
-    tokens
+    tokens,
   );
 
   return token?.logoUri;

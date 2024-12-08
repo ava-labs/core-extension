@@ -37,7 +37,7 @@ export class ActionEvents implements DAppEventEmitter {
               : { ...action, result: result };
           this.eventEmitter.emit('update', response);
         }
-      }
+      },
     );
     this.actionService.addListener(
       ActionsEvent.ACTION_UPDATED,
@@ -46,7 +46,7 @@ export class ActionEvents implements DAppEventEmitter {
           name: ActionsEvent.ACTION_UPDATED,
           value: actions,
         });
-      }
+      },
     );
   }
 
@@ -55,7 +55,7 @@ export class ActionEvents implements DAppEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

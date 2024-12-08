@@ -28,7 +28,7 @@ export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
       (c) =>
         !searchTerm ||
         c.address.toLowerCase().includes(searchTerm) ||
-        c.name.toLowerCase().includes(searchTerm)
+        c.name.toLowerCase().includes(searchTerm),
     );
 
   return (

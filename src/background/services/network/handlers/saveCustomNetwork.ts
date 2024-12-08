@@ -29,7 +29,7 @@ export class SaveCustomNetworkHandler implements HandlerType {
 
     const isValid = await this.networkService.isValidRPCUrl(
       network.chainId,
-      network.rpcUrl
+      network.rpcUrl,
     );
 
     if (!isValid) {
@@ -40,7 +40,7 @@ export class SaveCustomNetworkHandler implements HandlerType {
     }
 
     const [addedNetwork, err] = await resolve(
-      this.networkService.saveCustomNetwork(network)
+      this.networkService.saveCustomNetwork(network),
     );
 
     if (err || !addedNetwork) {

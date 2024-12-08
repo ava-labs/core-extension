@@ -59,7 +59,7 @@ export function TransactionDetails({
 }: TransactionDetailsProps) {
   const { t } = useTranslation();
   const [isDetailsOpen, setIsDetailsOpen] = useState(
-    isTransactionDetailsOpen || false
+    isTransactionDetailsOpen || false,
   );
 
   const theme = useTheme();
@@ -69,7 +69,10 @@ export function TransactionDetails({
       <TitleContainer
         onClick={() => {
           setIsDetailsOpen(!isDetailsOpen);
-          setIsOpen && setIsOpen(!isDetailsOpen);
+          if (!setIsOpen) {
+            return;
+          }
+          setIsOpen(!isDetailsOpen);
         }}
       >
         <DetailsRow>
@@ -139,7 +142,10 @@ export function TransactionDetails({
                 onChange={(e) => {
                   const value = e.target.value;
                   const isValid = isSlippageValid(value);
-                  isValid && setSlippage(value);
+                  if (!isValid) {
+                    return;
+                  }
+                  setSlippage(value);
                 }}
               />
             </Stack>

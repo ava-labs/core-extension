@@ -49,13 +49,13 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
     private walletService: WalletService,
     private networkService: NetworkService,
     private accountsService: AccountsService,
-    private analyticsServicePosthog: AnalyticsServicePosthog
+    private analyticsServicePosthog: AnalyticsServicePosthog,
   ) {
     super();
   }
 
   handleAuthenticated = async (
-    rpcCall: JsonRpcRequestParams<DAppProviderRequest, TxParams>
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, TxParams>,
   ) => {
     let unsignedTx: UnsignedTx | EVMUnsignedTx;
 
@@ -83,7 +83,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
     const provider = await this.networkService.getAvalanceProviderXP();
     const currentAddress = getAddressByVM(
       vm,
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
 
     if (!currentAddress) {
@@ -107,8 +107,8 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
           network: isDevnet(network)
             ? Network.DEVNET
             : network.isTestnet
-            ? Network.FUJI
-            : Network.MAINNET,
+              ? Network.FUJI
+              : Network.MAINNET,
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,
           headers: HEADERS,
@@ -127,13 +127,13 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       const externalAddresses = await this.walletService.getAddressesByIndices(
         externalIndices ?? [],
         chainAlias as 'X' | 'P',
-        false
+        false,
       );
 
       const internalAddresses = await this.walletService.getAddressesByIndices(
         internalIndices ?? [],
         chainAlias as 'X' | 'P',
-        true
+        true,
       );
 
       const fromAddresses = [
@@ -145,7 +145,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       ];
 
       const fromAddressBytes = fromAddresses.map(
-        (address) => utils.parse(address)[2]
+        (address) => utils.parse(address)[2],
       );
 
       unsignedTx = await Avalanche.createAvalancheUnsignedTx({
@@ -162,7 +162,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       currentAddress,
       {
         feeTolerance,
-      }
+      },
     );
 
     if (txData.type === 'unknown') {
@@ -239,10 +239,10 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       txData: Avalanche.Tx;
       vm: VM;
     }>,
-    result,
+    _result,
     onSuccess,
     onError,
-    frontendTabId?: number
+    frontendTabId?: number,
   ) => {
     const {
       displayData: { vm, unsignedTxJson },
@@ -269,7 +269,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         !(internalIndices ?? []).length
       ) {
         throw new Error(
-          'Transaction contains multiple addresses, but indices were not provided'
+          'Transaction contains multiple addresses, but indices were not provided',
         );
       }
 
@@ -283,7 +283,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         },
         network,
         frontendTabId,
-        DAppProviderRequest.AVALANCHE_SEND_TRANSACTION
+        DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
       );
 
       let transactionHash: string;
@@ -314,7 +314,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         }
 
         const signedTransactionHex = Avalanche.signedTxToHex(
-          signedTransaction.getSignedTx()
+          signedTransaction.getSignedTx(),
         );
 
         // Submit the transaction and return the tx id

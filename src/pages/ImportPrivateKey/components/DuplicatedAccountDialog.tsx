@@ -33,7 +33,7 @@ export function DuplicatedAccountDialog({
       <DialogContent>
         <Typography variant="body2">
           {t(
-            'This account has already been imported, do you want to continue?'
+            'This account has already been imported, do you want to continue?',
           )}
         </Typography>
       </DialogContent>

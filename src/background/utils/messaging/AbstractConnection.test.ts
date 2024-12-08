@@ -11,7 +11,7 @@ class TestConnection extends AbstractConnection {
       disconnect: jest.Mock;
       send: jest.Mock;
     },
-    concurrentReuestLimit = 1000
+    concurrentReuestLimit = 1000,
   ) {
     super(concurrentReuestLimit);
   }

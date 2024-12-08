@@ -27,13 +27,13 @@ const getSwapProvider = (): SwapContextAPI => {
   render(
     <SwapContextProvider>
       <TestConsumerComponent ref={ref} />
-    </SwapContextProvider>
+    </SwapContextProvider>,
   );
 
   return ref.current ?? ({} as SwapContextAPI);
 };
 
-const TestConsumerComponent = forwardRef((props: unknown, ref) => {
+const TestConsumerComponent = forwardRef((_props, ref) => {
   const { getRate, swap } = useSwapContext();
 
   useImperativeHandle(ref, () => ({
@@ -166,7 +166,7 @@ describe.only('contexts/SwapProvider', () => {
         destDecimals: 10,
         srcAmount: '1000',
         ...overrides,
-      } as SwapParams);
+      }) as SwapParams;
 
     describe('when network is not supported', () => {
       it.each([{ network: undefined }, { isTestnet: true }])(
@@ -178,9 +178,9 @@ describe.only('contexts/SwapProvider', () => {
           const { getRate } = getSwapProvider();
 
           await expect(getRate(buildGetRateParams())).rejects.toThrow(
-            'Unsupported network'
+            'Unsupported network',
           );
-        }
+        },
       );
     });
 
@@ -195,7 +195,7 @@ describe.only('contexts/SwapProvider', () => {
         const { getRate } = getSwapProvider();
 
         await expect(getRate(buildGetRateParams())).rejects.toThrow(
-          'Account address missing'
+          'Account address missing',
         );
       });
     });
@@ -213,7 +213,7 @@ describe.only('contexts/SwapProvider', () => {
         const { getRate } = getSwapProvider();
 
         await expect(getRate(buildGetRateParams())).rejects.toThrow(
-          'Feature (SWAP) is currently unavailable'
+          'Feature (SWAP) is currently unavailable',
         );
       });
     });
@@ -288,7 +288,7 @@ describe.only('contexts/SwapProvider', () => {
         const { getRate } = getSwapProvider();
 
         await expect(getRate(buildGetRateParams())).rejects.toThrow(
-          'Invalid tokens'
+          'Invalid tokens',
         );
 
         expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -318,7 +318,7 @@ describe.only('contexts/SwapProvider', () => {
       });
 
       expect(global.fetch).toHaveBeenCalledWith(
-        getExpectedURL('prices', params)
+        getExpectedURL('prices', params),
       );
     });
   });
@@ -339,7 +339,7 @@ describe.only('contexts/SwapProvider', () => {
         gasLimit: 30000,
         slippage: 1,
         ...overrides,
-      } as SwapParams);
+      }) as SwapParams;
 
     beforeEach(() => {
       networkContext.avaxProviderC.waitForTransaction.mockResolvedValue({
@@ -360,7 +360,7 @@ describe.only('contexts/SwapProvider', () => {
       const { swap } = getSwapProvider();
 
       await expect(swap(params)).rejects.toThrow(
-        `Missing parameter: ${paramName}`
+        `Missing parameter: ${paramName}`,
       );
     });
 
@@ -374,9 +374,9 @@ describe.only('contexts/SwapProvider', () => {
           const { swap } = getSwapProvider();
 
           await expect(swap(getSwapParams())).rejects.toThrow(
-            'Unsupported network'
+            'Unsupported network',
           );
-        }
+        },
       );
     });
 
@@ -391,7 +391,7 @@ describe.only('contexts/SwapProvider', () => {
         const { swap } = getSwapProvider();
 
         await expect(swap(getSwapParams())).rejects.toThrow(
-          'Account address missing'
+          'Account address missing',
         );
       });
     });
@@ -409,7 +409,7 @@ describe.only('contexts/SwapProvider', () => {
         const { swap } = getSwapProvider();
 
         await expect(swap(getSwapParams())).rejects.toThrow(
-          'Feature (SWAP) is currently unavailable'
+          'Feature (SWAP) is currently unavailable',
         );
       });
     });
@@ -433,8 +433,8 @@ describe.only('contexts/SwapProvider', () => {
           swap(
             getSwapParams({
               srcToken: 'JEWEL',
-            })
-          )
+            }),
+          ),
         ).rejects.toThrow(/Allowance Error/i);
       });
     });
@@ -473,8 +473,8 @@ describe.only('contexts/SwapProvider', () => {
           swap(
             getSwapParams({
               srcToken: 'JEWEL',
-            })
-          )
+            }),
+          ),
         ).rejects.toThrow(/Insufficient funds/i);
       });
     });
@@ -524,7 +524,7 @@ describe.only('contexts/SwapProvider', () => {
         await swap(
           getSwapParams({
             srcToken: 'JEWEL',
-          })
+          }),
         );
 
         expect(allowanceMock).toHaveBeenCalled();
@@ -532,7 +532,7 @@ describe.only('contexts/SwapProvider', () => {
           expect.objectContaining({
             method: 'eth_sendTransaction',
             params: [expect.objectContaining(mockedTx)],
-          })
+          }),
         );
       });
     });
@@ -602,7 +602,7 @@ describe.only('contexts/SwapProvider', () => {
             userAddress: 'addressC',
             partner: 'Avalanche',
           }),
-        })
+        }),
       );
     });
 
@@ -654,7 +654,7 @@ describe.only('contexts/SwapProvider', () => {
           gasLimit,
           priceRoute,
           slippage,
-        })
+        }),
       ).rejects.toThrow('Data Error: Error: Invalid transaction params');
     });
 
@@ -702,7 +702,7 @@ describe.only('contexts/SwapProvider', () => {
           gasLimit,
           priceRoute,
           slippage,
-        })
+        }),
       ).rejects.toThrow('Data Error: Error: Some API error happened');
     });
 
@@ -754,7 +754,7 @@ describe.only('contexts/SwapProvider', () => {
           gasLimit,
           priceRoute,
           slippage,
-        })
+        }),
       ).rejects.toThrow('Data Error: Error: Invalid transaction params');
     });
 
@@ -804,8 +804,8 @@ describe.only('contexts/SwapProvider', () => {
           await swap(
             getSwapParams({
               srcToken: 'JEWEL',
-            })
-          )
+            }),
+          ),
         ).toEqual({
           swapTxHash: '0xSWAP_HASH',
           approveTxHash: '0xALLOWANCE_HASH',

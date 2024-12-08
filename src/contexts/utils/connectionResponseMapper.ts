@@ -31,7 +31,7 @@ export function connectionRequest(request: ExtensionConnectionMessage) {
 }
 
 export function connectionResponseHandler(
-  eventHandler?: Subject<ExtensionConnectionEvent>
+  eventHandler?: Subject<ExtensionConnectionEvent>,
 ) {
   return (message: string) => {
     const deserializedMessage = deserializeFromJSON<
@@ -53,7 +53,7 @@ export function connectionResponseHandler(
 
 export function requestEngine(
   connection: Runtime.Port,
-  eventHandler?: Subject<ExtensionConnectionEvent>
+  eventHandler?: Subject<ExtensionConnectionEvent>,
 ) {
   const connectionResponseHandlerInstance =
     connectionResponseHandler(eventHandler);
@@ -66,7 +66,7 @@ export function requestEngine(
   return async (
     request: PartialBy<Omit<JsonRpcRequestPayload, 'id'>, 'params'>,
     scope: string,
-    context: { tabId?: number } & Record<string, unknown>
+    context: { tabId?: number } & Record<string, unknown>,
   ) => {
     const id = `${request.method}-${Math.floor(Math.random() * 10000000)}`;
 
@@ -86,14 +86,18 @@ export function requestEngine(
       context,
     };
     const response = connectionRequest(requestWithId);
-    isDevelopment() &&
+    if (isDevelopment()) {
       requestLog(
         `Extension Request  (${requestWithId.params.request.method})`,
-        requestWithId
+        requestWithId,
       );
+    }
+
     connection.postMessage(serializeToJSON(requestWithId));
     response.then((res) => {
-      isDevelopment() && responseLog(`Extension Response (${res.method})`, res);
+      if (isDevelopment()) {
+        responseLog(`Extension Response (${res.method})`, res);
+      }
       return res;
     });
     return response;

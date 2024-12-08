@@ -47,17 +47,17 @@ export function NetworkSwitcher() {
     ...networks.filter(
       (networkItem) =>
         defaultNetworks.includes(networkItem.chainId) &&
-        networkItem.chainId !== network?.chainId
+        networkItem.chainId !== network?.chainId,
     ),
     ...favoriteNetworks.filter(
       (networkItem) =>
         !defaultNetworks.includes(networkItem.chainId) &&
-        networkItem.chainId !== network?.chainId
+        networkItem.chainId !== network?.chainId,
     ),
   ];
 
   const isActiveInList = networkList.find(
-    (networkItem) => networkItem?.chainId === network?.chainId
+    (networkItem) => networkItem?.chainId === network?.chainId,
   );
 
   const [isOpen, setIsOpen] = useState(false);

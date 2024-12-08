@@ -76,7 +76,7 @@ export function VerifyGoBackModal({
         >
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {t(
-              'Going back will take you to the beginning of the onboarding flow. You will need to re-verify the MFA you just set up before continuing with account creation.'
+              'Going back will take you to the beginning of the onboarding flow. You will need to re-verify the MFA you just set up before continuing with account creation.',
             )}
           </Typography>
           <Stack

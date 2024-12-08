@@ -24,7 +24,7 @@ export class NetworkFeeService {
     to: string,
     data: string,
     network: NetworkWithCaipId,
-    value?: bigint
+    value?: bigint,
   ): Promise<number | null> {
     if (network.vmName !== NetworkVMType.EVM) {
       return null;
@@ -32,7 +32,7 @@ export class NetworkFeeService {
 
     const provider = await getProviderForNetwork(network);
     const nonce = await (provider as JsonRpcBatchInternal).getTransactionCount(
-      from
+      from,
     );
 
     return Number(
@@ -42,7 +42,7 @@ export class NetworkFeeService {
         to: to,
         data: data,
         value,
-      })
+      }),
     );
   }
 }

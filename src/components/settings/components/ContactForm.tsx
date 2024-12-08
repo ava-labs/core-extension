@@ -31,7 +31,7 @@ export const ContactForm = ({
   const FormErrors = {
     NAME_ERROR: t('Name is required'),
     ADDRESS_ERROR: t(
-      'Not a valid Avalanche (C-Chain) address. C-Chain addresses being with 0x'
+      'Not a valid Avalanche (C-Chain) address. C-Chain addresses being with 0x',
     ),
     ADDRESS_BTC_ERROR: t('Not a valid Bitcoin address'),
     ADDRESS_XP_ERROR: t('Not a valid X/P-Chain address'),
@@ -95,7 +95,7 @@ export const ContactForm = ({
         updatedContact.address &&
         contacts.find(
           ({ id, address }) =>
-            id !== updatedContact.id && address === updatedContact.address
+            id !== updatedContact.id && address === updatedContact.address,
         )
       ) {
         setAddressError(FormErrors.ADDRESS_EXISTS);
@@ -106,7 +106,8 @@ export const ContactForm = ({
         updatedContact.addressBTC &&
         contacts.find(
           ({ id, addressBTC }) =>
-            id !== updatedContact.id && addressBTC === updatedContact.addressBTC
+            id !== updatedContact.id &&
+            addressBTC === updatedContact.addressBTC,
         )
       ) {
         setAddressBtcError(FormErrors.ADDRESS_EXISTS);
@@ -125,7 +126,7 @@ export const ContactForm = ({
       FormErrors.ADDRESS_XP_PREFIX_ERROR,
       FormErrors.ADDRESS_XP_ERROR,
       FormErrors.ADDRESS_EXISTS,
-    ]
+    ],
   );
 
   // Used when "Save" is clicked on New Contact when no iputs filled out.

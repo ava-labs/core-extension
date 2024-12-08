@@ -92,7 +92,7 @@ export const Keystone = () => {
     async (
       xpub: string,
       accountIndex: number,
-      addressList: AddressType[] = []
+      addressList: AddressType[] = [],
     ) => {
       const address = getAddressFromXPub(xpub, accountIndex);
       const { balance } = await getAvaxBalance(address);
@@ -108,7 +108,7 @@ export const Keystone = () => {
         capture('OnboardingKeystoneHasAddresses');
       }
     },
-    [capture, getAvaxBalance]
+    [capture, getAvaxBalance],
   );
 
   useEffect(() => {
@@ -129,7 +129,7 @@ export const Keystone = () => {
     t('Tap “Connect Software Wallet” at the bottom left corner.'),
     t('Select the Core wallet.'),
     t(
-      'Click on the “Scan” button at the bottom to scan the QR code displayed on the Keystone device.'
+      'Click on the “Scan” button at the bottom to scan the QR code displayed on the Keystone device.',
     ),
     t('These are the addresses derived from your Keystone device'),
   ];

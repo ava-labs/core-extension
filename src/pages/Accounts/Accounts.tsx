@@ -56,7 +56,7 @@ export function Accounts() {
   const { walletDetails } = useWalletContext();
   const { isLoading, totalBalanceInCurrency: activeWalletTotalBalance } =
     useWalletTotalBalance(
-      isPrimaryAccount(active) ? active.walletId : undefined
+      isPrimaryAccount(active) ? active.walletId : undefined,
     );
   const { fetchBalanceForWallet } = useWalletTotalBalanceContext();
 
@@ -65,7 +65,7 @@ export function Accounts() {
 
   const activeAccountBalance = useMemo(
     () => (active?.addressC ? getTotalBalance(active.addressC) : null),
-    [active?.addressC, getTotalBalance]
+    [active?.addressC, getTotalBalance],
   );
 
   const addAccountAndFocus = async () => {
@@ -82,7 +82,7 @@ export function Accounts() {
       if (walletDetails?.id) {
         fetchBalanceForWallet(walletDetails.id);
       }
-    } catch (e) {
+    } catch (_err) {
       toast.error(t('An error occurred, please try again later'));
     }
 

@@ -60,7 +60,7 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
 
     mockNetworkService = new NetworkService(
       {} as unknown as StorageService,
-      {} as unknown as FeatureFlagService
+      {} as unknown as FeatureFlagService,
     );
 
     // eslint-disable-next-line
@@ -115,7 +115,7 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
     const network = await getTargetNetworkForTx(
       { chainId: 2 } as any,
       mockNetworkService,
-      eth.caipId
+      eth.caipId,
     );
 
     expect(network).toBe(otherNetwork);
@@ -126,8 +126,8 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
       getTargetNetworkForTx(
         { chainId: 12321 } as any,
         mockNetworkService,
-        'eip155:1'
-      )
+        'eip155:1',
+      ),
     ).rejects.toThrow(getRpcError('Provided ChainID is not supported', 1));
   });
 
@@ -136,8 +136,8 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
       getTargetNetworkForTx(
         { chainId: ChainId.BITCOIN_TESTNET } as any,
         mockNetworkService,
-        eth.caipId
-      )
+        eth.caipId,
+      ),
     ).rejects.toThrow(getRpcError('Provided ChainID is not supported', 1));
   });
 
@@ -146,10 +146,10 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
       getTargetNetworkForTx(
         { chainId: 43113 } as any,
         mockNetworkService,
-        eth.caipId
-      )
+        eth.caipId,
+      ),
     ).rejects.toThrow(
-      getRpcError('Provided ChainID is in a different environment', 1)
+      getRpcError('Provided ChainID is in a different environment', 1),
     );
   });
 
@@ -168,8 +168,8 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
       await getTargetNetworkForTx(
         { chainId: otherNetwork.chainId } as any,
         mockNetworkService,
-        otherNetwork.caipId
-      )
+        otherNetwork.caipId,
+      ),
     ).toEqual(otherNetwork);
   });
 
@@ -188,10 +188,10 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
       getTargetNetworkForTx(
         { chainId: otherNetwork.chainId } as any,
         mockNetworkService,
-        'eip155:1234'
-      )
+        'eip155:1234',
+      ),
     ).rejects.toThrow(
-      getRpcError('ChainID is not supported for custom networks', 1)
+      getRpcError('ChainID is not supported for custom networks', 1),
     );
   });
 });

@@ -19,7 +19,7 @@ export class ResetExtensionStateHandler implements HandlerType {
   constructor(
     private storageService: StorageService,
     private onboardingService: OnboardingService,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {

@@ -17,7 +17,7 @@ export const usePendingBridgeTransactions = () => {
         (tx) =>
           // filter pending transactions that don't belong to the given network
           network?.chainId === caipToChainId(tx.sourceChain.chainId) ||
-          network?.chainId === caipToChainId(tx.targetChain.chainId)
+          network?.chainId === caipToChainId(tx.targetChain.chainId),
       ),
     ];
   }, [unifiedBridgeTransfers, legacyBridgeTransfers, network]);

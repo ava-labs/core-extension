@@ -34,7 +34,7 @@ describe('src/background/providers/utils/onDomReady', () => {
     expect(addEventListenerSpy).toHaveBeenCalledWith(
       'DOMContentLoaded',
       expect.anything(),
-      { once: true }
+      { once: true },
     );
     expect(callback).not.toHaveBeenCalled();
 
@@ -45,7 +45,7 @@ describe('src/background/providers/utils/onDomReady', () => {
     expect(removeEventListenerSpy).toHaveBeenCalledWith(
       'DOMContentLoaded',
       addEventListenerSpy.mock.calls[0]?.[1],
-      { once: true }
+      { once: true },
     );
   });
 });

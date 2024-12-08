@@ -63,7 +63,7 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
     const result = calculateTotalBalanceForAccounts(
       balances,
       accounts,
-      chainIds
+      chainIds,
     );
 
     expect(calculateTotalBalance).toHaveBeenCalledTimes(4);
@@ -71,25 +71,25 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
       1,
       accounts[0],
       chainIds,
-      balances
+      balances,
     );
     expect(calculateTotalBalance).toHaveBeenNthCalledWith(
       2,
       accounts[1],
       chainIds,
-      balances
+      balances,
     );
     expect(calculateTotalBalance).toHaveBeenNthCalledWith(
       3,
       accounts[2],
       chainIds,
-      balances
+      balances,
     );
     expect(calculateTotalBalance).toHaveBeenNthCalledWith(
       4,
       accounts[3],
       chainIds,
-      balances
+      balances,
     );
 
     expect(result).toEqual(1600);

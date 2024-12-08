@@ -56,7 +56,7 @@ const Line: any = styled(Box, {
     background:
       active || complete ? theme.palette.text.primary : theme.palette.divider,
     transition: 'background-color 500ms',
-  })
+  }),
 );
 
 const Dot: any = styled('div')(({ theme, delay }: any) => ({
@@ -154,8 +154,10 @@ export const ConfirmationTracker = memo(function ConfirmationTracker({
   currentCount,
   ...props
 }: ConfirmationTrackerProps) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { t } = useTranslation();
   const numberOfDots = requiredCount - 1;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const containerRef = useRef<HTMLDivElement>(null);
   const dots: JSX.Element[] = [];
   let left = 0;
@@ -210,7 +212,7 @@ export const ConfirmationTracker = memo(function ConfirmationTracker({
             {i}/{requiredCount}
           </Label>
         </Box>
-      </Fragment>
+      </Fragment>,
     );
   }
 
@@ -277,7 +279,7 @@ export const ConfirmationTracker = memo(function ConfirmationTracker({
           {renderLine(
             currentCount >= requiredCount,
             lastStepActive,
-            requiredCount === 1
+            requiredCount === 1,
           )}
         </Slider>
       </Box>

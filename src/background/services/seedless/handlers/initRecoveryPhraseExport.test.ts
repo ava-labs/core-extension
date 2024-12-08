@@ -23,14 +23,14 @@ describe('src/background/services/seedless/handlers/initRecoveryPhraseExport', (
       secretsService,
       networkService,
       mfaService,
-      accountsService
+      accountsService,
     );
 
     return handler.handle(
       buildRpcCall({
         method: ExtensionRequest.SEEDLESS_INIT_RECOVERY_PHRASE_EXPORT,
         id: 'abcd-1234',
-      })
+      }),
     );
   };
 
@@ -67,7 +67,7 @@ describe('src/background/services/seedless/handlers/initRecoveryPhraseExport', (
       const result = await handle();
 
       expect(result.error).toEqual(
-        'Action only available for seedless wallets'
+        'Action only available for seedless wallets',
       );
     });
   });
@@ -80,19 +80,19 @@ describe('src/background/services/seedless/handlers/initRecoveryPhraseExport', (
     const result = await handle();
 
     expect(result.error).toEqual(
-      'Recovery phrase export is already in progress'
+      'Recovery phrase export is already in progress',
     );
   });
 
   it('returns error if export initialization fails', async () => {
     wallet.initMnemonicExport.mockRejectedValueOnce(
-      new Error('Session does not have required scopes: [ExportUserInit]')
+      new Error('Session does not have required scopes: [ExportUserInit]'),
     );
 
     const result = await handle();
 
     expect(result.error).toEqual(
-      'Session does not have required scopes: [ExportUserInit]'
+      'Session does not have required scopes: [ExportUserInit]',
     );
   });
 

@@ -22,7 +22,7 @@ export class KeystoneService implements KeystoneTransport, OnUnlock {
     this.keystoneRequestSubscription = this.keystoneDeviceRequest$.subscribe(
       (request) => {
         this.eventEmitter.emit(KeystoneEvent.DEVICE_REQUEST, request);
-      }
+      },
     );
   }
 
@@ -50,8 +50,8 @@ export class KeystoneService implements KeystoneTransport, OnUnlock {
         filter((response) => response.requestId === requestId),
         map((response: DeviceResponseData) => {
           return Buffer.from(response.cbor, 'hex');
-        })
-      )
+        }),
+      ),
     );
   }
 

@@ -6,7 +6,7 @@ import xss from 'xss';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 
 export function useTokenFromParams(
-  withDefault = true
+  withDefault = true,
 ): TokenWithBalance | undefined {
   const { search } = useLocation();
   const allTokens = useTokensWithBalances({
@@ -45,8 +45,8 @@ export function useTokenFromParams(
       return token.type === TokenType.ERC20
         ? token.address === tokenAddress
         : token.type === TokenType.NATIVE
-        ? token.symbol === tokenSymbol
-        : false;
+          ? token.symbol === tokenSymbol
+          : false;
     });
 
     if (!targetToken && !withDefault) return;

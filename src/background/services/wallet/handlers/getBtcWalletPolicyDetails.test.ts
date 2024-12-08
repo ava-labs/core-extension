@@ -16,7 +16,7 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
   const getAccountServiceMock = (activeAccount?: { type: AccountType }) =>
     ({
       activeAccount,
-    } as any);
+    }) as any;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -25,7 +25,7 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
   it('returns undefined if there is no active account', async () => {
     const handler = new GetBtcWalletPolicyDetails(
       secretsServiceMock,
-      getAccountServiceMock()
+      getAccountServiceMock(),
     );
 
     const result = await handler.handle(buildRpcCall(request));
@@ -39,7 +39,7 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
   it('returns undefined if the active account is not primary', async () => {
     const handler = new GetBtcWalletPolicyDetails(
       secretsServiceMock,
-      getAccountServiceMock({ type: AccountType.IMPORTED })
+      getAccountServiceMock({ type: AccountType.IMPORTED }),
     );
 
     const result = await handler.handle(buildRpcCall(request));
@@ -62,7 +62,7 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
 
     const handler = new GetBtcWalletPolicyDetails(
       secretsServiceMock,
-      getAccountServiceMock({ type: AccountType.PRIMARY })
+      getAccountServiceMock({ type: AccountType.PRIMARY }),
     );
 
     const result = await handler.handle(buildRpcCall(request));

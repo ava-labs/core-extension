@@ -18,7 +18,7 @@ export class PermissionStateUpdateEvents implements ExtensionEventEmitter {
           name: PermissionEvents.PERMISSIONS_STATE_UPDATE,
           value: permissions,
         });
-      }
+      },
     );
   }
 
@@ -27,7 +27,7 @@ export class PermissionStateUpdateEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

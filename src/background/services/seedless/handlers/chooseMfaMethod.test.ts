@@ -19,7 +19,7 @@ describe('src/background/services/seedless/handlers/chooseMfaMethod', () => {
         id: 'abcd-1234',
         params: [choice],
         tabId: 1234,
-      })
+      }),
     );
   };
 
@@ -48,7 +48,7 @@ describe('src/background/services/seedless/handlers/chooseMfaMethod', () => {
     await handle(choice);
     expect(seedlessMfaService.submitChosenMethod).toHaveBeenCalledWith(
       choice,
-      1234
+      1234,
     );
   });
 });

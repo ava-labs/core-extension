@@ -79,7 +79,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
               address: knownAddress,
               value: 1000,
             },
-          ]
+          ],
         )
         .then((result) => {
           expect(result).toEqual({ txHash: 'tx-hash' });
@@ -94,7 +94,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
 
       await waitForIntervalRuns(
         expectedNumberOfCalls,
-        TRANSACTION_POLLING_INTERVAL_MS
+        TRANSACTION_POLLING_INTERVAL_MS,
       );
       expect(fbService.request).toHaveBeenCalledTimes(expectedNumberOfCalls);
     });
@@ -117,14 +117,14 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
               address: knownAddress,
               value: 1000,
             },
-          ]
+          ],
         );
         expect(fbService.request).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
               assetId: 'BTC',
             }),
-          })
+          }),
         );
       });
 
@@ -138,14 +138,14 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
               address: knownAddress,
               value: 1000,
             },
-          ]
+          ],
         );
         expect(fbService.request).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
               assetId: 'BTC_TEST',
             }),
-          })
+          }),
         );
       });
 
@@ -159,7 +159,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
               address: knownAddress,
               value: 1000,
             },
-          ]
+          ],
         );
 
         expect(fbService.request).toHaveBeenCalledWith(
@@ -170,7 +170,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
                 type: PeerType.VAULT_ACCOUNT,
               },
             }),
-          })
+          }),
         );
       });
 
@@ -192,7 +192,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
               address: 'source-address',
               value: 500000,
             },
-          ]
+          ],
         );
 
         expect(fbService.request).toHaveBeenCalledWith(
@@ -217,7 +217,7 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
                 },
               ],
             }),
-          })
+          }),
         );
       });
     });
@@ -236,10 +236,12 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
                 address: knownAddress,
                 value: 1000,
               },
-            ]
-          )
+            ],
+          ),
         ).rejects.toThrow(
-          ethErrors.rpc.internal({ data: { reason: CommonError.NetworkError } })
+          ethErrors.rpc.internal({
+            data: { reason: CommonError.NetworkError },
+          }),
         );
       });
     });
@@ -268,10 +270,10 @@ describe('src/background/services/fireblocks/FireblocksBTCSigner', () => {
                 address: knownAddress,
                 value: 1000,
               },
-            ]
-          )
+            ],
+          ),
         ).rejects.toThrow(
-          ethErrors.rpc.transactionRejected({ data: { reason: errorCode } })
+          ethErrors.rpc.transactionRejected({ data: { reason: errorCode } }),
         );
       });
     });

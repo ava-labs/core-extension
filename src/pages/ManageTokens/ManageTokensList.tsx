@@ -40,7 +40,7 @@ export const ManageTokensList = ({
         (parseFloat(a.balanceDisplayValue) || 0)
       );
     },
-    [sort]
+    [sort],
   );
 
   return (
@@ -55,7 +55,7 @@ export const ManageTokensList = ({
             (searchQuery.length
               ? token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-              : true)
+              : true),
         )
         .sort(sortingTokens)
         .map((token) => (

@@ -21,7 +21,7 @@ export class BlockaidService {
   async jsonRPCScan(
     chainId: string,
     from: string,
-    request: JsonRpcRequestPayload<MessageType, any[]>
+    request: JsonRpcRequestPayload<MessageType, any[]>,
   ) {
     if (
       !this.featureFlagService.featureFlags[FeatureGates.BLOCKAID_JSONRPC_SCAN]

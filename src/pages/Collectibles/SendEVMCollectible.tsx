@@ -55,7 +55,7 @@ export const SendEVMCollectible = ({
   const [address, setAddress] = useState(addressFromParams);
   const contact = useMemo(
     () => (address ? identifyAddress(address) : undefined),
-    [address, identifyAddress]
+    [address, identifyAddress],
   );
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const setCollectibleParams = useSetCollectibleParams();

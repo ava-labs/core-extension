@@ -32,7 +32,7 @@ export const DefiTokenAvatarGroup = ({ tokens, maxTokens, ...rest }: Props) => {
     () =>
       AVATAR_SIZE +
       (Math.min(MAX_DISPLAYED_AVATARS, maxTokens) - 1) * (AVATAR_SIZE / 2),
-    [maxTokens]
+    [maxTokens],
   );
 
   return (

@@ -12,7 +12,7 @@ const getProvidedUtxos = ({ utxoHexes = [], vm }: Param) => {
       const utxoBytes = utils.hexToBuffer(utxoHex);
       return Utxo.fromBytes(utxoBytes, codec)[0];
     });
-  } catch (err) {
+  } catch (_err) {
     return [];
   }
 };

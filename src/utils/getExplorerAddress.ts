@@ -30,7 +30,7 @@ export function getExplorerAddress(
   chain: Blockchain | Chain,
   txHash: string,
   isMainnet: boolean,
-  getNetwork: (chainId: string) => NetworkWithCaipId | undefined
+  getNetwork: (chainId: string) => NetworkWithCaipId | undefined,
 ) {
   const normalizedChain =
     typeof chain === 'object' ? networkToBlockchain(chain) : chain;
@@ -62,7 +62,7 @@ export function getAvalancheAddressLink(hash: string, isMainnet = true) {
 export function getExplorerAddressByNetwork(
   network: Network,
   hash: string,
-  hashType: 'address' | 'tx' = 'tx'
+  hashType: 'address' | 'tx' = 'tx',
 ) {
   return `${network.explorerUrl}/${hashType}/${hash}`;
 }

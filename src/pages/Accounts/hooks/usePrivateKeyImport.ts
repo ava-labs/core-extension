@@ -26,14 +26,14 @@ export const usePrivateKeyImport = () => {
       } catch (err) {
         sentryCaptureException(
           err as Error,
-          SentryExceptionTypes.WALLET_IMPORT
+          SentryExceptionTypes.WALLET_IMPORT,
         );
         throw err;
       } finally {
         setIsImporting(false);
       }
     },
-    [addAccount]
+    [addAccount],
   );
 
   return {

@@ -36,14 +36,17 @@ export function ContactsContextProvider({ children }: { children: any }) {
     let isMounted = true;
     request<GetContactsHandler>({ method: ExtensionRequest.CONTACTS_GET }).then(
       (res) => {
-        isMounted && setContacts(res);
-      }
+        if (!isMounted) {
+          return;
+        }
+        setContacts(res);
+      },
     );
 
     const subscription = events()
       .pipe(
         filter(contactsUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((val) => setContacts(val));
 
@@ -88,9 +91,9 @@ export function ContactsContextProvider({ children }: { children: any }) {
       contacts.contacts.find(({ address, addressBTC, addressXP }) =>
         [address, addressBTC, addressXP]
           .map((a) => (a ?? '').toLowerCase())
-          .includes(lookupAddress)
+          .includes(lookupAddress),
       ),
-    [contacts.contacts]
+    [contacts.contacts],
   );
 
   return (

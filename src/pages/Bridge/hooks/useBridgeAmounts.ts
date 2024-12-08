@@ -7,7 +7,7 @@ import { bigintToBig } from '@src/utils/bigintToBig';
 import { isUnifiedBridgeTransfer } from '../utils/isUnifiedBridgeTransfer';
 
 export const useBridgeAmounts = (
-  bridgeTx?: BridgeTransaction | BridgeTransfer
+  bridgeTx?: BridgeTransaction | BridgeTransfer,
 ) => {
   const sourceNetworkFee = useMemo(() => {
     if (typeof bridgeTx?.sourceNetworkFee === 'undefined') {
@@ -17,7 +17,7 @@ export const useBridgeAmounts = (
     if (isUnifiedBridgeTransfer(bridgeTx)) {
       return bigintToBig(
         bridgeTx.sourceNetworkFee,
-        bridgeTx.sourceChain.networkToken.decimals
+        bridgeTx.sourceChain.networkToken.decimals,
       );
     }
     return bridgeTx.sourceNetworkFee;
@@ -31,7 +31,7 @@ export const useBridgeAmounts = (
     if (isUnifiedBridgeTransfer(bridgeTx)) {
       return bigintToBig(
         bridgeTx.targetNetworkFee,
-        bridgeTx.targetChain.networkToken.decimals
+        bridgeTx.targetChain.networkToken.decimals,
       );
     }
     return bridgeTx.targetNetworkFee;

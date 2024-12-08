@@ -27,7 +27,7 @@ export class LockChangePasswordHandler implements HandlerType {
     }
 
     const [, err] = await resolve(
-      this.lockService.changePassword(oldPassword, newPassword)
+      this.lockService.changePassword(oldPassword, newPassword),
     );
 
     if (err) {

@@ -16,7 +16,7 @@ import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
 export function useApproveAction<DisplayData = any>(actionId: string) {
   const { request } = useConnectionContext();
   const isConfirmPopup = useIsSpecificContextContainer(
-    ContextContainer.CONFIRM
+    ContextContainer.CONFIRM,
   );
   const { approval } = useApprovalsContext();
   const [action, setAction] = useState<Action<DisplayData>>();
@@ -25,7 +25,7 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
   const updateAction = useCallback(
     async (
       params: ActionUpdate<Partial<DisplayData>>,
-      shouldWaitForResponse?: boolean
+      shouldWaitForResponse?: boolean,
     ) => {
       // We need to update the status a bit faster for smoother UX.
       // use function to avoid `action` as a dependency and thus infinite loops
@@ -42,7 +42,7 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
           },
           signingData: getUpdatedSigningData(
             prevActionData.signingData,
-            params.signingData
+            params.signingData,
           ),
         };
       });
@@ -59,7 +59,7 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
         }
       });
     },
-    [request, isConfirmPopup]
+    [request, isConfirmPopup],
   );
 
   const cancelHandler = useCallback(
@@ -68,7 +68,7 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
         status: ActionStatus.ERROR_USER_CANCELED,
         id: actionId,
       }),
-    [actionId, updateAction]
+    [actionId, updateAction],
   );
 
   useEffect(() => {

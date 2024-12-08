@@ -51,12 +51,12 @@ export const SeedlessAuthPopup = () => {
           setIsLoading(false);
         });
     },
-    [request]
+    [request],
   );
 
   const getOidcToken = useMemo(
     () => getOidcTokenProvider(walletDetails?.authProvider),
-    [walletDetails]
+    [walletDetails],
   );
 
   const {

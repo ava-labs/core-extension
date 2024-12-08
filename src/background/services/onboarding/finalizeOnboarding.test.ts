@@ -76,14 +76,14 @@ describe('src/background/services/onboarding/finalizeOnboarding.test.ts', () => 
 
     expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
       1,
-      ChainId.BITCOIN
+      ChainId.BITCOIN,
     );
     expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
       2,
-      ChainId.ETHEREUM_HOMESTEAD
+      ChainId.ETHEREUM_HOMESTEAD,
     );
     expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith(
-      accountMock.id
+      accountMock.id,
     );
     expect(onboardingServiceMock.setIsOnboarded).toHaveBeenCalledWith(true);
     expect(lockServiceMock.unlock).toHaveBeenCalledWith('password');

@@ -27,7 +27,7 @@ export class RefreshNftMetadataHandler implements HandlerType {
       const token = await this.glacierService.refreshNftMetadata(
         address,
         chainId,
-        tokenId
+        tokenId,
       );
 
       return {

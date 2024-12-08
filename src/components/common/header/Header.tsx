@@ -51,7 +51,7 @@ export function Header() {
   const showWalletInfo = Boolean(
     walletDetails?.name &&
       activeAccount?.type === AccountType.PRIMARY &&
-      wallets.length > 1
+      wallets.length > 1,
   );
 
   return (
@@ -85,7 +85,7 @@ export function Header() {
                   {!isConnected && (
                     <Typography variant="body2" color="text.secondary">
                       {t(
-                        'To connect, locate the connect button on their site.'
+                        'To connect, locate the connect button on their site.',
                       )}
                     </Typography>
                   )}

@@ -5,7 +5,7 @@ import {
 import { isNFT } from '../nft/utils/isNFT';
 
 export function groupTokensByType(
-  balances?: Record<string, Record<string, TokenWithBalance>>
+  balances?: Record<string, Record<string, TokenWithBalance>>,
 ): {
   nfts: Record<string, Record<string, NftTokenWithBalance>>;
   tokens: Record<string, Record<string, TokenWithBalance>>;

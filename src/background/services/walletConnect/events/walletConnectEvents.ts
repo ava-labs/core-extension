@@ -27,7 +27,7 @@ export class WalletConnectEvents implements ExtensionEventEmitter {
           name: WalletConnectEvent.SessionPermissionsMismatch,
           value: data,
         });
-      }
+      },
     );
   }
 
@@ -36,7 +36,7 @@ export class WalletConnectEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

@@ -16,7 +16,7 @@ export class GetBtcWalletPolicyDetails implements HandlerType {
 
   constructor(
     private secretsService: SecretsService,
-    private accountService: AccountsService
+    private accountService: AccountsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -31,9 +31,8 @@ export class GetBtcWalletPolicyDetails implements HandlerType {
         throw new Error('incorrect account type');
       }
 
-      const policyInfo = await this.secretsService.getBtcWalletPolicyDetails(
-        activeAccount
-      );
+      const policyInfo =
+        await this.secretsService.getBtcWalletPolicyDetails(activeAccount);
 
       return {
         ...request,
@@ -41,7 +40,7 @@ export class GetBtcWalletPolicyDetails implements HandlerType {
           masterFingerprint: policyInfo?.details?.masterFingerprint,
         },
       };
-    } catch (err) {
+    } catch (_err) {
       return {
         ...request,
         result: undefined,

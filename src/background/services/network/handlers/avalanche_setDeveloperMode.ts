@@ -25,7 +25,7 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
       return {
         ...request,
         error: ethErrors.rpc.invalidParams(
-          'Invalid param, must be true or false'
+          'Invalid param, must be true or false',
         ),
       };
     }
@@ -57,9 +57,9 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
 
   onActionApproved = async (
     pendingAction: Action<{ isTestmode: boolean }>,
-    result,
+    _result,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const {
@@ -77,8 +77,8 @@ export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
         chainIdToCaip(
           isTestmode
             ? ChainId.AVALANCHE_TESTNET_ID
-            : ChainId.AVALANCHE_MAINNET_ID
-        )
+            : ChainId.AVALANCHE_MAINNET_ID,
+        ),
       );
 
       onSuccess(null);

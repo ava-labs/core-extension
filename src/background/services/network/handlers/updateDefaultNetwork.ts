@@ -31,7 +31,7 @@ export class UpdateDefaultNetworkHandler implements HandlerType {
     if (network.rpcUrl !== undefined) {
       const isValid = await this.networkService.isValidRPCUrl(
         network.chainId,
-        network.rpcUrl
+        network.rpcUrl,
       );
 
       if (!isValid) {
@@ -44,7 +44,7 @@ export class UpdateDefaultNetworkHandler implements HandlerType {
 
     if (network.customRpcHeaders) {
       const areHeadersValid = Object.entries(network.customRpcHeaders).every(
-        ([name, value]) => isValidHttpHeader(name, value)
+        ([name, value]) => isValidHttpHeader(name, value),
       );
 
       if (!areHeadersValid) {
@@ -56,7 +56,7 @@ export class UpdateDefaultNetworkHandler implements HandlerType {
     }
 
     const [, err] = await resolve(
-      this.networkService.updateNetworkOverrides(network)
+      this.networkService.updateNetworkOverrides(network),
     );
 
     if (err) {

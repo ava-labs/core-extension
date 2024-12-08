@@ -79,7 +79,7 @@ export class OnboardingService {
 
   private async loadFromStorage(): Promise<OnboardingState> {
     const state = await this.storageService.loadUnencrypted<OnboardingState>(
-      ONBOARDING_STORAGE_KEY
+      ONBOARDING_STORAGE_KEY,
     );
     return state || defaultState;
   }

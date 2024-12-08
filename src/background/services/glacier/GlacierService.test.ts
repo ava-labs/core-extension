@@ -152,7 +152,7 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
         await glacierService.refreshNftMetadata(
           'address',
           'chainId',
-          'tokenId'
+          'tokenId',
         );
       } catch (err) {
         expect(err).toEqual('request-timeout');

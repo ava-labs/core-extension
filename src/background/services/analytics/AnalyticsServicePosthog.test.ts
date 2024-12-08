@@ -44,7 +44,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
       featureFlags: {
         [FeatureGates.EVENTS]: enabled,
       },
-    } as FeatureFlagService);
+    }) as FeatureFlagService;
 
   const buildAnalyticsService = (hasData = true) =>
     ({
@@ -54,10 +54,10 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
               deviceId: 'deviceId',
               userId: 'userId',
             }
-          : undefined
+          : undefined,
       ),
       getSessionId: jest.fn().mockResolvedValueOnce('sessionId'),
-    } as unknown as AnalyticsService);
+    }) as unknown as AnalyticsService;
 
   const buildSettingsService = (hasConsent = true) =>
     ({
@@ -66,7 +66,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
           ? AnalyticsConsent.Approved
           : AnalyticsConsent.Denied,
       }),
-    } as unknown as SettingsService);
+    }) as unknown as SettingsService;
 
   describe('.captureEncryptedEvent()', () => {
     const encryptedData = {
@@ -83,7 +83,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
       const service = new AnalyticsServicePosthog(
         buildFlagsService(),
         buildAnalyticsService(),
-        buildSettingsService()
+        buildSettingsService(),
       );
 
       await service.captureEncryptedEvent(dummyEvent);
@@ -94,7 +94,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
 
       // Expect request body to contain encrypted data
       expect(requestBody.properties).toEqual(
-        expect.objectContaining(encryptedData)
+        expect.objectContaining(encryptedData),
       );
 
       // Expect request body NOT TO contain unencrypted data
@@ -112,7 +112,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
         service = new AnalyticsServicePosthog(
           buildFlagsService(),
           buildAnalyticsService(),
-          buildSettingsService(false)
+          buildSettingsService(false),
         );
       });
 
@@ -137,7 +137,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
         service = new AnalyticsServicePosthog(
           buildFlagsService(false),
           buildAnalyticsService(),
-          buildSettingsService()
+          buildSettingsService(),
         );
       });
 
@@ -162,7 +162,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
         service = new AnalyticsServicePosthog(
           buildFlagsService(),
           buildAnalyticsService(false),
-          buildSettingsService()
+          buildSettingsService(),
         );
       });
 
@@ -177,7 +177,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
 
         expect(sentryCaptureException).toHaveBeenCalledWith(
           new Error('Analytics State is not available.'),
-          SentryExceptionTypes.ANALYTICS
+          SentryExceptionTypes.ANALYTICS,
         );
       });
     });
@@ -193,7 +193,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
         service = new AnalyticsServicePosthog(
           buildFlagsService(),
           buildAnalyticsService(false),
-          buildSettingsService()
+          buildSettingsService(),
         );
       });
 
@@ -208,7 +208,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
 
         expect(sentryCaptureException).toHaveBeenCalledWith(
           new Error('Analytics State is not available.'),
-          SentryExceptionTypes.ANALYTICS
+          SentryExceptionTypes.ANALYTICS,
         );
       });
     });
@@ -226,7 +226,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
         service = new AnalyticsServicePosthog(
           buildFlagsService(),
           buildAnalyticsService(),
-          buildSettingsService()
+          buildSettingsService(),
         );
       });
 
@@ -240,7 +240,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
               chainId: BlockchainId.P_CHAIN,
             }),
           }),
-          { headers: { 'Content-Type': 'application/json' } }
+          { headers: { 'Content-Type': 'application/json' } },
         );
       });
       it('should report expected the chainId: AVALANCHE_TEST_P', async () => {
@@ -253,7 +253,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
               chainId: BlockchainId.P_CHAIN_TESTNET,
             }),
           }),
-          { headers: { 'Content-Type': 'application/json' } }
+          { headers: { 'Content-Type': 'application/json' } },
         );
       });
       it('should report expected the chainId: AVALANCHE_X', async () => {
@@ -266,7 +266,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
               chainId: BlockchainId.X_CHAIN,
             }),
           }),
-          { headers: { 'Content-Type': 'application/json' } }
+          { headers: { 'Content-Type': 'application/json' } },
         );
       });
       it('should report expected the chainId: AVALANCHE_TEST_X', async () => {
@@ -279,7 +279,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
               chainId: BlockchainId.X_CHAIN_TESTNET,
             }),
           }),
-          { headers: { 'Content-Type': 'application/json' } }
+          { headers: { 'Content-Type': 'application/json' } },
         );
       });
       it('should report expected the chainId', async () => {
@@ -292,7 +292,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
               chainId: ChainId.AVALANCHE_MAINNET_ID,
             }),
           }),
-          { headers: { 'Content-Type': 'application/json' } }
+          { headers: { 'Content-Type': 'application/json' } },
         );
       });
     });
@@ -301,7 +301,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
       const service = new AnalyticsServicePosthog(
         buildFlagsService(),
         buildAnalyticsService(),
-        buildSettingsService()
+        buildSettingsService(),
       );
 
       await service.captureEvent(dummyEvent);
@@ -315,7 +315,7 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
             ...dummyEvent.properties,
           }),
         }),
-        { headers: { 'Content-Type': 'application/json' } }
+        { headers: { 'Content-Type': 'application/json' } },
       );
     });
   });

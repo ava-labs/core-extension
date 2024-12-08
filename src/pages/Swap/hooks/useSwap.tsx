@@ -83,7 +83,7 @@ export function useSwap() {
                   throw new Error(
                     t('paraswap error message while get rate: {{message}}', {
                       message: result.optimalRate.message,
-                    })
+                    }),
                   );
                 }
                 // Never modify the properies of the optimalRate since the swap API needs it unchanged
@@ -131,7 +131,7 @@ export function useSwap() {
             setDestAmount('');
             setOptimalRate(undefined);
           }
-        }
+        },
       );
 
     return () => {

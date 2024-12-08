@@ -4,7 +4,7 @@ import { FIDOApiEndpoint, FIDOApiRequest } from './types';
 
 export function convertRequest(
   endpoint: FIDOApiEndpoint,
-  options: FIDOApiRequest
+  options: FIDOApiRequest,
 ): string {
   if (
     endpoint === FIDOApiEndpoint.Authenticate ||
@@ -19,7 +19,7 @@ export function convertRequest(
 function convertBuffersToBase64Url(
   this: Record<string, unknown>,
   key: string,
-  value: any
+  value: any,
 ) {
   const el = this[key];
 

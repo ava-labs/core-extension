@@ -39,7 +39,7 @@ export class SettingsService implements OnStorageReady, OnLock {
 
   constructor(
     private storageService: StorageService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
   ) {
     this.networkService.uiActiveNetworkChanged.add(() => {
       this.applySettings();
@@ -59,7 +59,7 @@ export class SettingsService implements OnStorageReady, OnLock {
     try {
       settings = await this.getSettings();
       changeLanguage(settings.language);
-    } catch (e) {
+    } catch (_err) {
       return;
     }
 
@@ -72,12 +72,11 @@ export class SettingsService implements OnStorageReady, OnLock {
     }
 
     try {
-      const state = await this.storageService.load<SettingsState>(
-        SETTINGS_STORAGE_KEY
-      );
+      const state =
+        await this.storageService.load<SettingsState>(SETTINGS_STORAGE_KEY);
       const unEncryptedState =
         await this.storageService.loadUnencrypted<SettingsState>(
-          SETTINGS_UNENCRYPTED_STORAGE_KEY
+          SETTINGS_UNENCRYPTED_STORAGE_KEY,
         );
 
       const settings = {
@@ -94,7 +93,7 @@ export class SettingsService implements OnStorageReady, OnLock {
       this.needToRetryFetch = true;
       const unEncryptedState =
         await this.storageService.loadUnencrypted<SettingsState>(
-          SETTINGS_UNENCRYPTED_STORAGE_KEY
+          SETTINGS_UNENCRYPTED_STORAGE_KEY,
         );
 
       const settings = {
@@ -120,7 +119,7 @@ export class SettingsService implements OnStorageReady, OnLock {
     const tokenAlreadyExists = await isTokenSupported(
       token.address,
       network,
-      settings
+      settings,
     );
 
     if (tokenAlreadyExists) {
@@ -207,7 +206,7 @@ export class SettingsService implements OnStorageReady, OnLock {
       SETTINGS_UNENCRYPTED_STORAGE_KEY,
       {
         language: state.language,
-      }
+      },
     );
     try {
       await this.storageService.save(SETTINGS_STORAGE_KEY, state);

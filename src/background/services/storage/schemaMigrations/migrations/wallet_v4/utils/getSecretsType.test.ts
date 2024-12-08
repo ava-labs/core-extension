@@ -7,7 +7,7 @@ describe('getSecretsType()', () => {
   it('should throw an error', () => {
     const walletType = () => getSecretsType({});
     expect(walletType).toThrow(
-      'Cannot get the secret type for a primary account'
+      'Cannot get the secret type for a primary account',
     );
   });
 

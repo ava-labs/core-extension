@@ -30,7 +30,7 @@ export const FireblocksBitcoinDialog = ({
       <DialogContent>
         <Typography>
           {t(
-            'Core supports Bitcoin via Fireblocks with a few extra steps. If you choose to skip, you will not be able to bridge or use the Bitcoin Network.'
+            'Core supports Bitcoin via Fireblocks with a few extra steps. If you choose to skip, you will not be able to bridge or use the Bitcoin Network.',
           )}
         </Typography>
       </DialogContent>

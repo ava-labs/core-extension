@@ -16,12 +16,14 @@ import { useHistory } from 'react-router-dom';
 import { IconWrapper } from './EnterPassword';
 import { useCallback } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useGoBack } from '@src/hooks/useGoBack';
 
 interface ShowPrivateKeyProps {
   privateKey: string;
 }
 
 export function ShowPrivateKey({ privateKey }: ShowPrivateKeyProps) {
+  const goBack = useGoBack('/accounts');
   const history = useHistory();
   const { t } = useTranslation();
   const theme = useTheme();
@@ -35,14 +37,7 @@ export function ShowPrivateKey({ privateKey }: ShowPrivateKeyProps) {
   return (
     <>
       <Stack>
-        <PageTitle
-          margin={'22px 0 4px 0'}
-          onBackClick={() =>
-            history.length <= 2
-              ? history.replace('/accounts')
-              : history.goBack()
-          }
-        >
+        <PageTitle margin={'22px 0 4px 0'} onBackClick={goBack}>
           {t('Your Private Key')}
         </PageTitle>
         <Stack sx={{ px: 2, rowGap: 3 }}>
@@ -55,7 +50,7 @@ export function ShowPrivateKey({ privateKey }: ShowPrivateKeyProps) {
             <AlertTitle>{t('Protect your Private Key')}</AlertTitle>
             <AlertContent>
               {t(
-                'Do not share your Private Key with anyone including Core Support'
+                'Do not share your Private Key with anyone including Core Support',
               )}
             </AlertContent>
           </Alert>

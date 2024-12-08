@@ -17,7 +17,7 @@ describe('src/background/services/seedless/handlers/initAuthenticatorChange', ()
       buildRpcCall({
         method: ExtensionRequest.SEEDLESS_INIT_AUTHENTICATOR_CHANGE,
         id: 'abcd-1234',
-      })
+      }),
     );
   };
 
@@ -27,7 +27,7 @@ describe('src/background/services/seedless/handlers/initAuthenticatorChange', ()
 
   it('returns error if change initialization fails', async () => {
     seedlessMfaService.initAuthenticatorChange.mockRejectedValueOnce(
-      new Error('Session expired')
+      new Error('Session expired'),
     );
 
     const result = await handle();

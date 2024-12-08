@@ -58,7 +58,7 @@ const useIsIncorrectDevice = () => {
 
             setIsIncorrectDevice(!isMatching);
           }
-        } catch (err) {
+        } catch (_err) {
           // some problem occured with the app
           // just wait until LedgerProvider recreates the app instance
         }

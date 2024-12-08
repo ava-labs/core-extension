@@ -68,7 +68,7 @@ export const SeedlessUpdateRecoveryMethod = () => {
       });
 
       setState(State.Success);
-    } catch (err) {
+    } catch (_err) {
       setState(State.Failure);
     }
   }, [request, keyType, name]);
@@ -149,8 +149,8 @@ export const SeedlessUpdateRecoveryMethod = () => {
                 keyType === KeyType.Yubikey
                   ? t('Yubikey')
                   : keyType === KeyType.Passkey
-                  ? t('Passkey')
-                  : t('Authenticator app'),
+                    ? t('Passkey')
+                    : t('Authenticator app'),
             })}
           </Typography>
 
@@ -191,8 +191,8 @@ export const SeedlessUpdateRecoveryMethod = () => {
             {keyType === KeyType.Yubikey
               ? t('Yubikey Setup')
               : keyType === KeyType.Passkey
-              ? t('Passkey Setup')
-              : t('Authenticator Setup')}
+                ? t('Passkey Setup')
+                : t('Authenticator Setup')}
           </PageTitle>
           <Stack
             sx={{
@@ -241,7 +241,7 @@ export const SeedlessUpdateRecoveryMethod = () => {
                 {
                   device:
                     keyType === KeyType.Yubikey ? t('Yubikey') : t('Passkey'),
-                }
+                },
               )}
               placeholder={
                 keyType === KeyType.Yubikey ? t('My Yubikey') : t('My Passkey')

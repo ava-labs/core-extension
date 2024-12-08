@@ -7,7 +7,7 @@ import {
 } from '../models';
 
 export function isSeedlessTokenEvent(
-  evt: ExtensionConnectionEvent
+  evt: ExtensionConnectionEvent,
 ): evt is ExtensionConnectionEvent<void> {
   return (
     evt?.name === SeedlessEvents.TokenExpired ||
@@ -16,7 +16,7 @@ export function isSeedlessTokenEvent(
 }
 
 export function isSeedlessMfaEvent(
-  evt: ExtensionConnectionEvent
+  evt: ExtensionConnectionEvent,
 ): evt is ExtensionConnectionEvent<MfaRequestData> {
   return (
     evt?.name === SeedlessEvents.MfaRequest ||
@@ -26,13 +26,13 @@ export function isSeedlessMfaEvent(
 }
 
 export function isSeedlessMfaMethodsUpdatedEvent(
-  evt: ExtensionConnectionEvent
+  evt: ExtensionConnectionEvent,
 ): evt is ExtensionConnectionEvent<RecoveryMethod[]> {
   return evt?.name === SeedlessEvents.MfaMethodsUpdated;
 }
 
 export function isSeedlessMfaChoiceRequest(
-  evt: ExtensionConnectionEvent
+  evt: ExtensionConnectionEvent,
 ): evt is ExtensionConnectionEvent<MfaChoiceRequest> {
   return evt?.name === SeedlessEvents.MfaChoiceRequest;
 }

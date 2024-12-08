@@ -65,7 +65,7 @@ export const ExportPending = ({
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {t(
-            'Your recovery phrase is loading. You will receive a notification when it is done. Please check back in a little while.'
+            'Your recovery phrase is loading. You will receive a notification when it is done. Please check back in a little while.',
           )}
         </Typography>
       </Stack>

@@ -15,15 +15,15 @@ enum BridgeNetwork {
  */
 export function filterBridgeStateToNetwork(
   bridge: BridgeState,
-  network: Network
+  network: Network,
 ): BridgeState {
   const networkNameToCheck = isBitcoinNetwork(network)
     ? BridgeNetwork.BITCOIN
     : isAvalancheNetwork(network)
-    ? BridgeNetwork.AVALANCHE
-    : isEthereumNetwork(network)
-    ? BridgeNetwork.ETHEREUM
-    : null;
+      ? BridgeNetwork.AVALANCHE
+      : isEthereumNetwork(network)
+        ? BridgeNetwork.ETHEREUM
+        : null;
 
   const isMainnet = !network.isTestnet;
   const bridgeTransactions = Object.values(bridge.bridgeTransactions).reduce<

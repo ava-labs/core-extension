@@ -54,7 +54,7 @@ export function FIDODetails({ onBackClick, details }: Props) {
       toast.success(
         t('{{name}} successfully removed!', {
           name: details.name || t('Method'),
-        })
+        }),
       );
 
       onBackClick();
@@ -62,8 +62,8 @@ export function FIDODetails({ onBackClick, details }: Props) {
       if (err === SeedlessError.NoMfaMethodAvailable) {
         toast.error(
           t(
-            'You need an authenticator app configured to remove this MFA method'
-          )
+            'You need an authenticator app configured to remove this MFA method',
+          ),
         );
         return;
       }
@@ -145,7 +145,7 @@ export function FIDODetails({ onBackClick, details }: Props) {
                   hasTotpConfigured
                     ? ''
                     : t(
-                        'To remove this recovery method, you first need to configure a TOTP recovery method (i.e. Authenticator app).'
+                        'To remove this recovery method, you first need to configure a TOTP recovery method (i.e. Authenticator app).',
                       )
                 }
               >
@@ -177,7 +177,7 @@ export function FIDODetails({ onBackClick, details }: Props) {
               <DialogTitle>{t('Remove This Method?')}</DialogTitle>
               <DialogContent>
                 {t(
-                  'You will no longer be able to use this method to verify any operations. You can always re-add it later.'
+                  'You will no longer be able to use this method to verify any operations. You can always re-add it later.',
                 )}
               </DialogContent>
               <DialogActions>

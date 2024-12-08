@@ -37,7 +37,7 @@ export const WaitingForAuthentication = ({ provider }: Props) => {
       </Typography>
       <Typography variant="body2" color="text.secondary">
         {t(
-          'Do not close this window until the process is complete or you may need to restart.'
+          'Do not close this window until the process is complete or you may need to restart.',
         )}
       </Typography>
     </Stack>

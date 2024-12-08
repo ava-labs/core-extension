@@ -89,7 +89,7 @@ export const SendPVM = ({
       result: txHash,
       error: txError,
     } = await handleTxOutcome(
-      send({ address, amount, gasPrice, token: nativeToken })
+      send({ address, amount, gasPrice, token: nativeToken }),
     );
 
     if (isApproved) {
@@ -116,7 +116,7 @@ export const SendPVM = ({
   const inputAmount = useMemo(
     () =>
       amount ? stringToBigint(amount, nativeToken?.decimals ?? 18) : undefined,
-    [nativeToken, amount]
+    [nativeToken, amount],
   );
 
   const onFeeCustomized = useCallback((values: { maxFeePerGas: bigint }) => {

@@ -60,7 +60,7 @@ describe('src/background/services/accounts/handlers/avalanche_renameAccount', ()
       expect.objectContaining({
         displayData: { account, newName: 'Changed Name' },
       }),
-      'renameAccount'
+      'renameAccount',
     );
     expect(setAccountName).not.toHaveBeenCalled();
     expect(result).toEqual({ ...request, result: DEFERRED_RESPONSE });

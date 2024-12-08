@@ -12,7 +12,7 @@ const suite = new CipherSuite({
 });
 
 export async function encryptAnalyticsData(
-  message: string
+  message: string,
 ): Promise<{ data: string; enc: string; keyID: string }> {
   if (
     !process.env.ANALYTICS_ENCRYPTION_KEY ||
@@ -22,7 +22,7 @@ export async function encryptAnalyticsData(
   }
 
   const publicKey = await suite.kem.deserializePublicKey(
-    Buffer.from(process.env.ANALYTICS_ENCRYPTION_KEY, 'base64')
+    Buffer.from(process.env.ANALYTICS_ENCRYPTION_KEY, 'base64'),
   );
 
   const sender = await suite.createSenderContext({

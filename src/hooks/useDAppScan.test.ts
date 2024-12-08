@@ -67,7 +67,7 @@ describe('hooks/useDAppScan', () => {
       await result.current('good-dapp.com');
     } catch (err: any) {
       expect(err.message).toBe(
-        'There is an error during requesting the dApp data'
+        'There is an error during requesting the dApp data',
       );
     }
   });
