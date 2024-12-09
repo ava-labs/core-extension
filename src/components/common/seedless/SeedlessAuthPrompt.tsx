@@ -53,7 +53,7 @@ export const SeedlessAuthPrompt = () => {
       <DialogContent>
         <Typography variant="body2">
           {t(
-            'For security reasons your session has timed out. Please log in again.'
+            'For security reasons your session has timed out. Please log in again.',
           )}
         </Typography>
       </DialogContent>

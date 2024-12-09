@@ -32,7 +32,7 @@ export class RemoveFidoDeviceHandler implements HandlerType {
         ...request,
         result: await this.seedlessMfaService.removeFidoDevice(
           id,
-          request.tabId
+          request.tabId,
         ),
       };
     } catch (error: any) {

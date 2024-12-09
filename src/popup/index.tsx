@@ -49,6 +49,6 @@ browser.tabs.query({ active: true }).then(() => {
         </ThemeProvider>
       </Router>
     </Sentry.ErrorBoundary>,
-    document.getElementById('popup')
+    document.getElementById('popup'),
   );
 });

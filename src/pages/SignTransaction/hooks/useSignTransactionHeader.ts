@@ -5,7 +5,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 export const useSignTransactionHeader = (
-  transaction: Transaction | undefined
+  transaction: Transaction | undefined,
 ) => {
   const { t } = useTranslation();
 
@@ -14,7 +14,7 @@ export const useSignTransactionHeader = (
   }
 
   const transactionTypes = transaction?.displayValues?.actions.map(
-    (a) => a.type
+    (a) => a.type,
   );
 
   if (!transactionTypes || transactionTypes?.length > 1) {

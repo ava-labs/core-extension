@@ -10,7 +10,7 @@ import { Permissions } from '../models';
 export function getPermissionsConvertedToMetaMaskStructure(
   addressC?: string,
   domain?: string,
-  permissions?: Permissions
+  permissions?: Permissions,
 ) {
   if (!domain || !permissions || !addressC) {
     return [];

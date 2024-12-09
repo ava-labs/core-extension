@@ -77,7 +77,7 @@ export function PrimaryNetworkMethodIcon({
       methodName
         ? METHOD_NAME_TO_ICON[methodName] || METHOD_NAME_TO_ICON.UNKNOWN
         : METHOD_NAME_TO_ICON.UNKNOWN,
-    [methodName]
+    [methodName],
   );
 
   return (

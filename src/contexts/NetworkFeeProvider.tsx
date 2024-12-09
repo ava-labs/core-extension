@@ -36,7 +36,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         method: ExtensionRequest.NETWORK_FEE_GET,
         params: [caipId],
       }),
-    [request]
+    [request],
   );
 
   useEffect(() => {

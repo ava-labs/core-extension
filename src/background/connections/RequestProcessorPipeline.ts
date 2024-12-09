@@ -32,7 +32,7 @@ export function RequestProcessorPipeline<RequestType, ResponseType>(
               (error) => {
                 // error from the middleware, halt execution
                 reject(error);
-              }
+              },
             );
           } else {
             // no more middlewares, execution finished
@@ -40,7 +40,7 @@ export function RequestProcessorPipeline<RequestType, ResponseType>(
           }
         };
         runner(0);
-      }
+      },
     );
   };
 

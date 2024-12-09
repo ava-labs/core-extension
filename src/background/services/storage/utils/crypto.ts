@@ -10,7 +10,7 @@ import argon2Browser from 'argon2-browser';
 async function deriveKey(
   password: string | Uint8Array,
   salt: Uint8Array,
-  keyDerivationVersion: KeyDerivationVersion
+  keyDerivationVersion: KeyDerivationVersion,
 ): Promise<Uint8Array> {
   // takes about 150ms on an i9 mbp, bumping it up to 2 ** 16 would be better but it slows down UX way to much
 
@@ -51,7 +51,7 @@ export async function encryptWithPassword({
   const encryptionKey = await deriveKey(
     password,
     salt,
-    KeyDerivationVersion.V2
+    KeyDerivationVersion.V2,
   );
 
   const { cypher, nonce } = await encryptWithKey({ secret, encryptionKey });

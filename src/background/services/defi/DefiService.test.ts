@@ -75,7 +75,7 @@ describe('src/background/services/defi/DefiService.ts', () => {
         .mockRejectedValue(new Error('Failure'));
 
       expect(service.getUserPortfolio('0x1234')).rejects.toEqual(
-        new Error(`DefiService: Unable to fetch user's portfolio: Failure`)
+        new Error(`DefiService: Unable to fetch user's portfolio: Failure`),
       );
     });
 

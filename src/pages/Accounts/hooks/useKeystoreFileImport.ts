@@ -38,7 +38,7 @@ export const useKeystoreFileImport = () => {
 
       return keys;
     },
-    [capture, read]
+    [capture, read],
   );
 
   const importKeystoreFile = useCallback(
@@ -59,7 +59,7 @@ export const useKeystoreFileImport = () => {
           // Keystore files have the private keys base58check-encoded, but
           // we need them in hex format.
           const privateKey = Buffer.from(
-            utils.base58check.decode(key.replace('PrivateKey-', ''))
+            utils.base58check.decode(key.replace('PrivateKey-', '')),
           ).toString('hex');
 
           await importPrivateKey(privateKey);
@@ -82,7 +82,7 @@ export const useKeystoreFileImport = () => {
         }
       }
     },
-    [extractKeys, importPrivateKey, importSeedphrase]
+    [extractKeys, importPrivateKey, importSeedphrase],
   );
 
   const getKeyCounts = useCallback(
@@ -102,10 +102,10 @@ export const useKeystoreFileImport = () => {
         {
           seedPhrasesCount: 0,
           privateKeysCount: 0,
-        }
+        },
       );
     },
-    [extractKeys]
+    [extractKeys],
   );
 
   const isValidKeystoreFile = useCallback(
@@ -119,7 +119,7 @@ export const useKeystoreFileImport = () => {
         return false;
       }
     },
-    [read]
+    [read],
   );
 
   return {
@@ -138,6 +138,6 @@ const KEYSTORE_FILE_SCHEMA = Joi.object({
     Joi.object({
       key: Joi.string().required(),
       iv: Joi.string().required(),
-    }).unknown()
+    }).unknown(),
   ),
 }).unknown();

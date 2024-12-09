@@ -32,13 +32,13 @@ describe('src/utils/seedless/fido/convertResult', () => {
       rawId: base64UrlToBuffer(encodedAuthenticationResult.rawId),
       response: {
         authenticatorData: base64UrlToBuffer(
-          encodedAuthenticationResult.response.authenticatorData
+          encodedAuthenticationResult.response.authenticatorData,
         ),
         clientDataJSON: base64UrlToBuffer(
-          encodedAuthenticationResult.response.clientDataJSON
+          encodedAuthenticationResult.response.clientDataJSON,
         ),
         signature: base64UrlToBuffer(
-          encodedAuthenticationResult.response.signature
+          encodedAuthenticationResult.response.signature,
         ),
         userHandle: null,
       },
@@ -51,10 +51,10 @@ describe('src/utils/seedless/fido/convertResult', () => {
       rawId: base64UrlToBuffer(encodedRegistrationResult.rawId),
       response: {
         attestationObject: base64UrlToBuffer(
-          encodedRegistrationResult.response.attestationObject
+          encodedRegistrationResult.response.attestationObject,
         ),
         clientDataJSON: base64UrlToBuffer(
-          encodedRegistrationResult.response.clientDataJSON
+          encodedRegistrationResult.response.clientDataJSON,
         ),
       },
     });

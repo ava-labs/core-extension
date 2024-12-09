@@ -63,7 +63,7 @@ export const AnalyticsConsent = () => {
     // submit handler can't be in the onNext and onBack callbacks since it would run in a stale closure
     // resulting in an always false analytics consent
     submit(async () =>
-      coreWebLink ? window.location.replace(coreWebLink) : window.close()
+      coreWebLink ? window.location.replace(coreWebLink) : window.close(),
     );
   }, [
     analyticsConsent,

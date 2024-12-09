@@ -42,14 +42,14 @@ export class CurrencyService implements OnLock, OnUnlock {
   #scheduleUpdates() {
     this.#intervalId = setInterval(
       () => this.#updateExchangeRates(),
-      CURRENCY_EXCHANGE_RATES_REFRESH_INTERVAL
+      CURRENCY_EXCHANGE_RATES_REFRESH_INTERVAL,
     );
   }
 
   async #initializeFromStorage() {
     const cachedState =
       await this.storageService.loadUnencrypted<CurrencyExchangeRatesState>(
-        CURRENCY_EXCHANGE_RATES_STORAGE_KEY
+        CURRENCY_EXCHANGE_RATES_STORAGE_KEY,
       );
 
     // Only use the cached state if we don't have the data from API yet
@@ -57,7 +57,7 @@ export class CurrencyService implements OnLock, OnUnlock {
       this.state = cachedState;
       this.#eventEmitter.emit(
         CurrencyServiceEvents.RatesUpdated,
-        cachedState.rates
+        cachedState.rates,
       );
     }
   }
@@ -79,9 +79,9 @@ export class CurrencyService implements OnLock, OnUnlock {
       this.#eventEmitter.emit(CurrencyServiceEvents.RatesUpdated, rates);
       this.storageService.saveUnencrypted<CurrencyExchangeRatesState>(
         CURRENCY_EXCHANGE_RATES_STORAGE_KEY,
-        this.state
+        this.state,
       );
-    } catch (err) {
+    } catch (_err) {
       // If it fails (i.e. remote service is unreachable), schedule another request in 30 seconds.
       this.#timerId = setTimeout(() => this.#updateExchangeRates(), 30 * 1000);
     }

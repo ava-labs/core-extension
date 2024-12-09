@@ -234,7 +234,7 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
           .finally(() => {
             expect(client.session.delete).toHaveBeenCalledWith(
               mockedSession.topic,
-              expect.anything()
+              expect.anything(),
             );
             done();
           });
@@ -276,7 +276,7 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
           })
           .catch((err) => {
             expect(err.code).toEqual(
-              WalletConnectErrorCode.NoAccountsConnected
+              WalletConnectErrorCode.NoAccountsConnected,
             );
           })
           .finally(done);
@@ -349,11 +349,11 @@ describe('src/background/services/walletConnect/WalletConnectService.ts', () => 
           chainId: 1,
           fromAddress: mockedAddress,
           expiry: 1234,
-        }
+        },
       );
 
       expect(client.request).toHaveBeenCalledWith(
-        expect.objectContaining({ expiry: 1234 })
+        expect.objectContaining({ expiry: 1234 }),
       );
     });
   });

@@ -52,7 +52,7 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler<
     const params = request.params;
     const targetChainID = params?.[0]?.chainId; // chain ID is hex with 0x perfix
     const supportedNetwork = await this.networkService.getNetwork(
-      Number(targetChainID)
+      Number(targetChainID),
     );
     const currentActiveNetwork = await this.networkService.getNetwork(scope);
 
@@ -72,13 +72,13 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler<
     if (supportedNetwork?.chainId) {
       const skipApproval = await canSkipApproval(
         request.site.domain,
-        request.site.tabId
+        request.site.tabId,
       );
 
       if (skipApproval) {
         await this.networkService.setNetwork(
           request.site.domain,
-          supportedNetwork.caipId
+          supportedNetwork.caipId,
         );
         return { ...request, result: null };
       }
@@ -111,9 +111,9 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler<
 
   onActionApproved = async (
     pendingAction: Action<{ network: NetworkWithCaipId }>,
-    result,
+    _result,
     onSuccess,
-    onError
+    onError,
   ) => {
     if (!pendingAction.site?.domain) {
       return onError(new Error('Unrecognized domain'));
@@ -122,7 +122,7 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler<
     try {
       await this.networkService.setNetwork(
         pendingAction.site.domain,
-        pendingAction.displayData.network.caipId
+        pendingAction.displayData.network.caipId,
       );
 
       onSuccess(null);

@@ -135,7 +135,7 @@ export const AccountsActionButton = ({
       network?.chainId !== ChainId.AVALANCHE_MAINNET_ID
     ) {
       return t(
-        'Please switch to Avalanche C-Chain to import your Fireblocks account.'
+        'Please switch to Avalanche C-Chain to import your Fireblocks account.',
       );
     }
 
@@ -143,7 +143,7 @@ export const AccountsActionButton = ({
   }, [t, network]);
 
   const isAnyWalletImportAvailable = WALLET_IMPORT_FLAGS.some(
-    (flag) => featureFlags[flag]
+    (flag) => featureFlags[flag],
   );
 
   return (

@@ -15,7 +15,7 @@ export class WalletConnectSigner {
     private chainId: number,
     private address: string,
     private tabId?: number,
-    private requestExpiry?: number
+    private requestExpiry?: number,
   ) {}
 
   /**
@@ -55,7 +55,7 @@ export class WalletConnectSigner {
         tabId: this.tabId,
         fromAddress: this.address,
         expiry: this.requestExpiry,
-      }
+      },
     );
 
     return {
@@ -68,7 +68,7 @@ export class WalletConnectSigner {
    */
   async signTx(
     request: Avalanche.SignTxRequest,
-    method?: string
+    method?: string,
   ): Promise<SigningResult> {
     const { externalIndices, internalIndices, tx } = request;
 
@@ -107,7 +107,7 @@ export class WalletConnectSigner {
         tabId: this.tabId,
         fromAddress: this.address,
         expiry: this.requestExpiry,
-      }
+      },
     );
 
     const isDispatched = method === 'avalanche_sendTransaction';
@@ -130,7 +130,7 @@ export class WalletConnectSigner {
         tabId: this.tabId,
         fromAddress: this.address,
         expiry: this.requestExpiry,
-      }
+      },
     );
   }
 }

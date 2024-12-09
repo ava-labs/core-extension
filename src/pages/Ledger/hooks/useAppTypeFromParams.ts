@@ -8,7 +8,7 @@ export const useAppTypeFromParams = (): LedgerAppType => {
 
   return useMemo(() => {
     const { app } = (Object as any).fromEntries(
-      (new URLSearchParams(search) as any).entries()
+      (new URLSearchParams(search) as any).entries(),
     );
     return xss(app) as LedgerAppType;
   }, [search]);

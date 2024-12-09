@@ -80,7 +80,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       glacierService,
       networkService,
       accountsService,
-      balanceAggregatorService
+      balanceAggregatorService,
     );
 
   const handleRequest = (walletId: string) =>
@@ -91,7 +91,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
         params: {
           walletId,
         },
-      })
+      }),
     );
 
   const mockEnv = (isMainnet = true) => {
@@ -125,7 +125,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       addressBTC: `${id}-addressBTC`,
       ...opts,
       type: opts.type ?? AccountType.PRIMARY,
-    } as T);
+    }) as T;
 
   const ACCOUNT_IMPORTED_0 = buildAccount<ImportedAccount>({
     id: 'imported-0',
@@ -182,7 +182,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     secondCallBalances?: {
       P: Balances[keyof Balances];
       X: Balances[keyof Balances];
-    }
+    },
   ) => {
     balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
       nfts: {},
@@ -267,14 +267,14 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       const response = await handleRequest(IMPORTED_ACCOUNTS_WALLET_ID);
       expect(response.error).toBeUndefined();
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenCalledTimes(1);
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenCalledWith(
         expect.any(Array),
         [ACCOUNT_IMPORTED_0, ACCOUNT_IMPORTED_1],
-        [TokenType.NATIVE, TokenType.ERC20]
+        [TokenType.NATIVE, TokenType.ERC20],
       );
     });
 
@@ -305,14 +305,14 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       const response = await handleRequest('seedless');
       expect(response.error).toBeUndefined();
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenCalledTimes(1);
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenCalledWith(
         expect.any(Array),
         [ACCOUNT_SEEDLESS],
-        [TokenType.NATIVE, TokenType.ERC20]
+        [TokenType.NATIVE, TokenType.ERC20],
       );
     });
 
@@ -342,7 +342,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       expect(getAccountsWithActivity).toHaveBeenCalledWith(
         'xpubXP',
         PROVIDER_XP,
-        expect.any(Function)
+        expect.any(Function),
       );
 
       // Let's also make sure the passed activity fetcher actually invokes the Glacier API:
@@ -361,10 +361,10 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       const response = await handleRequest('seedphrase');
       expect(response.error).toBeUndefined();
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenCalledTimes(1);
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenCalledWith(
         [
           ChainId.AVALANCHE_MAINNET_ID,
@@ -374,7 +374,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
           ChainId.ETHEREUM_HOMESTEAD,
         ],
         [ACCOUNT_SEED_0, ACCOUNT_SEED_1],
-        [TokenType.NATIVE, TokenType.ERC20]
+        [TokenType.NATIVE, TokenType.ERC20],
       );
 
       expect(response.result).toEqual({
@@ -391,10 +391,10 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       const response = await handleRequest('seedphrase');
       expect(response.error).toBeUndefined();
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenCalledTimes(1);
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenCalledWith(
         [
           ChainId.AVALANCHE_TESTNET_ID,
@@ -404,7 +404,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
           ChainId.ETHEREUM_TEST_SEPOLIA,
         ],
         [ACCOUNT_SEED_0, ACCOUNT_SEED_1],
-        [TokenType.NATIVE, TokenType.ERC20]
+        [TokenType.NATIVE, TokenType.ERC20],
       );
 
       expect(response.result).toEqual({
@@ -435,10 +435,10 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
       // Fetching balances of derived accounts
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenCalledTimes(2);
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenNthCalledWith(
         1,
         [
@@ -449,21 +449,21 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
           ChainId.ETHEREUM_HOMESTEAD,
         ],
         [ACCOUNT_LEDGER_0, ACCOUNT_LEDGER_1],
-        [TokenType.NATIVE, TokenType.ERC20]
+        [TokenType.NATIVE, TokenType.ERC20],
       );
 
       // Fetching XP balances of underived accounts, without caching
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenCalledTimes(2);
       expect(
-        balanceAggregatorService.getBalancesForNetworks
+        balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenNthCalledWith(
         2,
         [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
         [{ addressPVM: `P-${xpAddress}`, addressAVM: `X-${xpAddress}` }],
         [TokenType.NATIVE],
-        false
+        false,
       );
 
       expect(response.result).toEqual({

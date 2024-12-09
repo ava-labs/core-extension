@@ -165,8 +165,8 @@ export function RecoveryMethodsLogin() {
                     mfaDevice.name
                       ? mfaDevice.name
                       : mfaDevice.type === 'totp'
-                      ? t('Authenticator')
-                      : t('FIDO Device')
+                        ? t('Authenticator')
+                        : t('FIDO Device')
                   }
                   description={
                     mfaDevice.type === 'totp'

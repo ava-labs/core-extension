@@ -45,13 +45,15 @@ export function AddToken() {
         method: ExtensionRequest.SETTINGS_ADD_CUSTOM_TOKEN,
         params: [addressInput],
       });
-      success && toast.success(t('Token Added'), { duration: 2000 });
+      if (success) {
+        toast.success(t('Token Added'), { duration: 2000 });
+      }
       capture('ManageTokensAddCustomToken', {
         status: 'success',
         address: addressInput,
       });
       history.goBack();
-    } catch (err) {
+    } catch (_err) {
       capture('ManageTokensAddCustomToken', {
         status: 'failed',
         address: addressInput,
@@ -66,9 +68,9 @@ export function AddToken() {
       tokens.some(
         (token) =>
           token.type === TokenType.ERC20 &&
-          token.address.toLowerCase() === addressInput.toLowerCase()
+          token.address.toLowerCase() === addressInput.toLowerCase(),
       ),
-    [tokens, addressInput]
+    [tokens, addressInput],
   );
 
   useEffect(() => {

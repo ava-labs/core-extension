@@ -83,10 +83,10 @@ export function Swap() {
   const [isConfirming, setIsConfirming] = useState(false);
 
   const AVAX_TOKEN = tokensWBalances.find(
-    (token) => token.symbol === 'AVAX'
+    (token) => token.symbol === 'AVAX',
   ) as NetworkTokenWithBalance | TokenWithBalanceERC20;
   const USDC_TOKEN = allTokensOnNetwork.find(
-    (token) => token.symbol === 'USDC'
+    (token) => token.symbol === 'USDC',
   ) as TokenWithBalanceERC20;
 
   const {
@@ -122,7 +122,7 @@ export function Swap() {
           ? activeAccount?.addressBTC
           : activeAccount?.addressC
         : undefined,
-    [activeAccount?.addressBTC, activeAccount?.addressC, network]
+    [activeAccount?.addressBTC, activeAccount?.addressC, network],
   );
 
   const fromAmount = useMemo(() => {
@@ -181,7 +181,7 @@ export function Swap() {
         destAmount: optimalRate.destAmount,
         gasLimit: swapGasLimit,
         slippage: parseFloat(slippage),
-      })
+      }),
     );
 
     setIsConfirming(false);
@@ -262,7 +262,7 @@ export function Swap() {
           <TokenSelect
             label={t('From')}
             onTokenChange={(
-              token: NetworkTokenWithBalance | TokenWithBalanceERC20
+              token: NetworkTokenWithBalance | TokenWithBalanceERC20,
             ) => {
               onTokenChange({
                 token,
@@ -326,7 +326,7 @@ export function Swap() {
                   isReversed,
                   selectedFromToken,
                   selectedToToken,
-                  undefined
+                  undefined,
                 );
               }}
               disabled={!selectedFromToken || !selectedToToken}
@@ -348,7 +348,7 @@ export function Swap() {
           <TokenSelect
             label={t('To')}
             onTokenChange={(
-              token: NetworkTokenWithBalance | TokenWithBalanceERC20
+              token: NetworkTokenWithBalance | TokenWithBalanceERC20,
             ) => {
               onTokenChange({
                 token,

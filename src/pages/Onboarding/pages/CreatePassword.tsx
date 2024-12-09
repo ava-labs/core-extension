@@ -68,8 +68,8 @@ export const CreatePassword = () => {
     onboardingWalletType === WalletType.Seedless
       ? EmailValidationResult.Valid
       : newsletterEmail
-      ? validateEmail(newsletterEmail)
-      : EmailValidationResult.Undetermined
+        ? validateEmail(newsletterEmail)
+        : EmailValidationResult.Undetermined,
   );
 
   const getSteps = useMemo(() => {

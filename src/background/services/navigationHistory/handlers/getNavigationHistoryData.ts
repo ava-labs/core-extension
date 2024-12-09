@@ -24,7 +24,7 @@ export class GetNavigationHistoryDataHandler implements HandlerType {
         ...request,
         result: navigationHistoryData ?? {},
       };
-    } catch (e) {
+    } catch (_err) {
       return {
         ...request,
         result: {},

@@ -18,11 +18,11 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
     it('calls handle authenticated', async () => {
       const handler = new WalletRequestPermissionsHandler(
         {} as PermissionsService,
-        {} as AccountsService
+        {} as AccountsService,
       );
       const handleUnauthenticatedSpy = jest.spyOn(
         handler,
-        'handleUnauthenticated'
+        'handleUnauthenticated',
       );
       const mockRequest = {
         id: '1234',
@@ -37,7 +37,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       await handler.handleAuthenticated(buildRpcCall(mockRequest));
       expect(handleUnauthenticatedSpy).toBeCalledTimes(1);
       expect(handleUnauthenticatedSpy).toBeCalledWith(
-        buildRpcCall(mockRequest)
+        buildRpcCall(mockRequest),
       );
     });
   });
@@ -45,7 +45,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
     it('opens permissions window', async () => {
       const handler = new WalletRequestPermissionsHandler(
         {} as PermissionsService,
-        {} as AccountsService
+        {} as AccountsService,
       );
 
       const mockRequest = {
@@ -60,7 +60,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       };
 
       const result = await handler.handleUnauthenticated(
-        buildRpcCall(mockRequest)
+        buildRpcCall(mockRequest),
       );
       expect(result).toEqual({
         ...mockRequest,
@@ -69,7 +69,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       expect(openApprovalWindow).toHaveBeenCalledTimes(1);
       expect(openApprovalWindow).toHaveBeenCalledWith(
         expect.objectContaining({ id: '4321' }),
-        `permissions`
+        `permissions`,
       );
     });
   });
@@ -114,14 +114,14 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
 
       const handler = new WalletRequestPermissionsHandler(
         permissionServiceMock as any,
-        accountsServiceMock as any
+        accountsServiceMock as any,
       );
 
       await handler.onActionApproved(
         { ...mockAction },
         undefined,
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(permissionServiceMock.addPermission).not.toHaveBeenCalled();
@@ -129,26 +129,26 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
 
       expect(onErrorMock).toHaveBeenCalledTimes(1);
       expect(onErrorMock).toHaveBeenCalledWith(
-        ethErrors.rpc.internal('Selected account not found')
+        ethErrors.rpc.internal('Selected account not found'),
       );
     });
 
     it('returns error when domain not set', async () => {
       const handler = new WalletRequestPermissionsHandler(
         permissionServiceMock as any,
-        accountsServiceMock as any
+        accountsServiceMock as any,
       );
 
       await handler.onActionApproved(
         { ...mockAction },
         'uuid',
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(onErrorMock).toHaveBeenCalledTimes(1);
       expect(onErrorMock).toHaveBeenCalledWith(
-        ethErrors.rpc.internal('Domain not set')
+        ethErrors.rpc.internal('Domain not set'),
       );
       expect(permissionServiceMock.addPermission).not.toHaveBeenCalled();
       expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();
@@ -169,14 +169,14 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
         { invoker: 'example.com', parentCapabitily: 'accounts' },
       ];
       (getPermissionsConvertedToMetaMaskStructure as jest.Mock).mockReturnValue(
-        metamaskStructure
+        metamaskStructure,
       );
 
       permissionServiceMock.getPermissions.mockReturnValue(mockPermissions);
 
       const handler = new WalletRequestPermissionsHandler(
         permissionServiceMock as any,
-        accountsServiceMock as any
+        accountsServiceMock as any,
       );
 
       await handler.onActionApproved(
@@ -186,7 +186,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
         },
         'uuid',
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(onErrorMock).not.toHaveBeenCalled();
@@ -202,7 +202,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith('uuid');
       expect(onSuccessMock).toHaveBeenCalledTimes(1);
       expect(getPermissionsConvertedToMetaMaskStructure).toHaveBeenCalledTimes(
-        1
+        1,
       );
       expect(onSuccessMock).toHaveBeenCalledWith(metamaskStructure);
     });

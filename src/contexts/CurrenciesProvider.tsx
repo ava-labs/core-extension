@@ -27,7 +27,7 @@ type CurrenciesProviderValue = {
 };
 
 const CurrenciesContext = createContext<CurrenciesProviderValue>(
-  {} as unknown as CurrenciesProviderValue
+  {} as unknown as CurrenciesProviderValue,
 );
 
 export function CurrenciesContextProvider({ children }) {
@@ -50,7 +50,7 @@ export function CurrenciesContextProvider({ children }) {
     const subscription = events()
       .pipe(
         filter(currencyRatesUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((newRates) => {
         setRates(newRates);
@@ -63,7 +63,7 @@ export function CurrenciesContextProvider({ children }) {
     (from: string, to: string): number | null => {
       return rates?.[from.toLowerCase()]?.[to.toLowerCase()] ?? null;
     },
-    [rates]
+    [rates],
   );
 
   const hasExchangeRate = useCallback(
@@ -72,7 +72,7 @@ export function CurrenciesContextProvider({ children }) {
 
       return typeof rate === 'number';
     },
-    [getExchangeRate]
+    [getExchangeRate],
   );
 
   const convert = useCallback(
@@ -85,7 +85,7 @@ export function CurrenciesContextProvider({ children }) {
 
       return rate * amount;
     },
-    [hasExchangeRate, getExchangeRate]
+    [hasExchangeRate, getExchangeRate],
   );
 
   return (

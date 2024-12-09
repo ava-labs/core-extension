@@ -6,7 +6,7 @@ import { ArrayElement } from '@src/background/models';
 import { MfaRequestType, RecoveryMethod } from './models';
 
 export const isTokenExpiredError = (
-  err: unknown
+  err: unknown,
 ): err is Error & { status: 403 } => {
   // When CubeSigner's refresh token (or the entire session) expires,
   // we get a 403 Forbidden error on attempted API calls.
@@ -14,7 +14,7 @@ export const isTokenExpiredError = (
 };
 
 export const isFailedMfaError = (
-  err: unknown
+  err: unknown,
 ): err is Error & { status: 403 } => {
   // When CubeSigner's refresh token (or the entire session) expires,
   // we get a 403 Forbidden error on attempted API calls.
@@ -27,11 +27,11 @@ export const isFailedMfaError = (
 };
 
 export const isExportRequestOutdated = (
-  exportRequest: UserExportInitResponse
+  exportRequest: UserExportInitResponse,
 ) => exportRequest.exp_epoch <= Date.now() / 1000;
 
 export const mapMfasToRecoveryMethods = (
-  method: ArrayElement<Awaited<ReturnType<SignerSession['user']>>['mfa']>
+  method: ArrayElement<Awaited<ReturnType<SignerSession['user']>>['mfa']>,
 ): RecoveryMethod => {
   if (method.type === 'fido') {
     return {

@@ -4,10 +4,10 @@ import { SettingsState } from '../../settings/models';
 export async function isTokenSupported(
   tokenAddress: string,
   network: Network,
-  settings: SettingsState
+  settings: SettingsState,
 ) {
   const tokenExistInNetwork = network.tokens?.find(
-    (token) => token.address.toLowerCase() === tokenAddress.toLowerCase()
+    (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
   );
   return (
     tokenExistInNetwork ||

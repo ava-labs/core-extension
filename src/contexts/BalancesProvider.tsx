@@ -85,12 +85,12 @@ const BalancesContext = createContext<{
   refreshNftMetadata(
     address: string,
     chainId: string,
-    tokenId: string
+    tokenId: string,
   ): Promise<void>;
   getTokenPrice(addressOrSymbol: string): number | undefined;
   updateBalanceOnNetworks: (
     accounts: Account[],
-    chainIds?: number[]
+    chainIds?: number[],
   ) => Promise<void>;
   registerSubscriber: (tokenTypes: TokenType[]) => void;
   unregisterSubscriber: (tokenTypes: TokenType[]) => void;
@@ -107,10 +107,10 @@ const BalancesContext = createContext<{
   getTokenPrice() {
     return undefined;
   },
-  async refreshNftMetadata() {}, // eslint-disable-line @typescript-eslint/no-empty-function
-  async updateBalanceOnNetworks() {}, // eslint-disable-line @typescript-eslint/no-empty-function
-  registerSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
-  unregisterSubscriber() {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  async refreshNftMetadata() {},
+  async updateBalanceOnNetworks() {},
+  registerSubscriber() {},
+  unregisterSubscriber() {},
   isTokensCached: true,
   totalBalance: undefined,
   getTotalBalance() {
@@ -120,7 +120,7 @@ const BalancesContext = createContext<{
 
 function balancesReducer(
   state: BalancesState,
-  action: BalanceAction
+  action: BalanceAction,
 ): BalancesState {
   switch (action.type) {
     case BalanceActionType.SET_LOADING:
@@ -170,7 +170,7 @@ export function BalancesProvider({ children }: { children: any }) {
   const [subscribers, setSubscribers] = useState<BalanceSubscribers>({});
   const polledChainIds = useMemo(
     () => favoriteNetworks.map(({ chainId }) => chainId),
-    [favoriteNetworks]
+    [favoriteNetworks],
   );
 
   const registerSubscriber = useCallback((tokenTypes: TokenType[]) => {
@@ -180,8 +180,8 @@ export function BalancesProvider({ children }: { children: any }) {
           ...newSubscribers,
           [tokenType]: (newSubscribers[tokenType] ?? 0) + 1,
         }),
-        oldSubscribers
-      )
+        oldSubscribers,
+      ),
     );
   }, []);
 
@@ -192,8 +192,8 @@ export function BalancesProvider({ children }: { children: any }) {
           ...newSubscribers,
           [tokenType]: Math.max((newSubscribers[tokenType] ?? 0) - 1, 0),
         }),
-        oldSubscribers
-      )
+        oldSubscribers,
+      ),
     );
   }, []);
 
@@ -201,7 +201,7 @@ export function BalancesProvider({ children }: { children: any }) {
     const subscription = events()
       .pipe(
         filter(balancesUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((balancesData) => {
         dispatch({
@@ -278,7 +278,7 @@ export function BalancesProvider({ children }: { children: any }) {
         payload: { balances: updatedBalances, isBalancesCached: false },
       });
     },
-    [network, request]
+    [network, request],
   );
 
   const refreshNftMetadata = useCallback(
@@ -295,7 +295,7 @@ export function BalancesProvider({ children }: { children: any }) {
         });
       }
     },
-    [request]
+    [request],
   );
 
   const getTotalBalance = useCallback(
@@ -308,7 +308,7 @@ export function BalancesProvider({ children }: { children: any }) {
             ...getDefaultChainIds(!network?.isTestnet),
             ...favoriteNetworks.map(({ chainId }) => chainId),
           ],
-          balances.tokens
+          balances.tokens,
         );
       }
 
@@ -320,7 +320,7 @@ export function BalancesProvider({ children }: { children: any }) {
       network?.chainId,
       network?.isTestnet,
       balances.tokens,
-    ]
+    ],
   );
 
   const getTokenPrice = useCallback(
@@ -346,7 +346,7 @@ export function BalancesProvider({ children }: { children: any }) {
 
       return token?.priceInCurrency;
     },
-    [balances.tokens, activeAccount, network]
+    [balances.tokens, activeAccount, network],
   );
 
   return (

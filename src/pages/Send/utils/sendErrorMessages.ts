@@ -10,11 +10,11 @@ export function getSendErrorMessage(key: SendErrorMessage): string {
     [SendErrorMessage.INVALID_NETWORK_FEE]: t('Network Fee is invalid'),
     [SendErrorMessage.INSUFFICIENT_BALANCE]: t('Insufficient balance.'),
     [SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE]: t(
-      'Insufficient balance for fee'
+      'Insufficient balance for fee',
     ),
     [SendErrorMessage.TOKEN_REQUIRED]: t('Token is required'),
     [SendErrorMessage.UNABLE_TO_FETCH_UTXOS]: t(
-      'Internal error. Please try again'
+      'Internal error. Please try again',
     ),
     [SendErrorMessage.UNSUPPORTED_TOKEN]: t('Unsupported token'),
     [SendErrorMessage.UNKNOWN_ERROR]: t('Unknown error'),

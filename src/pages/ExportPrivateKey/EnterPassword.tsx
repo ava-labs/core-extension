@@ -17,6 +17,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+import { useGoBack } from '@src/hooks/useGoBack';
 
 export const IconWrapper = styled(Stack)`
   background: ${({ theme }) => theme.palette.grey[850]};
@@ -43,10 +44,11 @@ export function EnterPassword({
   onSubmit,
 }: EnterPassword) {
   const history = useHistory();
+  const goBack = useGoBack('/accounts');
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const [privateKeyChain, setPrivateKeyChain] = useState<PrivateKeyChain>(
-    PrivateKeyChain.C
+    PrivateKeyChain.C,
   );
   const [password, setPassword] = useState('');
 
@@ -57,11 +59,7 @@ export function EnterPassword({
           margin={'22px 0 4px 0'}
           onBackClick={() => {
             capture('ExportPrivateKeyCancelled');
-            if (history.length <= 2) {
-              history.replace('/accounts');
-            } else {
-              history.goBack();
-            }
+            goBack();
           }}
         >
           {t('Enter Password')}

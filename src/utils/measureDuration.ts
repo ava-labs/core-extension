@@ -1,5 +1,5 @@
 export const measureDuration = (
-  id?: string
+  id?: string,
 ): {
   measurementId: string;
   start: () => void;
@@ -14,7 +14,7 @@ export const measureDuration = (
   const end = (): number => {
     const measurement = performance.measure(
       `${measurementId}-measurement`,
-      `${measurementId}-start`
+      `${measurementId}-start`,
     );
 
     performance.clearMarks(`${measurementId}-start`);

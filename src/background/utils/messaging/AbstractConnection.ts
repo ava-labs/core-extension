@@ -90,7 +90,11 @@ export default abstract class AbstractConnection extends EventEmitter {
     const { resolve, reject } = request;
 
     this.#waitingMap.delete(id);
-    err ? reject(err) : resolve(res);
+    if (err) {
+      reject(err);
+      return;
+    }
+    resolve(res);
   };
 
   protected onMessage = (message: Message) => {
@@ -116,9 +120,15 @@ export default abstract class AbstractConnection extends EventEmitter {
       err = {
         message: e.message,
       };
-      isDevelopment() && (err.stack = e.stack);
-      e.code !== undefined && (err.code = e.code);
-      e.data !== undefined && (err.data = e.data);
+      if (isDevelopment()) {
+        err.stack = e.stack;
+      }
+      if (e.code !== undefined) {
+        err.code = e.code;
+      }
+      if (e.data !== undefined) {
+        err.data = e.data;
+      }
     }
 
     if (res === DEFERRED_RESPONSE) {

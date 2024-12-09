@@ -91,7 +91,7 @@ export const SendAVM = ({
   const inputAmount = useMemo(
     () =>
       amount ? stringToBigint(amount, nativeToken?.decimals ?? 9) : undefined,
-    [nativeToken, amount]
+    [nativeToken, amount],
   );
 
   if (account && !account.addressAVM) {

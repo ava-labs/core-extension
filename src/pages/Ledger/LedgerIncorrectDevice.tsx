@@ -35,7 +35,7 @@ const LedgerIncorrectDevice = () => {
             }}
           >
             {t(
-              'This Ledger was not used to create this wallet. Please connect the original Ledger device to continue.'
+              'This Ledger was not used to create this wallet. Please connect the original Ledger device to continue.',
             )}
           </Typography>
           <Stack sx={{ mt: '48px', mb: '16px' }}>

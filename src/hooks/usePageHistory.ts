@@ -26,7 +26,7 @@ export function usePageHistory() {
         params: [data],
       });
     },
-    [request]
+    [request],
   );
 
   const getNavigationHistoryData = useCallback(async () => {
@@ -43,7 +43,7 @@ export function usePageHistory() {
         params: [history],
       });
     },
-    [request]
+    [request],
   );
 
   const getNavigationHistory = useCallback(async () => {

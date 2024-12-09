@@ -62,7 +62,7 @@ export function RecoveryPhrase({
         <AlertTriangleIcon sx={{ color: 'warning.main', fontSize: 24 }} />
         <Typography variant="body2" sx={{ ml: 2 }}>
           {t(
-            'Do not share this phrase with anyone! These words can be used to steal all your accounts.'
+            'Do not share this phrase with anyone! These words can be used to steal all your accounts.',
           )}
         </Typography>
       </Stack>
@@ -113,7 +113,7 @@ export function RecoveryPhrase({
           sx={{ color: 'text.secondary', textAlign: 'center', mb: 2, px: 0.25 }}
         >
           {t(
-            'If you ever change browsers or move computers, you will need this Secret Recovery Phrase to access your accounts. Save them somewhere safe and secret.'
+            'If you ever change browsers or move computers, you will need this Secret Recovery Phrase to access your accounts. Save them somewhere safe and secret.',
           )}
         </Typography>
         <Button

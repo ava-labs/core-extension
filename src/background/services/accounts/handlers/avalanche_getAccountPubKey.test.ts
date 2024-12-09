@@ -30,7 +30,7 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
         },
       };
       const handler = new AvalancheGetAccountPubKeyHandler(
-        noAccountsMock as any
+        noAccountsMock as any,
       );
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));

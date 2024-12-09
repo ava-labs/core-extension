@@ -18,7 +18,7 @@ export class GetNetworkFeeHandler implements HandlerType {
 
   constructor(
     private networkFeeService: NetworkFeeService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request, scope }) => {

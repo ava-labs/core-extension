@@ -19,7 +19,7 @@ describe('src/background/services/ledger/LedgerTransport.ts', () => {
     ledgerTransport = new LedgerTransport(
       ledgerDeviceRequest$,
       ledgerDeviceResponse$,
-      uuid
+      uuid,
     );
   });
 
@@ -27,13 +27,13 @@ describe('src/background/services/ledger/LedgerTransport.ts', () => {
     const dataLength = 257;
     const data = Buffer.alloc(dataLength);
     await expect(
-      ledgerTransport.send(1, 2, 3, 4, data, [StatusCodes.OK])
+      ledgerTransport.send(1, 2, 3, 4, data, [StatusCodes.OK]),
     ).rejects.toThrow(
       expect.objectContaining({
         id: 'DataLengthTooBig',
         name: 'TransportError',
         message: `data.length exceed 256 bytes limit. Got: ${dataLength}`,
-      })
+      }),
     );
   });
 
@@ -50,7 +50,7 @@ describe('src/background/services/ledger/LedgerTransport.ts', () => {
       expect.objectContaining({
         name: 'TransportStatusError',
         message: 'Ledger device: UNKNOWN_ERROR (0x111)',
-      })
+      }),
     );
   });
 

@@ -61,7 +61,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     this.#challengeSubscription = this.#challengeRequest$.subscribe(
       (request) => {
         this.#eventEmitter.emit(SeedlessEvents.MfaRequest, request);
-      }
+      },
     );
 
     this.#choiceSubscription = this.#choiceRequest$.subscribe((request) => {
@@ -75,7 +75,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
   }
 
   async askForMfaMethod(
-    mfaChoiceRequest: PartialBy<MfaChoiceRequest, 'availableMethods'>
+    mfaChoiceRequest: PartialBy<MfaChoiceRequest, 'availableMethods'>,
   ): Promise<RecoveryMethod> {
     const methods =
       mfaChoiceRequest.availableMethods ?? (await this.getRecoveryMethods());
@@ -93,8 +93,8 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     return firstValueFrom(
       this.#choiceResponse$.pipe(
         filter((response) => response.mfaId === mfaChoiceRequest.mfaId),
-        map((response: MfaChoiceResponse) => response.chosenMethod)
-      )
+        map((response: MfaChoiceResponse) => response.chosenMethod),
+      ),
     );
   }
 
@@ -144,7 +144,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
       const mfaResponse = await this.approveWithMfa(
         method?.type === 'totp' ? MfaRequestType.Totp : MfaRequestType.Fido,
         addFidoRequest,
-        tabId
+        tabId,
       );
 
       addFidoChallenge = mfaResponse.data();
@@ -182,7 +182,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
       const result = await this.approveWithMfa(
         method?.type === 'totp' ? MfaRequestType.Totp : MfaRequestType.Fido,
         response,
-        tabId
+        tabId,
       );
 
       const data = result.data();
@@ -246,7 +246,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
   async #emitMfaMethods() {
     this.#eventEmitter.emit(
       SeedlessEvents.MfaMethodsUpdated,
-      await this.getRecoveryMethods()
+      await this.getRecoveryMethods(),
     );
   }
 
@@ -270,7 +270,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
   async approveWithMfa<T>(
     type: MfaRequestType,
     request: CubeSignerResponse<T>,
-    tabId?: number
+    tabId?: number,
   ): Promise<CubeSignerResponse<T>> {
     try {
       if (type === MfaRequestType.Totp) {
@@ -282,7 +282,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
 
         const result = await request.approveTotp(
           await this.#getSession(),
-          code
+          code,
         );
 
         this.clearMfaChallenge(request.mfaId(), tabId);
@@ -334,7 +334,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
   async requestMfa(mfaRequest: MfaTotpRequest): Promise<string>;
   async requestMfa(mfaRequest: MfaFidoRequest): Promise<DecodedFIDOResult>;
   async requestMfa(
-    mfaRequest: MfaRequestData
+    mfaRequest: MfaRequestData,
   ): Promise<string | DecodedFIDOResult> {
     this.#challengeRequest$.next(mfaRequest);
 
@@ -342,8 +342,8 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
     return firstValueFrom(
       this.#challengeResponse$.pipe(
         filter((response) => response.mfaId === mfaRequest.mfaId),
-        map((response: MfaResponseData) => response.code ?? response.answer)
-      )
+        map((response: MfaResponseData) => response.code ?? response.answer),
+      ),
     );
   }
 
@@ -366,23 +366,23 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
 
   addListener(
     event: SeedlessEvents.MfaRequest,
-    callback: (data: MfaRequestData) => void
+    callback: (data: MfaRequestData) => void,
   );
   addListener(
     event: SeedlessEvents.MfaFailure,
-    callback: (data: MfaFailureData) => void
+    callback: (data: MfaFailureData) => void,
   );
   addListener(
     event: SeedlessEvents.MfaChoiceRequest,
-    callback: (data: MfaChoiceRequest) => void
+    callback: (data: MfaChoiceRequest) => void,
   );
   addListener(
     event: SeedlessEvents.MfaMethodsUpdated,
-    callback: (data: RecoveryMethod[]) => void
+    callback: (data: RecoveryMethod[]) => void,
   );
   addListener(
     event: SeedlessEvents.MfaClear,
-    callback: (data: MfaClearData) => void
+    callback: (data: MfaClearData) => void,
   );
   addListener(
     event:
@@ -391,7 +391,7 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
       | SeedlessEvents.MfaRequest
       | SeedlessEvents.MfaChoiceRequest
       | SeedlessEvents.MfaMethodsUpdated,
-    callback: (data) => void
+    callback: (data) => void,
   ) {
     this.#eventEmitter.on(event, callback);
   }

@@ -114,7 +114,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
           event,
           (...args: any[]) => {
             this.emit(event as string, ...args);
-          }
+          },
         );
       });
     }
@@ -172,7 +172,10 @@ export class MultiWalletProviderProxy extends EventEmitter {
    */
   sendAsync(
     payload: JsonRpcRequestPayload,
-    callback: (error: Error | null, result?: JsonRpcResponse<unknown[]>) => void
+    callback: (
+      error: Error | null,
+      result?: JsonRpcResponse<unknown[]>,
+    ) => void,
   ): void {
     this._request(payload)
       .then((result: any) => {
@@ -207,7 +210,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
    */
   send<T>(
     payload: JsonRpcRequestPayload,
-    callback: (error: Error | null, result?: JsonRpcResponse<T>) => void
+    callback: (error: Error | null, result?: JsonRpcResponse<T>) => void,
   ): void;
 
   /**

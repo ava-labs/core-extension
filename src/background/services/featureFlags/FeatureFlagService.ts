@@ -37,7 +37,7 @@ export class FeatureFlagService {
     this.#featureFlags = newFlags;
     this.#eventEmitter.emit(
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
-      this.#featureFlags
+      this.#featureFlags,
     );
 
     // We need to lock the wallet when "everything" flag is disabled.
@@ -48,7 +48,7 @@ export class FeatureFlagService {
 
   #evaluateFeatureFlags(
     rawFlags: FeatureFlags,
-    payloads?: Partial<Record<FeatureGates, string>>
+    payloads?: Partial<Record<FeatureGates, string>>,
   ): FeatureFlags {
     // If there are no flag payloads to evaluate, just return the bare flags.
     if (!payloads) {
@@ -83,7 +83,7 @@ export class FeatureFlagService {
           }
 
           return [flagName, satisfies(coreVersion, versionRange)];
-        })
+        }),
     );
 
     return {
@@ -95,7 +95,7 @@ export class FeatureFlagService {
   private async updateFeatureFlags(newFlags: FeatureFlags) {
     const overrides =
       (await this.storageService.loadUnencrypted<FeatureFlags>(
-        FEATURE_FLAGS_OVERRIDES_KEY
+        FEATURE_FLAGS_OVERRIDES_KEY,
       )) || {};
     const hasOverrides = Object.keys(overrides).length > 0;
 
@@ -112,7 +112,7 @@ export class FeatureFlagService {
   constructor(
     private analyticsService: AnalyticsService,
     private lockService: LockService,
-    private storageService: StorageService
+    private storageService: StorageService,
   ) {
     // start fetching feature as early as possible
     // update requests with unique id after it's available
@@ -132,7 +132,7 @@ export class FeatureFlagService {
         this.initFeatureFlags().catch((e) => {
           console.error(e);
         });
-      }
+      },
     );
   }
 
@@ -154,10 +154,10 @@ export class FeatureFlagService {
         const { flags, flagPayloads } = await getFeatureFlags(
           process.env.POSTHOG_KEY,
           analyticsState?.userId ?? '',
-          process.env.POSTHOG_URL ?? 'https://app.posthog.com'
+          process.env.POSTHOG_URL ?? 'https://app.posthog.com',
         );
         await this.updateFeatureFlags(
-          this.#evaluateFeatureFlags(flags, flagPayloads)
+          this.#evaluateFeatureFlags(flags, flagPayloads),
         );
       } catch (err) {
         console.error((err as unknown as Error).message);
@@ -168,7 +168,7 @@ export class FeatureFlagService {
       () => {
         getAndDispatchFlags();
       },
-      isProductionBuild() ? 30_000 : 5_000
+      isProductionBuild() ? 30_000 : 5_000,
     );
 
     getAndDispatchFlags();
@@ -176,7 +176,7 @@ export class FeatureFlagService {
 
   addListener(
     event: FeatureFlagEvents,
-    callback: (data: FeatureFlags) => void
+    callback: (data: FeatureFlags) => void,
   ) {
     this.#eventEmitter.on(event, callback);
   }

@@ -37,7 +37,7 @@ export function SwitchActiveNetwork() {
   const isLoading = !action || !action.displayData;
   const network: Network = action?.displayData?.network;
   const willSwitchToPrimaryAccount = useWillSwitchToPrimaryAccount(
-    Boolean(network?.isTestnet)
+    Boolean(network?.isTestnet),
   );
 
   return (
@@ -90,7 +90,7 @@ export function SwitchActiveNetwork() {
                 {
                   chainName: network?.chainName,
                   domain: action?.site?.domain || t('This website'),
-                }
+                },
               )}
             </Typography>
             {willSwitchToPrimaryAccount && (
@@ -99,7 +99,7 @@ export function SwitchActiveNetwork() {
                 sx={{ mt: 3, color: 'warning.main' }}
               >
                 {t(
-                  'Approving will also switch to your primary account, as Fireblocks-imported accounts are not supported in testnet mode at the moment.'
+                  'Approving will also switch to your primary account, as Fireblocks-imported accounts are not supported in testnet mode at the moment.',
                 )}
               </Typography>
             )}

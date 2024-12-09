@@ -55,14 +55,14 @@ const previousSchema = Joi.object<PreviousSchema>({
           typeof value !== 'undefined'
         ) {
           return new Error(
-            `Expected bigint or number, received ${typeof value}`
+            `Expected bigint or number, received ${typeof value}`,
           );
         }
 
         return value;
       }, 'bigint'),
       sourceChain: Joi.object({ chainId: Joi.string() }).unknown(true),
-    }).unknown(true)
+    }).unknown(true),
   ),
 }).unknown(true);
 
@@ -83,7 +83,7 @@ const getUsdcAddressByChainId = (caipId: string) => {
 };
 
 const up = async (
-  unifiedBridgeState: PreviousSchema
+  unifiedBridgeState: PreviousSchema,
 ): Promise<NewSchema & { version: number }> => {
   const { pendingTransfers: oldTransfers } = unifiedBridgeState;
 

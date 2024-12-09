@@ -31,7 +31,7 @@ export function TOTPModal({ onFinish, onCancel }: TOTPModalProps) {
       setSeedlessSignerToken(token);
       onFinish();
     },
-    [setSeedlessSignerToken, onFinish]
+    [setSeedlessSignerToken, onFinish],
   );
 
   const getOidcToken = useCallback(async () => oidcToken ?? '', [oidcToken]);

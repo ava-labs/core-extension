@@ -31,7 +31,7 @@ export const NetworkRpcHeaders = ({
   const updateHeader = useCallback(
     (
       keyIndex: number,
-      { newName, newValue }: { newName?: string; newValue?: string }
+      { newName, newValue }: { newName?: string; newValue?: string },
     ) => {
       setRpcHeaders?.((previous) =>
         Object.fromEntries(
@@ -41,11 +41,11 @@ export const NetworkRpcHeaders = ({
             }
 
             return [name, value];
-          })
-        )
+          }),
+        ),
       );
     },
-    [setRpcHeaders]
+    [setRpcHeaders],
   );
 
   return (

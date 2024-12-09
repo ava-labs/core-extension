@@ -7,13 +7,13 @@ export function useSendAnalyticsData() {
     (functionality: string) => {
       capture(`${functionality}_TokenSelected`);
     },
-    [capture]
+    [capture],
   );
   const sendAmountEnteredAnalytics = useCallback(
     (functionality: string) => {
       capture(`${functionality}_AmountEntered`);
     },
-    [capture]
+    [capture],
   );
 
   return {

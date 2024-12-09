@@ -11,7 +11,7 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
 
   constructor(
     private accountsService: AccountsService,
-    private secretsService: SecretsService
+    private secretsService: SecretsService,
   ) {
     super();
   }

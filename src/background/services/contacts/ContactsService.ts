@@ -12,9 +12,8 @@ export class ContactsService {
   constructor(private storageService: StorageService) {}
 
   async getContacts(): Promise<ContactsState> {
-    const contacts = await this.storageService.load<ContactsState>(
-      CONTACTS_STORAGE_KEY
-    );
+    const contacts =
+      await this.storageService.load<ContactsState>(CONTACTS_STORAGE_KEY);
 
     return (
       contacts ?? {
@@ -49,7 +48,7 @@ export class ContactsService {
     const updatedContacts = {
       ...contacts,
       contacts: contacts.contacts.map((c) =>
-        c.id === contact.id ? contact : c
+        c.id === contact.id ? contact : c,
       ),
     };
 

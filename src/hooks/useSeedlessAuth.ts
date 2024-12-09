@@ -41,7 +41,7 @@ export type UseSeedlessAuthOptions = {
   onSignerTokenObtained: (
     token: SignerSessionData,
     email: string,
-    userId: string
+    userId: string,
   ) => Promise<void>;
 };
 
@@ -181,7 +181,7 @@ export const useSeedlessAuth = ({
           setError(AuthErrorCode.NoMfaDetails);
           sentryCaptureException(
             new Error('MFA is required, but no details were provided'),
-            SentryExceptionTypes.SEEDLESS
+            SentryExceptionTypes.SEEDLESS,
           );
         }
       } catch (err) {
@@ -191,7 +191,13 @@ export const useSeedlessAuth = ({
         setIsLoading(false);
       }
     },
-    [setIsLoading, getOidcToken, getUserDetails, capture, onSignerTokenObtained]
+    [
+      setIsLoading,
+      getOidcToken,
+      getUserDetails,
+      capture,
+      onSignerTokenObtained,
+    ],
   );
 
   const verifyTotpCode = useCallback(
@@ -200,7 +206,7 @@ export const useSeedlessAuth = ({
         setError(AuthErrorCode.UnknownError);
         sentryCaptureException(
           new Error('Session not carried over from initial authentication'),
-          SentryExceptionTypes.SEEDLESS
+          SentryExceptionTypes.SEEDLESS,
         );
         return false;
       }
@@ -266,7 +272,7 @@ export const useSeedlessAuth = ({
       userId,
       onSignerTokenObtained,
       email,
-    ]
+    ],
   );
 
   const completeFidoChallenge = useCallback(async () => {
@@ -274,7 +280,7 @@ export const useSeedlessAuth = ({
       setError(AuthErrorCode.UnknownError);
       sentryCaptureException(
         new Error('Session not carried over from initial authentication'),
-        SentryExceptionTypes.SEEDLESS
+        SentryExceptionTypes.SEEDLESS,
       );
       return false;
     }
@@ -291,7 +297,7 @@ export const useSeedlessAuth = ({
         // prompt the user to tap their FIDO and send the answer back to CubeSigner
         const answer = await launchFidoFlow(
           FIDOApiEndpoint.Authenticate,
-          challenge.options
+          challenge.options,
         );
         mfaInfo = await challenge.answer(answer);
       } catch {
@@ -319,7 +325,7 @@ export const useSeedlessAuth = ({
         setError(AuthErrorCode.UnknownError);
         sentryCaptureException(
           new Error('MFA should not be required after approval'),
-          SentryExceptionTypes.SEEDLESS
+          SentryExceptionTypes.SEEDLESS,
         );
         return false;
       }
@@ -332,7 +338,7 @@ export const useSeedlessAuth = ({
       await onSignerTokenObtained?.(
         await getSignerToken(authResponse),
         email,
-        userId
+        userId,
       );
       return true;
     } catch (err) {

@@ -21,7 +21,7 @@ export const getPasswordErrorMessage = (
   newPassword: string,
   confirmPassword: string,
   passwordStrength: number,
-  considerStrength = true
+  considerStrength = true,
 ) => {
   const PASSWORD_STRENGTH_ERROR = translate('The new password is too weak');
   const PASSWORDS_MATCH_ERROR = translate('Passwords do not match');

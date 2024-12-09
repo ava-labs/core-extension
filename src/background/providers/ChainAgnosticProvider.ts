@@ -71,7 +71,7 @@ export class ChainAgnosticProvider extends EventEmitter {
         jsonrpc: '2.0',
         params: {
           scope: chainIdToCaip(
-            chainId ? parseInt(chainId) : ChainId.AVALANCHE_MAINNET_ID
+            chainId ? parseInt(chainId) : ChainId.AVALANCHE_MAINNET_ID,
           ),
           sessionId,
           request: {
@@ -103,7 +103,7 @@ export class ChainAgnosticProvider extends EventEmitter {
   }) => {
     return this.#providerReadyPromise.call(() => {
       return this.#requestRateLimiter.call(data.method, () =>
-        this.#request({ data, chainId, sessionId })
+        this.#request({ data, chainId, sessionId }),
       );
     });
   };

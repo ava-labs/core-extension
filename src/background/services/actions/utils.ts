@@ -5,7 +5,7 @@ import { Actions } from './models';
  * Filters out actions from the actions list without an open window
  */
 export async function filterStaleActions(
-  actionsInStorage: Actions
+  actionsInStorage: Actions,
 ): Promise<Actions> {
   const openWindowIds = (await browser.windows.getAll())
     .filter((w) => w.type === 'popup')

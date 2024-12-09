@@ -35,6 +35,6 @@ describe('src/background/services/wallet/utils/getAddressByVM', () => {
     'returns the correct address for $VM',
     ({ vm, account, expectedAddress }) => {
       expect(getAddressByVM(vm, account)).toBe(expectedAddress);
-    }
+    },
   );
 });

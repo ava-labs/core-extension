@@ -82,7 +82,7 @@ export const AccountManagerProvider = ({
 
       return false;
     },
-    [featureFlags, selectedAccounts, accounts.primary, accounts.imported]
+    [featureFlags, selectedAccounts, accounts.primary, accounts.imported],
   );
 
   const selectAccount = useCallback((accountId: string) => {
@@ -102,13 +102,13 @@ export const AccountManagerProvider = ({
 
         currentSet.splice(
           index,
-          deselectPrevious ? currentSet.length - index : 1
+          deselectPrevious ? currentSet.length - index : 1,
         );
 
         return Array.from(currentSet);
       });
     },
-    []
+    [],
   );
 
   const toggleManageMode = useCallback(() => {

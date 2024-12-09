@@ -30,7 +30,7 @@ describe('background/providers/utils/AutoPairingPostMessageConnection', () => {
           type: 'initialize-post-message-connection',
         },
       },
-      'core.app'
+      'core.app',
     );
   });
 
@@ -98,7 +98,7 @@ describe('background/providers/utils/AutoPairingPostMessageConnection', () => {
           type: 'initialize-post-message-connection',
         },
       },
-      'core.app'
+      'core.app',
     );
   });
 
@@ -112,7 +112,7 @@ describe('background/providers/utils/AutoPairingPostMessageConnection', () => {
           type: 'initialize-post-message-connection-request',
         },
       },
-      'core.app'
+      'core.app',
     );
   });
 
@@ -356,7 +356,7 @@ describe('background/providers/utils/AutoPairingPostMessageConnection', () => {
     expect(addEventListenerSpy).toHaveBeenCalledTimes(2);
     expect(addEventListenerSpy).toHaveBeenCalledWith(
       'message',
-      expect.any(Function)
+      expect.any(Function),
     );
 
     // clean up pending promise
@@ -406,7 +406,7 @@ describe('background/providers/utils/AutoPairingPostMessageConnection', () => {
     expect(removeEventListenerSpy).toHaveBeenCalledTimes(1);
     // check if same listener is removed
     expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      ...(addEventListenerSpy.mock.calls[1] as any)
+      ...(addEventListenerSpy.mock.calls[1] as any),
     );
 
     await new Promise(process.nextTick);

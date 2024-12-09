@@ -4,7 +4,7 @@ import { TokenWithBalance } from '@avalabs/vm-module-types';
 export function findTokenForAsset(
   symbol: string,
   nativeChain: Blockchain,
-  tokens: TokenWithBalance[]
+  tokens: TokenWithBalance[],
 ) {
   // When the source is Avalanche use the wrapped version of the symbol e.g. BTC.b
   const wrappedSymbol = getWrappedSymbol(symbol, nativeChain);

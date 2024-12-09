@@ -25,8 +25,8 @@ describe('src/background/providers/utils/RequestRatelimiter', () => {
       } catch (e) {
         expect(e).toEqual(
           ethErrors.rpc.resourceUnavailable(
-            `Request of type eth_requestAccounts already pending for origin. Please wait.`
-          )
+            `Request of type eth_requestAccounts already pending for origin. Please wait.`,
+          ),
         );
       }
 

@@ -44,8 +44,8 @@ export const useIdentifyAddress = () => {
           const addressToUse = isBitcoin(network)
             ? { addressBTC: address, address: '', addressPVM: '' }
             : isPchainNetwork(network) || isXchainNetwork(network)
-            ? { addressXP: address, address: '', addressBTC: '' }
-            : { address: address };
+              ? { addressXP: address, address: '', addressBTC: '' }
+              : { address: address };
           return {
             id: contact.id,
             ...addressToUse,
@@ -66,18 +66,18 @@ export const useIdentifyAddress = () => {
           const addressToUse = isBitcoin(network)
             ? { addressBTC: account.addressBTC, address: '' }
             : isPchainNetwork(network)
-            ? {
-                addressXP: address,
-                address: '',
-                addressBTC: '',
-              }
-            : isXchainNetwork(network)
-            ? {
-                addressXP: address,
-                address: '',
-                addressBTC: '',
-              }
-            : { address: account.addressC };
+              ? {
+                  addressXP: address,
+                  address: '',
+                  addressBTC: '',
+                }
+              : isXchainNetwork(network)
+                ? {
+                    addressXP: address,
+                    address: '',
+                    addressBTC: '',
+                  }
+                : { address: account.addressC };
           return { id: '', ...addressToUse, name: account.name, isKnown: true };
         }
       }
@@ -90,20 +90,20 @@ export const useIdentifyAddress = () => {
             addressXP: '',
           }
         : isPchainNetwork(network) || isXchainNetwork(network)
-        ? {
-            ...UNSAVED_CONTACT_BASE,
-            address: '',
-            addressBTC: '',
-            addressXP: address,
-          }
-        : {
-            ...UNSAVED_CONTACT_BASE,
-            address,
-            addressBTC: '',
-            addressXP: '',
-          };
+          ? {
+              ...UNSAVED_CONTACT_BASE,
+              address: '',
+              addressBTC: '',
+              addressXP: address,
+            }
+          : {
+              ...UNSAVED_CONTACT_BASE,
+              address,
+              addressBTC: '',
+              addressXP: '',
+            };
     },
-    [allAccounts, contacts, network]
+    [allAccounts, contacts, network],
   );
 
   return identifyAddress;

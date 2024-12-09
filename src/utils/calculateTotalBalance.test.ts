@@ -54,7 +54,7 @@ describe('utils/calculateTotalBalance', () => {
     const balance = calculateTotalBalance(
       account1,
       [ChainId.AVALANCHE_MAINNET_ID, ChainId.DFK],
-      balances
+      balances,
     );
     expect(balance).toEqual({
       priceChange: { percentage: [], value: 0 },

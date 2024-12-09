@@ -21,7 +21,7 @@ export const PersonalSign = forwardRef(function PersonalSign(
     message: MessageParams;
     updateHandler: (values: positionValues) => void;
   },
-  ref: ForwardedRef<HTMLDivElement | null>
+  ref: ForwardedRef<HTMLDivElement | null>,
 ) {
   const { t } = useTranslation();
 

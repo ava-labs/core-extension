@@ -71,7 +71,7 @@ describe('background/services/network/handlers/updateDefaultNetwork.ts', () => {
     it('update network rpcUrl with overrides -> Error', async () => {
       isValidRPCUrlMock.mockResolvedValueOnce(true);
       updateNetworkOverridesMock.mockRejectedValueOnce(
-        new Error('error comes from network service')
+        new Error('error comes from network service'),
       );
       const handler = new UpdateDefaultNetworkHandler(networkServiceMock);
       const request = {
@@ -112,7 +112,7 @@ describe('background/services/network/handlers/updateDefaultNetwork.ts', () => {
     it('reset network rpcUrl -> Error', async () => {
       isValidRPCUrlMock.mockResolvedValueOnce(true);
       updateNetworkOverridesMock.mockRejectedValueOnce(
-        new Error('error comes from network service')
+        new Error('error comes from network service'),
       );
       const handler = new UpdateDefaultNetworkHandler(networkServiceMock);
       const request = {

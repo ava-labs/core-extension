@@ -42,7 +42,7 @@ export class AnalyticsService implements OnStorageReady, OnLock {
   async getSessionId() {
     const session =
       await this.storageService.loadFromSessionStorage<AnalyticsSessionState>(
-        ANALYTICS_SESSION_KEY
+        ANALYTICS_SESSION_KEY,
       );
 
     if (session) {
@@ -54,7 +54,7 @@ export class AnalyticsService implements OnStorageReady, OnLock {
     };
     await this.storageService.saveToSessionStorage(
       ANALYTICS_SESSION_KEY,
-      newSession
+      newSession,
     );
 
     return newSession.sessionId;
@@ -64,7 +64,7 @@ export class AnalyticsService implements OnStorageReady, OnLock {
     // get cache first since it's already decrypted
     const cachedState =
       await this.storageService.loadFromSessionStorage<AnalyticsState>(
-        ANALYTICS_STORAGE_KEY
+        ANALYTICS_STORAGE_KEY,
       );
     if (cachedState) {
       return cachedState;
@@ -72,13 +72,13 @@ export class AnalyticsService implements OnStorageReady, OnLock {
 
     try {
       const state = await this.storageService.load<AnalyticsState>(
-        ANALYTICS_STORAGE_KEY
+        ANALYTICS_STORAGE_KEY,
       );
       if (state) {
         await this.cacheAnalyticsIds(state);
       }
       return state;
-    } catch (_) {
+    } catch (_err) {
       // catch storage not ready errors
       return;
     }
@@ -87,7 +87,7 @@ export class AnalyticsService implements OnStorageReady, OnLock {
   async initIds(storeInStorage: boolean) {
     const analyticsUnencryptedState: AnalyticsUnencryptedState | undefined =
       await this.storageService.loadUnencrypted(
-        ANALYTICS_UNENCRYPTED_STORAGE_KEY
+        ANALYTICS_UNENCRYPTED_STORAGE_KEY,
       );
     const savedDeviceId = analyticsUnencryptedState?.deviceId;
 
@@ -104,7 +104,7 @@ export class AnalyticsService implements OnStorageReady, OnLock {
         ANALYTICS_UNENCRYPTED_STORAGE_KEY,
         {
           deviceId: state.deviceId,
-        }
+        },
       );
     }
 
@@ -118,7 +118,7 @@ export class AnalyticsService implements OnStorageReady, OnLock {
   async saveTemporaryAnalyticsIds() {
     const state =
       await this.storageService.loadFromSessionStorage<AnalyticsState>(
-        ANALYTICS_STORAGE_KEY
+        ANALYTICS_STORAGE_KEY,
       );
     if (!state) {
       throw new Error('temporary analytics Ids not found');
@@ -130,14 +130,14 @@ export class AnalyticsService implements OnStorageReady, OnLock {
   private async cacheAnalyticsIds(state: AnalyticsState) {
     await this.storageService.saveToSessionStorage(
       ANALYTICS_STORAGE_KEY,
-      state
+      state,
     );
   }
 
   async getUnencryptedDeviceId() {
     const analyticsUnencryptedState =
       await this.storageService.loadUnencrypted<AnalyticsUnencryptedState>(
-        ANALYTICS_UNENCRYPTED_STORAGE_KEY
+        ANALYTICS_UNENCRYPTED_STORAGE_KEY,
       );
 
     return analyticsUnencryptedState?.deviceId;
@@ -148,7 +148,7 @@ export class AnalyticsService implements OnStorageReady, OnLock {
       ANALYTICS_UNENCRYPTED_STORAGE_KEY,
       {
         deviceId,
-      }
+      },
     );
   }
 

@@ -54,7 +54,7 @@ describe('background/providers/utils/PortConnection', () => {
       serializeToJSON({
         type: 'message',
         data: 'mock-message',
-      })
+      }),
     );
 
     expect(callback).toHaveBeenCalledTimes(1);
@@ -73,7 +73,7 @@ describe('background/providers/utils/PortConnection', () => {
       serializeToJSON({
         type: 'message',
         data: 'message-data',
-      })
+      }),
     );
   });
 
@@ -94,7 +94,7 @@ describe('background/providers/utils/PortConnection', () => {
             value: '1000',
           },
         },
-      })
+      }),
     );
   });
 });

@@ -13,6 +13,6 @@ export const openApprovalWindow = async (action: Action, url: string) => {
       ...action,
       actionId,
     },
-    url
+    url,
   );
 };

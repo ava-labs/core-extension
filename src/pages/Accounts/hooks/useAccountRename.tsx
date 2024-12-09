@@ -14,16 +14,16 @@ export const useAccountRename = (account?: Account) => {
 
   const onFailure = useCallback(
     () => toast.success(t('Renaming failed'), { duration: 1000 }),
-    [toast, t]
+    [toast, t],
   );
   const onSuccess = useCallback(
     () => toast.success(t('Account renamed'), { duration: 1000 }),
-    [toast, t]
+    [toast, t],
   );
   const updateFn = useCallback(
     (newName: string) =>
       account?.id ? renameAccount(account.id, newName.trim()) : undefined,
-    [renameAccount, account?.id]
+    [renameAccount, account?.id],
   );
 
   return useEntityRename({

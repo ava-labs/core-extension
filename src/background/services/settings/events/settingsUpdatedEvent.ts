@@ -18,7 +18,7 @@ export class SettingsUpdatedEvents implements ExtensionEventEmitter {
           name: SettingsEvents.SETTINGS_UPDATED,
           value: settings,
         });
-      }
+      },
     );
   }
 
@@ -27,7 +27,7 @@ export class SettingsUpdatedEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

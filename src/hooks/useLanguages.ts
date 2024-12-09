@@ -80,7 +80,7 @@ export function useLanguage() {
   ];
 
   const currentLanguage = availableLanguages.find(
-    (lang) => lang.code === language
+    (lang) => lang.code === language,
   );
   return {
     changeLanguage,

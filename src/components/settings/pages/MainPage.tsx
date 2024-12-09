@@ -142,7 +142,7 @@ export function MainPage({
               window.open(
                 getCoreWebUrl(activeAccount?.addressC),
                 '_blank',
-                'noreferrer'
+                'noreferrer',
               );
             }}
           >
@@ -324,7 +324,7 @@ export function MainPage({
                 variant="dot"
                 invisible={
                   !showNotificationDotOn.includes(
-                    SettingsPages.SECURITY_AND_PRIVACY
+                    SettingsPages.SECURITY_AND_PRIVACY,
                   )
                 }
               >
@@ -403,7 +403,7 @@ export function MainPage({
                   currentLanguage ? currentLanguage.linkCode : 'en'
                 }/collections/3391518-core`,
                 '_blank',
-                'noreferrer'
+                'noreferrer',
               );
             }}
             data-testid="help-center-option"

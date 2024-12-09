@@ -6,7 +6,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 export const useHasEnoughForGas = (
   sendAmount?: bigint,
   feeRate?: bigint,
-  gasLimit?: bigint
+  gasLimit?: bigint,
 ): boolean => {
   const tokens = useTokensWithBalances();
 

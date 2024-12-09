@@ -20,7 +20,7 @@ export class AddFavoriteNetworkHandler implements HandlerType {
     const [network] = params || [];
 
     const [favoriteNetworks, err] = await resolve(
-      this.networkService.addFavoriteNetwork(network)
+      this.networkService.addFavoriteNetwork(network),
     );
 
     if (err) {

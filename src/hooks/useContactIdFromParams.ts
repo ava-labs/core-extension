@@ -7,7 +7,7 @@ export const useContactIdFromParams = () => {
 
   return useMemo(() => {
     const { contactId } = (Object as any).fromEntries(
-      (new URLSearchParams(search) as any).entries()
+      (new URLSearchParams(search) as any).entries(),
     );
 
     return {

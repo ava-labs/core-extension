@@ -59,7 +59,7 @@ export function ShowMnemonic({ phrase, wordCount = 24 }: MnemonicProps) {
             </Typography>
             {!isFakeBeforeReal && <FakeWord />}
           </Stack>
-        </Grid>
+        </Grid>,
       );
     }
     return list;

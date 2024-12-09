@@ -10,7 +10,7 @@ export class LedgerTransport extends Transport {
   constructor(
     private deviceRequest: Subject<any>,
     private deviceResponse: Subject<DeviceResponseData>,
-    private connectionUUID: string
+    private connectionUUID: string,
   ) {
     super();
   }
@@ -21,12 +21,12 @@ export class LedgerTransport extends Transport {
     p1: number,
     p2: number,
     data: Buffer = Buffer.alloc(0),
-    statusList: Array<number> = [StatusCodes.OK]
+    statusList: Array<number> = [StatusCodes.OK],
   ): Promise<Buffer> => {
     if (data.length >= 256) {
       throw new TransportError(
         'data.length exceed 256 bytes limit. Got: ' + data.length,
-        'DataLengthTooBig'
+        'DataLengthTooBig',
       );
     }
 
@@ -53,8 +53,8 @@ export class LedgerTransport extends Transport {
             throw new TransportStatusError(response.error);
           }
           return Buffer.from(response.result ?? []);
-        })
-      )
+        }),
+      ),
     );
   };
 }

@@ -185,7 +185,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       analyticsServicePosthogMock,
       walletServiceMock,
       featureFlagServiceMock,
-      networkFeeServiceMock
+      networkFeeServiceMock,
     );
     (encryptAnalyticsData as jest.Mock).mockResolvedValue(mockedEncryptResult);
 
@@ -214,7 +214,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         buildRpcCall({
           ...request,
           params: ['bitcoin'],
-        })
+        }),
       );
 
       expect(result).toEqual({
@@ -230,7 +230,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         buildRpcCall({
           ...request,
           params: ['testBlockchain', '1'],
-        })
+        }),
       );
 
       expect(result).toEqual({
@@ -261,8 +261,8 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
             ...request,
             params: ['bitcoin', '1'],
           },
-          `eip155:${ChainId.BITCOIN}`
-        )
+          `eip155:${ChainId.BITCOIN}`,
+        ),
       );
 
       expect(result).toEqual({
@@ -284,7 +284,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
             asset: btcAsset,
           },
         },
-        `approve`
+        `approve`,
       );
     });
 
@@ -307,7 +307,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         ],
       };
       const result = await handler.handleAuthenticated(
-        buildRpcCall(mockRequest)
+        buildRpcCall(mockRequest),
       );
 
       expect(result).toEqual({
@@ -323,7 +323,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         params: [Blockchain.ETHEREUM, '1', btcAsset],
       };
       const result = await handler.handleAuthenticated(
-        buildRpcCall(mockRequest)
+        buildRpcCall(mockRequest),
       );
 
       expect(result).toEqual({
@@ -339,7 +339,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         params: [Blockchain.AVALANCHE, '1', nativeAsset],
       };
       const result = await handler.handleAuthenticated(
-        buildRpcCall(mockRequest)
+        buildRpcCall(mockRequest),
       );
 
       expect(result).toEqual({
@@ -393,7 +393,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       };
 
       const result = await handler.handleAuthenticated(
-        buildRpcCall(mockRequest)
+        buildRpcCall(mockRequest),
       );
 
       expect(result).toEqual({
@@ -402,7 +402,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       });
       expect(openApprovalWindow).toHaveBeenCalledWith(
         expectedAction,
-        `approve`
+        `approve`,
       );
     });
 
@@ -447,7 +447,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         analyticsServicePosthogMock,
         walletServiceMock,
         featureFlagServiceMock,
-        networkFeeServiceMock
+        networkFeeServiceMock,
       );
 
       const mockRequest = {
@@ -480,7 +480,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         },
       };
       const result = await handlerToTest.handleAuthenticated(
-        buildRpcCall(mockRequest)
+        buildRpcCall(mockRequest),
       );
 
       expect(result).toEqual({
@@ -489,7 +489,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       });
       expect(openApprovalWindow).toHaveBeenCalledWith(
         expectedAction,
-        `approve`
+        `approve`,
       );
     });
   });
@@ -520,9 +520,9 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       const amount = bnToBig(
         stringToBN(
           ethAction.displayData.amountStr,
-          ethAction.displayData.asset.denomination
+          ethAction.displayData.asset.denomination,
         ),
-        ethAction.displayData.asset.denomination
+        ethAction.displayData.asset.denomination,
       );
 
       const action = {
@@ -544,7 +544,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         {},
         mockOnSuccess,
         mockOnError,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(transferAssetEVM).toHaveBeenCalledTimes(1);
@@ -553,7 +553,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
           currentBlockchain: ethAction.displayData.currentBlockchain,
           amount,
           asset: ethAction.displayData.asset,
-        })
+        }),
       );
 
       // Mock signAndSendEVM callback being called
@@ -577,7 +577,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
           nonce: 14,
         }),
         { chainId: 5 },
-        expect.any(Number)
+        expect.any(Number),
       );
     });
 
@@ -592,9 +592,9 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       const amount = bnToBig(
         stringToBN(
           btcAction.displayData.amountStr,
-          btcAction.displayData.asset.denomination
+          btcAction.displayData.asset.denomination,
         ),
-        btcAction.displayData.asset.denomination
+        btcAction.displayData.asset.denomination,
       );
       const now = Date.now();
       jest.spyOn(Date, 'now').mockReturnValue(now);
@@ -604,14 +604,14 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         {},
         mockOnSuccess,
         mockOnError,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(transferAssetBTC).toHaveBeenCalledTimes(1);
       expect(transferAssetBTC).toHaveBeenCalledWith(
         expect.objectContaining({
           amount: btcToSatoshi(amount),
-        })
+        }),
       );
 
       expect(bridgeServiceMock.createTransaction).toHaveBeenCalledTimes(1);
@@ -621,13 +621,13 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         now,
         Blockchain.AVALANCHE,
         amount,
-        'BTC'
+        'BTC',
       );
 
       expect(mockOnSuccess).toHaveBeenCalledWith(btcResult);
       expect(mockOnError).toHaveBeenCalledTimes(0);
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
@@ -637,7 +637,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
             txHash: btcResult.hash,
             chainId: ChainId.BITCOIN,
           },
-        })
+        }),
       );
     });
 
@@ -660,7 +660,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       expect(mockOnSuccess).toHaveBeenCalledTimes(0);
 
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
@@ -669,7 +669,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
             address: testActiveAccount.addressBTC,
             chainId: ChainId.BITCOIN_TESTNET,
           },
-        })
+        }),
       );
     });
 
@@ -682,9 +682,9 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       const amount = bnToBig(
         stringToBN(
           ethAction.displayData.amountStr,
-          ethAction.displayData.asset.denomination
+          ethAction.displayData.asset.denomination,
         ),
-        ethAction.displayData.asset.denomination
+        ethAction.displayData.asset.denomination,
       );
 
       const now = Date.now();
@@ -697,11 +697,11 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         {},
         mockOnSuccess,
         mockOnError,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(
-        balanceAggregatorServiceMock.getBalancesForNetworks
+        balanceAggregatorServiceMock.getBalancesForNetworks,
       ).toHaveBeenCalledTimes(0);
 
       expect(transferAssetEVM).toHaveBeenCalledTimes(1);
@@ -710,7 +710,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
           currentBlockchain: ethAction.displayData.currentBlockchain,
           amount: amount,
           asset: ethAction.displayData.asset,
-        })
+        }),
       );
       expect(bridgeServiceMock.createTransaction).toHaveBeenCalledTimes(1);
       expect(bridgeServiceMock.createTransaction).toHaveBeenCalledWith(
@@ -719,13 +719,13 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
         now,
         Blockchain.AVALANCHE,
         amount,
-        'ETH'
+        'ETH',
       );
       expect(mockOnSuccess).toHaveBeenCalledWith(ethResult);
       expect(mockOnError).toHaveBeenCalledTimes(0);
 
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
@@ -735,7 +735,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
             txHash: ethResult,
             chainId: ChainId.ETHEREUM_TEST_SEPOLIA,
           },
-        })
+        }),
       );
     });
 
@@ -758,7 +758,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
       expect(mockOnSuccess).toHaveBeenCalledTimes(0);
 
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
@@ -767,7 +767,7 @@ describe('background/services/bridge/handlers/avalanche_bridgeAsset', () => {
             address: testActiveAccount.addressC,
             chainId: ChainId.ETHEREUM_HOMESTEAD,
           },
-        })
+        }),
       );
     });
   });

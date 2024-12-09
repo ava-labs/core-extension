@@ -60,16 +60,16 @@ export interface UnifiedBridgeContext {
   estimateTransferGas(
     symbol: string,
     amount: bigint,
-    targetChainId: string
+    targetChainId: string,
   ): Promise<bigint>;
   getAssetIdentifierOnTargetChain(
     symbol?: string,
-    chainId?: string
+    chainId?: string,
   ): string | undefined;
   getFee(
     symbol: string,
     amount: bigint,
-    targetChainId: string
+    targetChainId: string,
   ): Promise<bigint>;
   analyzeTx(txInfo: AnalyzeTxParams): AnalyzeTxResult;
   supportsAsset(address: string, targetChainId: string): boolean;
@@ -77,13 +77,13 @@ export interface UnifiedBridgeContext {
     symbol: string,
     amount: bigint,
     targetChainId: string,
-    gasSettings?: GasSettings
+    gasSettings?: GasSettings,
   ): Promise<any>;
   getErrorMessage(errorCode: UnifiedBridgeErrorCode): string;
   getMinimumTransferAmount(
     asset: BridgeAsset,
     amount: bigint,
-    targetChainId: string
+    targetChainId: string,
   ): Promise<bigint>;
   transferableAssets: BridgeAsset[];
   state: UnifiedBridgeState;
@@ -140,13 +140,13 @@ export function UnifiedBridgeProvider({
   } = useNetworkContext();
   const { events, request } = useConnectionContext();
   const [state, setState] = useState<UnifiedBridgeState>(
-    UNIFIED_BRIDGE_DEFAULT_STATE
+    UNIFIED_BRIDGE_DEFAULT_STATE,
   );
   const [isBridgeDevEnv, setIsBridgeDevEnv] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
   const enabledBridgeTypes = useMemo(
     () => getEnabledBridgeTypes(featureFlags),
-    [featureFlags]
+    [featureFlags],
   );
 
   const environment = useMemo(() => {
@@ -157,8 +157,8 @@ export function UnifiedBridgeProvider({
     return isBridgeDevEnv
       ? Environment.DEV
       : activeNetwork.isTestnet
-      ? Environment.TEST
-      : Environment.PROD;
+        ? Environment.TEST
+        : Environment.PROD;
   }, [activeNetwork?.isTestnet, isBridgeDevEnv]);
 
   const [activeBridgeTypes, setActiveBridgeTypes] =
@@ -169,7 +169,7 @@ export function UnifiedBridgeProvider({
       sign: async (
         { from, data, to },
         _,
-        { currentSignature, requiredSignatures }
+        { currentSignature, requiredSignatures },
       ) => {
         assert(to, UnifiedBridgeError.InvalidTxPayload);
         assert(from, UnifiedBridgeError.InvalidTxPayload);
@@ -199,17 +199,17 @@ export function UnifiedBridgeProvider({
                       'You will be prompted {{remaining}} more time(s).',
                       {
                         remaining: requiredSignatures - currentSignature,
-                      }
+                      },
                     ),
                   }
                 : undefined,
-          }
+          },
         );
 
         return result as `0x${string}`;
       },
     }),
-    [request, t]
+    [request, t],
   );
 
   const btcSigner: BtcSigner = useMemo(
@@ -217,7 +217,7 @@ export function UnifiedBridgeProvider({
       sign: async (
         { inputs, outputs },
         _,
-        { requiredSignatures, currentSignature }
+        { requiredSignatures, currentSignature },
       ) => {
         const result = await request(
           {
@@ -240,17 +240,17 @@ export function UnifiedBridgeProvider({
                       'You will be prompted {{remaining}} more time(s).',
                       {
                         remaining: requiredSignatures - currentSignature,
-                      }
+                      },
                     ),
                   }
                 : undefined,
-          }
+          },
         );
 
         return result as `0x${string}`;
       },
     }),
-    [request, t]
+    [request, t],
   );
 
   useEffect(() => {
@@ -272,7 +272,7 @@ export function UnifiedBridgeProvider({
     const subscription = events()
       .pipe(
         filter(isBridgeStateUpdateEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((bridgeState) => {
         setIsBridgeDevEnv(bridgeState.isDevEnv);
@@ -284,7 +284,7 @@ export function UnifiedBridgeProvider({
   const getInitializerForBridgeType = useCallback(
     (
       type: BridgeType,
-      bitcoinFunctions: BitcoinFunctions
+      bitcoinFunctions: BitcoinFunctions,
     ): BridgeInitializer => {
       switch (type) {
         case BridgeType.CCTP:
@@ -310,7 +310,7 @@ export function UnifiedBridgeProvider({
           };
       }
     },
-    [evmSigner, btcSigner]
+    [evmSigner, btcSigner],
   );
 
   const bridgeInitializers = useMemo(() => {
@@ -319,7 +319,7 @@ export function UnifiedBridgeProvider({
     }
 
     return enabledBridgeTypes.map((type) =>
-      getInitializerForBridgeType(type, bitcoinProvider)
+      getInitializerForBridgeType(type, bitcoinProvider),
     );
   }, [enabledBridgeTypes, getInitializerForBridgeType, bitcoinProvider]);
 
@@ -359,7 +359,7 @@ export function UnifiedBridgeProvider({
 
   const availableChainIds = useMemo(
     () => Object.keys(core?.getAssets() ?? {}),
-    [core]
+    [core],
   );
 
   const buildChain = useCallback(
@@ -381,7 +381,7 @@ export function UnifiedBridgeProvider({
         },
       };
     },
-    [getNetwork]
+    [getNetwork],
   );
 
   const transferableAssets = useMemo(() => {
@@ -402,7 +402,7 @@ export function UnifiedBridgeProvider({
     const stateUpdateSubscription = events()
       .pipe(
         filter(isUnifiedBridgeStateUpdate),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((currState) => {
         setState(currState);
@@ -432,7 +432,7 @@ export function UnifiedBridgeProvider({
 
       return targetChainId in asset.destinations;
     },
-    [core, activeNetwork]
+    [core, activeNetwork],
   );
 
   const getAsset = useCallback(
@@ -440,19 +440,19 @@ export function UnifiedBridgeProvider({
       const chainAssets = core?.getAssets()[chainId] ?? [];
 
       const asset = chainAssets.find(
-        ({ symbol: assetSymbol }) => assetSymbol === symbol
+        ({ symbol: assetSymbol }) => assetSymbol === symbol,
       );
 
       return asset;
     },
-    [core]
+    [core],
   );
 
   const getAddresses = useCallback(
     (
       account: Account,
       sourceChain: Chain,
-      targetChain: Chain
+      targetChain: Chain,
     ): { fromAddress: string; toAddress: string } => {
       const isFromBitcoin = isBitcoinCaipId(sourceChain.chainId);
       const isToBitcoin = isBitcoinCaipId(targetChain.chainId);
@@ -471,12 +471,12 @@ export function UnifiedBridgeProvider({
         toAddress: account.addressC,
       };
     },
-    []
+    [],
   );
 
   const buildParams = useCallback(
     async (
-      targetChainId: string
+      targetChainId: string,
     ): Promise<{
       sourceChain: Chain;
       sourceChainId: string;
@@ -497,7 +497,7 @@ export function UnifiedBridgeProvider({
       const { fromAddress, toAddress } = getAddresses(
         activeAccount,
         sourceChain,
-        targetChain
+        targetChain,
       );
 
       return {
@@ -509,14 +509,14 @@ export function UnifiedBridgeProvider({
         toAddress,
       };
     },
-    [activeAccount, activeNetwork, buildChain, getAddresses]
+    [activeAccount, activeNetwork, buildChain, getAddresses],
   );
 
   const getFee = useCallback(
     async (
       symbol: string,
       amount: bigint,
-      targetChainId: string
+      targetChainId: string,
     ): Promise<bigint> => {
       assert(core, CommonError.Unknown);
       assert(activeNetwork, CommonError.NoActiveNetwork);
@@ -530,7 +530,7 @@ export function UnifiedBridgeProvider({
           amount,
           targetChain: buildChain(targetChainId),
           sourceChain: buildChain(activeNetwork.caipId),
-        })
+        }),
       );
 
       // We currently operate on the assumption that the fee is paid in the
@@ -548,14 +548,14 @@ export function UnifiedBridgeProvider({
 
       return feeChain[feeAssetId] ?? 0n;
     },
-    [activeNetwork, core, buildChain, getAsset]
+    [activeNetwork, core, buildChain, getAsset],
   );
 
   const estimateTransferGas = useCallback(
     async (
       symbol: string,
       amount: bigint,
-      targetChainId: string
+      targetChainId: string,
     ): Promise<bigint> => {
       assert(core, CommonError.Unknown);
       assert(activeNetwork, CommonError.NoActiveNetwork);
@@ -564,9 +564,8 @@ export function UnifiedBridgeProvider({
 
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
-      const { fromAddress, sourceChain, targetChain } = await buildParams(
-        targetChainId
-      );
+      const { fromAddress, sourceChain, targetChain } =
+        await buildParams(targetChainId);
 
       const gasLimit = await core.estimateGas({
         asset,
@@ -578,7 +577,7 @@ export function UnifiedBridgeProvider({
 
       return gasLimit;
     },
-    [activeNetwork, core, buildParams, getAsset]
+    [activeNetwork, core, buildParams, getAsset],
   );
 
   const getAssetIdentifierOnTargetChain = useCallback(
@@ -595,7 +594,7 @@ export function UnifiedBridgeProvider({
 
       return asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
     },
-    [getAsset]
+    [getAsset],
   );
 
   const trackBridgeTransfer = useCallback(
@@ -605,7 +604,7 @@ export function UnifiedBridgeProvider({
         params: [bridgeTransfer],
       });
     },
-    [request]
+    [request],
   );
 
   const transferAsset = useCallback(
@@ -613,7 +612,7 @@ export function UnifiedBridgeProvider({
       symbol: string,
       amount: bigint,
       targetChainId: string,
-      gasSettings?: GasSettings
+      gasSettings?: GasSettings,
     ) => {
       assert(core, CommonError.Unknown);
       assert(activeNetwork, CommonError.NoActiveNetwork);
@@ -639,7 +638,7 @@ export function UnifiedBridgeProvider({
 
       return bridgeTransfer.sourceTxHash;
     },
-    [getAsset, activeNetwork, buildParams, core, trackBridgeTransfer]
+    [getAsset, activeNetwork, buildParams, core, trackBridgeTransfer],
   );
 
   const getErrorMessage = useCallback(
@@ -661,7 +660,7 @@ export function UnifiedBridgeProvider({
           return t('The transaction has been reverted');
       }
     },
-    [t]
+    [t],
   );
 
   const analyzeTx = useCallback(
@@ -670,7 +669,7 @@ export function UnifiedBridgeProvider({
 
       return core.analyzeTx(txInfo);
     },
-    [core]
+    [core],
   );
 
   const getMinimumTransferAmount = useCallback(
@@ -685,7 +684,7 @@ export function UnifiedBridgeProvider({
         targetChain: buildChain(targetChainId),
       });
     },
-    [core, buildChain, activeNetwork]
+    [core, buildChain, activeNetwork],
   );
 
   return (

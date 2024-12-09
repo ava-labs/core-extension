@@ -19,7 +19,7 @@ export const DefiPortfolioCommon = ({ items, header }: Props) => {
 
   const mostTokensInAnItem = useMemo(
     () => Math.max(...items.map((item) => item.supplyTokens?.length ?? 0)),
-    [items]
+    [items],
   );
 
   return (
@@ -33,10 +33,10 @@ export const DefiPortfolioCommon = ({ items, header }: Props) => {
         {items.map(({ supplyTokens = [], rewardTokens = [] }, index) => {
           const hasRewards = rewardTokens.length > 0;
           const suppliedValue = formatValue(
-            sumByProperty(supplyTokens, 'usdValue')
+            sumByProperty(supplyTokens, 'usdValue'),
           );
           const rewardedValue = formatValue(
-            sumByProperty(rewardTokens, 'usdValue')
+            sumByProperty(rewardTokens, 'usdValue'),
           );
           const symbols = supplyTokens.map(({ symbol }) => symbol).join(' + ');
 

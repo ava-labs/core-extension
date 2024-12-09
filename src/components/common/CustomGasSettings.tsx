@@ -110,7 +110,7 @@ export function CustomGasSettings({
       tokenPrice,
       tokenDecimals,
       gasLimit,
-    })
+    }),
   );
   function handleOnSave(): void {
     if (customGasLimit) {
@@ -142,7 +142,7 @@ export function CustomGasSettings({
       setErrors((existingErrors) => ({
         ...existingErrors,
         maxPriorityFee: t(
-          'Maximum priority fee cannot be greater than maximum fee'
+          'Maximum priority fee cannot be greater than maximum fee',
         ),
       }));
       hasErrors = true;
@@ -205,7 +205,7 @@ export function CustomGasSettings({
           <TextFieldLabel
             label={t('Max Base Fee')}
             tooltip={t(
-              'The Base Fee is set by the network and changes frequently. Any difference between the set Max Base Fee and the actual Base Fee will be refunded.'
+              'The Base Fee is set by the network and changes frequently. Any difference between the set Max Base Fee and the actual Base Fee will be refunded.',
             )}
           />
           <TextField
@@ -214,7 +214,7 @@ export function CustomGasSettings({
             value={Number(customMaxFeePerGas) / 10 ** feeDisplayDecimals}
             onChange={(evt) => {
               setCustomMaxFeePerGas(
-                parseUnits(evt.currentTarget.value || '0', feeDisplayDecimals)
+                parseUnits(evt.currentTarget.value || '0', feeDisplayDecimals),
               );
             }}
             error={!!errors.maxFee}
@@ -232,7 +232,7 @@ export function CustomGasSettings({
           <TextFieldLabel
             label={t('Max Priority Fee')}
             tooltip={t(
-              'The Priority Fee is an incentive paid to network operators to prioritize processing of this transaction.'
+              'The Priority Fee is an incentive paid to network operators to prioritize processing of this transaction.',
             )}
           />
           <TextField
@@ -244,7 +244,7 @@ export function CustomGasSettings({
             }
             onChange={(evt) => {
               setCustomMaxPriorityFeePerGas(
-                parseUnits(evt.currentTarget.value || '0', feeDisplayDecimals)
+                parseUnits(evt.currentTarget.value || '0', feeDisplayDecimals),
               );
             }}
             error={!!errors.maxPriorityFee}
@@ -264,10 +264,10 @@ export function CustomGasSettings({
             tooltip={
               isLimitReadonly
                 ? t(
-                    'Estimated gas units needed to complete the transaction. Includes a small buffer. Not editable for this transaction.'
+                    'Estimated gas units needed to complete the transaction. Includes a small buffer. Not editable for this transaction.',
                   )
                 : t(
-                    'Total units of gas needed to complete the transaction. Do not edit unless necessary.'
+                    'Total units of gas needed to complete the transaction. Do not edit unless necessary.',
                   )
             }
           />
@@ -311,13 +311,13 @@ export function CustomGasSettings({
                 <>
                   <div>
                     {t(
-                      'Total Network Fee = (Current Base Fee + Max Priority Fee) * Gas Limit.'
+                      'Total Network Fee = (Current Base Fee + Max Priority Fee) * Gas Limit.',
                     )}
                   </div>
                   <br />
                   <div>
                     {t(
-                      'It will never be higher than Max Base Fee * Gas Limit.'
+                      'It will never be higher than Max Base Fee * Gas Limit.',
                     )}
                   </div>
                 </>

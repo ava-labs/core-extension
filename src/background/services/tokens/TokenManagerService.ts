@@ -17,11 +17,11 @@ import { EnsureDefined } from '@src/background/models';
 export class TokenManagerService {
   constructor(
     private settingsService: SettingsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
   ) {}
 
   async getCustomTokensForNetwork(
-    network: Network
+    network: Network,
   ): Promise<NetworkContractToken[]> {
     const settings = await this.settingsService.getSettings();
     return Object.values(settings.customTokens[network.chainId] || {}) || [];
@@ -34,7 +34,7 @@ export class TokenManagerService {
 
   async getTokenData(
     tokenAddress: string,
-    network: Network
+    network: Network,
   ): Promise<EnsureDefined<NetworkContractToken, 'chainId'> | null> {
     if (!network || network.vmName !== NetworkVMType.EVM) {
       throw new Error('No network');

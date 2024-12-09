@@ -70,7 +70,10 @@ export function useSeedlessActions() {
   const { featureFlags } = useFeatureFlagContext();
 
   useEffect(() => {
-    errorMessage && toast.error(errorMessage);
+    if (!errorMessage) {
+      return;
+    }
+    toast.error(errorMessage);
   }, [errorMessage]);
 
   const handleOidcToken = useCallback(
@@ -83,7 +86,7 @@ export function useSeedlessActions() {
       if (!identity.user_info) {
         const result = await approveSeedlessRegistration(
           identity,
-          !featureFlags[FeatureGates.SEEDLESS_OPTIONAL_MFA]
+          !featureFlags[FeatureGates.SEEDLESS_OPTIONAL_MFA],
         );
 
         if (result !== SeedlessRegistartionResult.APPROVED) {
@@ -121,7 +124,7 @@ export function useSeedlessActions() {
       t,
       history,
       featureFlags,
-    ]
+    ],
   );
 
   const signIn = useCallback(
@@ -141,7 +144,7 @@ export function useSeedlessActions() {
           setIsLoading(false);
         });
     },
-    [capture, handleOidcToken, t]
+    [capture, handleOidcToken, t],
   );
 
   const registerTOTPStart = useCallback(() => {
@@ -205,12 +208,12 @@ export function useSeedlessActions() {
         const signerToken = oidcAuthResponse.data();
         setSeedlessSignerToken(signerToken);
         return true;
-      } catch (e) {
+      } catch (_err) {
         setErrorMessage(t('Invalid code'));
         return false;
       }
     },
-    [oidcToken, setSeedlessSignerToken, t, totpChallenge, mfaSession]
+    [oidcToken, setSeedlessSignerToken, t, totpChallenge, mfaSession],
   );
 
   const loginWithFIDO = useCallback(async () => {
@@ -231,7 +234,7 @@ export function useSeedlessActions() {
       // prompt the user to tap their FIDO and send the answer back to CubeSigner
       const answer = await launchFidoFlow(
         FIDOApiEndpoint.Authenticate,
-        challenge.options
+        challenge.options,
       );
       const mfaInfo = await challenge.answer(answer);
 
@@ -294,14 +297,14 @@ export function useSeedlessActions() {
       const answer = await launchFidoFlow(
         FIDOApiEndpoint.Register,
         challenge.options,
-        recoveryMethodToFidoKeyType(selectedMethod)
+        recoveryMethodToFidoKeyType(selectedMethod),
       );
 
       await challenge.answer(answer);
 
       return true;
     },
-    [oidcToken]
+    [oidcToken],
   );
 
   return {

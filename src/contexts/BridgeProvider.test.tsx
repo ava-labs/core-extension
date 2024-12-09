@@ -29,13 +29,13 @@ const getBridgeProvider = (): BridgeContext => {
   render(
     <BridgeProvider>
       <TestConsumerComponent ref={ref} />
-    </BridgeProvider>
+    </BridgeProvider>,
   );
 
   return ref.current ?? ({} as BridgeContext);
 };
 
-const TestConsumerComponent = forwardRef((props: unknown, ref) => {
+const TestConsumerComponent = forwardRef((_props, ref) => {
   const { estimateGas, transferEVMAsset } = useBridgeContext();
 
   useImperativeHandle(ref, () => ({
@@ -155,7 +155,7 @@ describe('contexts/BridgeProvider', () => {
 
         await act(async () => {
           await expect(
-            transferEVMAsset(new Big('0.1'), {} as any)
+            transferEVMAsset(new Big('0.1'), {} as any),
           ).rejects.toThrow('Wrong source chain');
         });
       });
@@ -169,7 +169,7 @@ describe('contexts/BridgeProvider', () => {
           onStatusChange,
           signAndSendEVM,
           hash: '0xHash',
-        } as any);
+        }) as any;
 
       jest
         .mocked(transferAssetEVM)
@@ -209,7 +209,7 @@ describe('contexts/BridgeProvider', () => {
               title: 'This operation requires {{total}} approvals.',
               notice: 'You will be prompted {{remaining}} more time(s).',
             },
-          }
+          },
         );
 
         // Mock the transfer TX being prompted and signed
@@ -231,7 +231,7 @@ describe('contexts/BridgeProvider', () => {
           },
           {
             customApprovalScreenTitle: 'Confirm Bridge',
-          }
+          },
         );
       });
     });
@@ -340,7 +340,7 @@ describe('contexts/BridgeProvider', () => {
             avalanche: networkContext.avaxProviderC,
           },
           bridgeSDKContext.bridgeConfig.config,
-          bridgeSDKContext.currentBlockchain
+          bridgeSDKContext.currentBlockchain,
         );
       });
     });

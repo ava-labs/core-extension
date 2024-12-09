@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
@@ -27,11 +27,12 @@ import {
   NetworkDetailsDialogOptions,
   NetworkDetailsDialogs,
 } from './NetworkDetailsDialogs';
+import { useGoBack } from '@src/hooks/useGoBack';
 
 export const EditNetwork = () => {
   const { t } = useTranslation();
-  const history = useHistory();
   const { networkId } = useParams<{ networkId: string }>();
+  const goBack = useGoBack(`/networks/details/${networkId}`);
   const selectedChainId = parseInt(networkId, 10);
   const { networks, isCustomNetwork, saveCustomNetwork, updateDefaultNetwork } =
     useNetworkContext();
@@ -48,17 +49,11 @@ export const EditNetwork = () => {
 
   useEffect(() => {
     const networkData = networks.find(
-      (networkItem) => networkItem.chainId === selectedChainId
+      (networkItem) => networkItem.chainId === selectedChainId,
     );
 
     setNetworkState(networkData);
   }, [networks, setNetworkState, selectedChainId]);
-
-  const goBack = useCallback(() => {
-    history.length <= 2
-      ? history.replace(`/networks/details/${networkId}`)
-      : history.goBack();
-  }, [history, networkId]);
 
   const isCustom = networkState && isCustomNetwork(networkState.chainId);
 
@@ -113,7 +108,7 @@ export const EditNetwork = () => {
       return;
     }
     //  We're resetting the RPC url, so we want to send it as undefined to the backend.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const { rpcUrl, ...networkWithoutRpcUrl } = networkState;
 
     updateDefaultNetwork(networkWithoutRpcUrl)
@@ -152,7 +147,7 @@ export const EditNetwork = () => {
           setIsSaving(false);
         });
     },
-    [goBack, networkState, t, updateDefaultNetwork]
+    [goBack, networkState, t, updateDefaultNetwork],
   );
 
   const hideDialogs = () => {
@@ -192,7 +187,7 @@ export const EditNetwork = () => {
       onUpdateURLSuccess,
       resetRpcUrl,
       updateDefaultNetwork,
-    ]
+    ],
   );
 
   const onUpdateRpcUrl = () => {

@@ -146,7 +146,7 @@ describe('background/services/storage/migrations/migrations', () => {
       };
 
       await expect(
-        migrateToLatest('missingSchemaKey', data)
+        migrateToLatest('missingSchemaKey', data),
       ).resolves.toStrictEqual(data);
     });
 
@@ -158,7 +158,7 @@ describe('background/services/storage/migrations/migrations', () => {
 
       const result = await migrateToLatest(upToDateKey, data);
       expect(
-        MOCK_SCHEMA_MAP[upToDateKey].migrations[0]?.migration.up
+        MOCK_SCHEMA_MAP[upToDateKey].migrations[0]?.migration.up,
       ).not.toHaveBeenCalled();
       expect(result).toStrictEqual(data);
     });
@@ -170,13 +170,13 @@ describe('background/services/storage/migrations/migrations', () => {
       };
 
       await expect(
-        migrateToLatest(outDatedKeyWithInvalidSchema, data)
+        migrateToLatest(outDatedKeyWithInvalidSchema, data),
       ).rejects.toThrow(
-        `Error while upgrading ${outDatedKeyWithInvalidSchema} to version 2`
+        `Error while upgrading ${outDatedKeyWithInvalidSchema} to version 2`,
       );
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithInvalidSchema].migrations[0]?.migration
-          .up
+          .up,
       ).not.toHaveBeenCalled();
     });
 
@@ -185,7 +185,7 @@ describe('background/services/storage/migrations/migrations', () => {
 
       const result = await migrateToLatest(outDatedKeyWithArrayInput, data);
       expect(
-        MOCK_SCHEMA_MAP[outDatedKeyWithArrayInput].migrations[0]?.migration.up
+        MOCK_SCHEMA_MAP[outDatedKeyWithArrayInput].migrations[0]?.migration.up,
       ).toHaveBeenCalledWith(data);
       expect(result).toStrictEqual({ ...data[0], version: 2 });
     });
@@ -196,7 +196,7 @@ describe('background/services/storage/migrations/migrations', () => {
       const result = await migrateToLatest(outDatedKeyWithPrimitiveInput, data);
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithPrimitiveInput].migrations[0]?.migration
-          .up
+          .up,
       ).toHaveBeenCalledWith(data);
       expect(result).toStrictEqual({ data: 'some-data-string', version: 2 });
     });
@@ -207,7 +207,7 @@ describe('background/services/storage/migrations/migrations', () => {
       const result = await migrateToLatest(outDatedKeyWithPrimitiveInput, data);
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithPrimitiveInput].migrations[0]?.migration
-          .up
+          .up,
       ).toHaveBeenCalledWith(data);
       expect(result).toStrictEqual({ data: 12341234, version: 2 });
     });
@@ -217,7 +217,7 @@ describe('background/services/storage/migrations/migrations', () => {
       const result = await migrateToLatest(outDatedKeyWithPrimitiveInput, data);
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithPrimitiveInput].migrations[0]?.migration
-          .up
+          .up,
       ).toHaveBeenCalledWith(data);
       expect(result).toStrictEqual({ data: false, version: 2 });
     });
@@ -230,10 +230,12 @@ describe('background/services/storage/migrations/migrations', () => {
 
       const result = await migrateToLatest(outDatedKeyWithCorrectOrder, data);
       expect(
-        MOCK_SCHEMA_MAP[outDatedKeyWithCorrectOrder].migrations[0]?.migration.up
+        MOCK_SCHEMA_MAP[outDatedKeyWithCorrectOrder].migrations[0]?.migration
+          .up,
       ).toHaveBeenCalledWith({ ...data, version: 1 });
       expect(
-        MOCK_SCHEMA_MAP[outDatedKeyWithCorrectOrder].migrations[1]?.migration.up
+        MOCK_SCHEMA_MAP[outDatedKeyWithCorrectOrder].migrations[1]?.migration
+          .up,
       ).toHaveBeenCalledWith({ ...data, version: 2 });
       expect(result).toStrictEqual({ ...data, version: 3 });
     });
@@ -246,10 +248,12 @@ describe('background/services/storage/migrations/migrations', () => {
 
       const result = await migrateToLatest(outDatedKeyWithCorrectOrder, data);
       expect(
-        MOCK_SCHEMA_MAP[outDatedKeyWithCorrectOrder].migrations[0]?.migration.up
+        MOCK_SCHEMA_MAP[outDatedKeyWithCorrectOrder].migrations[0]?.migration
+          .up,
       ).not.toHaveBeenCalled();
       expect(
-        MOCK_SCHEMA_MAP[outDatedKeyWithCorrectOrder].migrations[1]?.migration.up
+        MOCK_SCHEMA_MAP[outDatedKeyWithCorrectOrder].migrations[1]?.migration
+          .up,
       ).toHaveBeenCalledWith({ ...data, version: 2 });
       expect(result).toStrictEqual({ ...data, version: 3 });
     });
@@ -263,11 +267,11 @@ describe('background/services/storage/migrations/migrations', () => {
       const result = await migrateToLatest(outDatedKeyWithIncorrectOrder, data);
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectOrder].migrations[0]?.migration
-          .up
+          .up,
       ).toHaveBeenCalledWith({ ...data, version: 2 });
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectOrder].migrations[1]?.migration
-          .up
+          .up,
       ).toHaveBeenCalledWith({ ...data, version: 1 });
       expect(result).toStrictEqual({ ...data, version: 3 });
     });
@@ -281,11 +285,11 @@ describe('background/services/storage/migrations/migrations', () => {
       const result = await migrateToLatest(outDatedKeyWithIncorrectOrder, data);
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectOrder].migrations[0]?.migration
-          .up
+          .up,
       ).toHaveBeenCalledWith({ ...data, version: 2 });
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectOrder].migrations[1]?.migration
-          .up
+          .up,
       ).not.toHaveBeenCalled();
       expect(result).toStrictEqual({ ...data, version: 3 });
     });
@@ -298,19 +302,19 @@ describe('background/services/storage/migrations/migrations', () => {
 
       const result = await migrateToLatest(
         outDatedKeyWithIncorrectVersion,
-        data
+        data,
       );
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectVersion].migrations[0]
-          ?.migration.up
+          ?.migration.up,
       ).toHaveBeenCalledWith({ ...data, version: 1 });
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectVersion].migrations[1]
-          ?.migration.up
+          ?.migration.up,
       ).toHaveBeenCalledWith({ ...data, version: 2 });
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectVersion].migrations[2]
-          ?.migration.up
+          ?.migration.up,
       ).not.toHaveBeenCalled();
       expect(result).toStrictEqual({ ...data, version: 3 });
     });
@@ -323,19 +327,19 @@ describe('background/services/storage/migrations/migrations', () => {
 
       const result = await migrateToLatest(
         outDatedKeyWithIncorrectVersion,
-        data
+        data,
       );
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectVersion].migrations[0]
-          ?.migration.up
+          ?.migration.up,
       ).not.toHaveBeenCalled();
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectVersion].migrations[1]
-          ?.migration.up
+          ?.migration.up,
       ).toHaveBeenCalledWith({ ...data, version: 2 });
       expect(
         MOCK_SCHEMA_MAP[outDatedKeyWithIncorrectVersion].migrations[2]
-          ?.migration.up
+          ?.migration.up,
       ).not.toHaveBeenCalled();
       expect(result).toStrictEqual({ ...data, version: 3 });
     });
@@ -357,7 +361,7 @@ describe('background/services/storage/migrations/migrations', () => {
       const data = [1, 2, 3];
 
       expect(
-        getDataWithSchemaVersion(outDatedKeyWithCorrectOrder, data)
+        getDataWithSchemaVersion(outDatedKeyWithCorrectOrder, data),
       ).toStrictEqual(data);
     });
 
@@ -367,7 +371,7 @@ describe('background/services/storage/migrations/migrations', () => {
       };
 
       expect(getDataWithSchemaVersion('missingSchemaKey', data)).toStrictEqual(
-        data
+        data,
       );
     });
 
@@ -378,7 +382,7 @@ describe('background/services/storage/migrations/migrations', () => {
       };
 
       expect(
-        getDataWithSchemaVersion(outDatedKeyWithCorrectOrder, data)
+        getDataWithSchemaVersion(outDatedKeyWithCorrectOrder, data),
       ).toStrictEqual(data);
     });
 
@@ -388,7 +392,7 @@ describe('background/services/storage/migrations/migrations', () => {
       };
 
       expect(
-        getDataWithSchemaVersion(outDatedKeyWithCorrectOrder, data)
+        getDataWithSchemaVersion(outDatedKeyWithCorrectOrder, data),
       ).toStrictEqual({
         ...data,
         version: MOCK_SCHEMA_MAP[outDatedKeyWithCorrectOrder].latestVersion,

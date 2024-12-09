@@ -3,7 +3,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isProductionBuild } from '@src/utils/environment';
 
 export default function useWillSwitchToPrimaryAccount(
-  isSwitchingToTestnetMode: boolean
+  isSwitchingToTestnetMode: boolean,
 ) {
   const {
     accounts: { active: activeAccount },
@@ -12,6 +12,6 @@ export default function useWillSwitchToPrimaryAccount(
   const isFireblocksAccount = activeAccount?.type === AccountType.FIREBLOCKS;
 
   return Boolean(
-    isProductionBuild() && isSwitchingToTestnetMode && isFireblocksAccount
+    isProductionBuild() && isSwitchingToTestnetMode && isFireblocksAccount,
   );
 }

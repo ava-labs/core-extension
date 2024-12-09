@@ -43,7 +43,7 @@ export const ContractDetails = ({
             url: getExplorerAddressByNetwork(
               network,
               contractAddress,
-              'address'
+              'address',
             ),
           })
         }

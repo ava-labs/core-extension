@@ -14,11 +14,11 @@ export const useWalletRename = (wallet?: WalletDetails) => {
 
   const onFailure = useCallback(
     () => toast.success(t('Renaming failed'), { duration: 1000 }),
-    [toast, t]
+    [toast, t],
   );
   const onSuccess = useCallback(
     () => toast.success(t('Wallet renamed'), { duration: 1000 }),
-    [toast, t]
+    [toast, t],
   );
   const updateFn = useCallback(
     (newName: string) => {
@@ -29,7 +29,7 @@ export const useWalletRename = (wallet?: WalletDetails) => {
 
       return renameWallet(wallet.id, newName.trim());
     },
-    [renameWallet, wallet?.id, t, toast]
+    [renameWallet, wallet?.id, t, toast],
   );
 
   return useEntityRename({

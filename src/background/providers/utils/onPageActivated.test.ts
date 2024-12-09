@@ -27,7 +27,7 @@ describe('src/background/providers/utils/onPageActivated', () => {
     expect(addEventListenerSpy).toHaveBeenCalledWith(
       'prerenderingchange',
       expect.anything(),
-      { once: true }
+      { once: true },
     );
     expect(callback).not.toHaveBeenCalled();
 

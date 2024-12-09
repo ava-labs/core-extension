@@ -31,7 +31,10 @@ export const ContactListItem = ({
               contactId: contact.id,
             }).toString()}`,
           });
-          navigateTo && navigateTo(SettingsPages.CONTACT_PROFILE);
+          if (!navigateTo) {
+            return;
+          }
+          navigateTo(SettingsPages.CONTACT_PROFILE);
         }}
         sx={{ p: 0 }}
       >

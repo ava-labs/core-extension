@@ -48,7 +48,7 @@ export const DefiPortfolioPerpetual = ({ items }: Props) => {
         {items.map(
           (
             { marginToken, positionToken, profitUsdValue, netUsdValue },
-            index
+            index,
           ) => {
             return (
               <Grid
@@ -83,7 +83,7 @@ export const DefiPortfolioPerpetual = ({ items }: Props) => {
                 </GridCell>
               </Grid>
             );
-          }
+          },
         )}
       </Grid>
     </Stack>

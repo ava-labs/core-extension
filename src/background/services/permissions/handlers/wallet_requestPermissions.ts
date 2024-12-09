@@ -15,7 +15,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
 
   constructor(
     private permissionsService: PermissionsService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {
     super();
   }
@@ -32,7 +32,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
           domainIcon: request.site?.icon,
         },
       },
-      `permissions`
+      `permissions`,
     );
 
     return { ...request, result: DEFERRED_RESPONSE };
@@ -46,7 +46,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
     pendingAction: Action,
     result: any,
     onSuccess: (result: unknown) => void,
-    onError: (error: Error) => void
+    onError: (error: Error) => void,
   ) => {
     const selectedAccount = this.accountsService.getAccountByID(result);
     if (!selectedAccount) {
@@ -71,8 +71,8 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
       getPermissionsConvertedToMetaMaskStructure(
         selectedAccount.addressC,
         pendingAction.site.domain,
-        currentPermissions
-      )
+        currentPermissions,
+      ),
     );
   };
 }

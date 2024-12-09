@@ -72,15 +72,15 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
     process.env.SEEDLESS_FIDO_IDENTITY_URL = '';
 
     await expect(
-      launchFidoFlow(FIDOApiEndpoint.Authenticate, {} as any)
+      launchFidoFlow(FIDOApiEndpoint.Authenticate, {} as any),
     ).rejects.toThrow(new Error('FIDO Identity Service URL is not configured'));
   });
 
   it('throws an error if keyType is not provided for Register request', async () => {
     await expect(
-      launchFidoFlow(FIDOApiEndpoint.Register, {} as any)
+      launchFidoFlow(FIDOApiEndpoint.Register, {} as any),
     ).rejects.toThrow(
-      new Error('FIDO key type not defined for registration request')
+      new Error('FIDO key type not defined for registration request'),
     );
   });
 
@@ -90,7 +90,7 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
     });
 
     await expect(
-      launchFidoFlow('this-does-not-work' as FIDOApiEndpoint, {} as any)
+      launchFidoFlow('this-does-not-work' as FIDOApiEndpoint, {} as any),
     ).rejects.toThrow(new Error('Unsupported FIDO identity endpoint'));
   });
 
@@ -100,7 +100,7 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
     jest.mocked(convertRequest).mockReturnValueOnce(JSON.stringify(request));
 
     const url = `${baseUrl}/register?responseMode=post-message&origin=${encodeURIComponent(
-      origin
+      origin,
     )}&options=${encodeURIComponent(JSON.stringify(request))}&keyType=yubikey`;
 
     launchFidoFlow(FIDOApiEndpoint.Register, request, KeyType.Yubikey);
@@ -180,7 +180,7 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
     window.dispatchEvent(new MessageEvent('message', validMessage));
     await new Promise(process.nextTick);
     expect(completionSpy).toHaveBeenCalledWith(
-      convertResult(JSON.parse(validMessage.data))
+      convertResult(JSON.parse(validMessage.data)),
     );
   });
 
@@ -194,13 +194,13 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
       new MessageEvent('message', {
         origin: baseUrl,
         data: JSON.stringify({ hehe: 'nope' }),
-      })
+      }),
     );
     await new Promise(process.nextTick);
 
     expect(sentryCaptureException).toHaveBeenCalledWith(
       new Error('Invalid Identity API response: "id" is required'),
-      SentryExceptionTypes.SEEDLESS
+      SentryExceptionTypes.SEEDLESS,
     );
   });
 
@@ -224,7 +224,7 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
             userHandle: 'userHandle',
           },
         }),
-      })
+      }),
     );
     await new Promise(process.nextTick);
 

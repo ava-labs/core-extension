@@ -16,7 +16,7 @@ describe('src/background/services/seedless/handlers/submitMfaResponse', () => {
         method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
         id: 'abcd-1234',
         params: [response],
-      })
+      }),
     );
   };
 
@@ -40,7 +40,7 @@ describe('src/background/services/seedless/handlers/submitMfaResponse', () => {
 
     await handle(challengeResponse);
     expect(mfaService.submitMfaResponse).toHaveBeenCalledWith(
-      challengeResponse
+      challengeResponse,
     );
   });
 });

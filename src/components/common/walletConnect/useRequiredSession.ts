@@ -71,7 +71,7 @@ export const useRequiredSession = () => {
           sessionSubscription.unsubscribe();
         });
     },
-    [events, tabId, request]
+    [events, tabId, request],
   );
 
   return {

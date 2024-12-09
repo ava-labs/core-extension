@@ -42,7 +42,7 @@ const previousSchema = Joi.array<PreviousSchema>().items(
     active: Joi.boolean().required(),
     addressBTC: Joi.string(),
     addressC: Joi.string(),
-  })
+  }),
 );
 
 const up = async (accounts: PreviousSchema) => {
@@ -68,7 +68,7 @@ const up = async (accounts: PreviousSchema) => {
       active: undefined,
       primary: [],
       imported: {},
-    }
+    },
   );
 
   return { ...newData, version: VERSION };

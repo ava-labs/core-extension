@@ -20,7 +20,6 @@ export class NetworkUpdatedEvents implements ExtensionEventEmitter {
         return;
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { tokens: _, ...networkWithoutTokens } = network;
 
       this.eventEmitter.emit('update', {
@@ -35,7 +34,7 @@ export class NetworkUpdatedEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

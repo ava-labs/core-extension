@@ -7,8 +7,8 @@ export const parseAttributes = (attributes) => {
   return Array.isArray(attributes)
     ? parseRawAttributesArray(attributes)
     : attributes === 'string'
-    ? parseRawAttributesString(attributes)
-    : attributes;
+      ? parseRawAttributesString(attributes)
+      : attributes;
 };
 
 export const parseRawAttributesString = (rawAttributesString?: string) => {
@@ -25,7 +25,7 @@ export const parseRawAttributesString = (rawAttributesString?: string) => {
         value: attr.value,
       },
     ],
-    []
+    [],
   );
 
   return parsedAttributes;
@@ -34,7 +34,7 @@ export const parseRawAttributesString = (rawAttributesString?: string) => {
 const parseRawAttributesArray = (
   rawAttributesArray:
     | { trait_type?: string; name?: string; value: string }[]
-    | undefined
+    | undefined,
 ) => {
   if (rawAttributesArray === undefined) return [];
 

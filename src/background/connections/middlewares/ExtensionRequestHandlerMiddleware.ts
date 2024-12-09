@@ -12,7 +12,7 @@ import { runtime } from 'webextension-polyfill';
 
 export function ExtensionRequestHandlerMiddleware(
   handlers: ExtensionRequestHandler<any, any>[],
-  moduleManager: ModuleManager
+  moduleManager: ModuleManager,
 ): Middleware<
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse<any, any>
@@ -32,15 +32,15 @@ export function ExtensionRequestHandlerMiddleware(
       : await resolve(
           moduleManager.loadModule(
             context.request.params.scope,
-            context.request.params.request.method
-          )
+            context.request.params.request.method,
+          ),
         );
 
     if (!handler && !module) {
       onError(
         new Error(
-          'Unable to handle request: ' + context.request.params.request.method
-        )
+          'Unable to handle request: ' + context.request.params.request.method,
+        ),
       );
       return;
     }
@@ -51,10 +51,12 @@ export function ExtensionRequestHandlerMiddleware(
     const promise = handleRequest(handler ?? module, context);
 
     context.response = await resolve(promise).then(([result, error]) => {
-      error && console.error(error);
-      error
-        ? sentryTracker.setStatus('intertal_error')
-        : sentryTracker.setStatus('ok');
+      if (error) {
+        console.error(error);
+        sentryTracker.setStatus('intertal_error');
+      } else {
+        sentryTracker.setStatus('ok');
+      }
 
       return {
         ...(error ? error : result),
@@ -68,7 +70,7 @@ export function ExtensionRequestHandlerMiddleware(
 
 const handleRequest = async (
   handlerOrModule: ExtensionRequestHandler<any, any> | Module,
-  context: Context<ExtensionConnectionMessage, any>
+  context: Context<ExtensionConnectionMessage, any>,
 ) => {
   if ('handle' in handlerOrModule) {
     return handlerOrModule.handle({
@@ -94,7 +96,7 @@ const handleRequest = async (
       params: context.request.params.request.params,
       context: context.request.context,
     },
-    context.network
+    context.network,
   );
 
   return {

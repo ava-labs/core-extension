@@ -20,7 +20,7 @@ export class PermissionsAddDomainHandler implements HandlerType {
   constructor(
     private permissionsService: PermissionsService,
     private actionsService: ActionsService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {

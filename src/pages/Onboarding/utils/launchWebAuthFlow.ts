@@ -25,7 +25,7 @@ export function launchWebAuthFlow(url: URL): Promise<string> {
         }
 
         resolve(idToken);
-      }
+      },
     );
   });
 }

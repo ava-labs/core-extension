@@ -7,7 +7,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import { Network } from '@avalabs/core-chains-sdk';
 
 export const networkToGetEthChainResponse = (
-  network: Network
+  network: Network,
 ): AddEthereumChainParameter => ({
   chainId: `0x${network.chainId.toString(16)}`,
   chainName: network.chainName,

@@ -9,7 +9,7 @@ export const useCollectibleFromParams = () => {
 
   return useMemo(() => {
     const { nft, tokenId } = (Object as any).fromEntries(
-      (new URLSearchParams(search) as any).entries()
+      (new URLSearchParams(search) as any).entries(),
     );
 
     if (!nft || !tokenId) {
@@ -23,7 +23,7 @@ export const useCollectibleFromParams = () => {
 
     return {
       nft: nfts?.find(
-        (item) => item.address === filteredAddress && item.tokenId === tokenId
+        (item) => item.address === filteredAddress && item.tokenId === tokenId,
       ),
       tokenId: xss(tokenId),
     };

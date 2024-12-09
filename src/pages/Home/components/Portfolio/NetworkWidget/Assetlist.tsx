@@ -80,12 +80,12 @@ export function Assetlist({ assetList }: AssetListProps) {
             ? new TokenUnit(
                 token.balance + token.unconfirmedBalance,
                 token.decimals,
-                token.symbol
+                token.symbol,
               )
             : new TokenUnit(
                 token.balance,
                 'decimals' in token ? token.decimals : 0,
-                token.symbol
+                token.symbol,
               );
 
         const balanceInCurrency = token.balanceInCurrency;
@@ -137,7 +137,7 @@ export function Assetlist({ assetList }: AssetListProps) {
                 >
                   {currencyFormatter(
                     balanceInCurrency +
-                      (getUnconfirmedBalanceInCurrency(token) ?? 0)
+                      (getUnconfirmedBalanceInCurrency(token) ?? 0),
                   )}
                 </Typography>
               )}

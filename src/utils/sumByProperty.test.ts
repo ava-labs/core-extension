@@ -10,8 +10,8 @@ describe('src/utils/sumByProperty.ts', () => {
     expect(
       sumByProperty(
         [{ x: 'not a number' }, { x: 2 }, { x: null }, { x: -10 }, { x: 5 }],
-        'x'
-      )
+        'x',
+      ),
     ).toEqual(-3);
   });
 });

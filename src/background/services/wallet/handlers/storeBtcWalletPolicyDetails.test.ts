@@ -45,11 +45,11 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
       networkServiceMock,
-      accountsServiceMock
+      accountsServiceMock,
     );
 
     await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
-      'no account selected'
+      'no account selected',
     );
   });
 
@@ -63,11 +63,11 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
       networkServiceMock,
-      accountsServiceMock
+      accountsServiceMock,
     );
 
     await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
-      'incorrect account type'
+      'incorrect account type',
     );
   });
 
@@ -84,11 +84,11 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
       networkServiceMock,
-      accountsServiceMock
+      accountsServiceMock,
     );
 
     await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
-      'unknown derivation path'
+      'unknown derivation path',
     );
   });
 
@@ -108,13 +108,13 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
       networkServiceMock,
-      accountsServiceMock
+      accountsServiceMock,
     );
 
     const result = await handler.handle(buildRpcCall(request));
 
     expect(
-      secretsServiceMock.storeBtcWalletPolicyDetails
+      secretsServiceMock.storeBtcWalletPolicyDetails,
     ).not.toHaveBeenCalled();
 
     expect(result).toStrictEqual({
@@ -141,7 +141,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
       networkServiceMock,
-      accountsServiceMock
+      accountsServiceMock,
     );
 
     const result = await handler.handle(buildRpcCall(request));
@@ -149,7 +149,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     expect(getBech32AddressFromXPub).toHaveBeenCalledWith(
       'xpub',
       1,
-      networks.testnet
+      networks.testnet,
     );
 
     expect(secretsServiceMock.storeBtcWalletPolicyDetails).toHaveBeenCalledWith(
@@ -158,7 +158,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       'hmacHex',
       'name',
       'wallet-id',
-      {}
+      {},
     );
 
     expect(result).toStrictEqual({
@@ -186,7 +186,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
       networkServiceMock,
-      accountsServiceMock
+      accountsServiceMock,
     );
 
     const result = await handler.handle(buildRpcCall(request));
@@ -194,7 +194,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     expect(getBech32AddressFromXPub).toHaveBeenCalledWith(
       'xpub',
       1,
-      networks.testnet
+      networks.testnet,
     );
 
     expect(secretsServiceMock.storeBtcWalletPolicyDetails).toHaveBeenCalledWith(
@@ -203,7 +203,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       'hmacHex',
       'name',
       'wallet-id',
-      {}
+      {},
     );
 
     expect(result).toStrictEqual({

@@ -26,7 +26,7 @@ export class StartBalancesPollingHandler implements HandlerType {
 
   constructor(
     private pollingService: BalancePollingService,
-    private aggregatorService: BalanceAggregatorService
+    private aggregatorService: BalanceAggregatorService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request, scope }) => {
@@ -38,7 +38,7 @@ export class StartBalancesPollingHandler implements HandlerType {
         account,
         activeChainId,
         roundRobinChainIds,
-        tokenTypes
+        tokenTypes,
       );
     }
 

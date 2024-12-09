@@ -20,7 +20,7 @@ type CaptureFn = (
   eventName: string,
   properties?: Record<string, any>,
   forceRequestAttempt?: boolean,
-  useEncryption?: boolean
+  useEncryption?: boolean,
 ) => Promise<void>;
 
 const AnalyticsContext = createContext<{
@@ -48,7 +48,7 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
        * Useful when you don't want to / can't wait for the changes to be reflected in the state (e.g: when disabling analytics)
        */
       forceRequestAttempt?: boolean,
-      useEncryption = false
+      useEncryption = false,
     ) => {
       if (
         analyticsConsent === AnalyticsConsent.Denied &&
@@ -73,14 +73,14 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
         console.error(err);
       }
     },
-    [analyticsConsent, request]
+    [analyticsConsent, request],
   );
 
   /** Same as capture(), but always sets useEncryption param to true */
   const captureEncrypted: CaptureFn = useCallback(
     async (eventName, properties, forceRequestAttempt) =>
       capture(eventName, properties, forceRequestAttempt, true),
-    [capture]
+    [capture],
   );
 
   const initAnalyticsIds = useCallback(
@@ -90,7 +90,7 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
         params: [storeInStorage],
       });
     },
-    [request]
+    [request],
   );
 
   const stopDataCollection = useCallback(async () => {
@@ -104,9 +104,9 @@ export function AnalyticsContextProvider({ children }: { children: any }) {
       from(
         request<GetAnalyticsIdsHandler>({
           method: ExtensionRequest.ANALYTICS_GET_IDS,
-        })
+        }),
       ).pipe(filter((ids) => !!ids)),
-      events().pipe(filter(analyticsStateUpdatedEventListener))
+      events().pipe(filter(analyticsStateUpdatedEventListener)),
     )
       .pipe(first())
       .subscribe((ids) => {

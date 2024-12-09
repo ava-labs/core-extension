@@ -34,7 +34,7 @@ describe('src/background/services/onboarding/handlers/onboardingInitalWork.ts', 
       password: 'password',
     });
     expect(storageServiceMock.createStorageKey).toHaveBeenCalledWith(
-      'password'
+      'password',
     );
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(true);
     expect(analyticsServiceMock.saveTemporaryAnalyticsIds).toHaveBeenCalled();
@@ -49,11 +49,11 @@ describe('src/background/services/onboarding/handlers/onboardingInitalWork.ts', 
       password: 'password',
     });
     expect(storageServiceMock.createStorageKey).toHaveBeenCalledWith(
-      'password'
+      'password',
     );
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);
     expect(
-      analyticsServiceMock.saveTemporaryAnalyticsIds
+      analyticsServiceMock.saveTemporaryAnalyticsIds,
     ).not.toHaveBeenCalled();
   });
 });

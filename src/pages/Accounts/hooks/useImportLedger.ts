@@ -9,7 +9,7 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { ImportLedgerHandler } from '@src/background/services/wallet/handlers/importLedger';
 
 type ImportWalletFn = (
-  params: ImportLedgerWalletParams
+  params: ImportLedgerWalletParams,
 ) => Promise<ImportWalletResult>;
 
 export const useImportLedger = () => {
@@ -31,7 +31,7 @@ export const useImportLedger = () => {
         setIsImporting(false);
       }
     },
-    [request]
+    [request],
   );
 
   return {

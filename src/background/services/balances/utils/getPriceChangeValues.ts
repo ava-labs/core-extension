@@ -3,7 +3,7 @@ import { TokensPriceShortData } from '../../tokens/models';
 export function getPriceChangeValues(
   tokenSymbol: string,
   balanceInCurrency?: number,
-  priceChanges?: TokensPriceShortData
+  priceChanges?: TokensPriceShortData,
 ) {
   if (!priceChanges) {
     return {

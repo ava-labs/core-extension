@@ -14,7 +14,7 @@ import {
 } from '@avalabs/vm-module-types';
 
 export const addXPChainToFavoriteIfNeeded = async (
-  accounts: PrimaryAccount[]
+  accounts: PrimaryAccount[],
 ) => {
   const balanceService = container.resolve(BalanceAggregatorService);
   const networkService = container.resolve(NetworkService);
@@ -22,7 +22,7 @@ export const addXPChainToFavoriteIfNeeded = async (
   const balances = await balanceService.getBalancesForNetworks(
     [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
     accounts,
-    [TokenType.NATIVE]
+    [TokenType.NATIVE],
   );
 
   if (hasBalance(balances.tokens, accounts, ChainId.AVALANCHE_P)) {
@@ -34,7 +34,7 @@ export const addXPChainToFavoriteIfNeeded = async (
       const hasPActivity = await hasChainActivity(
         historyService,
         accounts.map(({ addressPVM }) => addressPVM).filter(isString),
-        pChain
+        pChain,
       );
 
       if (hasPActivity) {
@@ -52,7 +52,7 @@ export const addXPChainToFavoriteIfNeeded = async (
       const hasXActivity = await hasChainActivity(
         historyService,
         accounts.map(({ addressAVM }) => addressAVM).filter(isString),
-        xChain
+        xChain,
       );
 
       if (hasXActivity) {
@@ -65,14 +65,14 @@ export const addXPChainToFavoriteIfNeeded = async (
 async function hasChainActivity(
   historyService: HistoryService,
   addresses: string[],
-  network: NetworkWithCaipId
+  network: NetworkWithCaipId,
 ) {
   try {
     const results = await Promise.allSettled(
-      addresses.map((address) => historyService.getTxHistory(network, address))
+      addresses.map((address) => historyService.getTxHistory(network, address)),
     );
     const histories = results.map((result) =>
-      result.status === 'fulfilled' ? result.value : []
+      result.status === 'fulfilled' ? result.value : [],
     );
 
     return histories.some((history) => history.length > 0);
@@ -84,7 +84,7 @@ async function hasChainActivity(
 function hasBalance(
   balances: Balances,
   activeAccounts: PrimaryAccount[],
-  chainId: ChainId
+  chainId: ChainId,
 ) {
   return activeAccounts.some((account) => {
     const address =

@@ -40,7 +40,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
     new GetPrivateKeyHandler(
       secretServiceMock,
       lockServiceMock,
-      accountsServiceMock
+      accountsServiceMock,
     );
 
   beforeEach(() => {
@@ -58,7 +58,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params: [{ password: '' }],
-      })
+      }),
     );
     expect(result).toEqual({
       ...request,
@@ -76,7 +76,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params: [{ password: '', chain: 'Z' }],
-      })
+      }),
     );
     expect(result).toEqual({
       ...request,
@@ -94,7 +94,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params: [{ password: '', chain: PrivateKeyChain.C }],
-      })
+      }),
     );
     expect(result).toEqual({
       ...request,
@@ -114,7 +114,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params: [{ password: 'asd', chain: PrivateKeyChain.C }],
-      })
+      }),
     );
     expect(result).toEqual({
       ...request,
@@ -147,7 +147,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params,
-      })
+      }),
     );
 
     expect(result).toEqual({
@@ -173,7 +173,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params,
-      })
+      }),
     );
     expect(result).toEqual({
       ...request,
@@ -203,7 +203,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params,
-      })
+      }),
     );
     expect(result).toEqual({
       ...request,
@@ -240,7 +240,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params,
-      })
+      }),
     );
     expect(result).toEqual({
       ...request,
@@ -274,7 +274,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params,
-      })
+      }),
     );
     expect(result).toEqual({
       ...request,
@@ -284,7 +284,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
 
     expect(accountsServiceMock.getAccountByID).toHaveBeenCalledTimes(1);
     expect(accountsServiceMock.getAccountByID).toHaveBeenCalledWith(
-      '123-123-123'
+      '123-123-123',
     );
     expect(secretServiceMock.getPrimaryAccountSecrets).toHaveBeenCalledTimes(1);
     expect(secretServiceMock.getPrimaryAccountSecrets).toHaveBeenCalledWith({
@@ -313,7 +313,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params,
-      })
+      }),
     );
     expect(result).toEqual({
       ...request,
@@ -341,7 +341,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params,
-      })
+      }),
     );
     expect(result).toEqual({
       ...request,
@@ -367,7 +367,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       buildRpcCall({
         ...request,
         params,
-      })
+      }),
     );
     expect(result).toEqual({
       ...request,

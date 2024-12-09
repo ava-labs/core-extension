@@ -28,7 +28,7 @@ export class AvalancheRenameAccountHandler extends DAppRequestHandler<
   }
 
   handleAuthenticated = async (
-    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>,
   ) => {
     const { request, scope } = rpcCall;
     const [accountId, newName] = request.params;
@@ -107,7 +107,7 @@ export class AvalancheRenameAccountHandler extends DAppRequestHandler<
     pendingAction: Action<{ account: Account; newName: string }>,
     _,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const { account, newName } = pendingAction.displayData;

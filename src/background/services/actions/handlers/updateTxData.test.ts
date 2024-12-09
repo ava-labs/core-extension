@@ -36,13 +36,13 @@ describe('src/background/services/actions/handlers/updateTxData', () => {
       .mockRejectedValueOnce({ message: 'Unable to create transaction' });
 
     expect(await handleRequest(getRequest(['id', { feeRate: 5 }]))).toEqual(
-      matchingPayload({ error: SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE })
+      matchingPayload({ error: SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE }),
     );
   });
 
   it('validates the request to update exists', async () => {
     expect(await handleRequest(getRequest(['id', { feeRate: 5 }]))).toEqual(
-      matchingPayload({ error: 'no pending requests found' })
+      matchingPayload({ error: 'no pending requests found' }),
     );
   });
 

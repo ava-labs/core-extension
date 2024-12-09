@@ -17,7 +17,7 @@ export class OnboardingUpdatedEvents implements ExtensionEventEmitter {
           name: OnboardingEvents.ONBOARDING_UPDATED_EVENT,
           value: onboardingState,
         });
-      }
+      },
     );
   }
 
@@ -26,7 +26,7 @@ export class OnboardingUpdatedEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

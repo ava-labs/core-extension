@@ -16,7 +16,7 @@ export class GetHistoryHandler implements HandlerType {
 
   constructor(
     private historyService: HistoryService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request, scope }) => {

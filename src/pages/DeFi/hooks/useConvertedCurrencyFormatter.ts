@@ -7,17 +7,17 @@ import { getCurrencyFormatter } from '@src/contexts/utils/getCurrencyFormatter';
 type CurrencyConverter = (value: number) => string;
 
 export const useConvertedCurrencyFormatter = (
-  sourceCurrency = 'USD'
+  sourceCurrency = 'USD',
 ): CurrencyConverter => {
   const { convert, hasExchangeRate } = useCurrenciesContext();
   const { currency: targetCurrency, currencyFormatter } = useSettingsContext();
   const fallbackFormatter = useMemo(
     () => getCurrencyFormatter(sourceCurrency),
-    [sourceCurrency]
+    [sourceCurrency],
   );
   const canConvert = useMemo(
     () => hasExchangeRate(sourceCurrency, targetCurrency),
-    [sourceCurrency, targetCurrency, hasExchangeRate]
+    [sourceCurrency, targetCurrency, hasExchangeRate],
   );
   const needsConversion = canConvert && targetCurrency !== sourceCurrency;
 

@@ -10,7 +10,7 @@ import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
 import { ExtensionRequestHandler } from '../models';
 
 const decorateWithExtensionMetadata = (
-  rpcCall: JsonRpcRequestParams<DAppProviderRequest, any>
+  rpcCall: JsonRpcRequestParams<DAppProviderRequest, any>,
 ): JsonRpcRequestParams<DAppProviderRequest, any> => ({
   ...rpcCall,
   request: {
@@ -27,14 +27,14 @@ const decorateWithExtensionMetadata = (
 
 export class DappHandlerToExtensionHandlerTransformer {
   transform(
-    handlers: DAppRequestHandler<any, any>[]
+    handlers: DAppRequestHandler<any, any>[],
   ): ExtensionRequestHandler<any, any, any>[] {
     return handlers.flatMap((handler) => {
       return handler.methods.map<ExtensionRequestHandler<any, any, any>>(
         (method) => ({
           method,
           handle: async (
-            rpcCall: JsonRpcRequestParams<DAppProviderRequest, any>
+            rpcCall: JsonRpcRequestParams<DAppProviderRequest, any>,
           ) => {
             const extRequest = decorateWithExtensionMetadata(rpcCall);
 
@@ -46,7 +46,7 @@ export class DappHandlerToExtensionHandlerTransformer {
             }
 
             const [result, error] = await resolve(
-              handler.handleAuthenticated(extRequest) // Extension is always authenticated
+              handler.handleAuthenticated(extRequest), // Extension is always authenticated
             );
 
             if (error || 'error' in result) {
@@ -61,7 +61,7 @@ export class DappHandlerToExtensionHandlerTransformer {
               result: result.result,
             };
           },
-        })
+        }),
       );
     });
   }

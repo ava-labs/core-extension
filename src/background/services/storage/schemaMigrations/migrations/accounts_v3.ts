@@ -64,7 +64,7 @@ const previousSchema = Joi.object<PreviousSchema>({
         addressCoreEth: Joi.string(),
       })
         .required()
-        .unknown()
+        .unknown(),
     )
     .required(),
   imported: Joi.object().unknown(),

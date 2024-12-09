@@ -36,6 +36,7 @@ import {
   NetworkDetailsDialogOptions,
   NetworkDetailsDialogs,
 } from './NetworkDetailsDialogs';
+import { useGoBack } from '@src/hooks/useGoBack';
 
 export const NetworkDetails = () => {
   const { t } = useTranslation();
@@ -57,6 +58,7 @@ export const NetworkDetails = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
   const { capture } = useAnalyticsContext();
+  const goBack = useGoBack();
 
   const childRef = useRef<NetworkFormActions>(null);
   const [networkState, setNetworkState] = useState<Network>();
@@ -65,7 +67,7 @@ export const NetworkDetails = () => {
 
   useEffect(() => {
     const networkData = networks.find(
-      (networkItem) => networkItem.chainId === selectedChainId
+      (networkItem) => networkItem.chainId === selectedChainId,
     );
 
     setNetworkState(networkData);
@@ -75,9 +77,6 @@ export const NetworkDetails = () => {
     return null;
   }
 
-  const goBack = () => {
-    history.length <= 2 ? history.replace('/home') : history.goBack();
-  };
   const isFavorite = networkState && isFavoriteNetwork(networkState.chainId);
   const isCustom = networkState && isCustomNetwork(networkState.chainId);
   const canConnect = networkState.chainId !== network?.chainId;

@@ -33,7 +33,7 @@ export class ChainChangedEvents implements DAppEventEmitter {
       // Changes triggered by Core suite will contain the extension's ID as the `domain`.
 
       const normalizedConnectionDomain = getSyncDomain(
-        this._connectionInfo?.domain
+        this._connectionInfo?.domain,
       );
 
       if (normalizedConnectionDomain !== domain) {
@@ -58,7 +58,7 @@ export class ChainChangedEvents implements DAppEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

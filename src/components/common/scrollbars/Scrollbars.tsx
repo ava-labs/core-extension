@@ -8,7 +8,7 @@ export type ScrollbarsRef = CustomScrollbars.Scrollbars;
 // for available props
 export const Scrollbars = forwardRef(function Scrollbars(
   props: CustomScrollbars.ScrollbarProps,
-  ref: LegacyRef<ScrollbarsRef> | undefined
+  ref: LegacyRef<ScrollbarsRef> | undefined,
 ) {
   const theme = useTheme();
   const renderThumb = ({ style, ...rest }) => {

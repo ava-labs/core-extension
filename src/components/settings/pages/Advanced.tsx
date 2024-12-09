@@ -71,7 +71,7 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
               },
             }}
             title={t(
-              'Testnet mode changes the interface to allow you to interact with supported testnets.'
+              'Testnet mode changes the interface to allow you to interact with supported testnets.',
             )}
           >
             <InfoCircleIcon sx={{ cursor: 'pointer' }} size="16" />
@@ -85,7 +85,7 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
                 const isEnabled = !isDeveloperMode;
                 setDeveloperMode(isEnabled);
                 capture(
-                  isEnabled ? 'DeveloperModeEnabled' : 'DeveloperModeDisabled'
+                  isEnabled ? 'DeveloperModeEnabled' : 'DeveloperModeDisabled',
                 );
                 history.push('/home');
               }}

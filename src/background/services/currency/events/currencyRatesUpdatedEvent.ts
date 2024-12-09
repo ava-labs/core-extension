@@ -20,7 +20,7 @@ export class CurrencyRatesUpdatedEvents implements ExtensionEventEmitter {
           name: CurrencyServiceEvents.RatesUpdated,
           value: rates,
         });
-      }
+      },
     );
   }
 
@@ -29,7 +29,7 @@ export class CurrencyRatesUpdatedEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

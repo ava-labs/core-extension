@@ -30,13 +30,13 @@ export const CameraAccessDeniedDialog = ({ refreshPermissions }) => {
         <Stack sx={{ alignItems: 'center', gap: 3 }}>
           <Typography variant="body1">
             {t(
-              `You've blocked access to your camera. Please allow access to continue.`
+              `You've blocked access to your camera. Please allow access to continue.`,
             )}
           </Typography>
           <CameraBlockedIcon />
           <Typography variant="body2" color="text.secondary">
             {t(
-              'If you block access, look in the top right corner of your browser to enable camera access'
+              'If you block access, look in the top right corner of your browser to enable camera access',
             )}
           </Typography>
         </Stack>

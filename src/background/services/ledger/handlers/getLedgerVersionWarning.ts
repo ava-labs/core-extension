@@ -17,7 +17,7 @@ export class GetLedgerVersionWarningHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const result = await this.storageService.loadFromSessionStorage(
-      LEDGER_VERSION_WARNING_WAS_CLOSED
+      LEDGER_VERSION_WARNING_WAS_CLOSED,
     );
 
     return {

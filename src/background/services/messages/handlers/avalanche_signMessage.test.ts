@@ -36,7 +36,7 @@ describe('avalanche_signMessage', function () {
   it('returns error when no message', async () => {
     const handler = new AvalancheSignMessageHandler(walletServiceMock as any);
     const res = await handler.handleAuthenticated(
-      buildRpcCall({ ...request, params: [] })
+      buildRpcCall({ ...request, params: [] }),
     );
 
     expect(res).toHaveProperty('error');
@@ -49,12 +49,12 @@ describe('avalanche_signMessage', function () {
       buildRpcCall({
         ...request,
         params: ['hello', 'accountIndex'],
-      })
+      }),
     );
 
     expect(res).toHaveProperty('error');
     expect(res.error.message).toMatch(
-      'Invalid account index provided: accountIndex'
+      'Invalid account index provided: accountIndex',
     );
   });
 
@@ -78,7 +78,7 @@ describe('avalanche_signMessage', function () {
           validationError: undefined,
         },
       },
-      'sign'
+      'sign',
     );
   });
 
@@ -110,7 +110,7 @@ describe('avalanche_signMessage', function () {
           validationError: undefined,
         },
       },
-      'sign'
+      'sign',
     );
   });
 
@@ -138,7 +138,7 @@ describe('avalanche_signMessage', function () {
         pendingActionMock,
         {},
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(onErrorMock).toBeCalled();
@@ -154,7 +154,7 @@ describe('avalanche_signMessage', function () {
         pendingActionMock,
         {},
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(onSuccessMock).toBeCalledWith('encoded');

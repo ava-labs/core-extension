@@ -33,7 +33,7 @@ export const ExcessiveBurnWarningDialog = ({
       <DialogContent sx={{ px: 2, textAlign: 'center' }}>
         <Typography variant="body2">
           {t(
-            'The inputs of this transaction are greater than the output. Continuing will cause you to lose funds associated with this UTXO.'
+            'The inputs of this transaction are greater than the output. Continuing will cause you to lose funds associated with this UTXO.',
           )}
         </Typography>
       </DialogContent>

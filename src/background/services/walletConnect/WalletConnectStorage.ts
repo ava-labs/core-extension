@@ -28,13 +28,13 @@ export class WalletConnectStorage {
 
   async setItem<T = any>(
     key: keyof WalletConnectStore,
-    value: T
+    value: T,
   ): Promise<void> {
     return this.#addToQueue(() => this.#write(key, value));
   }
 
   async getItem<T = any>(
-    key: keyof WalletConnectStore<T>
+    key: keyof WalletConnectStore<T>,
   ): Promise<T | undefined> {
     const store = await this.#getStore<T>();
 
@@ -73,7 +73,7 @@ export class WalletConnectStorage {
 
   async #getStore<T = unknown>(): Promise<WalletConnectStore<T>> {
     const store = await this.storage.load<WalletConnectStore<T>>(
-      WALLET_CONNECT_STORAGE_KEY
+      WALLET_CONNECT_STORAGE_KEY,
     );
 
     return store ?? {};
@@ -124,7 +124,7 @@ export class WalletConnectStorage {
 
   async #write<T = any>(
     key: keyof WalletConnectStore,
-    value: T
+    value: T,
   ): Promise<void> {
     const store = await this.#getStore();
 

@@ -48,9 +48,9 @@ export class AvalancheRemoveContactHandler extends DAppRequestHandler {
 
   onActionApproved = async (
     pendingAction: Action,
-    result,
+    _result,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const {

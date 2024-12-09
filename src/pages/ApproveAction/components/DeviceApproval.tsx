@@ -12,7 +12,7 @@ import { KeystoneApprovalOverlay } from '@src/pages/SignTransaction/components/K
 
 const getTxInfoForLedger = (
   signingData: SigningData,
-  network: NetworkWithCaipId
+  network: NetworkWithCaipId,
 ) => {
   if (signingData.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
     return {
@@ -32,7 +32,7 @@ const getTxInfoForLedger = (
       ? new TokenUnit(
           feeBigInt,
           network.networkToken.decimals,
-          network.networkToken.symbol
+          network.networkToken.symbol,
         )
       : undefined;
 

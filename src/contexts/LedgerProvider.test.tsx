@@ -119,7 +119,7 @@ const renderTestComponent = (...args: unknown[]) => {
   return render(
     <LedgerContextProvider>
       <TestComponent methodParams={args}></TestComponent>
-    </LedgerContextProvider>
+    </LedgerContextProvider>,
   );
 };
 
@@ -169,7 +169,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(connectionMocks.request).not.toHaveBeenCalledWith(
           expect.objectContaining({
             method: ExtensionRequest.LEDGER_RESPONSE,
-          })
+          }),
         );
       });
     });
@@ -193,7 +193,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(connectionMocks.request).not.toHaveBeenCalledWith(
           expect.objectContaining({
             method: ExtensionRequest.LEDGER_RESPONSE,
-          })
+          }),
         );
       });
     });
@@ -232,7 +232,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           3,
           4,
           Buffer.from('0x1'),
-          [StatusCodes.OK]
+          [StatusCodes.OK],
         );
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.LEDGER_RESPONSE,
@@ -282,7 +282,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           3,
           4,
           Buffer.from('0x1'),
-          [StatusCodes.OK]
+          [StatusCodes.OK],
         );
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.LEDGER_RESPONSE,
@@ -331,7 +331,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           3,
           4,
           Buffer.from('0x1'),
-          [StatusCodes.OK]
+          [StatusCodes.OK],
         );
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.LEDGER_RESPONSE,
@@ -368,7 +368,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(connectionMocks.request).not.toHaveBeenCalledWith(
           expect.objectContaining({
             method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
-          })
+          }),
         );
       });
     });
@@ -382,12 +382,12 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       await waitFor(() => {
         expect(window.addEventListener).toHaveBeenCalledWith(
           'beforeunload',
-          expect.any(Function)
+          expect.any(Function),
         );
         expect(connectionMocks.request).not.toHaveBeenCalledWith(
           expect.objectContaining({
             method: ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
-          })
+          }),
         );
       });
 
@@ -407,7 +407,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           expect.objectContaining({
             method: ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
             params: ['00000000-0000-0000-0000-000000000000'],
-          })
+          }),
         );
       });
     });
@@ -548,13 +548,13 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(getLedgerTransport).toHaveBeenCalled();
         expect(AppAvalanche).not.toHaveBeenCalled();
         expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
-          'true'
+          'true',
         );
         expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
-          'false'
+          'false',
         );
         expect(screen.getByTestId('appType').textContent).toBe(
-          LedgerAppType.UNKNOWN
+          LedgerAppType.UNKNOWN,
         );
       });
     });
@@ -602,13 +602,13 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
         expect(Btc).toHaveBeenCalledWith(transportMock);
         expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
-          'true'
+          'true',
         );
         expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
-          'false'
+          'false',
         );
         expect(screen.getByTestId('appType').textContent).toBe(
-          LedgerAppType.UNKNOWN
+          LedgerAppType.UNKNOWN,
         );
       });
     });
@@ -639,13 +639,13 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
         expect(Btc).not.toHaveBeenCalledWith(transportMock);
         expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
-          'true'
+          'true',
         );
         expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
-          'true'
+          'true',
         );
         expect(screen.getByTestId('appType').textContent).toBe(
-          LedgerAppType.AVALANCHE
+          LedgerAppType.AVALANCHE,
         );
         expect(screen.getByTestId('avaxAppVersion').textContent).toBe('1.0');
       });
@@ -678,13 +678,13 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(Eth).toHaveBeenCalledWith(transportMock);
         expect(Btc).not.toHaveBeenCalledWith(transportMock);
         expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
-          'true'
+          'true',
         );
         expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
-          'true'
+          'true',
         );
         expect(screen.getByTestId('appType').textContent).toBe(
-          LedgerAppType.ETHEREUM
+          LedgerAppType.ETHEREUM,
         );
       });
     });
@@ -720,13 +720,13 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
         expect(Btc).toHaveBeenCalledWith(transportMock);
         expect(screen.getByTestId('wasTransportAttempted').textContent).toBe(
-          'true'
+          'true',
         );
         expect(screen.getByTestId('hasLedgerTransport').textContent).toBe(
-          'true'
+          'true',
         );
         expect(screen.getByTestId('appType').textContent).toBe(
-          LedgerAppType.BITCOIN
+          LedgerAppType.BITCOIN,
         );
       });
     });
@@ -740,7 +740,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           if (param.method === ExtensionRequest.SHOW_LEDGER_VERSION_WARNING) {
             return true;
           }
-        }
+        },
       );
 
       renderTestComponent();
@@ -750,7 +750,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           method: ExtensionRequest.SHOW_LEDGER_VERSION_WARNING,
         });
         expect(
-          screen.getByTestId('ledgerVersionWarningClosed').textContent
+          screen.getByTestId('ledgerVersionWarningClosed').textContent,
         ).toBe('true');
       });
     });
@@ -771,7 +771,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           value: true,
         });
         expect(
-          screen.getByTestId('ledgerVersionWarningClosed').textContent
+          screen.getByTestId('ledgerVersionWarningClosed').textContent,
         ).toBe('false');
       });
     });
@@ -786,7 +786,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('error').textContent).toBe(
-          'no device detected'
+          'no device detected',
         );
         expect(getLedgerExtendedPublicKey).not.toHaveBeenCalled();
       });
@@ -805,7 +805,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
           refMock,
           false,
-          path
+          path,
         );
       });
     });
@@ -823,7 +823,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
           refMock,
           false,
-          path
+          path,
         );
       });
     });
@@ -838,7 +838,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('error').textContent).toBe(
-          'no device detected'
+          'no device detected',
         );
         expect(getPubKeyFromTransport).not.toHaveBeenCalled();
       });
@@ -857,7 +857,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           refMock,
           1,
           DerivationPath.BIP44,
-          'EVM'
+          'EVM',
         );
       });
     });
@@ -893,7 +893,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
     it('throws on transport error', async () => {
       (TransportWebUSB.request as jest.Mock).mockRejectedValueOnce(
-        'some error'
+        'some error',
       );
 
       renderTestComponent();
@@ -901,7 +901,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('error').textContent).toBe(
-          'Ledger device selection failed'
+          'Ledger device selection failed',
         );
       });
     });
@@ -940,7 +940,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       };
       const btcAppMock = new Btc({} as any);
       (btcAppMock.getMasterFingerprint as jest.Mock).mockResolvedValueOnce(
-        masterFingerprint
+        masterFingerprint,
       );
       (getLedgerTransport as jest.Mock).mockResolvedValue(transportMock);
       (getLedgerAppInfo as jest.Mock).mockResolvedValue({
@@ -960,7 +960,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('result').textContent).toBe(
-          masterFingerprint
+          masterFingerprint,
         );
       });
     });
@@ -1070,7 +1070,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
       const defaultWalletPolicyMock = { keys: [1, 2, 3] };
       (DefaultWalletPolicy as jest.Mock).mockReturnValueOnce(
-        defaultWalletPolicyMock
+        defaultWalletPolicyMock,
       );
 
       const walletPolicyMock = { foo: 'bar' };
@@ -1087,19 +1087,19 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('result').textContent).toBe(
-          result.toString()
+          result.toString(),
         );
         expect(btcAppMock.registerWallet).toHaveBeenCalledWith(
-          walletPolicyMock
+          walletPolicyMock,
         );
         expect(DefaultWalletPolicy).toHaveBeenCalledWith(
           'wpkh(@0/**)',
-          `[${masterFingerprint}/${path}]${xPub}`
+          `[${masterFingerprint}/${path}]${xPub}`,
         );
         expect(WalletPolicy).toHaveBeenCalledWith(
           name,
           'wpkh(@0/**)',
-          defaultWalletPolicyMock.keys
+          defaultWalletPolicyMock.keys,
         );
       });
     });

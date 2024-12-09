@@ -29,7 +29,7 @@ export class AvalancheSelectWalletHandler extends DAppRequestHandler {
           info: availableExtensions.map((extension) => extension.info),
         },
       },
-      `approve/select-wallet`
+      `approve/select-wallet`,
     );
 
     return { ...request, result: DEFERRED_RESPONSE };
@@ -40,10 +40,10 @@ export class AvalancheSelectWalletHandler extends DAppRequestHandler {
   };
 
   onActionApproved = async (
-    pendingAction: Action,
+    _pendingAction: Action,
     result,
     onSuccess,
-    onError
+    onError,
   ) => {
     if (result >= 0) {
       onSuccess(result);

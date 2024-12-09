@@ -18,7 +18,7 @@ export async function getMaxUtxoSet(
   wallet: Avalanche.AddressWallet,
   network: Network,
   feeState?: FeeState,
-  preloadedUtxoSet?: utils.UtxoSet
+  preloadedUtxoSet?: utils.UtxoSet,
 ) {
   const chainAliasToUse = isPchainNetwork(network)
     ? CHAIN_ALIAS.P

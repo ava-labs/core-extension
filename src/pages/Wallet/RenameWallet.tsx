@@ -22,10 +22,11 @@ export function RenameWallet() {
   const { t } = useTranslation();
   const requestId = useGetRequestId();
 
-  const { action, updateAction, cancelHandler } =
-    useApproveAction<{ walletId: string; newName: string; walletName: string }>(
-      requestId
-    );
+  const { action, updateAction, cancelHandler } = useApproveAction<{
+    walletId: string;
+    newName: string;
+    walletName: string;
+  }>(requestId);
 
   if (!action) {
     return (

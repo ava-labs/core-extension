@@ -10,7 +10,7 @@ export type TotalBalanceForWallet = {
 };
 
 export type AddressActivityFetcher = (
-  addresses: string[]
+  addresses: string[],
 ) => Promise<ChainAddressChainIdMapListResponse>;
 
 export const ITERATION_LIMIT = 10; // Abitrary number to avoid an infinite loop.

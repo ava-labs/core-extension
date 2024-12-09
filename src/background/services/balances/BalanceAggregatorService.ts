@@ -49,21 +49,21 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     private networkService: NetworkService,
     private lockService: LockService,
     private storageService: StorageService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
   ) {}
 
   async getBalancesForNetworks(
     chainIds: number[],
     accounts: Account[],
     tokenTypes: TokenType[],
-    cacheResponse = true
+    cacheResponse = true,
   ): Promise<{ tokens: Balances; nfts: Balances<NftTokenWithBalance> }> {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
     });
 
     const networks = Object.values(
-      await this.networkService.activeNetworks.promisify()
+      await this.networkService.activeNetworks.promisify(),
     ).filter((network) => chainIds.includes(network.chainId));
 
     const priceChangesData = await this.getPriceChangesData();
@@ -75,14 +75,14 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
             network,
             accounts,
             tokenTypes,
-            priceChangesData
+            priceChangesData,
           );
 
         return {
           chainId: network.chainId,
           networkBalances,
         };
-      })
+      }),
     );
 
     const updatedNetworks = updateRequests
@@ -97,7 +97,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         const fetchedAddresses = Object.keys(networkBalances);
         const cachedBalances = pick(
           this.balances[chainId] ?? {},
-          fetchedAddresses
+          fetchedAddresses,
         );
 
         return !isEqual(networkBalances, cachedBalances);
@@ -117,7 +117,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
         return balances;
       },
-      { tokens: {}, nfts: {} }
+      { tokens: {}, nfts: {} },
     );
 
     // NFTs don't have balance = 0, if they are sent they should be removed
@@ -181,7 +181,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       .currency;
     const changesData =
       await this.storageService.loadUnencrypted<TokensPriceChangeData>(
-        `${TOKENS_PRICE_DATA}-${selectedCurrency}`
+        `${TOKENS_PRICE_DATA}-${selectedCurrency}`,
       );
 
     const lastUpdated = changesData?.lastUpdatedAt;
@@ -195,8 +195,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     ) {
       const [priceChangesResult] = await resolve(
         fetch(
-          `${process.env.PROXY_URL}/watchlist/tokens?currency=${selectedCurrency}`
-        )
+          `${process.env.PROXY_URL}/watchlist/tokens?currency=${selectedCurrency}`,
+        ),
       );
 
       if (!priceChangesResult) {
@@ -213,7 +213,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
             },
           };
         },
-        {}
+        {},
       );
 
       priceChangesData = { ...tokensData };
@@ -224,7 +224,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           priceChanges: tokensData,
           lastUpdatedAt: Date.now(),
           currency: selectedCurrency,
-        }
+        },
       );
     }
     return priceChangesData;
@@ -275,7 +275,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
   addListener<T = unknown>(
     event: BalanceServiceEvents,
-    callback: (data: T) => void
+    callback: (data: T) => void,
   ) {
     this.#eventEmitter.on(event, callback);
   }

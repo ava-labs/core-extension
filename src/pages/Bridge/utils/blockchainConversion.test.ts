@@ -197,7 +197,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       const result = blockchainToNetwork(
         Blockchain.AVALANCHE,
         mockedNetworks,
-        bridgeConfigMock
+        bridgeConfigMock,
       );
 
       expect(result).toEqual(mockAvalancheNetwork);
@@ -207,7 +207,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       const result = blockchainToNetwork(
         Blockchain.ETHEREUM,
         mockedNetworks,
-        bridgeConfigMock
+        bridgeConfigMock,
       );
 
       expect(result).toEqual(mockEthereumNetwork);
@@ -218,7 +218,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
         Blockchain.BITCOIN,
         mockedNetworks,
         bridgeConfigMock,
-        false
+        false,
       );
 
       expect(result).toEqual(mockBTCNetwork);
@@ -229,7 +229,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
         Blockchain.BITCOIN,
         mockedNetworks,
         bridgeConfigMock,
-        true
+        true,
       );
 
       expect(result).toEqual(mockBTCTestnetNetwork);
@@ -239,7 +239,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       const result = blockchainToNetwork(
         Blockchain.BITCOIN,
         mockedNetworks,
-        bridgeConfigMock
+        bridgeConfigMock,
       );
 
       expect(result).toEqual(mockBTCNetwork);
@@ -250,8 +250,8 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
         blockchainToNetwork(
           Blockchain.UNKNOWN,
           mockedNetworks,
-          bridgeConfigMock
-        )
+          bridgeConfigMock,
+        ),
       ).toThrow('Blockchain not supported');
     });
   });

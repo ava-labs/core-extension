@@ -29,9 +29,9 @@ export class SetDevelopermodeNetworkHandler implements HandlerType {
         chainIdToCaip(
           enableDeveloperMode
             ? ChainId.AVALANCHE_TESTNET_ID
-            : ChainId.AVALANCHE_MAINNET_ID
-        )
-      )
+            : ChainId.AVALANCHE_MAINNET_ID,
+        ),
+      ),
     );
 
     if (err) {

@@ -31,7 +31,7 @@ const previousSchema = Joi.object({
   pubKeys: Joi.array().items(
     Joi.object({
       evm: Joi.string().required(),
-    }).unknown()
+    }).unknown(),
   ),
   masterFingerprint: Joi.string().allow('').optional(),
   derivationPath: Joi.string()
@@ -44,7 +44,6 @@ const previousSchema = Joi.object({
 let walletId = '';
 
 const up = async (walletStorage: PreviousSchema) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { imported, version, ...rest } = walletStorage;
   walletId = WALLET_ID;
   const secretType = getSecretsType(walletStorage);
@@ -52,15 +51,14 @@ const up = async (walletStorage: PreviousSchema) => {
     secretType === SecretType.Mnemonic
       ? 'Recovery Phrase'
       : secretType === SecretType.Seedless
-      ? 'Seedless'
-      : secretType === SecretType.Keystone
-      ? 'Keystone'
-      : 'Ledger';
+        ? 'Seedless'
+        : secretType === SecretType.Keystone
+          ? 'Keystone'
+          : 'Ledger';
 
   const newImported = {};
   if (imported) {
     for (const [key, value] of Object.entries(imported)) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { type, ...restData } = value;
       let newSecretType: SecretType | undefined;
       switch (type) {

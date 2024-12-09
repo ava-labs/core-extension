@@ -44,7 +44,7 @@ export const useAvmSend: SendAdapterAVM = ({
       stripAddressPrefix(account.addressCoreEth),
       [stripAddressPrefix(account.addressAVM)],
       stripAddressPrefix(account.addressAVM),
-      provider as Avalanche.JsonRpcProvider
+      provider as Avalanche.JsonRpcProvider,
     );
   }, [account, provider]);
 
@@ -76,7 +76,7 @@ export const useAvmSend: SendAdapterAVM = ({
 
       // using filtered UTXOs because there is size limit
       const [utxos, utxosError] = await resolve(
-        getMaxUtxoSet(isLedgerWallet, provider, wallet, network)
+        getMaxUtxoSet(isLedgerWallet, provider, wallet, network),
       );
 
       if (utxosError) {
@@ -114,7 +114,7 @@ export const useAvmSend: SendAdapterAVM = ({
       network,
       provider,
       wallet,
-    ]
+    ],
   );
 
   const send = useCallback(
@@ -127,7 +127,7 @@ export const useAvmSend: SendAdapterAVM = ({
           isLedgerWallet,
           provider,
           wallet,
-          network
+          network,
         );
         const avax = provider.getAvaxID();
         const amountBigInt = bigToBigInt(Big(amount), token.decimals);
@@ -152,7 +152,7 @@ export const useAvmSend: SendAdapterAVM = ({
           transactionHex: Buffer.from(unsignedTx.toBytes()).toString('hex'),
           chainAlias: XCHAIN_ALIAS,
           utxos: unsignedTx.utxos.map((utxo) =>
-            utils.bufferToHex(utxo.toBytes(codec))
+            utils.bufferToHex(utxo.toBytes(codec)),
           ),
         };
 
@@ -172,7 +172,7 @@ export const useAvmSend: SendAdapterAVM = ({
       provider,
       request,
       wallet,
-    ]
+    ],
   );
 
   return {

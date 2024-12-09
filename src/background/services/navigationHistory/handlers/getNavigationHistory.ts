@@ -22,7 +22,7 @@ export class GetNavigationHistoryHandler implements HandlerType {
         ...request,
         result: navigationHistory,
       };
-    } catch (e) {
+    } catch (_err) {
       return {
         ...request,
         result: {},

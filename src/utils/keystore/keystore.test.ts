@@ -13,7 +13,7 @@ describe('Keystore Import/Export', () => {
     const data = await readKeyFile(KEYSTORE_V2.file, KEYSTORE_V2.password);
     expect(data.keys).toEqual(KEYSTORE_V2.expectedKeys);
     expect(extractKeysFromDecryptedFile(data)).toEqual(
-      KEYSTORE_V2.expectedPhrases
+      KEYSTORE_V2.expectedPhrases,
     );
   });
 
@@ -22,7 +22,7 @@ describe('Keystore Import/Export', () => {
 
     expect(data.keys).toEqual(KEYSTORE_V3.expectedKeys);
     expect(extractKeysFromDecryptedFile(data)).toEqual(
-      KEYSTORE_V3.expectedPhrases
+      KEYSTORE_V3.expectedPhrases,
     );
   });
 
@@ -31,7 +31,7 @@ describe('Keystore Import/Export', () => {
 
     expect(data.keys).toEqual(KEYSTORE_V4.expectedKeys);
     expect(extractKeysFromDecryptedFile(data)).toEqual(
-      KEYSTORE_V4.expectedPhrases
+      KEYSTORE_V4.expectedPhrases,
     );
   });
 
@@ -40,19 +40,19 @@ describe('Keystore Import/Export', () => {
 
     expect(data.keys).toEqual(KEYSTORE_V5.expectedKeys);
     expect(extractKeysFromDecryptedFile(data)).toEqual(
-      KEYSTORE_V5.expectedPhrases
+      KEYSTORE_V5.expectedPhrases,
     );
   });
 
   test('can read v6', async () => {
     const data = await readKeyFile(
       KEYSTORE_V6.file as KeyFileV6,
-      KEYSTORE_V6.password
+      KEYSTORE_V6.password,
     );
 
     expect(data.keys).toEqual(KEYSTORE_V6.expectedPhrases);
     expect(extractKeysFromDecryptedFile(data)).toEqual(
-      KEYSTORE_V6.expectedPhrases
+      KEYSTORE_V6.expectedPhrases,
     );
   });
 });

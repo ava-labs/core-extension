@@ -4,7 +4,7 @@ import { bigToBigInt } from '@avalabs/core-utils-sdk';
 import { TransactionToken } from '../../wallet/handlers/eth_sendTransaction/models';
 
 export const mapTokenItemToTransactionToken = (
-  t: DebankTokenItem
+  t: DebankTokenItem,
 ): TransactionToken => ({
   address: t.id,
   decimals: t.decimals,

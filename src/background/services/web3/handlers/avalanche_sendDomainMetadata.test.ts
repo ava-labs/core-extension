@@ -13,14 +13,14 @@ describe('background/services/web3/handlers/avalanche_sendDomainMetadata.ts', ()
     };
 
     expect(
-      await handler.handleAuthenticated(buildRpcCall(mockRequest))
+      await handler.handleAuthenticated(buildRpcCall(mockRequest)),
     ).toEqual({
       ...mockRequest,
       result: [{ domain: 'site.example' }],
     });
 
     expect(
-      await handler.handleUnauthenticated(buildRpcCall(mockRequest))
+      await handler.handleUnauthenticated(buildRpcCall(mockRequest)),
     ).toEqual({
       ...mockRequest,
       result: [{ domain: 'site.example' }],

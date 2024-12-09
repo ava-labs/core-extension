@@ -14,7 +14,7 @@ import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],
-  moduleManager: ModuleManager
+  moduleManager: ModuleManager,
 ): Middleware<JsonRpcRequest, JsonRpcResponse<unknown>> {
   const handlerMap = handlers.reduce((acc, handler) => {
     for (const method of handler.methods) {
@@ -51,8 +51,8 @@ export function DAppRequestHandlerMiddleware(
       const [module] = await resolve(
         moduleManager.loadModule(
           context.request.params.scope,
-          context.request.params.request.method
-        )
+          context.request.params.request.method,
+        ),
       );
 
       if (!context.network) {
@@ -75,7 +75,7 @@ export function DAppRequestHandlerMiddleware(
               // This field is for our internal use only (only used with extension's direct connection)
               context: undefined,
             },
-            context.network
+            context.network,
           );
         } else {
           promise = engine(context.network).then((e) =>
@@ -83,7 +83,7 @@ export function DAppRequestHandlerMiddleware(
               ...context.request.params.request,
               id: crypto.randomUUID(),
               jsonrpc: '2.0',
-            })
+            }),
           );
         }
       }

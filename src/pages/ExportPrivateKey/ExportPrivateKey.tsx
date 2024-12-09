@@ -68,7 +68,7 @@ export function ExportPrivateKey() {
           setIsLoading(false);
         });
     },
-    [capture, id, index, request, t, type]
+    [capture, id, index, request, t, type],
   );
 
   useEffect(() => {

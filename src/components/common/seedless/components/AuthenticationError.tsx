@@ -30,7 +30,7 @@ export const AuthenticationError = ({ error }: Props) => {
           <Typography variant="h5">{t('Wrong email address.')}</Typography>
           <Typography variant="body2" color="text.secondary">
             {t(
-              'Please log in with the email address you used when you created your wallet.'
+              'Please log in with the email address you used when you created your wallet.',
             )}
           </Typography>
         </>

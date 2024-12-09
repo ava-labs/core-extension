@@ -6,7 +6,7 @@ import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/currency/handlers/getCurrencyExchangeRates.ts', () => {
   const currencyService = (state?: CurrencyExchangeRatesState) =>
-    ({ state } as unknown as CurrencyService);
+    ({ state }) as unknown as CurrencyService;
 
   describe('when exchange rates are known', () => {
     const service = currencyService({
@@ -27,7 +27,7 @@ describe('src/background/services/currency/handlers/getCurrencyExchangeRates.ts'
         buildRpcCall({
           id: '1',
           method: ExtensionRequest.CURRENCIES_GET_EXCHANGE_RATES,
-        })
+        }),
       );
 
       expect(response).toEqual({
@@ -54,7 +54,7 @@ describe('src/background/services/currency/handlers/getCurrencyExchangeRates.ts'
         buildRpcCall({
           id: '1',
           method: ExtensionRequest.CURRENCIES_GET_EXCHANGE_RATES,
-        })
+        }),
       );
 
       expect(response).toEqual({

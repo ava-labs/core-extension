@@ -210,7 +210,7 @@ export interface EthSendTransactionParams {
 }
 
 export function isTxParams(
-  params: Partial<EthSendTransactionParams>
+  params: Partial<EthSendTransactionParams>,
 ): params is EthSendTransactionParams {
   return !!params.from;
 }

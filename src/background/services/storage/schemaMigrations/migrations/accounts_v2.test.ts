@@ -45,7 +45,6 @@ describe('background/services/storage/schemaMigrations/migrations/accounts_v2', 
   });
 
   it('rejects incorrect inputs', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { index, ...invalidInput } = validInput[0] ?? {};
     const result = accounts_v2.previousSchema.validate(invalidInput);
 
