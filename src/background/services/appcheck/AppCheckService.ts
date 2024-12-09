@@ -3,6 +3,7 @@ import {
   CustomProvider,
   getToken,
   initializeAppCheck,
+  setTokenAutoRefreshEnabled,
 } from 'firebase/app-check';
 import { MessagePayload } from 'firebase/messaging/sw';
 import { singleton } from 'tsyringe';
@@ -30,23 +31,37 @@ export class AppCheckService {
     );
 
     this.firebaseService.addFirebaseEventListener(
-      FirebaseEvents.FCM_READY,
-      () => this.#setupAppcheck()
+      FirebaseEvents.FCM_INITIALIZED,
+      () => this.#startAppcheck()
+    );
+
+    this.firebaseService.addFirebaseEventListener(
+      FirebaseEvents.FCM_TERMINATED,
+      () => this.#stopAppcheck()
     );
   }
 
   async getAppcheckToken(forceRefresh = false) {
-    if (!this.#appCheck) {
+    if (!this.firebaseService.isFcmInitialized || !this.#appCheck) {
       return;
     }
 
     return getToken(this.#appCheck, forceRefresh);
   }
 
-  #setupAppcheck() {
+  #startAppcheck() {
+    if (this.#appCheck) {
+      setTokenAutoRefreshEnabled(this.#appCheck, true);
+      return;
+    }
+
     this.#appCheck = initializeAppCheck(this.firebaseService.getFirebaseApp(), {
       provider: new CustomProvider({
         getToken: async () => {
+          if (!this.firebaseService.isFcmInitialized) {
+            throw new Error('fcm is not initialized');
+          }
+
           const fcmToken = this.firebaseService.getFcmToken();
 
           if (!fcmToken) {
@@ -102,6 +117,12 @@ export class AppCheckService {
       }),
       isTokenAutoRefreshEnabled: true,
     });
+  }
+
+  #stopAppcheck() {
+    if (this.#appCheck) {
+      setTokenAutoRefreshEnabled(this.#appCheck, false);
+    }
   }
 
   #handleMessage(payload: MessagePayload) {

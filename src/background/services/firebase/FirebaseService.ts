@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { FirebaseApp, initializeApp } from 'firebase/app';
-import { getToken } from 'firebase/messaging';
+import { deleteToken, getToken } from 'firebase/messaging';
 import {
   getMessaging,
   MessagePayload,
@@ -11,17 +11,20 @@ import { FcmMessageEvents, FirebaseEvents, FcmMessageListener } from './models';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import { FeatureFlagEvents, FeatureGates } from '../featureFlags/models';
 
 declare const globalThis: ServiceWorkerGlobalScope;
 
 @singleton()
 export class FirebaseService {
   #app: FirebaseApp;
+  #isFcmInitialized = false;
   #fcmToken?: string;
   #firebaseEventEmitter = new EventEmitter();
   #fcmMessageEventEmitter = new EventEmitter();
 
-  constructor() {
+  constructor(private featureFlagService: FeatureFlagService) {
     if (!process.env.FIREBASE_CONFIG) {
       throw new Error('FIREBASE_CONFIG is missing');
     }
@@ -34,18 +37,42 @@ export class FirebaseService {
       this.#handleMessage(payload);
     });
 
-    globalThis.addEventListener('activate', async () => {
-      try {
-        this.#fcmToken = await getToken(getMessaging(this.#app), {
-          serviceWorkerRegistration: globalThis.registration,
-        });
+    this.featureFlagService.addListener(
+      FeatureFlagEvents.FEATURE_FLAG_UPDATED,
+      async (featureFlags) => {
+        try {
+          if (
+            this.#isFcmInitialized &&
+            !featureFlags[FeatureGates.FIREBASE_CLOUD_MESSAGING]
+          ) {
+            await deleteToken(getMessaging(this.#app));
 
-        this.#firebaseEventEmitter.emit(FirebaseEvents.FCM_READY);
-      } catch (err) {
-        console.warn('FCM init failed');
-        sentryCaptureException(err as Error, SentryExceptionTypes.FIREBASE);
+            this.#isFcmInitialized = false;
+            this.#firebaseEventEmitter.emit(FirebaseEvents.FCM_TERMINATED);
+            return;
+          }
+
+          if (
+            !this.#isFcmInitialized &&
+            featureFlags[FeatureGates.FIREBASE_CLOUD_MESSAGING]
+          ) {
+            this.#fcmToken = await getToken(getMessaging(this.#app), {
+              serviceWorkerRegistration: globalThis.registration,
+            });
+
+            this.#isFcmInitialized = true;
+            this.#firebaseEventEmitter.emit(FirebaseEvents.FCM_INITIALIZED);
+            return;
+          }
+        } catch (err) {
+          sentryCaptureException(err as Error, SentryExceptionTypes.FIREBASE);
+        }
       }
-    });
+    );
+  }
+
+  get isFcmInitialized() {
+    return this.#isFcmInitialized;
   }
 
   getFirebaseApp() {
