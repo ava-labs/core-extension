@@ -14,6 +14,8 @@ const registerForChallenge = async ({ token, requestId }: Params) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-App-Type': 'extension',
+      'X-App-Version': chrome.runtime.getManifest().version,
     },
     body: JSON.stringify({
       token,

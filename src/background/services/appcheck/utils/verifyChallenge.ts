@@ -14,6 +14,8 @@ const verifyChallenge = async ({ registrationId, solution }: Params) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-App-Type': 'extension',
+      'X-App-Version': chrome.runtime.getManifest().version,
     },
     body: JSON.stringify({
       registrationId,
