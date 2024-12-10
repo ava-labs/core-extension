@@ -40,6 +40,7 @@ export enum DAppProviderRequest {
   AVALANCHE_SIGN_MESSAGE = 'avalanche_signMessage',
   BITCOIN_SEND_TRANSACTION = 'bitcoin_sendTransaction',
   WALLET_RENAME = 'avalanche_renameWallet',
+  WALLET_ADD_NETWORK = 'wallet_addNetwork',
 }
 
 export enum Web3Event {
@@ -100,7 +101,7 @@ export interface JsonRpcSuccess<T = unknown> {
   result: Maybe<T | symbol>;
 }
 export interface JsonRpcFailure {
-  error: EthereumProviderError<unknown> | SerializedEthereumRpcError;
+  error: EthereumProviderError<unknown> | SerializedEthereumRpcError | Error;
 }
 export declare type JsonRpcResponse<T = unknown> =
   | JsonRpcSuccess<T>

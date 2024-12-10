@@ -91,6 +91,8 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   'avalanche_getIsDefaultExtensionState',
   'avalanche_selectWallet',
   DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+  DAppProviderRequest.WALLET_ADD_NETWORK,
+  'hvm_signTransaction',
 ]);
 
 const CORE_METHODS = Object.freeze([
