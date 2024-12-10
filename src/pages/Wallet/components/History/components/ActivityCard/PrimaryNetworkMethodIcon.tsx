@@ -59,11 +59,11 @@ const METHOD_NAME_TO_ICON: Record<
   RemoveSubnetValidatorTx: MinusCircleIcon,
   RewardValidatorTx: AirdropIcon,
   AdvanceTimeTx: ClockIcon,
-  [PChainTransactionType.CONVERT_SUBNET_TX]: RefreshIcon,
-  [PChainTransactionType.REGISTER_SUBNET_VALIDATOR_TX]: ValidatorIcon,
-  [PChainTransactionType.SET_SUBNET_VALIDATOR_WEIGHT_TX]: BuildIcon,
-  [PChainTransactionType.DISABLE_SUBNET_VALIDATOR_TX]: DownloadIcon,
-  [PChainTransactionType.INCREASE_BALANCE_TX]: ChevronDoubleUpIcon,
+  [PChainTransactionType.CONVERT_SUBNET_TO_L1TX]: RefreshIcon,
+  [PChainTransactionType.REGISTER_L1VALIDATOR_TX]: ValidatorIcon,
+  [PChainTransactionType.SET_L1VALIDATOR_WEIGHT_TX]: BuildIcon,
+  [PChainTransactionType.DISABLE_L1VALIDATOR_TX]: DownloadIcon,
+  [PChainTransactionType.INCREASE_L1VALIDATOR_BALANCE_TX]: ChevronDoubleUpIcon,
   UNKNOWN: HelpCircleIcon,
 };
 

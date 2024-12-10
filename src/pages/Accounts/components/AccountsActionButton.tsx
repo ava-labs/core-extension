@@ -15,6 +15,7 @@ import {
   ListIcon,
   Typography,
   TypographyProps,
+  PlusIcon,
 } from '@avalabs/core-k2-components';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -29,16 +30,39 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 type AccountsActionButtonProps = {
-  disabled?: boolean;
-  isButtonDisabled?: boolean;
+  isLoading: boolean;
+  canCreateAccount: boolean;
   onAddNewAccount: () => void;
-  disabledButtonTooltipText?: string;
+  createAccountTooltip?: string;
 };
 
 const StyledMenuItem = styled(MenuItem)`
   color: ${({ theme }) => theme.palette.text.secondary};
   &:hover {
     color: ${({ theme }) => theme.palette.text.primary};
+  }
+`;
+
+const RoundedButtonGroup = styled(ButtonGroup)`
+  & > .MuiButtonGroup-grouped {
+    border-radius: 0;
+    height: 40px;
+
+    &:not(:last-of-type) {
+      margin-right: 1px;
+
+      &.Mui-disabled {
+        margin-right: 1px;
+      }
+    }
+
+    &:first-of-type {
+      border-radius: 24px 0 0 24px;
+    }
+
+    &:last-of-type {
+      border-radius: 0 24px 24px 0;
+    }
   }
 `;
 
@@ -58,10 +82,10 @@ const WALLET_IMPORT_FLAGS = [
 ];
 
 export const AccountsActionButton = ({
-  disabled,
+  isLoading,
   onAddNewAccount,
-  disabledButtonTooltipText,
-  isButtonDisabled,
+  createAccountTooltip,
+  canCreateAccount,
 }: AccountsActionButtonProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const history = useHistory();
@@ -93,8 +117,6 @@ export const AccountsActionButton = ({
     browser.tabs.create({
       url: `/fullscreen.html#/accounts/add-wallet/ledger`,
     });
-
-    // history.push('/accounts/add-wallet/ledger');
   }, [capture]);
 
   const goToWalletConnectScreen = useCallback(() => {
@@ -125,27 +147,27 @@ export const AccountsActionButton = ({
   );
 
   return (
-    <ButtonGroup
-      disabled={disabled}
+    <RoundedButtonGroup
+      disabled={isLoading}
       color="primary"
       variant="contained"
       fullWidth
     >
       <Tooltip
-        title={disabledButtonTooltipText}
+        title={createAccountTooltip}
         sx={{
           display: 'flex',
           width: '100%',
-          mr: 0.5,
         }}
       >
         <Button
           onClick={onAddNewAccount}
-          sx={{ gap: 1 }}
           data-testid={'add-primary-account'}
-          disabled={isButtonDisabled}
+          isLoading={isLoading}
+          disabled={isLoading || !canCreateAccount}
+          startIcon={<PlusIcon size={24} />}
         >
-          {t('Create Account')}
+          {t('Add Account')}
         </Button>
       </Tooltip>
 
@@ -153,11 +175,13 @@ export const AccountsActionButton = ({
         <Button
           ref={toggleButtonRef}
           onClick={() => setIsMenuOpen((open) => !open)}
-          sx={{ width: '56px' }}
+          sx={{
+            width: '56px',
+          }}
           data-testid="account-options"
         >
           <ChevronDownIcon
-            size={24}
+            size={20}
             sx={{
               transition: 'transform ease-in-out .15s',
               transform: isMenuOpen ? 'rotateX(180deg)' : 'none',
@@ -254,6 +278,6 @@ export const AccountsActionButton = ({
           </Popper>
         </Button>
       </ClickAwayListener>
-    </ButtonGroup>
+    </RoundedButtonGroup>
   );
 };

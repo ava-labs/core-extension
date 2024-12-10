@@ -7,7 +7,6 @@ import { PageTitle } from '@src/components/common/PageTitle';
 import { WalletConnectCircledIcon } from './components/WalletConnectCircledIcon';
 import WalletConnectConnector from './components/WalletConnectConnector';
 
-import { AccountsTab } from '../Accounts/Accounts';
 import { OnConnectCallback } from '@src/contexts/WalletConnectContextProvider/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
@@ -31,7 +30,7 @@ export default function ImportWithWalletConnect({
         onConnect(result);
       } else {
         capture('ImportWithWalletConnect_Success');
-        replace(`/accounts?activeTab=${AccountsTab.Imported}`);
+        replace('/accounts');
       }
     },
     [replace, onConnect, capture]

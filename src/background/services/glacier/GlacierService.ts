@@ -1,4 +1,9 @@
-import { Erc1155Token, Erc721Token, Glacier } from '@avalabs/glacier-sdk';
+import {
+  Erc1155Token,
+  Erc721Token,
+  Glacier,
+  Network,
+} from '@avalabs/glacier-sdk';
 import { singleton } from 'tsyringe';
 import { wait } from '@avalabs/core-utils-sdk';
 
@@ -12,6 +17,19 @@ export class GlacierService {
     BASE: process.env.GLACIER_URL,
     HEADERS,
   });
+
+  async getChainIdsForAddresses({
+    addresses,
+    network,
+  }: {
+    addresses: string[];
+    network: Network;
+  }) {
+    return this.glacierSdkInstance.primaryNetwork.getChainIdsForAddresses({
+      addresses: addresses.join(','),
+      network,
+    });
+  }
 
   async refreshNftMetadata(address: string, chainId: string, tokenId: string) {
     const requestTimestamp = Math.floor(Date.now() / 1000);

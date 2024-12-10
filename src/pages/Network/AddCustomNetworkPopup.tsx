@@ -94,7 +94,7 @@ export function AddCustomNetworkPopup() {
 
   const keyboardShortcuts = useKeyboardShortcuts({
     Enter: saveApiKey,
-    Esc: () => setIsApiModalVisible(false),
+    Escape: () => setIsApiModalVisible(false),
   });
 
   if (!action || !action.displayData) {

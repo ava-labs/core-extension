@@ -2,6 +2,7 @@ import {
   Account,
   AccountType,
   FireblocksAccount,
+  ImportedAccount,
   PrimaryAccount,
   WalletConnectAccount,
 } from '../models';
@@ -18,3 +19,7 @@ export const isWalletConnectAccount = (
 export const isPrimaryAccount = (
   account?: Account
 ): account is PrimaryAccount => account?.type === AccountType.PRIMARY;
+
+export const isImportedAccount = (
+  account?: Account
+): account is ImportedAccount => Boolean(account) && !isPrimaryAccount(account);

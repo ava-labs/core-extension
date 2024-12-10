@@ -1,5 +1,6 @@
-import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { EnsureDefined, PartialBy } from '@src/background/models';
 import { Network } from '@src/background/services/network/models';
 
@@ -14,12 +15,12 @@ const BitcoinCaipId = {
   [ChainId.BITCOIN]: `${CaipNamespace.BIP122}:000000000019d6689c085ae165831e93`,
   [ChainId.BITCOIN_TESTNET]: `${CaipNamespace.BIP122}:000000000933ea01ad0ee984209779ba`,
 };
-
 const AvaxCaipId = {
   [ChainId.AVALANCHE_P]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.pBlockchainID}`,
   [ChainId.AVALANCHE_X]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.xBlockchainID}`,
   [ChainId.AVALANCHE_TEST_P]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.pBlockchainID}`,
   [ChainId.AVALANCHE_TEST_X]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.xBlockchainID}`,
+  [ChainId.AVALANCHE_DEVNET_P]: `${CaipNamespace.AVAX}:custom11111111111111111111111111111111LpoYY`,
 } as const;
 
 export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
@@ -38,9 +39,10 @@ export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
     return AvaxCaipId[network.chainId];
   }
 
-  if (network.vmName === NetworkVMType.HVM) {
-    return `hvm:${network.chainId}`;
-  }
+  // TODO: fix
+  // if (network.vmName === NetworkVMType.HVM) {
+  //   return `hvm:${network.chainId}`;
+  // }
 
   throw new Error('Unsupported VM type: ' + network.vmName);
 };
@@ -105,3 +107,5 @@ export const getNameSpaceFromScope = (scope?: string | null) => {
   const [namespace] = scope.split(':');
   return namespace;
 };
+export const isBitcoinCaipId = (caipId: string) =>
+  Object.values(BitcoinCaipId).includes(caipId);

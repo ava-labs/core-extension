@@ -1,103 +1,44 @@
-import { Blockchain } from '@avalabs/core-bridge-sdk';
-import { AvaxTokenIcon } from '@src/components/icons/AvaxTokenIcon';
-import { BitcoinLogo } from '@src/components/icons/BitcoinLogo';
 import { useCallback, useRef, useState } from 'react';
-import { blockchainDisplayNameMap } from '../models';
 import {
   Button,
   CheckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  EthereumColorIcon,
   Menu,
   MenuItem,
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
+import { useTranslation } from 'react-i18next';
 
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 interface NetworkSelectorProps {
   testId?: string;
   disabled?: boolean;
-  selected: Blockchain;
-  onSelect?: (blockchain: Blockchain) => void;
-  chains: Blockchain[];
+  selected?: NetworkWithCaipId;
+  onSelect?: (blockchain: NetworkWithCaipId) => void;
+  chainIds: string[];
 }
-
-const getBlockChainLogo = (blockchain: Blockchain) => {
-  switch (blockchain) {
-    case Blockchain.AVALANCHE:
-      return <AvaxTokenIcon height="16" />;
-    case Blockchain.ETHEREUM:
-      return <EthereumColorIcon height="16" width="16" />;
-    case Blockchain.BITCOIN:
-      return <BitcoinLogo height="16" />;
-    default:
-      return <></>;
-  }
-};
 
 export function NetworkSelector({
   testId,
   disabled,
   selected,
   onSelect,
-  chains,
+  chainIds,
 }: NetworkSelectorProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const selectButtonRef = useRef<HTMLDivElement>(null);
-
-  const selectedDisplayValue = blockchainDisplayNameMap.get(selected);
+  const { getNetwork } = useNetworkContext();
 
   const handleClose = useCallback(
-    (blockchain: Blockchain) => {
+    (network: NetworkWithCaipId) => {
       setIsOpen(false);
-      onSelect?.(blockchain);
+      onSelect?.(network);
     },
     [onSelect]
-  );
-
-  const getMenuItem = useCallback(
-    (dataId: string, blockchain: Blockchain) => {
-      if (!chains.includes(blockchain)) {
-        return null;
-      }
-
-      return (
-        <MenuItem
-          data-testid={dataId}
-          onClick={() => {
-            handleClose(blockchain);
-          }}
-          disableRipple
-          sx={{ minHeight: 'auto', py: 1 }}
-        >
-          <Stack
-            direction="row"
-            sx={{
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              width: '100%',
-            }}
-          >
-            <Stack
-              direction="row"
-              sx={{
-                columnGap: 1,
-                alignItems: 'center',
-              }}
-            >
-              {getBlockChainLogo(blockchain)}
-              <Typography variant="body2">
-                {blockchainDisplayNameMap.get(blockchain)}
-              </Typography>
-            </Stack>
-
-            {selected === blockchain && <CheckIcon size={16} />}
-          </Stack>
-        </MenuItem>
-      );
-    },
-    [chains, handleClose, selected]
   );
 
   return (
@@ -106,14 +47,18 @@ export function NetworkSelector({
         variant="text"
         disableRipple
         data-testid={testId}
-        disabled={disabled || chains.length <= 1}
+        disabled={disabled || chainIds.length <= 1}
         onClick={() => {
           setIsOpen(!isOpen);
         }}
         ref={selectButtonRef}
-        sx={{ color: 'primary.main', p: 0, pb: 1, pr: 1 }}
+        sx={{
+          color: 'primary.main',
+          p: 0.5,
+          '&.Mui-disabled': { color: 'primary.main' },
+        }}
         endIcon={
-          chains.length > 1 &&
+          chainIds.length > 1 &&
           (isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />)
         }
       >
@@ -125,13 +70,22 @@ export function NetworkSelector({
             alignItems: 'center',
           }}
         >
-          {getBlockChainLogo(selected)}
-          <Typography
-            variant="body2"
-            sx={{ transform: 'capitalize', fontWeight: 'fontWeightSemibold' }}
-          >
-            {selectedDisplayValue}
-          </Typography>
+          {selected ? (
+            <>
+              <img src={selected.logoUri} width={16} height={16} alt="" />
+              <Typography
+                variant="body2"
+                sx={{
+                  transform: 'capitalize',
+                  fontWeight: 'fontWeightSemibold',
+                }}
+              >
+                {selected.chainName}
+              </Typography>
+            </>
+          ) : (
+            <Typography variant="body2">{t('Select target chain')}</Typography>
+          )}
         </Stack>
       </Button>
       <Menu
@@ -152,9 +106,44 @@ export function NetworkSelector({
           horizontal: 'right',
         }}
       >
-        {getMenuItem('bridge-avax-chain-option', Blockchain.AVALANCHE)}
-        {getMenuItem('bridge-eth-chain-option', Blockchain.ETHEREUM)}
-        {getMenuItem('bridge-btc-chain-option', Blockchain.BITCOIN)}
+        {chainIds
+          .map((chainId) => getNetwork(chainId))
+          .filter((n): n is NetworkWithCaipId => typeof n !== 'undefined')
+          .map((network) => {
+            return (
+              <MenuItem
+                key={network.caipId}
+                data-testid={`blockchaind-${network.caipId}`}
+                onClick={() => {
+                  handleClose(network);
+                }}
+                disableRipple
+                sx={{ minHeight: 'auto', py: 1 }}
+              >
+                <Stack
+                  direction="row"
+                  sx={{
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '100%',
+                  }}
+                >
+                  <Stack
+                    direction="row"
+                    sx={{
+                      columnGap: 1,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <img src={network.logoUri} width={16} height={16} alt="" />
+                    <Typography variant="body2">{network.chainName}</Typography>
+                  </Stack>
+
+                  {selected === network && <CheckIcon size={16} />}
+                </Stack>
+              </MenuItem>
+            );
+          })}
       </Menu>
     </Stack>
   );

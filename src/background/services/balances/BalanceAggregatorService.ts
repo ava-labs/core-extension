@@ -6,11 +6,11 @@ import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
 import { EventEmitter } from 'events';
 import * as Sentry from '@sentry/browser';
+import { isEqual, omit, pick } from 'lodash';
 
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { CachedBalancesInfo } from './models';
-import { isEqual, merge } from 'lodash';
 import {
   PriceChangesData,
   TOKENS_PRICE_DATA,
@@ -55,7 +55,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
   async getBalancesForNetworks(
     chainIds: number[],
     accounts: Account[],
-    tokenTypes: TokenType[]
+    tokenTypes: TokenType[],
+    cacheResponse = true
   ): Promise<{ tokens: Balances; nfts: Balances<NftTokenWithBalance> }> {
     const sentryTracker = Sentry.startTransaction({
       name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
@@ -89,10 +90,18 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       .map(({ value }) => value);
 
     const networksWithChanges = updatedNetworks
-      .filter(
-        ({ chainId, networkBalances }) =>
-          !isEqual(networkBalances, this.balances[chainId])
-      )
+      .filter(({ chainId, networkBalances }) => {
+        // We may have balances of other accounts cached for this chain ID,
+        // so to check for updates we need to only compare against a subsection
+        // of the cached balances.
+        const fetchedAddresses = Object.keys(networkBalances);
+        const cachedBalances = pick(
+          this.balances[chainId] ?? {},
+          fetchedAddresses
+        );
+
+        return !isEqual(networkBalances, cachedBalances);
+      })
       .map(({ chainId }) => chainId);
 
     const freshBalances = updatedNetworks.reduce<{
@@ -111,7 +120,6 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       { tokens: {}, nfts: {} }
     );
 
-    const aggregatedBalances = merge({}, this.balances, freshBalances.tokens);
     // NFTs don't have balance = 0, if they are sent they should be removed
     // from the list, hence deep merge doesn't work
     const hasFetchedNfts =
@@ -123,9 +131,28 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           ...freshBalances.nfts,
         }
       : this.nfts;
-    const hasChanges = networksWithChanges.length > 0;
+    const hasBalanceChanges = networksWithChanges.length > 0;
+    const hasNftChanges = !isEqual(aggregatedNfts, this.nfts);
+    const hasChanges = hasBalanceChanges || hasNftChanges;
 
-    if (hasChanges && !this.lockService.locked) {
+    const aggregatedBalances = { ...this.balances };
+    if (hasBalanceChanges) {
+      const freshData = Object.entries(freshBalances.tokens);
+      // We don't want to merge the account's balances, but overwrite them.
+      // Merging will result in wrong values when there are nested properties,
+      // such as UTXOs or "balanceByType" for X/P chains.
+      for (const [chainId, chainBalances] of freshData) {
+        for (const [address, addressBalance] of Object.entries(chainBalances)) {
+          aggregatedBalances[chainId] = {
+            ...omit(aggregatedBalances[chainId], address), // Keep cached balances for other accounts
+            ...chainBalances,
+            [address]: addressBalance,
+          };
+        }
+      }
+    }
+
+    if (cacheResponse && hasChanges && !this.lockService.locked) {
       this.#balances = aggregatedBalances;
       this.#nfts = aggregatedNfts;
 

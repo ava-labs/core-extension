@@ -366,7 +366,7 @@ export class SeedlessWallet {
       throw new Error('Unknown network');
     }
 
-    const provider = getProviderForNetwork(this.#network);
+    const provider = await getProviderForNetwork(this.#network);
     if (!(provider instanceof JsonRpcApiProvider)) {
       throw new Error('Wrong provider obtained for EVM transaction');
     }
@@ -427,7 +427,7 @@ export class SeedlessWallet {
       );
     }
 
-    const provider = getProviderForNetwork(this.#network);
+    const provider = await getProviderForNetwork(this.#network);
 
     if (!(provider instanceof BitcoinProvider)) {
       throw new Error('Wrong provider obtained for BTC transaction');

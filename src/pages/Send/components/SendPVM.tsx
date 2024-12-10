@@ -1,5 +1,6 @@
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Grow, Stack } from '@avalabs/core-k2-components';
 
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
 
@@ -12,12 +13,14 @@ import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWalle
 import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 import { TokenWithBalancePVM } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@src/utils/stringToBigint';
+import { CustomFees } from '@src/components/common/CustomFees';
 
 export const SendPVM = ({
   network,
   fromAddress,
   maxFee,
   nativeToken,
+  networkFee,
   provider,
   tokenList,
   account,
@@ -33,19 +36,28 @@ export const SendPVM = ({
   const params = useQueryParams();
   const [address, setAddress] = useState<string>(params.get('address') ?? '');
   const [amount, setAmount] = useState('');
+  const [gasPrice, setGasPrice] = useState(networkFee.low.maxFeePerGas);
 
-  const { error, isSending, isValid, isValidating, maxAmount, send, validate } =
-    usePvmSend({
-      network,
-      from: fromAddress,
-      maxFee,
-      provider,
-      nativeToken,
-      account,
-    });
+  const {
+    error,
+    isSending,
+    isValid,
+    isValidating,
+    maxAmount,
+    send,
+    validate,
+    estimatedFee,
+  } = usePvmSend({
+    network,
+    from: fromAddress,
+    maxFee,
+    provider,
+    nativeToken,
+    account,
+  });
 
   useEffect(() => {
-    validate({ address, token: nativeToken, amount });
+    validate({ address, amount, gasPrice, token: nativeToken });
 
     if (address || amount) {
       setStateInParams({
@@ -63,6 +75,7 @@ export const SendPVM = ({
     nativeToken,
     account,
     tokenList,
+    gasPrice,
   ]);
 
   const onSend = useCallback(async () => {
@@ -75,7 +88,9 @@ export const SendPVM = ({
       hasError,
       result: txHash,
       error: txError,
-    } = await handleTxOutcome(send({ address, token: nativeToken, amount }));
+    } = await handleTxOutcome(
+      send({ address, amount, gasPrice, token: nativeToken })
+    );
 
     if (isApproved) {
       onApproved();
@@ -90,11 +105,12 @@ export const SendPVM = ({
     address,
     amount,
     isValid,
-    nativeToken,
     onApproved,
     onFailure,
     onSuccess,
     send,
+    gasPrice,
+    nativeToken,
   ]);
 
   const inputAmount = useMemo(
@@ -102,6 +118,10 @@ export const SendPVM = ({
       amount ? stringToBigint(amount, nativeToken?.decimals ?? 18) : undefined,
     [nativeToken, amount]
   );
+
+  const onFeeCustomized = useCallback((values: { maxFeePerGas: bigint }) => {
+    setGasPrice(values.maxFeePerGas);
+  }, []);
 
   if (account && !account.addressPVM) {
     return (
@@ -111,6 +131,8 @@ export const SendPVM = ({
       />
     );
   }
+
+  const supportsCustomFees = provider.isEtnaEnabled();
 
   return (
     <SendForm
@@ -129,6 +151,25 @@ export const SendPVM = ({
       error={error}
       maxAmount={maxAmount}
       onSend={onSend}
-    />
+    >
+      <Grow
+        in={supportsCustomFees && Boolean(estimatedFee)}
+        mountOnEnter
+        unmountOnExit
+      >
+        <Stack sx={{ py: 0, px: 2, mt: 2, width: '100%' }}>
+          <CustomFees
+            isCollapsible
+            network={network}
+            networkFee={networkFee}
+            maxFeePerGas={gasPrice}
+            maxGasPrice={(networkFee.baseFee ?? 0n) * 2n}
+            estimatedFee={estimatedFee}
+            limit={0}
+            onChange={onFeeCustomized}
+          />
+        </Stack>
+      </Grow>
+    </SendForm>
   );
 };

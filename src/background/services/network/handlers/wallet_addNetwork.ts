@@ -66,7 +66,7 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
       },
     };
 
-    // await openApprovalWindow(actionData, 'networks/add-popup');
+    await openApprovalWindow(actionData, 'networks/add-popup');
 
     return { ...request, result: DEFERRED_RESPONSE };
   };

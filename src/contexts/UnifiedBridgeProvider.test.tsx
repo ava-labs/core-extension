@@ -1,8 +1,8 @@
 import { matchingPayload, render, waitFor } from '@src/tests/test-utils';
 import { createRef, forwardRef, useImperativeHandle } from 'react';
 import {
-  BridgeService,
   BridgeSignatureReason,
+  BridgeStepDetails,
   BridgeType,
   Environment,
   TokenType,
@@ -105,11 +105,16 @@ describe('contexts/UnifiedBridgeProvider', () => {
     ethereumProvider: {
       waitForTransaction: jest.fn(),
     },
+    bitcoinProvider: {},
   } as any;
 
   const featureFlagsContext = {
     featureFlags: {
       [FeatureGates.UNIFIED_BRIDGE_CCTP]: true,
+      [FeatureGates.UNIFIED_BRIDGE_ICTT]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
+      [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: true,
     },
   } as any;
 
@@ -140,7 +145,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
     jest.resetAllMocks();
 
     core = {
-      getAssets: async () => ({
+      getAssets: () => ({
         [chainIdToCaip(ethereum.chainId)]: [ethUSDC],
         [chainIdToCaip(avalanche.chainId)]: [avaxUSDC],
       }),
@@ -159,7 +164,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
     });
 
     // Mock state initialization response
-    requestFn.mockResolvedValueOnce({
+    requestFn.mockResolvedValue({
       pendingTransfers: {},
       addresses: [],
     });
@@ -175,6 +180,54 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
     await waitFor(() =>
       expect(provider.current?.transferableAssets).toEqual([avaxUSDC])
+    );
+  });
+
+  it('does not initialize with dev environment when not in testnet mode', async () => {
+    jest.mocked(useNetworkContext).mockReturnValue({
+      ...networkContext,
+      network: {
+        ...avalanche,
+        isTestnet: false,
+      },
+    });
+
+    requestFn.mockImplementation(async (params) => {
+      if (params.method === ExtensionRequest.BRIDGE_GET_STATE) {
+        return { isDevEnv: true };
+      }
+    });
+
+    getBridgeProvider();
+
+    await waitFor(() =>
+      expect(createUnifiedBridgeService).toHaveBeenCalledWith(
+        matchingPayload({ environment: Environment.PROD })
+      )
+    );
+  });
+
+  it('initializes with dev environment when needed', async () => {
+    jest.mocked(useNetworkContext).mockReturnValue({
+      ...networkContext,
+      network: {
+        ...avalanche,
+        isTestnet: true,
+      },
+    });
+
+    requestFn.mockImplementation(async (params) => {
+      if (params.method === ExtensionRequest.BRIDGE_GET_STATE) {
+        return { isDevEnv: true };
+      }
+    });
+
+    getBridgeProvider();
+
+    await waitFor(() =>
+      expect(createUnifiedBridgeService).toHaveBeenCalledWith(
+        matchingPayload({ environment: Environment.DEV })
+      )
     );
   });
 
@@ -206,23 +259,61 @@ describe('contexts/UnifiedBridgeProvider', () => {
     );
   });
 
-  it('initializes without AvalancheBridge and ICTT', async () => {
-    const serviceMap = new Map([[BridgeType.CCTP, {} as BridgeService]]);
-    jest.mocked(getEnabledBridgeServices).mockResolvedValueOnce(serviceMap);
-
+  it('uses proper signers for different bridge types', async () => {
     getBridgeProvider();
 
-    await waitFor(() =>
-      expect(getEnabledBridgeServices).toHaveBeenCalledWith(Environment.PROD, [
-        BridgeType.AVALANCHE_EVM,
-        BridgeType.ICTT_ERC20_ERC20,
-      ])
-    );
-    await waitFor(() =>
-      expect(createUnifiedBridgeService).toHaveBeenCalledWith(
-        matchingPayload({ enabledBridgeServices: serviceMap })
-      )
-    );
+    await waitFor(async () => {
+      expect(getEnabledBridgeServices).toHaveBeenCalledWith(
+        Environment.PROD,
+        expect.any(Array)
+      );
+      const initializers = jest.mocked(getEnabledBridgeServices).mock
+        .lastCall?.[1];
+
+      expect(initializers?.length).toEqual(5);
+    });
+
+    await waitFor(async () => {
+      const initializers = jest.mocked(getEnabledBridgeServices).mock
+        .lastCall![1];
+
+      const step: BridgeStepDetails = {
+        currentSignature: 1,
+        requiredSignatures: 2,
+        currentSignatureReason: BridgeSignatureReason.AllowanceApproval,
+      };
+
+      for (const { signer, type } of initializers) {
+        const isBtc = type === BridgeType.AVALANCHE_BTC_AVA;
+        const tx = isBtc
+          ? { inputs: [], outputs: [] }
+          : ({
+              from: `0x${type}`,
+              to: `0x${type}`,
+              data: `0x${type}`,
+            } as any);
+
+        await signer.sign(tx, async () => '0x' as const, step);
+
+        expect(requestFn).toHaveBeenLastCalledWith(
+          {
+            method:
+              type === BridgeType.AVALANCHE_BTC_AVA
+                ? RpcMethod.BITCOIN_SIGN_TRANSACTION
+                : RpcMethod.ETH_SEND_TRANSACTION,
+            params: isBtc ? tx : [tx],
+          },
+          {
+            alert: {
+              notice: 'You will be prompted {{remaining}} more time(s).',
+              title: 'This operation requires {{total}} approvals.',
+              type: 'info',
+            },
+            customApprovalScreenTitle: 'Confirm Bridge',
+          }
+        );
+      }
+    });
   });
 
   describe('transferAsset()', () => {
@@ -252,94 +343,6 @@ describe('contexts/UnifiedBridgeProvider', () => {
         } catch (err: any) {
           expect(err.data?.reason).toEqual(UnifiedBridgeError.UnknownAsset);
         }
-      });
-    });
-
-    it('uses the SDK to transfer assets and sends eth_sendTransaction requests to the wallet', async () => {
-      const transfer = { sourceTxHash: '0xTransferTxHash' } as any;
-      const allowanceTx = {
-        from: ACTIVE_ACCOUNT_ADDRESS,
-        to: '0xUsdcAllowanceContract',
-        data: '0x1234',
-      } as any;
-      const transferTx = {
-        from: ACTIVE_ACCOUNT_ADDRESS,
-        to: '0xUsdcTransferContract',
-        data: '0x1234',
-      } as any;
-
-      jest
-        .mocked(core.transferAsset)
-        .mockImplementation(async ({ onStepChange, sign }) => {
-          // Simulate double-approval flow for complete test
-
-          onStepChange?.({
-            currentSignature: 1,
-            requiredSignatures: 2,
-            currentSignatureReason: BridgeSignatureReason.AllowanceApproval,
-          });
-
-          await sign?.(allowanceTx, async () => '0xApprovalTxHash');
-
-          onStepChange?.({
-            currentSignature: 2,
-            requiredSignatures: 2,
-            currentSignatureReason: BridgeSignatureReason.TokensTransfer,
-          });
-
-          await sign?.(transferTx, async () => transfer.sourceTxHash);
-
-          return transfer;
-        });
-
-      const provider = getBridgeProvider();
-
-      await waitFor(async () => {
-        expect(
-          await provider.current?.transferAsset('USDC', 1000n, 'eip155:1')
-        ).toEqual(transfer.sourceTxHash);
-
-        expect(core.transferAsset).toHaveBeenCalledWith({
-          asset: expect.objectContaining({ symbol: 'USDC' }),
-          fromAddress: accountsContext.accounts.active.addressC,
-          amount: 1000n,
-          targetChain: expect.objectContaining({
-            chainId: chainIdToCaip(ethereum.chainId),
-          }),
-          sourceChain: expect.objectContaining({
-            chainId: chainIdToCaip(avalanche.chainId),
-          }),
-          onStepChange: expect.any(Function),
-          sign: expect.any(Function),
-        });
-
-        expect(requestFn).toHaveBeenCalledWith(
-          {
-            method: RpcMethod.ETH_SEND_TRANSACTION,
-            params: [{ ...allowanceTx }],
-          },
-          {
-            customApprovalScreenTitle: 'Confirm Bridge',
-            alert: {
-              type: 'info',
-              title: 'This operation requires {{total}} approvals.',
-              notice: 'You will be prompted {{remaining}} more time(s).',
-            },
-          }
-        );
-        expect(requestFn).toHaveBeenCalledWith(
-          {
-            method: RpcMethod.ETH_SEND_TRANSACTION,
-            params: [{ ...transferTx }],
-          },
-          {
-            customApprovalScreenTitle: 'Confirm Bridge',
-          }
-        );
-        expect(requestFn).toHaveBeenCalledWith({
-          method: ExtensionRequest.UNIFIED_BRIDGE_TRACK_TRANSFER,
-          params: [transfer],
-        });
       });
     });
   });
@@ -439,7 +442,9 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
     it('uses the SDK to calculate fees', async () => {
       jest.mocked(core.getFees).mockResolvedValue({
-        [avaxUSDC.address]: 300n,
+        'eip155:1': {
+          [avaxUSDC.address]: 300n,
+        },
       });
       const provider = getBridgeProvider();
 
