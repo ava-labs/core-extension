@@ -39,6 +39,8 @@ export const useEVMSend: SendAdapterEVM = ({
     [from, provider]
   );
 
+  console.log('gettx = ', getTx);
+
   const send = useCallback(
     async (options: SendOptions) => {
       try {

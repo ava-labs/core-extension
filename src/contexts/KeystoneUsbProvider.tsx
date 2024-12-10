@@ -28,11 +28,13 @@ import {
 } from 'rxjs';
 import { getKeystoneTransport } from '@src/contexts/utils/getKeystoneTransport';
 import AppAvalanche from '@avalabs/hw-app-avalanche';
+// import AppAvalanche from '../../../hw-app-avalanche';
 import {
   AppClient as Btc,
   DefaultWalletPolicy,
   WalletPolicy,
 } from 'ledger-bitcoin';
+import Bitcoin from '@keystonehq/hw-app-bitcoin';
 
 import Transport from '@ledgerhq/hw-transport';
 import { ledgerDiscoverTransportsEventListener } from '@src/background/services/ledger/events/ledgerDiscoverTransportsEventListener';
@@ -251,7 +253,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
   );
 
   useEffect(() => {
-    console.error('initialized changed:', initialized);
+    console.log('initialized changed:', initialized);
     const subscription = of([initialized])
       .pipe(
         filter(([isInitialized]) => !!isInitialized),
@@ -301,33 +303,34 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
    * @returns Promise<extended public key>
    */
   const getExtendedPublicKey = useCallback(async (path?: string) => {
+    console.log('getExtendedPublicKey....');
     if (!transportRef.current) {
       throw new Error('no device detected');
     }
-    console.error('getExtendedPublicKey called............');
 
     const baseApp = new Base(transportRef.current);
     const REQUIRED_KEYSTONE_PATHS = ["m/44'/60'/0'", "m/44'9000'/0'/0/0"];
 
     for (const path of REQUIRED_KEYSTONE_PATHS) {
+      console.log('path', path);
       const res = await baseApp.getURAccount(
         path,
         Curve.secp256k1,
         DerivationAlgorithm.slip10
       );
-      console.error('res', res);
+      console.log('res', res);
 
       // The KeystoneSDK should exist since the QR integration
       // just use the parseMultiAccounts to get the public keys
       const sdk = new KeystoneSDK({
-        origin: 'Keplr Extension',
+        origin: 'Core wallet Extension',
       });
       const account = sdk.parseMultiAccounts(res.toUR());
       keys.push(account.keys[0]);
       device = account.device;
       deviceId = account.deviceId;
       masterFingerprint = account.masterFingerprint;
-      console.error('account', account);
+      console.log('account', account);
     }
     if (pubKeyError) {
       throw new Error(pubKeyError);

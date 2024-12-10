@@ -25,6 +25,8 @@ export function ExportTxView({
   const amount = new TokenUnit(amountRaw, 9, 'AVAX');
   const fee = new TokenUnit(txFee, 9, 'AVAX');
 
+  console.log('tx', tx);
+
   return (
     <Stack>
       <Typography

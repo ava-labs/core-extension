@@ -112,10 +112,12 @@ export function LedgerConnector({
 
   const getXPublicKey = useCallback(async () => {
     try {
-      const xpubValue = await getExtendedPublicKey();
+      console.log('.......................');
       const xpubXPValue = await getExtendedPublicKey(
         Avalanche.LedgerWallet.getAccountPath('X')
       );
+      const xpubValue = await getExtendedPublicKey();
+      console.log('xpubValue', xpubValue);
       setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
       capture('OnboardingLedgerConnected');
       await getAddressFromXpubKey(xpubValue, 0);
@@ -209,6 +211,7 @@ export function LedgerConnector({
     capture('OnboardingLedgerRetry');
     setPublicKeyState(LedgerStatus.LEDGER_LOADING);
     setDropdownDisabled(true);
+    console.log('pathspec', pathSpec);
 
     if (!hasLedgerTransport) {
       // make sure we have a transport

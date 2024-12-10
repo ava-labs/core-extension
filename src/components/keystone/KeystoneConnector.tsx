@@ -114,7 +114,9 @@ export function KeystoneConnector({
 
   const getXPublicKey = useCallback(async () => {
     try {
+      console.log("get xpub key");
       const xpubValue = await getExtendedPublicKey();
+      console.log("xpubvalue ", xpubValue);
       const xpubXPValue = await getExtendedPublicKey(
         Avalanche.LedgerWallet.getAccountPath('X')
       );
@@ -209,16 +211,16 @@ export function KeystoneConnector({
   );
 
   const tryPublicKey = useCallback(async () => {
-    console.error('trying public key');
+    console.log('trying public key');
     capture('OnboardingLedgerRetry');
     setPublicKeyState(KeystoneStatus.KEYSTONE_LOADING);
     setDropdownDisabled(true);
     if (!hasLedgerTransport) {
-      console.error('no transport');
+      console.log('no transport');
       // make sure we have a transport
       await initKeystoneTransport();
     } else {
-      console.error('has transport');
+      console.log('has transport');
     }
     if (pathSpec === DerivationPath.BIP44) {
       await getXPublicKey();

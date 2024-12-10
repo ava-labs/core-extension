@@ -199,7 +199,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
         throw new Error('Ledger not connected');
       }
 
-      console.error('ledger transport', transport);
+      console.error('ledger transport is', transport);
 
       // first try to get the avalanche App instance
       const avaxAppInstance = new AppAvalanche(transport);
@@ -257,7 +257,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
         ),
         switchMap(() => getLedgerTransport()),
         switchMap((transport) => {
-          transportRef.current = transport;
+          transportRef.current = transport as Transport;
           return initLedgerApp(transport);
         }),
         tap(() => {
@@ -295,15 +295,19 @@ export function LedgerContextProvider({ children }: { children: any }) {
    * @returns Promise<extended public key>
    */
   const getExtendedPublicKey = useCallback(async (path?: string) => {
+    console.log('...path', path);
     if (!transportRef.current) {
       throw new Error('no device detected');
     }
+    console.log('transportRef.current', transportRef.current);
     const [pubKey, pubKeyError] = await resolve(
       getLedgerExtendedPublicKey(transportRef.current, false, path)
     );
+    console.log('pubkey error', pubKeyError);
     if (pubKeyError) {
       throw new Error(pubKeyError);
     }
+    console.log('pubkey', pubkey);
     return pubKey;
   }, []);
 
