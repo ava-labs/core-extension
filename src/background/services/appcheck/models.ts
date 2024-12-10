@@ -8,6 +8,11 @@ export type ChallengeRequest = {
 
 export type ChallengeSolver = (details: string) => string | Promise<string>;
 
+export enum Algorithm {
+  SHA256 = 'SHA256',
+  SHA512 = 'SHA512',
+}
+
 export enum ChallengeTypes {
   BASIC = 'BASIC',
 }
