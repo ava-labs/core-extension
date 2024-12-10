@@ -54,6 +54,7 @@ export function DAppRequestHandlerMiddleware(
           context.request.params.request.method
         )
       );
+      console.log('module: ', module);
 
       if (!context.network) {
         promise = Promise.reject(ethErrors.provider.disconnected());

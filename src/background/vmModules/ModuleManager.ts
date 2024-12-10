@@ -74,7 +74,10 @@ export class ModuleManager {
   }
 
   async loadModule(caipId: string, method?: string): Promise<Module> {
+    // console.log('caipId: ', caipId);
+    // console.log('method: ', method);
     const module = await this.#getModule(caipId);
+    // console.log('loadModule module: ', module);
 
     if (module === undefined) {
       throw ethErrors.rpc.invalidParams({
