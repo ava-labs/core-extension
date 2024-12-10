@@ -142,7 +142,7 @@ export function LedgerConnector({
 
   const getXPublicKey = useCallback(async () => {
     try {
-      const xpubValue = await getExtendedPublicKey();
+			const xpubValue = await getExtendedPublicKey();
       const xpubXPValue = await getExtendedPublicKey(
         Avalanche.LedgerWallet.getAccountPath('X'),
       );

@@ -293,15 +293,19 @@ export function LedgerContextProvider({ children }: { children: any }) {
    * @returns Promise<extended public key>
    */
   const getExtendedPublicKey = useCallback(async (path?: string) => {
+    console.log('...path', path);
     if (!transportRef.current) {
       throw new Error('no device detected');
     }
+    console.log('transportRef.current', transportRef.current);
     const [pubKey, pubKeyError] = await resolve(
       getLedgerExtendedPublicKey(transportRef.current, false, path),
     );
+    console.log('pubkey error', pubKeyError);
     if (pubKeyError) {
       throw new Error(pubKeyError);
     }
+    console.log('pubkey', pubkey);
     return pubKey;
   }, []);
 
