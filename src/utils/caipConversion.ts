@@ -1,12 +1,14 @@
-import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { EnsureDefined, PartialBy } from '@src/background/models';
 import { Network } from '@src/background/services/network/models';
 
-enum CaipNamespace {
+export enum CaipNamespace {
   AVAX = 'avax',
   BIP122 = 'bip122',
   EIP155 = 'eip155',
+  HVM = 'hvm',
 }
 
 const BitcoinCaipId = {
@@ -37,6 +39,11 @@ export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
     return AvaxCaipId[network.chainId];
   }
 
+  // TODO: fix
+  // if (network.vmName === NetworkVMType.HVM) {
+  //   return `hvm:${network.chainId}`;
+  // }
+
   throw new Error('Unsupported VM type: ' + network.vmName);
 };
 
@@ -51,7 +58,7 @@ export const caipToChainId = (identifier: string): number => {
     throw new Error('No reference found in identifier: ' + identifier);
   }
 
-  if (namespace === CaipNamespace.EIP155) {
+  if (namespace === CaipNamespace.EIP155 || namespace === CaipNamespace.HVM) {
     return Number(reference);
   }
 
@@ -93,5 +100,12 @@ export const decorateWithCaipId = (
   caipId: getNetworkCaipId(network),
 });
 
+export const getNameSpaceFromScope = (scope?: string | null) => {
+  if (!scope) {
+    return null;
+  }
+  const [namespace] = scope.split(':');
+  return namespace;
+};
 export const isBitcoinCaipId = (caipId: string) =>
   Object.values(BitcoinCaipId).includes(caipId);
