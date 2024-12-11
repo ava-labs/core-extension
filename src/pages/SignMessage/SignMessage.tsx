@@ -164,12 +164,7 @@ export function SignMessage() {
     return null;
   };
 
-  useLedgerDisconnectedDialog(
-    () => handleRejection(),
-    action?.method === DAppProviderRequest.AVALANCHE_SIGN_MESSAGE
-      ? LedgerAppType.AVALANCHE
-      : LedgerAppType.ETHEREUM
-  );
+  useLedgerDisconnectedDialog(() => handleRejection(), LedgerAppType.AVALANCHE);
 
   if (!action) {
     return (
