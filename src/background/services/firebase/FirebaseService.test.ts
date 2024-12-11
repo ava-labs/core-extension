@@ -14,7 +14,6 @@ import {
 } from '../featureFlags/models';
 import { deleteToken, getToken, MessagePayload } from 'firebase/messaging';
 import { FcmMessageEvents, FirebaseEvents } from './models';
-import { NextObserver } from 'rxjs';
 
 jest.mock('firebase/app');
 jest.mock('firebase/messaging');

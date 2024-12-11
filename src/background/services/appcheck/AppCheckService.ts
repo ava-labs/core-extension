@@ -14,8 +14,8 @@ import registerForChallenge from './utils/registerForChallenge';
 import verifyChallenge from './utils/verifyChallenge';
 import solveChallenge from './utils/solveChallenge';
 
-const WAIT_FOR_CHALLENGE_ATTEMPT_COUNT = 10;
-const WAIT_FOR_CHALLENGE_DELAY_MS = 500;
+export const WAIT_FOR_CHALLENGE_ATTEMPT_COUNT = 10;
+export const WAIT_FOR_CHALLENGE_DELAY_MS = 500;
 
 @singleton()
 export class AppCheckService {
@@ -24,7 +24,7 @@ export class AppCheckService {
 
   constructor(private firebaseService: FirebaseService) {}
 
-  async activate(): Promise<void> {
+  activate(): void {
     this.firebaseService.addFcmMessageListener(
       FcmMessageEvents.ID_CHALLENGE,
       (payload) => this.#handleMessage(payload)
@@ -73,19 +73,19 @@ export class AppCheckService {
           const waitForChallenge = () =>
             new Promise<{ registrationId: string; solution: string }>(
               (res, rej) => {
-                let attempts = WAIT_FOR_CHALLENGE_ATTEMPT_COUNT;
+                let remainingAttempts = WAIT_FOR_CHALLENGE_ATTEMPT_COUNT;
 
                 const timer = setInterval(() => {
                   const registrationId =
                     this.#lastChallengeRequest?.registrationId;
                   const solution = this.#lastChallengeRequest?.solution;
 
-                  attempts--;
+                  remainingAttempts--;
 
                   if (registrationId && solution) {
                     clearInterval(timer);
                     res({ registrationId, solution });
-                  } else if (attempts < 1) {
+                  } else if (remainingAttempts < 1) {
                     clearInterval(timer);
                     rej('timeout');
                   }
