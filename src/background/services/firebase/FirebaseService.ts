@@ -46,6 +46,7 @@ export class FirebaseService {
             await deleteToken(getMessaging(this.#app));
 
             this.#isFcmInitialized = false;
+            this.#fcmToken = undefined;
             this.#firebaseEventEmitter.emit(FirebaseEvents.FCM_TERMINATED);
             return;
           }
@@ -83,7 +84,7 @@ export class FirebaseService {
 
   addFirebaseEventListener<T = unknown>(
     event: FirebaseEvents,
-    callback: (data: T) => void
+    callback: () => T
   ) {
     this.#firebaseEventEmitter.on(event, callback);
   }
