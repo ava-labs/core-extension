@@ -14,8 +14,6 @@ import sentryCaptureException, {
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureFlagEvents, FeatureGates } from '../featureFlags/models';
 
-declare const globalThis: ServiceWorkerGlobalScope;
-
 @singleton()
 export class FirebaseService {
   #app: FirebaseApp;

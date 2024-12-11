@@ -6210,10 +6210,10 @@
     "@types/node" "*"
     "@types/responselike" "^1.0.0"
 
-"@types/chrome@0.0.278":
-  version "0.0.278"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.278.tgz#f7fefc0dd4b66a54bdea2950c5fd7397c729938d"
-  integrity sha512-PDIJodOu7o54PpSOYLybPW/MDZBCjM1TKgf31I3Q/qaEbNpIH09rOM3tSEH3N7Q+FAqb1933LhF8ksUPYeQLNg==
+"@types/chrome@0.0.180":
+  version "0.0.180"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.180.tgz#b7fb831848f6b6c49abffd85410b73037c02381e"
+  integrity sha512-A/CuuKAaHq2CHEpYBAtl0lp2ib7TTXK7VjJI4q+c+1U/HDvZLJ8IlsdEDzzHdvkNdh36bGONxrMnO9YZrKqbAw==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"
@@ -6717,10 +6717,10 @@
   dependencies:
     web3 "*"
 
-"@types/webextension-polyfill@0.12.1":
-  version "0.12.1"
-  resolved "https://registry.yarnpkg.com/@types/webextension-polyfill/-/webextension-polyfill-0.12.1.tgz#8dae244fe094cbb541005362e8e22f16671f6054"
-  integrity sha512-xPTFWwQ8BxPevPF2IKsf4hpZNss4LxaOLZXypQH4E63BDLmcwX/RMGdI4tB4VO4Nb6xDBH3F/p4gz4wvof1o9w==
+"@types/webextension-polyfill@0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@types/webextension-polyfill/-/webextension-polyfill-0.10.0.tgz#e87b5e2c101599779a584cdb043887ad73b37b0e"
+  integrity sha512-If4EcaHzYTqcbNMp/FdReVdRmLL/Te42ivnJII551bYjhX19bWem5m14FERCqdJA732OloGuxCRvLBvcMGsn4A==
 
 "@types/ws@^8.5.1":
   version "8.5.4"
@@ -21842,10 +21842,10 @@ web3@1.8.2:
     web3-shh "1.8.2"
     web3-utils "1.8.2"
 
-webextension-polyfill@0.12.0:
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/webextension-polyfill/-/webextension-polyfill-0.12.0.tgz#f62c57d2cd42524e9fbdcee494c034cae34a3d69"
-  integrity sha512-97TBmpoWJEE+3nFBQ4VocyCdLKfw54rFaJ6EVQYLBCXqCIpLSZkwGgASpv4oPt9gdKCJ80RJlcmNzNn008Ag6Q==
+webextension-polyfill@0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/webextension-polyfill/-/webextension-polyfill-0.10.0.tgz#ccb28101c910ba8cf955f7e6a263e662d744dbb8"
+  integrity sha512-c5s35LgVa5tFaHhrZDnr3FpQpjj1BB+RXhLTYUxGqBVN460HkbM8TBtEqdXWbpTKfzwCcjAZVF7zXCYSKtcp9g==
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
