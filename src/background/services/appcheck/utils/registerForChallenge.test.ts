@@ -42,7 +42,7 @@ describe('registerForChallenge', () => {
     );
   });
 
-  it('throws when the challenge registration fails', async () => {
+  it('registers for challenge successfully', async () => {
     chrome.runtime.getManifest = jest
       .fn()
       .mockReturnValueOnce({ version: '0.0.1' });
