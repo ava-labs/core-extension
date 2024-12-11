@@ -160,7 +160,7 @@ export function AddWalletWithKeystoreFile() {
 
   const keyboardHandlers = useKeyboardShortcuts({
     Enter: readKeystoreFile,
-    Esc: restart,
+    Escape: restart,
   });
 
   return (

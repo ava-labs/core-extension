@@ -50,7 +50,10 @@ export const ConfirmAccountRemovalDialog = ({
       </DialogContent>
       <DialogActions sx={{ gap: 1 }}>
         <Button
-          onClick={onConfirm}
+          onClick={(e) => {
+            e.stopPropagation();
+            onConfirm();
+          }}
           variant="contained"
           size="large"
           disabled={isDeleting}
@@ -60,7 +63,10 @@ export const ConfirmAccountRemovalDialog = ({
           {t('Delete')}
         </Button>
         <Button
-          onClick={onClose}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose?.(e, 'backdropClick');
+          }}
           variant="text"
           disabled={isDeleting}
           data-testid="delete-account-cancel-button"

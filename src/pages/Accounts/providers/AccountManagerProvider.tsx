@@ -36,6 +36,12 @@ export const AccountManagerContext = createContext<{
   toggleManageMode() {},
 });
 
+export enum SelectionMode {
+  None, // Reserved for Seedless
+  Any,
+  Consecutive,
+}
+
 export const AccountManagerProvider = ({
   children,
 }: AccountManagerContextProps) => {

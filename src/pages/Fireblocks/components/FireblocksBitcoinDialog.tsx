@@ -8,7 +8,6 @@ import {
   toast,
 } from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { AccountsTab } from '@src/pages/Accounts/Accounts';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
@@ -50,7 +49,7 @@ export const FireblocksBitcoinDialog = ({
           onClick={() => {
             capture('ImportWithFireblocks_BTC_Skipped');
             toast.success(t('New Account Added!'), { duration: 2000 });
-            history.push(`/accounts?activeTab=${AccountsTab.Imported}`);
+            history.push('/accounts');
           }}
           variant="text"
         >
