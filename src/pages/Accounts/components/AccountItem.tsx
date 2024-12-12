@@ -269,7 +269,14 @@ export const AccountItem = forwardRef(
                       alignItems: 'center',
                     }}
                   >
-                    <Tooltip title={address} disableInteractive>
+                    <Tooltip
+                      title={address}
+                      slotProps={{
+                        popper: {
+                          onClick: (ev) => ev.stopPropagation(),
+                        },
+                      }}
+                    >
                       <Typography
                         variant="caption"
                         color={isActive ? 'text.primary' : 'text.secondary'}
@@ -336,16 +343,13 @@ export const AccountItem = forwardRef(
 AccountItem.displayName = 'AccountItem';
 
 const getCopyEventNameByNetworkType = (type: NetworkVMType) => {
-  switch (type) {
-    case NetworkVMType.BITCOIN:
-      return 'AccountSelectorBtcAddressCopied';
-    case NetworkVMType.EVM:
-      return 'AccountSelectorEthAddressCopied';
-    case NetworkVMType.AVM:
-      return 'AccountSelectorAVMAddressCopied';
-    case NetworkVMType.PVM:
-      return 'AccountSelectorPVMAddressCopied';
-    default:
-      return 'AccountSelectorAddressCopied';
-  }
+  // We remap BTC and EVM because we used those in older event names
+  const normalizedType =
+    type === NetworkVMType.BITCOIN
+      ? 'Btc'
+      : type === NetworkVMType.EVM
+      ? 'Eth'
+      : type;
+
+  return `AccountSelector${normalizedType}AddressCopied`;
 };
