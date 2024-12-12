@@ -341,6 +341,7 @@ describe('background/services/accounts/AccountsService', () => {
         [NetworkVMType.AVM]: avmAddress,
         [NetworkVMType.PVM]: pvmAddress,
         [NetworkVMType.CoreEth]: coreEthAddress,
+        [NetworkVMType.HVM]: otherEvmAddress,
       });
 
       await accountsService.onUnlock();
@@ -403,6 +404,7 @@ describe('background/services/accounts/AccountsService', () => {
         [NetworkVMType.AVM]: avmAddress,
         [NetworkVMType.PVM]: pvmAddress,
         [NetworkVMType.CoreEth]: coreEthAddress,
+        [NetworkVMType.HVM]: otherEvmAddress,
       });
       jest
         .mocked(secretsService.getImportedAddresses)

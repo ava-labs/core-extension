@@ -4,6 +4,7 @@ import { WalletAddNetworkHandler } from './wallet_addNetwork';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 
 jest.mock('../NetworkService');
 jest.mock('@src/background/runtime/openApprovalWindow');
@@ -27,25 +28,25 @@ describe('background/services/network/handlers/wallet_addNetwork.ts', () => {
     primaryColor: 'violet',
   };
 
-  //   const mockHvmNetwork = {
-  //     chainName: 'hyperVM-network',
-  //     chainId: 1243345969594372,
-  //     rpcUrl: 'http://localhost',
-  //     networkToken: {
-  //       symbol: 'HVM',
-  //       decimals: 18,
-  //       description: '',
-  //       name: 'HyperToken',
-  //       logoUri: '',
-  //     },
-  //     logoUri: '',
-  //     tokenName: 'HyperToken',
-  //     decimals: 18,
-  //     // vmName: NetworkVMType.HVM,
-  //     additionalProperty1: '1',
-  //     additionalProperty2: '2',
-  //     additionalProperty3: '3',
-  //   };
+  const mockHvmNetwork = {
+    chainName: 'hyperVM-network',
+    caipId: 'hvm:11414092629610059909939753419964',
+    rpcUrl: 'http://localhost',
+    networkToken: {
+      symbol: 'HVM',
+      decimals: 18,
+      description: '',
+      name: 'HyperToken',
+      logoUri: '',
+    },
+    logoUri: '',
+    tokenName: 'HyperToken',
+    decimals: 18,
+    vmName: NetworkVMType.HVM,
+    additionalProperty1: '1',
+    additionalProperty2: '2',
+    additionalProperty3: '3',
+  };
   let mockNetworkService: NetworkService;
   let handler: WalletAddNetworkHandler;
 
@@ -63,6 +64,25 @@ describe('background/services/network/handlers/wallet_addNetwork.ts', () => {
     handler = new WalletAddNetworkHandler(mockNetworkService);
     (openApprovalWindow as jest.Mock).mockReturnValue({ id: 123 });
   });
+  it('should throw an error because there is no site info', async () => {
+    const request = {
+      id: '1234',
+      method: DAppProviderRequest.WALLET_ADD_NETWORK,
+      params: [mockActiveNetwork],
+      site: {
+        domain: '',
+        tabId: 1,
+      },
+    };
+    jest
+      .spyOn(mockNetworkService, 'getNetwork')
+      .mockResolvedValue({ chainId: 43114 } as any);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
+    expect(result).toEqual({
+      ...request,
+      error: new Error('Missing dApp domain information'),
+    });
+  });
   it('should return null when the network has benn already added', async () => {
     const request = {
       id: '1234',
@@ -77,10 +97,27 @@ describe('background/services/network/handlers/wallet_addNetwork.ts', () => {
       .spyOn(mockNetworkService, 'getNetwork')
       .mockResolvedValue({ chainId: 43114 } as any);
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
-    console.log('result: ', result);
     expect(result).toEqual({
       ...request,
       result: null,
+    });
+  });
+
+  it('should add the network properly', async () => {
+    const request = {
+      id: '1234',
+      method: DAppProviderRequest.WALLET_ADD_NETWORK,
+      params: [mockHvmNetwork],
+      site: {
+        domain: 'hvm.app',
+        tabId: 1,
+      },
+    };
+    jest.spyOn(mockNetworkService, 'getNetwork').mockResolvedValue(undefined);
+    const result = await handler.handleUnauthenticated(buildRpcCall(request));
+    expect(result).toEqual({
+      ...request,
+      result: DEFERRED_RESPONSE,
     });
   });
 });

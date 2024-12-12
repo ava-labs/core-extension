@@ -10,11 +10,12 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
-import { CustomNetworkPayload } from '../models';
+import { AddNetworkPayload, CustomNetworkPayload } from '../models';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { runtime } from 'webextension-polyfill';
+import { caipToChainId } from '@src/utils/caipConversion';
 
-type Params = [CustomNetworkPayload];
+type Params = [AddNetworkPayload];
 
 @injectable()
 export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
@@ -36,7 +37,6 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
     }
 
     const [network] = request.params;
-    console.log('request.params network: ', network);
 
     if (!network) {
       return {
@@ -45,9 +45,9 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
       };
     }
 
-    const isCustomNetworkExist = await this.networkService.getNetwork(
-      network.chainId
-    );
+    const chainId = network.chainId ?? caipToChainId(network.caipId);
+
+    const isCustomNetworkExist = await this.networkService.getNetwork(chainId);
 
     if (isCustomNetworkExist) {
       return {
@@ -62,7 +62,10 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
       ...request,
       scope,
       displayData: {
-        network,
+        network: {
+          ...network,
+          chainId,
+        },
       },
     };
 
@@ -83,12 +86,10 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
   ) => {
     try {
       const { network } = pendingAction.displayData;
-      console.log('onActionApproved network: ', network);
+
       const [addedNetwork, err] = await resolve(
         this.networkService.saveCustomNetwork(network)
       );
-      console.log('addedNetwork: ', addedNetwork);
-      console.log('err: ', err);
 
       if (err || !addedNetwork) {
         throw new Error(String(err));

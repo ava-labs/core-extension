@@ -24,6 +24,9 @@ const AvaxCaipId = {
 } as const;
 
 export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
+  if (network.caipId) {
+    return network.caipId;
+  }
   if (network.vmName === NetworkVMType.EVM) {
     return `eip155:${network.chainId}`;
   }
@@ -39,10 +42,9 @@ export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
     return AvaxCaipId[network.chainId];
   }
 
-  // TODO: fix
-  // if (network.vmName === NetworkVMType.HVM) {
-  //   return `hvm:${network.chainId}`;
-  // }
+  if (network.vmName === NetworkVMType.HVM) {
+    return `hvm:${network.chainId}`;
+  }
 
   throw new Error('Unsupported VM type: ' + network.vmName);
 };
@@ -58,10 +60,13 @@ export const caipToChainId = (identifier: string): number => {
     throw new Error('No reference found in identifier: ' + identifier);
   }
 
-  if (namespace === CaipNamespace.EIP155 || namespace === CaipNamespace.HVM) {
+  if (namespace === CaipNamespace.EIP155) {
     return Number(reference);
   }
 
+  if (reference.length === 32 && namespace === CaipNamespace.HVM) {
+    return parseInt(reference.slice(0, 16), 16);
+  }
   if (namespace === CaipNamespace.BIP122) {
     const chainId = Object.keys(BitcoinCaipId).find(
       (chainIdLookup) => BitcoinCaipId[chainIdLookup] === identifier
