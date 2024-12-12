@@ -787,7 +787,7 @@ export class SecretsService implements OnUnlock {
         [NetworkVMType.AVM]: xAddr,
         [NetworkVMType.PVM]: pAddr,
         [NetworkVMType.CoreEth]: cAddr,
-        // TODO: getaddressfromhvm
+        // TODO: getaddressfromhvm -> todo in tests as well
         [NetworkVMType.HVM]: getAddressFromXPub(secrets.xpub, index),
       };
     }
