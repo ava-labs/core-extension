@@ -259,7 +259,18 @@
       "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
       "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
-      "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
+      "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
+      "$root$": false,
+      "@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
+      "@ethereumjs/tx>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
+      "@metamask/eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "@metamask/eth-sig-util>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "bip32>tiny-secp256k1": false,
+      "eth-json-rpc-middleware>eth-sig-util>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "ethers>ws>bufferutil": false,
+      "ethers>ws>utf-8-validate": false,
+      "web3>web3-core>web3-core-requestmanager>web3-providers-ws>websocket>es5-ext": false
     }
   },
   "packageManager": "yarn@4.5.3"
