@@ -1425,6 +1425,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       [NetworkVMType.AVM]: 'X-',
       [NetworkVMType.PVM]: 'P-',
       [NetworkVMType.CoreEth]: 'C-',
+      [NetworkVMType.HVM]: addressC,
     });
 
     it('throws error if walletId is not provided', async () => {
@@ -1445,6 +1446,8 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
     it('returns the addresses for xpub', async () => {
       mockLedgerWallet();
+      (getAddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
+      // TODO: remove this when the HVM will get the own address calculation
       (getAddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
       (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x2');
       await expect(
@@ -1476,6 +1479,8 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         pubKeys: [{ evm: 'pubKey', xp: 'pubKeyXP' }],
       });
       (networkService.isMainnet as jest.Mock).mockReturnValueOnce(false);
+      (getEvmAddressFromPubKey as jest.Mock).mockReturnValueOnce('0x1');
+      // TODO: remove when HVM address is implemented
       (getEvmAddressFromPubKey as jest.Mock).mockReturnValueOnce('0x1');
       (getBtcAddressFromPubKey as jest.Mock).mockReturnValueOnce('0x2');
 

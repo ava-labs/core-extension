@@ -1,4 +1,8 @@
-import { Network as _Network } from '@avalabs/core-chains-sdk';
+import {
+  Network as _Network,
+  NetworkToken,
+  NetworkVMType,
+} from '@avalabs/core-chains-sdk';
 import { EnsureDefined, PartialBy } from '@src/background/models';
 
 export enum NetworkEvents {
@@ -51,12 +55,10 @@ export type AdvancedNetworkConfig = {
   customRpcHeaders?: CustomRpcHeaders;
 };
 
-export type CustomNetworkPayload = Omit<
-  Network & {
-    chainId: number | string; // Chain ID may come in hex-encoded through wallet_addEthereumChain call.
-  },
-  'caipId'
->;
+export type CustomNetworkPayload = Network & {
+  chainId: number | string; // Chain ID may come in hex-encoded through wallet_addEthereumChain call.
+  caipId?: string;
+};
 
 export type AddEthereumChainDisplayData = {
   network: EnsureDefined<Network, 'caipId'>;
@@ -64,5 +66,18 @@ export type AddEthereumChainDisplayData = {
     requiresGlacierApiKey: boolean;
   };
 };
+
+export interface AddNetworkPayload {
+  caipId: string;
+  chainName: string;
+  rpcUrl: string;
+  vmName: NetworkVMType;
+  tokenName: string;
+  decimals: number;
+  networkToken: NetworkToken;
+  logoUri: string;
+  explorerUrl: string;
+  chainId?: number;
+}
 
 export const PLACEHOLDER_RPC_HEADERS = { '': '' };

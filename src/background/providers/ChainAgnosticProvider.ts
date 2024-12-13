@@ -7,7 +7,11 @@ import {
 import { PartialBy } from '../models';
 import { ethErrors, serializeError } from 'eth-rpc-errors';
 import AbstractConnection from '../utils/messaging/AbstractConnection';
-import { chainIdToCaip } from '../../utils/caipConversion';
+import {
+  CaipNamespace,
+  chainIdToCaip,
+  getNameSpaceFromScope,
+} from '../../utils/caipConversion';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import RequestRatelimiter from './utils/RequestRatelimiter';
 import {
@@ -64,15 +68,19 @@ export class ChainAgnosticProvider extends EventEmitter {
     if (!data) {
       throw ethErrors.rpc.invalidRequest();
     }
-
+    const namespace = getNameSpaceFromScope(chainId);
+    const scope =
+      namespace === CaipNamespace.HVM
+        ? chainId
+        : chainIdToCaip(
+            chainId ? parseInt(chainId) : ChainId.AVALANCHE_MAINNET_ID
+          );
     const result = this.#contentScriptConnection
       .request({
         method: 'provider_request',
         jsonrpc: '2.0',
         params: {
-          scope: chainIdToCaip(
-            chainId ? parseInt(chainId) : ChainId.AVALANCHE_MAINNET_ID
-          ),
+          scope,
           sessionId,
           request: {
             params: [],
