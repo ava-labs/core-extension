@@ -185,7 +185,6 @@
     "style-loader": "3.3.1",
     "ts-jest": "29.2.5",
     "ts-loader": "9.2.6",
-    "typechain": "8.3.2",
     "typescript": "5.2.2",
     "webextension-polyfill": "0.10.0",
     "webpack": "5.76.0",
