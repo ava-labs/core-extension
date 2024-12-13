@@ -1,6 +1,9 @@
 import {
   Checkbox,
   Collapse,
+  CopyIcon,
+  Grow,
+  IconButton,
   Stack,
   Tooltip,
   Typography,
@@ -15,6 +18,7 @@ import {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
@@ -154,6 +158,22 @@ export const AccountItem = forwardRef(
       useAccountRename(account);
     const { prompt: promptRemove, renderDialog: removeDialog } =
       useAccountRemoval(toBeRemoved);
+    const handleCopyClick = useCallback(
+      (ev) => {
+        ev.stopPropagation();
+        if (!address || !network?.vmName) {
+          return;
+        }
+        const eventName = getCopyEventNameByNetworkType(network.vmName);
+
+        navigator.clipboard.writeText(address);
+        toast.success('Copied!', { duration: 1000 });
+        capture(eventName, {
+          type: account.type,
+        });
+      },
+      [address, account.type, capture, network?.vmName, toast]
+    );
 
     return (
       <>
@@ -216,8 +236,7 @@ export const AccountItem = forwardRef(
                 backgroundColor: isActive ? 'grey.700' : 'grey.800',
                 color: 'grey.50',
               },
-              pt: 0.5,
-              pb: 1,
+              py: 0.75,
               pl: 2,
               pr: 1,
             }}
@@ -243,8 +262,21 @@ export const AccountItem = forwardRef(
                   isActive={isActive}
                 />
                 {address && (
-                  <Stack direction="row">
-                    <Tooltip title={address} disableInteractive>
+                  <Stack
+                    sx={{
+                      flexDirection: 'row',
+                      gap: 1,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Tooltip
+                      title={address}
+                      slotProps={{
+                        popper: {
+                          onClick: (ev) => ev.stopPropagation(),
+                        },
+                      }}
+                    >
                       <Typography
                         variant="caption"
                         color={isActive ? 'text.primary' : 'text.secondary'}
@@ -252,6 +284,16 @@ export const AccountItem = forwardRef(
                         {truncateAddress(address)}
                       </Typography>
                     </Tooltip>
+                    <Grow in={cardHovered || isActive}>
+                      <IconButton
+                        color="primary"
+                        size="small"
+                        sx={{ p: 0.5 }}
+                        onClick={handleCopyClick}
+                      >
+                        <CopyIcon size={12} />
+                      </IconButton>
+                    </Grow>
                   </Stack>
                 )}
               </Stack>
@@ -299,3 +341,15 @@ export const AccountItem = forwardRef(
 );
 
 AccountItem.displayName = 'AccountItem';
+
+const getCopyEventNameByNetworkType = (type: NetworkVMType) => {
+  // We remap BTC and EVM because we used those in older event names
+  const normalizedType =
+    type === NetworkVMType.BITCOIN
+      ? 'Btc'
+      : type === NetworkVMType.EVM
+      ? 'Eth'
+      : type;
+
+  return `AccountSelector${normalizedType}AddressCopied`;
+};
