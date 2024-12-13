@@ -39,8 +39,17 @@ export class ImportLedgerHandler implements HandlerType {
   }
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [{ xpub, xpubXP, pubKeys, secretType, name, dryRun }] =
-      request.params;
+    const [
+      {
+        xpub,
+        xpubXP,
+        pubKeys,
+        secretType,
+        name,
+        dryRun,
+        numberOfAccountsToCreate,
+      },
+    ] = request.params;
 
     if (
       secretType !== SecretType.Ledger &&
@@ -105,10 +114,7 @@ export class ImportLedgerHandler implements HandlerType {
       });
     }
 
-    const numberOfAccountsToCreate =
-      secretType === SecretType.LedgerLive ? pubKeys?.length : undefined;
-
-    await this.#addAccounts(id, numberOfAccountsToCreate);
+    await this.#addAccounts(id, numberOfAccountsToCreate || 3);
     const addedWallet = await this.secretsService.getWalletAccountsSecretsById(
       id
     );
