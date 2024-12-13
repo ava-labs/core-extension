@@ -32,9 +32,12 @@ export class ImportLedgerHandler implements HandlerType {
     // (i.e. address for 0-index account derived N times).
 
     for (let i = 0; i < numberOfAccounts; i++) {
-      await this.accountsService.addPrimaryAccount({
+      const accountId = await this.accountsService.addPrimaryAccount({
         walletId,
       });
+      if (i === 0) {
+        await this.accountsService.activateAccount(accountId);
+      }
     }
   }
 

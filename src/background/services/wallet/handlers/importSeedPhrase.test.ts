@@ -17,6 +17,7 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
 
   const accountsService = {
     addPrimaryAccount: jest.fn(),
+    activateAccount: jest.fn(),
   } as unknown as jest.Mocked<AccountsService>;
 
   const secretsService = {
@@ -134,6 +135,8 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
     expect(accountsService.addPrimaryAccount).toHaveBeenNthCalledWith(3, {
       walletId,
     });
+
+    expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
 
     expect(result).toEqual({
       type: SecretType.Mnemonic,

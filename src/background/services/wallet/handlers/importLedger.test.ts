@@ -14,6 +14,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
   const accountsService = {
     addPrimaryAccount: jest.fn(),
+    activateAccount: jest.fn(),
   } as unknown as jest.Mocked<AccountsService>;
 
   const secretsService = {
@@ -119,6 +120,8 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
     // correlate to numberOfAccountsToCreate
     expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(1);
 
+    expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
+
     expect(result).toEqual({
       type: SecretType.Ledger,
       name: nameValue,
@@ -159,6 +162,8 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
     // correlate to numberOfAccountsToCreate
     expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(2);
+
+    expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
 
     expect(result).toEqual({
       type: SecretType.LedgerLive,
