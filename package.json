@@ -118,8 +118,8 @@
     "@commitlint/config-angular": "17.0.3",
     "@commitlint/config-conventional": "17.0.3",
     "@google/semantic-release-replace-plugin": "1.1.0",
-    "@lavamoat/allow-scripts": "2.0.0",
-    "@lavamoat/preinstall-always-fail": "1.0.0",
+    "@lavamoat/allow-scripts": "3.3.1",
+    "@lavamoat/preinstall-always-fail": "2.1.0",
     "@semantic-release/commit-analyzer": "9.0.2",
     "@semantic-release/exec": "6.0.3",
     "@semantic-release/github": "8.0.2",
@@ -185,6 +185,7 @@
     "style-loader": "3.3.1",
     "ts-jest": "29.2.5",
     "ts-loader": "9.2.6",
+    "typechain": "8.3.2",
     "typescript": "5.2.2",
     "webextension-polyfill": "0.10.0",
     "webpack": "5.76.0",
@@ -196,9 +197,6 @@
     "@types/react": "17.0.38",
     "@types/react-dom": "17.0.11",
     "json5": "2.2.2",
-    "react-scripts/@svgr/webpack/@svgr/plugin-svgo/svgo/css-select/nth-check": "2.0.1",
-    "react-scripts/react-dev-utils/recursive-readdir/minimatch": "3.0.5",
-    "i18next-scanner/vinyl-fs/glob-stream/glob-parent": "5.1.2",
     "got": "11.8.5",
     "@ledgerhq/hw-app-eth": "6.36.1",
     "@ledgerhq/hw-transport": "6.30.6",
@@ -217,7 +215,7 @@
   },
   "volta": {
     "node": "20.11.0",
-    "yarn": "1.22.19"
+    "yarn": "4.5.3"
   },
   "lavamoat": {
     "allowScripts": {
@@ -261,5 +259,6 @@
       "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
       "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>hdkey>secp256k1": false
     }
-  }
+  },
+  "packageManager": "yarn@4.5.3"
 }

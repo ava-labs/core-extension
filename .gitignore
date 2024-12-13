@@ -31,6 +31,9 @@ typings/
 .npm
 .npmrc
 
+# yarn directories
+.yarn
+
 # IDE files
 .idea
 .idea/*
