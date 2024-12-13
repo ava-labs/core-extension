@@ -14,6 +14,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
   const accountsService = {
     addPrimaryAccount: jest.fn(),
+    activateAccount: jest.fn(),
   } as unknown as jest.Mocked<AccountsService>;
 
   const secretsService = {
@@ -105,6 +106,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       xpub: xpubValue,
       xpubXP: xpubXPValue,
       name: nameValue,
+      numberOfAccountsToCreate: 1,
     });
 
     expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
@@ -114,6 +116,11 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       derivationPath: DerivationPath.BIP44,
       name: nameValue,
     });
+
+    // correlate to numberOfAccountsToCreate
+    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(1);
+
+    expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
 
     expect(result).toEqual({
       type: SecretType.Ledger,
@@ -143,6 +150,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       secretType: SecretType.LedgerLive,
       pubKeys: pubKeysValue,
       name: nameValue,
+      numberOfAccountsToCreate: 2,
     });
 
     expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
@@ -151,6 +159,11 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       derivationPath: DerivationPath.LedgerLive,
       name: nameValue,
     });
+
+    // correlate to numberOfAccountsToCreate
+    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(2);
+
+    expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
 
     expect(result).toEqual({
       type: SecretType.LedgerLive,

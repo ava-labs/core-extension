@@ -39,7 +39,7 @@ export class ImportSeedPhraseHandler implements HandlerType {
   async #addAccounts(walletId: string) {
     // We need to await each of these calls, otherwise there may be race conditions
     // (i.e. address for 0-index account derived N times).
-    await this.accountsService.addPrimaryAccount({
+    const activeAccount = await this.accountsService.addPrimaryAccount({
       walletId,
     });
     await this.accountsService.addPrimaryAccount({
@@ -48,6 +48,8 @@ export class ImportSeedPhraseHandler implements HandlerType {
     await this.accountsService.addPrimaryAccount({
       walletId,
     });
+
+    await this.accountsService.activateAccount(activeAccount);
   }
 
   handle: HandlerType['handle'] = async ({ request }) => {

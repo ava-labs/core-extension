@@ -10,7 +10,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 export const usePrivateKeyImport = () => {
   const [isImporting, setIsImporting] = useState(false);
 
-  const { addAccount } = useAccountsContext();
+  const { addAccount, selectAccount } = useAccountsContext();
 
   const importPrivateKey = useCallback(
     async (privateKey: string) => {
@@ -21,6 +21,7 @@ export const usePrivateKeyImport = () => {
           importType: ImportType.PRIVATE_KEY,
           data: utils.strip0x(privateKey),
         });
+        await selectAccount(accountId);
 
         return accountId;
       } catch (err) {
@@ -33,7 +34,7 @@ export const usePrivateKeyImport = () => {
         setIsImporting(false);
       }
     },
-    [addAccount]
+    [addAccount, selectAccount]
   );
 
   return {
