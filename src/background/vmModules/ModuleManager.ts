@@ -17,6 +17,7 @@ import { isDevelopment } from '@src/utils/environment';
 import { NetworkWithCaipId } from '../services/network/models';
 import { VMModuleError } from './models';
 import { ApprovalController } from './ApprovalController';
+import { AvaxCaipId, BitcoinCaipId } from '@src/utils/caipConversion';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2
@@ -74,10 +75,7 @@ export class ModuleManager {
   }
 
   async loadModule(caipId: string, method?: string): Promise<Module> {
-    // console.log('caipId: ', caipId);
-    // console.log('method: ', method);
     const module = await this.#getModule(caipId);
-    // console.log('loadModule module: ', module);
 
     if (module === undefined) {
       throw ethErrors.rpc.invalidParams({
@@ -107,9 +105,9 @@ export class ModuleManager {
     return this.loadModule(network.caipId, method);
   }
 
-  async #getModule(chainId: string): Promise<Module | undefined> {
-    const [namespace] = chainId.split(':');
-
+  async #getModule(scope: string): Promise<Module | undefined> {
+    const scopeConversion = BitcoinCaipId[scope] ?? AvaxCaipId[scope] ?? scope;
+    const [namespace] = scopeConversion.split(':');
     if (!namespace || !NAMESPACE_REGEX.test(namespace)) {
       throw ethErrors.rpc.invalidParams({
         data: {
@@ -119,7 +117,7 @@ export class ModuleManager {
       });
     }
     return (
-      (await this.#getModuleByChainId(chainId)) ??
+      (await this.#getModuleByChainId(scope)) ??
       (await this.#getModuleByNamespace(namespace))
     );
   }

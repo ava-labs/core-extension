@@ -48,4 +48,31 @@ describe('src/background/connections/middlewares/ActiveNetworkMiddleware', () =>
     expect(next).not.toHaveBeenCalled();
     expect(onError).toHaveBeenCalledWith(error);
   });
+  it('should not call anything because the method does not need the active network', async () => {
+    const call = ActiveNetworkMiddleware(networkService);
+    const next = jest.fn();
+    const onError = jest.fn();
+    await call(
+      {
+        request: {
+          params: {
+            scope: 'eip155:43114', // C-Chain Mainnet
+            request: {
+              method: 'wallet_ANYTHING_BEGINS_WITH_WALLET_',
+              params: [
+                {
+                  chainId: '0xa869', // C-Chain Fuji (43113)
+                },
+              ],
+            },
+          },
+        },
+      } as any,
+      next,
+      onError
+    );
+
+    expect(getTargetNetworkForTx).not.toHaveBeenCalled();
+    expect(networkService.getNetwork).not.toHaveBeenCalled();
+  });
 });

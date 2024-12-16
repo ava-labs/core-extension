@@ -7,12 +7,6 @@ import {
 import { PartialBy } from '../models';
 import { ethErrors, serializeError } from 'eth-rpc-errors';
 import AbstractConnection from '../utils/messaging/AbstractConnection';
-import {
-  CaipNamespace,
-  chainIdToCaip,
-  getNameSpaceFromScope,
-} from '../../utils/caipConversion';
-import { ChainId } from '@avalabs/core-chains-sdk';
 import RequestRatelimiter from './utils/RequestRatelimiter';
 import {
   InitializationStep,
@@ -59,22 +53,15 @@ export class ChainAgnosticProvider extends EventEmitter {
   #request = async ({
     data,
     sessionId,
-    chainId,
+    scope,
   }: {
     data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>;
     sessionId?: string;
-    chainId?: string | null;
+    scope?: string | null;
   }) => {
     if (!data) {
       throw ethErrors.rpc.invalidRequest();
     }
-    const namespace = getNameSpaceFromScope(chainId);
-    const scope =
-      namespace === CaipNamespace.HVM
-        ? chainId
-        : chainIdToCaip(
-            chainId ? parseInt(chainId) : ChainId.AVALANCHE_MAINNET_ID
-          );
     const result = this.#contentScriptConnection
       .request({
         method: 'provider_request',
@@ -103,15 +90,15 @@ export class ChainAgnosticProvider extends EventEmitter {
   request = async ({
     data,
     sessionId,
-    chainId,
+    scope,
   }: {
     data: PartialBy<JsonRpcRequestPayload, 'id' | 'params'>;
     sessionId?: string;
-    chainId?: string | null;
+    scope?: string | null;
   }) => {
     return this.#providerReadyPromise.call(() => {
       return this.#requestRateLimiter.call(data.method, () =>
-        this.#request({ data, chainId, sessionId })
+        this.#request({ data, scope, sessionId })
       );
     });
   };

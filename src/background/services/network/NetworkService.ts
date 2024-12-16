@@ -597,10 +597,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async saveCustomNetwork(customNetworkPayload: CustomNetworkPayload) {
     const customNetwork = decorateWithCaipId(customNetworkPayload);
-    const chainId =
-      customNetworkPayload.caipId && !customNetwork.chainId
-        ? caipToChainId(customNetworkPayload.caipId)
-        : parseInt(customNetwork.chainId.toString(16), 16);
+    const chainId = parseInt(customNetwork.chainId.toString(16), 16);
 
     const chainlist = await this._rawNetworks.promisify();
 

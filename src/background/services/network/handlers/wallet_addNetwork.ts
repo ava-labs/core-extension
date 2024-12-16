@@ -10,10 +10,24 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
-import { AddNetworkPayload, CustomNetworkPayload } from '../models';
+import { CustomNetworkPayload } from '../models';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { runtime } from 'webextension-polyfill';
 import { caipToChainId } from '@src/utils/caipConversion';
+import { NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
+
+interface AddNetworkPayload {
+  caipId: string;
+  chainName: string;
+  rpcUrl: string;
+  vmName: NetworkVMType;
+  tokenName: string;
+  decimals: number;
+  networkToken: NetworkToken;
+  logoUri: string;
+  explorerUrl: string;
+  chainId?: number;
+}
 
 type Params = [AddNetworkPayload];
 
@@ -47,7 +61,9 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
 
     const chainId = network.chainId ?? caipToChainId(network.caipId);
 
-    const isCustomNetworkExist = await this.networkService.getNetwork(chainId);
+    const isCustomNetworkExist = await this.networkService.getNetwork(
+      network.caipId
+    );
 
     if (isCustomNetworkExist) {
       return {
