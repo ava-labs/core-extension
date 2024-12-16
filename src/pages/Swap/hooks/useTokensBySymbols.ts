@@ -38,7 +38,8 @@ export function useTokensBySymbols<T extends RequestedTokens>(
             return token.type === TokenType.NATIVE && token.symbol === symbol;
           } else if (typeof identifier === 'string') {
             return (
-              token.type !== TokenType.NATIVE && token.address === identifier
+              token.type !== TokenType.NATIVE &&
+              token.address.toLowerCase() === identifier.toLowerCase()
             );
           }
         }),
