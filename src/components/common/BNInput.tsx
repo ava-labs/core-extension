@@ -119,7 +119,7 @@ export function BNInput({
     <Stack sx={{ position: 'relative' }}>
       <InputNumber
         fullWidth={fullWidth}
-        value={valStr}
+        value={valStr.replaceAll(',', '')}
         onChange={(e) => onValueChanged(e.target.value)}
         type="number"
         onKeyDown={(e) => {
