@@ -69,6 +69,7 @@ export default function AccountName({
             e.stopPropagation();
             promptRename();
           }}
+          data-testid="rename-account-btn"
         >
           <PencilRoundIcon size={16} />
         </IconButton>
