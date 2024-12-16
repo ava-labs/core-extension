@@ -60,12 +60,10 @@ export function Portfolio() {
   const { isReady, checkIsFunctionSupported } = useIsFunctionAvailable();
   const [listType, setListType] = useState<ListType>();
   const [hadDefiEnabled, setHadDefiEnabled] = useState(false);
-  const { getPageHistoryData } = usePageHistory();
+  const { getPageHistoryData, isHistoryLoading } = usePageHistory();
 
-  const {
-    listType: historyListType,
-    isLoading: isHistoryLoading,
-  }: { listType?: ListType; isLoading: boolean } = getPageHistoryData();
+  const { listType: historyListType }: { listType?: ListType } =
+    getPageHistoryData();
   const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
@@ -180,11 +178,7 @@ export function Portfolio() {
             >
               {shouldShow(PortfolioTabs.COLLECTIBLES) ? (
                 listType ? (
-                  <Collectibles
-                    listType={listType}
-                    setListType={setListType}
-                    isHistoryLoading={isHistoryLoading}
-                  />
+                  <Collectibles listType={listType} setListType={setListType} />
                 ) : (
                   <CircularProgress size={60} />
                 )

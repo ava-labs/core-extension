@@ -34,16 +34,11 @@ import { useLiveBalance } from '@src/hooks/useLiveBalance';
 interface CollectiblesProps {
   listType: ListType;
   setListType: Dispatch<SetStateAction<ListType | undefined>>;
-  isHistoryLoading: boolean;
 }
 
 const POLLED_BALANCES = [TokenType.ERC721, TokenType.ERC1155];
 
-export function Collectibles({
-  listType,
-  setListType,
-  isHistoryLoading,
-}: CollectiblesProps) {
+export function Collectibles({ listType, setListType }: CollectiblesProps) {
   useLiveBalance(POLLED_BALANCES);
   const { t } = useTranslation();
   const { balances } = useBalancesContext();
@@ -52,7 +47,7 @@ export function Collectibles({
   const { network } = useNetworkContext();
   const history = useHistory();
   const setCollectibleParams = useSetCollectibleParams();
-  const { setNavigationHistoryData } = usePageHistory();
+  const { setNavigationHistoryData, isHistoryLoading } = usePageHistory();
   const { isFunctionSupported: isManageCollectiblesSupported } =
     useIsFunctionAvailable(FunctionNames.MANAGE_COLLECTIBLES);
   const { getCollectibleVisibility } = useSettingsContext();

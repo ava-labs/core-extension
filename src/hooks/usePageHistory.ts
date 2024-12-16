@@ -13,10 +13,8 @@ import { GetNavigationHistoryDataHandler } from '@src/background/services/naviga
 
 export function usePageHistory() {
   const { request } = useConnectionContext();
-  const [historyDataState, setHistoryDataState] = useState<{
-    isLoading: boolean;
-    [key: string]: any;
-  }>({ isLoading: true });
+  const [isLoading, setIsLoading] = useState(true);
+  const [historyDataState, setHistoryDataState] = useState({});
   const [historyState, setHistoryState] = useState<NavigationHistoryState>({});
 
   const setNavigationHistoryData = useCallback(
@@ -33,7 +31,7 @@ export function usePageHistory() {
     const result = await request<GetNavigationHistoryDataHandler>({
       method: ExtensionRequest.NAVIGATION_HISTORY_DATA_GET,
     });
-    setHistoryDataState({ ...result, isLoading: false });
+    setHistoryDataState(result);
   }, [request]);
 
   const setNavigationHistory = useCallback(
@@ -55,8 +53,10 @@ export function usePageHistory() {
 
   useEffect(() => {
     const getHistory = async () => {
+      setIsLoading(true);
       await getNavigationHistory();
       await getNavigationHistoryData();
+      setIsLoading(false);
     };
     getHistory();
   }, [getNavigationHistory, getNavigationHistoryData]);
@@ -76,5 +76,6 @@ export function usePageHistory() {
     getPageHistoryData,
     setNavigationHistory,
     getNavigationHistoryState,
+    isHistoryLoading: isLoading,
   };
 }
