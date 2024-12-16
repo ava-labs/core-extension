@@ -46,8 +46,8 @@ export class BridgeCreateTransactionHandler implements HandlerType {
         sourceStartedAt,
         targetChain,
         amount,
-        symbol
-      )
+        symbol,
+      ),
     );
 
     if (error) {

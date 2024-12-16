@@ -49,7 +49,6 @@ describe('background/services/storage/schemaMigrations/migrations/accounts_v3', 
   });
 
   it('should reject the wrong previous account schema input', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { index, id, addressBTC, addressC, name, type, ...invalidInput } =
       validInput.primary[0] ?? {};
     const result = accounts_v3.previousSchema.validate(invalidInput);

@@ -15,15 +15,15 @@ import { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 import { DAppRequestHandler } from './dAppConnection/DAppRequestHandler';
 
-export interface ExtensionConnectionMessage<
+export type ExtensionConnectionMessage<
   Method extends ExtensionRequest | DAppProviderRequest | RpcMethod = any,
-  Params = any
-> extends JsonRpcRequest<Method, Params> {}
+  Params = any,
+> = JsonRpcRequest<Method, Params>;
 
 export type ExtensionConnectionMessageResponse<
   Method extends ExtensionRequest | DAppProviderRequest | RpcMethod = any,
   Result = any,
-  Params = any
+  Params = any,
 > = ExtensionConnectionMessage<Method, Params>['params']['request'] &
   (
     | {
@@ -46,13 +46,13 @@ export interface ExtensionConnectionEvent<V = any> {
 }
 
 export function isConnectionEvent(
-  message: ExtensionConnectionMessageResponse | ExtensionConnectionEvent
+  message: ExtensionConnectionMessageResponse | ExtensionConnectionEvent,
 ): message is ExtensionConnectionEvent {
   return !message.hasOwnProperty('id') && message.hasOwnProperty('name');
 }
 
 export function isConnectionResponse(
-  message: ExtensionConnectionMessageResponse | ExtensionConnectionEvent
+  message: ExtensionConnectionMessageResponse | ExtensionConnectionEvent,
 ): message is ExtensionConnectionMessageResponse {
   return (
     message.hasOwnProperty('id') &&
@@ -72,31 +72,28 @@ export function isConnectionResponse(
 export interface ExtensionRequestHandler<
   Method extends ExtensionRequest | DAppProviderRequest | RpcMethod,
   Result,
-  Params = undefined
+  Params = undefined,
 > {
   method: Method;
   handle: (
-    rpcCall: ExtensionConnectionMessage<Method, Params>['params']
+    rpcCall: ExtensionConnectionMessage<Method, Params>['params'],
   ) => Promise<ExtensionConnectionMessageResponse<Method, Result, Params>>;
 }
 
-type ExtractHandlerTypes<Type> = Type extends ExtensionRequestHandler<
-  infer M,
-  infer R,
-  infer P
->
-  ? { Method: M; Result: R; Params: P }
-  : Type extends DAppRequestHandler<infer P, infer R>
-  ? {
-      Method: ArrayElement<Type['methods']>;
-      Params: P;
-      Result: R;
-    }
-  : {
-      Method: RpcMethod;
-      Params: Type;
-      Result: string;
-    };
+type ExtractHandlerTypes<Type> =
+  Type extends ExtensionRequestHandler<infer M, infer R, infer P>
+    ? { Method: M; Result: R; Params: P }
+    : Type extends DAppRequestHandler<infer P, infer R>
+      ? {
+          Method: ArrayElement<Type['methods']>;
+          Params: P;
+          Result: R;
+        }
+      : {
+          Method: RpcMethod;
+          Params: Type;
+          Result: string;
+        };
 
 type ModuleRequestPayload = Record<string, unknown>;
 
@@ -116,10 +113,10 @@ export type RequestHandlerType = <
     | DAppProviderRequest
     | RpcMethod = ExtractHandlerTypes<HandlerOrKnownParams>['Method'],
   Result = Exclude<ExtractHandlerTypes<HandlerOrKnownParams>['Result'], symbol>,
-  Params = ExtractHandlerTypes<HandlerOrKnownParams>['Params']
+  Params = ExtractHandlerTypes<HandlerOrKnownParams>['Params'],
 >(
   message: Omit<JsonRpcRequestPayload<Method, Params>, 'id'>,
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
 ) => Promise<Result>;
 
 interface ConnectionEventEmitter {

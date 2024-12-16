@@ -25,7 +25,7 @@ export function SetDeveloperMode() {
   } = useApproveAction(requestId);
 
   const willSwitchToPrimaryAccount = useWillSwitchToPrimaryAccount(
-    action?.displayData.isTestmode
+    action?.displayData.isTestmode,
   );
 
   if (!action) {
@@ -80,7 +80,7 @@ export function SetDeveloperMode() {
         {willSwitchToPrimaryAccount && (
           <Typography variant="caption" sx={{ mt: 3, color: 'warning.main' }}>
             {t(
-              'Approving will also switch to your primary account, as Fireblocks-imported accounts are not supported in testnet mode at the moment.'
+              'Approving will also switch to your primary account, as Fireblocks-imported accounts are not supported in testnet mode at the moment.',
             )}
           </Typography>
         )}

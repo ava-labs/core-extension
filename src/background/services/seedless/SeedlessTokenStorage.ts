@@ -12,7 +12,7 @@ export class SeedlessTokenStorage implements SignerSessionStorage {
   async save(seedlessSignerToken: SignerSessionData): Promise<void> {
     const secrets = await this.secretsService.loadSecrets();
     const seedlessSecrets = secrets.wallets.find(
-      (wallet) => wallet.secretType === SecretType.Seedless
+      (wallet) => wallet.secretType === SecretType.Seedless,
     );
     // Prevent writing signer token to a different type of wallet
     if (
@@ -23,7 +23,7 @@ export class SeedlessTokenStorage implements SignerSessionStorage {
     }
     await this.secretsService.updateSecrets(
       { seedlessSignerToken },
-      seedlessSecrets.id
+      seedlessSecrets.id,
     );
   }
 
@@ -31,7 +31,7 @@ export class SeedlessTokenStorage implements SignerSessionStorage {
     const secrets = await this.secretsService.loadSecrets();
 
     const seedlessSecrets = secrets.wallets.find(
-      (wallet) => wallet.secretType === SecretType.Seedless
+      (wallet) => wallet.secretType === SecretType.Seedless,
     );
 
     if (!seedlessSecrets || !('seedlessSignerToken' in seedlessSecrets)) {

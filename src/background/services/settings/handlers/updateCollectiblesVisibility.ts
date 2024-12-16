@@ -20,7 +20,7 @@ export class UpdateCollectiblesVisibilityHandler implements HandlerType {
     const [collectiblesVisibility] = request.params;
 
     await this.settingsService.setCollectiblesVisibility(
-      collectiblesVisibility
+      collectiblesVisibility,
     );
 
     return {

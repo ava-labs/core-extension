@@ -44,7 +44,7 @@ export const LedgerTroubleshooting = () => {
             <Typography variant="h5">{t('Ledger Disconnected')}</Typography>
             <Typography variant="body2">
               {t(
-                'Core is no longer connected to your Ledger device. Reconnect your Ledger to continue.'
+                'Core is no longer connected to your Ledger device. Reconnect your Ledger to continue.',
               )}
             </Typography>
             <Button

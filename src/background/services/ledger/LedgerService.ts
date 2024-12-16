@@ -25,7 +25,7 @@ export class LedgerService implements OnLock, OnUnlock {
     this.ledgerRequestSubscription = this.ledgerDeviceRequest$.subscribe(
       (request) => {
         this.eventEmitter.emit(LedgerEvent.TRANSPORT_REQUEST, request);
-      }
+      },
     );
     /**
      * Request all active frontend LedgerProviders to notify the background after a background script restart.
@@ -98,8 +98,8 @@ export class LedgerService implements OnLock, OnUnlock {
       new LedgerTransport(
         this.ledgerDeviceRequest$,
         this.ledgerDeviceResponse$,
-        ledgerTransportUUID
-      )
+        ledgerTransportUUID,
+      ),
     );
   }
 

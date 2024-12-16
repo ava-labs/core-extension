@@ -46,7 +46,7 @@ export function Currencies({ goBack, navigateTo, width }: SettingsPageProps) {
       (c) =>
         !searchTerm ||
         c.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.name.toLowerCase().includes(searchTerm.toLowerCase())
+        c.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
   return (

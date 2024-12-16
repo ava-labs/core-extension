@@ -18,13 +18,13 @@ const asHex = (value: bigint) => `0x${value.toString(16)}`;
 export const buildErc20Tx = async (
   from: string,
   provider: JsonRpcBatchInternal,
-  { address, amount, token }: Erc20SendOptions
+  { address, amount, token }: Erc20SendOptions,
 ) => {
   const contract = new Contract(token.address || '', ERC20.abi, provider);
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
   const populatedTransaction = await contract.transfer!.populateTransaction(
     address,
-    asHex(stringToBigint(amount, token.decimals))
+    asHex(stringToBigint(amount, token.decimals)),
   );
   const unsignedTx: TransactionRequest = {
     ...populatedTransaction, // only includes `to` and `data`
@@ -40,11 +40,10 @@ export const buildErc20Tx = async (
 export const buildErc721Tx = async (
   from: string,
   provider: JsonRpcBatchInternal,
-  { address, token }: NftSendOptions
+  { address, token }: NftSendOptions,
 ) => {
   const contract = new Contract(token.address || '', ERC721.abi, provider);
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const populatedTransaction = await contract[
     'safeTransferFrom(address,address,uint256)'
   ]!.populateTransaction(from, address, token.tokenId);
@@ -62,11 +61,10 @@ export const buildErc721Tx = async (
 export const buildErc1155Tx = async (
   from: string,
   provider: JsonRpcBatchInternal,
-  { address, token }: NftSendOptions
+  { address, token }: NftSendOptions,
 ) => {
   const contract = new Contract(token.address || '', ERC1155.abi, provider);
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const populatedTransaction = await contract[
     'safeTransferFrom(address,address,uint256,uint256,bytes)'
   ]!.populateTransaction(from, address, token.tokenId, 1, new Uint8Array());
@@ -84,7 +82,7 @@ export const buildErc1155Tx = async (
 
 export const buildNativeTx = (
   from: string,
-  { address, amount, token }: NativeSendOptions
+  { address, amount, token }: NativeSendOptions,
 ): TransactionRequest => ({
   from,
   to: address,
@@ -92,24 +90,24 @@ export const buildNativeTx = (
 });
 
 export const isNativeSend = (
-  options: SendOptions
+  options: SendOptions,
 ): options is NativeSendOptions => options.token.type === TokenType.NATIVE;
 
 export const isErc20Send = (
-  options: SendOptions
+  options: SendOptions,
 ): options is Erc20SendOptions => options.token.type === TokenType.ERC20;
 
 export const isErc721Send = (options: SendOptions): options is NftSendOptions =>
   options.token.type === TokenType.ERC721;
 
 export const isErc1155Send = (
-  options: SendOptions
+  options: SendOptions,
 ): options is NftSendOptions => options.token.type === TokenType.ERC1155;
 
 export const buildTx = async (
   from: string,
   provider: JsonRpcBatchInternal,
-  options: SendOptions
+  options: SendOptions,
 ) => {
   if (isNativeSend(options)) {
     return buildNativeTx(from, options);

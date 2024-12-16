@@ -50,7 +50,7 @@ type AccountItemProps = {
 export const AccountItem = forwardRef(
   (
     { account, walletType, selectionMode }: AccountItemProps,
-    ref: ForwardedRef<HTMLDivElement>
+    ref: ForwardedRef<HTMLDivElement>,
   ) => {
     const { t } = useTranslation();
     const toast = useScopedToast('account-switcher');
@@ -85,13 +85,13 @@ export const AccountItem = forwardRef(
         if (isSelected) {
           deselectAccount(
             accountId,
-            selectionMode === SelectionMode.Consecutive
+            selectionMode === SelectionMode.Consecutive,
           );
         } else {
           selectAccount(accountId);
         }
       },
-      [deselectAccount, isSelected, selectAccount, selectionMode]
+      [deselectAccount, isSelected, selectAccount, selectionMode],
     );
 
     const handleAccountClick = useCallback(async () => {
@@ -103,7 +103,7 @@ export const AccountItem = forwardRef(
           t(`Account "{{accountName}}" is now active`, {
             accountName: account.name,
           }),
-          { duration: 1000 }
+          { duration: 1000 },
         );
         await capture('AccountSelectorAccountSwitched', {
           type: account.type,
@@ -140,7 +140,7 @@ export const AccountItem = forwardRef(
       }
 
       return t(
-        'To remove this account, you must also remove all accounts that follow.'
+        'To remove this account, you must also remove all accounts that follow.',
       );
     }, [account, isSelectable, t, walletType]);
 
@@ -337,7 +337,7 @@ export const AccountItem = forwardRef(
         {removeDialog()}
       </>
     );
-  }
+  },
 );
 
 AccountItem.displayName = 'AccountItem';

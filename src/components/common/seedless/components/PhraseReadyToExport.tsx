@@ -70,7 +70,7 @@ export const PhraseReadyToExport = ({
           <AlertContent sx={{ pl: 0.5, pr: 0 }}>
             <Typography variant="body2">
               {t(
-                'Do not share this phrase with anyone! These words can be used to steal all your accounts.'
+                'Do not share this phrase with anyone! These words can be used to steal all your accounts.',
               )}
             </Typography>
           </AlertContent>
@@ -131,7 +131,7 @@ export const PhraseReadyToExport = ({
         <DialogContent>
           <Typography variant="body2">
             {t(
-              'Closing the settings menu will require you to restart the 2 day waiting period.'
+              'Closing the settings menu will require you to restart the 2 day waiting period.',
             )}
           </Typography>
         </DialogContent>

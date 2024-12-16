@@ -7,13 +7,15 @@ describe('src/utils/errors/errorHelpers', () => {
     it('recognizes wrapped RPC errors', () => {
       expect(
         isWrappedError(
-          ethErrors.rpc.internal({ data: { someProp: 'someValue' } })
-        )
+          ethErrors.rpc.internal({ data: { someProp: 'someValue' } }),
+        ),
       ).toBe(false);
       expect(
         isWrappedError(
-          ethErrors.rpc.internal({ data: { reason: CommonError.UserRejected } })
-        )
+          ethErrors.rpc.internal({
+            data: { reason: CommonError.UserRejected },
+          }),
+        ),
       ).toBe(true);
     });
   });

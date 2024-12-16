@@ -114,7 +114,7 @@ export function AuthenticatorDetails({
         setState(State.Failure);
       }
     },
-    [completeAuthenticatorChange, onUpdated, t]
+    [completeAuthenticatorChange, onUpdated, t],
   );
 
   useEffect(() => {
@@ -237,7 +237,7 @@ export function AuthenticatorDetails({
                       hasFidoConfigured
                         ? ''
                         : t(
-                            'To remove the authenticator app, you first need to configure a different recovery method.'
+                            'To remove the authenticator app, you first need to configure a different recovery method.',
                           )
                     }
                   >
@@ -280,10 +280,10 @@ export function AuthenticatorDetails({
               <DialogContent>
                 {state === State.ConfirmChange
                   ? t(
-                      'You will no longer be able to use this authenticator once you switch. You can always re-add an authenticator app.'
+                      'You will no longer be able to use this authenticator once you switch. You can always re-add an authenticator app.',
                     )
                   : t(
-                      'You will no longer be able to use this authenticator once you remove it. You can always re-add it later.'
+                      'You will no longer be able to use this authenticator once you remove it. You can always re-add it later.',
                     )}
               </DialogContent>
               <DialogActions>

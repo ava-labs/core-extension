@@ -127,7 +127,7 @@ const SeedlessUpdateRecoveryMethod = lazy(() => {
   return import('../pages/SeedlessPopups/SeedlessUpdateRecoveryMethod').then(
     (m) => ({
       default: m.SeedlessUpdateRecoveryMethod,
-    })
+    }),
   );
 });
 
@@ -183,7 +183,7 @@ const AccountManagerProvider = lazy(() => {
   return import('../pages/Accounts/providers/AccountManagerProvider').then(
     (m) => ({
       default: m.AccountManagerProvider,
-    })
+    }),
   );
 });
 
@@ -191,7 +191,7 @@ const WalletTotalBalanceProvider = lazy(() => {
   return import('../pages/Accounts/providers/WalletTotalBalanceProvider').then(
     (m) => ({
       default: m.WalletTotalBalanceProvider,
-    })
+    }),
   );
 });
 

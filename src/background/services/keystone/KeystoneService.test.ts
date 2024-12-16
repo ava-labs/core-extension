@@ -43,7 +43,7 @@ describe('background/services/keystone/KeystoneService.ts', () => {
         ({
           getRegistryType: jest.fn().mockReturnValue(mockRegistryType),
           getSignature: jest.fn().mockReturnValue(signatureBuffer),
-        } as any as ETHSignature)
+        }) as any as ETHSignature,
     );
     mockedRequest.toUR.mockReturnValue(mockedUR);
     jest
@@ -69,7 +69,7 @@ describe('background/services/keystone/KeystoneService.ts', () => {
 
       expect(
         // @ts-expect-error keystoneRequestSubscription is private
-        service.keystoneRequestSubscription?.unsubscribe
+        service.keystoneRequestSubscription?.unsubscribe,
       ).toHaveBeenCalled();
     });
   });

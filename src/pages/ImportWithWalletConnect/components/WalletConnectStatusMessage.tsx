@@ -54,8 +54,8 @@ export const WalletConnectStatusMessage = ({
         {hasConnectionFailed
           ? importState.error
           : reconnectionAddress
-          ? t('Scan successful. Waiting to be confirmed...')
-          : t('Scan successful. Importing accounts...')}
+            ? t('Scan successful. Waiting to be confirmed...')
+            : t('Scan successful. Importing accounts...')}
       </Typography>
     </Stack>
   );

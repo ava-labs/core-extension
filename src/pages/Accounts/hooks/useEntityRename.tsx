@@ -41,7 +41,7 @@ export const useEntityRename = ({
           setIsSaving(false);
         });
     },
-    [updateFn, currentName, onSuccess, onFailure, t, toast]
+    [updateFn, currentName, onSuccess, onFailure, t, toast],
   );
 
   const renderDialog = useCallback(
@@ -55,7 +55,7 @@ export const useEntityRename = ({
         onSave={confirm}
       />
     ),
-    [currentName, dialogTitle, cancel, confirm, isRenaming, isSaving]
+    [currentName, dialogTitle, cancel, confirm, isRenaming, isSaving],
   );
 
   return {

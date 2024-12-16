@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { TextDecoder } from 'util';
 import { jest } from '@jest/globals';
 import { MockTextEncoder } from './MockTextEncoder';
+import crypto from 'node:crypto';
 
 // polyfill TextEncoder till it's supported in jsdom
 // https://github.com/jsdom/jsdom/issues/2524
@@ -16,7 +17,8 @@ Object.defineProperties(global.crypto, {
     value: (arr) => arr.map(() => 1),
   },
   subtle: {
-    value: require('node:crypto').subtle,
+    // @ts-expect-error : eslint is throwing an error saying "subtle" is not exported
+    value: crypto.subtle,
   },
 });
 

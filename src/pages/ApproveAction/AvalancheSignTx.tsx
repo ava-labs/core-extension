@@ -49,7 +49,7 @@ export function AvalancheSignTx() {
   const { network } = useNetworkContext();
   const { t } = useTranslation();
   const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
-    FunctionNames.SIGN
+    FunctionNames.SIGN,
   );
   const tokenPrice = useNativeTokenPrice(network);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
@@ -74,7 +74,7 @@ export function AvalancheSignTx() {
   useLedgerDisconnectedDialog(
     () => handleRejection(),
     LedgerAppType.AVALANCHE,
-    network
+    network,
   );
 
   const signTx = useCallback(async () => {
@@ -83,7 +83,7 @@ export function AvalancheSignTx() {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       },
-      isUsingLedgerWallet || isWalletConnectAccount || isFireblocksAccount
+      isUsingLedgerWallet || isWalletConnectAccount || isFireblocksAccount,
     );
   }, [
     updateAction,
@@ -201,7 +201,7 @@ export function AvalancheSignTx() {
 
       return <>UNKNOWN TX</>;
     },
-    [tokenPrice]
+    [tokenPrice],
   );
 
   if (!action) {

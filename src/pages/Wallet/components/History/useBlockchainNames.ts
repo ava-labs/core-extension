@@ -6,7 +6,7 @@ import { isPendingBridgeTransaction } from '@src/utils/bridgeTransactionUtils';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 export function useBlockchainNames(
-  item: TxHistoryItem | BridgeTransaction | BridgeTransfer
+  item: TxHistoryItem | BridgeTransaction | BridgeTransfer,
 ) {
   const pending = isPendingBridgeTransaction(item);
   const { getNetwork } = useNetworkContext();
@@ -16,12 +16,12 @@ export function useBlockchainNames(
       sourceBlockchain: titleCase(
         typeof item.sourceChain === 'object'
           ? item.sourceChain.chainName
-          : item.sourceChain
+          : item.sourceChain,
       ),
       targetBlockchain: titleCase(
         typeof item.targetChain === 'object'
           ? item.targetChain.chainName
-          : item.targetChain
+          : item.targetChain,
       ),
     };
   }
@@ -37,10 +37,10 @@ export function useBlockchainNames(
 
   return {
     sourceBlockchain: sourceChainId
-      ? getNetwork(sourceChainId)?.chainName ?? sourceChainId
+      ? (getNetwork(sourceChainId)?.chainName ?? sourceChainId)
       : undefined,
     targetBlockchain: targetChainId
-      ? getNetwork(targetChainId)?.chainName ?? targetChainId
+      ? (getNetwork(targetChainId)?.chainName ?? targetChainId)
       : undefined,
   };
 }

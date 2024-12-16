@@ -21,7 +21,7 @@ type ExistingWalletOptionsProps = {
 
 export const ExistingWalletOptions = forwardRef(function ExistingWalletOptions(
   { setShowExistingWalletOption }: ExistingWalletOptionsProps,
-  ref: ForwardedRef<HTMLDivElement>
+  ref: ForwardedRef<HTMLDivElement>,
 ) {
   const history = useHistory();
   const { t } = useTranslation();

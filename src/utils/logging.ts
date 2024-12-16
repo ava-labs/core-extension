@@ -25,13 +25,13 @@ export function formatAndLog(
   value: any,
   config?: {
     color?: string;
-  }
+  },
 ) {
   console.groupCollapsed(
     '%c%s  %s',
     style(config?.color ?? '#cccccc'),
     now(),
-    message
+    message,
   );
   console.log(value.data ? requestParser(value.data) : responseParser(value));
   console.groupEnd();
@@ -110,7 +110,9 @@ export function stateLog(data?: any) {
     return;
   }
 
-  data.walletState.locked
-    ? formatAndLog(`📚 Background State (Locked)`, data, { color: '#E346C5' })
-    : formatAndLog(`📚 Background State`, data, { color: '#E346C5' });
+  if (data.walletState.locked) {
+    formatAndLog(`📚 Background State (Locked)`, data, { color: '#E346C5' });
+  } else {
+    formatAndLog(`📚 Background State`, data, { color: '#E346C5' });
+  }
 }

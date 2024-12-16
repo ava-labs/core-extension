@@ -37,7 +37,7 @@ export const AnalyticsOptInDialog = () => {
         <Stack sx={{ gap: 2 }}>
           <Typography variant="body2" color="text.secondary">
             {t(
-              'Core would like to gather data using local storage and similar technologies to help us understand how our users interact with Core.'
+              'Core would like to gather data using local storage and similar technologies to help us understand how our users interact with Core.',
             )}
           </Typography>
 

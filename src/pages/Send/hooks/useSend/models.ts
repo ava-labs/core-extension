@@ -43,7 +43,7 @@ export type AvmCapableAccount = EnsureDefined<
 >;
 
 export const isAvmCapableAccount = (
-  account?: Account
+  account?: Account,
 ): account is AvmCapableAccount =>
   Boolean(account && account.addressAVM && account.addressCoreEth);
 
@@ -53,7 +53,7 @@ export type PvmCapableAccount = EnsureDefined<
 >;
 
 export const isPvmCapableAccount = (
-  account?: Account
+  account?: Account,
 ): account is PvmCapableAccount =>
   Boolean(account && account.addressPVM && account.addressCoreEth);
 
@@ -72,7 +72,7 @@ type SendAdapter<
   NetworkSendOptions = unknown,
   CustomOptions = unknown,
   Token = NetworkTokenWithBalance,
-  AdditionalOutput = Record<string, unknown>
+  AdditionalOutput = Record<string, unknown>,
 > = (options: CommonAdapterOptions<Provider, Token> & CustomOptions) => {
   isSending: boolean;
   isValidating: boolean;

@@ -52,7 +52,7 @@ class RawSignTxErrorBoundary extends Component<
           </Typography>
           <Typography variant="body2" align="center">
             {this.props.t(
-              'Please copy the below error and post it in our discord, telegram or one of our social channels so our developers can address it as soon as possible. We apologize for the inconvenience.'
+              'Please copy the below error and post it in our discord, telegram or one of our social channels so our developers can address it as soon as possible. We apologize for the inconvenience.',
             )}
           </Typography>
           <Card sx={{ mt: 2, width: 1, height: 340 }}>
@@ -121,12 +121,12 @@ class RawSignTxErrorBoundary extends Component<
     switch (this.props.variant) {
       case 'RenderError':
         return this.props.t(
-          'Something went wrong while attempting to show the info for this transaction.'
+          'Something went wrong while attempting to show the info for this transaction.',
         );
 
       default:
         return this.props.t(
-          'Something went wrong while opening the approval window for this transaction.'
+          'Something went wrong while opening the approval window for this transaction.',
         );
     }
   }

@@ -33,7 +33,7 @@ export class TokenPricesService {
    */
   async getPriceByCoinId(
     coinId: string,
-    selectedCurrency: string
+    selectedCurrency: string,
   ): Promise<number | undefined> {
     const currencyCode = selectedCurrency.toLowerCase() as any;
     const cacheKey = `getPriceByCoinId-${coinId}-${selectedCurrency}`;
@@ -58,7 +58,7 @@ export class TokenPricesService {
   async getTokenPriceByAddress(
     address: string,
     assetPlatformId: string,
-    coinId: string
+    coinId: string,
   ): Promise<Record<string, number>> {
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
@@ -71,7 +71,7 @@ export class TokenPricesService {
       [address],
       selectedCurrency.toLowerCase(),
       avaxPrice || 0,
-      assetPlatformId
+      assetPlatformId,
     );
     tokenPriceResponseCache.set(cacheKey, result);
     return result;
@@ -86,19 +86,19 @@ export class TokenPricesService {
   async getTokenPricesByAddresses(
     tokens: { address: string }[],
     assetPlatformId: string,
-    coinId: string
+    coinId: string,
   ): Promise<Record<string, number>> {
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
     const cacheKey = `getTokenPricesByAddresses-${coinId}-${selectedCurrency}-${assetPlatformId}-${tokens.map(
-      ({ address }) => address
+      ({ address }) => address,
     )}`;
     const cacheResult =
       tokenPriceResponseCache.get<Record<string, number>>(cacheKey);
     if (cacheResult) return cacheResult;
     const nativeTokenPrice = await this.getPriceByCoinId(
       coinId,
-      selectedCurrency
+      selectedCurrency,
     );
     const tokenAddys = tokens.map((token) => token.address);
     const currency = selectedCurrency.toLocaleLowerCase();
@@ -106,7 +106,7 @@ export class TokenPricesService {
       tokenAddys,
       currency,
       nativeTokenPrice || 0,
-      assetPlatformId
+      assetPlatformId,
     );
     tokenPriceResponseCache.set(cacheKey, result);
     return result;

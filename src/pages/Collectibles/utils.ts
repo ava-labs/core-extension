@@ -3,7 +3,7 @@ export const isVideo = (url?: string) =>
 
 export const isImageDark = (
   img: HTMLImageElement,
-  callback: (b: boolean) => void
+  callback: (b: boolean) => void,
 ) => {
   let colorSum = 0;
 

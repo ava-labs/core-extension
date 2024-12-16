@@ -60,7 +60,7 @@ export const AccountDetailsView = () => {
     : getWallet(account?.id ?? '');
   const { isPrivateKeyAvailable, showPrivateKey } = usePrivateKeyExport(
     account,
-    walletDetails?.type
+    walletDetails?.type,
   );
   const { featureFlags } = useFeatureFlagContext();
   const canPrimaryAccountsBeRemoved =
@@ -72,7 +72,7 @@ export const AccountDetailsView = () => {
       toast.success(t('Copied!'), { duration: 1000 });
       capture(eventName, { type: account?.type });
     },
-    [t, account?.type, capture, toast]
+    [t, account?.type, capture, toast],
   );
 
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
@@ -80,7 +80,7 @@ export const AccountDetailsView = () => {
 
   const toBeRemoved = useMemo(
     () => (account?.id ? [account.id] : []),
-    [account?.id]
+    [account?.id],
   );
   const { prompt: promptRename, renderDialog: renameDialog } =
     useAccountRename(account);
@@ -188,7 +188,7 @@ export const AccountDetailsView = () => {
                         isDeletable
                           ? ''
                           : t(
-                              'Only the last account and secondary wallets can be deleted. First account cannot be deleted (delete the wallet instead).'
+                              'Only the last account and secondary wallets can be deleted. First account cannot be deleted (delete the wallet instead).',
                             )
                       }
                     >
@@ -223,7 +223,7 @@ export const AccountDetailsView = () => {
                 address={account.addressC}
                 copyHandler={onAddressCopy(
                   account.addressC,
-                  'AccountDetailsCAddressCopied'
+                  'AccountDetailsCAddressCopied',
                 )}
               />
               {account.addressPVM && (
@@ -234,7 +234,7 @@ export const AccountDetailsView = () => {
                   address={account.addressPVM}
                   copyHandler={onAddressCopy(
                     account.addressPVM,
-                    'AccountDetailsXPAddressCopied'
+                    'AccountDetailsXPAddressCopied',
                   )}
                 />
               )}
@@ -246,7 +246,7 @@ export const AccountDetailsView = () => {
                   address={account.addressBTC}
                   copyHandler={onAddressCopy(
                     account.addressBTC,
-                    'AccountDetailsBTCAddressCopied'
+                    'AccountDetailsBTCAddressCopied',
                   )}
                 />
               )}
@@ -314,7 +314,7 @@ export const AccountDetailsView = () => {
             sx={{ color: 'text.tertiary', fontSize: 11, px: 1, mt: 2 }}
           >
             {t(
-              'A private key is like a password for this specific account. Keep it secure, anyone with this private key can access your funds.'
+              'A private key is like a password for this specific account. Keep it secure, anyone with this private key can access your funds.',
             )}
           </Typography>
         )}

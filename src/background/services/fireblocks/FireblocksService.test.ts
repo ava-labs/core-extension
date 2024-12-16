@@ -66,7 +66,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
   const secretsService = jest.mocked(new SecretsService({} as any));
   const secretsProvider = new FireblocksSecretsService(
     secretsService,
-    accountsService
+    accountsService,
   );
   let service: FireblocksService;
 
@@ -111,12 +111,12 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
               },
             ],
           },
-        })
+        }),
       );
 
       const result = await service.getBtcAddressByAccountId(
         vaultAccount1,
-        false
+        false,
       );
       expect(result).toEqual(vaultAcctAddr);
       expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -153,12 +153,12 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
                 },
               ],
             },
-        })
+        }),
       );
 
       const result = await service.getBtcAddressByAccountId(
         vaultAccount1,
-        false
+        false,
       );
       expect(result).toEqual(vaultAcctAddr2);
       expect(global.fetch).toHaveBeenCalledTimes(2);
@@ -188,7 +188,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
           [`/vault/accounts/${vaultAccount1}/BTC_TEST/addresses_paginated`]: {
             addresses: [primaryAddress],
           },
-        })
+        }),
       );
 
       const result = await service.getAllAddesses(vaultAccount1, 'BTC_TEST');
@@ -209,7 +209,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
             {
               addresses: [primaryAddress],
             },
-        })
+        }),
       );
 
       const result = await service.getAllAddesses(vaultAccount1, 'BTC_TEST');
@@ -234,7 +234,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
                 ],
               },
             ],
-          })
+          }),
         );
       });
 
@@ -263,7 +263,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
                 ],
               },
             ],
-          })
+          }),
         );
       });
 
@@ -301,7 +301,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
                 },
               ],
             },
-          })
+          }),
         );
       });
 
@@ -338,7 +338,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
           apiErrorCode: 1427,
           apiErrorMessage: 'Source type of transaction is invalid',
         },
-      })
+      }),
     );
   });
 
@@ -368,7 +368,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
               'Cannot read properties of undefined (reading "type")',
           },
         }),
-        SentryExceptionTypes.FIREBLOCKS
+        SentryExceptionTypes.FIREBLOCKS,
       );
     }
   });
@@ -382,7 +382,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
         data: {
           reason: CommonError.NetworkError,
         },
-      })
+      }),
     );
   });
 });

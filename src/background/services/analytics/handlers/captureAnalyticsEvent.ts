@@ -18,7 +18,7 @@ export class CaptureAnalyticsEventHandler implements HandlerType {
 
   constructor(
     private analyticsServicePosthog: AnalyticsServicePosthog,
-    private featureFlagService: FeatureFlagService
+    private featureFlagService: FeatureFlagService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {

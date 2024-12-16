@@ -25,7 +25,7 @@ type HandlerType = ExtensionRequestHandler<
       password: string;
       analyticsConsent: boolean;
       walletName?: string;
-    }
+    },
   ]
 >;
 
@@ -41,7 +41,7 @@ export class KeystoneOnboardingHandler implements HandlerType {
     private walletService: WalletService,
     private onboardingService: OnboardingService,
     private lockService: LockService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {

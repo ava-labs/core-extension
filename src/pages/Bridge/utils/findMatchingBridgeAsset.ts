@@ -11,7 +11,7 @@ import {
 
 export const findMatchingBridgeAsset = (
   assets: BridgeAsset[],
-  token: Exclude<TokenWithBalance, NftTokenWithBalance>
+  token: Exclude<TokenWithBalance, NftTokenWithBalance>,
 ): BridgeAsset | undefined => {
   return assets.find((a) => {
     if (a.type === BridgeTokenType.NATIVE && token.type === TokenType.NATIVE) {

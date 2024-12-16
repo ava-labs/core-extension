@@ -2,12 +2,12 @@ export function isNewsletterConfigured() {
   return Boolean(
     process.env.NEWSLETTER_BASE_URL &&
       process.env.NEWSLETTER_PORTAL_ID &&
-      process.env.NEWSLETTER_FORM_ID
+      process.env.NEWSLETTER_FORM_ID,
   );
 }
 
 export async function signUpForNewsletter(
-  data: Record<string, string>
+  data: Record<string, string>,
 ): Promise<Response> {
   if (!isNewsletterConfigured()) {
     throw new Error('Newsletter is not configured');

@@ -32,7 +32,7 @@ type HandlerType = ExtensionRequestHandler<
       analyticsConsent: boolean;
       walletName?: string;
       authProvider: SeedlessAuthProvider;
-    }
+    },
   ]
 >;
 
@@ -49,7 +49,7 @@ export class SeedlessOnboardingHandler implements HandlerType {
     private onboardingService: OnboardingService,
     private lockService: LockService,
     private networkService: NetworkService,
-    private secretsService: SecretsService
+    private secretsService: SecretsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -93,9 +93,8 @@ export class SeedlessOnboardingHandler implements HandlerType {
       };
     }
 
-    const secrets = await this.secretsService.getWalletAccountsSecretsById(
-      walletId
-    );
+    const secrets =
+      await this.secretsService.getWalletAccountsSecretsById(walletId);
     if (secrets?.secretType === SecretType.Seedless) {
       // Adding accounts cannot be parallelized, they need to be added one-by-one.
       // Otherwise race conditions occur and addresses get mixed up.

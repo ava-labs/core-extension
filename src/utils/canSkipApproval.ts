@@ -11,7 +11,7 @@ type SkipApprovalOptions = {
 export const canSkipApproval = async (
   domain: string,
   tabId: number,
-  { allowInactiveTabs, domainWhitelist }: SkipApprovalOptions = {}
+  { allowInactiveTabs, domainWhitelist }: SkipApprovalOptions = {},
 ) => {
   if (!isSyncDomain(domain, domainWhitelist)) {
     return false;
