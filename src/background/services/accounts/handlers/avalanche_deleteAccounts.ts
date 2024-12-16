@@ -63,7 +63,7 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
 
     if (await canSkipApproval(request.site.domain, request.site.tabId)) {
       try {
-        await this.accountsService.deleteAccounts(accountIds);
+        await this.accountsService.deleteAccounts(Object.keys(accounts));
 
         return {
           ...request,
