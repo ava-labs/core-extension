@@ -22,7 +22,7 @@ export class InitAuthenticatorChangeHandler implements HandlerType {
       return {
         ...request,
         result: await this.seedlessMfaService.initAuthenticatorChange(
-          request.tabId
+          request.tabId,
         ),
       };
     } catch (err: any) {

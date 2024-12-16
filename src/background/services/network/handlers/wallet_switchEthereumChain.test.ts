@@ -82,7 +82,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
 
   it('handleUnauthenticated', async () => {
     const result = await handler.handleUnauthenticated(
-      buildRpcCall(switchChainRequest)
+      buildRpcCall(switchChainRequest),
     );
     expect(result).toEqual({
       ...switchChainRequest,
@@ -93,7 +93,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
   describe('handleAuthenticated', () => {
     it('opens approval dialog', async () => {
       const result = await handler.handleAuthenticated(
-        buildRpcCall(switchChainRequest, 'eip:43114')
+        buildRpcCall(switchChainRequest, 'eip:43114'),
       );
 
       expect(result).toEqual({
@@ -104,7 +104,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
       expect(openApprovalWindow).toHaveBeenCalledTimes(1);
       expect(openApprovalWindow).toHaveBeenCalledWith(
         expect.objectContaining({ id: '1234' }),
-        'network/switch'
+        'network/switch',
       );
     });
 
@@ -112,7 +112,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
       jest.mocked(canSkipApproval).mockResolvedValue(true);
 
       const result = await handler.handleAuthenticated(
-        buildRpcCall(switchChainRequest)
+        buildRpcCall(switchChainRequest),
       );
 
       expect(result).toEqual({
@@ -139,7 +139,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
       };
 
       const result = await handler.handleAuthenticated(
-        buildRpcCall(requestWithBadChainId)
+        buildRpcCall(requestWithBadChainId),
       );
 
       expect(result).toEqual({

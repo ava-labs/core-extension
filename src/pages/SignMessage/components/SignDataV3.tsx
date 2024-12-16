@@ -19,7 +19,7 @@ export const SignDataV3 = forwardRef(function SignDataV3(
     message: MessageParams;
     updateHandler: (values: positionValues) => void;
   },
-  ref: ForwardedRef<HTMLDivElement | null>
+  ref: ForwardedRef<HTMLDivElement | null>,
 ) {
   const { t } = useTranslation();
 
@@ -70,7 +70,7 @@ export const SignDataV3 = forwardRef(function SignDataV3(
   };
 
   // remove type fields from data we don't want to render
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const { types, primaryType, ...dataWithoutTypes } = message.data;
   return (
     <Stack sx={{ width: 1, gap: 1 }}>

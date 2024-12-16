@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 export const useWalletTypeName = (
   walletDetails?: WalletDetails,
-  account?: Account
+  account?: Account,
 ) => {
   const { t } = useTranslation();
 

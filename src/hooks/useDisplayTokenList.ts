@@ -26,7 +26,7 @@ export const useDisplaytokenlist = ({
         searchQuery.length
           ? token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-          : true
+          : true,
       )
       .map((token): DisplayToken => {
         return {

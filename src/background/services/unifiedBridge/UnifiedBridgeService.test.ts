@@ -82,7 +82,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     expect(createUnifiedBridgeService).toHaveBeenCalledWith(
       expect.objectContaining({
         environment: Environment.PROD,
-      })
+      }),
     );
 
     networkService.isMainnet.mockReturnValue(false);
@@ -93,7 +93,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     expect(createUnifiedBridgeService).toHaveBeenCalledWith(
       expect.objectContaining({
         environment: Environment.TEST,
-      })
+      }),
     );
   });
 
@@ -159,14 +159,14 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     const bridgeService = new UnifiedBridgeService(
       networkService,
       storageService,
-      flagsService
+      flagsService,
     );
 
     await bridgeService.onStorageReady();
 
     expect(trackTransfer).toHaveBeenCalledTimes(1);
     expect(trackTransfer).toHaveBeenCalledWith(
-      expect.objectContaining({ bridgeTransfer: { sourceTxHash: '0x2345' } })
+      expect.objectContaining({ bridgeTransfer: { sourceTxHash: '0x2345' } }),
     );
   });
 

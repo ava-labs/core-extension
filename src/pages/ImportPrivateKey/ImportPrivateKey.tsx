@@ -61,13 +61,13 @@ export function ImportPrivateKey() {
   const checkIfAccountExists = useCallback(
     (address) => {
       const findAccount = allAccounts.find(
-        ({ addressC }) => addressC.toLowerCase() === address.toLowerCase()
+        ({ addressC }) => addressC.toLowerCase() === address.toLowerCase(),
       );
       if (findAccount) {
         setIsKnownAccount(true);
       }
     },
-    [allAccounts]
+    [allAccounts],
   );
 
   const isLoading = hasFocus && !derivedAddresses && !error;
@@ -107,7 +107,7 @@ export function ImportPrivateKey() {
 
         const addressBTC = getBtcAddressFromPubKey(
           publicKey,
-          network?.isTestnet ? networks.testnet : networks.bitcoin
+          network?.isTestnet ? networks.testnet : networks.bitcoin,
         );
 
         setDerivedAddresses({
@@ -115,7 +115,7 @@ export function ImportPrivateKey() {
           addressBTC,
         });
         setError('');
-      } catch (err) {
+      } catch (_err) {
         errorHandler();
       }
     } else {
@@ -127,7 +127,7 @@ export function ImportPrivateKey() {
     if (derivedAddresses && updateBalanceOnNetworks) {
       setIsBalanceLoading(true);
       updateBalanceOnNetworks([derivedAddresses as Account]).finally(() =>
-        setIsBalanceLoading(false)
+        setIsBalanceLoading(false),
       );
     }
   }, [derivedAddresses, updateBalanceOnNetworks]);

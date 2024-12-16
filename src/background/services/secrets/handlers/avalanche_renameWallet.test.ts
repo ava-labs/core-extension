@@ -51,7 +51,7 @@ describe('src/background/services/accounts/handlers/avalanche_renameWallet', () 
         displayData: { newName: 'Change Name', walletId: 'wallet-id' },
         method: 'avalanche_renameWallet',
       }),
-      'renameWallet'
+      'renameWallet',
     );
     expect(secretsService.updateSecrets).not.toHaveBeenCalled();
   });
@@ -134,7 +134,7 @@ describe('src/background/services/accounts/handlers/avalanche_renameWallet', () 
       expect.objectContaining({
         name: 'Change Name',
       }),
-      'wallet-id'
+      'wallet-id',
     );
     expect(result).toEqual({ ...request, result: null });
   });

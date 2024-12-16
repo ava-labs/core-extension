@@ -40,7 +40,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     private glacierService: GlacierService,
     private networkService: NetworkService,
     private accountsService: AccountsService,
-    private balanceAggregatorService: BalanceAggregatorService
+    private balanceAggregatorService: BalanceAggregatorService,
   ) {}
 
   #getAddressesActivity = (addresses: string[]) =>
@@ -50,22 +50,21 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     });
 
   async #findUnderivedAccounts(walletId: string, derivedAccounts: Account[]) {
-    const secrets = await this.secretService.getWalletAccountsSecretsById(
-      walletId
-    );
+    const secrets =
+      await this.secretService.getWalletAccountsSecretsById(walletId);
 
     const derivedWalletAddresses = getAllAddressesForAccounts(
-      derivedAccounts ?? []
+      derivedAccounts ?? [],
     );
     const derivedAddressesUnprefixed = derivedWalletAddresses.map((addr) =>
-      addr.replace(/^[PXC]-/i, '')
+      addr.replace(/^[PXC]-/i, ''),
     );
     const underivedXPChainAddresses = secrets.xpubXP
       ? (
           await getAccountsWithActivity(
             secrets.xpubXP,
             await this.networkService.getAvalanceProviderXP(),
-            this.#getAddressesActivity
+            this.#getAddressesActivity,
           )
         ).filter((address) => !derivedAddressesUnprefixed.includes(address))
       : [];
@@ -84,7 +83,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       const allAccounts = this.accountsService.getAccounts();
       const derivedAccounts = requestsImportedAccounts
         ? Object.values(allAccounts.imported ?? {})
-        : allAccounts.primary[walletId] ?? [];
+        : (allAccounts.primary[walletId] ?? []);
 
       if (!derivedAccounts.length) {
         return {
@@ -103,7 +102,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       const networksIncludedInTotal = getIncludedNetworks(
         this.networkService.isMainnet(),
         await this.networkService.activeNetworks.promisify(),
-        await this.networkService.getFavoriteNetworks()
+        await this.networkService.getFavoriteNetworks(),
       );
 
       // Get balance for derived addresses
@@ -111,13 +110,13 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         await this.balanceAggregatorService.getBalancesForNetworks(
           networksIncludedInTotal,
           derivedAccounts,
-          [TokenType.NATIVE, TokenType.ERC20]
+          [TokenType.NATIVE, TokenType.ERC20],
         );
 
       let totalBalanceInCurrency = calculateTotalBalanceForAccounts(
         derivedAddressesBalances,
         derivedAccounts,
-        networksIncludedInTotal
+        networksIncludedInTotal,
       );
       let hasBalanceOnUnderivedAccounts = false;
 
@@ -131,13 +130,13 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             getXPChainIds(this.networkService.isMainnet()),
             underivedAccounts as Account[],
             [TokenType.NATIVE],
-            false // Don't cache this
+            false, // Don't cache this
           );
 
         const underivedAccountsTotal = calculateTotalBalanceForAccounts(
           underivedAddressesBalances,
           underivedAccounts,
-          getXPChainIds(this.networkService.isMainnet())
+          getXPChainIds(this.networkService.isMainnet()),
         );
         totalBalanceInCurrency += underivedAccountsTotal;
         hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;

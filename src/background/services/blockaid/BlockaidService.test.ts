@@ -146,7 +146,7 @@ describe('background/services/blockaid/BlockaidService', () => {
     const result = await service.jsonRPCScan(
       networkMock.chainId.toString(),
       'toAddress',
-      requestMock
+      requestMock,
     );
     expect(result).toBe(null);
   });
@@ -156,7 +156,7 @@ describe('background/services/blockaid/BlockaidService', () => {
     const result = await service.jsonRPCScan(
       networkMock.chainId.toString(),
       'toAddress',
-      requestMock
+      requestMock,
     );
     expect(result?.validation).toEqual({
       result_type: 'Being',

@@ -42,10 +42,10 @@ function createWindowInfoAndEvents(info: Windows.Window) {
   return {
     ...info,
     removed: windowRemovedSignal.pipe(
-      filter((windowId) => windowId === info.id)
+      filter((windowId) => windowId === info.id),
     ),
     focusChanged: windowRemovedSignal.pipe(
-      filter((windowId) => windowId === info.id)
+      filter((windowId) => windowId === info.id),
     ),
   };
 }
@@ -130,7 +130,7 @@ export const openPopup = async ({
 
 export const openExtensionNewWindow = async (
   route?: string,
-  queryString?: string
+  queryString?: string,
 ) => {
   let extensionURL = browser.runtime.getURL(contextToOpenIn);
 

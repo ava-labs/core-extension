@@ -19,7 +19,7 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
   constructor(
     private tokenManagerService: TokenManagerService,
     private settingsService: SettingsService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
   ) {
     super();
   }
@@ -45,7 +45,7 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
       const tokenAlreadyExists = await isTokenSupported(
         tokenAddress,
         network,
-        settings
+        settings,
       );
       if (tokenAlreadyExists) {
         return { ...request, result: true };
@@ -62,7 +62,7 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
     }
 
     const [tokenData, err] = await resolve(
-      this.tokenManagerService.getTokenData(tokenAddress, network)
+      this.tokenManagerService.getTokenData(tokenAddress, network),
     );
 
     if (!tokenData || err) {
@@ -95,13 +95,13 @@ export class WalletWatchAssetHandler extends DAppRequestHandler {
 
   onActionApproved = async (
     pendingAction: Action<AddCustomTokenData>,
-    result,
+    _result,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       await this.settingsService.addCustomToken(
-        pendingAction.displayData.token
+        pendingAction.displayData.token,
       );
 
       onSuccess(null);

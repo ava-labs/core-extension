@@ -7,7 +7,7 @@ import { bigintToBig } from './bigintToBig';
 
 export function normalizeBalance(
   balance: BN | Big | bigint | undefined,
-  decimals: number
+  decimals: number,
 ): Big | undefined {
   if (isBN(balance)) {
     return bnToBig(balance, decimals);

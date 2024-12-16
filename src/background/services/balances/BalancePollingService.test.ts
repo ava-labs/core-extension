@@ -43,13 +43,13 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
         account,
         activeNetworkId,
         roundRobinChainIds,
-        tokenTypes
+        tokenTypes,
       );
     });
 
     it('polls for active and favorite networks on the first run', () => {
       expect(
-        aggregatorServiceMock.getBalancesForNetworks
+        aggregatorServiceMock.getBalancesForNetworks,
       ).toHaveBeenLastCalledWith([1, 2, 3, 4], expect.anything(), tokenTypes);
     });
 
@@ -59,7 +59,7 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
       expect(
         (
           aggregatorServiceMock.getBalancesForNetworks as jest.Mock
-        ).mock.calls.every(([chainIds]) => chainIds.includes(1))
+        ).mock.calls.every(([chainIds]) => chainIds.includes(1)),
       ).toBe(true);
     });
 

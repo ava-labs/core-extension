@@ -32,7 +32,7 @@ const NftImage = styled(ImageWithFallback)<{
   );
   backdrop-filter: blur(25px);
   border-radius: ${({ hasBorderRadius, borderRadius }) =>
-    hasBorderRadius ? borderRadius ?? '8px' : 'none'};
+    hasBorderRadius ? (borderRadius ?? '8px') : 'none'};
   cursor: ${({ showPointer }) => (showPointer ? 'default' : 'pointer')};
 `;
 
@@ -159,10 +159,13 @@ export function CollectibleMedia({
             controls={controls}
             borderRadius={borderRadius}
           >
+            {/* inlining this comment results in eslint parse error */}
+            {/* eslint-disable react/no-unknown-property */}
             <source
               src={ipfsResolverWithFallback(url)}
               onLoadStart={() => setIsMediaSettled(true)}
             />
+            {/* eslint-enable react/no-unknown-property */}
           </NftVideo>
           {showPlayIcon && (
             <TriangleRightIcon

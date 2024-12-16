@@ -28,7 +28,7 @@ export function FeatureFlagsContextProvider({ children }: { children: any }) {
     const subscription = events()
       .pipe(
         filter(featureFlagsUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((result) => {
         setFeatureFlags((prevFlags) => {

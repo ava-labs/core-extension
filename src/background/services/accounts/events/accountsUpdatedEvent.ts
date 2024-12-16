@@ -18,7 +18,7 @@ export class AccountsUpdatedEvents implements ExtensionEventEmitter {
           name: AccountsEvents.ACCOUNTS_UPDATED,
           value: accounts,
         });
-      }
+      },
     );
   }
 
@@ -27,7 +27,7 @@ export class AccountsUpdatedEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

@@ -131,7 +131,7 @@ export function LedgerConnect() {
             window.open(
               'https://www.ledger.com/ledger-live',
               '_blank',
-              'noreferrer'
+              'noreferrer',
             );
           }}
         >

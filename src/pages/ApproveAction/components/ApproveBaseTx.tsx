@@ -36,7 +36,7 @@ export function BaseTxView({
 
   const getDisplayAmount = (value: bigint, decimals: number) => {
     return Number(
-      bigIntToString(value, decimals).replace(/,/g, '') // Remove thousand separators which makes Number to return NaN
+      bigIntToString(value, decimals).replace(/,/g, ''), // Remove thousand separators which makes Number to return NaN
     );
   };
 
@@ -133,7 +133,7 @@ export function BaseTxView({
                       {getDisplayAmount(
                         out.amount,
                         out.assetDescription?.denomination ||
-                          defaultDenomination
+                          defaultDenomination,
                       )}{' '}
                       {out.assetDescription?.symbol ??
                         (out.isAvax ? 'AVAX' : '')}
@@ -150,8 +150,8 @@ export function BaseTxView({
                           getDisplayAmount(
                             out.amount,
                             out.assetDescription?.denomination ||
-                              defaultDenomination
-                          ) * avaxPrice
+                              defaultDenomination,
+                          ) * avaxPrice,
                         )}
                       </Typography>
                     )}
@@ -283,7 +283,7 @@ export function BaseTxView({
                   }}
                 >
                   {currencyFormatter(
-                    fee.toDisplay({ asNumber: true }) * avaxPrice
+                    fee.toDisplay({ asNumber: true }) * avaxPrice,
                   )}
                 </Typography>
               </Stack>

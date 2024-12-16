@@ -3,7 +3,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 export const usePersistedTabs = (
   defaultTab: number,
-  tabParam = 'activeTab'
+  tabParam = 'activeTab',
 ) => {
   const { search, pathname } = useLocation();
   const history = useHistory();
@@ -33,7 +33,7 @@ export const usePersistedTabs = (
         }).toString()}`,
       });
     },
-    [history, tabFromUrl, tabParam, pathname]
+    [history, tabFromUrl, tabParam, pathname],
   );
 
   return {

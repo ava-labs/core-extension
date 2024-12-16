@@ -44,7 +44,7 @@ export const useBridgeTxHandling = ({
         setIsPending(false);
       }
     },
-    [onInitiated, onRejected, onFailure, onSuccess, transfer]
+    [onInitiated, onRejected, onFailure, onSuccess, transfer],
   );
 
   return { onTransfer, isPending };

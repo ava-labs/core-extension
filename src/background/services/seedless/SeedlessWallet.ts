@@ -82,7 +82,7 @@ export class SeedlessWallet {
     }
 
     this.#signerSession = await cs.SignerSession.loadSignerSession(
-      this.#sessionStorage
+      this.#sessionStorage,
     );
   }
 
@@ -112,7 +112,7 @@ export class SeedlessWallet {
             identityProof,
             mnemonicId,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -139,7 +139,7 @@ export class SeedlessWallet {
       const keys = await session.keys();
 
       const activeAccountKey = keys.find(
-        (key) => strip0x(key.publicKey) === this.#addressPublicKey?.evm
+        (key) => strip0x(key.publicKey) === this.#addressPublicKey?.evm,
       );
 
       const mnemonicId = activeAccountKey?.derivation_info?.mnemonic_id;
@@ -202,7 +202,7 @@ export class SeedlessWallet {
     const result = await this.#mfaService.approveWithMfa(
       method?.type,
       initRequest,
-      tabId
+      tabId,
     );
 
     return result.data();
@@ -217,7 +217,7 @@ export class SeedlessWallet {
 
   async completeMnemonicExport(
     publicKey: CryptoKey,
-    tabId?: number
+    tabId?: number,
   ): Promise<cs.UserExportCompleteResponse> {
     if (!this.#mfaService) {
       throw new Error('MFA Service is not available');
@@ -244,7 +244,7 @@ export class SeedlessWallet {
     const result = await this.#mfaService.approveWithMfa(
       method?.type,
       request,
-      tabId
+      tabId,
     );
 
     return result.data();
@@ -267,32 +267,35 @@ export class SeedlessWallet {
         (k) =>
           k.enabled &&
           requiredKeyTypes.includes(k.key_type) &&
-          k.derivation_info?.derivation_path
+          k.derivation_info?.derivation_path,
       )
-      .reduce((acc, key) => {
-        if (!key.derivation_info) {
+      .reduce(
+        (acc, key) => {
+          if (!key.derivation_info) {
+            return acc;
+          }
+
+          const index = Number(
+            key.derivation_info.derivation_path.split('/').pop(),
+          );
+          if (index === undefined) {
+            return acc;
+          }
+
+          acc[key.derivation_info.mnemonic_id] = [
+            ...(acc[key.derivation_info.mnemonic_id] ?? []),
+          ];
+          const mnemonicBlock = acc[key.derivation_info.mnemonic_id] || [];
+
+          mnemonicBlock[index] = {
+            ...acc[key.derivation_info.mnemonic_id]?.[index],
+            [key.key_type]: key,
+          };
+
           return acc;
-        }
-
-        const index = Number(
-          key.derivation_info.derivation_path.split('/').pop()
-        );
-        if (index === undefined) {
-          return acc;
-        }
-
-        acc[key.derivation_info.mnemonic_id] = [
-          ...(acc[key.derivation_info.mnemonic_id] ?? []),
-        ];
-        const mnemonicBlock = acc[key.derivation_info.mnemonic_id] || [];
-
-        mnemonicBlock[index] = {
-          ...acc[key.derivation_info.mnemonic_id]?.[index],
-          [key.key_type]: key,
-        };
-
-        return acc;
-      }, {} as Record<string, Record<string, cs.KeyInfo>[]>);
+        },
+        {} as Record<string, Record<string, cs.KeyInfo>[]>,
+      );
 
     if (!keys || Object.keys(keys).length === 0) {
       throw new Error('Accounts not created');
@@ -333,7 +336,7 @@ export class SeedlessWallet {
 
   async #getSigningKey(
     type: cs.Secp256k1,
-    lookupPublicKey?: string
+    lookupPublicKey?: string,
   ): Promise<cs.KeyInfo> {
     if (!lookupPublicKey) {
       throw new Error('Public key not available');
@@ -375,7 +378,7 @@ export class SeedlessWallet {
       const signer = new Signer(
         getEvmAddressFromPubKey(Buffer.from(this.#addressPublicKey.evm, 'hex')),
         await this.#getSession(),
-        provider
+        provider,
       );
       // We need to await the signing call here so the errors can be
       // caught by catch clause.
@@ -386,7 +389,7 @@ export class SeedlessWallet {
   }
 
   async signAvalancheTx(
-    request: Avalanche.SignTxRequest
+    request: Avalanche.SignTxRequest,
   ): Promise<Avalanche.SignTxRequest['tx']> {
     if (!this.#addressPublicKey) {
       throw new Error('Public key not available');
@@ -399,13 +402,13 @@ export class SeedlessWallet {
       ? await this.#getSigningKey(cs.Secp256k1.Evm, this.#addressPublicKey.evm)
       : await this.#getSigningKey(
           isMainnet ? cs.Secp256k1.Ava : cs.Secp256k1.AvaTest,
-          this.#addressPublicKey.xp
+          this.#addressPublicKey.xp,
         );
 
     try {
       const response = await session.signBlob(key.key_id, {
         message_base64: Buffer.from(sha256(request.tx.toBytes())).toString(
-          'base64'
+          'base64',
         ),
       });
 
@@ -419,11 +422,11 @@ export class SeedlessWallet {
 
   async signTx(
     ins: BitcoinInputUTXO[],
-    outs: BitcoinOutputUTXO[]
+    outs: BitcoinOutputUTXO[],
   ): Promise<Transaction> {
     if (!this.#network || !isBitcoinNetwork(this.#network)) {
       throw new Error(
-        'Invalid network: Attempting to sign BTC transaction on non Bitcoin network'
+        'Invalid network: Attempting to sign BTC transaction on non Bitcoin network',
       );
     }
 
@@ -450,10 +453,10 @@ export class SeedlessWallet {
             i,
             ins,
             btcNetwork,
-            session
+            session,
           );
           return psbt.signInputAsync(i, signer);
-        })
+        }),
       );
     } catch (err) {
       this.#handleError(err);
@@ -468,7 +471,7 @@ export class SeedlessWallet {
 
   async signMessage(
     messageType: MessageType,
-    messageParams: MessageParams
+    messageParams: MessageParams,
   ): Promise<string | Buffer> {
     if (!this.#addressPublicKey) {
       throw new Error('Public key not available');
@@ -493,15 +496,15 @@ export class SeedlessWallet {
         strip0x(
           await this.#signBlob(
             addressAVM,
-            `0x${Avalanche.digestMessage(message).toString('hex')}`
-          )
+            `0x${Avalanche.digestMessage(message).toString('hex')}`,
+          ),
         ),
-        'hex'
+        'hex',
       );
     }
 
     const addressEVM = getEvmAddressFromPubKey(
-      Buffer.from(this.#addressPublicKey.evm, 'hex')
+      Buffer.from(this.#addressPublicKey.evm, 'hex'),
     ).toLowerCase();
 
     switch (messageType) {
@@ -510,14 +513,14 @@ export class SeedlessWallet {
         return this.#signBlob(
           addressEVM,
           hashMessage(
-            Uint8Array.from(Buffer.from(strip0x(messageParams.data), 'hex'))
-          )
+            Uint8Array.from(Buffer.from(strip0x(messageParams.data), 'hex')),
+          ),
         );
       case MessageType.SIGN_TYPED_DATA:
       case MessageType.SIGN_TYPED_DATA_V1:
         return this.#signBlob(
           addressEVM,
-          typedSignatureHash(messageParams.data)
+          typedSignatureHash(messageParams.data),
         );
       case MessageType.SIGN_TYPED_DATA_V3:
       case MessageType.SIGN_TYPED_DATA_V4: {
@@ -528,7 +531,7 @@ export class SeedlessWallet {
           messageParams.data,
           messageType == MessageType.SIGN_TYPED_DATA_V3
             ? SignTypedDataVersion.V3
-            : SignTypedDataVersion.V4
+            : SignTypedDataVersion.V4,
         ).toString('hex');
         return this.#signBlob(addressEVM, `0x${hash}`);
       }

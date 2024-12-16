@@ -20,7 +20,7 @@ export class ApprovalEvents implements ExtensionEventEmitter {
           name: ApprovalEvent.ApprovalRequested,
           value,
         });
-      }
+      },
     );
   }
 
@@ -29,7 +29,7 @@ export class ApprovalEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

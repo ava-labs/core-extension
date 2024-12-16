@@ -147,7 +147,7 @@ describe('src/background/services/seedless/SeedlessSessionManager', () => {
 
         expect(sentryCaptureException).toHaveBeenCalledWith(
           error,
-          SentryExceptionTypes.SEEDLESS
+          SentryExceptionTypes.SEEDLESS,
         );
       });
     });

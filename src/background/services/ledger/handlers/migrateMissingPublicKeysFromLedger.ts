@@ -25,7 +25,7 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
   constructor(
     private secretsService: SecretsService,
     private ledgerService: LedgerService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -34,7 +34,7 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
         throw new Error('There is no active account');
       }
       const secrets = await this.secretsService.getAccountSecrets(
-        this.accountsService.activeAccount
+        this.accountsService.activeAccount,
       );
       if (
         secrets.secretType !== SecretType.Ledger &&
@@ -70,13 +70,13 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
         const xpubXP = await getLedgerExtendedPublicKey(
           transport,
           false,
-          Avalanche.LedgerWallet.getAccountPath('X')
+          Avalanche.LedgerWallet.getAccountPath('X'),
         );
 
         await this.secretsService.updateSecrets({ xpubXP }, walletId);
       } else if (secrets.secretType === SecretType.LedgerLive) {
         const hasMissingXPPublicKey = (secrets.pubKeys ?? []).some(
-          (pubKey) => !pubKey.xp
+          (pubKey) => !pubKey.xp,
         );
 
         // nothing to migrate, exit early
@@ -102,14 +102,14 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
                 transport,
                 index,
                 DerivationPath.LedgerLive,
-                'AVM'
+                'AVM',
               );
 
               migrationResult.updatedPubKeys.push({
                 ...pubKey,
                 xp: addressPublicKeyXP.toString('hex'),
               });
-            } catch (err) {
+            } catch (_err) {
               migrationResult.updatedPubKeys.push(pubKey);
               migrationResult.hasError = true;
             }
@@ -122,12 +122,12 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
           {
             pubKeys: migrationResult.updatedPubKeys,
           },
-          walletId
+          walletId,
         );
 
         if (migrationResult.hasError) {
           throw new Error(
-            'Error while searching for missing public keys: incomplete migration.'
+            'Error while searching for missing public keys: incomplete migration.',
           );
         }
       }

@@ -16,7 +16,7 @@ export class GetTokenPriceHandler implements HandlerType {
 
   constructor(
     private tokenPricesService: TokenPricesService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -28,7 +28,7 @@ export class GetTokenPriceHandler implements HandlerType {
       ...request,
       result: await this.tokenPricesService.getPriceByCoinId(
         tokenId,
-        settings.currency
+        settings.currency,
       ),
     };
   };

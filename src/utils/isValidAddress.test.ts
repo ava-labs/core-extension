@@ -16,7 +16,7 @@ describe('utils/isAddressValid.ts', () => {
       'returns $expected for $address',
       ({ address, expected }) => {
         expect(isValidAddress(address)).toBe(expected);
-      }
+      },
     );
   });
   describe('isValidBtcAddress tests', () => {
@@ -34,7 +34,7 @@ describe('utils/isAddressValid.ts', () => {
       'returns $expected for $address',
       ({ address, expected }) => {
         expect(isValidBtcAddress(address)).toBe(expected);
-      }
+      },
     );
   });
 });

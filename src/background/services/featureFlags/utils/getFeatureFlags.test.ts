@@ -36,7 +36,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
       const { flags } = await getFeatureFlags(
         'token',
         'userID',
-        'https://example.com'
+        'https://example.com',
       );
 
       expect(flags).toEqual({
@@ -49,13 +49,13 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
       const { flagPayloads } = await getFeatureFlags(
         'token',
         'userID',
-        'https://example.com'
+        'https://example.com',
       );
 
       expect(flagPayloads).toEqual(
         expect.objectContaining({
           [FeatureGates.DEFI]: '>=1.60.0',
-        })
+        }),
       );
     });
   };
@@ -63,7 +63,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
   it('throws if no token is provided', async () => {
     await expect(getFeatureFlags()).rejects.toThrow(new Error('Invalid token'));
     await expect(getFeatureFlags('')).rejects.toThrow(
-      new Error('Invalid token')
+      new Error('Invalid token'),
     );
   });
 
@@ -80,7 +80,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
           body: 'data=eyJ0b2tlbiI6InRva2VuIiwiZGlzdGluY3RfaWQiOiJ1c2VySUQiLCJncm91cHMiOnt9fQ%3D%3D',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           method: 'POST',
-        }
+        },
       );
     });
 
@@ -102,13 +102,13 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
 
     it('throws if no posthogURL is provided', async () => {
       await expect(getFeatureFlags('token', undefined)).rejects.toThrow(
-        new Error('Invalid Posthog URL')
+        new Error('Invalid Posthog URL'),
       );
     });
 
     it('throws if provided posthogURL is empty', async () => {
       await expect(getFeatureFlags('token', undefined, '')).rejects.toThrow(
-        new Error('Invalid Posthog URL')
+        new Error('Invalid Posthog URL'),
       );
     });
 
@@ -125,7 +125,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
           body: 'data=eyJ0b2tlbiI6InRva2VuIiwiZGlzdGluY3RfaWQiOiJ1c2VySUQiLCJncm91cHMiOnt9fQ%3D%3D',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           method: 'POST',
-        }
+        },
       );
       expect(fetch).toHaveBeenNthCalledWith(
         2,
@@ -134,7 +134,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
           body: 'data=eyJ0b2tlbiI6InRva2VuIiwiZGlzdGluY3RfaWQiOiJ1c2VySUQiLCJncm91cHMiOnt9fQ%3D%3D',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           method: 'POST',
-        }
+        },
       );
     });
 

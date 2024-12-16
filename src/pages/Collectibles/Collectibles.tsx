@@ -84,7 +84,7 @@ export function Collectibles({
         chainId: network?.chainId,
       });
     },
-    [capture, network, setCollectibleParams]
+    [capture, network, setCollectibleParams],
   );
 
   return (

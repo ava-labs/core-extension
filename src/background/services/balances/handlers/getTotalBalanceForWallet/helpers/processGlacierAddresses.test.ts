@@ -46,8 +46,8 @@ describe('src/background/services/balances/handlers/getTotalBalanceForWallet/hel
       await processGlacierAddresses(
         allAddresses,
         activityFetcher,
-        ADDRESS_GAP_LIMIT + 1
-      )
+        ADDRESS_GAP_LIMIT + 1,
+      ),
     ).toEqual({
       gap: ADDRESS_GAP_LIMIT + 1,
       result: [],
@@ -76,8 +76,8 @@ describe('src/background/services/balances/handlers/getTotalBalanceForWallet/hel
       await processGlacierAddresses(
         allAddresses.slice(-10),
         mockedActivityFetcher,
-        currentGap
-      )
+        currentGap,
+      ),
     ).toEqual({
       gap: currentGap + addressesToProcess.length,
       result: [],
@@ -86,7 +86,7 @@ describe('src/background/services/balances/handlers/getTotalBalanceForWallet/hel
 
   it('returns all active addresses and the number of consecutive inactive addresses (gap)', async () => {
     const activeAddresses = allAddresses.filter((addr) =>
-      startsWith(addr, 'active')
+      startsWith(addr, 'active'),
     );
     const mockedActivityFetcher = jest.fn().mockResolvedValueOnce({
       addresses: activeAddresses.map((address) => ({
@@ -96,7 +96,7 @@ describe('src/background/services/balances/handlers/getTotalBalanceForWallet/hel
     });
 
     expect(
-      await processGlacierAddresses(allAddresses, mockedActivityFetcher, 0)
+      await processGlacierAddresses(allAddresses, mockedActivityFetcher, 0),
     ).toEqual({
       gap: 21,
       result: activeAddresses,

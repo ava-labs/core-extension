@@ -55,7 +55,7 @@ describe('src/utils/seedless/getSignerToken', () => {
 
   it('should create a session manager', async () => {
     (mockedResponse.data as unknown as jest.Mock).mockReturnValueOnce(
-      sessionInfoMock
+      sessionInfoMock,
     );
 
     await getSignerToken(mockedResponse);
@@ -63,7 +63,7 @@ describe('src/utils/seedless/getSignerToken', () => {
     expect(SignerSessionManager.createFromSessionInfo).toHaveBeenCalledWith(
       'gamma',
       'org_id',
-      sessionInfoMock
+      sessionInfoMock,
     );
 
     expect(retrieveMock).toHaveBeenCalled();

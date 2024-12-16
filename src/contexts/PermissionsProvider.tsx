@@ -19,7 +19,7 @@ interface UpdateAccountPermission {
 
 function updateAnAccount(
   domain: string,
-  account: { [address: string]: boolean }
+  account: { [address: string]: boolean },
 ): DappPermissions {
   return {
     domain,
@@ -39,12 +39,12 @@ export function PermissionContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
 
   const [permissionState, setPermissionState] = useState<Permissions>(
-    {} as Permissions
+    {} as Permissions,
   );
 
   function addPermissionsForDomain(
     permissions: DappPermissions,
-    requestId: string
+    requestId: string,
   ) {
     return request<PermissionsAddDomainHandler>({
       method: ExtensionRequest.PERMISSIONS_ADD_DOMAIN,
@@ -90,13 +90,16 @@ export function PermissionContextProvider({ children }: { children: any }) {
         return result;
       })
       .then((permissions) => {
-        !isCancelled && setPermissionState(permissions);
+        if (isCancelled) {
+          return;
+        }
+        setPermissionState(permissions);
       });
 
     const subscription = events()
       .pipe(
         filter(permissionsUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((permissions) => {
         setPermissionState(permissions);

@@ -8,7 +8,7 @@ export const useScopedToast = (id: string) => {
 
       return toast.success(message, { ...opts, id: id });
     },
-    [id]
+    [id],
   );
 
   const error = useCallback(
@@ -17,7 +17,7 @@ export const useScopedToast = (id: string) => {
 
       return toast.error(message, { ...opts, id: id });
     },
-    [id]
+    [id],
   );
 
   return {

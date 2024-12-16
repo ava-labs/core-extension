@@ -24,7 +24,7 @@ export const BridgeSanctions = () => {
         sx={{ mx: 5, color: 'text.secondary', textAlign: 'center' }}
       >
         {t(
-          'Users may not use the Bridge if they are on the Specially Designated Nationals (SDN) List of the Office of Foreign Assets Control (OFAC) or any other sanctions or are otherwise a sanctioned person or from a sanctioned jurisdiction'
+          'Users may not use the Bridge if they are on the Specially Designated Nationals (SDN) List of the Office of Foreign Assets Control (OFAC) or any other sanctions or are otherwise a sanctioned person or from a sanctioned jurisdiction',
         )}
       </Typography>
     </Stack>

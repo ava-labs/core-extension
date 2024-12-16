@@ -4,7 +4,7 @@ import {
 } from '@avalabs/vm-module-types';
 
 export const isTokenWithBalancePVM = (
-  balance?: TokenWithBalance
+  balance?: TokenWithBalance,
 ): balance is TokenWithBalancePVM => {
   if (!balance) {
     return false;

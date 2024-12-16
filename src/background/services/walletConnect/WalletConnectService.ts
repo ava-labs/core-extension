@@ -64,10 +64,10 @@ export class WalletConnectService implements WalletConnectTransport {
       });
       this.#setupSessionListeners(this.#client);
       this.#initialized = true;
-    } catch (err) {
+    } catch (_err) {
       throw new WalletConnectError(
         'Unable to initialize the WalletConnect client',
-        WalletConnectErrorCode.ClientInitFailed
+        WalletConnectErrorCode.ClientInitFailed,
       );
     }
   }
@@ -84,7 +84,7 @@ export class WalletConnectService implements WalletConnectTransport {
       // Also: TypeScript requirements.
       throw new WalletConnectError(
         'The WalletConnect client was not initialized properly',
-        WalletConnectErrorCode.NoClient
+        WalletConnectErrorCode.NoClient,
       );
     }
 
@@ -144,7 +144,7 @@ export class WalletConnectService implements WalletConnectTransport {
           chainId: accountSession.chains[0] as number,
           tabId,
           fromAddress: accountSession.addresses[0],
-        }
+        },
       );
     } catch {
       // If this request throws an error for whatever reason,
@@ -162,7 +162,7 @@ export class WalletConnectService implements WalletConnectTransport {
 
     const hopefullySufficientSession = await this.getSessionInfo(
       fromAddress,
-      chainId
+      chainId,
     );
 
     // At this point we either find a sufficient session or we don't.
@@ -177,7 +177,7 @@ export class WalletConnectService implements WalletConnectTransport {
 
   async request<T = string>(
     { method, params }: RequestPayload,
-    { chainId, fromAddress, expiry }: RequestOptions
+    { chainId, fromAddress, expiry }: RequestOptions,
   ): Promise<T | never> {
     const client = await this.#getClient();
 
@@ -234,7 +234,7 @@ export class WalletConnectService implements WalletConnectTransport {
       if (!obtainedAddress) {
         throw new WalletConnectError(
           'Cannot retrieve the imported account',
-          WalletConnectErrorCode.NoAccountsConnected
+          WalletConnectErrorCode.NoAccountsConnected,
         );
       }
 
@@ -242,12 +242,12 @@ export class WalletConnectService implements WalletConnectTransport {
         // Remove the session if the user imported the wrong account.
         client.session.delete(
           session.topic,
-          getSdkError('UNSUPPORTED_ACCOUNTS')
+          getSdkError('UNSUPPORTED_ACCOUNTS'),
         );
 
         throw new WalletConnectError(
           'Imported account has a different address',
-          WalletConnectErrorCode.IncorrectAddress
+          WalletConnectErrorCode.IncorrectAddress,
         );
       }
 
@@ -274,11 +274,11 @@ export class WalletConnectService implements WalletConnectTransport {
 
         const addressesOverlap = areArraysOverlapping(
           activeSession.addresses,
-          oldSession.addresses
+          oldSession.addresses,
         );
         const chainsOverlap = areArraysOverlapping(
           activeSession.chains,
-          oldSession.chains
+          oldSession.chains,
         );
 
         return addressesOverlap && chainsOverlap;
@@ -290,7 +290,7 @@ export class WalletConnectService implements WalletConnectTransport {
       if (pairingTopic) {
         await client.pairing.delete(
           pairingTopic,
-          getSdkError('USER_DISCONNECTED')
+          getSdkError('USER_DISCONNECTED'),
         );
       }
     });
@@ -305,14 +305,14 @@ export class WalletConnectService implements WalletConnectTransport {
     if (isUserRejectionError(err)) {
       throw new WalletConnectError(
         'User rejected the request',
-        WalletConnectErrorCode.UserRejected
+        WalletConnectErrorCode.UserRejected,
       );
     }
 
     if (isProposalExpiredError(err)) {
       throw new WalletConnectError(
         'Session proposal expired',
-        WalletConnectErrorCode.ProposalExpired
+        WalletConnectErrorCode.ProposalExpired,
       );
     }
 
@@ -321,7 +321,7 @@ export class WalletConnectService implements WalletConnectTransport {
     throw new WalletConnectError(
       'Unable to connect via WalletConnect',
       WalletConnectErrorCode.UnknownError,
-      err
+      err,
     );
   }
 
@@ -350,7 +350,7 @@ export class WalletConnectService implements WalletConnectTransport {
 
   async getSessionInfo(
     lookupAddress: string,
-    chainId?: number
+    chainId?: number,
   ): Promise<null | WalletConnectSessionInfo> {
     const session = await this.#findSession(lookupAddress, chainId);
 
@@ -379,7 +379,7 @@ export class WalletConnectService implements WalletConnectTransport {
 
   async #findSession(
     lookupAddress: string,
-    chainId?: number
+    chainId?: number,
   ): Promise<SessionTypes.Struct | null> {
     const client = await this.#getClient();
     const sessions = client.session.getAll() ?? [];
@@ -403,7 +403,7 @@ export class WalletConnectService implements WalletConnectTransport {
       try {
         await client.session.delete(
           event.topic,
-          getSdkError('USER_DISCONNECTED')
+          getSdkError('USER_DISCONNECTED'),
         );
       } catch (ex: any) {
         // Ignore "no matching key" error, as it may be caused by the wallet app notifying
@@ -423,7 +423,7 @@ export class WalletConnectService implements WalletConnectTransport {
       try {
         await core.pairing.pairings.delete(
           event.topic,
-          getSdkError('USER_DISCONNECTED')
+          getSdkError('USER_DISCONNECTED'),
         );
       } catch (ex) {
         // Ignore "no matching key" error, as it may be caused by the wallet app notifying
@@ -438,14 +438,14 @@ export class WalletConnectService implements WalletConnectTransport {
   }
 
   async avalancheGetAccounts(
-    options: RequestOptions
+    options: RequestOptions,
   ): Promise<WalletConnectAddresses[]> {
     return this.request<WalletConnectAddresses[]>(
       {
         method: 'avalanche_getAccounts',
         params: [],
       },
-      options
+      options,
     );
   }
 
@@ -461,13 +461,13 @@ export class WalletConnectService implements WalletConnectTransport {
         try {
           await client.session.delete(
             session.topic,
-            getSdkError('USER_DISCONNECTED')
+            getSdkError('USER_DISCONNECTED'),
           );
 
           if (session.pairingTopic) {
             await client.pairing.delete(
               session.pairingTopic,
-              getSdkError('USER_DISCONNECTED')
+              getSdkError('USER_DISCONNECTED'),
             );
           }
         } catch (ex) {

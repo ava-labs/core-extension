@@ -41,7 +41,7 @@ export const LedgerIncorrectApp = ({
             } else {
               await openExtensionNewWindow(
                 `ledger/connect?app=${requiredAppType}`,
-                ''
+                '',
               );
               window.close();
             }

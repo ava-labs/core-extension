@@ -36,7 +36,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
   it('initializes CoreProvider with the correct channel name', () => {
     const provider = initializeProvider(connectionMock, 10, windowMock);
     expect(EVMProvider).toHaveBeenCalledWith(
-      expect.objectContaining({ maxListeners: 10 })
+      expect.objectContaining({ maxListeners: 10 }),
     );
     expect(provider.isAvalanche).toBe(true);
   });
@@ -64,7 +64,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
 
       expect(windowMock.ethereum).toBe(mockMultiWalletProxy);
       expect(windowMock.dispatchEvent).toHaveBeenCalledWith(
-        new Event('ethereum#initialized')
+        new Event('ethereum#initialized'),
       );
     });
 
@@ -131,7 +131,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
 
       expect(windowMock.avalanche).toBe(provider);
       expect(windowMock.dispatchEvent).toHaveBeenCalledWith(
-        new Event('avalanche#initialized')
+        new Event('avalanche#initialized'),
       );
     });
 
@@ -141,7 +141,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
         windowMock.avalanche = { isMetaMask: true };
       } catch (e) {
         expect((e as Error).message).toBe(
-          `Cannot assign to read only property 'avalanche' of object '#<Object>'`
+          `Cannot assign to read only property 'avalanche' of object '#<Object>'`,
         );
       }
     });
@@ -153,13 +153,13 @@ describe('src/background/providers/initializeInpageProvider', () => {
 
       expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(4);
       expect(windowMock.dispatchEvent.mock.calls[2][0].type).toEqual(
-        'eip6963:announceProvider'
+        'eip6963:announceProvider',
       );
       expect(windowMock.dispatchEvent.mock.calls[2][0].detail).toStrictEqual(
         expect.objectContaining({
           info: provider.info,
           provider: provider,
-        })
+        }),
       );
     });
     it('re-announces on eip6963:requestProvider', () => {
@@ -170,7 +170,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
       expect(windowMock.addEventListener).toHaveBeenCalledTimes(3);
       expect(windowMock.addEventListener).toHaveBeenCalledWith(
         'eip6963:requestProvider',
-        expect.anything()
+        expect.anything(),
       );
 
       windowMock.addEventListener.mock.calls[1][1]();
@@ -178,7 +178,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
       expect(windowMock.dispatchEvent).toHaveBeenCalledTimes(5);
 
       expect(windowMock.dispatchEvent.mock.calls[2][0].type).toEqual(
-        'eip6963:announceProvider'
+        'eip6963:announceProvider',
       );
     });
   });
@@ -187,7 +187,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
       initializeProvider(connectionMock, 10, windowMock);
 
       expect(windowMock.dispatchEvent.mock.calls[3][0].type).toEqual(
-        'core-wallet:announceProvider'
+        'core-wallet:announceProvider',
       );
     });
   });

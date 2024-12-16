@@ -136,7 +136,7 @@ export default function ConnectBitcoinWallet() {
             <TextFieldLabel
               label={t('Input Secret Key')}
               tooltip={t(
-                'The secret key can be assigned by the Fireblocks workspace admin'
+                'The secret key can be assigned by the Fireblocks workspace admin',
               )}
             />
             <TextField

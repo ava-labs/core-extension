@@ -59,7 +59,7 @@ describe('src/background/services/networkFee/NetworkFeeService', () => {
           medium: { maxFeePerGas: 4n },
           high: { maxFeePerGas: 5n },
           displayDecimals: 0,
-        })
+        }),
       );
     });
 

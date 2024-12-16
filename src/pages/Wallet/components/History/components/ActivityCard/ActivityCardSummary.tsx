@@ -29,11 +29,11 @@ export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
     );
   } else if (historyItem.txType === TransactionType.SWAP) {
     const sourceToken = historyItem.tokens.find(
-      (token) => token.from?.address === activeAccount?.addressC
+      (token) => token.from?.address === activeAccount?.addressC,
     );
 
     const targetToken = historyItem.tokens.find(
-      (token) => token.to?.address === activeAccount?.addressC
+      (token) => token.to?.address === activeAccount?.addressC,
     );
 
     return (

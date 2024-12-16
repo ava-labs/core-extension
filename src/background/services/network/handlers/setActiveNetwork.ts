@@ -22,7 +22,7 @@ export class SetActiveNetworkHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     const [scope] = request.params;
     const [, err] = await resolve(
-      this.networkService.setNetwork(runtime.id, scope)
+      this.networkService.setNetwork(runtime.id, scope),
     );
 
     if (err) {

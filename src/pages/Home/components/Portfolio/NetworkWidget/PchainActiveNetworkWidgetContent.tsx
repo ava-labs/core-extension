@@ -63,7 +63,7 @@ export function PchainActiveNetworkWidgetContent({
                 {new TokenUnit(
                   balance,
                   balances.decimals,
-                  balances.symbol
+                  balances.symbol,
                 ).toDisplay()}{' '}
                 AVAX
               </Typography>

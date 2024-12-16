@@ -53,10 +53,10 @@ export class UnifiedBridgeService implements OnStorageReady {
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
-    private featureFlagService: FeatureFlagService
+    private featureFlagService: FeatureFlagService,
   ) {
     this.#flagStates = this.#getTrackedFlags(
-      this.featureFlagService.featureFlags
+      this.featureFlagService.featureFlags,
     );
     this.#recreateService();
 
@@ -76,22 +76,22 @@ export class UnifiedBridgeService implements OnStorageReady {
           this.#flagStates = newFlags;
           this.#recreateService();
         }
-      }
+      },
     );
   }
 
   #getTrackedFlags(flags: FeatureFlags): Partial<FeatureFlags> {
     return Object.fromEntries(
       Object.entries(flags).filter(([flag]) =>
-        UNIFIED_BRIDGE_TRACKED_FLAGS.includes(flag as FeatureGates)
-      )
+        UNIFIED_BRIDGE_TRACKED_FLAGS.includes(flag as FeatureGates),
+      ),
     );
   }
 
   async onStorageReady() {
     const state =
       (await this.storageService.load<UnifiedBridgeState>(
-        UNIFIED_BRIDGE_STATE_STORAGE_KEY
+        UNIFIED_BRIDGE_STATE_STORAGE_KEY,
       )) ?? UNIFIED_BRIDGE_DEFAULT_STATE;
 
     this.#saveState(state);
@@ -114,16 +114,16 @@ export class UnifiedBridgeService implements OnStorageReady {
   }
 
   #getBridgeInitializers(
-    bitcoinProvider: BitcoinProvider
+    bitcoinProvider: BitcoinProvider,
   ): BridgeInitializer[] {
     return getEnabledBridgeTypes(this.#flagStates).map((type) =>
-      this.#getInitializerForBridgeType(type, bitcoinProvider)
+      this.#getInitializerForBridgeType(type, bitcoinProvider),
     );
   }
 
   #getInitializerForBridgeType(
     type: BridgeType,
-    bitcoinProvider: BitcoinProvider
+    bitcoinProvider: BitcoinProvider,
   ): BridgeInitializer {
     // This backend service is only used for transaction tracking purposes,
     // therefore we don't need to provide true signing capabilities.
@@ -170,7 +170,7 @@ export class UnifiedBridgeService implements OnStorageReady {
         environment,
         enabledBridgeServices: await getEnabledBridgeServices(
           environment,
-          this.#getBridgeInitializers(bitcoinProvider)
+          this.#getBridgeInitializers(bitcoinProvider),
         ),
       });
       this.#failedInitAttempts = 0;
@@ -189,7 +189,7 @@ export class UnifiedBridgeService implements OnStorageReady {
       console.log(
         `Initialization of UnifiedBridgeService failed, attempt #${
           this.#failedInitAttempts
-        }. Retry in ${delay / 1000}s`
+        }. Retry in ${delay / 1000}s`,
       );
 
       await wait(delay);
@@ -217,9 +217,9 @@ export class UnifiedBridgeService implements OnStorageReady {
       // Just log that this happened. This is edge-casey, but technically possible.
       sentryCaptureException(
         new Error(
-          `UnifiedBridge - tracking attempted with no service insantiated.`
+          `UnifiedBridge - tracking attempted with no service insantiated.`,
         ),
-        SentryExceptionTypes.UNIFIED_BRIDGE
+        SentryExceptionTypes.UNIFIED_BRIDGE,
       );
       return;
     }
@@ -232,7 +232,7 @@ export class UnifiedBridgeService implements OnStorageReady {
     });
 
     result.then((completedTransfer) =>
-      this.updatePendingTransfer(completedTransfer)
+      this.updatePendingTransfer(completedTransfer),
     );
   }
 
@@ -246,7 +246,7 @@ export class UnifiedBridgeService implements OnStorageReady {
     if (transfer.errorCode) {
       sentryCaptureException(
         new Error(`Bridge unsucessful. Error code: ${transfer.errorCode}`),
-        SentryExceptionTypes.UNIFIED_BRIDGE
+        SentryExceptionTypes.UNIFIED_BRIDGE,
       );
     }
 
@@ -266,7 +266,7 @@ export class UnifiedBridgeService implements OnStorageReady {
     try {
       await this.storageService.save(
         UNIFIED_BRIDGE_STATE_STORAGE_KEY,
-        newState
+        newState,
       );
     } catch {
       // May be called before extension is unlocked. Ignore.

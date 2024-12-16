@@ -6,7 +6,7 @@ describe('components/common/EmptyContent', () => {
     render(<EmptyContent text="Some test text" />);
 
     expect(screen.getByTestId('empty-list-text').textContent).toEqual(
-      'Some test text'
+      'Some test text',
     );
   });
 });
