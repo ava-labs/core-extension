@@ -17,7 +17,7 @@ export class BackgroundRuntime {
     // we try to fetch the bridge configs as soon as possible
     private bridgeService: BridgeService,
     private moduleManager: ModuleManager,
-    private appCheckService: AppCheckService
+    private appCheckService: AppCheckService,
   ) {}
 
   activate() {

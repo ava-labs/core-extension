@@ -44,19 +44,19 @@ describe('AppCheckService', () => {
   it('subscribes for events on activation correctly', () => {
     expect(firebaseService.addFcmMessageListener).toHaveBeenCalledWith(
       FcmMessageEvents.ID_CHALLENGE,
-      expect.any(Function)
+      expect.any(Function),
     );
 
     expect(firebaseService.addFirebaseEventListener).toHaveBeenCalledTimes(2);
     expect(firebaseService.addFirebaseEventListener).toHaveBeenNthCalledWith(
       1,
       FirebaseEvents.FCM_INITIALIZED,
-      expect.any(Function)
+      expect.any(Function),
     );
     expect(firebaseService.addFirebaseEventListener).toHaveBeenNthCalledWith(
       2,
       FirebaseEvents.FCM_TERMINATED,
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 
@@ -81,7 +81,7 @@ describe('AppCheckService', () => {
       {
         provider: expect.any(CustomProvider),
         isTokenAutoRefreshEnabled: true,
-      }
+      },
     );
 
     // simulate FCM_INITIALIZED event (second time)
@@ -98,7 +98,7 @@ describe('AppCheckService', () => {
       {
         provider: expect.any(CustomProvider),
         isTokenAutoRefreshEnabled: true,
-      }
+      },
     );
 
     // simulate FCM_TERMINATED event
@@ -106,7 +106,7 @@ describe('AppCheckService', () => {
 
     expect(setTokenAutoRefreshEnabled).toHaveBeenCalledWith(
       appCheckMock,
-      false
+      false,
     );
   });
 
@@ -116,14 +116,14 @@ describe('AppCheckService', () => {
       // @ts-ignore
       firebaseService.isFcmInitialized = false;
       await expect(
-        jest.mocked(CustomProvider).mock.calls[0]?.[0].getToken()
+        jest.mocked(CustomProvider).mock.calls[0]?.[0].getToken(),
       ).rejects.toThrow('fcm is not initialized');
     });
 
     it('throws when FCM token is missing', async () => {
       jest.mocked(firebaseService.getFcmToken).mockReturnValueOnce(undefined);
       await expect(
-        jest.mocked(CustomProvider).mock.calls[0]?.[0].getToken()
+        jest.mocked(CustomProvider).mock.calls[0]?.[0].getToken(),
       ).rejects.toThrow('fcm token is missing');
     });
 

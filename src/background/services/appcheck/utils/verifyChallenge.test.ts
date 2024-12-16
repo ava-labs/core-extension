@@ -27,7 +27,7 @@ describe('verifyChallenge', () => {
     delete process.env.ID_SERVICE_URL;
 
     expect(verifyChallenge(params)).rejects.toThrow(
-      'ID_SERVICE_URL is missing'
+      'ID_SERVICE_URL is missing',
     );
   });
 
@@ -38,7 +38,7 @@ describe('verifyChallenge', () => {
     } as Response);
 
     expect(verifyChallenge(params)).rejects.toThrow(
-      'challenge verification error: "internal error"'
+      'challenge verification error: "internal error"',
     );
   });
 

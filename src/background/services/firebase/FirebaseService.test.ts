@@ -35,7 +35,7 @@ describe('FirebaseService', () => {
     process.env = {
       ...realEnv,
       FIREBASE_CONFIG: Buffer.from(JSON.stringify({ foo: 'bar' })).toString(
-        'base64'
+        'base64',
       ),
     };
   });
@@ -48,7 +48,7 @@ describe('FirebaseService', () => {
     delete process.env.FIREBASE_CONFIG;
 
     expect(() => new FirebaseService(featureFlagService)).toThrow(
-      'FIREBASE_CONFIG is missing'
+      'FIREBASE_CONFIG is missing',
     );
   });
 
@@ -62,11 +62,11 @@ describe('FirebaseService', () => {
     expect(getMessaging).toHaveBeenCalledWith(appMock);
     expect(onBackgroundMessage).toHaveBeenCalledWith(
       messagingMock,
-      expect.any(Function)
+      expect.any(Function),
     );
     expect(featureFlagService.addListener).toHaveBeenCalledWith(
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 
@@ -83,14 +83,14 @@ describe('FirebaseService', () => {
 
       firebaseService.addFirebaseEventListener(
         FirebaseEvents.FCM_INITIALIZED,
-        initializedEventListener
+        initializedEventListener,
       );
 
       // simulate FEATURE_FLAG_UPDATED event
       await expect(
         jest.mocked(featureFlagService.addListener).mock.calls[0]?.[1]({
           [FeatureGates.FIREBASE_CLOUD_MESSAGING]: true,
-        } as FeatureFlags)
+        } as FeatureFlags),
       ).resolves.toBeUndefined();
 
       expect(firebaseService.isFcmInitialized).toBe(true);
@@ -108,21 +108,21 @@ describe('FirebaseService', () => {
 
       firebaseService.addFirebaseEventListener(
         FirebaseEvents.FCM_TERMINATED,
-        terminatedEventListener
+        terminatedEventListener,
       );
 
       // simulate FEATURE_FLAG_UPDATED event (enabled)
       await expect(
         jest.mocked(featureFlagService.addListener).mock.calls[0]?.[1]({
           [FeatureGates.FIREBASE_CLOUD_MESSAGING]: true,
-        } as FeatureFlags)
+        } as FeatureFlags),
       ).resolves.toBeUndefined();
 
       // simulate FEATURE_FLAG_UPDATED event (disabled)
       await expect(
         jest.mocked(featureFlagService.addListener).mock.calls[0]?.[1]({
           [FeatureGates.FIREBASE_CLOUD_MESSAGING]: false,
-        } as FeatureFlags)
+        } as FeatureFlags),
       ).resolves.toBeUndefined();
 
       expect(firebaseService.isFcmInitialized).toBe(false);
@@ -154,7 +154,7 @@ describe('FirebaseService', () => {
 
         expect(eventListener).toHaveBeenCalledTimes(1);
         expect(eventListener).toHaveBeenCalledWith(messageMock);
-      }
+      },
     );
   });
 });

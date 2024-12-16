@@ -25,7 +25,7 @@ const registerForChallenge = async ({ token, requestId }: Params) => {
 
   if (!registerResponse.ok) {
     throw new Error(
-      `challenge registration error: "${registerResponse.statusText}"`
+      `challenge registration error: "${registerResponse.statusText}"`,
     );
   }
 };

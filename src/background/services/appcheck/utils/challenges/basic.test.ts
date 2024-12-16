@@ -11,7 +11,7 @@ describe('basic', () => {
 
   it('throws when params are incorrect', () => {
     expect(() => solveBasicChallenge('{}')).toThrow(
-      'invalid basic challenge details'
+      'invalid basic challenge details',
     );
   });
 

@@ -13,7 +13,7 @@ describe('getHashByAlgorithm', () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     expect(() => getHashByAlgorithm('unknown', 'core')).toThrow(
-      'unsupported algorithm "unknown"'
+      'unsupported algorithm "unknown"',
     );
   });
 
@@ -21,6 +21,6 @@ describe('getHashByAlgorithm', () => {
     'uses the correct algorithm',
     (algorithm, expected) => {
       expect(getHashByAlgorithm(algorithm as Algorithm, 'core')).toBe(expected);
-    }
+    },
   );
 });

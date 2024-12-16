@@ -10,5 +10,5 @@ export enum FcmMessageEvents {
 }
 
 export type FcmMessageListener = (
-  payload: MessagePayload
+  payload: MessagePayload,
 ) => unknown | Promise<unknown>;

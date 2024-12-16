@@ -27,7 +27,7 @@ describe('registerForChallenge', () => {
     delete process.env.ID_SERVICE_URL;
 
     expect(registerForChallenge(params)).rejects.toThrow(
-      'ID_SERVICE_URL is missing'
+      'ID_SERVICE_URL is missing',
     );
   });
 
@@ -38,7 +38,7 @@ describe('registerForChallenge', () => {
     } as Response);
 
     expect(registerForChallenge(params)).rejects.toThrow(
-      'challenge registration error: "internal error"'
+      'challenge registration error: "internal error"',
     );
   });
 
@@ -64,7 +64,7 @@ describe('registerForChallenge', () => {
           token: 'token',
           requestId: 'requestId',
         }),
-      }
+      },
     );
   });
 });

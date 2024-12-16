@@ -28,7 +28,7 @@ export class FirebaseService {
     }
 
     this.#app = initializeApp(
-      JSON.parse(Buffer.from(process.env.FIREBASE_CONFIG, 'base64').toString())
+      JSON.parse(Buffer.from(process.env.FIREBASE_CONFIG, 'base64').toString()),
     );
 
     onBackgroundMessage(getMessaging(this.#app), (payload) => {
@@ -66,7 +66,7 @@ export class FirebaseService {
         } catch (err) {
           sentryCaptureException(err as Error, SentryExceptionTypes.FIREBASE);
         }
-      }
+      },
     );
   }
 
@@ -84,7 +84,7 @@ export class FirebaseService {
 
   addFirebaseEventListener<T = unknown>(
     event: FirebaseEvents,
-    callback: () => T
+    callback: () => T,
   ) {
     this.#firebaseEventEmitter.on(event, callback);
   }

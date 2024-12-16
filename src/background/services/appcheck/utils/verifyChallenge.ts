@@ -25,7 +25,7 @@ const verifyChallenge = async ({ registrationId, solution }: Params) => {
 
   if (!verifyChallengeResponse.ok) {
     throw new Error(
-      `challenge verification error: "${verifyChallengeResponse.statusText}"`
+      `challenge verification error: "${verifyChallengeResponse.statusText}"`,
     );
   }
 

@@ -16,7 +16,7 @@ describe('solveChallenge', () => {
 
   it('solves basic challenges correctly', async () => {
     expect(
-      solveChallenge({ type: ChallengeTypes.BASIC, challengeDetails })
+      solveChallenge({ type: ChallengeTypes.BASIC, challengeDetails }),
     ).resolves.toBe(solution);
     expect(solveBasicChallenge).toHaveBeenCalledWith(challengeDetails);
   });
