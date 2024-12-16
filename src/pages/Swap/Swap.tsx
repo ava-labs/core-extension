@@ -277,6 +277,7 @@ export function Swap() {
               onFromInputAmountChange(value);
             }}
             setIsOpen={setIsFromTokenSelectOpen}
+            withOnlyTokenPreselect={false}
           />
 
           <Stack
@@ -362,6 +363,7 @@ export function Swap() {
             }}
             setIsOpen={setIsToTokenSelectOpen}
             withMaxButton={false}
+            withOnlyTokenPreselect={false}
           />
 
           {isDetailsAvailable && (

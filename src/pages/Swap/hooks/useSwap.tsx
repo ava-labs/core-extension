@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { OptimalRate, SwapSide } from 'paraswap-core';
 import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
-import { Amount, DestinationInput, isAPIError } from '../utils';
+import { DestinationInput, isAPIError } from '../utils';
 import { useTranslation } from 'react-i18next';
 
 export interface SwapError {
@@ -25,7 +25,7 @@ export function useSwap() {
 
   const setValuesDebouncedSubject = useMemo(() => {
     return new BehaviorSubject<{
-      amount?: Amount;
+      amount?: bigint;
       toTokenAddress?: string;
       fromTokenAddress?: string;
       toTokenDecimals?: number;
@@ -55,7 +55,7 @@ export function useSwap() {
             fromTokenDecimals &&
             toTokenDecimals
           ) {
-            const amountString = amount.bigint.toString();
+            const amountString = amount.toString();
 
             if (amountString === '0') {
               setSwapError({ message: t('Please enter an amount') });
@@ -105,7 +105,7 @@ export function useSwap() {
                 if (
                   fromTokenBalance &&
                   destinationInputField === 'to' &&
-                  amount.bigint > fromTokenBalance
+                  amount > fromTokenBalance
                 ) {
                   setSwapError({ message: t('Insufficient balance.') });
                   return;
@@ -114,6 +114,7 @@ export function useSwap() {
               })
               .catch((error) => {
                 setOptimalRate(undefined);
+                setDestAmount('');
                 setSwapError({
                   message: t('Something went wrong, '),
                   hasTryAgain: true,
