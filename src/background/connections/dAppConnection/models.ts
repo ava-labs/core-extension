@@ -34,6 +34,7 @@ export enum DAppProviderRequest {
   AVALANCHE_SET_DEVELOPER_MODE = 'avalanche_setDeveloperMode',
   ACCOUNT_SELECT = 'avalanche_selectAccount',
   ACCOUNT_RENAME = 'avalanche_renameAccount',
+  ACCOUNTS_DELETE = 'avalanche_deleteAccounts',
   AVALANCHE_GET_ACCOUNT_PUB_KEY = 'avalanche_getAccountPubKey',
   AVALANCHE_SEND_TRANSACTION = 'avalanche_sendTransaction',
   AVALANCHE_SIGN_TRANSACTION = 'avalanche_signTransaction',
