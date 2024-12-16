@@ -17,6 +17,7 @@ import solveChallenge from './utils/solveChallenge';
 export const WAIT_FOR_CHALLENGE_ATTEMPT_COUNT = 10;
 export const WAIT_FOR_CHALLENGE_DELAY_MS = 500;
 
+// Implementation based on https://github.com/ava-labs/core-id-service/blob/main/docs/extension-appcheck-attestation.md
 @singleton()
 export class AppCheckService {
   #appCheck?: AppCheck;
@@ -27,17 +28,17 @@ export class AppCheckService {
   activate(): void {
     this.firebaseService.addFcmMessageListener(
       FcmMessageEvents.ID_CHALLENGE,
-      (payload) => this.#handleMessage(payload)
+      (payload) => this.#handleMessage(payload),
     );
 
     this.firebaseService.addFirebaseEventListener(
       FirebaseEvents.FCM_INITIALIZED,
-      () => this.#startAppcheck()
+      () => this.#startAppcheck(),
     );
 
     this.firebaseService.addFirebaseEventListener(
       FirebaseEvents.FCM_TERMINATED,
-      () => this.#stopAppcheck()
+      () => this.#stopAppcheck(),
     );
   }
 
@@ -90,7 +91,7 @@ export class AppCheckService {
                     rej('timeout');
                   }
                 }, WAIT_FOR_CHALLENGE_DELAY_MS);
-              }
+              },
             );
 
           try {
