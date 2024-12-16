@@ -1,7 +1,7 @@
 // ledgerAppVersion >= requiredAppVersion
 export function isLedgerVersionCompatible(
   ledgerAppVersion: string,
-  requiredAppVersion: string
+  requiredAppVersion: string,
 ) {
   const compare = ledgerAppVersion.localeCompare(
     requiredAppVersion,
@@ -9,7 +9,7 @@ export function isLedgerVersionCompatible(
     {
       numeric: true,
       sensitivity: 'base',
-    }
+    },
   );
 
   // ledgerAppVersion > requiredAppVersion

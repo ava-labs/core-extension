@@ -69,18 +69,18 @@ export class GlacierUnhealthyError extends Error {
 }
 
 export const hasUnconfirmedBTCBalance = (
-  token?: TokenWithBalance
+  token?: TokenWithBalance,
 ): token is EnsureDefined<TokenWithBalanceBTC, 'unconfirmedBalance'> =>
   Boolean(token && 'unconfirmedBalance' in token);
 
 export const isAvaxWithUnavailableBalance = (
-  token?: TokenWithBalance
+  token?: TokenWithBalance,
 ): token is TokenWithBalanceAVM | TokenWithBalancePVM =>
   Boolean(
     token &&
       'balancePerType' in token &&
       token.available &&
-      token.available !== token.balance
+      token.available !== token.balance,
   );
 
 export const getUnconfirmedBalanceInCurrency = (token?: TokenWithBalance) => {

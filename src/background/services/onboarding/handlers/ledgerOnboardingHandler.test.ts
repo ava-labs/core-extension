@@ -78,7 +78,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       walletServiceMock,
       onboardingServiceMock,
       lockServiceMock,
-      networkServiceMock
+      networkServiceMock,
     );
 
   const getRequest = (params: unknown[]) =>
@@ -86,7 +86,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       id: '123',
       method: ExtensionRequest.LEDGER_ONBOARDING_SUBMIT,
       params,
-    } as any);
+    }) as any;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -125,7 +125,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     expect(getXpubFromMnemonic).not.toHaveBeenCalled();
     expect(Avalanche.getXpubFromMnemonic).not.toHaveBeenCalled();
     expect(storageServiceMock.createStorageKey).toHaveBeenCalledWith(
-      'password'
+      'password',
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
       mnemonic: undefined,
@@ -142,7 +142,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);
 
     expect(
-      analyticsServiceMock.saveTemporaryAnalyticsIds
+      analyticsServiceMock.saveTemporaryAnalyticsIds,
     ).not.toHaveBeenCalled();
   });
 
@@ -167,7 +167,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     expect(getXpubFromMnemonic).not.toHaveBeenCalled();
     expect(Avalanche.getXpubFromMnemonic).not.toHaveBeenCalled();
     expect(storageServiceMock.createStorageKey).toHaveBeenCalledWith(
-      'password'
+      'password',
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
       pubKeys: ['pubkey1', 'pubkey2', 'pubkey3'],
@@ -188,7 +188,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);
 
     expect(
-      analyticsServiceMock.saveTemporaryAnalyticsIds
+      analyticsServiceMock.saveTemporaryAnalyticsIds,
     ).not.toHaveBeenCalled();
 
     expect(addXPChainToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);

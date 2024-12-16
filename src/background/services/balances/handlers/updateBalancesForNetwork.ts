@@ -22,7 +22,7 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
   constructor(
     private networkBalancesService: BalanceAggregatorService,
     private accountsService: AccountsService,
-    private networkSerice: NetworkService
+    private networkSerice: NetworkService,
   ) {}
 
   async #getDefaultNetworksToFetch(activeChainId: number) {
@@ -63,7 +63,7 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
       const balances = await this.networkBalancesService.getBalancesForNetworks(
         networksToFetch,
         accountsToFetch,
-        [TokenType.NATIVE, TokenType.ERC20]
+        [TokenType.NATIVE, TokenType.ERC20],
       );
       return {
         ...request,

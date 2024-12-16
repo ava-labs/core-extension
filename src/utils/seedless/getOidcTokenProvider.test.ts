@@ -6,17 +6,17 @@ import { getOidcTokenProvider } from './getOidcTokenProvider';
 describe('src/utils/seedless/getOidcTokenProvider', () => {
   it('should get unsupported error', () => {
     expect(() => getOidcTokenProvider()).toThrow(
-      'Unsupported provider: unknown'
+      'Unsupported provider: unknown',
     );
   });
   it('should get the provider function', () => {
     expect(getOidcTokenProvider(SeedlessAuthProvider.Google)).toEqual(
-      authenticateWithGoogle
+      authenticateWithGoogle,
     );
   });
   it('should get the provider function', () => {
     expect(getOidcTokenProvider(SeedlessAuthProvider.Apple)).toEqual(
-      authenticateWithApple
+      authenticateWithApple,
     );
   });
 });

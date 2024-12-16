@@ -75,9 +75,9 @@ const BridgeTransactionStatus = () => {
   const bridgeTransaction = useMemo(
     () =>
       bridgeTransactions.find(
-        ({ sourceTxHash }) => sourceTxHash === params.txHash
+        ({ sourceTxHash }) => sourceTxHash === params.txHash,
       ),
-    [params.txHash, bridgeTransactions]
+    [params.txHash, bridgeTransactions],
   );
 
   const symbol = useMemo(
@@ -85,7 +85,7 @@ const BridgeTransactionStatus = () => {
       isUnifiedBridgeTransfer(bridgeTransaction)
         ? bridgeTransaction.asset.symbol
         : bridgeTransaction?.symbol,
-    [bridgeTransaction]
+    [bridgeTransaction],
   );
   const coingeckoId = useCoinGeckoId(symbol);
   const logoUri = useLogoUriForBridgeTransaction(bridgeTransaction);
@@ -99,7 +99,7 @@ const BridgeTransactionStatus = () => {
       return blockchainToNetwork(
         bridgeTransaction.sourceChain,
         networks,
-        bridgeConfig
+        bridgeConfig,
       );
     }
     return undefined;
@@ -110,7 +110,7 @@ const BridgeTransactionStatus = () => {
       return blockchainToNetwork(
         bridgeTransaction.targetChain,
         networks,
-        bridgeConfig
+        bridgeConfig,
       );
     }
     return undefined;
@@ -118,11 +118,11 @@ const BridgeTransactionStatus = () => {
 
   const assetPrice = usePrice(
     coingeckoId,
-    currency.toLowerCase() as VsCurrencyType
+    currency.toLowerCase() as VsCurrencyType,
   );
   const networkPrice = useBridgeNetworkPrice(bridgeTransaction?.sourceChain);
   const targetNetworkPrice = useBridgeNetworkPrice(
-    bridgeTransaction?.targetChain
+    bridgeTransaction?.targetChain,
   );
   const { capture } = useAnalyticsContext();
   const { amount, sourceNetworkFee, targetNetworkFee } =
@@ -167,7 +167,7 @@ const BridgeTransactionStatus = () => {
                 symbol,
               })}
         </ToastCard>,
-        { duration: Infinity }
+        { duration: Infinity },
       );
 
       setToastShown(true);
@@ -195,7 +195,7 @@ const BridgeTransactionStatus = () => {
       ? new TokenUnit(
           bridgeTransaction.amount,
           bridgeTransaction.asset.decimals,
-          bridgeTransaction.asset.symbol
+          bridgeTransaction.asset.symbol,
         ).toDisplay()
       : bridgeTransaction.amount.toString()
     : '';
@@ -313,10 +313,10 @@ const BridgeTransactionStatus = () => {
                             bridgeTransaction.sourceChain,
                             bridgeTransaction.sourceTxHash,
                             isMainnet,
-                            getNetwork
+                            getNetwork,
                           ),
                           '_blank',
-                          'noreferrer'
+                          'noreferrer',
                         )
                       }
                       disableRipple
@@ -506,10 +506,10 @@ const BridgeTransactionStatus = () => {
                             bridgeTransaction.targetChain,
                             bridgeTransaction.targetTxHash || '',
                             isMainnet,
-                            getNetwork
+                            getNetwork,
                           ),
                           '_blank',
-                          'noreferrer'
+                          'noreferrer',
                         )
                       }
                       disableRipple
@@ -600,8 +600,8 @@ const BridgeTransactionStatus = () => {
                         {isUnifiedBridgeTransfer(bridgeTransaction)
                           ? bridgeTransaction.targetConfirmationCount // with Unified Bridge, the SDK provides info about the target confirmations
                           : bridgeTransaction.complete // with Legacy Bridge, it's either 0 if tx has not completed yet, or 1 if it has
-                          ? '1'
-                          : '0'}
+                            ? '1'
+                            : '0'}
                         /
                         {
                           isUnifiedBridgeTransfer(bridgeTransaction)
@@ -657,7 +657,7 @@ const BridgeTransactionStatus = () => {
                               {' '}
                               {targetNetworkFee?.toNumber().toFixed(9)}{' '}
                               {getNativeTokenSymbol(
-                                bridgeTransaction.targetChain
+                                bridgeTransaction.targetChain,
                               )}
                             </Typography>
                             <Typography
@@ -702,7 +702,7 @@ const BridgeTransactionStatus = () => {
             </Typography>
             <Typography variant="body2" sx={{ textAlign: 'center', mt: 1 }}>
               {t(
-                'Your transaction is processing. Go to Activity to see the current status.'
+                'Your transaction is processing. Go to Activity to see the current status.',
               )}
             </Typography>
             <Stack

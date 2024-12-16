@@ -32,7 +32,7 @@ export class SeedlessMfaEvents implements ExtensionEventEmitter {
           name: SeedlessEvents.MfaChoiceRequest,
           value,
         });
-      }
+      },
     );
     this.seedlessMfaService.addListener(SeedlessEvents.MfaClear, (value) => {
       this.eventEmitter.emit('update', {
@@ -47,7 +47,7 @@ export class SeedlessMfaEvents implements ExtensionEventEmitter {
           name: SeedlessEvents.MfaMethodsUpdated,
           value,
         });
-      }
+      },
     );
   }
 
@@ -56,7 +56,7 @@ export class SeedlessMfaEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

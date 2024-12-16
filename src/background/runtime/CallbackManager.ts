@@ -43,7 +43,7 @@ export class CallbackManager {
 
   onAllExtensionsClosed() {
     const instances = this.getInstancesForInterface<OnAllExtensionClosed>(
-      'onAllExtensionsClosed'
+      'onAllExtensionsClosed',
     );
     instances.forEach((i) => i.onAllExtensionsClosed());
   }

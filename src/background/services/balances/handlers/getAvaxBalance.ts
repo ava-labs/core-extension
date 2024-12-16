@@ -20,7 +20,7 @@ export class GetAvaxBalanceHandler implements HandlerType {
 
   constructor(
     private networkService: NetworkService,
-    private balancesService: BalancesService
+    private balancesService: BalancesService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -51,7 +51,7 @@ export class GetAvaxBalanceHandler implements HandlerType {
           addressBTC: '',
         },
       ],
-      [TokenType.NATIVE]
+      [TokenType.NATIVE],
     );
 
     const nativeTokenWithBalance =

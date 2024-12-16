@@ -38,7 +38,7 @@ export function NetworkSelector({
       setIsOpen(false);
       onSelect?.(network);
     },
-    [onSelect]
+    [onSelect],
   );
 
   return (

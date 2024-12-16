@@ -12,7 +12,7 @@ export function NetworksTab({ searchTerm }: NetworkTabProps) {
   const { networks } = useNetworkContext();
 
   const filteredNetworks = networks.filter(
-    (networkItem) => searchTerm && networkItem.chainName.match(searchTerm)
+    (networkItem) => searchTerm && networkItem.chainName.match(searchTerm),
   );
 
   const hasSearchResults = filteredNetworks.length > 0;

@@ -29,7 +29,7 @@ export class SeedlessBtcSigner implements SignerAsync {
   get address() {
     return getBtcAddressFromPubKey(
       Buffer.from(this.#fromKey, 'hex'),
-      this.network
+      this.network,
     );
   }
 
@@ -48,7 +48,7 @@ export class SeedlessBtcSigner implements SignerAsync {
     inputIndex: number,
     utxos: BitcoinInputUTXO[],
     network: Network,
-    signerSession: SignerSession
+    signerSession: SignerSession,
   ) {
     this.#fromKey = fromKey;
     this.#psbt = psbt;

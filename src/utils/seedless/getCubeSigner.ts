@@ -58,14 +58,14 @@ export function getOidcClient(oidcToken: string): OidcClient {
  * @return {SignerSession} CubeSigner API client.
  */
 export async function getSignerSession(
-  sessionInfo: NewSessionResponse | SignerSessionData
+  sessionInfo: NewSessionResponse | SignerSessionData,
 ): Promise<SignerSession> {
   return new SignerSession(
     await SignerSessionManager.createFromSessionInfo(
       getEnv(),
       getOrgId(),
-      sessionInfo
-    )
+      sessionInfo,
+    ),
   );
 }
 
@@ -84,7 +84,7 @@ export async function getSignerSession(
  */
 export async function requestOidcAuth(
   oidcToken: string,
-  mfaReceipt?: MfaReceipt | undefined
+  mfaReceipt?: MfaReceipt | undefined,
 ): Promise<CubeSignerResponse<SignerSessionData>> {
   const oidcClient = getOidcClient(oidcToken);
   return await oidcClient.sessionCreate(
@@ -98,6 +98,6 @@ export async function requestOidcAuth(
       // How long till the user absolutely must sign in again
       session_lifetime: 1 * 365 * 24 * 60 * 60, // 1 year
     },
-    mfaReceipt
+    mfaReceipt,
   );
 }

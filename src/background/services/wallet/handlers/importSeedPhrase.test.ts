@@ -32,7 +32,7 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
     const handler = new ImportSeedPhraseHandler(
       walletService,
       accountsService,
-      secretsService
+      secretsService,
     );
 
     return handler.handle(
@@ -40,7 +40,7 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
         id: '123',
         method: ExtensionRequest.WALLET_IMPORT_SEED_PHRASE,
         params: [params],
-      })
+      }),
     );
   };
 
@@ -52,7 +52,7 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
     expect(error).toEqual(
       expect.objectContaining({
         data: { reason: SeedphraseImportError.ExistingSeedphrase },
-      })
+      }),
     );
   });
 
@@ -90,11 +90,11 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
     // Expect both calls to be the same despite different casing in the seed phrase
     expect(walletService.addPrimaryWallet).toHaveBeenNthCalledWith(
       1,
-      expectedCall
+      expectedCall,
     );
     expect(walletService.addPrimaryWallet).toHaveBeenNthCalledWith(
       2,
-      expectedCall
+      expectedCall,
     );
   });
 

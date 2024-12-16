@@ -2,12 +2,12 @@ import Blockaid from '@blockaid/client';
 import { TransactionValidationResponse } from '@blockaid/client/resources';
 
 export const isToken = (
-  asset: Asset
+  asset: Asset,
 ): asset is Blockaid.Erc20TokenDetails | Blockaid.NativeAssetDetails =>
   asset.type === 'ERC20' || asset.type === 'NATIVE' ? true : false;
 
 export const isNft = (
-  asset: Asset
+  asset: Asset,
 ): asset is Blockaid.Erc1155TokenDetails | Blockaid.Erc721TokenDetails =>
   asset.type === 'ERC1155' ||
   asset.type === 'ERC721' ||
@@ -30,7 +30,7 @@ export type TokenDetails =
   | Blockaid.NativeAssetDetails;
 
 export const getValidationResultType = (
-  validation?: TransactionValidationResponse
+  validation?: TransactionValidationResponse,
 ) => ({
   isMalicious: validation?.result_type === 'Malicious',
   isSuspicious: validation?.result_type === 'Warning',

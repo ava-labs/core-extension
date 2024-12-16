@@ -80,7 +80,7 @@ export function KeystoneApprovalOverlay({
         type,
       });
     },
-    [submitSignature, txRequest]
+    [submitSignature, txRequest],
   );
 
   const handleScan = useCallback(
@@ -95,12 +95,12 @@ export function KeystoneApprovalOverlay({
 
       try {
         await submitTx(cbor, type);
-      } catch (ex) {
+      } catch (_err) {
         setHasQRError(true);
         setIsSubmitting(false);
       }
     },
-    [submitTx, isSubmitting, step]
+    [submitTx, isSubmitting, step],
   );
 
   const handleError = useCallback((error: string) => {
@@ -128,7 +128,7 @@ export function KeystoneApprovalOverlay({
         height: !isSubmitting && permissions === 'granted' ? 220 : 1,
       },
     }),
-    [handleError, handleScan, isSubmitting, permissions]
+    [handleError, handleScan, isSubmitting, permissions],
   );
 
   const QRScanner = useMemo(() => {
@@ -210,7 +210,7 @@ export function KeystoneApprovalOverlay({
                 textAlign="center"
               >
                 {t(
-                  `Click on the 'Get Signature' button after signing the transaction with your Keystone device.`
+                  `Click on the 'Get Signature' button after signing the transaction with your Keystone device.`,
                 )}
               </Typography>
             </Stack>

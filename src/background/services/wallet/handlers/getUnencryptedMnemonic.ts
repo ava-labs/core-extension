@@ -19,7 +19,7 @@ export class GetUnencryptedMnemonicHandler implements HandlerType {
   constructor(
     private secretsService: SecretsService,
     private lockService: LockService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {}
   handle: HandlerType['handle'] = async ({ request }) => {
     const [password] = request.params;
@@ -47,7 +47,7 @@ export class GetUnencryptedMnemonicHandler implements HandlerType {
       };
     }
     const secrets = await this.secretsService.getAccountSecrets(
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
 
     if (secrets.secretType !== SecretType.Mnemonic) {

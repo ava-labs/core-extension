@@ -59,7 +59,7 @@ export function BridgeProvider({ children }: { children: any }) {
     setBridgeEnvironment(
       network?.chainId === ChainId.AVALANCHE_MAINNET_ID
         ? Environment.PROD
-        : Environment.TEST
+        : Environment.TEST,
     );
   }, [network]);
 
@@ -105,7 +105,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
     const subscription = events()
       .pipe(
         filter(isBridgeStateUpdateEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((txs) => {
         setBridgeState(txs);
@@ -131,7 +131,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         params: bridgeTransaction,
       });
     },
-    [request]
+    [request],
   );
 
   const removeBridgeTransaction = useCallback<
@@ -143,7 +143,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         params: [txHash],
       });
     },
-    [request]
+    [request],
   );
 
   const setIsBridgeDevEnv = useCallback(
@@ -153,7 +153,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         params: [enabled],
       });
     },
-    [request]
+    [request],
   );
 
   const estimateGas = useCallback(
@@ -180,7 +180,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
           avalanche: avaxProviderC,
         },
         bridgeConfig.config,
-        currentBlockchain
+        currentBlockchain,
       );
     },
     [
@@ -189,7 +189,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
       avaxProviderC,
       ethereumProvider,
       bridgeConfig.config,
-    ]
+    ],
   );
 
   const transferEVMAsset = useCallback(
@@ -238,8 +238,8 @@ function InnerBridgeProvider({ children }: { children: any }) {
                   gasPrice: tx.maxFeePerGas
                     ? undefined
                     : tx.gasPrice
-                    ? toBeHex(tx.gasPrice)
-                    : undefined,
+                      ? toBeHex(tx.gasPrice)
+                      : undefined,
                 },
               ],
             },
@@ -256,11 +256,11 @@ function InnerBridgeProvider({ children }: { children: any }) {
                         'You will be prompted {{remaining}} more time(s).',
                         {
                           remaining: requiredSignatures - currentSignature,
-                        }
+                        },
                       ),
                     }
                   : undefined,
-            }
+            },
           );
         },
       });
@@ -275,7 +275,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
       ethereumProvider,
       request,
       t,
-    ]
+    ],
   );
 
   return (
@@ -303,5 +303,5 @@ const mapNumberishToHex = (tx: ContractTransaction) =>
       typeof value === 'number' || typeof value === 'bigint'
         ? toBeHex(value)
         : value,
-    ])
+    ]),
   );

@@ -2,7 +2,7 @@ import { JsonRpcRequestPayload } from '@src/background/connections/dAppConnectio
 import { MessageParams, MessageType } from '../models';
 
 export function paramsToMessageParams(
-  data: JsonRpcRequestPayload<MessageType, any[]>
+  data: JsonRpcRequestPayload<MessageType, any[]>,
 ): MessageParams {
   const { params, method } = data;
   switch (method) {
@@ -20,7 +20,7 @@ export function paramsToMessageParams(
       return {
         data: params.find((param) => Array.isArray(param)),
         from: params.find(
-          (param: any) => typeof param === 'string' || param instanceof String
+          (param: any) => typeof param === 'string' || param instanceof String,
         ),
       };
     case MessageType.ETH_SIGN:

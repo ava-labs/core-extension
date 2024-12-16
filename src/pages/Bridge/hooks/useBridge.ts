@@ -56,7 +56,7 @@ export function useBridge(): Bridge {
   const [asset, setAsset] = useState<BridgeAsset>();
   const firstTargetChainId = Object.keys(asset?.destinations ?? {})[0] ?? '';
   const [targetChain, setTargetChain] = useState(
-    firstTargetChainId ? getNetwork(firstTargetChainId) : undefined
+    firstTargetChainId ? getNetwork(firstTargetChainId) : undefined,
   );
 
   const [receiveAmount, setReceiveAmount] = useState<bigint>();
@@ -70,11 +70,11 @@ export function useBridge(): Bridge {
 
   const bridgableTokens = useMemo(() => {
     const nonNFTs = balances.filter(
-      (t): t is Exclude<TokenWithBalance, NftTokenWithBalance> => !isNFT(t)
+      (t): t is Exclude<TokenWithBalance, NftTokenWithBalance> => !isNFT(t),
     );
 
     return nonNFTs.filter((t) =>
-      findMatchingBridgeAsset(transferableAssets, t)
+      findMatchingBridgeAsset(transferableAssets, t),
     );
   }, [balances, transferableAssets]);
 
@@ -129,7 +129,7 @@ export function useBridge(): Bridge {
             return;
           }
           setMinimum(min);
-        }
+        },
       );
     } else {
       setMinimum(undefined);
@@ -178,7 +178,7 @@ export function useBridge(): Bridge {
         asset.symbol,
         amount,
         targetChain?.caipId,
-        options.gasSettings
+        options.gasSettings,
       );
 
       return hash;
@@ -190,7 +190,7 @@ export function useBridge(): Bridge {
       transferAsset,
       capture,
       network?.caipId,
-    ]
+    ],
   );
 
   useEffect(() => {

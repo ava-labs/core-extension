@@ -38,7 +38,7 @@ describe('src/background/services/approvals/ApprovalService', () => {
       await service.requestApproval(action, 'sign/transaction');
 
       expect(openExtensionNewWindow).toHaveBeenCalledWith(
-        `sign/transaction?actionId=${actionId}`
+        `sign/transaction?actionId=${actionId}`,
       );
       expect(actionsService.addAction).toHaveBeenCalledWith({
         ...action,

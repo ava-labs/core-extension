@@ -138,7 +138,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
     }
     const skipApproval = await canSkipApproval(
       request.site.domain,
-      request.site.tabId
+      request.site.tabId,
     );
 
     if (skipApproval) {
@@ -162,7 +162,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
 
     const isValid = await this.networkService.isValidRPCUrl(
       customNetwork.chainId,
-      customNetwork.rpcUrl
+      customNetwork.rpcUrl,
     );
     if (!isValid) {
       return {
@@ -196,12 +196,11 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
   async actionHandler(
     chains: ChainList,
     network: NetworkWithCaipId,
-    domain: string
+    domain: string,
   ) {
     const supportedChainIds = Object.keys(chains);
 
     if (network.customRpcHeaders) {
-      // eslint-disable-next-line
       const { rpcUrl, ...overrides } = network; // we do not want to apply rpcUrl override from here
       await this.networkService.updateNetworkOverrides(overrides);
     }
@@ -218,7 +217,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
     pendingAction: Action<AddEthereumChainDisplayData>,
     _result,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const chains = await this.networkService.allNetworks.promisify();

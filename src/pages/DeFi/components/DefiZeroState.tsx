@@ -17,7 +17,7 @@ export const DefiZeroState = (props: StackProps) => {
       openNewTab({
         url: 'https://core.app/discover/',
       }),
-    []
+    [],
   );
 
   return (

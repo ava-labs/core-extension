@@ -104,7 +104,7 @@ export class DebankService implements DefiDataProvider {
             totalUsdValue:
               this.#calculateTotalValueOfProtocolItems(portfolio_item_list),
           };
-        }
+        },
       );
 
       return protocols;
@@ -112,7 +112,7 @@ export class DebankService implements DefiDataProvider {
       throw new Error(
         `DebankService: Failed to load user's DeFi portfolio. ${
           err instanceof Error ? err.message : err
-        }`
+        }`,
       );
     }
   }
@@ -133,10 +133,10 @@ export class DebankService implements DefiDataProvider {
 
   async parseTransaction(
     network: Network,
-    tx: EthSendTransactionParamsWithGas
+    tx: EthSendTransactionParamsWithGas,
   ): Promise<TransactionDisplayValues> {
     this.featureFlagService.ensureFlagEnabled(
-      FeatureGates.DEBANK_TRANSACTION_PARSING
+      FeatureGates.DEBANK_TRANSACTION_PARSING,
     );
 
     await this.#initializationPromise;
@@ -181,19 +181,19 @@ export class DebankService implements DefiDataProvider {
               usdValueChange: execResult.value.balance_change.usd_value_change,
               sendTokenList:
                 execResult.value?.balance_change.send_token_list.map(
-                  mapTokenItemToTransactionToken
+                  mapTokenItemToTransactionToken,
                 ) ?? [],
               receiveTokenList:
                 execResult.value.balance_change.receive_token_list.map(
-                  mapTokenItemToTransactionToken
+                  mapTokenItemToTransactionToken,
                 ) ?? [],
               sendNftList:
                 execResult.value.balance_change.send_nft_list.map(
-                  mapNftToTransactionNft
+                  mapNftToTransactionNft,
                 ) ?? [],
               receiveNftList:
                 execResult.value.balance_change.receive_nft_list.map(
-                  mapNftToTransactionNft
+                  mapNftToTransactionNft,
                 ) ?? [],
             }
           : undefined,
@@ -206,10 +206,10 @@ export class DebankService implements DefiDataProvider {
 
   async #explainTx(
     network: Network,
-    tx: EthSendTransactionParamsWithGas
+    tx: EthSendTransactionParamsWithGas,
   ): Promise<ExplainTxResponse> {
     this.featureFlagService.ensureFlagEnabled(
-      FeatureGates.DEBANK_TRANSACTION_PARSING
+      FeatureGates.DEBANK_TRANSACTION_PARSING,
     );
 
     await this.#initializationPromise;
@@ -244,20 +244,20 @@ export class DebankService implements DefiDataProvider {
       throw new Error(
         `DebankService: Failed to pre-execute transaction. ${
           err instanceof Error ? err.message : err
-        }`
+        }`,
       );
     }
   }
 
   async #preExecuteTx(
     network: Network,
-    tx: EthSendTransactionParamsWithGas
+    tx: EthSendTransactionParamsWithGas,
   ): Promise<DebankTxPreExecutionResult> {
     await this.#initializationPromise;
 
     if (!(await this.isPreExecuteTxAvailable(network.chainId))) {
       throw new Error(
-        'DebankService: Transaction pre-execution not supported on network'
+        'DebankService: Transaction pre-execution not supported on network',
       );
     }
 
@@ -280,7 +280,7 @@ export class DebankService implements DefiDataProvider {
       throw new Error(
         `DebankService: Failed to pre-execute transaction. ${
           err instanceof Error ? err.message : err
-        }`
+        }`,
       );
     }
   }
@@ -322,7 +322,7 @@ export class DebankService implements DefiDataProvider {
               return null;
           }
         })
-        .filter(Boolean) as DefiItem[] // Filter-out the nullish items.
+        .filter(Boolean) as DefiItem[], // Filter-out the nullish items.
     );
 
     const groupedByName = allItems.reduce((groups, item) => {
@@ -360,10 +360,10 @@ export class DebankService implements DefiDataProvider {
       // We know the fields below are not supposed to be undefined
       // for perpetuals, so we can cast safely.
       positionToken: this.#mapToken(
-        item.detail.position_token as DebankPortfolioTokenItem
+        item.detail.position_token as DebankPortfolioTokenItem,
       ),
       marginToken: this.#mapToken(
-        item.detail.margin_token as DebankPortfolioTokenItem
+        item.detail.margin_token as DebankPortfolioTokenItem,
       ),
       profitUsdValue: Number(item.detail.pnl_usd_value),
       netUsdValue: item.stats.net_usd_value,
@@ -448,7 +448,7 @@ export class DebankService implements DefiDataProvider {
 
   #sortItems(items: DefiItem[]): DefiItem[] {
     return [...items].sort(
-      ({ netUsdValue: valueA }, { netUsdValue: valueB }) => valueB - valueA
+      ({ netUsdValue: valueA }, { netUsdValue: valueB }) => valueB - valueA,
     );
   }
 
@@ -461,7 +461,7 @@ export class DebankService implements DefiDataProvider {
   }
 
   #calculateTotalValueOfProtocolItems(
-    items: DebankPortfolioItemObject[]
+    items: DebankPortfolioItemObject[],
   ): number {
     return items.reduce((total, { stats }) => total + stats.net_usd_value, 0);
   }

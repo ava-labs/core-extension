@@ -68,7 +68,7 @@ export function useSwapStateFunctions({
       amount: Amount,
       destinationInput: DestinationInput,
       sourceToken?: NetworkTokenWithBalance | TokenWithBalanceERC20,
-      destinationToken?: NetworkTokenWithBalance | TokenWithBalanceERC20
+      destinationToken?: NetworkTokenWithBalance | TokenWithBalanceERC20,
     ) => {
       if (!sourceToken || !destinationToken) {
         return;
@@ -87,7 +87,7 @@ export function useSwapStateFunctions({
         fromTokenBalance: selectedFromToken?.balance,
       });
     },
-    [selectedFromToken?.balance, setValuesDebouncedSubject]
+    [selectedFromToken?.balance, setValuesDebouncedSubject],
   );
 
   // reload and recalculate the data from the history
@@ -122,7 +122,7 @@ export function useSwapStateFunctions({
           amount: new TokenUnit(
             tokenValueBigint,
             pageHistory.selectedToToken?.decimals ?? 18,
-            ''
+            '',
           ).toDisplay(),
         });
       } else {
@@ -134,12 +134,12 @@ export function useSwapStateFunctions({
           amount: new TokenUnit(
             tokenValueBigint,
             pageHistory.selectedToToken?.decimals ?? 18,
-            ''
+            '',
           ).toDisplay(),
         },
         pageHistory.destinationInputField || 'to',
         historyFromToken,
-        historyToToken
+        historyToToken,
       );
 
       isHistoryLoaded.current = true;
@@ -195,7 +195,7 @@ export function useSwapStateFunctions({
           amount: fromValue.amount || '0',
           bigint: stringToBigint(
             fromValue.amount || '0',
-            fromToken.decimals || 18
+            fromToken.decimals || 18,
           ),
         } as Amount)
       : undefined;
@@ -210,18 +210,18 @@ export function useSwapStateFunctions({
     reversed: boolean,
     fromToken?: NetworkTokenWithBalance | TokenWithBalanceERC20,
     toToken?: NetworkTokenWithBalance | TokenWithBalanceERC20,
-    fromValue?: Amount
+    fromValue?: Amount,
   ) => {
     if (
       !tokensWBalances.some(
         (token) =>
-          token.name === toToken?.name && token.symbol === toToken?.symbol
+          token.name === toToken?.name && token.symbol === toToken?.symbol,
       )
     ) {
       setSwapWarning(
         t(`You don't have any {{symbol}} token for swap`, {
           symbol: toToken?.symbol,
-        })
+        }),
       );
       return;
     }
@@ -252,7 +252,10 @@ export function useSwapStateFunctions({
     if (destination === 'to') {
       setSelectedFromToken(token);
       setMaxFromValue(token?.balance);
-      toToken && setSelectedToToken(toToken);
+      if (!toToken) {
+        return;
+      }
+      setSelectedToToken(toToken);
     } else {
       setSelectedToToken(token);
     }
@@ -287,7 +290,7 @@ export function useSwapStateFunctions({
       value as any,
       'from',
       selectedFromToken,
-      selectedToToken
+      selectedToToken,
     );
     setNavigationHistoryData({
       selectedFromToken,

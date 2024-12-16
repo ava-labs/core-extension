@@ -159,7 +159,7 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
           mfaId: 'abcd',
           type: MfaRequestType.Totp,
           tabId: 123,
-        })
+        }),
       );
 
       expect(service.emitMfaError).toHaveBeenCalledWith('abcd', 123);
@@ -169,7 +169,7 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
           mfaId: 'abcd',
           type: MfaRequestType.Totp,
           tabId: 123,
-        })
+        }),
       );
     });
   });
@@ -221,7 +221,7 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
 
       it('fails', async () => {
         await expect(service.initAuthenticatorChange()).rejects.toThrow(
-          'Invalid session data'
+          'Invalid session data',
         );
       });
     });
@@ -291,7 +291,7 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
 
       it('fails', async () => {
         await expect(
-          service.completeAuthenticatorChange('totpId', '123456')
+          service.completeAuthenticatorChange('totpId', '123456'),
         ).rejects.toThrow('Invalid session data');
       });
     });
@@ -303,7 +303,7 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
 
       expect(session.resetTotpComplete).toHaveBeenCalledWith(
         'totpId',
-        '123456'
+        '123456',
       );
     });
 
@@ -530,7 +530,7 @@ describe('src/background/services/seedless/SeedlessMfaService.ts', () => {
         expect.objectContaining({
           mfaId: 'mfa-id',
           mfaConf: fidoAnswer.receipt.confirmation,
-        })
+        }),
       );
     });
   });

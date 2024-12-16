@@ -35,13 +35,13 @@ const getBridgeProvider = () => {
   render(
     <UnifiedBridgeProvider>
       <TestConsumerComponent ref={ref} />
-    </UnifiedBridgeProvider>
+    </UnifiedBridgeProvider>,
   );
 
   return ref;
 };
 
-const TestConsumerComponent = forwardRef((props: unknown, ref) => {
+const TestConsumerComponent = forwardRef((_props, ref) => {
   const context = useUnifiedBridgeContext();
 
   useImperativeHandle(ref, () => context);
@@ -179,7 +179,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
     const provider = getBridgeProvider();
 
     await waitFor(() =>
-      expect(provider.current?.transferableAssets).toEqual([avaxUSDC])
+      expect(provider.current?.transferableAssets).toEqual([avaxUSDC]),
     );
   });
 
@@ -202,8 +202,8 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
     await waitFor(() =>
       expect(createUnifiedBridgeService).toHaveBeenCalledWith(
-        matchingPayload({ environment: Environment.PROD })
-      )
+        matchingPayload({ environment: Environment.PROD }),
+      ),
     );
   });
 
@@ -226,8 +226,8 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
     await waitFor(() =>
       expect(createUnifiedBridgeService).toHaveBeenCalledWith(
-        matchingPayload({ environment: Environment.DEV })
-      )
+        matchingPayload({ environment: Environment.DEV }),
+      ),
     );
   });
 
@@ -244,8 +244,8 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
     await waitFor(() =>
       expect(createUnifiedBridgeService).toHaveBeenCalledWith(
-        matchingPayload({ environment: Environment.TEST })
-      )
+        matchingPayload({ environment: Environment.TEST }),
+      ),
     );
   });
 
@@ -254,8 +254,8 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
     await waitFor(() =>
       expect(createUnifiedBridgeService).toHaveBeenCalledWith(
-        matchingPayload({ environment: Environment.PROD })
-      )
+        matchingPayload({ environment: Environment.PROD }),
+      ),
     );
   });
 
@@ -265,7 +265,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
     await waitFor(async () => {
       expect(getEnabledBridgeServices).toHaveBeenCalledWith(
         Environment.PROD,
-        expect.any(Array)
+        expect.any(Array),
       );
       const initializers = jest.mocked(getEnabledBridgeServices).mock
         .lastCall?.[1];
@@ -310,7 +310,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
               type: 'info',
             },
             customApprovalScreenTitle: 'Confirm Bridge',
-          }
+          },
         );
       }
     });
@@ -361,7 +361,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
           await provider.current?.estimateTransferGas(
             'USDC',
             1000n,
-            'eip155:1'
+            'eip155:1',
           );
         } catch (err: any) {
           expect(err.data.reason).toEqual(CommonError.Unknown);
@@ -377,7 +377,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
           await provider.current?.estimateTransferGas(
             'USDC',
             1000n,
-            'eip155:1'
+            'eip155:1',
           );
         } catch (err: any) {
           expect(err.data.reason).toEqual(UnifiedBridgeError.UnknownAsset);
@@ -392,7 +392,11 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
       await waitFor(async () => {
         expect(
-          await provider.current?.estimateTransferGas('USDC', 1000n, 'eip155:1')
+          await provider.current?.estimateTransferGas(
+            'USDC',
+            1000n,
+            'eip155:1',
+          ),
         ).toEqual(555n);
 
         expect(core.estimateGas).toHaveBeenCalledWith({
@@ -450,7 +454,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
 
       await waitFor(async () => {
         expect(
-          await provider.current?.getFee('USDC', 1000n, 'eip155:1')
+          await provider.current?.getFee('USDC', 1000n, 'eip155:1'),
         ).toEqual(300n);
 
         expect(core.getFees).toHaveBeenCalledWith({
