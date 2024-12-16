@@ -33,7 +33,14 @@ const getSwapProvider = (): SwapContextAPI => {
   return ref.current ?? ({} as SwapContextAPI);
 };
 
-const TestConsumerComponent = forwardRef((_props, ref) => {
+const waitForRetries = async (retries: number) => {
+  for (let i = 0; i < retries; i++) {
+    jest.runAllTimers();
+    await new Promise(jest.requireActual('timers').setImmediate);
+  }
+};
+
+const TestConsumerComponent = forwardRef((props: unknown, ref) => {
   const { getRate, swap } = useSwapContext();
 
   useImperativeHandle(ref, () => ({
@@ -105,6 +112,7 @@ describe.only('contexts/SwapProvider', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.useRealTimers();
 
     jest.spyOn(global, 'fetch').mockResolvedValue({
       json: async () => ({}),
@@ -643,19 +651,29 @@ describe.only('contexts/SwapProvider', () => {
         slippage,
       } = getSwapParams();
 
-      await expect(
-        swap({
-          srcToken,
-          srcDecimals,
-          srcAmount,
-          destToken,
-          destDecimals,
-          destAmount,
-          gasLimit,
-          priceRoute,
-          slippage,
-        }),
-      ).rejects.toThrow('Data Error: Error: Invalid transaction params');
+      jest.useFakeTimers();
+
+      swap({
+        srcToken,
+        srcDecimals,
+        srcAmount,
+        destToken,
+        destDecimals,
+        destAmount,
+        gasLimit,
+        priceRoute,
+        slippage,
+      })
+        .then(() => {
+          fail('Expected to throw');
+        })
+        .catch((err) => {
+          expect(err.message).toEqual(
+            'Data Error: Error: Invalid transaction params'
+          );
+        });
+
+      await waitForRetries(10);
     });
 
     it('handles Paraswap API error responses', async () => {
@@ -691,19 +709,29 @@ describe.only('contexts/SwapProvider', () => {
         slippage,
       } = getSwapParams();
 
-      await expect(
-        swap({
-          srcToken,
-          srcDecimals,
-          srcAmount,
-          destToken,
-          destDecimals,
-          destAmount,
-          gasLimit,
-          priceRoute,
-          slippage,
-        }),
-      ).rejects.toThrow('Data Error: Error: Some API error happened');
+      jest.useFakeTimers();
+
+      swap({
+        srcToken,
+        srcDecimals,
+        srcAmount,
+        destToken,
+        destDecimals,
+        destAmount,
+        gasLimit,
+        priceRoute,
+        slippage,
+      })
+        .then(() => {
+          fail('Expected to throw');
+        })
+        .catch((err) => {
+          expect(err.message).toEqual(
+            'Data Error: Error: Some API error happened'
+          );
+        });
+
+      await waitForRetries(10);
     });
 
     it('handles API HTTP errors', async () => {
@@ -743,19 +771,29 @@ describe.only('contexts/SwapProvider', () => {
         slippage,
       } = getSwapParams();
 
-      await expect(
-        swap({
-          srcToken,
-          srcDecimals,
-          srcAmount,
-          destToken,
-          destDecimals,
-          destAmount,
-          gasLimit,
-          priceRoute,
-          slippage,
-        }),
-      ).rejects.toThrow('Data Error: Error: Invalid transaction params');
+      jest.useFakeTimers();
+
+      swap({
+        srcToken,
+        srcDecimals,
+        srcAmount,
+        destToken,
+        destDecimals,
+        destAmount,
+        gasLimit,
+        priceRoute,
+        slippage,
+      })
+        .then(() => {
+          fail('Expected to throw');
+        })
+        .catch((err) => {
+          expect(err.message).toEqual(
+            'Data Error: Error: Invalid transaction params'
+          );
+        });
+
+      await waitForRetries(10);
     });
 
     describe('when everything goes right', () => {
