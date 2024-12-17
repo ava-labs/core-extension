@@ -18,7 +18,7 @@ type Result<T extends RequestedTokens> = Record<
 >;
 
 export function useTokensBySymbols<T extends RequestedTokens>(
-  requestedTokens: T
+  requestedTokens: T,
 ): Result<T> {
   const balances = useTokensWithBalances({
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
@@ -45,6 +45,6 @@ export function useTokensBySymbols<T extends RequestedTokens>(
         }),
       };
     },
-    {} as Result<T>
+    {} as Result<T>,
   );
 }

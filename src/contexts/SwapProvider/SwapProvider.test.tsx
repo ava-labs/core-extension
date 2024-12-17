@@ -40,7 +40,7 @@ const waitForRetries = async (retries: number) => {
   }
 };
 
-const TestConsumerComponent = forwardRef((props: unknown, ref) => {
+const TestConsumerComponent = forwardRef((_props: unknown, ref) => {
   const { getRate, swap } = useSwapContext();
 
   useImperativeHandle(ref, () => ({
@@ -669,7 +669,7 @@ describe.only('contexts/SwapProvider', () => {
         })
         .catch((err) => {
           expect(err.message).toEqual(
-            'Data Error: Error: Invalid transaction params'
+            'Data Error: Error: Invalid transaction params',
           );
         });
 
@@ -727,7 +727,7 @@ describe.only('contexts/SwapProvider', () => {
         })
         .catch((err) => {
           expect(err.message).toEqual(
-            'Data Error: Error: Some API error happened'
+            'Data Error: Error: Some API error happened',
           );
         });
 
@@ -789,7 +789,7 @@ describe.only('contexts/SwapProvider', () => {
         })
         .catch((err) => {
           expect(err.message).toEqual(
-            'Data Error: Error: Invalid transaction params'
+            'Data Error: Error: Invalid transaction params',
           );
         });
 

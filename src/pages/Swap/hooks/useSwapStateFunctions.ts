@@ -118,7 +118,7 @@ export function useSwapStateFunctions() {
           bigint: tokenValueBigint,
           amount: bigIntToString(
             tokenValueBigint,
-            historyToToken?.decimals ?? 18
+            historyToToken?.decimals ?? 18,
           ),
         });
       } else {
@@ -247,7 +247,7 @@ export function useSwapStateFunctions() {
       value.bigint,
       'to',
       selectedFromToken,
-      selectedToToken
+      selectedToToken,
     );
     setNavigationHistoryData({
       selectedFromToken,

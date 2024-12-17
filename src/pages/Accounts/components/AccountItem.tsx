@@ -172,7 +172,7 @@ export const AccountItem = forwardRef(
           type: account.type,
         });
       },
-      [address, account.type, capture, network?.vmName, toast]
+      [address, account.type, capture, network?.vmName, toast],
     );
 
     return (
@@ -348,8 +348,8 @@ const getCopyEventNameByNetworkType = (type: NetworkVMType) => {
     type === NetworkVMType.BITCOIN
       ? 'Btc'
       : type === NetworkVMType.EVM
-      ? 'Eth'
-      : type;
+        ? 'Eth'
+        : type;
 
   return `AccountSelector${normalizedType}AddressCopied`;
 };
