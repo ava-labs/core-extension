@@ -117,7 +117,7 @@ const CORE_METHODS = Object.freeze([
 export function PermissionMiddleware(
   permissionService: PermissionsService,
   accountsService: AccountsService,
-  lockService: LockService
+  lockService: LockService,
 ): Middleware<
   ExtensionConnectionMessage | JsonRpcRequest,
   ExtensionConnectionMessageResponse<any, any> | JsonRpcResponse

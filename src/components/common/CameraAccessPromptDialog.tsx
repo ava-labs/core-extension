@@ -41,7 +41,7 @@ export const CameraAccessPromptDialog = ({ QRScanner }) => {
           <QRScanner />
           <Typography variant="body2" color="text.secondary">
             {t(
-              'If you block access, look in the top right corner of your browser to enable camera access'
+              'If you block access, look in the top right corner of your browser to enable camera access',
             )}
           </Typography>
         </Stack>

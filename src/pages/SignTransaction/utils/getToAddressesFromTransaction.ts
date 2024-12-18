@@ -14,7 +14,7 @@ export function getToAddressesFromTransaction(transaction: Transaction): {
 
       return acc;
     },
-    { to: [] as string[], contractAddress: [] as string[] }
+    { to: [] as string[], contractAddress: [] as string[] },
   );
 
   return {

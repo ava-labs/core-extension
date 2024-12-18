@@ -54,7 +54,7 @@ export function TokenFlow() {
   const setSendDataInParams = useSetSendDataInParams();
   const { network } = useNetworkContext();
   const { isFunctionAvailable: isBuyAvailable } = useIsFunctionAvailable(
-    FunctionNames.BUY
+    FunctionNames.BUY,
   );
 
   const isBitcoin = useMemo(() => {
@@ -119,21 +119,24 @@ export function TokenFlow() {
       ? new TokenUnit(
           token.balance + token.unconfirmedBalance,
           token.decimals,
-          token.symbol
+          token.symbol,
         )
       : new TokenUnit(
           token.balance,
           'decimals' in token ? token.decimals : 0,
-          token.symbol
+          token.symbol,
         );
 
   return (
     <Stack sx={{ width: '100%', position: 'relative' }}>
       <PageTitle
         onBackClick={() => {
-          isBitcoin || isPchain || isXchain
-            ? history.replace('/home')
-            : history.replace('/assets');
+          if (isBitcoin || isPchain || isXchain) {
+            history.replace('/home');
+            return;
+          }
+
+          history.replace('/assets');
         }}
       >
         {t('Token Details')}

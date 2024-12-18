@@ -16,7 +16,7 @@ export const useBridgeNetworkPrice = (chain?: Blockchain | Chain) => {
 
     if (typeof chain === 'object') {
       const network = networks.find(
-        ({ chainId }) => chainId === caipToChainId(chain.chainId)
+        ({ chainId }) => chainId === caipToChainId(chain.chainId),
       );
 
       if (!network) {

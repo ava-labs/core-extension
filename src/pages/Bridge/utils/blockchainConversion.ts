@@ -9,12 +9,12 @@ export const blockchainToNetwork = (
   blockChain: Blockchain | Chain,
   networks: NetworkWithCaipId[],
   bridgeConfig: BridgeConfig,
-  isTestnet?: boolean
+  isTestnet?: boolean,
 ) => {
   if (typeof blockChain === 'object') {
     // We got a Chain from @avalabs/bridge-unified
     const chain = networks.find(
-      (network) => network.chainId === caipToChainId(blockChain.chainId)
+      (network) => network.chainId === caipToChainId(blockChain.chainId),
     );
 
     if (!chain) {
@@ -29,13 +29,13 @@ export const blockchainToNetwork = (
       return networks.find(
         (network) =>
           network.chainId ===
-          bridgeConfig.config?.critical.networks[Blockchain.AVALANCHE]
+          bridgeConfig.config?.critical.networks[Blockchain.AVALANCHE],
       );
     case Blockchain.ETHEREUM: {
       return networks.find(
         (network) =>
           network.chainId ===
-          bridgeConfig.config?.critical.networks[Blockchain.ETHEREUM]
+          bridgeConfig.config?.critical.networks[Blockchain.ETHEREUM],
       );
     }
     case Blockchain.BITCOIN:
@@ -56,7 +56,7 @@ export const blockchainToNetwork = (
 };
 
 export const networkToBlockchain = (
-  network: NetworkWithCaipId | Chain | undefined
+  network: NetworkWithCaipId | Chain | undefined,
 ) => {
   const chainId =
     typeof network?.chainId === 'string'

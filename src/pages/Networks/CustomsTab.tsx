@@ -12,7 +12,7 @@ export function CustomsTab({ searchTerm }: NetworkTabProps) {
   const { customNetworks } = useNetworkContext();
 
   const filteredCustomNetworks = customNetworks.filter(
-    (networkItem) => searchTerm && networkItem.chainName.match(searchTerm)
+    (networkItem) => searchTerm && networkItem.chainName.match(searchTerm),
   );
 
   return (

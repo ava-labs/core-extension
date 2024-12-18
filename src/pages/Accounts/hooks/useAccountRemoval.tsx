@@ -31,7 +31,7 @@ export const useAccountRemoval = (accountIds: string[]) => {
         toast.success(
           t('Successfully deleted {{number}} account(s)', {
             number: accountIds.length,
-          })
+          }),
         );
       })
       .catch(() => {
@@ -56,7 +56,7 @@ export const useAccountRemoval = (accountIds: string[]) => {
         onClose={cancel}
       />
     ),
-    [isDeleting, isPrompted, accountIds, cancel, confirm]
+    [isDeleting, isPrompted, accountIds, cancel, confirm],
   );
 
   return {

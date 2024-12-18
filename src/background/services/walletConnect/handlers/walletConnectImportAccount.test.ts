@@ -36,7 +36,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
     const handler = new WalletConnectImportAccount(
       wcServiceMock,
       networkServiceMock,
-      accountServiceMock
+      accountServiceMock,
     );
     const request = {
       method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
@@ -84,7 +84,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
       const handler = new WalletConnectImportAccount(
         wcService,
         networkServiceMock,
-        accountsServiceWithAccountsMock
+        accountsServiceWithAccountsMock,
       );
       const request = {
         method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
@@ -97,7 +97,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
         connectedApp: mockedSessionInfo.walletApp,
       });
       expect(
-        accountsServiceWithAccountsMock.addImportedAccount
+        accountsServiceWithAccountsMock.addImportedAccount,
       ).toHaveBeenCalledWith({
         name: 'WalletConnect #1',
         options: {
@@ -140,7 +140,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
     const handler = new WalletConnectImportAccount(
       wcServiceWithReturnMock,
       networkServiceMock,
-      accountsServiceWithAccountsMock
+      accountsServiceWithAccountsMock,
     );
     const request = {
       method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
@@ -154,13 +154,13 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
       tabId: undefined,
     });
     expect(accountsServiceWithAccountsMock.getAccounts).toHaveBeenCalledTimes(
-      1
+      1,
     );
     expect(
-      accountsServiceWithAccountsMock.addImportedAccount
+      accountsServiceWithAccountsMock.addImportedAccount,
     ).toHaveBeenCalledTimes(1);
     expect(
-      accountsServiceWithAccountsMock.addImportedAccount
+      accountsServiceWithAccountsMock.addImportedAccount,
     ).toHaveBeenCalledWith({
       name: 'WalletConnect #1',
       options: {
@@ -193,7 +193,7 @@ describe('background/services/walletConnect/handlers/walletConnectImportAccount.
     const handler = new WalletConnectImportAccount(
       wcServiceWithReturnMock,
       networkServiceMock,
-      accountServiceMock
+      accountServiceMock,
     );
     const request = {
       method: ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,

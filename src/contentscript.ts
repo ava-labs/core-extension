@@ -12,7 +12,7 @@ function setupStream() {
   const backgroundConnection = new PortConnection(
     browser.runtime.connect({
       name: CONTENT_SCRIPT,
-    })
+    }),
   );
   backgroundConnection.connect();
   const dappConnection = new AutoPairingPostMessageConnection(true);

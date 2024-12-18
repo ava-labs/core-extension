@@ -12,7 +12,7 @@ export class DefiService {
 
   constructor(
     private debankService: DebankService,
-    private storageService: StorageService
+    private storageService: StorageService,
   ) {}
 
   async getUserPortfolio(address: string): Promise<DefiPortfolio> {
@@ -40,7 +40,7 @@ export class DefiService {
       throw new Error(
         `DefiService: Unable to fetch user's portfolio: ${
           err instanceof Error ? err.message : err
-        }`
+        }`,
       );
     }
   }
@@ -51,7 +51,7 @@ export class DefiService {
 
   #buildPortfolio(
     liveProtocols: DefiProtocol[],
-    stalePortfolio?: DefiPortfolio
+    stalePortfolio?: DefiPortfolio,
   ) {
     // We just want to make sure the cached protocols do not suddenly disappear
     // from the portfolio when their positions are closed.
@@ -82,7 +82,7 @@ export class DefiService {
     try {
       await this.storageService.saveToSessionStorage(
         this.#getCacheStorageKey(address),
-        portfolio
+        portfolio,
       );
     } catch {
       // If we didn't manage to cache it - no biggie.
@@ -90,10 +90,10 @@ export class DefiService {
   }
 
   async #getCachedPortfolio(
-    address: string
+    address: string,
   ): Promise<DefiPortfolio | undefined> {
     return this.storageService.loadFromSessionStorage(
-      this.#getCacheStorageKey(address)
+      this.#getCacheStorageKey(address),
     );
   }
 
@@ -104,13 +104,13 @@ export class DefiService {
   #calculateTotalValueOfUserProtocols(protocols: DefiProtocol[]): number {
     return protocols.reduce(
       (total, { totalUsdValue }) => total + totalUsdValue,
-      0
+      0,
     );
   }
 
   #sortProtocols(protocols: DefiProtocol[]): DefiProtocol[] {
     return [...protocols].sort(
-      ({ totalUsdValue: valueA }, { totalUsdValue: valueB }) => valueB - valueA
+      ({ totalUsdValue: valueA }, { totalUsdValue: valueB }) => valueB - valueA,
     );
   }
 }

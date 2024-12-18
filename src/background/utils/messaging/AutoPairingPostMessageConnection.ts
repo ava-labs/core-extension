@@ -13,7 +13,7 @@ export default class AutoPairingPostMessageConnection extends AbstractConnection
 
   constructor(
     private isConnectionLeader: boolean,
-    concurrentRequestLimit = 1000
+    concurrentRequestLimit = 1000,
   ) {
     super(concurrentRequestLimit);
 
@@ -37,7 +37,7 @@ export default class AutoPairingPostMessageConnection extends AbstractConnection
             connectionId: this.#connectionId,
           },
         },
-        window.location.origin
+        window.location.origin,
       );
     };
 
@@ -83,7 +83,7 @@ export default class AutoPairingPostMessageConnection extends AbstractConnection
           type: CHANNEL_BROADCAST_REQUEST_EVENT,
         },
       },
-      window.location.origin
+      window.location.origin,
     );
   };
 

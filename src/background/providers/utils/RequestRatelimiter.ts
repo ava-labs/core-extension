@@ -11,7 +11,7 @@ class RequestRatelimiter {
   async call(key: string, defer: () => Promise<any>) {
     if (this.#rateLimitedMethods.includes(key) && this.#requestsInflight[key]) {
       throw ethErrors.rpc.resourceUnavailable(
-        `Request of type ${key} already pending for origin. Please wait.`
+        `Request of type ${key} already pending for origin. Please wait.`,
       );
     }
 
@@ -24,7 +24,7 @@ class RequestRatelimiter {
           if (!this.#requestsInflight[key]) {
             delete this.#requestsInflight[key];
           }
-        })
+        }),
       );
     });
   }

@@ -46,13 +46,13 @@ async function readV2(data: KeyFileV2, pass) {
         key,
         salt,
         nonce,
-        KEYGEN_ITERATIONS_V2
+        KEYGEN_ITERATIONS_V2,
       );
 
       return {
         key: utils.base58check.encode(decryptedKey),
       };
-    })
+    }),
   );
 
   return {
@@ -83,7 +83,7 @@ async function readV3(data: KeyFileV3, pass) {
       return {
         key: utils.base58check.encode(decryptedKey),
       };
-    })
+    }),
   );
 
   return {
@@ -113,7 +113,7 @@ async function readV4(data: KeyFileV4, pass): Promise<KeyFileDecryptedV5> {
       return {
         key: utils.base58check.encode(decryptedKey),
       };
-    })
+    }),
   );
 
   return {
@@ -145,7 +145,7 @@ async function readV5(data: KeyFileV5, pass): Promise<KeyFileDecryptedV5> {
       return {
         key: decoder.decode(await decrypt(pass, key, salt, nonce)),
       };
-    })
+    }),
   );
 
   return {
@@ -172,10 +172,10 @@ async function readV6(data: KeyFileV6, pass): Promise<KeyFileDecryptedV6> {
           key: decoder.decode(await decrypt(pass, key, salt, nonce)),
           type: keyData.type,
         };
-      } catch (e) {
+      } catch (_err) {
         throw KeystoreError.InvalidPassword;
       }
-    })
+    }),
   );
 
   return {
@@ -187,7 +187,7 @@ async function readV6(data: KeyFileV6, pass): Promise<KeyFileDecryptedV6> {
 
 export async function readKeyFile(
   data: AllKeyFileTypes,
-  pass: string
+  pass: string,
 ): Promise<AllKeyFileDecryptedTypes> {
   switch (data.version) {
     case '6.0':
@@ -239,7 +239,7 @@ function extractKeysV6(file: KeyFileDecryptedV6): AccessWalletMultipleInput[] {
 }
 
 export function extractKeysFromDecryptedFile(
-  file: AllKeyFileDecryptedTypes
+  file: AllKeyFileDecryptedTypes,
 ): AccessWalletMultipleInput[] {
   switch (file.version) {
     case '6.0':

@@ -85,12 +85,12 @@ export class AvalancheSignMessageHandler extends DAppRequestHandler {
     pendingAction: Action<SignMessageData>,
     _,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const res = (await this.walletService.signMessage(
         MessageType.AVALANCHE_SIGN,
-        pendingAction
+        pendingAction,
       )) as Buffer;
 
       if (!res) throw new Error('Failed to sign message');

@@ -23,7 +23,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
 
   constructor(
     private accountsService: AccountsService,
-    private permissionsService: PermissionsService
+    private permissionsService: PermissionsService,
   ) {}
 
   async handleAuthenticated(rpcCall) {
@@ -61,7 +61,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
           domainIcon: request.site?.icon,
         },
       },
-      `permissions`
+      `permissions`,
     );
 
     return { ...request, result: DEFERRED_RESPONSE };
@@ -71,7 +71,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
     pendingAction: Action,
     result,
     onSuccess,
-    onError
+    onError,
   ) => {
     const selectedAccount = this.accountsService.getAccountByID(result);
 
@@ -91,7 +91,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       this.accountsService.activeAccount?.id === result &&
       (await this.permissionsService.hasDomainPermissionForAccount(
         pendingAction.site.domain,
-        selectedAccount.addressC
+        selectedAccount.addressC,
       ))
     ) {
       onSuccess([selectedAccount.addressC]);
@@ -101,7 +101,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
     await this.permissionsService.setAccountPermissionForDomain(
       pendingAction.site.domain,
       selectedAccount.addressC,
-      true
+      true,
     );
 
     await this.accountsService.activateAccount(result);

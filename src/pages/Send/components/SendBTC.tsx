@@ -31,7 +31,7 @@ export const SendBTC = ({
   const setStateInParams = useSetSendDataInParams();
   const addressValidator = useCallback(
     (add: string) => isBtcAddressInNetwork(add, !network.isTestnet),
-    [network.isTestnet]
+    [network.isTestnet],
   );
   const addressFromParams = useValidAddressFromParams(addressValidator);
   const [address, setAddress] = useState(addressFromParams);
@@ -89,7 +89,7 @@ export const SendBTC = ({
   const inputAmount = useMemo(
     () =>
       amount ? stringToBigint(amount, nativeToken?.decimals ?? 8) : undefined,
-    [nativeToken, amount]
+    [nativeToken, amount],
   );
 
   return (

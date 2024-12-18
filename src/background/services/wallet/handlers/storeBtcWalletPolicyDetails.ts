@@ -25,7 +25,7 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
   constructor(
     private secretsService: SecretsService,
     private networkService: NetworkService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -33,7 +33,7 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
       throw new Error('there is no active account');
     }
     const secrets = await this.secretsService.getAccountSecrets(
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
 
     if (
@@ -65,7 +65,7 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
     const derivedAddressBtc = getBech32AddressFromXPub(
       xpub,
       accountIndex,
-      isMainnet ? networks.bitcoin : networks.testnet
+      isMainnet ? networks.bitcoin : networks.testnet,
     );
     const isCorrectDevice = activeAccount.addressBTC === derivedAddressBtc;
 
@@ -76,7 +76,7 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
         hmacHex,
         name,
         secrets.id,
-        this.accountsService.activeAccount
+        this.accountsService.activeAccount,
       );
     }
 

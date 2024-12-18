@@ -73,12 +73,12 @@ export function ConnectionContextProvider({ children }: { children: any }) {
         {
           ...context,
           tabId,
-        }
+        },
       ).then<any>((results) => {
         return results.error ? Promise.reject(results.error) : results.result;
       });
     },
-    []
+    [],
   );
 
   const events = useCallback(() => eventsHandler.asObservable(), []);

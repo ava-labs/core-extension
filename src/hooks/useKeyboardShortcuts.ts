@@ -14,7 +14,7 @@ export const useKeyboardShortcuts = (shortcuts: KeyboardShortcuts) => {
         await callback();
       }
     },
-    [shortcuts]
+    [shortcuts],
   );
 
   return {

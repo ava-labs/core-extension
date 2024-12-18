@@ -32,7 +32,7 @@ export function InfiniteScroll({
         loadMore();
       }
     },
-    [loading, hasMore, loadMore]
+    [loading, hasMore, loadMore],
   );
 
   useEffect(() => {

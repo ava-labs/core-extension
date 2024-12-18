@@ -6,7 +6,7 @@ import { isDone } from './isDone';
 export async function processGlacierAddresses(
   addresses: string[],
   fetchActivity: AddressActivityFetcher,
-  gap: number
+  gap: number,
 ) {
   if (isDone(gap)) {
     return { gap, result: [] };
@@ -19,7 +19,7 @@ export async function processGlacierAddresses(
           ...acc,
           [addressInfo.address]: addressInfo,
         }),
-        {}
+        {},
       );
     const result: string[] = [];
     for (let i = 0; i < addresses.length && !isDone(gap); i++) {

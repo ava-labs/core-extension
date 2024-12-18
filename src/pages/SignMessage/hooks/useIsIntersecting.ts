@@ -8,7 +8,7 @@ export const useIsIntersecting = (options) => {
       const [entry] = entries;
       setIsIntersecting(entry?.isIntersecting ?? false);
     },
-    []
+    [],
   );
 
   useEffect(() => {

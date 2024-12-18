@@ -59,7 +59,7 @@ export const ImportWallet = () => {
 
       return [...currentWords.slice(0, selectedLength), ...cutWords].slice(
         0,
-        limit
+        limit,
       );
     });
   }, []);
@@ -71,7 +71,7 @@ export const ImportWallet = () => {
       }
       return phrase && isPhraseCorrect(phrase);
     },
-    [words.length, wordsLength]
+    [words.length, wordsLength],
   );
 
   const onPhraseChanged = useCallback(() => {
@@ -113,11 +113,11 @@ export const ImportWallet = () => {
             placeholder={`${i + 1}.`}
             onPaste={(e) => {
               const pastedText = splitSeedPhrase(
-                e.clipboardData.getData('Text')
+                e.clipboardData.getData('Text'),
               );
 
               setWords(
-                [...words.slice(0, i), ...pastedText].slice(0, wordsLength)
+                [...words.slice(0, i), ...pastedText].slice(0, wordsLength),
               );
 
               e.preventDefault();
@@ -137,7 +137,7 @@ export const ImportWallet = () => {
             }}
             value={words[i] || ''}
           />
-        </Stack>
+        </Stack>,
       );
     }
     return fields;

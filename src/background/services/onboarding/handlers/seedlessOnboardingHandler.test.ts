@@ -29,7 +29,7 @@ const mockrMemorySession = {
 };
 
 (MemorySessionStorage as jest.Mock).mockImplementation(
-  () => mockrMemorySession
+  () => mockrMemorySession,
 );
 
 jest.mock('../../seedless/SeedlessWallet');
@@ -96,7 +96,7 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
       onboardingServiceMock,
       lockServiceMock,
       networkServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
 
   const getRequest = (params: unknown[]) =>
@@ -104,7 +104,7 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
       id: '123',
       method: ExtensionRequest.SEEDLESS_ONBOARDING_SUBMIT,
       params,
-    } as any);
+    }) as any;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -159,7 +159,7 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
 
     // Creates the storage key
     expect(storageServiceMock.createStorageKey).toHaveBeenCalledWith(
-      'password'
+      'password',
     );
 
     // Initializes the wallet

@@ -30,7 +30,7 @@ export const toastCardWithLink = ({ url, title, label, id = '' }) => {
     {
       id: id,
       duration: Infinity,
-    }
+    },
   );
   return { toaster };
 };

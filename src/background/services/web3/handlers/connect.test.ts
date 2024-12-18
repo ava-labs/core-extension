@@ -16,7 +16,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
     it('returns error when no active account available', async () => {
       const handler = new ConnectRequestHandler(
         { activeAccount: undefined } as AccountsService,
-        {} as PermissionsService
+        {} as PermissionsService,
       );
 
       const mockRequest = {
@@ -25,7 +25,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       };
 
       expect(
-        await handler.handleAuthenticated(buildRpcCall(mockRequest))
+        await handler.handleAuthenticated(buildRpcCall(mockRequest)),
       ).toEqual({
         ...mockRequest,
         error: ethErrors.rpc.internal('wallet locked, undefined or malformed'),
@@ -40,7 +40,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
             addressBTC: '',
           },
         } as AccountsService,
-        {} as PermissionsService
+        {} as PermissionsService,
       );
 
       const mockRequest = {
@@ -49,7 +49,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       };
 
       expect(
-        await handler.handleAuthenticated(buildRpcCall(mockRequest))
+        await handler.handleAuthenticated(buildRpcCall(mockRequest)),
       ).toEqual({
         ...mockRequest,
         result: ['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'],
@@ -61,7 +61,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
     it('returns error when domain not set', async () => {
       const handler = new ConnectRequestHandler(
         {} as AccountsService,
-        {} as PermissionsService
+        {} as PermissionsService,
       );
 
       const mockRequest = {
@@ -70,7 +70,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       };
 
       expect(
-        await handler.handleUnauthenticated(buildRpcCall(mockRequest))
+        await handler.handleUnauthenticated(buildRpcCall(mockRequest)),
       ).toEqual({
         ...mockRequest,
         error: ethErrors.rpc.invalidRequest('domain unknown'),
@@ -80,7 +80,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
     it('opens approval window', async () => {
       const handler = new ConnectRequestHandler(
         {} as AccountsService,
-        {} as PermissionsService
+        {} as PermissionsService,
       );
 
       const mockRequest = {
@@ -95,7 +95,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       };
 
       const result = await handler.handleUnauthenticated(
-        buildRpcCall(mockRequest)
+        buildRpcCall(mockRequest),
       );
       expect(result).toEqual({
         ...mockRequest,
@@ -105,7 +105,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       expect(openApprovalWindow).toHaveBeenCalledTimes(1);
       expect(openApprovalWindow).toHaveBeenCalledWith(
         expect.objectContaining({ id: '1235' }),
-        'permissions'
+        'permissions',
       );
     });
   });
@@ -150,46 +150,46 @@ describe('background/services/web3/handlers/connect.ts', () => {
 
       const handler = new ConnectRequestHandler(
         accountsServiceMock as any,
-        permissionServiceMock as any
+        permissionServiceMock as any,
       );
 
       await handler.onActionApproved(
         { ...mockAction },
         undefined,
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(
-        permissionServiceMock.setAccountPermissionForDomain
+        permissionServiceMock.setAccountPermissionForDomain,
       ).not.toHaveBeenCalled();
       expect(onSuccessMock).not.toHaveBeenCalled();
 
       expect(onErrorMock).toHaveBeenCalledTimes(1);
       expect(onErrorMock).toHaveBeenCalledWith(
-        ethErrors.rpc.internal('Selected account not found')
+        ethErrors.rpc.internal('Selected account not found'),
       );
     });
 
     it('returns error when domain not set', async () => {
       const handler = new ConnectRequestHandler(
         accountsServiceMock as any,
-        permissionServiceMock as any
+        permissionServiceMock as any,
       );
 
       await handler.onActionApproved(
         { ...mockAction },
         'uuid',
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(onErrorMock).toHaveBeenCalledTimes(1);
       expect(onErrorMock).toHaveBeenCalledWith(
-        ethErrors.rpc.internal('Domain not set')
+        ethErrors.rpc.internal('Domain not set'),
       );
       expect(
-        permissionServiceMock.setAccountPermissionForDomain
+        permissionServiceMock.setAccountPermissionForDomain,
       ).not.toHaveBeenCalled();
       expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();
       expect(onSuccessMock).not.toHaveBeenCalled();
@@ -208,7 +208,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
             type: AccountType.PRIMARY,
           },
         } as any,
-        permissionServiceMock as any
+        permissionServiceMock as any,
       );
 
       await handler.onActionApproved(
@@ -218,21 +218,21 @@ describe('background/services/web3/handlers/connect.ts', () => {
         },
         'uuid',
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(onErrorMock).not.toHaveBeenCalled();
       expect(
-        permissionServiceMock.hasDomainPermissionForAccount
+        permissionServiceMock.hasDomainPermissionForAccount,
       ).toHaveBeenCalledTimes(1);
       expect(
-        permissionServiceMock.hasDomainPermissionForAccount
+        permissionServiceMock.hasDomainPermissionForAccount,
       ).toHaveBeenCalledWith(
         'example.com',
-        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
       );
       expect(
-        permissionServiceMock.setAccountPermissionForDomain
+        permissionServiceMock.setAccountPermissionForDomain,
       ).not.toHaveBeenCalled();
       expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();
       expect(onSuccessMock).toHaveBeenCalledTimes(1);
@@ -244,7 +244,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
     it('updates permissons for primary account', async () => {
       const handler = new ConnectRequestHandler(
         accountsServiceMock as any,
-        permissionServiceMock as any
+        permissionServiceMock as any,
       );
 
       await handler.onActionApproved(
@@ -254,19 +254,19 @@ describe('background/services/web3/handlers/connect.ts', () => {
         },
         'uuid',
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(onErrorMock).not.toHaveBeenCalled();
       expect(
-        permissionServiceMock.setAccountPermissionForDomain
+        permissionServiceMock.setAccountPermissionForDomain,
       ).toHaveBeenCalledTimes(1);
       expect(
-        permissionServiceMock.setAccountPermissionForDomain
+        permissionServiceMock.setAccountPermissionForDomain,
       ).toHaveBeenCalledWith(
         'example.com',
         '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        true
+        true,
       );
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledTimes(1);
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith('uuid');
@@ -285,7 +285,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
 
       const handler = new ConnectRequestHandler(
         accountsServiceMock as any,
-        permissionServiceMock as any
+        permissionServiceMock as any,
       );
 
       await handler.onActionApproved(
@@ -295,19 +295,19 @@ describe('background/services/web3/handlers/connect.ts', () => {
         },
         '0x2',
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(onErrorMock).not.toHaveBeenCalled();
       expect(
-        permissionServiceMock.setAccountPermissionForDomain
+        permissionServiceMock.setAccountPermissionForDomain,
       ).toHaveBeenCalledTimes(1);
       expect(
-        permissionServiceMock.setAccountPermissionForDomain
+        permissionServiceMock.setAccountPermissionForDomain,
       ).toHaveBeenCalledWith(
         'example.com',
         '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        true
+        true,
       );
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledTimes(1);
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith('0x2');

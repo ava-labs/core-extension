@@ -33,7 +33,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const [contact, setContact] = useState<Contact>(
-    getContactById(contactId) || { id: '', name: '', address: '' }
+    getContactById(contactId) || { id: '', name: '', address: '' },
   );
   const [isEdit, setIsEdit] = useState(false);
   const [isFormValid, setIsFormValid] = useState(true);
@@ -83,7 +83,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
                 success: {
                   duration: 2000,
                 },
-              }
+              },
             );
             setShowDeleteDialog(false);
           }}
@@ -132,7 +132,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
               success: {
                 duration: 2000,
               },
-            }
+            },
           );
           setIsEdit(false);
         }}

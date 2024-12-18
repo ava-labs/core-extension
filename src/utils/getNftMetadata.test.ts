@@ -25,7 +25,7 @@ describe('utils/getNftMetadata.ts', () => {
         json: jest.fn().mockResolvedValue(mockFetchdata),
       });
       (ipfsResolverWithFallback as jest.Mock).mockImplementation(
-        (input) => input
+        (input) => input,
       );
       jest.useFakeTimers();
     });
@@ -70,7 +70,7 @@ describe('utils/getNftMetadata.ts', () => {
     it('should cancel request if fetch takes longer than timeout amount', async () => {
       global.fetch = jest
         .fn()
-        .mockImplementation(async (uri, options: RequestInit) => {
+        .mockImplementation(async (_uri, options: RequestInit) => {
           const { signal } = options;
           let shouldThrowError = false;
           signal?.addEventListener('abort', () => {

@@ -33,7 +33,7 @@ export default function ImportWithWalletConnect({
         replace('/accounts');
       }
     },
-    [replace, onConnect, capture]
+    [replace, onConnect, capture],
   );
 
   return (

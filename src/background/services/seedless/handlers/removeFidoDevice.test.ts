@@ -18,7 +18,7 @@ describe('src/background/services/seedless/handlers/removeFidoDevice', () => {
         id: 'abcd-1234',
         params: [id],
         tabId: 1234,
-      })
+      }),
     );
   };
 
@@ -28,7 +28,7 @@ describe('src/background/services/seedless/handlers/removeFidoDevice', () => {
 
   it('returns error if request fails', async () => {
     seedlessMfaService.removeFidoDevice.mockRejectedValueOnce(
-      new Error('Session expired')
+      new Error('Session expired'),
     );
 
     const result = await handle('a1b2c3');
@@ -48,7 +48,7 @@ describe('src/background/services/seedless/handlers/removeFidoDevice', () => {
     await handle('abcd-1234');
     expect(seedlessMfaService.removeFidoDevice).toHaveBeenCalledWith(
       'abcd-1234',
-      1234
+      1234,
     );
   });
 });

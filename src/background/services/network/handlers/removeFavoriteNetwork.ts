@@ -19,7 +19,7 @@ export class RemoveFavoriteNetworkHandler implements HandlerType {
     const [chainId] = request.params;
 
     const [favoriteNetworks, err] = await resolve(
-      this.networkService.removeFavoriteNetwork(chainId)
+      this.networkService.removeFavoriteNetwork(chainId),
     );
 
     if (err) {

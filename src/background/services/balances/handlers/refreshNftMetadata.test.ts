@@ -24,13 +24,13 @@ describe('background/services/balances/handlers/refreshNftMetadata.ts', () => {
         id: '123',
         method: ExtensionRequest.NFT_REFRESH_METADATA,
         params: ['address', 'chainId', 'tokenId'],
-      })
+      }),
     );
 
     expect(glacierService.refreshNftMetadata).toHaveBeenCalledWith(
       'address',
       'chainId',
-      'tokenId'
+      'tokenId',
     );
 
     expect(result).toEqual({

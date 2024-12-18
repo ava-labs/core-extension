@@ -75,7 +75,7 @@ export function RecoveryMethods({
         }
       }
     },
-    [startRecoveryMethodSetup, hasFidoConfigured]
+    [startRecoveryMethodSetup, hasFidoConfigured],
   );
 
   return (

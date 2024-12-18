@@ -117,9 +117,9 @@ describe('ModuleManager', () => {
         params.map(async (param) => {
           const module = await manager.loadModule(param.chainId, param.method);
           expect(module?.getManifest()?.name.toLowerCase()).toContain(
-            param.name.toLowerCase()
+            param.name.toLowerCase(),
           );
-        })
+        }),
       );
     });
 

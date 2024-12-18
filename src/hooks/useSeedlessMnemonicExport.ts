@@ -144,7 +144,7 @@ export const useSeedlessMnemonicExport = () => {
 
     // capped between 0 and 100
     setProgress(
-      Math.min(Math.max(0, (secondsPassed / EXPORT_DELAY) * 100), 100)
+      Math.min(Math.max(0, (secondsPassed / EXPORT_DELAY) * 100), 100),
     );
   }, [pendingRequest, state]);
 
