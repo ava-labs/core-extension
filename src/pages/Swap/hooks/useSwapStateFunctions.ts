@@ -48,6 +48,7 @@ export function useSwapStateFunctions() {
     swapGasLimit,
     destAmount,
     setDestAmount,
+    setSwapError,
   } = useSwap();
 
   const calculateTokenValueToInput = useCallback(
@@ -186,15 +187,24 @@ export function useSwapStateFunctions() {
       );
       return;
     }
+    setSwapError({ message: '' });
     setSelectedFromToken(toToken);
     setSelectedToToken(fromToken);
     setIsReversed((reversed) => reversed);
-    calculateSwapValue({
-      fromToken: toToken,
-      toToken: fromToken,
-      fromValue: undefined,
-      toValue: undefined,
-    });
+
+    if (!toToken || !fromToken || !destAmount) {
+      return;
+    }
+
+    const fromValue = {
+      amount: bigIntToString(BigInt(destAmount), toToken.decimals),
+      bigint: BigInt(destAmount),
+    };
+    setDestAmount('');
+    setFromTokenValue(fromValue);
+    setFromDefaultValue(fromValue.bigint);
+    setToTokenValue(undefined);
+    calculateTokenValueToInput(BigInt(destAmount), 'to', toToken, fromToken);
   };
 
   const onTokenChange = ({

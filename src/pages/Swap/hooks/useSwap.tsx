@@ -163,6 +163,7 @@ export function useSwap() {
   return {
     setValuesDebouncedSubject,
     swapError,
+    setSwapError,
     isSwapLoading,
     optimalRate,
     swapGasLimit,
