@@ -115,11 +115,23 @@ export function useSwap() {
               .catch((error) => {
                 setOptimalRate(undefined);
                 setDestAmount('');
-                setSwapError({
-                  message: t('Something went wrong, '),
-                  hasTryAgain: true,
-                  errorInfo: error,
-                });
+                if (
+                  error?.message === 'ESTIMATED_LOSS_GREATER_THAN_MAX_IMPACT'
+                ) {
+                  setSwapError({
+                    message: t(
+                      'Estimated loss greater than impact. Try lowering the amount.',
+                    ),
+                    hasTryAgain: false,
+                    errorInfo: error,
+                  });
+                } else {
+                  setSwapError({
+                    message: t('Something went wrong, '),
+                    hasTryAgain: true,
+                    errorInfo: error,
+                  });
+                }
               })
               .finally(() => {
                 if (!isCalculateAvaxMax) {
@@ -155,5 +167,6 @@ export function useSwap() {
     optimalRate,
     swapGasLimit,
     destAmount,
+    setDestAmount,
   };
 }

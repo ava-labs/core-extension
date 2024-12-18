@@ -35,10 +35,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isUserRejectionError } from '@src/utils/errors';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
-import {
-  NetworkTokenWithBalance,
-  TokenWithBalanceERC20,
-} from '@avalabs/vm-module-types';
+import { SwappableToken } from './models';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -124,7 +121,7 @@ export function Swap() {
 
   const toAmount = useMemo(() => {
     const result =
-      destinationInputField === 'to' && destAmount
+      destinationInputField === 'to'
         ? BigInt(destAmount)
         : toTokenValue?.bigint;
 
@@ -251,14 +248,9 @@ export function Swap() {
         >
           <TokenSelect
             label={t('From')}
-            onTokenChange={(
-              token: NetworkTokenWithBalance | TokenWithBalanceERC20,
-            ) => {
+            onTokenChange={(token: SwappableToken) => {
               onTokenChange({
-                token,
-                destination: 'to',
-                toToken: selectedToToken,
-                fromValue: fromTokenValue,
+                fromToken: token,
               });
             }}
             onSelectToggle={() => {
@@ -313,12 +305,7 @@ export function Swap() {
             <Stack
               data-testid="swap-switch-token-button"
               onClick={() => {
-                reverseTokens(
-                  isReversed,
-                  selectedFromToken,
-                  selectedToToken,
-                  undefined,
-                );
+                reverseTokens(selectedFromToken, selectedToToken);
               }}
               disabled={!selectedFromToken || !selectedToToken}
               sx={{
@@ -338,14 +325,9 @@ export function Swap() {
           </Stack>
           <TokenSelect
             label={t('To')}
-            onTokenChange={(
-              token: NetworkTokenWithBalance | TokenWithBalanceERC20,
-            ) => {
+            onTokenChange={(token: SwappableToken) => {
               onTokenChange({
-                token,
-                fromToken: selectedFromToken,
-                destination: 'from',
-                fromValue: fromTokenValue,
+                toToken: token,
               });
             }}
             onSelectToggle={() => {
