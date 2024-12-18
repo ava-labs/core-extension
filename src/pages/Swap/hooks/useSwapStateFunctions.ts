@@ -196,15 +196,21 @@ export function useSwapStateFunctions() {
       return;
     }
 
-    const fromValue = {
-      amount: bigIntToString(BigInt(destAmount), toToken.decimals),
-      bigint: BigInt(destAmount),
-    };
+    const fromValue =
+      destinationInputField === 'to'
+        ? {
+            amount: bigIntToString(BigInt(destAmount), fromToken.decimals),
+            bigint: BigInt(destAmount),
+          }
+        : toTokenValue;
     setDestAmount('');
     setFromTokenValue(fromValue);
-    setFromDefaultValue(fromValue.bigint);
     setToTokenValue(undefined);
-    calculateTokenValueToInput(BigInt(destAmount), 'to', toToken, fromToken);
+
+    if (fromValue) {
+      setFromDefaultValue(fromValue.bigint);
+      calculateTokenValueToInput(fromValue.bigint, 'to', toToken, fromToken);
+    }
   };
 
   const onTokenChange = ({
