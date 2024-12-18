@@ -17,6 +17,7 @@ import { WebsiteDetails } from '../SignTransaction/components/ApprovalTxDetails'
 import type { DomainMetadata } from '@src/background/models';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import type { DeleteAccountsDisplayData } from '@src/background/services/accounts/handlers/avalanche_deleteAccounts';
+import { AccountType } from '@src/background/services/accounts/models';
 
 export function DeleteAccount() {
   const { t } = useTranslation();
@@ -53,11 +54,27 @@ export function DeleteAccount() {
     name: t('Unknown website'),
   };
 
+  const getImportedAccountType = (
+    type:
+      | AccountType.IMPORTED
+      | AccountType.WALLET_CONNECT
+      | AccountType.FIREBLOCKS
+  ) => {
+    switch (type) {
+      case AccountType.IMPORTED:
+        return t('From Private Key');
+      case AccountType.WALLET_CONNECT:
+        return t('From Wallet Connect');
+      default:
+        return t('From Fireblocks');
+    }
+  };
+
   return (
     <Stack sx={{ width: 1, px: 2 }}>
       <Stack sx={{ flexGrow: 1, width: 1, gap: 3 }}>
         <Typography variant="h4" sx={{ mt: 1.5, mb: 3.5 }}>
-          {accountsCount === 1 ? t('Delete Account?') : t('Delete Accounts?')}
+          {accountsCount === 1 ? t('Remove Account?') : t('Remove Accounts?')}
         </Typography>
         <ApprovalSection>
           <ApprovalSectionHeader label={t('Action Details')} />
@@ -69,29 +86,38 @@ export function DeleteAccount() {
           <ApprovalSectionHeader
             label={
               accountsCount === 1
-                ? t('Account to be Deleted')
-                : t('Accounts to be Deleted')
+                ? t('Account to be Removed')
+                : t('Accounts to be Removed')
             }
           />
           <ApprovalSectionBody sx={{ py: 1, px: 2, gap: 1 }}>
             {Object.keys(action.displayData.accounts.primary) &&
               Object.entries(action.displayData.accounts.primary).map(
                 ([walletId, primaryAccounts], i) => (
-                  <Stack key={walletId} sx={{ mt: i === 0 ? 0 : 2 }}>
-                    <Stack>
-                      <Typography sx={{ fontWeight: 600, mb: 1 }}>
-                        {action.displayData.accounts.wallet[walletId]}
-                      </Typography>
-                    </Stack>
+                  <Stack key={walletId} sx={{ mt: i === 0 ? 0 : 1 }}>
                     {primaryAccounts.map((primaryAccount) => (
-                      <Stack
-                        direction={'row'}
-                        sx={{ justifyContent: 'space-between' }}
-                        key={primaryAccount.id}
-                      >
-                        <Typography>{primaryAccount.name}</Typography>
-                        <Typography>
-                          {truncateAddress(primaryAccount.addressC)}
+                      <Stack key={primaryAccount.id}>
+                        <Stack
+                          direction={'row'}
+                          sx={{ justifyContent: 'space-between' }}
+                        >
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {primaryAccount.name}
+                          </Typography>
+                          <Typography variant="caption">
+                            {truncateAddress(primaryAccount.addressC)}
+                          </Typography>
+                        </Stack>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ fontWeight: 600, mb: 1 }}
+                        >
+                          {t('From')}{' '}
+                          {action.displayData.accounts.wallet[walletId]}
                         </Typography>
                       </Stack>
                     ))}
@@ -100,12 +126,7 @@ export function DeleteAccount() {
               )}
 
             {action.displayData.accounts.imported.length && (
-              <Stack sx={{ mt: 2 }}>
-                <Typography sx={{ fontWeight: 600, mb: 1 }}>
-                  {action.displayData.accounts.imported.length === 1
-                    ? t('Imported Account')
-                    : t('Imported Accounts')}
-                </Typography>
+              <Stack sx={{ mt: 1 }}>
                 {action.displayData.accounts.imported.map((importedAccount) => (
                   <Stack key={importedAccount.id}>
                     <Stack
@@ -113,11 +134,20 @@ export function DeleteAccount() {
                       sx={{ justifyContent: 'space-between' }}
                       key={importedAccount.id}
                     >
-                      <Typography>{importedAccount.name}</Typography>
-                      <Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                        {importedAccount.name}
+                      </Typography>
+                      <Typography variant="caption">
                         {truncateAddress(importedAccount.addressC)}
                       </Typography>
                     </Stack>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ fontWeight: 600, mb: 1 }}
+                    >
+                      {getImportedAccountType(importedAccount.type)}
+                    </Typography>
                   </Stack>
                 ))}
               </Stack>
@@ -163,7 +193,7 @@ export function DeleteAccount() {
             }}
             fullWidth
           >
-            {t('Delete')}
+            {t('Remove')}
           </Button>
         </Stack>
       </Stack>

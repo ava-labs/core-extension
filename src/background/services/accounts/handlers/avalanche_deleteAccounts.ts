@@ -4,15 +4,15 @@ import { ethErrors } from 'eth-rpc-errors';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import {
   DAppProviderRequest,
-  JsonRpcRequestParams,
+  type JsonRpcRequestParams,
 } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
 
 import { AccountsService } from '../AccountsService';
-import { Action } from '../../actions/models';
-import { ImportedAccount, PrimaryAccount } from '../models';
+import type { Action } from '../../actions/models';
+import type { ImportedAccount, PrimaryAccount } from '../models';
 import { isPrimaryAccount } from '../utils/typeGuards';
 import { SecretsService } from '../../secrets/SecretsService';
 
@@ -50,10 +50,6 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
     const { request, scope } = rpcCall;
     const [accountIds] = request.params;
 
-    //TODO DELETE THIS
-    accountIds.unshift('1d6ad089-52b3-40b9-a3e5-ac5a970ba063');
-    accountIds.push('75b6b83d-2836-4997-a21f-3ee42f8e6a38');
-
     if (!request.site?.domain || !request.site?.tabId) {
       return {
         ...request,
@@ -62,10 +58,6 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
         }),
       };
     }
-    console.log({ accountIds });
-
-    const currentAccounts = this.accountsService.getAccounts();
-    console.log({ currentAccounts });
 
     const primaryWalletAccounts: PrimaryWalletAccounts = {};
     const importedAccounts: ImportedAccount[] = [];
@@ -98,17 +90,46 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
       };
     }
 
-    //Checking if the accounts to be deleted has the latest index
+    //Check to make sure that all accounts are not being deleted
+    const allAccounts = this.accountsService.getAccounts();
+    const primaryAccountCount = Object.values(allAccounts.primary).flat()
+      .length;
+    const importedAccountCount = Object.values(allAccounts.imported).length;
+    const allAccountCount = primaryAccountCount + importedAccountCount;
+
+    const primaryAccountToDeleteCount = Object.values(
+      primaryWalletAccounts
+    ).flat().length;
+
+    const importedAccountCountToDeleteCount = importedAccounts.length;
+    const deleteAccountCount =
+      primaryAccountToDeleteCount + importedAccountCountToDeleteCount;
+
+    if (allAccountCount === deleteAccountCount) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidParams({
+          message: 'Cannot delete all accounts',
+        }),
+      };
+    }
+
+    //Validating to ensure that the accounts to be deleted has the latest index in the wallet
     for (const [walletId, accountsInWallet] of Object.entries(
       primaryWalletAccounts
     )) {
-      console.log(`${walletId}: ${accountsInWallet}`);
       accountsInWallet.sort((a, b) => b.index - a.index);
-      console.log({ sorted: accountsInWallet });
+      const walletAccounts = allAccounts.primary[walletId];
 
-      const walletAccounts =
-        this.accountsService.getPrimaryAccountsByWalletId(walletId);
-      console.log({ walletAccounts });
+      // This should not happen in normal cases. But need it to satisfy typescript
+      if (!walletAccounts || !walletAccounts.length) {
+        return {
+          ...request,
+          error: ethErrors.rpc.invalidParams({
+            message: 'Unable to find the account',
+          }),
+        };
+      }
 
       for (let i = 0; i < accountsInWallet.length; i++) {
         const accountToDelete = accountsInWallet[i];
@@ -128,26 +149,27 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
       }
     }
 
-    //TODO Uncomment this block
-    // if (await canSkipApproval(request.site.domain, request.site.tabId)) {
-    //   try {
-    //     await this.accountsService.deleteAccounts(Object.keys(accounts));
+    if (await canSkipApproval(request.site.domain, request.site.tabId)) {
+      const allPrimaryAccounts = Object.values(primaryWalletAccounts).flat();
+      const allAccount = [...allPrimaryAccounts, ...importedAccounts];
+      const allAccountIds = allAccount.map((account) => account.id);
+      try {
+        await this.accountsService.deleteAccounts(allAccountIds);
 
-    //     return {
-    //       ...request,
-    //       result: null,
-    //     };
-    //   } catch (err) {
-    //     console.log(err);
-    //     return {
-    //       ...request,
-    //       error: ethErrors.rpc.internal('Account removing failed'),
-    //     };
-    //   }
-    // }
+        return {
+          ...request,
+          result: null,
+        };
+      } catch {
+        return {
+          ...request,
+          error: ethErrors.rpc.internal('Account removing failed'),
+        };
+      }
+    }
 
+    // Getting the wallet names
     const walletNames: Record<string, string> = {};
-
     const primaryWallets = await this.secretsService.getPrimaryWalletsDetails();
 
     for (const walletId of Object.keys(primaryWalletAccounts)) {
@@ -191,16 +213,19 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
 
   onActionApproved = async (
     pendingAction: Action<{
-      accounts: Record<string, ImportedAccount | PrimaryAccount>;
+      accounts: DeleteAccountsDisplayData;
     }>,
     _,
     onSuccess,
     onError
   ) => {
     try {
-      const { accounts } = pendingAction.displayData;
+      const { primary, imported } = pendingAction.displayData.accounts;
+      const allPrimaryAccounts = Object.values(primary).flat();
+      const allAccount = [...allPrimaryAccounts, ...imported];
+      const allAccountIds = allAccount.map((account) => account.id);
 
-      await this.accountsService.deleteAccounts(Object.keys(accounts));
+      await this.accountsService.deleteAccounts(allAccountIds);
 
       onSuccess(null);
     } catch (e) {
