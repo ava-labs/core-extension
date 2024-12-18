@@ -297,16 +297,29 @@ export function Swap() {
             )}
             <Stack
               data-testid="swap-switch-token-button"
-              onClick={() => {
-                reverseTokens(selectedFromToken, selectedToToken);
-              }}
-              disabled={!selectedFromToken || !selectedToToken}
               sx={{
                 transition: 'all 0.2s',
                 transform: isReversed ? 'rotate(0deg)' : 'rotate(180deg)',
               }}
             >
-              <IconButton variant="contained" color="secondary">
+              <IconButton
+                variant="contained"
+                color="secondary"
+                onClick={() => {
+                  reverseTokens(selectedFromToken, selectedToToken);
+                }}
+                disabled={
+                  !selectedFromToken ||
+                  !selectedToToken ||
+                  isLoading ||
+                  isConfirming
+                }
+                sx={{
+                  '&.Mui-disabled': {
+                    backgroundColor: '#FFFFFF10',
+                  },
+                }}
+              >
                 <SwapIcon
                   size={20}
                   sx={{

@@ -44,6 +44,7 @@ export function useSwapStateFunctions() {
     setValuesDebouncedSubject,
     swapError,
     isSwapLoading,
+    setIsSwapLoading,
     optimalRate,
     swapGasLimit,
     destAmount,
@@ -209,6 +210,7 @@ export function useSwapStateFunctions() {
 
     if (fromValue) {
       setFromDefaultValue(fromValue.bigint);
+      setIsSwapLoading(true);
       calculateTokenValueToInput(fromValue.bigint, 'to', toToken, fromToken);
     }
   };
