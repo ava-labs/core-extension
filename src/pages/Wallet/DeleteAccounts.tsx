@@ -125,7 +125,7 @@ export function DeleteAccount() {
                 )
               )}
 
-            {action.displayData.accounts.imported.length && (
+            {!!action.displayData.accounts.imported.length && (
               <Stack sx={{ mt: 1 }}>
                 {action.displayData.accounts.imported.map((importedAccount) => (
                   <Stack key={importedAccount.id}>
