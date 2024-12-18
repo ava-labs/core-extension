@@ -39,7 +39,6 @@ export function useSwapStateFunctions() {
   const [defaultFromValue, setFromDefaultValue] = useState<bigint>();
   const [fromTokenValue, setFromTokenValue] = useState<Amount>();
   const [toTokenValue, setToTokenValue] = useState<Amount>();
-  const [maxFromValue, setMaxFromValue] = useState<bigint | undefined>();
 
   const {
     setValuesDebouncedSubject,
@@ -98,7 +97,6 @@ export function useSwapStateFunctions() {
           }
         : AVAX;
       setSelectedFromToken(historyFromToken);
-      setMaxFromValue(historyFromToken?.balance);
       const historyToToken = pageHistory.selectedToToken
         ? {
             ...pageHistory.selectedToToken,
@@ -336,7 +334,6 @@ export function useSwapStateFunctions() {
     swapWarning,
     isReversed,
     toTokenValue,
-    maxFromValue,
     optimalRate,
     destAmount,
     getSwapValues,

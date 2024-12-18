@@ -97,7 +97,6 @@ export function Swap() {
     swapWarning,
     isReversed,
     toTokenValue,
-    maxFromValue,
     optimalRate,
     destAmount,
   } = useSwapStateFunctions();
@@ -127,11 +126,6 @@ export function Swap() {
 
     return result;
   }, [destAmount, destinationInputField, toTokenValue]);
-
-  const maxFromAmount = useMemo(() => {
-    if (isLoading || destinationInputField === 'to') return undefined;
-    if (destinationInputField === 'from') return maxFromValue ?? 0n;
-  }, [destinationInputField, isLoading, maxFromValue]);
 
   async function performSwap() {
     const {
@@ -258,7 +252,6 @@ export function Swap() {
               setIsToTokenSelectOpen(false);
             }}
             tokensList={tokensWBalances}
-            maxAmount={maxFromAmount}
             skipHandleMaxAmount
             isOpen={isFromTokenSelectOpen}
             selectedToken={selectedFromToken}
