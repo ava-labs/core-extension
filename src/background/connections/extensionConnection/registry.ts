@@ -79,7 +79,6 @@ import { GetAvaxBalanceHandler } from '@src/background/services/balances/handler
 import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
-import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
 import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 import { KeystoneRequestEvents } from '@src/background/services/keystone/events/keystoneDeviceRequest';
 import { SubmitKeystoneSignature } from '@src/background/services/keystone/handlers/keystoneSubmitSignature';
@@ -140,7 +139,6 @@ import { GetTotalBalanceForWalletHandler } from '@src/background/services/balanc
   { token: 'ExtensionRequestHandler', useToken: AddAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAccountsHandler },
   { token: 'ExtensionRequestHandler', useToken: SelectAccountHandler },
-  { token: 'ExtensionRequestHandler', useToken: DeleteAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetActionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateActionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateActionTxDataHandler },
