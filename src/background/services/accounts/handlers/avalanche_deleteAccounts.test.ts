@@ -6,7 +6,6 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 
 import {
-  type Accounts,
   AccountType,
   type ImportedAccount,
   type PrimaryAccount,
@@ -21,12 +20,12 @@ jest.mock('@src/background/runtime/openApprovalWindow');
 describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', () => {
   const deleteAccounts = jest.fn();
   const getAccountByID = jest.fn();
-  const getAccounts = jest.fn();
+  const getPrimaryAccountsByWalletId = jest.fn();
 
   const accountServiceMock = {
     getAccountByID,
     deleteAccounts,
-    getAccounts,
+    getPrimaryAccountsByWalletId,
   } as any;
 
   const getPrimaryWalletsDetails = jest.fn();
@@ -77,7 +76,7 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
   it('prompts approval for non-core requests', async () => {
     const handler = new AvalancheDeleteAccountsHandler(
       accountServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
 
     jest.mocked(canSkipApproval).mockResolvedValueOnce(false);
@@ -88,10 +87,7 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
       }
       return importedAccount;
     });
-    getAccounts.mockReturnValue({
-      primary: { [wallet.id]: [primaryAccount, primaryAccount2] },
-      imported: { [importedAccount.id]: importedAccount },
-    } as Accounts);
+    getPrimaryAccountsByWalletId.mockReturnValue( [primaryAccount, primaryAccount2]);
 
     getPrimaryWalletsDetails.mockResolvedValue([wallet]);
 
@@ -128,16 +124,13 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
   it('does not prompt approval for core suite', async () => {
     const handler = new AvalancheDeleteAccountsHandler(
       accountServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
 
     jest.mocked(canSkipApproval).mockResolvedValueOnce(true);
 
     getAccountByID.mockReturnValueOnce(primaryAccount);
-    getAccounts.mockReturnValue({
-      primary: { [wallet.id]: [primaryAccount] },
-      imported: { [importedAccount.id]: importedAccount },
-    } as Accounts);
+		getPrimaryAccountsByWalletId.mockReturnValue([primaryAccount]);
 
     getPrimaryWalletsDetails.mockResolvedValue([wallet]);
     const request = {
@@ -163,14 +156,11 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
 
     const handler = new AvalancheDeleteAccountsHandler(
       accountServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
 
     getAccountByID.mockReturnValueOnce(primaryAccount);
-    getAccounts.mockReturnValue({
-      primary: { [wallet.id]: [primaryAccount] },
-      imported: { [importedAccount.id]: importedAccount },
-    } as Accounts);
+    getPrimaryAccountsByWalletId.mockReturnValue([primaryAccount]);
 
     getPrimaryWalletsDetails.mockResolvedValue([wallet]);
     const request = {
@@ -195,7 +185,7 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
 
     const handler = new AvalancheDeleteAccountsHandler(
       accountServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
 
     getAccountByID.mockReturnValueOnce(undefined);
@@ -216,54 +206,16 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
     });
   });
 
-  it('returns error when all accounts will be deleted', async () => {
-    jest.mocked(canSkipApproval).mockResolvedValueOnce(true);
-
-    const handler = new AvalancheDeleteAccountsHandler(
-      accountServiceMock,
-      secretsServiceMock
-    );
-
-    getAccountByID.mockImplementation((id) => {
-      if (id === primaryAccount.id) {
-        return primaryAccount;
-      }
-      return importedAccount;
-    });
-    getAccounts.mockReturnValue({
-      primary: { [wallet.id]: [primaryAccount] },
-      imported: { [importedAccount.id]: importedAccount },
-    } as Accounts);
-
-    const request = {
-      id: '123',
-      method: DAppProviderRequest.ACCOUNTS_DELETE,
-      params: [[primaryAccount.id, importedAccount.id]],
-      site: {
-        domain: 'core.app',
-        tabId: 1,
-      },
-    } as any;
-    const result = await handler.handleAuthenticated(buildRpcCall(request));
-    expect(result).toEqual({
-      ...request,
-      error: ethErrors.rpc.internal('Cannot delete all accounts'),
-    });
-  });
-
   it('returns error when requested account is not the last index in the wallet', async () => {
     const handler = new AvalancheDeleteAccountsHandler(
       accountServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
 
     jest.mocked(canSkipApproval).mockResolvedValueOnce(false);
 
     getAccountByID.mockReturnValue(primaryAccount);
-    getAccounts.mockReturnValue({
-      primary: { [wallet.id]: [primaryAccount, primaryAccount2] },
-      imported: {},
-    } as Accounts);
+    getPrimaryAccountsByWalletId.mockReturnValue( [primaryAccount, primaryAccount2]);
 
     getPrimaryWalletsDetails.mockResolvedValue([wallet]);
 
@@ -281,7 +233,7 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
     expect(result).toEqual({
       ...request,
       error: ethErrors.rpc.internal(
-        'Only the last account of the wallet can be removed'
+        'Only the last account of the wallet can be removed',
       ),
     });
   });

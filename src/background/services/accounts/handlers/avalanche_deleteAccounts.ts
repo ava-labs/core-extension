@@ -39,7 +39,7 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
 
   constructor(
     private accountsService: AccountsService,
-    private secretsService: SecretsService
+    private secretsService: SecretsService,
   ) {
     super();
   }
@@ -90,37 +90,14 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
       };
     }
 
-    //Check to make sure that all accounts are not being deleted
-    const allAccounts = this.accountsService.getAccounts();
-    const primaryAccountCount = Object.values(allAccounts.primary).flat()
-      .length;
-    const importedAccountCount = Object.values(allAccounts.imported).length;
-    const allAccountCount = primaryAccountCount + importedAccountCount;
-
-    const primaryAccountToDeleteCount = Object.values(
-      primaryWalletAccounts
-    ).flat().length;
-
-    const importedAccountCountToDeleteCount = importedAccounts.length;
-    const deleteAccountCount =
-      primaryAccountToDeleteCount + importedAccountCountToDeleteCount;
-
-    if (allAccountCount === deleteAccountCount) {
-      return {
-        ...request,
-        error: ethErrors.rpc.invalidParams({
-          message: 'Cannot delete all accounts',
-        }),
-      };
-    }
-
     //Validating to ensure that the accounts to be deleted has the latest index in the wallet
     for (const [walletId, accountsInWallet] of Object.entries(
-      primaryWalletAccounts
+      primaryWalletAccounts,
     )) {
+			//Sort in descending order by index
       accountsInWallet.sort((a, b) => b.index - a.index);
-      const walletAccounts = allAccounts.primary[walletId];
-
+      const walletAccounts = this.accountsService.getPrimaryAccountsByWalletId(walletId);
+			
       // This should not happen in normal cases. But need it to satisfy typescript
       if (!walletAccounts || !walletAccounts.length) {
         return {
@@ -147,6 +124,8 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
           };
         }
       }
+			//Sort in ascending order by index
+			accountsInWallet.sort((a, b) =>  a.index -b.index);
     }
 
     if (await canSkipApproval(request.site.domain, request.site.tabId)) {
@@ -174,7 +153,7 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
 
     for (const walletId of Object.keys(primaryWalletAccounts)) {
       const primaryWallet = primaryWallets.find(
-        (wallet) => wallet.id === walletId
+        (wallet) => wallet.id === walletId,
       );
 
       if (primaryWallet?.name) {
@@ -217,7 +196,7 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
     }>,
     _,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const { primary, imported } = pendingAction.displayData.accounts;

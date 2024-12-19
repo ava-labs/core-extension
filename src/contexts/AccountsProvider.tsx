@@ -22,6 +22,7 @@ import { AddAccountHandler } from '@src/background/services/accounts/handlers/ad
 import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { AvalancheDeleteAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_deleteAccounts';
 
 const AccountsContext = createContext<{
   accounts: Accounts;
@@ -125,8 +126,8 @@ export function AccountsContextProvider({ children }: { children: any }) {
 
   const deleteAccounts = useCallback(
     (ids: string[]) =>
-      request<DeleteAccountHandler>({
-        method: ExtensionRequest.ACCOUNT_DELETE,
+      request<AvalancheDeleteAccountsHandler>({
+        method: DAppProviderRequest.ACCOUNTS_DELETE,
         params: [ids],
       }),
     [request],

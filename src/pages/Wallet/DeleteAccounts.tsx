@@ -43,7 +43,7 @@ export function DeleteAccount() {
   }
 
   const primaryAccountsCount = Object.values(
-    action.displayData.accounts.primary
+    action.displayData.accounts.primary,
   ).flat().length;
 
   const accountsCount =
@@ -58,7 +58,7 @@ export function DeleteAccount() {
     type:
       | AccountType.IMPORTED
       | AccountType.WALLET_CONNECT
-      | AccountType.FIREBLOCKS
+      | AccountType.FIREBLOCKS,
   ) => {
     switch (type) {
       case AccountType.IMPORTED:
@@ -122,7 +122,7 @@ export function DeleteAccount() {
                       </Stack>
                     ))}
                   </Stack>
-                )
+                ),
               )}
 
             {!!action.displayData.accounts.imported.length && (
@@ -163,7 +163,7 @@ export function DeleteAccount() {
             sx={{ textAlign: 'center', mb: 2 }}
           >
             {t(
-              'Removing the account will delete all local account information stored on this computer. Your assets on chain will remain on chain.'
+              'Removing the account will delete all local account information stored on this computer. Your assets on chain will remain on chain.',
             )}
           </Typography>
         </Stack>
@@ -171,7 +171,7 @@ export function DeleteAccount() {
           <Button
             color="secondary"
             size="large"
-            data-testid="switch-account-reject-btn"
+            data-testid="delete-account-reject-btn"
             onClick={() => {
               cancelHandler();
               window.close();
@@ -181,7 +181,7 @@ export function DeleteAccount() {
             {t('Reject')}
           </Button>
           <Button
-            data-testid="switch-account-approve-btn"
+            data-testid="delete-account-approve-btn"
             size="large"
             color="primary"
             sx={{ color: 'error.main' }}
