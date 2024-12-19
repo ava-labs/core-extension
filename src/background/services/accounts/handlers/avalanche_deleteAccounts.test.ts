@@ -87,7 +87,9 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
       }
       return importedAccount;
     });
-    getPrimaryAccountsByWalletId.mockReturnValue( [primaryAccount, primaryAccount2]);
+    getPrimaryAccountsByWalletId.mockReturnValue([
+      primaryAccount, primaryAccount2
+    ]);
 
     getPrimaryWalletsDetails.mockResolvedValue([wallet]);
 
@@ -115,7 +117,7 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
           },
         },
       }),
-      'deleteAccounts'
+      'deleteAccounts',
     );
     expect(deleteAccounts).not.toHaveBeenCalled();
     expect(result).toEqual({ ...request, result: DEFERRED_RESPONSE });
@@ -215,7 +217,9 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
     jest.mocked(canSkipApproval).mockResolvedValueOnce(false);
 
     getAccountByID.mockReturnValue(primaryAccount);
-    getPrimaryAccountsByWalletId.mockReturnValue( [primaryAccount, primaryAccount2]);
+    getPrimaryAccountsByWalletId.mockReturnValue([
+      primaryAccount, primaryAccount2
+    ]);
 
     getPrimaryWalletsDetails.mockResolvedValue([wallet]);
 

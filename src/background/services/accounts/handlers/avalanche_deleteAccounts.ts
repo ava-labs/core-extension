@@ -1,5 +1,5 @@
-import { injectable } from 'tsyringe';
 import { ethErrors } from 'eth-rpc-errors';
+import { injectable } from 'tsyringe';
 
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import {
@@ -10,11 +10,11 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
 
-import { AccountsService } from '../AccountsService';
 import type { Action } from '../../actions/models';
+import { SecretsService } from '../../secrets/SecretsService';
+import { AccountsService } from '../AccountsService';
 import type { ImportedAccount, PrimaryAccount } from '../models';
 import { isPrimaryAccount } from '../utils/typeGuards';
-import { SecretsService } from '../../secrets/SecretsService';
 
 type PrimaryWalletAccounts = {
   [walletId: string]: PrimaryAccount[];
@@ -45,7 +45,7 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
   }
 
   handleAuthenticated = async (
-    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>,
   ) => {
     const { request, scope } = rpcCall;
     const [accountIds] = request.params;
@@ -94,9 +94,10 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
     for (const [walletId, accountsInWallet] of Object.entries(
       primaryWalletAccounts,
     )) {
-			//Sort in descending order by index
+      //Sort in descending order by index
       accountsInWallet.sort((a, b) => b.index - a.index);
-      const walletAccounts = this.accountsService.getPrimaryAccountsByWalletId(walletId);
+      const walletAccounts =
+        this.accountsService.getPrimaryAccountsByWalletId(walletId);
 			
       // This should not happen in normal cases. But need it to satisfy typescript
       if (!walletAccounts || !walletAccounts.length) {
@@ -124,8 +125,8 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
           };
         }
       }
-			//Sort in ascending order by index
-			accountsInWallet.sort((a, b) =>  a.index -b.index);
+      //Sort in ascending order by index
+      accountsInWallet.sort((a, b) =>  a.index -b.index);
     }
 
     if (await canSkipApproval(request.site.domain, request.site.tabId)) {
