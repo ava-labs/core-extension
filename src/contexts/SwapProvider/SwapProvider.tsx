@@ -411,7 +411,8 @@ export function SwapContextProvider({ children }: { children: any }) {
           (result as APIError).message === 'Server too busy' ||
           // paraswap returns responses like this: {error: 'Not enough 0x4f60a160d8c2dddaafe16fcc57566db84d674…}
           // when they are too slow to detect the approval
-          (result as any).error
+          (result as any).error ||
+          result instanceof Error
         );
       }
 
