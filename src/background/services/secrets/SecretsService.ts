@@ -39,10 +39,10 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { LedgerService } from '../ledger/LedgerService';
-import { NetworkService } from '../network/NetworkService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import EventEmitter from 'events';
 import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { AddressResolutionOptions } from '@src/background/models';
 
 /**
  * Use this service to fetch, save or delete account secrets.
@@ -554,7 +554,7 @@ export class SecretsService implements OnUnlock {
 
   async addImportedWallet(
     importData: ImportData,
-    networkService: NetworkService,
+    options: AddressResolutionOptions,
   ) {
     const id = crypto.randomUUID();
 
@@ -599,7 +599,7 @@ export class SecretsService implements OnUnlock {
     if (importData.importType === ImportType.PRIVATE_KEY) {
       const addresses = await this.#calculateAddressesForPrivateKey(
         importData.data,
-        networkService,
+        options,
       );
       return {
         account: {
@@ -615,7 +615,7 @@ export class SecretsService implements OnUnlock {
 
   async #calculateAddressesForPrivateKey(
     privateKey: string,
-    networkService: NetworkService,
+    { isMainnet, providerXP }: AddressResolutionOptions,
   ) {
     const addresses = {
       addressBTC: '',
@@ -625,18 +625,16 @@ export class SecretsService implements OnUnlock {
       addressCoreEth: '',
     };
 
-    const provXP = await networkService.getAvalanceProviderXP();
-
     try {
       const publicKey = getPublicKeyFromPrivateKey(privateKey);
       addresses.addressC = getEvmAddressFromPubKey(publicKey);
       addresses.addressBTC = getBtcAddressFromPubKey(
         publicKey,
-        networkService.isMainnet() ? networks.bitcoin : networks.testnet,
+        isMainnet ? networks.bitcoin : networks.testnet,
       );
-      addresses.addressAVM = provXP.getAddress(publicKey, 'X');
-      addresses.addressPVM = provXP.getAddress(publicKey, 'P');
-      addresses.addressCoreEth = provXP.getAddress(publicKey, 'C');
+      addresses.addressAVM = providerXP.getAddress(publicKey, 'X');
+      addresses.addressPVM = providerXP.getAddress(publicKey, 'P');
+      addresses.addressCoreEth = providerXP.getAddress(publicKey, 'C');
     } catch (_err) {
       throw new Error('Error while calculating addresses');
     }
@@ -658,12 +656,12 @@ export class SecretsService implements OnUnlock {
     index,
     walletId,
     ledgerService,
-    networkService,
+    options,
   }: {
     index: number;
     walletId: string;
     ledgerService: LedgerService;
-    networkService: NetworkService;
+    options: AddressResolutionOptions;
   }): Promise<Record<NetworkVMType, string>> {
     const secrets = await this.getWalletAccountsSecretsById(walletId);
 
@@ -717,7 +715,7 @@ export class SecretsService implements OnUnlock {
 
     if (secrets.secretType === SecretType.Seedless && !secrets.pubKeys[index]) {
       const wallet = new SeedlessWallet({
-        networkService,
+        addressResolutionOptions: options,
         sessionStorage: new SeedlessTokenStorage(this),
         addressPublicKey: secrets.pubKeys[0],
       });
@@ -733,13 +731,13 @@ export class SecretsService implements OnUnlock {
       );
     }
 
-    return this.getAddresses(index, walletId, networkService);
+    return this.getAddresses(index, walletId, options);
   }
 
   async getAddresses(
     index: number,
     walletId: string,
-    networkService: NetworkService,
+    { isMainnet, providerXP }: AddressResolutionOptions,
   ): Promise<Record<NetworkVMType, string> | never> {
     if (!walletId) {
       throw new Error('Wallet id not provided');
@@ -750,9 +748,6 @@ export class SecretsService implements OnUnlock {
     if (!secrets) {
       throw new Error('Wallet is not initialized');
     }
-
-    const isMainnet = networkService.isMainnet();
-    const providerXP = await networkService.getAvalanceProviderXP();
 
     if (
       secrets.secretType === SecretType.Ledger ||
@@ -825,7 +820,7 @@ export class SecretsService implements OnUnlock {
     throw new Error('No public key available');
   }
 
-  async getImportedAddresses(id: string, networkService: NetworkService) {
+  async getImportedAddresses(id: string, options: AddressResolutionOptions) {
     const secrets = await this.getImportedAccountSecrets(id);
 
     if (
@@ -836,10 +831,7 @@ export class SecretsService implements OnUnlock {
     }
 
     if (secrets.secretType === SecretType.PrivateKey) {
-      return this.#calculateAddressesForPrivateKey(
-        secrets.secret,
-        networkService,
-      );
+      return this.#calculateAddressesForPrivateKey(secrets.secret, options);
     }
 
     throw new Error('Unsupported import type');

@@ -1,3 +1,5 @@
+import type { Avalanche } from '@avalabs/core-wallets-sdk';
+
 export interface DomainMetadataRequest {
   method: 'avalanche_sendDomainMetadata';
   params: DomainMetadata;
@@ -80,3 +82,8 @@ export type Never<T> = {
 export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
 export const ACTION_HANDLED_BY_MODULE = '__handled.via.vm.modules__';
+
+export type AddressResolutionOptions = {
+  isMainnet: boolean;
+  providerXP: Avalanche.JsonRpcProvider;
+};
