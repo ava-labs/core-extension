@@ -19,7 +19,6 @@ import { GetAccountsHandler } from '@src/background/services/accounts/handlers/g
 import { SelectAccountHandler } from '@src/background/services/accounts/handlers/selectAccount';
 import { AvalancheRenameAccountHandler } from '@src/background/services/accounts/handlers/avalanche_renameAccount';
 import { AddAccountHandler } from '@src/background/services/accounts/handlers/addAccount';
-import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { AvalancheDeleteAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_deleteAccounts';
