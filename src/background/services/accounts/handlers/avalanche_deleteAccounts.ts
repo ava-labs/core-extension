@@ -98,7 +98,7 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
       accountsInWallet.sort((a, b) => b.index - a.index);
       const walletAccounts =
         this.accountsService.getPrimaryAccountsByWalletId(walletId);
-			
+
       // This should not happen in normal cases. But need it to satisfy typescript
       if (!walletAccounts || !walletAccounts.length) {
         return {
@@ -126,7 +126,7 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
         }
       }
       //Sort in ascending order by index
-      accountsInWallet.sort((a, b) =>  a.index -b.index);
+      accountsInWallet.sort((a, b) => a.index - b.index);
     }
 
     if (await canSkipApproval(request.site.domain, request.site.tabId)) {

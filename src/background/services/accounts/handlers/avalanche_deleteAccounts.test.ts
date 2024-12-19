@@ -88,7 +88,8 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
       return importedAccount;
     });
     getPrimaryAccountsByWalletId.mockReturnValue([
-      primaryAccount, primaryAccount2
+      primaryAccount,
+			primaryAccount2,
     ]);
 
     getPrimaryWalletsDetails.mockResolvedValue([wallet]);
@@ -132,7 +133,7 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
     jest.mocked(canSkipApproval).mockResolvedValueOnce(true);
 
     getAccountByID.mockReturnValueOnce(primaryAccount);
-		getPrimaryAccountsByWalletId.mockReturnValue([primaryAccount]);
+    getPrimaryAccountsByWalletId.mockReturnValue([primaryAccount]);
 
     getPrimaryWalletsDetails.mockResolvedValue([wallet]);
     const request = {
@@ -218,7 +219,8 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
 
     getAccountByID.mockReturnValue(primaryAccount);
     getPrimaryAccountsByWalletId.mockReturnValue([
-      primaryAccount, primaryAccount2
+      primaryAccount,
+			primaryAccount2,
     ]);
 
     getPrimaryWalletsDetails.mockResolvedValue([wallet]);
