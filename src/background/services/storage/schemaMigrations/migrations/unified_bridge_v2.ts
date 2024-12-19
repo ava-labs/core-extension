@@ -5,14 +5,14 @@ const VERSION = 2;
 // Schemas & types below only list the relevant properties
 // that actually changed. The rest is untouched & untyped.
 type LegacyBridgeTransfer = {
-  amountDecimals: number;
+  amountDecimals?: number; // the very first version of the SDK did not have it
   symbol: string;
   sourceChain: {
     chainId: string;
   };
   requiredSourceConfirmationCount: number;
   requiredTargetConfirmationCount: number;
-  startBlockNumber?: number;
+  startBlockNumber?: number | bigint; // Even though types say it's always a bigint, I've seen it as a number in my storage.
 };
 
 type NewBridgeTransfer = {
@@ -25,12 +25,13 @@ type NewBridgeTransfer = {
   };
   sourceRequiredConfirmationCount: number;
   targetRequiredConfirmationCount: number;
-  targetStartBlockNumber?: number;
+  targetStartBlockNumber?: bigint;
 };
 
 type PreviousSchema = {
   pendingTransfers?: Record<string, LegacyBridgeTransfer>;
   addresses?: string[];
+  version?: number;
 };
 
 type NewSchema = {
@@ -54,16 +55,16 @@ const previousSchema = Joi.object<PreviousSchema>({
           typeof value !== 'undefined'
         ) {
           return new Error(
-            `Expected bigint or number, received ${typeof value}`
+            `Expected bigint or number, received ${typeof value}`,
           );
         }
 
         return value;
       }, 'bigint'),
       sourceChain: Joi.object({ chainId: Joi.string() }).unknown(true),
-    }).unknown(true)
+    }).unknown(true),
   ),
-});
+}).unknown(true);
 
 const getUsdcAddressByChainId = (caipId: string) => {
   switch (caipId) {
@@ -82,7 +83,7 @@ const getUsdcAddressByChainId = (caipId: string) => {
 };
 
 const up = async (
-  unifiedBridgeState: PreviousSchema
+  unifiedBridgeState: PreviousSchema,
 ): Promise<NewSchema & { version: number }> => {
   const { pendingTransfers: oldTransfers } = unifiedBridgeState;
 
@@ -102,8 +103,8 @@ const up = async (
       newTransfers[id] = {
         ...rest,
         asset: {
-          // Prior to this schema upgrad, only USDC was possible to bridge (via CCTP)
-          decimals: amountDecimals,
+          // Prior to this schema upgrade, only USDC was possible to bridge (via CCTP)
+          decimals: amountDecimals ?? 6,
           symbol,
           type: 'erc20',
           name: 'USD Coin',
@@ -111,7 +112,10 @@ const up = async (
         },
         sourceRequiredConfirmationCount: requiredSourceConfirmationCount,
         targetRequiredConfirmationCount: requiredTargetConfirmationCount,
-        targetStartBlockNumber: startBlockNumber,
+        targetStartBlockNumber:
+          typeof startBlockNumber !== 'undefined'
+            ? BigInt(startBlockNumber)
+            : undefined,
       };
     }
   }

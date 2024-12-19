@@ -57,7 +57,7 @@ export const caipToChainId = (identifier: string): number => {
 
   if (namespace === CaipNamespace.BIP122) {
     const chainId = Object.keys(BitcoinCaipId).find(
-      (chainIdLookup) => BitcoinCaipId[chainIdLookup] === identifier
+      (chainIdLookup) => BitcoinCaipId[chainIdLookup] === identifier,
     );
 
     if (!chainId) {
@@ -69,7 +69,7 @@ export const caipToChainId = (identifier: string): number => {
 
   if (namespace === CaipNamespace.AVAX) {
     const chainId = Object.keys(AvaxCaipId).find(
-      (chainIdLookup) => AvaxCaipId[chainIdLookup] === identifier
+      (chainIdLookup) => AvaxCaipId[chainIdLookup] === identifier,
     );
 
     if (!chainId) {
@@ -87,8 +87,11 @@ export const chainIdToCaip = (chainId: number): string => {
 };
 
 export const decorateWithCaipId = (
-  network: Network
+  network: Network,
 ): EnsureDefined<Network, 'caipId'> => ({
   ...network,
   caipId: getNetworkCaipId(network),
 });
+
+export const isBitcoinCaipId = (caipId: string) =>
+  Object.values(BitcoinCaipId).includes(caipId);

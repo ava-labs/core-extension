@@ -2,12 +2,14 @@ import { singleton } from 'tsyringe';
 import {
   AnalyzeTxParams,
   AnalyzeTxResult,
+  BridgeInitializer,
   BridgeTransfer,
   BridgeType,
   createUnifiedBridgeService,
   Environment,
   getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
+import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { wait } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
 
@@ -32,6 +34,7 @@ import {
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { getEnabledBridgeTypes } from '@src/utils/getEnabledBridgeTypes';
 
 @singleton()
 export class UnifiedBridgeService implements OnStorageReady {
@@ -50,10 +53,10 @@ export class UnifiedBridgeService implements OnStorageReady {
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
-    private featureFlagService: FeatureFlagService
+    private featureFlagService: FeatureFlagService,
   ) {
     this.#flagStates = this.#getTrackedFlags(
-      this.featureFlagService.featureFlags
+      this.featureFlagService.featureFlags,
     );
     this.#recreateService();
 
@@ -73,22 +76,22 @@ export class UnifiedBridgeService implements OnStorageReady {
           this.#flagStates = newFlags;
           this.#recreateService();
         }
-      }
+      },
     );
   }
 
   #getTrackedFlags(flags: FeatureFlags): Partial<FeatureFlags> {
     return Object.fromEntries(
       Object.entries(flags).filter(([flag]) =>
-        UNIFIED_BRIDGE_TRACKED_FLAGS.includes(flag as FeatureGates)
-      )
+        UNIFIED_BRIDGE_TRACKED_FLAGS.includes(flag as FeatureGates),
+      ),
     );
   }
 
   async onStorageReady() {
     const state =
       (await this.storageService.load<UnifiedBridgeState>(
-        UNIFIED_BRIDGE_STATE_STORAGE_KEY
+        UNIFIED_BRIDGE_STATE_STORAGE_KEY,
       )) ?? UNIFIED_BRIDGE_DEFAULT_STATE;
 
     this.#saveState(state);
@@ -110,16 +113,49 @@ export class UnifiedBridgeService implements OnStorageReady {
       });
   }
 
-  #getDisabledBridges(): BridgeType[] {
-    const bridges: BridgeType[] = [
-      BridgeType.ICTT_ERC20_ERC20,
-      BridgeType.AVALANCHE_EVM,
-    ];
+  #getBridgeInitializers(
+    bitcoinProvider: BitcoinProvider,
+  ): BridgeInitializer[] {
+    return getEnabledBridgeTypes(this.#flagStates).map((type) =>
+      this.#getInitializerForBridgeType(type, bitcoinProvider),
+    );
+  }
 
-    if (!this.#flagStates[FeatureGates.UNIFIED_BRIDGE_CCTP]) {
-      bridges.push(BridgeType.CCTP);
+  #getInitializerForBridgeType(
+    type: BridgeType,
+    bitcoinProvider: BitcoinProvider,
+  ): BridgeInitializer {
+    // This backend service is only used for transaction tracking purposes,
+    // therefore we don't need to provide true signing capabilities.
+    const dummySigner = {
+      async sign() {
+        return '0x' as const;
+      },
+    };
+
+    switch (type) {
+      case BridgeType.CCTP:
+      case BridgeType.ICTT_ERC20_ERC20:
+      case BridgeType.AVALANCHE_EVM:
+        return {
+          type,
+          signer: dummySigner,
+        };
+
+      case BridgeType.AVALANCHE_AVA_BTC:
+        return {
+          type,
+          signer: dummySigner,
+          bitcoinFunctions: bitcoinProvider,
+        };
+
+      case BridgeType.AVALANCHE_BTC_AVA:
+        return {
+          type,
+          signer: dummySigner,
+          bitcoinFunctions: bitcoinProvider,
+        };
     }
-    return bridges;
   }
 
   async #recreateService() {
@@ -128,11 +164,13 @@ export class UnifiedBridgeService implements OnStorageReady {
       : Environment.TEST;
 
     try {
+      const bitcoinProvider = await this.networkService.getBitcoinProvider();
+
       this.#core = createUnifiedBridgeService({
         environment,
         enabledBridgeServices: await getEnabledBridgeServices(
           environment,
-          this.#getDisabledBridges()
+          this.#getBridgeInitializers(bitcoinProvider),
         ),
       });
       this.#failedInitAttempts = 0;
@@ -151,7 +189,7 @@ export class UnifiedBridgeService implements OnStorageReady {
       console.log(
         `Initialization of UnifiedBridgeService failed, attempt #${
           this.#failedInitAttempts
-        }. Retry in ${delay / 1000}s`
+        }. Retry in ${delay / 1000}s`,
       );
 
       await wait(delay);
@@ -179,9 +217,9 @@ export class UnifiedBridgeService implements OnStorageReady {
       // Just log that this happened. This is edge-casey, but technically possible.
       sentryCaptureException(
         new Error(
-          `UnifiedBridge - tracking attempted with no service insantiated.`
+          `UnifiedBridge - tracking attempted with no service insantiated.`,
         ),
-        SentryExceptionTypes.UNIFIED_BRIDGE
+        SentryExceptionTypes.UNIFIED_BRIDGE,
       );
       return;
     }
@@ -194,7 +232,7 @@ export class UnifiedBridgeService implements OnStorageReady {
     });
 
     result.then((completedTransfer) =>
-      this.updatePendingTransfer(completedTransfer)
+      this.updatePendingTransfer(completedTransfer),
     );
   }
 
@@ -208,7 +246,7 @@ export class UnifiedBridgeService implements OnStorageReady {
     if (transfer.errorCode) {
       sentryCaptureException(
         new Error(`Bridge unsucessful. Error code: ${transfer.errorCode}`),
-        SentryExceptionTypes.UNIFIED_BRIDGE
+        SentryExceptionTypes.UNIFIED_BRIDGE,
       );
     }
 
@@ -228,7 +266,7 @@ export class UnifiedBridgeService implements OnStorageReady {
     try {
       await this.storageService.save(
         UNIFIED_BRIDGE_STATE_STORAGE_KEY,
-        newState
+        newState,
       );
     } catch {
       // May be called before extension is unlocked. Ignore.

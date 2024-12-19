@@ -62,7 +62,7 @@ export function TokenSpendLimit({
         setCustomSpendLimit(customSpendData);
         limitAmount =
           customSpendData.limitType === Limit.CUSTOM
-            ? customSpendData.value ?? 0n
+            ? (customSpendData.value ?? 0n)
             : BigInt(approval.value ?? 0n);
       }
       request<UpdateActionTxDataHandler>({
@@ -70,7 +70,7 @@ export function TokenSpendLimit({
         params: [actionId, { approvalLimit: `0x${limitAmount.toString(16)}` }],
       });
     },
-    [actionId, request, approval.value]
+    [actionId, request, approval.value],
   );
 
   const isInfinite = customSpendLimit.limitType === Limit.UNLIMITED;
@@ -80,10 +80,10 @@ export function TokenSpendLimit({
         customSpendLimit.limitType === Limit.DEFAULT
           ? typeof approval.value === 'string'
             ? BigInt(approval.value)
-            : 0n
-          : customSpendLimit.value ?? '0',
+            : (approval.value ?? 0n)
+          : (customSpendLimit.value ?? '0'),
         approval.token.decimals,
-        ''
+        '',
       );
 
   return (

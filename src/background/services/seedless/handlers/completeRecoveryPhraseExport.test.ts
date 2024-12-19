@@ -37,14 +37,14 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
       secretsService,
       networkService,
       mfaService,
-      accountsService
+      accountsService,
     );
 
     return handler.handle(
       buildRpcCall({
         method: ExtensionRequest.SEEDLESS_COMPLETE_RECOVERY_PHRASE_EXPORT,
         id: 'abcd-1234',
-      })
+      }),
     );
   };
 
@@ -79,7 +79,7 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
       const result = await handle();
 
       expect(result.error).toEqual(
-        'Action only available for seedless wallets'
+        'Action only available for seedless wallets',
       );
     });
   });
@@ -92,7 +92,7 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
 
     expect(sentryCaptureException).toHaveBeenCalledWith(
       err,
-      SentryExceptionTypes.SEEDLESS
+      SentryExceptionTypes.SEEDLESS,
     );
     expect(result.error).toEqual('Failed to generate the encryption key pair');
   });
@@ -109,10 +109,10 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
 
     expect(sentryCaptureException).toHaveBeenCalledWith(
       err,
-      SentryExceptionTypes.SEEDLESS
+      SentryExceptionTypes.SEEDLESS,
     );
     expect(result.error).toEqual(
-      'Failed to complete the recovery phrase export'
+      'Failed to complete the recovery phrase export',
     );
   });
 
@@ -131,7 +131,7 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
 
     expect(sentryCaptureException).toHaveBeenCalledWith(
       err,
-      SentryExceptionTypes.SEEDLESS
+      SentryExceptionTypes.SEEDLESS,
     );
     expect(result.error).toEqual('Failed to decrypt the recovery phrase');
   });
@@ -149,10 +149,10 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
 
     expect(sentryCaptureException).toHaveBeenCalledWith(
       new Error('Export decrypted, but has no mnemonic'),
-      SentryExceptionTypes.SEEDLESS
+      SentryExceptionTypes.SEEDLESS,
     );
     expect(result.error).toEqual(
-      'Unexpected error occured while decrypting the recovery phrase'
+      'Unexpected error occured while decrypting the recovery phrase',
     );
   });
 

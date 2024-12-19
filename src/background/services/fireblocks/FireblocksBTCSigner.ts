@@ -35,7 +35,7 @@ export class FireblocksBTCSigner {
   constructor(
     fireblocksService: FireblocksService,
     vaultAccountId: string,
-    isTestnet?: boolean
+    isTestnet?: boolean,
   ) {
     this.#isTestnet = isTestnet;
     this.#vaultAccountId = vaultAccountId;
@@ -44,7 +44,7 @@ export class FireblocksBTCSigner {
 
   async signTx(
     inputs: BtcTransactionRequest['inputs'],
-    outputs: BtcTransactionRequest['outputs']
+    outputs: BtcTransactionRequest['outputs'],
   ): Promise<SigningResult> {
     /**
      * TODO: Do we need to handle mutliple inputs? Fireblocks has a way of selecting
@@ -111,8 +111,8 @@ export class FireblocksBTCSigner {
         wrapError(
           ethErrors.rpc.internal({
             data: { reason: FireblocksErrorCode.Unknown },
-          })
-        )
+          }),
+        ),
       );
 
     // TODO: Emit an event containing a transaction ID, so we can start
@@ -132,7 +132,7 @@ export class FireblocksBTCSigner {
    * TODO: emit success/failure events to finalize the transaction tracking.
    */
   async #waitForTransaction(
-    txId: string
+    txId: string,
   ): Promise<TransactionResponse | never> {
     let continuePolling = true;
     let tx: TransactionResponse;
@@ -190,12 +190,10 @@ export class FireblocksBTCSigner {
 
   async #getDestinations(
     outputs: BtcTransactionRequest['outputs'],
-    txAssetId: string
+    txAssetId: string,
   ): Promise<TransactionDestination[]> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const knownAddresses = await this.#client.getAllKnownAddressesForAsset(
-      txAssetId
-    );
+    const knownAddresses =
+      await this.#client.getAllKnownAddressesForAsset(txAssetId);
 
     // When there are multiple outputs, the last seems to always be the "rest".
     // Unfortunately, we can't have that rest UTXO here, as Fireblocks "wants to"
@@ -225,7 +223,7 @@ export class FireblocksBTCSigner {
             },
           },
         };
-      }
+      },
     );
   }
 

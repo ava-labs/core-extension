@@ -146,7 +146,7 @@ const FundsRecipientInfo = ({ item }: { item: FundsRecipientItem }) => {
             }}
           >
             {currencyFormatter(
-              tokenPrice * token.toDisplay({ asNumber: true })
+              tokenPrice * token.toDisplay({ asNumber: true }),
             )}
           </Typography>
         ) : null}
@@ -182,7 +182,7 @@ const CurrencyInfo = ({ item }: { item: CurrencyItem }) => {
             }}
           >
             {currencyFormatter(
-              tokenPrice * token.toDisplay({ asNumber: true })
+              tokenPrice * token.toDisplay({ asNumber: true }),
             )}
           </Typography>
         ) : null}

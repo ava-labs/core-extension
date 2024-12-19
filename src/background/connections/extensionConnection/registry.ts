@@ -129,6 +129,7 @@ import { StopBalancesPollingHandler } from '@src/background/services/balances/ha
 import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
+import { GetTotalBalanceForWalletHandler } from '@src/background/services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -372,6 +373,10 @@ import { UpdateActionTxDataHandler } from '@src/background/services/actions/hand
   {
     token: 'ExtensionRequestHandler',
     useToken: StopBalancesPollingHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetTotalBalanceForWalletHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

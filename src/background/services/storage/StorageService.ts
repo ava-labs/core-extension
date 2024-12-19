@@ -34,12 +34,12 @@ export class StorageService implements OnLock {
     try {
       const keyData = await this.load<WalletStorageEncryptionKeyData>(
         WALLET_STORAGE_ENCRYPTION_KEY,
-        password
+        password,
       );
       this._storageKey = keyData?.storageKey;
 
       this.callbackManager.onStorageReady();
-    } catch (err) {
+    } catch (_err) {
       return Promise.reject(new Error('password incorrect'));
     }
   }
@@ -54,7 +54,7 @@ export class StorageService implements OnLock {
       // double check that the old password is correct
       const key = await this.load<WalletStorageEncryptionKeyData>(
         WALLET_STORAGE_ENCRYPTION_KEY,
-        oldPassword
+        oldPassword,
       );
 
       if (!key) {
@@ -64,9 +64,9 @@ export class StorageService implements OnLock {
       await this.save<WalletStorageEncryptionKeyData>(
         WALLET_STORAGE_ENCRYPTION_KEY,
         key,
-        newPassword
+        newPassword,
       );
-    } catch (err) {
+    } catch (_err) {
       return Promise.reject(new Error('password incorrect'));
     }
   }
@@ -75,7 +75,7 @@ export class StorageService implements OnLock {
     const storageKey = Buffer.from(
       // generate cryptographically strong random values
       // https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
-      crypto.getRandomValues(new Uint8Array(32))
+      crypto.getRandomValues(new Uint8Array(32)),
     ).toString('hex');
 
     await this.save<WalletStorageEncryptionKeyData>(
@@ -83,7 +83,7 @@ export class StorageService implements OnLock {
       {
         storageKey,
       },
-      password
+      password,
     );
     this._storageKey = storageKey;
     this.callbackManager.onStorageReady();
@@ -125,7 +125,7 @@ export class StorageService implements OnLock {
 
   async load<T>(
     key: string,
-    customEncryptionKey?: string
+    customEncryptionKey?: string,
   ): Promise<T | undefined> {
     const result = await browser.storage.local.get(key);
 
@@ -171,7 +171,7 @@ export class StorageService implements OnLock {
 
     if (deserializedData) {
       return migrateToLatest<T>(key, deserializedData, (migratedData) =>
-        this.save<T>(key, migratedData, customEncryptionKey)
+        this.save<T>(key, migratedData, customEncryptionKey),
       );
     }
 

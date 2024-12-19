@@ -42,7 +42,7 @@ export const TxBalanceChange = ({
         tooltip={
           showNoPreExecWarning
             ? t(
-                'Transaction pre-exution is unavailable. The displayed token list might be incomplete.'
+                'Transaction pre-exution is unavailable. The displayed token list might be incomplete.',
               )
             : ''
         }
@@ -76,7 +76,7 @@ export const TxBalanceChange = ({
                 diffItems={items}
                 variant={TransactionTokenCardVariant.SEND}
               />
-            )
+            ),
           )}
           {ins.map(({ token, items }) =>
             items.length === 1 ? (
@@ -98,7 +98,7 @@ export const TxBalanceChange = ({
                 diffItems={items}
                 variant={TransactionTokenCardVariant.RECEIVE}
               />
-            )
+            ),
           )}
 
           {showNoDataWarning && (

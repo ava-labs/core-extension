@@ -49,7 +49,7 @@ jest.mock('@src/utils/network/getProviderForNetwork');
 
 describe('src/background/services/seedless/SeedlessWallet', () => {
   const sessionStorage = jest.mocked<SeedlessTokenStorage>(
-    new SeedlessTokenStorage({} as any)
+    new SeedlessTokenStorage({} as any),
   );
   const sessionManager = jest.mocked<SeedlessSessionManager>({
     notifyTokenExpired: jest.fn(),
@@ -137,7 +137,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.getPublicKeys()).rejects.toThrow(
-          'Accounts not created'
+          'Accounts not created',
         );
       });
     });
@@ -156,7 +156,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.getPublicKeys()).rejects.toThrow(
-          'Accounts keys missing'
+          'Accounts keys missing',
         );
       });
     });
@@ -255,7 +255,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.signTransaction({} as any)).rejects.toThrow(
-          'Public key not available'
+          'Public key not available',
         );
       });
     });
@@ -273,7 +273,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.signTransaction({} as any)).rejects.toThrow(
-          'Unknown network'
+          'Unknown network',
         );
       });
     });
@@ -293,7 +293,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.signTransaction({} as any)).rejects.toThrow(
-          'Wrong provider obtained for EVM transaction'
+          'Wrong provider obtained for EVM transaction',
         );
       });
     });
@@ -340,7 +340,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         expect(signerConstructorSpy).toHaveBeenCalledWith(
           getEvmAddressFromPubKey(Buffer.from(evmKey.publicKey, 'hex')),
           expect.anything(),
-          expect.anything()
+          expect.anything(),
         );
       });
 
@@ -365,7 +365,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
         it('raises an error', async () => {
           await expect(wallet.signTransaction({} as any)).rejects.toThrow(
-            new Error('Some API error')
+            new Error('Some API error'),
           );
         });
       });
@@ -398,7 +398,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.signAvalancheTx({} as any)).rejects.toThrow(
-          'Public key not available'
+          'Public key not available',
         );
       });
     });
@@ -443,7 +443,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
         expect(session.signBlob).toHaveBeenCalledWith(
           evmKey.key_id,
-          expect.anything()
+          expect.anything(),
         );
       });
 
@@ -454,7 +454,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           expect.anything(),
           expect.objectContaining({
             message_base64: 'CLteXW6qwQSe3giT0w7QIrGk2bW0jbQUhx9Rycs1KD0=',
-          })
+          }),
         );
       });
 
@@ -462,13 +462,13 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         await wallet.signAvalancheTx(txRequest as any);
 
         expect(txRequest.tx.addSignature).toHaveBeenCalledWith(
-          utils.hexToBuffer(signature)
+          utils.hexToBuffer(signature),
         );
       });
 
       it('returns the signed transaction', async () => {
         expect(await wallet.signAvalancheTx(txRequest as any)).toEqual(
-          txRequest.tx
+          txRequest.tx,
         );
       });
     });
@@ -514,7 +514,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
           expect(session.signBlob).toHaveBeenCalledWith(
             avaTestKey.key_id,
-            expect.anything()
+            expect.anything(),
           );
         });
       });
@@ -541,7 +541,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
           expect(session.signBlob).toHaveBeenCalledWith(
             avaKey.key_id,
-            expect.anything()
+            expect.anything(),
           );
         });
       });
@@ -553,7 +553,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           expect.anything(),
           expect.objectContaining({
             message_base64: 'CLteXW6qwQSe3giT0w7QIrGk2bW0jbQUhx9Rycs1KD0=',
-          })
+          }),
         );
       });
 
@@ -561,13 +561,13 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         await wallet.signAvalancheTx(txRequest as any);
 
         expect(txRequest.tx.addSignature).toHaveBeenCalledWith(
-          utils.hexToBuffer(signature)
+          utils.hexToBuffer(signature),
         );
       });
 
       it('returns the signed transaction', async () => {
         expect(await wallet.signAvalancheTx(txRequest as any)).toEqual(
-          txRequest.tx
+          txRequest.tx,
         );
       });
     });
@@ -582,7 +582,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         from: '',
         data: {},
         ...payload,
-      } as any);
+      }) as any;
 
     beforeEach(() => {
       session = {
@@ -606,7 +606,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(
-          wallet.signMessage(MessageType.ETH_SIGN, getMessage())
+          wallet.signMessage(MessageType.ETH_SIGN, getMessage()),
         ).rejects.toThrow('Public key not available');
       });
     });
@@ -622,7 +622,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(
-          wallet.signMessage(MessageType.ETH_SIGN, getMessage())
+          wallet.signMessage(MessageType.ETH_SIGN, getMessage()),
         ).rejects.toThrow('Network not available');
       });
     });
@@ -679,14 +679,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           type: MessageType.ETH_SIGN,
           msg: ethSignMsg,
           payload: base64encode(
-            hashMessage(Uint8Array.from(Buffer.from('4243', 'hex')))
+            hashMessage(Uint8Array.from(Buffer.from('4243', 'hex'))),
           ),
         },
         {
           type: MessageType.PERSONAL_SIGN,
           msg: ethSignMsg,
           payload: base64encode(
-            hashMessage(Uint8Array.from(Buffer.from('4243', 'hex')))
+            hashMessage(Uint8Array.from(Buffer.from('4243', 'hex'))),
           ),
         },
         {
@@ -706,9 +706,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             Uint8Array.from(
               TypedDataUtils.eip712Hash(
                 typedDataV3Msg.data,
-                SignTypedDataVersion.V3
-              )
-            )
+                SignTypedDataVersion.V3,
+              ),
+            ),
           ),
         },
         {
@@ -718,9 +718,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             Uint8Array.from(
               TypedDataUtils.eip712Hash(
                 typedDataV3Msg.data,
-                SignTypedDataVersion.V4
-              )
-            )
+                SignTypedDataVersion.V4,
+              ),
+            ),
           ),
         },
       ])(
@@ -731,12 +731,12 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           expect(session.signBlob).toHaveBeenCalledWith(evmKey.key_id, {
             message_base64: payload,
           });
-        }
+        },
       );
 
       it('raises an error for unknown message types', async () => {
         await expect(
-          wallet.signMessage('Some unknown type' as MessageType, {} as any)
+          wallet.signMessage('Some unknown type' as MessageType, {} as any),
         ).rejects.toThrow('Unknown message type');
       });
     });
@@ -769,7 +769,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         });
 
         await expect(
-          wallet.signMessage(MessageType.AVALANCHE_SIGN, getMessage())
+          wallet.signMessage(MessageType.AVALANCHE_SIGN, getMessage()),
         ).rejects.toThrow('X/P public key not available');
       });
 
@@ -791,7 +791,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           expect.anything(),
           expect.objectContaining({
             message_base64: encodedData.toString('base64'),
-          })
+          }),
         );
       });
     });
@@ -817,8 +817,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       expect(
         await wallet.signMessage(
           MessageType.ETH_SIGN,
-          getMessage({ data: '0x1234' })
-        )
+          getMessage({ data: '0x1234' }),
+        ),
       ).toEqual('dummy-signature');
     });
   });
@@ -850,7 +850,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     it('raises an error for invalid account index', async () => {
       await expect(wallet.addAccount(-1)).rejects.toThrow(
-        /Account index must be greater than or equal to 1/
+        /Account index must be greater than or equal to 1/,
       );
     });
 
@@ -861,7 +861,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.addAccount(1)).rejects.toThrow(
-          /Core Seedless API is unreachable/
+          /Core Seedless API is unreachable/,
         );
       });
     });
@@ -880,7 +880,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.addAccount(1)).rejects.toThrow(
-          /Cannot establish the mnemonic id/
+          /Cannot establish the mnemonic id/,
         );
       });
     });
@@ -898,7 +898,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify({ accountIndex, identityProof, mnemonicId }),
-        })
+        }),
       );
     });
 
@@ -912,7 +912,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       it('raises an error', async () => {
         session.proveIdentity.mockResolvedValue({} as any);
         await expect(wallet.addAccount(1)).rejects.toThrow(
-          /Adding new account failed/
+          /Adding new account failed/,
         );
       });
     });
@@ -935,7 +935,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         Object.assign(psbt, {
           txInputs: ins,
           txOutputs: outs,
-        })
+        }),
       );
 
       return psbt;
@@ -963,7 +963,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.signTx([], [])).rejects.toThrow(
-          'Invalid network: Attempting to sign BTC transaction on non Bitcoin network'
+          'Invalid network: Attempting to sign BTC transaction on non Bitcoin network',
         );
       });
     });
@@ -981,7 +981,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.signTx([], [])).rejects.toThrow(
-          'Invalid network: Attempting to sign BTC transaction on non Bitcoin network'
+          'Invalid network: Attempting to sign BTC transaction on non Bitcoin network',
         );
       });
     });
@@ -1001,7 +1001,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.signTx([], [])).rejects.toThrow(
-          'Wrong provider obtained for BTC transaction'
+          'Wrong provider obtained for BTC transaction',
         );
       });
     });
@@ -1023,7 +1023,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.signTx([1] as any, [])).rejects.toThrow(
-          'Public key not available'
+          'Public key not available',
         );
       });
     });
@@ -1076,7 +1076,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             i,
             inputs,
             networks.bitcoin,
-            session
+            session,
           );
         });
       });
@@ -1092,7 +1092,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           expect(psbt.signInputAsync).toHaveBeenNthCalledWith(
             i + 1,
             i,
-            expect.any(SeedlessBtcSigner)
+            expect.any(SeedlessBtcSigner),
           );
         });
       });
@@ -1211,10 +1211,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
         it('cancels the initiated export & throws an error', async () => {
           await expect(wallet.initMnemonicExport()).rejects.toEqual(
-            new Error('Expected MFA to be required')
+            new Error('Expected MFA to be required'),
           );
           expect(session.userExportDelete).toHaveBeenCalledWith(
-            expect.any(String)
+            expect.any(String),
           );
         });
       });
@@ -1248,7 +1248,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             expect(mfaService.approveWithMfa).toHaveBeenCalledWith(
               MfaRequestType.Fido,
               originalRequest,
-              123
+              123,
             );
           });
         });
@@ -1266,7 +1266,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             expect(mfaService.approveWithMfa).toHaveBeenCalledWith(
               MfaRequestType.Totp,
               originalRequest,
-              123
+              123,
             );
           });
         });

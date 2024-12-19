@@ -1,5 +1,6 @@
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
 import { useCallback, useState } from 'react';
+import { BridgeOptions } from '../models';
 
 export const useBridgeTxHandling = ({
   transfer,
@@ -8,7 +9,7 @@ export const useBridgeTxHandling = ({
   onFailure,
   onRejected,
 }: {
-  transfer: () => Promise<string>;
+  transfer: (options: BridgeOptions) => Promise<string>;
   onInitiated: () => void;
   onSuccess: (txHash: string) => void;
   onFailure: (error: unknown) => void;
@@ -16,32 +17,35 @@ export const useBridgeTxHandling = ({
 }) => {
   const [isPending, setIsPending] = useState(false);
 
-  const onTransfer = useCallback(async () => {
-    setIsPending(true);
+  const onTransfer = useCallback(
+    async (options: BridgeOptions) => {
+      setIsPending(true);
 
-    try {
-      onInitiated();
+      try {
+        onInitiated();
 
-      const {
-        isApproved,
-        hasError,
-        result: txHash,
-        error: txError,
-      } = await handleTxOutcome(transfer());
+        const {
+          isApproved,
+          hasError,
+          result: txHash,
+          error: txError,
+        } = await handleTxOutcome(transfer(options));
 
-      if (isApproved) {
-        if (hasError) {
-          onFailure(txError);
+        if (isApproved) {
+          if (hasError) {
+            onFailure(txError);
+          } else {
+            onSuccess(txHash);
+          }
         } else {
-          onSuccess(txHash);
+          onRejected();
         }
-      } else {
-        onRejected();
+      } finally {
+        setIsPending(false);
       }
-    } finally {
-      setIsPending(false);
-    }
-  }, [onInitiated, onRejected, onFailure, onSuccess, transfer]);
+    },
+    [onInitiated, onRejected, onFailure, onSuccess, transfer],
+  );
 
   return { onTransfer, isPending };
 };

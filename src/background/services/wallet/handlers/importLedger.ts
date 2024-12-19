@@ -24,7 +24,7 @@ export class ImportLedgerHandler implements HandlerType {
   constructor(
     private walletService: WalletService,
     private accountsService: AccountsService,
-    private secretsService: SecretsService
+    private secretsService: SecretsService,
   ) {}
 
   async #addAccounts(walletId: string, numberOfAccounts: number = 3) {
@@ -39,7 +39,8 @@ export class ImportLedgerHandler implements HandlerType {
   }
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [{ xpub, xpubXP, pubKeys, secretType, name }] = request.params;
+    const [{ xpub, xpubXP, pubKeys, secretType, name, dryRun }] =
+      request.params;
 
     if (
       secretType !== SecretType.Ledger &&
@@ -65,6 +66,17 @@ export class ImportLedgerHandler implements HandlerType {
       return {
         ...request,
         error: `This wallet already exists`,
+      };
+    }
+
+    if (dryRun) {
+      return {
+        ...request,
+        result: {
+          id: '0',
+          name,
+          type: secretType,
+        },
       };
     }
 
@@ -97,9 +109,8 @@ export class ImportLedgerHandler implements HandlerType {
       secretType === SecretType.LedgerLive ? pubKeys?.length : undefined;
 
     await this.#addAccounts(id, numberOfAccountsToCreate);
-    const addedWallet = await this.secretsService.getWalletAccountsSecretsById(
-      id
-    );
+    const addedWallet =
+      await this.secretsService.getWalletAccountsSecretsById(id);
     return {
       ...request,
       result: {

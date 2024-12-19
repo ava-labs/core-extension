@@ -18,7 +18,7 @@ import { isEthereumNetwork } from '@src/background/services/network/utils/isEthe
 export function useLedgerDisconnectedDialog(
   onCancel: () => void,
   requestedApp?: LedgerAppType,
-  otherNetwork?: Network
+  otherNetwork?: Network,
 ): boolean {
   const { t } = useTranslation();
   const { hasLedgerTransport, wasTransportAttempted, appType, avaxAppVersion } =

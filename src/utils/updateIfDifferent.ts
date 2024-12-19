@@ -1,11 +1,8 @@
 import { isEqual } from 'lodash';
 import type { Dispatch, SetStateAction } from 'react';
 
-type ExtractTypeFromStateSetter<Type> = Type extends Dispatch<
-  SetStateAction<infer T>
->
-  ? { StateType: T }
-  : never;
+type ExtractTypeFromStateSetter<Type> =
+  Type extends Dispatch<SetStateAction<infer T>> ? { StateType: T } : never;
 
 /**
  * @param newValue New value being proposed to the state setter
@@ -14,10 +11,10 @@ type ExtractTypeFromStateSetter<Type> = Type extends Dispatch<
  * 					Use it to prevent unnecessary re-renders.
  */
 export function updateIfDifferent<
-  StateSetter extends Dispatch<SetStateAction<any>>
+  StateSetter extends Dispatch<SetStateAction<any>>,
 >(
   setStateFn: StateSetter,
-  newState: ExtractTypeFromStateSetter<StateSetter>['StateType']
+  newState: ExtractTypeFromStateSetter<StateSetter>['StateType'],
 ) {
   setStateFn((prevState) => {
     if (newState === prevState) {

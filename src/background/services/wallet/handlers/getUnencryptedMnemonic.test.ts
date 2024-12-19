@@ -22,7 +22,7 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
     new GetUnencryptedMnemonicHandler(
       secretsService,
       lockService,
-      accountsService
+      accountsService,
     );
 
   it('returns error if password is invalid', async () => {
@@ -31,11 +31,11 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
     const handler = buildHandler();
 
     expect(
-      await handler.handle(buildRpcCall({ params: ['abcd'] } as any))
+      await handler.handle(buildRpcCall({ params: ['abcd'] } as any)),
     ).toEqual(
       expect.objectContaining({
         error: 'Password invalid',
-      })
+      }),
     );
   });
 
@@ -48,11 +48,11 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
     const handler = buildHandler();
 
     expect(
-      await handler.handle(buildRpcCall({ params: ['abcd'] } as any))
+      await handler.handle(buildRpcCall({ params: ['abcd'] } as any)),
     ).toEqual(
       expect.objectContaining({
         error: 'Not a MnemonicWallet',
-      })
+      }),
     );
   });
 
@@ -66,11 +66,11 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
     const handler = buildHandler();
 
     expect(
-      await handler.handle(buildRpcCall({ params: ['abcd'] } as any))
+      await handler.handle(buildRpcCall({ params: ['abcd'] } as any)),
     ).toEqual(
       expect.objectContaining({
         result: mnemonic,
-      })
+      }),
     );
   });
 });

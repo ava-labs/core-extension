@@ -62,8 +62,8 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
     return weiToAvax(
       new Big(
         Number(historyItem.gasUsed) *
-          Number(historyItem.gasPrice === undefined ? 1 : historyItem.gasPrice)
-      )
+          Number(historyItem.gasPrice === undefined ? 1 : historyItem.gasPrice),
+      ),
     )
       .toFixed(6)
       .toString();

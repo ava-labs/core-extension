@@ -8,7 +8,7 @@ import { mapTokenItemToTransactionToken } from './mapTokenItemToTransactionToken
 import { TokenType } from '@avalabs/vm-module-types';
 
 export function debankActionsToTransactionActions(
-  actions: TxAction[]
+  actions: TxAction[],
 ): TransactionAction[] {
   return actions?.map((action) => {
     switch (action.type) {

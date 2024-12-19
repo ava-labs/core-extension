@@ -26,14 +26,14 @@ describe('src/background/services/seedless/handlers/getRecoveryPhraseExportState
       secretsService,
       networkService,
       mfaService,
-      accountsService
+      accountsService,
     );
 
     return handler.handle(
       buildRpcCall({
         method: ExtensionRequest.SEEDLESS_GET_RECOVERY_PHRASE_EXPORT_STATE,
         id: 'abcd-1234',
-      })
+      }),
     );
   };
 
@@ -74,7 +74,7 @@ describe('src/background/services/seedless/handlers/getRecoveryPhraseExportState
 
   it('returns error if fetching the information fails', async () => {
     wallet.getMnemonicExportState.mockRejectedValueOnce(
-      new Error('Session expired')
+      new Error('Session expired'),
     );
 
     const result = await handle();

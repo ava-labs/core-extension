@@ -32,12 +32,12 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
     private secretsService: SecretsService,
     private networkService: NetworkService,
     private seedlessMfaService: SeedlessMfaService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const secrets = await this.secretsService.getPrimaryAccountSecrets(
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
 
     if (secrets?.secretType !== SecretType.Seedless) {
@@ -49,7 +49,7 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
 
     const wallet = new SeedlessWallet({
       addressResolutionOptions: await getAddressResolutionOptions(
-        this.networkService
+        this.networkService,
       ),
       sessionStorage: new SeedlessTokenStorage(this.secretsService),
       addressPublicKey: secrets.pubKeys[0],
@@ -76,7 +76,7 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
     try {
       exportResponse = await wallet.completeMnemonicExport(
         keyPair.publicKey,
-        request.tabId
+        request.tabId,
       );
     } catch (err) {
       sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
@@ -90,7 +90,7 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
     try {
       const exportDecrypted = await userExportDecrypt(
         keyPair.privateKey,
-        exportResponse
+        exportResponse,
       );
 
       const hasMnemonic = 'mnemonic' in exportDecrypted;
@@ -98,7 +98,7 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
       if (!hasMnemonic || typeof exportDecrypted.mnemonic !== 'string') {
         sentryCaptureException(
           new Error('Export decrypted, but has no mnemonic'),
-          SentryExceptionTypes.SEEDLESS
+          SentryExceptionTypes.SEEDLESS,
         );
 
         return {

@@ -4,8 +4,8 @@ import getAllAddressesForAccount from './getAllAddressesForAccount';
 
 export function hasAccountBalances(
   balances: Balances,
-  account: Account,
-  networkIds: number[]
+  account: Partial<Account>,
+  networkIds: number[],
 ) {
   const accountAddresses = getAllAddressesForAccount(account);
 

@@ -10,7 +10,7 @@ export enum ApprovalStep {
 export const getActiveStep = (
   requestSent: boolean,
   activeSession: WalletConnectSessionInfo | null,
-  isNewConnectionRequired: boolean
+  isNewConnectionRequired: boolean,
 ) => {
   if (requestSent) {
     return ApprovalStep.SENT;

@@ -75,7 +75,7 @@ export class WalletService implements OnUnlock {
     private walletConnectService: WalletConnectService,
     private fireblocksService: FireblocksService,
     private secretService: SecretsService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {}
 
   async emitsWalletsInfo(wallets: WalletDetails[]) {
@@ -90,7 +90,7 @@ export class WalletService implements OnUnlock {
     }
 
     const hasUnsupportedSecret = wallets.some(
-      ({ type }) => !SUPPORTED_PRIMARY_SECRET_TYPES.includes(type)
+      ({ type }) => !SUPPORTED_PRIMARY_SECRET_TYPES.includes(type),
     );
 
     if (hasUnsupportedSecret) {
@@ -98,7 +98,7 @@ export class WalletService implements OnUnlock {
     }
 
     const hasSeedlessWallet = wallets.some(
-      ({ type }) => type === SecretType.Seedless
+      ({ type }) => type === SecretType.Seedless,
     );
 
     if (hasSeedlessWallet) {
@@ -129,7 +129,7 @@ export class WalletService implements OnUnlock {
   #validateSecretsType(secrets: AddPrimaryWalletSecrets) {
     if (secrets.secretType === SecretType.Mnemonic && !secrets.mnemonic) {
       throw new Error(
-        'Mnemonic or xpub or pubKey is required to create a new wallet!'
+        'Mnemonic or xpub or pubKey is required to create a new wallet!',
       );
     }
     if (secrets.secretType === SecretType.LedgerLive && !secrets.pubKeys) {
@@ -141,7 +141,7 @@ export class WalletService implements OnUnlock {
       !secrets.xpub
     ) {
       throw new Error(
-        'Mnemonic or xpub or pubKey is required to create a new wallet!'
+        'Mnemonic or xpub or pubKey is required to create a new wallet!',
       );
     }
     return true;
@@ -160,7 +160,7 @@ export class WalletService implements OnUnlock {
       return;
     }
     const secrets = await this.secretService.getAccountSecrets(
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
     if (!secrets.account) {
       // wallet is not initialized
@@ -183,7 +183,7 @@ export class WalletService implements OnUnlock {
 
       const wallet = new SeedlessWallet({
         addressResolutionOptions: await getAddressResolutionOptions(
-          this.networkService
+          this.networkService,
         ),
         sessionStorage: new SeedlessTokenStorage(this.secretService),
         addressPublicKey,
@@ -201,7 +201,7 @@ export class WalletService implements OnUnlock {
         const signer = getWalletFromMnemonic(
           secrets.mnemonic,
           accountIndexToUse,
-          secrets.derivationPath
+          secrets.derivationPath,
         );
         return signer.connect(provider as JsonRpcBatchInternal);
       }
@@ -220,7 +220,7 @@ export class WalletService implements OnUnlock {
           accountIndexToUse,
           this.ledgerService.recentTransport,
           secrets.derivationPath,
-          provider as JsonRpcBatchInternal
+          provider as JsonRpcBatchInternal,
         );
       }
 
@@ -232,7 +232,7 @@ export class WalletService implements OnUnlock {
           accountIndexToUse,
           this.keystoneService,
           network.chainId,
-          tabId
+          tabId,
         );
       }
 
@@ -249,7 +249,7 @@ export class WalletService implements OnUnlock {
           // more time than WalletConnect's default of 5 minutes.
           secretType === SecretType.Fireblocks
             ? FIREBLOCKS_REQUEST_EXPIRY
-            : undefined
+            : undefined,
         );
       }
 
@@ -258,7 +258,7 @@ export class WalletService implements OnUnlock {
       }
 
       throw new Error(
-        `No proper signer could be constructed for EVM and ${secretType} account`
+        `No proper signer could be constructed for EVM and ${secretType} account`,
       );
     }
 
@@ -270,7 +270,7 @@ export class WalletService implements OnUnlock {
         return await BitcoinWallet.fromMnemonic(
           secrets.mnemonic,
           accountIndexToUse,
-          provider as BitcoinProviderAbstract
+          provider as BitcoinProviderAbstract,
         );
       }
       if (secretType === SecretType.Fireblocks) {
@@ -281,14 +281,14 @@ export class WalletService implements OnUnlock {
         return new FireblocksBTCSigner(
           this.fireblocksService,
           secrets.api.vaultAccountId,
-          network.isTestnet
+          network.isTestnet,
         );
       }
 
       if (secretType === SecretType.PrivateKey) {
         return new BitcoinWallet(
           Buffer.from(secrets.secret, 'hex'),
-          provider as BitcoinProviderAbstract
+          provider as BitcoinProviderAbstract,
         );
       }
 
@@ -301,11 +301,11 @@ export class WalletService implements OnUnlock {
           getAddressDerivationPath(
             accountIndexToUse,
             secrets.derivationPath,
-            'EVM'
+            'EVM',
           ),
           this.keystoneService,
           provider as BitcoinProviderAbstract,
-          tabId
+          tabId,
         );
       }
 
@@ -315,7 +315,7 @@ export class WalletService implements OnUnlock {
         }
 
         const walletPolicy = await this.parseWalletPolicyDetails(
-          this.accountsService.activeAccount
+          this.accountsService.activeAccount,
         );
         const accountIndexToUse =
           accountIndex === undefined ? secrets.account.index : accountIndex;
@@ -325,11 +325,11 @@ export class WalletService implements OnUnlock {
           getAddressDerivationPath(
             accountIndexToUse,
             secrets.derivationPath,
-            'EVM'
+            'EVM',
           ),
           provider as BitcoinProviderAbstract,
           this.ledgerService.recentTransport,
-          walletPolicy
+          walletPolicy,
         );
       }
 
@@ -348,7 +348,7 @@ export class WalletService implements OnUnlock {
         }
 
         const walletPolicy = await this.parseWalletPolicyDetails(
-          secrets.account
+          secrets.account,
         );
 
         return new BitcoinLedgerWallet(
@@ -356,16 +356,16 @@ export class WalletService implements OnUnlock {
           getAddressDerivationPath(
             accountIndexToUse,
             secrets.derivationPath,
-            'EVM'
+            'EVM',
           ),
           provider as BitcoinProviderAbstract,
           this.ledgerService.recentTransport,
-          walletPolicy
+          walletPolicy,
         );
       }
 
       throw new Error(
-        `No proper signer could be constructed for Bitcoin and ${secretType} account`
+        `No proper signer could be constructed for Bitcoin and ${secretType} account`,
       );
     }
 
@@ -390,7 +390,7 @@ export class WalletService implements OnUnlock {
         return new Avalanche.SimpleLedgerSigner(
           accountIndexToUse,
           provider as Avalanche.JsonRpcProvider,
-          secrets.xpubXP
+          secrets.xpubXP,
         );
       }
 
@@ -418,15 +418,15 @@ export class WalletService implements OnUnlock {
           getAddressDerivationPath(
             accountIndexToUse,
             DerivationPath.LedgerLive,
-            'AVM'
+            'AVM',
           ),
           Buffer.from(pubkey.evm, 'hex'),
           getAddressDerivationPath(
             accountIndexToUse,
             DerivationPath.LedgerLive,
-            'EVM'
+            'EVM',
           ),
-          provider as Avalanche.JsonRpcProvider
+          provider as Avalanche.JsonRpcProvider,
         );
       }
 
@@ -435,7 +435,7 @@ export class WalletService implements OnUnlock {
           this.walletConnectService,
           network.chainId,
           secrets.account.addressC,
-          tabId
+          tabId,
         );
       }
 
@@ -443,12 +443,12 @@ export class WalletService implements OnUnlock {
         return new Avalanche.StaticSigner(
           Buffer.from(secrets.secret, 'hex'),
           Buffer.from(secrets.secret, 'hex'),
-          provider as Avalanche.JsonRpcProvider
+          provider as Avalanche.JsonRpcProvider,
         );
       }
 
       throw new Error(
-        `No proper signer could be constructed for Avalanche and ${secretType} account`
+        `No proper signer could be constructed for Avalanche and ${secretType} account`,
       );
     }
   }
@@ -457,7 +457,7 @@ export class WalletService implements OnUnlock {
     tx: SignTransactionRequest,
     network: Network,
     tabId?: number,
-    originalRequestMethod?: string
+    originalRequestMethod?: string,
   ): Promise<SigningResult> {
     const wallet = await this.getWallet({ network, tabId });
 
@@ -482,7 +482,7 @@ export class WalletService implements OnUnlock {
         wallet instanceof BitcoinLedgerWallet
           ? await prepareBtcTxForLedger(
               tx,
-              await this.networkService.getBitcoinProvider()
+              await this.networkService.getBitcoinProvider(),
             )
           : tx;
 
@@ -539,7 +539,7 @@ export class WalletService implements OnUnlock {
    * If the wallet returns a string, we treat it as signed TX.
    */
   #normalizeSigningResult(
-    signingResult: string | UnsignedTx | Transaction | SigningResult
+    signingResult: string | UnsignedTx | Transaction | SigningResult,
   ): SigningResult {
     if (typeof signingResult === 'string') {
       return { signedTx: signingResult };
@@ -565,7 +565,7 @@ export class WalletService implements OnUnlock {
       throw new Error('There is no active account');
     }
     const secrets = await this.secretService.getAccountSecrets(
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
 
     if (secrets.secretType === SecretType.Fireblocks) {
@@ -586,12 +586,12 @@ export class WalletService implements OnUnlock {
     if (secrets.secretType === SecretType.PrivateKey) {
       if (!secrets.secret) {
         throw new Error(
-          'Cannot find public key for the given imported account'
+          'Cannot find public key for the given imported account',
         );
       }
 
       const publicKey = getPublicKeyFromPrivateKey(secrets.secret).toString(
-        'hex'
+        'hex',
       );
 
       return {
@@ -603,11 +603,11 @@ export class WalletService implements OnUnlock {
     if (secrets.secretType === SecretType.Mnemonic && secrets.account) {
       const evmPub = getAddressPublicKeyFromXPub(
         secrets.xpub,
-        secrets.account.index
+        secrets.account.index,
       );
       const xpPub = Avalanche.getAddressPublicKeyFromXpub(
         secrets.xpubXP,
-        secrets.account.index
+        secrets.account.index,
       );
 
       return {
@@ -623,11 +623,11 @@ export class WalletService implements OnUnlock {
     ) {
       const evmPub = getAddressPublicKeyFromXPub(
         secrets.xpub,
-        secrets.account.index
+        secrets.account.index,
       );
       const xpPub = Avalanche.getAddressPublicKeyFromXpub(
         secrets.xpubXP,
-        secrets.account.index
+        secrets.account.index,
       );
 
       return {
@@ -747,7 +747,7 @@ export class WalletService implements OnUnlock {
       throw new Error(
         wallet
           ? `this function is not supported on your wallet`
-          : 'wallet undefined in sign tx'
+          : 'wallet undefined in sign tx',
       );
     }
 
@@ -800,11 +800,11 @@ export class WalletService implements OnUnlock {
   async getAddressesByIndices(
     indices: number[],
     chainAlias: 'X' | 'P',
-    isChange: boolean
+    isChange: boolean,
   ) {
     const provXP = await this.networkService.getAvalanceProviderXP();
     const secrets = await this.secretService.getPrimaryAccountSecrets(
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
 
     if (!secrets || !secrets.xpubXP) {
@@ -821,15 +821,14 @@ export class WalletService implements OnUnlock {
         index,
         provXP,
         chainAlias,
-        isChange
-      )
+        isChange,
+      ),
     );
   }
 
   private async parseWalletPolicyDetails(account: Account) {
-    const policyInfo = await this.secretService.getBtcWalletPolicyDetails(
-      account
-    );
+    const policyInfo =
+      await this.secretService.getBtcWalletPolicyDetails(account);
 
     if (!policyInfo || !policyInfo.details) {
       throw new Error('Error while parsing wallet policy: missing data.');
@@ -841,7 +840,7 @@ export class WalletService implements OnUnlock {
       details.masterFingerprint,
       accountIndex,
       details.xpub,
-      details.name
+      details.name,
     );
 
     return {

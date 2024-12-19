@@ -34,7 +34,7 @@ export function NameYourWallet({
 
   const keyboardShortcuts = useKeyboardShortcuts({
     Enter: handleSave,
-    Esc: onBackClick,
+    Escape: onBackClick,
   });
 
   return (

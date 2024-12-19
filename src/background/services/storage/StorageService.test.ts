@@ -71,7 +71,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
       const callbackManager = new CallbackManager();
       const service = new StorageService(callbackManager);
       await expect(service.activate('wrong-password')).rejects.toThrow(
-        new Error('password incorrect')
+        new Error('password incorrect'),
       );
 
       expect(callbackManager.onStorageReady).not.toHaveBeenCalled();
@@ -97,7 +97,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
       // should throw an error when trying to save after lock since key is cleared
 
       await expect(service.save('STORAGE_KEY', { data: 1 })).rejects.toThrow(
-        new Error('No encryption key defined')
+        new Error('No encryption key defined'),
       );
     });
   });
@@ -122,7 +122,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
       const service = new StorageService(new CallbackManager());
 
       await expect(
-        service.changePassword('old-password', 'new-password')
+        service.changePassword('old-password', 'new-password'),
       ).rejects.toThrow(new Error('password incorrect'));
 
       expect(decryptWithPassword).toHaveBeenCalledTimes(1);
@@ -232,7 +232,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
       expect(encryptWithKey).toHaveBeenCalledWith({
         secret: '"some-data"',
         encryptionKey: Buffer.from(
-          '0101010101010101010101010101010101010101010101010101010101010101'
+          '0101010101010101010101010101010101010101010101010101010101010101',
         ),
       });
     });
@@ -243,7 +243,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
       const service = new StorageService(new CallbackManager());
 
       await expect(service.save('STORAGE_KEY', { data: 1 })).rejects.toThrow(
-        new Error('No encryption key defined')
+        new Error('No encryption key defined'),
       );
     });
 
@@ -356,7 +356,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
 
       const service = new StorageService(new CallbackManager());
       await expect(service.load('some-key')).rejects.toThrow(
-        new Error('encryption key missing')
+        new Error('encryption key missing'),
       );
     });
 
@@ -373,7 +373,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
 
       const service = new StorageService(new CallbackManager());
       await expect(service.load('some-key', 'some-password')).resolves.toEqual(
-        'some-data'
+        'some-data',
       );
 
       expect(decryptWithPassword).toHaveBeenCalledTimes(1);
@@ -391,7 +391,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
       expect(migrationSpy).toHaveBeenCalledWith(
         'some-key',
         'some-data',
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -415,7 +415,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
       const fillSpy = jest.fn();
       jest
         .spyOn(Buffer, 'from')
-        .mockImplementation((value) => ({ value, fill: fillSpy } as any));
+        .mockImplementation((value) => ({ value, fill: fillSpy }) as any);
 
       const service = new StorageService(new CallbackManager());
       await service.activate('some-password');
@@ -487,7 +487,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
     it('throws error when value is not defined', async () => {
       const service = new StorageService(new CallbackManager());
       await expect(
-        service.saveToSessionStorage('some-key', null)
+        service.saveToSessionStorage('some-key', null),
       ).rejects.toThrow(new Error('trying to store an empty value'));
 
       expect(browser.storage.session.set).not.toHaveBeenCalled();

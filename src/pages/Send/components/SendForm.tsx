@@ -5,6 +5,7 @@ import {
   Stack,
   Scrollbars,
   Tooltip,
+  styled,
 } from '@avalabs/core-k2-components';
 import { Contact } from '@avalabs/types';
 import { useTranslation } from 'react-i18next';
@@ -48,6 +49,12 @@ const errorsToExcludeForTokenSelect: string[] = [
   ...generalErrors,
 ];
 
+const FlexScrollbars = styled(Scrollbars)`
+	> div {
+		display: flex;
+	}
+}`;
+
 export const SendForm = ({
   address,
   inputAmount,
@@ -68,7 +75,7 @@ export const SendForm = ({
   const identifyAddress = useIdentifyAddress();
   const contact = useMemo(
     () => (address ? identifyAddress(address) : undefined),
-    [address, identifyAddress]
+    [address, identifyAddress],
   );
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
@@ -81,8 +88,15 @@ export const SendForm = ({
 
   return (
     <Stack sx={{ flexGrow: 1, alignItems: 'center', width: '100%', pt: 1 }}>
-      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        <Stack ref={formRef}>
+      <FlexScrollbars
+        style={{
+          flexGrow: 1,
+          maxHeight: 'unset',
+          height: '100%',
+          display: 'flex',
+        }}
+      >
+        <Stack ref={formRef} sx={{ display: 'flex', flexGrow: 1, mb: 2 }}>
           <ContactInput
             contact={contact}
             onChange={(newContact, tab) => {
@@ -148,7 +162,7 @@ export const SendForm = ({
             </Stack>
           )}
         </Stack>
-      </Scrollbars>
+      </FlexScrollbars>
       {!isContactsOpen && !isTokenSelectOpen && (
         <Stack
           sx={{

@@ -12,7 +12,7 @@ const BOTTOM_PADDING = 16;
 // Dropdown is absolutely positioned, and fills the viewport beneath the select element
 const getDropdownHeight = (
   anchorEl: MutableRefObject<HTMLElement | null>,
-  containerRef?: MutableRefObject<HTMLElement | null>
+  containerRef?: MutableRefObject<HTMLElement | null>,
 ): number => {
   if (!anchorEl.current || !window.visualViewport) return 0; // Default height
 
@@ -47,7 +47,7 @@ const Dropdown = forwardRef<HTMLDivElement, StackProps>(
       }}
       {...props}
     />
-  )
+  ),
 );
 Dropdown.displayName = 'Dropdown';
 
@@ -107,7 +107,7 @@ export const ContainedDropdown = ({
         width: width ?? '100%',
         borderRadius: borderRadius ?? spacing(0, 0, 1, 1),
         margin: margin ?? '0',
-        height: isOpen ? `${height || calculatedHeight}px` : 0,
+        height: isOpen ? `${height || calculatedHeight - top}px` : 0,
         top,
         opacity: isOpen ? 1 : 0,
       }}

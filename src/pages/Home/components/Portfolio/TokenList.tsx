@@ -40,7 +40,8 @@ export function TokenList({ searchQuery }: TokenListProps) {
   const firstAsset = tokensWithBalances[0];
   const firstAssetBalance =
     firstAsset && 'decimals' in firstAsset
-      ? normalizeBalance(firstAsset.balance, firstAsset.decimals) ?? new Big(0)
+      ? (normalizeBalance(firstAsset.balance, firstAsset.decimals) ??
+        new Big(0))
       : new Big(0);
   const hasNoFunds =
     tokensWithBalances.length === 1 && firstAssetBalance.eq(new Big(0));
@@ -52,15 +53,15 @@ export function TokenList({ searchQuery }: TokenListProps) {
             (token) =>
               getTokenVisibility(token) &&
               (token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                token.symbol.toLowerCase().includes(searchQuery.toLowerCase()))
+                token.symbol.toLowerCase().includes(searchQuery.toLowerCase())),
           )
         : tokensWithBalances
       )
         .filter((token) => getTokenVisibility(token))
         .sort(
-          (a, b) => (b.balanceInCurrency ?? 0) - (a.balanceInCurrency ?? 0)
+          (a, b) => (b.balanceInCurrency ?? 0) - (a.balanceInCurrency ?? 0),
         ),
-    [searchQuery, tokensWithBalances, getTokenVisibility]
+    [searchQuery, tokensWithBalances, getTokenVisibility],
   );
 
   const toggleManageTokensPage = () => {

@@ -32,14 +32,14 @@ describe('src/pages/Send/utils/getMaxUtxos', () => {
         false,
         provider,
         mockedWallet,
-        AVALANCHE_P_DEV_NETWORK
+        AVALANCHE_P_DEV_NETWORK,
       );
       fail('The call above should have failed');
     } catch (err) {
       expect(err).toEqual(
         ethErrors.rpc.internal({
           data: { reason: CommonError.UnknownNetworkFee },
-        })
+        }),
       );
     }
   });
@@ -56,7 +56,7 @@ describe('src/pages/Send/utils/getMaxUtxos', () => {
       provider,
       mockedWallet,
       AVALANCHE_P_DEV_NETWORK,
-      feeState
+      feeState,
     );
 
     expect(Avalanche.getMaximumUtxoSet).toHaveBeenCalledWith({

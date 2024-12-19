@@ -1,15 +1,14 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import {
-  Box,
   Button,
-  GearIcon,
+  ChevronLeftIcon,
+  Divider,
+  IconButton,
+  LoadingDotsIcon,
+  Scrollbars,
   Stack,
-  Tab,
-  TabPanel,
-  Tabs,
   TrashIcon,
-  XIcon,
-  toast,
+  Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
 import { t } from 'i18next';
@@ -19,131 +18,82 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/components/LedgerApprovalDialog';
-import { PageTitle } from '@src/components/common/PageTitle';
-import { Overlay } from '@src/components/common/Overlay';
-import { useTabFromParams } from '@src/hooks/useTabFromParams';
 
-import { AccountsActionButton } from './components/AccountsActionButton';
-import { AddAccountError } from './AddAccountError';
-import { ConfirmAccountRemovalDialog } from './components/ConfirmAccountRemovalDialog';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { Flipper } from '@src/components/common/Flipper';
-import { useAccountManager } from './providers/AccountManagerProvider';
-import { AccountList, SelectionMode } from './components/AccountList';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { AccountType } from '@src/background/services/accounts/models';
-import { SecretType } from '@src/background/services/secrets/models';
+import { useScopedToast } from '@src/hooks/useScopedToast';
+import { NetworkSwitcher } from '@src/components/common/header/NetworkSwitcher';
+import { Overlay } from '@src/components/common/Overlay';
+import { isPrimaryAccount } from '@src/background/services/accounts/utils/typeGuards';
+import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
+
+import { useAccountManager } from './providers/AccountManagerProvider';
+import { useAccountRemoval } from './hooks/useAccountRemoval';
 import { AccountListPrimary } from './components/AccountListPrimary';
-
-export enum AccountsTab {
-  Primary,
-  Imported,
-}
-
-const isKnownTab = (tab: number): tab is AccountsTab =>
-  Object.values(AccountsTab).includes(tab);
+import { AccountListImported } from './components/AccountListImported';
+import { AccountsActionButton } from './components/AccountsActionButton';
+import { OverflowingTypography } from './components/OverflowingTypography';
+import { useWalletTotalBalance } from './hooks/useWalletTotalBalance';
+import { useWalletTotalBalanceContext } from './providers/WalletTotalBalanceProvider';
 
 export function Accounts() {
   const {
     selectAccount,
     addAccount,
-    deleteAccounts,
     accounts: { imported: importedAccounts, primary: primaryAccounts, active },
   } = useAccountsContext();
-  const { exitManageMode, isManageMode, toggleManageMode, selectedAccounts } =
+  const { isManageMode, toggleManageMode, selectedAccounts } =
     useAccountManager();
 
-  const { activeTab: tabFromUrl } = useTabFromParams();
-  const activeTab = isKnownTab(parseInt(tabFromUrl))
-    ? parseInt(tabFromUrl)
-    : AccountsTab.Primary;
+  const toast = useScopedToast('account-switcher');
 
-  const [hasError, setHasError] = useState(false);
   const [addAccountLoading, setAddAccountLoading] = useState(false);
   const { hasLedgerTransport } = useLedgerContext();
   const { capture } = useAnalyticsContext();
   const theme = useTheme();
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const history = useHistory();
   const { walletDetails } = useWalletContext();
-  const { featureFlags } = useFeatureFlagContext();
-  const canPrimaryAccountsBeRemoved =
-    featureFlags[FeatureGates.PRIMARY_ACCOUNT_REMOVAL];
+  const { isLoading, totalBalanceInCurrency: activeWalletTotalBalance } =
+    useWalletTotalBalance(
+      isPrimaryAccount(active) ? active.walletId : undefined,
+    );
+  const { fetchBalanceForWallet } = useWalletTotalBalanceContext();
 
-  const canCreateAccount = active?.type !== AccountType.PRIMARY;
+  const canCreateAccount = active?.type === AccountType.PRIMARY;
+  const { getTotalBalance } = useBalancesContext();
 
-  const setActiveTab = useCallback(
-    (tab: AccountsTab) => {
-      // Avoid unnecessary re-renders
-      if (tab === parseInt(tabFromUrl)) {
-        return;
-      }
-
-      history.replace(
-        `/accounts?activeTab=${isKnownTab(tab) ? tab : AccountsTab.Primary}`
-      );
-    },
-    [history, tabFromUrl]
+  const activeAccountBalance = useMemo(
+    () => (active?.addressC ? getTotalBalance(active.addressC) : null),
+    [active?.addressC, getTotalBalance],
   );
 
   const addAccountAndFocus = async () => {
     setAddAccountLoading(true);
 
     try {
-      setHasError(false);
       const id = await addAccount();
       capture('CreatedANewAccountSuccessfully', {
         walletType: walletDetails?.type,
       });
       await selectAccount(id);
 
-      // Make sure we land on the Primary accounts list, since the account
-      // creation can be triggered from Imported accounts list as well.
-      //
-      // IMPORTANT:
-      // The switch needs to happen AFTER the account was created.
-      // Otherwise it will trigger the useIsIncorrectDevice() hook
-      // which will then block the transport for addAccount() call and
-      // cause account creation to break for Ledger wallets.
-      setActiveTab(AccountsTab.Primary);
-    } catch (e) {
-      setHasError(true);
+      // Refresh total balance of the wallet after adding an account
+      if (walletDetails?.id) {
+        fetchBalanceForWallet(walletDetails.id);
+      }
+    } catch (_err) {
+      toast.error(t('An error occurred, please try again later'));
     }
 
     setAddAccountLoading(false);
   };
 
-  const onAccountDeleteSuccess = async () => {
-    capture('AccountDeleteSucceeded');
-    toast.success(t('Account(s) Deleted!'), { duration: 2000 });
-  };
-
-  const onAccountDelete = async () => {
-    setIsDeleting(true);
-    try {
-      await deleteAccounts(Array.from(selectedAccounts));
-      onAccountDeleteSuccess();
-    } catch (e) {
-      toast.error(t('Account(s) removal has failed!'), { duration: 2000 });
-      capture('AccountDeleteFailed');
-    } finally {
-      exitManageMode();
-      setIsConfirmDialogOpen(false);
-      setIsDeleting(false);
-    }
-  };
-
   const hasImportedAccounts = Object.keys(importedAccounts).length > 0;
 
-  const hasAnyAccounts = Object.values(primaryAccounts).length > 0;
-
-  useEffect(() => {
-    if (hasAnyAccounts && !hasImportedAccounts) {
-      setActiveTab(AccountsTab.Primary);
-    }
-  }, [hasAnyAccounts, hasImportedAccounts, setActiveTab]);
+  const { currencyFormatter } = useSettingsContext();
+  const { prompt: promptRemoval, renderDialog: confirmRemovalDialog } =
+    useAccountRemoval(selectedAccounts);
 
   return (
     <Stack
@@ -158,127 +108,128 @@ export function Accounts() {
           <LedgerApprovalDialog header={t('Waiting for Ledger')} />
         </Overlay>
       )}
-      <ConfirmAccountRemovalDialog
-        open={isConfirmDialogOpen}
-        onClose={() => setIsConfirmDialogOpen(false)}
-        onConfirm={onAccountDelete}
-        isMultiple={selectedAccounts.length > 1}
-        isDeleting={isDeleting}
-      />
+      {confirmRemovalDialog()}
       <Stack
-        direction="row"
-        sx={{ mt: 2.5, mb: 0.5, pr: 1, alignItems: 'center' }}
-      >
-        <PageTitle margin="0" onBackClick={() => history.replace('/home')}>
-          {isManageMode ? t('Manage Accounts') : t('Account Manager')}
-        </PageTitle>
-        {(canPrimaryAccountsBeRemoved ||
-          activeTab === AccountsTab.Imported) && (
-          <Button
-            variant="text"
-            size="large"
-            color="primary"
-            sx={{ p: 0 }}
-            disableRipple
-            onClick={toggleManageMode}
-            data-testid="manage-accounts-button"
-          >
-            <Flipper size={24} isFlipped={isManageMode}>
-              <GearIcon />
-              <XIcon />
-            </Flipper>
-          </Button>
-        )}
-      </Stack>
-
-      {hasError && <AddAccountError />}
-
-      {hasImportedAccounts && (
-        <Tabs
-          size="small"
-          label={t('Main')}
-          isContained={true}
-          variant="fullWidth"
-          indicatorColor="secondary"
-          value={activeTab}
-          onChange={(_, tab) => {
-            capture(
-              tab === AccountsTab.Primary
-                ? 'MainAccountPageClicked'
-                : 'ImportedAccountPageClicked'
-            );
-            exitManageMode();
-            setActiveTab(tab);
-          }}
-          sx={{
-            ml: 2,
-            my: 2,
-            minHeight: '24px',
-            height: '24px',
-          }}
-        >
-          <Tab
-            label={t('Primary')}
-            value={AccountsTab.Primary}
-            size="small"
-            data-testid="main-tab-button"
-            sx={{
-              '&.MuiTab-root': { p: 0, minHeight: '20px', height: '20px' },
-            }}
-          />
-          <Tab
-            label={t('Imported')}
-            value={AccountsTab.Imported}
-            size="small"
-            data-testid="imported-tab-button"
-            sx={{
-              '&.MuiTab-root': { p: 0, minHeight: '20px', height: '20px' },
-            }}
-          />
-        </Tabs>
-      )}
-      <Box
         sx={{
-          width: '100%',
-          borderColor: 'divider',
-          pt: hasImportedAccounts ? 0.75 : 2,
-          overflow: 'hidden',
-          flexGrow: 1,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          pl: 0.25,
+          pt: 1,
+          pb: 0.5,
+          pr: 2,
         }}
       >
-        <TabPanel
-          value={activeTab}
-          index={AccountsTab.Primary}
+        <IconButton
+          onClick={() => history.replace('/home')}
           sx={{
-            display: 'flex',
-            height: activeTab === AccountsTab.Primary ? '100%' : 0,
+            padding: 0.25,
+            '> svg': {
+              transition: 'color .15s ease-in-out, transform .15s ease-in-out',
+            },
+            ':hover svg': {
+              color: theme.palette.secondary.lighter,
+              transform: 'translateX(-2px)',
+            },
+          }}
+          disableRipple
+          data-testid="accounts-back-btn"
+        >
+          <ChevronLeftIcon size={32} />
+        </IconButton>
+        <NetworkSwitcher />
+      </Stack>
+      <Stack
+        sx={{
+          px: 2,
+          py: 0.5,
+        }}
+      >
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            gap: 2,
           }}
         >
-          <AccountListPrimary
-            primaryAccount={primaryAccounts}
-            selectionMode={
-              canPrimaryAccountsBeRemoved &&
-              walletDetails?.type !== SecretType.Seedless
-                ? SelectionMode.Consecutive
-                : SelectionMode.None
-            }
-          />
-        </TabPanel>
-        <TabPanel
-          value={activeTab}
-          index={AccountsTab.Imported}
+          <OverflowingTypography
+            variant="caption"
+            color="text.secondary"
+            data-testid="account-management-active-wallet"
+          >
+            {t('Currently using {{walletName}}', {
+              walletName: isPrimaryAccount(active)
+                ? walletDetails?.name
+                : t('an imported account'),
+            })}
+          </OverflowingTypography>
+          {isPrimaryAccount(active) && (
+            <Typography
+              variant="caption"
+              fontWeight={500}
+              fontSize={13}
+              textAlign="end"
+              color="text.secondary"
+              // Prevents UI from jumping due to LoadingDotsIcon being larger than they appear
+              sx={isLoading ? { height: 15, overflow: 'hidden' } : null}
+            >
+              {isLoading ? (
+                <LoadingDotsIcon size={20} orientation="horizontal" />
+              ) : typeof activeWalletTotalBalance === 'number' ? (
+                currencyFormatter(activeWalletTotalBalance)
+              ) : null}
+            </Typography>
+          )}
+        </Stack>
+        <Stack
           sx={{
-            display: 'flex',
-            height: activeTab === AccountsTab.Imported ? '100%' : 0,
-            pt: 1,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            gap: 2,
           }}
         >
-          <AccountList
-            accounts={Object.values(importedAccounts)}
-            selectionMode={SelectionMode.Any}
-          />
-        </TabPanel>
-      </Box>
+          <OverflowingTypography
+            variant="h5"
+            fontSize={18}
+            data-testid="account-management-active-account"
+          >
+            {active?.name}
+          </OverflowingTypography>
+          <Typography variant="h5" fontSize={18}>
+            {activeAccountBalance?.sum
+              ? currencyFormatter(activeAccountBalance.sum)
+              : '...'}
+          </Typography>
+        </Stack>
+      </Stack>
+      <Divider sx={{ borderColor: '#fff', opacity: 0.2 }} />
+      <Stack
+        sx={{
+          flexDirection: 'row',
+          width: 1,
+          py: 0.75,
+          pr: 1.5,
+          justifyContent: 'flex-end',
+        }}
+      >
+        <Button
+          variant="text"
+          size="small"
+          onClick={toggleManageMode}
+          data-testid="manage-accounts-button"
+        >
+          {isManageMode ? t('Cancel') : t('Manage')}
+        </Button>
+      </Stack>
+      <Divider sx={{ borderColor: theme.palette.grey[800] }} />
+
+      <Scrollbars>
+        <AccountListPrimary primaryAccounts={primaryAccounts} />
+
+        {hasImportedAccounts && (
+          <AccountListImported accounts={Object.values(importedAccounts)} />
+        )}
+      </Scrollbars>
       <Stack
         direction="row"
         sx={{ py: 3, px: 2, justifyContent: 'center', alignItems: 'center' }}
@@ -291,7 +242,7 @@ export function Accounts() {
             data-testid="delete-imported-account-button"
             onClick={() => {
               capture('ImportedAccountDeleteClicked');
-              setIsConfirmDialogOpen(true);
+              promptRemoval();
             }}
           >
             <TrashIcon size={14} sx={{ mr: 1 }} />
@@ -302,12 +253,12 @@ export function Accounts() {
         )}
         {!isManageMode && (
           <AccountsActionButton
-            disabled={addAccountLoading}
-            isButtonDisabled={canCreateAccount}
-            onAddNewAccount={addAccountAndFocus}
-            disabledButtonTooltipText={
-              canCreateAccount ? t('Please select a wallet') : ''
+            isLoading={addAccountLoading}
+            canCreateAccount={canCreateAccount}
+            createAccountTooltip={
+              canCreateAccount ? '' : t('Please select a wallet')
             }
+            onAddNewAccount={addAccountAndFocus}
           />
         )}
       </Stack>

@@ -100,7 +100,7 @@ export class SecretsService implements OnUnlock {
       {
         ...storedSecrets,
         wallets,
-      }
+      },
     );
 
     await this.emitWalletsInfo();
@@ -139,7 +139,7 @@ export class SecretsService implements OnUnlock {
 
   async updateSecrets(
     secrets: Partial<PrimaryWalletSecrets>,
-    walletId: string
+    walletId: string,
   ): Promise<string | null> {
     const storedSecrets = await this.#loadSecrets(false);
 
@@ -159,7 +159,7 @@ export class SecretsService implements OnUnlock {
         {
           ...storedSecrets,
           wallets: [...updatedWalletSecrets] as PrimaryWalletSecrets[],
-        }
+        },
       );
       await this.emitWalletsInfo();
       return walletId;
@@ -172,7 +172,7 @@ export class SecretsService implements OnUnlock {
     const storedSecrets = await this.#loadSecrets(false);
 
     const updatedWalletSecrets = storedSecrets?.wallets.filter(
-      (wallet) => wallet.id !== walletId
+      (wallet) => wallet.id !== walletId,
     );
 
     const updatedImportedSecrets = storedSecrets?.importedAccounts;
@@ -185,7 +185,7 @@ export class SecretsService implements OnUnlock {
         {
           ...updatedImportedSecrets,
           wallets: [...updatedWalletSecrets],
-        }
+        },
       );
     }
     await this.emitWalletsInfo();
@@ -193,7 +193,7 @@ export class SecretsService implements OnUnlock {
 
   getWalletSecretsForAcount(
     walletKeys: WalletSecretInStorage,
-    account: Account
+    account: Account,
   ) {
     const activeWalletId = isPrimaryAccount(account)
       ? account.walletId
@@ -213,7 +213,7 @@ export class SecretsService implements OnUnlock {
     }
     const activeWalletSecrets = this.getWalletSecretsForAcount(
       walletKeys,
-      activeAccount
+      activeAccount,
     );
 
     if (!activeWalletSecrets) {
@@ -224,7 +224,7 @@ export class SecretsService implements OnUnlock {
   }
 
   async getImportedAccountSecrets(
-    accountId: string
+    accountId: string,
   ): Promise<ImportedAccountSecrets> {
     const walletKeys = await this.#loadSecrets(true);
 
@@ -267,7 +267,7 @@ export class SecretsService implements OnUnlock {
     if (account.type === AccountType.PRIMARY) {
       const activeWalletSecrets = this.getWalletSecretsForAcount(
         walletKeys,
-        account
+        account,
       );
 
       if (!activeWalletSecrets) {
@@ -292,7 +292,7 @@ export class SecretsService implements OnUnlock {
     const walletKeys = await this.#loadSecrets(true);
 
     const walletSecrets = walletKeys.wallets.find(
-      (wallet) => wallet.id === walletId
+      (wallet) => wallet.id === walletId,
     );
 
     if (!walletSecrets) {
@@ -307,11 +307,10 @@ export class SecretsService implements OnUnlock {
 
   async deleteImportedWallets(
     ids: string[],
-    walletConnectService: WalletConnectService
+    walletConnectService: WalletConnectService,
   ): Promise<Record<string, ImportedAccountSecrets | undefined>> {
-    const { importedAccounts, ...primarySecrets } = await this.#loadSecrets(
-      true
-    );
+    const { importedAccounts, ...primarySecrets } =
+      await this.#loadSecrets(true);
 
     const deleted = pick(importedAccounts, ids);
     const newImported = omit(importedAccounts, ids);
@@ -365,7 +364,7 @@ export class SecretsService implements OnUnlock {
     hmacHex: string,
     name: string,
     walletId: string,
-    activeAccount: Account
+    activeAccount: Account,
   ) {
     const secrets = await this.getAccountSecrets(activeAccount);
 
@@ -374,7 +373,7 @@ export class SecretsService implements OnUnlock {
       secrets.secretType !== SecretType.LedgerLive
     ) {
       throw new Error(
-        'Error while saving wallet policy details: incorrect wallet type.'
+        'Error while saving wallet policy details: incorrect wallet type.',
       );
     }
 
@@ -386,13 +385,13 @@ export class SecretsService implements OnUnlock {
 
       if (!pubKeyInfo) {
         throw new Error(
-          'Error while saving wallet policy details: missing record for the provided index.'
+          'Error while saving wallet policy details: missing record for the provided index.',
         );
       }
 
       if (pubKeyInfo?.btcWalletPolicyDetails) {
         throw new Error(
-          'Error while saving wallet policy details: policy details already stored.'
+          'Error while saving wallet policy details: policy details already stored.',
         );
       }
 
@@ -409,14 +408,14 @@ export class SecretsService implements OnUnlock {
         {
           pubKeys,
         },
-        walletId
+        walletId,
       );
     }
 
     if (secrets.secretType === SecretType.Ledger) {
       if (secrets?.btcWalletPolicyDetails) {
         throw new Error(
-          'Error while saving wallet policy details: policy details already stored.'
+          'Error while saving wallet policy details: policy details already stored.',
         );
       }
 
@@ -429,17 +428,17 @@ export class SecretsService implements OnUnlock {
             name,
           },
         },
-        walletId
+        walletId,
       );
     }
 
     throw new Error(
-      'Error while saving wallet policy details: unknown derivation path.'
+      'Error while saving wallet policy details: unknown derivation path.',
     );
   }
 
   async getBtcWalletPolicyDetails(
-    account: Account
+    account: Account,
   ): Promise<
     { accountIndex: number; details?: BtcWalletPolicyDetails } | undefined
   > {
@@ -473,9 +472,8 @@ export class SecretsService implements OnUnlock {
   async #loadSecrets(strict: true): Promise<WalletSecretInStorage | never>;
   async #loadSecrets(strict: false): Promise<WalletSecretInStorage | null>;
   async #loadSecrets(strict: boolean): Promise<WalletSecretInStorage | null> {
-    const walletKeys = await this.storageService.load<WalletSecretInStorage>(
-      WALLET_STORAGE_KEY
-    );
+    const walletKeys =
+      await this.storageService.load<WalletSecretInStorage>(WALLET_STORAGE_KEY);
 
     if (!walletKeys && strict) {
       throw new Error('Wallet is not initialized');
@@ -486,15 +484,15 @@ export class SecretsService implements OnUnlock {
 
   async isKnownSecret(
     type: SecretType.Mnemonic,
-    mnemonic: string
+    mnemonic: string,
   ): Promise<boolean>;
   async isKnownSecret(
     type: SecretType.PrivateKey,
-    privateKey: string
+    privateKey: string,
   ): Promise<boolean>;
   async isKnownSecret(
     type: SecretType.LedgerLive | SecretType.Ledger,
-    pub: string | PubKeyType[]
+    pub: string | PubKeyType[],
   ): Promise<boolean>;
   async isKnownSecret(
     type:
@@ -502,7 +500,7 @@ export class SecretsService implements OnUnlock {
       | SecretType.PrivateKey
       | SecretType.Ledger
       | SecretType.LedgerLive,
-    secret: unknown
+    secret: unknown,
   ): Promise<boolean> {
     const secrets = await this.#loadSecrets(false);
 
@@ -514,7 +512,7 @@ export class SecretsService implements OnUnlock {
       return secrets.wallets.some(
         (wallet) =>
           wallet.secretType === SecretType.Mnemonic &&
-          wallet.mnemonic === secret
+          wallet.mnemonic === secret,
       );
     }
 
@@ -525,14 +523,14 @@ export class SecretsService implements OnUnlock {
 
       return Object.values(secrets.importedAccounts).some(
         (acc) =>
-          acc.secretType === SecretType.PrivateKey && acc.secret === secret
+          acc.secretType === SecretType.PrivateKey && acc.secret === secret,
       );
     }
 
     if (type === SecretType.Ledger) {
       return secrets.wallets.some(
         (wallet) =>
-          wallet.secretType === SecretType.Ledger && wallet.xpub === secret
+          wallet.secretType === SecretType.Ledger && wallet.xpub === secret,
       );
     }
 
@@ -556,7 +554,7 @@ export class SecretsService implements OnUnlock {
 
   async addImportedWallet(
     importData: ImportData,
-    options: AddressResolutionOptions
+    options: AddressResolutionOptions,
   ) {
     const id = crypto.randomUUID();
 
@@ -601,7 +599,7 @@ export class SecretsService implements OnUnlock {
     if (importData.importType === ImportType.PRIVATE_KEY) {
       const addresses = await this.#calculateAddressesForPrivateKey(
         importData.data,
-        options
+        options,
       );
       return {
         account: {
@@ -617,7 +615,7 @@ export class SecretsService implements OnUnlock {
 
   async #calculateAddressesForPrivateKey(
     privateKey: string,
-    { isMainnet, providerXP }: AddressResolutionOptions
+    { isMainnet, providerXP }: AddressResolutionOptions,
   ) {
     const addresses = {
       addressBTC: '',
@@ -632,12 +630,12 @@ export class SecretsService implements OnUnlock {
       addresses.addressC = getEvmAddressFromPubKey(publicKey);
       addresses.addressBTC = getBtcAddressFromPubKey(
         publicKey,
-        isMainnet ? networks.bitcoin : networks.testnet
+        isMainnet ? networks.bitcoin : networks.testnet,
       );
       addresses.addressAVM = providerXP.getAddress(publicKey, 'X');
       addresses.addressPVM = providerXP.getAddress(publicKey, 'P');
       addresses.addressCoreEth = providerXP.getAddress(publicKey, 'C');
-    } catch (err) {
+    } catch (_err) {
       throw new Error('Error while calculating addresses');
     }
 
@@ -681,7 +679,7 @@ export class SecretsService implements OnUnlock {
       const addressPublicKeyC = await getPubKeyFromTransport(
         ledgerService.recentTransport,
         index,
-        secrets.derivationPath
+        secrets.derivationPath,
       );
 
       // Get X/P public key from transport
@@ -689,7 +687,7 @@ export class SecretsService implements OnUnlock {
         ledgerService.recentTransport,
         index,
         secrets.derivationPath,
-        'AVM'
+        'AVM',
       );
 
       if (
@@ -711,7 +709,7 @@ export class SecretsService implements OnUnlock {
         {
           pubKeys,
         },
-        walletId
+        walletId,
       );
     }
 
@@ -729,7 +727,7 @@ export class SecretsService implements OnUnlock {
         {
           pubKeys: await wallet.getPublicKeys(),
         },
-        walletId
+        walletId,
       );
     }
 
@@ -739,7 +737,7 @@ export class SecretsService implements OnUnlock {
   async getAddresses(
     index: number,
     walletId: string,
-    { isMainnet, providerXP }: AddressResolutionOptions
+    { isMainnet, providerXP }: AddressResolutionOptions,
   ): Promise<Record<NetworkVMType, string> | never> {
     if (!walletId) {
       throw new Error('Wallet id not provided');
@@ -766,7 +764,7 @@ export class SecretsService implements OnUnlock {
         // X and P addresses different derivation path m/44'/9000'/0'...
         const xpPub = Avalanche.getAddressPublicKeyFromXpub(
           secrets.xpubXP,
-          index
+          index,
         );
         xAddr = providerXP.getAddress(xpPub, 'X');
         pAddr = providerXP.getAddress(xpPub, 'P');
@@ -777,7 +775,7 @@ export class SecretsService implements OnUnlock {
         [NetworkVMType.BITCOIN]: getBech32AddressFromXPub(
           secrets.xpub,
           index,
-          isMainnet ? networks.bitcoin : networks.testnet
+          isMainnet ? networks.bitcoin : networks.testnet,
         ),
         [NetworkVMType.AVM]: xAddr,
         [NetworkVMType.PVM]: pAddr,
@@ -811,7 +809,7 @@ export class SecretsService implements OnUnlock {
         [NetworkVMType.EVM]: getEvmAddressFromPubKey(pubKeyBuffer),
         [NetworkVMType.BITCOIN]: getBtcAddressFromPubKey(
           pubKeyBuffer,
-          isMainnet ? networks.bitcoin : networks.testnet
+          isMainnet ? networks.bitcoin : networks.testnet,
         ),
         [NetworkVMType.AVM]: addrX,
         [NetworkVMType.PVM]: addrP,

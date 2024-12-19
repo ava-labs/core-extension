@@ -23,7 +23,7 @@ export class UpdateSignerTokenHandler implements HandlerType {
   constructor(
     private sessionMgr: SeedlessSessionManager,
     private secretsService: SecretsService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -47,7 +47,7 @@ export class UpdateSignerTokenHandler implements HandlerType {
     }
 
     const secrets = await this.secretsService.getAccountSecrets(
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
 
     if (secrets.secretType !== SecretType.Seedless) {
@@ -72,12 +72,12 @@ export class UpdateSignerTokenHandler implements HandlerType {
     if (!secrets.userId && email === secrets.userEmail) {
       await this.secretsService.updateSecrets(
         { ...secrets, userId, userEmail: undefined },
-        secrets.id
+        secrets.id,
       );
     }
 
     const [result, error] = await resolve(
-      this.sessionMgr.updateSignerToken(token)
+      this.sessionMgr.updateSignerToken(token),
     );
 
     return {

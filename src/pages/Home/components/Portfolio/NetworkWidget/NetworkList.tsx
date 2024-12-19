@@ -85,7 +85,7 @@ export function NetworkList() {
           const { bridgeTransactions: legacyBridgeTxs } =
             filterBridgeStateToNetwork(bridgeState, favoriteNetwork);
           const filteredUnifiedBridgeTxs = Object.values(
-            unifiedBridgeTxs
+            unifiedBridgeTxs,
           ).filter(({ sourceChain, targetChain }) => {
             return (
               caipToChainId(sourceChain.chainId) === favoriteNetwork.chainId ||

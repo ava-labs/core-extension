@@ -113,7 +113,7 @@ export const SeedlessMfaManagementProvider = ({
         // CubeSigner SDK attempts to refresh the session token whenever possible,
         // but sometimes a race condition happens and the request may temporarily fail
         // with a 403 Forbidden. In that case, we retry.
-        (err) => err === 'Forbidden'
+        (err) => err === 'Forbidden',
       );
 
       setRecoveryMethods(methods);
@@ -131,7 +131,7 @@ export const SeedlessMfaManagementProvider = ({
       request<InitAuthenticatorChangeHandler>({
         method: ExtensionRequest.SEEDLESS_INIT_AUTHENTICATOR_CHANGE,
       }),
-    [request]
+    [request],
   );
 
   const completeAuthenticatorChange = useCallback(
@@ -140,7 +140,7 @@ export const SeedlessMfaManagementProvider = ({
         method: ExtensionRequest.SEEDLESS_COMPLETE_AUTHENTICATOR_CHANGE,
         params: [totpId, code],
       }),
-    [request]
+    [request],
   );
 
   const addFidoDevice = useCallback(
@@ -149,7 +149,7 @@ export const SeedlessMfaManagementProvider = ({
         method: ExtensionRequest.SEEDLESS_ADD_FIDO_DEVICE,
         params: [name, keyType],
       }),
-    [request]
+    [request],
   );
 
   const removeFidoDevice = useCallback(
@@ -158,7 +158,7 @@ export const SeedlessMfaManagementProvider = ({
         method: ExtensionRequest.SEEDLESS_REMOVE_FIDO_DEVICE,
         params: [id],
       }),
-    [request]
+    [request],
   );
 
   const removeTotp = useCallback(
@@ -166,7 +166,7 @@ export const SeedlessMfaManagementProvider = ({
       request<RemoveTotpHandler>({
         method: ExtensionRequest.SEEDLESS_REMOVE_TOTP,
       }),
-    [request]
+    [request],
   );
 
   useEffect(() => {
@@ -200,10 +200,10 @@ export const SeedlessMfaManagementProvider = ({
         recoveryMethods,
         hasMfaConfigured: recoveryMethods.length > 0,
         hasTotpConfigured: recoveryMethods.some(
-          ({ type }) => type === MfaRequestType.Totp
+          ({ type }) => type === MfaRequestType.Totp,
         ),
         hasFidoConfigured: recoveryMethods.some(
-          ({ type }) => type === MfaRequestType.Fido
+          ({ type }) => type === MfaRequestType.Fido,
         ),
       }}
     >

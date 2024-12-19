@@ -1,81 +1,42 @@
-import { AssetBalance } from '@src/pages/Bridge/models';
 import { useMemo } from 'react';
-import { formatTokenAmount } from '@avalabs/core-bridge-sdk';
 import Big from 'big.js';
 import { partition } from 'lodash';
-import { isUnifiedBridgeAsset } from '@src/pages/Bridge/utils/isUnifiedBridgeAsset';
 import { normalizeBalance } from '@src/utils/normalizeBalance';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
-
-function formatBalance(balance: Big | undefined) {
-  return balance ? formatTokenAmount(balance, 6) : '-';
-}
 
 export interface DisplayToken {
   name: string;
   symbol: string;
   displayValue: string;
-  token: TokenWithBalance | AssetBalance;
+  token: TokenWithBalance;
   decimals: number;
 }
 
 export const useDisplaytokenlist = ({
   tokensList,
-  bridgeTokensList,
   searchQuery,
 }: {
   tokensList?: TokenWithBalance[];
-  bridgeTokensList?: AssetBalance[];
   searchQuery: string;
 }) => {
   const displayTokenList: DisplayToken[] = useMemo(() => {
-    const initialList = [
-      ...(tokensList
-        ? tokensList
-            .filter((token) =>
-              searchQuery.length
-                ? token.name
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                  token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-                : true
-            )
-            .map((token): DisplayToken => {
-              return {
-                name: token.name,
-                symbol: token.symbol,
-                displayValue: token.balanceDisplayValue ?? '',
-                token,
-                decimals: isNFT(token) ? 0 : token.decimals,
-              };
-            })
-        : []),
-      ...(bridgeTokensList
-        ? bridgeTokensList
-            .filter((token) =>
-              searchQuery.length
-                ? token.symbol
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                  token.symbolOnNetwork
-                    ?.toLowerCase()
-                    .includes(searchQuery.toLocaleLowerCase())
-                : true
-            )
-            .map((token): DisplayToken => {
-              return {
-                name: token.symbolOnNetwork || token.symbol,
-                symbol: token.asset.symbol,
-                displayValue: formatBalance(token.balance),
-                token,
-                decimals: isUnifiedBridgeAsset(token.asset)
-                  ? token.asset.decimals
-                  : token.asset.denomination,
-              };
-            })
-        : []),
-    ];
+    const initialList = (tokensList ?? [])
+      .filter((token) =>
+        searchQuery.length
+          ? token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+          : true,
+      )
+      .map((token): DisplayToken => {
+        return {
+          name: token.name,
+          symbol: token.symbol,
+          displayValue: token.balanceDisplayValue ?? '',
+          token,
+          decimals: isNFT(token) ? 0 : token.decimals,
+        };
+      });
 
     const [tokensWithBalance, tokensWithoutBalance]: DisplayToken[][] =
       partition(initialList, (token) => {
@@ -107,6 +68,6 @@ export const useDisplaytokenlist = ({
         return tokenOne.name.localeCompare(tokenTwo.name);
       }),
     ];
-  }, [tokensList, bridgeTokensList, searchQuery]);
+  }, [tokensList, searchQuery]);
   return displayTokenList;
 };

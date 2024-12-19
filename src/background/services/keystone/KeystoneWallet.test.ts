@@ -36,7 +36,7 @@ const FIXTURES = {
   },
   SIGNATURE_RESPONSE: Buffer.from(
     'a201d8255095a1762eef6e41bdb339c2a15b5d8d70025841c60a745b056a2851dbfd28cdfa7e7069ebb76cebb4a18adb9b715db37f955d85659cd1b54ea949317aa685831bcf241bc58089747437a8e49759158b5982cc082e',
-    'hex'
+    'hex',
   ),
 };
 
@@ -66,7 +66,7 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
       0,
       keystoneTransport,
       currentChainId,
-      tabId
+      tabId,
     );
   });
 
@@ -75,12 +75,12 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
       await wallet.signTransaction(FIXTURES.LEGACY_TRANSACTION_REQUEST);
       expect(keystoneTransport.requestSignature).toHaveBeenCalledWith(
         FIXTURES.LEGACY_SIGNATURE_REQUEST,
-        tabId
+        tabId,
       );
     });
 
     describe('when transaction does not set chainId explicitly', () => {
-      const { chainId, ...txRequest } = FIXTURES.LEGACY_TRANSACTION_REQUEST; // eslint-disable-line @typescript-eslint/no-unused-vars
+      const { chainId, ...txRequest } = FIXTURES.LEGACY_TRANSACTION_REQUEST;
 
       it(`falls back to the current network's chainId if not explicitly set in the transaction`, async () => {
         wallet = new KeystoneWallet(
@@ -88,7 +88,7 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
           0,
           keystoneTransport,
           chainId,
-          tabId
+          tabId,
         );
 
         await wallet.signTransaction(txRequest);
@@ -99,7 +99,7 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
             common: expect.objectContaining({
               _chainParams: expect.objectContaining({ chainId: chainId }),
             }),
-          })
+          }),
         );
       });
     });
@@ -108,7 +108,7 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
       await wallet.signTransaction(FIXTURES.LEGACY_TRANSACTION_REQUEST);
 
       expect(ETHSignature.fromCBOR).toHaveBeenCalledWith(
-        FIXTURES.SIGNATURE_RESPONSE
+        FIXTURES.SIGNATURE_RESPONSE,
       );
     });
 
@@ -135,7 +135,7 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
           s,
           v,
         },
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -157,7 +157,7 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
           expect.anything(),
           expect.anything(),
           expect.anything(),
-          expect.anything()
+          expect.anything(),
         );
       });
     });
@@ -180,7 +180,7 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
           expect.anything(),
           expect.anything(),
           expect.anything(),
-          expect.anything()
+          expect.anything(),
         );
       });
     });

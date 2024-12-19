@@ -63,7 +63,7 @@ export interface JsonRpcRequestParams<Method extends string, Params = unknown> {
 
 export type JsonRpcRequestPayload<
   Method extends string = any,
-  Params = unknown
+  Params = unknown,
 > = Params extends undefined
   ? JsonRpcRequestPayloadWithoutParams<Method>
   : JsonRpcRequestPayloadWithParams<Method, Params>;
@@ -86,7 +86,7 @@ interface JsonRpcRequestPayloadBase<Method extends string = any> {
 
 interface JsonRpcRequestPayloadWithParams<
   Method extends string = any,
-  Params = unknown
+  Params = unknown,
 > extends JsonRpcRequestPayloadBase<Method> {
   readonly params: Params;
 }

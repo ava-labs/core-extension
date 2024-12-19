@@ -30,7 +30,7 @@ export const PARASWAP_RETRYABLE_ERRORS = [
 ];
 
 export const hasParaswapError = (
-  response: ParaswapPricesResponse
+  response: ParaswapPricesResponse,
 ): response is ParaswapPricesResponseWithError => {
   return typeof response.error === 'string';
 };

@@ -4,7 +4,7 @@ export const IPFS_URL = 'https://ipfs.io';
 
 export function ipfsResolverWithFallback(
   sourceUrl: string | undefined,
-  desiredGatewayPrefix: string = IPFS_URL
+  desiredGatewayPrefix: string = IPFS_URL,
 ) {
   if (!sourceUrl) {
     return '';

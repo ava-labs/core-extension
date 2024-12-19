@@ -65,7 +65,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       const permissionService = new PermissionsService(storageService);
 
       (storageService.load as jest.Mock).mockRejectedValue(
-        new Error('storage error')
+        new Error('storage error'),
       );
 
       const result = await permissionService.getPermissions();
@@ -82,7 +82,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       });
       permissionService.addListener(
         PermissionEvents.PERMISSIONS_STATE_UPDATE,
-        eventListener
+        eventListener,
       );
 
       const result = await permissionService.getPermissions();
@@ -105,7 +105,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       });
       permissionService.addListener(
         PermissionEvents.PERMISSIONS_STATE_UPDATE,
-        eventListener
+        eventListener,
       );
 
       await permissionService.getPermissions();
@@ -128,9 +128,8 @@ describe('background/services/permissions/PermissionsService.ts', () => {
         ...mockPermissionData,
       });
 
-      const result = await permissionService.getPermissionsForDomain(
-        'oneaccount.example'
-      );
+      const result =
+        await permissionService.getPermissionsForDomain('oneaccount.example');
 
       expect(result).toEqual(mockPermissionData['oneaccount.example']);
     });
@@ -158,7 +157,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       const result = await permissionService.hasDomainPermissionForAccount(
         'oneaccount.example',
-        '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+        '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
       );
 
       expect(result).toEqual(true);
@@ -173,7 +172,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       const result = await permissionService.hasDomainPermissionForAccount(
         'oneaccount.example',
-        '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       );
 
       expect(result).toEqual(false);
@@ -188,7 +187,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       const result = await permissionService.hasDomainPermissionForAccount(
         'oneaccount.example',
-        '0xnonexistentaccount'
+        '0xnonexistentaccount',
       );
 
       expect(result).toEqual(false);
@@ -203,7 +202,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       const result = await permissionService.hasDomainPermissionForAccount(
         'unkown.domain',
-        '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+        '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
       );
 
       expect(result).toEqual(false);
@@ -266,7 +265,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       permissionService.addListener(
         PermissionEvents.PERMISSIONS_STATE_UPDATE,
-        eventListener
+        eventListener,
       );
 
       const newPermission = {
@@ -293,20 +292,20 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       expect(
         permissions['oneaccount.example']?.accounts[
           '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
-        ]
+        ],
       ).toBe(true);
 
       await permissionService.setAccountPermissionForDomain(
         'oneaccount.example',
         '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        false
+        false,
       );
 
       const newPermissions = await permissionService.getPermissions();
       expect(
         newPermissions['oneaccount.example']?.accounts[
           '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
-        ]
+        ],
       ).toBe(false);
     });
 
@@ -321,20 +320,20 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       expect(
         permissions['newdomain.example']?.accounts[
           '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
-        ]
+        ],
       ).toBe(undefined);
 
       await permissionService.setAccountPermissionForDomain(
         'newdomain.example',
         '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        true
+        true,
       );
 
       const newPermissions = await permissionService.getPermissions();
       expect(
         newPermissions['newdomain.example']?.accounts[
           '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
-        ]
+        ],
       ).toBe(true);
     });
 
@@ -345,7 +344,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       await permissionService.setAccountPermissionForDomain(
         'newdomain.example',
         '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        true
+        true,
       );
 
       expect(storageService.save).toHaveBeenCalledTimes(1);
@@ -367,13 +366,13 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       permissionService.addListener(
         PermissionEvents.PERMISSIONS_STATE_UPDATE,
-        eventListener
+        eventListener,
       );
 
       await permissionService.setAccountPermissionForDomain(
         'newdomain.example',
         '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        true
+        true,
       );
 
       expect(eventListener).toHaveBeenCalledTimes(1);
@@ -395,13 +394,13 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       await permissionService.addWhitelistDomains('0x000000');
       expect(
-        permissionService.setAccountPermissionForDomain
+        permissionService.setAccountPermissionForDomain,
       ).toHaveBeenCalledTimes(2);
       expect(
-        permissionService.setAccountPermissionForDomain
+        permissionService.setAccountPermissionForDomain,
       ).toHaveBeenNthCalledWith(1, 'core.app', '0x000000', true);
       expect(
-        permissionService.setAccountPermissionForDomain
+        permissionService.setAccountPermissionForDomain,
       ).toHaveBeenNthCalledWith(2, 'test.core.app', '0x000000', true);
     });
   });

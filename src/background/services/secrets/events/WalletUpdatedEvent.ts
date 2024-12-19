@@ -18,7 +18,7 @@ export class WalletUpdatedEvents implements ExtensionEventEmitter {
           name: WalletEvents.WALLET_STATE_UPDATE,
           value: wallet,
         });
-      }
+      },
     );
   }
 
@@ -27,7 +27,7 @@ export class WalletUpdatedEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

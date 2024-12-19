@@ -46,7 +46,7 @@ export function ApproveAction() {
   const isWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
   const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
-    FunctionNames.SIGN
+    FunctionNames.SIGN,
   );
 
   const submitHandler = async () => {
@@ -58,7 +58,7 @@ export function ApproveAction() {
       isUsingLedgerWallet ||
         isUsingKeystoneWallet ||
         isWalletConnectAccount ||
-        isFireblocksAccount // wait for the response only for device wallets
+        isFireblocksAccount, // wait for the response only for device wallets
     );
   };
 

@@ -7,7 +7,7 @@ export function useAppDimensions(): { width: string; height: string } {
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const isFullscreen = useIsSpecificContextContainer(
-    ContextContainer.FULLSCREEN
+    ContextContainer.FULLSCREEN,
   );
 
   if (isMiniMode) {

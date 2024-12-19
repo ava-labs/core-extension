@@ -55,7 +55,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
       new DebankService(featureFlagService);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringMatching('/chain/list$')
+        expect.stringMatching('/chain/list$'),
       );
     });
 
@@ -81,7 +81,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
           .fn()
           .mockRejectedValueOnce(buildResponse())
           .mockResolvedValueOnce(
-            buildResponse(fixture_userAllComplexProtocolList)
+            buildResponse(fixture_userAllComplexProtocolList),
           );
       });
 
@@ -100,7 +100,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
         await service.getUserProtocols('0x1234');
 
         expect(fetch).toHaveBeenCalledWith(
-          expect.stringContaining('user/all_complex_protocol_list')
+          expect.stringContaining('user/all_complex_protocol_list'),
         );
       });
     });
@@ -112,7 +112,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
         .fn()
         .mockResolvedValueOnce(buildResponse(fixture_chainList))
         .mockResolvedValueOnce(
-          buildResponse(fixture_userAllComplexProtocolList)
+          buildResponse(fixture_userAllComplexProtocolList),
         );
     });
 
@@ -123,7 +123,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
       await service.getUserProtocols('0x1234');
 
       expect(fetch).toHaveBeenLastCalledWith(
-        expect.stringContaining('user/all_complex_protocol_list?id=0x1234')
+        expect.stringContaining('user/all_complex_protocol_list?id=0x1234'),
       );
     });
 
@@ -377,7 +377,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
           .fn()
           .mockRejectedValueOnce(buildResponse())
           .mockResolvedValueOnce(
-            buildResponse(fixture_userAllComplexProtocolList)
+            buildResponse(fixture_userAllComplexProtocolList),
           );
       });
 
@@ -411,7 +411,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
         () =>
           new Promise((res) => {
             resolveFetch = res;
-          })
+          }),
       );
 
       const service = new DebankService(featureFlagService);
@@ -485,9 +485,9 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
       } as any);
 
       await expect(
-        service.parseTransaction(networkMock, requestMock)
+        service.parseTransaction(networkMock, requestMock),
       ).rejects.toStrictEqual(
-        new Error('debank-transaction-parsing flag disabled')
+        new Error('debank-transaction-parsing flag disabled'),
       );
     });
 
@@ -499,7 +499,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
           () =>
             new Promise((res) => {
               resolveFetch = res;
-            })
+            }),
         )
         .mockRejectedValue(new Error('network error'));
 
@@ -538,7 +538,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
         } as any);
 
         await expect(
-          service.parseTransaction(networkMock, requestMock)
+          service.parseTransaction(networkMock, requestMock),
         ).rejects.toStrictEqual(new Error('DeBank transaction parsing failed'));
 
         expect(global.fetch).toHaveBeenCalledTimes(2);
@@ -549,7 +549,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
             body: '{"tx":{"from":"0x473B6494E2632ec1c9F90Ce05327e96e30767638","to":"0x473B6494E2632ec1c9F90Ce05327e96e30767638","data":"0x","value":"0x5af3107a4000","chainId":43114,"gas":"0x0","nonce":"0x1"}}',
             headers: { 'content-type': 'application/json' },
             method: 'post',
-          }
+          },
         );
       });
 
@@ -568,7 +568,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
         } as any);
 
         await expect(
-          service.parseTransaction(networkMock, requestMock)
+          service.parseTransaction(networkMock, requestMock),
         ).rejects.toStrictEqual(new Error('DeBank transaction parsing failed'));
 
         expect(global.fetch).toHaveBeenCalledTimes(2);
@@ -592,7 +592,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
         } as any);
 
         await expect(
-          service.parseTransaction(networkMock, requestMock)
+          service.parseTransaction(networkMock, requestMock),
         ).rejects.toStrictEqual(new Error('DeBank transaction parsing failed'));
 
         expect(global.fetch).toHaveBeenCalledTimes(2);
@@ -656,12 +656,12 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
           ensureFlagEnabled: jest
             .fn()
             .mockImplementation(
-              (flag) => flag !== FeatureGates.DEBANK_TRANSACTION_PRE_EXECUTION
+              (flag) => flag !== FeatureGates.DEBANK_TRANSACTION_PRE_EXECUTION,
             ),
         } as any);
 
         await expect(
-          service.parseTransaction(networkMock, requestMock)
+          service.parseTransaction(networkMock, requestMock),
         ).resolves.toStrictEqual({
           abi: {
             func: 'setApprovalForAll',
@@ -692,7 +692,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
         const service = new DebankService(featureFlagService);
 
         await expect(
-          service.parseTransaction(networkMock, requestMock)
+          service.parseTransaction(networkMock, requestMock),
         ).resolves.toStrictEqual({
           abi: {
             func: 'setApprovalForAll',
@@ -726,7 +726,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
         const service = new DebankService(featureFlagService);
 
         await expect(
-          service.parseTransaction(networkMock, requestMock)
+          service.parseTransaction(networkMock, requestMock),
         ).resolves.toStrictEqual({
           abi: {
             func: 'setApprovalForAll',
@@ -757,7 +757,7 @@ describe('src/background/services/defi/debank/DebankService.ts', () => {
         const service = new DebankService(featureFlagService);
 
         await expect(
-          service.parseTransaction(networkMock, requestMock)
+          service.parseTransaction(networkMock, requestMock),
         ).resolves.toStrictEqual({
           abi: {
             func: 'setApprovalForAll',

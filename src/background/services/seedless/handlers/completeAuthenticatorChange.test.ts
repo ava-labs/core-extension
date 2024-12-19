@@ -18,7 +18,7 @@ describe('src/background/services/seedless/handlers/completeAuthenticatorChange'
         method: ExtensionRequest.SEEDLESS_COMPLETE_AUTHENTICATOR_CHANGE,
         id: 'abcd-1234',
         params: ['totpId', '123456'],
-      })
+      }),
     );
   };
 
@@ -28,7 +28,7 @@ describe('src/background/services/seedless/handlers/completeAuthenticatorChange'
 
   it('returns error if change completion fails', async () => {
     seedlessMfaService.completeAuthenticatorChange.mockRejectedValueOnce(
-      new Error('Session expired')
+      new Error('Session expired'),
     );
 
     const result = await handle();

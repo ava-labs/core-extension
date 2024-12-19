@@ -8,20 +8,19 @@ import {
 } from '../dAppConnection/models';
 import { Middleware } from './models';
 
-interface DomainMetadataRequest
-  extends JsonRpcRequestPayload<
-    DAppProviderRequest.DOMAIN_METADATA_METHOD,
-    DomainMetadata
-  > {}
+type DomainMetadataRequest = JsonRpcRequestPayload<
+  DAppProviderRequest.DOMAIN_METADATA_METHOD,
+  DomainMetadata
+>;
 
 const isMetadataRequest = (
-  request: JsonRpcRequestPayload<string, unknown>
+  request: JsonRpcRequestPayload<string, unknown>,
 ): request is DomainMetadataRequest => {
   return request.method === DAppProviderRequest.DOMAIN_METADATA_METHOD;
 };
 
 export function SiteMetadataMiddleware(
-  connection: Runtime.Port
+  connection: Runtime.Port,
 ): Middleware<JsonRpcRequest, JsonRpcResponse> {
   /**
    * Domain is per connection so this needs to remain an closure to the connection

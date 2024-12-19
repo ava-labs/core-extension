@@ -4,6 +4,7 @@ import {
   ExternalLinkIcon,
   Grid,
   Stack,
+  Tooltip,
   Typography,
   toast,
   useTheme,
@@ -34,6 +35,7 @@ import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { Overlay } from '@src/components/common/Overlay';
 import { AppBackground } from '@src/components/common/AppBackground';
+import browser from 'webextension-polyfill';
 
 enum Step {
   Import,
@@ -55,7 +57,7 @@ export function AddWalletWithLedger() {
   const [step, setStep] = useState(Step.Import);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
-    DerivationPath.BIP44
+    DerivationPath.BIP44,
   );
 
   const { popDeviceSelection } = useLedgerContext();
@@ -81,7 +83,7 @@ export function AddWalletWithLedger() {
         window.open(
           'https://www.ledger.com/ledger-live',
           '_blank',
-          'noreferrer'
+          'noreferrer',
         );
       }}
     >
@@ -120,13 +122,21 @@ export function AddWalletWithLedger() {
         capture('LedgerImportFailure');
         sentryCaptureException(
           err as Error,
-          SentryExceptionTypes.WALLET_IMPORT
+          SentryExceptionTypes.WALLET_IMPORT,
         );
         const { title } = getErrorMessage(err);
         toast.error(title);
       }
     },
-    [capture, getErrorMessage, importLedger, pathSpec, publicKeys, xpub, xpubXP]
+    [
+      capture,
+      getErrorMessage,
+      importLedger,
+      pathSpec,
+      publicKeys,
+      xpub,
+      xpubXP,
+    ],
   );
 
   // This will create a fake background that overlay is going to blur for design.
@@ -218,10 +228,16 @@ export function AddWalletWithLedger() {
             >
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {t(
-                  'Please close this tab and open the Core Browser Extension to see the newly imported wallet.'
+                  'Please close this tab and open the Core Browser Extension to see the newly imported wallet.',
                 )}
               </Typography>
-              <Button onClick={window.close} sx={{ width: '50%' }}>
+              <Button
+                onClick={() => {
+                  browser.action.openPopup();
+                  window.close();
+                }}
+                sx={{ width: '50%' }}
+              >
                 {t('Close')}
               </Button>
             </Stack>
@@ -306,15 +322,38 @@ export function AddWalletWithLedger() {
                 <LedgerConnector
                   onSuccess={onSuccess}
                   onTroubleshoot={() => setStep(Step.Troubleshoot)}
+                  checkIfWalletExists
                 />
               </Stack>
               <Stack sx={{ p: 2, mb: 2, rowGap: 1 }}>
-                <Button
-                  disabled={!hasPublicKeys}
-                  onClick={() => setStep(Step.Name)}
-                >
-                  {t('Next')}
-                </Button>
+                <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
+                  <Stack sx={{ width: '50%' }}>
+                    <Tooltip
+                      title={t(
+                        'Clicking the cancel button will close the tab and open the extension for you. If the extension doesn’t open automatically, please open it manually.',
+                      )}
+                    >
+                      <Button
+                        color="secondary"
+                        onClick={() => {
+                          browser.action.openPopup();
+                          window.close();
+                        }}
+                        fullWidth
+                      >
+                        {t('Cancel')}
+                      </Button>
+                    </Tooltip>
+                  </Stack>
+                  <Button
+                    disabled={!hasPublicKeys}
+                    onClick={() => setStep(Step.Name)}
+                    sx={{ width: '50%' }}
+                    fullWidth
+                  >
+                    {t('Next')}
+                  </Button>
+                </Stack>
                 <LedgerLiveSupportButton />
               </Stack>
             </Stack>

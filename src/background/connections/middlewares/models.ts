@@ -17,12 +17,12 @@ export type Context<RequestType, ResponseType> = {
 export type Middleware<RequestType, ResponseType> = (
   context: Context<RequestType, ResponseType>,
   next: Next,
-  error: ErrorCallback
+  error: ErrorCallback,
 ) => Promise<void> | void;
 
 export type Pipeline<RequestType, ResponseType> = {
   push: (...middlewares: Middleware<RequestType, ResponseType>[]) => void;
   execute: (
-    context: Context<RequestType, ResponseType>
+    context: Context<RequestType, ResponseType>,
   ) => Promise<Context<RequestType, ResponseType>>;
 };

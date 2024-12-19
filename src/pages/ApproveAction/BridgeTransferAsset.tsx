@@ -38,7 +38,7 @@ export function BridgeTransferAsset({
   const { displayData } = action;
   const [gasSettings, setGasSettings] = useState<CustomGasSettings>({});
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
-    GasFeeModifier.INSTANT
+    GasFeeModifier.INSTANT,
   );
 
   const tokenPrice = displayData?.token?.priceInCurrency;
@@ -77,7 +77,7 @@ export function BridgeTransferAsset({
         return currSettings;
       });
     },
-    [setGasSettings, action.actionId, updateAction]
+    [setGasSettings, action.actionId, updateAction],
   );
 
   return (

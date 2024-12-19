@@ -26,14 +26,14 @@ describe('src/background/services/seedless/handlers/cancelRecoveryPhraseExport',
       secretsService,
       networkService,
       mfaService,
-      accountsService
+      accountsService,
     );
 
     return handler.handle(
       buildRpcCall({
         method: ExtensionRequest.SEEDLESS_CANCEL_RECOVERY_PHRASE_EXPORT,
         id: 'abcd-1234',
-      })
+      }),
     );
   };
 
@@ -69,7 +69,7 @@ describe('src/background/services/seedless/handlers/cancelRecoveryPhraseExport',
       const result = await handle();
 
       expect(result.error).toEqual(
-        'Action only available for seedless wallets'
+        'Action only available for seedless wallets',
       );
     });
   });
@@ -85,7 +85,7 @@ describe('src/background/services/seedless/handlers/cancelRecoveryPhraseExport',
   it('returns error if export cancellation fails', async () => {
     wallet.getMnemonicExportState.mockResolvedValueOnce({} as any);
     wallet.cancelMnemonicExport.mockRejectedValueOnce(
-      new Error('Session expired')
+      new Error('Session expired'),
     );
 
     const result = await handle();

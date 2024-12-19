@@ -23,7 +23,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     () =>
       new Promise((res) => {
         return res;
-      })
+      }),
   );
   const balancesServiceMock = {
     getBalancesForNetwork: jest.fn(),
@@ -182,7 +182,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         } else if (network.chainId === network2.chainId) {
           return Promise.resolve(balanceForNetwork2);
         }
-      }
+      },
     );
 
     // eslint-disable-next-line
@@ -199,7 +199,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         networkServiceMock,
         lockService,
         storageService,
-        settingsServiceMock
+        settingsServiceMock,
       );
     });
 
@@ -207,22 +207,79 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       await service.getBalancesForNetworks(
         [network1.chainId],
         [account1],
-        [TokenType.NATIVE]
+        [TokenType.NATIVE],
       );
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(1);
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledWith(
         network1,
         [account1],
         [TokenType.NATIVE],
-        undefined
+        undefined,
       );
+    });
+
+    it('only updates the balances of the requested accounts', async () => {
+      // Mock the existing balances for other accounts
+      (balancesServiceMock.getBalancesForNetwork as jest.Mock).mockReset();
+
+      balancesServiceMock.getBalancesForNetwork
+        .mockResolvedValueOnce({
+          [account2.addressC]: {
+            [networkToken1.symbol]: network1TokenBalance,
+          },
+        })
+        .mockResolvedValueOnce({
+          [account1.addressC]: {
+            [networkToken1.symbol]: network1TokenBalance,
+          },
+        });
+
+      // Get balances for the `account2` so they get cached
+      await service.getBalancesForNetworks(
+        [network1.chainId],
+        [account2],
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+      );
+
+      expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledTimes(
+        1,
+      );
+
+      expect(service.balances).toEqual({
+        [network1.chainId]: {
+          [account2.addressC]: {
+            [networkToken1.symbol]: network1TokenBalance,
+          },
+        },
+      });
+
+      // Now get the balances for the first account and verify the `account2` balances are kept in cache
+      await service.getBalancesForNetworks(
+        [network1.chainId],
+        [account1],
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+      );
+
+      expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledTimes(
+        2,
+      );
+      expect(service.balances).toEqual({
+        [network1.chainId]: {
+          [account1.addressC]: {
+            [networkToken1.symbol]: network1TokenBalance,
+          },
+          [account2.addressC]: {
+            [networkToken1.symbol]: network1TokenBalance,
+          },
+        },
+      });
     });
 
     it('can fetch the balance for multiple networks and one account', async () => {
       const balances = await service.getBalancesForNetworks(
         [network1.chainId, network2.chainId],
         [account1],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721]
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
       );
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(2);
       const expected = {
@@ -252,7 +309,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       const result = await service.getBalancesForNetworks(
         [network1.chainId, network2.chainId],
         [account1, account2],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721]
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
       );
 
       const expected = {
@@ -287,14 +344,14 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         new Promise((res) =>
           setTimeout(() => {
             res(balanceForNetwork1);
-          }, 500)
-        )
+          }, 500),
+        ),
       );
 
       const updatePromise = service.getBalancesForNetworks(
         [network1.chainId],
         [account1],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721]
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
       );
 
       // eslint-disable-next-line
@@ -316,7 +373,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       await service.getBalancesForNetworks(
         [network1.chainId, network2.chainId],
         [account1],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721]
+        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
       );
 
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(2);
@@ -369,7 +426,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         networkServiceMock,
         lockService,
         storageService,
-        settingsServiceMock
+        settingsServiceMock,
       );
     });
 
@@ -395,7 +452,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
 
     it('should skip the load from the cache because of there are data in the memory', async () => {
       balancesServiceMock.getBalancesForNetwork.mockResolvedValueOnce(
-        balanceForNetwork2
+        balanceForNetwork2,
       );
 
       const cachedBalances = { [network2.chainId]: balanceForNetwork1 };
@@ -468,7 +525,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
 
       // Fresh balances include only one account (account1) and the values for it DID NOT change
       balancesServiceMock.getBalancesForNetwork.mockResolvedValueOnce(
-        balanceForNetwork2
+        balanceForNetwork2,
       );
 
       const updatesListener = jest.fn();

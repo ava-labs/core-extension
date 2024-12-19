@@ -65,10 +65,37 @@ describe('background/services/storage/schemaMigrations/migrations/unified_bridge
 
   it('accepts correct inputs', () => {
     expect(
-      unified_bridge_v2.previousSchema.validate(stateWithPendingTransfers)
+      unified_bridge_v2.previousSchema.validate(stateWithPendingTransfers),
     ).toEqual({
       error: undefined,
       value: stateWithPendingTransfers,
+    });
+
+    expect(
+      unified_bridge_v2.previousSchema.validate({
+        addresses: [],
+        pendingTransfers: {},
+        version: 1,
+      }),
+    ).toEqual({
+      error: undefined,
+      value: {
+        addresses: [],
+        pendingTransfers: {},
+        version: 1,
+      },
+    });
+
+    expect(
+      unified_bridge_v2.previousSchema.validate({ pendingTransfers: {} }),
+    ).toEqual({
+      error: undefined,
+      value: { pendingTransfers: {} },
+    });
+
+    expect(unified_bridge_v2.previousSchema.validate({})).toEqual({
+      error: undefined,
+      value: {},
     });
   });
 
@@ -151,15 +178,15 @@ describe('background/services/storage/schemaMigrations/migrations/unified_bridge
             },
             targetConfirmationCount: 2,
             targetRequiredConfirmationCount: 4,
-            targetStartBlockNumber: 1234567,
+            targetStartBlockNumber: 1234567n,
           },
         },
         version: 2,
-      }
+      },
     );
 
     expect(
-      await unified_bridge_v2.up({ addresses: ['0xTargetAddress'] })
+      await unified_bridge_v2.up({ addresses: ['0xTargetAddress'] }),
     ).toStrictEqual({
       pendingTransfers: {},
       version: 2,

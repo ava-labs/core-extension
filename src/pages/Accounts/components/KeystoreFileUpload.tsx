@@ -74,7 +74,7 @@ export const KeystoreFileUpload = ({
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {t(
-              'Only keystore files exported from the Avalanche Wallet are supported.'
+              'Only keystore files exported from the Avalanche Wallet are supported.',
             )}
           </Typography>
           <Typography variant="h5" color="text.secondary" sx={{ my: 2 }}>
