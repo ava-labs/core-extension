@@ -89,7 +89,7 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
     });
     getPrimaryAccountsByWalletId.mockReturnValue([
       primaryAccount,
-			primaryAccount2,
+      primaryAccount2,
     ]);
 
     getPrimaryWalletsDetails.mockResolvedValue([wallet]);
@@ -220,7 +220,7 @@ describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', (
     getAccountByID.mockReturnValue(primaryAccount);
     getPrimaryAccountsByWalletId.mockReturnValue([
       primaryAccount,
-			primaryAccount2,
+      primaryAccount2,
     ]);
 
     getPrimaryWalletsDetails.mockResolvedValue([wallet]);
