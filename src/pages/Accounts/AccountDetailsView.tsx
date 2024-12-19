@@ -116,6 +116,7 @@ export const AccountDetailsView = () => {
         }}
       >
         <IconButton
+          data-testid="account-details-back-btn"
           onClick={() => history.replace('/accounts')}
           sx={{
             padding: 0.25,
@@ -134,6 +135,7 @@ export const AccountDetailsView = () => {
         <OverflowingTypography
           variant="h4"
           sx={{ mr: 2, fontSize: 24, flexGrow: 1 }}
+          data-testid="account-details-name"
         >
           {account.name}
         </OverflowingTypography>

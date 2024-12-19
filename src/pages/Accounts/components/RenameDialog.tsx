@@ -61,6 +61,7 @@ export const RenameDialog = ({
             ),
           }}
           {...keyboardShortcuts}
+          data-testid="rename-account-input"
         />
       </DialogContent>
       <Stack

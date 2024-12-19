@@ -133,6 +133,7 @@ export function Accounts() {
             },
           }}
           disableRipple
+          data-testid="accounts-back-btn"
         >
           <ChevronLeftIcon size={32} />
         </IconButton>
@@ -151,7 +152,11 @@ export function Accounts() {
             gap: 2,
           }}
         >
-          <OverflowingTypography variant="caption" color="text.secondary">
+          <OverflowingTypography
+            variant="caption"
+            color="text.secondary"
+            data-testid="account-management-active-wallet"
+          >
             {t('Currently using {{walletName}}', {
               walletName: isPrimaryAccount(active)
                 ? walletDetails?.name
@@ -183,7 +188,11 @@ export function Accounts() {
             gap: 2,
           }}
         >
-          <OverflowingTypography variant="h5" fontSize={18}>
+          <OverflowingTypography
+            variant="h5"
+            fontSize={18}
+            data-testid="account-management-active-account"
+          >
             {active?.name}
           </OverflowingTypography>
           <Typography variant="h5" fontSize={18}>
