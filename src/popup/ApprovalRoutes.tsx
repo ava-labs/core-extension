@@ -100,6 +100,12 @@ const RenameAccount = lazy(() => {
   }));
 });
 
+const DeleteAccounts = lazy(() => {
+  return import('../pages/Wallet/DeleteAccounts').then((m) => ({
+    default: m.DeleteAccount,
+  }));
+});
+
 const GetAddressesInRange = lazy(() => {
   return import('../pages/Wallet/GetAddressesInRange').then((m) => ({
     default: m.GetAddressesInRange,
@@ -183,6 +189,9 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       </Route>
       <Route path="/renameAccount">
         <RenameAccount />
+      </Route>
+      <Route path="/deleteAccounts">
+        <DeleteAccounts />
       </Route>
       <Route path="/getAddressesInRange">
         <GetAddressesInRange />
