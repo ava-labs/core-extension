@@ -99,7 +99,7 @@ export function GenericApprovalScreen() {
   }, [requestId, updateAction, isUsingLedgerWallet, isUsingKeystoneWallet]);
 
   // Make the user switch to the correct app or close the window
-  useLedgerDisconnectedDialog(handleRejection);
+  useLedgerDisconnectedDialog(handleRejection, undefined, network);
 
   if (!action || !displayData) {
     return <LoadingOverlay />;
