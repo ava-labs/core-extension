@@ -4,15 +4,20 @@ import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { WalletService } from '../../wallet/WalletService';
 
+// TODO: call this to get the pubkey for hvm
 @injectable()
 export class AvalancheGetAccountPubKeyHandler extends DAppRequestHandler {
-  methods = [DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY];
+  methods = [
+    DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
+    DAppProviderRequest.WALLET_GET_PUBKEY,
+  ];
 
   constructor(private walletService: WalletService) {
     super();
   }
 
   handleAuthenticated = async ({ request }) => {
+    console.log('handleAuthenticated:');
     try {
       const publicKey = await this.walletService.getActiveAccountPublicKey();
 
@@ -31,9 +36,6 @@ export class AvalancheGetAccountPubKeyHandler extends DAppRequestHandler {
   };
 
   handleUnauthenticated = ({ request }) => {
-    return {
-      ...request,
-      error: ethErrors.provider.unauthorized(),
-    };
+    return this.handleAuthenticated({ request });
   };
 }

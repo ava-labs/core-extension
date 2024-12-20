@@ -8,6 +8,7 @@ import { runtime } from 'webextension-polyfill';
 import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { AvalancheModule } from '@avalabs/avalanche-module';
 import { EvmModule } from '@avalabs/evm-module';
+import { HvmModule } from '@avalabs/hvm-module';
 import { ethErrors } from 'eth-rpc-errors';
 import { singleton } from 'tsyringe';
 
@@ -71,6 +72,11 @@ export class ModuleManager {
         approvalController: this.#approvalController,
         appInfo,
       }),
+      new HvmModule({
+        environment,
+        approvalController: this.#approvalController,
+        appInfo,
+      }),
     ];
   }
 
@@ -123,15 +129,17 @@ export class ModuleManager {
   }
 
   async #getModuleByChainId(chainId: string): Promise<Module | undefined> {
-    return this.#modules.find((module) =>
+    const moduleStore = this.#modules.find((module) =>
       module.getManifest()?.network.chainIds.includes(chainId)
     );
+    return moduleStore;
   }
 
   async #getModuleByNamespace(namespace: string): Promise<Module | undefined> {
-    return this.#modules.find((module) =>
+    const moduleStore = this.#modules.find((module) =>
       module.getManifest()?.network.namespaces.includes(namespace)
     );
+    return moduleStore;
   }
 
   #isMethodPermitted(module: Module, method: string): boolean {

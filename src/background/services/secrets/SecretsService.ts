@@ -43,6 +43,7 @@ import { NetworkService } from '../network/NetworkService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import EventEmitter from 'events';
 import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { getAddressForHvm } from './utils/getAddressForHvm';
 
 /**
  * Use this service to fetch, save or delete account secrets.
@@ -734,8 +735,9 @@ export class SecretsService implements OnUnlock {
         walletId
       );
     }
-
-    return this.getAddresses(index, walletId, networkService);
+    const addresses = this.getAddresses(index, walletId, networkService);
+    console.log('created addresses: ', await addresses);
+    return addresses;
   }
 
   async getAddresses(
@@ -743,6 +745,7 @@ export class SecretsService implements OnUnlock {
     walletId: string,
     networkService: NetworkService
   ): Promise<Record<NetworkVMType, string> | never> {
+    console.log('secretsService getAddresses called : ');
     if (!walletId) {
       throw new Error('Wallet id not provided');
     }
@@ -763,6 +766,7 @@ export class SecretsService implements OnUnlock {
     ) {
       // C-avax... this address uses the same public key as EVM
       const cPubkey = getAddressPublicKeyFromXPub(secrets.xpub, index);
+      console.log('cPubkey: ', cPubkey.toString('hex'));
       const cAddr = providerXP.getAddress(cPubkey, 'C');
 
       let xAddr, pAddr;
@@ -787,8 +791,7 @@ export class SecretsService implements OnUnlock {
         [NetworkVMType.AVM]: xAddr,
         [NetworkVMType.PVM]: pAddr,
         [NetworkVMType.CoreEth]: cAddr,
-        // TODO: getaddressfromhvm -> todo in tests as well
-        [NetworkVMType.HVM]: '',
+        [NetworkVMType.HVM]: getAddressForHvm(cPubkey),
       };
     }
 
@@ -823,8 +826,7 @@ export class SecretsService implements OnUnlock {
         [NetworkVMType.AVM]: addrX,
         [NetworkVMType.PVM]: addrP,
         [NetworkVMType.CoreEth]: providerXP.getAddress(pubKeyBuffer, 'C'),
-        // TODO: getHvmAddressFromPubkey
-        [NetworkVMType.HVM]: '',
+        [NetworkVMType.HVM]: getAddressForHvm(addressPublicKey.evm),
       };
     }
 

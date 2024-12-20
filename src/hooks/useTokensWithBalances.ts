@@ -141,13 +141,18 @@ export const useTokensWithBalances = (
       return [];
     }
 
-    const address = getAddressForChain(selectedChainId, activeAccount);
+    const address = getAddressForChain(
+      selectedChainId,
+      activeAccount,
+      network?.caipId
+    );
 
     if (!address) {
       return [];
     }
 
     const networkBalances = balances.tokens?.[selectedChainId]?.[address] ?? {};
+    console.log('networkBalances: ', networkBalances);
 
     if (forceShowTokensWithoutBalances || showTokensWithoutBalances) {
       const merged = merge(
@@ -181,6 +186,7 @@ export const useTokensWithBalances = (
   }, [
     selectedChainId,
     activeAccount,
+    network?.caipId,
     balances.tokens,
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,

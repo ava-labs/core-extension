@@ -391,6 +391,7 @@ export class AccountsService implements OnLock, OnUnlock {
             addressAVM: addresses[NetworkVMType.AVM],
             addressPVM: addresses[NetworkVMType.PVM],
             addressCoreEth: addresses[NetworkVMType.CoreEth],
+            addressHVM: addresses[NetworkVMType.HVM],
           },
         ],
       },
