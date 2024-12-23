@@ -65,7 +65,7 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
       expect(await transformedHandler!.handle(buildRpcCall(request))).toEqual(
         expect.objectContaining({
           error: 'No request ID provided',
-        })
+        }),
       );
     });
 
@@ -87,7 +87,7 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
       expect(await transformedHandler!.handle(buildRpcCall(request))).toEqual(
         expect.objectContaining({
           error,
-        })
+        }),
       );
     });
 
@@ -109,7 +109,7 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
       expect(await transformedHandler!.handle(buildRpcCall(request))).toEqual(
         expect.objectContaining({
           error,
-        })
+        }),
       );
     });
 
@@ -144,7 +144,7 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
               name: browser.runtime.getManifest().name,
             },
           },
-        })
+        }),
       );
     });
 
@@ -166,7 +166,7 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
       expect(await transformedHandler!.handle(buildRpcCall(request))).toEqual(
         expect.objectContaining({
           result,
-        })
+        }),
       );
     });
 
@@ -204,7 +204,7 @@ describe('src/background/connections/extensionConnection/DappHandlerToExtensionH
       expect(await transformedHandler!.handle(buildRpcCall(request))).toEqual(
         expect.objectContaining({
           result: DEFERRED_RESPONSE,
-        })
+        }),
       );
     });
   });

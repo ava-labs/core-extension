@@ -101,7 +101,7 @@ export function RecoveryMethods() {
                 icon={<QRCodeIcon size={24} />}
                 title={t('Authenticator')}
                 description={t(
-                  'Use an authenticator app as a recovery method.'
+                  'Use an authenticator app as a recovery method.',
                 )}
                 onClick={() => setSelectedMethod(RecoveryMethodTypes.TOTP)}
               />
@@ -130,8 +130,8 @@ export function RecoveryMethods() {
             !featureFlags[FeatureGates.SEEDLESS_OPTIONAL_MFA]
               ? t('Coming soon!')
               : isSeedlessMfaRequiredForAccount
-              ? t('MFA configuration is required for your account.')
-              : undefined
+                ? t('MFA configuration is required for your account.')
+                : undefined
           }
           onNext={async () => {
             await loginWithoutMFA();

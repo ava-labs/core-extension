@@ -48,7 +48,7 @@ export class AddFidoDeviceHandler implements HandlerType {
         result: await this.seedlessMfaService.addFidoDevice(
           name,
           keyType,
-          request.tabId
+          request.tabId,
         ),
       };
     } catch (error: any) {

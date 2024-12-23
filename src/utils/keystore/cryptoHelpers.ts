@@ -21,7 +21,7 @@ export const getHash = (password: string, salt: Uint8Array): Uint8Array =>
 
 export const calculatePasswordHash = (
   password: string,
-  salt: Uint8Array
+  salt: Uint8Array,
 ): { salt: Uint8Array; hash: Uint8Array } => {
   let slt: Uint8Array;
 
@@ -43,7 +43,7 @@ const importKey = async (pwkey: Uint8Array): Promise<CryptoKey> =>
 const deriveKey = async (
   keyMaterial: CryptoKey,
   salt: Uint8Array,
-  iterations = KEYGEN_ITERATIONS_V3
+  iterations = KEYGEN_ITERATIONS_V3,
 ): Promise<CryptoKey> =>
   crypto.subtle.deriveKey(
     {
@@ -55,7 +55,7 @@ const deriveKey = async (
     keyMaterial,
     { name: 'AES-GCM', length: AES_LENGTH },
     false,
-    ['encrypt', 'decrypt']
+    ['encrypt', 'decrypt'],
   );
 
 export const decrypt = async (
@@ -63,7 +63,7 @@ export const decrypt = async (
   ciphertext: Uint8Array,
   salt: Uint8Array,
   iv: Uint8Array,
-  keygenIterations?: number
+  keygenIterations?: number,
 ): Promise<Uint8Array> => {
   const pwkey = getHash(password, salt);
   const keyMaterial = await importKey(pwkey);
@@ -77,7 +77,7 @@ export const decrypt = async (
       tagLength: TAG_LENGTH, // The tagLength you used to encrypt (if any)
     },
     pkey, // from importKey above
-    ciphertext // ArrayBuffer of the data
+    ciphertext, // ArrayBuffer of the data
   );
 
   return new Uint8Array(pt);

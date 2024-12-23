@@ -24,7 +24,7 @@ export class ImportLedgerHandler implements HandlerType {
   constructor(
     private walletService: WalletService,
     private accountsService: AccountsService,
-    private secretsService: SecretsService
+    private secretsService: SecretsService,
   ) {}
 
   async #addAccounts(walletId: string, numberOfAccounts: number = 3) {
@@ -118,9 +118,8 @@ export class ImportLedgerHandler implements HandlerType {
     }
 
     await this.#addAccounts(id, numberOfAccountsToCreate || 3);
-    const addedWallet = await this.secretsService.getWalletAccountsSecretsById(
-      id
-    );
+    const addedWallet =
+      await this.secretsService.getWalletAccountsSecretsById(id);
     return {
       ...request,
       result: {

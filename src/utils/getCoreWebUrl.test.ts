@@ -16,7 +16,7 @@ describe('utils/getCoreWebUrl.ts', () => {
     });
     it('returns Core Web URL with address and network', () => {
       expect(getCoreWebUrl('0x00000', 1)).toBe(
-        'https://core.app/account/0x00000?network=1'
+        'https://core.app/account/0x00000?network=1',
       );
     });
     it('returns base Core Web URL given networkId and no address ', () => {

@@ -65,7 +65,7 @@ describe('background/services/storage/schemaMigrations/migrations/unified_bridge
 
   it('accepts correct inputs', () => {
     expect(
-      unified_bridge_v2.previousSchema.validate(stateWithPendingTransfers)
+      unified_bridge_v2.previousSchema.validate(stateWithPendingTransfers),
     ).toEqual({
       error: undefined,
       value: stateWithPendingTransfers,
@@ -76,7 +76,7 @@ describe('background/services/storage/schemaMigrations/migrations/unified_bridge
         addresses: [],
         pendingTransfers: {},
         version: 1,
-      })
+      }),
     ).toEqual({
       error: undefined,
       value: {
@@ -87,7 +87,7 @@ describe('background/services/storage/schemaMigrations/migrations/unified_bridge
     });
 
     expect(
-      unified_bridge_v2.previousSchema.validate({ pendingTransfers: {} })
+      unified_bridge_v2.previousSchema.validate({ pendingTransfers: {} }),
     ).toEqual({
       error: undefined,
       value: { pendingTransfers: {} },
@@ -182,11 +182,11 @@ describe('background/services/storage/schemaMigrations/migrations/unified_bridge
           },
         },
         version: 2,
-      }
+      },
     );
 
     expect(
-      await unified_bridge_v2.up({ addresses: ['0xTargetAddress'] })
+      await unified_bridge_v2.up({ addresses: ['0xTargetAddress'] }),
     ).toStrictEqual({
       pendingTransfers: {},
       version: 2,

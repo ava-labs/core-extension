@@ -11,7 +11,7 @@ import { RpcMethod } from '@avalabs/vm-module-types';
 import getTargetNetworkForTx from '@src/background/services/wallet/handlers/eth_sendTransaction/utils/getTargetNetworkForTx';
 
 export function ActiveNetworkMiddleware(
-  networkService: NetworkService
+  networkService: NetworkService,
 ): Middleware<
   JsonRpcRequest | ExtensionConnectionMessage,
   JsonRpcResponse | ExtensionConnectionMessageResponse

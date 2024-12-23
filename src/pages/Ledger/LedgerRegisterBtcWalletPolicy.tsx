@@ -42,7 +42,7 @@ const LedgerRegisterBtcWalletPolicy = () => {
   const renderText = (
     type: TextType,
     text: string | React.ReactElement,
-    mt = '16px'
+    mt = '16px',
   ) => (
     <Typography
       component="span"
@@ -114,7 +114,7 @@ const LedgerRegisterBtcWalletPolicy = () => {
           xpub,
           masterFingerprint,
           walletPolicyDerivationpath,
-          walletPolicyName
+          walletPolicyName,
         );
 
         const { isCorrectDevice } = await request<StoreBtcWalletPolicyDetails>({
@@ -174,8 +174,8 @@ const LedgerRegisterBtcWalletPolicy = () => {
             {renderText(
               TextType.PRIMARY,
               t(
-                'Please confirm the public key displayed on your Ledger device.'
-              )
+                'Please confirm the public key displayed on your Ledger device.',
+              ),
             )}
 
             {renderText(TextType.SECONDARY, t('Path'))}
@@ -183,7 +183,7 @@ const LedgerRegisterBtcWalletPolicy = () => {
             {renderText(
               TextType.PRIMARY,
               walletPolicyDerivationpath ?? '-',
-              '0px'
+              '0px',
             )}
 
             <Divider sx={{ mt: '16px' }} />
@@ -212,8 +212,8 @@ const LedgerRegisterBtcWalletPolicy = () => {
             {renderText(
               TextType.PRIMARY,
               t(
-                'Ledger requires you to set up a wallet policy in the Bitcoin app.'
-              )
+                'Ledger requires you to set up a wallet policy in the Bitcoin app.',
+              ),
             )}
 
             {renderText(
@@ -235,7 +235,7 @@ const LedgerRegisterBtcWalletPolicy = () => {
                     />
                   ),
                 }}
-              />
+              />,
             )}
 
             {renderText(TextType.SECONDARY, t('Name'))}

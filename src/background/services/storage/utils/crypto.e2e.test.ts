@@ -21,7 +21,7 @@ describe('background/services/storage/utils/crypto.e2e', () => {
           salt: Uint8Array.from(cypher.salt),
           nonce: Uint8Array.from(cypher.nonce),
           keyDerivationVersion: cypher.keyDerivationVersion,
-        })
+        }),
       ).toEqual(data);
     });
 
@@ -43,7 +43,7 @@ describe('background/services/storage/utils/crypto.e2e', () => {
           salt: Uint8Array.from(cypher.salt),
           nonce: Uint8Array.from(cypher.nonce),
           keyDerivationVersion: cypher.keyDerivationVersion,
-        })
+        }),
       ).rejects.toEqual(new Error('decryption failed'));
     });
   });
@@ -62,7 +62,7 @@ describe('background/services/storage/utils/crypto.e2e', () => {
           cypher: Uint8Array.from(cypher.cypher),
           encryptionKey,
           nonce: Uint8Array.from(cypher.nonce),
-        })
+        }),
       ).toEqual(data);
     });
 
@@ -83,7 +83,7 @@ describe('background/services/storage/utils/crypto.e2e', () => {
           cypher: Uint8Array.from(cypher.cypher),
           encryptionKey,
           nonce: Uint8Array.from(cypher.nonce),
-        })
+        }),
       ).rejects.toEqual(new Error('decryption failed'));
     });
   });

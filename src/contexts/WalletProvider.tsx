@@ -35,7 +35,7 @@ type WalletStateAndMethods = {
   wallets: WalletDetails[];
   changeWalletPassword(
     newPassword: string,
-    oldPassword: string
+    oldPassword: string,
   ): Promise<boolean>;
   getWallet(id: string): WalletDetails | undefined;
   getUnencryptedMnemonic(password: string): Promise<string>;
@@ -62,7 +62,7 @@ export function WalletContextProvider({ children }: { children: any }) {
 
   const getWallet = useCallback(
     (walletId: string) => wallets.find(({ id }) => walletId === id),
-    [wallets]
+    [wallets],
   );
 
   const isLedgerWallet = useMemo(() => {
@@ -102,7 +102,7 @@ export function WalletContextProvider({ children }: { children: any }) {
     const lockSubscription = events()
       .pipe(
         filter(lockStateChangedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((locked) => {
         setIsWalletLocked(locked);
@@ -111,7 +111,7 @@ export function WalletContextProvider({ children }: { children: any }) {
     const walletSubscription = events()
       .pipe(
         filter(walletStateChangedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((_wallets) => {
         setWallets(_wallets);
@@ -136,7 +136,7 @@ export function WalletContextProvider({ children }: { children: any }) {
         params: [password],
       });
     },
-    [request]
+    [request],
   );
 
   const changeWalletPassword = useCallback(
@@ -146,7 +146,7 @@ export function WalletContextProvider({ children }: { children: any }) {
         params: [newPassword, oldPassword],
       });
     },
-    [request]
+    [request],
   );
 
   const getUnencryptedMnemonic = useCallback(
@@ -156,7 +156,7 @@ export function WalletContextProvider({ children }: { children: any }) {
         params: [password],
       });
     },
-    [request]
+    [request],
   );
 
   const getTransactionHistory = useCallback(() => {
@@ -172,7 +172,7 @@ export function WalletContextProvider({ children }: { children: any }) {
         params: [id, name],
       });
     },
-    [request]
+    [request],
   );
 
   if (!isWalletLoading && isWalletLocked) {

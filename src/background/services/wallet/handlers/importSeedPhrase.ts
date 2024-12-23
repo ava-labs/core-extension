@@ -33,7 +33,7 @@ export class ImportSeedPhraseHandler implements HandlerType {
   constructor(
     private walletService: WalletService,
     private accountsService: AccountsService,
-    private secretsService: SecretsService
+    private secretsService: SecretsService,
   ) {}
 
   async #addAccounts(walletId: string) {
@@ -59,7 +59,7 @@ export class ImportSeedPhraseHandler implements HandlerType {
 
     const isKnown = await this.secretsService.isKnownSecret(
       SecretType.Mnemonic,
-      mnemonic
+      mnemonic,
     );
 
     if (isKnown) {
@@ -87,9 +87,8 @@ export class ImportSeedPhraseHandler implements HandlerType {
 
     await this.#addAccounts(id);
 
-    const addedWallet = await this.secretsService.getWalletAccountsSecretsById(
-      id
-    );
+    const addedWallet =
+      await this.secretsService.getWalletAccountsSecretsById(id);
 
     return {
       ...request,

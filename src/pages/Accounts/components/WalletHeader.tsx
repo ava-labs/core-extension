@@ -88,6 +88,7 @@ export default function WalletHeader({
           fontSize={14}
           fontWeight={600}
           lineHeight="16px"
+          data-testid="wallet-name"
         >
           {walletDetails?.name ?? name}
         </OverflowingTypography>
@@ -97,6 +98,7 @@ export default function WalletHeader({
             sx={{ fontSize: 10, height: 16 }}
             color="success"
             label={t('Active')}
+            data-testid="wallet-active-chip"
           />
         </Grow>
         {/* Section for the imported accounts has no WalletDetails, therefore cannot be renamed */}

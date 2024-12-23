@@ -45,7 +45,7 @@ import sentryCaptureException, {
 const Onboarding = lazy(() =>
   import('../pages/Onboarding/Onboarding').then((m) => ({
     default: m.Onboarding,
-  }))
+  })),
 );
 
 const OnboardingContext = createContext<{
@@ -105,7 +105,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   const [walletName, setWalletName] = useState<string>();
 
   const [analyticsConsent, setAnalyticsConsent] = useState<boolean | undefined>(
-    undefined
+    undefined,
   );
 
   const [submitInProgress, setSubmitInProgress] = useState(false);
@@ -193,12 +193,12 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       from(
         request<GetIsOnboardedHandler>({
           method: ExtensionRequest.ONBOARDING_GET_STATE,
-        })
+        }),
       ),
       events().pipe(
         filter(onboardingUpdatedEventListener),
-        map((evt) => evt.value)
-      )
+        map((evt) => evt.value),
+      ),
     ).subscribe((result) => {
       setOnboardingState(result as any);
     });
@@ -220,7 +220,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       setPassword(pass);
       setWalletName(newWalletName);
     },
-    []
+    [],
   );
 
   const submitMnemonic = useCallback(() => {
@@ -358,12 +358,12 @@ export function OnboardingContextProvider({ children }: { children: any }) {
                 : 'Failed to sign up for newsletter';
               const sanitizedMessage = rawMessage.replace(
                 new RegExp(newsletterEmail, 'g'),
-                '<user-email>'
+                '<user-email>',
               );
 
               sentryCaptureException(
                 new Error(sanitizedMessage),
-                SentryExceptionTypes.ONBOARDING
+                SentryExceptionTypes.ONBOARDING,
               );
               capture('NewsletterSignupFailure');
             }
@@ -400,7 +400,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
       t,
       walletType,
       xpub,
-    ]
+    ],
   );
 
   if (!onboardingState) {

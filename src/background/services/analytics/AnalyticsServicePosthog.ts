@@ -16,14 +16,14 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 @singleton()
 export class AnalyticsServicePosthog {
   private http = new HttpClient(
-    process.env.POSTHOG_URL || 'https://data-posthog.avax-test.network'
+    process.env.POSTHOG_URL || 'https://data-posthog.avax-test.network',
   );
   private reportedDeviceId;
 
   constructor(
     private featureFlagService: FeatureFlagService,
     private analyticsService: AnalyticsService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
   ) {}
 
   /**
@@ -68,7 +68,7 @@ export class AnalyticsServicePosthog {
       ? await this.prepProperties(
           event.windowId,
           event.properties,
-          useEncryption
+          useEncryption,
         )
       : {};
 
@@ -105,7 +105,7 @@ export class AnalyticsServicePosthog {
 
   private getFeatureFlagsData() {
     const activeFeatureFlags = Object.keys(
-      this.featureFlagService.featureFlags
+      this.featureFlagService.featureFlags,
     );
 
     const reducer = (accumulated, current) => {
@@ -137,7 +137,7 @@ export class AnalyticsServicePosthog {
   private async prepProperties(
     windowId: string,
     properties: Record<string, any>,
-    useEncryption = false
+    useEncryption = false,
   ) {
     const userEnv = await getUserEnvironment();
 
@@ -147,7 +147,7 @@ export class AnalyticsServicePosthog {
 
     if (Object.keys(properties).includes('networkChainId')) {
       properties.networkChainId = this.updateChainIdIfNeeded(
-        properties.networkChainId
+        properties.networkChainId,
       );
     }
 

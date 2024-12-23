@@ -24,7 +24,7 @@ export const SignData = forwardRef(function SignData(
     message: MessageParams;
     updateHandler: (values: positionValues) => void;
   },
-  ref: ForwardedRef<HTMLDivElement | null>
+  ref: ForwardedRef<HTMLDivElement | null>,
 ) {
   const { t } = useTranslation();
 

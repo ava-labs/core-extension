@@ -7,7 +7,7 @@ export function networksUpdatedEventListener(
     activeNetwork?: NetworkWithCaipId;
     favoriteNetworks: number[];
     customNetworks: Record<number, NetworkWithCaipId>;
-  }>
+  }>,
 ) {
   return evt.name === NetworkEvents.NETWORKS_UPDATED_EVENT;
 }

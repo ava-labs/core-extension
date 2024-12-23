@@ -74,7 +74,7 @@ export class WalletConnectError extends Error {
   constructor(
     message: string,
     code: WalletConnectErrorCode,
-    originalError?: Error
+    originalError?: Error,
   ) {
     super(message);
     this.code = code;
@@ -103,10 +103,10 @@ export interface WalletConnectTransport {
   connect(options: ConnectOptions): Promise<WalletConnectSessionInfo | never>;
   request<T = string>(
     payload: RequestPayload,
-    options: RequestOptions
+    options: RequestOptions,
   ): Promise<T | never>;
   getSessionInfo(
     lookupAddress: string,
-    chainId?: number
+    chainId?: number,
   ): Promise<null | WalletConnectSessionInfo>;
 }

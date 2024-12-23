@@ -16,7 +16,7 @@ export class BridgeRemoveTransactionHandler implements HandlerType {
 
   constructor(
     private bridgeService: BridgeService,
-    private unifiedBridgeService: UnifiedBridgeService
+    private unifiedBridgeService: UnifiedBridgeService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -29,8 +29,8 @@ export class BridgeRemoveTransactionHandler implements HandlerType {
       };
     }
 
-    const legacyBridgeTx = await this.bridgeService.bridgeState
-      .bridgeTransactions[txHash];
+    const legacyBridgeTx =
+      await this.bridgeService.bridgeState.bridgeTransactions[txHash];
 
     if (legacyBridgeTx) {
       await this.bridgeService.removeBridgeTransaction(txHash);

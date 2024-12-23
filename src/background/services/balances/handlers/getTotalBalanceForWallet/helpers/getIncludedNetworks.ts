@@ -6,13 +6,13 @@ import { getDefaultChainIds } from '@src/utils/getDefaultChainIds';
 export function getIncludedNetworks(
   isMainnet: boolean,
   currentChainList: ChainListWithCaipIds,
-  favoriteChainIds: number[]
+  favoriteChainIds: number[],
 ) {
   const currentEnvNetworks = Object.keys(currentChainList).map(Number);
 
   return uniq(
     [...getDefaultChainIds(isMainnet), ...favoriteChainIds].filter((chainId) =>
-      currentEnvNetworks.includes(chainId)
-    )
+      currentEnvNetworks.includes(chainId),
+    ),
   );
 }

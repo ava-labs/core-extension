@@ -13,7 +13,7 @@ const COVALENT_IMG_SIZER =
  */
 export function getSmallImageForNFT(
   imgUrl: string,
-  imageSize: '256' | '512' | '1024' = '256'
+  imageSize: '256' | '512' | '1024' = '256',
 ) {
   const url = ipfsResolverWithFallback(imgUrl);
   return `${COVALENT_IMG_SIZER}/width=${imageSize},fit/${url}`;

@@ -9,7 +9,7 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { ImportSeedPhraseHandler } from '@src/background/services/wallet/handlers/importSeedPhrase';
 
 type ImportWalletFn = (
-  params: ImportSeedphraseWalletParams
+  params: ImportSeedphraseWalletParams,
 ) => Promise<ImportWalletResult>;
 
 export const useImportSeedphrase = () => {
@@ -31,7 +31,7 @@ export const useImportSeedphrase = () => {
         setIsImporting(false);
       }
     },
-    [request]
+    [request],
   );
 
   return {

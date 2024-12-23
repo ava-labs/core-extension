@@ -3,7 +3,7 @@ import { BtcTransactionRequest } from '../models';
 
 export async function prepareBtcTxForLedger(
   tx: BtcTransactionRequest,
-  provider: BitcoinProviderAbstract
+  provider: BitcoinProviderAbstract,
 ): Promise<BtcTransactionRequest> {
   //get unique hashes
   const txHashSet = new Set<string>(tx.inputs.map((i) => i.txHash));

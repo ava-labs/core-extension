@@ -91,7 +91,7 @@ export function ApproveConvertSubnetToL1({
                   </Stack>
                 </Stack>
               </Stack>
-            )
+            ),
           )}
         </ApprovalSectionBody>
       </ApprovalSection>

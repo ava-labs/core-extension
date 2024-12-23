@@ -19,7 +19,7 @@ export type SupportedProvider =
 
 export const getProviderForNetwork = async (
   network: Network,
-  useMulticall = false
+  useMulticall = false,
 ): Promise<SupportedProvider> => {
   if (network.vmName === NetworkVMType.BITCOIN) {
     return new BitcoinProvider(
@@ -31,11 +31,11 @@ export const getProviderForNetwork = async (
       `${process.env.PROXY_URL}/proxy/nownodes/${
         network.isTestnet ? 'btc-testnet' : 'btc'
       }`,
-      process.env.GLACIER_API_KEY ? { token: process.env.GLACIER_API_KEY } : {}
+      process.env.GLACIER_API_KEY ? { token: process.env.GLACIER_API_KEY } : {},
     );
   } else if (network.vmName === NetworkVMType.EVM) {
     const fetchConfig = new FetchRequest(
-      addGlacierAPIKeyIfNeeded(network.rpcUrl)
+      addGlacierAPIKeyIfNeeded(network.rpcUrl),
     );
 
     if (network.customRpcHeaders) {
@@ -54,7 +54,7 @@ export const getProviderForNetwork = async (
           }
         : 40,
       fetchConfig,
-      new EthersNetwork(network.chainName, network.chainId)
+      new EthersNetwork(network.chainName, network.chainId),
     );
 
     provider.pollingInterval = 2000;
@@ -71,8 +71,8 @@ export const getProviderForNetwork = async (
     return isDevnet(network)
       ? Avalanche.JsonRpcProvider.getDefaultDevnetProvider(upgradesInfo)
       : network.isTestnet
-      ? Avalanche.JsonRpcProvider.getDefaultFujiProvider(upgradesInfo)
-      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider(upgradesInfo);
+        ? Avalanche.JsonRpcProvider.getDefaultFujiProvider(upgradesInfo)
+        : Avalanche.JsonRpcProvider.getDefaultMainnetProvider(upgradesInfo);
   } else {
     throw new Error('unsupported network');
   }

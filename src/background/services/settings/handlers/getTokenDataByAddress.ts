@@ -20,7 +20,7 @@ export class GetTokenDataHandler implements HandlerType {
 
   constructor(
     private tokenManagerService: TokenManagerService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request, scope }) => {
@@ -37,7 +37,7 @@ export class GetTokenDataHandler implements HandlerType {
     try {
       const tokenData = await this.tokenManagerService.getTokenData(
         tokenAddress,
-        network
+        network,
       );
       return {
         ...request,

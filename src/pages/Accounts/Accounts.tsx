@@ -56,7 +56,7 @@ export function Accounts() {
   const { walletDetails } = useWalletContext();
   const { isLoading, totalBalanceInCurrency: activeWalletTotalBalance } =
     useWalletTotalBalance(
-      isPrimaryAccount(active) ? active.walletId : undefined
+      isPrimaryAccount(active) ? active.walletId : undefined,
     );
   const { fetchBalanceForWallet } = useWalletTotalBalanceContext();
 
@@ -65,7 +65,7 @@ export function Accounts() {
 
   const activeAccountBalance = useMemo(
     () => (active?.addressC ? getTotalBalance(active.addressC) : null),
-    [active?.addressC, getTotalBalance]
+    [active?.addressC, getTotalBalance],
   );
 
   const addAccountAndFocus = async () => {
@@ -82,7 +82,7 @@ export function Accounts() {
       if (walletDetails?.id) {
         fetchBalanceForWallet(walletDetails.id);
       }
-    } catch (e) {
+    } catch (_err) {
       toast.error(t('An error occurred, please try again later'));
     }
 
@@ -133,6 +133,7 @@ export function Accounts() {
             },
           }}
           disableRipple
+          data-testid="accounts-back-btn"
         >
           <ChevronLeftIcon size={32} />
         </IconButton>
@@ -151,7 +152,11 @@ export function Accounts() {
             gap: 2,
           }}
         >
-          <OverflowingTypography variant="caption" color="text.secondary">
+          <OverflowingTypography
+            variant="caption"
+            color="text.secondary"
+            data-testid="account-management-active-wallet"
+          >
             {t('Currently using {{walletName}}', {
               walletName: isPrimaryAccount(active)
                 ? walletDetails?.name
@@ -183,7 +188,11 @@ export function Accounts() {
             gap: 2,
           }}
         >
-          <OverflowingTypography variant="h5" fontSize={18}>
+          <OverflowingTypography
+            variant="h5"
+            fontSize={18}
+            data-testid="account-management-active-account"
+          >
             {active?.name}
           </OverflowingTypography>
           <Typography variant="h5" fontSize={18}>

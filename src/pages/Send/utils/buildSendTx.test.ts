@@ -42,7 +42,7 @@ describe('src/pages/Send/utils/buildSendTx', () => {
       expect(contract).toHaveBeenCalledWith(
         options.token.address,
         ERC20.abi,
-        provider
+        provider,
       );
     });
 
@@ -52,8 +52,8 @@ describe('src/pages/Send/utils/buildSendTx', () => {
       expect(populateTransaction).toHaveBeenCalledWith(
         options.address,
         `0x${stringToBigint(options.amount, options.token.decimals).toString(
-          16
-        )}`
+          16,
+        )}`,
       );
     });
 
@@ -96,7 +96,7 @@ describe('src/pages/Send/utils/buildSendTx', () => {
       expect(contract).toHaveBeenCalledWith(
         options.token.address,
         ERC721.abi,
-        provider
+        provider,
       );
     });
 
@@ -106,7 +106,7 @@ describe('src/pages/Send/utils/buildSendTx', () => {
       expect(populateTransaction).toHaveBeenCalledWith(
         from,
         options.address,
-        options.token.tokenId
+        options.token.tokenId,
       );
     });
 
@@ -151,7 +151,7 @@ describe('src/pages/Send/utils/buildSendTx', () => {
       expect(contract).toHaveBeenCalledWith(
         options.token.address,
         ERC1155.abi,
-        provider
+        provider,
       );
     });
 
@@ -163,7 +163,7 @@ describe('src/pages/Send/utils/buildSendTx', () => {
         options.address,
         options.token.tokenId,
         1, // amount is constant and set to 1 at the moment
-        new Uint8Array()
+        new Uint8Array(),
       );
     });
 
@@ -207,16 +207,16 @@ describe('src/pages/Send/utils/buildSendTx', () => {
     } as any;
 
     beforeEach(() => {
-      jest.spyOn(builder, 'buildErc20Tx').mockImplementation(() => ({} as any));
+      jest.spyOn(builder, 'buildErc20Tx').mockImplementation(() => ({}) as any);
       jest
         .spyOn(builder, 'buildErc721Tx')
-        .mockImplementation(() => ({} as any));
+        .mockImplementation(() => ({}) as any);
       jest
         .spyOn(builder, 'buildErc1155Tx')
-        .mockImplementation(() => ({} as any));
+        .mockImplementation(() => ({}) as any);
       jest
         .spyOn(builder, 'buildNativeTx')
-        .mockImplementation(() => ({} as any));
+        .mockImplementation(() => ({}) as any);
     });
 
     it('uses buildNativeTx for sending native tokens', async () => {
@@ -240,7 +240,7 @@ describe('src/pages/Send/utils/buildSendTx', () => {
       expect(builder.buildErc20Tx).toHaveBeenCalledWith(
         'from',
         provider,
-        options
+        options,
       );
       expect(builder.buildNativeTx).not.toHaveBeenCalled();
       expect(builder.buildErc721Tx).not.toHaveBeenCalled();
@@ -256,7 +256,7 @@ describe('src/pages/Send/utils/buildSendTx', () => {
       expect(builder.buildErc721Tx).toHaveBeenCalledWith(
         'from',
         provider,
-        options
+        options,
       );
       expect(builder.buildNativeTx).not.toHaveBeenCalled();
       expect(builder.buildErc20Tx).not.toHaveBeenCalled();
@@ -272,7 +272,7 @@ describe('src/pages/Send/utils/buildSendTx', () => {
       expect(builder.buildErc1155Tx).toHaveBeenCalledWith(
         'from',
         provider,
-        options
+        options,
       );
       expect(builder.buildNativeTx).not.toHaveBeenCalled();
       expect(builder.buildErc20Tx).not.toHaveBeenCalled();
@@ -281,7 +281,7 @@ describe('src/pages/Send/utils/buildSendTx', () => {
 
     it('throws error for unknown send options', async () => {
       await expect(
-        builder.buildTx('from', provider, { token: { type: 'hmmm' } } as any)
+        builder.buildTx('from', provider, { token: { type: 'hmmm' } } as any),
       ).rejects.toThrow('Unknown send options object');
     });
   });

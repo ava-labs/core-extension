@@ -7,7 +7,7 @@ describe('background/services/storage/schemaMigrations/migrations/wallet_storage
 
   it('accepts correct inputs', () => {
     const result = wallet_storage_encryption_key_v2.previousSchema.validate(
-      validInputEncryptionKey
+      validInputEncryptionKey,
     );
 
     expect(result).toEqual({
@@ -31,7 +31,7 @@ describe('background/services/storage/schemaMigrations/migrations/wallet_storage
 
   it('migrates to v2 successfully', async () => {
     const result = await wallet_storage_encryption_key_v2.up(
-      validInputEncryptionKey
+      validInputEncryptionKey,
     );
     expect(result).toStrictEqual({
       storageKey: validInputEncryptionKey,

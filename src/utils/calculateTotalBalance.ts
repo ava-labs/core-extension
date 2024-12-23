@@ -9,7 +9,7 @@ import { hasAccountBalances } from './hasAccountBalances';
 export function calculateTotalBalance(
   account?: Partial<Account>,
   networkIds?: number[],
-  balances?: Balances
+  balances?: Balances,
 ) {
   if (!account || !balances || !networkIds?.length) {
     return {
@@ -26,7 +26,7 @@ export function calculateTotalBalance(
   const hasBalances = hasAccountBalances(
     balances,
     account,
-    Array.from(chainIdsToSum)
+    Array.from(chainIdsToSum),
   );
 
   if (!hasBalances) {
@@ -45,7 +45,7 @@ export function calculateTotalBalance(
         sum: number;
         priceChange: TotalPriceChange;
       },
-      networkItem
+      networkItem,
     ) => {
       const address = getAddressForChain(networkItem, account);
 
@@ -54,14 +54,14 @@ export function calculateTotalBalance(
       }
 
       const sumValues = Object.values(
-        balances?.[networkItem]?.[address] ?? {}
+        balances?.[networkItem]?.[address] ?? {},
       )?.reduce(
         (
           sumTotal: {
             sum: number;
             priceChange: TotalPriceChange;
           },
-          token
+          token,
         ) => {
           const percentage = token.priceChanges?.percentage
             ? [
@@ -79,7 +79,7 @@ export function calculateTotalBalance(
             },
           };
         },
-        { sum: 0, priceChange: { value: 0, percentage: [] } }
+        { sum: 0, priceChange: { value: 0, percentage: [] } },
       ) || { sum: 0, priceChange: { value: 0, percentage: [] } };
 
       return {
@@ -94,7 +94,7 @@ export function calculateTotalBalance(
         },
       };
     },
-    { sum: 0, priceChange: { value: 0, percentage: [] } }
+    { sum: 0, priceChange: { value: 0, percentage: [] } },
   );
 
   return sum;

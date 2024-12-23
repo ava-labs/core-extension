@@ -2,7 +2,7 @@ import { SigningData } from '@avalabs/vm-module-types';
 
 export const getUpdatedSigningData = (
   oldSigningData?: SigningData,
-  newSigningData?: SigningData
+  newSigningData?: SigningData,
 ): SigningData | undefined => {
   if (!oldSigningData) {
     return newSigningData;

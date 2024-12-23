@@ -19,14 +19,14 @@ function getSiteName(windowObject: typeof window): string {
   const { document } = windowObject;
 
   const siteName: HTMLMetaElement | null = document.querySelector(
-    'head > meta[property="og:site_name"]'
+    'head > meta[property="og:site_name"]',
   );
   if (siteName) {
     return siteName.content;
   }
 
   const metaTitle: HTMLMetaElement | null = document.querySelector(
-    'head > meta[name="title"]'
+    'head > meta[name="title"]',
   );
   if (metaTitle) {
     return metaTitle.content;
@@ -44,12 +44,12 @@ function getSiteName(windowObject: typeof window): string {
  * @returns an icon URL
  */
 async function getSiteIcon(
-  windowObject: typeof window
+  windowObject: typeof window,
 ): Promise<string | undefined> {
   const { document } = windowObject;
 
   const icons: NodeListOf<HTMLLinkElement> = document.querySelectorAll(
-    'head > link[rel~="icon"]'
+    'head > link[rel~="icon"]',
   );
   for (const icon of icons as any) {
     if (icon && (await imgExists(icon.href))) {

@@ -27,7 +27,7 @@ type HandlerType = ExtensionRequestHandler<
       analyticsConsent: boolean;
       walletName?: string;
       numberOfAccountsToCreate?: number;
-    }
+    },
   ]
 >;
 
@@ -43,7 +43,7 @@ export class LedgerOnboardingHandler implements HandlerType {
     private walletService: WalletService,
     private onboardingService: OnboardingService,
     private lockService: LockService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {

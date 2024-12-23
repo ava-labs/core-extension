@@ -46,7 +46,7 @@ export const WalletTotalBalanceProvider = ({
 
   const hasImportedAccounts = useMemo(
     () => Object.keys(imported).length > 0,
-    [imported]
+    [imported],
   );
 
   const [walletBalances, setWalletBalances] = useState<
@@ -92,7 +92,7 @@ export const WalletTotalBalanceProvider = ({
           }));
         });
     },
-    [request]
+    [request],
   );
   useEffect(() => {
     let isMounted = true;

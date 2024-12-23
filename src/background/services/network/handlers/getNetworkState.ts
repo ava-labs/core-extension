@@ -22,7 +22,7 @@ export class GetNetworksStateHandler implements HandlerType {
   constructor(private networkService: NetworkService) {}
   handle: HandlerType['handle'] = async ({ request }) => {
     const [networks, err] = await resolve<Promise<ChainListWithCaipIds>>(
-      this.networkService.activeNetworks.promisify()
+      this.networkService.activeNetworks.promisify(),
     );
 
     if (err) {
@@ -43,12 +43,12 @@ export class GetNetworksStateHandler implements HandlerType {
     const filteredFavoriteNetworks =
       await this.networkService.getFavoriteNetworks();
     const customNetworks = Object.values(
-      this.networkService.customNetworks
+      this.networkService.customNetworks,
     ).map((network) => network.chainId);
 
     const activeNetwork = Object.assign(
       {},
-      this.networkService.uiActiveNetwork
+      this.networkService.uiActiveNetwork,
     );
     delete activeNetwork?.tokens;
 

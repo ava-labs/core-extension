@@ -6,7 +6,7 @@ import { Balances } from '../../../models';
 export function calculateTotalBalanceForAccounts(
   balances: Balances,
   accounts: Partial<Account>[],
-  chainIds: number[]
+  chainIds: number[],
 ): number {
   return accounts.reduce((sum: number, account: Partial<Account>) => {
     const accountBalance = calculateTotalBalance(account, chainIds, balances);

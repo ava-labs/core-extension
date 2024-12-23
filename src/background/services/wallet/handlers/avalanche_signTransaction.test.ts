@@ -95,7 +95,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     (utils.hexToBuffer as jest.Mock).mockReturnValue(txBytes);
     networkServiceMock.getAvalanceProviderXP.mockReturnValue(providerMock);
     networkServiceMock.getAvalancheNetworkXP.mockReturnValueOnce(
-      AVALANCHE_XP_TEST_NETWORK
+      AVALANCHE_XP_TEST_NETWORK,
     );
     (utils.unpackWithManager as jest.Mock).mockReturnValue(txMock);
     (utils.addressesFromBytes as jest.Mock).mockReturnValue([
@@ -119,7 +119,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       const handler = new AvalancheSignTransactionHandler(
         {} as any,
         {} as any,
-        {} as any
+        {} as any,
       );
       const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -132,15 +132,14 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
 
   describe('handleAuthenticated', () => {
     it('returns error if transactionHex was not provided', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { params, ...requestWithoutParam } = request;
       const handler = new AvalancheSignTransactionHandler(
         {} as any,
         {} as any,
-        {} as any
+        {} as any,
       );
       const result = await handler.handleAuthenticated(
-        buildRpcCall(requestWithoutParam)
+        buildRpcCall(requestWithoutParam),
       );
 
       expect(result).toEqual({
@@ -152,7 +151,6 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     });
 
     it('returns error if chainAlias was not provided', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { params, ...requestWithoutParam } = request;
       const requestWithoutChainAlias = {
         ...requestWithoutParam,
@@ -161,10 +159,10 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       const handler = new AvalancheSignTransactionHandler(
         {} as any,
         {} as any,
-        {} as any
+        {} as any,
       );
       const result = await handler.handleAuthenticated(
-        buildRpcCall(requestWithoutChainAlias)
+        buildRpcCall(requestWithoutChainAlias),
       );
 
       expect(result).toEqual({
@@ -179,7 +177,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        {} as any
+        {} as any,
       );
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
@@ -192,10 +190,10 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       });
 
       expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
-        request.params.chainAlias
+        request.params.chainAlias,
       );
       expect(utils.hexToBuffer).toHaveBeenCalledWith(
-        request.params.transactionHex
+        request.params.transactionHex,
       );
     });
 
@@ -205,7 +203,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        accountsServiceMock as any
+        accountsServiceMock as any,
       );
 
       (utils.addressesFromBytes as jest.Mock).mockReturnValue([]);
@@ -220,10 +218,10 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       });
 
       expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
-        request.params.chainAlias
+        request.params.chainAlias,
       );
       expect(utils.hexToBuffer).toHaveBeenCalledWith(
-        request.params.transactionHex
+        request.params.transactionHex,
       );
       expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
         transactionHex: request.params.transactionHex,
@@ -250,12 +248,12 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        accountsServiceMock as any
+        accountsServiceMock as any,
       );
 
       unsignedTxMock.getSigIndicesForAddress.mockReturnValue(undefined);
       (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
-        unsignedTxMock
+        unsignedTxMock,
       );
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
@@ -268,10 +266,10 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       });
 
       expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
-        request.params.chainAlias
+        request.params.chainAlias,
       );
       expect(utils.hexToBuffer).toHaveBeenCalledWith(
-        request.params.transactionHex
+        request.params.transactionHex,
       );
       expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
         transactionHex: request.params.transactionHex,
@@ -291,10 +289,10 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         signerAddressBytesMock,
       ]);
       expect(utils.parse).toHaveBeenCalledWith(
-        accountsServiceMock.activeAccount.addressAVM
+        accountsServiceMock.activeAccount.addressAVM,
       );
       expect(unsignedTxMock.getSigIndicesForAddress).toHaveBeenCalledWith(
-        signerAddressMock
+        signerAddressMock,
       );
     });
 
@@ -304,13 +302,13 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        accountsServiceMock as any
+        accountsServiceMock as any,
       );
 
       unsignedTxMock.getSigIndicesForAddress.mockReturnValueOnce([]);
       unsignedTxMock.getSigIndices.mockReturnValueOnce([]);
       (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
-        unsignedTxMock
+        unsignedTxMock,
       );
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
@@ -323,10 +321,10 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       });
 
       expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
-        request.params.chainAlias
+        request.params.chainAlias,
       );
       expect(utils.hexToBuffer).toHaveBeenCalledWith(
-        request.params.transactionHex
+        request.params.transactionHex,
       );
       expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
         transactionHex: request.params.transactionHex,
@@ -347,7 +345,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       ]);
       expect(utils.parse).toHaveBeenCalledWith(activeAccountMock.addressAVM);
       expect(unsignedTxMock.getSigIndicesForAddress).toHaveBeenCalledWith(
-        signerAddressMock
+        signerAddressMock,
       );
       expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
     });
@@ -358,13 +356,13 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        accountsServiceMock as any
+        accountsServiceMock as any,
       );
 
       unsignedTxMock.getSigIndicesForAddress.mockReturnValueOnce([[0, 1]]);
       unsignedTxMock.getSigIndices.mockReturnValueOnce([[1, 2]]);
       (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
-        unsignedTxMock
+        unsignedTxMock,
       );
       (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
         type: 'unknown',
@@ -380,10 +378,10 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       });
 
       expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
-        request.params.chainAlias
+        request.params.chainAlias,
       );
       expect(utils.hexToBuffer).toHaveBeenCalledWith(
-        request.params.transactionHex
+        request.params.transactionHex,
       );
       expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
         transactionHex: request.params.transactionHex,
@@ -404,13 +402,13 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       ]);
       expect(utils.parse).toHaveBeenCalledWith(activeAccountMock.addressAVM);
       expect(unsignedTxMock.getSigIndicesForAddress).toHaveBeenCalledWith(
-        signerAddressMock
+        signerAddressMock,
       );
       expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
       expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
         unsignedTxMock,
         providerMock,
-        activeAccountMock.addressAVM
+        activeAccountMock.addressAVM,
       );
     });
 
@@ -423,10 +421,10 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           });
 
           expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
-            req.params.chainAlias
+            req.params.chainAlias,
           );
           expect(utils.hexToBuffer).toHaveBeenCalledWith(
-            req.params.transactionHex
+            req.params.transactionHex,
           );
           expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledTimes(1);
           expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledWith({
@@ -442,16 +440,16 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             signerAddressBytesMock,
           ]);
           expect(utils.parse).toHaveBeenCalledWith(
-            activeAccountMock.addressAVM
+            activeAccountMock.addressAVM,
           );
           expect(unsignedTxMock.getSigIndicesForAddress).toHaveBeenCalledWith(
-            signerAddressMock
+            signerAddressMock,
           );
           expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
           expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
             unsignedTxMock,
             providerMock,
-            activeAccountMock.addressAVM
+            activeAccountMock.addressAVM,
           );
 
           expect(openApprovalWindow).toHaveBeenCalledWith(
@@ -466,7 +464,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
                 vm: 'AVM',
               },
             }),
-            'approve/avalancheSignTx'
+            'approve/avalancheSignTx',
           );
         };
 
@@ -474,7 +472,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           const handler = new AvalancheSignTransactionHandler(
             walletServiceMock as any,
             networkServiceMock as any,
-            accountsServiceMock as any
+            accountsServiceMock as any,
           );
 
           txMock.getSigIndices.mockReturnValueOnce([
@@ -485,14 +483,14 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           unsignedTxMock.getSigIndicesForAddress.mockReturnValueOnce([[0, 1]]);
           unsignedTxMock.getSigIndices.mockReturnValueOnce([[1, 2]]);
           (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
-            unsignedTxMock
+            unsignedTxMock,
           );
           (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
             type: 'import',
           });
 
           const result = await handler.handleAuthenticated(
-            buildRpcCall(requestWithUtxos)
+            buildRpcCall(requestWithUtxos),
           );
 
           checkExpected(requestWithUtxos, result);
@@ -505,7 +503,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           const handler = new AvalancheSignTransactionHandler(
             walletServiceMock as any,
             networkServiceMock as any,
-            accountsServiceMock as any
+            accountsServiceMock as any,
           );
 
           txMock.getSigIndices.mockReturnValueOnce([
@@ -516,14 +514,14 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           unsignedTxMock.getSigIndicesForAddress.mockReturnValueOnce([[0, 1]]);
           unsignedTxMock.getSigIndices.mockReturnValueOnce([[1, 2]]);
           (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
-            unsignedTxMock
+            unsignedTxMock,
           );
           (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
             type: 'import',
           });
 
           const result = await handler.handleAuthenticated(
-            buildRpcCall(request)
+            buildRpcCall(request),
           );
 
           checkExpected(request, result);
@@ -546,10 +544,10 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           });
 
           expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
-            req.params.chainAlias
+            req.params.chainAlias,
           );
           expect(utils.hexToBuffer).toHaveBeenCalledWith(
-            req.params.transactionHex
+            req.params.transactionHex,
           );
 
           expect(Credential).toHaveBeenCalledTimes(2);
@@ -563,7 +561,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             {
               unsignedTx: unsignedTxMock,
               credentialIndex: 0,
-            }
+            },
           );
           expect(Avalanche.populateCredential).toHaveBeenNthCalledWith(
             2,
@@ -571,7 +569,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             {
               unsignedTx: unsignedTxMock,
               credentialIndex: 1,
-            }
+            },
           );
           expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenCalledTimes(2);
           expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenNthCalledWith(
@@ -581,7 +579,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
               provider: providerMock,
               credentials: [{ biz: 'baz' }, { baz: 'biz' }],
               utxos: utxosMock,
-            }
+            },
           );
           expect(Avalanche.createAvalancheUnsignedTx).toHaveBeenNthCalledWith(
             2,
@@ -593,22 +591,22 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
                 (Credential as unknown as jest.Mock).mock.instances[1],
               ],
               utxos: utxosMock,
-            }
+            },
           );
           expect(utils.addressesFromBytes).toHaveBeenCalledWith([
             signerAddressBytesMock,
           ]);
           expect(utils.parse).toHaveBeenCalledWith(
-            activeAccountMock.addressAVM
+            activeAccountMock.addressAVM,
           );
           expect(unsignedTxMock.getSigIndicesForAddress).toHaveBeenCalledWith(
-            signerAddressMock
+            signerAddressMock,
           );
           expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
           expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
             unsignedTxMock,
             providerMock,
-            activeAccountMock.addressAVM
+            activeAccountMock.addressAVM,
           );
 
           expect(openApprovalWindow).toHaveBeenCalledWith(
@@ -623,7 +621,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
                 vm: 'AVM',
               },
             }),
-            'approve/avalancheSignTx'
+            'approve/avalancheSignTx',
           );
         };
 
@@ -641,7 +639,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           const handler = new AvalancheSignTransactionHandler(
             walletServiceMock as any,
             networkServiceMock as any,
-            accountsServiceMock as any
+            accountsServiceMock as any,
           );
 
           txMock.getSigIndices.mockReturnValueOnce([
@@ -655,7 +653,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             [1, 0],
           ]);
           (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
-            unsignedTxMock
+            unsignedTxMock,
           );
           (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
             type: 'import',
@@ -665,7 +663,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             .mockReturnValueOnce(signaturesMock[1]);
 
           const result = await handler.handleAuthenticated(
-            buildRpcCall(requestWithUtxos)
+            buildRpcCall(requestWithUtxos),
           );
 
           checkExpected(requestWithUtxos, result, signaturesMock);
@@ -688,7 +686,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           const handler = new AvalancheSignTransactionHandler(
             walletServiceMock as any,
             networkServiceMock as any,
-            accountsServiceMock as any
+            accountsServiceMock as any,
           );
 
           txMock.getSigIndices.mockReturnValueOnce([
@@ -702,7 +700,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             [1, 0],
           ]);
           (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValue(
-            unsignedTxMock
+            unsignedTxMock,
           );
           (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
             type: 'import',
@@ -712,7 +710,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
             .mockReturnValueOnce(signaturesMock[1]);
 
           const result = await handler.handleAuthenticated(
-            buildRpcCall(request)
+            buildRpcCall(request),
           );
 
           checkExpected(request, result, signaturesMock);
@@ -782,13 +780,13 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         .mockReturnValueOnce(signedTxMock);
       (avaxSerial.SignedTx as unknown as jest.Mock) = signedTxInstanceMock;
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(
-        signedTransactionHex
+        signedTransactionHex,
       );
 
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        accountsServiceMock as any
+        accountsServiceMock as any,
       );
 
       await handler.onActionApproved(
@@ -796,14 +794,14 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         {},
         onSuccessMock,
         onErrorMock,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(onErrorMock).toHaveBeenCalledWith(expect.any(Error));
       expect(onErrorMock).toHaveBeenCalledWith(
         expect.objectContaining({
           message: 'Failed to sign [0, 3]',
-        })
+        }),
       );
     });
 
@@ -836,12 +834,12 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         .mockReturnValueOnce(signedTxMock);
       (avaxSerial.SignedTx as unknown as jest.Mock) = signedTxInstanceMock;
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(
-        signedTransactionHex
+        signedTransactionHex,
       );
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        accountsServiceMock as any
+        accountsServiceMock as any,
       );
 
       await handler.onActionApproved(
@@ -849,14 +847,14 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         {},
         onSuccessMock,
         onErrorMock,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(onErrorMock).toHaveBeenCalledWith(expect.any(Error));
       expect(onErrorMock).toHaveBeenCalledWith(
         expect.objectContaining({
           message: 'Failed to sign [0, 2]',
-        })
+        }),
       );
     });
 
@@ -869,13 +867,13 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         .mockReturnValueOnce(signedTxMock);
       (avaxSerial.SignedTx as unknown as jest.Mock) = signedTxInstanceMock;
       (Avalanche.signedTxToHex as jest.Mock).mockReturnValueOnce(
-        signedTransactionHex
+        signedTransactionHex,
       );
 
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        accountsServiceMock as any
+        accountsServiceMock as any,
       );
 
       await handler.onActionApproved(
@@ -883,7 +881,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
         {},
         onSuccessMock,
         onErrorMock,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(onSuccessMock).toHaveBeenCalledWith({
@@ -900,7 +898,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       expect(UnsignedTx.fromJSON).toHaveBeenNthCalledWith(1, unsignedTxJson);
       expect(UnsignedTx.fromJSON).toHaveBeenNthCalledWith(
         2,
-        signedTransactionJsonMock
+        signedTransactionJsonMock,
       );
 
       expect(walletServiceMock.sign).toHaveBeenCalledWith(
@@ -908,7 +906,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
           tx: mockedTx,
         },
         AVALANCHE_XP_TEST_NETWORK,
-        frontendTabId
+        frontendTabId,
       );
       expect(signedTxMock.getCredentials).toHaveBeenCalled();
       expect(mockedTx.getSigIndices).toHaveBeenCalled();

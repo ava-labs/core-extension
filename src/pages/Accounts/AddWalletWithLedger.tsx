@@ -57,7 +57,7 @@ export function AddWalletWithLedger() {
   const [step, setStep] = useState(Step.Import);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
-    DerivationPath.BIP44
+    DerivationPath.BIP44,
   );
   const lastAccountIndexWithBalance = useRef(0);
 
@@ -85,7 +85,7 @@ export function AddWalletWithLedger() {
         window.open(
           'https://www.ledger.com/ledger-live',
           '_blank',
-          'noreferrer'
+          'noreferrer',
         );
       }}
     >
@@ -126,7 +126,7 @@ export function AddWalletWithLedger() {
         capture('LedgerImportFailure');
         sentryCaptureException(
           err as Error,
-          SentryExceptionTypes.WALLET_IMPORT
+          SentryExceptionTypes.WALLET_IMPORT,
         );
         const { title } = getErrorMessage(err);
         toast.error(title);
@@ -141,7 +141,7 @@ export function AddWalletWithLedger() {
       publicKeys,
       xpub,
       xpubXP,
-    ]
+    ],
   );
 
   // This will create a fake background that overlay is going to blur for design.
@@ -233,7 +233,7 @@ export function AddWalletWithLedger() {
             >
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {t(
-                  'Please close this tab and open the Core Browser Extension to see the newly imported wallet.'
+                  'Please close this tab and open the Core Browser Extension to see the newly imported wallet.',
                 )}
               </Typography>
               <Button
@@ -335,7 +335,7 @@ export function AddWalletWithLedger() {
                   <Stack sx={{ width: '50%' }}>
                     <Tooltip
                       title={t(
-                        'Clicking the cancel button will close the tab and open the extension for you. If the extension doesn’t open automatically, please open it manually.'
+                        'Clicking the cancel button will close the tab and open the extension for you. If the extension doesn’t open automatically, please open it manually.',
                       )}
                     >
                       <Button

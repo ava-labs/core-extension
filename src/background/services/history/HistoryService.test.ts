@@ -102,7 +102,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
     service = new HistoryService(
       moduleManagereMock,
       accountsServiceMock,
-      unifiedBridgeServiceMock
+      unifiedBridgeServiceMock,
     );
 
     jest

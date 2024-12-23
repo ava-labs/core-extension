@@ -64,10 +64,12 @@ export default function AccountName({
       <Grow {...commonTransitionProps} in={cardHovered && !isManageMode}>
         <IconButton
           size="small"
+          sx={{ p: 0.25 }}
           onClick={(e) => {
             e.stopPropagation();
             promptRename();
           }}
+          data-testid="rename-account-btn"
         >
           <PencilRoundIcon size={16} />
         </IconButton>

@@ -31,10 +31,10 @@ export const useKeystoneScannerContents = ({
     allowAccess: t('Allow Chrome access to your camera to scan the QR Code'),
     hasAccess: t('Scan the QR code displayed on your Keystone device'),
     blockedAccess: t(
-      'You’ve blocked access to your camera. Please allow access to continue.'
+      'You’ve blocked access to your camera. Please allow access to continue.',
     ),
     hasError: t(
-      'Please ensure you have selected a valid QR code from your Keystone device. '
+      'Please ensure you have selected a valid QR code from your Keystone device. ',
     ),
   };
 
@@ -46,7 +46,7 @@ export const useKeystoneScannerContents = ({
         sx={{ color: 'text.secondary' }}
       >
         {t(
-          'If you block access, look in the top right corner of your browser to enable camera access'
+          'If you block access, look in the top right corner of your browser to enable camera access',
         )}
       </Typography>
     ),
@@ -57,7 +57,7 @@ export const useKeystoneScannerContents = ({
         sx={{ color: 'text.secondary' }}
       >
         {t(
-          'Position the QR code in front of your camera. The screen is blurred, but this will not affect the scan.'
+          'Position the QR code in front of your camera. The screen is blurred, but this will not affect the scan.',
         )}
       </Typography>
     ),
@@ -68,7 +68,7 @@ export const useKeystoneScannerContents = ({
         sx={{ color: 'text.secondary' }}
       >
         {t(
-          'If you block access, look in the top right corner of your browser to enable camera access'
+          'If you block access, look in the top right corner of your browser to enable camera access',
         )}
       </Typography>
     ),

@@ -26,8 +26,8 @@ describe('src/utils/send/btcSendUtils', () => {
           fromMainnet,
           { address: '', amount: 10_000, feeRate: 25, token },
           [],
-          true
-        )
+          true,
+        ),
       ).toEqual(SendErrorMessage.ADDRESS_REQUIRED);
     });
 
@@ -37,8 +37,8 @@ describe('src/utils/send/btcSendUtils', () => {
           fromMainnet,
           { address: toMainnet, amount: 10_000, feeRate: 0, token },
           [],
-          true
-        )
+          true,
+        ),
       ).toEqual(SendErrorMessage.INVALID_NETWORK_FEE);
     });
 
@@ -48,8 +48,8 @@ describe('src/utils/send/btcSendUtils', () => {
           fromTestnet,
           { address: toMainnet, amount: 10_000, feeRate: 20, token },
           [],
-          false
-        )
+          false,
+        ),
       ).toEqual(SendErrorMessage.INVALID_ADDRESS);
 
       expect(
@@ -57,8 +57,8 @@ describe('src/utils/send/btcSendUtils', () => {
           fromMainnet,
           { address: toTestnet, amount: 10_000, feeRate: 20, token },
           [],
-          true
-        )
+          true,
+        ),
       ).toEqual(SendErrorMessage.INVALID_ADDRESS);
     });
 
@@ -68,8 +68,8 @@ describe('src/utils/send/btcSendUtils', () => {
           fromMainnet,
           { address: toMainnet, amount: 0, feeRate: 20, token },
           [],
-          true
-        )
+          true,
+        ),
       ).toEqual(SendErrorMessage.AMOUNT_REQUIRED);
     });
 
@@ -84,15 +84,15 @@ describe('src/utils/send/btcSendUtils', () => {
           fromMainnet,
           { address: toMainnet, amount: 20_000, feeRate, token },
           utxos,
-          true
-        )
+          true,
+        ),
       ).toEqual(SendErrorMessage.INSUFFICIENT_BALANCE);
 
       expect(getMaxTransferAmount).toHaveBeenCalledWith(
         utxos,
         toMainnet,
         fromMainnet,
-        feeRate
+        feeRate,
       );
     });
 
@@ -104,8 +104,8 @@ describe('src/utils/send/btcSendUtils', () => {
           fromMainnet,
           { address: toMainnet, amount: 20_000, feeRate: 20, token },
           [],
-          true
-        )
+          true,
+        ),
       ).toBe(null);
     });
   });

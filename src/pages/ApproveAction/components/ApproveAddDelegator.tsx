@@ -104,7 +104,7 @@ export function AddDelegator({
                 }}
               >
                 {currencyFormatter(
-                  bigintToBig(stake, 9).times(avaxPrice).toNumber()
+                  bigintToBig(stake, 9).times(avaxPrice).toNumber(),
                 )}
               </Typography>
             </Stack>

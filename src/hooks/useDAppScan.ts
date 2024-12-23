@@ -24,7 +24,7 @@ export function useDAppScan() {
         apiKey: 'key', // Proxy API will append the actual API key, this here is just so the SDK does not complain
       });
       const [response, error] = await resolve(
-        blockaid.site.scan({ url: dAppURL })
+        blockaid.site.scan({ url: dAppURL }),
       );
 
       if (response === null || error) {
@@ -42,7 +42,7 @@ export function useDAppScan() {
         isMalicious: response.is_malicious,
       };
     },
-    [featureFlags]
+    [featureFlags],
   );
 
   return dAppScanning;

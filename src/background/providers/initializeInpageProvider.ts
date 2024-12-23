@@ -15,13 +15,13 @@ import { EVMProvider } from '@avalabs/evm-module/dist/provider';
 export function initializeProvider(
   connection: AbstractConnection,
   maxListeners = 100,
-  globalObject = window
+  globalObject = window,
 ): EVMProvider {
   const chainAgnosticProvider = new Proxy(
     new ChainAgnosticProvider(connection),
     {
       deleteProperty: () => true,
-    }
+    },
   );
 
   const evmProvider = new Proxy(
@@ -42,7 +42,7 @@ export function initializeProvider(
     {
       // some common libraries, e.g. web3@1.x, mess with our API
       deleteProperty: () => true,
-    }
+    },
   );
   const multiWalletProxy = createMultiWalletProxy(evmProvider);
 
@@ -56,8 +56,8 @@ export function initializeProvider(
         {
           deleteProperty: () => true,
           set: () => true,
-        }
-      )
+        },
+      ),
     );
   });
 
@@ -78,7 +78,7 @@ export function initializeProvider(
 function setGlobalProvider(
   providerInstance: EVMProvider,
   globalObject = window,
-  multiWalletProxy
+  multiWalletProxy,
 ): void {
   try {
     Object.defineProperty(globalObject, 'ethereum', {
@@ -129,7 +129,7 @@ function setGlobalProvider(
  */
 function setAvalancheGlobalProvider(
   providerInstance: EVMProvider,
-  globalObject = window
+  globalObject = window,
 ): void {
   Object.defineProperty(globalObject, 'avalanche', {
     value: providerInstance,
@@ -140,7 +140,7 @@ function setAvalancheGlobalProvider(
 
 function announceWalletProvider(
   providerInstance: EVMProvider,
-  globalObject = window
+  globalObject = window,
 ): void {
   const announceEvent = new CustomEvent<EIP6963ProviderDetail>(
     EventNames.EIP6963_ANNOUNCE_PROVIDER,
@@ -149,7 +149,7 @@ function announceWalletProvider(
         info: { ...providerInstance.info },
         provider: providerInstance,
       }),
-    }
+    },
   );
 
   // The Wallet dispatches an announce event which is heard by
@@ -165,7 +165,7 @@ function announceWalletProvider(
 
 function announceChainAgnosticProvider(
   providerInstance: ChainAgnosticProvider,
-  globalObject = window
+  globalObject = window,
 ): void {
   const announceEvent = new CustomEvent<{ provider: ChainAgnosticProvider }>(
     EventNames.CORE_WALLET_ANNOUNCE_PROVIDER,
@@ -173,7 +173,7 @@ function announceChainAgnosticProvider(
       detail: Object.freeze({
         provider: providerInstance,
       }),
-    }
+    },
   );
 
   // The Wallet dispatches an announce event which is heard by

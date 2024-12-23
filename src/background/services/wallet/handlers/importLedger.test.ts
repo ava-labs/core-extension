@@ -30,7 +30,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
     const handler = new ImportLedgerHandler(
       walletService,
       accountsService,
-      secretsService
+      secretsService,
     );
 
     return handler.handle(
@@ -38,7 +38,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
         id: '123',
         method: ExtensionRequest.WALLET_IMPORT_LEDGER,
         params: [params],
-      })
+      }),
     );
   };
 

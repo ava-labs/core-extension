@@ -69,7 +69,7 @@ export class AccountsService implements OnLock, OnUnlock {
     if (activeAccountChanged) {
       this.eventEmitter.emit(
         AccountsEvents.ACTIVE_ACCOUNT_CHANGED,
-        this.accounts.active
+        this.accounts.active,
       );
     }
 
@@ -91,7 +91,7 @@ export class AccountsService implements OnLock, OnUnlock {
     private analyticsServicePosthog: AnalyticsServicePosthog,
     private secretsService: SecretsService,
     private ledgerService: LedgerService,
-    private walletConnectService: WalletConnectService
+    private walletConnectService: WalletConnectService,
   ) {}
 
   async onUnlock(): Promise<void> {
@@ -104,7 +104,7 @@ export class AccountsService implements OnLock, OnUnlock {
     // TODO(@meeh0w):
     // Remove this listener after E-upgrade activation on Fuji. It will be no longer needed.
     this.networkService.uiActiveNetworkChanged.add(
-      this.#onActiveNetworkChanged
+      this.#onActiveNetworkChanged,
     );
   }
 
@@ -129,10 +129,10 @@ export class AccountsService implements OnLock, OnUnlock {
     };
 
     this.networkService.developerModeChanged.remove(
-      this.onDeveloperModeChanged
+      this.onDeveloperModeChanged,
     );
     this.networkService.uiActiveNetworkChanged.remove(
-      this.#onActiveNetworkChanged
+      this.#onActiveNetworkChanged,
     );
   }
 
@@ -167,7 +167,7 @@ export class AccountsService implements OnLock, OnUnlock {
     }
 
     const refreshAccount = async <T extends Account>(
-      account: T
+      account: T,
     ): Promise<T> => {
       const isUpdated =
         !updateAddresses &&
@@ -227,14 +227,14 @@ export class AccountsService implements OnLock, OnUnlock {
     if (account.type !== AccountType.PRIMARY) {
       return this.secretsService.getImportedAddresses(
         account.id,
-        this.networkService
+        this.networkService,
       );
     }
 
     const addresses = await this.secretsService.getAddresses(
       account.index,
       account.walletId,
-      this.networkService
+      this.networkService,
     );
 
     return {
@@ -290,9 +290,8 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   private async loadAccounts(): Promise<Accounts> {
-    const accounts = await this.storageService.load<Accounts>(
-      ACCOUNTS_STORAGE_KEY
-    );
+    const accounts =
+      await this.storageService.load<Accounts>(ACCOUNTS_STORAGE_KEY);
 
     return (
       accounts ?? {
@@ -329,7 +328,7 @@ export class AccountsService implements OnLock, OnUnlock {
 
   #findAccountByAddress(addressC: string) {
     return Object.values(this.accounts.imported).find(
-      (acc) => acc.addressC === addressC
+      (acc) => acc.addressC === addressC,
     );
   }
 
@@ -340,7 +339,7 @@ export class AccountsService implements OnLock, OnUnlock {
   #buildAccount(
     accountData,
     importType: ImportType,
-    suggestedName?: string
+    suggestedName?: string,
   ): ImportedAccount {
     const type = IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP[importType];
 
@@ -396,7 +395,7 @@ export class AccountsService implements OnLock, OnUnlock {
       },
     };
     await this.permissionsService.addWhitelistDomains(
-      addresses[NetworkVMType.EVM]
+      addresses[NetworkVMType.EVM],
     );
 
     this.analyticsServicePosthog.captureEncryptedEvent({
@@ -417,7 +416,7 @@ export class AccountsService implements OnLock, OnUnlock {
     try {
       const { account, commit } = await this.secretsService.addImportedWallet(
         options,
-        this.networkService
+        this.networkService,
       );
 
       const existingAccount = this.#findAccountByAddress(account.addressC);
@@ -433,7 +432,7 @@ export class AccountsService implements OnLock, OnUnlock {
       const newAccount: ImportedAccount = this.#buildAccount(
         account,
         options.importType,
-        name
+        name,
       );
 
       this.accounts = {
@@ -452,7 +451,7 @@ export class AccountsService implements OnLock, OnUnlock {
       return account.id;
     } catch (err) {
       throw new Error(
-        `Account import failed with error: ${(err as Error).message}`
+        `Account import failed with error: ${(err as Error).message}`,
       );
     }
   }
@@ -485,7 +484,7 @@ export class AccountsService implements OnLock, OnUnlock {
 
     if (!walletAccounts) {
       throw new Error(
-        'Updated account does not exist within any of the primary wallets.'
+        'Updated account does not exist within any of the primary wallets.',
       );
     }
 
@@ -525,7 +524,7 @@ export class AccountsService implements OnLock, OnUnlock {
     const accountsCount = Object.values(this.accounts.primary).flat().length;
     const importedAccountIds = ids.filter((id) => id in this.accounts.imported);
     const primaryAccountIds = ids.filter(
-      (id) => !(id in this.accounts.imported)
+      (id) => !(id in this.accounts.imported),
     );
 
     if (accountsCount === primaryAccountIds.length) {
@@ -596,7 +595,7 @@ export class AccountsService implements OnLock, OnUnlock {
 
     await this.secretsService.deleteImportedWallets(
       ids,
-      this.walletConnectService
+      this.walletConnectService,
     );
 
     this.accounts = {

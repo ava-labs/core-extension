@@ -30,7 +30,7 @@ export class PersonalSignHandler extends DAppRequestHandler {
     private walletService: WalletService,
     private networkService: NetworkService,
     private blockaidService: BlockaidService,
-    private secretsService: SecretsService
+    private secretsService: SecretsService,
   ) {
     super();
   }
@@ -67,12 +67,12 @@ export class PersonalSignHandler extends DAppRequestHandler {
       ensureMessageFormatIsValid(
         request.method,
         messageParams.data,
-        activeNetwork.chainId
+        activeNetwork.chainId,
       );
       const scanResult = await this.blockaidService.jsonRPCScan(
         activeNetwork.chainId.toString(),
         messageParams.from,
-        request
+        request,
       );
 
       const validation = scanResult?.validation ?? undefined;
@@ -95,12 +95,12 @@ export class PersonalSignHandler extends DAppRequestHandler {
           // in which cases we should be able to continue just like other wallets do (even if it's technically incorrect).
 
           // remove EIP712Domain from types since ethers.js handles it separately
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
           const { EIP712Domain, ...types } = messageParams.data.types;
           TypedDataEncoder.getPayload(
             messageParams.data.domain,
             types,
-            messageParams.data.message
+            messageParams.data.message,
           );
         } catch (e) {
           validationError = (e as Error).toString();
@@ -138,12 +138,12 @@ export class PersonalSignHandler extends DAppRequestHandler {
     pendingAction: Action,
     _result,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const result = await this.walletService.signMessage(
         pendingAction.method as unknown as MessageType,
-        pendingAction
+        pendingAction,
       );
       onSuccess(result);
     } catch (e) {
