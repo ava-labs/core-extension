@@ -59,15 +59,15 @@ export function KeystoneContextProvider({ children }: { children: any }) {
 
   return (
     <KeystoneUsbContextProvider>
-			<KeystoneContext.Provider
-				value={{
-					txRequest,
-					resetKeystoneRequest,
-					submitSignature,
-				}}
-			>
-				{children}
-			</KeystoneContext.Provider>
+      <KeystoneContext.Provider
+        value={{
+          txRequest,
+          resetKeystoneRequest,
+          submitSignature,
+        }}
+      >
+        {children}
+      </KeystoneContext.Provider>
     </KeystoneUsbContextProvider>
   );
 }
