@@ -37,13 +37,9 @@ export interface KeystoneConnectorData {
 
 interface KeystoneConnectorProps {
   onSuccess: (data: KeystoneConnectorData) => void;
-  onTroubleshoot: () => void;
 }
 
-export function KeystoneConnector({
-  onSuccess,
-  onTroubleshoot,
-}: KeystoneConnectorProps) {
+export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
   const {
@@ -56,7 +52,7 @@ export function KeystoneConnector({
   const { getAvaxBalance } = useGetAvaxBalance();
 
   const [publicKeyState, setPublicKeyState] = useState<KeystoneStatus>(
-    KeystoneStatus.KEYSTONE_UNINITIATED
+    KeystoneStatus.KEYSTONE_UNINITIATED,
   );
 
   const [addresses, setAddresses] = useState<AddressType[]>([]);
@@ -67,7 +63,7 @@ export function KeystoneConnector({
     async (
       xpubValue: string,
       accountIndex: number,
-      addressList: AddressType[] = []
+      addressList: AddressType[] = [],
     ) => {
       const address = getAddressFromXPub(xpubValue, accountIndex);
       const { balance } = await getAvaxBalance(address);
@@ -85,7 +81,7 @@ export function KeystoneConnector({
         setHasPublicKeys(true);
       }
     },
-    [capture, getAvaxBalance]
+    [capture, getAvaxBalance],
   );
 
   const getXPublicKey = useCallback(async () => {
@@ -187,39 +183,22 @@ export function KeystoneConnector({
             }}
           >
             <Divider flexItem />
-            <DerivedAddresses addresses={addresses} hideLoadinSkeleton={true} />
+            <DerivedAddresses addresses={addresses} />
           </Stack>
         )}
       {publicKeyState === KeystoneStatus.KEYSTONE_CONNECTION_FAILED && (
-        <Typography variant="body2">
-          Please reconnect the Keystone on home screen and reauthorize.
-        </Typography>
-      )}
-
-      <Stack
-        sx={{
-          width: '80%',
-          maxWidth: theme.spacing(44),
-          alignSelf: 'center',
-          mt: 5,
-        }}
-      ></Stack>
-
-      {publicKeyState === KeystoneStatus.KEYSTONE_CONNECTION_FAILED && (
-        <Stack
-          sx={{
-            width: '80%',
-            maxWidth: theme.spacing(44),
-            alignSelf: 'center',
-            mt: 3,
-          }}
-        >
-          <Button
-            onClick={() => tryPublicKey()}
-            fullWidth
-            variant="contained"
-            color="primary"
-          >
+        <Stack sx={{ mt: 1, rowGap: 3, width: theme.spacing(44) }}>
+          <Stack direction="row">
+            <Typography
+              variant="caption"
+              sx={{ color: theme.palette.error.main }}
+            >
+              {t(
+                'Please reconnect the Keystone on home screen and reauthorize.',
+              )}
+            </Typography>
+          </Stack>
+          <Button onClick={() => tryPublicKey()} fullWidth>
             {t('Retry')}
           </Button>
         </Stack>

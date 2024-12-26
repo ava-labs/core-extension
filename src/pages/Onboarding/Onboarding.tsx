@@ -103,11 +103,6 @@ export function Onboarding() {
                   <KeystoneConnect />
                 </Suspense>
               </Route>
-              <Route path={OnboardingURLs.KEYSTONE_TROUBLE}>
-                <Suspense fallback={<CircularProgress />}>
-                  <KeystoneTrouble />
-                </Suspense>
-              </Route>
               <Route path={OnboardingURLs.LEDGER}>
                 <Suspense fallback={<CircularProgress />}>
                   <LedgerConnect />
