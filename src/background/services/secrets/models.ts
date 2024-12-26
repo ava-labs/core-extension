@@ -60,7 +60,7 @@ interface KeystoneSecrets extends PrimarySecretsBase {
   secretType: SecretType.Keystone;
   masterFingerprint: string;
   xpub: string;
-  xpubXP?: never;
+  xpubXP?: string;
   derivationPath: DerivationPath;
 }
 

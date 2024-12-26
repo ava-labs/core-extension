@@ -1,25 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useKeystoneContext } from '@src/contexts/KeystoneUsbProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import {
-  Avalanche,
-  DerivationPath,
-  getAddressFromXPub,
-  getEvmAddressFromPubKey,
-} from '@avalabs/core-wallets-sdk';
+import { DerivationPath, getAddressFromXPub } from '@avalabs/core-wallets-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
 import { PubKeyType } from '@src/background/services/wallet/models';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {
-  Button,
   Divider,
+  Button,
   Stack,
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { DerivationPathDropdown } from '@src/pages/Onboarding/components/DerivationPathDropDown';
 import { DerivedAddresses } from '@src/pages/Onboarding/components/DerivedAddresses';
-import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
+import { ChainIDAlias } from '@keystonehq/hw-app-avalanche';
 
 export interface AddressType {
   address: string;
@@ -32,11 +26,6 @@ export enum KeystoneStatus {
   KEYSTONE_CONNECTED = 'connected',
   KEYSTONE_CONNECTION_FAILED = 'failed',
 }
-
-/**
- * Waiting this amount of time otherwise this screen would be a blip and the user wouldnt even know it happened
- */
-const WAIT_1500_MILLI_FOR_USER = 1500;
 
 export interface KeystoneConnectorData {
   xpub: string;
@@ -52,7 +41,6 @@ interface KeystoneConnectorProps {
 }
 
 export function KeystoneConnector({
-  errorMessage,
   onSuccess,
   onTroubleshoot,
 }: KeystoneConnectorProps) {
@@ -61,10 +49,9 @@ export function KeystoneConnector({
   const {
     getExtendedPublicKey,
     popDeviceSelection,
-    hasLedgerTransport,
+    hasKeystoneTransport,
     wasTransportAttempted,
     initKeystoneTransport,
-    getPublicKey,
   } = useKeystoneContext();
   const { getAvaxBalance } = useGetAvaxBalance();
 
@@ -72,20 +59,9 @@ export function KeystoneConnector({
     KeystoneStatus.KEYSTONE_UNINITIATED
   );
 
-  const [pathSpec, setPathSpec] = useState<DerivationPath>(
-    DerivationPath.BIP44
-  );
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
-  const [dropdownDisabled, setDropdownDisabled] = useState(true);
   const { t } = useTranslation();
-
-  const resetStates = () => {
-    setPublicKeyState(KeystoneStatus.KEYSTONE_LOADING);
-    setAddresses([]);
-    setHasPublicKeys(false);
-    setPathSpec(DerivationPath.BIP44);
-  };
 
   const getAddressFromXpubKey = useCallback(
     async (
@@ -104,7 +80,7 @@ export function KeystoneConnector({
         await getAddressFromXpubKey(xpubValue, accountIndex + 1, newAddresses);
       }
       if (accountIndex >= 2) {
-        capture('OnboardingLedgerConnected');
+        capture('OnboardingKeystoneConnected');
         setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTED);
         setHasPublicKeys(true);
       }
@@ -114,14 +90,10 @@ export function KeystoneConnector({
 
   const getXPublicKey = useCallback(async () => {
     try {
-      console.log("get xpub key");
       const xpubValue = await getExtendedPublicKey();
-      console.log("xpubvalue ", xpubValue);
-      const xpubXPValue = await getExtendedPublicKey(
-        Avalanche.LedgerWallet.getAccountPath('X')
-      );
+      const xpubXPValue = await getExtendedPublicKey(ChainIDAlias.X);
       setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTED);
-      capture('OnboardingLedgerConnected');
+      capture('OnboardingKeystoneConnected');
       await getAddressFromXpubKey(xpubValue, 0);
       onSuccess({
         xpub: xpubValue,
@@ -131,7 +103,7 @@ export function KeystoneConnector({
         pathSpec: DerivationPath.BIP44,
       });
     } catch {
-      capture('OnboardingLedgerConnectionFailed');
+      capture('OnboardingKeystoneConnectionFailed');
       setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTION_FAILED);
       popDeviceSelection();
     }
@@ -143,163 +115,56 @@ export function KeystoneConnector({
     popDeviceSelection,
   ]);
 
-  const getDerivationPathValue = useCallback(
-    async (derivationPathSpec: DerivationPath) => {
-      if (!derivationPathSpec) {
-        return;
-      }
-      await initKeystoneTransport();
-    },
-    [initKeystoneTransport]
-  );
+  const getDerivationPathValue = useCallback(async () => {
+    await initKeystoneTransport();
+  }, [initKeystoneTransport]);
 
   useEffect(() => {
     initKeystoneTransport();
   }, [initKeystoneTransport]);
 
-  const getPubKeys = useCallback(
-    async (
-      derivationPathSpec: DerivationPath,
-      accountIndex = 0,
-      addressList: AddressType[] = [],
-      pubKeys: PubKeyType[] = []
-    ) => {
-      try {
-        console.log('accountIndex', accountIndex);
-        const pubKey = await getPublicKey(accountIndex, derivationPathSpec);
-        const pubKeyXP = await getPublicKey(
-          accountIndex,
-          derivationPathSpec,
-          'AVM'
-        );
-        const address = getEvmAddressFromPubKey(pubKey);
-        const { balance } = await getAvaxBalance(address);
-        const newAddresses = [
-          ...addressList,
-          { address, balance: balance.balanceDisplayValue || '0' },
-        ];
-        setAddresses(newAddresses);
-        if (accountIndex < 2) {
-          await getPubKeys(derivationPathSpec, accountIndex + 1, newAddresses, [
-            ...pubKeys,
-            { evm: pubKey.toString('hex'), xp: pubKeyXP.toString('hex') },
-          ]);
-        }
-        if (accountIndex >= 2) {
-          capture('OnboardingLedgerConnected');
-          setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTED);
-          const publicKeyValue = [
-            ...pubKeys,
-            { evm: pubKey.toString('hex'), xp: pubKeyXP.toString('hex') },
-          ];
-          setHasPublicKeys(true);
-          onSuccess({
-            xpub: '',
-            xpubXP: '',
-            publicKeys: publicKeyValue,
-            hasPublicKeys: true,
-            pathSpec: DerivationPath.LedgerLive,
-          });
-        }
-      } catch {
-        capture('OnboardingLedgerConnectionFailed');
-        setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTION_FAILED);
-        popDeviceSelection();
-      }
-    },
-    [capture, getAvaxBalance, getPublicKey, onSuccess, popDeviceSelection]
-  );
-
   const tryPublicKey = useCallback(async () => {
     console.log('trying public key');
-    capture('OnboardingLedgerRetry');
+    capture('OnboardingKeystoneRetry');
     setPublicKeyState(KeystoneStatus.KEYSTONE_LOADING);
-    setDropdownDisabled(true);
-    if (!hasLedgerTransport) {
+    if (!hasKeystoneTransport) {
       console.log('no transport');
-      // make sure we have a transport
       await initKeystoneTransport();
     } else {
       console.log('has transport');
     }
-    if (pathSpec === DerivationPath.BIP44) {
-      await getXPublicKey();
-      setDropdownDisabled(false);
-      return;
-    }
-    // if (pathSpec === DerivationPath.LedgerLive) {
-    //   setAddresses([]);
-    //   await getPubKeys(pathSpec);
-    //   setDropdownDisabled(false);
-    //   return;
-    // }
-  }, [
-    capture,
-    getPubKeys,
-    getXPublicKey,
-    hasLedgerTransport,
-    initKeystoneTransport,
-    pathSpec,
-  ]);
+    await getXPublicKey();
+    return;
+  }, [capture, getXPublicKey, hasKeystoneTransport, initKeystoneTransport]);
 
-  const onPathSelected = async (selectedPathSpec: DerivationPath) => {
-    resetStates();
-    setPathSpec(selectedPathSpec);
-    setDropdownDisabled(true);
-    if (selectedPathSpec === DerivationPath.BIP44) {
-      setTimeout(async () => {
-        await getXPublicKey();
-        setDropdownDisabled(false);
-      }, WAIT_1500_MILLI_FOR_USER);
-      return;
-    }
-    if (selectedPathSpec === DerivationPath.LedgerLive) {
-      getDerivationPathValue(selectedPathSpec);
-      await getPubKeys(selectedPathSpec);
-      setDropdownDisabled(false);
-    }
-  };
-
-  // Attempt to automatically connect using Ledger Live as soon as we
-  // establish the transport.
   useEffect(() => {
-    const retrieveKeys = async (selectedPathSpec: DerivationPath) => {
+    const retrieveKeys = async () => {
       setPublicKeyState(KeystoneStatus.KEYSTONE_LOADING);
-      setDropdownDisabled(true);
-      if (selectedPathSpec === DerivationPath.LedgerLive) {
-        setAddresses([]);
-        await getPubKeys(selectedPathSpec);
-        setDropdownDisabled(false);
-      } else if (selectedPathSpec === DerivationPath.BIP44) {
-        await getXPublicKey();
-        setDropdownDisabled(false);
-      }
+      await getXPublicKey();
     };
     if (hasPublicKeys) {
       return;
     }
 
     if (
-      hasLedgerTransport &&
+      hasKeystoneTransport &&
       publicKeyState === KeystoneStatus.KEYSTONE_UNINITIATED
     ) {
-      retrieveKeys(pathSpec);
-    } else if (!hasLedgerTransport) {
+      retrieveKeys();
+    } else if (!hasKeystoneTransport) {
       if (
         wasTransportAttempted &&
         publicKeyState !== KeystoneStatus.KEYSTONE_CONNECTION_FAILED
       ) {
         setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTION_FAILED);
       } else {
-        getDerivationPathValue(pathSpec);
+        getDerivationPathValue();
       }
     }
   }, [
-    pathSpec,
-    hasLedgerTransport,
+    hasKeystoneTransport,
     publicKeyState,
     hasPublicKeys,
-    getPubKeys,
     getDerivationPathValue,
     wasTransportAttempted,
     getXPublicKey,
@@ -308,16 +173,26 @@ export function KeystoneConnector({
   return (
     <Stack
       sx={{
-        width: '100%',
-        height: '100%',
-        textAlign: 'center',
-        mt: 4,
+        width: theme.spacing(44),
+        alignSelf: 'center',
+        mt: 7.5,
       }}
     >
+      {publicKeyState !== KeystoneStatus.KEYSTONE_UNINITIATED &&
+        publicKeyState !== KeystoneStatus.KEYSTONE_CONNECTION_FAILED && (
+          <Stack
+            sx={{
+              mt: 4,
+              rowGap: 3,
+            }}
+          >
+            <Divider flexItem />
+            <DerivedAddresses addresses={addresses} hideLoadinSkeleton={true} />
+          </Stack>
+        )}
       {publicKeyState === KeystoneStatus.KEYSTONE_CONNECTION_FAILED && (
         <Typography variant="body2">
-          {errorMessage ||
-            'Please reconnect the Keystone on home screen and reauthorize.'}
+          Please reconnect the Keystone on home screen and reauthorize.
         </Typography>
       )}
 

@@ -21,6 +21,7 @@ type HandlerType = ExtensionRequestHandler<
     {
       masterFingerprint: string;
       xpub: string;
+      xpubXP: string;
       password: string;
       analyticsConsent: boolean;
       walletName?: string;
@@ -44,8 +45,14 @@ export class KeystoneOnboardingHandler implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const { masterFingerprint, xpub, password, analyticsConsent, walletName } =
-      (request.params ?? [])[0] ?? {};
+    const {
+      masterFingerprint,
+      xpub,
+      xpubXP,
+      password,
+      analyticsConsent,
+      walletName,
+    } = (request.params ?? [])[0] ?? {};
 
     await startOnboarding({
       settingsService: this.settingsService,
@@ -58,6 +65,7 @@ export class KeystoneOnboardingHandler implements HandlerType {
     const walletId = await this.walletService.init({
       secretType: SecretType.Keystone,
       xpub,
+      xpubXP,
       masterFingerprint,
       derivationPath: DerivationPath.BIP44,
       name: walletName,

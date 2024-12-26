@@ -292,6 +292,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         {
           masterFingerprint,
           xpub,
+          xpubXP,
           password,
           analyticsConsent: !!analyticsConsent,
           walletName: walletName,

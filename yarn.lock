@@ -3950,6 +3950,11 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@keystonehq/alias-sampling@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@keystonehq/alias-sampling/-/alias-sampling-0.1.2.tgz#63af931ffe6500aef4c0d87775a5b279189abf8d"
+  integrity sha512-5ukLB3bcgltgaFfQfYKYwHDUbwHicekYo53fSEa7xhVkAEqsA74kxdIwoBIURmGUtXe3EVIRm4SYlgcrt2Ri0w==
+
 "@keystonehq/animated-qr@0.5.2":
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/@keystonehq/animated-qr/-/animated-qr-0.5.2.tgz#8755510e6af8dcb304db8f82eca48660d3ec06c0"
@@ -4128,7 +4133,17 @@
     bs58check "^2.1.2"
     tslib "^2.3.0"
 
-"@keystonehq/hw-app-base@0.1.7":
+"@keystonehq/hw-app-avalanche@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@keystonehq/hw-app-avalanche/-/hw-app-avalanche-0.0.1.tgz#51bae61f33f60f0c02a0b98654ce93b5a39e6ae0"
+  integrity sha512-MCglwsqkCeTAXU1CGhR/nPeKJq1axMC/Pbx3ZK7mKavishOMjrXmZzh8RbYEEq5ak83ZrKGZQ++Mdcg201vVbQ==
+  dependencies:
+    "@keystonehq/bc-ur-registry" "0.7.0"
+    "@keystonehq/hw-app-base" "^0.1.7"
+    "@keystonehq/hw-transport-error" "^0.0.2"
+    "@keystonehq/hw-transport-usb" "^0.1.1"
+
+"@keystonehq/hw-app-base@0.1.7", "@keystonehq/hw-app-base@^0.1.7":
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/@keystonehq/hw-app-base/-/hw-app-base-0.1.7.tgz#1f2304b3032168b82c3c98188e765b86bca3d71b"
   integrity sha512-lo5fsLFzUJGMUdm66xyTJz30Ql19XmhgSf4OjVUtrMIHN41PV94D7R5hueoaikRdBFyYNBTqvQTede9THFliEQ==
