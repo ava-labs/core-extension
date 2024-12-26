@@ -2352,11 +2352,6 @@
     node-fetch "^2.6.7"
     web-streams-polyfill "^3.2.1"
 
-"@bufbuild/protobuf@^1.2.0":
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/@bufbuild/protobuf/-/protobuf-1.10.0.tgz#1a67ac889c2d464a3492b3e54c38f80517963b16"
-  integrity sha512-QDdVFLoN93Zjg36NoQPZfsVH9tZew7wKDKyV5qRdj8ntT4wQCOradQjRaTdwMhWUYsgKsvCINKKm87FdEk96Ag==
-
 "@chainsafe/as-sha256@^0.3.1":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@chainsafe/as-sha256/-/as-sha256-0.3.1.tgz#3639df0e1435cab03f4d9870cc3ac079e57a6fc9"
@@ -2934,11 +2929,6 @@
   resolved "https://registry.yarnpkg.com/@ethereumjs/rlp/-/rlp-4.0.1.tgz#626fabfd9081baab3d0a3074b0c7ecaf674aaa41"
   integrity sha512-tqsQiBQDQdmPWE1xkkBq4rlSW5QZpLOUJ5RJh2/9fug+q9tnUhuZoVLk7s0scUIKTOzEtR72DFBXI4WiZcMpvw==
 
-"@ethereumjs/rlp@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@ethereumjs/rlp/-/rlp-5.0.2.tgz#c89bd82f2f3bec248ab2d517ae25f5bbc4aac842"
-  integrity sha512-DziebCdg4JpGlEqEdGgXmjqcFoJi+JGulUXwEjsZGAscAQ7MyD/7LE/GVCP29vEQxKc7AAwjT3A2ywHp2xfoCA==
-
 "@ethereumjs/tx@3.3.2":
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/@ethereumjs/tx/-/tx-3.3.2.tgz#348d4624bf248aaab6c44fec2ae67265efe3db00"
@@ -2982,14 +2972,6 @@
     "@ethereumjs/rlp" "^4.0.1"
     ethereum-cryptography "^2.0.0"
     micro-ftch "^0.3.1"
-
-"@ethereumjs/util@^9.0.3":
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/@ethereumjs/util/-/util-9.1.0.tgz#75e3898a3116d21c135fa9e29886565609129bce"
-  integrity sha512-XBEKsYqLGXLah9PNJbgdkigthkG7TAGvlD/sH12beMXEyHDyigfcbdvHhmLyDWgDyOJn4QwiQUaF7yeuhnjdog==
-  dependencies:
-    "@ethereumjs/rlp" "^5.0.2"
-    ethereum-cryptography "^2.2.1"
 
 "@ethersproject/abi@5.7.0", "@ethersproject/abi@^5.5.0", "@ethersproject/abi@^5.6.3", "@ethersproject/abi@^5.7.0":
   version "5.7.0"
@@ -4025,48 +4007,6 @@
     "@zxing/library" "^0.19.1"
     qrcode.react "^3.1.0"
 
-"@keystonehq/bc-ur-registry-aptos@^0.6.3":
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-aptos/-/bc-ur-registry-aptos-0.6.3.tgz#7a557b16cfecfddc4fb3a2532be7bf77c110940f"
-  integrity sha512-NJipiLJpu/pxocCUz8yiQUwmjHtu5XEDhhZHoNFE4M5B9WoZTae+wDCt6dTZD42XlePkPIgLAotBKIKmSHMGRQ==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.6.4"
-    bs58check "^2.1.2"
-    uuid "^8.3.2"
-
-"@keystonehq/bc-ur-registry-arweave@^0.5.3":
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-arweave/-/bc-ur-registry-arweave-0.5.3.tgz#881259fcfdb8aecf2fc81328cf8061a2c988a965"
-  integrity sha512-b5OAzhW7HLaOX7OEyWA+Bz+4EJIzCT7c+JXU0TElzpBD5rGo4ylf+StuyV6WnuKx5NV11fv9k2XDyHit26CCLA==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.6.4"
-    uuid "^8.3.2"
-
-"@keystonehq/bc-ur-registry-btc@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-btc/-/bc-ur-registry-btc-0.1.1.tgz#5363961c2d0c529b01080eb278ff60de6bf5d181"
-  integrity sha512-LdYqItY1Y/M6fWJNE6L0HYZbKL8CGVP6OigG7T/gJ+SWnOGgYXj3at02aV7b9qZ7iNwJPkNrqsIDN5eajQcZjQ==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.6.4"
-    uuid "^8.3.2"
-
-"@keystonehq/bc-ur-registry-cardano@^0.3.9":
-  version "0.3.9"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-cardano/-/bc-ur-registry-cardano-0.3.9.tgz#aeb0cbab556aaf87edd54782a2ff3e768800f98a"
-  integrity sha512-moQtGVjRpzJmHBGxITjljKVE8b2wIC72/9UtuqIfeWWUz/gHWZ4zB0jrz+YgnNwhIizEKmydjtOHLSFrbUQ9VQ==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.6.4"
-    uuid "^8.3.2"
-
-"@keystonehq/bc-ur-registry-cosmos@^0.5.3":
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-cosmos/-/bc-ur-registry-cosmos-0.5.3.tgz#8b431a6b02ec2d60783d6ce0bdbd116878320f37"
-  integrity sha512-bCmm2LMM4EHiLrjhfkbzfnwTXi4ez56MfwKYke8Z0roeaJbHmr2KkCg6/MePLjeK9PRbY0jKXBmCowMe2DhfhA==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.6.4"
-    bs58check "^2.1.2"
-    uuid "^8.3.2"
-
 "@keystonehq/bc-ur-registry-eth@0.15.2":
   version "0.15.2"
   resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-eth/-/bc-ur-registry-eth-0.15.2.tgz#1491dd0c9eb7042902e53543eea3deda576b2399"
@@ -4074,16 +4014,6 @@
   dependencies:
     "@ethereumjs/util" "^8.0.0"
     "@keystonehq/bc-ur-registry" "0.5.4"
-    hdkey "^2.0.1"
-    uuid "^8.3.2"
-
-"@keystonehq/bc-ur-registry-eth@^0.20.1":
-  version "0.20.1"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-eth/-/bc-ur-registry-eth-0.20.1.tgz#43e3303dce9a87c61da3d5beb7f5111ae5d6cc19"
-  integrity sha512-vQpqhj2DeDI1/xwY3eqj1PWgqqTdg53RgMVBUZUV3O8CSc0nbnH4SaP3cx85KEOO+4Loq6SXHbFJr1egalM2ng==
-  dependencies:
-    "@ethereumjs/util" "^9.0.3"
-    "@keystonehq/bc-ur-registry" "^0.6.4"
     hdkey "^2.0.1"
     uuid "^8.3.2"
 
@@ -4097,65 +4027,6 @@
     hdkey "^2.0.1"
     uuid "^8.3.2"
 
-"@keystonehq/bc-ur-registry-evm@^0.5.3":
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-evm/-/bc-ur-registry-evm-0.5.3.tgz#086167a53194fbfe070ea066d83bacaaede56e4e"
-  integrity sha512-K3tmY1Y2SDImtSnCPFoASMBNernbN/ZRIIkp8iKegDeyHtaPbzfNIdaEL/wUHVoieTgTOUTwyWZspBvvbgrivw==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.6.4"
-    bs58check "^2.1.2"
-    uuid "^9.0.0"
-
-"@keystonehq/bc-ur-registry-keystone@^0.4.3":
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-keystone/-/bc-ur-registry-keystone-0.4.3.tgz#e58ad5e5d17d2a6665c7440e44e58c4d0c24c1f8"
-  integrity sha512-YTf0p9TYYq9+bfF/wMEE2gbhNiV1S0m31hMwnl+4kn3q1avwlrXZ6h30nANZXD31NQ8hMuLO8x7Ny+0AldmAOA==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.6.4"
-
-"@keystonehq/bc-ur-registry-near@^0.9.3":
-  version "0.9.3"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-near/-/bc-ur-registry-near-0.9.3.tgz#3b87d284d4afb4bf80f07ef39f3bb59dcf10f1e3"
-  integrity sha512-+JHxlxwa4pbZXODSZYcIHN42XZZYblNQFp6ogP0yyqct1ayVbAgz/RoYdLrfdNJ4TDvPRClOPDIvZSiUFYCpaw==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.6.4"
-    bs58check "^2.1.2"
-    uuid "^8.3.2"
-
-"@keystonehq/bc-ur-registry-sol@^0.9.3":
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-sol/-/bc-ur-registry-sol-0.9.5.tgz#f7c9395c38e4734cd49c45318d9342894a05a51b"
-  integrity sha512-HZeeph9297ZHjAziE9wL/u2W1dmV0p1H9Bu9g1bLJazP4F6W2fjCK9BAoCiKEsMBqadk6KI6r6VD67fmDzWyug==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.7.0"
-    bs58check "^2.1.2"
-    uuid "^8.3.2"
-
-"@keystonehq/bc-ur-registry-stellar@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-stellar/-/bc-ur-registry-stellar-0.0.4.tgz#7acd57738b95102343c292e39ef5c7ab049c474b"
-  integrity sha512-L/naB3+/386htOrePisgQsTUOIKgIWpXS6FF24TTkyWWr/SHQV3PNOYXOnMto+WKABv6+BbG6AAnsw/7UuONLg==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.6.4"
-    bs58check "^2.1.2"
-    uuid "^8.3.2"
-
-"@keystonehq/bc-ur-registry-sui@^0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-sui/-/bc-ur-registry-sui-0.3.1.tgz#636f601620def48e0488408df049aa15718380a2"
-  integrity sha512-cbxu5AF5xFg9J3p0AXIkp1IMGSSNsaXWRgn22bcnkIlzwMEwmgJR5J/Lg45MIyIpW2p17fKyYqc9yuP0iMALEQ==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.6.4"
-    uuid "^9.0.0"
-
-"@keystonehq/bc-ur-registry-ton@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry-ton/-/bc-ur-registry-ton-0.1.2.tgz#0847cc01655221015bb138e849777abc195e8b62"
-  integrity sha512-m36/QODXTbkQQacM8vIopt5RvE/uc/f9f4Jc9VFxsxKWmld3aGwrMsLB1SBSva31kawikOVSMEWXhXlQ07UJhA==
-  dependencies:
-    "@keystonehq/bc-ur-registry" "^0.6.4"
-    uuid "^9.0.0"
-
 "@keystonehq/bc-ur-registry@0.5.4":
   version "0.5.4"
   resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry/-/bc-ur-registry-0.5.4.tgz#5802486a29f5d772520d15579d40fba02860e27f"
@@ -4165,7 +4036,7 @@
     bs58check "^2.1.2"
     tslib "^2.3.0"
 
-"@keystonehq/bc-ur-registry@0.7.0", "@keystonehq/bc-ur-registry@^0.7.0":
+"@keystonehq/bc-ur-registry@0.7.0":
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry/-/bc-ur-registry-0.7.0.tgz#d0322d6a5cd2796dd0e40662c47b5a95ec917d9a"
   integrity sha512-E6NUd6Y+YYM+IcYGOEXfO9+MU1s63Qjm8brtHftvNhxbdXhGtTYIsa4FQmqZ6q34q91bMkMqUQFsQYPmIxcxfg==
@@ -4183,15 +4054,6 @@
     base58check "^2.0.0"
     tslib "^2.3.0"
 
-"@keystonehq/bc-ur-registry@^0.6.4":
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/@keystonehq/bc-ur-registry/-/bc-ur-registry-0.6.4.tgz#9c57ff9687cafdc0d2bbd04dc36676d3a38c1485"
-  integrity sha512-j8Uy44DuAkvYkbf0jMxRY3UizJfn8wsEQr7GS3miRF44vcq7k0/yemVkftbn3jQ+0JYaUXf5wY7lVpLhAeW5nQ==
-  dependencies:
-    "@ngraveio/bc-ur" "^1.1.5"
-    bs58check "^2.1.2"
-    tslib "^2.3.0"
-
 "@keystonehq/hw-app-avalanche@^0.0.1":
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/@keystonehq/hw-app-avalanche/-/hw-app-avalanche-0.0.1.tgz#51bae61f33f60f0c02a0b98654ce93b5a39e6ae0"
@@ -4202,7 +4064,7 @@
     "@keystonehq/hw-transport-error" "^0.0.2"
     "@keystonehq/hw-transport-usb" "^0.1.1"
 
-"@keystonehq/hw-app-base@0.1.7", "@keystonehq/hw-app-base@^0.1.7":
+"@keystonehq/hw-app-base@^0.1.7":
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/@keystonehq/hw-app-base/-/hw-app-base-0.1.7.tgz#1f2304b3032168b82c3c98188e765b86bca3d71b"
   integrity sha512-lo5fsLFzUJGMUdm66xyTJz30Ql19XmhgSf4OjVUtrMIHN41PV94D7R5hueoaikRdBFyYNBTqvQTede9THFliEQ==
@@ -4218,7 +4080,7 @@
   resolved "https://registry.yarnpkg.com/@keystonehq/hw-transport-error/-/hw-transport-error-0.0.2.tgz#10a3f69b8a80e4d3fec514b4abcdae6f595770ae"
   integrity sha512-j6rOJU277Cmq9oBiFjtVHJhUZ/gELGYGZMUXBlAom1WyK8pNrD3+I8kCVGp5Ss5oB+Zqo7Az5xCx/z+0i+Y40A==
 
-"@keystonehq/hw-transport-usb@0.1.1", "@keystonehq/hw-transport-usb@^0.1.1":
+"@keystonehq/hw-transport-usb@^0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@keystonehq/hw-transport-usb/-/hw-transport-usb-0.1.1.tgz#001ea6f80da0f7644c986392b2ef6daaa4d3c23c"
   integrity sha512-8B5OxLiwI/HHZSlQKtDWQ0AVXOxfYhI37So1/uBwLVSvpKqGC6FN6gG7vIkmZjMs7w5A1ARac5ejRuLzoCQumg==
@@ -4242,32 +4104,6 @@
   dependencies:
     "@keystonehq/hw-transport-error" "^0.0.2"
     buffer "^6.0.3"
-
-"@keystonehq/keystone-sdk@0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@keystonehq/keystone-sdk/-/keystone-sdk-0.8.0.tgz#8924ff33f40431615aa9da598237883341b06505"
-  integrity sha512-9lzjwwWLrJEVOraIZdwD8HIVNnIxWVJMd8H/JoL9288Ist2gLcV7KstGfS0HyxARwc8pmWEXFXR52GP2gSOR0g==
-  dependencies:
-    "@bufbuild/protobuf" "^1.2.0"
-    "@keystonehq/bc-ur-registry" "^0.7.0"
-    "@keystonehq/bc-ur-registry-aptos" "^0.6.3"
-    "@keystonehq/bc-ur-registry-arweave" "^0.5.3"
-    "@keystonehq/bc-ur-registry-btc" "^0.1.1"
-    "@keystonehq/bc-ur-registry-cardano" "^0.3.9"
-    "@keystonehq/bc-ur-registry-cosmos" "^0.5.3"
-    "@keystonehq/bc-ur-registry-eth" "^0.20.1"
-    "@keystonehq/bc-ur-registry-evm" "^0.5.3"
-    "@keystonehq/bc-ur-registry-keystone" "^0.4.3"
-    "@keystonehq/bc-ur-registry-near" "^0.9.3"
-    "@keystonehq/bc-ur-registry-sol" "^0.9.3"
-    "@keystonehq/bc-ur-registry-stellar" "^0.0.4"
-    "@keystonehq/bc-ur-registry-sui" "^0.3.1"
-    "@keystonehq/bc-ur-registry-ton" "^0.1.2"
-    "@ngraveio/bc-ur" "^1.1.6"
-    bs58check "^3.0.1"
-    pako "^2.1.0"
-    ripple-binary-codec "^1.4.3"
-    uuid "^9.0.0"
 
 "@keystonehq/ur-decoder@0.9.2", "@keystonehq/ur-decoder@^0.9.2":
   version "0.9.2"
@@ -4704,7 +4540,7 @@
   dependencies:
     "@noble/hashes" "1.3.3"
 
-"@noble/curves@1.4.2", "@noble/curves@~1.4.0":
+"@noble/curves@~1.4.0":
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.4.2.tgz#40309198c76ed71bc6dbf7ba24e81ceb4d0d1fe9"
   integrity sha512-TavHr8qycMChk8UwMld0ZDRvatedkzWfH8IiaeGCfymOP5i0hSCozz9vHOL0nkwk7HRMlFnAiKpS2jrUmSybcw==
@@ -5326,15 +5162,6 @@
     "@noble/hashes" "~1.3.2"
     "@scure/base" "~1.1.4"
 
-"@scure/bip32@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@scure/bip32/-/bip32-1.4.0.tgz#4e1f1e196abedcef395b33b9674a042524e20d67"
-  integrity sha512-sVUpc0Vq3tXCkDGYVWGIZTRfnvu8LoTDaev7vbwh0omSvVORONr960MQWdKqJDCReIEmTj3PAr73O3aoxz7OPg==
-  dependencies:
-    "@noble/curves" "~1.4.0"
-    "@noble/hashes" "~1.4.0"
-    "@scure/base" "~1.1.6"
-
 "@scure/bip39@1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@scure/bip39/-/bip39-1.1.1.tgz#b54557b2e86214319405db819c4b6a370cf340c5"
@@ -5358,14 +5185,6 @@
   dependencies:
     "@noble/hashes" "~1.3.2"
     "@scure/base" "~1.1.4"
-
-"@scure/bip39@1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@scure/bip39/-/bip39-1.3.0.tgz#0f258c16823ddd00739461ac31398b4e7d6a18c3"
-  integrity sha512-disdg7gHuTDZtY+ZdkmLpPCk7fxZSu3gBiEGuoC1XYxv9cGx3Z6cpTggCgW6odSOOIXCiDjuGejW+aJKCY/pIQ==
-  dependencies:
-    "@noble/hashes" "~1.4.0"
-    "@scure/base" "~1.1.6"
 
 "@scure/btc-signer@1.3.2":
   version "1.3.2"
@@ -8171,13 +7990,6 @@ base-x@^3.0.2, base-x@^3.0.8:
   dependencies:
     safe-buffer "^5.0.1"
 
-base-x@^3.0.9:
-  version "3.0.10"
-  resolved "https://registry.yarnpkg.com/base-x/-/base-x-3.0.10.tgz#62de58653f8762b5d6f8d9fe30fa75f7b2585a75"
-  integrity sha512-7d0s06rR9rYaIWHkpfLIFICM/tkSVdoPC9qYAQRpxn9DdKNWNsKC0uk++akckyLq16Tx2WIinnZ6WRriAt6njQ==
-  dependencies:
-    safe-buffer "^5.0.1"
-
 base-x@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/base-x/-/base-x-4.0.0.tgz#d0e3b7753450c73f8ad2389b5c018a4af7b2224a"
@@ -8252,11 +8064,6 @@ bfj@^7.0.2:
     check-types "^11.1.1"
     hoopy "^0.1.4"
     tryer "^1.0.1"
-
-big-integer@^1.6.48:
-  version "1.6.52"
-  resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.52.tgz#60a887f3047614a8e1bffe5d7173490a97dc8c85"
-  integrity sha512-QxD8cf2eVqJOOz63z6JIN9BzvVs/dlySa5HGSBH5xtR8dPteIRQnBxxKqkNTiT6jbDTF6jAfrd4oMcND9RGbQg==
 
 big.js@6.1.1, big.js@6.2.1, big.js@^5.2.2:
   version "6.1.1"
@@ -10133,7 +9940,7 @@ decamelize@^1.1.0:
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
   integrity sha512-z2S+W9X73hAUUki+N+9Za2lBlun89zigOyGrsax+KUQ6wKW4ZoWpEYBkGhQjwAjjDCkWxhY0VKEhk8wzY7F5cA==
 
-decimal.js@^10.2.0, decimal.js@^10.2.1, decimal.js@^10.4.2:
+decimal.js@^10.2.1, decimal.js@^10.4.2:
   version "10.4.3"
   resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-10.4.3.tgz#1044092884d245d1b7f65725fa4ad4c6f781cc23"
   integrity sha512-VBBaLc1MgL5XpzgIP7ny5Z6Nx3UrRkIViUkPUdtl9aya5amy3De1gsUUSB1g3+3sExYNjCAsAznmukyxCb1GRA==
@@ -11666,16 +11473,6 @@ ethereum-cryptography@^2.0.0, ethereum-cryptography@^2.1.2:
     "@noble/hashes" "1.3.3"
     "@scure/bip32" "1.3.3"
     "@scure/bip39" "1.2.2"
-
-ethereum-cryptography@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/ethereum-cryptography/-/ethereum-cryptography-2.2.1.tgz#58f2810f8e020aecb97de8c8c76147600b0b8ccf"
-  integrity sha512-r/W8lkHSiTLxUxW8Rf3u4HGB0xQweG2RyETjywylKZSzLWoWAijRz8WCuOtJ6wah+avllXBqZuk29HCCvhEIRg==
-  dependencies:
-    "@noble/curves" "1.4.2"
-    "@noble/hashes" "1.4.0"
-    "@scure/bip32" "1.4.0"
-    "@scure/bip39" "1.3.0"
 
 ethereumjs-abi@^0.6.8:
   version "0.6.8"
@@ -17392,11 +17189,6 @@ pacote@^13.0.3, pacote@^13.6.1, pacote@^13.6.2:
     ssri "^9.0.0"
     tar "^6.1.11"
 
-pako@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/pako/-/pako-2.1.0.tgz#266cc37f98c7d883545d11335c00fbd4062c9a86"
-  integrity sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==
-
 pako@~1.0.5:
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
@@ -19525,26 +19317,6 @@ ripemd160@2, ripemd160@^2.0.0, ripemd160@^2.0.1, ripemd160@^2.0.2:
   dependencies:
     hash-base "^3.0.0"
     inherits "^2.0.1"
-
-ripple-address-codec@^4.3.1:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/ripple-address-codec/-/ripple-address-codec-4.3.1.tgz#68fbaf646bb8567f70743af7f1ce4479f73efbf6"
-  integrity sha512-Qa3+9wKVvpL/xYtT6+wANsn0A1QcC5CT6IMZbRJZ/1lGt7gmwIfsrCuz1X0+LCEO7zgb+3UT1I1dc0k/5dwKQQ==
-  dependencies:
-    base-x "^3.0.9"
-    create-hash "^1.1.2"
-
-ripple-binary-codec@^1.4.3:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/ripple-binary-codec/-/ripple-binary-codec-1.11.0.tgz#d99c848c51a19746b738785001fb7208704bfe30"
-  integrity sha512-g7+gs3T+NfoeW6vIq5dcN0CkIT4t/zwRzFxz8X2RzfbrWRnewPUKqQbmBgs05tXLX5NuWPaneiaAVpFpYBcdfw==
-  dependencies:
-    assert "^2.0.0"
-    big-integer "^1.6.48"
-    buffer "6.0.3"
-    create-hash "^1.2.0"
-    decimal.js "^10.2.0"
-    ripple-address-codec "^4.3.1"
 
 rlp@^2.0.0, rlp@^2.2.3, rlp@^2.2.4:
   version "2.2.7"

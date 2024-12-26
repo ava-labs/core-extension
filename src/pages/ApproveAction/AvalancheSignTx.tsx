@@ -58,8 +58,6 @@ export function AvalancheSignTx() {
   const [showBurnWarning, setShowBurnWarning] = useState(false);
   const txData = action?.displayData.txData;
 
-  console.log('txData.................', txData);
-
   useEffect(() => {
     // When the transaction details are loading, `txData` may be undefined,
     // so we need to listen for it to be populated and then make sure

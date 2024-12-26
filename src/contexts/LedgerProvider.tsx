@@ -255,7 +255,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
         ),
         switchMap(() => getLedgerTransport()),
         switchMap((transport) => {
-          transportRef.current = transport as Transport;
+          transportRef.current = transport;
           return initLedgerApp(transport);
         }),
         tap(() => {
