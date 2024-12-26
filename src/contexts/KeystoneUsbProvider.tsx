@@ -30,7 +30,6 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
 
   useEffect(() => {
-    console.log('initialized changed:', initialized);
     const subscription = of([initialized])
       .pipe(
         filter(([isInitialized]) => !!isInitialized),

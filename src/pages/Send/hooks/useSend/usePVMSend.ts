@@ -52,8 +52,6 @@ export const usePvmSend: SendAdapterPVM = ({
     );
   }, [account, provider]);
 
-  console.log('wallet', wallet);
-
   useEffect(() => {
     let isMounted = true;
 
@@ -175,9 +173,6 @@ export const usePvmSend: SendAdapterPVM = ({
         token,
       });
 
-      console.log('unsignedTx', unsignedTx);
-      console.log('unsignedTx string', JSON.stringify(unsignedTx));
-
       const feeTolerance = getFeeTolerance(gasPrice, feeState);
       const parsedTx = await Avalanche.parseAvalancheTx(
         unsignedTx,
@@ -185,7 +180,6 @@ export const usePvmSend: SendAdapterPVM = ({
         account.addressPVM,
         { feeTolerance },
       );
-      console.log('parsedTx', parsedTx);
 
       return parsedTx;
     },

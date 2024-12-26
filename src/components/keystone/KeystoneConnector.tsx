@@ -90,7 +90,6 @@ export function KeystoneConnector({
 
   const getXPublicKey = useCallback(async () => {
     try {
-      console.log("get xpub key");
       const xpubValue = await getExtendedPublicKey();
       const xpubXPValue = await getExtendedPublicKey(ChainIDAlias.X);
       setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTED);

@@ -156,8 +156,6 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       });
     }
 
-    console.log('unsignedTx = ', unsignedTx);
-
     const txData = await Avalanche.parseAvalancheTx(
       unsignedTx,
       provider,

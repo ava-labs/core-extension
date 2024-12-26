@@ -56,7 +56,6 @@
     "@keystonehq/hw-app-base": "0.1.7",
     "@keystonehq/hw-transport-usb": "0.1.1",
     "@keystonehq/hw-transport-webusb": "0.5.1",
-    "@keystonehq/hw-app-base": "0.1.7",
     "@keystonehq/keystone-sdk": "0.8.0",
     "@keystonehq/ur-decoder": "0.9.2",
     "@ledgerhq/hw-app-btc": "10.2.4",

@@ -20,8 +20,6 @@ export async function handleTxOutcome<T>(txRequestPromise: Promise<T>): Promise<
   try {
     const result = await txRequestPromise;
 
-    console.log('result', result);
-
     return {
       isApproved: true,
       hasError: false,

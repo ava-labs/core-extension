@@ -145,9 +145,6 @@ export const useAvmSend: SendAdapterAVM = ({
           },
         });
 
-        console.log('unsignedTx', unsignedTx);
-        console.log('unsignedTx string', JSON.stringify(unsignedTx));
-
         const manager = utils.getManagerForVM(unsignedTx.getVM());
         const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());
 
