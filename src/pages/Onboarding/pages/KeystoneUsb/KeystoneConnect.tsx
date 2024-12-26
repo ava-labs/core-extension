@@ -21,20 +21,44 @@ import {
 } from '@src/background/services/onboarding/models';
 import { useHistory } from 'react-router-dom';
 import { WalletType } from '@avalabs/types';
-import { KeystoneConnector } from '@src/components/keystone/KeystoneConnector';
+import {
+  KeystoneConnector,
+  KeystoneConnectorData,
+} from '@src/components/keystone/KeystoneConnector';
+
+enum KeystoneDevice {
+  Keystone3 = 'Keystone 3',
+  Keystone = 'Keystone Essential/Pro',
+}
+
+enum KeystoneConnectStep {
+  CONNECT_DEVICE,
+  CALC_ADDRESSES,
+  STEP,
+}
 
 export function KeystoneConnect() {
-  const theme = useTheme();
   const { capture } = useAnalyticsContext();
-  const { setOnboardingPhase, setOnboardingWalletType } =
-    useOnboardingContext();
-  const [selectedDevice, setSelectedDevice] = useState<string>('Keystone 3');
+  const [selectedDevice, setSelectedDevice] = useState<KeystoneDevice>(
+    KeystoneDevice.Keystone3
+  );
   const [showKeystoneConnector, setShowKeystoneConnector] =
     useState<boolean>(false);
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { t } = useTranslation();
   const history = useHistory();
+  const {
+    setXpub,
+    setXpubXP,
+    setPublicKeys,
+    setOnboardingPhase,
+    setOnboardingWalletType,
+  } = useOnboardingContext();
+  const [hasPublicKeys, setHasPublicKeys] = useState(false);
+  const [step, setStep] = useState<KeystoneConnectStep>(
+    KeystoneConnectStep.CONNECT_DEVICE
+  );
+  // const [step1Complete, setStep1Complete] = useState<boolean>(false);
+  // const [step2Complete, setStep2Complete] = useState<boolean>(false);
 
   useEffect(() => {
     setOnboardingPhase(OnboardingPhase.KEYSTONE);
@@ -43,21 +67,29 @@ export function KeystoneConnect() {
   }, [capture, setOnboardingPhase, setOnboardingWalletType]);
 
   const handleDeviceChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setSelectedDevice(event.target.value as string);
+    setSelectedDevice(event.target.value as KeystoneDevice);
   };
 
   const handleNext = () => {
-    setIsProcessing(true);
-    if (selectedDevice === 'Keystone 3') {
+    if (
+      selectedDevice === KeystoneDevice.Keystone3 &&
+      step === KeystoneConnectStep.CONNECT_DEVICE
+    ) {
+      setStep(KeystoneConnectStep.CALC_ADDRESSES);
       setShowKeystoneConnector(true);
+    } else if (step === KeystoneConnectStep.CALC_ADDRESSES) {
+      history.push(OnboardingURLs.CREATE_PASSWORD);
     } else {
       history.push(OnboardingURLs.KEYSTONE);
     }
   };
 
-  const onSuccess = () => {
-    console.log('Keystone connection successful!');
-    history.push(OnboardingURLs.CREATE_PASSWORD);
+  const onSuccess = (data: KeystoneConnectorData) => {
+    setXpub(data.xpub);
+    setXpubXP(data.xpubXP);
+    setPublicKeys(data.publicKeys);
+    setHasPublicKeys(data.hasPublicKeys);
+    // history.push(OnboardingURLs.CREATE_PASSWORD);
   };
 
   const onTroubleshoot = () => {
@@ -81,11 +113,6 @@ export function KeystoneConnect() {
         zIndex: 1,
       }}
     >
-      {/* <OnboardingStepHeader
-        testId="connect-keystone-usb"
-        title={t('Connect your Keystone')}
-      /> */}
-
       <OnboardingStepHeader
         testId="connect-keystone-usb"
         title={
@@ -98,19 +125,6 @@ export function KeystoneConnect() {
         }
       />
       <Stack sx={{ flexGrow: 1, pt: 1, px: 6, width: '100%' }}>
-        <Typography variant="body2">
-          {t('Select the device you are using to proceed.')}
-          <Tooltip
-            title={Content}
-            sx={{
-              display: 'inline',
-              cursor: 'pointer',
-              pl: theme.spacing(1),
-              verticalAlign: 'middle',
-              textAlign: 'center',
-            }}
-          ></Tooltip>
-        </Typography>
         <Typography variant="body2" sx={{ mb: 2, mt: 20 }}>
           {t('Select your device')}
         </Typography>
@@ -118,8 +132,7 @@ export function KeystoneConnect() {
         <Select
           value={selectedDevice}
           onChange={handleDeviceChange}
-          displayEmpty
-          disabled={isProcessing}
+          disabled={step === KeystoneConnectStep.CALC_ADDRESSES}
           fullWidth
           sx={{
             width: '100%',
@@ -128,31 +141,17 @@ export function KeystoneConnect() {
             mt: 0,
           }}
         >
-          <MenuItem value="Keystone 3">Keystone 3</MenuItem>
-          <MenuItem value="Keystone Essential/Pro">
-            Keystone Essential/Pro
+          <MenuItem value={KeystoneDevice.Keystone3}>
+            {KeystoneDevice.Keystone3}
+          </MenuItem>
+          <MenuItem value={KeystoneDevice.Keystone}>
+            {KeystoneDevice.Keystone}
           </MenuItem>
         </Select>
-
-        {errorMessage && (
-          <Typography
-            variant="body2"
-            sx={{
-              color: 'error.main',
-              fontSize: 10,
-              mt: 1,
-              textAlign: 'left',
-              width: '100%',
-            }}
-          >
-            {errorMessage}
-          </Typography>
-        )}
       </Stack>
 
       {showKeystoneConnector && (
         <KeystoneConnector
-          errorMessage={errorMessage}
           onSuccess={onSuccess}
           onTroubleshoot={onTroubleshoot}
         />
@@ -166,10 +165,12 @@ export function KeystoneConnect() {
           history.goBack();
         }}
         onNext={handleNext}
-        disableNext={isProcessing}
+        disableNext={
+          !hasPublicKeys && step === KeystoneConnectStep.CALC_ADDRESSES
+        }
         expand={true}
-        steps={3}
-        activeStep={0}
+        steps={KeystoneConnectStep.STEP}
+        activeStep={step}
       ></PageNav>
 
       <LedgerWrongVersionOverlay onClose={() => history.goBack()} />
