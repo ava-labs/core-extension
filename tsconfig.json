@@ -13,7 +13,7 @@
     "sourceMap": true,
     "jsx": "react-jsx",
     "esModuleInterop": true,
-    "lib": ["es2015", "es2021", "es2023", "dom"],
+    "lib": ["es2015", "es2021", "dom"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
