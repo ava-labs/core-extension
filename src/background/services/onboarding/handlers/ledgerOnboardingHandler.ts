@@ -56,6 +56,7 @@ export class LedgerOnboardingHandler implements HandlerType {
       walletName,
       numberOfAccountsToCreate,
     } = (request.params ?? [])[0] ?? {};
+    console.log('numberOfAccountsToCreate: ', numberOfAccountsToCreate);
 
     if ((xpub || xpubXP) && pubKeys?.length) {
       return {

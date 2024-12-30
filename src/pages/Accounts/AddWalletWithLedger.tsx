@@ -104,7 +104,6 @@ export function AddWalletWithLedger() {
 
   const handleImport = useCallback(
     async (name?: string) => {
-      console.log('handleImport: ', handleImport);
       try {
         capture('LedgerImportStarted');
 

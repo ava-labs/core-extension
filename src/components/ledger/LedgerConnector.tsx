@@ -82,6 +82,7 @@ export function LedgerConnector({
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
   const [dropdownDisabled, setDropdownDisabled] = useState(true);
+  // TODO: with lastindex
   const lastAccountIndexWithBalance = useRef(0);
 
   const { t } = useTranslation();
@@ -92,7 +93,6 @@ export function LedgerConnector({
     setAddresses([]);
     setHasPublicKeys(false);
     setPathSpec(DerivationPath.BIP44);
-    lastAccountIndexWithBalance.current = 0;
   };
 
   const getAddressFromXpubKey = useCallback(
@@ -105,14 +105,15 @@ export function LedgerConnector({
 
       const { balance } = await getAvaxBalance(address);
 
-      if (balance.balanceDisplayValue && balance.balanceDisplayValue !== '0') {
-        lastAccountIndexWithBalance.current = accountIndex;
-      }
       const newAddresses = [
         ...addressList,
         { address, balance: balance.balanceDisplayValue || '0' },
       ];
       setAddresses(newAddresses);
+      lastAccountIndexWithBalance.current = Math.max(
+        0,
+        newAddresses.findLastIndex((addr) => addr.balance !== '0'),
+      );
       if (accountIndex < 2) {
         await getAddressFromXpubKey(xpubValue, accountIndex + 1, newAddresses);
       }
@@ -223,13 +224,11 @@ export function LedgerConnector({
           ...addressList,
           { address, balance: balance.balanceDisplayValue || '0' },
         ];
-        if (
-          balance.balanceDisplayValue &&
-          balance.balanceDisplayValue !== '0'
-        ) {
-          lastAccountIndexWithBalance.current = accountIndex;
-        }
         setAddresses(newAddresses);
+        lastAccountIndexWithBalance.current = Math.max(
+          0,
+          newAddresses.findLastIndex((addr) => addr.balance !== '0'),
+        );
         if (accountIndex < 2) {
           await getPubKeys(derivationPathSpec, accountIndex + 1, newAddresses, [
             ...pubKeys,
