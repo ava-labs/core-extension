@@ -4,6 +4,7 @@ import { TxHistoryItem } from './models';
 import { TokenType } from '@avalabs/vm-module-types';
 import { TransactionType } from '@avalabs/vm-module-types';
 import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
+import { BridgeType } from '@avalabs/bridge-unified';
 
 describe('src/background/services/history/HistoryService.ts', () => {
   let service: HistoryService;
@@ -37,17 +38,14 @@ describe('src/background/services/history/HistoryService.ts', () => {
       addressAVM: 'addressBtc',
     },
   } as any;
-  const bridgeHistoryHelperServiceMock = {
-    isBridgeTransactionBTC: jest.fn(),
-  } as any;
   const unifiedBridgeServiceMock = {
-    state: {
-      addresses: [],
-    },
+    analyzeTx: jest.fn(),
   } as any;
 
   const txHistoryItem: TxHistoryItem = {
-    isBridge: false,
+    bridgeAnalysis: {
+      isBridgeTx: false,
+    },
     isContractCall: true,
     isIncoming: false,
     isOutgoing: true,
@@ -72,7 +70,9 @@ describe('src/background/services/history/HistoryService.ts', () => {
   };
 
   const btcTxHistoryItem: TxHistoryItem = {
-    isBridge: false,
+    bridgeAnalysis: {
+      isBridgeTx: false,
+    },
     isContractCall: true,
     isIncoming: false,
     isOutgoing: true,
@@ -102,9 +102,12 @@ describe('src/background/services/history/HistoryService.ts', () => {
     service = new HistoryService(
       moduleManagereMock,
       accountsServiceMock,
-      bridgeHistoryHelperServiceMock,
-      unifiedBridgeServiceMock
+      unifiedBridgeServiceMock,
     );
+
+    jest
+      .mocked(unifiedBridgeServiceMock.analyzeTx)
+      .mockReturnValue({ isBridgeTx: false });
   });
 
   it('should return empty array when network is not supported', async () => {
@@ -137,9 +140,6 @@ describe('src/background/services/history/HistoryService.ts', () => {
         return { transactions: [btcTxHistoryItem] };
       }),
     });
-    jest
-      .mocked(bridgeHistoryHelperServiceMock.isBridgeTransactionBTC)
-      .mockReturnValue(false);
     const result = await service.getTxHistory({
       ...network1,
       vmName: NetworkVMType.BITCOIN,
@@ -153,18 +153,21 @@ describe('src/background/services/history/HistoryService.ts', () => {
         return { transactions: [btcTxHistoryItem] };
       }),
     });
-    jest
-      .mocked(bridgeHistoryHelperServiceMock.isBridgeTransactionBTC)
-      .mockReturnValue(true);
     const result = await service.getTxHistory({
       ...network1,
       vmName: NetworkVMType.BITCOIN,
       caipId: 'bip122:000000000019d6689c085ae165831e93',
     });
 
-    expect(result).toEqual([{ ...btcTxHistoryItem, isBridge: true }]);
+    expect(result).toEqual([
+      { ...btcTxHistoryItem, bridgeAnalysis: { isBridgeTx: false } },
+    ]);
   });
   it('should return results with an ETH bridge transaction', async () => {
+    jest.mocked(unifiedBridgeServiceMock.analyzeTx).mockReturnValue({
+      isBridgeTx: true,
+      bridgeType: BridgeType.AVALANCHE_EVM,
+    });
     jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
       getTransactionHistory: jest.fn(() => {
         return {
@@ -183,10 +186,20 @@ describe('src/background/services/history/HistoryService.ts', () => {
       caipId: 'caip',
     });
     expect(result).toEqual([
-      { ...txHistoryItem, isBridge: true, from: ETHEREUM_ADDRESS },
+      {
+        ...txHistoryItem,
+        bridgeAnalysis: {
+          bridgeType: BridgeType.AVALANCHE_EVM,
+          isBridgeTx: true,
+        },
+        from: ETHEREUM_ADDRESS,
+      },
     ]);
   });
   it('should return results with an pchain transaction', async () => {
+    jest
+      .mocked(unifiedBridgeServiceMock.analyzeTx)
+      .mockReturnValue({ isBridgeTx: false });
     jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
       getTransactionHistory: jest.fn(() => {
         return {

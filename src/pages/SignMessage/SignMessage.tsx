@@ -63,7 +63,7 @@ export function SignMessage() {
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
   const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
-    FunctionNames.SIGN
+    FunctionNames.SIGN,
   );
   const {
     accounts: { active: activeAccount, primary: primaryAccounts },
@@ -89,7 +89,7 @@ export function SignMessage() {
     }
 
     const accountToUse = primaryAccounts[activeAccount.walletId]?.find(
-      (account) => account.index === accountIndex
+      (account) => account.index === accountIndex,
     );
 
     return action.method === DAppProviderRequest.AVALANCHE_SIGN_MESSAGE
@@ -103,7 +103,7 @@ export function SignMessage() {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       },
-      isUsingLedgerWallet || isUsingWalletConnectAccount || isFireblocksAccount // wait for the response only for device wallets
+      isUsingLedgerWallet || isUsingWalletConnectAccount || isFireblocksAccount, // wait for the response only for device wallets
     );
   }, [
     updateMessage,
@@ -168,7 +168,7 @@ export function SignMessage() {
     () => handleRejection(),
     action?.method === DAppProviderRequest.AVALANCHE_SIGN_MESSAGE
       ? LedgerAppType.AVALANCHE
-      : LedgerAppType.ETHEREUM
+      : LedgerAppType.ETHEREUM,
   );
 
   if (!action) {
@@ -409,7 +409,7 @@ export function SignMessage() {
                 <InfoCircleIcon size={14} />
                 <Typography variant="overline">
                   {t(
-                    'Scroll the message contents above to the very bottom to be able to continue'
+                    'Scroll the message contents above to the very bottom to be able to continue',
                   )}
                 </Typography>
               </Stack>

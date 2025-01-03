@@ -92,7 +92,7 @@ The action needs to be triggered manually, and can be triggered on any branch ma
 - Make sure the branch you are creating the release on is clean and good to go
 - Go to Actions and select the "Create prod release" action
 - Click "Run workflow" and select the target branch
-- After the workflow run is complete, the new release is automatically pushed to the Releses age of the repo and the commit gets tagged
+- After the workflow run is complete, the new release is automatically pushed to the Releases page of the repo and the commit gets tagged
 - After green light from QA, upload the build to the Chrome
 
 ### Create a production release locally

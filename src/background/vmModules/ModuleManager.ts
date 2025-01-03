@@ -1,4 +1,10 @@
-import { Environment, Module } from '@avalabs/vm-module-types';
+import {
+  AppInfo,
+  AppName,
+  Environment,
+  Module,
+} from '@avalabs/vm-module-types';
+import { runtime } from 'webextension-polyfill';
 import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { AvalancheModule } from '@avalabs/avalanche-module';
 import { EvmModule } from '@avalabs/evm-module';
@@ -42,18 +48,27 @@ export class ModuleManager {
       ? Environment.DEV
       : Environment.PRODUCTION;
 
+    const appInfo: AppInfo = {
+      name: AppName.CORE_EXTENSION,
+      version: runtime.getManifest().version,
+    };
+
     this.#modules = [
       new EvmModule({
         environment,
         approvalController: this.#approvalController,
+        appInfo,
       }),
+
       new AvalancheModule({
         environment,
         approvalController: this.#approvalController,
+        appInfo,
       }),
       new BitcoinModule({
         environment,
         approvalController: this.#approvalController,
+        appInfo,
       }),
     ];
   }
@@ -84,7 +99,7 @@ export class ModuleManager {
 
   async loadModuleByNetwork(
     network: NetworkWithCaipId,
-    method?: string
+    method?: string,
   ): Promise<Module> {
     return this.loadModule(network.caipId, method);
   }
@@ -108,13 +123,13 @@ export class ModuleManager {
 
   async #getModuleByChainId(chainId: string): Promise<Module | undefined> {
     return this.#modules.find((module) =>
-      module.getManifest()?.network.chainIds.includes(chainId)
+      module.getManifest()?.network.chainIds.includes(chainId),
     );
   }
 
   async #getModuleByNamespace(namespace: string): Promise<Module | undefined> {
     return this.#modules.find((module) =>
-      module.getManifest()?.network.namespaces.includes(namespace)
+      module.getManifest()?.network.namespaces.includes(namespace),
     );
   }
 

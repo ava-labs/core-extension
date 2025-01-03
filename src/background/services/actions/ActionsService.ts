@@ -19,6 +19,7 @@ import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
 import { ApprovalController } from '@src/background/vmModules/ApprovalController';
+import { BtcTxUpdateFn, EvmTxUpdateFn } from '@avalabs/vm-module-types';
 
 @singleton()
 export class ActionsService implements OnStorageReady {
@@ -29,13 +30,13 @@ export class ActionsService implements OnStorageReady {
     private dAppRequestHandlers: DAppRequestHandler[],
     private storageService: StorageService,
     private lockService: LockService,
-    private approvalController: ApprovalController
+    private approvalController: ApprovalController,
   ) {}
 
   async onStorageReady() {
     const acionsInSession =
       await this.storageService.loadFromSessionStorage<Actions>(
-        ACTIONS_STORAGE_KEY
+        ACTIONS_STORAGE_KEY,
       );
     const actionsInStorage = await this.getActions();
     this.storageService.removeFromSessionStorage(ACTIONS_STORAGE_KEY);
@@ -49,7 +50,7 @@ export class ActionsService implements OnStorageReady {
   async getActions(): Promise<Actions> {
     const sessionStorageActions =
       (await this.storageService.loadFromSessionStorage<Actions>(
-        ACTIONS_STORAGE_KEY
+        ACTIONS_STORAGE_KEY,
       )) ?? {};
     if (this.lockService.locked) {
       return sessionStorageActions;
@@ -69,7 +70,7 @@ export class ActionsService implements OnStorageReady {
     if (this.lockService.locked) {
       await this.storageService.saveToSessionStorage<Actions>(
         ACTIONS_STORAGE_KEY,
-        actions
+        actions,
       );
     } else {
       await this.storageService.save<Actions>(ACTIONS_STORAGE_KEY, actions);
@@ -96,7 +97,7 @@ export class ActionsService implements OnStorageReady {
 
   async removeAction(id: string) {
     const currentPendingActions = await this.getActions();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const { [`${id}`]: _removed, ...txs } = currentPendingActions;
     await this.saveActions(txs);
   }
@@ -105,13 +106,13 @@ export class ActionsService implements OnStorageReady {
     id: string,
     action: Action,
     isSuccess: boolean,
-    result: any
+    result: any,
   ) {
     await this.removeAction(id);
 
     // We dont want display data to be emitted. Sometimes it can not be serialized and it's content is internal to Core
     // Make sure not to modify the original action object
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const { displayData, ...actionWithoutDisplayData } = action;
 
     this.eventEmitter.emit(ActionsEvent.ACTION_COMPLETED, {
@@ -141,11 +142,11 @@ export class ActionsService implements OnStorageReady {
     const isHandledByModule = pendingMessage[ACTION_HANDLED_BY_MODULE];
 
     if (status === ActionStatus.SUBMITTING && isHandledByModule) {
-      this.approvalController.onApproved(pendingMessage);
+      await this.approvalController.onApproved(pendingMessage);
       this.removeAction(id);
     } else if (status === ActionStatus.SUBMITTING) {
       const handler = this.dAppRequestHandlers.find((h) =>
-        h.methods.includes(pendingMessage.method as DAppProviderRequest)
+        h.methods.includes(pendingMessage.method as DAppProviderRequest),
       );
 
       if (!handler || !handler.onActionApproved) {
@@ -153,7 +154,7 @@ export class ActionsService implements OnStorageReady {
           id,
           pendingMessage,
           false,
-          ethErrors.rpc.internal('Request handler not found')
+          ethErrors.rpc.internal('Request handler not found'),
         );
         return;
       }
@@ -167,14 +168,14 @@ export class ActionsService implements OnStorageReady {
         async (failureResult) => {
           await this.emitResult(id, pendingMessage, false, failureResult);
         },
-        tabId
+        tabId,
       );
     } else if (status === ActionStatus.ERROR) {
       await this.emitResult(
         id,
         pendingMessage,
         false,
-        ethErrors.rpc.internal(error)
+        ethErrors.rpc.internal(error),
       );
     } else if (status === ActionStatus.COMPLETED) {
       await this.emitResult(id, pendingMessage, true, result ?? true);
@@ -182,14 +183,14 @@ export class ActionsService implements OnStorageReady {
       status === ActionStatus.ERROR_USER_CANCELED &&
       isHandledByModule
     ) {
-      this.approvalController.onRejected(pendingMessage);
+      await this.approvalController.onRejected(pendingMessage);
       this.removeAction(id);
     } else if (status === ActionStatus.ERROR_USER_CANCELED) {
       await this.emitResult(
         id,
         pendingMessage,
         false,
-        ethErrors.provider.userRejectedRequest()
+        ethErrors.provider.userRejectedRequest(),
       );
     } else {
       await this.saveActions({
@@ -202,7 +203,7 @@ export class ActionsService implements OnStorageReady {
           },
           signingData: getUpdatedSigningData(
             pendingMessage.signingData,
-            signingData
+            signingData,
           ),
           status,
           result,
@@ -212,17 +213,43 @@ export class ActionsService implements OnStorageReady {
     }
   }
 
+  async updateTx(
+    id: string,
+    newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0],
+  ) {
+    const currentPendingRequests = await this.getActions();
+    const pendingRequest = currentPendingRequests[id];
+
+    if (!pendingRequest) {
+      throw new Error(`No request found with id: ${id}`);
+    }
+
+    const { signingData, displayData } = this.approvalController.updateTx(
+      id,
+      newData,
+    );
+
+    await this.saveActions({
+      ...currentPendingRequests,
+      [id]: {
+        ...pendingRequest,
+        signingData,
+        displayData,
+      },
+    });
+  }
+
   addListener(
     event: ActionsEvent.ACTION_COMPLETED,
     callback: (data: {
       type: ActionCompletedEventType;
       action: Action;
       result: any;
-    }) => void
+    }) => void,
   );
   addListener(
     event: ActionsEvent.ACTION_UPDATED,
-    callback: (actions: Actions) => void
+    callback: (actions: Actions) => void,
   );
   addListener(event: ActionsEvent, callback: (data: any) => void) {
     this.eventEmitter.on(event, callback);

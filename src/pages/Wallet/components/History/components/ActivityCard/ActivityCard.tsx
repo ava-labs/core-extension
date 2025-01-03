@@ -62,8 +62,8 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
     return weiToAvax(
       new Big(
         Number(historyItem.gasUsed) *
-          Number(historyItem.gasPrice === undefined ? 1 : historyItem.gasPrice)
-      )
+          Number(historyItem.gasPrice === undefined ? 1 : historyItem.gasPrice),
+      ),
     )
       .toFixed(6)
       .toString();
@@ -83,7 +83,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
 
   const txTitle = useMemo(() => {
     if (network) {
-      if (historyItem.isBridge) {
+      if (historyItem.bridgeAnalysis.isBridgeTx) {
         return t('Bridge');
       }
       if (

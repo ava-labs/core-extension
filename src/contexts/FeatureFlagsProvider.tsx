@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash';
 import {
   DEFAULT_FLAGS,
   FeatureGates,
@@ -27,10 +28,16 @@ export function FeatureFlagsContextProvider({ children }: { children: any }) {
     const subscription = events()
       .pipe(
         filter(featureFlagsUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((result) => {
-        setFeatureFlags(result);
+        setFeatureFlags((prevFlags) => {
+          if (isEqual(prevFlags, result)) {
+            // Prevent re-renders when nothing changed
+            return prevFlags;
+          }
+          return result;
+        });
       });
     return () => {
       subscription.unsubscribe();

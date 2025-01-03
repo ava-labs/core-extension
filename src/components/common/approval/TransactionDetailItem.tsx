@@ -12,6 +12,7 @@ import {
   type LinkItem,
   type TextItem,
   DetailItemType,
+  FundsRecipientItem,
 } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 
@@ -21,6 +22,9 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { TxDetailsRow } from './TxDetailsRow';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { runtime } from 'webextension-polyfill';
+import { useContactsContext } from '@src/contexts/ContactsProvider';
+import { truncateAddress } from '@src/utils/truncateAddress';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 export const TransactionDetailItem = ({ item }: { item: DetailItem }) => {
   if (typeof item === 'string') {
@@ -39,6 +43,9 @@ export const TransactionDetailItem = ({ item }: { item: DetailItem }) => {
 
     case DetailItemType.CURRENCY:
       return <CurrencyInfo item={item} />;
+
+    case DetailItemType.FUNDS_RECIPIENT:
+      return <FundsRecipientInfo item={item} />;
 
     default:
       return null;
@@ -100,6 +107,54 @@ const AddressInfo = ({ item }: { item: AddressItem }) => (
   <AccountDetails label={item.label} address={item.value} />
 );
 
+const FundsRecipientInfo = ({ item }: { item: FundsRecipientItem }) => {
+  const { currencyFormatter } = useSettingsContext();
+  const { getContactByAddress } = useContactsContext();
+  const { getAccount } = useAccountsContext();
+  const { getTokenPrice } = useBalancesContext();
+
+  const token = new TokenUnit(item.amount, item.maxDecimals, item.symbol);
+  const tokenPrice = getTokenPrice(item.symbol);
+  const contact = getAccount(item.label) ?? getContactByAddress(item.label);
+
+  return (
+    <TxDetailsRow
+      label={
+        <Tooltip title={item.label}>
+          <Typography variant="caption" color="text.secondary">
+            {contact?.name || truncateAddress(item.label)}
+          </Typography>
+        </Tooltip>
+      }
+    >
+      <Stack>
+        <Typography
+          variant="body2"
+          sx={{
+            textAlign: 'right',
+            fontWeight: 'fontWeightSemibold',
+          }}
+        >
+          {token.toDisplay()} {token.getSymbol()}
+        </Typography>
+        {tokenPrice ? (
+          <Typography
+            variant="caption"
+            sx={{
+              textAlign: 'right',
+              color: 'text.secondary',
+            }}
+          >
+            {currencyFormatter(
+              tokenPrice * token.toDisplay({ asNumber: true }),
+            )}
+          </Typography>
+        ) : null}
+      </Stack>
+    </TxDetailsRow>
+  );
+};
+
 const CurrencyInfo = ({ item }: { item: CurrencyItem }) => {
   const { currencyFormatter } = useSettingsContext();
   const { getTokenPrice } = useBalancesContext();
@@ -127,7 +182,7 @@ const CurrencyInfo = ({ item }: { item: CurrencyItem }) => {
             }}
           >
             {currencyFormatter(
-              tokenPrice * token.toDisplay({ asNumber: true })
+              tokenPrice * token.toDisplay({ asNumber: true }),
             )}
           </Typography>
         ) : null}

@@ -34,6 +34,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
   let networkServiceMock;
 
   let blockaidServiceMock;
+  let secretsServiceMock;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -55,6 +56,14 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       getNetwork: () => activeNetworkMock,
     } as any;
 
+    secretsServiceMock = {
+      getPrimaryWalletsDetails: jest.fn().mockResolvedValue([
+        {
+          type: SecretType.Mnemonic,
+        },
+      ]),
+    };
+
     jest.mocked(openApprovalWindow).mockResolvedValue({} as any);
     (paramsToMessageParams as jest.Mock).mockReturnValue(displayDataMock);
   });
@@ -63,7 +72,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
     const handler = new PersonalSignHandler(
       walletServiceMock,
       networkServiceMock,
-      blockaidServiceMock
+      blockaidServiceMock,
+      secretsServiceMock,
     );
 
     const request = {
@@ -85,7 +95,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
     const handler = new PersonalSignHandler(
       walletServiceMock,
       networkServiceMock,
-      blockaidServiceMock
+      blockaidServiceMock,
+      secretsServiceMock,
     );
 
     expect(handler.methods).toStrictEqual([
@@ -100,11 +111,12 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
 
   describe('handleAuthenticated', () => {
     it('throws if walletType is undefined', async () => {
-      walletServiceMock.wallets = [];
+      secretsServiceMock.getPrimaryWalletsDetails.mockResolvedValueOnce([]);
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock,
       );
 
       const request = {
@@ -116,7 +128,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       } as any;
 
       await expect(
-        handler.handleAuthenticated(buildRpcCall(request))
+        handler.handleAuthenticated(buildRpcCall(request)),
       ).resolves.toStrictEqual({
         ...request,
         error: 'wallet undefined',
@@ -128,7 +140,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock,
       );
 
       const request = {
@@ -140,7 +153,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       } as any;
 
       await expect(
-        handler.handleAuthenticated(buildRpcCall(request))
+        handler.handleAuthenticated(buildRpcCall(request)),
       ).resolves.toStrictEqual({
         ...request,
         error: ethErrors.rpc.invalidRequest({
@@ -154,7 +167,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock,
       );
 
       const request = {
@@ -171,7 +185,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       });
 
       await expect(
-        handler.handleAuthenticated(buildRpcCall(request))
+        handler.handleAuthenticated(buildRpcCall(request)),
       ).resolves.toStrictEqual({
         ...request,
         error: ethErrors.rpc.invalidParams({
@@ -181,7 +195,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
         DAppProviderRequest.ETH_SIGN,
         { foo: 'bar' },
-        1
+        1,
       );
     });
 
@@ -190,7 +204,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock,
       );
 
       const methodsWithoutTypeCheck = [
@@ -216,7 +231,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
           .mockResolvedValue({ validation: { result_type: 'Being' } });
 
         await expect(
-          handler.handleAuthenticated(buildRpcCall(request))
+          handler.handleAuthenticated(buildRpcCall(request)),
         ).resolves.toStrictEqual({
           ...request,
           result: DEFERRED_RESPONSE,
@@ -235,7 +250,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
             },
             tabId: 1,
           },
-          `sign`
+          `sign`,
         );
       }
     });
@@ -245,7 +260,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock,
       );
 
       const messageParamsMock: MessageParams = {
@@ -288,7 +304,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         });
 
         await expect(
-          handler.handleAuthenticated(buildRpcCall(request))
+          handler.handleAuthenticated(buildRpcCall(request)),
         ).resolves.toStrictEqual({
           ...request,
           result: DEFERRED_RESPONSE,
@@ -300,7 +316,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
             chainId: 1,
           },
           { Mail: [{ name: 'name', type: 'string' }] },
-          { name: 'asdasd' }
+          { name: 'asdasd' },
         );
 
         expect(openApprovalWindow).toHaveBeenCalledWith(
@@ -316,7 +332,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
             tabId: 1,
             scope: 'eip155:43113',
           },
-          `sign`
+          `sign`,
         );
       }
     });
@@ -325,7 +341,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock,
       );
 
       const request = {
@@ -345,7 +362,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       expect(ensureMessageFormatIsValid).toHaveBeenCalledWith(
         request.method,
         displayDataMock.data,
-        activeNetworkMock.chainId
+        activeNetworkMock.chainId,
       );
       expect(result).toStrictEqual({
         ...request,
@@ -365,7 +382,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
           tabId: 1,
           scope: 'eip155:43113',
         },
-        `sign`
+        `sign`,
       );
     });
   });
@@ -379,11 +396,12 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock,
       );
 
       (walletServiceMock.signMessage as jest.Mock).mockResolvedValueOnce(
-        result
+        result,
       );
 
       await handler.onActionApproved(
@@ -395,7 +413,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         } as any,
         undefined,
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(onSuccessMock).toHaveBeenCalledWith(result);
@@ -406,7 +424,8 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
       const handler = new PersonalSignHandler(
         walletServiceMock,
         networkServiceMock,
-        blockaidServiceMock
+        blockaidServiceMock,
+        secretsServiceMock,
       );
 
       (walletServiceMock.signMessage as jest.Mock).mockRejectedValueOnce(error);
@@ -422,7 +441,7 @@ describe('src/background/services/messages/handlers/signMessage.ts', () => {
         } as any,
         undefined,
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(onErrorMock).toHaveBeenCalledWith(error);

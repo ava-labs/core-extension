@@ -2,6 +2,7 @@ import { Stack, Typography } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { TokenWithBalancePVM } from '@avalabs/vm-module-types';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 interface PchainActiveNetworkWidgetContentProps {
   balances?: TokenWithBalancePVM;
@@ -23,13 +24,13 @@ export function PchainActiveNetworkWidgetContent({
     pendingStaked: t('Pending Staked'),
   };
 
-  if (!balances) {
+  if (!balances?.balancePerType) {
     return null;
   }
   return (
     <>
-      {Object.keys(typeDisplayNames).map((type) => {
-        const show = balances[type] && balances[type] > 0;
+      {Object.entries(balances.balancePerType).map(([type, balance]) => {
+        const show = balance > 0;
 
         if (!show) {
           return null;
@@ -59,7 +60,12 @@ export function PchainActiveNetworkWidgetContent({
                 data-testid="token-row-token-balance"
                 variant="caption"
               >
-                {`${balances[type]} AVAX`}
+                {new TokenUnit(
+                  balance,
+                  balances.decimals,
+                  balances.symbol,
+                ).toDisplay()}{' '}
+                AVAX
               </Typography>
             </BalanceColumn>
           </Stack>

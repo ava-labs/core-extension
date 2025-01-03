@@ -7,7 +7,7 @@ import { SecretType } from '@src/background/services/secrets/models';
 
 export const usePrivateKeyExport = (
   account?: Account,
-  walletType?: SecretType
+  walletType?: SecretType,
 ) => {
   const { capture } = useAnalyticsContext();
   const history = useHistory();
@@ -17,7 +17,7 @@ export const usePrivateKeyExport = (
       account?.type === AccountType.IMPORTED ||
       (account?.type === AccountType.PRIMARY &&
         walletType === SecretType.Mnemonic),
-    [account?.type, walletType]
+    [account?.type, walletType],
   );
 
   const showPrivateKey = useCallback(
@@ -26,7 +26,7 @@ export const usePrivateKeyExport = (
       e.stopPropagation();
       history.push(`/export-private-key?accountId=${account?.id}`);
     },
-    [account?.id, capture, history]
+    [account?.id, capture, history],
   );
 
   return {

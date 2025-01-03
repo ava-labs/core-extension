@@ -238,8 +238,11 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
                           icon={icon}
                           onClick={() => {
                             capture(`FABItemSelected_${name}`);
-                            onclick && onclick();
-                            route && history.push(route);
+                            onclick?.();
+                            if (!route) {
+                              return;
+                            }
+                            history.push(route);
                           }}
                         />
                       );

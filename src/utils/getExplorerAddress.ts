@@ -2,6 +2,7 @@ import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { Chain } from '@avalabs/bridge-unified';
 import { Network } from '@avalabs/core-chains-sdk';
 import { networkToBlockchain } from '@src/pages/Bridge/utils/blockchainConversion';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 
 function getAvalancheExplorerBaseUrl(isMainnet = true) {
   return isMainnet
@@ -28,7 +29,8 @@ function getBTCBlockchainLink(txHash: string, isMainnet: boolean) {
 export function getExplorerAddress(
   chain: Blockchain | Chain,
   txHash: string,
-  isMainnet: boolean
+  isMainnet: boolean,
+  getNetwork: (chainId: string) => NetworkWithCaipId | undefined,
 ) {
   const normalizedChain =
     typeof chain === 'object' ? networkToBlockchain(chain) : chain;
@@ -38,9 +40,17 @@ export function getExplorerAddress(
       return getAvalancheTxLink(txHash, isMainnet);
     case Blockchain.BITCOIN:
       return getBTCBlockchainLink(txHash, isMainnet);
-    default:
+    case Blockchain.ETHEREUM:
       return getEtherscanLink(txHash, isMainnet);
   }
+
+  if (typeof chain === 'string') {
+    return '#';
+  }
+
+  const network = getNetwork(chain.chainId);
+
+  return network ? getExplorerAddressByNetwork(network, txHash, 'tx') : '#';
 }
 
 export function getAvalancheAddressLink(hash: string, isMainnet = true) {
@@ -52,7 +62,7 @@ export function getAvalancheAddressLink(hash: string, isMainnet = true) {
 export function getExplorerAddressByNetwork(
   network: Network,
   hash: string,
-  hashType: 'address' | 'tx' = 'tx'
+  hashType: 'address' | 'tx' = 'tx',
 ) {
   return `${network.explorerUrl}/${hashType}/${hash}`;
 }

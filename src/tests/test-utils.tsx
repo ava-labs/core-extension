@@ -14,7 +14,7 @@ const AllTheProviders: FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const customRender = (
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
+  options?: Omit<RenderOptions, 'wrapper'>,
 ) => render(ui, { wrapper: AllTheProviders, ...options });
 
 export const waitForIntervalRuns = async (numberOfRuns, intervalMs) => {
@@ -30,13 +30,15 @@ export const waitForIntervalRuns = async (numberOfRuns, intervalMs) => {
 
 export const buildRpcCall = <M extends string>(
   payload: PartialBy<JsonRpcRequestPayload<M>, 'params'>,
-  scope = 'eip155:43113'
+  scope = 'eip155:43113',
 ): JsonRpcRequestParams<M, any> =>
   ({
     scope,
     sessionId: crypto.randomUUID(),
     request: payload,
-  } as const);
+  }) as const;
 
 export * from '@testing-library/react';
 export { customRender as render };
+
+export const matchingPayload = (payload) => expect.objectContaining(payload);

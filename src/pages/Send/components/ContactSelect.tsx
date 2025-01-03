@@ -22,7 +22,7 @@ import {
   MyAccountContacts,
 } from './AddressDropdownListMyAccounts';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { isTxHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
+import { isNonXPHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 import { indexOf } from 'lodash';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
@@ -76,7 +76,7 @@ export const ContactSelect = ({
     }
     getTransactionHistory().then((history) => {
       const filteredHistory = history.filter((tx, index, self) => {
-        if (!tx.isSender || (isTxHistoryItem(tx) && tx.isContractCall)) {
+        if (!tx.isSender || (isNonXPHistoryItem(tx) && tx.isContractCall)) {
           return false;
         }
         // filter out dupe to addresses
@@ -93,23 +93,23 @@ export const ContactSelect = ({
           const addressToCheck = isBitcoinNetwork(network)
             ? identity.addressBTC
             : isPchainNetwork(network) || isXchainNetwork(network)
-            ? identity.addressXP
-            : identity.address;
+              ? identity.addressXP
+              : identity.address;
 
           const userAddress = isBitcoinNetwork(network)
             ? activeAccount?.addressBTC
             : isPchainNetwork(network)
-            ? stripAddressPrefix(activeAccount?.addressPVM ?? '')
-            : isXchainNetwork(network)
-            ? stripAddressPrefix(activeAccount?.addressAVM ?? '')
-            : activeAccount?.addressC;
+              ? stripAddressPrefix(activeAccount?.addressPVM ?? '')
+              : isXchainNetwork(network)
+                ? stripAddressPrefix(activeAccount?.addressAVM ?? '')
+                : activeAccount?.addressC;
 
           const addressesInList = acc.map((value) =>
             isBitcoinNetwork(network)
               ? value.addressBTC
               : isPchainNetwork(network) || isXchainNetwork(network)
-              ? value.addressXP
-              : value.address
+                ? value.addressXP
+                : value.address,
           );
           if (
             indexOf(addressesInList, addressToCheck) === -1 &&
@@ -142,8 +142,8 @@ export const ContactSelect = ({
         return;
       }
       const result = walletAccount.map(
-        ({ addressC, name, addressBTC, addressPVM, addressAVM }) => ({
-          id: '',
+        ({ id, addressC, name, addressBTC, addressPVM, addressAVM }) => ({
+          id,
           address: network?.vmName == NetworkVMType.EVM ? addressC : '',
           addressBTC:
             network?.vmName === NetworkVMType.BITCOIN ? addressBTC : '',
@@ -151,11 +151,11 @@ export const ContactSelect = ({
             isPchainNetwork(network) && addressPVM
               ? stripAddressPrefix(addressPVM)
               : isXchainNetwork(network) && addressAVM
-              ? stripAddressPrefix(addressAVM)
-              : '',
+                ? stripAddressPrefix(addressAVM)
+                : '',
           name,
           isKnown: true,
-        })
+        }),
       );
       formattedPrimary[walletId] = result;
     });
@@ -166,8 +166,8 @@ export const ContactSelect = ({
     }
 
     const formattedImported = importedAccountToPrep?.map(
-      ({ addressC, name, addressBTC, addressPVM, addressAVM }) => ({
-        id: '',
+      ({ id, addressC, name, addressBTC, addressPVM, addressAVM }) => ({
+        id,
         address: network?.vmName == NetworkVMType.EVM ? addressC : '',
         addressBTC:
           network?.vmName === NetworkVMType.BITCOIN && addressBTC
@@ -177,11 +177,11 @@ export const ContactSelect = ({
           isPchainNetwork(network) && addressPVM
             ? stripAddressPrefix(addressPVM)
             : isXchainNetwork(network) && addressAVM
-            ? stripAddressPrefix(addressAVM)
-            : '',
+              ? stripAddressPrefix(addressAVM)
+              : '',
         name,
         isKnown: true,
-      })
+      }),
     );
 
     return {

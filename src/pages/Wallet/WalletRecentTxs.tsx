@@ -24,7 +24,7 @@ import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNF
 import { usePendingBridgeTransactions } from '../Bridge/hooks/usePendingBridgeTransactions';
 import {
   isPchainTxHistoryItem,
-  isTxHistoryItem,
+  isNonXPHistoryItem,
 } from '@src/background/services/history/utils/isTxHistoryItem';
 import { PchainActivityCard } from './components/History/components/ActivityCard/PchainActivityCard';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
@@ -37,6 +37,7 @@ import {
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { XchainActivityCard } from './components/History/components/ActivityCard/XchainActivityCard';
+import { getBridgedAssetSymbol } from '@src/utils/bridge/getBridgedAssetSymbol';
 import { Transaction, TransactionType } from '@avalabs/vm-module-types';
 
 type WalletRecentTxsProps = {
@@ -76,10 +77,10 @@ export function WalletRecentTxs({
     [PchainFilterType.ADD_DELEGATOR_TX]: t('Add Delegator'),
     [PchainFilterType.ADD_SUBNET_VALIDATOR_TX]: t('Add Subnet Validator'),
     [PchainFilterType.ADD_PERMISSIONLESS_VALIDATOR_TX]: t(
-      'Add Permissionless Validator'
+      'Add Permissionless Validator',
     ),
     [PchainFilterType.ADD_PERMISSIONLESS_DELEGATOR_TX]: t(
-      'Add Permissionless Delegator'
+      'Add Permissionless Delegator',
     ),
     [PchainFilterType.ADD_VALIDATOR_TX]: t('Add Validator'),
     [PchainFilterType.ADVANCE_TIME_TX]: t('Advance Time'),
@@ -91,7 +92,7 @@ export function WalletRecentTxs({
     [PchainFilterType.REWARD_VALIDATOR_TX]: t('Reward Validator'),
     [PchainFilterType.REMOVE_SUBNET_VALIDATOR_TX]: t('Remove Subnet Validator'),
     [PchainFilterType.TRANSFER_SUBNET_OWNERSHIP_TX]: t(
-      'Transfer Subnet Ownership'
+      'Transfer Subnet Ownership',
     ),
     [PchainFilterType.TRANSFORM_SUBNET_TX]: t('Transform Subnet'),
   };
@@ -127,8 +128,8 @@ export function WalletRecentTxs({
     isPchainNetwork(network)
       ? PchainFilterType.ALL
       : isXchainNetwork(network)
-      ? XchainFilterType.ALL
-      : FilterType.ALL
+        ? XchainFilterType.ALL
+        : FilterType.ALL,
   );
 
   /*
@@ -141,7 +142,7 @@ export function WalletRecentTxs({
 
   const filteredBridgeTransactions = tokenSymbolFilter
     ? Object.values(bridgeTransactions).filter(
-        (tx) => tx.symbol === tokenSymbolFilter
+        (tx) => getBridgedAssetSymbol(tx) === tokenSymbolFilter,
       )
     : bridgeTransactions;
 
@@ -184,12 +185,16 @@ export function WalletRecentTxs({
       return Object.values(bridgeTransactions).some(
         (bridge) =>
           bridge.sourceTxHash === tx.hash ||
-          (!!bridge.targetTxHash && bridge.targetTxHash === tx.hash)
+          (!!bridge.targetTxHash && bridge.targetTxHash === tx.hash),
       );
     }
 
     function shouldTxBeKept(tx: TxHistoryItem) {
-      if (isTxHistoryItem(tx) && tx.isBridge && isPendingBridge(tx)) {
+      if (
+        isNonXPHistoryItem(tx) &&
+        tx.bridgeAnalysis.isBridgeTx &&
+        isPendingBridge(tx)
+      ) {
         return false;
       }
       return true;
@@ -197,7 +202,7 @@ export function WalletRecentTxs({
 
     return unfilteredTxHistory
       .filter((tx) => {
-        if (tokenSymbolFilter && isTxHistoryItem(tx)) {
+        if (tokenSymbolFilter && isNonXPHistoryItem(tx)) {
           return tokenSymbolFilter === tx.tokens?.[0]?.symbol;
         } else {
           return true;
@@ -208,17 +213,21 @@ export function WalletRecentTxs({
 
   function txHistoryItemFilter(
     tx: TxHistoryItem,
-    filter: FilterType | PchainFilterType | XchainFilterType
+    filter: FilterType | PchainFilterType | XchainFilterType,
   ) {
     if (filter === FilterType.ALL) {
       return true;
     } else if (filter === FilterType.BRIDGE) {
-      return tx.txType === TransactionType.BRIDGE || tx.isBridge;
+      return (
+        tx.txType === TransactionType.BRIDGE || tx.bridgeAnalysis.isBridgeTx
+      );
     } else if (filter === FilterType.SWAP) {
       return tx.txType === TransactionType.SWAP;
     } else if (filter === FilterType.CONTRACT_CALL) {
       return (
-        tx.isContractCall && !tx.isBridge && tx.txType !== TransactionType.SWAP
+        tx.isContractCall &&
+        !tx.bridgeAnalysis.isBridgeTx &&
+        tx.txType !== TransactionType.SWAP
       );
     } else if (filter === FilterType.INCOMING) {
       return tx.isIncoming;
@@ -240,7 +249,7 @@ export function WalletRecentTxs({
 
   function pchainTxHistoryItemFilter(
     tx: TxHistoryItem,
-    filter: FilterType | PchainFilterType | XchainFilterType
+    filter: FilterType | PchainFilterType | XchainFilterType,
   ) {
     if (filter === PchainFilterType.ALL) {
       return true;
@@ -262,7 +271,7 @@ export function WalletRecentTxs({
 
   function xchainTxHistoryItemFilter(
     tx: Transaction,
-    filter: FilterType | PchainFilterType | XchainFilterType
+    filter: FilterType | PchainFilterType | XchainFilterType,
   ) {
     if (filter === XchainFilterType.ALL) {
       return true;
@@ -285,9 +294,9 @@ export function WalletRecentTxs({
   const filteredTxHistory = useMemo(() => {
     function shouldTxBeKept(
       tx: TxHistoryItem,
-      filter: FilterType | PchainFilterType | XchainFilterType
+      filter: FilterType | PchainFilterType | XchainFilterType,
     ) {
-      if (isTxHistoryItem(tx)) {
+      if (isNonXPHistoryItem(tx)) {
         return txHistoryItemFilter(tx, filter);
       } else if (isPchainTxHistoryItem(tx)) {
         return pchainTxHistoryItemFilter(tx, filter);
@@ -297,7 +306,7 @@ export function WalletRecentTxs({
     }
 
     return baseFilteredTxHistory.filter((tx) =>
-      shouldTxBeKept(tx, selectedFilter)
+      shouldTxBeKept(tx, selectedFilter),
     );
   }, [baseFilteredTxHistory, selectedFilter]);
 
@@ -309,13 +318,13 @@ export function WalletRecentTxs({
     return isToday
       ? t('Today')
       : isYesterday
-      ? t('Yesterday')
-      : i18n.language === 'en'
-      ? format(date, 'MMMM do')
-      : new Intl.DateTimeFormat(i18n.language, {
-          month: 'long',
-          day: '2-digit',
-        }).format(date);
+        ? t('Yesterday')
+        : i18n.language === 'en'
+          ? format(date, 'MMMM do')
+          : new Intl.DateTimeFormat(i18n.language, {
+              month: 'long',
+              day: '2-digit',
+            }).format(date);
   };
 
   const FilterItem = ({ keyName, onClick }) => {
@@ -325,8 +334,8 @@ export function WalletRecentTxs({
     const label = isPchainNetwork(network)
       ? PchainFilterItems[keyName]
       : isXchainNetwork(network)
-      ? XchainFilterItems[keyName]
-      : FilterItems[keyName];
+        ? XchainFilterItems[keyName]
+        : FilterItems[keyName];
     return (
       <MenuItem
         disableRipple
@@ -395,8 +404,8 @@ export function WalletRecentTxs({
                 {isPchainNetwork(network)
                   ? PchainFilterItems[selectedFilter]
                   : isXchainNetwork(network)
-                  ? XchainFilterItems[selectedFilter]
-                  : FilterItems[selectedFilter]}
+                    ? XchainFilterItems[selectedFilter]
+                    : FilterItems[selectedFilter]}
               </Typography>
               {showFilterMenu ? (
                 <ChevronUpIcon size={20} />
@@ -421,8 +430,8 @@ export function WalletRecentTxs({
                     isPchainNetwork(network)
                       ? PchainFilterItems
                       : isXchainNetwork(network)
-                      ? XchainFilterItems
-                      : FilterItems
+                        ? XchainFilterItems
+                        : FilterItems,
                   ).map((filterItem) => (
                     <FilterItem
                       key={filterItem}
@@ -470,7 +479,7 @@ export function WalletRecentTxs({
                 !previousTx ||
                 !isSameDay(
                   new Date(tx.timestamp),
-                  new Date(previousTx.timestamp)
+                  new Date(previousTx.timestamp),
                 );
               return (
                 <Fragment key={index}>
@@ -485,7 +494,7 @@ export function WalletRecentTxs({
                       {getDayString(tx.timestamp)}
                     </Typography>
                   )}
-                  {isTxHistoryItem(tx) ? (
+                  {isNonXPHistoryItem(tx) ? (
                     <ActivityCard historyItem={tx} />
                   ) : isPchainTxHistoryItem(tx) ? (
                     <PchainActivityCard historyItem={tx} />

@@ -1,39 +1,34 @@
 import {
-  BlockchainId,
   Erc1155Token,
   Erc721Token,
   Glacier,
   Network,
-  PrimaryNetworkTxType,
-  SortOrder,
 } from '@avalabs/glacier-sdk';
 import { singleton } from 'tsyringe';
 import { wait } from '@avalabs/core-utils-sdk';
 
 import { CommonError } from '@src/utils/errors';
 
+import { HEADERS } from './glacierConfig';
+
 @singleton()
 export class GlacierService {
-  private glacierSdkInstance = new Glacier({ BASE: process.env.GLACIER_URL });
-  private isGlacierHealthy = true;
-  private supportedNetworks: string[] = [];
+  private glacierSdkInstance = new Glacier({
+    BASE: process.env.GLACIER_URL,
+    HEADERS,
+  });
 
-  private async getSupportedNetworks() {
-    if (this.supportedNetworks.length) {
-      return this.supportedNetworks;
-    }
-
-    try {
-      const supportedNetworks =
-        await this.glacierSdkInstance.evmChains.supportedChains({});
-      this.supportedNetworks = supportedNetworks.chains.map(
-        (chain) => chain.chainId
-      );
-
-      return this.supportedNetworks;
-    } catch {
-      return [];
-    }
+  async getChainIdsForAddresses({
+    addresses,
+    network,
+  }: {
+    addresses: string[];
+    network: Network;
+  }) {
+    return this.glacierSdkInstance.primaryNetwork.getChainIdsForAddresses({
+      addresses: addresses.join(','),
+      network,
+    });
   }
 
   async refreshNftMetadata(address: string, chainId: string, tokenId: string) {
@@ -76,63 +71,5 @@ export class GlacierService {
     } while (shouldPoll);
 
     return token;
-  }
-
-  async isNetworkSupported(chainId: number) {
-    if (!this.isGlacierHealthy) return this.isGlacierHealthy;
-    const networks = await this.getSupportedNetworks();
-    return networks.includes(chainId.toString());
-  }
-
-  constructor() {
-    /**
-     * This is for performance, basically we just cache the health of glacier every 5 seconds and
-     * go off of that instead of every request
-     */
-    this.getSupportedNetworks().catch(() => {
-      // Noop. It will be retried by .isSupportedNetwork calls upon unlocking if necessary.
-    });
-  }
-
-  setGlacierToUnhealthy() {
-    this.isGlacierHealthy = false;
-    setTimeout(() => {
-      this.isGlacierHealthy = true;
-    }, 5 * 60 * 1000);
-  }
-
-  async getChainBalance(params: {
-    blockchainId: BlockchainId;
-    network: Network;
-    blockTimestamp?: number;
-    addresses?: string;
-  }) {
-    return this.glacierSdkInstance.primaryNetworkBalances.getBalancesByAddresses(
-      params
-    );
-  }
-
-  async listLatestPrimaryNetworkTransactions(params: {
-    blockchainId: BlockchainId;
-    network: Network;
-    addresses?: string;
-    txTypes?: Array<PrimaryNetworkTxType>;
-    startTimestamp?: number;
-    endTimestamp?: number;
-    pageToken?: string;
-    pageSize?: number;
-    sortOrder?: SortOrder;
-  }) {
-    return this.glacierSdkInstance.primaryNetworkTransactions.listLatestPrimaryNetworkTransactions(
-      params
-    );
-  }
-  async getChainIdsForAddresses(params: {
-    addresses: string;
-    network: Network;
-  }) {
-    return this.glacierSdkInstance.primaryNetwork.getChainIdsForAddresses(
-      params
-    );
   }
 }

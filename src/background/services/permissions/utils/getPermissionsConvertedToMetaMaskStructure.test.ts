@@ -14,20 +14,20 @@ describe('background/services/permissions/utils/getPermissionConvertedToMetaMask
   it('returns empty array if there is no addressC, domain, or permissions', () => {
     expect(getPermissionsConvertedToMetaMaskStructure()).toStrictEqual([]);
     expect(
-      getPermissionsConvertedToMetaMaskStructure('123', undefined, {})
+      getPermissionsConvertedToMetaMaskStructure('123', undefined, {}),
     ).toStrictEqual([]);
     expect(
-      getPermissionsConvertedToMetaMaskStructure(undefined, 'example.com', {})
+      getPermissionsConvertedToMetaMaskStructure(undefined, 'example.com', {}),
     ).toStrictEqual([]);
     expect(
       getPermissionsConvertedToMetaMaskStructure(
         '123',
         'example.com',
-        undefined
-      )
+        undefined,
+      ),
     ).toStrictEqual([]);
     expect(
-      getPermissionsConvertedToMetaMaskStructure('123', 'example.com')
+      getPermissionsConvertedToMetaMaskStructure('123', 'example.com'),
     ).toStrictEqual([]);
     expect(getPermissionsConvertedToMetaMaskStructure('123')).toStrictEqual([]);
   });
@@ -37,8 +37,8 @@ describe('background/services/permissions/utils/getPermissionConvertedToMetaMask
       getPermissionsConvertedToMetaMaskStructure(
         '123',
         'example.com',
-        mockPermissions
-      )
+        mockPermissions,
+      ),
     ).toStrictEqual([]);
   });
 
@@ -47,8 +47,8 @@ describe('background/services/permissions/utils/getPermissionConvertedToMetaMask
       getPermissionsConvertedToMetaMaskStructure(
         '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
         'example.com',
-        mockPermissions
-      )
+        mockPermissions,
+      ),
     ).toEqual([{ invoker: 'example.com', parentCapability: 'accounts' }]);
   });
 });

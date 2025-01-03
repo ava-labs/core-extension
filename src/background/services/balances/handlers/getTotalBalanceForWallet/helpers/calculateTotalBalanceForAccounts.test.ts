@@ -1,0 +1,97 @@
+import { Account } from '@src/background/services/accounts/models';
+import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
+
+import { calculateTotalBalanceForAccounts } from './calculateTotalBalanceForAccounts';
+
+jest.mock('@src/utils/calculateTotalBalance');
+
+describe('src/background/services/balances/handlers/helpers/calculateTotalBalanceForAccounts', () => {
+  it('aggregates results of calculateTotalBalance() for provided accounts', () => {
+    jest
+      .mocked(calculateTotalBalance)
+      .mockReturnValueOnce({
+        sum: 100,
+        priceChange: {
+          percentage: [0],
+          value: 0,
+        },
+      })
+      .mockReturnValueOnce({
+        sum: 0,
+        priceChange: {
+          percentage: [0],
+          value: 0,
+        },
+      })
+      .mockReturnValueOnce({
+        sum: null,
+        priceChange: {
+          percentage: [],
+          value: 0,
+        },
+      })
+      .mockReturnValueOnce({
+        sum: 1500,
+        priceChange: {
+          percentage: [0],
+          value: 0,
+        },
+      });
+
+    const accounts: Partial<Account>[] = [
+      {
+        addressAVM: 'addressAVM',
+        addressPVM: 'addressPVM',
+      },
+      {
+        addressPVM: 'addressPVM',
+      },
+      {
+        addressC: 'addressC',
+        addressBTC: 'addressBTC',
+      },
+      {
+        addressC: 'addressC',
+        addressAVM: 'addressAVM',
+        addressPVM: 'addressPVM',
+      },
+    ];
+
+    const balances = {} as any;
+    const chainIds = [];
+
+    const result = calculateTotalBalanceForAccounts(
+      balances,
+      accounts,
+      chainIds,
+    );
+
+    expect(calculateTotalBalance).toHaveBeenCalledTimes(4);
+    expect(calculateTotalBalance).toHaveBeenNthCalledWith(
+      1,
+      accounts[0],
+      chainIds,
+      balances,
+    );
+    expect(calculateTotalBalance).toHaveBeenNthCalledWith(
+      2,
+      accounts[1],
+      chainIds,
+      balances,
+    );
+    expect(calculateTotalBalance).toHaveBeenNthCalledWith(
+      3,
+      accounts[2],
+      chainIds,
+      balances,
+    );
+    expect(calculateTotalBalance).toHaveBeenNthCalledWith(
+      4,
+      accounts[3],
+      chainIds,
+      balances,
+    );
+
+    expect(result).toEqual(1600);
+  });
+});

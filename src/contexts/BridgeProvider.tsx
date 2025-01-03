@@ -34,11 +34,10 @@ import {
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useAccountsContext } from './AccountsProvider';
-import { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
-import type { ContractTransaction } from 'ethers';
+import { toBeHex, type ContractTransaction } from 'ethers';
 import { useTranslation } from 'react-i18next';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 export interface BridgeContext {
   createBridgeTransaction(tx: PartialBridgeTransaction): Promise<void>;
@@ -60,7 +59,7 @@ export function BridgeProvider({ children }: { children: any }) {
     setBridgeEnvironment(
       network?.chainId === ChainId.AVALANCHE_MAINNET_ID
         ? Environment.PROD
-        : Environment.TEST
+        : Environment.TEST,
     );
   }, [network]);
 
@@ -80,7 +79,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
   const { t } = useTranslation();
   const { request, events } = useConnectionContext();
   const { currentBlockchain, bridgeConfig } = useBridgeSDK();
-  const { network, avalancheProvider, ethereumProvider } = useNetworkContext();
+  const { network, avaxProviderC, ethereumProvider } = useNetworkContext();
   const {
     accounts: { active },
   } = useAccountsContext();
@@ -106,7 +105,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
     const subscription = events()
       .pipe(
         filter(isBridgeStateUpdateEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((txs) => {
         setBridgeState(txs);
@@ -132,7 +131,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         params: bridgeTransaction,
       });
     },
-    [request]
+    [request],
   );
 
   const removeBridgeTransaction = useCallback<
@@ -144,7 +143,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         params: [txHash],
       });
     },
-    [request]
+    [request],
   );
 
   const setIsBridgeDevEnv = useCallback(
@@ -154,7 +153,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         params: [enabled],
       });
     },
-    [request]
+    [request],
   );
 
   const estimateGas = useCallback(
@@ -166,7 +165,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         !isEvmSourceChain ||
         !active?.addressC ||
         !ethereumProvider ||
-        !avalancheProvider ||
+        !avaxProviderC ||
         !bridgeConfig.config
       ) {
         return;
@@ -178,19 +177,19 @@ function InnerBridgeProvider({ children }: { children: any }) {
         asset as Exclude<Asset, BitcoinConfigAsset>,
         {
           ethereum: ethereumProvider,
-          avalanche: avalancheProvider,
+          avalanche: avaxProviderC,
         },
         bridgeConfig.config,
-        currentBlockchain
+        currentBlockchain,
       );
     },
     [
       currentBlockchain,
       active?.addressC,
-      avalancheProvider,
+      avaxProviderC,
       ethereumProvider,
       bridgeConfig.config,
-    ]
+    ],
   );
 
   const transferEVMAsset = useCallback(
@@ -210,7 +209,7 @@ function InnerBridgeProvider({ children }: { children: any }) {
         amount,
         account: active?.addressC as string,
         asset,
-        avalancheProvider: avalancheProvider!,
+        avalancheProvider: avaxProviderC!,
         ethereumProvider: ethereumProvider!,
         config: bridgeConfig.config!,
         onStatusChange: (status) => {
@@ -229,39 +228,40 @@ function InnerBridgeProvider({ children }: { children: any }) {
         signAndSendEVM: (txData) => {
           const tx = txData as ContractTransaction;
 
-          return request<EthSendTransactionHandler>({
-            method: DAppProviderRequest.ETH_SEND_TX,
-            params: [
-              {
-                ...tx,
-                // erase gasPrice if maxFeePerGas can be used
-                gasPrice: tx.maxFeePerGas
-                  ? undefined
-                  : tx.gasPrice ?? undefined,
-                type: tx.maxFeePerGas ? undefined : 0, // use type: 0 if it's not an EIP-1559 transaction
-              },
-              {
-                customApprovalScreenTitle: t('Confirm Bridge'),
-                contextInformation:
-                  requiredSignatures > currentSignature
-                    ? {
-                        title: t(
-                          'This operation requires {{total}} approvals.',
-                          {
-                            total: requiredSignatures,
-                          }
-                        ),
-                        notice: t(
-                          'You will be prompted {{remaining}} more time(s).',
-                          {
-                            remaining: requiredSignatures - currentSignature,
-                          }
-                        ),
-                      }
-                    : undefined,
-              },
-            ],
-          });
+          return request(
+            {
+              method: RpcMethod.ETH_SEND_TRANSACTION,
+              params: [
+                {
+                  ...mapNumberishToHex(tx),
+                  // erase gasPrice if maxFeePerGas can be used
+                  gasPrice: tx.maxFeePerGas
+                    ? undefined
+                    : tx.gasPrice
+                      ? toBeHex(tx.gasPrice)
+                      : undefined,
+                },
+              ],
+            },
+            {
+              customApprovalScreenTitle: t('Confirm Bridge'),
+              alert:
+                requiredSignatures > currentSignature
+                  ? {
+                      type: 'info',
+                      title: t('This operation requires {{total}} approvals.', {
+                        total: requiredSignatures,
+                      }),
+                      notice: t(
+                        'You will be prompted {{remaining}} more time(s).',
+                        {
+                          remaining: requiredSignatures - currentSignature,
+                        },
+                      ),
+                    }
+                  : undefined,
+            },
+          );
         },
       });
 
@@ -269,13 +269,13 @@ function InnerBridgeProvider({ children }: { children: any }) {
     },
     [
       active?.addressC,
-      avalancheProvider,
+      avaxProviderC,
       bridgeConfig.config,
       currentBlockchain,
       ethereumProvider,
       request,
       t,
-    ]
+    ],
   );
 
   return (
@@ -295,3 +295,13 @@ function InnerBridgeProvider({ children }: { children: any }) {
     </bridgeContext.Provider>
   );
 }
+
+const mapNumberishToHex = (tx: ContractTransaction) =>
+  Object.fromEntries(
+    Object.entries(tx).map(([key, value]) => [
+      key,
+      typeof value === 'number' || typeof value === 'bigint'
+        ? toBeHex(value)
+        : value,
+    ]),
+  );

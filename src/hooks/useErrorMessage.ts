@@ -19,7 +19,7 @@ export const useErrorMessage = () => {
   const fireblocksErrors: Record<FireblocksErrorCode, ErrorTranslation> =
     useMemo(() => {
       const fireblocksHint = t(
-        'Please refer to Active Transfers list in your Fireblocks Console for a detailed explanation.'
+        'Please refer to Active Transfers list in your Fireblocks Console for a detailed explanation.',
       );
 
       return {
@@ -82,7 +82,7 @@ export const useErrorMessage = () => {
         title: t('User rejected the request'),
       },
     }),
-    [t]
+    [t],
   );
 
   const unifiedBridgeErrors: Record<UnifiedBridgeError, ErrorTranslation> =
@@ -104,8 +104,12 @@ export const useErrorMessage = () => {
         [UnifiedBridgeError.UnsupportedNetwork]: {
           title: t('Unsupported network'),
         },
+        [UnifiedBridgeError.NonBitcoinAccount]: {
+          title: t('Unsupported account'),
+          hint: t(`The active account does not support Bitcoin.`),
+        },
       }),
-      [t]
+      [t],
     );
 
   const commonErrors: Record<CommonError, ErrorTranslation> = useMemo(
@@ -139,7 +143,7 @@ export const useErrorMessage = () => {
         hint: t('This is taking longer than expected. Please try again later.'),
       },
     }),
-    [t]
+    [t],
   );
 
   const rpcErrors: Record<RpcErrorCode, ErrorTranslation> = useMemo(
@@ -149,7 +153,7 @@ export const useErrorMessage = () => {
         hint: t('You do not have enough funds to cover the network fees.'),
       },
     }),
-    [t]
+    [t],
   );
   const keystoreErrors: Record<KeystoreError, ErrorTranslation> = useMemo(
     () => ({
@@ -159,7 +163,7 @@ export const useErrorMessage = () => {
       [KeystoreError.InvalidVersion]: {
         title: t('Unsupported Version'),
         hint: t(
-          'Only keystore files exported from the Avalanche Wallet are supported.'
+          'Only keystore files exported from the Avalanche Wallet are supported.',
         ),
       },
       [KeystoreError.NoNewWallets]: {
@@ -171,7 +175,7 @@ export const useErrorMessage = () => {
         hint: t('Please contact our support team to resolve this issue.'),
       },
     }),
-    [t]
+    [t],
   );
 
   const seedphraseImportError: Record<SeedphraseImportError, ErrorTranslation> =
@@ -181,7 +185,7 @@ export const useErrorMessage = () => {
           title: t('This recovery phrase is already imported.'),
         },
       }),
-      [t]
+      [t],
     );
 
   const messages = useMemo(
@@ -202,7 +206,7 @@ export const useErrorMessage = () => {
       keystoreErrors,
       seedphraseImportError,
       rpcErrors,
-    ]
+    ],
   );
 
   return useCallback(
@@ -226,6 +230,6 @@ export const useErrorMessage = () => {
 
       return message ?? messages[CommonError.Unknown];
     },
-    [messages]
+    [messages],
   );
 };

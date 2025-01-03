@@ -8,7 +8,6 @@ import {
   toast,
 } from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { AccountsTab } from '@src/pages/Accounts/Accounts';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
@@ -31,7 +30,7 @@ export const FireblocksBitcoinDialog = ({
       <DialogContent>
         <Typography>
           {t(
-            'Core supports Bitcoin via Fireblocks with a few extra steps. If you choose to skip, you will not be able to bridge or use the Bitcoin Network.'
+            'Core supports Bitcoin via Fireblocks with a few extra steps. If you choose to skip, you will not be able to bridge or use the Bitcoin Network.',
           )}
         </Typography>
       </DialogContent>
@@ -50,7 +49,7 @@ export const FireblocksBitcoinDialog = ({
           onClick={() => {
             capture('ImportWithFireblocks_BTC_Skipped');
             toast.success(t('New Account Added!'), { duration: 2000 });
-            history.push(`/accounts?activeTab=${AccountsTab.Imported}`);
+            history.push('/accounts');
           }}
           variant="text"
         >

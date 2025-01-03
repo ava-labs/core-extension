@@ -76,13 +76,13 @@ describe('src/background/services/currency/CurrencyService.ts', () => {
       const testedIntervals = 5;
 
       jest.advanceTimersByTime(
-        (10 + CURRENCY_EXCHANGE_RATES_REFRESH_INTERVAL) * testedIntervals
+        (10 + CURRENCY_EXCHANGE_RATES_REFRESH_INTERVAL) * testedIntervals,
       );
 
       for (let i = 1; i <= testedIntervals; i++) {
         expect(global.fetch).toHaveBeenNthCalledWith(
           i,
-          CURRENCY_EXCHANGE_RATES_URL
+          CURRENCY_EXCHANGE_RATES_URL,
         );
       }
     });
@@ -99,19 +99,19 @@ describe('src/background/services/currency/CurrencyService.ts', () => {
             date: '2023-06-15',
             someOtherField: 'someData',
             usd: { eur: 1 },
-          })
+          }),
         )
 
         .mockResolvedValueOnce(
           buildResponse({
             usd: { eur: 1 },
-          })
+          }),
         )
         .mockResolvedValueOnce(
           buildResponse({
             date: '2023-06-15',
             usd: { eur: 'asdasd' },
-          })
+          }),
         )
         .mockResolvedValue(buildResponse(apiResponse));
 
@@ -152,13 +152,13 @@ describe('src/background/services/currency/CurrencyService.ts', () => {
           () =>
             new Promise((resolve) => {
               setTimeout(() => resolve(cachedResponse), 1000);
-            })
+            }),
         );
         global.fetch = jest.fn().mockImplementationOnce(
           () =>
             new Promise((resolve) => {
               setTimeout(() => resolve(buildResponse(apiResponse)), 500);
-            })
+            }),
         );
 
         service.onUnlock();
@@ -169,7 +169,7 @@ describe('src/background/services/currency/CurrencyService.ts', () => {
         await jest.runAllTimers();
         await jest.runAllTicks();
         expect(mockStorageService.loadUnencrypted).toHaveBeenCalledWith(
-          CURRENCY_EXCHANGE_RATES_STORAGE_KEY
+          CURRENCY_EXCHANGE_RATES_STORAGE_KEY,
         );
         const { date, ...rates } = apiResponse;
 
@@ -191,13 +191,13 @@ describe('src/background/services/currency/CurrencyService.ts', () => {
           () =>
             new Promise((resolve) => {
               setTimeout(() => resolve(cachedResponse), 500);
-            })
+            }),
         );
         global.fetch = jest.fn().mockImplementationOnce(
           () =>
             new Promise((resolve) => {
               setTimeout(() => resolve(buildResponse(apiResponse)), 1000);
-            })
+            }),
         );
 
         service.onUnlock();
@@ -207,7 +207,7 @@ describe('src/background/services/currency/CurrencyService.ts', () => {
         jest.advanceTimersByTime(600);
         await jest.runAllTicks();
         expect(mockStorageService.loadUnencrypted).toHaveBeenCalledWith(
-          CURRENCY_EXCHANGE_RATES_STORAGE_KEY
+          CURRENCY_EXCHANGE_RATES_STORAGE_KEY,
         );
 
         // Cached rates are set first

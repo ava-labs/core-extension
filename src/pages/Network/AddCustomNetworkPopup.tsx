@@ -42,7 +42,7 @@ export function AddCustomNetworkPopup() {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       }),
-    [requestId, updateAction]
+    [requestId, updateAction],
   );
 
   const saveApiKey = useCallback(async () => {
@@ -92,7 +92,7 @@ export function AddCustomNetworkPopup() {
 
   const keyboardShortcuts = useKeyboardShortcuts({
     Enter: saveApiKey,
-    Esc: () => setIsApiModalVisible(false),
+    Escape: () => setIsApiModalVisible(false),
   });
 
   if (!action || !action.displayData) {
@@ -153,7 +153,7 @@ export function AddCustomNetworkPopup() {
             <AlertTitle>{t('Glacier API key is required')}</AlertTitle>
             <AlertContent>
               {t(
-                'In order for this network to be fully functional, you need to provide your Glacier API key. You will be prompted to do so upon approval.'
+                'In order for this network to be fully functional, you need to provide your Glacier API key. You will be prompted to do so upon approval.',
               )}
             </AlertContent>
           </Alert>
@@ -280,12 +280,12 @@ export function AddCustomNetworkPopup() {
         <DialogContent>
           <Typography variant="body2">
             {t(
-              'This network requires additional authentication to be fully functional.'
+              'This network requires additional authentication to be fully functional.',
             )}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             {t(
-              'The API key can also be configured in the network settings later on.'
+              'The API key can also be configured in the network settings later on.',
             )}
           </Typography>
           <TextField

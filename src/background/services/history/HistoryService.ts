@@ -4,27 +4,25 @@ import { NetworkWithCaipId } from '../network/models';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { AccountsService } from '../accounts/AccountsService';
 import { TxHistoryItem } from './models';
-import { HistoryServiceBridgeHelper } from './HistoryServiceBridgeHelper';
 import { Transaction } from '@avalabs/vm-module-types';
-import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
 import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
 import { resolve } from '@src/utils/promiseResolver';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { AnalyzeTxParams } from '@avalabs/bridge-unified';
 
 @singleton()
 export class HistoryService {
   constructor(
     private moduleManager: ModuleManager,
     private accountsService: AccountsService,
-    private bridgeHistoryHelperService: HistoryServiceBridgeHelper,
-    private unifiedBridgeService: UnifiedBridgeService
+    private unifiedBridgeService: UnifiedBridgeService,
   ) {}
 
   async getTxHistory(
     network: NetworkWithCaipId,
-    otherAddress?: string
+    otherAddress?: string,
   ): Promise<TxHistoryItem[]> {
     const address = otherAddress ?? this.#getAddress(network);
 
@@ -33,15 +31,15 @@ export class HistoryService {
     }
 
     const [module] = await resolve(
-      this.moduleManager.loadModuleByNetwork(network)
+      this.moduleManager.loadModuleByNetwork(network),
     );
 
     if (!module) {
       sentryCaptureException(
         new Error(
-          `Fetching history failed. Module not found for ${network.caipId}`
+          `Fetching history failed. Module not found for ${network.caipId}`,
         ),
-        SentryExceptionTypes.VM_MODULES
+        SentryExceptionTypes.VM_MODULES,
       );
       return [];
     }
@@ -52,25 +50,31 @@ export class HistoryService {
     });
 
     const txHistoryItem = transactions.map((transaction) => {
-      const isBridge = this.#getIsBirdge(network, transaction);
+      const result = this.#analyze(network, transaction);
       const vmType = network.vmName;
-      return { ...transaction, vmType, isBridge };
+      return {
+        ...transaction,
+        vmType,
+        bridgeAnalysis: result,
+      };
     }) as TxHistoryItem[];
 
     return txHistoryItem;
   }
 
-  #getIsBirdge(network: NetworkWithCaipId, transaction: Transaction) {
-    if (network.vmName === NetworkVMType.BITCOIN) {
-      return this.bridgeHistoryHelperService.isBridgeTransactionBTC([
-        transaction.from,
-        transaction.to,
-      ]);
-    }
-    return (
-      this.#isBridgeAddress(transaction.from) ||
-      this.#isBridgeAddress(transaction.to)
-    );
+  #analyze(network: NetworkWithCaipId, transaction: Transaction) {
+    const params: AnalyzeTxParams = {
+      from: transaction.from as `0x${string}`,
+      to: transaction.to as `0x${string}`,
+      chainId: network.caipId,
+      tokenTransfers: transaction.tokens.map((transfer) => ({
+        symbol: transfer.symbol,
+        from: (transfer.from?.address ?? transaction.from) as `0x${string}`,
+        to: (transfer.to?.address ?? transaction.to) as `0x${string}`,
+      })),
+    };
+
+    return this.unifiedBridgeService.analyzeTx(params);
   }
 
   #getAddress(network: NetworkWithCaipId) {
@@ -88,16 +92,5 @@ export class HistoryService {
       default:
         return undefined;
     }
-  }
-
-  #isBridgeAddress(address?: string) {
-    if (!address) {
-      return false;
-    }
-
-    return [
-      ETHEREUM_ADDRESS,
-      ...this.unifiedBridgeService.state.addresses,
-    ].includes(address.toLowerCase());
   }
 }

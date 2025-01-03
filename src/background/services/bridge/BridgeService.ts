@@ -33,7 +33,7 @@ import {
 import Big from 'big.js';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { FeatureGates } from '../featureFlags/models';
-import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { TokenType, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {
@@ -58,7 +58,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private featureFlagService: FeatureFlagService,
-    private networkBalancesService: BalanceAggregatorService
+    private networkBalancesService: BalanceAggregatorService,
   ) {
     this.networkService.developerModeChanged.add(() => {
       this.updateBridgeConfig();
@@ -72,7 +72,7 @@ export class BridgeService implements OnLock, OnStorageReady {
       DefaultBridgeState;
     this.eventEmitter.emit(
       BridgeEvents.BRIDGE_STATE_UPDATE_EVENT,
-      this.bridgeState
+      this.bridgeState,
     );
 
     await this.updateBridgeConfig();
@@ -102,14 +102,14 @@ export class BridgeService implements OnLock, OnStorageReady {
     this.config = config;
     this.eventEmitter.emit(
       BridgeEvents.BRIDGE_CONFIG_UPDATE_EVENT,
-      this.config
+      this.config,
     );
     return config;
   }
 
   private async trackBridgeTransaction(
     bridgeTransaction: BridgeTransaction,
-    bridgeConfig: BridgeConfig | undefined
+    bridgeConfig: BridgeConfig | undefined,
   ) {
     const config = bridgeConfig?.config;
     if (!config) {
@@ -149,16 +149,13 @@ export class BridgeService implements OnLock, OnStorageReady {
     await this.storageService.save(BRIDGE_STORAGE_KEY, this.bridgeState);
     this.eventEmitter.emit(
       BridgeEvents.BRIDGE_STATE_UPDATE_EVENT,
-      this.bridgeState
+      this.bridgeState,
     );
   }
 
   async removeBridgeTransaction(sourceTxHash: string) {
-    const {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      [sourceTxHash]: _removed,
-      ...bridgeTransactions
-    } = this.bridgeState.bridgeTransactions;
+    const { [sourceTxHash]: _removed, ...bridgeTransactions } =
+      this.bridgeState.bridgeTransactions;
 
     this.#subscriptions.get(sourceTxHash)?.unsubscribe();
     this.#subscriptions.delete(sourceTxHash);
@@ -167,14 +164,14 @@ export class BridgeService implements OnLock, OnStorageReady {
     await this.storageService.save(BRIDGE_STORAGE_KEY, this.bridgeState);
     this.eventEmitter.emit(
       BridgeEvents.BRIDGE_STATE_UPDATE_EVENT,
-      this.bridgeState
+      this.bridgeState,
     );
   }
 
   async estimateGas(
     currentBlockchain: Blockchain,
     amount: Big,
-    asset: Asset
+    asset: Asset,
   ): Promise<bigint | undefined> {
     if (!this.config?.config) {
       throw new Error('missing bridge config');
@@ -194,10 +191,11 @@ export class BridgeService implements OnLock, OnStorageReady {
 
       const balances = await this.networkBalancesService.getBalancesForNetworks(
         [btcNetwork.chainId],
-        [this.accountsService.activeAccount]
+        [this.accountsService.activeAccount],
+        [TokenType.NATIVE], // We only care about BTC here, which is a native token
       );
 
-      const token = balances[btcNetwork.chainId]?.[addressBtc]?.[
+      const token = balances.tokens[btcNetwork.chainId]?.[addressBtc]?.[
         'BTC'
       ] as TokenWithBalanceBTC;
 
@@ -213,7 +211,7 @@ export class BridgeService implements OnLock, OnStorageReady {
         addressBtc,
         utxos,
         btcToSatoshi(amount),
-        feeRate
+        feeRate,
       );
 
       return BigInt(byteLength);
@@ -231,7 +229,7 @@ export class BridgeService implements OnLock, OnStorageReady {
           avalanche: avalancheProvider,
         },
         this.config.config,
-        currentBlockchain
+        currentBlockchain,
       );
     }
   }
@@ -242,7 +240,7 @@ export class BridgeService implements OnLock, OnStorageReady {
     sourceStartedAt: number,
     targetChain: Blockchain,
     amount: Big,
-    symbol: string
+    symbol: string,
   ) {
     const { config } = await this.updateBridgeConfig();
     if (!this.accountsService.activeAccount || !config) {
@@ -260,7 +258,7 @@ export class BridgeService implements OnLock, OnStorageReady {
 
     const requiredConfirmationCount = getMinimumConfirmations(
       sourceChain,
-      config
+      config,
     );
     const environment = this.networkService.isMainnet() ? 'main' : 'test';
     const bridgeTransaction: BridgeTransaction = {
@@ -291,8 +289,8 @@ export class BridgeService implements OnLock, OnStorageReady {
     return isMainnet
       ? Environment.PROD
       : this.bridgeState.isDevEnv
-      ? Environment.DEV
-      : Environment.TEST;
+        ? Environment.DEV
+        : Environment.TEST;
   }
 
   /**
@@ -310,7 +308,7 @@ export class BridgeService implements OnLock, OnStorageReady {
           configs[env] = config;
         }
         this.trackBridgeTransaction(bridgeTransaction, config);
-      }
+      },
     );
   }
 }

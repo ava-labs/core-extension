@@ -12,10 +12,6 @@ describe('src/utils/isAddressValid.ts', () => {
   });
 
   describe('isValidPvmAddress', () => {
-    it('should return false if address does not start with P-', async () => {
-      const result = isValidPvmAddress(address);
-      expect(result).toEqual(false);
-    });
     it('should return false if not valid', async () => {
       const result = isValidPvmAddress(`P-testAddress}`);
       expect(result).toEqual(false);

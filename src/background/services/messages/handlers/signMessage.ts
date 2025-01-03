@@ -13,6 +13,7 @@ import { TypedDataEncoder } from 'ethers';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { BlockaidService } from '../../blockaid/BlockaidService';
 import { getValidationResultType } from '../../blockaid/utils';
+import { SecretsService } from '../../secrets/SecretsService';
 
 @injectable()
 export class PersonalSignHandler extends DAppRequestHandler {
@@ -28,7 +29,8 @@ export class PersonalSignHandler extends DAppRequestHandler {
   constructor(
     private walletService: WalletService,
     private networkService: NetworkService,
-    private blockaidService: BlockaidService
+    private blockaidService: BlockaidService,
+    private secretsService: SecretsService,
   ) {
     super();
   }
@@ -41,7 +43,8 @@ export class PersonalSignHandler extends DAppRequestHandler {
   };
 
   handleAuthenticated = async ({ request, scope }) => {
-    if (this.walletService.wallets.length === 0) {
+    const wallets = await this.secretsService.getPrimaryWalletsDetails();
+    if (wallets.length === 0) {
       return {
         ...request,
         error: 'wallet undefined',
@@ -64,12 +67,12 @@ export class PersonalSignHandler extends DAppRequestHandler {
       ensureMessageFormatIsValid(
         request.method,
         messageParams.data,
-        activeNetwork.chainId
+        activeNetwork.chainId,
       );
       const scanResult = await this.blockaidService.jsonRPCScan(
         activeNetwork.chainId.toString(),
         messageParams.from,
-        request
+        request,
       );
 
       const validation = scanResult?.validation ?? undefined;
@@ -92,12 +95,12 @@ export class PersonalSignHandler extends DAppRequestHandler {
           // in which cases we should be able to continue just like other wallets do (even if it's technically incorrect).
 
           // remove EIP712Domain from types since ethers.js handles it separately
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
           const { EIP712Domain, ...types } = messageParams.data.types;
           TypedDataEncoder.getPayload(
             messageParams.data.domain,
             types,
-            messageParams.data.message
+            messageParams.data.message,
           );
         } catch (e) {
           validationError = (e as Error).toString();
@@ -135,12 +138,12 @@ export class PersonalSignHandler extends DAppRequestHandler {
     pendingAction: Action,
     _result,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const result = await this.walletService.signMessage(
         pendingAction.method as unknown as MessageType,
-        pendingAction
+        pendingAction,
       );
       onSuccess(result);
     } catch (e) {

@@ -27,6 +27,7 @@ import {
   SetStateAction,
 } from 'react';
 import { filter, map } from 'rxjs';
+import { omit, set } from 'lodash';
 import { useConnectionContext } from './ConnectionProvider';
 import { getCurrencyFormatter } from './utils/getCurrencyFormatter';
 import { updateIfDifferent } from '@src/utils/updateIfDifferent';
@@ -43,7 +44,7 @@ type SettingsFromProvider = SettingsState & {
   toggleTokenVisibility(token: TokenWithBalance): Promise<true | undefined>;
   getTokenVisibility(token: TokenWithBalance): boolean;
   toggleCollectibleVisibility(
-    token: NftTokenWithBalance
+    token: NftTokenWithBalance,
   ): Promise<true | undefined>;
   getCollectibleVisibility(token: NftTokenWithBalance): boolean;
   updateTheme(theme: ThemeVariant): Promise<boolean>;
@@ -54,7 +55,7 @@ type SettingsFromProvider = SettingsState & {
   setIsSettingsOpen: (isOpen: boolean) => Dispatch<SetStateAction<boolean>>;
   settingsActivePage: SettingsPages;
   setSettingsActivePage: (
-    activePage: SettingsPages
+    activePage: SettingsPages,
   ) => Dispatch<SetStateAction<SettingsPages>>;
 };
 
@@ -65,7 +66,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
   const [settings, setSettings] = useState<SettingsState>();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsActivePage, setSettingsActivePage] = useState<SettingsPages>(
-    SettingsPages.MAIN_PAGE
+    SettingsPages.MAIN_PAGE,
   );
 
   useEffect(() => {
@@ -82,7 +83,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
     const subscription = events()
       .pipe(
         filter(settingsUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((newSettings) => {
         updateIfDifferent(setSettings, newSettings);
@@ -93,7 +94,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
 
   const currencyFormatter = useMemo(
     () => getCurrencyFormatter(settings?.currency ?? 'USD'),
-    [settings?.currency]
+    [settings?.currency],
   );
 
   function lockWallet() {
@@ -142,35 +143,34 @@ export function SettingsContextProvider({ children }: { children: any }) {
       const tokensVisibility = settings?.tokensVisibility ?? {};
       return tokensVisibility[key] || tokensVisibility[key] === undefined;
     },
-    [settings?.tokensVisibility]
+    [settings?.tokensVisibility],
   );
 
   async function toggleCollectibleVisibility(nft: NftTokenWithBalance) {
-    const key = nft.address;
-    const collectiblesVisibility = settings?.collectiblesVisibility ?? {};
+    const key = `${nft.address}-${nft.tokenId}`;
+    const visibility = settings?.collectiblesVisibility ?? {};
+    // We used to (wrongly) index by address only.
+    const isHidden = (visibility[key] ?? visibility[nft.address]) === false;
+    // If token is now hidde, just remove it from the dictionary,
+    // otherwise set it to false.
+    const updatedVisibility = isHidden
+      ? omit(visibility, [nft.address, key])
+      : set(visibility, key, false);
+
     return request<UpdateCollectiblesVisibilityHandler>({
       method: ExtensionRequest.SETTINGS_UPDATE_COLLECTIBLES_VISIBILITY,
-      params: [
-        {
-          ...collectiblesVisibility,
-          [key]:
-            collectiblesVisibility[key] !== undefined
-              ? !collectiblesVisibility[key]
-              : false,
-        },
-      ],
+      params: [updatedVisibility],
     });
   }
 
   const getCollectibleVisibility = useCallback(
     (nft: NftTokenWithBalance) => {
-      const key = nft.address;
-      const collectiblesVisibility = settings?.collectiblesVisibility ?? {};
-      return (
-        collectiblesVisibility[key] || collectiblesVisibility[key] === undefined
-      );
+      const key = `${nft.address}-${nft.tokenId}`;
+      const visibility = settings?.collectiblesVisibility ?? {};
+      // We used to index by address only.
+      return (visibility[key] ?? visibility[nft.address]) !== false;
     },
-    [settings?.collectiblesVisibility]
+    [settings?.collectiblesVisibility],
   );
 
   function updateTheme(theme: ThemeVariant) {

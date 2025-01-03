@@ -15,13 +15,13 @@ import { EVMProvider } from '@avalabs/evm-module/dist/provider';
 export function initializeProvider(
   connection: AbstractConnection,
   maxListeners = 100,
-  globalObject = window
+  globalObject = window,
 ): EVMProvider {
   const chainAgnosticProvider = new Proxy(
     new ChainAgnosticProvider(connection),
     {
       deleteProperty: () => true,
-    }
+    },
   );
 
   const evmProvider = new Proxy(
@@ -42,12 +42,27 @@ export function initializeProvider(
     {
       // some common libraries, e.g. web3@1.x, mess with our API
       deleteProperty: () => true,
-    }
+    },
   );
+  const multiWalletProxy = createMultiWalletProxy(evmProvider);
 
-  setGlobalProvider(evmProvider, globalObject);
+  globalObject.addEventListener('eip6963:announceProvider', (event: any) => {
+    multiWalletProxy.addProvider(
+      new Proxy(
+        {
+          info: { ...event.detail.info },
+          ...event.detail.provider,
+        },
+        {
+          deleteProperty: () => true,
+          set: () => true,
+        },
+      ),
+    );
+  });
+
+  setGlobalProvider(evmProvider, globalObject, multiWalletProxy);
   setAvalancheGlobalProvider(evmProvider, globalObject);
-  setEvmproviders(evmProvider, globalObject);
   announceWalletProvider(evmProvider, globalObject);
   announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
 
@@ -62,23 +77,17 @@ export function initializeProvider(
  */
 function setGlobalProvider(
   providerInstance: EVMProvider,
-  globalObject = window
+  globalObject = window,
+  multiWalletProxy,
 ): void {
   try {
-    const multiWalletProxy = createMultiWalletProxy(providerInstance);
-
-    // if we already have a wallet lets add it
-    if (globalObject.ethereum) {
-      multiWalletProxy.addProvider(globalObject.ethereum);
-    }
-
     Object.defineProperty(globalObject, 'ethereum', {
       get: () => {
         return multiWalletProxy;
       },
       // in case a wallet tries to overwrite us lets add them to the list
-      set: (value) => {
-        multiWalletProxy.addProvider(value);
+      set: () => {
+        return multiWalletProxy;
       },
     });
 
@@ -120,7 +129,7 @@ function setGlobalProvider(
  */
 function setAvalancheGlobalProvider(
   providerInstance: EVMProvider,
-  globalObject = window
+  globalObject = window,
 ): void {
   Object.defineProperty(globalObject, 'avalanche', {
     value: providerInstance,
@@ -129,19 +138,9 @@ function setAvalancheGlobalProvider(
   globalObject.dispatchEvent(new Event('avalanche#initialized'));
 }
 
-function setEvmproviders(
-  providerInstance: EVMProvider,
-  globalObject = window
-): void {
-  globalObject.evmproviders = globalObject.evmproviders || {};
-  globalObject.evmproviders.core = providerInstance;
-
-  globalObject.dispatchEvent(new Event('evmproviders#initialized'));
-}
-
 function announceWalletProvider(
   providerInstance: EVMProvider,
-  globalObject = window
+  globalObject = window,
 ): void {
   const announceEvent = new CustomEvent<EIP6963ProviderDetail>(
     EventNames.EIP6963_ANNOUNCE_PROVIDER,
@@ -150,7 +149,7 @@ function announceWalletProvider(
         info: { ...providerInstance.info },
         provider: providerInstance,
       }),
-    }
+    },
   );
 
   // The Wallet dispatches an announce event which is heard by
@@ -166,7 +165,7 @@ function announceWalletProvider(
 
 function announceChainAgnosticProvider(
   providerInstance: ChainAgnosticProvider,
-  globalObject = window
+  globalObject = window,
 ): void {
   const announceEvent = new CustomEvent<{ provider: ChainAgnosticProvider }>(
     EventNames.CORE_WALLET_ANNOUNCE_PROVIDER,
@@ -174,7 +173,7 @@ function announceChainAgnosticProvider(
       detail: Object.freeze({
         provider: providerInstance,
       }),
-    }
+    },
   );
 
   // The Wallet dispatches an announce event which is heard by

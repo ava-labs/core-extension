@@ -44,7 +44,7 @@ export interface ActionUpdate<DisplayData = any> {
   id: any;
   status: ActionStatus;
   displayData?: DisplayData;
-  signingData?: SigningData;
+  signingData?: never; // Don't allow overriding signingData this way
   result?: any;
   error?: string;
   tabId?: number;

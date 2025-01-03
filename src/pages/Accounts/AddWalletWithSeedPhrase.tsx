@@ -60,7 +60,7 @@ export function AddWalletWithSeedPhrase() {
   const { capture } = useAnalyticsContext();
   const getErrorMessage = useErrorMessage();
   const formatCurrency = useConvertedCurrencyFormatter();
-  const { updateBalanceOnAllNetworks, getTotalBalance } = useBalancesContext();
+  const { updateBalanceOnNetworks, getTotalBalance } = useBalancesContext();
 
   const { isImporting, importSeedphrase } = useImportSeedphrase();
 
@@ -75,7 +75,7 @@ export function AddWalletWithSeedPhrase() {
   const deriveAddresses = useCallback(
     async (seedPhrase: string) => {
       const xpub = await getXpubFromMnemonic(
-        seedPhrase.trim().split(/\s+/g).join(' ').toLowerCase()
+        seedPhrase.trim().split(/\s+/g).join(' ').toLowerCase(),
       );
       setIsPhraseValid(true);
 
@@ -86,7 +86,7 @@ export function AddWalletWithSeedPhrase() {
       ];
 
       const isMnemonicKnown = allAccounts.some(
-        ({ addressC }) => addressC.toLowerCase() === addies[0]?.toLowerCase()
+        ({ addressC }) => addressC.toLowerCase() === addies[0]?.toLowerCase(),
       );
 
       if (isMnemonicKnown) {
@@ -96,13 +96,13 @@ export function AddWalletWithSeedPhrase() {
 
       setIsKnownPhrase(false);
       setIsBalanceLoading(true);
-      await updateBalanceOnAllNetworks(
-        addies.map((addressC) => ({ addressC })) as Account[]
+      await updateBalanceOnNetworks(
+        addies.map((addressC) => ({ addressC })) as Account[],
       );
       setIsBalanceLoading(false);
       setAddresses(addies);
     },
-    [allAccounts, updateBalanceOnAllNetworks]
+    [allAccounts, updateBalanceOnNetworks],
   );
 
   const onContinue = useCallback(() => {
@@ -127,7 +127,7 @@ export function AddWalletWithSeedPhrase() {
 
         await deriveAddresses(seedPhrase);
       },
-      [deriveAddresses]
+      [deriveAddresses],
     );
 
   const handleImport = useCallback(
@@ -148,13 +148,13 @@ export function AddWalletWithSeedPhrase() {
         capture('SeedphraseImportFailure');
         sentryCaptureException(
           err as Error,
-          SentryExceptionTypes.WALLET_IMPORT
+          SentryExceptionTypes.WALLET_IMPORT,
         );
         const { title } = getErrorMessage(err);
         toast.error(title);
       }
     },
-    [capture, getErrorMessage, history, importSeedphrase, phrase, t]
+    [capture, getErrorMessage, history, importSeedphrase, phrase, t],
   );
 
   const keyboardShortcuts = useKeyboardShortcuts({
@@ -204,7 +204,7 @@ export function AddWalletWithSeedPhrase() {
             helperText={
               isKnownPhrase
                 ? t(
-                    'This recovery phrase appears to have already been imported.'
+                    'This recovery phrase appears to have already been imported.',
                   )
                 : t('Add account(s) by entering a valid recovery phrase.')
             }
@@ -276,7 +276,7 @@ export function AddWalletWithSeedPhrase() {
               isPhraseValid
                 ? isKnownPhrase
                   ? t(
-                      'This recovery phrase appears to have already been imported.'
+                      'This recovery phrase appears to have already been imported.',
                     )
                   : ''
                 : t('Provided recovery phrase is not valid.')

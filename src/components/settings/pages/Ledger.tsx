@@ -138,7 +138,7 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
               }}
             >
               {t(
-                'If you do not have the Avalanche app on your Ledger, please add it through the Ledger Live app manager.'
+                'If you do not have the Avalanche app on your Ledger, please add it through the Ledger Live app manager.',
               )}
             </Typography>
             <Typography variant="body2">

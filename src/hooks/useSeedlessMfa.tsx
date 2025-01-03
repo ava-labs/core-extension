@@ -66,7 +66,7 @@ export const useSeedlessMfa = () => {
         setError(AuthErrorCode.TotpVerificationError);
       }
     },
-    [request, mfaChallenge]
+    [request, mfaChallenge],
   );
 
   const submitFido = useCallback(
@@ -94,7 +94,7 @@ export const useSeedlessMfa = () => {
           mfaChallenge.options,
           mfaChallenge.type === MfaRequestType.FidoRegister
             ? mfaChallenge.keyType
-            : undefined
+            : undefined,
         );
 
         await request<SubmitMfaResponseHandler>({
@@ -106,11 +106,11 @@ export const useSeedlessMfa = () => {
             },
           ],
         });
-      } catch (err) {
+      } catch (_err) {
         setError(AuthErrorCode.FidoChallengeFailed);
       }
     },
-    [request, mfaChallenge, isVerifying]
+    [request, mfaChallenge, isVerifying],
   );
 
   const chooseMfaMethod = useCallback(
@@ -129,7 +129,7 @@ export const useSeedlessMfa = () => {
         ],
       });
     },
-    [mfaChoice, request]
+    [mfaChoice, request],
   );
 
   const renderMfaPrompt = useCallback(
@@ -173,7 +173,7 @@ export const useSeedlessMfa = () => {
       t,
       mfaChoice,
       chooseMfaMethod,
-    ]
+    ],
   );
 
   useEffect(() => {
@@ -222,7 +222,7 @@ export const useSeedlessMfa = () => {
           setError(
             mfaChallenge.type === MfaRequestType.Fido
               ? AuthErrorCode.FidoChallengeFailed
-              : AuthErrorCode.InvalidTotpCode
+              : AuthErrorCode.InvalidTotpCode,
           );
         }
       });

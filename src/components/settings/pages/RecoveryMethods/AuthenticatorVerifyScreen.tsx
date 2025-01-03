@@ -54,8 +54,8 @@ export const AuthenticatorVerifyScreen = ({
         {screen === Screen.Scan
           ? t('Scan QR Code')
           : screen === Screen.Manual
-          ? t('Authenticator Setup')
-          : t('Learn more')}
+            ? t('Authenticator Setup')
+            : t('Learn more')}
       </PageTitle>
       <Stack
         sx={{

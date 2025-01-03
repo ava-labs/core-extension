@@ -20,14 +20,14 @@ export class GetAvaxBalanceHandler implements HandlerType {
 
   constructor(
     private networkService: NetworkService,
-    private balancesService: BalancesService
+    private balancesService: BalancesService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const params = request.params || [];
     const [address] = params;
     const avalancheNetwork = await this.networkService.getAvalancheNetwork();
-    const provider = getProviderForNetwork(avalancheNetwork);
+    const provider = await getProviderForNetwork(avalancheNetwork);
     if (
       provider instanceof BitcoinProvider ||
       provider instanceof Avalanche.JsonRpcProvider
@@ -50,7 +50,8 @@ export class GetAvaxBalanceHandler implements HandlerType {
           name: '',
           addressBTC: '',
         },
-      ]
+      ],
+      [TokenType.NATIVE],
     );
 
     const nativeTokenWithBalance =

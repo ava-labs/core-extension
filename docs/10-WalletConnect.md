@@ -44,7 +44,7 @@ BTC signing is not supported at the moment, as none of the known wallets support
 Some apps (i.e. Metamask Mobile), do not accept multiple chains to be requested in a session proposal payload - they will automatically reject such a request.
 
 Since we don't know which wallet app the user will use when we initiate the pairing, we must always specify only a single chain in the session proposal - and we default to the currently active chain.
-Most of the time, new chains can added to the session at a later point and we do it on demand, when the user actually tries to sign a message or transaction on a different chain. ļFor more information on that, please refer to a well-documented `establishRequiredSession` method of the [`WalletConnectService`](../src/background/services/walletConnect/WalletConnectService.ts).
+Most of the time, new chains can added to the session at a later point and we do it on demand, when the user actually tries to sign a message or transaction on a different chain. For more information on that, please refer to a well-documented `establishRequiredSession` method of the [`WalletConnectService`](../src/background/services/walletConnect/WalletConnectService.ts).
 
 ## Data storage
 

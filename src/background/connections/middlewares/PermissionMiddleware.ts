@@ -23,6 +23,7 @@ const RESTRICTED_METHODS = Object.freeze([] as string[]);
  * "method not found" error.
  */
 export const UNRESTRICTED_METHODS = Object.freeze([
+  'bitcoin_signTransaction',
   'eth_accounts',
   'eth_requestAccounts',
   'eth_baseFee',
@@ -89,6 +90,11 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   'web3_sha3',
   'avalanche_getIsDefaultExtensionState',
   'avalanche_selectWallet',
+  DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+  DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
+  DAppProviderRequest.AVALANCHE_SIGN_TRANSACTION,
+  DAppProviderRequest.AVALANCHE_SIGN_MESSAGE,
+  DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
 ]);
 
 const CORE_METHODS = Object.freeze([
@@ -102,19 +108,16 @@ const CORE_METHODS = Object.freeze([
   'avalanche_selectAccount',
   'avalanche_setDeveloperMode',
   DAppProviderRequest.ACCOUNT_RENAME,
-  DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
-  DAppProviderRequest.AVALANCHE_SIGN_TRANSACTION,
-  DAppProviderRequest.AVALANCHE_SIGN_MESSAGE,
-  DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
-  DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+  DAppProviderRequest.ACCOUNTS_DELETE,
   DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
   DAppProviderRequest.WALLET_GET_CHAIN,
+  DAppProviderRequest.WALLET_RENAME,
 ]);
 
 export function PermissionMiddleware(
   permissionService: PermissionsService,
   accountsService: AccountsService,
-  lockService: LockService
+  lockService: LockService,
 ): Middleware<
   ExtensionConnectionMessage | JsonRpcRequest,
   ExtensionConnectionMessageResponse<any, any> | JsonRpcResponse

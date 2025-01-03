@@ -4,7 +4,7 @@ import { BridgeTransfer } from '@avalabs/bridge-unified';
 import { isUnifiedBridgeTransfer } from '../utils/isUnifiedBridgeTransfer';
 
 export const useBridgeTransferStatus = (
-  bridgeTx?: BridgeTransaction | BridgeTransfer
+  bridgeTx?: BridgeTransaction | BridgeTransfer,
 ) => {
   if (!bridgeTx) {
     return {
@@ -22,15 +22,15 @@ export const useBridgeTransferStatus = (
       // cap the current confirmations so we don't go over
       sourceCurrentConfirmations: Math.min(
         bridgeTx.sourceConfirmationCount,
-        bridgeTx.requiredSourceConfirmationCount
+        bridgeTx.sourceRequiredConfirmationCount,
       ),
       targetCurrentConfirmations: Math.min(
         bridgeTx.targetConfirmationCount,
-        bridgeTx.requiredTargetConfirmationCount
+        bridgeTx.targetRequiredConfirmationCount,
       ),
       // with Unified Bridge, the SDK provides info about the target confirmations
-      sourceRequiredConfirmations: bridgeTx.requiredSourceConfirmationCount,
-      targetRequiredConfirmations: bridgeTx.requiredTargetConfirmationCount,
+      sourceRequiredConfirmations: bridgeTx.sourceRequiredConfirmationCount,
+      targetRequiredConfirmations: bridgeTx.targetRequiredConfirmationCount,
     };
   }
 
@@ -39,7 +39,7 @@ export const useBridgeTransferStatus = (
     // cap the current confirmations so we don't go over
     sourceCurrentConfirmations: Math.min(
       bridgeTx.confirmationCount,
-      bridgeTx.requiredConfirmationCount
+      bridgeTx.requiredConfirmationCount,
     ),
     // with Legacy Bridge, the count is either 0 if tx has not completed yet, or 1 if it has
     targetCurrentConfirmations: bridgeTx.complete ? 1 : 0,

@@ -47,7 +47,7 @@ export function SwapError({
                 value,
                 destinationInputField || 'to',
                 selectedFromToken,
-                selectedToToken
+                selectedToToken,
               );
             }}
           >

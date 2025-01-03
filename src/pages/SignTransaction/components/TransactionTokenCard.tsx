@@ -6,15 +6,18 @@ import {
   Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
-import { balanceToDisplayValue } from '@avalabs/core-utils-sdk';
 import {
-  TransactionNft,
-  TransactionToken,
-} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+  TokenType,
+  type ERC1155Token,
+  type ERC721Token,
+  type NetworkContractToken,
+  type NetworkToken,
+  type TokenDiffItem,
+} from '@avalabs/vm-module-types';
+import { TokenIcon } from '@src/components/common/TokenIcon';
+import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
 import { useConvertedCurrencyFormatter } from '@src/pages/DeFi/hooks/useConvertedCurrencyFormatter';
-import { BN } from 'bn.js';
 import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 export enum TransactionTokenCardVariant {
   SEND = 'SEND',
@@ -22,18 +25,23 @@ export enum TransactionTokenCardVariant {
   DEFAULT = 'DEFAULT',
 }
 
+const isNftToken = (
+  token: NetworkToken | NetworkContractToken,
+): token is ERC721Token | ERC1155Token =>
+  'type' in token &&
+  (token.type === TokenType.ERC1155 || token.type === TokenType.ERC721);
+
 export const TransactionTokenCard = ({
   token,
+  diffItem,
   variant = TransactionTokenCardVariant.DEFAULT,
   sx = {},
-  children,
 }: {
-  token: TransactionToken | TransactionNft;
+  token: NetworkToken | NetworkContractToken;
   variant?: TransactionTokenCardVariant;
+  diffItem: TokenDiffItem;
   sx?: SxProps<Theme>;
-  children?: JSX.Element;
 }) => {
-  const { t } = useTranslation();
   const currencyFormatter = useConvertedCurrencyFormatter();
   const [hasNameOverflow, setHasNameOverflow] = useState(false);
 
@@ -57,24 +65,12 @@ export const TransactionTokenCard = ({
     return false;
   };
 
-  let balanceDisplayValue: string | undefined;
-  if (token['isInfinity']) {
-    balanceDisplayValue = t('Unlimited');
-  } else {
-    balanceDisplayValue = token.amount
-      ? balanceToDisplayValue(
-          new BN(token.amount.toString()),
-          token['decimals'] ?? 0
-        )
-      : undefined;
-  }
-
   const amountColor =
     variant === TransactionTokenCardVariant.SEND
       ? 'error.light'
       : variant === TransactionTokenCardVariant.RECEIVE
-      ? 'success.light'
-      : 'text.primary';
+        ? 'success.light'
+        : 'text.primary';
 
   return (
     <Card
@@ -87,7 +83,24 @@ export const TransactionTokenCard = ({
     >
       <Stack direction="row" alignItems="center" sx={{ width: '100%' }}>
         <Stack direction="row" sx={{ flex: 0 }}>
-          {children}
+          {isNftToken(token) ? (
+            <CollectibleMedia
+              height="32px"
+              width="auto"
+              maxWidth="32px"
+              url={token.logoUri}
+              hover={false}
+              margin="8px 0"
+              showPlayIcon={false}
+            />
+          ) : (
+            <TokenIcon
+              width="32px"
+              height="32px"
+              src={token.logoUri}
+              name={token.name}
+            />
+          )}
         </Stack>
         <Stack
           direction="row"
@@ -124,19 +137,6 @@ export const TransactionTokenCard = ({
                 >
                   {token.name}
                 </Typography>
-                {'collection' in token && token.collection?.name && (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'text.secondary',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {token.collection?.name}
-                  </Typography>
-                )}
               </>
             </Tooltip>
           </Stack>
@@ -148,7 +148,7 @@ export const TransactionTokenCard = ({
                 title={
                   <Typography variant="caption">
                     {variant === TransactionTokenCardVariant.SEND ? '-' : ''}
-                    {balanceDisplayValue?.toLocaleString()} {token.symbol}
+                    {diffItem.displayValue} {token.symbol}
                   </Typography>
                 }
               >
@@ -163,13 +163,13 @@ export const TransactionTokenCard = ({
                     }}
                   >
                     {variant === TransactionTokenCardVariant.SEND ? '-' : ''}
-                    {balanceDisplayValue?.toLocaleString()}
+                    {diffItem.displayValue}
                   </Typography>
                   {'symbol' in token && (
                     <Typography
                       variant="body2"
                       sx={{
-                        ml: balanceDisplayValue !== undefined ? 0.4 : 0,
+                        ml: diffItem.displayValue !== undefined ? 0.4 : 0,
                         color: amountColor,
                       }}
                     >
@@ -180,11 +180,11 @@ export const TransactionTokenCard = ({
               </Tooltip>
             </Stack>
 
-            {'usdValue' in token && token.usdValue && (
+            {diffItem.usdPrice && (
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {currencyFormatter
-                  ? currencyFormatter(Number(token.usdValue))
-                  : token.usdValue}
+                  ? currencyFormatter(Number(diffItem.usdPrice))
+                  : diffItem.usdPrice}
               </Typography>
             )}
           </Stack>

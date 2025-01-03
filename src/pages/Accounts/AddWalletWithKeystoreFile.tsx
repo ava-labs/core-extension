@@ -93,7 +93,7 @@ export function AddWalletWithKeystoreFile() {
         setStep(Step.Error);
       }
     },
-    [capture, isValidKeystoreFile]
+    [capture, isValidKeystoreFile],
   );
 
   const handleDrop: DragEventHandler = useCallback(
@@ -107,7 +107,7 @@ export function AddWalletWithKeystoreFile() {
       const rawFile = item.getAsFile();
       await onFileSelected(rawFile);
     },
-    [onFileSelected]
+    [onFileSelected],
   );
 
   const handleImport = useCallback(async () => {
@@ -160,7 +160,7 @@ export function AddWalletWithKeystoreFile() {
 
   const keyboardHandlers = useKeyboardShortcuts({
     Enter: readKeystoreFile,
-    Esc: restart,
+    Escape: restart,
   });
 
   return (
@@ -234,7 +234,7 @@ export function AddWalletWithKeystoreFile() {
                 error === KeystoreError.InvalidPassword
                   ? errorMessage
                   : t(
-                      'This password was set when you created the keystore file.'
+                      'This password was set when you created the keystore file.',
                     )
               }
               error={error === KeystoreError.InvalidPassword}

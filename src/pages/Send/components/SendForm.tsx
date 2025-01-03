@@ -1,10 +1,11 @@
-import { useMemo, useRef, useState } from 'react';
+import { PropsWithChildren, useMemo, useRef, useState } from 'react';
 import {
   Typography,
   Button,
   Stack,
   Scrollbars,
   Tooltip,
+  styled,
 } from '@avalabs/core-k2-components';
 import { Contact } from '@avalabs/types';
 import { useTranslation } from 'react-i18next';
@@ -35,11 +36,24 @@ type SendFormProps = {
   onSend(): void;
 };
 
-const errorsToExcludeForTokenSelect: string[] = [
+const generalErrors: string[] = [
   SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE,
+  SendErrorMessage.EXCESSIVE_NETWORK_FEE,
+  SendErrorMessage.INVALID_NETWORK_FEE,
+  SendErrorMessage.UNABLE_TO_FETCH_UTXOS,
+];
+
+const errorsToExcludeForTokenSelect: string[] = [
   SendErrorMessage.ADDRESS_REQUIRED,
   SendErrorMessage.INVALID_ADDRESS,
+  ...generalErrors,
 ];
+
+const FlexScrollbars = styled(Scrollbars)`
+	> div {
+		display: flex;
+	}
+}`;
 
 export const SendForm = ({
   address,
@@ -55,12 +69,13 @@ export const SendForm = ({
   onTokenChanged,
   onSend,
   tokenList,
-}: SendFormProps) => {
+  children,
+}: PropsWithChildren<SendFormProps>) => {
   const { t } = useTranslation();
   const identifyAddress = useIdentifyAddress();
   const contact = useMemo(
     () => (address ? identifyAddress(address) : undefined),
-    [address, identifyAddress]
+    [address, identifyAddress],
   );
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
@@ -73,8 +88,15 @@ export const SendForm = ({
 
   return (
     <Stack sx={{ flexGrow: 1, alignItems: 'center', width: '100%', pt: 1 }}>
-      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        <Stack ref={formRef}>
+      <FlexScrollbars
+        style={{
+          flexGrow: 1,
+          maxHeight: 'unset',
+          height: '100%',
+          display: 'flex',
+        }}
+      >
+        <Stack ref={formRef} sx={{ display: 'flex', flexGrow: 1, mb: 2 }}>
           <ContactInput
             contact={contact}
             onChange={(newContact, tab) => {
@@ -131,8 +153,16 @@ export const SendForm = ({
               setIsOpen={(open) => setIsTokenSelectOpen(open)}
             />
           </Stack>
+          {children}
+          {error && generalErrors.includes(error) && (
+            <Stack sx={{ py: 0, px: 2, mt: 2, width: '100%' }}>
+              <Typography variant="caption" color="error.main">
+                {getSendErrorMessage(error)}
+              </Typography>
+            </Stack>
+          )}
         </Stack>
-      </Scrollbars>
+      </FlexScrollbars>
       {!isContactsOpen && !isTokenSelectOpen && (
         <Stack
           sx={{

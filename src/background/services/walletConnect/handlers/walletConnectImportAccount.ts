@@ -32,7 +32,7 @@ export class WalletConnectImportAccount implements HandlerType {
   constructor(
     private wcService: WalletConnectService,
     private networkService: NetworkService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request, scope }) => {
@@ -57,9 +57,8 @@ export class WalletConnectImportAccount implements HandlerType {
 
       // If account was already connected, we only need to activate it after obtaining the sesssion.
       if (reconnectionAddress) {
-        const activatedAccountId = await this.#handleSuccessfulReconnection(
-          request
-        );
+        const activatedAccountId =
+          await this.#handleSuccessfulReconnection(request);
 
         return {
           ...request,
@@ -101,7 +100,7 @@ export class WalletConnectImportAccount implements HandlerType {
 
   async #getAccountData(
     request: RequestPayload,
-    session: WalletConnectSessionInfo
+    session: WalletConnectSessionInfo,
   ) {
     const addressC = session.addresses[0];
 
@@ -122,7 +121,7 @@ export class WalletConnectImportAccount implements HandlerType {
         const pubKey = await this.#getPublicKey(chainId, addressC, tabId);
 
         const account = accounts.find(
-          ({ addressC: mobileAddressC }) => mobileAddressC === addressC
+          ({ addressC: mobileAddressC }) => mobileAddressC === addressC,
         );
 
         if (account) {
@@ -153,7 +152,7 @@ export class WalletConnectImportAccount implements HandlerType {
   }
 
   #getImportType(
-    session: WalletConnectSessionInfo
+    session: WalletConnectSessionInfo,
   ): Exclude<ImportType, ImportType.PRIVATE_KEY> {
     return session.walletApp.name === FIREBLOCKS_APP_NAME
       ? ImportType.FIREBLOCKS
@@ -164,12 +163,12 @@ export class WalletConnectImportAccount implements HandlerType {
     const { imported } = await this.accountsService.getAccounts();
     const [reconnectionAddress] = request.params;
     const account = Object.values(imported).find(
-      (acc) => acc.addressC === reconnectionAddress
+      (acc) => acc.addressC === reconnectionAddress,
     );
 
     if (!account) {
       throw new Error(
-        'Attempted to reconnect via WalletConnect, but the account was never imported in the first place'
+        'Attempted to reconnect via WalletConnect, but the account was never imported in the first place',
       );
     }
 
@@ -184,7 +183,7 @@ export class WalletConnectImportAccount implements HandlerType {
 
     const accountType = IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP[importType];
     const accountsByType = Object.values(importedAccounts).filter(
-      ({ type }) => type === accountType
+      ({ type }) => type === accountType,
     );
     const prefix =
       importType === ImportType.FIREBLOCKS ? 'Fireblocks' : 'WalletConnect';
@@ -195,7 +194,7 @@ export class WalletConnectImportAccount implements HandlerType {
   async #getPublicKey(
     chainId: number,
     address: string,
-    tabId?: number
+    tabId?: number,
   ): Promise<PubKeyType> {
     return this.wcService.request<PubKeyType>(
       {
@@ -206,7 +205,7 @@ export class WalletConnectImportAccount implements HandlerType {
         chainId,
         tabId,
         fromAddress: address,
-      }
+      },
     );
   }
 }

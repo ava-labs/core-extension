@@ -22,12 +22,7 @@ import {
   createWalletPolicy,
   DerivationPath,
   getAddressDerivationPath,
-  getAddressFromXPub,
   getAddressPublicKeyFromXPub,
-  getBech32AddressFromXPub,
-  getBtcAddressFromPubKey,
-  getEvmAddressFromPubKey,
-  getPubKeyFromTransport,
   getPublicKeyFromPrivateKey,
   getWalletFromMnemonic,
   JsonRpcBatchInternal,
@@ -35,7 +30,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import {
   personalSign,
   signTypedData,
@@ -43,9 +38,8 @@ import {
 } from '@metamask/eth-sig-util';
 import { LedgerService } from '../ledger/LedgerService';
 import { BaseWallet, Wallet, isHexString } from 'ethers';
-import { networks, Transaction } from 'bitcoinjs-lib';
+import { Transaction } from 'bitcoinjs-lib';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
-import { ImportData, ImportType } from '../accounts/models';
 import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
 import { KeystoneWallet } from '../keystone/KeystoneWallet';
 import { KeystoneService } from '../keystone/KeystoneService';
@@ -65,12 +59,13 @@ import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { Network } from '../network/models';
+import { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
+import { Account } from '../accounts/models';
 
 @singleton()
-export class WalletService implements OnLock, OnUnlock {
+export class WalletService implements OnUnlock {
   private eventEmitter = new EventEmitter();
-  private _wallets: WalletDetails[] = [];
 
   constructor(
     private networkService: NetworkService,
@@ -78,15 +73,12 @@ export class WalletService implements OnLock, OnUnlock {
     private keystoneService: KeystoneService,
     private walletConnectService: WalletConnectService,
     private fireblocksService: FireblocksService,
-    private secretService: SecretsService
+    private secretService: SecretsService,
+    private accountsService: AccountsService,
   ) {}
 
-  public get wallets(): WalletDetails[] {
-    return this._wallets;
-  }
-
-  private async emitWalletsInfo() {
-    this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, this.wallets);
+  async emitsWalletsInfo(wallets: WalletDetails[]) {
+    this.eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, wallets);
   }
 
   async onUnlock(): Promise<void> {
@@ -97,17 +89,15 @@ export class WalletService implements OnLock, OnUnlock {
     }
 
     const hasUnsupportedSecret = wallets.some(
-      ({ type }) => !SUPPORTED_PRIMARY_SECRET_TYPES.includes(type)
+      ({ type }) => !SUPPORTED_PRIMARY_SECRET_TYPES.includes(type),
     );
 
     if (hasUnsupportedSecret) {
       throw new Error('Wallet initialization failed, no key found');
     }
 
-    this._wallets = wallets;
-
-    const hasSeedlessWallet = this._wallets.some(
-      ({ type }) => type === SecretType.Seedless
+    const hasSeedlessWallet = wallets.some(
+      ({ type }) => type === SecretType.Seedless,
     );
 
     if (hasSeedlessWallet) {
@@ -115,8 +105,6 @@ export class WalletService implements OnLock, OnUnlock {
       const sessionManager = container.resolve(SeedlessSessionManager);
       sessionManager.refreshSession();
     }
-
-    this.emitWalletsInfo();
   }
 
   /**
@@ -130,17 +118,9 @@ export class WalletService implements OnLock, OnUnlock {
     return walletId;
   }
 
-  onLock() {
-    this._wallets = [];
-    this.emitWalletsInfo();
-  }
-
   async addPrimaryWallet(secrets: AddPrimaryWalletSecrets) {
     this.#validateSecretsType(secrets);
     const walletId = await this.secretService.addSecrets(secrets);
-    this._wallets = await this.secretService.getPrimaryWalletsDetails();
-
-    this.emitWalletsInfo();
 
     return walletId;
   }
@@ -148,7 +128,7 @@ export class WalletService implements OnLock, OnUnlock {
   #validateSecretsType(secrets: AddPrimaryWalletSecrets) {
     if (secrets.secretType === SecretType.Mnemonic && !secrets.mnemonic) {
       throw new Error(
-        'Mnemonic or xpub or pubKey is required to create a new wallet!'
+        'Mnemonic or xpub or pubKey is required to create a new wallet!',
       );
     }
     if (secrets.secretType === SecretType.LedgerLive && !secrets.pubKeys) {
@@ -160,7 +140,7 @@ export class WalletService implements OnLock, OnUnlock {
       !secrets.xpub
     ) {
       throw new Error(
-        'Mnemonic or xpub or pubKey is required to create a new wallet!'
+        'Mnemonic or xpub or pubKey is required to create a new wallet!',
       );
     }
     return true;
@@ -175,13 +155,18 @@ export class WalletService implements OnLock, OnUnlock {
     tabId?: number;
     accountIndex?: number;
   }) {
-    const secrets = await this.secretService.getActiveAccountSecrets();
+    if (!this.accountsService.activeAccount) {
+      return;
+    }
+    const secrets = await this.secretService.getAccountSecrets(
+      this.accountsService.activeAccount,
+    );
     if (!secrets.account) {
       // wallet is not initialized
       return;
     }
 
-    const provider = getProviderForNetwork(network);
+    const provider = await getProviderForNetwork(network);
     const { secretType } = secrets;
 
     // Seedless wallet uses a universal signer class (one for all tx types)
@@ -213,7 +198,7 @@ export class WalletService implements OnLock, OnUnlock {
         const signer = getWalletFromMnemonic(
           secrets.mnemonic,
           accountIndexToUse,
-          secrets.derivationPath
+          secrets.derivationPath,
         );
         return signer.connect(provider as JsonRpcBatchInternal);
       }
@@ -232,7 +217,7 @@ export class WalletService implements OnLock, OnUnlock {
           accountIndexToUse,
           this.ledgerService.recentTransport,
           secrets.derivationPath,
-          provider as JsonRpcBatchInternal
+          provider as JsonRpcBatchInternal,
         );
       }
 
@@ -244,7 +229,7 @@ export class WalletService implements OnLock, OnUnlock {
           accountIndexToUse,
           this.keystoneService,
           network.chainId,
-          tabId
+          tabId,
         );
       }
 
@@ -261,7 +246,7 @@ export class WalletService implements OnLock, OnUnlock {
           // more time than WalletConnect's default of 5 minutes.
           secretType === SecretType.Fireblocks
             ? FIREBLOCKS_REQUEST_EXPIRY
-            : undefined
+            : undefined,
         );
       }
 
@@ -270,7 +255,7 @@ export class WalletService implements OnLock, OnUnlock {
       }
 
       throw new Error(
-        `No proper signer could be constructed for EVM and ${secretType} account`
+        `No proper signer could be constructed for EVM and ${secretType} account`,
       );
     }
 
@@ -282,7 +267,7 @@ export class WalletService implements OnLock, OnUnlock {
         return await BitcoinWallet.fromMnemonic(
           secrets.mnemonic,
           accountIndexToUse,
-          provider as BitcoinProviderAbstract
+          provider as BitcoinProviderAbstract,
         );
       }
       if (secretType === SecretType.Fireblocks) {
@@ -293,14 +278,14 @@ export class WalletService implements OnLock, OnUnlock {
         return new FireblocksBTCSigner(
           this.fireblocksService,
           secrets.api.vaultAccountId,
-          network.isTestnet
+          network.isTestnet,
         );
       }
 
       if (secretType === SecretType.PrivateKey) {
         return new BitcoinWallet(
           Buffer.from(secrets.secret, 'hex'),
-          provider as BitcoinProviderAbstract
+          provider as BitcoinProviderAbstract,
         );
       }
 
@@ -313,11 +298,11 @@ export class WalletService implements OnLock, OnUnlock {
           getAddressDerivationPath(
             accountIndexToUse,
             secrets.derivationPath,
-            'EVM'
+            'EVM',
           ),
           this.keystoneService,
           provider as BitcoinProviderAbstract,
-          tabId
+          tabId,
         );
       }
 
@@ -326,7 +311,9 @@ export class WalletService implements OnLock, OnUnlock {
           throw new Error('Ledger transport not available');
         }
 
-        const walletPolicy = await this.parseWalletPolicyDetails();
+        const walletPolicy = await this.parseWalletPolicyDetails(
+          this.accountsService.activeAccount,
+        );
         const accountIndexToUse =
           accountIndex === undefined ? secrets.account.index : accountIndex;
 
@@ -335,11 +322,11 @@ export class WalletService implements OnLock, OnUnlock {
           getAddressDerivationPath(
             accountIndexToUse,
             secrets.derivationPath,
-            'EVM'
+            'EVM',
           ),
           provider as BitcoinProviderAbstract,
           this.ledgerService.recentTransport,
-          walletPolicy
+          walletPolicy,
         );
       }
 
@@ -357,23 +344,25 @@ export class WalletService implements OnLock, OnUnlock {
           throw new Error('Account public key not available');
         }
 
-        const walletPolicy = await this.parseWalletPolicyDetails();
+        const walletPolicy = await this.parseWalletPolicyDetails(
+          secrets.account,
+        );
 
         return new BitcoinLedgerWallet(
           Buffer.from(addressPublicKey.evm, 'hex'),
           getAddressDerivationPath(
             accountIndexToUse,
             secrets.derivationPath,
-            'EVM'
+            'EVM',
           ),
           provider as BitcoinProviderAbstract,
           this.ledgerService.recentTransport,
-          walletPolicy
+          walletPolicy,
         );
       }
 
       throw new Error(
-        `No proper signer could be constructed for Bitcoin and ${secretType} account`
+        `No proper signer could be constructed for Bitcoin and ${secretType} account`,
       );
     }
 
@@ -398,7 +387,7 @@ export class WalletService implements OnLock, OnUnlock {
         return new Avalanche.SimpleLedgerSigner(
           accountIndexToUse,
           provider as Avalanche.JsonRpcProvider,
-          secrets.xpubXP
+          secrets.xpubXP,
         );
       }
 
@@ -426,15 +415,15 @@ export class WalletService implements OnLock, OnUnlock {
           getAddressDerivationPath(
             accountIndexToUse,
             DerivationPath.LedgerLive,
-            'AVM'
+            'AVM',
           ),
           Buffer.from(pubkey.evm, 'hex'),
           getAddressDerivationPath(
             accountIndexToUse,
             DerivationPath.LedgerLive,
-            'EVM'
+            'EVM',
           ),
-          provider as Avalanche.JsonRpcProvider
+          provider as Avalanche.JsonRpcProvider,
         );
       }
 
@@ -443,7 +432,7 @@ export class WalletService implements OnLock, OnUnlock {
           this.walletConnectService,
           network.chainId,
           secrets.account.addressC,
-          tabId
+          tabId,
         );
       }
 
@@ -451,12 +440,12 @@ export class WalletService implements OnLock, OnUnlock {
         return new Avalanche.StaticSigner(
           Buffer.from(secrets.secret, 'hex'),
           Buffer.from(secrets.secret, 'hex'),
-          provider as Avalanche.JsonRpcProvider
+          provider as Avalanche.JsonRpcProvider,
         );
       }
 
       throw new Error(
-        `No proper signer could be constructed for Avalanche and ${secretType} account`
+        `No proper signer could be constructed for Avalanche and ${secretType} account`,
       );
     }
   }
@@ -465,7 +454,7 @@ export class WalletService implements OnLock, OnUnlock {
     tx: SignTransactionRequest,
     network: Network,
     tabId?: number,
-    originalRequestMethod?: string
+    originalRequestMethod?: string,
   ): Promise<SigningResult> {
     const wallet = await this.getWallet({ network, tabId });
 
@@ -490,7 +479,7 @@ export class WalletService implements OnLock, OnUnlock {
         wallet instanceof BitcoinLedgerWallet
           ? await prepareBtcTxForLedger(
               tx,
-              await this.networkService.getBitcoinProvider()
+              await this.networkService.getBitcoinProvider(),
             )
           : tx;
 
@@ -547,7 +536,7 @@ export class WalletService implements OnLock, OnUnlock {
    * If the wallet returns a string, we treat it as signed TX.
    */
   #normalizeSigningResult(
-    signingResult: string | UnsignedTx | Transaction | SigningResult
+    signingResult: string | UnsignedTx | Transaction | SigningResult,
   ): SigningResult {
     if (typeof signingResult === 'string') {
       return { signedTx: signingResult };
@@ -569,7 +558,12 @@ export class WalletService implements OnLock, OnUnlock {
    * @throws Will throw error for LedgerLive accounts that have not been added yet.
    */
   async getActiveAccountPublicKey(): Promise<PubKeyType> {
-    const secrets = await this.secretService.getActiveAccountSecrets();
+    if (!this.accountsService.activeAccount) {
+      throw new Error('There is no active account');
+    }
+    const secrets = await this.secretService.getAccountSecrets(
+      this.accountsService.activeAccount,
+    );
 
     if (secrets.secretType === SecretType.Fireblocks) {
       // TODO: We technically can fetch some public keys using the API,
@@ -589,12 +583,12 @@ export class WalletService implements OnLock, OnUnlock {
     if (secrets.secretType === SecretType.PrivateKey) {
       if (!secrets.secret) {
         throw new Error(
-          'Cannot find public key for the given imported account'
+          'Cannot find public key for the given imported account',
         );
       }
 
       const publicKey = getPublicKeyFromPrivateKey(secrets.secret).toString(
-        'hex'
+        'hex',
       );
 
       return {
@@ -606,11 +600,11 @@ export class WalletService implements OnLock, OnUnlock {
     if (secrets.secretType === SecretType.Mnemonic && secrets.account) {
       const evmPub = getAddressPublicKeyFromXPub(
         secrets.xpub,
-        secrets.account.index
+        secrets.account.index,
       );
       const xpPub = Avalanche.getAddressPublicKeyFromXpub(
         secrets.xpubXP,
-        secrets.account.index
+        secrets.account.index,
       );
 
       return {
@@ -626,11 +620,11 @@ export class WalletService implements OnLock, OnUnlock {
     ) {
       const evmPub = getAddressPublicKeyFromXPub(
         secrets.xpub,
-        secrets.account.index
+        secrets.account.index,
       );
       const xpPub = Avalanche.getAddressPublicKeyFromXpub(
         secrets.xpubXP,
-        secrets.account.index
+        secrets.account.index,
       );
 
       return {
@@ -750,7 +744,7 @@ export class WalletService implements OnLock, OnUnlock {
       throw new Error(
         wallet
           ? `this function is not supported on your wallet`
-          : 'wallet undefined in sign tx'
+          : 'wallet undefined in sign tx',
       );
     }
 
@@ -800,180 +794,15 @@ export class WalletService implements OnLock, OnUnlock {
     this.eventEmitter.on(event, callback);
   }
 
-  async addAddress(
-    index: number,
-    walletId: string
-  ): Promise<Record<NetworkVMType, string>> {
-    const secrets = await this.secretService.getWalletAccountsSecretsById(
-      walletId
-    );
-
-    if (
-      secrets.secretType === SecretType.LedgerLive &&
-      !secrets.pubKeys[index]
-    ) {
-      // With LedgerLive, we don't have xPub or Mnemonic, so we need
-      // to get the new address pubkey from the Ledger device.
-      if (!this.ledgerService.recentTransport) {
-        throw new Error('Ledger transport not available');
-      }
-
-      // Get EVM public key from transport
-      const addressPublicKeyC = await getPubKeyFromTransport(
-        this.ledgerService.recentTransport,
-        index,
-        secrets.derivationPath
-      );
-
-      // Get X/P public key from transport
-      const addressPublicKeyXP = await getPubKeyFromTransport(
-        this.ledgerService.recentTransport,
-        index,
-        secrets.derivationPath,
-        'AVM'
-      );
-
-      if (
-        !addressPublicKeyC ||
-        !addressPublicKeyC.byteLength ||
-        !addressPublicKeyXP ||
-        !addressPublicKeyXP.byteLength
-      ) {
-        throw new Error('Failed to get public key from device.');
-      }
-
-      const pubKeys = [...(secrets?.pubKeys || [])];
-      pubKeys[index] = {
-        evm: addressPublicKeyC.toString('hex'),
-        xp: addressPublicKeyXP.toString('hex'),
-      };
-
-      await this.secretService.updateSecrets(
-        {
-          pubKeys,
-        },
-        walletId
-      );
-    }
-
-    if (secrets.secretType === SecretType.Seedless && !secrets.pubKeys[index]) {
-      const wallet = new SeedlessWallet({
-        networkService: this.networkService,
-        sessionStorage: new SeedlessTokenStorage(this.secretService),
-        addressPublicKey: secrets.pubKeys[0],
-      });
-
-      // Prompt Core Seedless API to derive new keys
-      await wallet.addAccount(index);
-      // Update the public keys in wallet
-      await this.secretService.updateSecrets(
-        {
-          pubKeys: await wallet.getPublicKeys(),
-        },
-        walletId
-      );
-    }
-
-    return this.getAddresses(index, walletId);
-  }
-
-  async getAddresses(
-    index: number,
-    walletId: string
-  ): Promise<Record<NetworkVMType, string> | never> {
-    if (!walletId) {
-      throw new Error('Wallet id not provided');
-    }
-
-    const secrets = await this.secretService.getWalletAccountsSecretsById(
-      walletId
-    );
-
-    if (!secrets) {
-      throw new Error('Wallet is not initialized');
-    }
-
-    const isMainnet = this.networkService.isMainnet();
-    const provXP = await this.networkService.getAvalanceProviderXP();
-
-    if (
-      secrets.secretType === SecretType.Ledger ||
-      secrets.secretType === SecretType.Mnemonic ||
-      secrets.secretType === SecretType.Keystone
-    ) {
-      // C-avax... this address uses the same public key as EVM
-      const cPubkey = getAddressPublicKeyFromXPub(secrets.xpub, index);
-      const cAddr = provXP.getAddress(cPubkey, 'C');
-
-      let xAddr, pAddr;
-      // We can only get X/P addresses if xpubXP is set
-      if (secrets.xpubXP) {
-        // X and P addresses different derivation path m/44'/9000'/0'...
-        const xpPub = Avalanche.getAddressPublicKeyFromXpub(
-          secrets.xpubXP,
-          index
-        );
-        xAddr = provXP.getAddress(xpPub, 'X');
-        pAddr = provXP.getAddress(xpPub, 'P');
-      }
-
-      return {
-        [NetworkVMType.EVM]: getAddressFromXPub(secrets.xpub, index),
-        [NetworkVMType.BITCOIN]: getBech32AddressFromXPub(
-          secrets.xpub,
-          index,
-          isMainnet ? networks.bitcoin : networks.testnet
-        ),
-        [NetworkVMType.AVM]: xAddr,
-        [NetworkVMType.PVM]: pAddr,
-        [NetworkVMType.CoreEth]: cAddr,
-      };
-    }
-
-    if (
-      secrets.secretType === SecretType.LedgerLive ||
-      secrets.secretType === SecretType.Seedless
-    ) {
-      // pubkeys are used for LedgerLive derivation paths m/44'/60'/n'/0/0
-      // and for X/P derivation paths  m/44'/9000'/n'/0/0
-      const addressPublicKey = secrets.pubKeys[index];
-
-      if (!addressPublicKey?.evm) {
-        throw new Error('Account not added');
-      }
-
-      const pubKeyBuffer = Buffer.from(addressPublicKey.evm, 'hex');
-
-      // X/P addresses use a different public key because derivation path is different
-      let addrX, addrP;
-      if (addressPublicKey.xp) {
-        const pubKeyBufferXP = Buffer.from(addressPublicKey.xp, 'hex');
-        addrX = provXP.getAddress(pubKeyBufferXP, 'X');
-        addrP = provXP.getAddress(pubKeyBufferXP, 'P');
-      }
-
-      return {
-        [NetworkVMType.EVM]: getEvmAddressFromPubKey(pubKeyBuffer),
-        [NetworkVMType.BITCOIN]: getBtcAddressFromPubKey(
-          pubKeyBuffer,
-          isMainnet ? networks.bitcoin : networks.testnet
-        ),
-        [NetworkVMType.AVM]: addrX,
-        [NetworkVMType.PVM]: addrP,
-        [NetworkVMType.CoreEth]: provXP.getAddress(pubKeyBuffer, 'C'),
-      };
-    }
-
-    throw new Error('No public key available');
-  }
-
   async getAddressesByIndices(
     indices: number[],
     chainAlias: 'X' | 'P',
-    isChange: boolean
+    isChange: boolean,
   ) {
     const provXP = await this.networkService.getAvalanceProviderXP();
-    const secrets = await this.secretService.getPrimaryAccountSecrets();
+    const secrets = await this.secretService.getPrimaryAccountSecrets(
+      this.accountsService.activeAccount,
+    );
 
     if (!secrets || !secrets.xpubXP) {
       return [];
@@ -989,144 +818,14 @@ export class WalletService implements OnLock, OnUnlock {
         index,
         provXP,
         chainAlias,
-        isChange
-      )
+        isChange,
+      ),
     );
   }
 
-  async addImportedWallet(importData: ImportData) {
-    const id = crypto.randomUUID();
-
-    // let the AccountService validate the account's uniqueness and save the secret using this callback
-    const commit = async () => {
-      // Need to re-map `data` to `secret` for private key imports
-      switch (importData.importType) {
-        case ImportType.PRIVATE_KEY:
-          await this.secretService.saveImportedWallet(id, {
-            secretType: SecretType.PrivateKey,
-            secret: importData.data,
-          });
-          break;
-        case ImportType.FIREBLOCKS:
-          await this.secretService.saveImportedWallet(id, {
-            secretType: SecretType.Fireblocks,
-            ...importData.data,
-          });
-          break;
-        case ImportType.WALLET_CONNECT:
-          await this.secretService.saveImportedWallet(id, {
-            secretType: SecretType.WalletConnect,
-            ...importData.data,
-          });
-          break;
-      }
-    };
-
-    if (
-      importData.importType === ImportType.FIREBLOCKS ||
-      importData.importType === ImportType.WALLET_CONNECT
-    ) {
-      return {
-        account: {
-          id,
-          ...importData.data.addresses,
-        },
-        commit,
-      };
-    }
-
-    if (importData.importType === ImportType.PRIVATE_KEY) {
-      return {
-        account: {
-          id,
-          ...this.#calculateAddressesForPrivateKey(importData.data),
-        },
-        commit,
-      };
-    }
-
-    throw new Error('Unknown import type');
-  }
-
-  async getImportedAddresses(id: string) {
-    const secrets = await this.secretService.getImportedAccountSecrets(id);
-
-    if (
-      secrets.secretType === SecretType.WalletConnect ||
-      secrets.secretType === SecretType.Fireblocks
-    ) {
-      return secrets.addresses;
-    }
-
-    if (secrets.secretType === SecretType.PrivateKey) {
-      return this.#calculateAddressesForPrivateKey(secrets.secret);
-    }
-
-    throw new Error('Unsupported import type');
-  }
-
-  #calculateAddressesForPrivateKey(privateKey: string) {
-    const addresses = {
-      addressBTC: '',
-      addressC: '',
-      addressAVM: '',
-      addressPVM: '',
-      addressCoreEth: '',
-    };
-
-    const isMainnet = this.networkService.isMainnet();
-    const provXP = isMainnet
-      ? Avalanche.JsonRpcProvider.getDefaultMainnetProvider()
-      : Avalanche.JsonRpcProvider.getDefaultFujiProvider();
-
-    try {
-      const publicKey = getPublicKeyFromPrivateKey(privateKey);
-      addresses.addressC = getEvmAddressFromPubKey(publicKey);
-      addresses.addressBTC = getBtcAddressFromPubKey(
-        publicKey,
-        isMainnet ? networks.bitcoin : networks.testnet
-      );
-      addresses.addressAVM = provXP.getAddress(publicKey, 'X');
-      addresses.addressPVM = provXP.getAddress(publicKey, 'P');
-      addresses.addressCoreEth = provXP.getAddress(publicKey, 'C');
-    } catch (err) {
-      throw new Error('Error while calculating addresses');
-    }
-
-    if (
-      !addresses.addressC ||
-      !addresses.addressBTC ||
-      !addresses.addressAVM ||
-      !addresses.addressPVM ||
-      !addresses.addressCoreEth
-    ) {
-      throw new Error(`Missing address`);
-    }
-
-    return addresses;
-  }
-
-  async deleteImportedWallets(ids: string[]) {
-    const deleted = await this.secretService.deleteImportedWallets(ids);
-
-    Object.values(deleted).forEach(async (wallet) => {
-      if (
-        wallet?.secretType === SecretType.WalletConnect ||
-        wallet?.secretType === SecretType.Fireblocks
-      ) {
-        await this.walletConnectService.deleteSession(
-          wallet.addresses.addressC
-        );
-      }
-    });
-  }
-
-  async deletePrimaryWallets(ids: string[]) {
-    await this.secretService.deletePrimaryWallets(ids);
-  }
-
-  private async parseWalletPolicyDetails() {
-    const policyInfo = await this.secretService.getBtcWalletPolicyDetails();
+  private async parseWalletPolicyDetails(account: Account) {
+    const policyInfo =
+      await this.secretService.getBtcWalletPolicyDetails(account);
 
     if (!policyInfo || !policyInfo.details) {
       throw new Error('Error while parsing wallet policy: missing data.');
@@ -1138,19 +837,12 @@ export class WalletService implements OnLock, OnUnlock {
       details.masterFingerprint,
       accountIndex,
       details.xpub,
-      details.name
+      details.name,
     );
 
     return {
       hmac,
       policy,
     };
-  }
-
-  async getWalletType(id: string) {
-    const walletSecrets = await this.secretService.getWalletAccountsSecretsById(
-      id
-    );
-    return walletSecrets?.secretType;
   }
 }

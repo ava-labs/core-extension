@@ -31,7 +31,7 @@ export function useSetSendDataInParams() {
         }).toString()}`,
       });
     },
-    [history, network?.networkToken.symbol, pathname]
+    [history, network?.networkToken.symbol, pathname],
   );
 
   return setSendDataInParams;

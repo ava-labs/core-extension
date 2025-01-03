@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { correctAddressByPrefix } from '../utils/correctAddressByPrefix';
 
 const UNSAVED_CONTACT_BASE = {
   id: '',
@@ -24,20 +25,27 @@ export const useIdentifyAddress = () => {
   const identifyAddress = useCallback(
     (address: string): Contact => {
       if (!address)
-        return { ...UNSAVED_CONTACT_BASE, address: '', addressBTC: '' };
+        return {
+          ...UNSAVED_CONTACT_BASE,
+          address: '',
+          addressBTC: '',
+          addressXP: '',
+        };
       const addressLowerCase = address.toLowerCase();
       for (const contact of contacts) {
         if (
           contact.address.toLowerCase() === addressLowerCase ||
           contact.addressBTC?.toLowerCase() === addressLowerCase ||
-          `p-${contact.addressXP?.toLowerCase()}` === addressLowerCase ||
-          `x-${contact.addressXP?.toLowerCase()}` === addressLowerCase
+          `p-${contact.addressXP?.toLowerCase()}` ===
+            correctAddressByPrefix(addressLowerCase, 'p-') ||
+          `x-${contact.addressXP?.toLowerCase()}` ===
+            correctAddressByPrefix(addressLowerCase, 'x-')
         ) {
           const addressToUse = isBitcoin(network)
             ? { addressBTC: address, address: '', addressPVM: '' }
             : isPchainNetwork(network) || isXchainNetwork(network)
-            ? { addressXP: address, address: '', addressBTC: '' }
-            : { address: address };
+              ? { addressXP: address, address: '', addressBTC: '' }
+              : { address: address };
           return {
             id: contact.id,
             ...addressToUse,
@@ -50,24 +58,26 @@ export const useIdentifyAddress = () => {
         if (
           account.addressC.toLowerCase() === addressLowerCase ||
           account.addressBTC?.toLocaleLowerCase() === addressLowerCase ||
-          account.addressPVM?.toLocaleLowerCase() === addressLowerCase ||
-          account.addressAVM?.toLowerCase() === addressLowerCase
+          account.addressPVM?.toLocaleLowerCase() ===
+            correctAddressByPrefix(addressLowerCase, 'p-') ||
+          account.addressAVM?.toLowerCase() ===
+            correctAddressByPrefix(addressLowerCase, 'x-')
         ) {
           const addressToUse = isBitcoin(network)
             ? { addressBTC: account.addressBTC, address: '' }
             : isPchainNetwork(network)
-            ? {
-                addressXP: account.addressPVM ? account.addressPVM : '',
-                address: '',
-                addressBTC: '',
-              }
-            : isXchainNetwork(network)
-            ? {
-                addressXP: account.addressAVM ? account.addressAVM : '',
-                address: '',
-                addressBTC: '',
-              }
-            : { address: account.addressC };
+              ? {
+                  addressXP: address,
+                  address: '',
+                  addressBTC: '',
+                }
+              : isXchainNetwork(network)
+                ? {
+                    addressXP: address,
+                    address: '',
+                    addressBTC: '',
+                  }
+                : { address: account.addressC };
           return { id: '', ...addressToUse, name: account.name, isKnown: true };
         }
       }
@@ -80,20 +90,20 @@ export const useIdentifyAddress = () => {
             addressXP: '',
           }
         : isPchainNetwork(network) || isXchainNetwork(network)
-        ? {
-            ...UNSAVED_CONTACT_BASE,
-            address: '',
-            addressBTC: '',
-            addressXP: address,
-          }
-        : {
-            ...UNSAVED_CONTACT_BASE,
-            address,
-            addressBTC: '',
-            addressXP: '',
-          };
+          ? {
+              ...UNSAVED_CONTACT_BASE,
+              address: '',
+              addressBTC: '',
+              addressXP: address,
+            }
+          : {
+              ...UNSAVED_CONTACT_BASE,
+              address,
+              addressBTC: '',
+              addressXP: '',
+            };
     },
-    [allAccounts, contacts, network]
+    [allAccounts, contacts, network],
   );
 
   return identifyAddress;

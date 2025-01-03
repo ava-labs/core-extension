@@ -22,9 +22,8 @@ export class SetNavigationHistoryHandler implements HandlerType {
 
     return {
       ...request,
-      result: await this.navigationHistoryService.setHistory(
-        newNavigationHistory
-      ),
+      result:
+        await this.navigationHistoryService.setHistory(newNavigationHistory),
     };
   };
 }

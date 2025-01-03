@@ -25,7 +25,7 @@ export const isWrappedError = (maybeErr: unknown): maybeErr is WrappedError => {
 };
 
 export function wrapError(
-  fallbackError?: WrappedError | Error | string
+  fallbackError?: WrappedError | Error | string,
 ): (err: unknown) => never {
   return (err: unknown) => {
     if (isWrappedError(err)) {

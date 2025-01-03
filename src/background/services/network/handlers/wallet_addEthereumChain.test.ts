@@ -111,7 +111,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(openApprovalWindow).toHaveBeenCalledTimes(1);
     expect(openApprovalWindow).toHaveBeenCalledWith(
       expect.objectContaining({ id: '1234' }),
-      'network/switch'
+      'network/switch',
     );
 
     expect(result).toEqual({
@@ -300,7 +300,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(mockNetworkService.isValidRPCUrl).toHaveBeenCalledTimes(1);
     expect(mockNetworkService.isValidRPCUrl).toHaveBeenCalledWith(
       43112,
-      'https://api.avax.network/ext/bc/C/rpc'
+      'https://api.avax.network/ext/bc/C/rpc',
     );
 
     expect(openApprovalWindow).not.toHaveBeenCalled();
@@ -335,7 +335,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     expect(openApprovalWindow).toHaveBeenCalledTimes(1);
     expect(openApprovalWindow).toHaveBeenCalledWith(
       expect.objectContaining({ id: '1234' }),
-      'networks/add-popup'
+      'networks/add-popup',
     );
   });
 
@@ -370,7 +370,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       expect(openApprovalWindow).toHaveBeenCalledTimes(1);
       expect(openApprovalWindow).toHaveBeenCalledWith(
         expect.objectContaining({ id: '1234' }),
-        'networks/add-popup'
+        'networks/add-popup',
       );
     });
 
@@ -403,7 +403,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       expect(openApprovalWindow).toHaveBeenCalledTimes(1);
       expect(openApprovalWindow).toHaveBeenCalledWith(
         expect.objectContaining({ id: '1234' }),
-        'networks/add-popup'
+        'networks/add-popup',
       );
     });
 
@@ -438,7 +438,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       expect(openApprovalWindow).toHaveBeenCalledTimes(1);
       expect(openApprovalWindow).toHaveBeenCalledWith(
         expect.objectContaining({ id: '1234' }),
-        'networks/add-popup'
+        'networks/add-popup',
       );
     });
 
@@ -476,7 +476,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       expect(mockNetworkService.setNetwork).toHaveBeenCalledTimes(1);
       expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
         'core.app',
-        'eip155:43113'
+        'eip155:43113',
       );
     });
 
@@ -562,7 +562,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
       expect(openApprovalWindow).toHaveBeenCalledTimes(1);
       expect(openApprovalWindow).toHaveBeenCalledWith(
         expect.objectContaining({ id: '1234' }),
-        'networks/add-popup'
+        'networks/add-popup',
       );
     });
 
@@ -631,32 +631,32 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
             preppedAction,
             undefined,
             () => {},
-            () => {}
+            () => {},
           );
 
           expect(
-            mockNetworkService.updateNetworkOverrides
+            mockNetworkService.updateNetworkOverrides,
           ).toHaveBeenCalledWith(
             expect.objectContaining({
               customRpcHeaders: {
                 'X-Glacier-Api-Key': 'test-1234',
               },
-            })
+            }),
           );
 
           expect(
-            mockNetworkService.updateNetworkOverrides
+            mockNetworkService.updateNetworkOverrides,
           ).toHaveBeenCalledWith(
             expect.not.objectContaining({
               rpcUrl: expect.any(String), // RPC is not supposed to be passed here
-            })
+            }),
           );
         });
       });
 
       it('saves custom network on approval', async () => {
         (mockNetworkService.saveCustomNetwork as jest.Mock).mockResolvedValue(
-          undefined
+          undefined,
         );
 
         const successHandler = jest.fn();
@@ -666,12 +666,12 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           mockPendingAction,
           undefined,
           successHandler,
-          errorHandler
+          errorHandler,
         );
 
         expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
           mockPendingAction.site?.domain,
-          mockPendingAction.displayData.network.caipId
+          mockPendingAction.displayData.network.caipId,
         );
         expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledTimes(1);
         expect(mockNetworkService.saveCustomNetwork).toHaveBeenCalledWith({
@@ -685,7 +685,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
 
       it('calls error when saving custom network fails', async () => {
         (mockNetworkService.saveCustomNetwork as jest.Mock).mockRejectedValue(
-          new Error('some serious error')
+          new Error('some serious error'),
         );
 
         const successHandler = jest.fn();
@@ -695,12 +695,12 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           mockPendingAction,
           undefined,
           successHandler,
-          errorHandler
+          errorHandler,
         );
 
         expect(errorHandler).toHaveBeenCalledTimes(1);
         expect(errorHandler).toHaveBeenCalledWith(
-          new Error('some serious error')
+          new Error('some serious error'),
         );
         expect(successHandler).not.toHaveBeenCalled();
       });
@@ -728,13 +728,13 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           },
           undefined,
           successHandler,
-          errorHandler
+          errorHandler,
         );
 
         expect(mockNetworkService.saveCustomNetwork).not.toHaveBeenCalled();
         expect(mockNetworkService.setNetwork).toHaveBeenCalledWith(
           mockPendingAction.site?.domain,
-          network.caipId
+          network.caipId,
         );
 
         expect(successHandler).toHaveBeenCalledTimes(1);
@@ -765,12 +765,12 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
           },
           undefined,
           successHandler,
-          errorHandler
+          errorHandler,
         );
 
         expect(errorHandler).toHaveBeenCalledTimes(1);
         expect(errorHandler).toHaveBeenCalledWith(
-          new Error('some serious error')
+          new Error('some serious error'),
         );
         expect(successHandler).not.toHaveBeenCalled();
       });

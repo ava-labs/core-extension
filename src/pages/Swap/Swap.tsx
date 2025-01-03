@@ -35,10 +35,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isUserRejectionError } from '@src/utils/errors';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
-import {
-  NetworkTokenWithBalance,
-  TokenWithBalanceERC20,
-} from '@avalabs/vm-module-types';
+import { SwappableToken } from './models';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -66,6 +63,7 @@ export function Swap() {
   const tokensWBalances = useTokensWithBalances({
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
+
   const allTokensOnNetwork = useTokensWithBalances({
     forceShowTokensWithoutBalances: true,
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
@@ -99,7 +97,6 @@ export function Swap() {
     swapWarning,
     isReversed,
     toTokenValue,
-    maxFromValue,
     optimalRate,
     destAmount,
   } = useSwapStateFunctions();
@@ -111,7 +108,7 @@ export function Swap() {
           ? activeAccount?.addressBTC
           : activeAccount?.addressC
         : undefined,
-    [activeAccount?.addressBTC, activeAccount?.addressC, network]
+    [activeAccount?.addressBTC, activeAccount?.addressC, network],
   );
 
   const fromAmount = useMemo(() => {
@@ -123,17 +120,12 @@ export function Swap() {
 
   const toAmount = useMemo(() => {
     const result =
-      destinationInputField === 'to' && destAmount
+      destinationInputField === 'to'
         ? BigInt(destAmount)
         : toTokenValue?.bigint;
 
     return result;
   }, [destAmount, destinationInputField, toTokenValue]);
-
-  const maxFromAmount = useMemo(() => {
-    if (isLoading || destinationInputField === 'to') return undefined;
-    if (destinationInputField === 'from') return maxFromValue ?? 0n;
-  }, [destinationInputField, isLoading, maxFromValue]);
 
   async function performSwap() {
     const {
@@ -170,7 +162,7 @@ export function Swap() {
         destAmount: optimalRate.destAmount,
         gasLimit: swapGasLimit,
         slippage: parseFloat(slippage),
-      })
+      }),
     );
 
     setIsConfirming(false);
@@ -250,14 +242,9 @@ export function Swap() {
         >
           <TokenSelect
             label={t('From')}
-            onTokenChange={(
-              token: NetworkTokenWithBalance | TokenWithBalanceERC20
-            ) => {
+            onTokenChange={(token: SwappableToken) => {
               onTokenChange({
-                token,
-                destination: 'to',
-                toToken: selectedToToken,
-                fromValue: fromTokenValue,
+                fromToken: token,
               });
             }}
             onSelectToggle={() => {
@@ -265,7 +252,6 @@ export function Swap() {
               setIsToTokenSelectOpen(false);
             }}
             tokensList={tokensWBalances}
-            maxAmount={maxFromAmount}
             skipHandleMaxAmount
             isOpen={isFromTokenSelectOpen}
             selectedToken={selectedFromToken}
@@ -276,6 +262,7 @@ export function Swap() {
               onFromInputAmountChange(value);
             }}
             setIsOpen={setIsFromTokenSelectOpen}
+            withOnlyTokenPreselect={false}
           />
 
           <Stack
@@ -310,21 +297,29 @@ export function Swap() {
             )}
             <Stack
               data-testid="swap-switch-token-button"
-              onClick={() => {
-                reverseTokens(
-                  isReversed,
-                  selectedFromToken,
-                  selectedToToken,
-                  undefined
-                );
-              }}
-              disabled={!selectedFromToken || !selectedToToken}
               sx={{
                 transition: 'all 0.2s',
                 transform: isReversed ? 'rotate(0deg)' : 'rotate(180deg)',
               }}
             >
-              <IconButton variant="contained" color="secondary">
+              <IconButton
+                variant="contained"
+                color="secondary"
+                onClick={() => {
+                  reverseTokens(selectedFromToken, selectedToToken);
+                }}
+                disabled={
+                  !selectedFromToken ||
+                  !selectedToToken ||
+                  isLoading ||
+                  isConfirming
+                }
+                sx={{
+                  '&.Mui-disabled': {
+                    backgroundColor: '#FFFFFF10',
+                  },
+                }}
+              >
                 <SwapIcon
                   size={20}
                   sx={{
@@ -336,14 +331,9 @@ export function Swap() {
           </Stack>
           <TokenSelect
             label={t('To')}
-            onTokenChange={(
-              token: NetworkTokenWithBalance | TokenWithBalanceERC20
-            ) => {
+            onTokenChange={(token: SwappableToken) => {
               onTokenChange({
-                token,
-                fromToken: selectedFromToken,
-                destination: 'from',
-                fromValue: fromTokenValue,
+                toToken: token,
               });
             }}
             onSelectToggle={() => {
@@ -361,6 +351,7 @@ export function Swap() {
             }}
             setIsOpen={setIsToTokenSelectOpen}
             withMaxButton={false}
+            withOnlyTokenPreselect={false}
           />
 
           {isDetailsAvailable && (

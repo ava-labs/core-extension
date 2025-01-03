@@ -111,7 +111,7 @@ describe('background/services/storage/utils/crypto.ts', () => {
           pass: encryptionPassword,
           time: 3,
           type: argon2Browser.ArgonType.Argon2id,
-        })
+        }),
       );
     });
   });
@@ -137,16 +137,16 @@ describe('background/services/storage/utils/crypto.ts', () => {
 
     it('only accepts 32 and 64 byte long keys', async () => {
       await expect(
-        encryptWithKey({ secret, encryptionKey: new Uint8Array(4) })
+        encryptWithKey({ secret, encryptionKey: new Uint8Array(4) }),
       ).rejects.toThrow(new Error('invalid encryption key'));
       await expect(
-        encryptWithKey({ secret, encryptionKey: new Uint8Array(33) })
+        encryptWithKey({ secret, encryptionKey: new Uint8Array(33) }),
       ).rejects.toThrow(new Error('invalid encryption key'));
       await expect(
         encryptWithKey({
           secret,
           encryptionKey: crypto.getRandomValues(new Uint8Array(65)),
-        })
+        }),
       ).rejects.toThrow(new Error('invalid encryption key'));
     });
 
@@ -204,17 +204,17 @@ describe('background/services/storage/utils/crypto.ts', () => {
 
     it('only accepts 32 and 64 byte long keys', async () => {
       await expect(
-        decryptWithKey({ cypher, encryptionKey: new Uint8Array(4), nonce })
+        decryptWithKey({ cypher, encryptionKey: new Uint8Array(4), nonce }),
       ).rejects.toThrow(new Error('invalid decryption key'));
       await expect(
-        decryptWithKey({ cypher, encryptionKey: new Uint8Array(33), nonce })
+        decryptWithKey({ cypher, encryptionKey: new Uint8Array(33), nonce }),
       ).rejects.toThrow(new Error('invalid decryption key'));
       await expect(
         decryptWithKey({
           cypher,
           encryptionKey: crypto.getRandomValues(new Uint8Array(65)),
           nonce,
-        })
+        }),
       ).rejects.toThrow(new Error('invalid decryption key'));
     });
 
@@ -258,17 +258,17 @@ describe('background/services/storage/utils/crypto.ts', () => {
 
     it('only accepts 32 and 64 byte long keys', async () => {
       await expect(
-        decryptWithKey({ cypher, encryptionKey: new Uint8Array(4), nonce })
+        decryptWithKey({ cypher, encryptionKey: new Uint8Array(4), nonce }),
       ).rejects.toThrow(new Error('invalid decryption key'));
       await expect(
-        decryptWithKey({ cypher, encryptionKey: new Uint8Array(33), nonce })
+        decryptWithKey({ cypher, encryptionKey: new Uint8Array(33), nonce }),
       ).rejects.toThrow(new Error('invalid decryption key'));
       await expect(
         decryptWithKey({
           cypher,
           encryptionKey: crypto.getRandomValues(new Uint8Array(65)),
           nonce,
-        })
+        }),
       ).rejects.toThrow(new Error('invalid decryption key'));
     });
 
@@ -329,7 +329,7 @@ describe('background/services/storage/utils/crypto.ts', () => {
           keyDerivationVersion: KeyDerivationVersion.V2,
         });
         fail('Should have thrown an exception');
-      } catch (error) {
+      } catch (_err) {
         expect(Buffer.from).toHaveBeenCalledTimes(0);
         expect(Uint8Array.prototype.fill).toHaveBeenCalledTimes(1);
         expect(Uint8Array.prototype.fill).toHaveBeenCalledWith(0);

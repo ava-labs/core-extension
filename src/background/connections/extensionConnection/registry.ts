@@ -79,13 +79,12 @@ import { GetAvaxBalanceHandler } from '@src/background/services/balances/handler
 import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
-import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
 import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 import { KeystoneRequestEvents } from '@src/background/services/keystone/events/keystoneDeviceRequest';
 import { SubmitKeystoneSignature } from '@src/background/services/keystone/handlers/keystoneSubmitSignature';
 import { StoreBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/storeBtcWalletPolicyDetails';
 import { GetBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/getBtcWalletPolicyDetails';
-import { WalletUpdatedEvents } from '@src/background/services/wallet/events/WalletUpdatedEvent';
+import { WalletUpdatedEvents } from '@src/background/services/secrets/events/WalletUpdatedEvent';
 import { GetDefiPortfolioHandler } from '@src/background/services/defi/handlers/getDefiPortfolio';
 import { CurrencyRatesUpdatedEvents } from '@src/background/services/currency/events/currencyRatesUpdatedEvent';
 import { GetCurrencyExchangeRatesHandler } from '@src/background/services/currency/handlers/getCurrencyExchangeRates';
@@ -128,6 +127,8 @@ import { StartBalancesPollingHandler } from '@src/background/services/balances/h
 import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
 import { BalancesUpdatedEvents } from '@src/background/services/balances/events/balancesUpdatedEvent';
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
+import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
+import { GetTotalBalanceForWalletHandler } from '@src/background/services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -138,9 +139,9 @@ import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBrid
   { token: 'ExtensionRequestHandler', useToken: AddAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAccountsHandler },
   { token: 'ExtensionRequestHandler', useToken: SelectAccountHandler },
-  { token: 'ExtensionRequestHandler', useToken: DeleteAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetActionHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateActionHandler },
+  { token: 'ExtensionRequestHandler', useToken: UpdateActionTxDataHandler },
   { token: 'ExtensionRequestHandler', useToken: ClearAnalyticsIdsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetAnalyticsIdsHandler },
   { token: 'ExtensionRequestHandler', useToken: InitAnalyticsIdsHandler },
@@ -370,6 +371,10 @@ import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBrid
   {
     token: 'ExtensionRequestHandler',
     useToken: StopBalancesPollingHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetTotalBalanceForWalletHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

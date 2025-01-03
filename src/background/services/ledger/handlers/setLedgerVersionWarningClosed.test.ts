@@ -24,7 +24,7 @@ describe('src/background/services/ledger/handlers/setLedgerVersionWarningClosed.
     expect(result).toEqual({ ...request, result: true });
     expect(storageServiceMock.saveToSessionStorage).toHaveBeenCalledWith(
       LEDGER_VERSION_WARNING_WAS_CLOSED,
-      true
+      true,
     );
   });
 });

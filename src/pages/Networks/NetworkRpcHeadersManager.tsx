@@ -30,7 +30,7 @@ export const NetworkRpcHeadersManager = ({
   const { t } = useTranslation();
 
   const [rpcHeaders, setRpcHeaders] = useState(
-    network.customRpcHeaders ?? PLACEHOLDER_RPC_HEADERS
+    network.customRpcHeaders ?? PLACEHOLDER_RPC_HEADERS,
   );
   const [isRpcHeadersManagerVisible, setIsRpcHeadersManagerVisible] =
     useState(false);
@@ -134,7 +134,7 @@ export const NetworkRpcHeadersManager = ({
               color="secondary"
               onClick={() => {
                 setRpcHeaders(
-                  network.customRpcHeaders ?? PLACEHOLDER_RPC_HEADERS
+                  network.customRpcHeaders ?? PLACEHOLDER_RPC_HEADERS,
                 );
                 setIsRpcHeadersManagerVisible(false);
               }}

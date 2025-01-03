@@ -1,6 +1,6 @@
 import { sha256 } from 'ethers';
 import { PeerType } from 'fireblocks-sdk';
-import { AccountType, FireblocksAccount } from '../accounts/models';
+import { Account, AccountType, FireblocksAccount } from '../accounts/models';
 import { SecretType } from '../secrets/models';
 import { SecretsService } from '../secrets/SecretsService';
 import { FireblocksSecretsService } from './FireblocksSecretsService';
@@ -11,6 +11,7 @@ import sentryCaptureException, {
 } from '@src/monitoring/sentryCaptureException';
 import { CommonError } from '@src/utils/errors';
 import { ethErrors } from 'eth-rpc-errors';
+import { AccountsService } from '../accounts/AccountsService';
 
 jest.mock('ethers');
 jest.mock('../accounts/AccountsService');
@@ -59,15 +60,21 @@ const mockResponsesByPath =
   };
 
 describe('src/background/services/fireblocks/FireblocksService', () => {
+  const accountsService: jest.Mocked<AccountsService> = {
+    activeAccount: {} as unknown as Account,
+  } as any;
   const secretsService = jest.mocked(new SecretsService({} as any));
-  const secretsProvider = new FireblocksSecretsService(secretsService);
+  const secretsProvider = new FireblocksSecretsService(
+    secretsService,
+    accountsService,
+  );
   let service: FireblocksService;
 
   beforeEach(() => {
     jest.resetAllMocks();
 
     jest.mocked(sha256).mockReturnValue('0x1234');
-    secretsService.getActiveAccountSecrets.mockResolvedValue({
+    secretsService.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Fireblocks,
       addresses: {
         addressC: 'addressC',
@@ -104,12 +111,12 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
               },
             ],
           },
-        })
+        }),
       );
 
       const result = await service.getBtcAddressByAccountId(
         vaultAccount1,
-        false
+        false,
       );
       expect(result).toEqual(vaultAcctAddr);
       expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -146,12 +153,12 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
                 },
               ],
             },
-        })
+        }),
       );
 
       const result = await service.getBtcAddressByAccountId(
         vaultAccount1,
-        false
+        false,
       );
       expect(result).toEqual(vaultAcctAddr2);
       expect(global.fetch).toHaveBeenCalledTimes(2);
@@ -181,7 +188,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
           [`/vault/accounts/${vaultAccount1}/BTC_TEST/addresses_paginated`]: {
             addresses: [primaryAddress],
           },
-        })
+        }),
       );
 
       const result = await service.getAllAddesses(vaultAccount1, 'BTC_TEST');
@@ -202,7 +209,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
             {
               addresses: [primaryAddress],
             },
-        })
+        }),
       );
 
       const result = await service.getAllAddesses(vaultAccount1, 'BTC_TEST');
@@ -227,7 +234,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
                 ],
               },
             ],
-          })
+          }),
         );
       });
 
@@ -256,7 +263,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
                 ],
               },
             ],
-          })
+          }),
         );
       });
 
@@ -294,7 +301,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
                 },
               ],
             },
-          })
+          }),
         );
       });
 
@@ -331,7 +338,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
           apiErrorCode: 1427,
           apiErrorMessage: 'Source type of transaction is invalid',
         },
-      })
+      }),
     );
   });
 
@@ -361,7 +368,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
               'Cannot read properties of undefined (reading "type")',
           },
         }),
-        SentryExceptionTypes.FIREBLOCKS
+        SentryExceptionTypes.FIREBLOCKS,
       );
     }
   });
@@ -375,7 +382,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
         data: {
           reason: CommonError.NetworkError,
         },
-      })
+      }),
     );
   });
 });

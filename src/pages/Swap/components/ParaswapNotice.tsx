@@ -25,7 +25,7 @@ export function ParaswapNotice() {
         <Tooltip
           placement={'top'}
           title={t(
-            "You will interact directly with Paraswap's smart contracts."
+            "You will interact directly with Paraswap's smart contracts.",
           )}
         >
           <InfoCircleIcon size="14px" />

@@ -91,7 +91,7 @@ export const SendAVM = ({
   const inputAmount = useMemo(
     () =>
       amount ? stringToBigint(amount, nativeToken?.decimals ?? 9) : undefined,
-    [nativeToken, amount]
+    [nativeToken, amount],
   );
 
   if (account && !account.addressAVM) {
@@ -110,7 +110,7 @@ export const SendAVM = ({
       token={nativeToken}
       tokenList={tokenList}
       onContactChanged={(contact) => {
-        if (contact?.addressXP) setAddress(contact.addressXP);
+        setAddress(contact?.addressXP ?? '');
       }}
       onAmountChanged={(newAmount) => setAmount(newAmount)}
       onTokenChanged={() => {}} // noop, AVAX has only one token

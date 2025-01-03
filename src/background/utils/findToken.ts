@@ -28,7 +28,7 @@ const UNKNOWN_TOKEN = (address: string): TokenWithBalanceERC20 => ({
 
 export async function findToken(
   addressOrSymbol: string,
-  network: Network
+  network: Network,
 ): Promise<TokenWithBalance> {
   const balancesService = container.resolve(BalanceAggregatorService);
   const accountsService = container.resolve(AccountsService);
@@ -44,7 +44,8 @@ export async function findToken(
     balances = (
       await balancesService.getBalancesForNetworks(
         [network.chainId],
-        [accountsService.activeAccount]
+        [accountsService.activeAccount],
+        [TokenType.NATIVE, TokenType.ERC20],
       )
     ).tokens;
   }
@@ -58,14 +59,14 @@ export async function findToken(
     return token;
   }
 
-  const provider = getProviderForNetwork(network);
+  const provider = await getProviderForNetwork(network);
   if (!(provider instanceof JsonRpcBatchInternal)) {
     return UNKNOWN_TOKEN(addressOrSymbol);
   }
 
   if (addressOrSymbol === network.networkToken.symbol) {
     const balance = await provider.getBalance(
-      accountsService.activeAccount.addressC
+      accountsService.activeAccount.addressC,
     );
     return {
       ...network.networkToken,
@@ -73,7 +74,7 @@ export async function findToken(
       balance,
       balanceDisplayValue: bigIntToString(
         balance,
-        network.networkToken.decimals
+        network.networkToken.decimals,
       ),
       type: TokenType.NATIVE,
     };
@@ -84,9 +85,9 @@ export async function findToken(
   try {
     tokenData = await tokenManagerService.getTokenData(
       addressOrSymbol,
-      network
+      network,
     );
-  } catch (e) {
+  } catch (_err) {
     return UNKNOWN_TOKEN(addressOrSymbol);
   }
 
@@ -97,7 +98,7 @@ export async function findToken(
   }
 
   const balance = await contract.balanceOf(
-    accountsService.activeAccount.addressC
+    accountsService.activeAccount.addressC,
   );
 
   return {

@@ -32,7 +32,7 @@ const NftImage = styled(ImageWithFallback)<{
   );
   backdrop-filter: blur(25px);
   border-radius: ${({ hasBorderRadius, borderRadius }) =>
-    hasBorderRadius ? borderRadius ?? '8px' : 'none'};
+    hasBorderRadius ? (borderRadius ?? '8px') : 'none'};
   cursor: ${({ showPointer }) => (showPointer ? 'default' : 'pointer')};
 `;
 
@@ -94,6 +94,7 @@ export function CollectibleMedia({
 }: CollectibleMediaProps) {
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
   const [shouldUseLightIcon, setShouldUseLightIcon] = useState(false);
+  const [isMediaSettled, setIsMediaSettled] = useState(false); // Either loaded or errored out.
 
   return (
     <Stack
@@ -103,54 +104,50 @@ export function CollectibleMedia({
       }}
       className={className}
     >
-      {
-        <Stack
-          sx={{
-            flexDirection: 'row',
-            maxWidth: maxWidth ? maxWidth : 'unset',
-            width: width ? width : '32px',
-            position: 'absolute',
-            justifyContent: 'flex-end',
-            alignItems: 'flex-end',
-            columnGap: 1,
-            zIndex: 3,
-            mr: 3,
-            mt: 1,
-            pr: 1,
-          }}
-        >
-          {showBalance && (
-            <Chip
-              size="small"
-              sx={{
-                backgroundColor: (theme) =>
-                  shouldUseLightIcon
-                    ? 'primary.light'
-                    : theme.palette.grey[600],
-                color: shouldUseLightIcon
-                  ? 'primary.contrastText'
-                  : 'primary.light',
-                px: 1,
-              }}
-              label={balance.toString()}
-            />
-          )}
-          {showExpandOption && (
-            <ArrowsMaximizeIcon
-              onClick={() => {
-                setIsImageFullScreen(true);
-              }}
-              size="24"
-              sx={{
-                color: shouldUseLightIcon
-                  ? 'primary.light'
-                  : 'primary.contrastText',
-                cursor: 'pointer',
-              }}
-            />
-          )}
-        </Stack>
-      }
+      <Stack
+        sx={{
+          flexDirection: 'row',
+          maxWidth: maxWidth ? maxWidth : 'unset',
+          width: width ? width : '32px',
+          position: 'absolute',
+          justifyContent: 'flex-end',
+          alignItems: 'flex-end',
+          columnGap: 1,
+          zIndex: 3,
+          mr: 3,
+          mt: 1,
+          pr: 1,
+        }}
+      >
+        {showBalance && isMediaSettled && (
+          <Chip
+            size="small"
+            sx={{
+              backgroundColor: (theme) =>
+                shouldUseLightIcon ? 'primary.light' : theme.palette.grey[600],
+              color: shouldUseLightIcon
+                ? 'primary.contrastText'
+                : 'primary.light',
+              px: 1,
+            }}
+            label={balance.toString()}
+          />
+        )}
+        {showExpandOption && (
+          <ArrowsMaximizeIcon
+            onClick={() => {
+              setIsImageFullScreen(true);
+            }}
+            size="24"
+            sx={{
+              color: shouldUseLightIcon
+                ? 'primary.light'
+                : 'primary.contrastText',
+              cursor: 'pointer',
+            }}
+          />
+        )}
+      </Stack>
       {isVideo(url) ? (
         <Stack sx={{ position: 'relative', flexDirection: 'row' }}>
           <NftVideo
@@ -162,7 +159,13 @@ export function CollectibleMedia({
             controls={controls}
             borderRadius={borderRadius}
           >
-            <source src={ipfsResolverWithFallback(url)} />
+            {/* inlining this comment results in eslint parse error */}
+            {/* eslint-disable react/no-unknown-property */}
+            <source
+              src={ipfsResolverWithFallback(url)}
+              onLoadStart={() => setIsMediaSettled(true)}
+            />
+            {/* eslint-enable react/no-unknown-property */}
           </NftVideo>
           {showPlayIcon && (
             <TriangleRightIcon
@@ -202,7 +205,9 @@ export function CollectibleMedia({
                   setShouldUseLightIcon(isDark);
                 });
               }
+              setIsMediaSettled(true);
             }}
+            onError={() => setIsMediaSettled(true)}
           />
         </ImageWrapper>
       )}

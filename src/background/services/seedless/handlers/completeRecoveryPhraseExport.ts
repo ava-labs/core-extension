@@ -16,6 +16,7 @@ import { NetworkService } from '../../network/NetworkService';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_COMPLETE_RECOVERY_PHRASE_EXPORT,
@@ -29,11 +30,14 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
   constructor(
     private secretsService: SecretsService,
     private networkService: NetworkService,
-    private seedlessMfaService: SeedlessMfaService
+    private seedlessMfaService: SeedlessMfaService,
+    private accountsService: AccountsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const secrets = await this.secretsService.getPrimaryAccountSecrets();
+    const secrets = await this.secretsService.getPrimaryAccountSecrets(
+      this.accountsService.activeAccount,
+    );
 
     if (secrets?.secretType !== SecretType.Seedless) {
       return {
@@ -69,7 +73,7 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
     try {
       exportResponse = await wallet.completeMnemonicExport(
         keyPair.publicKey,
-        request.tabId
+        request.tabId,
       );
     } catch (err) {
       sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
@@ -83,7 +87,7 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
     try {
       const exportDecrypted = await userExportDecrypt(
         keyPair.privateKey,
-        exportResponse
+        exportResponse,
       );
 
       const hasMnemonic = 'mnemonic' in exportDecrypted;
@@ -91,7 +95,7 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
       if (!hasMnemonic || typeof exportDecrypted.mnemonic !== 'string') {
         sentryCaptureException(
           new Error('Export decrypted, but has no mnemonic'),
-          SentryExceptionTypes.SEEDLESS
+          SentryExceptionTypes.SEEDLESS,
         );
 
         return {

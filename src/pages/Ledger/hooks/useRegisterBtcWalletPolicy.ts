@@ -1,7 +1,11 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { AccountType } from '@src/background/services/accounts/models';
+import {
+  AccountType,
+  PrimaryAccount,
+} from '@src/background/services/accounts/models';
 import { GetBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/getBtcWalletPolicyDetails';
+import { WalletDetails } from '@src/background/services/wallet/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
@@ -26,11 +30,10 @@ const useRegisterBtcWalletPolicy = () => {
   const activeAccount = accounts.active;
 
   useEffect(() => {
-    const fetchWalletPolicyDetails = async () => {
-      if (activeAccount?.type !== AccountType.PRIMARY) {
-        return;
-      }
-
+    const fetchWalletPolicyDetails = async (
+      account: PrimaryAccount,
+      details: WalletDetails,
+    ) => {
       const { masterFingerprint } =
         (await request<GetBtcWalletPolicyDetails>({
           method: ExtensionRequest.WALLET_GET_BTC_WALLET_POLICY_DETAILS,
@@ -39,10 +42,10 @@ const useRegisterBtcWalletPolicy = () => {
       setMasterFingerprint(masterFingerprint);
 
       if (!masterFingerprint) {
-        if (walletDetails?.derivationPath === DerivationPath.LedgerLive) {
-          setWalletPolicyName(`Core - ${activeAccount.name}`);
-          setWalletPolicyDerivationpath(`44'/60'/${activeAccount.index}'`);
-        } else if (walletDetails?.derivationPath === DerivationPath.BIP44) {
+        if (details.derivationPath === DerivationPath.LedgerLive) {
+          setWalletPolicyName(`Core - ${account.name}`);
+          setWalletPolicyDerivationpath(`44'/60'/${account.index}'`);
+        } else if (details.derivationPath === DerivationPath.BIP44) {
           setWalletPolicyName('Core');
           setWalletPolicyDerivationpath(`44'/60'/0'`);
         }
@@ -51,13 +54,24 @@ const useRegisterBtcWalletPolicy = () => {
       }
     };
 
+    if (activeAccount?.type !== AccountType.PRIMARY || !walletDetails) {
+      return;
+    }
+
+    // This effect may be called in-between updates coming from AccountsProvider and WalletProvider
+    // We need to wait for those to be in-sync, otherwise we may prompt for policy registration
+    // when user is switching from a Ledger wallet/account to a non-Ledger wallet/account.
+    if (activeAccount.walletId !== walletDetails.id) {
+      return;
+    }
+
     setMasterFingerprint(undefined);
     setWalletPolicyName(undefined);
     setWalletPolicyDerivationpath(undefined);
     setShouldRegisterBtcWalletPolicy(false);
 
     if (isUsingLedgerWallet && appType === LedgerAppType.BITCOIN) {
-      fetchWalletPolicyDetails();
+      fetchWalletPolicyDetails(activeAccount, walletDetails);
     }
   }, [
     activeAccount,

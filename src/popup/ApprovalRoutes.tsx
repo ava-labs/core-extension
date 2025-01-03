@@ -3,7 +3,6 @@ import { Route, Switch, SwitchProps } from 'react-router-dom';
 import { CircularProgress, Stack } from '@avalabs/core-k2-components';
 
 import { SignTxErrorBoundary } from '@src/pages/SignTransaction/components/SignTxErrorBoundary';
-import { RenameAccount } from '@src/pages/Wallet/RenameAccount';
 
 const SignMessage = lazy(() => {
   return import('../pages/SignMessage/SignMessage').then((m) => ({
@@ -14,12 +13,6 @@ const SignMessage = lazy(() => {
 const PermissionsPage = lazy(() => {
   return import('../pages/Permissions/Permissions').then((m) => ({
     default: m.PermissionsPage,
-  }));
-});
-
-const SignTransactionPage = lazy(() => {
-  return import('../pages/SignTransaction/SignTransaction').then((m) => ({
-    default: m.SignTransactionPage,
   }));
 });
 
@@ -101,6 +94,30 @@ const ApproveAction = lazy(() => {
   }));
 });
 
+const RenameAccount = lazy(() => {
+  return import('../pages/Wallet/RenameAccount').then((m) => ({
+    default: m.RenameAccount,
+  }));
+});
+
+const DeleteAccounts = lazy(() => {
+  return import('../pages/Wallet/DeleteAccounts').then((m) => ({
+    default: m.DeleteAccount,
+  }));
+});
+
+const GetAddressesInRange = lazy(() => {
+  return import('../pages/Wallet/GetAddressesInRange').then((m) => ({
+    default: m.GetAddressesInRange,
+  }));
+});
+
+const RenameWallet = lazy(() => {
+  return import('../pages/Wallet/RenameWallet').then((m) => ({
+    default: m.RenameWallet,
+  }));
+});
+
 export const ApprovalRoutes = (props: SwitchProps) => (
   <Suspense
     fallback={
@@ -117,11 +134,6 @@ export const ApprovalRoutes = (props: SwitchProps) => (
     }
   >
     <Switch {...props}>
-      <Route path="/sign/transaction">
-        <SignTxErrorBoundary variant="OpenError">
-          <SignTransactionPage />
-        </SignTxErrorBoundary>
-      </Route>
       <Route path="/approve/generic">
         <SignTxErrorBoundary variant="OpenError">
           <GenericApprovalScreen />
@@ -178,11 +190,20 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       <Route path="/renameAccount">
         <RenameAccount />
       </Route>
+      <Route path="/deleteAccounts">
+        <DeleteAccounts />
+      </Route>
+      <Route path="/getAddressesInRange">
+        <GetAddressesInRange />
+      </Route>
       <Route path="/networks/add-popup">
         <AddCustomNetworkPopup />
       </Route>
       <Route path="/network/switch">
         <SwitchActiveNetwork />
+      </Route>
+      <Route path="/renameWallet">
+        <RenameWallet />
       </Route>
     </Switch>
   </Suspense>

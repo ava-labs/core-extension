@@ -19,7 +19,7 @@ export class UpdateShowNoBalanceHandler implements HandlerType {
     const [showTokensWithoutBalances] = request.params || [];
 
     await this.settingsService.setShowTokensWithNoBalance(
-      !!showTokensWithoutBalances
+      !!showTokensWithoutBalances,
     );
 
     return {

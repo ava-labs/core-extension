@@ -5,6 +5,7 @@ import {
   Typography,
   Skeleton,
 } from '@avalabs/core-k2-components';
+import { TokenType } from '@avalabs/vm-module-types';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
@@ -13,6 +14,8 @@ import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency'
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { useTokenPriceMissing } from '@src/hooks/useTokenPriceIsMissing';
 import { useTranslation } from 'react-i18next';
+
+const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
 export function WalletBalances() {
   const { currency, currencyFormatter } = useSettingsContext();
@@ -45,9 +48,9 @@ export function WalletBalances() {
   const balanceTotal =
     balanceTotalUSDSum !== null && balanceTotalUSDSum !== undefined
       ? balanceTotalUSDSum
-      : totalBalanceSum ?? null;
+      : (totalBalanceSum ?? null);
 
-  useLiveBalance(); // Make sure we show the latest balances.
+  useLiveBalance(POLLED_BALANCES); // Make sure we show the latest balances.
 
   return (
     <Stack
@@ -90,7 +93,7 @@ export function WalletBalances() {
               (favoriteNetworksMissingPrice || activeNetworkMissingPrice) && (
                 <Tooltip
                   title={t(
-                    'The prices of some tokens are missing. The balance might not be accurate currently.'
+                    'The prices of some tokens are missing. The balance might not be accurate currently.',
                   )}
                   placement="bottom"
                 >

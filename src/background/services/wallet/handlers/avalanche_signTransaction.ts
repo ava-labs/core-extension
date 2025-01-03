@@ -18,8 +18,11 @@ import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
 import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
+import { Network } from '@avalabs/glacier-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { HEADERS } from '../../glacier/glacierConfig';
+import { isDevnet } from '@src/utils/isDevnet';
 
 type TxParams = {
   transactionHex: string;
@@ -34,13 +37,13 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
   constructor(
     private walletService: WalletService,
     private networkService: NetworkService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {
     super();
   }
 
   handleAuthenticated = async (
-    rpcCall: JsonRpcRequestParams<DAppProviderRequest, TxParams>
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, TxParams>,
   ) => {
     let credentials: Credential[] | undefined = undefined;
 
@@ -65,7 +68,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
     const provider = await this.networkService.getAvalanceProviderXP();
     const currentAddress = getAddressByVM(
       vm,
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
 
     if (!currentAddress) {
@@ -79,6 +82,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
 
     const tx = utils.unpackWithManager(vm, txBytes) as avaxSerial.AvaxTx;
 
+    const network = await this.networkService.getAvalancheNetworkXP();
     const providedUtxos = getProvidedUtxos({
       utxoHexes: providedUtxoHexes,
       vm,
@@ -88,9 +92,14 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
       : await Avalanche.getUtxosByTxFromGlacier({
           transactionHex,
           chainAlias,
-          isTestnet: !this.networkService.isMainnet(),
+          network: isDevnet(network)
+            ? Network.DEVNET
+            : network.isTestnet
+              ? Network.FUJI
+              : Network.MAINNET,
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,
+          headers: HEADERS,
         });
 
     try {
@@ -111,16 +120,16 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
             Avalanche.populateCredential(sigIndices, {
               unsignedTx,
               credentialIndex,
-            })
-          )
+            }),
+          ),
       );
-    } catch (err) {
+    } catch (_err) {
       // transaction hasn't been signed yet thus we continue with a custom list of empty credentials
       // to ensure it contains a signature slot for all signature indices from the inputs
       credentials = tx
         .getSigIndices()
         .map(
-          (indicies) => new Credential(Avalanche.populateCredential(indicies))
+          (indicies) => new Credential(Avalanche.populateCredential(indicies)),
         );
     }
 
@@ -159,7 +168,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
 
     const sigIndices = unsignedTx.getSigIndices();
     const needsToSign = ownSignatureIndices.some(([inputIndex, sigIndex]) =>
-      sigIndices[inputIndex]?.includes(sigIndex)
+      sigIndices[inputIndex]?.includes(sigIndex),
     );
 
     if (!needsToSign) {
@@ -175,7 +184,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
     const txData = await Avalanche.parseAvalancheTx(
       unsignedTx,
       provider,
-      currentAddress
+      currentAddress,
     );
 
     if (txData.type === 'unknown') {
@@ -218,7 +227,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
     _,
     onSuccess,
     onError,
-    frontendTabId?: number
+    frontendTabId?: number,
   ) => {
     try {
       const {
@@ -232,12 +241,12 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
         },
         // Must tell it is avalanche network
         this.networkService.getAvalancheNetworkXP(),
-        frontendTabId
+        frontendTabId,
       );
 
       if (!signedTx) {
         throw new Error(
-          `Expected a signedTx to be returned by the wallet, ${typeof signedTx} returned.`
+          `Expected a signedTx to be returned by the wallet, ${typeof signedTx} returned.`,
         );
       }
 
@@ -264,7 +273,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
             const isOwnSignature = ownSignatureIndices.some(
               (ownIndices) =>
                 JSON.stringify(ownIndices) ===
-                JSON.stringify([inputIndex, sigIndex])
+                JSON.stringify([inputIndex, sigIndex]),
             );
 
             if (
@@ -293,13 +302,13 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
         {
           credentials: [],
           ownSignatures: [],
-        }
+        },
       );
 
       // create a new SignedTx with the corrected credentials
       const correctedSignexTx = new avaxSerial.SignedTx(
         signedTransaction.getTx(),
-        newDetails.credentials
+        newDetails.credentials,
       );
 
       onSuccess({

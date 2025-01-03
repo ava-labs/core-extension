@@ -24,13 +24,13 @@ export class LockService {
 
   constructor(
     private callbackManager: CallbackManager,
-    private storageService: StorageService
+    private storageService: StorageService,
   ) {}
 
   async activate() {
     const authData =
       await this.storageService.loadFromSessionStorage<SessionAuthData>(
-        SESSION_AUTH_DATA_KEY
+        SESSION_AUTH_DATA_KEY,
       );
 
     if (
@@ -61,7 +61,7 @@ export class LockService {
       this.eventEmitter.emit(LockEvents.LOCK_STATE_CHANGED, {
         isUnlocked: true,
       });
-    } catch (e) {
+    } catch (_err) {
       throw new Error('invalid password');
     }
   }
@@ -69,7 +69,7 @@ export class LockService {
   async changePassword(oldPassword: string, newPassword: string) {
     const authData =
       await this.storageService.loadFromSessionStorage<SessionAuthData>(
-        SESSION_AUTH_DATA_KEY
+        SESSION_AUTH_DATA_KEY,
       );
 
     if (!authData || oldPassword !== authData.password) {
@@ -91,7 +91,7 @@ export class LockService {
   async verifyPassword(password: string): Promise<boolean> {
     const authData =
       await this.storageService.loadFromSessionStorage<SessionAuthData>(
-        SESSION_AUTH_DATA_KEY
+        SESSION_AUTH_DATA_KEY,
       );
 
     return authData && password === authData.password;
@@ -108,14 +108,14 @@ export class LockService {
 
   addListener(
     event: LockEvents.LOCK_STATE_CHANGED,
-    callback: (data: LockStateChangedEventPayload) => void
+    callback: (data: LockStateChangedEventPayload) => void,
   ) {
     this.eventEmitter.addListener(event, callback);
   }
 
   removeListener(
     event: LockEvents.LOCK_STATE_CHANGED,
-    callback: (data: LockStateChangedEventPayload) => void
+    callback: (data: LockStateChangedEventPayload) => void,
   ) {
     this.eventEmitter.removeListener(event, callback);
   }

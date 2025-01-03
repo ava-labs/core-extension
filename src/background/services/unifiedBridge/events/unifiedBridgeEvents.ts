@@ -20,7 +20,7 @@ export class UnifiedBridgeEvents implements ExtensionEventEmitter {
           name: UnifiedBridgeEvent.StateUpdated,
           value: state,
         });
-      }
+      },
     );
 
     this.unifiedBridgeService.addListener(
@@ -30,7 +30,7 @@ export class UnifiedBridgeEvents implements ExtensionEventEmitter {
           name: UnifiedBridgeEvent.TransferStepChange,
           value: state,
         });
-      }
+      },
     );
 
     this.unifiedBridgeService.addListener(
@@ -40,7 +40,7 @@ export class UnifiedBridgeEvents implements ExtensionEventEmitter {
           name: UnifiedBridgeEvent.AssetsUpdated,
           value: assets,
         });
-      }
+      },
     );
   }
 
@@ -49,7 +49,7 @@ export class UnifiedBridgeEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

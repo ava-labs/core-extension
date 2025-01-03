@@ -13,12 +13,12 @@ const BitcoinCaipId = {
   [ChainId.BITCOIN]: `${CaipNamespace.BIP122}:000000000019d6689c085ae165831e93`,
   [ChainId.BITCOIN_TESTNET]: `${CaipNamespace.BIP122}:000000000933ea01ad0ee984209779ba`,
 };
-
 const AvaxCaipId = {
   [ChainId.AVALANCHE_P]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.pBlockchainID}`,
   [ChainId.AVALANCHE_X]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.xBlockchainID}`,
   [ChainId.AVALANCHE_TEST_P]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.pBlockchainID}`,
   [ChainId.AVALANCHE_TEST_X]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.xBlockchainID}`,
+  [ChainId.AVALANCHE_DEVNET_P]: `${CaipNamespace.AVAX}:custom11111111111111111111111111111111LpoYY`,
 } as const;
 
 export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
@@ -57,7 +57,7 @@ export const caipToChainId = (identifier: string): number => {
 
   if (namespace === CaipNamespace.BIP122) {
     const chainId = Object.keys(BitcoinCaipId).find(
-      (chainIdLookup) => BitcoinCaipId[chainIdLookup] === identifier
+      (chainIdLookup) => BitcoinCaipId[chainIdLookup] === identifier,
     );
 
     if (!chainId) {
@@ -69,7 +69,7 @@ export const caipToChainId = (identifier: string): number => {
 
   if (namespace === CaipNamespace.AVAX) {
     const chainId = Object.keys(AvaxCaipId).find(
-      (chainIdLookup) => AvaxCaipId[chainIdLookup] === identifier
+      (chainIdLookup) => AvaxCaipId[chainIdLookup] === identifier,
     );
 
     if (!chainId) {
@@ -87,8 +87,11 @@ export const chainIdToCaip = (chainId: number): string => {
 };
 
 export const decorateWithCaipId = (
-  network: Network
+  network: Network,
 ): EnsureDefined<Network, 'caipId'> => ({
   ...network,
   caipId: getNetworkCaipId(network),
 });
+
+export const isBitcoinCaipId = (caipId: string) =>
+  Object.values(BitcoinCaipId).includes(caipId);

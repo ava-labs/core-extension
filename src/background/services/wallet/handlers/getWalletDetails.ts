@@ -2,7 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { WalletDetails } from '../models';
-import { WalletService } from '../WalletService';
+import { SecretsService } from '../../secrets/SecretsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_GET_DETAILS,
@@ -13,12 +13,12 @@ type HandlerType = ExtensionRequestHandler<
 export class GetWalletDetailsHandler implements HandlerType {
   method = ExtensionRequest.WALLET_GET_DETAILS as const;
 
-  constructor(private walletService: WalletService) {}
+  constructor(private secretsService: SecretsService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     return {
       ...request,
-      result: this.walletService.wallets,
+      result: await this.secretsService.getPrimaryWalletsDetails(),
     };
   };
 }

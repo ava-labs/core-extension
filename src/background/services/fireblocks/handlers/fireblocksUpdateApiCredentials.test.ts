@@ -31,10 +31,12 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
   const secretsServiceMock = new SecretsService({} as any);
   const accountServiceMock = new AccountsService(
     {} as any,
-    {} as any,
     networkServiceMock,
     {} as any,
-    {} as any
+    {} as any,
+    {} as any,
+    {} as any,
+    {} as any,
   );
   const fireblocksServiceMock = new FireblocksService({} as any);
 
@@ -67,11 +69,11 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     const handler = new FireblocksUpdateApiCredentialsHandler(
       accountServiceMock,
       networkServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
 
     expect(handler.method).toBe(
-      ExtensionRequest.FIREBLOCKS_UPDATE_API_CREDENTIALS
+      ExtensionRequest.FIREBLOCKS_UPDATE_API_CREDENTIALS,
     );
   });
 
@@ -79,7 +81,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     const handler = new FireblocksUpdateApiCredentialsHandler(
       accountServiceMock,
       networkServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
 
     expect(await handler.handle(mockRequest)).toEqual({
@@ -88,11 +90,11 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     });
 
     expect(
-      fireblocksServiceMock.fetchVaultAccountByWalletAddress
+      fireblocksServiceMock.fetchVaultAccountByWalletAddress,
     ).toHaveBeenCalledWith('0x000', MAINNET_LOOKUP_ASSETS);
     expect(fireblocksServiceMock.getBtcAddressByAccountId).toHaveBeenCalledWith(
       'VAULT_ACCOUNT_ID',
-      true
+      true,
     );
     expect(importPKCS8).toHaveBeenCalledWith('SECRET_KEY', 'RS256');
 
@@ -110,14 +112,14 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
           vaultAccountId: 'VAULT_ACCOUNT_ID',
         },
         secretType: SecretType.Fireblocks,
-      }
+      },
     );
 
     expect(accountServiceMock.refreshAddressesForAccount).toHaveBeenCalledTimes(
-      1
+      1,
     );
     expect(accountServiceMock.refreshAddressesForAccount).toHaveBeenCalledWith(
-      'ACCOUNT_ID'
+      'ACCOUNT_ID',
     );
   });
 
@@ -125,7 +127,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     const handler = new FireblocksUpdateApiCredentialsHandler(
       accountServiceMock,
       networkServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
 
     jest.mocked(networkServiceMock.isMainnet).mockReturnValue(false);
@@ -136,12 +138,12 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     });
 
     expect(
-      fireblocksServiceMock.fetchVaultAccountByWalletAddress
+      fireblocksServiceMock.fetchVaultAccountByWalletAddress,
     ).toHaveBeenCalledWith('0x000', TESTNET_LOOKUP_ASSETS);
 
     expect(fireblocksServiceMock.getBtcAddressByAccountId).toHaveBeenCalledWith(
       'VAULT_ACCOUNT_ID',
-      false
+      false,
     );
   });
 
@@ -149,7 +151,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     const handler = new FireblocksUpdateApiCredentialsHandler(
       accountServiceMock,
       networkServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
     jest.mocked(accountServiceMock.getAccountByID).mockReturnValue({
       type: AccountType.WALLET_CONNECT,
@@ -161,7 +163,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     expect(await handler.handle(mockRequest)).toEqual({
       ...mockRequest.request,
       error: new FireblocksBtcAccessError(
-        FireblocksBtcAccessErrorCode.WrongAccountType
+        FireblocksBtcAccessErrorCode.WrongAccountType,
       ).message,
     });
   });
@@ -170,7 +172,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     const handler = new FireblocksUpdateApiCredentialsHandler(
       accountServiceMock,
       networkServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
     jest.mocked(accountServiceMock.getAccountByID).mockReturnValue(undefined);
 
@@ -184,7 +186,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     const handler = new FireblocksUpdateApiCredentialsHandler(
       accountServiceMock,
       networkServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
     jest
       .mocked(fireblocksServiceMock.fetchVaultAccountByWalletAddress)
@@ -193,7 +195,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     expect(await handler.handle(mockRequest)).toEqual({
       ...mockRequest.request,
       error: new FireblocksBtcAccessError(
-        FireblocksBtcAccessErrorCode.VaultAccountNotFound
+        FireblocksBtcAccessErrorCode.VaultAccountNotFound,
       ).message,
     });
   });
@@ -202,14 +204,14 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     const handler = new FireblocksUpdateApiCredentialsHandler(
       accountServiceMock,
       networkServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
     jest.mocked(importPKCS8).mockRejectedValue('Invalid key');
 
     expect(await handler.handle(mockRequest)).toEqual({
       ...mockRequest.request,
       error: new FireblocksBtcAccessError(
-        FireblocksBtcAccessErrorCode.InvalidSecretKey
+        FireblocksBtcAccessErrorCode.InvalidSecretKey,
       ).message,
     });
   });
@@ -218,7 +220,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     const handler = new FireblocksUpdateApiCredentialsHandler(
       accountServiceMock,
       networkServiceMock,
-      secretsServiceMock
+      secretsServiceMock,
     );
     jest
       .mocked(fireblocksServiceMock.getBtcAddressByAccountId)
@@ -227,7 +229,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     expect(await handler.handle(mockRequest)).toEqual({
       ...mockRequest.request,
       error: new FireblocksBtcAccessError(
-        FireblocksBtcAccessErrorCode.BTCAddressNotFound
+        FireblocksBtcAccessErrorCode.BTCAddressNotFound,
       ).message,
     });
   });

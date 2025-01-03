@@ -13,7 +13,7 @@ describe('utils/measureDuration', () => {
     measurement.start();
     expect(performance.mark).toHaveBeenCalledTimes(1);
     expect(performance.mark).toHaveBeenCalledWith(
-      `00000000-0000-0000-0000-000000000000-start`
+      `00000000-0000-0000-0000-000000000000-start`,
     );
 
     const result = measurement.end();
@@ -22,15 +22,15 @@ describe('utils/measureDuration', () => {
     expect(performance.measure).toHaveBeenCalledTimes(1);
     expect(performance.measure).toHaveBeenCalledWith(
       '00000000-0000-0000-0000-000000000000-measurement',
-      '00000000-0000-0000-0000-000000000000-start'
+      '00000000-0000-0000-0000-000000000000-start',
     );
     expect(performance.clearMarks).toHaveBeenCalledTimes(1);
     expect(performance.clearMarks).toHaveBeenCalledWith(
-      `00000000-0000-0000-0000-000000000000-start`
+      `00000000-0000-0000-0000-000000000000-start`,
     );
     expect(performance.clearMeasures).toHaveBeenCalledTimes(1);
     expect(performance.clearMeasures).toHaveBeenCalledWith(
-      `00000000-0000-0000-0000-000000000000-measurement`
+      `00000000-0000-0000-0000-000000000000-measurement`,
     );
   });
 
@@ -49,13 +49,13 @@ describe('utils/measureDuration', () => {
     expect(performance.measure).toHaveBeenCalledTimes(1);
     expect(performance.measure).toHaveBeenCalledWith(
       'measurementID-measurement',
-      'measurementID-start'
+      'measurementID-start',
     );
     expect(performance.clearMarks).toHaveBeenCalledTimes(1);
     expect(performance.clearMarks).toHaveBeenCalledWith(`measurementID-start`);
     expect(performance.clearMeasures).toHaveBeenCalledTimes(1);
     expect(performance.clearMeasures).toHaveBeenCalledWith(
-      `measurementID-measurement`
+      `measurementID-measurement`,
     );
   });
 });

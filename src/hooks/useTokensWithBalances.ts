@@ -29,10 +29,10 @@ const DISALLOWED_ASSETS = [];
  * @returns Tokens list with OR without balances based on `forceShowTokensWithoutBalances`
  */
 export const useTokensWithBalances = (
-  options: UseTokensWithBalanceOptions = {}
+  options: UseTokensWithBalanceOptions = {},
 ) => {
   const [selectedChainId, setSelectedChainId] = useState<number | undefined>(
-    undefined
+    undefined,
   );
   const [
     allTokensWithPlaceholderBalances,
@@ -60,18 +60,19 @@ export const useTokensWithBalances = (
     if (!network?.chainId) {
       return {};
     }
-    const customTokenForActiveNetwork = customTokens[network?.chainId];
-    if (!customTokenForActiveNetwork) {
+    const customTokensForActiveNetwork = customTokens[network?.chainId];
+    if (!customTokensForActiveNetwork) {
       return {};
     }
 
-    return Object.entries(customTokenForActiveNetwork).reduce<{
+    return Object.entries(customTokensForActiveNetwork).reduce<{
       [address: string]: TokenWithBalance;
     }>((acc, [address, tokenData]) => {
       acc[address] = {
         ...tokenData,
         type: TokenType.ERC20,
         balance: 0n,
+        balanceDisplayValue: '0',
       };
 
       return acc;
@@ -96,7 +97,7 @@ export const useTokensWithBalances = (
         });
 
         const tokensWithPlaceholderBalances = Object.entries(
-          networkTokens.tokens
+          networkTokens.tokens,
         ).reduce<{
           [address: string]: TokenWithBalance;
         }>((tokensWithBalances, [address, tokenData]) => {
@@ -152,7 +153,7 @@ export const useTokensWithBalances = (
       const merged = merge(
         {},
         allTokensWithPlaceholderBalances,
-        networkBalances
+        networkBalances,
       );
 
       return nativeTokensFirst(Object.values(merged));
@@ -165,7 +166,7 @@ export const useTokensWithBalances = (
     }
 
     const nativeToken = unfilteredTokens.find(
-      (token) => token.type === TokenType.NATIVE
+      (token) => token.type === TokenType.NATIVE,
     );
 
     const defaultResult = nativeToken ? [nativeToken] : [];

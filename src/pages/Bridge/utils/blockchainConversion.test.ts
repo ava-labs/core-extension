@@ -1,10 +1,11 @@
-import { ChainId, Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   blockchainToNetwork,
   networkToBlockchain,
 } from './blockchainConversion';
 import { Blockchain, BridgeConfig } from '@avalabs/core-bridge-sdk';
 import { t } from 'i18next';
+import { decorateWithCaipId } from '@src/utils/caipConversion';
 
 jest.mock('i18next', () => ({
   t: jest.fn(),
@@ -12,7 +13,7 @@ jest.mock('i18next', () => ({
 
 describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
   const btcSymbol = 'BTC';
-  const mockBTCNetwork: Network = {
+  const mockBTCNetwork = decorateWithCaipId({
     chainName: 'BTC network',
     chainId: ChainId.BITCOIN,
     vmName: NetworkVMType.BITCOIN,
@@ -26,8 +27,8 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       logoUri: 'https://www.test.com/token/logo',
     },
     logoUri: 'https://www.test.com/network/logo',
-  };
-  const mockBTCTestnetNetwork: Network = {
+  });
+  const mockBTCTestnetNetwork = decorateWithCaipId({
     chainName: 'BTC testnet',
     chainId: ChainId.BITCOIN_TESTNET,
     vmName: NetworkVMType.BITCOIN,
@@ -41,9 +42,9 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       logoUri: 'https://www.test1.com/token/logo',
     },
     logoUri: 'https://www.test1.com/network/logo',
-  };
+  });
 
-  const mockAvalancheNetwork: Network = {
+  const mockAvalancheNetwork = decorateWithCaipId({
     chainName: 'Avalanche',
     chainId: ChainId.AVALANCHE_MAINNET_ID,
     vmName: NetworkVMType.EVM,
@@ -57,9 +58,9 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       logoUri: 'https://www.test2.com/token/logo',
     },
     logoUri: 'https://www.test2.com/network/logo',
-  };
+  });
 
-  const mockEthereumNetwork: Network = {
+  const mockEthereumNetwork = decorateWithCaipId({
     chainName: 'Ethereum',
     chainId: ChainId.ETHEREUM_HOMESTEAD,
     vmName: NetworkVMType.EVM,
@@ -73,7 +74,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       logoUri: 'https://www.test3.com/token/logo',
     },
     logoUri: 'https://www.test3.com/network/logo',
-  };
+  });
   const mockedNetworks = [
     mockBTCNetwork,
     mockBTCTestnetNetwork,
@@ -196,7 +197,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       const result = blockchainToNetwork(
         Blockchain.AVALANCHE,
         mockedNetworks,
-        bridgeConfigMock
+        bridgeConfigMock,
       );
 
       expect(result).toEqual(mockAvalancheNetwork);
@@ -206,7 +207,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       const result = blockchainToNetwork(
         Blockchain.ETHEREUM,
         mockedNetworks,
-        bridgeConfigMock
+        bridgeConfigMock,
       );
 
       expect(result).toEqual(mockEthereumNetwork);
@@ -217,7 +218,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
         Blockchain.BITCOIN,
         mockedNetworks,
         bridgeConfigMock,
-        false
+        false,
       );
 
       expect(result).toEqual(mockBTCNetwork);
@@ -228,7 +229,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
         Blockchain.BITCOIN,
         mockedNetworks,
         bridgeConfigMock,
-        true
+        true,
       );
 
       expect(result).toEqual(mockBTCTestnetNetwork);
@@ -238,7 +239,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
       const result = blockchainToNetwork(
         Blockchain.BITCOIN,
         mockedNetworks,
-        bridgeConfigMock
+        bridgeConfigMock,
       );
 
       expect(result).toEqual(mockBTCNetwork);
@@ -249,14 +250,14 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
         blockchainToNetwork(
           Blockchain.UNKNOWN,
           mockedNetworks,
-          bridgeConfigMock
-        )
+          bridgeConfigMock,
+        ),
       ).toThrow('Blockchain not supported');
     });
   });
 
   describe('blockchainToNetwork', () => {
-    const baseNetwork = {
+    const baseNetwork = decorateWithCaipId({
       chainName: 'chainName',
       chainId: ChainId.AVALANCHE_MAINNET_ID,
       vmName: NetworkVMType.EVM,
@@ -270,7 +271,7 @@ describe('src/pages/Bridge/utils/blockchainConversion.ts', () => {
         logoUri: 'https://www.test10.com/token/logo',
       },
       logoUri: 'https://www.test10.com/network/logo',
-    };
+    });
     it('should return AVALANCHE if network is AVALANCHE_MAINNET_ID', () => {
       const result = networkToBlockchain(baseNetwork);
       expect(result).toEqual(Blockchain.AVALANCHE);

@@ -78,7 +78,7 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
       isCustomNetwork = false,
       handleResetUrl,
     },
-    ref
+    ref,
   ) => {
     const { t } = useTranslation();
     const { isChainIdExist } = useNetworkContext();
@@ -89,15 +89,11 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
     const [explorerUrlError, setExplorerUrlError] = useState<string>();
     const [tokenNameError, setTokenNameError] = useState<string>();
 
-    useImperativeHandle(
-      ref,
-      () => {
-        return {
-          resetFormErrors: resetErrors,
-        };
-      },
-      []
-    );
+    useImperativeHandle(ref, () => {
+      return {
+        resetFormErrors: resetErrors,
+      };
+    }, []);
 
     const FormErrors = {
       RPC_ERROR: t('RPC required'),
@@ -161,7 +157,7 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
         FormErrors.TOKEN_SYMBOL_ERROR,
         action,
         isChainIdExist,
-      ]
+      ],
     );
 
     useEffect(() => {
@@ -377,7 +373,7 @@ export const NetworkForm = forwardRef<NetworkFormActions, NetworkFormProps>(
         </InputContainer>
       </Stack>
     );
-  }
+  },
 );
 
 NetworkForm.displayName = 'NetworkForm';

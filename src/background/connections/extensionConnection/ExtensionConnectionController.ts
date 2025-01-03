@@ -49,12 +49,12 @@ export class ExtensionConnectionController implements ConnectionController {
     private eventEmitters: ExtensionEventEmitter[],
     @injectAllWithTransform(
       'DAppRequestHandler',
-      DappHandlerToExtensionHandlerTransformer
+      DappHandlerToExtensionHandlerTransformer,
     )
     private dappHandlers: ExtensionRequestHandler<any, any>[],
     @injectAll('DAppEventEmitter') private dappEmitters: DAppEventEmitter[],
     private networkService: NetworkService,
-    private moduleManager: ModuleManager
+    private moduleManager: ModuleManager,
   ) {
     this.onMessage = this.onMessage.bind(this);
     this.disconnect = this.disconnect.bind(this);
@@ -68,8 +68,8 @@ export class ExtensionConnectionController implements ConnectionController {
       ActiveNetworkMiddleware(this.networkService),
       ExtensionRequestHandlerMiddleware(
         [...this.handlers, ...this.dappHandlers],
-        this.moduleManager
-      )
+        this.moduleManager,
+      ),
     );
 
     connectionLog('Extension Provider');
@@ -89,10 +89,10 @@ export class ExtensionConnectionController implements ConnectionController {
   disconnect(): void {
     this.connection?.onMessage.removeListener(this.onMessage);
     this.eventEmitters.forEach((emitter) =>
-      emitter.removeListener(this.onEvent)
+      emitter.removeListener(this.onEvent),
     );
     this.dappEmitters.forEach((emitter) =>
-      emitter.removeListener(this.onEvent)
+      emitter.removeListener(this.onEvent),
     );
     disconnectLog('Extension Provider');
   }
@@ -122,7 +122,7 @@ export class ExtensionConnectionController implements ConnectionController {
           icon: runtime.getManifest().icons?.['192'],
           name: runtime.getManifest().name,
         },
-      })
+      }),
     );
 
     if (error) {
@@ -135,7 +135,7 @@ export class ExtensionConnectionController implements ConnectionController {
       if (isDevelopment()) {
         responseLog(
           `extension reponse (${deserializedRequest.params.request.method})`,
-          response
+          response,
         );
       }
       try {
@@ -143,7 +143,7 @@ export class ExtensionConnectionController implements ConnectionController {
       } catch (e) {
         sentryCaptureException(
           e as Error,
-          SentryExceptionTypes.EXTENSION_CONNECTION_MESSAGE
+          SentryExceptionTypes.EXTENSION_CONNECTION_MESSAGE,
         );
         console.error(e);
       }
@@ -151,7 +151,7 @@ export class ExtensionConnectionController implements ConnectionController {
       if (isDevelopment()) {
         responseLog(
           `extension reponse (${deserializedRequest.params.request.method})`,
-          context.response
+          context.response,
         );
       }
 
@@ -182,7 +182,7 @@ export class ExtensionConnectionController implements ConnectionController {
     } catch (e) {
       sentryCaptureException(
         e as Error,
-        SentryExceptionTypes.EXTENSION_CONNECTION_EVENT
+        SentryExceptionTypes.EXTENSION_CONNECTION_EVENT,
       );
       console.error(e);
     }

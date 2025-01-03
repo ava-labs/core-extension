@@ -7,19 +7,19 @@ import {
 } from '../models';
 
 export function isUriGeneratedEvent(
-  evt: ExtensionConnectionEvent
+  evt: ExtensionConnectionEvent,
 ): evt is ExtensionConnectionEvent<WalletConnectUriGeneratedEvent> {
   return evt?.name === WalletConnectEvent.UriGenerated;
 }
 
 export function isSessionPermissionsMismatchEvent(
-  evt: ExtensionConnectionEvent
+  evt: ExtensionConnectionEvent,
 ): evt is ExtensionConnectionEvent<WalletConnectSessionPermissionsMismatch> {
   return evt?.name === WalletConnectEvent.SessionPermissionsMismatch;
 }
 
 export function isWalletConnectEvent(
-  evt: ExtensionConnectionEvent
+  evt: ExtensionConnectionEvent,
 ): evt is ExtensionConnectionEvent<WalletConnectEventType> {
   const wcEvents = Object.values(WalletConnectEvent) as string[];
 
