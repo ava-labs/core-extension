@@ -44,6 +44,7 @@ export enum FeatureGates {
   BLOCKAID_DAPP_SCAN_WARNING = 'blockaid-dapp-scan-warning',
   BLOCKAID_TRANSACTION_SCAN = 'blockaid-transaction-scan',
   BLOCKAID_JSONRPC_SCAN = 'blockaid-jsonrpc-scan',
+  FIREBASE_CLOUD_MESSAGING = 'firebase-cloud-messaging',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -94,6 +95,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.BLOCKAID_DAPP_SCAN_WARNING]: false,
   [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: false,
   [FeatureGates.BLOCKAID_JSONRPC_SCAN]: false,
+  [FeatureGates.FIREBASE_CLOUD_MESSAGING]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -143,6 +145,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.BLOCKAID_DAPP_SCAN_WARNING]: true,
   [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: true,
   [FeatureGates.BLOCKAID_JSONRPC_SCAN]: true,
+  [FeatureGates.FIREBASE_CLOUD_MESSAGING]: true,
 };
 
 export enum FeatureFlagEvents {

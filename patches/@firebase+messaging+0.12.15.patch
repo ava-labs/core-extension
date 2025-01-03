@@ -1,0 +1,48 @@
+diff --git a/node_modules/@firebase/messaging/dist/esm/index.esm2017.js b/node_modules/@firebase/messaging/dist/esm/index.esm2017.js
+index b4c53c4..71498b8 100644
+--- a/node_modules/@firebase/messaging/dist/esm/index.esm2017.js
++++ b/node_modules/@firebase/messaging/dist/esm/index.esm2017.js
+@@ -562,11 +562,17 @@ async function getNewToken(firebaseDependencies, subscriptionOptions) {
+  */
+ async function getPushSubscription(swRegistration, vapidKey) {
+     const subscription = await swRegistration.pushManager.getSubscription();
++
+     if (subscription) {
+-        return subscription;
++        if(!subscription.options.userVisibleOnly) {
++            return subscription;
++        }
++
++        await subscription.unsubscribe()
+     }
++
+     return swRegistration.pushManager.subscribe({
+-        userVisibleOnly: true,
++        userVisibleOnly: false,
+         // Chrome <= 75 doesn't support base64-encoded VAPID key. For backward compatibility, VAPID key
+         // submitted to pushManager#subscribe must be of type Uint8Array.
+         applicationServerKey: base64ToArray(vapidKey)
+diff --git a/node_modules/@firebase/messaging/dist/esm/index.sw.esm2017.js b/node_modules/@firebase/messaging/dist/esm/index.sw.esm2017.js
+index 88ac597..82ee9bc 100644
+--- a/node_modules/@firebase/messaging/dist/esm/index.sw.esm2017.js
++++ b/node_modules/@firebase/messaging/dist/esm/index.sw.esm2017.js
+@@ -560,11 +560,17 @@ async function getNewToken(firebaseDependencies, subscriptionOptions) {
+  */
+ async function getPushSubscription(swRegistration, vapidKey) {
+     const subscription = await swRegistration.pushManager.getSubscription();
++
+     if (subscription) {
+-        return subscription;
++        if(!subscription.options.userVisibleOnly) {
++            return subscription;
++        }
++
++        await subscription.unsubscribe()
+     }
++    
+     return swRegistration.pushManager.subscribe({
+-        userVisibleOnly: true,
++        userVisibleOnly: false,
+         // Chrome <= 75 doesn't support base64-encoded VAPID key. For backward compatibility, VAPID key
+         // submitted to pushManager#subscribe must be of type Uint8Array.
+         applicationServerKey: base64ToArray(vapidKey)
