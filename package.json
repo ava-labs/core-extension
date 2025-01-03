@@ -75,7 +75,7 @@
     "eth-rpc-errors": "4.0.3",
     "ethers": "6.8.1",
     "events": "3.3.0",
-    "firebase": "11.0.1",
+    "firebase": "11.1.0",
     "fireblocks-sdk": "5.20.0",
     "i18next": "21.9.2",
     "i18next-http-backend": "1.4.4",
