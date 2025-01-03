@@ -28,7 +28,7 @@ export class PermissionsService implements OnLock {
     this.#permissions = permissions;
     this.#eventEmitter.emit(
       PermissionEvents.PERMISSIONS_STATE_UPDATE,
-      this.permissions ?? {}
+      this.permissions ?? {},
     );
   }
 
@@ -47,7 +47,7 @@ export class PermissionsService implements OnLock {
       this.permissions =
         (await this.storageService.load<Permissions>(PERMISSION_STORAGE_KEY)) ??
         {};
-    } catch (e) {
+    } catch (_err) {
       /**
        * If permissions arent pulled then dont set permissions to an empty object
        * since permissions is requested when the extension opens and the password may not have
@@ -67,7 +67,7 @@ export class PermissionsService implements OnLock {
 
   async hasDomainPermissionForAccount(
     domain: string,
-    address: string
+    address: string,
   ): Promise<boolean> {
     const domainPermissions = await this.getPermissionsForDomain(domain);
     return !!domainPermissions?.accounts[address];
@@ -91,14 +91,14 @@ export class PermissionsService implements OnLock {
 
     this.storageService.save<Permissions | undefined>(
       PERMISSION_STORAGE_KEY,
-      this.permissions
+      this.permissions,
     );
   }
 
   async setAccountPermissionForDomain(
     domain: string,
     address: string,
-    hasPermission: boolean
+    hasPermission: boolean,
   ) {
     const currentPermissions = await this.getPermissions();
 
@@ -122,7 +122,7 @@ export class PermissionsService implements OnLock {
 
     this.storageService.save<Permissions | undefined>(
       PERMISSION_STORAGE_KEY,
-      this.permissions
+      this.permissions,
     );
   }
 

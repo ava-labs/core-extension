@@ -37,7 +37,11 @@ import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
-import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
+import { ApproveConvertSubnetToL1 } from './components/ApproveConvertSubnetToL1';
+import { ApproveRegisterL1Validator } from './components/ApproveRegisterL1Validator';
+import { ApproveIncreaseL1ValidatorBalance } from './components/ApproveIncreaseL1ValidatorBalance';
+import { ApproveDisableL1Validator } from './components/ApproveDisableL1Validator';
+import { ApproveSetL1ValidatorWeight } from './components/ApproveSetL1ValidatorWeight';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -45,7 +49,7 @@ export function AvalancheSignTx() {
   const { network } = useNetworkContext();
   const { t } = useTranslation();
   const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
-    FunctionNames.SIGN
+    FunctionNames.SIGN,
   );
   const tokenPrice = useNativeTokenPrice(network);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
@@ -68,9 +72,8 @@ export function AvalancheSignTx() {
   useLedgerDisconnectedDialog(
     () => handleRejection(),
     LedgerAppType.AVALANCHE,
-    network
+    network,
   );
-  useWindowGetsClosedOrHidden(() => handleRejection());
 
   const signTx = useCallback(async () => {
     await updateAction(
@@ -78,7 +81,7 @@ export function AvalancheSignTx() {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       },
-      isUsingLedgerWallet || isWalletConnectAccount || isFireblocksAccount
+      isUsingLedgerWallet || isWalletConnectAccount || isFireblocksAccount,
     );
   }, [
     updateAction,
@@ -138,6 +141,18 @@ export function AvalancheSignTx() {
         return <ImportTxView tx={tx} avaxPrice={tokenPrice}></ImportTxView>;
       } else if (Avalanche.isBaseTx(tx)) {
         return <BaseTxView tx={tx} avaxPrice={tokenPrice}></BaseTxView>;
+      } else if (Avalanche.isConvertSubnetToL1Tx(tx)) {
+        return <ApproveConvertSubnetToL1 tx={tx} avaxPrice={tokenPrice} />;
+      } else if (Avalanche.isRegisterL1ValidatorTx(tx)) {
+        return <ApproveRegisterL1Validator tx={tx} avaxPrice={tokenPrice} />;
+      } else if (Avalanche.isDisableL1ValidatorTx(tx)) {
+        return <ApproveDisableL1Validator tx={tx} avaxPrice={tokenPrice} />;
+      } else if (Avalanche.isSetL1ValidatorWeightTx(tx)) {
+        return <ApproveSetL1ValidatorWeight tx={tx} avaxPrice={tokenPrice} />;
+      } else if (Avalanche.isIncreaseL1ValidatorBalance(tx)) {
+        return (
+          <ApproveIncreaseL1ValidatorBalance tx={tx} avaxPrice={tokenPrice} />
+        );
       } else if (Avalanche.isCreateSubnetTx(tx)) {
         return (
           <ApproveCreateSubnet
@@ -184,7 +199,7 @@ export function AvalancheSignTx() {
 
       return <>UNKNOWN TX</>;
     },
-    [tokenPrice]
+    [tokenPrice],
   );
 
   if (!action) {

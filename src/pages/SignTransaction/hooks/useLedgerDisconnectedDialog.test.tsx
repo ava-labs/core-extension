@@ -82,7 +82,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
     (useIsUsingLedgerWallet as jest.Mock).mockReturnValueOnce(false);
 
     const { result } = renderHook(() =>
-      useLedgerDisconnectedDialog(onCancelMock)
+      useLedgerDisconnectedDialog(onCancelMock),
     );
 
     expect(result.current).toBe(false);
@@ -96,7 +96,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
     });
 
     const { result } = renderHook(() =>
-      useLedgerDisconnectedDialog(onCancelMock)
+      useLedgerDisconnectedDialog(onCancelMock),
     );
 
     expect(result.current).toBe(false);
@@ -106,7 +106,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
 
   it('it does nothing if everything is set correctly', () => {
     const { result } = renderHook(() =>
-      useLedgerDisconnectedDialog(onCancelMock)
+      useLedgerDisconnectedDialog(onCancelMock),
     );
 
     expect(result.current).toBe(true);
@@ -124,7 +124,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
       });
 
       const { result } = renderHook(() =>
-        useLedgerDisconnectedDialog(onCancelMock)
+        useLedgerDisconnectedDialog(onCancelMock),
       );
 
       expect(result.current).toBe(false);
@@ -132,7 +132,9 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
       expect(translationMock).toBeCalledWith(translation);
       expect(showDialogMock).toBeCalledWith({
         title: translation,
-        content: <LedgerDisconnected />,
+        content: (
+          <LedgerDisconnected requiredAppType={LedgerAppType.AVALANCHE} />
+        ),
         open: true,
         onClose: expect.any(Function),
       });
@@ -149,7 +151,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
       });
 
       const { result } = renderHook(() =>
-        useLedgerDisconnectedDialog(onCancelMock, LedgerAppType.AVALANCHE)
+        useLedgerDisconnectedDialog(onCancelMock, LedgerAppType.AVALANCHE),
       );
 
       expect(result.current).toBe(false);
@@ -180,7 +182,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
       });
 
       const { result } = renderHook(() =>
-        useLedgerDisconnectedDialog(onCancelMock)
+        useLedgerDisconnectedDialog(onCancelMock),
       );
 
       expect(result.current).toBe(false);
@@ -209,7 +211,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
       });
 
       const { result } = renderHook(() =>
-        useLedgerDisconnectedDialog(onCancelMock)
+        useLedgerDisconnectedDialog(onCancelMock),
       );
 
       expect(result.current).toBe(false);
@@ -240,7 +242,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
       });
 
       const { result } = renderHook(() =>
-        useLedgerDisconnectedDialog(onCancelMock)
+        useLedgerDisconnectedDialog(onCancelMock),
       );
 
       expect(result.current).toBe(false);
@@ -264,7 +266,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
       (isLedgerVersionCompatible as jest.Mock).mockReturnValue(false);
 
       const { result } = renderHook(() =>
-        useLedgerDisconnectedDialog(onCancelMock)
+        useLedgerDisconnectedDialog(onCancelMock),
       );
 
       expect(result.current).toBe(true);
@@ -278,7 +280,7 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
       });
       expect(isLedgerVersionCompatible).toBeCalledWith(
         '1.0',
-        REQUIRED_LEDGER_VERSION
+        REQUIRED_LEDGER_VERSION,
       );
     });
   });

@@ -8,15 +8,40 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import { Sort } from './ManageTokens';
+import { useMemo } from 'react';
 
 type ManageTokensListProps = {
   searchQuery: string;
+  sort?: string;
 };
 
-export const ManageTokensList = ({ searchQuery }: ManageTokensListProps) => {
+export const ManageTokensList = ({
+  searchQuery,
+  sort,
+}: ManageTokensListProps) => {
   const tokensWithBalances = useTokensWithBalances({
     forceShowTokensWithoutBalances: true,
   });
+
+  const sortingTokens = useMemo(
+    () => (a, b) => {
+      if (sort === Sort.NAME) {
+        return b.name - a.name;
+      }
+      if (sort === Sort.BALANCE) {
+        return (
+          (parseFloat(b.balanceCurrencyDisplayValue) || 0) -
+          (parseFloat(a.balanceCurrencyDisplayValue) || 0)
+        );
+      }
+      return (
+        (parseFloat(b.balanceDisplayValue) || 0) -
+        (parseFloat(a.balanceDisplayValue) || 0)
+      );
+    },
+    [sort],
+  );
 
   return (
     <Stack
@@ -30,8 +55,9 @@ export const ManageTokensList = ({ searchQuery }: ManageTokensListProps) => {
             (searchQuery.length
               ? token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-              : true)
+              : true),
         )
+        .sort(sortingTokens)
         .map((token) => (
           <ManageTokensListItem
             key={token.type === TokenType.ERC20 ? token.address : token.symbol}

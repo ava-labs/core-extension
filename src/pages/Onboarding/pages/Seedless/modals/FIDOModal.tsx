@@ -53,7 +53,7 @@ export function FIDOModal({
         setIsLoginSuccessful(isSuccessful);
         onFinish();
       }
-    } catch (e) {
+    } catch (_err) {
       setStep(FIDOSteps.ERROR);
       capture(`FidoDevice${selectedMethod}LoginError`);
     }
@@ -73,7 +73,7 @@ export function FIDOModal({
         const deviceName = name || `${selectedMethod}-1`;
         const isFidoRegisterSuccessful = await addFIDODevice(
           deviceName,
-          selectedMethod
+          selectedMethod,
         );
         if (!isFidoRegisterSuccessful) {
           throw new Error('Something went wrong with the device registration.');
@@ -84,12 +84,12 @@ export function FIDOModal({
           capture(`FidoDevice${selectedMethod}Added`);
           onFinish();
         }
-      } catch (e) {
+      } catch (_err) {
         setStep(FIDOSteps.ERROR);
         capture(`FidoDevice${selectedMethod}AddError`);
       }
     },
-    [addFIDODevice, capture, loginWithFIDO, onFinish, selectedMethod]
+    [addFIDODevice, capture, loginWithFIDO, onFinish, selectedMethod],
   );
 
   const headLines = useMemo(
@@ -106,7 +106,7 @@ export function FIDOModal({
       }),
       error: t('Couldn’t Connect'),
     }),
-    [selectedMethod, t]
+    [selectedMethod, t],
   );
 
   const descriptions = useMemo(
@@ -115,14 +115,14 @@ export function FIDOModal({
         device: selectedMethod,
       }),
       register: t(
-        'You will see instructions in your browser window for adding your key to your account.'
+        'You will see instructions in your browser window for adding your key to your account.',
       ),
       login: t(
-        'You will see instructions in your browser window for logging in with your key.'
+        'You will see instructions in your browser window for logging in with your key.',
       ),
       error: t('The operation either timed out or was not allowed.'),
     }),
-    [selectedMethod, t]
+    [selectedMethod, t],
   );
 
   const contents = useMemo(
@@ -178,7 +178,7 @@ export function FIDOModal({
         </Stack>
       ),
     }),
-    [selectedMethod, t]
+    [selectedMethod, t],
   );
 
   return (

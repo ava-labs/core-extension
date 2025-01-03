@@ -15,7 +15,6 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import Dialog from '@src/components/common/Dialog';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { MessageType } from '@src/background/services/messages/models';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
@@ -33,11 +32,7 @@ import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBo
 import { useIsIntersecting } from './hooks/useIsIntersecting';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import {
-  LEDGER_VERSION_WITH_EIP_712,
-  LedgerAppType,
-  useLedgerContext,
-} from '@src/contexts/LedgerProvider';
+import { LedgerAppType } from '@src/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/components/LedgerApprovalOverlay';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
@@ -52,7 +47,6 @@ import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { AccountType } from '@src/background/services/accounts/models';
 import { truncateAddress } from '@src/utils/truncateAddress';
-import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible';
 import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import { TxWarningBox } from '@src/components/common/TxWarningBox';
 
@@ -66,31 +60,19 @@ export function SignMessage() {
   } = useApproveAction(requestId);
 
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
-  const { avaxAppVersion, hasLedgerTransport } = useLedgerContext();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
   const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
-    FunctionNames.SIGN
+    FunctionNames.SIGN,
   );
   const {
     accounts: { active: activeAccount, primary: primaryAccounts },
   } = useAccountsContext();
 
-  const [showNotSupportedDialog, setShowNotSupportedDialog] = useState(false);
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [messageAlertClosed, setMessageAlertClosed] = useState(false);
   const endContentRef = useRef(null);
   const isIntersecting = useIsIntersecting({ ref: endContentRef });
-  const disabledForLedger = useMemo(() => {
-    return (
-      isUsingLedgerWallet &&
-      hasLedgerTransport &&
-      avaxAppVersion &&
-      !isLedgerVersionCompatible(avaxAppVersion, LEDGER_VERSION_WITH_EIP_712) &&
-      action &&
-      action.method !== DAppProviderRequest.AVALANCHE_SIGN_MESSAGE
-    );
-  }, [isUsingLedgerWallet, hasLedgerTransport, avaxAppVersion, action]);
 
   const signingAccountAddress = useMemo(() => {
     if (!action || !activeAccount) {
@@ -107,7 +89,7 @@ export function SignMessage() {
     }
 
     const accountToUse = primaryAccounts[activeAccount.walletId]?.find(
-      (account) => account.index === accountIndex
+      (account) => account.index === accountIndex,
     );
 
     return action.method === DAppProviderRequest.AVALANCHE_SIGN_MESSAGE
@@ -121,7 +103,7 @@ export function SignMessage() {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       },
-      isUsingLedgerWallet || isUsingWalletConnectAccount || isFireblocksAccount // wait for the response only for device wallets
+      isUsingLedgerWallet || isUsingWalletConnectAccount || isFireblocksAccount, // wait for the response only for device wallets
     );
   }, [
     updateMessage,
@@ -149,12 +131,6 @@ export function SignMessage() {
       setDisableSubmitButton(false);
     }
   }
-
-  useEffect(() => {
-    if (disabledForLedger) {
-      setShowNotSupportedDialog(true);
-    }
-  }, [disabledForLedger]);
 
   const { handleApproval, handleRejection, isApprovalOverlayVisible } =
     useApprovalHelpers({
@@ -188,30 +164,11 @@ export function SignMessage() {
     return null;
   };
 
-  useLedgerDisconnectedDialog(() => handleRejection(), LedgerAppType.AVALANCHE);
-
-  const notSupportedDialog = (
-    <Stack sx={{ justifyContent: 'center', width: '100%' }}>
-      <Typography variant="h5" sx={{ textAlign: 'center' }}>
-        {t('Not Supported')}
-      </Typography>
-      <Typography variant="body2" sx={{ textAlign: 'center', mt: 1 }}>
-        {t(
-          'Message signing not supported by this version of the Avalanche Ledger app'
-        )}
-        <br />
-        {t('Please update to version 0.8.0 or newer')}
-      </Typography>
-      <Stack
-        sx={{
-          mt: 3,
-        }}
-      >
-        <Button sx={{ mb: 1 }} onClick={handleRejection}>
-          {t('Close')}
-        </Button>
-      </Stack>
-    </Stack>
+  useLedgerDisconnectedDialog(
+    () => handleRejection(),
+    action?.method === DAppProviderRequest.AVALANCHE_SIGN_MESSAGE
+      ? LedgerAppType.AVALANCHE
+      : LedgerAppType.ETHEREUM,
   );
 
   if (!action) {
@@ -452,7 +409,7 @@ export function SignMessage() {
                 <InfoCircleIcon size={14} />
                 <Typography variant="overline">
                   {t(
-                    'Scroll the message contents above to the very bottom to be able to continue'
+                    'Scroll the message contents above to the very bottom to be able to continue',
                   )}
                 </Typography>
               </Stack>
@@ -483,7 +440,7 @@ export function SignMessage() {
             <Button
               color="primary"
               size="large"
-              disabled={disabledForLedger || disableSubmitButton}
+              disabled={disableSubmitButton}
               onClick={handleApproval}
               fullWidth
             >
@@ -491,12 +448,6 @@ export function SignMessage() {
             </Button>
           </Stack>
         </SignTxErrorBoundary>
-        <Dialog
-          onClose={() => window.close()}
-          open={showNotSupportedDialog}
-          content={notSupportedDialog}
-          bgColorDefault
-        />
       </Stack>
     </>
   );

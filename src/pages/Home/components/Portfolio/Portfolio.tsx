@@ -7,6 +7,7 @@ import { WalletBalances } from './WalletBalances';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
+  CircularProgress,
   Scrollbars,
   Stack,
   Tab,
@@ -57,12 +58,14 @@ export function Portfolio() {
   const { featureFlags } = useFeatureFlagContext();
   const { activeTab, setActiveTab } = usePersistedTabs(PortfolioTabs.ASSETS);
   const { isReady, checkIsFunctionSupported } = useIsFunctionAvailable();
-  const [listType, setListType] = useState(ListType.GRID);
+  const [listType, setListType] = useState<ListType>();
   const [hadDefiEnabled, setHadDefiEnabled] = useState(false);
-  const { getPageHistoryData, isHistoryLoading } = usePageHistory();
+  const { getPageHistoryData } = usePageHistory();
 
-  const { listType: historyListType }: { listType?: ListType } =
-    getPageHistoryData();
+  const {
+    listType: historyListType,
+    isLoading: isHistoryLoading,
+  }: { listType?: ListType; isLoading: boolean } = getPageHistoryData();
   const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
@@ -98,7 +101,7 @@ export function Portfolio() {
 
       return checkIsFunctionSupported(idToCheck);
     },
-    [checkIsFunctionSupported, hadDefiEnabled]
+    [checkIsFunctionSupported, hadDefiEnabled],
   );
 
   const handleChange = useCallback(
@@ -112,7 +115,7 @@ export function Portfolio() {
         capture('PortfolioDefiClicked');
       }
     },
-    [capture, setActiveTab]
+    [capture, setActiveTab],
   );
 
   const tabs = useMemo(() => {
@@ -123,10 +126,10 @@ export function Portfolio() {
           tab === PortfolioTabs.ASSETS
             ? t('Assets')
             : tab === PortfolioTabs.COLLECTIBLES
-            ? t('Collectibles')
-            : tab === PortfolioTabs.DEFI
-            ? t('DeFi')
-            : null;
+              ? t('Collectibles')
+              : tab === PortfolioTabs.DEFI
+                ? t('DeFi')
+                : null;
         return {
           label,
           tab,
@@ -176,7 +179,15 @@ export function Portfolio() {
               sx={{ height: '100%' }}
             >
               {shouldShow(PortfolioTabs.COLLECTIBLES) ? (
-                <Collectibles listType={listType} setListType={setListType} />
+                listType ? (
+                  <Collectibles
+                    listType={listType}
+                    setListType={setListType}
+                    isHistoryLoading={isHistoryLoading}
+                  />
+                ) : (
+                  <CircularProgress size={60} />
+                )
               ) : (
                 isReady && ( // Only redirect when we have all the context needed to decide
                   <Redirect to={'/'} />

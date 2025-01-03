@@ -1,12 +1,19 @@
 import { singleton } from 'tsyringe';
 import {
+  AnalyzeTxParams,
+  AnalyzeTxResult,
+  BridgeInitializer,
   BridgeTransfer,
   BridgeType,
   createUnifiedBridgeService,
   Environment,
+  getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
+import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
+import { wait } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
 
+import { getExponentialBackoffDelay } from '@src/utils/exponentialBackoff';
 import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
@@ -27,12 +34,14 @@ import {
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { getEnabledBridgeTypes } from '@src/utils/getEnabledBridgeTypes';
 
 @singleton()
 export class UnifiedBridgeService implements OnStorageReady {
-  #core: ReturnType<typeof createUnifiedBridgeService>;
+  #core?: ReturnType<typeof createUnifiedBridgeService>;
   #eventEmitter = new EventEmitter();
   #state = UNIFIED_BRIDGE_DEFAULT_STATE;
+  #failedInitAttempts = 0;
 
   // We'll re-create the #core instance when one of these flags is toggled.
   #flagStates: Partial<FeatureFlags> = {};
@@ -44,16 +53,16 @@ export class UnifiedBridgeService implements OnStorageReady {
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
-    private featureFlagService: FeatureFlagService
+    private featureFlagService: FeatureFlagService,
   ) {
     this.#flagStates = this.#getTrackedFlags(
-      this.featureFlagService.featureFlags
+      this.featureFlagService.featureFlags,
     );
-    this.#core = this.#createService();
+    this.#recreateService();
 
     // When testnet mode is toggled, we need to recreate the instance.
     this.networkService.developerModeChanged.add(() => {
-      this.#core = this.#createService();
+      this.#recreateService();
     });
 
     // When some of the feature flags change, we need to recreate the instance.
@@ -65,24 +74,24 @@ export class UnifiedBridgeService implements OnStorageReady {
 
         if (JSON.stringify(newFlags) !== JSON.stringify(this.#flagStates)) {
           this.#flagStates = newFlags;
-          this.#core = this.#createService();
+          this.#recreateService();
         }
-      }
+      },
     );
   }
 
   #getTrackedFlags(flags: FeatureFlags): Partial<FeatureFlags> {
     return Object.fromEntries(
       Object.entries(flags).filter(([flag]) =>
-        UNIFIED_BRIDGE_TRACKED_FLAGS.includes(flag as FeatureGates)
-      )
+        UNIFIED_BRIDGE_TRACKED_FLAGS.includes(flag as FeatureGates),
+      ),
     );
   }
 
   async onStorageReady() {
     const state =
       (await this.storageService.load<UnifiedBridgeState>(
-        UNIFIED_BRIDGE_STATE_STORAGE_KEY
+        UNIFIED_BRIDGE_STATE_STORAGE_KEY,
       )) ?? UNIFIED_BRIDGE_DEFAULT_STATE;
 
     this.#saveState(state);
@@ -104,51 +113,117 @@ export class UnifiedBridgeService implements OnStorageReady {
       });
   }
 
-  #updateBridgeAddresses() {
-    const addresses: string[] = [];
-
-    this.#core.bridges.forEach((bridge) => {
-      if (bridge.config) {
-        addresses.push(
-          ...bridge.config.map(
-            ({ tokenRouterAddress }) => tokenRouterAddress as string
-          )
-        );
-      }
-    });
-
-    this.#saveState({
-      ...this.#state,
-      addresses,
-    });
+  #getBridgeInitializers(
+    bitcoinProvider: BitcoinProvider,
+  ): BridgeInitializer[] {
+    return getEnabledBridgeTypes(this.#flagStates).map((type) =>
+      this.#getInitializerForBridgeType(type, bitcoinProvider),
+    );
   }
 
-  #getDisabledBridges(): BridgeType[] {
-    const bridges: BridgeType[] = [];
+  #getInitializerForBridgeType(
+    type: BridgeType,
+    bitcoinProvider: BitcoinProvider,
+  ): BridgeInitializer {
+    // This backend service is only used for transaction tracking purposes,
+    // therefore we don't need to provide true signing capabilities.
+    const dummySigner = {
+      async sign() {
+        return '0x' as const;
+      },
+    };
 
-    if (!this.#flagStates[FeatureGates.UNIFIED_BRIDGE_CCTP]) {
-      bridges.push(BridgeType.CCTP);
+    switch (type) {
+      case BridgeType.CCTP:
+      case BridgeType.ICTT_ERC20_ERC20:
+      case BridgeType.AVALANCHE_EVM:
+        return {
+          type,
+          signer: dummySigner,
+        };
+
+      case BridgeType.AVALANCHE_AVA_BTC:
+        return {
+          type,
+          signer: dummySigner,
+          bitcoinFunctions: bitcoinProvider,
+        };
+
+      case BridgeType.AVALANCHE_BTC_AVA:
+        return {
+          type,
+          signer: dummySigner,
+          bitcoinFunctions: bitcoinProvider,
+        };
+    }
+  }
+
+  async #recreateService() {
+    const environment = this.networkService.isMainnet()
+      ? Environment.PROD
+      : Environment.TEST;
+
+    try {
+      const bitcoinProvider = await this.networkService.getBitcoinProvider();
+
+      this.#core = createUnifiedBridgeService({
+        environment,
+        enabledBridgeServices: await getEnabledBridgeServices(
+          environment,
+          this.#getBridgeInitializers(bitcoinProvider),
+        ),
+      });
+      this.#failedInitAttempts = 0;
+      this.#trackPendingTransfers();
+    } catch (err: any) {
+      // If it failed, it's most likely a network issue.
+      // Wait a bit and try again.
+      this.#failedInitAttempts += 1;
+
+      const delay = getExponentialBackoffDelay({
+        attempt: this.#failedInitAttempts,
+        startsAfter: 1,
+      });
+
+      sentryCaptureException(err, SentryExceptionTypes.UNIFIED_BRIDGE);
+      console.log(
+        `Initialization of UnifiedBridgeService failed, attempt #${
+          this.#failedInitAttempts
+        }. Retry in ${delay / 1000}s`,
+      );
+
+      await wait(delay);
+
+      // Do not attempt again if it succeded in the meantime
+      // (e.g. user switched developer mode or feature flags updated)
+      if (this.#failedInitAttempts > 0) {
+        this.#recreateService();
+      }
+    }
+  }
+
+  analyzeTx(txInfo: AnalyzeTxParams): AnalyzeTxResult {
+    if (!this.#core) {
+      return {
+        isBridgeTx: false,
+      };
     }
 
-    return bridges;
-  }
-
-  #createService() {
-    const core = createUnifiedBridgeService({
-      environment: this.networkService.isMainnet()
-        ? Environment.PROD
-        : Environment.TEST,
-      disabledBridgeTypes: this.#getDisabledBridges(),
-    });
-    core.init().then(async () => {
-      this.#updateBridgeAddresses();
-      this.#trackPendingTransfers();
-    });
-
-    return core;
+    return this.#core.analyzeTx(txInfo);
   }
 
   trackTransfer(bridgeTransfer: BridgeTransfer) {
+    if (!this.#core) {
+      // Just log that this happened. This is edge-casey, but technically possible.
+      sentryCaptureException(
+        new Error(
+          `UnifiedBridge - tracking attempted with no service insantiated.`,
+        ),
+        SentryExceptionTypes.UNIFIED_BRIDGE,
+      );
+      return;
+    }
+
     const { result } = this.#core.trackTransfer({
       bridgeTransfer,
       updateListener: async (transfer) => {
@@ -157,7 +232,7 @@ export class UnifiedBridgeService implements OnStorageReady {
     });
 
     result.then((completedTransfer) =>
-      this.updatePendingTransfer(completedTransfer)
+      this.updatePendingTransfer(completedTransfer),
     );
   }
 
@@ -171,7 +246,7 @@ export class UnifiedBridgeService implements OnStorageReady {
     if (transfer.errorCode) {
       sentryCaptureException(
         new Error(`Bridge unsucessful. Error code: ${transfer.errorCode}`),
-        SentryExceptionTypes.UNIFIED_BRIDGE
+        SentryExceptionTypes.UNIFIED_BRIDGE,
       );
     }
 
@@ -191,7 +266,7 @@ export class UnifiedBridgeService implements OnStorageReady {
     try {
       await this.storageService.save(
         UNIFIED_BRIDGE_STATE_STORAGE_KEY,
-        newState
+        newState,
       );
     } catch {
       // May be called before extension is unlocked. Ignore.

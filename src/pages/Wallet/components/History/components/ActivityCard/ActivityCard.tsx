@@ -12,10 +12,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { weiToAvax } from '@avalabs/core-utils-sdk';
 import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
-import {
-  TransactionType,
-  TxHistoryItem,
-} from '@src/background/services/history/models';
+import { TxHistoryItem } from '@src/background/services/history/models';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -26,6 +23,7 @@ import { ActivityCardAmount } from './ActivityCardAmount';
 import { ActivityCardDetails } from './ActivityCardDetails';
 import { ActivityCardIcon } from './ActivityCardIcon';
 import { ActivityCardSummary } from './ActivityCardSummary';
+import { TransactionType } from '@avalabs/vm-module-types';
 
 export interface ActivityCardProp {
   historyItem: TxHistoryItem;
@@ -41,9 +39,14 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
 
   const showDetailsOption = useMemo(() => {
     if (
-      historyItem.type === TransactionType.SWAP ||
-      historyItem.type === TransactionType.NFT_BUY ||
-      (historyItem.type === TransactionType.TRANSFER &&
+      historyItem.txType === TransactionType.SWAP ||
+      historyItem.txType === TransactionType.NFT_BUY ||
+      historyItem.txType === TransactionType.NFT_RECEIVE ||
+      historyItem.txType === TransactionType.NFT_SEND ||
+      (historyItem.txType === TransactionType.SEND &&
+        historyItem.tokens[0]?.type === 'ERC1155') ||
+      ((historyItem.txType === TransactionType.TRANSFER ||
+        historyItem.txType === TransactionType.UNKNOWN) &&
         historyItem.tokens[0] &&
         isNftTokenType(historyItem.tokens[0].type))
     ) {
@@ -59,8 +62,8 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
     return weiToAvax(
       new Big(
         Number(historyItem.gasUsed) *
-          Number(historyItem.gasPrice === undefined ? 1 : historyItem.gasPrice)
-      )
+          Number(historyItem.gasPrice === undefined ? 1 : historyItem.gasPrice),
+      ),
     )
       .toFixed(6)
       .toString();
@@ -80,7 +83,16 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
 
   const txTitle = useMemo(() => {
     if (network) {
-      switch (historyItem.type) {
+      if (historyItem.bridgeAnalysis.isBridgeTx) {
+        return t('Bridge');
+      }
+      if (
+        historyItem.txType === TransactionType.SEND &&
+        historyItem.tokens[0]?.type === 'ERC1155'
+      ) {
+        return t('NFT Sent');
+      }
+      switch (historyItem.txType) {
         case TransactionType.BRIDGE:
           return t('Bridge');
         case TransactionType.SWAP:
@@ -91,7 +103,11 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
           return t('Received');
         case TransactionType.NFT_BUY:
           return t('NFT Buy');
+        case TransactionType.NFT_SEND:
+          return t('NFT Sent');
         case TransactionType.TRANSFER:
+        case TransactionType.UNKNOWN:
+        case TransactionType.NFT_RECEIVE:
           if (
             historyItem.tokens[0] &&
             isNftTokenType(historyItem.tokens[0]?.type)
@@ -100,6 +116,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
           } else {
             return t('Transfer');
           }
+
         default:
           if (historyItem.isContractCall) {
             return t('Contract Call');
@@ -114,7 +131,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
       data-testid={
         historyItem.isContractCall
           ? 'Contract-call-activity-card'
-          : historyItem.type + '-activity-card'
+          : historyItem.txType + '-activity-card'
       }
       sx={{ p: 2, backgroundImage: 'none' }}
     >
@@ -141,7 +158,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
                 // We only want to know when it's being shown
                 capture('ActivityCardDetailShown', {
                   chainId: network?.chainId,
-                  type: historyItem.type,
+                  type: historyItem.txType,
                 });
               }
               setShowDetails(isToggledOnNow);
@@ -198,7 +215,7 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
               onClick={async () => {
                 await capture('ActivityCardLinkClicked', {
                   chainId: network?.chainId,
-                  type: historyItem.type,
+                  type: historyItem.txType,
                 });
                 window.open(historyItem.explorerLink, '_blank', 'noreferrer');
               }}

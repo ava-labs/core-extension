@@ -19,8 +19,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
   const getBalancesForNetworks = jest.fn();
   const getNetwork = jest.fn();
   const addFavoriteNetwork = jest.fn();
-  const getHistoryP = jest.fn();
-  const getHistoryX = jest.fn();
+  const getTxHistory = jest.fn();
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -29,8 +28,8 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
       .spyOn(container, 'resolve')
       .mockReturnValueOnce({ getBalancesForNetworks })
       .mockReturnValueOnce({ getNetwork, addFavoriteNetwork })
-      .mockReturnValueOnce({ getHistory: getHistoryP })
-      .mockReturnValueOnce({ getHistory: getHistoryX });
+      .mockReturnValueOnce({ getTxHistory })
+      .mockReturnValueOnce({ getTxHistory });
   });
 
   it('adds X-Chain if there is balance on one of the accounts', async () => {
@@ -80,7 +79,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
       nfts: {},
     });
 
-    getHistoryP.mockResolvedValueOnce([{ anything: ':-)' } as any]); // P-chain info is fetched first
+    getTxHistory.mockResolvedValueOnce([{ anything: ':-)' } as any]); // P-chain info is fetched first
 
     await addXPChainToFavoriteIfNeeded(accounts as any);
 
@@ -96,11 +95,11 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
       nft: {},
     });
 
-    getHistoryP
+    getTxHistory
       .mockRejectedValueOnce([]) // P-chain call for account 1
       .mockRejectedValueOnce([]); // P-chain call for account 2
 
-    getHistoryX.mockResolvedValueOnce([{ anything: ':-)' } as any]); // X-chain call for account 1
+    getTxHistory.mockResolvedValueOnce([{ anything: ':-)' } as any]); // X-chain call for account 1
 
     await addXPChainToFavoriteIfNeeded(accounts as any);
 

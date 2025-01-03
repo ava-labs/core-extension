@@ -7,6 +7,7 @@ import { SeedlessMfaService } from '../SeedlessMfaService';
 import { GetRecoveryMethodsHandler } from './getRecoveryMethods';
 import { MfaRequestType } from '../models';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { AccountsService } from '../../accounts/AccountsService';
 
 describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {
   const seedlessMfaService = jest.mocked<SeedlessMfaService>({
@@ -17,17 +18,20 @@ describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {
     getPrimaryAccountSecrets: jest.fn(),
   } as any);
 
+  const accountsService = jest.mocked<AccountsService>({} as any);
+
   const handle = () => {
     const handler = new GetRecoveryMethodsHandler(
       secretsService,
-      seedlessMfaService
+      seedlessMfaService,
+      accountsService,
     );
 
     return handler.handle(
       buildRpcCall({
         method: ExtensionRequest.SEEDLESS_GET_RECOVERY_METHODS,
         id: 'abcd-1234',
-      })
+      }),
     );
   };
 
@@ -55,7 +59,7 @@ describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {
     } as any);
 
     seedlessMfaService.getRecoveryMethods.mockRejectedValueOnce(
-      new Error('Session expired')
+      new Error('Session expired'),
     );
 
     const result = await handle();

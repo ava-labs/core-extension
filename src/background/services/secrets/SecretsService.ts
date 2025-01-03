@@ -1,8 +1,12 @@
 import { omit, pick } from 'lodash';
-import { container, singleton } from 'tsyringe';
+import { singleton } from 'tsyringe';
 
-import { AccountsService } from '../accounts/AccountsService';
-import { AccountType } from '../accounts/models';
+import {
+  Account,
+  AccountType,
+  ImportData,
+  ImportType,
+} from '../accounts/models';
 import { StorageService } from '../storage/StorageService';
 import {
   BtcWalletPolicyDetails,
@@ -11,6 +15,7 @@ import {
   AddPrimaryWalletSecrets,
   WalletDetails,
   PubKeyType,
+  WalletEvents,
 } from '../wallet/models';
 import {
   ImportedAccountSecrets,
@@ -19,12 +24,33 @@ import {
 } from './models';
 import { isPrimaryAccount } from '../accounts/utils/typeGuards';
 import _ from 'lodash';
+import {
+  Avalanche,
+  getAddressFromXPub,
+  getAddressPublicKeyFromXPub,
+  getBech32AddressFromXPub,
+  getBtcAddressFromPubKey,
+  getEvmAddressFromPubKey,
+  getPubKeyFromTransport,
+  getPublicKeyFromPrivateKey,
+} from '@avalabs/core-wallets-sdk';
+import { networks } from 'bitcoinjs-lib';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { SeedlessWallet } from '../seedless/SeedlessWallet';
+import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
+import { LedgerService } from '../ledger/LedgerService';
+import { NetworkService } from '../network/NetworkService';
+import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import EventEmitter from 'events';
+import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 
 /**
  * Use this service to fetch, save or delete account secrets.
  */
 @singleton()
-export class SecretsService {
+export class SecretsService implements OnUnlock {
+  #eventEmitter = new EventEmitter();
+
   constructor(private storageService: StorageService) {}
 
   async #getDefaultName(secrets: AddPrimaryWalletSecrets) {
@@ -44,6 +70,20 @@ export class SecretsService {
     return `${defaultNames[secrets.secretType]} ${walletNumber}`;
   }
 
+  private async emitWalletsInfo() {
+    const wallets = await this.getPrimaryWalletsDetails();
+
+    this.#eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, wallets);
+  }
+
+  addListener(event: WalletEvents, callback: (data: unknown) => void) {
+    this.#eventEmitter.on(event, callback);
+  }
+
+  async onUnlock(): Promise<void> {
+    await this.emitWalletsInfo();
+  }
+
   async addSecrets(secrets: AddPrimaryWalletSecrets) {
     const storedSecrets = await this.#loadSecrets(false);
     const existingWallets = storedSecrets?.wallets;
@@ -60,8 +100,11 @@ export class SecretsService {
       {
         ...storedSecrets,
         wallets,
-      }
+      },
     );
+
+    await this.emitWalletsInfo();
+
     return walletId;
   }
 
@@ -96,7 +139,7 @@ export class SecretsService {
 
   async updateSecrets(
     secrets: Partial<PrimaryWalletSecrets>,
-    walletId: string
+    walletId: string,
   ): Promise<string | null> {
     const storedSecrets = await this.#loadSecrets(false);
 
@@ -116,8 +159,9 @@ export class SecretsService {
         {
           ...storedSecrets,
           wallets: [...updatedWalletSecrets] as PrimaryWalletSecrets[],
-        }
+        },
       );
+      await this.emitWalletsInfo();
       return walletId;
     }
 
@@ -128,7 +172,7 @@ export class SecretsService {
     const storedSecrets = await this.#loadSecrets(false);
 
     const updatedWalletSecrets = storedSecrets?.wallets.filter(
-      (wallet) => wallet.id !== walletId
+      (wallet) => wallet.id !== walletId,
     );
 
     const updatedImportedSecrets = storedSecrets?.importedAccounts;
@@ -141,28 +185,36 @@ export class SecretsService {
         {
           ...updatedImportedSecrets,
           wallets: [...updatedWalletSecrets],
-        }
+        },
       );
     }
+    await this.emitWalletsInfo();
   }
 
-  getActiveWalletSecrets(walletKeys: WalletSecretInStorage) {
-    const accountsService = container.resolve(AccountsService);
-
-    const activeWalletId = isPrimaryAccount(accountsService.activeAccount)
-      ? accountsService.activeAccount.walletId
-      : accountsService.activeAccount?.id;
+  getWalletSecretsForAcount(
+    walletKeys: WalletSecretInStorage,
+    account: Account,
+  ) {
+    const activeWalletId = isPrimaryAccount(account)
+      ? account.walletId
+      : account?.id;
 
     return walletKeys.wallets.find((wallet) => wallet.id === activeWalletId);
   }
 
-  async getPrimaryAccountSecrets() {
+  async getPrimaryAccountSecrets(activeAccount?: Account) {
+    if (!activeAccount) {
+      return null;
+    }
     const walletKeys = await this.#loadSecrets(false);
 
     if (!walletKeys) {
       return null;
     }
-    const activeWalletSecrets = this.getActiveWalletSecrets(walletKeys);
+    const activeWalletSecrets = this.getWalletSecretsForAcount(
+      walletKeys,
+      activeAccount,
+    );
 
     if (!activeWalletSecrets) {
       return null;
@@ -172,7 +224,7 @@ export class SecretsService {
   }
 
   async getImportedAccountSecrets(
-    accountId: string
+    accountId: string,
   ): Promise<ImportedAccountSecrets> {
     const walletKeys = await this.#loadSecrets(true);
 
@@ -209,32 +261,29 @@ export class SecretsService {
     throw new Error('Unsupported import type');
   }
 
-  async getActiveAccountSecrets() {
+  async getAccountSecrets(account: Account) {
     const walletKeys = await this.#loadSecrets(true);
 
-    // But later on, we rely on the active account only.
-    // To resolve circular dependencies we are  getting accounts service on the fly instead of via constructor
-    const accountsService = container.resolve(AccountsService);
-
-    const { activeAccount } = accountsService;
-
-    if (!activeAccount || activeAccount.type === AccountType.PRIMARY) {
-      const activeWalletSecrets = this.getActiveWalletSecrets(walletKeys);
+    if (account.type === AccountType.PRIMARY) {
+      const activeWalletSecrets = this.getWalletSecretsForAcount(
+        walletKeys,
+        account,
+      );
 
       if (!activeWalletSecrets) {
         throw new Error('There is no values for this account');
       }
 
       return {
-        ...(activeAccount ? { account: activeAccount } : null),
+        ...(account ? { account: account } : null),
         ...activeWalletSecrets,
       };
     }
 
-    const secrets = await this.getImportedAccountSecrets(activeAccount.id);
+    const secrets = await this.getImportedAccountSecrets(account.id);
 
     return {
-      account: activeAccount,
+      account: account,
       ...secrets,
     };
   }
@@ -243,7 +292,7 @@ export class SecretsService {
     const walletKeys = await this.#loadSecrets(true);
 
     const walletSecrets = walletKeys.wallets.find(
-      (wallet) => wallet.id === walletId
+      (wallet) => wallet.id === walletId,
     );
 
     if (!walletSecrets) {
@@ -257,11 +306,11 @@ export class SecretsService {
   }
 
   async deleteImportedWallets(
-    ids: string[]
+    ids: string[],
+    walletConnectService: WalletConnectService,
   ): Promise<Record<string, ImportedAccountSecrets | undefined>> {
-    const { importedAccounts, ...primarySecrets } = await this.#loadSecrets(
-      true
-    );
+    const { importedAccounts, ...primarySecrets } =
+      await this.#loadSecrets(true);
 
     const deleted = pick(importedAccounts, ids);
     const newImported = omit(importedAccounts, ids);
@@ -269,6 +318,15 @@ export class SecretsService {
     await this.storageService.save<WalletSecretInStorage>(WALLET_STORAGE_KEY, {
       ...primarySecrets,
       importedAccounts: newImported,
+    });
+
+    Object.values(deleted).forEach(async (wallet) => {
+      if (
+        wallet?.secretType === SecretType.WalletConnect ||
+        wallet?.secretType === SecretType.Fireblocks
+      ) {
+        await walletConnectService.deleteSession(wallet.addresses.addressC);
+      }
     });
 
     return deleted;
@@ -282,6 +340,8 @@ export class SecretsService {
       ...importedSecrets,
       wallets: newWallets,
     });
+
+    await this.emitWalletsInfo();
 
     return wallets.length - newWallets.length;
   }
@@ -303,16 +363,17 @@ export class SecretsService {
     masterFingerprint: string,
     hmacHex: string,
     name: string,
-    walletId: string
+    walletId: string,
+    activeAccount: Account,
   ) {
-    const secrets = await this.getActiveAccountSecrets();
+    const secrets = await this.getAccountSecrets(activeAccount);
 
     if (
       secrets.secretType !== SecretType.Ledger &&
       secrets.secretType !== SecretType.LedgerLive
     ) {
       throw new Error(
-        'Error while saving wallet policy details: incorrect wallet type.'
+        'Error while saving wallet policy details: incorrect wallet type.',
       );
     }
 
@@ -324,13 +385,13 @@ export class SecretsService {
 
       if (!pubKeyInfo) {
         throw new Error(
-          'Error while saving wallet policy details: missing record for the provided index.'
+          'Error while saving wallet policy details: missing record for the provided index.',
         );
       }
 
       if (pubKeyInfo?.btcWalletPolicyDetails) {
         throw new Error(
-          'Error while saving wallet policy details: policy details already stored.'
+          'Error while saving wallet policy details: policy details already stored.',
         );
       }
 
@@ -347,14 +408,14 @@ export class SecretsService {
         {
           pubKeys,
         },
-        walletId
+        walletId,
       );
     }
 
     if (secrets.secretType === SecretType.Ledger) {
       if (secrets?.btcWalletPolicyDetails) {
         throw new Error(
-          'Error while saving wallet policy details: policy details already stored.'
+          'Error while saving wallet policy details: policy details already stored.',
         );
       }
 
@@ -367,19 +428,24 @@ export class SecretsService {
             name,
           },
         },
-        walletId
+        walletId,
       );
     }
 
     throw new Error(
-      'Error while saving wallet policy details: unknown derivation path.'
+      'Error while saving wallet policy details: unknown derivation path.',
     );
   }
 
-  async getBtcWalletPolicyDetails(): Promise<
+  async getBtcWalletPolicyDetails(
+    account: Account,
+  ): Promise<
     { accountIndex: number; details?: BtcWalletPolicyDetails } | undefined
   > {
-    const secrets = await this.getActiveAccountSecrets();
+    if (!account) {
+      return undefined;
+    }
+    const secrets = await this.getAccountSecrets(account);
 
     if (secrets.secretType === SecretType.LedgerLive && secrets.account) {
       const accountIndex = secrets.account.index;
@@ -399,12 +465,15 @@ export class SecretsService {
     }
   }
 
+  async loadSecrets() {
+    return await this.#loadSecrets(true);
+  }
+
   async #loadSecrets(strict: true): Promise<WalletSecretInStorage | never>;
   async #loadSecrets(strict: false): Promise<WalletSecretInStorage | null>;
   async #loadSecrets(strict: boolean): Promise<WalletSecretInStorage | null> {
-    const walletKeys = await this.storageService.load<WalletSecretInStorage>(
-      WALLET_STORAGE_KEY
-    );
+    const walletKeys =
+      await this.storageService.load<WalletSecretInStorage>(WALLET_STORAGE_KEY);
 
     if (!walletKeys && strict) {
       throw new Error('Wallet is not initialized');
@@ -415,15 +484,15 @@ export class SecretsService {
 
   async isKnownSecret(
     type: SecretType.Mnemonic,
-    mnemonic: string
+    mnemonic: string,
   ): Promise<boolean>;
   async isKnownSecret(
     type: SecretType.PrivateKey,
-    privateKey: string
+    privateKey: string,
   ): Promise<boolean>;
   async isKnownSecret(
     type: SecretType.LedgerLive | SecretType.Ledger,
-    pub: string | PubKeyType[]
+    pub: string | PubKeyType[],
   ): Promise<boolean>;
   async isKnownSecret(
     type:
@@ -431,7 +500,7 @@ export class SecretsService {
       | SecretType.PrivateKey
       | SecretType.Ledger
       | SecretType.LedgerLive,
-    secret: unknown
+    secret: unknown,
   ): Promise<boolean> {
     const secrets = await this.#loadSecrets(false);
 
@@ -443,7 +512,7 @@ export class SecretsService {
       return secrets.wallets.some(
         (wallet) =>
           wallet.secretType === SecretType.Mnemonic &&
-          wallet.mnemonic === secret
+          wallet.mnemonic === secret,
       );
     }
 
@@ -454,14 +523,14 @@ export class SecretsService {
 
       return Object.values(secrets.importedAccounts).some(
         (acc) =>
-          acc.secretType === SecretType.PrivateKey && acc.secret === secret
+          acc.secretType === SecretType.PrivateKey && acc.secret === secret,
       );
     }
 
     if (type === SecretType.Ledger) {
       return secrets.wallets.some(
         (wallet) =>
-          wallet.secretType === SecretType.Ledger && wallet.xpub === secret
+          wallet.secretType === SecretType.Ledger && wallet.xpub === secret,
       );
     }
 
@@ -476,5 +545,303 @@ export class SecretsService {
     }
 
     throw new Error('Unsupported secret type');
+  }
+
+  async getWalletType(id: string) {
+    const walletSecrets = await this.getWalletAccountsSecretsById(id);
+    return walletSecrets?.secretType;
+  }
+
+  async addImportedWallet(
+    importData: ImportData,
+    networkService: NetworkService,
+  ) {
+    const id = crypto.randomUUID();
+
+    // let the AccountService validate the account's uniqueness and save the secret using this callback
+    const commit = async () => {
+      // Need to re-map `data` to `secret` for private key imports
+      switch (importData.importType) {
+        case ImportType.PRIVATE_KEY:
+          await this.saveImportedWallet(id, {
+            secretType: SecretType.PrivateKey,
+            secret: importData.data,
+          });
+          break;
+        case ImportType.FIREBLOCKS:
+          await this.saveImportedWallet(id, {
+            secretType: SecretType.Fireblocks,
+            ...importData.data,
+          });
+          break;
+        case ImportType.WALLET_CONNECT:
+          await this.saveImportedWallet(id, {
+            secretType: SecretType.WalletConnect,
+            ...importData.data,
+          });
+          break;
+      }
+    };
+
+    if (
+      importData.importType === ImportType.FIREBLOCKS ||
+      importData.importType === ImportType.WALLET_CONNECT
+    ) {
+      return {
+        account: {
+          id,
+          ...importData.data.addresses,
+        },
+        commit,
+      };
+    }
+
+    if (importData.importType === ImportType.PRIVATE_KEY) {
+      const addresses = await this.#calculateAddressesForPrivateKey(
+        importData.data,
+        networkService,
+      );
+      return {
+        account: {
+          id,
+          ...addresses,
+        },
+        commit,
+      };
+    }
+
+    throw new Error('Unknown import type');
+  }
+
+  async #calculateAddressesForPrivateKey(
+    privateKey: string,
+    networkService: NetworkService,
+  ) {
+    const addresses = {
+      addressBTC: '',
+      addressC: '',
+      addressAVM: '',
+      addressPVM: '',
+      addressCoreEth: '',
+    };
+
+    const provXP = await networkService.getAvalanceProviderXP();
+
+    try {
+      const publicKey = getPublicKeyFromPrivateKey(privateKey);
+      addresses.addressC = getEvmAddressFromPubKey(publicKey);
+      addresses.addressBTC = getBtcAddressFromPubKey(
+        publicKey,
+        networkService.isMainnet() ? networks.bitcoin : networks.testnet,
+      );
+      addresses.addressAVM = provXP.getAddress(publicKey, 'X');
+      addresses.addressPVM = provXP.getAddress(publicKey, 'P');
+      addresses.addressCoreEth = provXP.getAddress(publicKey, 'C');
+    } catch (_err) {
+      throw new Error('Error while calculating addresses');
+    }
+
+    if (
+      !addresses.addressC ||
+      !addresses.addressBTC ||
+      !addresses.addressAVM ||
+      !addresses.addressPVM ||
+      !addresses.addressCoreEth
+    ) {
+      throw new Error(`Missing address`);
+    }
+
+    return addresses;
+  }
+
+  async addAddress({
+    index,
+    walletId,
+    ledgerService,
+    networkService,
+  }: {
+    index: number;
+    walletId: string;
+    ledgerService: LedgerService;
+    networkService: NetworkService;
+  }): Promise<Record<NetworkVMType, string>> {
+    const secrets = await this.getWalletAccountsSecretsById(walletId);
+
+    if (
+      secrets.secretType === SecretType.LedgerLive &&
+      !secrets.pubKeys[index]
+    ) {
+      // With LedgerLive, we don't have xPub or Mnemonic, so we need
+      // to get the new address pubkey from the Ledger device.
+      if (!ledgerService.recentTransport) {
+        throw new Error('Ledger transport not available');
+      }
+
+      // Get EVM public key from transport
+      const addressPublicKeyC = await getPubKeyFromTransport(
+        ledgerService.recentTransport,
+        index,
+        secrets.derivationPath,
+      );
+
+      // Get X/P public key from transport
+      const addressPublicKeyXP = await getPubKeyFromTransport(
+        ledgerService.recentTransport,
+        index,
+        secrets.derivationPath,
+        'AVM',
+      );
+
+      if (
+        !addressPublicKeyC ||
+        !addressPublicKeyC.byteLength ||
+        !addressPublicKeyXP ||
+        !addressPublicKeyXP.byteLength
+      ) {
+        throw new Error('Failed to get public key from device.');
+      }
+
+      const pubKeys = [...(secrets?.pubKeys || [])];
+      pubKeys[index] = {
+        evm: addressPublicKeyC.toString('hex'),
+        xp: addressPublicKeyXP.toString('hex'),
+      };
+
+      await this.updateSecrets(
+        {
+          pubKeys,
+        },
+        walletId,
+      );
+    }
+
+    if (secrets.secretType === SecretType.Seedless && !secrets.pubKeys[index]) {
+      const wallet = new SeedlessWallet({
+        networkService,
+        sessionStorage: new SeedlessTokenStorage(this),
+        addressPublicKey: secrets.pubKeys[0],
+      });
+
+      // Prompt Core Seedless API to derive new keys
+      await wallet.addAccount(index);
+      // Update the public keys in wallet
+      await this.updateSecrets(
+        {
+          pubKeys: await wallet.getPublicKeys(),
+        },
+        walletId,
+      );
+    }
+
+    return this.getAddresses(index, walletId, networkService);
+  }
+
+  async getAddresses(
+    index: number,
+    walletId: string,
+    networkService: NetworkService,
+  ): Promise<Record<NetworkVMType, string> | never> {
+    if (!walletId) {
+      throw new Error('Wallet id not provided');
+    }
+
+    const secrets = await this.getWalletAccountsSecretsById(walletId);
+
+    if (!secrets) {
+      throw new Error('Wallet is not initialized');
+    }
+
+    const isMainnet = networkService.isMainnet();
+    const providerXP = await networkService.getAvalanceProviderXP();
+
+    if (
+      secrets.secretType === SecretType.Ledger ||
+      secrets.secretType === SecretType.Mnemonic ||
+      secrets.secretType === SecretType.Keystone
+    ) {
+      // C-avax... this address uses the same public key as EVM
+      const cPubkey = getAddressPublicKeyFromXPub(secrets.xpub, index);
+      const cAddr = providerXP.getAddress(cPubkey, 'C');
+
+      let xAddr, pAddr;
+      // We can only get X/P addresses if xpubXP is set
+      if (secrets.xpubXP) {
+        // X and P addresses different derivation path m/44'/9000'/0'...
+        const xpPub = Avalanche.getAddressPublicKeyFromXpub(
+          secrets.xpubXP,
+          index,
+        );
+        xAddr = providerXP.getAddress(xpPub, 'X');
+        pAddr = providerXP.getAddress(xpPub, 'P');
+      }
+
+      return {
+        [NetworkVMType.EVM]: getAddressFromXPub(secrets.xpub, index),
+        [NetworkVMType.BITCOIN]: getBech32AddressFromXPub(
+          secrets.xpub,
+          index,
+          isMainnet ? networks.bitcoin : networks.testnet,
+        ),
+        [NetworkVMType.AVM]: xAddr,
+        [NetworkVMType.PVM]: pAddr,
+        [NetworkVMType.CoreEth]: cAddr,
+      };
+    }
+
+    if (
+      secrets.secretType === SecretType.LedgerLive ||
+      secrets.secretType === SecretType.Seedless
+    ) {
+      // pubkeys are used for LedgerLive derivation paths m/44'/60'/n'/0/0
+      // and for X/P derivation paths  m/44'/9000'/n'/0/0
+      const addressPublicKey = secrets.pubKeys[index];
+
+      if (!addressPublicKey?.evm) {
+        throw new Error('Account not added');
+      }
+
+      const pubKeyBuffer = Buffer.from(addressPublicKey.evm, 'hex');
+
+      // X/P addresses use a different public key because derivation path is different
+      let addrX, addrP;
+      if (addressPublicKey.xp) {
+        const pubKeyBufferXP = Buffer.from(addressPublicKey.xp, 'hex');
+        addrX = providerXP.getAddress(pubKeyBufferXP, 'X');
+        addrP = providerXP.getAddress(pubKeyBufferXP, 'P');
+      }
+
+      return {
+        [NetworkVMType.EVM]: getEvmAddressFromPubKey(pubKeyBuffer),
+        [NetworkVMType.BITCOIN]: getBtcAddressFromPubKey(
+          pubKeyBuffer,
+          isMainnet ? networks.bitcoin : networks.testnet,
+        ),
+        [NetworkVMType.AVM]: addrX,
+        [NetworkVMType.PVM]: addrP,
+        [NetworkVMType.CoreEth]: providerXP.getAddress(pubKeyBuffer, 'C'),
+      };
+    }
+
+    throw new Error('No public key available');
+  }
+
+  async getImportedAddresses(id: string, networkService: NetworkService) {
+    const secrets = await this.getImportedAccountSecrets(id);
+
+    if (
+      secrets.secretType === SecretType.WalletConnect ||
+      secrets.secretType === SecretType.Fireblocks
+    ) {
+      return secrets.addresses;
+    }
+
+    if (secrets.secretType === SecretType.PrivateKey) {
+      return this.#calculateAddressesForPrivateKey(
+        secrets.secret,
+        networkService,
+      );
+    }
+
+    throw new Error('Unsupported import type');
   }
 }

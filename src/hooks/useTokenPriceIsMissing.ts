@@ -2,6 +2,7 @@ import { isBitcoinChainId } from '@src/background/services/network/utils/isBitco
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useCallback, useMemo } from 'react';
 
 type UseTokenPriceMissingProps = {
@@ -16,6 +17,7 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
     accounts: { active: activeAccount },
   } = useAccountsContext();
   const { network: activeNetwork, favoriteNetworks } = useNetworkContext();
+  const { getTokenVisibility } = useSettingsContext();
 
   const networksMissingPrice: Record<string, boolean> = useMemo(() => {
     if (isTokensCached) {
@@ -52,10 +54,11 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
       if (!tokensForActiveAccount) {
         return;
       }
-
-      const isMissingPrices = Object.values(tokensForActiveAccount).some(
-        (token) => token.priceInCurrency === undefined
-      );
+      const isMissingPrices = Object.values(tokensForActiveAccount)
+        .filter(getTokenVisibility) // Disregard hidden tokens
+        .some(
+          (token) => token.balance > 0n && token.priceInCurrency === undefined, // Only look at tokens that actually have some balance
+        );
 
       networksIsMissingPrices[networkId] = isMissingPrices;
     });
@@ -66,14 +69,15 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
     activeAccount?.addressC,
     isTokensCached,
     balances.tokens,
+    getTokenVisibility,
   ]);
 
   const favoriteNetworksMissingPrice = useMemo(
     () =>
       favoriteNetworks.some(
-        (network) => networksMissingPrice[network.chainId] === true
+        (network) => networksMissingPrice[network.chainId] === true,
       ),
-    [favoriteNetworks, networksMissingPrice]
+    [favoriteNetworks, networksMissingPrice],
   );
 
   const activeNetworkMissingPrice = useMemo(() => {
@@ -87,7 +91,7 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
     (networkId: number) => {
       return networksMissingPrice[networkId] === true;
     },
-    [networksMissingPrice]
+    [networksMissingPrice],
   );
 
   return {

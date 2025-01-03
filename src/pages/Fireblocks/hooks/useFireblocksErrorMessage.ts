@@ -14,22 +14,22 @@ export const useFireblocksErrorMessage = () => {
       switch (btcAccessErrorCode) {
         case FireblocksBtcAccessErrorCode.BTCAddressNotFound:
           return t(
-            'The BTC address could not be found for the connected vault account. Ensure your vault account has BTC wallet with a SEGWIT address format configured.'
+            'The BTC address could not be found for the connected vault account. Ensure your vault account has BTC wallet with a SEGWIT address format configured.',
           );
 
         case FireblocksBtcAccessErrorCode.VaultAccountNotFound:
           return t(
-            'Could not find any vault account with the specified EVM address'
+            'Could not find any vault account with the specified EVM address',
           );
 
         case FireblocksBtcAccessErrorCode.WrongAccountType:
           return t(
-            'Fireblocks API credentials can only be configured for accounts imported from Fireblocks'
+            'Fireblocks API credentials can only be configured for accounts imported from Fireblocks',
           );
 
         case FireblocksBtcAccessErrorCode.InvalidSecretKey:
           return t(
-            'Invalid secret key was provided. Please make sure it is a valid PEM-encoded PKCS#8 string'
+            'Invalid secret key was provided. Please make sure it is a valid PEM-encoded PKCS#8 string',
           );
 
         case FireblocksBtcAccessErrorCode.SecretsNotConfigured:
@@ -39,7 +39,7 @@ export const useFireblocksErrorMessage = () => {
           return t('An error occurred. Please reach out to Core Support');
       }
     },
-    [t]
+    [t],
   );
 
   return {

@@ -1,5 +1,8 @@
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequestParams,
+} from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
@@ -7,14 +10,19 @@ import { Action } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { NetworkWithCaipId } from '../models';
-import { isCoreWeb } from '../utils/isCoreWeb';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
+
+type Params = [{ chainId: string | number }];
 
 /**
  * @link https://eips.ethereum.org/EIPS/eip-3326
  * @param data
  */
 @injectable()
-export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
+export class WalletSwitchEthereumChainHandler extends DAppRequestHandler<
+  Params,
+  null
+> {
   methods = [DAppProviderRequest.WALLET_SWITCH_ETHEREUM_CHAIN];
 
   constructor(private networkService: NetworkService) {
@@ -28,11 +36,23 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
     };
   };
 
-  handleAuthenticated = async ({ request, scope }) => {
+  handleAuthenticated = async ({
+    request,
+    scope,
+  }: JsonRpcRequestParams<DAppProviderRequest, Params>) => {
+    if (!request.site?.domain || !request.site.tabId) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidRequest({
+          message: 'Missing dApp domain information',
+        }),
+      };
+    }
+
     const params = request.params;
     const targetChainID = params?.[0]?.chainId; // chain ID is hex with 0x perfix
     const supportedNetwork = await this.networkService.getNetwork(
-      Number(targetChainID)
+      Number(targetChainID),
     );
     const currentActiveNetwork = await this.networkService.getNetwork(scope);
 
@@ -50,18 +70,22 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
     // then we need to show a confirmation popup to confirm user wants to switch to the requested network
     // from the dApp they are on.
     if (supportedNetwork?.chainId) {
-      const skipApproval = await isCoreWeb(request);
+      const skipApproval = await canSkipApproval(
+        request.site.domain,
+        request.site.tabId,
+      );
 
       if (skipApproval) {
         await this.networkService.setNetwork(
           request.site.domain,
-          supportedNetwork.caipId
+          supportedNetwork.caipId,
         );
         return { ...request, result: null };
       }
 
       const actionData = {
         ...request,
+        scope,
         displayData: {
           network: supportedNetwork,
         },
@@ -87,9 +111,9 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
 
   onActionApproved = async (
     pendingAction: Action<{ network: NetworkWithCaipId }>,
-    result,
+    _result,
     onSuccess,
-    onError
+    onError,
   ) => {
     if (!pendingAction.site?.domain) {
       return onError(new Error('Unrecognized domain'));
@@ -98,7 +122,7 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler {
     try {
       await this.networkService.setNetwork(
         pendingAction.site.domain,
-        pendingAction.displayData.network.caipId
+        pendingAction.displayData.network.caipId,
       );
 
       onSuccess(null);

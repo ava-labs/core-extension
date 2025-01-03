@@ -65,7 +65,7 @@ export function AuthenticatorModal({
       key: t('Authenticator Setup'),
       help: t('Learn More'),
     }),
-    [t]
+    [t],
   );
 
   const verifyCode = useCallback(async () => {
@@ -110,7 +110,7 @@ export function AuthenticatorModal({
         <>
           <Typography>
             {t(
-              'Open any authenticator app and use it to enter the key found below. Or tap Scan QR Code.'
+              'Open any authenticator app and use it to enter the key found below. Or tap Scan QR Code.',
             )}
           </Typography>
           <TypographyLink onClick={() => setStep(AuthenticatorSteps.HELP)}>
@@ -124,7 +124,7 @@ export function AuthenticatorModal({
         </Typography>
       ),
     }),
-    [t]
+    [t],
   );
 
   const contents = useMemo(
@@ -236,7 +236,7 @@ export function AuthenticatorModal({
           </Stack>
           <Typography>
             {t(
-              'If using Google Authenticator, make sure that Time based is selected.'
+              'If using Google Authenticator, make sure that Time based is selected.',
             )}
           </Typography>
           <Typography>
@@ -260,7 +260,7 @@ export function AuthenticatorModal({
       totpChallenge,
       totpSecret,
       verifyCode,
-    ]
+    ],
   );
 
   const actionButtons = useMemo(
@@ -290,7 +290,7 @@ export function AuthenticatorModal({
         </TypographyLink>
       ),
     }),
-    [t]
+    [t],
   );
 
   const nextStepAction = useMemo(
@@ -300,7 +300,7 @@ export function AuthenticatorModal({
       code: () => setStep(AuthenticatorSteps.VERIFY),
       verify: () => verifyCode(),
     }),
-    [verifyCode]
+    [verifyCode],
   );
 
   return (

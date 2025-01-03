@@ -8,10 +8,14 @@ import { EIP6963ProviderInfo } from '@avalabs/vm-module-types';
 
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection');
 jest.mock('@avalabs/evm-module/dist/provider', () => ({
-  EVMProvider: jest.fn().mockImplementation(() => ({
-    isAvalanche: true,
-    isMetaMask: true,
+  EVMProvider: jest.fn().mockImplementation(({ info, ...rest }) => ({
+    isAvalanche: info.uuid ? false : true,
     removeAllListeners: jest.fn(),
+    info: {
+      ...info,
+      uuid: info.uuid ?? 'default-uuid',
+    },
+    ...rest,
   })),
 }));
 
@@ -51,76 +55,63 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
   });
 
   describe('addProvider', () => {
-    it('adds new providers from coinbase proxy', () => {
+    it('should add new providers', () => {
       const provider = new EVMProvider({ info: providerInfo });
       const mwpp = new MultiWalletProviderProxy(provider);
 
       expect(mwpp.defaultProvider).toBe(provider);
       expect(mwpp.providers).toStrictEqual([provider]);
 
-      const mockProvider = {
-        providerMap: new Map([
-          ['core', provider],
-          ['otherprovider', { isMetaMask: true }],
-          ['thirdprovider', { isRabby: true }],
-        ] as any),
-      };
+      const provider2 = new EVMProvider({
+        info: { ...providerInfo, uuid: 'uuid-2' },
+      });
+      const provider3 = new EVMProvider({
+        info: { ...providerInfo, uuid: 'uuid-3' },
+      });
 
-      mwpp.addProvider(mockProvider);
+      mwpp.addProvider(provider2);
+      mwpp.addProvider(provider3);
 
       expect(mwpp.defaultProvider).toBe(provider);
-      expect(mwpp.providers).toEqual([
-        mwpp,
-        { isMetaMask: true },
-        { isRabby: true },
-      ]);
 
-      expect((mwpp.providers[0] as any).isMetaMask).toBeTruthy();
+      expect((mwpp.providers[0] as any).info.uuid).toBe(EVM_PROVIDER_INFO_UUID);
+      expect((mwpp.providers[1] as any).info.uuid).toBe('uuid-2');
+      expect((mwpp.providers[2] as any).info.uuid).toBe('uuid-3');
     });
 
-    it('does not add extra coinbase proxy', () => {
+    it('should not add a new provider because it has been already registered', () => {
       const provider = new EVMProvider({ info: providerInfo });
       const mwpp = new MultiWalletProviderProxy(provider);
 
-      expect(mwpp.defaultProvider).toBe(provider);
-      expect(mwpp.providers).toStrictEqual([provider]);
+      const provider2 = new EVMProvider({
+        info: { ...providerInfo, uuid: 'uuid-2' },
+      });
+      const provider3 = new EVMProvider({
+        info: { ...providerInfo, uuid: 'uuid-2' },
+      });
+      mwpp.addProvider(provider2);
+      mwpp.addProvider(provider3);
 
-      const mockProvider = {
-        coinbaseWalletInstalls: {},
-      };
-
-      mwpp.addProvider(mockProvider);
-
-      expect(mwpp.defaultProvider).toBe(provider);
-      expect(mwpp.providers).toStrictEqual([provider]);
-    });
-
-    it('adds new provider', () => {
-      const provider = new EVMProvider({ info: providerInfo });
-      const mwpp = new MultiWalletProviderProxy(provider);
-
-      expect(mwpp.defaultProvider).toBe(provider);
-      expect(mwpp.providers).toStrictEqual([provider]);
-
-      const mockProvider = { isMetaMask: true };
-
-      mwpp.addProvider(mockProvider);
-
-      expect(mwpp.defaultProvider).toBe(provider);
-      expect(mwpp.providers).toEqual([mwpp, mockProvider]);
+      expect(mwpp.providers.length as any).toBe(2);
+      expect((mwpp.providers[0] as any).info.uuid).toBe(EVM_PROVIDER_INFO_UUID);
+      expect((mwpp.providers[1] as any).info.uuid).toBe('uuid-2');
     });
   });
 
   describe('wallet selection', () => {
     it('toggles wallet selection on `eth_requestAccounts` call if multiple providers', async () => {
-      const provider = new EVMProvider({ info: providerInfo });
-      const provider2 = { isMetaMask: true, request: jest.fn() };
+      const provider = new EVMProvider({
+        info: providerInfo,
+        request: jest.fn().mockResolvedValue(1),
+      } as any);
+      const provider2 = new EVMProvider({
+        info: { ...providerInfo, uuid: 'uuid-2' },
+        isMetaMask: true,
+        request: jest.fn().mockResolvedValue(2),
+      } as any);
+
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
-
-      // user selects metamask
-      provider.request = jest.fn().mockResolvedValue(1);
-      provider2.request.mockResolvedValue(['0x000000']);
 
       const requestAccountsCallback = jest.fn();
       mwpp
@@ -128,20 +119,20 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
         .then(requestAccountsCallback);
 
       expect(requestAccountsCallback).not.toHaveBeenCalled();
-
       expect(provider2.request).not.toHaveBeenCalled();
       expect(provider.request).toHaveBeenCalledTimes(1);
+
       expect(provider.request).toHaveBeenCalledWith({
         method: 'avalanche_selectWallet',
         params: [
           [
             {
               index: 0,
-              type: 'CORE',
+              info: providerInfo,
             },
             {
               index: 1,
-              type: 'METAMASK',
+              info: { ...providerInfo, uuid: 'uuid-2' },
             },
           ],
         ],
@@ -152,10 +143,9 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       expect(provider2.request).toHaveBeenCalledWith({
         method: 'eth_requestAccounts',
       });
-
       await new Promise(process.nextTick);
       expect(requestAccountsCallback).toHaveBeenCalledTimes(1);
-      expect(requestAccountsCallback).toHaveBeenCalledWith(['0x000000']);
+      expect(requestAccountsCallback).toHaveBeenCalledWith(2);
       expect(mwpp.defaultProvider).toBe(provider2);
     });
 
@@ -184,7 +174,10 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
     it('does not toggle wallet selection if wallet is already selected', async () => {
       const provider = new EVMProvider({ info: providerInfo });
-      const provider2 = { isMetaMask: true, request: jest.fn() };
+      const provider2 = new EVMProvider({
+        info: { ...providerInfo, uuid: 'uuid-2' },
+        request: jest.fn(),
+      } as any);
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
 
@@ -209,11 +202,11 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
           [
             {
               index: 0,
-              type: 'CORE',
+              info: providerInfo,
             },
             {
               index: 1,
-              type: 'METAMASK',
+              info: { ...providerInfo, uuid: 'uuid-2' },
             },
           ],
         ],
@@ -240,13 +233,15 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
     it('wallet selection works with legacy functions: enable', async () => {
       const provider = new EVMProvider({ info: providerInfo });
-      const provider2 = { isMetaMask: true, enable: jest.fn() };
+      const provider2 = new EVMProvider({
+        info: { ...providerInfo, uuid: 'uuid-2' },
+        enable: jest.fn().mockResolvedValue(['0x000000']),
+      } as any);
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
 
       // user selects metamask
       provider.request = jest.fn().mockResolvedValue(1);
-      provider2.enable.mockResolvedValue(['0x000000']);
 
       const requestAccountsCallback = jest.fn();
       mwpp.enable().then(requestAccountsCallback);
@@ -261,11 +256,11 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
           [
             {
               index: 0,
-              type: 'CORE',
+              info: providerInfo,
             },
             {
               index: 1,
-              type: 'METAMASK',
+              info: { ...providerInfo, uuid: 'uuid-2' },
             },
           ],
         ],
@@ -282,13 +277,15 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
     it('wallet selection works with legacy functions: sendAsync', async () => {
       const provider = new EVMProvider({ info: providerInfo });
-      const provider2 = { isMetaMask: true, request: jest.fn() };
+      const provider2 = new EVMProvider({
+        info: { ...providerInfo, uuid: 'uuid-2' },
+        request: jest.fn().mockResolvedValue(['0x000000']),
+      } as any);
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
 
       // user selects metamask
       provider.request = jest.fn().mockResolvedValue(1);
-      provider2.request.mockResolvedValue(['0x000000']);
 
       const requestAccountsCallback = jest.fn();
       mwpp.sendAsync(
@@ -297,7 +294,7 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
           id: '1',
           params: [],
         },
-        requestAccountsCallback
+        requestAccountsCallback,
       );
 
       expect(requestAccountsCallback).not.toHaveBeenCalled();
@@ -310,11 +307,11 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
           [
             {
               index: 0,
-              type: 'CORE',
+              info: providerInfo,
             },
             {
               index: 1,
-              type: 'METAMASK',
+              info: { ...providerInfo, uuid: 'uuid-2' },
             },
           ],
         ],
@@ -336,18 +333,20 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
 
     it('wallet selection works with legacy functions: send with callback', async () => {
       const provider = new EVMProvider({ info: providerInfo });
-      const provider2 = { isMetaMask: true, request: jest.fn() };
+      const provider2 = new EVMProvider({
+        info: { ...providerInfo, uuid: 'uuid-2' },
+        request: jest.fn().mockResolvedValue(['0x000000']),
+      } as any);
       const mwpp = new MultiWalletProviderProxy(provider);
       mwpp.addProvider(provider2);
 
       // user selects metamask
       provider.request = jest.fn().mockResolvedValue(1);
-      provider2.request.mockResolvedValue(['0x000000']);
 
       const requestAccountsCallback = jest.fn();
       mwpp.send(
         { method: 'eth_requestAccounts', id: '1', params: [] },
-        requestAccountsCallback
+        requestAccountsCallback,
       );
 
       expect(requestAccountsCallback).not.toHaveBeenCalled();
@@ -360,11 +359,11 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
           [
             {
               index: 0,
-              type: 'CORE',
+              info: providerInfo,
             },
             {
               index: 1,
-              type: 'METAMASK',
+              info: { ...providerInfo, uuid: 'uuid-2' },
             },
           ],
         ],
@@ -417,41 +416,6 @@ describe('src/background/providers/MultiWalletProviderProxy', () => {
       const mwpp = createMultiWalletProxy(provider as any);
 
       expect((mwpp as any).defaultProvider).toBe(provider);
-    });
-
-    it('maintains the providers list properly', () => {
-      const provider = new EVMProvider({ info: providerInfo });
-      const mwpp = createMultiWalletProxy(provider);
-      const fooMock = () => 'bar';
-      const bizMock = () => 'baz';
-
-      const mockProvider = {
-        providerMap: new Map([
-          ['core', provider],
-          ['otherprovider', { isMetaMask: true, foo: fooMock }],
-          ['thirdprovider', { isRabby: true, biz: bizMock }],
-        ] as any),
-      };
-
-      mwpp.addProvider(mockProvider);
-
-      expect((mwpp.providers[0] as any).isMetaMask).toBe(true);
-      expect((mwpp.providers[0] as any).isAvalanche).toBe(true);
-      expect((mwpp.providers[0] as any).someUndefinedProperty).toBe(undefined);
-      expect((mwpp.providers[0] as any)['#isWalletSelected']).toBe(undefined);
-
-      expect(mwpp.providers[1] as any).toEqual({
-        isMetaMask: true,
-        isAvalanche: undefined,
-        foo: fooMock,
-      });
-
-      expect(mwpp.providers[2] as any).toEqual({
-        isMetaMask: undefined,
-        isAvalanche: undefined,
-        isRabby: true,
-        biz: bizMock,
-      });
     });
   });
 });

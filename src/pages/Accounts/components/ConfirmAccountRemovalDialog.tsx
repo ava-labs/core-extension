@@ -41,16 +41,19 @@ export const ConfirmAccountRemovalDialog = ({
         <Typography variant="body2">
           {isMultiple
             ? t(
-                'Removing the accounts will delete all local accounts information stored on this computer. Your assets on chain will remain on chain.'
+                'Removing the accounts will delete all local accounts information stored on this computer. Your assets on chain will remain on chain.',
               )
             : t(
-                'Removing the account will delete all local  account information stored on this computer. Your assets on chain will remain on chain.'
+                'Removing the account will delete all local  account information stored on this computer. Your assets on chain will remain on chain.',
               )}
         </Typography>
       </DialogContent>
       <DialogActions sx={{ gap: 1 }}>
         <Button
-          onClick={onConfirm}
+          onClick={(e) => {
+            e.stopPropagation();
+            onConfirm();
+          }}
           variant="contained"
           size="large"
           disabled={isDeleting}
@@ -60,7 +63,10 @@ export const ConfirmAccountRemovalDialog = ({
           {t('Delete')}
         </Button>
         <Button
-          onClick={onClose}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose?.(e, 'backdropClick');
+          }}
           variant="text"
           disabled={isDeleting}
           data-testid="delete-account-cancel-button"

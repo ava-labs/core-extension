@@ -16,7 +16,7 @@ import { BNInput } from '@src/components/common/BNInput';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { DomainMetadata } from '@src/background/models';
 import { Limit, SpendLimit } from './TokenSpendLimit';
-import { TransactionToken } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import { ERC20Token } from '@avalabs/vm-module-types';
 
 const SpendLimitOption = ({ label, value, checked, ...props }) => (
   <FormControlLabel
@@ -41,7 +41,7 @@ export function CustomSpendLimit({
   requestedApprovalLimit,
   site,
 }: {
-  token: TransactionToken;
+  token: ERC20Token;
   setSpendLimit(limitData: SpendLimit): void;
   onClose(): void;
   spendLimit: SpendLimit;
@@ -101,7 +101,7 @@ export function CustomSpendLimit({
         </Stack>
         <RadioGroup
           sx={{ gap: 2 }}
-          onChange={(ev, limitType) => {
+          onChange={(_ev, limitType) => {
             setCustomSpendLimit({
               ...customSpendLimit,
               limitType: limitType as Limit,

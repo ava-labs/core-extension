@@ -37,7 +37,7 @@ const getAccountConnectedSites = ({
     return [];
   }
   return Object.values(list).filter(
-    (listItem: any) => listItem?.accounts[account.addressC]
+    (listItem: any) => listItem?.accounts[account.addressC],
   );
 };
 

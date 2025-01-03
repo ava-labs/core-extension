@@ -1,6 +1,9 @@
 import { ChainList, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequestParams,
+} from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
@@ -14,21 +17,38 @@ import {
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { decorateWithCaipId } from '@src/utils/caipConversion';
-import { isCoreWeb } from '../utils/isCoreWeb';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
+
+type Params = [AddEthereumChainParameter];
 
 /**
  * @link https://eips.ethereum.org/EIPS/eip-3085
  * @param data
  */
 @injectable()
-export class WalletAddEthereumChainHandler extends DAppRequestHandler {
+export class WalletAddEthereumChainHandler extends DAppRequestHandler<
+  Params,
+  null
+> {
   methods = [DAppProviderRequest.WALLET_ADD_CHAIN];
   constructor(private networkService: NetworkService) {
     super();
   }
 
-  handleUnauthenticated = async ({ request, scope }) => {
+  handleUnauthenticated = async ({
+    request,
+    scope,
+  }: JsonRpcRequestParams<DAppProviderRequest, Params>) => {
     const requestedChain: AddEthereumChainParameter = request.params?.[0];
+
+    if (!request.site?.domain || !request.site?.tabId) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidRequest({
+          message: 'Missing dApp domain information',
+        }),
+      };
+    }
 
     if (!requestedChain) {
       return {
@@ -116,7 +136,10 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
         }),
       };
     }
-    const skipApproval = await isCoreWeb(request);
+    const skipApproval = await canSkipApproval(
+      request.site.domain,
+      request.site.tabId,
+    );
 
     if (skipApproval) {
       await this.actionHandler(chains, customNetwork, request.site.domain);
@@ -139,7 +162,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
 
     const isValid = await this.networkService.isValidRPCUrl(
       customNetwork.chainId,
-      customNetwork.rpcUrl
+      customNetwork.rpcUrl,
     );
     if (!isValid) {
       return {
@@ -173,12 +196,11 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
   async actionHandler(
     chains: ChainList,
     network: NetworkWithCaipId,
-    domain: string
+    domain: string,
   ) {
     const supportedChainIds = Object.keys(chains);
 
     if (network.customRpcHeaders) {
-      // eslint-disable-next-line
       const { rpcUrl, ...overrides } = network; // we do not want to apply rpcUrl override from here
       await this.networkService.updateNetworkOverrides(overrides);
     }
@@ -195,7 +217,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler {
     pendingAction: Action<AddEthereumChainDisplayData>,
     _result,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const chains = await this.networkService.allNetworks.promisify();

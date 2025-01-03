@@ -7,6 +7,7 @@ import {
   AVM,
   utils,
   EVM,
+  PVM,
 } from '@avalabs/avalanchejs';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { Action } from '../../actions/models';
@@ -17,6 +18,7 @@ import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { measureDuration } from '@src/utils/measureDuration';
+import { HEADERS } from '../../glacier/glacierConfig';
 
 jest.mock('@avalabs/avalanchejs');
 jest.mock('@avalabs/core-wallets-sdk');
@@ -142,7 +144,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       walletServiceMock,
       networkServiceMock,
       accountsServiceMock,
-      analyticsServicePosthogMock
+      analyticsServicePosthogMock,
     );
     (encryptAnalyticsData as jest.Mock).mockResolvedValue(mockedEncryptResult);
     networkServiceMock.isMainnet.mockReturnValue(false);
@@ -154,7 +156,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {} as any,
         {} as any,
         {} as any,
-        {} as any
+        {} as any,
       );
       const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -167,16 +169,15 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
 
   describe('handleAuthenticated', () => {
     it('returns error if transactionHex was not provided', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { params, ...requestWithoutParam } = request;
       handler = new AvalancheSendTransactionHandler(
         {} as any,
         {} as any,
         {} as any,
-        {} as any
+        {} as any,
       );
       const result = await handler.handleAuthenticated(
-        buildRpcCall(requestWithoutParam)
+        buildRpcCall(requestWithoutParam),
       );
 
       expect(result).toEqual({
@@ -188,7 +189,6 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     });
 
     it('returns error if chainAlias was not provided', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { params, ...requestWithoutParam } = request;
       const requestWithoutChainAlias = {
         ...requestWithoutParam,
@@ -198,10 +198,10 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {} as any,
         {} as any,
         {} as any,
-        {} as any
+        {} as any,
       );
       const result = await handler.handleAuthenticated(
-        buildRpcCall(requestWithoutChainAlias)
+        buildRpcCall(requestWithoutChainAlias),
       );
 
       expect(result).toEqual({
@@ -217,7 +217,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         walletServiceMock as any,
         networkServiceMock as any,
         {} as any,
-        {} as any
+        {} as any,
       );
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
@@ -241,7 +241,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         new Uint8Array([0, 1, 2]),
       ]);
       (Avalanche.createAvalancheUnsignedTx as jest.Mock).mockReturnValueOnce(
-        unsignedTxMock
+        unsignedTxMock,
       );
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
@@ -268,7 +268,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
                 vm: 'AVM',
               },
             }),
-            'approve/avalancheSignTx'
+            'approve/avalancheSignTx',
           );
 
           expect(result).toEqual({
@@ -301,11 +301,45 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           ).mockReturnValueOnce(unsignedTxMock);
 
           const result = await handler.handleAuthenticated(
-            buildRpcCall(requestWithUtxos)
+            buildRpcCall(requestWithUtxos),
           );
 
           expect(Avalanche.getUtxosByTxFromGlacier).not.toHaveBeenCalled();
           checkExpected(requestWithUtxos, result, tx);
+        });
+
+        it('passes feeTolerance to the parsing util', async () => {
+          const tx = { vm: PVM };
+          (utils.unpackWithManager as jest.Mock).mockReturnValueOnce(tx);
+          getAddressesByIndicesMock.mockResolvedValue([]);
+          (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
+            type: 'import',
+          });
+          (utils.parse as jest.Mock).mockReturnValueOnce([
+            undefined,
+            undefined,
+            new Uint8Array([0, 1, 2]),
+          ]);
+          (
+            Avalanche.createAvalancheUnsignedTx as jest.Mock
+          ).mockReturnValueOnce(unsignedTxMock);
+
+          await handler.handleAuthenticated(
+            buildRpcCall({
+              ...request,
+              params: {
+                ...request.params,
+                feeTolerance: 25,
+              },
+            }),
+          );
+
+          expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
+            unsignedTxMock,
+            providerMock,
+            expect.anything(),
+            { feeTolerance: 25 },
+          );
         });
 
         it('works without provided UTXOs', async () => {
@@ -326,15 +360,16 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           (getProvidedUtxos as jest.Mock).mockReturnValue([]);
 
           const result = await handler.handleAuthenticated(
-            buildRpcCall(request)
+            buildRpcCall(request),
           );
 
           expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
             transactionHex: request.params.transactionHex,
             chainAlias: request.params.chainAlias,
-            isTestnet: true,
+            network: 'mainnet',
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
+            headers: HEADERS,
           });
           checkExpected(request, result, tx);
         });
@@ -353,7 +388,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
                 vm: 'EVM',
               },
             }),
-            'approve/avalancheSignTx'
+            'approve/avalancheSignTx',
           );
 
           expect(result).toEqual({
@@ -372,7 +407,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         it('works with provided UTXOs', async () => {
           (Avalanche.getVmByChainAlias as jest.Mock).mockReturnValue(EVM);
           (utils.hexToBuffer as jest.Mock).mockReturnValueOnce(
-            new Uint8Array([0, 1, 2])
+            new Uint8Array([0, 1, 2]),
           );
           getAddressesByIndicesMock.mockResolvedValue([]);
           (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
@@ -383,7 +418,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           ).mockReturnValueOnce(unsignedTxMock);
 
           const result = await handler.handleAuthenticated(
-            buildRpcCall(requestWithUtxos)
+            buildRpcCall(requestWithUtxos),
           );
 
           checkExpected(requestWithUtxos, result);
@@ -393,7 +428,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         it('works without provided UTXOs', async () => {
           (Avalanche.getVmByChainAlias as jest.Mock).mockReturnValue(EVM);
           (utils.hexToBuffer as jest.Mock).mockReturnValueOnce(
-            new Uint8Array([0, 1, 2])
+            new Uint8Array([0, 1, 2]),
           );
           getAddressesByIndicesMock.mockResolvedValue([]);
           (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
@@ -405,16 +440,17 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           (getProvidedUtxos as jest.Mock).mockReturnValue([]);
 
           const result = await handler.handleAuthenticated(
-            buildRpcCall(request)
+            buildRpcCall(request),
           );
 
           checkExpected(request, result);
           expect(Avalanche.getUtxosByTxFromGlacier).toHaveBeenCalledWith({
             transactionHex: request.params.transactionHex,
             chainAlias: request.params.chainAlias,
-            isTestnet: true,
+            network: 'mainnet',
             url: process.env.GLACIER_URL,
             token: process.env.GLACIER_API_KEY,
+            headers: HEADERS,
           });
         });
       });
@@ -441,7 +477,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {},
         onSuccessMock,
         onErrorMock,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(onErrorMock).toHaveBeenCalledWith(expect.any(Error));
@@ -449,11 +485,11 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         expect.objectContaining({
           message:
             'Transaction contains multiple addresses, but indices were not provided',
-        })
+        }),
       );
 
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
@@ -462,7 +498,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
             address: activeAccountMock.addressAVM,
             chainId: ChainId.AVALANCHE_TEST_X,
           },
-        })
+        }),
       );
     });
 
@@ -486,13 +522,13 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {},
         onSuccessMock,
         onErrorMock,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(onErrorMock).toHaveBeenCalledWith(error);
 
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
@@ -501,7 +537,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
             address: activeAccountMock.addressPVM,
             chainId: ChainId.AVALANCHE_P,
           },
-        })
+        }),
       );
     });
 
@@ -513,14 +549,14 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {},
         onSuccessMock,
         onErrorMock,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(onErrorMock).toHaveBeenCalledWith(expect.any(Error));
       expect(onErrorMock).toHaveBeenCalledWith(
         expect.objectContaining({
           message: 'Signing error, missing signatures.',
-        })
+        }),
       );
     });
 
@@ -537,7 +573,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {},
         onSuccessMock,
         onErrorMock,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(signMock).toHaveBeenCalledWith(
@@ -548,17 +584,17 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         },
         { rpcUrl: 'RPCURL' },
         frontendTabId,
-        'avalanche_sendTransaction'
+        'avalanche_sendTransaction',
       );
       expect(EVMUnsignedTx.fromJSON).toBeCalledWith(
-        pendingActionMock.displayData.unsignedTxJson
+        pendingActionMock.displayData.unsignedTxJson,
       );
       expect(Avalanche.signedTxToHex).toHaveBeenCalledWith('signedTx');
       expect(issueTxHexMock).toHaveBeenCalledWith(signedTxHex, 'EVM');
       expect(onSuccessMock).toHaveBeenCalledWith(1);
 
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
@@ -568,7 +604,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
             txHash: 1,
             chainId: ChainId.AVALANCHE_TESTNET_ID,
           },
-        })
+        }),
       );
     });
 
@@ -582,7 +618,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {},
         onSuccessMock,
         onErrorMock,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(signMock).toHaveBeenCalledWith(
@@ -593,17 +629,17 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         },
         { rpcUrl: 'RPCURL' },
         frontendTabId,
-        'avalanche_sendTransaction'
+        'avalanche_sendTransaction',
       );
       expect(UnsignedTx.fromJSON).toBeCalledWith(
-        pendingActionMock.displayData.unsignedTxJson
+        pendingActionMock.displayData.unsignedTxJson,
       );
       expect(Avalanche.signedTxToHex).toHaveBeenCalledWith('signedTx');
       expect(issueTxHexMock).toHaveBeenCalledWith(signedTxHex, 'AVM');
       expect(onSuccessMock).toHaveBeenCalledWith(1);
 
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
@@ -613,7 +649,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
             txHash: 1,
             chainId: ChainId.AVALANCHE_TEST_X,
           },
-        })
+        }),
       );
     });
 
@@ -632,7 +668,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {},
         onSuccessMock,
         onErrorMock,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(signMock).toHaveBeenCalledWith(
@@ -643,17 +679,17 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         },
         { rpcUrl: 'RPCURL' },
         frontendTabId,
-        'avalanche_sendTransaction'
+        'avalanche_sendTransaction',
       );
       expect(UnsignedTx.fromJSON).toBeCalledWith(
-        pendingActionMock.displayData.unsignedTxJson
+        pendingActionMock.displayData.unsignedTxJson,
       );
       expect(Avalanche.signedTxToHex).toHaveBeenCalledWith('signedTx');
       expect(issueTxHexMock).toHaveBeenCalledWith(signedTxHex, 'AVM');
       expect(onSuccessMock).toHaveBeenCalledWith(1);
 
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
@@ -663,7 +699,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
             txHash: 1,
             chainId: ChainId.AVALANCHE_TEST_X,
           },
-        })
+        }),
       );
     });
 
@@ -674,7 +710,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       providerMock.waitForTransaction.mockReturnValue(
         new Promise((resolve) => {
           resolveWaitforTransaction = resolve;
-        })
+        }),
       );
       const measurement = measureDuration();
       jest.mocked(measurement.end).mockReturnValue(1000);
@@ -686,7 +722,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {},
         onSuccessMock,
         onErrorMock,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(measurement.start).toHaveBeenCalled();
@@ -694,10 +730,10 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(providerMock.waitForTransaction).toHaveBeenCalledWith(
         1,
         'AVM',
-        60000
+        60000,
       );
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenCalledTimes(1);
 
       resolveWaitforTransaction(undefined);
@@ -707,10 +743,10 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(measurement.end).toHaveBeenCalled();
 
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenCalledTimes(2);
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(2, {
         name: 'TransactionTimeToConfirmation',
         properties: {
@@ -731,7 +767,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       providerMock.waitForTransaction.mockReturnValue(
         new Promise((_, reject) => {
           rejectWaitforTransaction = reject;
-        })
+        }),
       );
       const measurement = measureDuration();
       jest.mocked(measurement.end).mockReturnValue(1000);
@@ -743,7 +779,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
         {},
         onSuccessMock,
         onErrorMock,
-        frontendTabId
+        frontendTabId,
       );
 
       expect(measurement.start).toHaveBeenCalled();
@@ -751,10 +787,10 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(providerMock.waitForTransaction).toHaveBeenCalledWith(
         1,
         'AVM',
-        60000
+        60000,
       );
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenCalledTimes(1);
 
       rejectWaitforTransaction(new Error('some error'));
@@ -764,7 +800,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       expect(measurement.end).toHaveBeenCalled();
 
       expect(
-        analyticsServicePosthogMock.captureEncryptedEvent
+        analyticsServicePosthogMock.captureEncryptedEvent,
       ).toHaveBeenCalledTimes(1);
     });
   });

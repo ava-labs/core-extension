@@ -17,6 +17,7 @@ import type { AvalancheSendTransactionHandler } from '@src/background/services/w
 import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
 import { SendAdapterAVM } from './models';
 import { AVMSendOptions } from '../../models';
+import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
 
 const XCHAIN_ALIAS = 'X' as const;
 
@@ -43,7 +44,7 @@ export const useAvmSend: SendAdapterAVM = ({
       stripAddressPrefix(account.addressCoreEth),
       [stripAddressPrefix(account.addressAVM)],
       stripAddressPrefix(account.addressAVM),
-      provider as Avalanche.JsonRpcProvider
+      provider as Avalanche.JsonRpcProvider,
     );
   }, [account, provider]);
 
@@ -75,7 +76,7 @@ export const useAvmSend: SendAdapterAVM = ({
 
       // using filtered UTXOs because there is size limit
       const [utxos, utxosError] = await resolve(
-        getMaxUtxoSet(isLedgerWallet, provider, wallet, network)
+        getMaxUtxoSet(isLedgerWallet, provider, wallet, network),
       );
 
       if (utxosError) {
@@ -113,7 +114,7 @@ export const useAvmSend: SendAdapterAVM = ({
       network,
       provider,
       wallet,
-    ]
+    ],
   );
 
   const send = useCallback(
@@ -126,23 +127,23 @@ export const useAvmSend: SendAdapterAVM = ({
           isLedgerWallet,
           provider,
           wallet,
-          network
+          network,
         );
         const avax = provider.getAvaxID();
         const amountBigInt = bigToBigInt(Big(amount), token.decimals);
         const changeAddress = utils.parse(account.addressAVM)[2];
 
-        const unsignedTx = wallet.baseTX(
-          utxos.utxos,
-          XCHAIN_ALIAS,
-          address,
-          {
+        const unsignedTx = wallet.baseTX({
+          utxoSet: utxos.utxos,
+          chain: XCHAIN_ALIAS,
+          toAddress: correctAddressByPrefix(address, 'X-'),
+          amountsPerAsset: {
             [avax]: amountBigInt,
           },
-          {
+          options: {
             changeAddresses: [changeAddress],
-          }
-        );
+          },
+        });
 
         const manager = utils.getManagerForVM(unsignedTx.getVM());
         const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());
@@ -151,7 +152,7 @@ export const useAvmSend: SendAdapterAVM = ({
           transactionHex: Buffer.from(unsignedTx.toBytes()).toString('hex'),
           chainAlias: XCHAIN_ALIAS,
           utxos: unsignedTx.utxos.map((utxo) =>
-            utils.bufferToHex(utxo.toBytes(codec))
+            utils.bufferToHex(utxo.toBytes(codec)),
           ),
         };
 
@@ -171,7 +172,7 @@ export const useAvmSend: SendAdapterAVM = ({
       provider,
       request,
       wallet,
-    ]
+    ],
   );
 
   return {

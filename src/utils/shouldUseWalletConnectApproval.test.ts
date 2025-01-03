@@ -70,7 +70,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.AVM,
         },
-        primaryAccount
+        primaryAccount,
       );
       expect(result).toEqual(false);
     });
@@ -80,7 +80,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.PVM,
         },
-        primaryAccount
+        primaryAccount,
       );
       expect(result).toEqual(false);
     });
@@ -91,7 +91,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.CoreEth,
         },
-        primaryAccount
+        primaryAccount,
       );
       expect(result).toEqual(false);
     });
@@ -102,7 +102,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.BITCOIN,
         },
-        primaryAccount
+        primaryAccount,
       );
       expect(result).toEqual(false);
     });
@@ -111,7 +111,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
     it('should return false if network is EVM ', () => {
       const result = shouldUseWalletConnectApproval(
         network,
-        importedPrivateKeyAccount
+        importedPrivateKeyAccount,
       );
       expect(result).toEqual(false);
     });
@@ -121,7 +121,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.AVM,
         },
-        importedPrivateKeyAccount
+        importedPrivateKeyAccount,
       );
       expect(result).toEqual(false);
     });
@@ -131,7 +131,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.PVM,
         },
-        importedPrivateKeyAccount
+        importedPrivateKeyAccount,
       );
       expect(result).toEqual(false);
     });
@@ -142,7 +142,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.CoreEth,
         },
-        importedPrivateKeyAccount
+        importedPrivateKeyAccount,
       );
       expect(result).toEqual(false);
     });
@@ -153,7 +153,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.BITCOIN,
         },
-        importedPrivateKeyAccount
+        importedPrivateKeyAccount,
       );
       expect(result).toEqual(false);
     });
@@ -163,7 +163,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
     it('should return true if network is EVM ', () => {
       const result = shouldUseWalletConnectApproval(
         network,
-        importedWalletConnectAccount
+        importedWalletConnectAccount,
       );
       expect(result).toEqual(true);
     });
@@ -173,7 +173,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.AVM,
         },
-        importedWalletConnectAccount
+        importedWalletConnectAccount,
       );
       expect(result).toEqual(true);
     });
@@ -183,7 +183,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.PVM,
         },
-        importedWalletConnectAccount
+        importedWalletConnectAccount,
       );
       expect(result).toEqual(true);
     });
@@ -194,7 +194,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.CoreEth,
         },
-        importedWalletConnectAccount
+        importedWalletConnectAccount,
       );
       expect(result).toEqual(false);
     });
@@ -205,7 +205,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.BITCOIN,
         },
-        importedWalletConnectAccount
+        importedWalletConnectAccount,
       );
       expect(result).toEqual(false);
     });
@@ -215,7 +215,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
     it('should return true if network is EVM ', () => {
       const result = shouldUseWalletConnectApproval(
         network,
-        importedFireblocksAccount
+        importedFireblocksAccount,
       );
       expect(result).toEqual(true);
     });
@@ -225,7 +225,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.AVM,
         },
-        importedFireblocksAccount
+        importedFireblocksAccount,
       );
       expect(result).toEqual(true);
     });
@@ -235,7 +235,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.PVM,
         },
-        importedFireblocksAccount
+        importedFireblocksAccount,
       );
       expect(result).toEqual(true);
     });
@@ -246,7 +246,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.CoreEth,
         },
-        importedFireblocksAccount
+        importedFireblocksAccount,
       );
       expect(result).toEqual(false);
     });
@@ -257,7 +257,7 @@ describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
           ...network,
           vmName: NetworkVMType.BITCOIN,
         },
-        importedFireblocksAccount
+        importedFireblocksAccount,
       );
       expect(result).toEqual(false);
     });

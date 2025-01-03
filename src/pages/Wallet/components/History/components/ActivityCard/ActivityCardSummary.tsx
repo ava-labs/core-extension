@@ -1,10 +1,10 @@
 import { Typography } from '@avalabs/core-k2-components';
-import { TransactionType } from '@src/background/services/history/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useTranslation } from 'react-i18next';
 import { useBlockchainNames } from '../../useBlockchainNames';
 import { ActivityCardProp } from './ActivityCard';
+import { TransactionType } from '@avalabs/vm-module-types';
 
 export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
   const {
@@ -14,22 +14,26 @@ export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
     useBlockchainNames(historyItem);
   const { t } = useTranslation();
 
-  if (historyItem.type === TransactionType.BRIDGE) {
+  if (
+    historyItem.txType === TransactionType.BRIDGE ||
+    historyItem.bridgeAnalysis.isBridgeTx
+  ) {
     return (
       <Typography
         variant="caption"
         sx={(theme) => ({ color: theme.palette.primary.dark })}
       >
-        {sourceBlockchain} -&gt; {targetBlockchain}
+        {sourceBlockchain ?? t('Unknown')} -&gt;{' '}
+        {targetBlockchain ?? t('Unknown')}
       </Typography>
     );
-  } else if (historyItem.type === TransactionType.SWAP) {
+  } else if (historyItem.txType === TransactionType.SWAP) {
     const sourceToken = historyItem.tokens.find(
-      (token) => token.from?.address === activeAccount?.addressC
+      (token) => token.from?.address === activeAccount?.addressC,
     );
 
     const targetToken = historyItem.tokens.find(
-      (token) => token.to?.address === activeAccount?.addressC
+      (token) => token.to?.address === activeAccount?.addressC,
     );
 
     return (

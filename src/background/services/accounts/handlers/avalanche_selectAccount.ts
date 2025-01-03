@@ -1,7 +1,10 @@
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequestParams,
+} from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { AccountsService } from '../AccountsService';
@@ -9,21 +12,28 @@ import { Account } from '../models';
 import { Action } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { isPrimaryAccount } from '../utils/typeGuards';
-import { isCoreWeb } from '../../network/utils/isCoreWeb';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
+
+type Params = [selectedIndexOrID: number | string];
 
 @injectable()
-export class AvalancheSelectAccountHandler extends DAppRequestHandler {
+export class AvalancheSelectAccountHandler extends DAppRequestHandler<
+  Params,
+  null
+> {
   methods = [DAppProviderRequest.ACCOUNT_SELECT];
 
   constructor(
     private accountsService: AccountsService,
-    private permissionsService: PermissionsService
+    private permissionsService: PermissionsService,
   ) {
     super();
   }
 
-  handleAuthenticated = async (rpcCall) => {
-    const { request } = rpcCall;
+  handleAuthenticated = async (
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>,
+  ) => {
+    const { request, scope } = rpcCall;
     const [selectedIndexOrID] = request.params;
 
     // until core web sends only IDs...
@@ -38,7 +48,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
     const activeWalletAccounts = activeWalletId
       ? allAccounts.filter(
           (account) =>
-            isPrimaryAccount(account) && account.walletId === activeWalletId
+            isPrimaryAccount(account) && account.walletId === activeWalletId,
         )
       : undefined;
 
@@ -62,7 +72,10 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
       };
     }
 
-    const skipApproval = await isCoreWeb(request);
+    const skipApproval = await canSkipApproval(
+      request.site?.domain ?? '',
+      request.site?.tabId ?? -1,
+    );
 
     if (skipApproval) {
       await this.accountsService.activateAccount(selectedAccount.id);
@@ -71,6 +84,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
 
     const actionData: Action<{ selectedAccount: Account }> = {
       ...request,
+      scope,
       displayData: {
         selectedAccount,
       },
@@ -92,7 +106,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
     pendingAction: Action<{ selectedAccount: Account }>,
     _,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const { selectedAccount } = pendingAction.displayData;
@@ -101,7 +115,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler {
         await this.permissionsService.setAccountPermissionForDomain(
           pendingAction.site.domain,
           selectedAccount.addressC,
-          true
+          true,
         );
       }
       await this.accountsService.activateAccount(selectedAccount.id);

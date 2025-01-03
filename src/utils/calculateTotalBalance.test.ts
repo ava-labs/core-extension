@@ -1,9 +1,4 @@
-import {
-  ChainId,
-  Network,
-  NetworkToken,
-  NetworkVMType,
-} from '@avalabs/core-chains-sdk';
+import { ChainId, NetworkToken } from '@avalabs/core-chains-sdk';
 import { Account, AccountType } from '@src/background/services/accounts/models';
 import { Balances } from '@src/background/services/balances/models';
 import { calculateTotalBalance } from './calculateTotalBalance';
@@ -25,17 +20,6 @@ describe('utils/calculateTotalBalance', () => {
     description: 'network tokwn for network 1',
     decimals: 12,
     logoUri: 'network.token.one.com',
-  };
-
-  const network1: Network = {
-    chainName: 'test network 1',
-    chainId: ChainId.AVALANCHE_MAINNET_ID,
-    vmName: NetworkVMType.EVM,
-    rpcUrl: 'test.one.com/rpc',
-    explorerUrl: 'https://explorer.url',
-    networkToken: networkToken1,
-    logoUri: 'test.one.com/logo',
-    primaryColor: 'pink',
   };
 
   const network1TokenBalance: NetworkTokenWithBalance = {
@@ -68,10 +52,9 @@ describe('utils/calculateTotalBalance', () => {
 
   it('it should calculate the balance', () => {
     const balance = calculateTotalBalance(
-      network1,
       account1,
       [ChainId.AVALANCHE_MAINNET_ID, ChainId.DFK],
-      balances
+      balances,
     );
     expect(balance).toEqual({
       priceChange: { percentage: [], value: 0 },

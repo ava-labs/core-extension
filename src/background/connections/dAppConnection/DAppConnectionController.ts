@@ -22,7 +22,6 @@ import { PermissionsService } from '@src/background/services/permissions/Permiss
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
 
 import './registry';
-import { RPCCallsMiddleware } from '../middlewares/RPCCallsMiddleware';
 import { NetworkService } from '@src/background/services/network/NetworkService';
 import { DAppRequestHandler } from './DAppRequestHandler';
 import { LockService } from '@src/background/services/lock/LockService';
@@ -58,7 +57,7 @@ export class DAppConnectionController implements ConnectionController {
     private accountsService: AccountsService,
     private networkService: NetworkService,
     private lockService: LockService,
-    private moduleManager: ModuleManager
+    private moduleManager: ModuleManager,
   ) {
     this.onRequest = this.onRequest.bind(this);
     this.disconnect = this.disconnect.bind(this);
@@ -76,15 +75,14 @@ export class DAppConnectionController implements ConnectionController {
       // @ts-ignore
       LoggerMiddleware(SideToLog.REQUEST),
       SiteMetadataMiddleware(connection),
-      RPCCallsMiddleware(this.networkService),
       PermissionMiddleware(
         this.permissionsService,
         this.accountsService,
-        this.lockService
+        this.lockService,
       ),
       ActiveNetworkMiddleware(this.networkService),
       DAppRequestHandlerMiddleware(this.handlers, this.moduleManager),
-      LoggerMiddleware(SideToLog.RESPONSE)
+      LoggerMiddleware(SideToLog.RESPONSE),
     );
 
     connectionLog('dApp Provider');
@@ -105,13 +103,13 @@ export class DAppConnectionController implements ConnectionController {
   disconnect() {
     this.connection?.dispose();
     this.eventEmitters.forEach((emitter) =>
-      emitter.removeListener(this.onEvent)
+      emitter.removeListener(this.onEvent),
     );
     disconnectLog('dApp Provider');
   }
 
   needToPost(
-    context: Context<JsonRpcRequest, JsonRpcSuccess<unknown> | JsonRpcFailure>
+    context: Context<JsonRpcRequest, JsonRpcSuccess<unknown> | JsonRpcFailure>,
   ): boolean {
     return context.response !== DEFERRED_RESPONSE;
   }
@@ -128,7 +126,7 @@ export class DAppConnectionController implements ConnectionController {
         request: {
           ...request,
         },
-      })
+      }),
     );
 
     if (error) {
@@ -158,7 +156,7 @@ export class DAppConnectionController implements ConnectionController {
     } catch (e) {
       sentryCaptureException(
         e as Error,
-        SentryExceptionTypes.DAPP_CONNECTION_EVENT
+        SentryExceptionTypes.DAPP_CONNECTION_EVENT,
       );
       console.error(e);
     }

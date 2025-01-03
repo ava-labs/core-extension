@@ -57,7 +57,7 @@ const INITIAL_PORTFOLIO_STATE = {
 
 const reducer = (
   state: DefiProviderState,
-  { type, address, payload }: DefiProviderAction
+  { type, address, payload }: DefiProviderAction,
 ): DefiProviderState => {
   switch (type) {
     case DefiProviderActionType.SetLoadingState:
@@ -98,7 +98,7 @@ export function DefiContextProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, {});
   const address = active?.addressC;
   const portfolio = address
-    ? state[address] ?? INITIAL_PORTFOLIO_STATE
+    ? (state[address] ?? INITIAL_PORTFOLIO_STATE)
     : INITIAL_PORTFOLIO_STATE;
 
   const refresh = useCallback(async () => {
@@ -144,7 +144,7 @@ export function DefiContextProvider({ children }) {
     const subscription = events()
       .pipe(
         filter(defiPortfolioUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe(({ address: accountAddress, portfolio: updatedPortfolio }) => {
         dispatch({

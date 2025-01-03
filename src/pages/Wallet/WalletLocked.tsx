@@ -53,18 +53,25 @@ export function WalletLocked({
     setLoggingIn(true);
     setError('');
 
-    password &&
-      unlockWallet(password)
-        .then(() => {
-          // success!
-          isMounted.current && setLoginSuccess(true);
-        })
-        .catch(() => {
-          if (!isMounted.current) return;
-          // error!
-          setLoggingIn(false);
-          setError('Invalid password');
-        });
+    if (!password) {
+      return;
+    }
+    unlockWallet(password)
+      .then(() => {
+        if (!isMounted.current) {
+          return;
+        }
+        // success!
+        setLoginSuccess(true);
+      })
+      .catch(() => {
+        if (!isMounted.current) {
+          return;
+        }
+        // error!
+        setLoggingIn(false);
+        setError('Invalid password');
+      });
   };
 
   return (

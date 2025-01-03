@@ -22,11 +22,12 @@ import {
   MyAccountContacts,
 } from './AddressDropdownListMyAccounts';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { isTxHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
+import { isNonXPHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 import { indexOf } from 'lodash';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
 
 interface ContactSelectProps {
   selectedContact?: Contact;
@@ -75,48 +76,40 @@ export const ContactSelect = ({
     }
     getTransactionHistory().then((history) => {
       const filteredHistory = history.filter((tx, index, self) => {
-        if (!tx.isSender || (isTxHistoryItem(tx) && tx.isContractCall)) {
+        if (!tx.isSender || (isNonXPHistoryItem(tx) && tx.isContractCall)) {
           return false;
         }
         // filter out dupe to addresses
         return (
           index === self.findIndex((temp) => temp.to === tx.to) &&
-          tx.to !== '0x0000000000000000000000000000000000000000'
+          tx.to !== ETHEREUM_ADDRESS
         );
       });
 
       const contactHistory = filteredHistory.reduce((acc, tx) => {
-        if (isTxHistoryItem(tx)) {
-          const identifiedContact = identifyAddress(tx.to);
-          if (indexOf(acc, identifiedContact) === -1)
-            acc.push(identifyAddress(tx.to));
-          return acc;
-        }
+        const addressIdentities = [identifyAddress(tx.to)];
 
-        const addressIdentities = tx.to.map((toAddress) =>
-          identifyAddress(toAddress)
-        );
         addressIdentities.forEach((identity) => {
           const addressToCheck = isBitcoinNetwork(network)
             ? identity.addressBTC
             : isPchainNetwork(network) || isXchainNetwork(network)
-            ? identity.addressXP
-            : identity.address;
+              ? identity.addressXP
+              : identity.address;
 
           const userAddress = isBitcoinNetwork(network)
             ? activeAccount?.addressBTC
             : isPchainNetwork(network)
-            ? stripAddressPrefix(activeAccount?.addressPVM ?? '')
-            : isXchainNetwork(network)
-            ? stripAddressPrefix(activeAccount?.addressAVM ?? '')
-            : activeAccount?.addressC;
+              ? stripAddressPrefix(activeAccount?.addressPVM ?? '')
+              : isXchainNetwork(network)
+                ? stripAddressPrefix(activeAccount?.addressAVM ?? '')
+                : activeAccount?.addressC;
 
           const addressesInList = acc.map((value) =>
             isBitcoinNetwork(network)
               ? value.addressBTC
               : isPchainNetwork(network) || isXchainNetwork(network)
-              ? value.addressXP
-              : value.address
+                ? value.addressXP
+                : value.address,
           );
           if (
             indexOf(addressesInList, addressToCheck) === -1 &&
@@ -149,8 +142,8 @@ export const ContactSelect = ({
         return;
       }
       const result = walletAccount.map(
-        ({ addressC, name, addressBTC, addressPVM, addressAVM }) => ({
-          id: '',
+        ({ id, addressC, name, addressBTC, addressPVM, addressAVM }) => ({
+          id,
           address: network?.vmName == NetworkVMType.EVM ? addressC : '',
           addressBTC:
             network?.vmName === NetworkVMType.BITCOIN ? addressBTC : '',
@@ -158,11 +151,11 @@ export const ContactSelect = ({
             isPchainNetwork(network) && addressPVM
               ? stripAddressPrefix(addressPVM)
               : isXchainNetwork(network) && addressAVM
-              ? stripAddressPrefix(addressAVM)
-              : '',
+                ? stripAddressPrefix(addressAVM)
+                : '',
           name,
           isKnown: true,
-        })
+        }),
       );
       formattedPrimary[walletId] = result;
     });
@@ -173,8 +166,8 @@ export const ContactSelect = ({
     }
 
     const formattedImported = importedAccountToPrep?.map(
-      ({ addressC, name, addressBTC, addressPVM, addressAVM }) => ({
-        id: '',
+      ({ id, addressC, name, addressBTC, addressPVM, addressAVM }) => ({
+        id,
         address: network?.vmName == NetworkVMType.EVM ? addressC : '',
         addressBTC:
           network?.vmName === NetworkVMType.BITCOIN && addressBTC
@@ -184,11 +177,11 @@ export const ContactSelect = ({
           isPchainNetwork(network) && addressPVM
             ? stripAddressPrefix(addressPVM)
             : isXchainNetwork(network) && addressAVM
-            ? stripAddressPrefix(addressAVM)
-            : '',
+              ? stripAddressPrefix(addressAVM)
+              : '',
         name,
         isKnown: true,
-      })
+      }),
     );
 
     return {

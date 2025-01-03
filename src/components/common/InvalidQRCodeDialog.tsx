@@ -30,7 +30,7 @@ export const InvalidQRCodeDialog = ({ onRetry }) => {
         <Stack sx={{ alignItems: 'center', gap: 3 }}>
           <Typography variant="body1">
             {t(
-              `Please ensure you have selected a valid QR code from your Keystone device`
+              `Please ensure you have selected a valid QR code from your Keystone device`,
             )}
           </Typography>
           <InvalidQRCodeIcon />

@@ -4,6 +4,7 @@ import { BalancePollingService } from '../BalancePollingService';
 import { StartBalancesPollingHandler } from './startBalancesPolling';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { caipToChainId } from '@src/utils/caipConversion';
+import { TokenType } from '@avalabs/vm-module-types';
 
 jest.mock('@src/utils/caipConversion');
 
@@ -32,7 +33,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
     it('returns current balances', async () => {
       const handler = new StartBalancesPollingHandler(
         balancePollingService,
-        aggregatorService
+        aggregatorService,
       );
 
       const { result } = await handler.handle(
@@ -40,7 +41,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
           id: '123',
           method: ExtensionRequest.BALANCES_START_POLLING,
           params: [account, chainIds],
-        })
+        }),
       );
 
       expect(result).toEqual({
@@ -54,7 +55,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
     it('starts polling', async () => {
       const handler = new StartBalancesPollingHandler(
         balancePollingService,
-        aggregatorService
+        aggregatorService,
       );
 
       const scope = 'eip155:43114';
@@ -64,16 +65,17 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
           {
             id: '123',
             method: ExtensionRequest.BALANCES_START_POLLING,
-            params: [account, chainIds],
+            params: [account, chainIds, [TokenType.ERC20]],
           },
-          scope
-        )
+          scope,
+        ),
       );
 
       expect(balancePollingService.startPolling).toHaveBeenCalledWith(
         account,
         caipToChainId(scope),
-        chainIds
+        chainIds,
+        [TokenType.ERC20],
       );
     });
   });
@@ -93,7 +95,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
     it('returns current balances', async () => {
       const handler = new StartBalancesPollingHandler(
         balancePollingService,
-        aggregatorService
+        aggregatorService,
       );
 
       const { result } = await handler.handle(
@@ -101,7 +103,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
           id: '123',
           method: ExtensionRequest.BALANCES_START_POLLING,
           params: [account, chainIds],
-        })
+        }),
       );
 
       expect(result).toEqual({
@@ -116,7 +118,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
     it('does not start polling', async () => {
       const handler = new StartBalancesPollingHandler(
         balancePollingService,
-        aggregatorService
+        aggregatorService,
       );
 
       await handler.handle(
@@ -124,7 +126,7 @@ describe('background/services/balances/handlers/startBalancesPolling.ts', () => 
           id: '123',
           method: ExtensionRequest.BALANCES_START_POLLING,
           params: [account, chainIds],
-        })
+        }),
       );
 
       expect(balancePollingService.startPolling).not.toHaveBeenCalled();

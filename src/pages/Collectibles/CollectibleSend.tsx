@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
@@ -44,15 +44,30 @@ export function CollectibleSend() {
   const { nft } = useCollectibleFromParams();
 
   const { isFunctionAvailable, isFunctionSupported } = useIsFunctionAvailable(
-    FunctionNames.COLLECTIBLES
+    FunctionNames.COLLECTIBLES,
   );
 
   const nativeToken = tokens.find(({ type }) => type === TokenType.NATIVE);
 
-  const provider = useMemo(
-    () => (network ? getProviderForNetwork(network) : undefined),
-    [network]
-  );
+  const [provider, setProvider] = useState<JsonRpcBatchInternal>();
+
+  useEffect(() => {
+    if (!network) {
+      setProvider(undefined);
+    } else {
+      let isMounted = true;
+
+      getProviderForNetwork(network).then((p) => {
+        if (isMounted && p instanceof JsonRpcBatchInternal) {
+          setProvider(p);
+        }
+      });
+
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [network]);
 
   const fromAddress = useMemo(() => {
     if (network?.vmName === NetworkVMType.EVM) {
@@ -78,7 +93,7 @@ export function CollectibleSend() {
 
       history.push('/home');
     },
-    [fromAddress, network, captureEncrypted, history, t, nft?.type]
+    [fromAddress, network, captureEncrypted, history, t, nft?.type],
   );
 
   const onFailure = useCallback(() => {
@@ -120,7 +135,7 @@ export function CollectibleSend() {
     !network ||
     !fromAddress ||
     !provider ||
-    !networkFee?.low?.maxFee ||
+    !networkFee?.low?.maxFeePerGas ||
     !nativeToken ||
     !tokenList.length;
 
@@ -132,7 +147,7 @@ export function CollectibleSend() {
         <SendEVMCollectible
           fromAddress={fromAddress}
           network={network}
-          maxFee={networkFee.low.maxFee}
+          maxFee={networkFee.low.maxFeePerGas}
           nativeToken={nativeToken as NetworkTokenWithBalance}
           provider={provider as JsonRpcBatchInternal}
           tokenList={tokenList as [NftTokenWithBalance]}

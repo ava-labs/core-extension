@@ -5,11 +5,16 @@ import {
   ArrowRightIcon,
   ArrowUpRightIcon,
   BlockchainIcon,
+  BuildIcon,
+  ChevronDoubleUpIcon,
   ClockIcon,
+  DownloadIcon,
   HelpCircleIcon,
   MinusCircleIcon,
+  RefreshIcon,
   ShareIcon,
   Stack,
+  ValidatorIcon,
   useTheme,
 } from '@avalabs/core-k2-components';
 import { useMemo } from 'react';
@@ -17,8 +22,10 @@ import {
   PChainTransactionType,
   XChainTransactionType,
 } from '@avalabs/glacier-sdk';
+import { TransactionType } from '@avalabs/vm-module-types';
 export interface PrimaryNetworkMethodIconProp {
   methodName:
+    | TransactionType
     | PChainTransactionType
     | XChainTransactionType
     | 'CreateAssetTx'
@@ -52,6 +59,11 @@ const METHOD_NAME_TO_ICON: Record<
   RemoveSubnetValidatorTx: MinusCircleIcon,
   RewardValidatorTx: AirdropIcon,
   AdvanceTimeTx: ClockIcon,
+  [PChainTransactionType.CONVERT_SUBNET_TO_L1TX]: RefreshIcon,
+  [PChainTransactionType.REGISTER_L1VALIDATOR_TX]: ValidatorIcon,
+  [PChainTransactionType.SET_L1VALIDATOR_WEIGHT_TX]: BuildIcon,
+  [PChainTransactionType.DISABLE_L1VALIDATOR_TX]: DownloadIcon,
+  [PChainTransactionType.INCREASE_L1VALIDATOR_BALANCE_TX]: ChevronDoubleUpIcon,
   UNKNOWN: HelpCircleIcon,
 };
 
@@ -65,7 +77,7 @@ export function PrimaryNetworkMethodIcon({
       methodName
         ? METHOD_NAME_TO_ICON[methodName] || METHOD_NAME_TO_ICON.UNKNOWN
         : METHOD_NAME_TO_ICON.UNKNOWN,
-    [methodName]
+    [methodName],
   );
 
   return (

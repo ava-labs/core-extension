@@ -4,22 +4,20 @@ import {
   ApprovalSection,
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
-import {
-  Transaction,
-  TransactionToken,
-} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { useCallback, useState } from 'react';
 import { CustomSpendLimit } from './CustomSpendLimit';
 import { TransactionTokenCard } from '../TransactionTokenCard';
-import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { MaxUint256 } from 'ethers';
-import Web3 from 'web3';
-import { TokenIcon } from '@src/components/common/TokenIcon';
 import {
-  Action,
-  ActionStatus,
-  ActionUpdate,
-} from '@src/background/services/actions/models';
+  DisplayData,
+  ERC20Token,
+  TokenApproval,
+} from '@avalabs/vm-module-types';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { useApproveAction } from '@src/hooks/useApproveAction';
+import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',
@@ -34,24 +32,17 @@ export interface SpendLimit {
 }
 
 export function TokenSpendLimit({
-  spender,
-  token,
-  transaction,
-  updateTransaction,
+  actionId,
+  approval,
+  isEditable,
 }: {
-  spender: {
-    address: string;
-    protocol?: {
-      id: string;
-      name: string;
-      logoUri: string;
-    };
-  };
-  token: TransactionToken;
-  transaction: Action<Transaction>;
-  updateTransaction: (update: ActionUpdate<Transaction>) => Promise<boolean>;
+  actionId: string;
+  approval: TokenApproval & { token: ERC20Token };
+  isEditable: boolean;
 }) {
   const { t } = useTranslation();
+  const { action } = useApproveAction<DisplayData>(actionId);
+  const { request } = useConnectionContext();
   const [showCustomSpendLimit, setShowCustomSpendLimit] = useState(false);
   const [customSpendLimit, setCustomSpendLimit] = useState<SpendLimit>({
     limitType: Limit.DEFAULT,
@@ -59,51 +50,41 @@ export function TokenSpendLimit({
 
   const setSpendLimit = useCallback(
     (customSpendData: SpendLimit) => {
-      let limitAmount = '';
+      let limitAmount = 0n;
 
       if (customSpendData.limitType === Limit.UNLIMITED) {
         setCustomSpendLimit({
           ...customSpendData,
           value: undefined,
         });
-        limitAmount = `0x${MaxUint256.toString(16)}`;
+        limitAmount = MaxUint256;
       } else {
         setCustomSpendLimit(customSpendData);
         limitAmount =
           customSpendData.limitType === Limit.CUSTOM
-            ? (customSpendData.value ?? 0n).toString()
-            : (token.amount ?? 0n).toString();
+            ? (customSpendData.value ?? 0n)
+            : BigInt(approval.value ?? 0n);
       }
-
-      // create hex string for approval amount
-      const web3 = new Web3();
-      const contract = new web3.eth.Contract(ERC20.abi as any, token.address);
-
-      const hashedCustomSpend =
-        limitAmount &&
-        contract.methods.approve(spender.address, limitAmount).encodeABI();
-
-      updateTransaction({
-        id: transaction?.actionId,
-        status: ActionStatus.PENDING,
-        displayData: {
-          ...transaction.displayData,
-          txParams: {
-            ...transaction.displayData.txParams,
-            data: hashedCustomSpend,
-          },
-        },
+      request<UpdateActionTxDataHandler>({
+        method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
+        params: [actionId, { approvalLimit: `0x${limitAmount.toString(16)}` }],
       });
     },
-    [
-      token.address,
-      token.amount,
-      spender.address,
-      updateTransaction,
-      transaction?.actionId,
-      transaction.displayData,
-    ]
+    [actionId, request, approval.value],
   );
+
+  const isInfinite = customSpendLimit.limitType === Limit.UNLIMITED;
+  const diffItemValue = isInfinite
+    ? null
+    : new TokenUnit(
+        customSpendLimit.limitType === Limit.DEFAULT
+          ? typeof approval.value === 'string'
+            ? BigInt(approval.value)
+            : (approval.value ?? 0n)
+          : (customSpendLimit.value ?? '0'),
+        approval.token.decimals,
+        '',
+      );
 
   return (
     <>
@@ -118,9 +99,9 @@ export function TokenSpendLimit({
           <CustomSpendLimit
             setSpendLimit={setSpendLimit}
             spendLimit={customSpendLimit}
-            requestedApprovalLimit={token.amount}
-            site={transaction.site}
-            token={token}
+            requestedApprovalLimit={BigInt(approval.value ?? '0')}
+            site={action?.site}
+            token={approval.token}
             onClose={() => setShowCustomSpendLimit(false)}
           />
         </Box>
@@ -129,7 +110,7 @@ export function TokenSpendLimit({
       <Stack>
         <ApprovalSection sx={{ pb: 1 }}>
           <ApprovalSectionHeader label={t('Spend Limit')}>
-            {token.amount && (
+            {isEditable && approval.value && (
               <Button
                 variant="text"
                 color="secondary"
@@ -145,21 +126,16 @@ export function TokenSpendLimit({
         <TransactionTokenCard
           sx={{ py: 2 }}
           token={{
-            ...token,
-            isInfinity: customSpendLimit.limitType === Limit.UNLIMITED,
-            amount:
-              customSpendLimit.limitType === Limit.DEFAULT
-                ? token.amount
-                : customSpendLimit.value,
+            ...approval.token,
+            logoUri: approval.logoUri,
           }}
-        >
-          <TokenIcon
-            width="32px"
-            height="32px"
-            src={token.logoUri}
-            name={token.name}
-          />
-        </TransactionTokenCard>
+          diffItem={{
+            displayValue: isInfinite
+              ? t('Unlimited')
+              : (diffItemValue as TokenUnit).toDisplay(),
+            usdPrice: approval.usdPrice,
+          }}
+        />
       </Stack>
     </>
   );

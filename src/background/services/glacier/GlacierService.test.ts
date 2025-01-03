@@ -1,8 +1,6 @@
 import {
-  BlockchainId,
   Glacier,
-  Network,
-  PrimaryNetwork,
+  Network as GlacierNetwork,
   PrimaryNetworkChainName,
 } from '@avalabs/glacier-sdk';
 import { GlacierService } from './GlacierService';
@@ -34,13 +32,8 @@ const pchainBalance = {
   },
   chainInfo: {
     chainName: PrimaryNetworkChainName.P_CHAIN,
-    network: PrimaryNetwork.FUJI,
+    network: GlacierNetwork.FUJI,
   },
-};
-
-const waitForFirstHealthCheck = async () => {
-  jest.runOnlyPendingTimers();
-  await new Promise(jest.requireActual('timers').setImmediate);
 };
 
 describe('src/background/services/glacier/GlacierService.ts', () => {
@@ -71,14 +64,6 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
 
   afterEach(() => {
     jest.useRealTimers();
-  });
-  it('should call a `setTimeout` which sets `isGlacierHealthy` to true after 5 mins', async () => {
-    jest.spyOn(global, 'setTimeout');
-
-    const glacierService = new GlacierService();
-    glacierService.setGlacierToUnhealthy();
-
-    expect(setTimeout).toHaveBeenCalled();
   });
 
   describe('reindexNft', () => {
@@ -167,74 +152,13 @@ describe('src/background/services/glacier/GlacierService.ts', () => {
         await glacierService.refreshNftMetadata(
           'address',
           'chainId',
-          'tokenId'
+          'tokenId',
         );
       } catch (err) {
         expect(err).toEqual('request-timeout');
       }
 
       expect(getTokenDetails).toHaveBeenCalledTimes(10);
-    });
-  });
-
-  describe('isNetworkSupported', () => {
-    it('should set the `isNetworkSupported` to false (and set the `isGlacierHealthy` to false as well)', async () => {
-      const glacierService = new GlacierService();
-      glacierService.setGlacierToUnhealthy();
-
-      const isNetworkSupported = await glacierService.isNetworkSupported(1);
-      expect(isNetworkSupported).toBe(false);
-    });
-
-    it('returns false if fetching supported chains fails', async () => {
-      supportedChainsMock.mockRejectedValue('some error');
-
-      const glacierService = new GlacierService();
-      supportedChainsMock.mockReset(); // It's first called when GlacierService is instantiated, so we need to reset the counter.
-
-      await waitForFirstHealthCheck();
-
-      const result = await glacierService.isNetworkSupported(1);
-
-      expect(result).toBe(false);
-      expect(supportedChainsMock).toHaveBeenCalledTimes(1);
-    });
-
-    it('returns true if the provided chain id is supported', async () => {
-      supportedChainsMock.mockResolvedValue({ chains: [{ chainId: '1' }] });
-
-      const glacierService = new GlacierService();
-      await waitForFirstHealthCheck();
-
-      const result = await glacierService.isNetworkSupported(1);
-      expect(result).toBe(true);
-    });
-
-    it('fetches supported chains only once', async () => {
-      supportedChainsMock.mockResolvedValue({ chains: [{ chainId: '1' }] });
-
-      const glacierService = new GlacierService();
-      await waitForFirstHealthCheck();
-
-      const result_1 = await glacierService.isNetworkSupported(1);
-      const result_2 = await glacierService.isNetworkSupported(1);
-      const result_3 = await glacierService.isNetworkSupported(1);
-
-      expect([result_1, result_2, result_3]).toStrictEqual([true, true, true]);
-      expect(supportedChainsMock).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('getChainBalance', () => {
-    it('should return response from getBalancesByAddresses', async () => {
-      const glacierService = new GlacierService();
-      const result = await glacierService.getChainBalance({
-        blockchainId: BlockchainId.P_CHAIN,
-        network: Network.FUJI,
-        addresses: 'address',
-      });
-
-      expect(result).toEqual(pchainBalance);
     });
   });
 });

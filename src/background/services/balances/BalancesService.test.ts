@@ -5,6 +5,8 @@ import { GetBalancesResponse, TokenType } from '@avalabs/vm-module-types';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import * as Sentry from '@sentry/browser';
+import { SettingsService } from '../settings/SettingsService';
+import LRUCache from 'lru-cache';
 
 jest.mock('@src/background/vmModules/ModuleManager');
 jest.mock('@sentry/browser', () => {
@@ -67,14 +69,14 @@ describe('src/background/services/balances/BalancesService.ts', () => {
           atomicMemoryLocked: [],
         },
         balancePerType: {
-          lockedStaked: 1,
-          lockedStakeable: 0,
-          lockedPlatform: 0,
-          atomicMemoryLocked: 0,
-          atomicMemoryUnlocked: 0,
-          unlockedUnstaked: 0,
-          unlockedStaked: 0,
-          pendingStaked: 0,
+          lockedStaked: 1n,
+          lockedStakeable: 0n,
+          lockedPlatform: 0n,
+          atomicMemoryLocked: 0n,
+          atomicMemoryUnlocked: 0n,
+          unlockedUnstaked: 0n,
+          unlockedStaked: 0n,
+          pendingStaked: 0n,
         },
       },
     },
@@ -128,10 +130,10 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         },
 
         balancePerType: {
-          locked: 3,
-          unlocked: 3,
-          atomicMemoryLocked: 0,
-          atomicMemoryUnlocked: 0,
+          locked: 3n,
+          unlocked: 3n,
+          atomicMemoryLocked: 0n,
+          atomicMemoryUnlocked: 0n,
         },
       },
     },
@@ -180,6 +182,9 @@ describe('src/background/services/balances/BalancesService.ts', () => {
   const moduleMock = {
     getBalances: jest.fn(),
   };
+  const settingsService: SettingsService = {
+    getSettings: jest.fn(),
+  } as any;
   beforeEach(() => {
     jest.resetAllMocks();
 
@@ -191,21 +196,21 @@ describe('src/background/services/balances/BalancesService.ts', () => {
       .mocked(moduleManager)
       .loadModuleByNetwork.mockResolvedValue(moduleMock as any);
 
-    service = new BalancesService(
-      {
-        getSettings: jest.fn().mockResolvedValue({ currency: 'EUR' }),
-      } as any,
-      moduleManager
-    );
+    jest
+      .mocked(settingsService.getSettings)
+      .mockResolvedValue({ currency: 'EUR', customTokens: {} } as any);
+    service = new BalancesService(settingsService, moduleManager);
   });
 
   describe('getBalancesForNetwork', () => {
     it('should get balances for P-Chain', async () => {
       moduleMock.getBalances.mockResolvedValue(pvmResult);
       const network = { vmName: NetworkVMType.PVM, caipId: 'pvm' };
-      const result = await service.getBalancesForNetwork(network as any, [
-        account,
-      ]);
+      const result = await service.getBalancesForNetwork(
+        network as any,
+        [account],
+        [],
+      );
 
       expect(result).toEqual({
         ['networkId2']: {
@@ -223,13 +228,20 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         addresses: ['addressPVM'],
         currency: 'eur',
         network,
+        customTokens: [],
+        tokenTypes: [],
+        storage: expect.any(LRUCache),
       });
     });
 
     it('should get balances for X-Chain', async () => {
       moduleMock.getBalances.mockResolvedValue(avmResult);
       const network = { vmName: NetworkVMType.AVM, caipId: 'avm' } as any;
-      const result = await service.getBalancesForNetwork(network, [account]);
+      const result = await service.getBalancesForNetwork(
+        network,
+        [account],
+        [],
+      );
 
       expect(result).toEqual({
         ['networkId2']: {
@@ -247,13 +259,42 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         addresses: ['addressAVM'],
         currency: 'eur',
         network,
+        customTokens: [],
+        tokenTypes: [],
+        storage: expect.any(LRUCache),
       });
     });
 
     it('should get balances for EVM', async () => {
+      const customToken = {
+        address: 'tokenAddress',
+        contractType: 'ERC-20',
+        decimals: 18,
+        name: 'Custom Test Token',
+        symbol: 'CTT',
+      } as const;
+
       moduleMock.getBalances.mockResolvedValue(evmResult);
-      const network = { vmName: NetworkVMType.EVM, caipId: 'evm' } as any;
-      const result = await service.getBalancesForNetwork(network, [account]);
+
+      jest.mocked(settingsService.getSettings).mockResolvedValueOnce({
+        currency: 'USD',
+        customTokens: {
+          '1337': {
+            [customToken.address]: customToken,
+          },
+        },
+      } as any);
+
+      const network = {
+        vmName: NetworkVMType.EVM,
+        caipId: 'eip155:1337',
+        chainId: 1337,
+      } as any;
+      const result = await service.getBalancesForNetwork(
+        network,
+        [account],
+        [TokenType.NATIVE, TokenType.ERC20],
+      );
 
       expect(result).toEqual({
         ['networkId2']: {
@@ -270,15 +311,22 @@ describe('src/background/services/balances/BalancesService.ts', () => {
       expect(moduleMock.getBalances).toHaveBeenCalledTimes(1);
       expect(moduleMock.getBalances).toHaveBeenCalledWith({
         addresses: ['addressC'],
-        currency: 'eur',
+        currency: 'usd',
         network,
+        customTokens: [{ ...customToken, type: TokenType.ERC20 }],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        storage: expect.any(LRUCache),
       });
     });
 
     it('should get balances for Bitcoin', async () => {
       moduleMock.getBalances.mockResolvedValue(btcResult);
       const network = { vmName: NetworkVMType.BITCOIN, caipId: 'btc' } as any;
-      const result = await service.getBalancesForNetwork(network, [account]);
+      const result = await service.getBalancesForNetwork(
+        network,
+        [account],
+        [],
+      );
 
       expect(result).toEqual({
         ['networkId3']: {
@@ -297,15 +345,23 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         addresses: ['addressBTC'],
         currency: 'eur',
         network,
+        customTokens: [],
+        tokenTypes: [],
+        storage: expect.any(LRUCache),
       });
     });
 
     it('should calculate price changes if provided', async () => {
       moduleMock.getBalances.mockResolvedValue(evmResult);
       const network = { vmName: NetworkVMType.EVM, caipId: 'evm' } as any;
-      const result = await service.getBalancesForNetwork(network, [account], {
-        test2: { priceChangePercentage: 25 },
-      });
+      const result = await service.getBalancesForNetwork(
+        network,
+        [account],
+        [],
+        {
+          test2: { priceChangePercentage: 25 },
+        },
+      );
 
       expect(result).toEqual({
         ['networkId2']: {
@@ -324,6 +380,9 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         addresses: ['addressC'],
         currency: 'eur',
         network,
+        customTokens: [],
+        tokenTypes: [],
+        storage: expect.any(LRUCache),
       });
     });
   });

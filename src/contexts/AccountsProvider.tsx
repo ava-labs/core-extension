@@ -17,10 +17,11 @@ import {
 } from '@src/background/services/accounts/models';
 import { GetAccountsHandler } from '@src/background/services/accounts/handlers/getAccounts';
 import { SelectAccountHandler } from '@src/background/services/accounts/handlers/selectAccount';
-import { RenameAccountHandler } from '@src/background/services/accounts/handlers/renameAccount';
+import { AvalancheRenameAccountHandler } from '@src/background/services/accounts/handlers/avalanche_renameAccount';
 import { AddAccountHandler } from '@src/background/services/accounts/handlers/addAccount';
-import { DeleteAccountHandler } from '@src/background/services/accounts/handlers/deleteAccounts';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { AvalancheDeleteAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_deleteAccounts';
 
 const AccountsContext = createContext<{
   accounts: Accounts;
@@ -50,14 +51,14 @@ export function AccountsContextProvider({ children }: { children: any }) {
       from(
         request<GetAccountsHandler>({
           method: ExtensionRequest.ACCOUNT_GET_ACCOUNTS,
-        })
+        }),
       ),
       events().pipe(
         filter(accountsUpdatedEventListener),
         map((evt) => {
           return evt.value;
-        })
-      )
+        }),
+      ),
     ).subscribe((result) => {
       setAccounts(result);
     });
@@ -72,7 +73,7 @@ export function AccountsContextProvider({ children }: { children: any }) {
       ...Object.values(accounts.primary).flat(),
       ...Object.values(accounts.imported),
     ],
-    [accounts.imported, accounts.primary]
+    [accounts.imported, accounts.primary],
   );
 
   const getAccount = useCallback(
@@ -80,17 +81,17 @@ export function AccountsContextProvider({ children }: { children: any }) {
       allAccounts.find((acc) =>
         getAllAddressesForAccount(acc)
           .map((addy) => addy?.toLowerCase())
-          .includes(address.toLowerCase())
+          .includes(address.toLowerCase()),
       ),
-    [allAccounts]
+    [allAccounts],
   );
 
   const getAccountById = useCallback(
     (accountId: string) =>
       allAccounts.find(
-        (acc) => acc.id.toLowerCase() === accountId.toLowerCase()
+        (acc) => acc.id.toLowerCase() === accountId.toLowerCase(),
       ),
-    [allAccounts]
+    [allAccounts],
   );
 
   const selectAccount = useCallback(
@@ -100,17 +101,17 @@ export function AccountsContextProvider({ children }: { children: any }) {
         params: [id],
       });
     },
-    [request]
+    [request],
   );
 
   const renameAccount = useCallback(
     (id: string, name: string) => {
-      return request<RenameAccountHandler>({
-        method: ExtensionRequest.ACCOUNT_RENAME,
+      return request<AvalancheRenameAccountHandler>({
+        method: DAppProviderRequest.ACCOUNT_RENAME,
         params: [id, name],
       });
     },
-    [request]
+    [request],
   );
 
   const addAccount = useCallback(
@@ -119,23 +120,23 @@ export function AccountsContextProvider({ children }: { children: any }) {
         method: ExtensionRequest.ACCOUNT_ADD,
         params: { name, importData, walletId },
       }),
-    [request]
+    [request],
   );
 
   const deleteAccounts = useCallback(
     (ids: string[]) =>
-      request<DeleteAccountHandler>({
-        method: ExtensionRequest.ACCOUNT_DELETE,
+      request<AvalancheDeleteAccountsHandler>({
+        method: DAppProviderRequest.ACCOUNTS_DELETE,
         params: [ids],
       }),
-    [request]
+    [request],
   );
 
   const isActiveAccount = useCallback(
     (id: string) => {
       return accounts.active?.id === id;
     },
-    [accounts]
+    [accounts],
   );
 
   return (

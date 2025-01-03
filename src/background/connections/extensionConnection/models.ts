@@ -18,14 +18,13 @@ export enum ExtensionRequest {
 
   ACCOUNT_GET_ACCOUNTS = 'account_get',
   ACCOUNT_SELECT = 'account_select',
-  ACCOUNT_RENAME = 'account_rename',
   ACCOUNT_ADD = 'account_add',
-  ACCOUNT_DELETE = 'account_delete',
   ACCOUNT_GET_PRIVATEKEY = 'account_get_privatekey',
 
   BALANCES_GET = 'balances_get',
   BALANCES_START_POLLING = 'balances_start_polling',
   BALANCES_STOP_POLLING = 'balances_stop_polling',
+  BALANCES_GET_TOTAL_FOR_WALLET = 'balance_get_total_for_wallet',
   NETWORK_BALANCES_UPDATE = 'network_balances_update',
   NFT_BALANCES_GET = 'nft_balances_get',
   NFT_REFRESH_METADATA = 'nft_refresh_metadata',
@@ -55,6 +54,7 @@ export enum ExtensionRequest {
 
   ACTION_GET = 'action_getAction',
   ACTION_UPDATE = 'action_updateAction',
+  ACTION_UPDATE_TX_DATA = 'action_updateTxData',
 
   PERMISSIONS_ADD_DOMAIN = 'permissions_addDomain',
   PERMISSIONS_GET_PERMISSIONS = 'permissions_getPermissionsForDomain',

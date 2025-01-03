@@ -56,7 +56,7 @@ jest.mock('@avalabs/core-chains-sdk', () => ({
 const mockNetwork = (
   vmName: NetworkVMType,
   isTestnet?: boolean,
-  overrides = {}
+  overrides = {},
 ) => {
   const network = {
     chainName: 'test chain',
@@ -123,7 +123,7 @@ describe('background/services/network/NetworkService', () => {
         [btcNetwork.chainId]: btcNetwork,
         [leetNetwork.chainId]: leetNetwork,
         [sepolia.chainId]: sepolia,
-      })
+      }),
     );
     jest.spyOn(instance.allNetworks, 'promisify').mockResolvedValue(
       Promise.resolve({
@@ -132,7 +132,7 @@ describe('background/services/network/NetworkService', () => {
         [btcNetwork.chainId]: btcNetwork,
         [leetNetwork.chainId]: leetNetwork,
         [sepolia.chainId]: sepolia,
-      })
+      }),
     );
   };
 
@@ -149,12 +149,38 @@ describe('background/services/network/NetworkService', () => {
 
     jest.mocked(getChainsAndTokens).mockResolvedValue({});
 
-    jest.mocked(FetchRequest).mockImplementation((url) => ({ url } as any));
+    jest.mocked(FetchRequest).mockImplementation((url) => ({ url }) as any);
     mockChainList(service);
   });
 
   afterAll(() => {
     process.env = env;
+  });
+
+  describe('.getNetwork()', () => {
+    beforeEach(() => {
+      jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(
+        Promise.resolve({
+          [ethMainnet.chainId]: ethMainnet,
+          [avaxMainnet.chainId]: avaxMainnet,
+        }),
+      );
+    });
+
+    it('works with hexadecimal chain ids', async () => {
+      expect(await service.getNetwork('0x1')).toEqual(ethMainnet);
+      expect(await service.getNetwork('0xa86a')).toEqual(avaxMainnet);
+    });
+
+    it('works with numeric chain ids', async () => {
+      expect(await service.getNetwork(1)).toEqual(ethMainnet);
+      expect(await service.getNetwork(43114)).toEqual(avaxMainnet);
+    });
+
+    it('works with caip ids', async () => {
+      expect(await service.getNetwork('eip155:1')).toEqual(ethMainnet);
+      expect(await service.getNetwork('eip155:43114')).toEqual(avaxMainnet);
+    });
   });
 
   describe('.getInitialNetworkForDapp()', () => {
@@ -258,7 +284,7 @@ describe('background/services/network/NetworkService', () => {
           dappScopes: expect.objectContaining({
             'test.app': ethMainnet.caipId,
           }),
-        })
+        }),
       );
     });
 
@@ -279,7 +305,7 @@ describe('background/services/network/NetworkService', () => {
       beforeEach(async () => {
         service = new NetworkService(
           storageServiceMock,
-          featureFlagsServiceMock
+          featureFlagsServiceMock,
         );
         mockChainList(service);
         // Set Ethereum Mainnet directly for the frontend
@@ -298,7 +324,7 @@ describe('background/services/network/NetworkService', () => {
             dappScopes: expect.objectContaining({
               'app.uniswap.io': sepolia.caipId,
             }),
-          })
+          }),
         );
       });
 
@@ -315,7 +341,7 @@ describe('background/services/network/NetworkService', () => {
               'app.uniswap.io': sepolia.caipId,
               [runtime.id]: 'eip155:43113',
             }),
-          })
+          }),
         );
       });
 
@@ -341,7 +367,7 @@ describe('background/services/network/NetworkService', () => {
             dappScopes: expect.objectContaining({
               [runtime.id]: ethMainnet.caipId,
             }),
-          })
+          }),
         );
       });
 
@@ -350,7 +376,7 @@ describe('background/services/network/NetworkService', () => {
           Promise.resolve({
             [ethMainnet.chainId]: ethMainnet,
             [avaxMainnet.chainId]: avaxMainnet,
-          })
+          }),
         );
         // Set Ethereum directly for the frontend
         await service.setNetwork(runtime.id, ethMainnet.caipId);
@@ -368,7 +394,7 @@ describe('background/services/network/NetworkService', () => {
         jest.spyOn(service.allNetworks, 'promisify').mockResolvedValue(
           Promise.resolve({
             [ethMainnet.chainId]: ethMainnet,
-          })
+          }),
         );
 
         await service.setNetwork('core.app', ethMainnet.caipId);
@@ -398,7 +424,7 @@ describe('background/services/network/NetworkService', () => {
 
       const networkService = new NetworkService(
         storageServiceMock,
-        featureFlagsServiceMock
+        featureFlagsServiceMock,
       );
 
       await networkService.updateNetworkOverrides(overrides);
@@ -411,7 +437,7 @@ describe('background/services/network/NetworkService', () => {
               'X-Glacier-Api-Key': 'my-elite-api-key',
             },
           },
-        }
+        },
       );
     });
 
@@ -425,7 +451,7 @@ describe('background/services/network/NetworkService', () => {
 
       const networkService = new NetworkService(
         storageServiceMock,
-        featureFlagsServiceMock
+        featureFlagsServiceMock,
       );
 
       // eslint-disable-next-line
@@ -436,7 +462,7 @@ describe('background/services/network/NetworkService', () => {
       jest.spyOn(networkService.allNetworks, 'promisify').mockResolvedValue(
         Promise.resolve({
           1337: activeNetwork,
-        })
+        }),
       );
 
       await networkService.setNetwork(runtime.id, activeNetwork.caipId);
@@ -472,14 +498,14 @@ describe('background/services/network/NetworkService', () => {
         .mockResolvedValueOnce(Promise.resolve(undefined));
 
       await expect(service.saveCustomNetwork(customNetwork)).rejects.toThrow(
-        'chainlist failed to load'
+        'chainlist failed to load',
       );
     });
 
     it('should throw an error because of duplicated ID', async () => {
       const newCustomNetwork = { ...customNetwork, chainId: 43114 };
       await expect(service.saveCustomNetwork(newCustomNetwork)).rejects.toThrow(
-        'chain ID already exists'
+        'chain ID already exists',
       );
     });
 
@@ -500,9 +526,8 @@ describe('background/services/network/NetworkService', () => {
         ...customNetwork,
         rpcUrl: newRpcUrl,
       };
-      const savedActiveNetwork = await service.saveCustomNetwork(
-        newCustomNetwork
-      );
+      const savedActiveNetwork =
+        await service.saveCustomNetwork(newCustomNetwork);
 
       expect(savedActiveNetwork?.rpcUrl).toBe(newRpcUrl);
     });
@@ -541,7 +566,7 @@ describe('background/services/network/NetworkService', () => {
       await service.onLock();
 
       expect(storageServiceMock.load).toHaveBeenCalledWith(
-        NETWORK_LIST_STORAGE_KEY
+        NETWORK_LIST_STORAGE_KEY,
       );
       expect(dispatchSpy).toHaveBeenCalledWith(cachedChainList);
     });
@@ -589,7 +614,7 @@ describe('background/services/network/NetworkService', () => {
     it('applies config overrides to .allNetworks signal', async () => {
       const networkService = new NetworkService(
         storageServiceMock,
-        featureFlagsServiceMock
+        featureFlagsServiceMock,
       );
 
       // eslint-disable-next-line
@@ -610,7 +635,7 @@ describe('background/services/network/NetworkService', () => {
     it('applies config overrides to .activeNetworks signal', async () => {
       const networkService = new NetworkService(
         storageServiceMock,
-        featureFlagsServiceMock
+        featureFlagsServiceMock,
       );
 
       // eslint-disable-next-line
@@ -632,7 +657,7 @@ describe('background/services/network/NetworkService', () => {
   it('filters networks by .isTestnet for .activeNetworks signal', async () => {
     const networkService = new NetworkService(
       storageServiceMock,
-      featureFlagsServiceMock
+      featureFlagsServiceMock,
     );
 
     jest
@@ -705,7 +730,7 @@ describe('background/services/network/NetworkService', () => {
     } as any;
     const networkService = new NetworkService(
       storageServiceMock,
-      featureFlagsServiceMock
+      featureFlagsServiceMock,
     );
 
     jest

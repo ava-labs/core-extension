@@ -3,7 +3,7 @@ import { CommonError, ErrorCode } from './errors';
 
 export function assertPresent<T>(
   value: T,
-  reason: ErrorCode
+  reason: ErrorCode,
 ): asserts value is NonNullable<T> {
   if (typeof value === 'undefined' || value === null) {
     throw ethErrors.rpc.internal({
@@ -17,7 +17,7 @@ export function assertPresent<T>(
 type NonEmptyString<T> = T extends '' ? never : T;
 
 export function assertNonEmptyString<T>(
-  value: T
+  value: T,
 ): asserts value is NonEmptyString<T> {
   if (typeof value !== 'string' || value === '') {
     throw ethErrors.rpc.internal({
@@ -36,6 +36,17 @@ export function assertTrue(condition: unknown): asserts condition is true {
         reason: 'Expected condition to evaluate as true',
         evaluationResult: condition,
       },
+    });
+  }
+}
+
+export function assert(
+  value: unknown,
+  reason?: ErrorCode,
+): asserts value is NonNullable<unknown> {
+  if (!value) {
+    throw ethErrors.rpc.internal({
+      data: { reason: reason ?? CommonError.Unknown },
     });
   }
 }

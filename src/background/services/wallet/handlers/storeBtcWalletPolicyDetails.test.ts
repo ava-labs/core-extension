@@ -4,11 +4,12 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { networks } from 'bitcoinjs-lib';
-import { AccountType } from '../../accounts/models';
+import { Account, AccountType } from '../../accounts/models';
 import { AccountWithSecrets, SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { StoreBtcWalletPolicyDetails } from './storeBtcWalletPolicyDetails';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { AccountsService } from '../../accounts/AccountsService';
 
 jest.mock('@avalabs/core-wallets-sdk');
 
@@ -21,11 +22,15 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
   const secretsServiceMock = jest.mocked({
     storeBtcWalletPolicyDetails: jest.fn(),
-    getActiveAccountSecrets: jest.fn(),
+    getAccountSecrets: jest.fn(),
   } as unknown as SecretsService);
 
   const networkServiceMock = {
     isMainnet: () => false,
+  } as any;
+
+  const accountsServiceMock: jest.Mocked<AccountsService> = {
+    activeAccount: {} as unknown as Account,
   } as any;
 
   beforeEach(() => {
@@ -33,22 +38,23 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
   });
 
   it('throws if there is no active account', async () => {
-    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+    secretsServiceMock.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Ledger,
     } as AccountWithSecrets);
 
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock,
     );
 
     await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
-      'no account selected'
+      'no account selected',
     );
   });
 
   it('throws if the active account is not primary', async () => {
-    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+    secretsServiceMock.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Ledger,
       account: {
         type: AccountType.IMPORTED,
@@ -56,16 +62,17 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     } as AccountWithSecrets);
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock,
     );
 
     await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
-      'incorrect account type'
+      'incorrect account type',
     );
   });
 
   it('throws if wallet derivation path is unknown', async () => {
-    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+    secretsServiceMock.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Ledger,
       account: {
         type: AccountType.PRIMARY,
@@ -76,16 +83,17 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock,
     );
 
     await expect(handler.handle(buildRpcCall(request))).rejects.toThrow(
-      'unknown derivation path'
+      'unknown derivation path',
     );
   });
 
   it('does nothing if the device is incorrect (BTC addresses dont match)', async () => {
-    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+    secretsServiceMock.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Ledger,
       derivationPath: DerivationPath.BIP44,
       account: {
@@ -99,13 +107,14 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock,
     );
 
     const result = await handler.handle(buildRpcCall(request));
 
     expect(
-      secretsServiceMock.storeBtcWalletPolicyDetails
+      secretsServiceMock.storeBtcWalletPolicyDetails,
     ).not.toHaveBeenCalled();
 
     expect(result).toStrictEqual({
@@ -117,7 +126,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
   });
 
   it('stores the details if the device is correct for BIP44', async () => {
-    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+    secretsServiceMock.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Ledger,
       derivationPath: DerivationPath.BIP44,
       id: 'wallet-id',
@@ -131,7 +140,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock,
     );
 
     const result = await handler.handle(buildRpcCall(request));
@@ -139,7 +149,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     expect(getBech32AddressFromXPub).toHaveBeenCalledWith(
       'xpub',
       1,
-      networks.testnet
+      networks.testnet,
     );
 
     expect(secretsServiceMock.storeBtcWalletPolicyDetails).toHaveBeenCalledWith(
@@ -147,7 +157,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       'masterFingerprint',
       'hmacHex',
       'name',
-      'wallet-id'
+      'wallet-id',
+      {},
     );
 
     expect(result).toStrictEqual({
@@ -159,7 +170,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
   });
 
   it('stores the details if the device is correct for Ledger Live', async () => {
-    secretsServiceMock.getActiveAccountSecrets.mockResolvedValue({
+    secretsServiceMock.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Ledger,
       derivationPath: DerivationPath.BIP44,
       id: 'wallet-id',
@@ -174,7 +185,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
 
     const handler = new StoreBtcWalletPolicyDetails(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsServiceMock,
     );
 
     const result = await handler.handle(buildRpcCall(request));
@@ -182,7 +194,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
     expect(getBech32AddressFromXPub).toHaveBeenCalledWith(
       'xpub',
       1,
-      networks.testnet
+      networks.testnet,
     );
 
     expect(secretsServiceMock.storeBtcWalletPolicyDetails).toHaveBeenCalledWith(
@@ -190,7 +202,8 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
       'masterFingerprint',
       'hmacHex',
       'name',
-      'wallet-id'
+      'wallet-id',
+      {},
     );
 
     expect(result).toStrictEqual({

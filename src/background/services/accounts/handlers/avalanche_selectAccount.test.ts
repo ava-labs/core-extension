@@ -6,9 +6,9 @@ import { ActionsService } from '../../actions/ActionsService';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { AccountType } from '../models';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { isCoreWeb } from '../../network/utils/isCoreWeb';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
 
-jest.mock('../../network/utils/isCoreWeb');
+jest.mock('@src/utils/canSkipApproval');
 jest.mock('@src/utils/extensionUtils', () => ({
   openExtensionNewWindow: jest.fn(),
 }));
@@ -33,7 +33,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
 
     (openExtensionNewWindow as jest.Mock).mockReturnValue({ id: 123 });
     (crypto.randomUUID as jest.Mock).mockReturnValue('uuid');
-    jest.mocked(isCoreWeb).mockResolvedValue(false);
+    jest.mocked(canSkipApproval).mockResolvedValue(false);
   });
 
   describe('handleAuthenticated', () => {
@@ -47,7 +47,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
 
       const handler = new AvalancheSelectAccountHandler(
         accountServiceMock,
-        permissionsServiceMock
+        permissionsServiceMock,
       );
       const url = 'switchAccount?actionId=uuid';
 
@@ -89,7 +89,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       accountServiceMock.getAccountList.mockReturnValue([account]);
       const handler = new AvalancheSelectAccountHandler(
         accountServiceMock,
-        permissionsServiceMock
+        permissionsServiceMock,
       );
       const url = 'switchAccount?actionId=uuid';
 
@@ -126,7 +126,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
 
       const handler = new AvalancheSelectAccountHandler(
         accountServiceMock,
-        permissionsServiceMock
+        permissionsServiceMock,
       );
       const request = {
         id: '123',
@@ -143,7 +143,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
     });
 
     it('should switch account without opening approval window if the request is from core web', async () => {
-      jest.mocked(isCoreWeb).mockResolvedValue(true);
+      jest.mocked(canSkipApproval).mockResolvedValue(true);
 
       const account = {
         index: 1,
@@ -155,7 +155,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
 
       const handler = new AvalancheSelectAccountHandler(
         accountServiceMock,
-        permissionsServiceMock
+        permissionsServiceMock,
       );
 
       const request = {
@@ -168,7 +168,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(accountServiceMock.activateAccount).toHaveBeenCalledWith(
-        account.id
+        account.id,
       );
       expect(openExtensionNewWindow).not.toHaveBeenCalled();
       expect(addActionMock).not.toHaveBeenCalled();
@@ -208,7 +208,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
 
       const handler = new AvalancheSelectAccountHandler(
         accountServiceMock,
-        permissionsServiceMock
+        permissionsServiceMock,
       );
 
       const request = {
@@ -224,7 +224,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
           displayData: {
             selectedAccount: accounts[1],
           },
-        })
+        }),
       );
     });
   });
@@ -233,7 +233,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
     it('should return an error', async () => {
       const handler = new AvalancheSelectAccountHandler(
         accountServiceMock,
-        permissionsServiceMock
+        permissionsServiceMock,
       );
       const request = {
         id: '123',
@@ -245,7 +245,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       expect(result).toEqual({
         ...request,
         error: new Error(
-          'The requested account and/or method has not been authorized by the user.'
+          'The requested account and/or method has not been authorized by the user.',
         ),
       });
     });
@@ -261,7 +261,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         {
           activateAccount: activateAccountMock,
         } as any,
-        permissionsServiceMock
+        permissionsServiceMock,
       );
       await handler.onActionApproved(
         {
@@ -276,11 +276,11 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         } as any,
         undefined,
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(
-        permissionsServiceMock.setAccountPermissionForDomain
+        permissionsServiceMock.setAccountPermissionForDomain,
       ).not.toHaveBeenCalled();
       expect(onErrorMock).not.toHaveBeenCalled();
       expect(activateAccountMock).toHaveBeenCalledWith('uuid');
@@ -293,7 +293,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         {
           activateAccount: activateAccountMock,
         } as any,
-        permissionsServiceMock
+        permissionsServiceMock,
       );
       await handler.onActionApproved(
         {
@@ -304,11 +304,11 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         } as any,
         undefined,
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(
-        permissionsServiceMock.setAccountPermissionForDomain
+        permissionsServiceMock.setAccountPermissionForDomain,
       ).not.toHaveBeenCalled();
       expect(onErrorMock).not.toHaveBeenCalled();
       expect(activateAccountMock).toHaveBeenCalledWith('0x1');
@@ -321,7 +321,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         {
           activateAccount: activateAccountMock,
         } as any,
-        permissionsServiceMock
+        permissionsServiceMock,
       );
       await handler.onActionApproved(
         {
@@ -338,14 +338,14 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         } as any,
         undefined,
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
 
       expect(
-        permissionsServiceMock.setAccountPermissionForDomain
+        permissionsServiceMock.setAccountPermissionForDomain,
       ).toHaveBeenCalled();
       expect(
-        permissionsServiceMock.setAccountPermissionForDomain
+        permissionsServiceMock.setAccountPermissionForDomain,
       ).toHaveBeenCalledWith('core.app', '0x1', true);
       expect(activateAccountMock).toHaveBeenCalledWith('0x1');
       expect(onSuccessMock).toBeCalledWith(null);
@@ -357,7 +357,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         {
           activateAccount: jest.fn().mockRejectedValueOnce(mockError),
         } as any,
-        permissionsServiceMock
+        permissionsServiceMock,
       );
 
       await handler.onActionApproved(
@@ -371,10 +371,10 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         } as any,
         undefined,
         onSuccessMock,
-        onErrorMock
+        onErrorMock,
       );
       expect(
-        permissionsServiceMock.setAccountPermissionForDomain
+        permissionsServiceMock.setAccountPermissionForDomain,
       ).not.toHaveBeenCalled();
       expect(onSuccessMock).not.toHaveBeenCalled();
       expect(onErrorMock).toHaveBeenCalled();

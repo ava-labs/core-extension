@@ -31,14 +31,14 @@ describe('src/pages/Onboarding/utils/approveSeedlessRegistration', () => {
           'Content-Type': 'application/json',
         },
         method: 'POST',
-      }
+      },
     );
   });
   it('should return `ERROR`', async () => {
     global.fetch = jest.fn().mockResolvedValueOnce({ json: jest.fn() });
     const result = await approveSeedlessRegistration(
       {} as IdentityProof,
-      false
+      false,
     );
     expect(result).toBe(SeedlessRegistartionResult.ERROR);
   });
@@ -48,7 +48,7 @@ describe('src/pages/Onboarding/utils/approveSeedlessRegistration', () => {
     });
     const result = await approveSeedlessRegistration(
       {} as IdentityProof,
-      false
+      false,
     );
     expect(result).toBe(SeedlessRegistartionResult.ALREADY_REGISTERED);
   });
@@ -58,7 +58,7 @@ describe('src/pages/Onboarding/utils/approveSeedlessRegistration', () => {
     });
     const result = await approveSeedlessRegistration(
       {} as IdentityProof,
-      false
+      false,
     );
     expect(result).toBe(SeedlessRegistartionResult.APPROVED);
   });

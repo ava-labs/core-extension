@@ -1,24 +1,23 @@
-import { TokenType } from '@avalabs/vm-module-types';
+import { TxHistoryItem } from '../models';
 import {
-  PchainTxHistoryItem,
+  NetworkVMType,
   TransactionType,
-  TxHistoryItem,
-  XchainTxHistoryItem,
-} from '../models';
-import { isPchainTxHistoryItem, isTxHistoryItem } from './isTxHistoryItem';
-import {
   PChainTransactionType,
+  TokenType,
   XChainTransactionType,
-} from '@avalabs/glacier-sdk';
+} from '@avalabs/vm-module-types';
+import { isPchainTxHistoryItem, isNonXPHistoryItem } from './isTxHistoryItem';
 
 describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
   const txHistoryItem: TxHistoryItem = {
-    isBridge: false,
+    bridgeAnalysis: {
+      isBridgeTx: false,
+    },
     isContractCall: true,
     isIncoming: false,
     isOutgoing: true,
     isSender: true,
-    timestamp: 'timestamp',
+    timestamp: 1111,
     hash: 'hash',
     from: 'from',
     to: 'to',
@@ -33,30 +32,39 @@ describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
     gasUsed: 'gasUsed',
     explorerLink: 'explorerLink',
     chainId: 'chainId',
-    type: TransactionType.SEND,
+    txType: TransactionType.SEND,
   };
-  const pchainTxHistoryItem: PchainTxHistoryItem = {
-    isSender: true,
-    timestamp: 'timestamp',
-    from: ['from'],
-    to: ['to'],
-    token: {
-      name: 'tokenName',
-      symbol: 'tokenSymbol',
-      amount: 'amount',
-      type: TokenType.NATIVE,
+  const pchainTxHistoryItem: TxHistoryItem = {
+    bridgeAnalysis: {
+      isBridgeTx: false,
     },
+    isContractCall: true,
+    isIncoming: false,
+    isOutgoing: true,
+    isSender: true,
+    timestamp: 111111,
+    from: 'from',
+    to: 'to',
+    hash: 'hash',
+    tokens: [
+      {
+        name: 'tokenName',
+        symbol: 'tokenSymbol',
+        amount: 'amount',
+        type: TokenType.NATIVE,
+      },
+    ],
     gasUsed: 'gasUsed',
     explorerLink: 'explorerLink',
     chainId: 'chainId',
-    type: PChainTransactionType.BASE_TX,
-    vmType: 'PVM',
+    txType: PChainTransactionType.BASE_TX,
+    vmType: NetworkVMType.PVM,
   };
 
-  const xchainTxHistoryItem: XchainTxHistoryItem = {
+  const xchainTxHistoryItem: TxHistoryItem = {
     ...pchainTxHistoryItem,
-    type: XChainTransactionType.BASE_TX,
-    vmType: 'AVM',
+    txType: XChainTransactionType.BASE_TX,
+    vmType: NetworkVMType.AVM,
   };
 
   beforeEach(() => {
@@ -65,13 +73,13 @@ describe('src/background/services/history/utils/isTxHistoryItem.ts', () => {
 
   describe('isTxHistoryItem', () => {
     it('should return true when the tx is txHistoryItem', () => {
-      const result = isTxHistoryItem(txHistoryItem);
+      const result = isNonXPHistoryItem(txHistoryItem);
       expect(result).toBe(true);
     });
     it('should return false when the tx is not txHistoryItem', () => {
-      const result = isTxHistoryItem(pchainTxHistoryItem);
+      const result = isNonXPHistoryItem(pchainTxHistoryItem);
       expect(result).toBe(false);
-      const result2 = isTxHistoryItem(xchainTxHistoryItem);
+      const result2 = isNonXPHistoryItem(xchainTxHistoryItem);
       expect(result2).toBe(false);
     });
   });

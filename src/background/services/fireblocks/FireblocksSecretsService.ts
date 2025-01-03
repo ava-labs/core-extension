@@ -9,24 +9,33 @@ import {
   FireblocksBtcAccessErrorCode,
   FireblocksSecretsProvider,
 } from './models';
+import { AccountsService } from '../accounts/AccountsService';
 
 @singleton()
 export class FireblocksSecretsService implements FireblocksSecretsProvider {
-  constructor(private secretsService: SecretsService) {}
+  constructor(
+    private secretsService: SecretsService,
+    private accountsService: AccountsService,
+  ) {}
 
   async getSecrets(): Promise<{ apiKey: string; privateKey: KeyLike }> {
+    if (!this.accountsService.activeAccount) {
+      throw new Error('There is no active account!');
+    }
     // By default thought, we'll get the credentials directly from SecretsService
-    const secrets = await this.secretsService.getActiveAccountSecrets();
+    const secrets = await this.secretsService.getAccountSecrets(
+      this.accountsService.activeAccount,
+    );
 
     if (secrets.secretType !== SecretType.Fireblocks) {
       throw new FireblocksBtcAccessError(
-        FireblocksBtcAccessErrorCode.WrongAccountType
+        FireblocksBtcAccessErrorCode.WrongAccountType,
       );
     }
 
     if (!secrets.api) {
       throw new FireblocksBtcAccessError(
-        FireblocksBtcAccessErrorCode.SecretsNotConfigured
+        FireblocksBtcAccessErrorCode.SecretsNotConfigured,
       );
     }
 
@@ -39,7 +48,7 @@ export class FireblocksSecretsService implements FireblocksSecretsProvider {
       };
     } catch {
       throw new FireblocksBtcAccessError(
-        FireblocksBtcAccessErrorCode.InvalidSecretKey
+        FireblocksBtcAccessErrorCode.InvalidSecretKey,
       );
     }
   }

@@ -4,7 +4,10 @@ import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
-import { WalletExtensionButton } from '../Wallet/components/WalletExtensionButton';
+import {
+  WalletExtensionButton,
+  CoreExtensionButton,
+} from '../Wallet/components/WalletExtensionButton';
 import { Trans } from 'react-i18next';
 import { Stack, Typography, WalletIcon } from '@avalabs/core-k2-components';
 
@@ -19,7 +22,7 @@ export function SelectWallet() {
         id: requestId,
         result: index,
       }),
-    [requestId, updateAction]
+    [requestId, updateAction],
   );
 
   if (!request) {
@@ -46,15 +49,28 @@ export function SelectWallet() {
         </Typography>
       </Stack>
       <Stack>
-        {request.displayData.options.map((option, i) => (
+        {request.displayData.info.map((info, index) => {
+          if (info.rdns === 'app.core.extension') {
+            return (
+              <CoreExtensionButton
+                key={index}
+                onClick={() => {
+                  selectWallet(index);
+                }}
+                info={info}
+              />
+            );
+          }
+          return;
+        })}
+        {request.displayData.info.length > 1 && (
           <WalletExtensionButton
-            key={i}
-            onClick={() => {
-              selectWallet(i);
+            onClick={(index) => {
+              selectWallet(index);
             }}
-            type={option}
+            wallets={request.displayData.info}
           />
-        ))}
+        )}
       </Stack>
     </Stack>
   );

@@ -6,6 +6,7 @@ import { NetworkService } from '../../network/NetworkService';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { SeedlessWallet } from '../SeedlessWallet';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { AccountsService } from '../../accounts/AccountsService';
 
 jest.mock('../SeedlessWallet');
 
@@ -15,19 +16,21 @@ describe('src/background/services/seedless/handlers/ge', () => {
   } as any);
   const networkService = jest.mocked<NetworkService>({} as any);
   const mfaService = jest.mocked<SeedlessMfaService>({} as any);
+  const accountsService = jest.mocked<AccountsService>({} as any);
 
   const handle = () => {
     const handler = new GetRecoveryPhraseExportStateHandler(
       secretsService,
       networkService,
-      mfaService
+      mfaService,
+      accountsService,
     );
 
     return handler.handle(
       buildRpcCall({
         method: ExtensionRequest.SEEDLESS_GET_RECOVERY_PHRASE_EXPORT_STATE,
         id: 'abcd-1234',
-      })
+      }),
     );
   };
 
@@ -68,7 +71,7 @@ describe('src/background/services/seedless/handlers/ge', () => {
 
   it('returns error if fetching the information fails', async () => {
     wallet.getMnemonicExportState.mockRejectedValueOnce(
-      new Error('Session expired')
+      new Error('Session expired'),
     );
 
     const result = await handle();

@@ -43,7 +43,7 @@ export function Assets() {
   const activeNetworkAssetList = useTokensWithBalances();
   const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
   const activeNetworkPriceChanges = getNetworkTokensPriceChanges(
-    activeNetworkAssetList
+    activeNetworkAssetList,
   );
 
   const changePercentage =
@@ -111,7 +111,7 @@ export function Assets() {
               {missingSomeTokenPrices && (
                 <Tooltip
                   title={t(
-                    'The prices of some tokens are missing. The balance might not be accurate currently.'
+                    'The prices of some tokens are missing. The balance might not be accurate currently.',
                   )}
                   placement="bottom"
                 >

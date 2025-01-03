@@ -124,12 +124,12 @@ export function FireblocksApprovalOverlay({
           appIcon={<FireblocksAvatar />}
           reconnectionAddress={activeAccount?.addressC as string}
           customMessage={t(
-            'Please reconnect using Wallet Connect to add this network to authorized networks.'
+            'Please reconnect using Wallet Connect to add this network to authorized networks.',
           )}
           onConnect={() => {
             establishRequiredSession(
               activeAccount?.addressC as string,
-              activeNetwork?.chainId as number
+              activeNetwork?.chainId as number,
             );
           }}
         />

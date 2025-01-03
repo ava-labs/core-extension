@@ -36,7 +36,7 @@ describe('src/background/services/ledger/handlers/removeLedgerTransport.ts', () 
     expect(result).toEqual({ ...request, result: true });
     expect(ledgerServiceMock.getTransport).toHaveBeenCalledWith(transportId);
     expect(ledgerServiceMock.removeTransportFromCache).toHaveBeenCalledWith(
-      transportId
+      transportId,
     );
   });
 });

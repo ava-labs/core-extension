@@ -3,6 +3,7 @@ import { AccountsService } from '@src/background/services/accounts/AccountsServi
 import {
   AppConfig,
   Asset,
+  AssetType,
   Assets,
   BitcoinConfigAsset,
   Blockchain,
@@ -41,14 +42,14 @@ import {
   validateBtcSend,
 } from '@src/utils/send/btcSendUtils';
 import { resolve } from '@src/utils/promiseResolver';
-import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { TokenType, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 
 type BridgeActionParams = [
   currentBlockchain: Blockchain,
   amountStr: string,
-  asset: Asset
+  asset: Asset,
 ];
 
 // this is used for core web
@@ -64,7 +65,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     private analyticsServicePosthog: AnalyticsServicePosthog,
     private walletService: WalletService,
     private featureFlagService: FeatureFlagService,
-    private networkFeeService: NetworkFeeService
+    private networkFeeService: NetworkFeeService,
   ) {
     super();
   }
@@ -115,7 +116,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     }
 
     const networks = Object.values(
-      (await this.networkService.allNetworks.promisify()) ?? {}
+      (await this.networkService.allNetworks.promisify()) ?? {},
     );
 
     const activeNetwork = await this.networkService.getNetwork(scope);
@@ -124,7 +125,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
       currentBlockchain,
       networks,
       this.bridgeService.bridgeConfig,
-      activeNetwork?.isTestnet
+      activeNetwork?.isTestnet,
     );
 
     const wrappedNetwork = isNativeAsset(asset)
@@ -144,7 +145,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
           : asset.nativeNetwork,
         networks,
         this.bridgeService.bridgeConfig,
-        activeNetwork?.isTestnet
+        activeNetwork?.isTestnet,
       );
 
     const { activeAccount } = this.accountsService;
@@ -163,10 +164,16 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     }
 
     // get the correct balance information for the asset
-    const balances = await this.balanceAggregatorService.getBalancesForNetworks(
-      [sourceNetwork.chainId],
-      [activeAccount]
-    );
+    const { tokens } =
+      await this.balanceAggregatorService.getBalancesForNetworks(
+        [sourceNetwork.chainId],
+        [activeAccount],
+        [
+          asset.assetType === AssetType.ERC20
+            ? TokenType.ERC20
+            : TokenType.NATIVE,
+        ],
+      );
 
     const balanceAddress =
       sourceNetwork && isBitcoinNetwork(sourceNetwork)
@@ -179,7 +186,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
       findTokenForAsset(
         asset.symbol,
         asset.nativeNetwork,
-        Object.values(balances?.[sourceNetwork.chainId]?.[balanceAddress] ?? {})
+        Object.values(tokens?.[sourceNetwork.chainId]?.[balanceAddress] ?? {}),
       );
 
     const action: Action<BridgeActionDisplayData> = {
@@ -194,7 +201,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
         gasLimit: await this.bridgeService.estimateGas(
           currentBlockchain,
           new Big(amountStr),
-          asset
+          asset,
         ),
       },
     };
@@ -254,7 +261,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
     _result, // Unused
     onSuccess,
     onError,
-    frontendTabId?: number
+    frontendTabId?: number,
   ) => {
     const currentBlockchain = pendingAction?.displayData.currentBlockchain;
 
@@ -289,7 +296,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
 
         if (isWalletConnectAccount(account)) {
           throw new Error(
-            'WalletConnect accounts are not supported by Bridge yet'
+            'WalletConnect accounts are not supported by Bridge yet',
           );
         }
         const { addressBTC } = account;
@@ -301,15 +308,16 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
         const balances =
           await this.balanceAggregatorService.getBalancesForNetworks(
             [network.chainId],
-            [account]
+            [account],
+            [TokenType.NATIVE], // We only care about BTC here, which is a native token
           );
 
         const highFeeRate = Number(
-          (await this.networkFeeService.getNetworkFee(network))?.high.maxFee ??
-            0
+          (await this.networkFeeService.getNetworkFee(network))?.high
+            .maxFeePerGas ?? 0,
         );
 
-        const token = balances[network.chainId]?.[addressBTC]?.[
+        const token = balances.tokens[network.chainId]?.[addressBTC]?.[
           'BTC'
         ] as TokenWithBalanceBTC;
 
@@ -318,27 +326,30 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
         const utxos = await getBtcInputUtxos(btcProvider, token, highFeeRate);
 
         const hash = await transferAssetBTC({
+          fromAccount: addressBTC,
           config: this.#getConfig(),
-          amount: String(btcToSatoshi(amount)),
-          feeRate: highFeeRate,
+          amount: btcToSatoshi(amount),
+          feeRate:
+            Number(pendingAction.displayData.gasSettings?.maxFeePerGas ?? 0) ||
+            highFeeRate,
           onStatusChange: () => {},
           onTxHashChange: () => {},
-          signAndSendBTC: async ([address, amountAsString, feeRate]) => {
+          signAndSendBTC: async ({ amount: signAmount, feeRate, to, from }) => {
             const error = validateBtcSend(
-              addressBTC,
+              from,
               {
-                address,
-                amount: Number(amountAsString),
+                address: to,
+                amount: signAmount,
                 feeRate,
                 token,
               },
               utxos,
-              !network.isTestnet
+              !network.isTestnet,
             );
 
             if (error) {
               throw new Error(
-                'Building BTC transaction for Bridge failed: ' + error
+                'Building BTC transaction for Bridge failed: ' + error,
               );
             }
 
@@ -346,11 +357,11 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
               addressBTC,
               btcProvider,
               {
-                amount: Number(amountAsString),
-                address,
+                amount: signAmount,
+                address: to,
                 token,
                 feeRate,
-              }
+              },
             );
 
             if (!inputs || !outputs) {
@@ -360,7 +371,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
             const result = await this.walletService.sign(
               { inputs, outputs },
               network,
-              frontendTabId
+              frontendTabId,
             );
 
             return this.networkService.sendTransaction(result, network);
@@ -379,7 +390,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
           Date.now(),
           Blockchain.AVALANCHE,
           amount,
-          'BTC'
+          'BTC',
         );
         this.analyticsServicePosthog.captureEncryptedEvent({
           name: 'avalanche_bridgeAsset_success',
@@ -415,21 +426,22 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
           signAndSendEVM: async (txData) => {
             const tx = txData as ContractTransaction; // TODO: update types in the SDK?
 
-            const provider = getProviderForNetwork(
-              network
-            ) as JsonRpcBatchInternal;
+            const provider = (await getProviderForNetwork(
+              network,
+            )) as JsonRpcBatchInternal;
 
             const nonce = await provider.getTransactionCount(
-              this.#getSourceAccount().addressC
+              this.#getSourceAccount().addressC,
             );
 
             // Get fee-related properties from the approval screen first,
             // then use current instant (high) fee rate as a fallback.
             const customGasSettings = pendingAction.displayData.gasSettings;
             const maxFeePerGas =
-              customGasSettings?.maxFeePerGas ?? feeData?.high.maxFee;
+              customGasSettings?.maxFeePerGas ?? feeData?.high.maxFeePerGas;
             const maxPriorityFeePerGas =
-              customGasSettings?.maxPriorityFeePerGas ?? feeData?.high.maxTip;
+              customGasSettings?.maxPriorityFeePerGas ??
+              feeData?.high.maxPriorityFeePerGas;
 
             if (!maxFeePerGas) {
               throw new Error('Required option missing: maxFeePerGas');
@@ -443,7 +455,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
                 maxPriorityFeePerGas,
               },
               network,
-              frontendTabId
+              frontendTabId,
             );
 
             return this.networkService.sendTransaction(signResult, network);
@@ -462,7 +474,7 @@ export class AvalancheBridgeAsset extends DAppRequestHandler<BridgeActionParams>
               ? Blockchain.ETHEREUM
               : Blockchain.AVALANCHE,
             amount,
-            asset.symbol
+            asset.symbol,
           );
 
           this.analyticsServicePosthog.captureEncryptedEvent({

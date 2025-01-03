@@ -19,7 +19,7 @@ export function useSyncBridgeConfig() {
       request<BridgeGetConfigHandler>({
         method: ExtensionRequest.BRIDGE_GET_CONFIG,
       }),
-    [request]
+    [request],
   );
 
   // Periodically update the bridge config
@@ -32,8 +32,8 @@ export function useSyncBridgeConfig() {
         filter(
           (event) =>
             networkUpdatedEventListener(event) ||
-            isBridgeStateUpdateEventListener(event)
-        )
+            isBridgeStateUpdateEventListener(event),
+        ),
       )
       .subscribe(async () => {
         const newConfig = await fetchConfig();

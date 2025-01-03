@@ -21,7 +21,7 @@ export class GetTokensListHandler implements HandlerType {
     const [chainId, disallowedAssets] = request.params;
 
     const [tokens, err] = await resolve<NetworkContractToken[]>(
-      this.tokenManagerService.getTokensByChainId(chainId)
+      this.tokenManagerService.getTokensByChainId(chainId),
     );
 
     if (err) {

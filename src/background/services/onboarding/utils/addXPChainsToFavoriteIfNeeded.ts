@@ -3,26 +3,26 @@ import { NetworkService } from '../../network/NetworkService';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { Balances } from '../../balances/models';
 import { PrimaryAccount } from '../../accounts/models';
-import { Network } from '../../network/models';
+import { NetworkWithCaipId } from '../../network/models';
 import { isString } from 'lodash';
 import { container } from 'tsyringe';
-import { HistoryServicePVM } from '../../history/HistoryServicePVM';
-import { HistoryServiceAVM } from '../../history/HistoryServiceAVM';
+import { HistoryService } from '../../history/HistoryService';
 import {
+  TokenType,
   TokenWithBalanceAVM,
   TokenWithBalancePVM,
 } from '@avalabs/vm-module-types';
 
 export const addXPChainToFavoriteIfNeeded = async (
-  accounts: PrimaryAccount[]
+  accounts: PrimaryAccount[],
 ) => {
   const balanceService = container.resolve(BalanceAggregatorService);
   const networkService = container.resolve(NetworkService);
-  const historyServiceP = container.resolve(HistoryServicePVM);
-  const historyServiceX = container.resolve(HistoryServiceAVM);
+  const historyService = container.resolve(HistoryService);
   const balances = await balanceService.getBalancesForNetworks(
     [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
-    accounts
+    accounts,
+    [TokenType.NATIVE],
   );
 
   if (hasBalance(balances.tokens, accounts, ChainId.AVALANCHE_P)) {
@@ -32,9 +32,9 @@ export const addXPChainToFavoriteIfNeeded = async (
 
     if (pChain) {
       const hasPActivity = await hasChainActivity(
-        historyServiceP,
+        historyService,
         accounts.map(({ addressPVM }) => addressPVM).filter(isString),
-        pChain
+        pChain,
       );
 
       if (hasPActivity) {
@@ -50,9 +50,9 @@ export const addXPChainToFavoriteIfNeeded = async (
 
     if (xChain) {
       const hasXActivity = await hasChainActivity(
-        historyServiceX,
+        historyService,
         accounts.map(({ addressAVM }) => addressAVM).filter(isString),
-        xChain
+        xChain,
       );
 
       if (hasXActivity) {
@@ -63,16 +63,16 @@ export const addXPChainToFavoriteIfNeeded = async (
 };
 
 async function hasChainActivity(
-  historyService: HistoryServiceAVM | HistoryServicePVM,
+  historyService: HistoryService,
   addresses: string[],
-  network: Network
+  network: NetworkWithCaipId,
 ) {
   try {
     const results = await Promise.allSettled(
-      addresses.map((address) => historyService.getHistory(network, address))
+      addresses.map((address) => historyService.getTxHistory(network, address)),
     );
     const histories = results.map((result) =>
-      result.status === 'fulfilled' ? result.value : []
+      result.status === 'fulfilled' ? result.value : [],
     );
 
     return histories.some((history) => history.length > 0);
@@ -84,7 +84,7 @@ async function hasChainActivity(
 function hasBalance(
   balances: Balances,
   activeAccounts: PrimaryAccount[],
-  chainId: ChainId
+  chainId: ChainId,
 ) {
   return activeAccounts.some((account) => {
     const address =

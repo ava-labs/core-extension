@@ -19,7 +19,6 @@ import { WalletGetPermissionsHandler } from '@src/background/services/permission
 import { WalletRequestPermissionsHandler } from '@src/background/services/permissions/handlers/wallet_requestPermissions';
 import { WalletWatchAssetHandler } from '@src/background/services/settings/events/wallet_watchAsset';
 import { WalletGetEthereumChainHandler } from '@src/background/services/network/handlers/wallet_getEthereumChain';
-import { EthSendTransactionHandler } from '@src/background/services/wallet/handlers/eth_sendTransaction';
 import { AvalancheSelectWalletHandler } from '@src/background/services/web3/handlers/avalanche_selectWallet';
 import { ConnectRequestHandler } from '@src/background/services/web3/handlers/connect';
 import { AvalancheGetProviderState } from '@src/background/services/web3/handlers/avalanche_getProviderState';
@@ -30,6 +29,9 @@ import { AvalancheSendTransactionHandler } from '@src/background/services/wallet
 import { AvalancheGetAddressesInRangeHandler } from '@src/background/services/accounts/handlers/avalanche_getAddressesInRange';
 import { AvalancheSignTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_signTransaction';
 import { AvalancheSignMessageHandler } from '@src/background/services/messages/handlers/avalanche_signMessage';
+import { AvalancheRenameAccountHandler } from '@src/background/services/accounts/handlers/avalanche_renameAccount';
+import { AvalancheRenameWalletHandler } from '@src/background/services/secrets/handlers/avalanche_renameWallet';
+import { AvalancheDeleteAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_deleteAccounts';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -54,6 +56,8 @@ import { AvalancheSignMessageHandler } from '@src/background/services/messages/h
   { token: 'DAppRequestHandler', useToken: AvalancheSendTransactionHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSignTransactionHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSignMessageHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheRenameAccountHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheDeleteAccountsHandler },
   {
     token: 'DAppRequestHandler',
     useToken: AvalancheGetAddressesInRangeHandler,
@@ -67,9 +71,9 @@ import { AvalancheSignMessageHandler } from '@src/background/services/messages/h
   { token: 'DAppRequestHandler', useToken: WalletGetPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletRequestPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletWatchAssetHandler },
-  { token: 'DAppRequestHandler', useToken: EthSendTransactionHandler },
   { token: 'DAppRequestHandler', useToken: ConnectRequestHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheGetProviderState },
+  { token: 'DAppRequestHandler', useToken: AvalancheRenameWalletHandler },
   {
     token: 'DAppRequestHandler',
     useToken: AvalancheSendDomainMetadataHandler,

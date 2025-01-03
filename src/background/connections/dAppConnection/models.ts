@@ -15,7 +15,6 @@ export enum DAppProviderRequest {
   WALLET_GET_CHAIN = 'wallet_getEthereumChain',
   WALLET_SWITCH_ETHEREUM_CHAIN = 'wallet_switchEthereumChain',
   WALLET_WATCH_ASSET = 'wallet_watchAsset',
-  ETH_SEND_TX = 'eth_sendTransaction',
   PERSONAL_EC_RECOVER = 'personal_ecRecover',
   PERSONAL_SIGN = 'personal_sign',
   ETH_SIGN_TYPED_DATA_V4 = 'eth_signTypedData_v4',
@@ -34,11 +33,14 @@ export enum DAppProviderRequest {
   AVALANCHE_SELECT_WALLET = 'avalanche_selectWallet',
   AVALANCHE_SET_DEVELOPER_MODE = 'avalanche_setDeveloperMode',
   ACCOUNT_SELECT = 'avalanche_selectAccount',
+  ACCOUNT_RENAME = 'avalanche_renameAccount',
+  ACCOUNTS_DELETE = 'avalanche_deleteAccounts',
   AVALANCHE_GET_ACCOUNT_PUB_KEY = 'avalanche_getAccountPubKey',
   AVALANCHE_SEND_TRANSACTION = 'avalanche_sendTransaction',
   AVALANCHE_SIGN_TRANSACTION = 'avalanche_signTransaction',
   AVALANCHE_SIGN_MESSAGE = 'avalanche_signMessage',
   BITCOIN_SEND_TRANSACTION = 'bitcoin_sendTransaction',
+  WALLET_RENAME = 'avalanche_renameWallet',
 }
 
 export enum Web3Event {
@@ -62,7 +64,7 @@ export interface JsonRpcRequestParams<Method extends string, Params = unknown> {
 
 export type JsonRpcRequestPayload<
   Method extends string = any,
-  Params = unknown
+  Params = unknown,
 > = Params extends undefined
   ? JsonRpcRequestPayloadWithoutParams<Method>
   : JsonRpcRequestPayloadWithParams<Method, Params>;
@@ -80,11 +82,12 @@ interface JsonRpcRequestPayloadBase<Method extends string = any> {
   readonly method: Method;
   readonly site?: DomainMetadata;
   readonly tabId?: number;
+  readonly context?: Record<string, unknown>;
 }
 
 interface JsonRpcRequestPayloadWithParams<
   Method extends string = any,
-  Params = unknown
+  Params = unknown,
 > extends JsonRpcRequestPayloadBase<Method> {
   readonly params: Params;
 }

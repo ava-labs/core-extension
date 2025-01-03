@@ -15,7 +15,6 @@ import {
   WalletId,
 } from './models';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
-import { WalletService } from '../wallet/WalletService';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { PermissionsService } from '../permissions/PermissionsService';
@@ -24,6 +23,11 @@ import { DerivedAddresses, SecretType } from '../secrets/models';
 import { isPrimaryAccount } from './utils/typeGuards';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
+import { SecretsService } from '../secrets/SecretsService';
+import { LedgerService } from '../ledger/LedgerService';
+import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import { Network } from '../network/models';
+import { isDevnet } from '@src/utils/isDevnet';
 
 type AddAccountParams = {
   walletId: string;
@@ -65,7 +69,7 @@ export class AccountsService implements OnLock, OnUnlock {
     if (activeAccountChanged) {
       this.eventEmitter.emit(
         AccountsEvents.ACTIVE_ACCOUNT_CHANGED,
-        this.accounts.active
+        this.accounts.active,
       );
     }
 
@@ -82,10 +86,12 @@ export class AccountsService implements OnLock, OnUnlock {
 
   constructor(
     private storageService: StorageService,
-    private walletService: WalletService,
     private networkService: NetworkService,
     private permissionsService: PermissionsService,
-    private analyticsServicePosthog: AnalyticsServicePosthog
+    private analyticsServicePosthog: AnalyticsServicePosthog,
+    private secretsService: SecretsService,
+    private ledgerService: LedgerService,
+    private walletConnectService: WalletConnectService,
   ) {}
 
   async onUnlock(): Promise<void> {
@@ -94,7 +100,26 @@ export class AccountsService implements OnLock, OnUnlock {
     // refresh addresses so in case the user switches to testnet mode,
     // as the BTC address needs to be updated
     this.networkService.developerModeChanged.add(this.onDeveloperModeChanged);
+
+    // TODO(@meeh0w):
+    // Remove this listener after E-upgrade activation on Fuji. It will be no longer needed.
+    this.networkService.uiActiveNetworkChanged.add(
+      this.#onActiveNetworkChanged,
+    );
   }
+
+  #wasDevnet = false;
+
+  #onActiveNetworkChanged = async (network?: Network) => {
+    if (!network) {
+      return;
+    }
+
+    if (isDevnet(network) !== this.#wasDevnet) {
+      this.#wasDevnet = isDevnet(network);
+      await this.onDeveloperModeChanged(network?.isTestnet);
+    }
+  };
 
   onLock() {
     this.accounts = {
@@ -104,7 +129,10 @@ export class AccountsService implements OnLock, OnUnlock {
     };
 
     this.networkService.developerModeChanged.remove(
-      this.onDeveloperModeChanged
+      this.onDeveloperModeChanged,
+    );
+    this.networkService.uiActiveNetworkChanged.remove(
+      this.#onActiveNetworkChanged,
     );
   }
 
@@ -139,7 +167,7 @@ export class AccountsService implements OnLock, OnUnlock {
     }
 
     const refreshAccount = async <T extends Account>(
-      account: T
+      account: T,
     ): Promise<T> => {
       const isUpdated =
         !updateAddresses &&
@@ -197,12 +225,16 @@ export class AccountsService implements OnLock, OnUnlock {
 
   async getAddressesForAccount(account: Account): Promise<DerivedAddresses> {
     if (account.type !== AccountType.PRIMARY) {
-      return this.walletService.getImportedAddresses(account.id);
+      return this.secretsService.getImportedAddresses(
+        account.id,
+        this.networkService,
+      );
     }
 
-    const addresses = await this.walletService.getAddresses(
+    const addresses = await this.secretsService.getAddresses(
       account.index,
-      account.walletId
+      account.walletId,
+      this.networkService,
     );
 
     return {
@@ -258,9 +290,8 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   private async loadAccounts(): Promise<Accounts> {
-    const accounts = await this.storageService.load<Accounts>(
-      ACCOUNTS_STORAGE_KEY
-    );
+    const accounts =
+      await this.storageService.load<Accounts>(ACCOUNTS_STORAGE_KEY);
 
     return (
       accounts ?? {
@@ -297,14 +328,18 @@ export class AccountsService implements OnLock, OnUnlock {
 
   #findAccountByAddress(addressC: string) {
     return Object.values(this.accounts.imported).find(
-      (acc) => acc.addressC === addressC
+      (acc) => acc.addressC === addressC,
     );
+  }
+
+  getPrimaryAccountsByWalletId(walletId: string) {
+    return this.accounts.primary[walletId] ?? [];
   }
 
   #buildAccount(
     accountData,
     importType: ImportType,
-    suggestedName?: string
+    suggestedName?: string,
   ): ImportedAccount {
     const type = IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP[importType];
 
@@ -332,7 +367,12 @@ export class AccountsService implements OnLock, OnUnlock {
       walletId: walletId,
     };
 
-    const addresses = await this.walletService.addAddress(nextIndex, walletId);
+    const addresses = await this.secretsService.addAddress({
+      index: nextIndex,
+      walletId,
+      networkService: this.networkService,
+      ledgerService: this.ledgerService,
+    });
 
     const id = crypto.randomUUID();
 
@@ -355,7 +395,7 @@ export class AccountsService implements OnLock, OnUnlock {
       },
     };
     await this.permissionsService.addWhitelistDomains(
-      addresses[NetworkVMType.EVM]
+      addresses[NetworkVMType.EVM],
     );
 
     this.analyticsServicePosthog.captureEncryptedEvent({
@@ -374,8 +414,9 @@ export class AccountsService implements OnLock, OnUnlock {
     name?: string;
   }) {
     try {
-      const { account, commit } = await this.walletService.addImportedWallet(
-        options
+      const { account, commit } = await this.secretsService.addImportedWallet(
+        options,
+        this.networkService,
       );
 
       const existingAccount = this.#findAccountByAddress(account.addressC);
@@ -391,7 +432,7 @@ export class AccountsService implements OnLock, OnUnlock {
       const newAccount: ImportedAccount = this.#buildAccount(
         account,
         options.importType,
-        name
+        name,
       );
 
       this.accounts = {
@@ -410,7 +451,7 @@ export class AccountsService implements OnLock, OnUnlock {
       return account.id;
     } catch (err) {
       throw new Error(
-        `Account import failed with error: ${(err as Error).message}`
+        `Account import failed with error: ${(err as Error).message}`,
       );
     }
   }
@@ -443,7 +484,7 @@ export class AccountsService implements OnLock, OnUnlock {
 
     if (!walletAccounts) {
       throw new Error(
-        'Updated account does not exist within any of the primary wallets.'
+        'Updated account does not exist within any of the primary wallets.',
       );
     }
 
@@ -479,10 +520,11 @@ export class AccountsService implements OnLock, OnUnlock {
     const { active } = this.accounts;
 
     const walletIds = Object.keys(this.accounts.primary);
+
     const accountsCount = Object.values(this.accounts.primary).flat().length;
     const importedAccountIds = ids.filter((id) => id in this.accounts.imported);
     const primaryAccountIds = ids.filter(
-      (id) => !(id in this.accounts.imported)
+      (id) => !(id in this.accounts.imported),
     );
 
     if (accountsCount === primaryAccountIds.length) {
@@ -501,7 +543,7 @@ export class AccountsService implements OnLock, OnUnlock {
       if (!walletAccounts) {
         continue;
       }
-      const walletType = await this.walletService.getWalletType(walletId);
+      const walletType = await this.secretsService.getWalletType(walletId);
 
       const filteredWalletAccounts = walletAccounts.filter((account) => {
         return !primaryAccountIds.includes(account.id);
@@ -515,7 +557,7 @@ export class AccountsService implements OnLock, OnUnlock {
       }
 
       if (!filteredWalletAccounts.length && walletIds.length > 1) {
-        await this.walletService.deletePrimaryWallets([walletId]);
+        await this.secretsService.deletePrimaryWallets([walletId]);
         continue;
       }
 
@@ -551,7 +593,10 @@ export class AccountsService implements OnLock, OnUnlock {
       throw new Error('There is no new active account!');
     }
 
-    await this.walletService.deleteImportedWallets(ids);
+    await this.secretsService.deleteImportedWallets(
+      ids,
+      this.walletConnectService,
+    );
 
     this.accounts = {
       primary: newPrimaryAccounts,

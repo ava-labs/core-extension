@@ -1,14 +1,22 @@
 import { Stack } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import {
+  ERC1155Token,
+  ERC721Token,
+  TokenApproval,
+} from '@avalabs/vm-module-types';
+
+import {
   ApprovalSection,
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
-import { TransactionNft } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
-import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
 import { TransactionTokenCard } from '../TransactionTokenCard';
 
-export function NftSpendLimit({ token }: { token: TransactionNft }) {
+export function NftSpendLimit({
+  approval,
+}: {
+  approval: TokenApproval & { token: ERC1155Token | ERC721Token };
+}) {
   const { t } = useTranslation();
 
   return (
@@ -20,17 +28,14 @@ export function NftSpendLimit({ token }: { token: TransactionNft }) {
           ></ApprovalSectionHeader>
         </ApprovalSection>
 
-        <TransactionTokenCard token={token} sx={{ py: 2 }}>
-          <CollectibleMedia
-            height="32px"
-            width="auto"
-            maxWidth="32px"
-            url={token?.logoUri}
-            hover={false}
-            margin="8px 0"
-            showPlayIcon={false}
-          />
-        </TransactionTokenCard>
+        <TransactionTokenCard
+          token={approval.token}
+          diffItem={{
+            displayValue: approval.value ?? '1',
+            usdPrice: approval.usdPrice,
+          }}
+          sx={{ py: 2 }}
+        />
       </Stack>
     </>
   );

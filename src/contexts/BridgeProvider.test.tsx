@@ -19,7 +19,7 @@ import {
   useBridgeContext,
 } from './BridgeProvider';
 import { act } from 'react-dom/test-utils';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
 
@@ -29,13 +29,13 @@ const getBridgeProvider = (): BridgeContext => {
   render(
     <BridgeProvider>
       <TestConsumerComponent ref={ref} />
-    </BridgeProvider>
+    </BridgeProvider>,
   );
 
   return ref.current ?? ({} as BridgeContext);
 };
 
-const TestConsumerComponent = forwardRef((props: unknown, ref) => {
+const TestConsumerComponent = forwardRef((_props, ref) => {
   const { estimateGas, transferEVMAsset } = useBridgeContext();
 
   useImperativeHandle(ref, () => ({
@@ -93,7 +93,7 @@ describe('contexts/BridgeProvider', () => {
         symbol: 'AVAX',
       },
     },
-    avalancheProvider: {
+    avaxProviderC: {
       waitForTransaction: jest.fn(),
     },
     ethereumProvider: {
@@ -155,7 +155,7 @@ describe('contexts/BridgeProvider', () => {
 
         await act(async () => {
           await expect(
-            transferEVMAsset(new Big('0.1'), {} as any)
+            transferEVMAsset(new Big('0.1'), {} as any),
           ).rejects.toThrow('Wrong source chain');
         });
       });
@@ -169,7 +169,7 @@ describe('contexts/BridgeProvider', () => {
           onStatusChange,
           signAndSendEVM,
           hash: '0xHash',
-        } as any);
+        }) as any;
 
       jest
         .mocked(transferAssetEVM)
@@ -195,19 +195,22 @@ describe('contexts/BridgeProvider', () => {
         onStatusChange(WrapStatus.WAITING_FOR_DEPOSIT_CONFIRMATION);
         signAndSendEVM(fakeDepositTx);
 
-        expect(requestFn).toHaveBeenCalledWith({
-          method: DAppProviderRequest.ETH_SEND_TX,
-          params: [
-            { ...fakeDepositTx },
-            {
-              customApprovalScreenTitle: 'Confirm Bridge',
-              contextInformation: {
-                title: 'This operation requires {{total}} approvals.',
-                notice: 'You will be prompted {{remaining}} more time(s).',
-              },
+        expect(requestFn).toHaveBeenCalledWith(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [
+              { ...fakeDepositTx, maxFeePerGas: '0x32', gasPrice: undefined },
+            ],
+          },
+          {
+            customApprovalScreenTitle: 'Confirm Bridge',
+            alert: {
+              type: 'info',
+              title: 'This operation requires {{total}} approvals.',
+              notice: 'You will be prompted {{remaining}} more time(s).',
             },
-          ],
-        });
+          },
+        );
 
         // Mock the transfer TX being prompted and signed
         const fakeTransferTx = {
@@ -219,15 +222,17 @@ describe('contexts/BridgeProvider', () => {
         onStatusChange(WrapStatus.WAITING_FOR_CONFIRMATION);
         signAndSendEVM(fakeTransferTx);
 
-        expect(requestFn).toHaveBeenCalledWith({
-          method: DAppProviderRequest.ETH_SEND_TX,
-          params: [
-            { ...fakeTransferTx },
-            {
-              customApprovalScreenTitle: 'Confirm Bridge',
-            },
-          ],
-        });
+        expect(requestFn).toHaveBeenCalledWith(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [
+              { ...fakeTransferTx, maxFeePerGas: '0x37', gasPrice: undefined },
+            ],
+          },
+          {
+            customApprovalScreenTitle: 'Confirm Bridge',
+          },
+        );
       });
     });
 
@@ -244,7 +249,7 @@ describe('contexts/BridgeProvider', () => {
           amount,
           asset: currentAssetData,
           account: accountsContext.accounts.active.addressC,
-          avalancheProvider: networkContext.avalancheProvider,
+          avalancheProvider: networkContext.avaxProviderC,
           ethereumProvider: networkContext.ethereumProvider,
           config: bridgeSDKContext.bridgeConfig.config,
           onStatusChange: expect.any(Function),
@@ -295,7 +300,7 @@ describe('contexts/BridgeProvider', () => {
         jest.mocked(useNetworkContext).mockReturnValue({
           ...networkContext,
           ethereumProvider: undefined,
-          avalancheProvider: undefined,
+          avaxProviderC: undefined,
         });
       });
 
@@ -332,10 +337,10 @@ describe('contexts/BridgeProvider', () => {
           asset,
           {
             ethereum: networkContext.ethereumProvider,
-            avalanche: networkContext.avalancheProvider,
+            avalanche: networkContext.avaxProviderC,
           },
           bridgeSDKContext.bridgeConfig.config,
-          bridgeSDKContext.currentBlockchain
+          bridgeSDKContext.currentBlockchain,
         );
       });
     });

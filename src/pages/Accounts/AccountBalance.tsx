@@ -14,12 +14,15 @@ import { useTranslation } from 'react-i18next';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { AccountType } from '@src/background/services/accounts/models';
+import { useAccountManager } from './providers/AccountManagerProvider';
 
 interface AccountBalanceProps {
   refreshBalance: () => void;
   balanceTotalUSD: number | null;
   isBalanceLoading: boolean;
   accountType: AccountType;
+  isActive: boolean;
+  isHovered: boolean;
 }
 
 const AnimatedRefreshIcon = styled(RefreshIcon, {
@@ -52,8 +55,11 @@ export function AccountBalance({
   balanceTotalUSD,
   isBalanceLoading,
   accountType,
+  isActive,
+  isHovered,
 }: AccountBalanceProps) {
   const { t } = useTranslation();
+  const { isManageMode } = useAccountManager();
   const { currency, currencyFormatter } = useSettingsContext();
   const [skeletonWidth, setSkeletonWidth] = useState(30);
   const balanceTextRef = useRef<HTMLSpanElement>();
@@ -77,7 +83,7 @@ export function AccountBalance({
         setSkeletonWidth(balanceTextRef.current?.offsetWidth);
       }
     },
-    [refreshBalance]
+    [refreshBalance],
   );
 
   const onRefreshClicked = useCallback(
@@ -87,7 +93,7 @@ export function AccountBalance({
         type: accountType,
       });
     },
-    [handleClick, capture, accountType]
+    [handleClick, capture, accountType],
   );
 
   const onViewBalanceClicked = useCallback(
@@ -97,7 +103,7 @@ export function AccountBalance({
         type: accountType,
       });
     },
-    [handleClick, capture, accountType]
+    [handleClick, capture, accountType],
   );
 
   return (
@@ -143,7 +149,7 @@ export function AccountBalance({
 
       <Grow
         {...commonTransitionProps}
-        in={hasBalance && !isBalanceLoading}
+        in={hasBalance && isHovered && !isBalanceLoading && !isManageMode}
         mountOnEnter
         unmountOnExit
       >
@@ -163,8 +169,12 @@ export function AccountBalance({
         mountOnEnter
         unmountOnExit
       >
-        <Typography ref={balanceTextRef} variant="h6">
-          {currencyFormatter(balanceTotalUSD || 0).replace(currency, '')}
+        <Typography
+          ref={balanceTextRef}
+          variant="body1"
+          color={isActive ? 'text.primary' : 'text.secondary'}
+        >
+          {currencyFormatter(balanceTotalUSD ?? 0).replace(currency, '')}
         </Typography>
       </Grow>
     </Stack>

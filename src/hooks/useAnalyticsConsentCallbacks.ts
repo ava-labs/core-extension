@@ -41,7 +41,7 @@ export const useAnalyticsConsentCallbacks = (origin: ConsentChangeOrigin) => {
           origin,
           addresses,
         },
-        true
+        true,
       );
     } finally {
       setIsApproving(false);

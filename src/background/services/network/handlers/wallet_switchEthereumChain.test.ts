@@ -4,11 +4,11 @@ import { DAppProviderRequest } from './../../../connections/dAppConnection/model
 import { DEFERRED_RESPONSE } from './../../../connections/middlewares/models';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ethErrors } from 'eth-rpc-errors';
-import { isCoreWeb } from '../../network/utils/isCoreWeb';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
-jest.mock('../../network/utils/isCoreWeb');
 jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@src/utils/canSkipApproval');
 
 const mockActiveNetwork: Network = {
   chainName: 'Avalanche (C-Chain)',
@@ -65,6 +65,10 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
         chainId: '0xa869', // 43113
       },
     ],
+    site: {
+      domain: 'core.app',
+      tabId: 1,
+    },
   };
 
   beforeEach(() => {
@@ -73,12 +77,12 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
 
     handler = new WalletSwitchEthereumChainHandler(networkServiceMock);
     (crypto.randomUUID as jest.Mock).mockReturnValue('uuid');
-    jest.mocked(isCoreWeb).mockResolvedValue(false);
+    jest.mocked(canSkipApproval).mockResolvedValue(false);
   });
 
   it('handleUnauthenticated', async () => {
     const result = await handler.handleUnauthenticated(
-      buildRpcCall(switchChainRequest)
+      buildRpcCall(switchChainRequest),
     );
     expect(result).toEqual({
       ...switchChainRequest,
@@ -89,7 +93,7 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
   describe('handleAuthenticated', () => {
     it('opens approval dialog', async () => {
       const result = await handler.handleAuthenticated(
-        buildRpcCall(switchChainRequest, 'eip:43114')
+        buildRpcCall(switchChainRequest, 'eip:43114'),
       );
 
       expect(result).toEqual({
@@ -100,15 +104,15 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
       expect(openApprovalWindow).toHaveBeenCalledTimes(1);
       expect(openApprovalWindow).toHaveBeenCalledWith(
         expect.objectContaining({ id: '1234' }),
-        'network/switch'
+        'network/switch',
       );
     });
 
     it('does not open approval dialog because the request comes from core web', async () => {
-      jest.mocked(isCoreWeb).mockResolvedValue(true);
+      jest.mocked(canSkipApproval).mockResolvedValue(true);
 
       const result = await handler.handleAuthenticated(
-        buildRpcCall(switchChainRequest)
+        buildRpcCall(switchChainRequest),
       );
 
       expect(result).toEqual({
@@ -128,10 +132,14 @@ describe('src/background/services/network/handlers/wallet_switchEthereumChain.ts
             chainId: '0xa868', // 43112
           },
         ],
+        site: {
+          domain: 'core.app',
+          tabId: 1,
+        },
       };
 
       const result = await handler.handleAuthenticated(
-        buildRpcCall(requestWithBadChainId)
+        buildRpcCall(requestWithBadChainId),
       );
 
       expect(result).toEqual({

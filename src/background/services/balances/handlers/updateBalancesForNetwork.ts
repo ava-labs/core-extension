@@ -7,7 +7,7 @@ import { NetworkService } from '../../network/NetworkService';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 import { Balances } from '../models';
 import { caipToChainId } from '@src/utils/caipConversion';
-import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_BALANCES_UPDATE,
@@ -22,7 +22,7 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
   constructor(
     private networkBalancesService: BalanceAggregatorService,
     private accountsService: AccountsService,
-    private networkSerice: NetworkService
+    private networkSerice: NetworkService,
   ) {}
 
   async #getDefaultNetworksToFetch(activeChainId: number) {
@@ -62,7 +62,8 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
     try {
       const balances = await this.networkBalancesService.getBalancesForNetworks(
         networksToFetch,
-        accountsToFetch
+        accountsToFetch,
+        [TokenType.NATIVE, TokenType.ERC20],
       );
       return {
         ...request,

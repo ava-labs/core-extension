@@ -3,8 +3,14 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAddressesInRangeHandler } from './avalanche_getAddressesInRange';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
+import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { AccountsService } from '../AccountsService';
 
 jest.mock('@avalabs/core-wallets-sdk');
+jest.mock('@src/utils/canSkipApproval');
+jest.mock('@src/background/runtime/openApprovalWindow');
 
 describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts', () => {
   const getPrimaryAccountSecretsMock = jest.fn();
@@ -17,35 +23,41 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
     getAvalanceProviderXP: jest.fn(),
   } as any;
 
+  const accountsService = jest.mocked<AccountsService>({} as any);
+
   const handleRequest = async (request) => {
     const handler = new AvalancheGetAddressesInRangeHandler(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsService,
     );
 
     return handler.handleAuthenticated(request);
   };
 
-  const getPayload = (payload) =>
+  const getPayload = (payload, domain = 'core.app') =>
     ({
       id: '1234',
       method: DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+      site: {
+        domain,
+        tabId: 3,
+      },
       ...payload,
-    } as const);
+    }) as const;
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.mocked(canSkipApproval).mockResolvedValue(true);
   });
 
   describe('handleAuthenticated', () => {
     it('returns error on error', async () => {
       const error = new Error('some error');
       getPrimaryAccountSecretsMock.mockRejectedValueOnce(error);
-      const request = {
-        id: '123',
-        method: DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+      const request = getPayload({
         params: [0, 0, 10, 10],
-      } as any;
+      });
 
       const result = await handleRequest(buildRpcCall(request));
       expect(result).toEqual({
@@ -71,36 +83,36 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
           .mocked(Avalanche.getAddressFromXpub)
           .mockImplementation(
             (_, index, __, ___, isChange) =>
-              `X-${isChange ? 'internal' : 'external'}_address${index}`
+              `X-${isChange ? 'internal' : 'external'}_address${index}`,
           );
       });
 
       it('throws if external start index is incorrect', async () => {
         const { error } = await handleRequest(
-          buildRpcCall(getPayload({ params: [-1, 0] }))
+          buildRpcCall(getPayload({ params: [-1, 0] })),
         );
 
         expect(error).toEqual(
           ethErrors.rpc.invalidParams({
             message: 'Invalid start index',
-          })
+          }),
         );
       });
 
       it('throws if internal start index is incorrect', async () => {
         const { error } = await handleRequest(
-          buildRpcCall(getPayload({ params: [0, -1] }))
+          buildRpcCall(getPayload({ params: [0, -1] })),
         );
         expect(error).toEqual(
           ethErrors.rpc.invalidParams({
             message: 'Invalid start index',
-          })
+          }),
         );
       });
 
       it('returns the address list correctly', async () => {
         const { result } = await handleRequest(
-          buildRpcCall(getPayload({ params: [0, 0, 2, 2] }))
+          buildRpcCall(getPayload({ params: [0, 0, 2, 2] })),
         );
         expect(result).toEqual({
           external: getExpectedResult('external', 2),
@@ -109,9 +121,48 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
         expect(Avalanche.getAddressFromXpub).toHaveBeenCalledTimes(4);
       });
 
+      it('asks for approval for non-Core dApps', async () => {
+        jest.mocked(canSkipApproval).mockResolvedValueOnce(false);
+
+        const request = getPayload({ params: [0, 0, 2, 2] });
+        const { result } = await handleRequest(buildRpcCall(request));
+        expect(result).toEqual(DEFERRED_RESPONSE);
+        expect(openApprovalWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            displayData: expect.objectContaining({
+              indices: {
+                internalStart: 0,
+                internalLimit: 2,
+                externalStart: 0,
+                externalLimit: 2,
+              },
+              addresses: {
+                external: getExpectedResult('external', 2),
+                internal: getExpectedResult('internal', 2),
+              },
+            }),
+          }),
+          'getAddressesInRange',
+        );
+      });
+
+      it('should call `canSkipApproval` with whitelisted domains', async () => {
+        const EXPOSED_DOMAINS = [
+          'develop.avacloud-app.pages.dev',
+          'avacloud.io',
+          'staging--ava-cloud.avacloud-app.pages.dev',
+        ];
+        const request = getPayload({ params: [0, 0, 2, 2] });
+        await handleRequest(buildRpcCall(request));
+        expect(canSkipApproval).toHaveBeenCalledWith('core.app', 3, {
+          allowInactiveTabs: true,
+          domainWhitelist: EXPOSED_DOMAINS,
+        });
+      });
+
       it('sets the limit to 0 if not provided', async () => {
         const { result } = await handleRequest(
-          buildRpcCall(getPayload({ params: [0, 0] }))
+          buildRpcCall(getPayload({ params: [0, 0] })),
         );
         expect(result).toStrictEqual({
           external: [],
@@ -122,7 +173,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
 
       it('sets the limit to 100 if the provided is over 100', async () => {
         const { result } = await handleRequest(
-          buildRpcCall(getPayload({ params: [0, 0, 1000, 1000] }))
+          buildRpcCall(getPayload({ params: [0, 0, 1000, 1000] })),
         );
         expect(result.external).toHaveLength(100);
         expect(result.internal).toHaveLength(100);
@@ -134,13 +185,12 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
   it('handleUnauthenticated', async () => {
     const handler = new AvalancheGetAddressesInRangeHandler(
       secretsServiceMock,
-      networkServiceMock
+      networkServiceMock,
+      accountsService,
     );
-    const request = {
-      id: '123',
-      method: DAppProviderRequest.AVALANCHE_GET_ADDRESSES_IN_RANGE,
+    const request = getPayload({
       params: [0, 0, 10, 10],
-    } as any;
+    });
 
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
     expect(result).toEqual({

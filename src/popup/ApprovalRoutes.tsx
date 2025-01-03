@@ -16,12 +16,6 @@ const PermissionsPage = lazy(() => {
   }));
 });
 
-const SignTransactionPage = lazy(() => {
-  return import('../pages/SignTransaction/SignTransaction').then((m) => ({
-    default: m.SignTransactionPage,
-  }));
-});
-
 const SeedlessAuthPopup = lazy(() => {
   return import('../pages/SeedlessPopups/SeedlessAuthPopup').then((m) => ({
     default: m.SeedlessAuthPopup,
@@ -100,6 +94,30 @@ const ApproveAction = lazy(() => {
   }));
 });
 
+const RenameAccount = lazy(() => {
+  return import('../pages/Wallet/RenameAccount').then((m) => ({
+    default: m.RenameAccount,
+  }));
+});
+
+const DeleteAccounts = lazy(() => {
+  return import('../pages/Wallet/DeleteAccounts').then((m) => ({
+    default: m.DeleteAccount,
+  }));
+});
+
+const GetAddressesInRange = lazy(() => {
+  return import('../pages/Wallet/GetAddressesInRange').then((m) => ({
+    default: m.GetAddressesInRange,
+  }));
+});
+
+const RenameWallet = lazy(() => {
+  return import('../pages/Wallet/RenameWallet').then((m) => ({
+    default: m.RenameWallet,
+  }));
+});
+
 export const ApprovalRoutes = (props: SwitchProps) => (
   <Suspense
     fallback={
@@ -116,11 +134,6 @@ export const ApprovalRoutes = (props: SwitchProps) => (
     }
   >
     <Switch {...props}>
-      <Route path="/sign/transaction">
-        <SignTxErrorBoundary variant="OpenError">
-          <SignTransactionPage />
-        </SignTxErrorBoundary>
-      </Route>
       <Route path="/approve/generic">
         <SignTxErrorBoundary variant="OpenError">
           <GenericApprovalScreen />
@@ -174,11 +187,23 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       <Route path="/switchAccount">
         <SwitchAccount />
       </Route>
+      <Route path="/renameAccount">
+        <RenameAccount />
+      </Route>
+      <Route path="/deleteAccounts">
+        <DeleteAccounts />
+      </Route>
+      <Route path="/getAddressesInRange">
+        <GetAddressesInRange />
+      </Route>
       <Route path="/networks/add-popup">
         <AddCustomNetworkPopup />
       </Route>
       <Route path="/network/switch">
         <SwitchActiveNetwork />
+      </Route>
+      <Route path="/renameWallet">
+        <RenameWallet />
       </Route>
     </Switch>
   </Suspense>

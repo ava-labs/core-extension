@@ -24,6 +24,11 @@ export interface EIP6963ProviderDetail {
   provider: Eip1193Provider;
 }
 
+export interface EIP6963AnnounceProviderEvent extends CustomEvent {
+  type: 'eip6963:announceProvider';
+  detail: EIP6963ProviderDetail;
+}
+
 export enum EventNames {
   CORE_WALLET_ANNOUNCE_PROVIDER = 'core-wallet:announceProvider',
   CORE_WALLET_REQUEST_PROVIDER = 'core-wallet:requestProvider',

@@ -38,10 +38,10 @@ export function BridgeTransferAsset({
   const { displayData } = action;
   const [gasSettings, setGasSettings] = useState<CustomGasSettings>({});
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
-    GasFeeModifier.INSTANT
+    GasFeeModifier.INSTANT,
   );
 
-  const tokenPrice = displayData.token.priceInCurrency;
+  const tokenPrice = displayData?.token?.priceInCurrency;
   const fiatValue: Big | undefined =
     typeof tokenPrice === 'number'
       ? new Big(displayData.amountStr).times(tokenPrice)
@@ -77,7 +77,7 @@ export function BridgeTransferAsset({
         return currSettings;
       });
     },
-    [setGasSettings, action.actionId, updateAction]
+    [setGasSettings, action.actionId, updateAction],
   );
 
   return (

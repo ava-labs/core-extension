@@ -15,7 +15,7 @@ import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 export const getBtcInputUtxos = async (
   provider: BitcoinProvider,
   token: TokenWithBalanceBTC,
-  feeRate?: number
+  feeRate?: number,
 ) => {
   const utxos = await provider.getScriptsForUtxos(token.utxos ?? []);
 
@@ -35,7 +35,7 @@ export const getBtcInputUtxos = async (
 export const buildBtcTx = async (
   from: string,
   provider: BitcoinProvider,
-  { amount, address, token, feeRate }: BtcSendOptions
+  { amount, address, token, feeRate }: BtcSendOptions,
 ) => {
   const utxos = await getBtcInputUtxos(provider, token);
 
@@ -45,7 +45,7 @@ export const buildBtcTx = async (
     amount,
     feeRate,
     utxos,
-    provider.getNetwork()
+    provider.getNetwork(),
   );
 };
 
@@ -53,7 +53,7 @@ export const validateBtcSend = (
   from: string,
   { address, amount, feeRate }: BtcSendOptions,
   utxos: BitcoinInputUTXO[],
-  isMainnet: boolean
+  isMainnet: boolean,
 ) => {
   if (!address) {
     return SendErrorMessage.ADDRESS_REQUIRED;
@@ -73,7 +73,7 @@ export const validateBtcSend = (
 
   const maxTransferAmount = Math.max(
     getMaxTransferAmount(utxos, address, from, feeRate),
-    0
+    0,
   );
 
   if (amount > maxTransferAmount) {

@@ -166,7 +166,7 @@ export function ExportRecoveryPhrase({
               <AlertTitle>{t('2 Day Waiting Period')}</AlertTitle>
               <AlertContent sx={{ lineHeight: 1.66 }}>
                 {t(
-                  'For your safety there is a 2 day waiting period to retrieve a phrase.'
+                  'For your safety there is a 2 day waiting period to retrieve a phrase.',
                 )}
               </AlertContent>
             </Alert>

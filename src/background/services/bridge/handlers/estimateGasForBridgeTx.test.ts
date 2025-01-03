@@ -33,7 +33,7 @@ describe('src/background/services/bridge/handlers/estimateGasForBridgeTx', () =>
     expect(bridgeService.estimateGas).toHaveBeenCalledWith(
       sourceChain,
       amount,
-      asset
+      asset,
     );
   });
 

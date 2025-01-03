@@ -4,13 +4,12 @@ import {
   JsonRpcRequestPayload,
   JsonRpcResponse,
 } from '../connections/dAppConnection/models';
-import { getWalletExtensionType } from './utils/getWalletExtensionType';
 import { Maybe } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
 import { EVMProvider } from '@avalabs/evm-module/dist/provider';
 
 export class MultiWalletProviderProxy extends EventEmitter {
-  #_providers: unknown[] = [];
+  #_providers: EVMProvider[] = [];
   #isWalletSelected = false;
   #defaultProvider;
 
@@ -64,27 +63,13 @@ export class MultiWalletProviderProxy extends EventEmitter {
     });
   }
 
-  public addProvider(provider) {
-    // the COINBASE collects here the wallets
-    if (provider.providerMap) {
-      for (const providerProxy of provider.providerMap.values()) {
-        if (
-          !providerProxy.isAvalanche && // we exclude Core being duplicated
-          !this.#_providers.includes(providerProxy)
-        ) {
-          this.#_providers.push(providerProxy);
-        }
-      }
-      return;
-    }
+  public addProvider(providerDetail) {
+    const isProviderAdded = this.#_providers.find((provider) => {
+      return provider.info.uuid === providerDetail.info.uuid;
+    });
 
-    // the coinbase would add another proxy which is useless for us
-    if (provider.coinbaseWalletInstalls) {
-      return;
-    }
-
-    if (!this.#_providers.includes(provider)) {
-      this.#_providers.push(provider);
+    if (!isProviderAdded) {
+      this.#_providers.push(providerDetail);
     }
   }
 
@@ -100,11 +85,9 @@ export class MultiWalletProviderProxy extends EventEmitter {
       params: [
         // using any since we don't really know what kind of provider they are
         this.#_providers.map((p: any, i) => {
-          const type = getWalletExtensionType(p);
-
           return {
             index: i,
-            type,
+            info: p.info,
           };
         }),
       ],
@@ -131,7 +114,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
           event,
           (...args: any[]) => {
             this.emit(event as string, ...args);
-          }
+          },
         );
       });
     }
@@ -189,7 +172,10 @@ export class MultiWalletProviderProxy extends EventEmitter {
    */
   sendAsync(
     payload: JsonRpcRequestPayload,
-    callback: (error: Error | null, result?: JsonRpcResponse<unknown[]>) => void
+    callback: (
+      error: Error | null,
+      result?: JsonRpcResponse<unknown[]>,
+    ) => void,
   ): void {
     this._request(payload)
       .then((result: any) => {
@@ -224,7 +210,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
    */
   send<T>(
     payload: JsonRpcRequestPayload,
-    callback: (error: Error | null, result?: JsonRpcResponse<T>) => void
+    callback: (error: Error | null, result?: JsonRpcResponse<T>) => void,
   ): void;
 
   /**
@@ -266,7 +252,7 @@ export function createMultiWalletProxy(evmProvider: EVMProvider) {
     // intercept unknow calls that are meant to be handled by the current provider
     // and forward them if needed so that we don't have to implement all the custom
     // functions any given wallet provider might expose
-    get: (target, prop, receiver) => {
+    get: (_, prop, receiver) => {
       // if the proxy has the function call it
       if (proxyProvider[prop]) {
         return proxyProvider[prop];
@@ -280,7 +266,7 @@ export function createMultiWalletProxy(evmProvider: EVMProvider) {
       // check if the request param is an extension defined by the dApp
       return Reflect.get(walletProviderExtensions, prop, receiver);
     },
-    set(obj, prop, value) {
+    set(_, prop, value) {
       Reflect.set(walletProviderExtensions, prop, value);
       return true;
     },

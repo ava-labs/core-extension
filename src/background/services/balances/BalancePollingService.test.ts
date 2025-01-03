@@ -1,3 +1,4 @@
+import { TokenType } from '@avalabs/vm-module-types';
 import { BalanceAggregatorService } from './BalanceAggregatorService';
 import { BalancePollingService } from './BalancePollingService';
 
@@ -18,6 +19,7 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
   const account = {} as any;
   const activeNetworkId = 1;
   const roundRobinChainIds = [2, 3, 4];
+  const tokenTypes = [TokenType.NATIVE, TokenType.ERC20];
 
   const getFetchedNetworksForCall = (mock, callIndex) => {
     return mock.calls[callIndex][0];
@@ -37,13 +39,18 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
   describe('when polling is active', () => {
     beforeEach(async () => {
       const service = new BalancePollingService(aggregatorServiceMock);
-      await service.startPolling(account, activeNetworkId, roundRobinChainIds);
+      await service.startPolling(
+        account,
+        activeNetworkId,
+        roundRobinChainIds,
+        tokenTypes,
+      );
     });
 
     it('polls for active and favorite networks on the first run', () => {
       expect(
-        aggregatorServiceMock.getBalancesForNetworks
-      ).toHaveBeenLastCalledWith([1, 2, 3, 4], expect.anything());
+        aggregatorServiceMock.getBalancesForNetworks,
+      ).toHaveBeenLastCalledWith([1, 2, 3, 4], expect.anything(), tokenTypes);
     });
 
     it('polls for active network on every run', () => {
@@ -52,7 +59,7 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
       expect(
         (
           aggregatorServiceMock.getBalancesForNetworks as jest.Mock
-        ).mock.calls.every(([chainIds]) => chainIds.includes(1))
+        ).mock.calls.every(([chainIds]) => chainIds.includes(1)),
       ).toBe(true);
     });
 

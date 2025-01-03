@@ -45,7 +45,7 @@ import './registry';
 export class FireblocksService {
   constructor(
     @inject('FireblocksSecretsProvider')
-    private secretsProvider: FireblocksSecretsProvider
+    private secretsProvider: FireblocksSecretsProvider,
   ) {}
 
   async fetchVaultAccountByWalletAddress(address: string, assetIds: string[]) {
@@ -63,14 +63,14 @@ export class FireblocksService {
   async getBtcAddressByAccountId(
     accountId: string,
     isMainnet: boolean,
-    nextPaginationToken?: string
+    nextPaginationToken?: string,
   ) {
     const assetId = isMainnet ? 'BTC' : 'BTC_TEST';
 
     const response = await this.getAddresses(
       accountId,
       assetId,
-      nextPaginationToken
+      nextPaginationToken,
     );
 
     const permanent = response.addresses.find((address) => {
@@ -85,7 +85,7 @@ export class FireblocksService {
       return await this.getBtcAddressByAccountId(
         accountId,
         isMainnet,
-        response.paging?.after
+        response.paging?.after,
       );
     }
 
@@ -101,7 +101,7 @@ export class FireblocksService {
   async getAddresses(
     accountId: string,
     assetId: string,
-    nextPaginationToken?: string
+    nextPaginationToken?: string,
   ) {
     const queryParamKey = '?after=';
 
@@ -121,7 +121,7 @@ export class FireblocksService {
       const response = await this.getAddresses(
         accountId,
         assetId,
-        nextPaginationToken
+        nextPaginationToken,
       );
       nextPaginationToken = response.paging?.after;
       addresses = [...addresses, ...response.addresses];
@@ -155,7 +155,7 @@ export class FireblocksService {
       vaultAccounts.accounts.map(async ({ id }) => ({
         vaultId: id,
         addresses: await this.getAllAddesses(id, assetId),
-      }))
+      })),
     );
 
     const addressToVaultMap = new Map<string, string>();
@@ -179,7 +179,7 @@ export class FireblocksService {
    * TODO: cache this data in storage, with some kind of TTL.
    */
   async getAllKnownAddressesForAsset(
-    assetId: string
+    assetId: string,
   ): Promise<KnownAddressDictionary> {
     const addressDictionary: KnownAddressDictionary = new Map();
 

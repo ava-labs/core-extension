@@ -13,8 +13,10 @@ import { GetNavigationHistoryDataHandler } from '@src/background/services/naviga
 
 export function usePageHistory() {
   const { request } = useConnectionContext();
-  const [isLoading, setIsLoading] = useState(true);
-  const [historyDataState, setHistoryDataState] = useState({});
+  const [historyDataState, setHistoryDataState] = useState<{
+    isLoading: boolean;
+    [key: string]: any;
+  }>({ isLoading: true });
   const [historyState, setHistoryState] = useState<NavigationHistoryState>({});
 
   const setNavigationHistoryData = useCallback(
@@ -24,14 +26,14 @@ export function usePageHistory() {
         params: [data],
       });
     },
-    [request]
+    [request],
   );
 
   const getNavigationHistoryData = useCallback(async () => {
     const result = await request<GetNavigationHistoryDataHandler>({
       method: ExtensionRequest.NAVIGATION_HISTORY_DATA_GET,
     });
-    setHistoryDataState(result);
+    setHistoryDataState({ ...result, isLoading: false });
   }, [request]);
 
   const setNavigationHistory = useCallback(
@@ -41,7 +43,7 @@ export function usePageHistory() {
         params: [history],
       });
     },
-    [request]
+    [request],
   );
 
   const getNavigationHistory = useCallback(async () => {
@@ -53,10 +55,8 @@ export function usePageHistory() {
 
   useEffect(() => {
     const getHistory = async () => {
-      setIsLoading(true);
       await getNavigationHistory();
       await getNavigationHistoryData();
-      setIsLoading(false);
     };
     getHistory();
   }, [getNavigationHistory, getNavigationHistoryData]);
@@ -76,6 +76,5 @@ export function usePageHistory() {
     getPageHistoryData,
     setNavigationHistory,
     getNavigationHistoryState,
-    isHistoryLoading: isLoading,
   };
 }
