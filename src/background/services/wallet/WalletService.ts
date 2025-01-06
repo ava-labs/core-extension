@@ -62,6 +62,7 @@ import { Network } from '../network/models';
 import { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
 import { Account } from '../accounts/models';
+import { HVMWallet } from './HVMWallet';
 
 @singleton()
 export class WalletService implements OnUnlock {
@@ -165,9 +166,26 @@ export class WalletService implements OnUnlock {
       // wallet is not initialized
       return;
     }
+    const { secretType } = secrets;
+    // HVM
+    if (network.vmName === NetworkVMType.HVM) {
+      if (secretType === SecretType.Mnemonic) {
+        const accountIndexToUse =
+          accountIndex === undefined ? secrets.account.index : accountIndex;
+        return HVMWallet.fromMnemonic(
+          secrets.mnemonic,
+          accountIndexToUse,
+          secrets.derivationPath
+        );
+      }
+      if (secretType === SecretType.PrivateKey) {
+        const { secret } = secrets;
+        return new HVMWallet(secret);
+      }
+      throw new Error('Unsupported wallet types');
+    }
 
     const provider = await getProviderForNetwork(network);
-    const { secretType } = secrets;
 
     // Seedless wallet uses a universal signer class (one for all tx types)
 
@@ -516,6 +534,15 @@ export class WalletService implements OnUnlock {
           : await wallet.signTx(txToSign, originalRequestMethod);
 
       return this.#normalizeSigningResult(result);
+    }
+
+    if ('abi' in tx) {
+      if (!(wallet instanceof HVMWallet)) {
+        throw new Error('ed25519 is not supported');
+      }
+      return this.#normalizeSigningResult(
+        await wallet.signEd25519(tx.txPayload, tx.abi)
+      );
     }
 
     if (

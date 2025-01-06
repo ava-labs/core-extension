@@ -112,8 +112,6 @@ export class BalancesService {
       {}
     );
 
-    console.log('balances: ', balances);
-
     sentryTracker.finish();
 
     return balances;

@@ -29,10 +29,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@0.0.0-feat-CP-9461-create-hvm-module-20241218133843":
-  version "0.0.0-feat-CP-9461-create-hvm-module-20241218133843"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-CP-9461-create-hvm-module-20241218133843.tgz#5c98ead01de47aa2afd1c8a52134198c1fefd98e"
-  integrity sha512-5da2P9+LqSfoZ3rBbRU+NDN3ebKjAg/tsJ7fqB4Hzbx+1XTlESvmcE9R5+jtylDli1xs+dyVyb3c1R/c7BWOxQ==
+"@avalabs/avalanche-module@0.0.0-feat-CP-9461-create-hvm-module-20250102190617":
+  version "0.0.0-feat-CP-9461-create-hvm-module-20250102190617"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-CP-9461-create-hvm-module-20250102190617.tgz#f4029f2a2aa1854cf9ae944223bbaeadaf7bc1f5"
+  integrity sha512-EvRUn0Ws1IbtywHDLF2l1whHUMYxcjox+Ga4OkvjRJefv5T4OMmJarZyOtyRXr5qmPA1bMrFGpQcNNHcBHbh2g==
   dependencies:
     "@avalabs/avalanchejs" "4.1.0-alpha.25"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.19"
@@ -42,7 +42,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.19"
     "@avalabs/glacier-sdk" "3.1.0-alpha.19"
     "@avalabs/types" "3.1.0-alpha.19"
-    "@avalabs/vm-module-types" "0.0.0-feat-CP-9461-create-hvm-module-20241218133843"
+    "@avalabs/vm-module-types" "0.0.0-feat-CP-9461-create-hvm-module-20250102190617"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -70,15 +70,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@0.0.0-feat-CP-9461-create-hvm-module-20241218133843":
-  version "0.0.0-feat-CP-9461-create-hvm-module-20241218133843"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-CP-9461-create-hvm-module-20241218133843.tgz#c15c468f3e13562a8a69788c6a9b6b9011b14cc9"
-  integrity sha512-7bVWvdBUgEdRyOPR4tjwk9lY20m5rgkIRZ68V44vxqnmCt79mIgaoLAx2oETj+R5NVk2wW07vOtuC2WjpC+nwg==
+"@avalabs/bitcoin-module@0.0.0-feat-CP-9461-create-hvm-module-20250102190617":
+  version "0.0.0-feat-CP-9461-create-hvm-module-20250102190617"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-CP-9461-create-hvm-module-20250102190617.tgz#60ab544e49f09f6e72146a33e311e0e2b646703c"
+  integrity sha512-IPPXWgsRtSJh2VgPlhA3qVjh+3vXstyBxgBR/eYuG2fLjkvVENKOtegyPqzzK/RVzNb3cd4jCi4FxFQDpQ7RJA==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.19"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.19"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.19"
-    "@avalabs/vm-module-types" "0.0.0-feat-CP-9461-create-hvm-module-20241218133843"
+    "@avalabs/vm-module-types" "0.0.0-feat-CP-9461-create-hvm-module-20250102190617"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -261,10 +261,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@0.0.0-feat-CP-9461-create-hvm-module-20241218133843":
-  version "0.0.0-feat-CP-9461-create-hvm-module-20241218133843"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-CP-9461-create-hvm-module-20241218133843.tgz#db3a3229072469cfcfb0326c9e1038197bec6fff"
-  integrity sha512-tGIfjN0694K8lnI/l6eJYliHrnSGQVRM/8Bq99+v7bivKCh1k6jWgbjQjeVR76wxnnq7nUp7wcfwzu9wLHEoug==
+"@avalabs/evm-module@0.0.0-feat-CP-9461-create-hvm-module-20250102190617":
+  version "0.0.0-feat-CP-9461-create-hvm-module-20250102190617"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-CP-9461-create-hvm-module-20250102190617.tgz#301be19e0f987e78ede465c000ff7c06cf3d65c4"
+  integrity sha512-YSPVSL8t8xAHcVBRgXpj4NgbTsUUr4V3Hc1R2H4++AZDAv9XMK4epWG2msm/uWwrZhhWPhd93g/j3TeRckyOlw==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.19"
     "@avalabs/core-etherscan-sdk" "3.1.0-alpha.19"
@@ -272,7 +272,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.19"
     "@avalabs/glacier-sdk" "3.1.0-alpha.19"
     "@avalabs/types" "3.1.0-alpha.19"
-    "@avalabs/vm-module-types" "0.0.0-feat-CP-9461-create-hvm-module-20241218133843"
+    "@avalabs/vm-module-types" "0.0.0-feat-CP-9461-create-hvm-module-20250102190617"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -291,12 +291,15 @@
   resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.27.tgz#ac4dbb6f34638ee8fb2aee91b28c0a2139b90c4b"
   integrity sha512-zHsRJmq/L8cfYdH8qcFy2qpB1uQh8clpFIZ1O18g3cyrNQsbSRcAfXPt5TaT7IIbVsAk1IRSacZ2xoD1yiZ3tg==
 
-"@avalabs/hvm-module@0.0.0-feat-CP-9461-create-hvm-module-20241218133843":
-  version "0.0.0-feat-CP-9461-create-hvm-module-20241218133843"
-  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-0.0.0-feat-CP-9461-create-hvm-module-20241218133843.tgz#98f8a95fe117108a7e126b525560192909e5653d"
-  integrity sha512-s+FnB92L6Afnj5PdJZ43Gkpu7V1qVOWGQx+dqD/MRGg05MKl01WwIJPRoITlHtw69LusS3EEx6fLa1igDIwYWg==
+"@avalabs/hvm-module@0.0.0-feat-CP-9461-create-hvm-module-20250102190617":
+  version "0.0.0-feat-CP-9461-create-hvm-module-20250102190617"
+  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-0.0.0-feat-CP-9461-create-hvm-module-20250102190617.tgz#d29640ec892a19de4af3de711cbb9e0d6af0c1ef"
+  integrity sha512-FP3Ko74Hvtc9MlwLyNJB7FKfdVDg2UWFm2K0liuEnD50clkZcSMa52Ercw8tcXZFRK7DR7CLsynKQFrpwfDXyg==
   dependencies:
-    "@avalabs/vm-module-types" "0.0.0-feat-CP-9461-create-hvm-module-20241218133843"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.19"
+    "@avalabs/vm-module-types" "0.0.0-feat-CP-9461-create-hvm-module-20250102190617"
+    "@metamask/rpc-errors" "6.3.0"
+    "@noble/hashes" "^1.5.0"
     hypersdk-client "0.4.14"
 
 "@avalabs/hw-app-avalanche@0.14.1":
@@ -320,10 +323,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.27.tgz#7344a18e0103cc9cf5664f7becf6447631de1723"
   integrity sha512-LorD+ESW6iXbdH7tMeUk4jxTu4X1pofB6junpKU6Cb/S213dOSLBA6mQLjvCAnnVBHqoXG3yAMIJji5BoTbdSg==
 
-"@avalabs/vm-module-types@0.0.0-feat-CP-9461-create-hvm-module-20241218133843":
-  version "0.0.0-feat-CP-9461-create-hvm-module-20241218133843"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-CP-9461-create-hvm-module-20241218133843.tgz#56c83a57816fdea4feedbd1ba8248be9a743c293"
-  integrity sha512-V8ECXMm4hbnDaFiaPABHrnJ9R+T4DW70TdZWypDR8khFhnsrVDdRkHdMDjc4OP1sZBN82b+lDdOo8Yg2408N4w==
+"@avalabs/vm-module-types@0.0.0-feat-CP-9461-create-hvm-module-20250102190617":
+  version "0.0.0-feat-CP-9461-create-hvm-module-20250102190617"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-CP-9461-create-hvm-module-20250102190617.tgz#fa5b003857f747cd7bb2f8756fdbc7a42060d776"
+  integrity sha512-Vu/Uwh+s/SLpD3PCWEuuoGBvzzADRmrYj4O7noo5BLh85cDkrfO0fAghFIjKeLqfGqNOJl/YTYMNMVnxxEwHXg==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.19"
     "@avalabs/glacier-sdk" "3.1.0-alpha.19"
@@ -4635,6 +4638,13 @@
   integrity sha512-t01iSXPuN+Eqzb4eBX0S5oubSqXbK/xXa1Ne18Hj8f9pStxztHCE2gfboSp/dZRLSqfuLpRK2nDXDK+W9puocA==
   dependencies:
     "@noble/hashes" "1.3.3"
+
+"@noble/curves@1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.6.0.tgz#be5296ebcd5a1730fccea4786d420f87abfeb40b"
+  integrity sha512-TlaHRXDehJuRNR9TfZDNQ45mMEd5dwUwmicsafcIX4SsNiqnCHKjE/1alYPd/lDRVhxdhUAlv8uEhMCI5zjIJQ==
+  dependencies:
+    "@noble/hashes" "1.5.0"
 
 "@noble/curves@^1.6.0":
   version "1.7.0"
