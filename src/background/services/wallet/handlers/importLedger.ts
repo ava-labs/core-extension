@@ -117,12 +117,13 @@ export class ImportLedgerHandler implements HandlerType {
       });
     }
 
-    const defaultAccountsToCreate = 3;
-    const accountsToCreate = !pubKeys
-      ? numberOfAccountsToCreate || defaultAccountsToCreate
-      : numberOfAccountsToCreate || defaultAccountsToCreate <= pubKeys.length
-        ? numberOfAccountsToCreate || defaultAccountsToCreate
-        : pubKeys.length;
+    const accountsToBeCreated = numberOfAccountsToCreate || 3;
+    const accountsToCreate = Math.min(
+      3,
+      pubKeys
+        ? Math.min(pubKeys.length, accountsToBeCreated)
+        : accountsToBeCreated,
+    );
     await this.#addAccounts(id, accountsToCreate);
 
     const addedWallet =
