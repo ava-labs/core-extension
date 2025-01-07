@@ -56,7 +56,6 @@ export class LedgerOnboardingHandler implements HandlerType {
       walletName,
       numberOfAccountsToCreate,
     } = (request.params ?? [])[0] ?? {};
-    console.log('numberOfAccountsToCreate: ', numberOfAccountsToCreate);
 
     if ((xpub || xpubXP) && pubKeys?.length) {
       return {
@@ -102,6 +101,9 @@ export class LedgerOnboardingHandler implements HandlerType {
     }
 
     for (let i = 0; i < (numberOfAccountsToCreate || 1); i++) {
+      if (pubKeys && pubKeys.length < i) {
+        break;
+      }
       await this.accountsService.addPrimaryAccount({
         walletId,
       });
