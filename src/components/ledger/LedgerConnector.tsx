@@ -82,7 +82,6 @@ export function LedgerConnector({
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
   const [dropdownDisabled, setDropdownDisabled] = useState(true);
-  // TODO: with lastindex
   const lastAccountIndexWithBalance = useRef(0);
 
   const { t } = useTranslation();
