@@ -61,7 +61,7 @@ export const HallidayBanner = () => {
         </IconButton>
         <CardActionArea
           component={Link}
-          href={`${getCoreWebUrl()}/bridge?halliday=1`}
+          href={`${getCoreWebUrl()}/bridge?useHalliday=1`}
           rel="noopener noreferrer"
           target="_blank"
         >
