@@ -44,6 +44,8 @@ export enum FeatureGates {
   BLOCKAID_DAPP_SCAN_WARNING = 'blockaid-dapp-scan-warning',
   BLOCKAID_TRANSACTION_SCAN = 'blockaid-transaction-scan',
   BLOCKAID_JSONRPC_SCAN = 'blockaid-jsonrpc-scan',
+  HALLIDAY_BUY_FLOW = 'halliday-buy-flow',
+  HALLIDAY_BRIDGE_BANNER = 'halliday-bridge-banner',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -94,6 +96,8 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.BLOCKAID_DAPP_SCAN_WARNING]: false,
   [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: false,
   [FeatureGates.BLOCKAID_JSONRPC_SCAN]: false,
+  [FeatureGates.HALLIDAY_BRIDGE_BANNER]: false,
+  [FeatureGates.HALLIDAY_BUY_FLOW]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -143,6 +147,8 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.BLOCKAID_DAPP_SCAN_WARNING]: true,
   [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: true,
   [FeatureGates.BLOCKAID_JSONRPC_SCAN]: true,
+  [FeatureGates.HALLIDAY_BRIDGE_BANNER]: true,
+  [FeatureGates.HALLIDAY_BUY_FLOW]: true,
 };
 
 export enum FeatureFlagEvents {

@@ -25,6 +25,7 @@ import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitco
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { HallidayBanner } from '@src/components/common/HallidayBanner';
 
 import { useBridge } from './hooks/useBridge';
 import { BridgeForm } from './components/BridgeForm';
@@ -325,6 +326,7 @@ export function Bridge() {
       >
         {t('Bridge')}
       </PageTitle>
+      <HallidayBanner />
       {isReady && networkFee ? (
         <BridgeForm {...formProps} networkFee={networkFee} />
       ) : (

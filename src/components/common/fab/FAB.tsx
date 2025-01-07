@@ -26,6 +26,8 @@ import {
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
 import { Flipper } from '../Flipper';
 
@@ -107,6 +109,7 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
   const fabRef = useRef<HTMLButtonElement>(null);
   const fadeTimer = useRef<ReturnType<typeof setTimeout>>();
   const [isExpanded, setIsExpanded] = useState(true);
+  const { isFlagEnabled } = useFeatureFlagContext();
 
   const FABMenuItems = [
     {
@@ -136,8 +139,14 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
       text: t('Buy'),
       name: FunctionNames.BUY,
       icon: <BuyIcon size={24} sx={{ color: theme.palette.common.black }} />,
-      onclick: () =>
-        window.open(`${getCoreWebUrl()}/buy`, '_blank', 'noreferrer'),
+      onclick: () => {
+        const hallidayParam = isFlagEnabled(FeatureGates.HALLIDAY_BUY_FLOW)
+          ? '?halliday=1'
+          : '';
+        const url = `${getCoreWebUrl()}/buy${hallidayParam}`;
+
+        window.open(url, '_blank', 'noreferrer');
+      },
     },
     {
       text: t('Bridge'),
