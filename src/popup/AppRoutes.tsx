@@ -213,11 +213,22 @@ const LedgerTroubleshootingPopup = lazy(() => {
   }));
 });
 
+const Keystone3TroubleshootingPopup = lazy(() => {
+  return import('../pages/Keystone/Keystone3Troubleshooting').then((m) => ({
+    default: m.Keystone3Troubleshooting,
+  }));
+});
+
 export const AppRoutes = () => (
   <Switch>
     <Route path="/ledger/troubleshooting">
       <Suspense fallback={<CircularProgress />}>
         <LedgerTroubleshootingPopup />
+      </Suspense>
+    </Route>
+    <Route path="/keystone3/troubleshooting">
+      <Suspense fallback={<CircularProgress />}>
+        <Keystone3TroubleshootingPopup />
       </Suspense>
     </Route>
     <Route path="/token/add">

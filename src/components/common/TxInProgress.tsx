@@ -1,7 +1,9 @@
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
+import useIsUsingKeystone3Wallet from '@src/hooks/useIsUsingKeystone3Wallet';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import { KeystoneApprovalOverlay } from '@src/pages/SignTransaction/components/KeystoneApprovalOverlay';
+import { KeystoneApprovalDialog } from '@src/pages/SignTransaction/components/KeystoneApprovalDialog';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/components/LedgerApprovalDialog';
 import { Overlay } from '@src/components/common/Overlay';
 import { WalletConnectApprovalOverlay } from '@src/pages/SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
@@ -36,6 +38,7 @@ export function TxInProgress({
 }: TxInProgressProps) {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
+  const isUsingKeystone3Wallet = useIsUsingKeystone3Wallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isUsingFireblocksAccount = useIsUsingFireblocksAccount();
   const hasRejectCallback = typeof onReject === 'function';
@@ -84,6 +87,23 @@ export function TxInProgress({
   }
 
   if (isUsingKeystoneWallet) {
+    debugger;
+    if (isUsingKeystone3Wallet) {
+      return (
+        <Overlay>
+          <KeystoneApprovalDialog
+            address={address}
+            fee={fee}
+            feeSymbol={feeSymbol}
+            amount={amount}
+            symbol={symbol}
+            nftName={nftName}
+            currentSignature={currentSignature}
+            requiredSignatures={requiredSignatures}
+          />
+        </Overlay>
+      );
+    }
     if (!hasRejectCallback) {
       throw new Error('Please provide a proper onReject callback');
     }

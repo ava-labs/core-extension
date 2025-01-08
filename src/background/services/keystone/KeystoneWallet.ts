@@ -26,7 +26,7 @@ const parseResponoseUR = (urPlayload: string): UR => {
   const decoder = new URDecoder();
   decoder.receivePart(urPlayload);
   if (!decoder.isComplete()) {
-    throwTransportError(Status.ERR_UR_INCOMPLETE);
+    throw new Error('UR incomplete');
   }
   const resultUR = decoder.resultUR();
   return resultUR;
@@ -54,7 +54,7 @@ export class KeystoneWallet {
         this.fingerprint,
         this.activeAccountIndex,
       );
-      const encodedUR = new UREncoder(request.ur, Infinity)
+      const encodedUR = new UREncoder(request.ur!, Infinity)
         .nextPart()
         .toUpperCase();
       const payload = (await app.signTransactionFromUr(encodedUR)).payload;

@@ -3,16 +3,17 @@ import { useTranslation } from 'react-i18next';
 import useIsUsingKeystone3Wallet from '@src/hooks/useIsUsingKeystone3Wallet';
 import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
 import { useDialog } from '@src/contexts/DialogContextProvider';
+import { Keystone3Disconnected } from '@src/pages/Keystone/Keystone3Disconnected';
 
-export function useKeystone3DisconnectedDialog(onCancel: () => void): boolean {
+export function useKeystone3DisconnectedDialog(onCancel: () => void) {
   const { t } = useTranslation();
   const { showDialog, clearDialog } = useDialog();
-  const isUsingKeystoneWallet = useIsUsingKeystone3Wallet();
+  const isUsingKeystone3Wallet = useIsUsingKeystone3Wallet();
 
   const showKeystone3DisconnectedDialog = useCallback(() => {
     showDialog({
       title: t('Keystone Disconnected'),
-      content: <div>hello world</div>,
+      content: <Keystone3Disconnected />,
       open: true,
       onClose: () => {
         onCancel();
@@ -22,11 +23,18 @@ export function useKeystone3DisconnectedDialog(onCancel: () => void): boolean {
   }, [clearDialog, onCancel, showDialog, t]);
 
   useEffect(() => {
-    clearDialog();
-    // only show dialogs for Keystone wallets and
-    // wait for transport to be attempted at least once
-    if (isUsingKeystoneWallet) {
-      createKeystoneTransport().catch(showKeystone3DisconnectedDialog);
-    }
-  }, [showKeystone3DisconnectedDialog, isUsingKeystoneWallet, clearDialog]);
+    const timer = setInterval(() => {
+      if (isUsingKeystone3Wallet) {
+        createKeystoneTransport()
+          .then(clearDialog)
+          .catch(showKeystone3DisconnectedDialog);
+      } else {
+        clearDialog();
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [showKeystone3DisconnectedDialog, isUsingKeystone3Wallet, clearDialog]);
 }

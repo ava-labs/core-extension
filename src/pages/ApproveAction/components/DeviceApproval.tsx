@@ -6,8 +6,10 @@ import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { NetworkWithCaipId } from '@src/background/services/network/models';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import useIsUsingKeystone3Wallet from '@src/hooks/useIsUsingKeystone3Wallet';
 
 import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/components/LedgerApprovalOverlay';
+import { Keystone3ApprovalOverlay } from '@src/pages/SignTransaction/components/Keystone3ApprovalOverlay';
 import { KeystoneApprovalOverlay } from '@src/pages/SignTransaction/components/KeystoneApprovalOverlay';
 
 const getTxInfoForLedger = (
@@ -56,6 +58,7 @@ export const DeviceApproval = ({
   handleRejection: () => void;
 }) => {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystone3Wallet = useIsUsingKeystone3Wallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
 
   if (!action || !network || !action.signingData) {
@@ -72,6 +75,10 @@ export const DeviceApproval = ({
         {...getTxInfoForLedger(action.signingData, network)}
       />
     );
+  }
+
+  if (isUsingKeystone3Wallet) {
+    return <Keystone3ApprovalOverlay />;
   }
 
   if (isUsingKeystoneWallet) {
