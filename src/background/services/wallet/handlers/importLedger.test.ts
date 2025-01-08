@@ -14,6 +14,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
   const accountsService = {
     addPrimaryAccount: jest.fn(),
+    activateAccount: jest.fn(),
   } as unknown as jest.Mocked<AccountsService>;
 
   const secretsService = {
@@ -105,6 +106,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       xpub: xpubValue,
       xpubXP: xpubXPValue,
       name: nameValue,
+      numberOfAccountsToCreate: 2,
     });
 
     expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
@@ -115,13 +117,18 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       name: nameValue,
     });
 
+    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(2);
+
+    expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
+
     expect(result).toEqual({
       type: SecretType.Ledger,
       name: nameValue,
       id: walletId,
     });
   });
-  it('returns an ImportWalletResult if LedgerLive import is successful', async () => {
+
+  it('only imports accounts with pubkeys', async () => {
     const walletId = crypto.randomUUID();
     const pubKeysValue = [
       {
@@ -143,6 +150,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       secretType: SecretType.LedgerLive,
       pubKeys: pubKeysValue,
       name: nameValue,
+      numberOfAccountsToCreate: 2,
     });
 
     expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
@@ -151,6 +159,59 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       derivationPath: DerivationPath.LedgerLive,
       name: nameValue,
     });
+
+    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(1);
+    expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
+
+    expect(result).toEqual({
+      type: SecretType.LedgerLive,
+      name: nameValue,
+      id: walletId,
+    });
+  });
+
+  it('imports max 3 accounts', async () => {
+    const walletId = crypto.randomUUID();
+    const pubKeysValue = [
+      {
+        evm: 'pubKeyEvm1',
+      },
+      {
+        evm: 'pubKeyEvm2',
+      },
+      {
+        evm: 'pubKeyEvm3',
+      },
+      {
+        evm: 'pubKeyEvm4',
+      },
+    ];
+    const nameValue = 'walletName';
+    secretsService.isKnownSecret.mockResolvedValueOnce(false);
+    walletService.addPrimaryWallet.mockResolvedValue(walletId);
+    secretsService.getWalletAccountsSecretsById.mockResolvedValue({
+      secretType: SecretType.LedgerLive,
+      pubKeys: pubKeysValue,
+      derivationPath: DerivationPath.LedgerLive,
+      id: walletId,
+      name: nameValue,
+    });
+
+    const { result } = await handle({
+      secretType: SecretType.LedgerLive,
+      pubKeys: pubKeysValue,
+      name: nameValue,
+      numberOfAccountsToCreate: 4,
+    });
+
+    expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
+      secretType: SecretType.LedgerLive,
+      pubKeys: pubKeysValue,
+      derivationPath: DerivationPath.LedgerLive,
+      name: nameValue,
+    });
+
+    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(3);
 
     expect(result).toEqual({
       type: SecretType.LedgerLive,

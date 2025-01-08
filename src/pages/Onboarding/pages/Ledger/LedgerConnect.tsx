@@ -52,6 +52,7 @@ export function LedgerConnect() {
     setPublicKeys,
     setOnboardingPhase,
     setOnboardingWalletType,
+    setNumberOfAccountsToCreate,
   } = useOnboardingContext();
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
 
@@ -69,6 +70,7 @@ export function LedgerConnect() {
     setXpubXP(data.xpubXP);
     setPublicKeys(data.publicKeys);
     setHasPublicKeys(data.hasPublicKeys);
+    setNumberOfAccountsToCreate(data.lastAccountIndexWithBalance + 1);
   }
 
   const Content = (

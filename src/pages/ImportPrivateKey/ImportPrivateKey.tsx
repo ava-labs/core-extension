@@ -51,9 +51,8 @@ export function ImportPrivateKey() {
   const balance = useBalanceTotalInCurrency(derivedAddresses as Account);
   const { isImporting: isImportLoading, importPrivateKey } =
     usePrivateKeyImport();
-  const { selectAccount } = useAccountsContext();
   const history = useHistory();
-  const { allAccounts } = useAccountsContext();
+  const { allAccounts, selectAccount } = useAccountsContext();
   const [isKnownAccount, setIsKnownAccount] = useState(false);
   const [isDuplicatedAccountDialogOpen, setIsDuplicatedAccountDialogOpen] =
     useState(false);

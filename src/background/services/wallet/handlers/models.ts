@@ -24,6 +24,7 @@ export type ImportLedgerWalletParams = {
   secretType: SecretType.Ledger | SecretType.LedgerLive;
   name?: string;
   dryRun?: boolean;
+  numberOfAccountsToCreate?: number;
 };
 
 export type ImportWalletResult = {
