@@ -1,7 +1,11 @@
 import { BitcoinProviderAbstract, createPsbt } from '@avalabs/core-wallets-sdk';
 import { CryptoPSBT } from '@keystonehq/bc-ur-registry-eth';
+import KeystoneUSBEthSDK from '@keystonehq/hw-app-eth';
 import { Psbt, Transaction } from 'bitcoinjs-lib';
+import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
+import { UREncoder } from '@ngraveio/bc-ur';
 
+import { parseResponoseUR } from './KeystoneWallet';
 import { BtcTransactionRequest } from '../wallet/models';
 import { KeystoneTransport } from './models';
 
@@ -13,6 +17,7 @@ export class BitcoinKeystoneWallet {
     private keystoneTransport: KeystoneTransport,
     private provider: BitcoinProviderAbstract,
     private tabId?: number,
+    private viaUSB?: boolean,
   ) {}
 
   async signTx(
@@ -34,12 +39,26 @@ export class BitcoinKeystoneWallet {
     });
 
     const cryptoPSBT = new CryptoPSBT(psbt.toBuffer());
-    const { type, cbor } = cryptoPSBT.toUR();
+    const ur = cryptoPSBT.toUR();
+
+    if (this.viaUSB) {
+      const app = new KeystoneUSBEthSDK(
+        (await createKeystoneTransport()) as any,
+      );
+      const encodedUR = new UREncoder(ur!, Infinity).nextPart().toUpperCase();
+      const signedCborBuffer = parseResponoseUR(
+        (await app.signTransactionFromUr(encodedUR)).payload,
+      ).cbor;
+
+      const signedTx = CryptoPSBT.fromCBOR(signedCborBuffer).getPSBT();
+
+      return Psbt.fromBuffer(signedTx).extractTransaction();
+    }
 
     const signedCborBuffer = await this.keystoneTransport.requestSignature(
       {
-        type,
-        cbor: cbor.toString('hex'),
+        type: ur.type,
+        cbor: ur.cbor.toString('hex'),
       },
       this.tabId,
     );

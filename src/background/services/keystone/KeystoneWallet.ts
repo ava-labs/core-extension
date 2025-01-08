@@ -22,7 +22,7 @@ import { makeBNLike } from '@src/utils/makeBNLike';
 import { CBOR, KeystoneTransport } from './models';
 import { convertTxData } from './utils';
 
-const parseResponoseUR = (urPlayload: string): UR => {
+export const parseResponoseUR = (urPlayload: string): UR => {
   const decoder = new URDecoder();
   decoder.receivePart(urPlayload);
   if (!decoder.isComplete()) {

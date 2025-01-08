@@ -320,6 +320,7 @@ export class WalletService implements OnUnlock {
           this.keystoneService,
           provider as BitcoinProviderAbstract,
           tabId,
+          secretType === SecretType.Keystone3Pro,
         );
       }
 
