@@ -127,7 +127,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       id: walletId,
     });
   });
-  
+
   it('only imports accounts with pubkeys', async () => {
     const walletId = crypto.randomUUID();
     const pubKeysValue = [
