@@ -1,13 +1,13 @@
 import { getWalletFromMnemonic } from '@avalabs/core-wallets-sdk';
-import {
-  ED25519_AUTH_ID,
-  Marshaler,
-  TransactionPayload,
-  VMABI,
-} from 'hypersdk-client';
 import { ed25519 } from '@noble/curves/ed25519';
 import { strip0x } from '@avalabs/core-utils-sdk';
 import { base58 } from '@scure/base';
+import { TransactionPayload } from 'hypersdk-client/dist/types';
+import {
+  ED25519_AUTH_ID,
+  Marshaler,
+  VMABI,
+} from 'hypersdk-client/dist/Marshaler';
 
 export class HVMWallet {
   #privateKey: string;

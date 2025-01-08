@@ -141,6 +141,7 @@ export type PubKeyType = {
    */
   xp?: string;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
+  ed25519?: string;
 };
 
 export type SigningResult =

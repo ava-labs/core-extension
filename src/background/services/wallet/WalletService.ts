@@ -63,6 +63,9 @@ import { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
 import { Account } from '../accounts/models';
 import { HVMWallet } from './HVMWallet';
+import { ed25519 } from '@noble/curves/ed25519';
+import { strip0x } from '@avalabs/core-utils-sdk';
+import { getAccountPrivateKeyFromMnemonic } from '../secrets/utils/getAccountPrivateKeyFromMnemonic';
 
 @singleton()
 export class WalletService implements OnUnlock {
@@ -621,6 +624,9 @@ export class WalletService implements OnUnlock {
       return {
         evm: publicKey,
         xp: publicKey,
+        ed25519: Buffer.from(
+          ed25519.getPublicKey(strip0x(secrets.secret))
+        ).toString('hex'),
       };
     }
 
@@ -629,6 +635,19 @@ export class WalletService implements OnUnlock {
         secrets.xpub,
         secrets.account.index
       );
+
+      const ed25519Pub = Buffer.from(
+        ed25519.getPublicKey(
+          strip0x(
+            getAccountPrivateKeyFromMnemonic(
+              secrets.mnemonic,
+              secrets.account.index,
+              secrets.derivationPath
+            )
+          )
+        )
+      );
+
       const xpPub = Avalanche.getAddressPublicKeyFromXpub(
         secrets.xpubXP,
         secrets.account.index
@@ -637,6 +656,7 @@ export class WalletService implements OnUnlock {
       return {
         evm: evmPub.toString('hex'),
         xp: xpPub.toString('hex'),
+        ed25519: ed25519Pub.toString('hex'),
       };
     }
 

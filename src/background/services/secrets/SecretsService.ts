@@ -18,6 +18,7 @@ import {
   WalletEvents,
 } from '../wallet/models';
 import {
+  DerivedAddresses,
   ImportedAccountSecrets,
   PrimaryWalletSecrets,
   SecretType,
@@ -44,6 +45,7 @@ import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import EventEmitter from 'events';
 import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { getAddressForHvm } from './utils/getAddressForHvm';
+import { getAccountPrivateKeyFromMnemonic } from './utils/getAccountPrivateKeyFromMnemonic';
 
 /**
  * Use this service to fetch, save or delete account secrets.
@@ -619,8 +621,8 @@ export class SecretsService implements OnUnlock {
   async #calculateAddressesForPrivateKey(
     privateKey: string,
     networkService: NetworkService
-  ) {
-    const addresses = {
+  ): Promise<DerivedAddresses> {
+    const addresses: DerivedAddresses = {
       addressBTC: '',
       addressC: '',
       addressAVM: '',
@@ -640,6 +642,7 @@ export class SecretsService implements OnUnlock {
       addresses.addressAVM = provXP.getAddress(publicKey, 'X');
       addresses.addressPVM = provXP.getAddress(publicKey, 'P');
       addresses.addressCoreEth = provXP.getAddress(publicKey, 'C');
+      addresses.addressHVM = getAddressForHvm(privateKey);
     } catch (err) {
       throw new Error('Error while calculating addresses');
     }
@@ -744,8 +747,7 @@ export class SecretsService implements OnUnlock {
     index: number,
     walletId: string,
     networkService: NetworkService
-  ): Promise<Record<NetworkVMType, string> | never> {
-    console.log('secretsService getAddresses called : ');
+  ): Promise<Record<NetworkVMType, string | undefined> | never> {
     if (!walletId) {
       throw new Error('Wallet id not provided');
     }
@@ -766,10 +768,10 @@ export class SecretsService implements OnUnlock {
     ) {
       // C-avax... this address uses the same public key as EVM
       const cPubkey = getAddressPublicKeyFromXPub(secrets.xpub, index);
-      console.log('cPubkey: ', cPubkey.toString('hex'));
       const cAddr = providerXP.getAddress(cPubkey, 'C');
 
-      let xAddr, pAddr;
+      let xAddr: string | undefined = undefined;
+      let pAddr: string | undefined = undefined;
       // We can only get X/P addresses if xpubXP is set
       if (secrets.xpubXP) {
         // X and P addresses different derivation path m/44'/9000'/0'...
@@ -791,7 +793,16 @@ export class SecretsService implements OnUnlock {
         [NetworkVMType.AVM]: xAddr,
         [NetworkVMType.PVM]: pAddr,
         [NetworkVMType.CoreEth]: cAddr,
-        [NetworkVMType.HVM]: getAddressForHvm(cPubkey),
+        [NetworkVMType.HVM]:
+          secrets.secretType === SecretType.Mnemonic
+            ? getAddressForHvm(
+                getAccountPrivateKeyFromMnemonic(
+                  secrets.mnemonic,
+                  index,
+                  secrets.derivationPath
+                )
+              )
+            : undefined,
       };
     }
 

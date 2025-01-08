@@ -2,10 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { SecretsService } from '../../secrets/SecretsService';
-import {
-  getAddressDerivationPath,
-  getWalletFromMnemonic,
-} from '@avalabs/core-wallets-sdk';
+import { getAddressDerivationPath } from '@avalabs/core-wallets-sdk';
 import {
   AccountType,
   GetPrivateKeyErrorTypes,
@@ -17,6 +14,7 @@ import { SecretType } from '../../secrets/models';
 import { AccountsService } from '../AccountsService';
 import { mnemonicToSeedSync } from 'bip39';
 import { fromSeed } from 'bip32';
+import { getAccountPrivateKeyFromMnemonic } from '../../secrets/utils/getAccountPrivateKeyFromMnemonic';
 
 interface GetPrivateKeyHandlerParamsProps {
   type: SecretType.Mnemonic | AccountType.IMPORTED;
@@ -168,28 +166,24 @@ export class GetPrivateKeyHandler implements HandlerType {
         };
       }
 
-      const signer = getWalletFromMnemonic(
-        primaryAccount.mnemonic,
-        accountIndex,
-        primaryAccount.derivationPath
-      );
-
-      if (!signer || !signer.path) {
+      try {
+        return {
+          ...request,
+          result: getAccountPrivateKeyFromMnemonic(
+            primaryAccount.mnemonic,
+            accountIndex,
+            primaryAccount.derivationPath
+          ),
+        };
+      } catch (e) {
         return {
           ...request,
           error: {
             type: GetPrivateKeyErrorTypes.DerivePath,
-            message: 'The derive path is missing',
+            message: e,
           },
         };
       }
-
-      const key = signer.privateKey;
-
-      return {
-        ...request,
-        result: key,
-      };
     } catch (e: any) {
       return {
         ...request,
