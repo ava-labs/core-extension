@@ -43,7 +43,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
         retryWhen((errors) => {
           setWasTransportAttempted(true);
           return errors.pipe(delay(2000));
-        })
+        }),
       )
       .subscribe();
     return () => {
@@ -77,6 +77,14 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
     return fromPublicKey(Buffer.from(publicKey, 'hex'), chainCode).toBase58();
   };
 
+  const getMfp = async () => {
+    if (!avalancheAppRef.current) {
+      throw new Error('no device detected');
+    }
+
+    return (await avalancheAppRef.current.getAppConfig()).mfp ?? '';
+  };
+
   return (
     <KeystoneContext.Provider
       value={{
@@ -84,6 +92,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
         popDeviceSelection,
         getExtendedPublicKey,
         wasTransportAttempted,
+        getMfp,
         hasKeystoneTransport: !!avalancheAppRef.current,
       }}
     >

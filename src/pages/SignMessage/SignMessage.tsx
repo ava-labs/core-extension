@@ -32,6 +32,7 @@ import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBo
 import { useIsIntersecting } from './hooks/useIsIntersecting';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { useKeystone3DisconnectedDialog } from '@src/pages/SignTransaction/hooks/useKeystone3DisconnectedDialog';
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/components/LedgerApprovalOverlay';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
@@ -170,6 +171,7 @@ export function SignMessage() {
       ? LedgerAppType.AVALANCHE
       : LedgerAppType.ETHEREUM,
   );
+  useKeystone3DisconnectedDialog(() => handleRejection());
 
   if (!action) {
     return (

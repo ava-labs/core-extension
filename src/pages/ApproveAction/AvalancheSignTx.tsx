@@ -16,6 +16,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { BaseTxView } from './components/ApproveBaseTx';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { useKeystone3DisconnectedDialog } from '@src/pages/SignTransaction/hooks/useKeystone3DisconnectedDialog';
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '../SignTransaction/components/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
@@ -74,6 +75,7 @@ export function AvalancheSignTx() {
     LedgerAppType.AVALANCHE,
     network,
   );
+  useKeystone3DisconnectedDialog(() => handleRejection());
 
   const signTx = useCallback(async () => {
     await updateAction(

@@ -63,7 +63,7 @@ export class KeystoneOnboardingHandler implements HandlerType {
     });
 
     const walletId = await this.walletService.init({
-      secretType: SecretType.Keystone,
+      secretType: xpubXP ? SecretType.Keystone3Pro : SecretType.Keystone,
       xpub,
       xpubXP,
       masterFingerprint,

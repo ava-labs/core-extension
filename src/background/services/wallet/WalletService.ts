@@ -136,6 +136,7 @@ export class WalletService implements OnUnlock {
     }
     if (
       (secrets.secretType === SecretType.Keystone ||
+        secrets.secretType === SecretType.Keystone3Pro ||
         secrets.secretType === SecretType.Ledger) &&
       !secrets.xpub
     ) {
@@ -221,7 +222,10 @@ export class WalletService implements OnUnlock {
         );
       }
 
-      if (secretType === SecretType.Keystone) {
+      if (
+        secretType === SecretType.Keystone ||
+        secretType === SecretType.Keystone3Pro
+      ) {
         const accountIndexToUse =
           accountIndex === undefined ? secrets.account.index : accountIndex;
         return new KeystoneWallet(
@@ -230,6 +234,16 @@ export class WalletService implements OnUnlock {
           this.keystoneService,
           network.chainId,
           tabId,
+          getAddressPublicKeyFromXPub(
+            secrets.xpub,
+            secrets.account.index,
+          ).toString('hex'),
+          secrets.xpubXP
+            ? Avalanche.getAddressPublicKeyFromXpub(
+                secrets.xpubXP,
+                secrets.account.index,
+              ).toString('hex')
+            : undefined,
         );
       }
 
@@ -289,7 +303,10 @@ export class WalletService implements OnUnlock {
         );
       }
 
-      if (secretType === SecretType.Keystone) {
+      if (
+        secretType === SecretType.Keystone ||
+        secretType === SecretType.Keystone3Pro
+      ) {
         const accountIndexToUse =
           accountIndex === undefined ? secrets.account.index : accountIndex;
         return new BitcoinKeystoneWallet(
@@ -303,6 +320,16 @@ export class WalletService implements OnUnlock {
           this.keystoneService,
           provider as BitcoinProviderAbstract,
           tabId,
+          getAddressPublicKeyFromXPub(
+            secrets.xpub,
+            secrets.account.index,
+          ).toString('hex'),
+          secrets.xpubXP
+            ? Avalanche.getAddressPublicKeyFromXpub(
+                secrets.xpubXP,
+                secrets.account.index,
+              ).toString('hex')
+            : undefined,
         );
       }
 
@@ -427,6 +454,32 @@ export class WalletService implements OnUnlock {
         );
       }
 
+      if (
+        secretType === SecretType.Keystone ||
+        secretType === SecretType.Keystone3Pro
+      ) {
+        const accountIndexToUse =
+          accountIndex === undefined ? secrets.account.index : accountIndex;
+
+        return new KeystoneWallet(
+          secrets.masterFingerprint,
+          accountIndexToUse,
+          this.keystoneService,
+          network.chainId,
+          tabId,
+          getAddressPublicKeyFromXPub(
+            secrets.xpub,
+            secrets.account.index,
+          ).toString('hex'),
+          secrets.xpubXP
+            ? Avalanche.getAddressPublicKeyFromXpub(
+                secrets.xpubXP,
+                secrets.account.index,
+              ).toString('hex')
+            : undefined,
+        );
+      }
+
       if (secretType === SecretType.WalletConnect) {
         return new WalletConnectSigner(
           this.walletConnectService,
@@ -495,6 +548,7 @@ export class WalletService implements OnUnlock {
         !(wallet instanceof Avalanche.StaticSigner) &&
         !(wallet instanceof Avalanche.SimpleLedgerSigner) &&
         !(wallet instanceof Avalanche.LedgerSigner) &&
+        !(wallet instanceof KeystoneWallet) &&
         !(wallet instanceof WalletConnectSigner) &&
         !(wallet instanceof SeedlessWallet)
       ) {

@@ -6,7 +6,6 @@ import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
 import { PubKeyType } from '@src/background/services/wallet/models';
 import { useTranslation } from 'react-i18next';
 import {
-  Divider,
   Button,
   Stack,
   Typography,
@@ -33,6 +32,7 @@ export interface KeystoneConnectorData {
   publicKeys: PubKeyType[] | undefined;
   hasPublicKeys: boolean;
   pathSpec: DerivationPath;
+  masterFingerprint: string;
 }
 
 interface KeystoneConnectorProps {
@@ -43,6 +43,7 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
   const {
+    getMfp,
     getExtendedPublicKey,
     popDeviceSelection,
     hasKeystoneTransport,
@@ -86,18 +87,20 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
 
   const getXPublicKey = useCallback(async () => {
     try {
+      const mfp = await getMfp();
       const xpubValue = await getExtendedPublicKey();
       const xpubXPValue = await getExtendedPublicKey(ChainIDAlias.X);
-      setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTED);
       capture('OnboardingKeystoneConnected');
-      await getAddressFromXpubKey(xpubValue, 0);
       onSuccess({
         xpub: xpubValue,
         xpubXP: xpubXPValue,
         publicKeys: undefined,
         hasPublicKeys: true,
         pathSpec: DerivationPath.BIP44,
+        masterFingerprint: mfp,
       });
+      setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTED);
+      await getAddressFromXpubKey(xpubValue, 0);
     } catch {
       capture('OnboardingKeystoneConnectionFailed');
       setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTION_FAILED);
@@ -120,11 +123,9 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
   }, [initKeystoneTransport]);
 
   const tryPublicKey = useCallback(async () => {
-    console.log('trying public key');
     capture('OnboardingKeystoneRetry');
     setPublicKeyState(KeystoneStatus.KEYSTONE_LOADING);
     if (!hasKeystoneTransport) {
-      console.log('no transport');
       await initKeystoneTransport();
     } else {
       console.log('has transport');
@@ -167,25 +168,10 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
   ]);
 
   return (
-    <Stack
-      sx={{
-        width: theme.spacing(44),
-        alignSelf: 'center',
-        mt: 7.5,
-      }}
-    >
-      {publicKeyState !== KeystoneStatus.KEYSTONE_UNINITIATED &&
-        publicKeyState !== KeystoneStatus.KEYSTONE_CONNECTION_FAILED && (
-          <Stack
-            sx={{
-              mt: 4,
-              rowGap: 3,
-            }}
-          >
-            <Divider flexItem />
-            <DerivedAddresses addresses={addresses} />
-          </Stack>
-        )}
+    <Stack>
+      {publicKeyState === KeystoneStatus.KEYSTONE_CONNECTED && (
+        <DerivedAddresses addresses={addresses} />
+      )}
       {publicKeyState === KeystoneStatus.KEYSTONE_CONNECTION_FAILED && (
         <Stack sx={{ mt: 1, rowGap: 3, width: theme.spacing(44) }}>
           <Stack direction="row">

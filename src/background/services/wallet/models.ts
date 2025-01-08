@@ -74,6 +74,7 @@ export const WALLET_STORAGE_KEY = 'wallet';
 export const SUPPORTED_PRIMARY_SECRET_TYPES = [
   SecretType.Mnemonic,
   SecretType.Keystone,
+  SecretType.Keystone3Pro,
   SecretType.Ledger,
   SecretType.LedgerLive,
   SecretType.Seedless,

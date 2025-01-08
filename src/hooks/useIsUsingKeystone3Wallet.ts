@@ -3,17 +3,16 @@ import { SecretType } from '@src/background/services/secrets/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
-const useIsUsingKeystoneWallet = () => {
+const useIsUsingKeystone3Wallet = () => {
   const { walletDetails } = useWalletContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
 
   return (
-    (walletDetails?.type === SecretType.Keystone ||
-      walletDetails?.type === SecretType.Keystone3Pro) &&
+    walletDetails?.type === SecretType.Keystone3Pro &&
     activeAccount?.type === AccountType.PRIMARY
   );
 };
 
-export default useIsUsingKeystoneWallet;
+export default useIsUsingKeystone3Wallet;

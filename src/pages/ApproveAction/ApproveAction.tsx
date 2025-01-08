@@ -8,6 +8,7 @@ import { BridgeTransferAsset } from './BridgeTransferAsset';
 import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { useKeystone3DisconnectedDialog } from '@src/pages/SignTransaction/hooks/useKeystone3DisconnectedDialog';
 import { LedgerApprovalOverlay } from '../SignTransaction/components/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
@@ -69,6 +70,7 @@ export function ApproveAction() {
     });
 
   useLedgerDisconnectedDialog(() => handleRejection(), undefined, network);
+  useKeystone3DisconnectedDialog(() => handleRejection());
 
   if (!action) {
     return (
