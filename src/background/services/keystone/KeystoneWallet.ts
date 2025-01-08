@@ -49,14 +49,12 @@ export class KeystoneWallet {
       const app = new KeystoneUSBEthSDK(
         (await createKeystoneTransport()) as any,
       );
-      const request = await this.buildSignatureRequest(
+      const ur = await this.buildSignatureUR(
         txRequest,
         this.fingerprint,
         this.activeAccountIndex,
       );
-      const encodedUR = new UREncoder(request.ur!, Infinity)
-        .nextPart()
-        .toUpperCase();
+      const encodedUR = new UREncoder(ur!, Infinity).nextPart().toUpperCase();
       const payload = (await app.signTransactionFromUr(encodedUR)).payload;
       const signature = ETHSignature.fromCBOR(
         parseResponoseUR(payload).cbor,
@@ -97,11 +95,11 @@ export class KeystoneWallet {
     return '0x' + signedTx.serialize().toString('hex');
   }
 
-  private async buildSignatureRequest(
+  private async buildSignatureUR(
     txRequest: TransactionRequest,
     fingerprint: string,
     activeAccountIndex: number,
-  ): Promise<CBOR> {
+  ): Promise<UR> {
     const chainId = txRequest.chainId ?? this.chainId;
     const isLegacyTx = typeof txRequest.gasPrice !== 'undefined';
 
@@ -131,10 +129,22 @@ export class KeystoneWallet {
 
     const ur = ethSignRequest.toUR();
 
+    return ur;
+  }
+
+  private async buildSignatureRequest(
+    txRequest: TransactionRequest,
+    fingerprint: string,
+    activeAccountIndex: number,
+  ): Promise<CBOR> {
+    const ur = await this.buildSignatureUR(
+      txRequest,
+      fingerprint,
+      activeAccountIndex,
+    );
     return {
       cbor: ur.cbor.toString('hex'),
       type: ur.type,
-      ur,
     };
   }
 

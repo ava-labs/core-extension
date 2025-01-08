@@ -1,5 +1,3 @@
-import { UR } from '@ngraveio/bc-ur';
-
 export interface KeystoneSendState {
   txId: string;
   signature: string;
@@ -8,7 +6,6 @@ export interface KeystoneSendState {
 export type CBOR = {
   cbor: string;
   type: string;
-  ur?: UR;
 };
 
 export type DeviceRequestData = CBOR & {

@@ -320,16 +320,6 @@ export class WalletService implements OnUnlock {
           this.keystoneService,
           provider as BitcoinProviderAbstract,
           tabId,
-          getAddressPublicKeyFromXPub(
-            secrets.xpub,
-            secrets.account.index,
-          ).toString('hex'),
-          secrets.xpubXP
-            ? Avalanche.getAddressPublicKeyFromXpub(
-                secrets.xpubXP,
-                secrets.account.index,
-              ).toString('hex')
-            : undefined,
         );
       }
 
