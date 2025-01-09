@@ -234,14 +234,13 @@ export class WalletService implements OnUnlock {
           this.keystoneService,
           network.chainId,
           tabId,
-          getAddressPublicKeyFromXPub(
-            secrets.xpub,
-            secrets.account.index,
-          ).toString('hex'),
+          getAddressPublicKeyFromXPub(secrets.xpub, accountIndexToUse).toString(
+            'hex',
+          ),
           secrets.xpubXP
             ? Avalanche.getAddressPublicKeyFromXpub(
                 secrets.xpubXP,
-                secrets.account.index,
+                accountIndexToUse,
               ).toString('hex')
             : undefined,
         );
@@ -458,14 +457,13 @@ export class WalletService implements OnUnlock {
           this.keystoneService,
           network.chainId,
           tabId,
-          getAddressPublicKeyFromXPub(
-            secrets.xpub,
-            secrets.account.index,
-          ).toString('hex'),
+          getAddressPublicKeyFromXPub(secrets.xpub, accountIndexToUse).toString(
+            'hex',
+          ),
           secrets.xpubXP
             ? Avalanche.getAddressPublicKeyFromXpub(
                 secrets.xpubXP,
-                secrets.account.index,
+                accountIndexToUse,
               ).toString('hex')
             : undefined,
         );
