@@ -4178,15 +4178,6 @@
     "@keystonehq/hw-transport-error" "^0.0.2"
     buffer "^6.0.3"
 
-"@keystonehq/hw-transport-webusb@0.5.1":
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/@keystonehq/hw-transport-webusb/-/hw-transport-webusb-0.5.1.tgz#cf49ec04964594563f7dac3fccd92869c9dd49c9"
-  integrity sha512-0Dosdbp3IJw5z6Qr8jUusEKl2E2dNCuLxG+hRGfIkDLwMSXUdc/T4QBODlcJZxdfS0rGN+E1eNv46qxFwy2XAA==
-  dependencies:
-    "@keystonehq/hw-transport-error" "^0.0.2"
-    "@keystonehq/hw-transport-usb" "^0.1.1"
-    buffer "^6.0.3"
-
 "@keystonehq/hw-transport-webusb@^0.3.2":
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/@keystonehq/hw-transport-webusb/-/hw-transport-webusb-0.3.3.tgz#127c4f4e3bce651c3ca134b67b83942020595b79"
@@ -4201,6 +4192,15 @@
   integrity sha512-fICp9ptKbOpWHY2AJaJgVH86Tw6GHFsrEgcQt6tmwmtvW63EpQYnJC0lIRBkjfbRqF/EPpVvUsxnAENvHu6new==
   dependencies:
     "@keystonehq/hw-transport-error" "^0.0.2"
+    buffer "^6.0.3"
+
+"@keystonehq/hw-transport-webusb@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@keystonehq/hw-transport-webusb/-/hw-transport-webusb-0.5.1.tgz#cf49ec04964594563f7dac3fccd92869c9dd49c9"
+  integrity sha512-0Dosdbp3IJw5z6Qr8jUusEKl2E2dNCuLxG+hRGfIkDLwMSXUdc/T4QBODlcJZxdfS0rGN+E1eNv46qxFwy2XAA==
+  dependencies:
+    "@keystonehq/hw-transport-error" "^0.0.2"
+    "@keystonehq/hw-transport-usb" "^0.1.1"
     buffer "^6.0.3"
 
 "@keystonehq/ur-decoder@0.9.2", "@keystonehq/ur-decoder@^0.9.2":
