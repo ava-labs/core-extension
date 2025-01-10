@@ -77,6 +77,8 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
     addFavoriteNetwork: jest.fn(),
     getAvalancheNetwork: jest.fn(),
     setNetwork: jest.fn(),
+    isMainnet: () => false,
+    getAvalanceProviderXP: jest.fn(),
   } as unknown as NetworkService;
   const secretsServiceMock = {
     getWalletAccountsSecretsById: jest.fn(),
