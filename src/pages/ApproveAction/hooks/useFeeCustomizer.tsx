@@ -322,6 +322,7 @@ export function useFeeCustomizer({
         selectedGasFeeModifier={gasFeeModifier}
         network={network}
         networkFee={networkFee}
+        isLimitReadonly={signingData.type === MultiTxSymbol}
       />
     );
   }, [
