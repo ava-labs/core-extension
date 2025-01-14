@@ -16,6 +16,7 @@ import {
   Typography,
   TypographyProps,
   LedgerIcon,
+  KeystoreIcon,
 } from '@avalabs/core-k2-components';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -256,8 +257,7 @@ export const AccountsActionButton = ({
                       onClick={goToAddKeystoreFileScreen}
                       data-testid="add-wallet-keystore-file"
                     >
-                      {/*TODO: replace to the KeystoreIcon*/}
-                      <ListIcon size={16} sx={{ pr: 1 }} />
+                      <KeystoreIcon size={16} sx={{ pr: 1 }} />
                       {t('Keystore File')}
                     </StyledMenuItem>
                   )}
