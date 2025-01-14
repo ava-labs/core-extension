@@ -76,7 +76,27 @@ export type BuildTxParams = {
   destAmount: PriceString;
   priceRoute: OptimalRate;
   userAddress: Address;
+  isNativeTokenSwap: boolean;
   srcDecimals?: number;
   destDecimals?: number;
   ignoreChecks?: boolean; // Use it when executing transactions as a batch (approval + transfer)
+};
+
+export type GetSwapPropsParams = {
+  srcToken: string;
+  destToken: string;
+  srcAmount: string;
+  slippage: number;
+  priceRoute: OptimalRate;
+  nativeToken: string;
+};
+
+export type ValidTransactionResponse = {
+  to: string;
+  from: string;
+  value: string;
+  data: string;
+  chainId: number;
+  gas?: string;
+  gasPrice?: string;
 };

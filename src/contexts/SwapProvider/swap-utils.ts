@@ -1,5 +1,5 @@
 import { APIError, Transaction } from 'paraswap';
-import { Contract, TransactionRequest } from 'ethers';
+import { Contract } from 'ethers';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
@@ -74,26 +74,25 @@ export function validateParams(
 }
 
 export async function buildApprovalTx({
-  contract,
   userAddress,
   spenderAddress,
   tokenAddress,
   amount,
   provider,
 }: {
-  contract: Contract;
   userAddress: string;
   spenderAddress: string;
   tokenAddress: string;
   amount: bigint;
   provider: JsonRpcBatchInternal;
 }) {
+  const contract = new Contract(tokenAddress, ERC20.abi, provider);
   const { data } = await contract.approve!.populateTransaction(
     spenderAddress,
     amount,
   );
 
-  const tx: TransactionRequest = {
+  const tx = {
     from: userAddress,
     to: tokenAddress,
     chainId: `0x${ChainId.AVALANCHE_MAINNET_ID.toString(16)}`,
@@ -115,20 +114,18 @@ export async function buildApprovalTx({
   };
 }
 
-export async function ensureAllowance({
-  provider,
+export async function hasEnoughAllowance({
   tokenAddress,
+  provider,
   userAddress,
   spenderAddress,
-  amount,
-  request,
+  requiredAmount,
 }: {
+  tokenAddress: string;
   provider: JsonRpcBatchInternal;
   userAddress: string;
   spenderAddress: string;
-  tokenAddress: string;
-  amount: bigint;
-  request: RequestHandlerType;
+  requiredAmount: bigint;
 }) {
   const contract = new Contract(tokenAddress, ERC20.abi, provider);
 
@@ -144,26 +141,53 @@ export async function ensureAllowance({
     throw new Error(`Allowance Fetching Error: ${allowanceError}`);
   }
 
-  if (allowance < amount) {
-    const tx = await buildApprovalTx({
-      amount,
-      contract,
-      provider,
-      spenderAddress,
-      tokenAddress,
-      userAddress,
-    });
+  return allowance >= requiredAmount;
+}
 
-    const [, signError] = await resolve(
-      request({
-        method: RpcMethod.ETH_SEND_TRANSACTION,
-        params: [tx],
-      }),
-    );
+export async function ensureAllowance({
+  provider,
+  tokenAddress,
+  userAddress,
+  spenderAddress,
+  amount,
+  request,
+}: {
+  provider: JsonRpcBatchInternal;
+  userAddress: string;
+  spenderAddress: string;
+  tokenAddress: string;
+  amount: bigint;
+  request: RequestHandlerType;
+}) {
+  const allowanceCoversAmount = await hasEnoughAllowance({
+    tokenAddress,
+    provider,
+    userAddress,
+    spenderAddress,
+    requiredAmount: amount,
+  });
 
-    if (signError) {
-      throwError(signError);
-    }
+  if (allowanceCoversAmount) {
+    return;
+  }
+
+  const tx = await buildApprovalTx({
+    amount,
+    provider,
+    spenderAddress,
+    tokenAddress,
+    userAddress,
+  });
+
+  const [, signError] = await resolve(
+    request({
+      method: RpcMethod.ETH_SEND_TRANSACTION,
+      params: [tx],
+    }),
+  );
+
+  if (signError) {
+    throwError(signError);
   }
 }
 

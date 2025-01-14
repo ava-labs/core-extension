@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import type { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
+import { TransactionParams } from '@avalabs/evm-module';
+import { resolve } from '@avalabs/core-utils-sdk';
 import { useConnectionContext } from '../ConnectionProvider';
 import { SwapSide } from 'paraswap-core';
 import browser from 'webextension-polyfill';
@@ -12,7 +14,6 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import Web3 from 'web3';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import Big from 'big.js';
-import { resolve } from '@src/utils/promiseResolver';
 import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { BN } from 'bn.js';
@@ -26,13 +27,17 @@ import {
   SwapParams,
   DISALLOWED_SWAP_ASSETS,
   BuildTxParams,
+  GetSwapPropsParams,
+  ValidTransactionResponse,
 } from './models';
 import Joi from 'joi';
 import { isAPIError } from '@src/pages/Swap/utils';
 import {
+  buildApprovalTx,
   checkForErrorsInBuildTxResult,
   checkForErrorsInGetRateResult,
   ensureAllowance,
+  hasEnoughAllowance,
   throwError,
   validateParams,
 } from './swap-utils';
@@ -47,7 +52,7 @@ export function SwapContextProvider({ children }: { children: any }) {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-  const { featureFlags } = useFeatureFlagContext();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const { networkFee } = useNetworkFeeContext();
   const { captureEncrypted } = useAnalyticsContext();
   const { t } = useTranslation();
@@ -90,7 +95,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         throw new Error('Account address missing');
       }
 
-      if (!featureFlags[FeatureGates.SWAP]) {
+      if (!isFlagEnabled(FeatureGates.SWAP)) {
         throw new Error(`Feature (SWAP) is currently unavailable`);
       }
 
@@ -127,11 +132,11 @@ export function SwapContextProvider({ children }: { children: any }) {
         destAmount: result.priceRoute?.destAmount,
       };
     },
-    [activeAccount, activeNetwork, featureFlags, paraswap],
+    [activeAccount, activeNetwork, isFlagEnabled, paraswap],
   );
 
   const getParaswapSpender = useCallback(async () => {
-    if (!featureFlags[FeatureGates.SWAP]) {
+    if (!isFlagEnabled(FeatureGates.SWAP)) {
       throw new Error(`Feature (SWAP) is currently unavailable`);
     }
 
@@ -143,7 +148,7 @@ export function SwapContextProvider({ children }: { children: any }) {
 
     const result = await response.json();
     return result.TokenTransferProxy;
-  }, [paraswap, featureFlags]);
+  }, [paraswap, isFlagEnabled]);
 
   const buildTx = useCallback(
     async ({
@@ -157,12 +162,13 @@ export function SwapContextProvider({ children }: { children: any }) {
       priceRoute,
       userAddress,
       ignoreChecks,
+      isNativeTokenSwap,
     }: BuildTxParams) => {
-      if (!featureFlags[FeatureGates.SWAP]) {
+      if (!isFlagEnabled(FeatureGates.SWAP)) {
         throw new Error(`Feature (SWAP) is currently unavailable`);
       }
 
-      const responseSchema = Joi.object({
+      const responseSchema = Joi.object<ValidTransactionResponse>({
         to: Joi.string().required(),
         from: Joi.string().required(),
         value: Joi.string().required(),
@@ -206,9 +212,22 @@ export function SwapContextProvider({ children }: { children: any }) {
         throw new Error('Invalid transaction params');
       }
 
-      return transactionParamsOrError;
+      const txPayload = validationResult.value;
+
+      return {
+        chainId: `0x${ChainId.AVALANCHE_MAINNET_ID.toString(16)}`,
+        gas: txPayload.gas
+          ? '0x' + Number(txPayload.gas).toString(16)
+          : undefined,
+        data: txPayload.data,
+        to: txPayload.to,
+        from: userAddress,
+        value: isNativeTokenSwap
+          ? `0x${new BN(srcAmount).toString('hex')}`
+          : undefined, // AVAX value needs to be sent with the transaction
+      };
     },
-    [featureFlags, paraswap],
+    [isFlagEnabled, paraswap],
   );
 
   const notifyOnSwapResult = useCallback(
@@ -283,8 +302,49 @@ export function SwapContextProvider({ children }: { children: any }) {
     [captureEncrypted, findSymbol, t],
   );
 
-  const swap = useCallback(
+  const getSwapTxProps = useCallback(
+    async ({
+      srcToken,
+      destToken,
+      srcAmount,
+      slippage,
+      nativeToken,
+      priceRoute,
+    }: GetSwapPropsParams) => {
+      const minAmount = new Big(priceRoute.destAmount)
+        .times(1 - slippage / 100)
+        .toFixed(0);
+      const maxAmount = new Big(srcAmount).times(1 + slippage / 100).toFixed(0);
+      const sourceAmount = priceRoute.side === 'SELL' ? srcAmount : maxAmount;
+
+      const destinationAmount =
+        priceRoute.side === 'SELL' ? minAmount : priceRoute.destAmount;
+
+      return {
+        srcTokenAddress: srcToken === nativeToken ? ETHER_ADDRESS : srcToken,
+        destTokenAddress: destToken === nativeToken ? ETHER_ADDRESS : destToken,
+        spender: await getParaswapSpender(),
+        sourceAmount,
+        destinationAmount,
+      };
+    },
+    [getParaswapSpender],
+  );
+
+  /**
+   * Used to perform a batch swap operation (approval + transfer) in a single click for the user.
+   * Some notes:
+   *
+   *  - Requires a feature flag to be enabled.
+   *  - When transfering AVAX, it performs the usual eth_sendTransaction request.
+   *  - If the allowance covers the transfer amount, it performs the usual eth_sendTransaction request
+   */
+  const oneClickSwap = useCallback(
     async (params: SwapParams) => {
+      if (!isFlagEnabled(FeatureGates.ONE_CLICK_SWAP)) {
+        throw new Error(`Feature (SWAP) is currently unavailable`);
+      }
+
       assertPresent(activeNetwork, CommonError.NoActiveNetwork);
       assertPresent(networkFee, CommonError.UnknownNetworkFee);
       assertPresent(activeAccount, CommonError.NoActiveAccount);
@@ -301,92 +361,96 @@ export function SwapContextProvider({ children }: { children: any }) {
         slippage,
       } = validateParams(params);
 
-      const srcTokenAddress =
-        srcToken === activeNetwork.networkToken.symbol
-          ? ETHER_ADDRESS
-          : srcToken;
-      const destTokenAddress =
-        destToken === activeNetwork.networkToken.symbol
-          ? ETHER_ADDRESS
-          : destToken;
-
       const userAddress = activeAccount.addressC;
+      const {
+        srcTokenAddress,
+        destTokenAddress,
+        destinationAmount,
+        sourceAmount,
+        spender,
+      } = await getSwapTxProps({
+        srcToken,
+        destToken,
+        srcAmount,
+        slippage,
+        nativeToken: activeNetwork.networkToken.symbol,
+        priceRoute,
+      });
 
-      const spender = await getParaswapSpender();
+      const batch: TransactionParams[] = [];
 
-      const minAmount = new Big(priceRoute.destAmount)
-        .times(1 - slippage / 100)
-        .toFixed(0);
-
-      const maxAmount = new Big(srcAmount).times(1 + slippage / 100).toFixed(0);
-      const sourceAmount = priceRoute.side === 'SELL' ? srcAmount : maxAmount;
-
-      const destinationAmount =
-        priceRoute.side === 'SELL' ? minAmount : priceRoute.destAmount;
+      const isNativeTokenSwap = srcToken === activeNetwork.networkToken.symbol;
 
       // no need to approve AVAX
-      if (srcToken !== activeNetwork.networkToken.symbol) {
-        await ensureAllowance({
-          amount: BigInt(sourceAmount),
-          provider: avaxProviderC,
-          request,
-          spenderAddress: spender,
+      if (!isNativeTokenSwap) {
+        const allowanceCoversAmount = await hasEnoughAllowance({
           tokenAddress: srcTokenAddress,
+          provider: avaxProviderC,
           userAddress,
+          spenderAddress: spender,
+          requiredAmount: BigInt(sourceAmount),
         });
+
+        if (!allowanceCoversAmount) {
+          const approvalTx = await buildApprovalTx({
+            userAddress,
+            spenderAddress: spender,
+            tokenAddress: srcTokenAddress,
+            amount: BigInt(sourceAmount),
+            provider: avaxProviderC,
+          });
+
+          batch.push(approvalTx);
+        }
       }
 
-      const [txBuildData, txBuildDataError] = await resolve(
-        incrementalPromiseResolve(
-          () =>
-            buildTx({
-              network: ChainId.AVALANCHE_MAINNET_ID.toString(),
-              srcToken: srcTokenAddress,
-              destToken: destTokenAddress,
-              srcAmount: sourceAmount,
-              destAmount: destinationAmount,
-              priceRoute,
-              userAddress,
-              srcDecimals:
-                activeNetwork.networkToken.symbol === srcToken
-                  ? 18
-                  : srcDecimals,
-              destDecimals:
-                activeNetwork.networkToken.symbol === destToken
-                  ? 18
-                  : destDecimals,
-            }),
-          checkForErrorsInBuildTxResult,
-          0,
-          10,
-        ),
-      );
+      const ignoreChecks = batch.length > 0; // Only ignore checks if we have an approval transaction in the batch
+      const swapTx = await buildTx({
+        network: ChainId.AVALANCHE_MAINNET_ID.toString(),
+        srcToken: srcTokenAddress,
+        destToken: destTokenAddress,
+        srcAmount: sourceAmount,
+        destAmount: destinationAmount,
+        priceRoute,
+        userAddress,
+        srcDecimals:
+          activeNetwork.networkToken.symbol === srcToken ? 18 : srcDecimals,
+        destDecimals:
+          activeNetwork.networkToken.symbol === destToken ? 18 : destDecimals,
+        ignoreChecks,
+        isNativeTokenSwap,
+      });
 
-      if (txBuildDataError) {
-        throw new Error(`Data Error: ${txBuildDataError}`);
-      }
+      batch.push(swapTx);
 
-      const [swapTxHash, signError] = await resolve(
-        request({
-          method: RpcMethod.ETH_SEND_TRANSACTION,
-          params: [
-            {
-              chainId: ChainId.AVALANCHE_MAINNET_ID.toString(),
-              gas: '0x' + Number(txBuildData.gas).toString(16),
-              data: txBuildData.data,
-              to: txBuildData.to,
-              from: activeAccount.addressC,
-              value:
-                srcToken === activeNetwork.networkToken.symbol
-                  ? `0x${new BN(sourceAmount).toString('hex')}`
-                  : undefined, // AVAX value needs to be sent with the transaction
-            },
-          ],
-        }),
-      );
+      let swapTxHash;
 
-      if (signError) {
-        throwError(signError);
+      if (batch.length > 1) {
+        const [txHashes, batchSignError] = await resolve<string[]>(
+          request({
+            method: RpcMethod.ETH_SEND_TRANSACTION_BATCH,
+            params: batch,
+          }),
+        );
+
+        if (batchSignError || !txHashes) {
+          return throwError(batchSignError);
+        }
+
+        swapTxHash = txHashes[txHashes.length - 1];
+      } else {
+        const [txHash, signError] = await resolve(
+          request({
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [batch[0]],
+          }),
+        );
+
+        if (signError || !txHash) {
+          return throwError(signError);
+        }
+
+        swapTxHash = txHash;
       }
 
       notifyOnSwapResult({
@@ -406,11 +470,137 @@ export function SwapContextProvider({ children }: { children: any }) {
       activeNetwork,
       avaxProviderC,
       buildTx,
-      getParaswapSpender,
       networkFee,
       request,
       notifyOnSwapResult,
+      getSwapTxProps,
+      isFlagEnabled,
     ],
+  );
+
+  const regularSwap = useCallback(
+    async (params: SwapParams) => {
+      assertPresent(activeNetwork, CommonError.NoActiveNetwork);
+      assertPresent(networkFee, CommonError.UnknownNetworkFee);
+      assertPresent(activeAccount, CommonError.NoActiveAccount);
+      assertPresent(avaxProviderC, CommonError.Unknown);
+
+      const {
+        srcToken,
+        destToken,
+        srcAmount,
+        srcDecimals,
+        destDecimals,
+        destAmount,
+        priceRoute,
+        slippage,
+      } = validateParams(params);
+
+      const userAddress = activeAccount.addressC;
+      const {
+        srcTokenAddress,
+        destTokenAddress,
+        destinationAmount,
+        sourceAmount,
+        spender,
+      } = await getSwapTxProps({
+        srcToken,
+        destToken,
+        srcAmount,
+        slippage,
+        nativeToken: activeNetwork.networkToken.symbol,
+        priceRoute,
+      });
+
+      // no need to approve AVAX
+      const isNativeTokenSwap = srcToken === activeNetwork.networkToken.symbol;
+
+      if (!isNativeTokenSwap) {
+        await ensureAllowance({
+          amount: BigInt(sourceAmount),
+          provider: avaxProviderC,
+          request,
+          spenderAddress: spender,
+          tokenAddress: srcTokenAddress,
+          userAddress,
+        });
+      }
+
+      const [swapTx, txBuildDataError] = await resolve(
+        incrementalPromiseResolve(
+          () =>
+            buildTx({
+              network: ChainId.AVALANCHE_MAINNET_ID.toString(),
+              srcToken: srcTokenAddress,
+              destToken: destTokenAddress,
+              srcAmount: sourceAmount,
+              destAmount: destinationAmount,
+              priceRoute,
+              userAddress,
+              isNativeTokenSwap,
+              srcDecimals:
+                activeNetwork.networkToken.symbol === srcToken
+                  ? 18
+                  : srcDecimals,
+              destDecimals:
+                activeNetwork.networkToken.symbol === destToken
+                  ? 18
+                  : destDecimals,
+            }),
+          checkForErrorsInBuildTxResult,
+          0,
+          10,
+        ),
+      );
+
+      if (txBuildDataError || !swapTx) {
+        throw new Error(`Data Error: ${txBuildDataError}`);
+      }
+
+      const [swapTxHash, signError] = await resolve(
+        request({
+          method: RpcMethod.ETH_SEND_TRANSACTION,
+          params: [swapTx],
+        }),
+      );
+
+      if (signError || !swapTxHash) {
+        return throwError(signError);
+      }
+
+      notifyOnSwapResult({
+        provider: avaxProviderC,
+        txHash: swapTxHash,
+        userAddress,
+        srcToken,
+        destToken,
+        srcAmount,
+        destAmount,
+        srcDecimals,
+        destDecimals,
+      });
+    },
+    [
+      activeAccount,
+      activeNetwork,
+      avaxProviderC,
+      buildTx,
+      networkFee,
+      request,
+      notifyOnSwapResult,
+      getSwapTxProps,
+    ],
+  );
+
+  const swap = useCallback(
+    async (params: SwapParams) => {
+      if (isFlagEnabled(FeatureGates.ONE_CLICK_SWAP)) {
+        return oneClickSwap(params);
+      }
+
+      return regularSwap(params);
+    },
+    [regularSwap, oneClickSwap, isFlagEnabled],
   );
 
   return (

@@ -45,6 +45,7 @@ export enum FeatureGates {
   BLOCKAID_TRANSACTION_SCAN = 'blockaid-transaction-scan',
   BLOCKAID_JSONRPC_SCAN = 'blockaid-jsonrpc-scan',
   HALLIDAY_BRIDGE_BANNER = 'halliday-bridge-banner',
+  ONE_CLICK_SWAP = 'one-click-swap',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -96,6 +97,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: false,
   [FeatureGates.BLOCKAID_JSONRPC_SCAN]: false,
   [FeatureGates.HALLIDAY_BRIDGE_BANNER]: false,
+  [FeatureGates.ONE_CLICK_SWAP]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -146,6 +148,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: true,
   [FeatureGates.BLOCKAID_JSONRPC_SCAN]: true,
   [FeatureGates.HALLIDAY_BRIDGE_BANNER]: true,
+  [FeatureGates.ONE_CLICK_SWAP]: true,
 };
 
 export enum FeatureFlagEvents {
