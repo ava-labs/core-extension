@@ -13,7 +13,7 @@ import { openApprovalWindow } from '../runtime/openApprovalWindow';
 import { ApprovalParamsWithContext } from './models';
 import { ApprovalController } from './ApprovalController';
 import { ACTION_HANDLED_BY_MODULE } from '../models';
-import { ActionStatus } from '../services/actions/models';
+import { Action, ActionStatus } from '../services/actions/models';
 
 jest.mock('tsyringe', () => {
   return {
@@ -40,6 +40,7 @@ const dappInfo: DappInfo = {
 const actionId = crypto.randomUUID();
 const getExpectedAction = (params) => ({
   [ACTION_HANDLED_BY_MODULE]: true,
+  caipId: params.request.chainId,
   dappInfo: params.request.dappInfo,
   signingData: params.signingData,
   context: params.request.context,
@@ -152,7 +153,7 @@ describe('src/background/vmModules/ApprovalController', () => {
 
       await new Promise(process.nextTick);
 
-      const result = controller.updateTx(actionId, {
+      const result = controller.updateTx({ actionId } as Action, {
         maxFeeRate: 150n,
       });
 

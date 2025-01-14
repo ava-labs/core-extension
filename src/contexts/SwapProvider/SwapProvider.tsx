@@ -41,7 +41,7 @@ import {
   throwError,
   validateParams,
 } from './swap-utils';
-import { assertPresent } from '@src/utils/assertions';
+import { assert, assertPresent } from '@src/utils/assertions';
 import { CommonError } from '@src/utils/errors';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
@@ -349,6 +349,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       assertPresent(networkFee, CommonError.UnknownNetworkFee);
       assertPresent(activeAccount, CommonError.NoActiveAccount);
       assertPresent(avaxProviderC, CommonError.Unknown);
+      assert(!activeNetwork.isTestnet, CommonError.UnknownNetwork);
 
       const {
         srcToken,
@@ -484,6 +485,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       assertPresent(networkFee, CommonError.UnknownNetworkFee);
       assertPresent(activeAccount, CommonError.NoActiveAccount);
       assertPresent(avaxProviderC, CommonError.Unknown);
+      assert(!activeNetwork.isTestnet, CommonError.UnknownNetwork);
 
       const {
         srcToken,
