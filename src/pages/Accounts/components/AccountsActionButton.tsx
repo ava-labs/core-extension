@@ -197,7 +197,7 @@ export const AccountsActionButton = ({
                     boxShadow: '0px 4px 24px 0px rgba(0, 0, 0, 0.60)',
                   }}
                 >
-                  <MenuHeader>Add Address via</MenuHeader>
+                  <MenuHeader>{t('Add Address via')}</MenuHeader>
                   <StyledMenuItem
                     onClick={goToImportScreen}
                     data-testid="add-import-account"
