@@ -1,3 +1,4 @@
+import { BatchApprovalParams, DisplayData } from '@avalabs/vm-module-types';
 import { DappInfo, RpcMethod, SigningData } from '@avalabs/vm-module-types';
 import {
   DAppProviderRequest,
@@ -19,25 +20,32 @@ export type Action<DisplayData = any, Params = any> = JsonRpcRequestPayload<
   DAppProviderRequest | RpcMethod,
   Params
 > & {
+  caipId?: string;
   scope: string;
   context?: Record<string, unknown>;
-  signingData?: SigningData;
   dappInfo?: DappInfo;
   [ACTION_HANDLED_BY_MODULE]?: boolean;
   time?: number;
   status?: ActionStatus;
   result?: any;
   error?: string;
-  displayData: DisplayData;
   // we store the window ID of the confirmation popup so
   // that we can clean up stale actions later
   popupWindowId?: number;
   inAppPromptId?: number;
   actionId?: string;
+} & {
+  signingData?: SigningData;
+  displayData: DisplayData;
+};
+
+export type MultiTxAction = Omit<Action, 'signingData' | 'displayData'> & {
+  signingRequests: BatchApprovalParams['signingRequests'];
+  displayData: DisplayData;
 };
 
 export interface Actions {
-  [id: string]: Action;
+  [id: string]: Action | MultiTxAction;
 }
 
 export interface ActionUpdate<DisplayData = any> {
@@ -66,3 +74,10 @@ export type ActionCompletedEvent = {
   action: Action;
   result: string;
 };
+
+export const isBatchApprovalAction = (
+  action: Action | MultiTxAction,
+): action is MultiTxAction =>
+  action &&
+  'signingRequests' in action &&
+  Array.isArray(action.signingRequests);

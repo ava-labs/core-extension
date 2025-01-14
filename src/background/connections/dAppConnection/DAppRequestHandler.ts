@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { Action } from '@src/background/services/actions/models';
+import { Action, MultiTxAction } from '@src/background/services/actions/models';
 import {
   DAppProviderRequest,
   JsonRpcRequestParams,
@@ -13,7 +13,7 @@ export interface DAppRequestHandler {
    * Called by the ActionsService after the user confirms the request on the approval popup.
    */
   onActionApproved?: (
-    pendingAction: Action,
+    pendingAction: Action | MultiTxAction,
     result: any,
     onSuccess: (result: unknown) => Promise<void>,
     onError: (error: Error) => Promise<void>,

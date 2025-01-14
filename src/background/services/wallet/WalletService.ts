@@ -37,7 +37,13 @@ import {
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
 import { LedgerService } from '../ledger/LedgerService';
-import { BaseWallet, Wallet, isHexString } from 'ethers';
+import {
+  BaseWallet,
+  HDNodeWallet,
+  TransactionRequest,
+  Wallet,
+  isHexString,
+} from 'ethers';
 import { Transaction } from 'bitcoinjs-lib';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
@@ -450,6 +456,36 @@ export class WalletService implements OnUnlock {
     }
   }
 
+  async signTransactionBatch(
+    batch: TransactionRequest[],
+    network: Network,
+    tabId?: number,
+  ) {
+    const wallet = await this.getWallet({ network, tabId });
+
+    if (!wallet) {
+      throw new Error('Wallet not found');
+    }
+
+    // Only wallets that provide us signed transactions without additional approvals
+    // can be used to sign transaction batches (so for example hardware wallets or accounts
+    // that connect through WalletConnect protocol would not work, since users have to approve
+    // each transaction one by one anyways.
+    const isSeedless = wallet instanceof SeedlessWallet;
+    const isSeedphrase = wallet instanceof HDNodeWallet;
+    const isPrivateKey = wallet instanceof Wallet;
+
+    if (!isSeedless && !isSeedphrase && !isPrivateKey) {
+      throw new Error('The active wallet does not support batch transactions');
+    }
+
+    return Promise.all(
+      batch.map(async (tx) => ({
+        signedTx: await wallet.signTransaction(tx),
+      })),
+    );
+  }
+
   async sign(
     tx: SignTransactionRequest,
     network: Network,
@@ -696,6 +732,10 @@ export class WalletService implements OnUnlock {
 
     if (!network) {
       throw new Error(`no active network found`);
+    }
+
+    if (!('displayData' in action) || !action.displayData) {
+      throw new Error('missing required information');
     }
 
     const wallet = await this.getWallet({
