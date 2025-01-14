@@ -21,8 +21,22 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import {
+  MultiTxAction,
+  isBatchApprovalAction,
+} from '@src/background/services/actions/models';
 
-const getInitialFeeRate = (data?: SigningData): bigint | undefined => {
+const getInitialFeeRate = (
+  data?: SigningData | MultiTxFeeData,
+): bigint | undefined => {
+  if (!data) {
+    return undefined;
+  }
+
+  if (isMultiTxFeeData(data)) {
+    return undefined;
+  }
+
   if (data?.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
     return BigInt(data.data.feeRate);
   }
@@ -32,13 +46,26 @@ const getInitialFeeRate = (data?: SigningData): bigint | undefined => {
   }
 };
 
-export const useFeeCustomizer = ({
+const MultiTxSymbol: unique symbol = Symbol();
+
+type MultiTxFeeData = {
+  type: typeof MultiTxSymbol;
+  gasLimit: bigint;
+  feeRate?: bigint;
+  maxTipRate?: bigint;
+};
+
+const isMultiTxFeeData = (
+  data: SigningData | MultiTxFeeData,
+): data is MultiTxFeeData => data.type === MultiTxSymbol;
+
+export function useFeeCustomizer({
   actionId,
   network,
 }: {
   actionId: string;
   network?: NetworkWithCaipId;
-}) => {
+}) {
   const { action } = useApproveAction<DisplayData>(actionId);
   const {
     accounts: { active: activeAccount },
@@ -54,7 +81,7 @@ export const useFeeCustomizer = ({
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
     GasFeeModifier.NORMAL,
   );
-  const isFeeSelectorEnabled = Boolean(action?.displayData.networkFeeSelector);
+  const isFeeSelectorEnabled = true; //Boolean(action?.displayData.networkFeeSelector);
 
   const tokens = useTokensWithBalances({
     chainId: network?.chainId,
@@ -66,8 +93,27 @@ export const useFeeCustomizer = ({
   ) as NetworkTokenWithBalance | null;
 
   const signingData = useMemo(() => {
-    if (!isFeeSelectorEnabled) {
+    if (!action || !isFeeSelectorEnabled) {
       return undefined;
+    }
+
+    if (isBatchApprovalAction(action)) {
+      return {
+        type: MultiTxSymbol,
+        gasLimit: (action as MultiTxAction).signingRequests.reduce(
+          (sum, req) => {
+            if (req.signingData.type === RpcMethod.ETH_SEND_TRANSACTION) {
+              return sum + BigInt(req.signingData.data.gasLimit ?? 0n);
+            }
+
+            throw new Error(
+              'This transaction type is not supported in bulk approvals: ' +
+                req.signingData.type,
+            );
+          },
+          0n,
+        ),
+      } as MultiTxFeeData;
     }
 
     switch (action?.signingData?.type) {
@@ -101,7 +147,14 @@ export const useFeeCustomizer = ({
     [actionId, isFeeSelectorEnabled, request, signingData?.type],
   );
 
-  const getFeeInfo = useCallback((data: SigningData) => {
+  const getFeeInfo = useCallback((data: SigningData | MultiTxFeeData) => {
+    if (isMultiTxFeeData(data)) {
+      return {
+        limit: Number(data.gasLimit ?? 0n),
+        feeRate: data.feeRate ?? 0n,
+        maxTipRate: data.maxTipRate ?? 0n,
+      };
+    }
     switch (data.type) {
       case RpcMethod.AVALANCHE_SIGN_MESSAGE:
       case RpcMethod.ETH_SIGN:
@@ -286,4 +339,4 @@ export const useFeeCustomizer = ({
     renderFeeWidget,
     feeError,
   };
-};
+}
