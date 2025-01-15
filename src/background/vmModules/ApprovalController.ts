@@ -194,11 +194,14 @@ export class ApprovalController implements BatchApprovalController {
       this.#requests.set(action.actionId as string, {
         params,
         network,
-        resolve: resolve as any, // TODO: fixme
+        resolve,
       });
     });
   };
 
+  /**
+   * This method should never throw. Instead, return an { error } object.
+   */
   requestBatchApproval = async (
     params: MultiApprovalParamsWithContext,
   ): Promise<BatchApprovalResponse> => {
@@ -224,7 +227,7 @@ export class ApprovalController implements BatchApprovalController {
       this.#requests.set(action.actionId as string, {
         params,
         network,
-        resolve: resolve as any, // TODO: fixme
+        resolve,
       });
     });
   };

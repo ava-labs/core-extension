@@ -64,6 +64,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       onApproved: jest.fn(),
       onRejected: jest.fn(),
       updateTx: jest.fn(),
+      updateTxBatch: jest.fn(),
     } as unknown as jest.Mocked<ApprovalController>;
 
     actionsService = new ActionsService(
@@ -80,6 +81,51 @@ describe('background/services/actions/ActionsService.ts', () => {
       await expect(actionsService.updateTx('weird-id', {})).rejects.toThrow(
         /No request found with id/,
       );
+    });
+
+    describe('when dealing with a batch action', () => {
+      const signingRequests = [
+        { from: '0x1', to: '0x2', value: '0x3' },
+        { from: '0x1', to: '0x2', value: '0x4' },
+      ];
+      const pendingActions = {
+        'id-0': {
+          actionId: 'id-0',
+        },
+        'id-1': {
+          signingRequests,
+          actionId: 'id-1',
+        },
+      };
+
+      beforeEach(() => {
+        jest
+          .spyOn(actionsService, 'getActions')
+          .mockResolvedValueOnce(pendingActions as any);
+      });
+
+      it('uses the ApprovalController.updateTxBatch() to fetch the new action data & saves it', async () => {
+        const newDisplayData = { ...displayData };
+        const updatedActionData = {
+          signingRequests,
+          displayData: newDisplayData,
+        } as any;
+
+        approvalController.updateTxBatch.mockReturnValueOnce(updatedActionData);
+
+        await actionsService.updateTx('id-1', {
+          maxFeeRate: 5n,
+          maxTipRate: 1n,
+        });
+
+        expect(storageService.save).toHaveBeenCalledWith(ACTIONS_STORAGE_KEY, {
+          ...pendingActions,
+          'id-1': {
+            ...pendingActions['id-1'],
+            ...updatedActionData,
+          },
+        });
+      });
     });
 
     it('uses the ApprovalController.updateTx() to fetch the new action data & saves it', async () => {
