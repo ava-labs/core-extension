@@ -110,6 +110,7 @@ const CORE_METHODS = Object.freeze([
   'avalanche_selectAccount',
   'avalanche_setDeveloperMode',
   DAppProviderRequest.ACCOUNT_RENAME,
+  DAppProviderRequest.ACCOUNTS_DELETE,
   DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
   DAppProviderRequest.WALLET_GET_CHAIN,
   DAppProviderRequest.WALLET_RENAME,
@@ -118,7 +119,7 @@ const CORE_METHODS = Object.freeze([
 export function PermissionMiddleware(
   permissionService: PermissionsService,
   accountsService: AccountsService,
-  lockService: LockService
+  lockService: LockService,
 ): Middleware<
   ExtensionConnectionMessage | JsonRpcRequest,
   ExtensionConnectionMessageResponse<any, any> | JsonRpcResponse

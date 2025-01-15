@@ -28,7 +28,7 @@ export class NetworksUpdatedEvents implements ExtensionEventEmitter {
         value: {
           activeNetwork: this.networkService.uiActiveNetwork,
           networks: Object.values<Network>(networks).sort((a, b) =>
-            a.chainName.localeCompare(b.chainName)
+            a.chainName.localeCompare(b.chainName),
           ),
           favoriteNetworks,
           customNetworks: this.networkService.customNetworks,
@@ -42,7 +42,7 @@ export class NetworksUpdatedEvents implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

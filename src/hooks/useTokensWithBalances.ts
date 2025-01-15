@@ -29,10 +29,10 @@ const DISALLOWED_ASSETS = [];
  * @returns Tokens list with OR without balances based on `forceShowTokensWithoutBalances`
  */
 export const useTokensWithBalances = (
-  options: UseTokensWithBalanceOptions = {}
+  options: UseTokensWithBalanceOptions = {},
 ) => {
   const [selectedChainId, setSelectedChainId] = useState<number | undefined>(
-    undefined
+    undefined,
   );
   const [
     allTokensWithPlaceholderBalances,
@@ -97,7 +97,7 @@ export const useTokensWithBalances = (
         });
 
         const tokensWithPlaceholderBalances = Object.entries(
-          networkTokens.tokens
+          networkTokens.tokens,
         ).reduce<{
           [address: string]: TokenWithBalance;
         }>((tokensWithBalances, [address, tokenData]) => {
@@ -144,7 +144,7 @@ export const useTokensWithBalances = (
     const address = getAddressForChain(
       selectedChainId,
       activeAccount,
-      network?.caipId
+      network?.caipId,
     );
 
     if (!address) {
@@ -158,7 +158,7 @@ export const useTokensWithBalances = (
       const merged = merge(
         {},
         allTokensWithPlaceholderBalances,
-        networkBalances
+        networkBalances,
       );
 
       return nativeTokensFirst(Object.values(merged));
@@ -171,7 +171,7 @@ export const useTokensWithBalances = (
     }
 
     const nativeToken = unfilteredTokens.find(
-      (token) => token.type === TokenType.NATIVE
+      (token) => token.type === TokenType.NATIVE,
     );
 
     const defaultResult = nativeToken ? [nativeToken] : [];

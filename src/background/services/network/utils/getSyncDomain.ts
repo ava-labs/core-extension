@@ -12,7 +12,7 @@ const SYNCED_DOMAINS = [
 
 export const isSyncDomain = (
   domain: string,
-  exposedDomainList: string[] = []
+  exposedDomainList: string[] = [],
 ) => {
   return [...SYNCED_DOMAINS, ...exposedDomainList].some((syncDomain) => {
     // Match exact domains, but also allow subdomains (i.e. develop.core-web.pages.dev)

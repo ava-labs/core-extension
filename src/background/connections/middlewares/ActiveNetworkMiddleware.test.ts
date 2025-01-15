@@ -4,7 +4,7 @@ import { RpcMethod } from '@avalabs/vm-module-types';
 import getTargetNetworkForTx from '@src/background/services/wallet/handlers/eth_sendTransaction/utils/getTargetNetworkForTx';
 
 jest.mock(
-  '@src/background/services/wallet/handlers/eth_sendTransaction/utils/getTargetNetworkForTx'
+  '@src/background/services/wallet/handlers/eth_sendTransaction/utils/getTargetNetworkForTx',
 );
 
 describe('src/background/connections/middlewares/ActiveNetworkMiddleware', () => {
@@ -42,7 +42,7 @@ describe('src/background/connections/middlewares/ActiveNetworkMiddleware', () =>
         },
       } as any,
       next,
-      onError
+      onError,
     );
 
     expect(next).not.toHaveBeenCalled();
@@ -69,7 +69,7 @@ describe('src/background/connections/middlewares/ActiveNetworkMiddleware', () =>
         },
       } as any,
       next,
-      onError
+      onError,
     );
 
     expect(getTargetNetworkForTx).not.toHaveBeenCalled();

@@ -19,14 +19,14 @@ const cacheStorage = new LRUCache({ max: 100, ttl: 60 * 1000 });
 export class BalancesService {
   constructor(
     private settingsService: SettingsService,
-    private moduleManager: ModuleManager
+    private moduleManager: ModuleManager,
   ) {}
 
   async getBalancesForNetwork(
     network: NetworkWithCaipId,
     accounts: Account[],
     tokenTypes: TokenType[],
-    priceChanges?: TokensPriceShortData
+    priceChanges?: TokensPriceShortData,
   ): Promise<Record<string, Record<string, TokenWithBalance>>> {
     const sentryTracker = Sentry.startTransaction(
       {
@@ -34,14 +34,14 @@ export class BalancesService {
       },
       {
         network: network.caipId,
-      }
+      },
     );
     const module = await this.moduleManager.loadModuleByNetwork(network);
 
     const settings = await this.settingsService.getSettings();
     const currency = settings.currency.toLowerCase();
     const customTokens = Object.values(
-      settings.customTokens[network.chainId] ?? {}
+      settings.customTokens[network.chainId] ?? {},
     ).map((t) => ({ ...t, type: TokenType.ERC20 as const }));
 
     const rawBalances = await module.getBalances({
@@ -77,7 +77,7 @@ export class BalancesService {
     const balances = Object.keys(rawBalances).reduce(
       (
         accountBalances,
-        accountKey
+        accountKey,
       ): Record<string, Record<string, TokenWithBalance>> => {
         const rawAccountTokenList = rawBalances[accountKey];
         if (!rawAccountTokenList || rawAccountTokenList?.error) {
@@ -100,16 +100,16 @@ export class BalancesService {
                   priceChanges: getPriceChangeValues(
                     tokenBalance.symbol,
                     tokenBalance.balanceInCurrency,
-                    priceChanges
+                    priceChanges,
                   ),
                 },
               };
             },
-            {}
+            {},
           ),
         };
       },
-      {}
+      {},
     );
 
     sentryTracker.finish();

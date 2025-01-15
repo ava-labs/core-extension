@@ -24,7 +24,7 @@ export class ImportLedgerHandler implements HandlerType {
   constructor(
     private walletService: WalletService,
     private accountsService: AccountsService,
-    private secretsService: SecretsService
+    private secretsService: SecretsService,
   ) {}
 
   async #addAccounts(walletId: string, numberOfAccounts: number = 3) {
@@ -32,15 +32,27 @@ export class ImportLedgerHandler implements HandlerType {
     // (i.e. address for 0-index account derived N times).
 
     for (let i = 0; i < numberOfAccounts; i++) {
-      await this.accountsService.addPrimaryAccount({
+      const accountId = await this.accountsService.addPrimaryAccount({
         walletId,
       });
+      if (i === 0) {
+        await this.accountsService.activateAccount(accountId);
+      }
     }
   }
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [{ xpub, xpubXP, pubKeys, secretType, name, dryRun }] =
-      request.params;
+    const [
+      {
+        xpub,
+        xpubXP,
+        pubKeys,
+        secretType,
+        name,
+        dryRun,
+        numberOfAccountsToCreate,
+      },
+    ] = request.params;
 
     if (
       secretType !== SecretType.Ledger &&
@@ -105,13 +117,17 @@ export class ImportLedgerHandler implements HandlerType {
       });
     }
 
-    const numberOfAccountsToCreate =
-      secretType === SecretType.LedgerLive ? pubKeys?.length : undefined;
-
-    await this.#addAccounts(id, numberOfAccountsToCreate);
-    const addedWallet = await this.secretsService.getWalletAccountsSecretsById(
-      id
+    const accountsToBeCreated = numberOfAccountsToCreate || 3;
+    const accountsToCreate = Math.min(
+      3,
+      pubKeys
+        ? Math.min(pubKeys.length, accountsToBeCreated)
+        : accountsToBeCreated,
     );
+    await this.#addAccounts(id, accountsToCreate);
+
+    const addedWallet =
+      await this.secretsService.getWalletAccountsSecretsById(id);
     return {
       ...request,
       result: {

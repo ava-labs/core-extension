@@ -18,7 +18,7 @@ export default function ImportFireblocksWithWalletConnect() {
       setImportedAccountId(accountId);
       setIsBtcDialogVisible(true);
     },
-    [capture]
+    [capture],
   );
 
   return (

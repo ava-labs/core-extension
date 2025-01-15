@@ -57,7 +57,7 @@ export const AddNetwork = () => {
       logoUri: '',
       explorerUrl: '',
     }),
-    []
+    [],
   );
   const [network, setNetwork] = useState<Network>(defaultNetworkValues);
 
@@ -65,7 +65,7 @@ export const AddNetwork = () => {
     () => ({
       ...getPageHistoryData(),
     }),
-    [getPageHistoryData]
+    [getPageHistoryData],
   );
 
   useEffect(() => {

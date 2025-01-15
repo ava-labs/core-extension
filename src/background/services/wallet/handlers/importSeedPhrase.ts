@@ -33,13 +33,13 @@ export class ImportSeedPhraseHandler implements HandlerType {
   constructor(
     private walletService: WalletService,
     private accountsService: AccountsService,
-    private secretsService: SecretsService
+    private secretsService: SecretsService,
   ) {}
 
   async #addAccounts(walletId: string) {
     // We need to await each of these calls, otherwise there may be race conditions
     // (i.e. address for 0-index account derived N times).
-    await this.accountsService.addPrimaryAccount({
+    const activeAccount = await this.accountsService.addPrimaryAccount({
       walletId,
     });
     await this.accountsService.addPrimaryAccount({
@@ -48,6 +48,8 @@ export class ImportSeedPhraseHandler implements HandlerType {
     await this.accountsService.addPrimaryAccount({
       walletId,
     });
+
+    await this.accountsService.activateAccount(activeAccount);
   }
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -57,7 +59,7 @@ export class ImportSeedPhraseHandler implements HandlerType {
 
     const isKnown = await this.secretsService.isKnownSecret(
       SecretType.Mnemonic,
-      mnemonic
+      mnemonic,
     );
 
     if (isKnown) {
@@ -85,9 +87,8 @@ export class ImportSeedPhraseHandler implements HandlerType {
 
     await this.#addAccounts(id);
 
-    const addedWallet = await this.secretsService.getWalletAccountsSecretsById(
-      id
-    );
+    const addedWallet =
+      await this.secretsService.getWalletAccountsSecretsById(id);
 
     return {
       ...request,

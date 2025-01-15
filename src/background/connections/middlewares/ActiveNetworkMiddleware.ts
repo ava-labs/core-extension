@@ -17,7 +17,7 @@ const isNetworkNeeded = (method: string) => {
 };
 
 export function ActiveNetworkMiddleware(
-  networkService: NetworkService
+  networkService: NetworkService,
 ): Middleware<
   JsonRpcRequest | ExtensionConnectionMessage,
   JsonRpcResponse | ExtensionConnectionMessageResponse

@@ -9,7 +9,7 @@ jest.mock('@avalabs/core-wallets-sdk');
 const FIXTURES = {
   MOCKED_PSBT: Buffer.from(
     '70736274ff0100520200000001a571b1112b5ce00487e5d3531f168ace50834675898766f96ad55d19374d28770000000000ffffffff0110270000000000001600142f1687421b7b090e42918332b16f4a81d74c4ad7000000000001011f6d3300000000000016001405bd27f4c353c4dc49af121439b810828bc15ab4220602457a4e0160c6e5c553436f1f77ec59f09d1a93e1639578657eea995dcb3907b51880d3bb222c0000803c0000800000008000000000000000000000',
-    'hex'
+    'hex',
   ),
   TRANSACTION_REQUEST: {
     inputs: [{}, {}] as WalletsSDK.BitcoinInputUTXO[],
@@ -21,11 +21,11 @@ const FIXTURES = {
   },
   SIGNATURE_RESPONSE: Buffer.from(
     '58ed70736274ff0100520200000001a571b1112b5ce00487e5d3531f168ace50834675898766f96ad55d19374d28770000000000ffffffff0110270000000000001600142f1687421b7b090e42918332b16f4a81d74c4ad7000000000001011f6d3300000000000016001405bd27f4c353c4dc49af121439b810828bc15ab401086b0247304402206cc7fb01a93e7277f19f71cf1610761ee038db9ea7e91e4b923a8dbc4420f062022043341566f0b122e11e7ed636e8acfab4c4b53312fab10bb4375375ec10344ab5012102457a4e0160c6e5c553436f1f77ec59f09d1a93e1639578657eea995dcb3907b50000',
-    'hex'
+    'hex',
   ),
   SIGNED_TX: Buffer.from(
     '70736274ff0100520200000001a571b1112b5ce00487e5d3531f168ace50834675898766f96ad55d19374d28770000000000ffffffff0110270000000000001600142f1687421b7b090e42918332b16f4a81d74c4ad7000000000001011f6d3300000000000016001405bd27f4c353c4dc49af121439b810828bc15ab401086b0247304402206cc7fb01a93e7277f19f71cf1610761ee038db9ea7e91e4b923a8dbc4420f062022043341566f0b122e11e7ed636e8acfab4c4b53312fab10bb4375375ec10344ab5012102457a4e0160c6e5c553436f1f77ec59f09d1a93e1639578657eea995dcb3907b50000',
-    'hex'
+    'hex',
   ),
 };
 
@@ -39,7 +39,7 @@ const keystoneTransport = {
 } as unknown as KeystoneTransport;
 const fingerprint = '80d3bb22';
 const pubKey = Buffer.from(
-  '02457a4e0160c6e5c553436f1f77ec59f09d1a93e1639578657eea995dcb3907b5'
+  '02457a4e0160c6e5c553436f1f77ec59f09d1a93e1639578657eea995dcb3907b5',
 );
 const keyPath = `m/44'/9000'/0'/0/0`;
 const network = { bech32: 'tb' } as Network;
@@ -74,7 +74,7 @@ describe('src/background/services/keystone/BitcoinKeystoneWallet.ts', () => {
         keyPath,
         keystoneTransport,
         provider,
-        tabId
+        tabId,
       );
     });
 
@@ -85,7 +85,7 @@ describe('src/background/services/keystone/BitcoinKeystoneWallet.ts', () => {
       expect(WalletsSDK.createPsbt).toHaveBeenCalledWith(
         inputs,
         outputs,
-        network
+        network,
       );
     });
 
@@ -112,7 +112,7 @@ describe('src/background/services/keystone/BitcoinKeystoneWallet.ts', () => {
 
       expect(keystoneTransport.requestSignature).toHaveBeenCalledWith(
         FIXTURES.SIGNATURE_REQUEST,
-        tabId
+        tabId,
       );
     });
 
@@ -129,7 +129,7 @@ describe('src/background/services/keystone/BitcoinKeystoneWallet.ts', () => {
       const result = await wallet.signTx(inputs, outputs);
 
       expect(CryptoPSBT.fromCBOR).toHaveBeenCalledWith(
-        FIXTURES.SIGNATURE_RESPONSE
+        FIXTURES.SIGNATURE_RESPONSE,
       );
       expect(result).toEqual('signed-tx');
     });

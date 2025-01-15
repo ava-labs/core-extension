@@ -31,7 +31,7 @@ export function useGetTransaction(requestId: string) {
   } | null>(null);
   const [showRawTransactionData, setShowRawTransactionData] = useState(false);
   const [selectedGasFee, setSelectedGasFee] = useState<GasFeeModifier>(
-    GasFeeModifier.NORMAL
+    GasFeeModifier.NORMAL,
   );
   const { showDialog, clearDialog } = useDialog();
   const [hasTransactionError, setHasTransactionError] = useState(false);
@@ -111,7 +111,7 @@ export function useGetTransaction(requestId: string) {
       }));
       setSelectedGasFee(values.feeType);
     },
-    []
+    [],
   );
 
   useEffect(() => {

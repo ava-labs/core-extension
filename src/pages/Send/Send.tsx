@@ -60,7 +60,7 @@ export function SendPage() {
   const tokens = useTokensWithBalances();
 
   const { isFunctionAvailable, isFunctionSupported } = useIsFunctionAvailable(
-    FunctionNames.SEND
+    FunctionNames.SEND,
   );
 
   const nativeToken = tokens.find(({ type }) => type === TokenType.NATIVE);
@@ -120,7 +120,7 @@ export function SendPage() {
 
       history.push('/home');
     },
-    [fromAddress, network, captureEncrypted, history, t]
+    [fromAddress, network, captureEncrypted, history, t],
   );
 
   const onFailure = useCallback(() => {
@@ -241,7 +241,7 @@ export function SendPage() {
 // in different render runs, in which case we should still wait.
 const doesProviderMatchTheNetwork = (
   network?: Network,
-  provider?: SupportedProvider
+  provider?: SupportedProvider,
 ) => {
   if (!network || !provider) {
     return false;

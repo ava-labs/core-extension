@@ -24,12 +24,12 @@ export class CancelRecoveryPhraseExportHandler implements HandlerType {
     private secretsService: SecretsService,
     private networkService: NetworkService,
     private seedlessMfaService: SeedlessMfaService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const secrets = await this.secretsService.getPrimaryAccountSecrets(
-      this.accountsService.activeAccount
+      this.accountsService.activeAccount,
     );
 
     if (secrets?.secretType !== SecretType.Seedless) {

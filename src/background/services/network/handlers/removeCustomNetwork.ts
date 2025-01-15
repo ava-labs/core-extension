@@ -25,7 +25,7 @@ export class RemoveCustomNetworkHandler implements HandlerType {
       };
 
     const [, err] = await resolve(
-      this.networkService.removeCustomNetwork(chainId)
+      this.networkService.removeCustomNetwork(chainId),
     );
 
     if (err) {

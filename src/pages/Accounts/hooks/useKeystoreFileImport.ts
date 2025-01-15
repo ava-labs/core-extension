@@ -17,6 +17,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useImportSeedphrase } from './useImportSeedphrase';
 import { usePrivateKeyImport } from './usePrivateKeyImport';
 import { useJsonFileReader } from './useJsonFileReader';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 export const useKeystoreFileImport = () => {
   const { capture } = useAnalyticsContext();
@@ -26,6 +27,7 @@ export const useKeystoreFileImport = () => {
     useImportSeedphrase();
   const { isImporting: isImportingPrivateKey, importPrivateKey } =
     usePrivateKeyImport();
+  const { selectAccount } = useAccountsContext();
 
   const extractKeys = useCallback(
     async (file: File, password: string) => {
@@ -38,7 +40,7 @@ export const useKeystoreFileImport = () => {
 
       return keys;
     },
-    [capture, read]
+    [capture, read],
   );
 
   const importKeystoreFile = useCallback(
@@ -59,10 +61,11 @@ export const useKeystoreFileImport = () => {
           // Keystore files have the private keys base58check-encoded, but
           // we need them in hex format.
           const privateKey = Buffer.from(
-            utils.base58check.decode(key.replace('PrivateKey-', ''))
+            utils.base58check.decode(key.replace('PrivateKey-', '')),
           ).toString('hex');
 
-          await importPrivateKey(privateKey);
+          const accountId = await importPrivateKey(privateKey);
+          await selectAccount(accountId);
         } else if (type === 'mnemonic') {
           try {
             await importSeedphrase({
@@ -82,7 +85,7 @@ export const useKeystoreFileImport = () => {
         }
       }
     },
-    [extractKeys, importPrivateKey, importSeedphrase]
+    [extractKeys, importPrivateKey, importSeedphrase, selectAccount],
   );
 
   const getKeyCounts = useCallback(
@@ -102,10 +105,10 @@ export const useKeystoreFileImport = () => {
         {
           seedPhrasesCount: 0,
           privateKeysCount: 0,
-        }
+        },
       );
     },
-    [extractKeys]
+    [extractKeys],
   );
 
   const isValidKeystoreFile = useCallback(
@@ -119,7 +122,7 @@ export const useKeystoreFileImport = () => {
         return false;
       }
     },
-    [read]
+    [read],
   );
 
   return {
@@ -138,6 +141,6 @@ const KEYSTORE_FILE_SCHEMA = Joi.object({
     Joi.object({
       key: Joi.string().required(),
       iv: Joi.string().required(),
-    }).unknown()
+    }).unknown(),
   ),
 }).unknown();

@@ -15,7 +15,7 @@ import { isValidResponse } from './validateResponse';
 export async function launchFidoFlow(
   endpoint: FIDOApiEndpoint,
   challenge: FIDOApiRequest,
-  keyType?: KeyType
+  keyType?: KeyType,
 ): Promise<DecodedFIDOResult> {
   const baseUrl = process.env.SEEDLESS_FIDO_IDENTITY_URL;
 

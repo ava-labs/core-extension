@@ -65,7 +65,7 @@ export function Popup() {
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const isFullscreen = useIsSpecificContextContainer(
-    ContextContainer.FULLSCREEN
+    ContextContainer.FULLSCREEN,
   );
   const history = useHistory();
   const location = useLocation();
@@ -76,7 +76,7 @@ export function Popup() {
 
   const appWidth = useMemo(
     () => (isMiniMode || isConfirm || isFullscreen ? '100%' : '1280px'),
-    [isMiniMode, isConfirm, isFullscreen]
+    [isMiniMode, isConfirm, isFullscreen],
   );
 
   useEffect(() => {
@@ -111,7 +111,7 @@ export function Popup() {
     return (
       <OfflineContent
         message={t(
-          'Sorry, Core is currently unavailable. Please check back later. Thanks.'
+          'Sorry, Core is currently unavailable. Please check back later. Thanks.',
         )}
       />
     );

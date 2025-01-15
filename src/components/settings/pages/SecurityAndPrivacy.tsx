@@ -237,7 +237,7 @@ export function SecurityAndPrivacy({
                   variant="dot"
                   invisible={
                     !showNotificationDotOn.includes(
-                      SettingsPages.EXPORT_RECOVERY_PHRASE
+                      SettingsPages.EXPORT_RECOVERY_PHRASE,
                     )
                   }
                 >

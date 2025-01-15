@@ -47,7 +47,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     const featureFlagsService = new FeatureFlagService(
       analyticsServiceMock,
       lockServiceMock,
-      storageServiceMock
+      storageServiceMock,
     );
     expect(featureFlagsService.featureFlags).toStrictEqual(DEFAULT_FLAGS);
   });
@@ -61,7 +61,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     new FeatureFlagService(
       analyticsServiceMock,
       lockServiceMock,
-      storageServiceMock
+      storageServiceMock,
     );
     await new Promise(process.nextTick);
 
@@ -80,7 +80,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     new FeatureFlagService(
       analyticsServiceMock,
       lockServiceMock,
-      storageServiceMock
+      storageServiceMock,
     );
     await new Promise(process.nextTick);
 
@@ -105,7 +105,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     new FeatureFlagService(
       analyticsServiceMock,
       lockServiceMock,
-      storageServiceMock
+      storageServiceMock,
     );
     await new Promise(process.nextTick);
 
@@ -113,7 +113,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     expect(getFeatureFlags).toHaveBeenCalledWith(
       'posthogkey',
       '',
-      'https://app.posthog.com'
+      'https://app.posthog.com',
     );
   });
 
@@ -121,7 +121,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     new FeatureFlagService(
       analyticsServiceMock,
       lockServiceMock,
-      storageServiceMock
+      storageServiceMock,
     );
     await new Promise(process.nextTick);
 
@@ -135,7 +135,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     new FeatureFlagService(
       analyticsServiceMock,
       lockServiceMock,
-      storageServiceMock
+      storageServiceMock,
     );
     await new Promise(process.nextTick);
 
@@ -147,7 +147,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     new FeatureFlagService(
       analyticsServiceMock,
       lockServiceMock,
-      storageServiceMock
+      storageServiceMock,
     );
     await new Promise(process.nextTick);
 
@@ -156,7 +156,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     expect(getFeatureFlags).toHaveBeenCalledWith(
       'posthogkey',
       '',
-      'posthogurl'
+      'posthogurl',
     );
   });
 
@@ -164,7 +164,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     new FeatureFlagService(
       analyticsServiceMock,
       lockServiceMock,
-      storageServiceMock
+      storageServiceMock,
     );
     await new Promise(process.nextTick);
 
@@ -176,7 +176,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     expect(analyticsServiceMock.addListener).toHaveBeenCalledTimes(1);
     expect(analyticsServiceMock.addListener).toHaveBeenCalledWith(
       AnalyticsEvents.ANALYTICS_STATE_UPDATED,
-      expect.any(Function)
+      expect.any(Function),
     );
 
     analyticsServiceMock.getIds.mockReturnValue({ userId: 'userId' });
@@ -193,7 +193,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     expect(getFeatureFlags).toHaveBeenCalledWith(
       'posthogkey',
       'userId',
-      'posthogurl'
+      'posthogurl',
     );
     expect(setInterval).toHaveBeenCalledTimes(2);
   });
@@ -211,11 +211,11 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     const featureFlagsService = new FeatureFlagService(
       analyticsServiceMock,
       lockServiceMock,
-      storageServiceMock
+      storageServiceMock,
     );
     featureFlagsService.addListener(
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
-      eventSubscription
+      eventSubscription,
     );
 
     expect(featureFlagsService.featureFlags).toStrictEqual(DEFAULT_FLAGS);
@@ -240,11 +240,11 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     const featureFlagsService = new FeatureFlagService(
       analyticsServiceMock,
       lockServiceMock,
-      storageServiceMock
+      storageServiceMock,
     );
     featureFlagsService.addListener(
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
-      eventSubscription
+      eventSubscription,
     );
 
     expect(featureFlagsService.featureFlags).toStrictEqual(DEFAULT_FLAGS);
@@ -281,7 +281,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
         featureFlagsService = new FeatureFlagService(
           analyticsServiceMock,
           lockServiceMock,
-          storageServiceMock
+          storageServiceMock,
         );
 
         await new Promise(process.nextTick);
@@ -291,7 +291,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
         expect(featureFlagsService.featureFlags).toEqual(
           expect.objectContaining({
             [FeatureGates.DEFI]: false,
-          })
+          }),
         );
       });
 
@@ -300,7 +300,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
           expect.objectContaining({
             [FeatureGates.SEND]: true,
             [FeatureGates.SWAP]: false,
-          })
+          }),
         );
       });
     });
@@ -390,7 +390,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
           const featureFlagsService = new FeatureFlagService(
             analyticsServiceMock,
             lockServiceMock,
-            storageServiceMock
+            storageServiceMock,
           );
 
           await new Promise(process.nextTick);
@@ -401,7 +401,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
             [FeatureGates.SEND]: true, // Comes without a payload, should stay in-tact
             [FeatureGates.SWAP]: false, // Comes without a payload, should stay in-tact
           });
-        }
+        },
       );
     });
   });
@@ -432,12 +432,12 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
       featureFlagsService = new FeatureFlagService(
         analyticsServiceMock,
         lockServiceMock,
-        storageServiceMock
+        storageServiceMock,
       );
 
       featureFlagsService.addListener(
         FeatureFlagEvents.FEATURE_FLAG_UPDATED,
-        eventSubscription
+        eventSubscription,
       );
       await new Promise(process.nextTick);
     });
@@ -467,12 +467,12 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
       const featureFlagsService = new FeatureFlagService(
         analyticsServiceMock,
         lockServiceMock,
-        storageServiceMock
+        storageServiceMock,
       );
       await new Promise(process.nextTick);
       featureFlagsService.addListener(
         FeatureFlagEvents.FEATURE_FLAG_UPDATED,
-        eventSubscription
+        eventSubscription,
       );
 
       expect(lockServiceMock.lock).toHaveBeenCalled();
@@ -495,7 +495,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
       service = new FeatureFlagService(
         analyticsServiceMock,
         lockServiceMock,
-        storageServiceMock
+        storageServiceMock,
       );
       await new Promise(process.nextTick);
     });
@@ -506,7 +506,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
 
     it('throws an error if given feature is disabled', () => {
       expect(() => service.ensureFlagEnabled(FeatureGates.BRIDGE)).toThrow(
-        `Feature (${FeatureGates.BRIDGE}) is currently unavailable`
+        `Feature (${FeatureGates.BRIDGE}) is currently unavailable`,
       );
     });
   });

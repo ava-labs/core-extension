@@ -26,7 +26,8 @@ type HandlerType = ExtensionRequestHandler<
       password: string;
       analyticsConsent: boolean;
       walletName?: string;
-    }
+      numberOfAccountsToCreate?: number;
+    },
   ]
 >;
 
@@ -42,12 +43,19 @@ export class LedgerOnboardingHandler implements HandlerType {
     private walletService: WalletService,
     private onboardingService: OnboardingService,
     private lockService: LockService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const { xpub, xpubXP, pubKeys, password, analyticsConsent, walletName } =
-      (request.params ?? [])[0] ?? {};
+    const {
+      xpub,
+      xpubXP,
+      pubKeys,
+      password,
+      analyticsConsent,
+      walletName,
+      numberOfAccountsToCreate,
+    } = (request.params ?? [])[0] ?? {};
 
     if ((xpub || xpubXP) && pubKeys?.length) {
       return {
@@ -92,18 +100,13 @@ export class LedgerOnboardingHandler implements HandlerType {
       };
     }
 
-    if (xpub) {
+    for (let i = 0; i < (numberOfAccountsToCreate || 1); i++) {
+      if (pubKeys && pubKeys.length < i) {
+        break;
+      }
       await this.accountsService.addPrimaryAccount({
         walletId,
       });
-    }
-
-    if (pubKeys?.length) {
-      for (let i = 0; i < pubKeys.length; i++) {
-        await this.accountsService.addPrimaryAccount({
-          walletId,
-        });
-      }
     }
 
     await finalizeOnboarding({

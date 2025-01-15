@@ -20,7 +20,7 @@ export const DefiPortfolioRewards = ({ items }: Props) => {
       items.reduce((max, item) => {
         return Math.max(max, item.tokens.length ?? 0);
       }, 0),
-    [items]
+    [items],
   );
 
   return (

@@ -12,12 +12,12 @@ export class BitcoinKeystoneWallet {
     private keyPath: string,
     private keystoneTransport: KeystoneTransport,
     private provider: BitcoinProviderAbstract,
-    private tabId?: number
+    private tabId?: number,
   ) {}
 
   async signTx(
     inputs: BtcTransactionRequest['inputs'],
-    outputs: BtcTransactionRequest['outputs']
+    outputs: BtcTransactionRequest['outputs'],
   ): Promise<Transaction> {
     const psbt = createPsbt(inputs, outputs, this.provider.getNetwork());
 
@@ -41,7 +41,7 @@ export class BitcoinKeystoneWallet {
         type,
         cbor: cbor.toString('hex'),
       },
-      this.tabId
+      this.tabId,
     );
 
     const signedTx = CryptoPSBT.fromCBOR(signedCborBuffer).getPSBT();

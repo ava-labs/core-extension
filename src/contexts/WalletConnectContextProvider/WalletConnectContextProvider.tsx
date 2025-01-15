@@ -17,7 +17,7 @@ const WalletConnectContext = createContext<{
   importState: AccountImportState;
   initiateImport(
     reconnectionAddress?: string,
-    onConnected?: OnConnectCallback
+    onConnected?: OnConnectCallback,
   ): void;
   reset(): void;
   appName?: string;
@@ -82,7 +82,7 @@ export const WalletConnectContextProvider: React.FC = ({ children }) => {
           qrCodeSubscription.unsubscribe();
         });
     },
-    [request, events, tabId]
+    [request, events, tabId],
   );
 
   return (

@@ -117,7 +117,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   constructor(
     private storageService: StorageService,
-    private featureFlagService: FeatureFlagService
+    private featureFlagService: FeatureFlagService,
   ) {
     this._initChainList();
 
@@ -145,8 +145,8 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     return Object.fromEntries(
       Object.entries(flags).filter(([flag]) =>
-        trackedFlags.includes(flag as FeatureGates)
-      )
+        trackedFlags.includes(flag as FeatureGates),
+      ),
     );
   }
 
@@ -176,16 +176,16 @@ export class NetworkService implements OnLock, OnStorageReady {
         Object.entries(this.#dappScopes)
           .filter(
             ([savedDomain]) =>
-              getSyncDomain(savedDomain) !== getSyncDomain(domain)
+              getSyncDomain(savedDomain) !== getSyncDomain(domain),
           )
           .map(([savedDomain]) => [
             savedDomain,
             chainIdToCaip(
               targetNetwork.isTestnet
                 ? ChainId.AVALANCHE_TESTNET_ID
-                : ChainId.AVALANCHE_MAINNET_ID
+                : ChainId.AVALANCHE_MAINNET_ID,
             ),
-          ])
+          ]),
       );
 
       await this.#updateDappScopes(newScopes);
@@ -253,7 +253,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     if (
       !chainId ||
       storedFavoriteNetworks.find(
-        (storedNetworkChainId) => storedNetworkChainId === chainId
+        (storedNetworkChainId) => storedNetworkChainId === chainId,
       )
     ) {
       return storedFavoriteNetworks;
@@ -266,7 +266,8 @@ export class NetworkService implements OnLock, OnStorageReady {
   async removeFavoriteNetwork(chainId: number) {
     const storedFavoriteNetworks = this._favoriteNetworks;
     this.favoriteNetworks = storedFavoriteNetworks.filter(
-      (storedFavoriteNetworkChainId) => storedFavoriteNetworkChainId !== chainId
+      (storedFavoriteNetworkChainId) =>
+        storedFavoriteNetworkChainId !== chainId,
     );
     this.updateNetworkState();
     return this._favoriteNetworks;
@@ -302,7 +303,7 @@ export class NetworkService implements OnLock, OnStorageReady {
           const chainlist = await this._rawNetworks.promisify();
           this._allNetworks.dispatch({ ...chainlist });
         }
-      }
+      },
     );
 
     this.activeNetworks.add(async (chainListPromise) => {
@@ -325,9 +326,8 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async init() {
-    const storedState = await this.storageService.load<NetworkStorage>(
-      NETWORK_STORAGE_KEY
-    );
+    const storedState =
+      await this.storageService.load<NetworkStorage>(NETWORK_STORAGE_KEY);
 
     this.#dappScopes = storedState?.dappScopes ?? {};
 
@@ -356,7 +356,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       : null;
 
     this.uiActiveNetwork = decorateWithCaipId(
-      previouslyActiveNetwork ?? fullChainlist[ChainId.AVALANCHE_MAINNET_ID]
+      previouslyActiveNetwork ?? fullChainlist[ChainId.AVALANCHE_MAINNET_ID],
     );
 
     this._allNetworks.dispatch(fullChainlist);
@@ -368,7 +368,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   private async _getCachedChainList(): Promise<ChainList | undefined> {
     const networkList = await this.storageService.load<ChainList>(
-      NETWORK_LIST_STORAGE_KEY
+      NETWORK_LIST_STORAGE_KEY,
     );
 
     if (!networkList) {
@@ -436,8 +436,8 @@ export class NetworkService implements OnLock, OnStorageReady {
       const [result] = await resolve(
         getChainsAndTokens(
           process.env.RELEASE === 'production',
-          process.env.TOKENLIST_OVERRIDE || ''
-        )
+          process.env.TOKENLIST_OVERRIDE || '',
+        ),
       );
 
       if (result) {
@@ -469,7 +469,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   async getNetwork(caipScope: string): Promise<NetworkWithCaipId | undefined>;
   async getNetwork(chainId: number): Promise<NetworkWithCaipId | undefined>;
   async getNetwork(
-    scopeOrChainId: string | number
+    scopeOrChainId: string | number,
   ): Promise<NetworkWithCaipId | undefined> {
     const chainId =
       typeof scopeOrChainId === 'string'
@@ -519,7 +519,7 @@ export class NetworkService implements OnLock, OnStorageReady {
    */
   async getAvalanceProviderXP(): Promise<Avalanche.JsonRpcProvider> {
     return (await getProviderForNetwork(
-      this.getAvalancheNetworkXP()
+      this.getAvalancheNetworkXP(),
     )) as Avalanche.JsonRpcProvider;
   }
 
@@ -557,7 +557,7 @@ export class NetworkService implements OnLock, OnStorageReady {
    */
   async sendTransaction(
     { txHash, signedTx }: SigningResult,
-    network: Network
+    network: Network,
   ): Promise<string> {
     // Sometimes we'll receive the TX hash directly from the wallet
     // device that signed the transaction (it's the case for WalletConnect).
@@ -584,13 +584,13 @@ export class NetworkService implements OnLock, OnStorageReady {
         maxCalls: 40,
       },
       url,
-      new EthersNetwork('', chainId)
+      new EthersNetwork('', chainId),
     );
 
     try {
       const detectedNetwork = await provider.getNetwork();
       return detectedNetwork.chainId === BigInt(chainId);
-    } catch (e) {
+    } catch (_err) {
       return false;
     }
   }
@@ -673,14 +673,14 @@ export class NetworkService implements OnLock, OnStorageReady {
     const wasTestnet = networkToRemove?.isTestnet;
 
     const overrides = await this.storageService.load(
-      NETWORK_OVERRIDES_STORAGE_KEY
+      NETWORK_OVERRIDES_STORAGE_KEY,
     );
 
     if (overrides && overrides[chainID]) {
       // Remove overrides for deleted network if they were configured
       await this.storageService.save(
         NETWORK_OVERRIDES_STORAGE_KEY,
-        omit(overrides, chainID)
+        omit(overrides, chainID),
       );
     }
 
@@ -697,7 +697,9 @@ export class NetworkService implements OnLock, OnStorageReady {
     // Switch to Avalanache Mainnet or Fuji if the active network was removed.
     if (this.uiActiveNetwork?.chainId === chainID) {
       const network = await this.getNetwork(
-        wasTestnet ? ChainId.AVALANCHE_TESTNET_ID : ChainId.AVALANCHE_MAINNET_ID
+        wasTestnet
+          ? ChainId.AVALANCHE_TESTNET_ID
+          : ChainId.AVALANCHE_MAINNET_ID,
       );
 
       if (network) {
@@ -720,14 +722,14 @@ export class NetworkService implements OnLock, OnStorageReady {
       .filter(
         (network) =>
           Boolean(this.uiActiveNetwork?.isTestnet) ===
-          Boolean(network.isTestnet)
+          Boolean(network.isTestnet),
       )
       .reduce(
         (acc, network) => ({
           ...acc,
           [network.chainId]: network,
         }),
-        {}
+        {},
       );
   };
 
@@ -754,7 +756,7 @@ export class NetworkService implements OnLock, OnStorageReady {
           ...acc,
           [network.chainId]: network,
         }),
-        {}
+        {},
       );
   };
 
@@ -781,11 +783,11 @@ export class NetworkService implements OnLock, OnStorageReady {
       Object.entries(overrides)
         // Filter out empty overrides
         .filter(
-          ([, networkOverrides]) => Object.keys(networkOverrides).length > 0
+          ([, networkOverrides]) => Object.keys(networkOverrides).length > 0,
         )
         // Filter out overrides that do not apply in the current context,
         // for example if the chain list does not contain the network in question.
-        .filter(([chainId]) => chainId in chainList)
+        .filter(([chainId]) => chainId in chainList),
     );
 
     return merge({}, chainList, applicableOverrides) as ChainList;
@@ -798,7 +800,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       Object.entries(chainList ?? {}).map(([chainId, network]) => [
         chainId,
         decorateWithCaipId(network),
-      ])
+      ]),
     );
   };
 }

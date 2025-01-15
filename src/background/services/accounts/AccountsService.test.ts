@@ -31,12 +31,12 @@ const WALLET_ID = 'wallet-id';
 describe('background/services/accounts/AccountsService', () => {
   const networkService = new NetworkService(
     {} as any,
-    { addListener: jest.fn() } as any
+    { addListener: jest.fn() } as any,
   );
   const storageService = new StorageService({} as any);
   const ledgerService = new LedgerService();
   const walletConnectService = new WalletConnectService(
-    new WalletConnectStorage(storageService)
+    new WalletConnectStorage(storageService),
   );
   const secretsService = new SecretsService(storageService);
 
@@ -45,7 +45,7 @@ describe('background/services/accounts/AccountsService', () => {
   const analyticsServicePosthog = new AnalyticsServicePosthog(
     {} as any,
     {} as any,
-    {} as any
+    {} as any,
   );
 
   let accountsService: AccountsService;
@@ -77,7 +77,7 @@ describe('background/services/accounts/AccountsService', () => {
   const mockAccounts = (
     withAddresses = false,
     withOtherAddresses = false,
-    active: number | string = 0
+    active: number | string = 0,
   ) => {
     const addresses = withAddresses ? getAllAddresses(withOtherAddresses) : {};
 
@@ -161,7 +161,7 @@ describe('background/services/accounts/AccountsService', () => {
       analyticsServicePosthog,
       secretsService,
       ledgerService,
-      walletConnectService
+      walletConnectService,
     );
   });
 
@@ -267,13 +267,13 @@ describe('background/services/accounts/AccountsService', () => {
         1,
         0,
         walletId,
-        networkService
+        networkService,
       );
       expect(secretsService.getAddresses).toHaveBeenNthCalledWith(
         2,
         1,
         walletId,
-        networkService
+        networkService,
       );
       expect(secretsService.getImportedAddresses).toBeCalledTimes(3);
 
@@ -352,12 +352,12 @@ describe('background/services/accounts/AccountsService', () => {
         .mocked(secretsService.getImportedAddresses)
         .mockImplementation((id) => mockedAccounts.imported[id]);
       await accountsService.refreshAddressesForAccount(
-        mockedAccounts.primary[walletId][0]?.id as string
+        mockedAccounts.primary[walletId][0]?.id as string,
       );
 
       expect(secretsService.getAddresses).toHaveBeenCalledTimes(1);
       expect(accountsService.getAccounts().primary[0]).toEqual(
-        mockAccounts(true, true).primary[0]
+        mockAccounts(true, true).primary[0],
       );
     });
 
@@ -379,7 +379,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(secretsService.getImportedAddresses).toHaveBeenCalledWith(
         'fb-acc',
-        networkService
+        networkService,
       );
       expect(secretsService.getAddresses).toHaveBeenCalledTimes(0);
       expect(accountsService.getAccounts().imported['fb-acc']).toEqual({
@@ -426,7 +426,7 @@ describe('background/services/accounts/AccountsService', () => {
       await accountsService.onUnlock();
 
       const testnetModeListener = jest.mocked(
-        networkService.developerModeChanged.add
+        networkService.developerModeChanged.add,
       ).mock.calls[0]?.[0];
 
       // mocks a change to testnet
@@ -435,7 +435,7 @@ describe('background/services/accounts/AccountsService', () => {
       await new Promise(process.nextTick);
 
       expect(accountsService.activateAccount).toHaveBeenCalledWith(
-        mockedAccounts.primary[walletId][0]?.id
+        mockedAccounts.primary[walletId][0]?.id,
       );
     });
   });
@@ -450,10 +450,10 @@ describe('background/services/accounts/AccountsService', () => {
       accountsService.onLock();
       expect(accountsService.getAccounts()).toStrictEqual(emptyAccounts);
       expect(
-        (networkService.developerModeChanged.add as jest.Mock).mock.calls[0][0]
+        (networkService.developerModeChanged.add as jest.Mock).mock.calls[0][0],
       ).toBe(
         (networkService.developerModeChanged.remove as jest.Mock).mock
-          .calls[0][0]
+          .calls[0][0],
       );
     });
 
@@ -464,7 +464,7 @@ describe('background/services/accounts/AccountsService', () => {
       await accountsService.onUnlock();
       accountsService.addListener(
         AccountsEvents.ACCOUNTS_UPDATED,
-        eventListener
+        eventListener,
       );
       expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
       accountsService.onLock();
@@ -525,14 +525,14 @@ describe('background/services/accounts/AccountsService', () => {
       });
 
       expect(
-        analyticsServicePosthog.captureEncryptedEvent
+        analyticsServicePosthog.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
           windowId: uuid,
           name: 'addedNewPrimaryAccount',
           properties: { addresses: Object.values(getAllAddresses()) },
-        })
+        }),
       );
     });
 
@@ -559,7 +559,7 @@ describe('background/services/accounts/AccountsService', () => {
       });
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000000'
+        '0x000000000',
       );
 
       const accounts = accountsService.getAccounts();
@@ -600,7 +600,7 @@ describe('background/services/accounts/AccountsService', () => {
       });
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000000'
+        '0x000000000',
       );
 
       const accounts = accountsService.getAccounts();
@@ -628,7 +628,7 @@ describe('background/services/accounts/AccountsService', () => {
       await accountsService.onUnlock();
       accountsService.addListener(
         AccountsEvents.ACCOUNTS_UPDATED,
-        eventListener
+        eventListener,
       );
       await accountsService.addPrimaryAccount({
         name: 'New Account',
@@ -636,7 +636,7 @@ describe('background/services/accounts/AccountsService', () => {
       });
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000000'
+        '0x000000000',
       );
 
       const newAccounts = { ...mockedAccounts };
@@ -684,12 +684,12 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
       expect(secretsService.addImportedWallet).toBeCalledWith(
         options,
-        networkService
+        networkService,
       );
       expect(commitMock).toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000000'
+        '0x000000000',
       );
 
       const accounts = accountsService.getAccounts();
@@ -707,13 +707,13 @@ describe('background/services/accounts/AccountsService', () => {
       });
 
       expect(
-        analyticsServicePosthog.captureEncryptedEvent
+        analyticsServicePosthog.captureEncryptedEvent,
       ).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
           name: 'addedNewImportedAccount',
           properties: { addresses: Object.values(getAllAddresses()) },
-        })
+        }),
       );
     });
 
@@ -742,12 +742,12 @@ describe('background/services/accounts/AccountsService', () => {
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
       expect(secretsService.addImportedWallet).toBeCalledWith(
         options,
-        networkService
+        networkService,
       );
       expect(commitMock).toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000001'
+        '0x000000001',
       );
 
       const accounts = accountsService.getAccounts();
@@ -779,7 +779,7 @@ describe('background/services/accounts/AccountsService', () => {
       await accountsService.onUnlock();
       accountsService.addListener(
         AccountsEvents.ACCOUNTS_UPDATED,
-        eventListener
+        eventListener,
       );
 
       (secretsService.addImportedWallet as jest.Mock).mockResolvedValueOnce({
@@ -796,7 +796,7 @@ describe('background/services/accounts/AccountsService', () => {
       });
       expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
       expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000001'
+        '0x000000001',
       );
 
       const newAccounts = {
@@ -838,12 +838,12 @@ describe('background/services/accounts/AccountsService', () => {
       });
 
       expect(await accountsService.addImportedAccount({ options })).toEqual(
-        '0x1'
+        '0x1',
       );
       expect(secretsService.addImportedWallet).toBeCalledTimes(1);
       expect(secretsService.addImportedWallet).toBeCalledWith(
         options,
-        networkService
+        networkService,
       );
       expect(commitMock).not.toHaveBeenCalled();
       expect(permissionsService.addWhitelistDomains).not.toHaveBeenCalled();
@@ -857,12 +857,12 @@ describe('background/services/accounts/AccountsService', () => {
       };
 
       (secretsService.addImportedWallet as jest.Mock).mockRejectedValueOnce(
-        new Error(errorMessage)
+        new Error(errorMessage),
       );
       expect(permissionsService.addWhitelistDomains).not.toHaveBeenCalled();
 
       await expect(
-        accountsService.addImportedAccount({ name: 'New Account', options })
+        accountsService.addImportedAccount({ name: 'New Account', options }),
       ).rejects.toThrow(`Account import failed with error: ${errorMessage}`);
     });
   });
@@ -873,7 +873,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(accountsService.getAccounts()).toStrictEqual(emptyAccounts);
 
       await expect(
-        accountsService.setAccountName('unknown-uuid', 'updated name')
+        accountsService.setAccountName('unknown-uuid', 'updated name'),
       ).rejects.toThrow('Account rename failed: account not found');
     });
 
@@ -888,7 +888,7 @@ describe('background/services/accounts/AccountsService', () => {
       const accounts = accountsService.getAccounts();
 
       expect(accounts.primary[walletId]).toEqual(
-        mockedAccounts.primary[walletId]
+        mockedAccounts.primary[walletId],
       );
 
       expect(accounts.primary[secondaryWalletId]).toEqual([
@@ -905,7 +905,7 @@ describe('background/services/accounts/AccountsService', () => {
       await accountsService.setAccountName('uuid2', 'Updated Name');
       const accounts = accountsService.getAccounts();
       const expectedAccounts = { ...mockedAccounts };
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       expectedAccounts.primary[walletId][1]!.name = 'Updated Name';
       expect(accounts).toStrictEqual(expectedAccounts);
     });
@@ -933,7 +933,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       accountsService.addListener(
         AccountsEvents.ACCOUNTS_UPDATED,
-        eventListener
+        eventListener,
       );
 
       await accountsService.setAccountName('uuid2', 'Updated Name');
@@ -942,7 +942,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       const result = accountsService.getAccounts();
       const expectedAccounts = mockAccounts(true);
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       expectedAccounts.primary[walletId][1]!.name = 'Updated Name';
 
       expect(result).toStrictEqual(expectedAccounts);
@@ -959,7 +959,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       await expect(
-        accountsService.activateAccount('unknow-uuid')
+        accountsService.activateAccount('unknow-uuid'),
       ).rejects.toThrow('Account activation failed: account not found');
     });
 
@@ -999,7 +999,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       accountsService.addListener(
         AccountsEvents.ACCOUNTS_UPDATED,
-        eventListener
+        eventListener,
       );
 
       await accountsService.activateAccount('uuid2');
@@ -1018,7 +1018,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       accountsService.addListener(
         AccountsEvents.ACCOUNTS_UPDATED,
-        eventListener
+        eventListener,
       );
 
       await accountsService.deleteAccounts(['0x1', '0x2']);
@@ -1040,7 +1040,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(eventListener).toHaveBeenCalledWith(expectedAccounts);
       expect(secretsService.deleteImportedWallets).toHaveBeenCalledWith(
         ['0x1', '0x2'],
-        walletConnectService
+        walletConnectService,
       );
     });
 
@@ -1055,7 +1055,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       accountsService.addListener(
         AccountsEvents.ACCOUNTS_UPDATED,
-        eventListener
+        eventListener,
       );
 
       await accountsService.deleteAccounts(['0x1']);
@@ -1078,20 +1078,20 @@ describe('background/services/accounts/AccountsService', () => {
       await accountsService.onUnlock();
       expect(
         async () =>
-          await accountsService.deleteAccounts(['uuid1', 'uuid2', 'uuid3'])
+          await accountsService.deleteAccounts(['uuid1', 'uuid2', 'uuid3']),
       ).rejects.toThrow('You cannot delete all of your primary accounts');
     });
 
     it('should throw an error because a seedles account cannot be deleted', async () => {
       const mockedAccounts = mockAccounts(true);
       (secretsService.getWalletType as jest.Mock).mockReturnValue(
-        SecretType.Seedless
+        SecretType.Seedless,
       );
 
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
       expect(
-        async () => await accountsService.deleteAccounts(['uuid1'])
+        async () => await accountsService.deleteAccounts(['uuid1']),
       ).rejects.toThrow('You cannot delete a seedless account!');
     });
     it('should delete a primary account', async () => {

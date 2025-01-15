@@ -12,7 +12,10 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 
 const FeatureFlagsContext = createContext<{
   featureFlags: Record<FeatureGates, boolean>;
-}>({} as any);
+  isFlagEnabled: (flagName: string) => boolean;
+}>({
+  isFlagEnabled: () => false,
+} as any);
 
 export function FeatureFlagsContextProvider({ children }: { children: any }) {
   const { events, request } = useConnectionContext();
@@ -28,7 +31,7 @@ export function FeatureFlagsContextProvider({ children }: { children: any }) {
     const subscription = events()
       .pipe(
         filter(featureFlagsUpdatedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((result) => {
         setFeatureFlags((prevFlags) => {
@@ -47,6 +50,7 @@ export function FeatureFlagsContextProvider({ children }: { children: any }) {
   return (
     <FeatureFlagsContext.Provider
       value={{
+        isFlagEnabled: (flagName) => featureFlags[flagName],
         featureFlags,
       }}
     >

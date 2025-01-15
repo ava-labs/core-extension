@@ -25,6 +25,7 @@ import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitco
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { HallidayBanner } from '@src/components/common/HallidayBanner';
 
 import { useBridge } from './hooks/useBridge';
 import { BridgeForm } from './components/BridgeForm';
@@ -84,7 +85,7 @@ export function Bridge() {
           ? activeAccount?.addressBTC
           : activeAccount?.addressC
         : undefined,
-    [activeAccount?.addressBTC, activeAccount?.addressC, network]
+    [activeAccount?.addressBTC, activeAccount?.addressC, network],
   );
 
   const bridgePageHistoryData: {
@@ -96,7 +97,7 @@ export function Bridge() {
   useEffect(() => {
     if (!asset && bridgePageHistoryData.selectedToken) {
       const matchingAsset = transferableAssets.find(
-        (a) => a.symbol === bridgePageHistoryData.selectedToken
+        (a) => a.symbol === bridgePageHistoryData.selectedToken,
       );
 
       if (matchingAsset) {
@@ -126,7 +127,7 @@ export function Bridge() {
 
     if (prevSymbol && sourceSymbols.length) {
       const prevAsset = transferableAssets.find(
-        ({ symbol }) => symbol === prevSymbol
+        ({ symbol }) => symbol === prevSymbol,
       );
 
       if (prevAsset) {
@@ -185,7 +186,7 @@ export function Bridge() {
             {hint}
           </Typography>
         </ToastCard>,
-        { duration: 5000 }
+        { duration: 5000 },
       );
     },
     [
@@ -195,7 +196,7 @@ export function Bridge() {
       network?.caipId,
       t,
       targetChain?.caipId,
-    ]
+    ],
   );
 
   const onSuccess = useCallback(
@@ -211,7 +212,7 @@ export function Bridge() {
 
       // Navigate to transaction status page
       history.push(
-        `/bridge/transaction-status/${network?.caipId}/${hash}/${timestamp}`
+        `/bridge/transaction-status/${network?.caipId}/${hash}/${timestamp}`,
       );
     },
     [
@@ -220,7 +221,7 @@ export function Bridge() {
       history,
       network?.caipId,
       targetChain?.caipId,
-    ]
+    ],
   );
 
   const handleSourceChainChange = useCallback(
@@ -242,7 +243,7 @@ export function Bridge() {
       setNavigationHistoryData,
       setNetwork,
       setBridgeError,
-    ]
+    ],
   );
 
   const { onTransfer, isPending } = useBridgeTxHandling({
@@ -325,6 +326,7 @@ export function Bridge() {
       >
         {t('Bridge')}
       </PageTitle>
+      <HallidayBanner />
       {isReady && networkFee ? (
         <BridgeForm {...formProps} networkFee={networkFee} />
       ) : (

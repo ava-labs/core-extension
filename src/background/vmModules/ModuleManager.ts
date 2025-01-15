@@ -106,7 +106,7 @@ export class ModuleManager {
 
   async loadModuleByNetwork(
     network: NetworkWithCaipId,
-    method?: string
+    method?: string,
   ): Promise<Module> {
     return this.loadModule(network.caipId, method);
   }
@@ -129,17 +129,15 @@ export class ModuleManager {
   }
 
   async #getModuleByChainId(chainId: string): Promise<Module | undefined> {
-    const moduleStore = this.#modules.find((module) =>
-      module.getManifest()?.network.chainIds.includes(chainId)
+    return this.#modules.find((module) =>
+      module.getManifest()?.network.chainIds.includes(chainId),
     );
-    return moduleStore;
   }
 
   async #getModuleByNamespace(namespace: string): Promise<Module | undefined> {
-    const moduleStore = this.#modules.find((module) =>
-      module.getManifest()?.network.namespaces.includes(namespace)
+    return this.#modules.find((module) =>
+      module.getManifest()?.network.namespaces.includes(namespace),
     );
-    return moduleStore;
   }
 
   #isMethodPermitted(module: Module, method: string): boolean {

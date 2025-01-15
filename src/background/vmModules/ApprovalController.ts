@@ -83,7 +83,7 @@ export class ApprovalController implements IApprovalController {
       const { signedTx: signedData, txHash } = await this.#handleApproval(
         params,
         action,
-        network
+        network,
       );
 
       if (signedData) {
@@ -115,10 +115,10 @@ export class ApprovalController implements IApprovalController {
    * This method should never throw. Instead, return an { error } object.
    */
   requestApproval = async (
-    params: ApprovalParamsWithContext
+    params: ApprovalParamsWithContext,
   ): Promise<ApprovalResponse> => {
     const network = await this.#networkService.getNetwork(
-      params.request.chainId
+      params.request.chainId,
     );
     if (!network) {
       return {
@@ -131,7 +131,7 @@ export class ApprovalController implements IApprovalController {
 
     const action = await openApprovalWindow(
       this.#buildAction(params),
-      'approve/generic'
+      'approve/generic',
     );
 
     return new Promise((resolve) => {
@@ -145,7 +145,7 @@ export class ApprovalController implements IApprovalController {
 
   updateTx = (
     id: string,
-    newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0]
+    newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0],
   ): { signingData: SigningData; displayData: DisplayData } => {
     const request = this.#requests.get(id);
 
@@ -163,7 +163,7 @@ export class ApprovalController implements IApprovalController {
   #handleApproval = async (
     params: ApprovalParams,
     action: Action,
-    network: NetworkWithCaipId
+    network: NetworkWithCaipId,
   ) => {
     const { signingData } = action;
 
@@ -179,7 +179,7 @@ export class ApprovalController implements IApprovalController {
         return await this.#walletService.sign(
           signingData.data,
           network,
-          action.tabId
+          action.tabId,
         );
 
       default:

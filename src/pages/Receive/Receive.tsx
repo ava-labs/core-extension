@@ -43,9 +43,9 @@ export const Receive = () => {
   const address = useMemo(
     () =>
       network && activeAccount
-        ? getAddressForChain(network?.chainId, activeAccount) ?? ''
+        ? (getAddressForChain(network?.chainId, activeAccount) ?? '')
         : '',
-    [activeAccount, network]
+    [activeAccount, network],
   );
 
   useEffect(() => {

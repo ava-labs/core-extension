@@ -59,7 +59,7 @@ export function SwapContextProvider({ children }: { children: any }) {
 
   const paraswap = useMemo(
     () => new ParaSwap(ChainId.AVALANCHE_MAINNET_ID, undefined, new Web3()),
-    []
+    [],
   );
 
   const findSymbol = useCallback(
@@ -67,12 +67,12 @@ export function SwapContextProvider({ children }: { children: any }) {
       const tokenInfo = tokens.find((token) =>
         token.type === TokenType.NATIVE
           ? token.symbol === symbolOrAddress
-          : token.address === symbolOrAddress
+          : token.address === symbolOrAddress,
       );
 
       return tokenInfo?.symbol ?? symbolOrAddress;
     },
-    [tokens]
+    [tokens],
   );
 
   const getRate = useCallback(
@@ -119,7 +119,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       };
 
       function checkForErrorsInResult(
-        response: ParaswapPricesResponse | TypeError
+        response: ParaswapPricesResponse | TypeError,
       ) {
         const isFetchError = response instanceof TypeError;
         const isParaswapError = !isFetchError && hasParaswapError(response);
@@ -151,7 +151,7 @@ export function SwapContextProvider({ children }: { children: any }) {
 
       const result = await incrementalPromiseResolve<ParaswapPricesResponse>(
         () => optimalRates(),
-        checkForErrorsInResult
+        checkForErrorsInResult,
       );
 
       return {
@@ -159,7 +159,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         destAmount: result.priceRoute?.destAmount,
       };
     },
-    [activeAccount, activeNetwork, featureFlags, paraswap]
+    [activeAccount, activeNetwork, featureFlags, paraswap],
   );
 
   const getParaswapSpender = useCallback(async () => {
@@ -170,7 +170,7 @@ export function SwapContextProvider({ children }: { children: any }) {
     const response = await fetch(
       `${(paraswap as any).apiURL}/adapters/contracts?network=${
         ChainId.AVALANCHE_MAINNET_ID
-      }`
+      }`,
     );
 
     const result = await response.json();
@@ -194,7 +194,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       srcDecimals?: number,
       destDecimals?: number,
       permit?: string,
-      deadline?: string
+      deadline?: string,
     ) => {
       if (!featureFlags[FeatureGates.SWAP]) {
         throw new Error(`Feature (SWAP) is currently unavailable`);
@@ -241,7 +241,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       const transactionParamsOrError: Transaction | APIError =
         await response.json();
       const validationResult = responseSchema.validate(
-        transactionParamsOrError
+        transactionParamsOrError,
       );
 
       if (!response.ok || validationResult.error) {
@@ -253,7 +253,7 @@ export function SwapContextProvider({ children }: { children: any }) {
 
       return transactionParamsOrError;
     },
-    [featureFlags, paraswap]
+    [featureFlags, paraswap],
   );
 
   const swap = useCallback(
@@ -355,7 +355,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         const contract = new ethers.Contract(
           srcTokenAddress,
           ERC20.abi,
-          avaxProviderC
+          avaxProviderC,
         );
 
         if (!contract.allowance) {
@@ -363,7 +363,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         }
 
         const [allowance, allowanceError] = await resolve(
-          contract.allowance(userAddress, spender)
+          contract.allowance(userAddress, spender),
         );
 
         if (allowanceError) {
@@ -372,15 +372,13 @@ export function SwapContextProvider({ children }: { children: any }) {
 
         if (allowance < sourceAmount) {
           const [approveGasLimit] = await resolve(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            contract.approve!.estimateGas(spender, sourceAmount)
+            contract.approve!.estimateGas(spender, sourceAmount),
           );
 
           if (allowance < sourceAmount) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const { data } = await contract.approve!.populateTransaction(
               spender,
-              sourceAmount
+              sourceAmount,
             );
             const [hash, signError] = await resolve(
               request({
@@ -395,7 +393,7 @@ export function SwapContextProvider({ children }: { children: any }) {
                     to: srcTokenAddress,
                   },
                 ],
-              })
+              }),
             );
 
             if (signError) {
@@ -413,7 +411,8 @@ export function SwapContextProvider({ children }: { children: any }) {
           (result as APIError).message === 'Server too busy' ||
           // paraswap returns responses like this: {error: 'Not enough 0x4f60a160d8c2dddaafe16fcc57566db84d674…}
           // when they are too slow to detect the approval
-          (result as any).error
+          (result as any).error ||
+          result instanceof Error
         );
       }
 
@@ -438,12 +437,12 @@ export function SwapContextProvider({ children }: { children: any }) {
                 ? 18
                 : destDecimals,
               permit,
-              deadline
+              deadline,
             ),
           checkForErrorsInResult,
           0,
-          10
-        )
+          10,
+        ),
       );
 
       if (txBuildDataError) {
@@ -466,7 +465,7 @@ export function SwapContextProvider({ children }: { children: any }) {
                   : undefined, // AVAX value needs to be sent with the transaction
             },
           ],
-        })
+        }),
       );
 
       if (signError) {
@@ -506,7 +505,7 @@ export function SwapContextProvider({ children }: { children: any }) {
                   destAmount: destAssetAmount,
                   srcToken: srcAsset,
                   destToken: destAsset,
-                }
+                },
               )
             : t(
                 'Could not swap {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}',
@@ -515,7 +514,7 @@ export function SwapContextProvider({ children }: { children: any }) {
                   destToken: destAsset,
                   srcAmount: srcAssetAmount,
                   destAmount: destAssetAmount,
-                }
+                },
               ),
         });
       });
@@ -536,7 +535,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       request,
       t,
       findSymbol,
-    ]
+    ],
   );
 
   return (

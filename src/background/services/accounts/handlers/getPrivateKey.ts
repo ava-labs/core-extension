@@ -37,7 +37,7 @@ export class GetPrivateKeyHandler implements HandlerType {
   constructor(
     private secretService: SecretsService,
     private lockService: LockService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -91,9 +91,8 @@ export class GetPrivateKeyHandler implements HandlerType {
 
     try {
       if (type === AccountType.IMPORTED) {
-        const account = await this.secretService.getImportedAccountSecrets(
-          accountId
-        );
+        const account =
+          await this.secretService.getImportedAccountSecrets(accountId);
 
         if (account?.secretType === SecretType.PrivateKey) {
           return {
@@ -123,9 +122,8 @@ export class GetPrivateKeyHandler implements HandlerType {
         };
       }
 
-      const primaryAccount = await this.secretService.getPrimaryAccountSecrets(
-        account
-      );
+      const primaryAccount =
+        await this.secretService.getPrimaryAccountSecrets(account);
 
       if (
         !primaryAccount ||
@@ -147,8 +145,8 @@ export class GetPrivateKeyHandler implements HandlerType {
           getAddressDerivationPath(
             accountIndex,
             primaryAccount.derivationPath,
-            'PVM'
-          )
+            'PVM',
+          ),
         );
         if (!pvmNode.privateKey) {
           return {
@@ -172,7 +170,7 @@ export class GetPrivateKeyHandler implements HandlerType {
           result: getAccountPrivateKeyFromMnemonic(
             primaryAccount.mnemonic,
             accountIndex,
-            primaryAccount.derivationPath
+            primaryAccount.derivationPath,
           ),
         };
       } catch (e) {

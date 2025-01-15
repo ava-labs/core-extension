@@ -12,7 +12,7 @@ type HandlerType = ExtensionRequestHandler<
   null,
   [
     id: string,
-    newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0]
+    newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0],
   ]
 >;
 

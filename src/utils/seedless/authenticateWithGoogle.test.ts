@@ -39,7 +39,7 @@ describe('src/utils/seedless/authenticateWithGoogle', () => {
 
     expect(globalThis.URL).toHaveBeenCalledTimes(1);
     expect(globalThis.URL).toHaveBeenCalledWith(
-      'https://accounts.google.com/o/oauth2/auth'
+      'https://accounts.google.com/o/oauth2/auth',
     );
 
     const searchParams = [
@@ -66,7 +66,7 @@ describe('src/utils/seedless/authenticateWithGoogle', () => {
     }
 
     expect(launchWebAuthFlow).toHaveBeenCalledWith(
-      jest.mocked(global.URL).mock.instances[0]
+      jest.mocked(global.URL).mock.instances[0],
     );
   });
 });

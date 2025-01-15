@@ -15,7 +15,7 @@ import { isDone } from './isDone';
 export async function getAccountsWithActivity(
   xpubXP: string,
   providerXP: Avalanche.JsonRpcProvider,
-  activityFetcher: AddressActivityFetcher
+  activityFetcher: AddressActivityFetcher,
 ) {
   let externalGap = 0;
   let internalGap = 0;
@@ -30,13 +30,13 @@ export async function getAccountsWithActivity(
       xpubXP,
       providerXP,
       false,
-      externalStart
+      externalStart,
     );
     const internal = getAddressesInRange(
       xpubXP,
       providerXP,
       true,
-      internalStart
+      internalStart,
     );
     const [externalResult, internalResult] = await Promise.all([
       processGlacierAddresses(external, activityFetcher, externalGap),

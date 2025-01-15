@@ -11,7 +11,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
 import { PubKeyType } from '@src/background/services/wallet/models';
@@ -57,8 +57,9 @@ export function AddWalletWithLedger() {
   const [step, setStep] = useState(Step.Import);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
-    DerivationPath.BIP44
+    DerivationPath.BIP44,
   );
+  const lastAccountIndexWithBalance = useRef(0);
 
   const { popDeviceSelection } = useLedgerContext();
 
@@ -74,6 +75,7 @@ export function AddWalletWithLedger() {
     setPublicKeys(data.publicKeys);
     setHasPublicKeys(data.hasPublicKeys);
     setPathSpec(data.pathSpec);
+    lastAccountIndexWithBalance.current = data.lastAccountIndexWithBalance;
   }
 
   const LedgerLiveSupportButton = () => (
@@ -83,7 +85,7 @@ export function AddWalletWithLedger() {
         window.open(
           'https://www.ledger.com/ledger-live',
           '_blank',
-          'noreferrer'
+          'noreferrer',
         );
       }}
     >
@@ -114,6 +116,7 @@ export function AddWalletWithLedger() {
             pathSpec === DerivationPath.BIP44
               ? SecretType.Ledger
               : SecretType.LedgerLive,
+          numberOfAccountsToCreate: lastAccountIndexWithBalance.current + 1,
         });
 
         capture('SeedphraseImportSuccess');
@@ -122,13 +125,22 @@ export function AddWalletWithLedger() {
         capture('LedgerImportFailure');
         sentryCaptureException(
           err as Error,
-          SentryExceptionTypes.WALLET_IMPORT
+          SentryExceptionTypes.WALLET_IMPORT,
         );
         const { title } = getErrorMessage(err);
         toast.error(title);
       }
     },
-    [capture, getErrorMessage, importLedger, pathSpec, publicKeys, xpub, xpubXP]
+    [
+      capture,
+      getErrorMessage,
+      importLedger,
+      lastAccountIndexWithBalance,
+      pathSpec,
+      publicKeys,
+      xpub,
+      xpubXP,
+    ],
   );
 
   // This will create a fake background that overlay is going to blur for design.
@@ -220,7 +232,7 @@ export function AddWalletWithLedger() {
             >
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {t(
-                  'Please close this tab and open the Core Browser Extension to see the newly imported wallet.'
+                  'Please close this tab and open the Core Browser Extension to see the newly imported wallet.',
                 )}
               </Typography>
               <Button
@@ -322,7 +334,7 @@ export function AddWalletWithLedger() {
                   <Stack sx={{ width: '50%' }}>
                     <Tooltip
                       title={t(
-                        'Clicking the cancel button will close the tab and open the extension for you. If the extension doesn’t open automatically, please open it manually.'
+                        'Clicking the cancel button will close the tab and open the extension for you. If the extension doesn’t open automatically, please open it manually.',
                       )}
                     >
                       <Button

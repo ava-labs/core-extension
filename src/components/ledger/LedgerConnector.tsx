@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import {
@@ -45,6 +45,7 @@ export interface LedgerConnectorData {
   publicKeys: PubKeyType[] | undefined;
   hasPublicKeys: boolean;
   pathSpec: DerivationPath;
+  lastAccountIndexWithBalance: number;
 }
 
 interface LedgerConnectorProps {
@@ -71,16 +72,18 @@ export function LedgerConnector({
   const { getAvaxBalance } = useGetAvaxBalance();
 
   const [publicKeyState, setPublicKeyState] = useState<LedgerStatus>(
-    LedgerStatus.LEDGER_UNINITIATED
+    LedgerStatus.LEDGER_UNINITIATED,
   );
   const [isLedgerExistsError, setIsLedgerExistsError] = useState(false);
 
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
-    DerivationPath.BIP44
+    DerivationPath.BIP44,
   );
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
   const [dropdownDisabled, setDropdownDisabled] = useState(true);
+  const lastAccountIndexWithBalance = useRef(0);
+
   const { t } = useTranslation();
   const { importLedger } = useImportLedger();
 
@@ -95,15 +98,21 @@ export function LedgerConnector({
     async (
       xpubValue: string,
       accountIndex: number,
-      addressList: AddressType[] = []
+      addressList: AddressType[] = [],
     ) => {
       const address = getAddressFromXPub(xpubValue, accountIndex);
+
       const { balance } = await getAvaxBalance(address);
+
       const newAddresses = [
         ...addressList,
         { address, balance: balance.balanceDisplayValue || '0' },
       ];
       setAddresses(newAddresses);
+      lastAccountIndexWithBalance.current = Math.max(
+        0,
+        newAddresses.findLastIndex((addr) => addr.balance !== '0'),
+      );
       if (accountIndex < 2) {
         await getAddressFromXpubKey(xpubValue, accountIndex + 1, newAddresses);
       }
@@ -113,7 +122,7 @@ export function LedgerConnector({
         setHasPublicKeys(true);
       }
     },
-    [capture, getAvaxBalance]
+    [capture, getAvaxBalance],
   );
 
   const isLedgerWalletExist = useCallback(
@@ -137,14 +146,14 @@ export function LedgerConnector({
         throw new Error(String(e));
       }
     },
-    [importLedger]
+    [importLedger],
   );
 
   const getXPublicKey = useCallback(async () => {
     try {
       const xpubValue = await getExtendedPublicKey();
       const xpubXPValue = await getExtendedPublicKey(
-        Avalanche.LedgerWallet.getAccountPath('X')
+        Avalanche.LedgerWallet.getAccountPath('X'),
       );
       if (checkIfWalletExists) {
         await isLedgerWalletExist({
@@ -163,6 +172,7 @@ export function LedgerConnector({
         publicKeys: undefined,
         hasPublicKeys: true,
         pathSpec: DerivationPath.BIP44,
+        lastAccountIndexWithBalance: lastAccountIndexWithBalance.current,
       });
     } catch {
       capture('OnboardingLedgerConnectionFailed');
@@ -170,12 +180,12 @@ export function LedgerConnector({
       popDeviceSelection();
     }
   }, [
-    capture,
-    isLedgerWalletExist,
-    checkIfWalletExists,
-    getAddressFromXpubKey,
     getExtendedPublicKey,
+    checkIfWalletExists,
+    capture,
+    getAddressFromXpubKey,
     onSuccess,
+    isLedgerWalletExist,
     popDeviceSelection,
   ]);
 
@@ -186,7 +196,7 @@ export function LedgerConnector({
       }
       await initLedgerTransport();
     },
-    [initLedgerTransport]
+    [initLedgerTransport],
   );
 
   useEffect(() => {
@@ -198,14 +208,14 @@ export function LedgerConnector({
       derivationPathSpec: DerivationPath,
       accountIndex = 0,
       addressList: AddressType[] = [],
-      pubKeys: PubKeyType[] = []
+      pubKeys: PubKeyType[] = [],
     ) => {
       try {
         const pubKey = await getPublicKey(accountIndex, derivationPathSpec);
         const pubKeyXP = await getPublicKey(
           accountIndex,
           derivationPathSpec,
-          'AVM'
+          'AVM',
         );
         const address = getEvmAddressFromPubKey(pubKey);
         const { balance } = await getAvaxBalance(address);
@@ -214,6 +224,10 @@ export function LedgerConnector({
           { address, balance: balance.balanceDisplayValue || '0' },
         ];
         setAddresses(newAddresses);
+        lastAccountIndexWithBalance.current = Math.max(
+          0,
+          newAddresses.findLastIndex((addr) => addr.balance !== '0'),
+        );
         if (accountIndex < 2) {
           await getPubKeys(derivationPathSpec, accountIndex + 1, newAddresses, [
             ...pubKeys,
@@ -242,6 +256,7 @@ export function LedgerConnector({
             publicKeys: publicKeyValue,
             hasPublicKeys: true,
             pathSpec: DerivationPath.LedgerLive,
+            lastAccountIndexWithBalance: lastAccountIndexWithBalance.current,
           });
         }
       } catch {
@@ -251,14 +266,14 @@ export function LedgerConnector({
       }
     },
     [
-      capture,
-      isLedgerWalletExist,
-      checkIfWalletExists,
-      getAvaxBalance,
       getPublicKey,
+      getAvaxBalance,
+      capture,
+      checkIfWalletExists,
       onSuccess,
+      isLedgerWalletExist,
       popDeviceSelection,
-    ]
+    ],
   );
 
   const tryPublicKey = useCallback(async () => {

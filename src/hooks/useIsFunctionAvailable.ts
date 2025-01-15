@@ -61,7 +61,7 @@ type BlacklistConfig = { networks: ChainId[]; complexChecks: ComplexCheck[] };
 //  - active account is imported from Fireblocks without BTC support
 const disableForAccountsWithoutBtcSupport = (
   chain: ChainId,
-  account: Account
+  account: Account,
 ) => {
   const isBtc = [ChainId.BITCOIN, ChainId.BITCOIN_TESTNET].includes(chain);
 
@@ -84,7 +84,7 @@ const disableForAccountsWithoutBtcSupport = (
 //  - active account is imported from Fireblocks
 const disableForAccountsWithoutXPSupport = (
   chain: ChainId,
-  account: Account
+  account: Account,
 ) => {
   const isPChain = isPchainNetworkId(chain);
   const isXChain = isXchainNetworkId(chain);
@@ -182,7 +182,7 @@ interface FunctionIsAvailable {
 }
 
 export const useIsFunctionAvailable = (
-  functionName?: FunctionNames
+  functionName?: FunctionNames,
 ): FunctionIsAvailable => {
   const { network } = useNetworkContext();
   const isUsingSeedlessAccount = useIsUsingSeedlessAccount();
@@ -206,13 +206,13 @@ export const useIsFunctionAvailable = (
         return Boolean(
           !!active?.addressPVM &&
             featureFlags[FeatureGates.SEND] &&
-            featureFlags[FeatureGates.SEND_P_CHAIN]
+            featureFlags[FeatureGates.SEND_P_CHAIN],
         );
       } else if (isXchainNetwork(network)) {
         return Boolean(
           !!active?.addressAVM &&
             featureFlags[FeatureGates.SEND] &&
-            featureFlags[FeatureGates.SEND_X_CHAIN]
+            featureFlags[FeatureGates.SEND_X_CHAIN],
         );
       }
     }
@@ -253,10 +253,10 @@ export const useIsFunctionAvailable = (
 
     if (blacklist) {
       const blacklistedForNetwork = blacklist.networks.includes(
-        network.chainId
+        network.chainId,
       );
       const blacklistedForOtherReasons = blacklist.complexChecks.some((check) =>
-        check(network.chainId, active)
+        check(network.chainId, active),
       );
 
       return !blacklistedForNetwork && !blacklistedForOtherReasons;
@@ -278,7 +278,7 @@ export const useIsFunctionAvailable = (
   return {
     isReady,
     isFunctionAvailable: checkIsFunctionAvailable(
-      functionName ?? FunctionNames.FEATURE
+      functionName ?? FunctionNames.FEATURE,
     ),
     isFunctionSupported: checkIsFunctionSupported(functionName),
     checkIsFunctionSupported: checkIsFunctionSupported,

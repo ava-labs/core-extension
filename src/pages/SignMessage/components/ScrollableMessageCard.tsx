@@ -9,7 +9,7 @@ type Props = {
 
 export const ScrollableMessageCard = forwardRef(function ScrollableMessageCard(
   { children, scrollUpdateHandler }: Props,
-  ref: ForwardedRef<HTMLDivElement | null>
+  ref: ForwardedRef<HTMLDivElement | null>,
 ) {
   const theme = useTheme();
 

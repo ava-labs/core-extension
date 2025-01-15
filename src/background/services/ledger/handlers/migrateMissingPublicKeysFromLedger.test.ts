@@ -31,7 +31,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
     const handler = new MigrateMissingPublicKeysFromLedgerHandler(
       secretsService,
       ledgerService,
-      accountsService
+      accountsService,
     );
     return handler.handle(buildRpcCall(request));
   };
@@ -43,7 +43,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
   it('returns error if storage is empty', async () => {
     secretsService.getAccountSecrets.mockRejectedValue(
-      new Error('Wallet is not initialized')
+      new Error('Wallet is not initialized'),
     );
 
     const result = await handleRequest();
@@ -105,7 +105,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
         {
           xpubXP: 'xpubXP',
         },
-        WALLET_ID
+        WALLET_ID,
       );
     });
   });
@@ -144,7 +144,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
       const { error } = await handleRequest();
       expect(error).toEqual(
-        'Error while searching for missing public keys: incomplete migration.'
+        'Error while searching for missing public keys: incomplete migration.',
       );
 
       expect(secretsService.updateSecrets).toHaveBeenCalledWith(
@@ -158,7 +158,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
             { evm: 'evm3', xp: '' },
           ],
         },
-        WALLET_ID
+        WALLET_ID,
       );
 
       expect(getPubKeyFromTransport).toHaveBeenNthCalledWith(
@@ -166,14 +166,14 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
         {},
         1,
         DerivationPath.LedgerLive,
-        'AVM'
+        'AVM',
       );
       expect(getPubKeyFromTransport).toHaveBeenNthCalledWith(
         2,
         {},
         2,
         DerivationPath.LedgerLive,
-        'AVM'
+        'AVM',
       );
     });
 
@@ -209,7 +209,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
             { evm: 'evm3', xp: '5678' },
           ],
         },
-        WALLET_ID
+        WALLET_ID,
       );
 
       expect(getPubKeyFromTransport).toHaveBeenNthCalledWith(
@@ -217,14 +217,14 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
         {},
         1,
         DerivationPath.LedgerLive,
-        'AVM'
+        'AVM',
       );
       expect(getPubKeyFromTransport).toHaveBeenNthCalledWith(
         2,
         {},
         2,
         DerivationPath.LedgerLive,
-        'AVM'
+        'AVM',
       );
     });
   });

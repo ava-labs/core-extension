@@ -74,7 +74,7 @@ const LedgerContext = createContext<{
   getPublicKey(
     accountIndex: number,
     pathType: DerivationPath,
-    vm?: VM
+    vm?: VM,
   ): Promise<Buffer>;
   avaxAppVersion: string | null;
   masterFingerprint: string | undefined;
@@ -85,7 +85,7 @@ const LedgerContext = createContext<{
     xpub: string,
     masterFingerprint: string,
     derivationpath: string,
-    name: string
+    name: string,
   ): Promise<readonly [Buffer, Buffer]>;
   updateLedgerVersionWarningClosed(): Promise<void>;
   ledgerVersionWarningClosed: boolean | undefined;
@@ -113,7 +113,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
     const subscription = events()
       .pipe(
         filter((evt) => evt.name === LedgerEvent.TRANSPORT_REQUEST),
-        filter((evt) => evt.value.connectionUUID === LEDGER_INSTANCE_UUID)
+        filter((evt) => evt.value.connectionUUID === LEDGER_INSTANCE_UUID),
       )
       .subscribe(async (res) => {
         if (res.value.method === 'SEND') {
@@ -125,7 +125,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
               p1,
               p2,
               Buffer.from(data),
-              statusList
+              statusList,
             );
             request<LedgerResponseHandler>({
               method: ExtensionRequest.LEDGER_RESPONSE,
@@ -205,7 +205,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
         // double check it's really the avalanche app
         // other apps also initialize with AppAvax
         const [config, appVersionError] = await resolve(
-          avaxAppInstance.getAppInfo()
+          avaxAppInstance.getAppInfo(),
         );
 
         if (!appVersionError) {
@@ -240,7 +240,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
 
       throw new Error('No compatible ledger app found');
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -251,7 +251,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
           request<CloseLedgerTransportHandler>({
             method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
             params: [],
-          })
+          }),
         ),
         switchMap(() => getLedgerTransport()),
         switchMap((transport) => {
@@ -268,19 +268,19 @@ export function LedgerContextProvider({ children }: { children: any }) {
             },
             (handler) => {
               transportRef.current?.off('disconnect', handler);
-            }
+            },
           ).pipe(
             tap(() => {
               setApp(undefined);
               setAppType(LedgerAppType.UNKNOWN);
               throw new Error('Ledger device disconnected');
-            })
-          )
+            }),
+          ),
         ),
         retryWhen((errors) => {
           setWasTransportAttempted(true);
           return errors.pipe(delay(2000));
-        })
+        }),
       )
       .subscribe();
     return () => {
@@ -297,7 +297,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
       throw new Error('no device detected');
     }
     const [pubKey, pubKeyError] = await resolve(
-      getLedgerExtendedPublicKey(transportRef.current, false, path)
+      getLedgerExtendedPublicKey(transportRef.current, false, path),
     );
     if (pubKeyError) {
       throw new Error(pubKeyError);
@@ -314,10 +314,10 @@ export function LedgerContextProvider({ children }: { children: any }) {
         transportRef.current,
         accountIndex,
         pathType,
-        vm
+        vm,
       );
     },
-    []
+    [],
   );
 
   /**
@@ -373,8 +373,8 @@ export function LedgerContextProvider({ children }: { children: any }) {
             // which would clean up the claimed interfaces, thereby releasing it to the new window
 
             // In windows where this interface wasnt claimed the values here will be false
-            Boolean(app) && Boolean(transportRef.current?.deviceModel?.id)
-        )
+            Boolean(app) && Boolean(transportRef.current?.deviceModel?.id),
+        ),
       )
       .subscribe(() => {
         window.close();
@@ -394,7 +394,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
     const subscription = events()
       .pipe(
         filter(lockStateChangedEventListener),
-        map((evt) => evt.value)
+        map((evt) => evt.value),
       )
       .subscribe((locked) => {
         if (locked) {
@@ -426,7 +426,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
 
       return app.getExtendedPubkey(path, true);
     },
-    [app]
+    [app],
   );
 
   const registerBtcWalletPolicy = useCallback(
@@ -434,7 +434,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
       xpub: string,
       fingerprint: string,
       derivationpath: string,
-      name: string
+      name: string,
     ) => {
       if (!(app instanceof Btc)) {
         throw new Error('wrong app');
@@ -442,14 +442,14 @@ export function LedgerContextProvider({ children }: { children: any }) {
 
       const template = new DefaultWalletPolicy(
         `wpkh(@0/**)`,
-        `[${fingerprint}/${derivationpath}]${xpub}`
+        `[${fingerprint}/${derivationpath}]${xpub}`,
       );
 
       const walletPolicy = new WalletPolicy(name, `wpkh(@0/**)`, template.keys);
 
       return app.registerWallet(walletPolicy);
     },
-    [app]
+    [app],
   );
 
   const updateLedgerVersionWarningClosed = useCallback(async () => {

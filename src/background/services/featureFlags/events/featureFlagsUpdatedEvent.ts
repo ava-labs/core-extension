@@ -18,7 +18,7 @@ export class FeatureFlagsUpdatedEvent implements ExtensionEventEmitter {
           name: FeatureFlagEvents.FEATURE_FLAG_UPDATED,
           value: featureFlags,
         });
-      }
+      },
     );
   }
 
@@ -27,7 +27,7 @@ export class FeatureFlagsUpdatedEvent implements ExtensionEventEmitter {
   }
 
   removeListener(
-    handler: (event: ExtensionConnectionEvent<any>) => void
+    handler: (event: ExtensionConnectionEvent<any>) => void,
   ): void {
     this.eventEmitter.off('update', handler);
   }

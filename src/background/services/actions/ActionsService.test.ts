@@ -51,7 +51,6 @@ describe('background/services/actions/ActionsService.ts', () => {
     actionId: 'uuid',
   } as any;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { displayData, ...mockActionWithoutDisplaydata } = mockAction;
 
   let approvalController: jest.Mocked<ApprovalController>;
@@ -71,7 +70,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       [handlerWithCallback, handlerWithoutCallback],
       storageService,
       lockService,
-      approvalController
+      approvalController,
     );
     (filterStaleActions as jest.Mock).mockImplementation((a) => a);
   });
@@ -79,7 +78,7 @@ describe('background/services/actions/ActionsService.ts', () => {
   describe('updateTx()', () => {
     it('throws error if the request does not exist', async () => {
       await expect(actionsService.updateTx('weird-id', {})).rejects.toThrow(
-        /No request found with id/
+        /No request found with id/,
       );
     });
 
@@ -128,7 +127,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       };
       (storageService.load as jest.Mock).mockResolvedValue(actions);
       (storageService.loadFromSessionStorage as jest.Mock).mockResolvedValue(
-        actions2
+        actions2,
       );
       const result = await actionsService.getActions();
 
@@ -137,7 +136,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       expect(storageService.load).toHaveBeenCalledWith(ACTIONS_STORAGE_KEY);
       expect(storageService.loadFromSessionStorage).toHaveBeenCalledTimes(1);
       expect(storageService.loadFromSessionStorage).toHaveBeenCalledWith(
-        ACTIONS_STORAGE_KEY
+        ACTIONS_STORAGE_KEY,
       );
     });
 
@@ -149,7 +148,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         2: { ...mockAction, id: 2 },
       };
       (storageService.loadFromSessionStorage as jest.Mock).mockResolvedValue(
-        actions
+        actions,
       );
 
       const result = await actionsService.getActions();
@@ -157,7 +156,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       expect(result).toEqual(actions);
       expect(storageService.loadFromSessionStorage).toHaveBeenCalledTimes(1);
       expect(storageService.loadFromSessionStorage).toHaveBeenCalledWith(
-        ACTIONS_STORAGE_KEY
+        ACTIONS_STORAGE_KEY,
       );
       expect(storageService.load).not.toHaveBeenCalled();
     });
@@ -175,7 +174,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       expect(storageService.save).toHaveBeenCalledTimes(1);
       expect(storageService.save).toHaveBeenCalledWith(
         ACTIONS_STORAGE_KEY,
-        actions
+        actions,
       );
       expect(storageService.saveToSessionStorage).not.toHaveBeenCalled();
     });
@@ -192,7 +191,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       expect(storageService.saveToSessionStorage).toHaveBeenCalledTimes(1);
       expect(storageService.saveToSessionStorage).toHaveBeenCalledWith(
         ACTIONS_STORAGE_KEY,
-        actions
+        actions,
       );
       expect(storageService.save).not.toHaveBeenCalled();
     });
@@ -230,7 +229,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       });
 
       expect(storageService.removeFromSessionStorage).toHaveBeenCalledWith(
-        ACTIONS_STORAGE_KEY
+        ACTIONS_STORAGE_KEY,
       );
     });
   });
@@ -332,7 +331,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         const eventListener = jest.fn();
         actionsService.addListener(
           ActionsEvent.ACTION_COMPLETED,
-          eventListener
+          eventListener,
         );
 
         const action = {
@@ -360,7 +359,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(storageService.save).toHaveBeenCalledTimes(1);
         expect(storageService.save).toHaveBeenCalledWith(
           ACTIONS_STORAGE_KEY,
-          {}
+          {},
         );
       });
 
@@ -368,7 +367,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         const eventListener = jest.fn();
         actionsService.addListener(
           ActionsEvent.ACTION_COMPLETED,
-          eventListener
+          eventListener,
         );
 
         (storageService.load as jest.Mock).mockResolvedValue({
@@ -388,7 +387,7 @@ describe('background/services/actions/ActionsService.ts', () => {
           undefined,
           expect.any(Function),
           expect.any(Function),
-          tabId
+          tabId,
         );
       });
 
@@ -396,7 +395,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         const eventListener = jest.fn();
         actionsService.addListener(
           ActionsEvent.ACTION_COMPLETED,
-          eventListener
+          eventListener,
         );
 
         (storageService.load as jest.Mock).mockResolvedValue({
@@ -404,9 +403,9 @@ describe('background/services/actions/ActionsService.ts', () => {
         });
 
         (handlerWithCallback.onActionApproved as jest.Mock).mockImplementation(
-          async (pendingAction, result, onSuccess, onError) => {
+          async (_pendingAction, _result, _onSuccess, onError) => {
             await onError(new Error('someError'));
-          }
+          },
         );
 
         await actionsService.updateAction({
@@ -423,7 +422,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(storageService.save).toHaveBeenCalledTimes(1);
         expect(storageService.save).toHaveBeenCalledWith(
           ACTIONS_STORAGE_KEY,
-          {}
+          {},
         );
       });
 
@@ -431,7 +430,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         const eventListener = jest.fn();
         actionsService.addListener(
           ActionsEvent.ACTION_COMPLETED,
-          eventListener
+          eventListener,
         );
 
         (storageService.load as jest.Mock).mockResolvedValue({
@@ -439,9 +438,9 @@ describe('background/services/actions/ActionsService.ts', () => {
         });
 
         (handlerWithCallback.onActionApproved as jest.Mock).mockImplementation(
-          async (pendingAction, result, onSuccess) => {
+          async (_pendingAction, _result, onSuccess) => {
             await onSuccess(['ADDRESS']);
-          }
+          },
         );
 
         await actionsService.updateAction({
@@ -458,7 +457,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(storageService.save).toHaveBeenCalledTimes(1);
         expect(storageService.save).toHaveBeenCalledWith(
           ACTIONS_STORAGE_KEY,
-          {}
+          {},
         );
       });
     });
@@ -486,7 +485,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         const eventListener = jest.fn();
         actionsService.addListener(
           ActionsEvent.ACTION_COMPLETED,
-          eventListener
+          eventListener,
         );
 
         (storageService.load as jest.Mock).mockResolvedValue({
@@ -507,7 +506,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(storageService.save).toHaveBeenCalledTimes(1);
         expect(storageService.save).toHaveBeenCalledWith(
           ACTIONS_STORAGE_KEY,
-          {}
+          {},
         );
       });
     });
@@ -517,7 +516,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         const eventListener = jest.fn();
         actionsService.addListener(
           ActionsEvent.ACTION_COMPLETED,
-          eventListener
+          eventListener,
         );
 
         (storageService.load as jest.Mock).mockResolvedValue({
@@ -539,7 +538,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(storageService.save).toHaveBeenCalledTimes(1);
         expect(storageService.save).toHaveBeenCalledWith(
           ACTIONS_STORAGE_KEY,
-          {}
+          {},
         );
       });
     });
@@ -549,7 +548,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         const eventListener = jest.fn();
         actionsService.addListener(
           ActionsEvent.ACTION_COMPLETED,
-          eventListener
+          eventListener,
         );
 
         (storageService.load as jest.Mock).mockResolvedValue({
@@ -571,7 +570,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         expect(storageService.save).toHaveBeenCalledTimes(1);
         expect(storageService.save).toHaveBeenCalledWith(
           ACTIONS_STORAGE_KEY,
-          {}
+          {},
         );
       });
     });
@@ -581,7 +580,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         const eventListener = jest.fn();
         actionsService.addListener(
           ActionsEvent.ACTION_COMPLETED,
-          eventListener
+          eventListener,
         );
 
         (storageService.load as jest.Mock).mockResolvedValue({
@@ -610,7 +609,7 @@ describe('background/services/actions/ActionsService.ts', () => {
         const eventListener = jest.fn();
         actionsService.addListener(
           ActionsEvent.ACTION_COMPLETED,
-          eventListener
+          eventListener,
         );
 
         (storageService.load as jest.Mock).mockResolvedValue({
