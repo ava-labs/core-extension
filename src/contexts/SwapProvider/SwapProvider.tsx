@@ -43,6 +43,8 @@ import {
 } from './swap-utils';
 import { assert, assertPresent } from '@src/utils/assertions';
 import { CommonError } from '@src/utils/errors';
+import { useWalletContext } from '../WalletProvider';
+import { SecretType } from '@src/background/services/secrets/models';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -52,6 +54,7 @@ export function SwapContextProvider({ children }: { children: any }) {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+  const { walletDetails } = useWalletContext();
   const { isFlagEnabled } = useFeatureFlagContext();
   const { networkFee } = useNetworkFeeContext();
   const { captureEncrypted } = useAnalyticsContext();
@@ -596,13 +599,19 @@ export function SwapContextProvider({ children }: { children: any }) {
 
   const swap = useCallback(
     async (params: SwapParams) => {
-      if (isFlagEnabled(FeatureGates.ONE_CLICK_SWAP)) {
+      const isOneClickSwapEnabled = isFlagEnabled(FeatureGates.ONE_CLICK_SWAP);
+      const isOneClickSwapSupported =
+        walletDetails?.type === SecretType.Mnemonic ||
+        walletDetails?.type === SecretType.Seedless ||
+        walletDetails?.type === SecretType.PrivateKey;
+
+      if (isOneClickSwapEnabled && isOneClickSwapSupported) {
         return oneClickSwap(params);
       }
 
       return regularSwap(params);
     },
-    [regularSwap, oneClickSwap, isFlagEnabled],
+    [regularSwap, oneClickSwap, isFlagEnabled, walletDetails?.type],
   );
 
   return (
