@@ -734,10 +734,6 @@ export class WalletService implements OnUnlock {
       throw new Error(`no active network found`);
     }
 
-    if (!('displayData' in action) || !action.displayData) {
-      throw new Error('missing required information');
-    }
-
     const wallet = await this.getWallet({
       accountIndex: action.displayData.messageParams.accountIndex,
       network,

@@ -3,19 +3,16 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  Card,
   ChevronLeftIcon,
   HelpCircleIcon,
   IconButton,
   MobileStepper,
-  Scrollbars,
   Stack,
   Tooltip,
   Typography,
-  styled,
 } from '@avalabs/core-k2-components';
-import { AlertType } from '@avalabs/vm-module-types';
 
+import { Overlay } from '@src/components/common/Overlay';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -27,29 +24,16 @@ import {
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
 import { TransactionDetailItem } from '@src/components/common/approval/TransactionDetailItem';
-import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { TxBalanceChange } from '../SignTransaction/components/TxBalanceChange';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
-import { AlertBox } from '../Permissions/components/AlertBox';
-import { WarningBox } from '../Permissions/components/WarningBox';
 import { useFeeCustomizer } from './hooks/useFeeCustomizer';
-import { Overlay } from '@src/components/common/Overlay';
-
-const FlexScrollbars = styled(Scrollbars)`
-  flex-grow: 1;
-  max-height: unset;
-  height: 100%;
-  width: 100%;
-
-  & > div {
-    display: flex;
-    flex-direction: column;
-  }
-`;
+import { TransactionDetailsCardContent } from './components/TransactionDetailsCardContent';
+import { DetailedCardWrapper } from './components/DetailedCardWrapper';
+import { FlexScrollbars } from '@src/components/common/FlexScrollbars';
 
 export function TxBatchApprovalScreen() {
   const { t } = useTranslation();
@@ -216,7 +200,7 @@ export function TxBatchApprovalScreen() {
                       {renderFeeWidget()}
                       <Typography variant="caption" color="text.secondary">
                         {t(
-                          'The settings above will be applied to all transations in this batch.',
+                          'The fee settings above will be applied to each transation in this batch.',
                         )}
                       </Typography>
                     </Stack>
@@ -293,197 +277,42 @@ export function TxBatchApprovalScreen() {
                 flexDirection: 'row',
                 flexWrap: 'nowrap',
                 pb: 2,
-                pl: 2,
                 gap: 2,
                 flexGrow: 1,
                 transition: 'transform .2s ease-in-out',
-                transform: `translateX(-${index * 332}px)`,
+                transform: `translateX(-${index * 336}px)`,
               }}
             >
               {action.signingRequests.map((currentTx, txIndex) => (
-                <Card
-                  key={`tx-${txIndex}`}
-                  sx={{
-                    display: 'flex',
-                    width: 320,
-                    flex: '0 0 auto',
-                    backgroundColor: 'grey.850',
-                    ml: txIndex === 0 ? 1 : 0,
-                    position: 'relative',
-                  }}
+                <DetailedCardWrapper
+                  key={`card-${txIndex}`}
+                  isFirst={txIndex === 0}
+                  isLast={false}
+                  onClick={
+                    txIndex === index ? undefined : () => setIndex(txIndex)
+                  }
                 >
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      opacity: 0.6,
-                    }}
-                  >
-                    {`#${txIndex + 1}`}
-                  </Typography>
-                  <Stack
-                    sx={{
-                      width: 1,
-                      gap: 1,
-                    }}
-                  >
-                    {/* Header */}
-                    <Box
-                      sx={{
-                        width: '100%',
-                        py: 2,
-                        px: 2,
-                        zIndex: 1,
-                        height: '56px',
-                      }}
-                    >
-                      <Typography variant="h4">
-                        {currentTx.displayData.title}
-                      </Typography>
-                    </Box>
-                    <FlexScrollbars>
-                      <Stack sx={{ flex: 1, width: 1, px: 2, gap: 2, pb: 3 }}>
-                        {currentTx.displayData.alert && (
-                          <Stack sx={{ width: 1, px: 2, mb: 1 }}>
-                            {currentTx.displayData.alert.type ===
-                            AlertType.DANGER ? (
-                              <>
-                                <MaliciousTxAlert
-                                  showAlert
-                                  cancelHandler={handleRejection}
-                                  actionTitles={
-                                    currentTx.displayData.alert.details
-                                      .actionTitles
-                                  }
-                                  title={
-                                    currentTx.displayData.alert.details.title
-                                  }
-                                  description={
-                                    currentTx.displayData.alert.details
-                                      .description
-                                  }
-                                />
-                                <AlertBox
-                                  title={
-                                    currentTx.displayData.alert.details.title
-                                  }
-                                  text={
-                                    currentTx.displayData.alert.details
-                                      .description
-                                  }
-                                />
-                              </>
-                            ) : (
-                              <WarningBox
-                                title={
-                                  currentTx.displayData.alert.details.title
-                                }
-                                text={
-                                  currentTx.displayData.alert.details
-                                    .description
-                                }
-                              />
-                            )}
-                          </Stack>
-                        )}
-                        <Stack sx={{ width: '100%', gap: 3, pt: 1 }}>
-                          {currentTx.displayData.details.map(
-                            (section, sectionIndex) => (
-                              <ApprovalSection
-                                key={`tx-detail-section-${sectionIndex}`}
-                              >
-                                {section.title && (
-                                  <ApprovalSectionHeader
-                                    label={section.title}
-                                  />
-                                )}
-                                <ApprovalSectionBody sx={{ py: 1 }}>
-                                  {sectionIndex === 0 && network && (
-                                    <NetworkDetails network={network} />
-                                  )}
-                                  {section.items.map((item, itemIndex) => (
-                                    <TransactionDetailItem
-                                      key={`tx-detail.${sectionIndex}.${itemIndex}`}
-                                      item={item}
-                                    />
-                                  ))}
-                                </ApprovalSectionBody>
-                              </ApprovalSection>
-                            ),
-                          )}
-                          {currentTx.displayData.balanceChange && (
-                            <TxBalanceChange
-                              ins={currentTx.displayData.balanceChange.ins}
-                              outs={currentTx.displayData.balanceChange.outs}
-                              isSimulationSuccessful={
-                                currentTx.displayData.isSimulationSuccessful
-                              }
-                            />
-                          )}
-                          {currentTx.displayData.tokenApprovals && (
-                            <SpendLimitInfo
-                              {...currentTx.displayData.tokenApprovals}
-                              actionId={requestId}
-                            />
-                          )}
-                        </Stack>
-                      </Stack>
-                    </FlexScrollbars>
-                    <Stack
-                      sx={{
-                        width: 1,
-                        gap: 1,
-                        px: 2,
-                        pb: 2,
-                        flexDirection: 'row',
-                      }}
-                    >
-                      <Button
-                        size="medium"
-                        color="secondary"
-                        fullWidth
-                        onClick={() => {
-                          setIndex(txIndex - 1);
-                          console.log('new index', txIndex - 1);
-                        }}
-                        sx={{
-                          visibility: index === 0 ? 'hidden' : 'visible',
-                        }}
-                      >
-                        {t('Previous')}
-                      </Button>
-                      <Button
-                        size="medium"
-                        color="primary"
-                        fullWidth
-                        onClick={() => {
-                          setIndex(txIndex + 1);
-                          console.log('new index', txIndex + 1);
-                        }}
-                        sx={{
-                          visibility:
-                            index === action.signingRequests.length
-                              ? 'hidden'
-                              : 'visible',
-                        }}
-                      >
-                        {t('Next')}
-                      </Button>
-                    </Stack>
-                  </Stack>
-                </Card>
+                  <TransactionDetailsCardContent
+                    tx={currentTx}
+                    handleRejection={handleRejection}
+                    network={network}
+                    actionId={requestId}
+                    index={txIndex}
+                    setIndex={setIndex}
+                    isFirst={txIndex === 0}
+                    isLast={false}
+                  />
+                </DetailedCardWrapper>
               ))}
 
-              <Card
-                sx={{
-                  display: 'flex',
-                  width: 320,
-                  flex: '0 0 auto',
-                  backgroundColor: 'grey.850',
-                  flexDirection: 'column',
-                }}
+              <DetailedCardWrapper
+                isFirst={false}
+                isLast={true}
+                onClick={
+                  index === action.signingRequests.length
+                    ? undefined
+                    : () => setIndex(action.signingRequests.length)
+                }
               >
                 <Stack
                   sx={{
@@ -493,52 +322,50 @@ export function TxBatchApprovalScreen() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 3,
-                    py: 6,
-                    px: 2,
+                    pt: 6,
+                    pb: 3,
+                    px: 5,
                   }}
                 >
-                  <HelpCircleIcon size={72} />
-                  <Typography variant="h4">
+                  <HelpCircleIcon size={54} />
+                  <Typography variant="h5">
                     {t('Approve all transactions?')}
                   </Typography>
                 </Stack>
                 <Stack
-                  direction="row"
                   sx={{
-                    flexDirection: 'row',
                     alignItems: 'flex-end',
                     width: '100%',
                     justifyContent: 'space-between',
-                    pt: 1.5,
                     px: 3,
                     pb: 2,
-                    gap: 1,
+                    gap: 2,
                   }}
                 >
-                  <Button
-                    color="secondary"
-                    data-testid="transaction-reject-btn"
-                    disabled={action.status === ActionStatus.SUBMITTING}
-                    size="large"
-                    fullWidth
-                    onClick={handleRejection}
-                  >
-                    {t('Reject')}
-                  </Button>
                   <Button
                     data-testid="transaction-approve-btn"
                     disabled={
                       action.status === ActionStatus.SUBMITTING || !isFeeValid
                     }
                     isLoading={action.status === ActionStatus.SUBMITTING}
-                    size="large"
+                    size="medium"
                     fullWidth
                     onClick={signTx}
                   >
-                    {t('Approve')}
+                    {t('Approve All')}
+                  </Button>
+                  <Button
+                    color="secondary"
+                    data-testid="transaction-reject-btn"
+                    disabled={action.status === ActionStatus.SUBMITTING}
+                    size="medium"
+                    fullWidth
+                    onClick={handleRejection}
+                  >
+                    {t('Reject')}
                   </Button>
                 </Stack>
-              </Card>
+              </DetailedCardWrapper>
             </Stack>
             <MobileStepper
               position="static"
