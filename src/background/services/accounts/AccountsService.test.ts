@@ -65,6 +65,7 @@ describe('background/services/accounts/AccountsService', () => {
   const coreEthAddress = 'C-';
   const otherEvmAddress = '0x000000001';
   const otherBtcAddress = 'btc000000001';
+  const hvmAddress = undefined;
 
   const getAllAddresses = (useOtherAddresses = false) => ({
     addressC: useOtherAddresses ? otherEvmAddress : evmAddress,
@@ -72,6 +73,7 @@ describe('background/services/accounts/AccountsService', () => {
     addressAVM: avmAddress,
     addressPVM: pvmAddress,
     addressCoreEth: coreEthAddress,
+    addressHVM: hvmAddress,
   });
 
   const mockAccounts = (
@@ -151,6 +153,7 @@ describe('background/services/accounts/AccountsService', () => {
       [NetworkVMType.AVM]: avmAddress,
       [NetworkVMType.PVM]: pvmAddress,
       [NetworkVMType.CoreEth]: coreEthAddress,
+      [NetworkVMType.HVM]: hvmAddress,
     });
     networkService.developerModeChanged.add = jest.fn();
     networkService.developerModeChanged.remove = jest.fn();
@@ -250,6 +253,7 @@ describe('background/services/accounts/AccountsService', () => {
         [NetworkVMType.AVM]: avmAddress,
         [NetworkVMType.PVM]: pvmAddress,
         [NetworkVMType.CoreEth]: coreEthAddress,
+        [NetworkVMType.HVM]: hvmAddress,
       });
       (secretsService.getImportedAddresses as jest.Mock)
         .mockResolvedValueOnce({ ...mockedAccounts.imported['0x1'], id: '0x1' })
@@ -291,6 +295,7 @@ describe('background/services/accounts/AccountsService', () => {
         [NetworkVMType.AVM]: avmAddress,
         [NetworkVMType.PVM]: pvmAddress,
         [NetworkVMType.CoreEth]: coreEthAddress,
+        [NetworkVMType.HVM]: hvmAddress,
       });
       (secretsService.getImportedAddresses as jest.Mock)
         .mockResolvedValueOnce({

@@ -33,12 +33,17 @@ jest.mock('../network/NetworkService');
 jest.mock('../walletConnect/WalletConnectService');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('../seedless/SeedlessWallet');
+jest.mock('./utils/getAddressForHvm', () => {
+  return { getAddressForHvm: jest.fn().mockReturnValue(undefined) };
+});
 
 const evmAddress = '0x000000000';
 const btcAddress = 'btc000000000';
 const avmAddress = 'X-';
 const pvmAddress = 'P-';
 const coreEthAddress = 'C-';
+const hvmAddress = undefined;
+
 const activeAccountData = {
   index: 0,
   id: 'uuid1',
@@ -50,6 +55,7 @@ const activeAccountData = {
   addressAVM: avmAddress,
   addressPVM: pvmAddress,
   addressCoreEth: coreEthAddress,
+  addressHvm: hvmAddress,
 };
 
 const WALLET_ID = 'wallet-id';
@@ -1532,6 +1538,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           addressAVM: 'X-',
           addressPVM: 'P-',
           addressCoreEth: 'C-',
+          addressHVM: hvmAddress,
         },
         commit: expect.any(Function),
       });
@@ -1670,6 +1677,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         addressAVM: 'X-',
         addressPVM: 'P-',
         addressCoreEth: 'C-',
+        addressHVM: undefined,
       });
 
       expect(getPublicKeyFromPrivateKey).toHaveBeenCalledWith('secret');

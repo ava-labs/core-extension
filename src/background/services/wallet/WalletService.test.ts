@@ -21,6 +21,7 @@ import {
   Avalanche,
   createWalletPolicy,
   LedgerSigner,
+  getWalletFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { LedgerTransport } from '../ledger/LedgerTransport';
@@ -45,6 +46,7 @@ import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { Network } from '../network/models';
 import { decorateWithCaipId } from '@src/utils/caipConversion';
 import { AccountsService } from '../accounts/AccountsService';
+import { ed25519 } from '@noble/curves/ed25519';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -53,6 +55,13 @@ jest.mock('../keystone/KeystoneService');
 jest.mock('./utils/prepareBtcTxForLedger');
 jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('@avalabs/core-wallets-sdk');
+jest.mock('@noble/curves/ed25519', () => {
+  return {
+    ed25519: {
+      getPublicKey: jest.fn(),
+    },
+  };
+});
 jest.mock('./utils/getDerivationPath');
 jest.mock('../seedless/SeedlessWallet');
 jest.mock('../seedless/SeedlessSessionManager');
@@ -275,6 +284,10 @@ describe('background/services/wallet/WalletService.ts', () => {
     (networkService.getAvalanceProviderXP as jest.Mock).mockReturnValue(
       Avalanche.JsonRpcProvider.getDefaultFujiProvider(),
     );
+    (getWalletFromMnemonic as jest.Mock).mockReturnValue({
+      path: 'derivePath',
+      privateKey: '123123123',
+    });
   });
 
   describe('onUnlock', () => {
@@ -1196,7 +1209,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       it('returns the public keys for mnemonic wallets', async () => {
         const { xpub, xpubXP } = mockMnemonicWallet({}, { index: 0 });
-
+        (ed25519.getPublicKey as jest.Mock).mockReturnValue('123123');
         jest
           .mocked(getAddressPublicKeyFromXPub)
           .mockReturnValueOnce(evmPub as any);
@@ -1205,10 +1218,12 @@ describe('background/services/wallet/WalletService.ts', () => {
           .mockReturnValueOnce(xpPub as any);
 
         const result = await walletService.getActiveAccountPublicKey();
+        console.log('result: ', result);
 
         expect(result).toStrictEqual({
           evm: evmPub,
           xp: xpPub,
+          ed25519: '313233313233',
         });
 
         expect(getAddressPublicKeyFromXPub).toHaveBeenCalledWith(xpub, 0);
@@ -1327,12 +1342,14 @@ describe('background/services/wallet/WalletService.ts', () => {
           },
         );
         (getPublicKeyFromPrivateKey as jest.Mock).mockReturnValueOnce(evmPub);
+        (ed25519.getPublicKey as jest.Mock).mockReturnValue('123123');
 
         const result = await walletService.getActiveAccountPublicKey();
 
         expect(result).toStrictEqual({
           evm: evmPub,
           xp: evmPub,
+          ed25519: '313233313233',
         });
 
         expect(getPublicKeyFromPrivateKey).toHaveBeenCalledWith('secret1');

@@ -604,6 +604,7 @@ export class SecretsService implements OnUnlock {
         importData.data,
         networkService,
       );
+
       return {
         account: {
           id,
@@ -737,7 +738,6 @@ export class SecretsService implements OnUnlock {
       );
     }
     const addresses = this.getAddresses(index, walletId, networkService);
-    console.log('created addresses: ', await addresses);
     return addresses;
   }
 
@@ -835,7 +835,7 @@ export class SecretsService implements OnUnlock {
         [NetworkVMType.AVM]: addrX,
         [NetworkVMType.PVM]: addrP,
         [NetworkVMType.CoreEth]: providerXP.getAddress(pubKeyBuffer, 'C'),
-        [NetworkVMType.HVM]: getAddressForHvm(addressPublicKey.evm),
+        [NetworkVMType.HVM]: '',
       };
     }
 

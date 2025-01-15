@@ -3,8 +3,6 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { WalletService } from '../../wallet/WalletService';
-
-// TODO: call this to get the pubkey for hvm
 @injectable()
 export class AvalancheGetAccountPubKeyHandler extends DAppRequestHandler {
   methods = [
@@ -17,7 +15,6 @@ export class AvalancheGetAccountPubKeyHandler extends DAppRequestHandler {
   }
 
   handleAuthenticated = async ({ request }) => {
-    console.log('handleAuthenticated:');
     try {
       const publicKey = await this.walletService.getActiveAccountPublicKey();
 
