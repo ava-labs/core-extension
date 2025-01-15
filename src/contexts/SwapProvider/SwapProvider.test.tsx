@@ -8,6 +8,7 @@ import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
+import { useWalletContext } from '../WalletProvider';
 
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { Contract } from 'ethers';
@@ -16,6 +17,7 @@ import { GetRateParams, SwapContextAPI, SwapParams } from './models';
 import { SwapContextProvider, useSwapContext } from './SwapProvider';
 import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { SecretType } from '@src/background/services/secrets/models';
 
 const API_URL = 'https://apiv5.paraswap.io';
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
@@ -62,6 +64,10 @@ jest.mock('../NetworkProvider', () => ({
 
 jest.mock('../AccountsProvider', () => ({
   useAccountsContext: jest.fn(),
+}));
+
+jest.mock('../WalletProvider', () => ({
+  useWalletContext: jest.fn(),
 }));
 
 jest.mock('../FeatureFlagsProvider', () => ({
@@ -120,6 +126,11 @@ describe.only('contexts/SwapProvider', () => {
       ok: true,
     } as any);
 
+    jest.mocked(useWalletContext).mockReturnValue({
+      walletDetails: {
+        type: SecretType.Mnemonic,
+      },
+    } as any);
     jest.mocked(useConnectionContext).mockReturnValue(connectionContext);
     jest.mocked(useAccountsContext).mockReturnValue(accountsContext);
     jest.mocked(useNetworkContext).mockReturnValue(networkContext);
