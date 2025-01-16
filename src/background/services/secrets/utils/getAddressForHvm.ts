@@ -11,7 +11,7 @@ const addressBytesFromPubKey = (pubKey: Uint8Array): Uint8Array => {
 
 export const getAddressForHvm = (privateKey: string): string => {
   const addressBytes = addressBytesFromPubKey(
-    ed25519.getPublicKey(strip0x(privateKey))
+    ed25519.getPublicKey(strip0x(privateKey)),
   );
   const hash = sha256(addressBytes);
   const checksum = hash.slice(-4); // Take last 4 bytes

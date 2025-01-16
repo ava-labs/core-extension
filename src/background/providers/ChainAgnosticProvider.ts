@@ -98,7 +98,7 @@ export class ChainAgnosticProvider extends EventEmitter {
   }) => {
     return this.#providerReadyPromise.call(() => {
       return this.#requestRateLimiter.call(data.method, () =>
-        this.#request({ data, scope, sessionId })
+        this.#request({ data, scope, sessionId }),
       );
     });
   };

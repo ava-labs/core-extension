@@ -6,7 +6,7 @@ import {
 export function getAccountPrivateKeyFromMnemonic(
   mnemonic: string,
   accountIndex: number,
-  derivationPath: DerivationPath
+  derivationPath: DerivationPath,
 ): string {
   const signer = getWalletFromMnemonic(mnemonic, accountIndex, derivationPath);
   if (!signer || !signer.path) {

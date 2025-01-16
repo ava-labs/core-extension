@@ -62,7 +62,7 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
     const chainId = network.chainId ?? caipToChainId(network.caipId);
 
     const isCustomNetworkExist = await this.networkService.getNetwork(
-      network.caipId
+      network.caipId,
     );
 
     if (isCustomNetworkExist) {
@@ -98,13 +98,13 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
     pendingAction: Action<{ network: CustomNetworkPayload }>,
     _,
     onSuccess,
-    onError
+    onError,
   ) => {
     try {
       const { network } = pendingAction.displayData;
 
       const [addedNetwork, err] = await resolve(
-        this.networkService.saveCustomNetwork(network)
+        this.networkService.saveCustomNetwork(network),
       );
 
       if (err || !addedNetwork) {

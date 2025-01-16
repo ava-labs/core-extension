@@ -7,7 +7,7 @@ import { getNameSpaceFromScope } from './caipConversion';
 export function getAddressForChain(
   chainId: number,
   account: Partial<Account>,
-  caipId?: string
+  caipId?: string,
 ) {
   if (isBitcoinChainId(chainId)) {
     return account.addressBTC;

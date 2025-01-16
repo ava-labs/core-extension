@@ -15,7 +15,7 @@ export class HVMWallet {
     const signer = getWalletFromMnemonic(
       mnemonic,
       accountIndex,
-      derivationPath
+      derivationPath,
     );
     return new HVMWallet(signer.privateKey);
   }
@@ -25,7 +25,7 @@ export class HVMWallet {
 
   async signEd25519(
     txPayload: TransactionPayload,
-    abi: VMABI
+    abi: VMABI,
   ): Promise<string> {
     const marshaler = new Marshaler(abi);
     const digest = marshaler.encodeTransaction(txPayload);
