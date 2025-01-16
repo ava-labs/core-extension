@@ -152,7 +152,6 @@ export const useTokensWithBalances = (
     }
 
     const networkBalances = balances.tokens?.[selectedChainId]?.[address] ?? {};
-    console.log('networkBalances: ', networkBalances);
 
     if (forceShowTokensWithoutBalances || showTokensWithoutBalances) {
       const merged = merge(

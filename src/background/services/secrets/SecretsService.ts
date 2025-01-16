@@ -764,7 +764,6 @@ export class SecretsService implements OnUnlock {
       secrets.secretType === SecretType.Mnemonic ||
       secrets.secretType === SecretType.Keystone
     ) {
-      console.log('hello');
       // C-avax... this address uses the same public key as EVM
       const cPubkey = getAddressPublicKeyFromXPub(secrets.xpub, index);
       const cAddr = providerXP.getAddress(cPubkey, 'C');
@@ -809,7 +808,6 @@ export class SecretsService implements OnUnlock {
       secrets.secretType === SecretType.LedgerLive ||
       secrets.secretType === SecretType.Seedless
     ) {
-      console.log('hello2');
       // pubkeys are used for LedgerLive derivation paths m/44'/60'/n'/0/0
       // and for X/P derivation paths  m/44'/9000'/n'/0/0
       const addressPublicKey = secrets.pubKeys[index];

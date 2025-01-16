@@ -489,6 +489,20 @@ describe('background/services/accounts/AccountsService', () => {
   });
 
   describe('addPrimaryAccount()', () => {
+    it('should thrown an error because of missing addresses', async () => {
+      const uuid = 'uuid';
+      (crypto.randomUUID as jest.Mock).mockReturnValue(uuid);
+
+      await accountsService.onUnlock();
+      (secretsService.addAddress as jest.Mock).mockResolvedValueOnce({});
+
+      await expect(
+        accountsService.addPrimaryAccount({
+          name: 'Account name',
+          walletId,
+        }),
+      ).rejects.toThrow(new Error('The account has no EVM or BTC address'));
+    });
     it('adds account with index 0 when no accounts', async () => {
       const uuid = 'uuid';
       (crypto.randomUUID as jest.Mock).mockReturnValue(uuid);

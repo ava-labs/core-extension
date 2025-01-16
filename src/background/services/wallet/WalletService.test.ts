@@ -1218,7 +1218,6 @@ describe('background/services/wallet/WalletService.ts', () => {
           .mockReturnValueOnce(xpPub as any);
 
         const result = await walletService.getActiveAccountPublicKey();
-        console.log('result: ', result);
 
         expect(result).toStrictEqual({
           evm: evmPub,
