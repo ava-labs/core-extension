@@ -1421,7 +1421,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       [NetworkVMType.AVM]: 'X-',
       [NetworkVMType.PVM]: 'P-',
       [NetworkVMType.CoreEth]: 'C-',
-      [NetworkVMType.HVM]: '',
+      [NetworkVMType.HVM]: undefined,
     });
 
     it('throws error if walletId is not provided', async () => {
