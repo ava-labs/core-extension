@@ -237,6 +237,10 @@ export class AccountsService implements OnLock, OnUnlock {
       this.networkService,
     );
 
+    if (!addresses[NetworkVMType.EVM]) {
+      throw new Error('The account has no EVM address');
+    }
+
     return {
       addressC: addresses[NetworkVMType.EVM],
       addressBTC: addresses[NetworkVMType.BITCOIN],
@@ -374,6 +378,10 @@ export class AccountsService implements OnLock, OnUnlock {
       networkService: this.networkService,
       ledgerService: this.ledgerService,
     });
+
+    if (!addresses[NetworkVMType.EVM] || !addresses[NetworkVMType.BITCOIN]) {
+      throw new Error('The account has no EVM or BTC address');
+    }
 
     const id = crypto.randomUUID();
 

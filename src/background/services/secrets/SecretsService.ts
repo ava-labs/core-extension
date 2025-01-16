@@ -669,7 +669,7 @@ export class SecretsService implements OnUnlock {
     walletId: string;
     ledgerService: LedgerService;
     networkService: NetworkService;
-  }): Promise<Record<NetworkVMType, string>> {
+  }): Promise<Record<NetworkVMType, string | undefined>> {
     const secrets = await this.getWalletAccountsSecretsById(walletId);
 
     if (
