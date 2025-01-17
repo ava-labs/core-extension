@@ -151,7 +151,7 @@ describe('src/background/vmModules/ApprovalController', () => {
       title: 'Approve 2 Transactions',
       networkFeeSelector: true,
     },
-    updateTxs: jest.fn(),
+    updateTx: jest.fn(),
     signingRequests: [
       {
         displayData: {
@@ -249,55 +249,70 @@ describe('src/background/vmModules/ApprovalController', () => {
     });
   });
 
-  describe('updateTxBatch()', () => {
+  describe('updateTxInBatch()', () => {
     it('uses `updateTxs` callback to update the transaction payloads', async () => {
-      const updateTxs = jest
+      const updateTx = jest
         .fn()
-        .mockImplementation(({ maxFeeRate, maxTipRate }) => ({
+        .mockImplementation(({ maxFeeRate, maxTipRate }, index) => ({
           displayData: batchApprovalParams.displayData,
-          signingRequests: batchApprovalParams.signingRequests.map((req) => ({
-            ...req,
-            signingData: {
-              ...req.signingData,
-              data: {
-                ...req.signingData.data,
-                maxFeePerGas: maxFeeRate,
-                maxPriorityFeePerGas: maxTipRate,
-              },
-            },
-          })),
+          signingRequests: batchApprovalParams.signingRequests.map((req, i) =>
+            i === index
+              ? {
+                  ...req,
+                  signingData: {
+                    ...req.signingData,
+                    data: {
+                      ...req.signingData.data,
+                      maxFeePerGas: maxFeeRate,
+                      maxPriorityFeePerGas: maxTipRate,
+                    },
+                  },
+                }
+              : req,
+          ),
         }));
 
       controller.requestBatchApproval({
         ...batchApprovalParams,
-        updateTxs,
+        updateTx,
       });
 
       await new Promise(process.nextTick);
 
-      const result = controller.updateTxBatch({ actionId } as MultiTxAction, {
-        maxFeeRate: 150n,
-        maxTipRate: 50n,
-      });
+      const result = controller.updateTxInBatch(
+        { actionId } as MultiTxAction,
+        {
+          maxFeeRate: 150n,
+          maxTipRate: 50n,
+        },
+        0,
+      );
 
-      expect(updateTxs).toHaveBeenCalledWith({
-        maxFeeRate: 150n,
-        maxTipRate: 50n,
-      });
+      expect(updateTx).toHaveBeenCalledWith(
+        {
+          maxFeeRate: 150n,
+          maxTipRate: 50n,
+        },
+        0,
+      );
 
       expect(result).toEqual({
         displayData: batchApprovalParams.displayData,
-        signingRequests: batchApprovalParams.signingRequests.map((req) => ({
-          ...req,
-          signingData: {
-            ...req.signingData,
-            data: {
-              ...req.signingData.data,
-              maxFeePerGas: 150n,
-              maxPriorityFeePerGas: 50n,
-            },
-          },
-        })),
+        signingRequests: batchApprovalParams.signingRequests.map((req, i) =>
+          i === 0
+            ? {
+                ...req,
+                signingData: {
+                  ...req.signingData,
+                  data: {
+                    ...req.signingData.data,
+                    maxFeePerGas: 150n,
+                    maxPriorityFeePerGas: 50n,
+                  },
+                },
+              }
+            : req,
+        ),
       });
     });
   });

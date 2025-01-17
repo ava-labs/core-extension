@@ -29,10 +29,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@0.0.0-feat-eth-send-transaction-batc-20250114184008":
-  version "0.0.0-feat-eth-send-transaction-batc-20250114184008"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-eth-send-transaction-batc-20250114184008.tgz#1d5b345047db064fc83914471e39fe2cea406c1f"
-  integrity sha512-BzEFCpRhm9Z5VVVG83AR9m/tUzcS30ZZuSu9L9BSwbwuQgw2TOpxiPce5w5U/qfnQxG1m0lCL3y/1vsK3HbdsQ==
+"@avalabs/avalanche-module@0.0.0-feat-eth-send-transaction-batc-20250117113406":
+  version "0.0.0-feat-eth-send-transaction-batc-20250117113406"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-eth-send-transaction-batc-20250117113406.tgz#c6cc5613bac95422575442a699be3e607880de2b"
+  integrity sha512-oUDdlYN3htRKRdzcbun7ljeUTsdaQpszPuUN/SNMBxYcmfdvGs3VfEc5V7EvwNb5rxSWoFX1fUN1h0VVsAhtUQ==
   dependencies:
     "@avalabs/avalanchejs" "4.1.2-alpha.1"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.26"
@@ -42,7 +42,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.26"
     "@avalabs/glacier-sdk" "3.1.0-alpha.26"
     "@avalabs/types" "3.1.0-alpha.26"
-    "@avalabs/vm-module-types" "0.0.0-feat-eth-send-transaction-batc-20250114184008"
+    "@avalabs/vm-module-types" "0.0.0-feat-eth-send-transaction-batc-20250117113406"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -70,15 +70,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@0.0.0-feat-eth-send-transaction-batc-20250114184008":
-  version "0.0.0-feat-eth-send-transaction-batc-20250114184008"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-eth-send-transaction-batc-20250114184008.tgz#6e44b2b0836f3089d5da21a18fda201f1fdfca2b"
-  integrity sha512-Pm9rS5AIeL/9y3Vbmxu9Fh3rmFxgZnzJebVV91cbz7iddP2VJwWKJLI8ycXO6ZkAVoaJ6/EYakhfO14+lIHnlw==
+"@avalabs/bitcoin-module@0.0.0-feat-eth-send-transaction-batc-20250117113406":
+  version "0.0.0-feat-eth-send-transaction-batc-20250117113406"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-eth-send-transaction-batc-20250117113406.tgz#c53d2ec3e8e5c547c68c126ee31cd71655b12310"
+  integrity sha512-MDL8peMlMLdPHrFzH/qE0orp7oPBfYYDb4pDsNIP8j52lAhFIaTE5XbrTZW532z4TiUTn98SFCNl9lJgp69TYA==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.26"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.26"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.26"
-    "@avalabs/vm-module-types" "0.0.0-feat-eth-send-transaction-batc-20250114184008"
+    "@avalabs/vm-module-types" "0.0.0-feat-eth-send-transaction-batc-20250117113406"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -261,10 +261,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@0.0.0-feat-eth-send-transaction-batc-20250114184008":
-  version "0.0.0-feat-eth-send-transaction-batc-20250114184008"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-eth-send-transaction-batc-20250114184008.tgz#4fa2ece713b5034b501cd681678e47e40aeb2ac4"
-  integrity sha512-Mu5nht5D+S29xFtemT5Map72W+vV632HRyCv5ulIUQ3SRlpd+GRH0RN20Ox4brAzN5/auFwfY7Lxh8k77fLEqQ==
+"@avalabs/evm-module@0.0.0-feat-eth-send-transaction-batc-20250117113406":
+  version "0.0.0-feat-eth-send-transaction-batc-20250117113406"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-eth-send-transaction-batc-20250117113406.tgz#64abc22f2f7fcb96b4f72e13e0e59f9e71260272"
+  integrity sha512-0B7aGdWyoWSxE6cUvJLLUgZ8BrG1VVRO6reirwDoHSKuFaAGII40C/3ZgmRqmaxMdoXkhC2gXv4YM4OfJTiWTw==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.26"
     "@avalabs/core-etherscan-sdk" "3.1.0-alpha.26"
@@ -272,7 +272,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.26"
     "@avalabs/glacier-sdk" "3.1.0-alpha.26"
     "@avalabs/types" "3.1.0-alpha.26"
-    "@avalabs/vm-module-types" "0.0.0-feat-eth-send-transaction-batc-20250114184008"
+    "@avalabs/vm-module-types" "0.0.0-feat-eth-send-transaction-batc-20250117113406"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -312,10 +312,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.26.tgz#233f2971a21c8017e2651d73cd3a87e4f6b64fc3"
   integrity sha512-S9EkkO/Pkwe0Y+K90ep/WmncQNNFCNjETJZ0oVENHq9xyOYmlMdTPqwLwMyYqDf8mn9erRyvBK4wvEjIGJkGbQ==
 
-"@avalabs/vm-module-types@0.0.0-feat-eth-send-transaction-batc-20250114184008":
-  version "0.0.0-feat-eth-send-transaction-batc-20250114184008"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-eth-send-transaction-batc-20250114184008.tgz#6fd44bfd1d70709290d3139144887efccd7a2d32"
-  integrity sha512-8Q+8fQcnXzGBBJf0jLTyD/6xmLgq7kIdszuwK8xpXXNHbK2EDhDYLrfflPzcvKerOyeT0mp4LtHkolZbq/LWog==
+"@avalabs/vm-module-types@0.0.0-feat-eth-send-transaction-batc-20250117113406":
+  version "0.0.0-feat-eth-send-transaction-batc-20250117113406"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-eth-send-transaction-batc-20250117113406.tgz#712e1bb41971595dccd60408b552fb5a71d8669a"
+  integrity sha512-NGvVyYKr/EAiOXF5keP8/GDHaKy1SRFa7kJxJvdbf0qXvaSoIIKkApWr3B/gLrfx42ckZBcrMBtM/Kd31VREnw==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.26"
     "@avalabs/glacier-sdk" "3.1.0-alpha.26"

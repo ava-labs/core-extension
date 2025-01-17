@@ -12,7 +12,11 @@ import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { NetworkFee } from '@src/background/services/networkFee/models';
 
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
+import {
+  CustomFees,
+  CustomGasFeesProps,
+  GasFeeModifier,
+} from '@src/components/common/CustomFees';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { SendErrorMessage } from '@src/utils/send/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
@@ -62,9 +66,11 @@ const isMultiTxFeeData = (
 export function useFeeCustomizer({
   actionId,
   network,
+  txIndex,
 }: {
   actionId: string;
   network?: NetworkWithCaipId;
+  txIndex?: number;
 }) {
   const { action } = useApproveAction<DisplayData>(actionId);
   const {
@@ -81,7 +87,7 @@ export function useFeeCustomizer({
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
     GasFeeModifier.NORMAL,
   );
-  const isFeeSelectorEnabled = true; //Boolean(action?.displayData.networkFeeSelector);
+  const isFeeSelectorEnabled = Boolean(action?.displayData.networkFeeSelector);
 
   const tokens = useTokensWithBalances({
     chainId: network?.chainId,
@@ -98,22 +104,50 @@ export function useFeeCustomizer({
     }
 
     if (isBatchApprovalAction(action)) {
-      return {
-        type: MultiTxSymbol,
-        gasLimit: (action as MultiTxAction).signingRequests.reduce(
-          (sum, req) => {
+      if (typeof txIndex !== 'number') {
+        const gasLimit = action.signingRequests.reduce((sum, req) => {
+          if (req.signingData.type === RpcMethod.ETH_SEND_TRANSACTION) {
+            return sum + BigInt(req.signingData.data.gasLimit ?? 0n);
+          }
+
+          throw new Error(
+            'This transaction type is not supported in bulk approvals: ' +
+              req.signingData.type,
+          );
+        }, 0n);
+
+        return {
+          type: MultiTxSymbol,
+          feeRate: action.signingRequests.reduce((sum, req) => {
             if (req.signingData.type === RpcMethod.ETH_SEND_TRANSACTION) {
-              return sum + BigInt(req.signingData.data.gasLimit ?? 0n);
+              const txGas = req.signingData.data.gasLimit;
+              const maxFee = req.signingData.data.maxFeePerGas;
+
+              if (!txGas || !maxFee) {
+                return 0n;
+              }
+
+              const weight = Number(txGas) / Number(gasLimit);
+
+              return sum + BigInt(Math.ceil(Number(maxFee) * weight));
             }
 
             throw new Error(
               'This transaction type is not supported in bulk approvals: ' +
                 req.signingData.type,
             );
-          },
-          0n,
-        ),
-      } as MultiTxFeeData;
+          }, 0n),
+          gasLimit,
+        } as MultiTxFeeData;
+      }
+
+      const signingRequest = (action as MultiTxAction).signingRequests[txIndex];
+
+      if (!signingRequest) {
+        return;
+      }
+
+      return signingRequest.signingData;
     }
 
     switch (action?.signingData?.type) {
@@ -126,7 +160,7 @@ export function useFeeCustomizer({
       default:
         return undefined;
     }
-  }, [action, isFeeSelectorEnabled]);
+  }, [action, isFeeSelectorEnabled, txIndex]);
 
   const updateFee = useCallback(
     async (maxFeeRate: bigint, maxTipRate?: bigint) => {
@@ -141,10 +175,10 @@ export function useFeeCustomizer({
 
       await request<UpdateActionTxDataHandler>({
         method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
-        params: [actionId, newFeeConfig],
+        params: [actionId, newFeeConfig, txIndex],
       });
     },
-    [actionId, isFeeSelectorEnabled, request, signingData?.type],
+    [actionId, isFeeSelectorEnabled, request, signingData?.type, txIndex],
   );
 
   const getFeeInfo = useCallback((data: SigningData | MultiTxFeeData) => {
@@ -300,39 +334,48 @@ export function useFeeCustomizer({
     return () => {
       isMounted = false;
     };
-  }, [isFeeSelectorEnabled, maxFeePerGas, maxPriorityFeePerGas, updateFee]);
-
-  const renderFeeWidget = useCallback(() => {
-    if (!networkFee || !signingData) {
-      return (
-        <Stack sx={{ gap: 0.5, justifyContent: 'flex-start' }}>
-          <Skeleton variant="text" width={120} />
-          <Skeleton variant="rounded" height={128} />
-        </Stack>
-      );
-    }
-
-    const { feeRate, limit } = getFeeInfo(signingData);
-
-    return (
-      <CustomFees
-        maxFeePerGas={feeRate}
-        limit={limit}
-        onChange={setCustomFee}
-        selectedGasFeeModifier={gasFeeModifier}
-        network={network}
-        networkFee={networkFee}
-        isLimitReadonly={signingData.type === MultiTxSymbol}
-      />
-    );
   }, [
-    gasFeeModifier,
-    getFeeInfo,
-    network,
-    networkFee,
-    setCustomFee,
-    signingData,
+    isFeeSelectorEnabled,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    updateFee,
+    txIndex,
   ]);
+
+  const renderFeeWidget = useCallback(
+    (props?: Partial<CustomGasFeesProps>) => {
+      if (!networkFee || !signingData) {
+        return (
+          <Stack sx={{ gap: 0.5, justifyContent: 'flex-start' }}>
+            <Skeleton variant="text" width={120} />
+            <Skeleton variant="rounded" height={128} />
+          </Stack>
+        );
+      }
+
+      const { feeRate, limit } = getFeeInfo(signingData);
+
+      return (
+        <CustomFees
+          maxFeePerGas={feeRate}
+          limit={limit}
+          onChange={setCustomFee}
+          selectedGasFeeModifier={gasFeeModifier}
+          network={network}
+          networkFee={networkFee}
+          {...props}
+        />
+      );
+    },
+    [
+      gasFeeModifier,
+      getFeeInfo,
+      network,
+      networkFee,
+      setCustomFee,
+      signingData,
+    ],
+  );
 
   return {
     isCalculatingFee,

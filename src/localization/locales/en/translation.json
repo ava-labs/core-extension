@@ -861,7 +861,6 @@
   "The active account does not support Bitcoin.": "The active account does not support Bitcoin.",
   "The amount cannot be lower than the bridging fee": "The amount cannot be lower than the bridging fee",
   "The bridging fee is unknown": "The bridging fee is unknown",
-  "The fee settings above will be applied to each transation in this batch.": "The fee settings above will be applied to each transation in this batch.",
   "The inputs of this transaction are greater than the output. Continuing will cause you to lose funds associated with this UTXO.": "The inputs of this transaction are greater than the output. Continuing will cause you to lose funds associated with this UTXO.",
   "The operation either timed out or was not allowed.": "The operation either timed out or was not allowed.",
   "The operation either timed out or was not allowed. Please try again.": "The operation either timed out or was not allowed. Please try again.",

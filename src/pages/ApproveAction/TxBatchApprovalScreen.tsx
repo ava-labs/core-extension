@@ -46,15 +46,11 @@ export function TxBatchApprovalScreen() {
   } = useApproveAction(requestId, true);
   const [network, setNetwork] = useState<NetworkWithCaipId>();
   const { getNetwork } = useNetworkContext();
-  const {
-    isCalculatingFee,
-    feeError,
-    hasEnoughForNetworkFee,
-    renderFeeWidget,
-  } = useFeeCustomizer({
-    actionId: requestId,
-    network,
-  });
+  const { isCalculatingFee, feeError, hasEnoughForNetworkFee } =
+    useFeeCustomizer({
+      actionId: requestId,
+      network,
+    });
 
   const { displayData } = action ?? {};
   const isFeeValid =
@@ -149,6 +145,16 @@ export function TxBatchApprovalScreen() {
                     </ApprovalSection>
                   ))}
 
+                  {action.displayData.balanceChange && (
+                    <TxBalanceChange
+                      ins={action.displayData.balanceChange.ins}
+                      outs={action.displayData.balanceChange.outs}
+                      isSimulationSuccessful={
+                        action.displayData.isSimulationSuccessful
+                      }
+                    />
+                  )}
+
                   <Stack
                     sx={{
                       flexDirection: 'row',
@@ -177,33 +183,12 @@ export function TxBatchApprovalScreen() {
                     </Tooltip>
                   </Stack>
 
-                  {action.displayData.balanceChange && (
-                    <TxBalanceChange
-                      ins={action.displayData.balanceChange.ins}
-                      outs={action.displayData.balanceChange.outs}
-                      isSimulationSuccessful={
-                        action.displayData.isSimulationSuccessful
-                      }
-                    />
-                  )}
-
                   {action.displayData.tokenApprovals && (
                     <SpendLimitInfo
                       {...action.displayData.tokenApprovals}
                       isEditable={false}
                       actionId={requestId}
                     />
-                  )}
-
-                  {displayData.networkFeeSelector && (
-                    <Stack sx={{ width: 1, gap: 1 }}>
-                      {renderFeeWidget()}
-                      <Typography variant="caption" color="text.secondary">
-                        {t(
-                          'The fee settings above will be applied to each transation in this batch.',
-                        )}
-                      </Typography>
-                    </Stack>
                   )}
                 </Stack>
               </Stack>
@@ -240,8 +225,8 @@ export function TxBatchApprovalScreen() {
               }
               isLoading={
                 action.status === ActionStatus.SUBMITTING ||
-                !isFeeValid ||
-                !displayData
+                !displayData ||
+                isCalculatingFee
               }
               size="large"
               fullWidth
@@ -276,7 +261,6 @@ export function TxBatchApprovalScreen() {
                 width: 1,
                 flexDirection: 'row',
                 flexWrap: 'nowrap',
-                pb: 2,
                 gap: 2,
                 flexGrow: 1,
                 transition: 'transform .2s ease-in-out',
@@ -301,6 +285,7 @@ export function TxBatchApprovalScreen() {
                     setIndex={setIndex}
                     isFirst={txIndex === 0}
                     isLast={false}
+                    hasEnoughForFee={hasEnoughForNetworkFee}
                   />
                 </DetailedCardWrapper>
               ))}
@@ -347,7 +332,10 @@ export function TxBatchApprovalScreen() {
                     disabled={
                       action.status === ActionStatus.SUBMITTING || !isFeeValid
                     }
-                    isLoading={action.status === ActionStatus.SUBMITTING}
+                    isLoading={
+                      action.status === ActionStatus.SUBMITTING ||
+                      isCalculatingFee
+                    }
                     size="medium"
                     fullWidth
                     onClick={signTx}
@@ -374,7 +362,7 @@ export function TxBatchApprovalScreen() {
               activeStep={index}
               backButton={null}
               nextButton={null}
-              sx={{ py: 3, justifyContent: 'center' }}
+              sx={{ pb: 3, justifyContent: 'center' }}
             />
           </Stack>
         </Overlay>

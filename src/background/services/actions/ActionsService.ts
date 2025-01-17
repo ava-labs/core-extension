@@ -239,6 +239,7 @@ export class ActionsService implements OnStorageReady {
   async updateTx(
     id: string,
     newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0],
+    txIndex?: number,
   ) {
     const currentPendingRequests = await this.getActions();
     const pendingRequest = currentPendingRequests[id];
@@ -253,7 +254,11 @@ export class ActionsService implements OnStorageReady {
       }
 
       const { displayData, signingRequests } =
-        this.approvalController.updateTxBatch(pendingRequest, newData);
+        this.approvalController.updateTxInBatch(
+          pendingRequest,
+          newData,
+          txIndex,
+        );
 
       await this.saveActions({
         ...currentPendingRequests,

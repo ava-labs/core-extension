@@ -64,7 +64,7 @@ describe('background/services/actions/ActionsService.ts', () => {
       onApproved: jest.fn(),
       onRejected: jest.fn(),
       updateTx: jest.fn(),
-      updateTxBatch: jest.fn(),
+      updateTxInBatch: jest.fn(),
     } as unknown as jest.Mocked<ApprovalController>;
 
     actionsService = new ActionsService(
@@ -104,19 +104,25 @@ describe('background/services/actions/ActionsService.ts', () => {
           .mockResolvedValueOnce(pendingActions as any);
       });
 
-      it('uses the ApprovalController.updateTxBatch() to fetch the new action data & saves it', async () => {
+      it('uses the ApprovalController.updateTxInBatch() to fetch the new action data & saves it', async () => {
         const newDisplayData = { ...displayData };
         const updatedActionData = {
           signingRequests,
           displayData: newDisplayData,
         } as any;
 
-        approvalController.updateTxBatch.mockReturnValueOnce(updatedActionData);
+        approvalController.updateTxInBatch.mockReturnValueOnce(
+          updatedActionData,
+        );
 
-        await actionsService.updateTx('id-1', {
-          maxFeeRate: 5n,
-          maxTipRate: 1n,
-        });
+        await actionsService.updateTx(
+          'id-1',
+          {
+            maxFeeRate: 5n,
+            maxTipRate: 1n,
+          },
+          0,
+        );
 
         expect(storageService.save).toHaveBeenCalledWith(ACTIONS_STORAGE_KEY, {
           ...pendingActions,

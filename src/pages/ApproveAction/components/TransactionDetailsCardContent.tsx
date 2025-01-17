@@ -20,6 +20,7 @@ import {
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
 import { TransactionDetailItem } from '@src/components/common/approval/TransactionDetailItem';
+import { useFeeCustomizer } from '../hooks/useFeeCustomizer';
 
 export const TransactionDetailsCardContent = ({
   tx,
@@ -30,6 +31,7 @@ export const TransactionDetailsCardContent = ({
   setIndex,
   isFirst,
   isLast,
+  hasEnoughForFee,
 }: {
   tx: SigningRequest<SigningData_EthSendTx>;
   handleRejection: () => void;
@@ -39,8 +41,14 @@ export const TransactionDetailsCardContent = ({
   setIndex: (index: number) => void;
   isFirst: boolean;
   isLast: boolean;
+  hasEnoughForFee: boolean;
 }) => {
   const { t } = useTranslation();
+  const { renderFeeWidget } = useFeeCustomizer({
+    actionId,
+    network,
+    txIndex: index,
+  });
 
   return (
     <>
@@ -58,7 +66,6 @@ export const TransactionDetailsCardContent = ({
       <Stack
         sx={{
           width: 1,
-          gap: 1,
           flexGrow: 1,
         }}
       >
@@ -100,7 +107,7 @@ export const TransactionDetailsCardContent = ({
                 )}
               </Stack>
             )}
-            <Stack sx={{ width: '100%', gap: 3, pt: 1 }}>
+            <Stack sx={{ width: '100%', gap: 2, pt: 1 }}>
               {tx.displayData.details.map((section, sectionIndex) => (
                 <ApprovalSection key={`tx-detail-section-${sectionIndex}`}>
                   {section.title && (
@@ -132,6 +139,12 @@ export const TransactionDetailsCardContent = ({
                   actionId={actionId}
                 />
               )}
+              {tx.displayData.networkFeeSelector &&
+                renderFeeWidget({
+                  size: 'small',
+                  isCollapsible: true,
+                  hasEnoughForFee,
+                })}
             </Stack>
           </Stack>
         </FlexScrollbars>
@@ -141,6 +154,7 @@ export const TransactionDetailsCardContent = ({
             gap: 1,
             px: 2,
             pb: 2,
+            pt: 1,
             flexDirection: 'row',
           }}
         >

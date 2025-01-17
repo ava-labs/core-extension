@@ -13,6 +13,7 @@ type HandlerType = ExtensionRequestHandler<
   [
     id: string,
     newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0],
+    txIndex: number | undefined,
   ]
 >;
 
@@ -22,7 +23,7 @@ export class UpdateActionTxDataHandler implements HandlerType {
 
   constructor(private actionsService: ActionsService) {}
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [id, newData] = request.params;
+    const [id, newData, txIndex] = request.params;
 
     if (!id) {
       return {
@@ -44,7 +45,7 @@ export class UpdateActionTxDataHandler implements HandlerType {
     }
 
     try {
-      await this.actionsService.updateTx(id, newData);
+      await this.actionsService.updateTx(id, newData, txIndex);
       return { ...request, result: null };
     } catch (err: any) {
       if (err?.message === 'Unable to create transaction') {

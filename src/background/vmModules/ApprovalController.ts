@@ -232,9 +232,10 @@ export class ApprovalController implements BatchApprovalController {
     });
   };
 
-  updateTxBatch = (
+  updateTxInBatch = (
     action: MultiTxAction,
     newData: Parameters<EvmTxBatchUpdateFn>[0],
+    txIndex?: number,
   ): {
     displayData: DisplayData;
     signingRequests: SigningRequest<SigningData_EthSendTx>[];
@@ -245,13 +246,13 @@ export class ApprovalController implements BatchApprovalController {
       throw new Error(`No request found with id: ${action.actionId}`);
     }
 
-    const { updateTxs } = request.params;
+    const { updateTx } = request.params;
 
-    if (typeof updateTxs !== 'function') {
+    if (typeof updateTx !== 'function') {
       throw new Error(`No tx batch fee updater provided`);
     }
 
-    return updateTxs(newData);
+    return updateTx(newData, txIndex);
   };
 
   updateTx = (
