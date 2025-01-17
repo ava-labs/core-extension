@@ -175,7 +175,10 @@ export function useFeeCustomizer({
 
       await request<UpdateActionTxDataHandler>({
         method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
-        params: [actionId, newFeeConfig, txIndex],
+        params:
+          typeof txIndex === 'undefined'
+            ? [actionId, newFeeConfig]
+            : [actionId, newFeeConfig, txIndex],
       });
     },
     [actionId, isFeeSelectorEnabled, request, signingData?.type, txIndex],

@@ -52,10 +52,6 @@ describe('src/background/services/actions/handlers/updateTxData', () => {
     });
 
     await handleRequest(getRequest(['id', { feeRate: 5 }]));
-    expect(actionsService.updateTx).toHaveBeenCalledWith(
-      'id',
-      { feeRate: 5 },
-      undefined,
-    );
+    expect(actionsService.updateTx).toHaveBeenCalledWith('id', { feeRate: 5 });
   });
 });

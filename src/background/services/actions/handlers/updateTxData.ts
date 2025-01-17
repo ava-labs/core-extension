@@ -1,5 +1,9 @@
 import { injectable } from 'tsyringe';
-import { EvmTxUpdateFn, BtcTxUpdateFn } from '@avalabs/vm-module-types';
+import {
+  EvmTxUpdateFn,
+  BtcTxUpdateFn,
+  EvmTxBatchUpdateFn,
+} from '@avalabs/vm-module-types';
 
 import { SendErrorMessage } from '@src/utils/send/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
@@ -10,11 +14,11 @@ import { ActionsService } from '../ActionsService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACTION_UPDATE_TX_DATA,
   null,
-  [
-    id: string,
-    newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0],
-    txIndex: number | undefined,
-  ]
+  | [
+      id: string,
+      newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0],
+    ]
+  | [id: string, newData: Parameters<EvmTxBatchUpdateFn>[0], txIndex: number]
 >;
 
 @injectable()
