@@ -249,7 +249,10 @@ export class ActionsService implements OnStorageReady {
     }
 
     if (isBatchApprovalAction(pendingRequest)) {
-      if (!('maxFeeRate' in newData) && !('maxTipRate' in newData)) {
+      if (
+        (!('maxFeeRate' in newData) && !('maxTipRate' in newData)) ||
+        typeof txIndex !== 'number'
+      ) {
         return;
       }
 

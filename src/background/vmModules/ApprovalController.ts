@@ -235,7 +235,7 @@ export class ApprovalController implements BatchApprovalController {
   updateTxInBatch = (
     action: MultiTxAction,
     newData: Parameters<EvmTxBatchUpdateFn>[0],
-    txIndex?: number,
+    txIndex: number,
   ): {
     displayData: DisplayData;
     signingRequests: SigningRequest<SigningData_EthSendTx>[];
