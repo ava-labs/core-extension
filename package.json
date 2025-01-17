@@ -264,7 +264,10 @@
       "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@avalabs/hw-app-avalanche>@ledgerhq/hw-app-eth>@ledgerhq/domain-service>eip55>keccak": false,
       "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
       "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
-      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>@ethereumjs/tx>@ethereumjs/common>ethereumjs-util>ethereum-cryptography>keccak": false
+      "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>@ethereumjs/tx>@ethereumjs/common>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "@avalabs/avalanche-module>@avalabs/vm-module-types>hypersdk-client>@metamask/sdk>@metamask/sdk-communication-layer>bufferutil": false,
+      "@avalabs/avalanche-module>@avalabs/vm-module-types>hypersdk-client>@metamask/sdk>@metamask/sdk-communication-layer>utf-8-validate": false,
+      "@avalabs/avalanche-module>@avalabs/vm-module-types>hypersdk-client>@metamask/sdk>eciesjs>secp256k1": false
     }
   }
 }
