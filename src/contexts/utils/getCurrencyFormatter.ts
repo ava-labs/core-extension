@@ -6,6 +6,7 @@ export const getCurrencyFormatter = (currency = 'USD') => {
     style: 'currency',
     currency: currency,
     currencyDisplay: 'narrowSymbol',
+    maximumSignificantDigits: 6,
   });
 
   return (amount: number) => {
