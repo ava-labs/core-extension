@@ -5,7 +5,7 @@ import { bytesToHex } from '@noble/hashes/utils';
 
 const ED25519_AUTH_ID = 0x00;
 
-const addressBytesFromPubKey = (pubKey: Uint8Array): Uint8Array => {
+export const addressBytesFromPubKey = (pubKey: Uint8Array): Uint8Array => {
   return new Uint8Array([ED25519_AUTH_ID, ...sha256(pubKey)]);
 };
 

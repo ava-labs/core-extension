@@ -1,4 +1,7 @@
-import { getWalletFromMnemonic } from '@avalabs/core-wallets-sdk';
+import {
+  DerivationPath,
+  getWalletFromMnemonic,
+} from '@avalabs/core-wallets-sdk';
 import { ed25519 } from '@noble/curves/ed25519';
 import { strip0x } from '@avalabs/core-utils-sdk';
 import { base58 } from '@scure/base';
@@ -11,7 +14,11 @@ import {
 
 export class HVMWallet {
   #privateKey: string;
-  static fromMnemonic(mnemonic, accountIndex, derivationPath) {
+  static fromMnemonic(
+    mnemonic: string,
+    accountIndex: number,
+    derivationPath: DerivationPath,
+  ) {
     const signer = getWalletFromMnemonic(
       mnemonic,
       accountIndex,
