@@ -48,7 +48,7 @@ export function calculateGasAndFees({
     fee: fee.toDisplay(),
     bnFee,
     feeUSD: price
-      ? price.mul(fee).toDisplay({ fixedDp: 2, asNumber: true })
+      ? price.mul(fee).toDisplay({ fixedDp: 6, asNumber: true })
       : null,
     tipUSD:
       price && tip
