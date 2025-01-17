@@ -65,6 +65,7 @@ describe('background/services/accounts/AccountsService', () => {
   const coreEthAddress = 'C-';
   const otherEvmAddress = '0x000000001';
   const otherBtcAddress = 'btc000000001';
+  const hvmAddress = 'hvmAddress';
 
   const getAllAddresses = (useOtherAddresses = false) => ({
     addressC: useOtherAddresses ? otherEvmAddress : evmAddress,
@@ -341,6 +342,7 @@ describe('background/services/accounts/AccountsService', () => {
         [NetworkVMType.AVM]: avmAddress,
         [NetworkVMType.PVM]: pvmAddress,
         [NetworkVMType.CoreEth]: coreEthAddress,
+        [NetworkVMType.HVM]: hvmAddress,
       });
 
       await accountsService.onUnlock();
@@ -403,6 +405,7 @@ describe('background/services/accounts/AccountsService', () => {
         [NetworkVMType.AVM]: avmAddress,
         [NetworkVMType.PVM]: pvmAddress,
         [NetworkVMType.CoreEth]: coreEthAddress,
+        [NetworkVMType.HVM]: hvmAddress,
       });
       jest
         .mocked(secretsService.getImportedAddresses)
