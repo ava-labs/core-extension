@@ -52,7 +52,7 @@ describe('src/background/providers/ChainAgnosticProvider', () => {
       await provider.request({
         data: { method: 'some-method', params: [{ param1: 1 }] },
         sessionId: '00000000-0000-0000-0000-000000000000',
-        chainId: '1',
+        scope: '1',
       });
       expect(mockedChannel.request).toHaveBeenCalled();
     });
@@ -180,7 +180,7 @@ describe('src/background/providers/ChainAgnosticProvider', () => {
       await provider.request({
         data: { method: 'some-method', params: [{ param1: 1 }] },
         sessionId: '00000000-0000-0000-0000-000000000000',
-        chainId: '1',
+        scope: '1',
       });
       expect(channelMock.request).toHaveBeenCalled();
     });
@@ -197,7 +197,7 @@ describe('src/background/providers/ChainAgnosticProvider', () => {
         provider.request({
           data: { method: 'some-method', params: [{ param1: 1 }] },
           sessionId: '00000000-0000-0000-0000-000000000000',
-          chainId: '1',
+          scope: 'eip155:1',
         });
 
         await new Promise(process.nextTick);

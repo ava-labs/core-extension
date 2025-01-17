@@ -51,12 +51,9 @@ export type AdvancedNetworkConfig = {
   customRpcHeaders?: CustomRpcHeaders;
 };
 
-export type CustomNetworkPayload = Omit<
-  Network & {
-    chainId: number | string; // Chain ID may come in hex-encoded through wallet_addEthereumChain call.
-  },
-  'caipId'
->;
+export type CustomNetworkPayload = Network & {
+  chainId: number | string; // Chain ID may come in hex-encoded through wallet_addEthereumChain call.
+};
 
 export type AddEthereumChainDisplayData = {
   network: EnsureDefined<Network, 'caipId'>;

@@ -1,19 +1,21 @@
-import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { EnsureDefined, PartialBy } from '@src/background/models';
 import { Network } from '@src/background/services/network/models';
 
-enum CaipNamespace {
+export enum CaipNamespace {
   AVAX = 'avax',
   BIP122 = 'bip122',
   EIP155 = 'eip155',
+  HVM = 'hvm',
 }
 
-const BitcoinCaipId = {
+export const BitcoinCaipId = {
   [ChainId.BITCOIN]: `${CaipNamespace.BIP122}:000000000019d6689c085ae165831e93`,
   [ChainId.BITCOIN_TESTNET]: `${CaipNamespace.BIP122}:000000000933ea01ad0ee984209779ba`,
 };
-const AvaxCaipId = {
+export const AvaxCaipId = {
   [ChainId.AVALANCHE_P]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.pBlockchainID}`,
   [ChainId.AVALANCHE_X]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.xBlockchainID}`,
   [ChainId.AVALANCHE_TEST_P]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.pBlockchainID}`,
@@ -22,6 +24,9 @@ const AvaxCaipId = {
 } as const;
 
 export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
+  if (network.caipId) {
+    return network.caipId;
+  }
   if (network.vmName === NetworkVMType.EVM) {
     return `eip155:${network.chainId}`;
   }
@@ -35,6 +40,10 @@ export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
 
   if (isXChain || isPChain) {
     return AvaxCaipId[network.chainId];
+  }
+
+  if (network.vmName === NetworkVMType.HVM) {
+    return `hvm:${network.chainId}`;
   }
 
   throw new Error('Unsupported VM type: ' + network.vmName);
@@ -55,6 +64,9 @@ export const caipToChainId = (identifier: string): number => {
     return Number(reference);
   }
 
+  if (reference.length === 32 && namespace === CaipNamespace.HVM) {
+    return parseInt(reference.slice(0, 16), 16);
+  }
   if (namespace === CaipNamespace.BIP122) {
     const chainId = Object.keys(BitcoinCaipId).find(
       (chainIdLookup) => BitcoinCaipId[chainIdLookup] === identifier,
@@ -93,5 +105,12 @@ export const decorateWithCaipId = (
   caipId: getNetworkCaipId(network),
 });
 
+export const getNameSpaceFromScope = (scope?: string | null) => {
+  if (!scope) {
+    return null;
+  }
+  const [namespace] = scope.split(':');
+  return namespace;
+};
 export const isBitcoinCaipId = (caipId: string) =>
   Object.values(BitcoinCaipId).includes(caipId);

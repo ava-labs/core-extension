@@ -65,6 +65,7 @@ describe('background/services/accounts/AccountsService', () => {
   const coreEthAddress = 'C-';
   const otherEvmAddress = '0x000000001';
   const otherBtcAddress = 'btc000000001';
+  const hvmAddress = undefined;
 
   const getAllAddresses = (useOtherAddresses = false) => ({
     addressC: useOtherAddresses ? otherEvmAddress : evmAddress,
@@ -72,6 +73,7 @@ describe('background/services/accounts/AccountsService', () => {
     addressAVM: avmAddress,
     addressPVM: pvmAddress,
     addressCoreEth: coreEthAddress,
+    addressHVM: hvmAddress,
   });
 
   const mockAccounts = (
@@ -151,6 +153,7 @@ describe('background/services/accounts/AccountsService', () => {
       [NetworkVMType.AVM]: avmAddress,
       [NetworkVMType.PVM]: pvmAddress,
       [NetworkVMType.CoreEth]: coreEthAddress,
+      [NetworkVMType.HVM]: hvmAddress,
     });
     networkService.developerModeChanged.add = jest.fn();
     networkService.developerModeChanged.remove = jest.fn();
@@ -250,6 +253,7 @@ describe('background/services/accounts/AccountsService', () => {
         [NetworkVMType.AVM]: avmAddress,
         [NetworkVMType.PVM]: pvmAddress,
         [NetworkVMType.CoreEth]: coreEthAddress,
+        [NetworkVMType.HVM]: hvmAddress,
       });
       (secretsService.getImportedAddresses as jest.Mock)
         .mockResolvedValueOnce({ ...mockedAccounts.imported['0x1'], id: '0x1' })
@@ -291,6 +295,7 @@ describe('background/services/accounts/AccountsService', () => {
         [NetworkVMType.AVM]: avmAddress,
         [NetworkVMType.PVM]: pvmAddress,
         [NetworkVMType.CoreEth]: coreEthAddress,
+        [NetworkVMType.HVM]: hvmAddress,
       });
       (secretsService.getImportedAddresses as jest.Mock)
         .mockResolvedValueOnce({
@@ -341,6 +346,7 @@ describe('background/services/accounts/AccountsService', () => {
         [NetworkVMType.AVM]: avmAddress,
         [NetworkVMType.PVM]: pvmAddress,
         [NetworkVMType.CoreEth]: coreEthAddress,
+        [NetworkVMType.HVM]: otherEvmAddress,
       });
 
       await accountsService.onUnlock();
@@ -403,6 +409,7 @@ describe('background/services/accounts/AccountsService', () => {
         [NetworkVMType.AVM]: avmAddress,
         [NetworkVMType.PVM]: pvmAddress,
         [NetworkVMType.CoreEth]: coreEthAddress,
+        [NetworkVMType.HVM]: otherEvmAddress,
       });
       jest
         .mocked(secretsService.getImportedAddresses)
@@ -482,6 +489,20 @@ describe('background/services/accounts/AccountsService', () => {
   });
 
   describe('addPrimaryAccount()', () => {
+    it('should thrown an error because of missing addresses', async () => {
+      const uuid = 'uuid';
+      (crypto.randomUUID as jest.Mock).mockReturnValue(uuid);
+
+      await accountsService.onUnlock();
+      (secretsService.addAddress as jest.Mock).mockResolvedValueOnce({});
+
+      await expect(
+        accountsService.addPrimaryAccount({
+          name: 'Account name',
+          walletId,
+        }),
+      ).rejects.toThrow(new Error('The account has no EVM or BTC address'));
+    });
     it('adds account with index 0 when no accounts', async () => {
       const uuid = 'uuid';
       (crypto.randomUUID as jest.Mock).mockReturnValue(uuid);

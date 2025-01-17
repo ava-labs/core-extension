@@ -21,6 +21,10 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
     id: '123',
     method: DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
   } as const;
+  const walletRequest = {
+    id: '123',
+    method: DAppProviderRequest.WALLET_GET_PUBKEY,
+  } as const;
 
   describe('handleAuthenticated', () => {
     it('throws if no active account found', async () => {
@@ -40,6 +44,25 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
         error: ethErrors.rpc.internal('No active account.'),
       });
     });
+    it('throws if no active account found with `wallet_getPublicKey` method', async () => {
+      const noAccountsMock = {
+        getActiveAccountPublicKey: () => {
+          throw new Error('No active account.');
+        },
+      };
+      const handler = new AvalancheGetAccountPubKeyHandler(
+        noAccountsMock as any,
+      );
+
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(walletRequest),
+      );
+
+      expect(result).toStrictEqual({
+        ...walletRequest,
+        error: ethErrors.rpc.internal('No active account.'),
+      });
+    });
 
     it('returns the public keys correctly', async () => {
       const handler = new AvalancheGetAccountPubKeyHandler(walletServiceMock);
@@ -51,15 +74,17 @@ describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', 
         result: publicKeys,
       });
     });
-  });
+    it('returns the public keys correctly with `wallet_getPublicKey` method', async () => {
+      const handler = new AvalancheGetAccountPubKeyHandler(walletServiceMock);
 
-  it('handleUnauthenticated', async () => {
-    const handler = new AvalancheGetAccountPubKeyHandler(walletServiceMock);
-    const result = await handler.handleUnauthenticated(buildRpcCall(request));
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(walletRequest),
+      );
 
-    expect(result).toEqual({
-      ...request,
-      error: ethErrors.provider.unauthorized(),
+      expect(result).toStrictEqual({
+        ...walletRequest,
+        result: publicKeys,
+      });
     });
   });
 });

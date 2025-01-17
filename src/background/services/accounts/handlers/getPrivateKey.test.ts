@@ -247,7 +247,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
       params,
       error: {
         type: GetPrivateKeyErrorTypes.DerivePath,
-        message: 'The derive path is missing',
+        message: new Error('The requested path is missing'),
       },
     });
   });

@@ -7,5 +7,6 @@ export default function getAllAddressesForAccount(acc: Partial<Account>) {
     acc.addressAVM,
     acc.addressPVM,
     acc.addressCoreEth,
+    acc.addressHVM,
   ];
 }

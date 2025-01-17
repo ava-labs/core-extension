@@ -7,6 +7,7 @@ import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 export enum DAppProviderRequest {
   DOMAIN_METADATA_METHOD = 'avalanche_sendDomainMetadata',
   CONNECT_METHOD = 'eth_requestAccounts',
+  // TODO: rename to wallet
   INIT_DAPP_STATE = 'avalanche_getProviderState',
   ETH_ACCOUNTS = 'eth_accounts',
   WALLET_PERMISSIONS = 'wallet_requestPermissions',
@@ -41,6 +42,8 @@ export enum DAppProviderRequest {
   AVALANCHE_SIGN_MESSAGE = 'avalanche_signMessage',
   BITCOIN_SEND_TRANSACTION = 'bitcoin_sendTransaction',
   WALLET_RENAME = 'avalanche_renameWallet',
+  WALLET_ADD_NETWORK = 'wallet_addNetwork',
+  WALLET_GET_PUBKEY = 'wallet_getPublicKey',
 }
 
 export enum Web3Event {
@@ -101,7 +104,7 @@ export interface JsonRpcSuccess<T = unknown> {
   result: Maybe<T | symbol>;
 }
 export interface JsonRpcFailure {
-  error: EthereumProviderError<unknown> | SerializedEthereumRpcError;
+  error: EthereumProviderError<unknown> | SerializedEthereumRpcError | Error;
 }
 export declare type JsonRpcResponse<T = unknown> =
   | JsonRpcSuccess<T>

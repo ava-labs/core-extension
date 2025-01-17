@@ -10,6 +10,12 @@ import {
 import { RpcMethod } from '@avalabs/vm-module-types';
 import getTargetNetworkForTx from '@src/background/services/wallet/handlers/eth_sendTransaction/utils/getTargetNetworkForTx';
 
+const isNetworkNeeded = (method: string) => {
+  return (
+    !method.startsWith('wallet_') && method !== 'avalanche_getProviderState'
+  );
+};
+
 export function ActiveNetworkMiddleware(
   networkService: NetworkService,
 ): Middleware<
@@ -23,6 +29,11 @@ export function ActiveNetworkMiddleware(
     } = context.request.params;
 
     if (!scope) {
+      next();
+      return;
+    }
+
+    if (!isNetworkNeeded(method)) {
       next();
       return;
     }
