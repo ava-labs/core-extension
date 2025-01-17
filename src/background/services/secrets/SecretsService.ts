@@ -59,6 +59,7 @@ export class SecretsService implements OnUnlock {
       [SecretType.Ledger]: 'Ledger',
       [SecretType.LedgerLive]: 'Ledger Live',
       [SecretType.Keystone]: 'Keystone',
+      [SecretType.Keystone3Pro]: 'Keystone3 Pro',
       [SecretType.Seedless]: 'Seedless',
     };
     const storedSecrets = await this.#loadSecrets(false);
@@ -757,7 +758,8 @@ export class SecretsService implements OnUnlock {
     if (
       secrets.secretType === SecretType.Ledger ||
       secrets.secretType === SecretType.Mnemonic ||
-      secrets.secretType === SecretType.Keystone
+      secrets.secretType === SecretType.Keystone ||
+      secrets.secretType === SecretType.Keystone3Pro
     ) {
       // C-avax... this address uses the same public key as EVM
       const cPubkey = getAddressPublicKeyFromXPub(secrets.xpub, index);

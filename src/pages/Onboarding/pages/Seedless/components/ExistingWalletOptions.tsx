@@ -72,13 +72,13 @@ export const ExistingWalletOptions = forwardRef(function ExistingWalletOptions(
             />
           </Stack>
           {featureFlags[FeatureGates.KEYSTONE] && (
-            <Stack sx={{ flexDirection: 'row' }}>
+            <Stack sx={{ flexDirection: 'row', columnGap: 3, pb: 3 }}>
               <ExistingWalletButton
                 data-testid="access-with-seed-keystone"
                 icon={<KeystoneIcon size={30} />}
                 text={t('Add using Keystone')}
                 onClick={() => {
-                  history.push(OnboardingURLs.KEYSTONE);
+                  history.push(OnboardingURLs.KEYSTONE_USB);
                 }}
               />
             </Stack>

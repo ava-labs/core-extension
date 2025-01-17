@@ -16,6 +16,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { useKeystone3DisconnectedDialog } from '@src/pages/SignTransaction/hooks/useKeystone3DisconnectedDialog';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import {
@@ -100,6 +101,7 @@ export function GenericApprovalScreen() {
 
   // Make the user switch to the correct app or close the window
   useLedgerDisconnectedDialog(handleRejection, undefined, network);
+  useKeystone3DisconnectedDialog(handleRejection);
 
   if (!action || !displayData) {
     return <LoadingOverlay />;
