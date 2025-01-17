@@ -24,6 +24,7 @@ const UNKNOWN_TOKEN = (address: string): TokenWithBalanceERC20 => ({
   balance: 0n,
   balanceDisplayValue: '0',
   decimals: 0,
+  reputation: null,
 });
 
 export async function findToken(
@@ -106,5 +107,6 @@ export async function findToken(
     balance: balance,
     balanceDisplayValue: bigIntToString(balance, tokenData.decimals),
     type: TokenType.ERC20,
+    reputation: null,
   };
 }

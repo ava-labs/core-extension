@@ -73,6 +73,7 @@ export const useTokensWithBalances = (
         type: TokenType.ERC20,
         balance: 0n,
         balanceDisplayValue: '0',
+        reputation: null,
       };
 
       return acc;
@@ -106,6 +107,7 @@ export const useTokensWithBalances = (
             type: TokenType.ERC20,
             balance: 0n,
             balanceDisplayValue: '0',
+            reputation: null,
           };
 
           return tokensWithBalances;

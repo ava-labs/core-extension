@@ -36,6 +36,7 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import { isTokenMalicious } from '@src/utils/isTokenMalicious';
 
 type SettingsFromProvider = SettingsState & {
   lockWallet(): Promise<true>;
@@ -128,10 +129,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
       params: [
         {
           ...tokensVisibility,
-          [key]:
-            tokensVisibility[key] !== undefined
-              ? !tokensVisibility[key]
-              : false,
+          [key]: !getTokenVisibility(token),
         },
       ],
     });
@@ -141,7 +139,11 @@ export function SettingsContextProvider({ children }: { children: any }) {
     (token: TokenWithBalance) => {
       const key = token.type === TokenType.ERC20 ? token.address : token.symbol;
       const tokensVisibility = settings?.tokensVisibility ?? {};
-      return tokensVisibility[key] || tokensVisibility[key] === undefined;
+
+      // If the token is flagged as malicious, only show it if the user specifcially enabled it.
+      return isTokenMalicious(token)
+        ? tokensVisibility[key]
+        : tokensVisibility[key] || tokensVisibility[key] === undefined;
     },
     [settings?.tokensVisibility],
   );

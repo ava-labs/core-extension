@@ -785,6 +785,7 @@ export class SecretsService implements OnUnlock {
         [NetworkVMType.AVM]: xAddr,
         [NetworkVMType.PVM]: pAddr,
         [NetworkVMType.CoreEth]: cAddr,
+        [NetworkVMType.HVM]: '',
       };
     }
 
@@ -819,6 +820,7 @@ export class SecretsService implements OnUnlock {
         [NetworkVMType.AVM]: addrX,
         [NetworkVMType.PVM]: addrP,
         [NetworkVMType.CoreEth]: providerXP.getAddress(pubKeyBuffer, 'C'),
+        [NetworkVMType.HVM]: '',
       };
     }
 

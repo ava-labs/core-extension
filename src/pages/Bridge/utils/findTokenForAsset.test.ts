@@ -11,6 +11,7 @@ describe('src/pages/Bridge/utils/findTokenForAsset', () => {
     name: 'Wrapped ETH',
     symbol: 'WETH.e',
     decimals: 1,
+    reputation: null,
   };
 
   it('returns wrapped token for ethereum', () => {

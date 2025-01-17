@@ -18,7 +18,10 @@ import {
 } from '@avalabs/core-k2-components';
 import { TokenCardWithBalance } from '@src/components/common/TokenCardWithBalance';
 import { TokenIcon } from '@src/components/common/TokenIcon';
-import { TokenType } from '@avalabs/vm-module-types';
+import { TokenType, TokenWithBalanceERC20 } from '@avalabs/vm-module-types';
+import { isTokenMalicious } from '@src/utils/isTokenMalicious';
+import { NetworkContractToken } from '@avalabs/core-chains-sdk';
+import { MaliciousTokenWarningBox } from '@src/components/common/MaliciousTokenWarning';
 
 export function AddToken() {
   const { t } = useTranslation();
@@ -31,10 +34,7 @@ export function AddToken() {
 
   const [addressInput, setAddressInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [tokenData, setTokenData] = useState<{
-    name: string;
-    symbol: string;
-  } | null>(null);
+  const [newTokenData, setNewTokenData] = useState<NetworkContractToken>();
   const [error, setError] = useState<string>('');
   const { capture } = useAnalyticsContext();
 
@@ -62,44 +62,49 @@ export function AddToken() {
     }
   };
 
-  const tokenAlreadyExists = useMemo(
+  const existingToken = useMemo(
     () =>
-      addressInput?.length &&
-      tokens.some(
+      tokens.find(
         (token) =>
           token.type === TokenType.ERC20 &&
           token.address.toLowerCase() === addressInput.toLowerCase(),
-      ),
+      ) as TokenWithBalanceERC20 | undefined,
     [tokens, addressInput],
   );
 
   useEffect(() => {
-    if (!addressInput?.length) {
-      setTokenData(null);
+    if (!addressInput.length) {
+      setNewTokenData(undefined);
       setError('');
       return;
     }
 
     const getTokenData = async () => {
+      if (existingToken) {
+        setError(t('Token already exists in your wallet.'));
+        return;
+      }
+
       setIsLoading(true);
       const data = await request<GetTokenDataHandler>({
         method: ExtensionRequest.SETTINGS_GET_TOKEN_DATA,
         params: [addressInput],
       });
       setIsLoading(false);
-      setTokenData(data || null);
+      setNewTokenData(undefined);
 
-      let errorMessage = '';
       if (!data) {
-        errorMessage = t('Not a valid ERC-20 token address.');
+        setError(t('Not a valid ERC-20 token address.'));
       }
-      if (tokenAlreadyExists) {
-        errorMessage = t('Token already exists in your wallet.');
-      }
-      setError(errorMessage);
     };
+
     getTokenData();
-  }, [request, addressInput, network, tokenAlreadyExists, t]);
+  }, [request, addressInput, network, existingToken, t]);
+
+  const tokenData = useMemo(
+    () => existingToken ?? newTokenData,
+    [existingToken, newTokenData],
+  );
 
   return (
     <>
@@ -130,22 +135,26 @@ export function AddToken() {
             helperText={error}
           />
           {tokenData && (
-            <Stack sx={{ mt: 5, rowGap: 1 }}>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontWeight: 'fontWeightSemibold',
-                }}
-              >
-                {t('Token')}
-              </Typography>
-              <TokenCardWithBalance
-                name={tokenData.name}
-                symbol={tokenData.symbol}
-              >
-                <TokenIcon width="32px" height="32px" name={tokenData.name} />
-              </TokenCardWithBalance>
-            </Stack>
+            <>
+              <Stack sx={{ mt: 5, rowGap: 1 }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 'fontWeightSemibold',
+                  }}
+                >
+                  {t('Token')}
+                </Typography>
+                {isTokenMalicious(tokenData) && <MaliciousTokenWarningBox />}
+                <TokenCardWithBalance
+                  name={tokenData.name}
+                  symbol={tokenData.symbol}
+                  isMalicious={isTokenMalicious(tokenData)}
+                >
+                  <TokenIcon width="32px" height="32px" name={tokenData.name} />
+                </TokenCardWithBalance>
+              </Stack>
+            </>
           )}
           <Stack
             sx={{
@@ -157,7 +166,7 @@ export function AddToken() {
             <Button
               data-testid="add-custom-token-button"
               onClick={addCustomToken}
-              disabled={isLoading || !!error?.length || !tokenData}
+              disabled={isLoading || !!error?.length || !newTokenData}
               fullWidth
               size="large"
             >
