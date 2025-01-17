@@ -1,4 +1,4 @@
-import { APIError, SwapSide } from 'paraswap';
+import { APIError, Address, PriceString, SwapSide } from 'paraswap';
 import { OptimalRate } from 'paraswap-core';
 
 /**
@@ -43,7 +43,6 @@ export type SwapParams = {
   srcAmount: string;
   priceRoute: OptimalRate;
   destAmount: string;
-  gasLimit: number;
   slippage: number;
 };
 
@@ -61,13 +60,43 @@ export type SwapContextAPI = {
     optimalRate: OptimalRate | APIError | null;
     destAmount: string | undefined;
   }>;
-  swap(params: SwapParams): Promise<{
-    swapTxHash: string;
-    approveTxHash: string;
-  }>;
+  swap(params: SwapParams): Promise<void>;
 };
 
 export const DISALLOWED_SWAP_ASSETS: string[] = [
   // ETH is disabled in Swaps per issue CP-8409
   'ETH',
 ];
+
+export type BuildTxParams = {
+  network: string;
+  srcToken: Address;
+  destToken: Address;
+  srcAmount: PriceString;
+  destAmount: PriceString;
+  priceRoute: OptimalRate;
+  userAddress: Address;
+  isNativeTokenSwap: boolean;
+  srcDecimals?: number;
+  destDecimals?: number;
+  ignoreChecks?: boolean; // Use it when executing transactions as a batch (approval + transfer)
+};
+
+export type GetSwapPropsParams = {
+  srcToken: string;
+  destToken: string;
+  srcAmount: string;
+  slippage: number;
+  priceRoute: OptimalRate;
+  nativeToken: string;
+};
+
+export type ValidTransactionResponse = {
+  to: string;
+  from: string;
+  value: string;
+  data: string;
+  chainId: number;
+  gas?: string;
+  gasPrice?: string;
+};

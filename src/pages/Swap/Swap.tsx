@@ -160,7 +160,6 @@ export function Swap() {
         srcAmount: optimalRate.srcAmount,
         priceRoute: optimalRate,
         destAmount: optimalRate.destAmount,
-        gasLimit: swapGasLimit,
         slippage: parseFloat(slippage),
       }),
     );

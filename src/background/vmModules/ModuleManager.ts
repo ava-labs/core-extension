@@ -1,6 +1,7 @@
 import {
   AppInfo,
   AppName,
+  BatchApprovalController,
   Environment,
   Module,
 } from '@avalabs/vm-module-types';
@@ -25,7 +26,7 @@ const NAMESPACE_REGEX = new RegExp('^[-a-z0-9]{3,8}$');
 @singleton()
 export class ModuleManager {
   #_modules: Module[] | undefined;
-  #approvalController: ApprovalController;
+  #approvalController: BatchApprovalController;
 
   get #modules(): Module[] {
     assertPresent(this.#_modules, VMModuleError.ModulesNotInitialized);

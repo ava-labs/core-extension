@@ -18,7 +18,7 @@ export const SpendLimitInfo = ({
 }: SpendLimitInfoProps) => {
   return (
     <>
-      {approvals.map((approval) => {
+      {approvals.map((approval, index) => {
         switch (approval.token.type) {
           case TokenType.ERC721:
           case TokenType.ERC1155:
@@ -41,6 +41,7 @@ export const SpendLimitInfo = ({
                     token: ERC20Token;
                   }
                 }
+                withTitle={index === 0}
                 isEditable={isEditable}
               />
             );

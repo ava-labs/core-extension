@@ -35,10 +35,12 @@ export function TokenSpendLimit({
   actionId,
   approval,
   isEditable,
+  withTitle = true,
 }: {
   actionId: string;
   approval: TokenApproval & { token: ERC20Token };
   isEditable: boolean;
+  withTitle?: boolean;
 }) {
   const { t } = useTranslation();
   const { action } = useApproveAction<DisplayData>(actionId);
@@ -107,22 +109,24 @@ export function TokenSpendLimit({
         </Box>
       </Dialog>
 
-      <Stack>
-        <ApprovalSection sx={{ pb: 1 }}>
-          <ApprovalSectionHeader label={t('Spend Limit')}>
-            {isEditable && approval.value && (
-              <Button
-                variant="text"
-                color="secondary"
-                size="small"
-                sx={{ px: 0, minWidth: 'auto' }}
-                onClick={() => setShowCustomSpendLimit(true)}
-              >
-                {t('Edit')}
-              </Button>
-            )}
-          </ApprovalSectionHeader>
-        </ApprovalSection>
+      <Stack sx={{ width: 1 }}>
+        {withTitle && (
+          <ApprovalSection sx={{ pb: 1 }}>
+            <ApprovalSectionHeader label={t('Spend Limit')}>
+              {isEditable && approval.value && (
+                <Button
+                  variant="text"
+                  color="secondary"
+                  size="small"
+                  sx={{ px: 0, minWidth: 'auto' }}
+                  onClick={() => setShowCustomSpendLimit(true)}
+                >
+                  {t('Edit')}
+                </Button>
+              )}
+            </ApprovalSectionHeader>
+          </ApprovalSection>
+        )}
         <TransactionTokenCard
           sx={{ py: 2 }}
           token={{

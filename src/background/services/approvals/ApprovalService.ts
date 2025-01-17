@@ -4,7 +4,7 @@ import browser from 'webextension-polyfill';
 
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 
-import { Action } from '../actions/models';
+import { Action, MultiTxAction } from '../actions/models';
 import { ActionsService } from '../actions/ActionsService';
 import { ApprovalEvent } from './models';
 
@@ -14,7 +14,7 @@ export class ApprovalService {
 
   constructor(private actionsService: ActionsService) {}
 
-  #isInAppRequest(action: Action): boolean {
+  #isInAppRequest(action: Action | MultiTxAction): boolean {
     if (action.site?.domain === browser.runtime.id) {
       return true;
     }
@@ -26,7 +26,10 @@ export class ApprovalService {
 
     return false;
   }
-  async requestApproval(action: Action, route: string): Promise<Action> {
+  async requestApproval(
+    action: Action | MultiTxAction,
+    route: string,
+  ): Promise<Action | MultiTxAction> {
     const url = `${route}?actionId=${action.actionId}`;
 
     if (this.#isInAppRequest(action)) {
