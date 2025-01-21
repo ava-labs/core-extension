@@ -7,7 +7,7 @@ jest.mock('@noble/curves/ed25519', () => ({
   ed25519: { getPublicKey: jest.fn(() => new Uint8Array(1)) },
 }));
 
-describe('getAddressForHvm()', () => {
+describe('background/services/secrets/utils/getAddressForHvm.ts', () => {
   it('should get the address bytes from publick key', () => {
     const result = addressBytesFromPubKey(new Uint8Array(1));
     expect(JSON.stringify(result)).toEqual(

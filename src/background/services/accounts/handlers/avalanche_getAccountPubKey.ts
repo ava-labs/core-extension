@@ -33,6 +33,9 @@ export class AvalancheGetAccountPubKeyHandler extends DAppRequestHandler {
   };
 
   handleUnauthenticated = ({ request }) => {
-    return this.handleAuthenticated({ request });
+    return {
+      ...request,
+      error: ethErrors.provider.unauthorized(),
+    };
   };
 }

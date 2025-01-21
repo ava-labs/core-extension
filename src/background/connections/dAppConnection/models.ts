@@ -44,6 +44,7 @@ export enum DAppProviderRequest {
   WALLET_RENAME = 'avalanche_renameWallet',
   WALLET_ADD_NETWORK = 'wallet_addNetwork',
   WALLET_GET_PUBKEY = 'wallet_getPublicKey',
+  WALLET_CONNECT = 'wallet_requestAccountPermission',
 }
 
 export enum Web3Event {

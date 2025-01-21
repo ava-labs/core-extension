@@ -8,7 +8,7 @@ jest.mock('@avalabs/core-wallets-sdk', () => ({
   ...jest.requireActual('@avalabs/core-wallets-sdk'),
   getWalletFromMnemonic: jest.fn(() => ({ path: 'path', privateKey: '0xASD' })),
 }));
-describe('getAccountPrivateKeyFromMnemonic(', () => {
+describe('background/services/secrets/utils/getAccountPrivateKeyFromMnemonic.ts', () => {
   it('should throw an error because the signer is falsy', async () => {
     (getWalletFromMnemonic as jest.Mock).mockReturnValueOnce(undefined);
     try {

@@ -12,6 +12,7 @@ import {
   JsonRpcRequest,
   JsonRpcResponse,
 } from '@src/background/connections/dAppConnection/models';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 const RESTRICTED_METHODS = Object.freeze([] as string[]);
 
@@ -97,6 +98,8 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
   DAppProviderRequest.WALLET_ADD_NETWORK,
   DAppProviderRequest.WALLET_GET_PUBKEY,
+  DAppProviderRequest.WALLET_CONNECT,
+  RpcMethod.HVM_SIGN_TRANSACTION,
 ]);
 
 const CORE_METHODS = Object.freeze([
@@ -172,7 +175,7 @@ export function PermissionMiddleware(
       }
       return;
     }
-    if (!UNRESTRICTED_METHODS.includes(method) && !method.startsWith('hvm_')) {
+    if (!UNRESTRICTED_METHODS.includes(method)) {
       error(new Error('Unrecognized method'));
       return;
     }

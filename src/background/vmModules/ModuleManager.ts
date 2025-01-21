@@ -111,8 +111,11 @@ export class ModuleManager {
     return this.loadModule(network.caipId, method);
   }
 
-  async #getModule(scope: string): Promise<Module | undefined> {
-    const scopeConversion = BitcoinCaipId[scope] ?? AvaxCaipId[scope] ?? scope;
+  async #getModule(chainIdOrScope: string): Promise<Module | undefined> {
+    const scopeConversion =
+      BitcoinCaipId[chainIdOrScope] ??
+      AvaxCaipId[chainIdOrScope] ??
+      chainIdOrScope;
     const [namespace] = scopeConversion.split(':');
     if (!namespace || !NAMESPACE_REGEX.test(namespace)) {
       throw ethErrors.rpc.invalidParams({
@@ -123,7 +126,7 @@ export class ModuleManager {
       });
     }
     return (
-      (await this.#getModuleByChainId(scope)) ??
+      (await this.#getModuleByChainId(chainIdOrScope)) ??
       (await this.#getModuleByNamespace(namespace))
     );
   }

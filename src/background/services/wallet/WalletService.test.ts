@@ -47,6 +47,8 @@ import { Network } from '../network/models';
 import { decorateWithCaipId } from '@src/utils/caipConversion';
 import { AccountsService } from '../accounts/AccountsService';
 import { ed25519 } from '@noble/curves/ed25519';
+import { HVMWallet } from './HVMWallet';
+import { TransactionPayload, VMABI } from 'hypersdk-client';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -93,6 +95,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     '4ae3e293d0161fa90bfbf51028ceb1e51fe70bc6167afe4e0fe0927d86555503';
   const walletMock = new BaseWallet(new SigningKey('0x' + privateKeyMock));
   const btcWalletMock = Object.create(BitcoinWallet.prototype);
+  const hvmWalletMock = new HVMWallet('0x' + privateKeyMock);
   const btcLedgerWalletMock = Object.create(BitcoinLedgerWallet.prototype);
   const btcKeystoneWalletMock = Object.create(BitcoinKeystoneWallet.prototype);
   const staticSignerMock = Object.create(Avalanche.StaticSigner.prototype);
@@ -612,6 +615,23 @@ describe('background/services/wallet/WalletService.ts', () => {
       const { signedTx } = await walletService.sign(txMock, networkMock, tabId);
 
       expect(seedlessWalletMock.signTransaction).toHaveBeenCalledWith(txMock);
+      expect(signedTx).toBe('0x1');
+    });
+
+    it('sign hvm tx correctly', async () => {
+      hvmWalletMock.signEd25519 = jest.fn().mockReturnValueOnce('0x1');
+      getWalletSpy.mockResolvedValueOnce(hvmWalletMock);
+
+      const { signedTx } = await walletService.sign(
+        {
+          txPayload: { ...txMock } as unknown as TransactionPayload,
+          abi: {} as VMABI,
+        },
+        networkMock,
+        tabId,
+      );
+
+      expect(hvmWalletMock.signEd25519).toHaveBeenCalledWith({ ...txMock }, {});
       expect(signedTx).toBe('0x1');
     });
 

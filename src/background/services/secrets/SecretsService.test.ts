@@ -27,6 +27,8 @@ import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { networks } from 'bitcoinjs-lib';
+import { getAccountPrivateKeyFromMnemonic } from './utils/getAccountPrivateKeyFromMnemonic';
+import { getAddressForHvm } from './utils/getAddressForHvm';
 
 jest.mock('../storage/StorageService');
 jest.mock('../network/NetworkService');
@@ -34,7 +36,14 @@ jest.mock('../walletConnect/WalletConnectService');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('../seedless/SeedlessWallet');
 jest.mock('./utils/getAddressForHvm', () => {
-  return { getAddressForHvm: jest.fn().mockReturnValue(undefined) };
+  return {
+    getAddressForHvm: jest.fn(),
+  };
+});
+jest.mock('./utils/getAccountPrivateKeyFromMnemonic.ts', () => {
+  return {
+    getAccountPrivateKeyFromMnemonic: jest.fn(),
+  };
 });
 
 const evmAddress = '0x000000000';
@@ -1421,7 +1430,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       [NetworkVMType.AVM]: 'X-',
       [NetworkVMType.PVM]: 'P-',
       [NetworkVMType.CoreEth]: 'C-',
-      [NetworkVMType.HVM]: undefined,
+      [NetworkVMType.HVM]: 'hvm-address',
     });
 
     it('throws error if walletId is not provided', async () => {
@@ -1440,13 +1449,31 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       ).rejects.toThrow('No public key available');
     });
 
+    it('should return the addresses for mnemonic', async () => {
+      mockMnemonicWallet();
+      (getAddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
+      (getAccountPrivateKeyFromMnemonic as jest.Mock).mockReturnValue(
+        'privkey',
+      );
+      (getAddressForHvm as jest.Mock).mockReturnValue('0xhvm');
+      (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x2');
+      await expect(
+        secretsService.getAddresses(0, ACTIVE_WALLET_ID, networkService),
+      ).resolves.toStrictEqual({
+        ...addressesMock('0x1', '0x2'),
+        HVM: '0xhvm',
+      });
+    });
     it('returns the addresses for xpub', async () => {
       mockLedgerWallet();
       (getAddressFromXPub as jest.Mock).mockReturnValueOnce('0x1');
       (getBech32AddressFromXPub as jest.Mock).mockReturnValueOnce('0x2');
       await expect(
         secretsService.getAddresses(0, ACTIVE_WALLET_ID, networkService),
-      ).resolves.toStrictEqual(addressesMock('0x1', '0x2'));
+      ).resolves.toStrictEqual({
+        ...addressesMock('0x1', '0x2'),
+        HVM: undefined,
+      });
       expect(Avalanche.getAddressPublicKeyFromXpub).toBeCalledWith('xpubXP', 0);
       expect(getAddressFromXPub).toHaveBeenCalledWith('xpub', 0);
       expect(getBech32AddressFromXPub).toHaveBeenCalledWith(
@@ -1478,7 +1505,10 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
       await expect(
         secretsService.getAddresses(0, ACTIVE_WALLET_ID, networkService),
-      ).resolves.toStrictEqual(addressesMock('0x1', '0x2'));
+      ).resolves.toStrictEqual({
+        ...addressesMock('0x1', '0x2'),
+        HVM: undefined,
+      });
 
       expect(getEvmAddressFromPubKey).toHaveBeenCalledWith(pubKeyBuff);
       expect(getBtcAddressFromPubKey).toHaveBeenCalledWith(

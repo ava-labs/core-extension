@@ -19,7 +19,7 @@ jest.mock('hypersdk-client/dist/Marshaler', () => ({
     encodeTransaction: jest.fn(() => 'asd'),
   })),
 }));
-describe('HVMWallet', () => {
+describe('background/services/wallet/HVMWallet.ts', () => {
   it('should return the wallet from mnemonic', () => {
     const wallet = HVMWallet.fromMnemonic('mnemonic', 0, DerivationPath.BIP44);
     expect(wallet).toBeInstanceOf(HVMWallet);
