@@ -14,8 +14,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 20.x
-      - name: Create .npmrc
-        run: echo '//registry.npmjs.org/:_authToken= ${{ secrets.NPM_TOKEN }}' >> .npmrc
       - name: Create env file
         run: |
           touch .env.production

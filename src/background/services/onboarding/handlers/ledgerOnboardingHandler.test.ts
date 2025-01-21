@@ -146,7 +146,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     ).not.toHaveBeenCalled();
   });
 
-  it('sets up a ledger wallet with pubkeys correctly', async () => {
+  it('sets up a ledger wallet with pubkeys correctly with right amount of accounts', async () => {
     const handler = getHandler();
     const request = getRequest([
       {
@@ -154,6 +154,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
         password: 'password',
         walletName: 'wallet-name',
         analyticsConsent: false,
+        numberOfAccountsToCreate: 2,
       },
     ]);
 
@@ -181,9 +182,12 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(2, {
       walletId: WALLET_ID,
     });
-    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenNthCalledWith(3, {
-      walletId: WALLET_ID,
-    });
+    expect(accountsServiceMock.addPrimaryAccount).not.toHaveBeenNthCalledWith(
+      3,
+      {
+        walletId: WALLET_ID,
+      },
+    );
 
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);
 

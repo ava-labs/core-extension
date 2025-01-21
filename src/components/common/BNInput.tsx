@@ -60,7 +60,10 @@ export function BNInput({
       return;
     }
 
-    if (value === 0n && Number(valStr) === 0) {
+    if (value === 0n) {
+      if (Number(valStr) !== 0) {
+        setValStr('');
+      }
       return;
     }
 
@@ -119,7 +122,7 @@ export function BNInput({
     <Stack sx={{ position: 'relative' }}>
       <InputNumber
         fullWidth={fullWidth}
-        value={valStr}
+        value={valStr.replaceAll(',', '')}
         onChange={(e) => onValueChanged(e.target.value)}
         type="number"
         onKeyDown={(e) => {

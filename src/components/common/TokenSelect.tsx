@@ -86,6 +86,7 @@ interface TokenSelectProps {
   skipHandleMaxAmount?: boolean;
   containerRef?: MutableRefObject<HTMLElement | null>;
   withMaxButton?: boolean;
+  withOnlyTokenPreselect?: boolean;
 }
 
 export function TokenSelect({
@@ -107,6 +108,7 @@ export function TokenSelect({
   setIsOpen,
   containerRef,
   withMaxButton = true,
+  withOnlyTokenPreselect = true,
 }: TokenSelectProps) {
   const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
@@ -184,7 +186,7 @@ export function TokenSelect({
     const isOnlyTokenNotSelected =
       theOnlyToken && theOnlyToken?.symbol !== selectedToken?.symbol;
 
-    if (isOnlyTokenNotSelected) {
+    if (withOnlyTokenPreselect && isOnlyTokenNotSelected) {
       onTokenChange(theOnlyToken);
       return;
     }
@@ -198,7 +200,7 @@ export function TokenSelect({
     ) {
       onTokenChange(tokensList[0]);
     }
-  }, [tokensList, onTokenChange, selectedToken]);
+  }, [withOnlyTokenPreselect, tokensList, onTokenChange, selectedToken]);
 
   const rowRenderer = useCallback(
     ({ key, index, style }) => {
