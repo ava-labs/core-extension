@@ -7,7 +7,6 @@ import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 export enum DAppProviderRequest {
   DOMAIN_METADATA_METHOD = 'avalanche_sendDomainMetadata',
   CONNECT_METHOD = 'eth_requestAccounts',
-  // TODO: rename to wallet
   INIT_DAPP_STATE = 'avalanche_getProviderState',
   ETH_ACCOUNTS = 'eth_accounts',
   WALLET_PERMISSIONS = 'wallet_requestPermissions',
