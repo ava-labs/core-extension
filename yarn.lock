@@ -13397,6 +13397,18 @@ hypersdk-client@0.4.16:
     lossless-json "^4.0.1"
     tweetnacl "^1.0.3"
 
+hypersdk-client@0.4.17:
+  version "0.4.17"
+  resolved "https://registry.yarnpkg.com/hypersdk-client/-/hypersdk-client-0.4.17.tgz#4c88f22066e71700819636a06e2c33a38d227abd"
+  integrity sha512-j7TKX60A/pOJjHX9a7BZYpf6w8Yy7Q6H4nOa/KezK6aNPLVnxtMd/ppMdn0wQi+vOfQYPVdj5qqFV76xqLhbsA==
+  dependencies:
+    "@metamask/sdk" "^0.29.2"
+    "@noble/curves" "^1.6.0"
+    "@noble/hashes" "^1.5.0"
+    "@scure/base" "^1.1.8"
+    lossless-json "^4.0.1"
+    tweetnacl "^1.0.3"
+
 i18next-browser-languagedetector@7.1.0:
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/i18next-browser-languagedetector/-/i18next-browser-languagedetector-7.1.0.tgz#01876fac51f86b78975e79b48ccb62e2313a2d7d"

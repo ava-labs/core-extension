@@ -78,7 +78,7 @@
     "ethers": "6.8.1",
     "events": "3.3.0",
     "fireblocks-sdk": "5.20.0",
-    "hypersdk-client": "0.4.16",
+    "hypersdk-client": "0.4.17",
     "i18next": "21.9.2",
     "i18next-http-backend": "1.4.4",
     "joi": "17.7.0",
