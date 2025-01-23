@@ -142,7 +142,8 @@ export class MultiWalletProviderProxy extends EventEmitter {
 
     // trigger wallet selection flow at connect in case multiple providers are available
     if (
-      method === DAppProviderRequest.CONNECT_METHOD &&
+      (method === DAppProviderRequest.CONNECT_METHOD ||
+        method === DAppProviderRequest.WALLET_CONNECT) &&
       this.#_providers.length > 1
     ) {
       await this.#toggleWalletSelection();
