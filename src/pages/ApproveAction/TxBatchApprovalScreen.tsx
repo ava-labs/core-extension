@@ -34,6 +34,7 @@ import { useFeeCustomizer } from './hooks/useFeeCustomizer';
 import { TransactionDetailsCardContent } from './components/TransactionDetailsCardContent';
 import { DetailedCardWrapper } from './components/DetailedCardWrapper';
 import { FlexScrollbars } from '@src/components/common/FlexScrollbars';
+import { hasDefined } from '@src/background/models';
 
 export function TxBatchApprovalScreen() {
   const { t } = useTranslation();
@@ -48,7 +49,7 @@ export function TxBatchApprovalScreen() {
   const { getNetwork } = useNetworkContext();
   const { isCalculatingFee, feeError, hasEnoughForNetworkFee } =
     useFeeCustomizer({
-      actionId: requestId,
+      action,
       network,
     });
 
@@ -80,7 +81,12 @@ export function TxBatchApprovalScreen() {
   const [index, setIndex] = useState(-1);
   const [isDetailedView, setIsDetailedView] = useState(false);
 
-  if (!action || !action.signingRequests || !action.displayData) {
+  if (
+    !action ||
+    !action.signingRequests ||
+    !action.displayData ||
+    !hasDefined(action, 'actionId')
+  ) {
     return <LoadingOverlay />;
   }
 
@@ -280,7 +286,7 @@ export function TxBatchApprovalScreen() {
                     tx={currentTx}
                     handleRejection={handleRejection}
                     network={network}
-                    actionId={requestId}
+                    action={action}
                     index={txIndex}
                     setIndex={setIndex}
                     isFirst={txIndex === 0}

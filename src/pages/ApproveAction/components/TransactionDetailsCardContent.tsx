@@ -21,12 +21,14 @@ import {
 } from '@src/components/common/approval/ApprovalSection';
 import { TransactionDetailItem } from '@src/components/common/approval/TransactionDetailItem';
 import { useFeeCustomizer } from '../hooks/useFeeCustomizer';
+import { MultiTxAction } from '@src/background/services/actions/models';
+import { EnsureDefined } from '@src/background/models';
 
 export const TransactionDetailsCardContent = ({
   tx,
   handleRejection,
   network,
-  actionId,
+  action,
   index,
   setIndex,
   isFirst,
@@ -36,7 +38,7 @@ export const TransactionDetailsCardContent = ({
   tx: SigningRequest<SigningData_EthSendTx>;
   handleRejection: () => void;
   network?: NetworkWithCaipId;
-  actionId: string;
+  action: EnsureDefined<MultiTxAction, 'actionId'>;
   index: number;
   setIndex: (index: number) => void;
   isFirst: boolean;
@@ -45,7 +47,7 @@ export const TransactionDetailsCardContent = ({
 }) => {
   const { t } = useTranslation();
   const { renderFeeWidget } = useFeeCustomizer({
-    actionId,
+    action,
     network,
     txIndex: index,
   });
@@ -136,7 +138,7 @@ export const TransactionDetailsCardContent = ({
               {tx.displayData.tokenApprovals && (
                 <SpendLimitInfo
                   {...tx.displayData.tokenApprovals}
-                  actionId={actionId}
+                  actionId={action.actionId}
                 />
               )}
               {tx.displayData.networkFeeSelector &&

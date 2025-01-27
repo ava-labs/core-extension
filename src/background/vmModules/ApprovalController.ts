@@ -20,6 +20,7 @@ import { WalletService } from '../services/wallet/WalletService';
 import {
   Action,
   ActionStatus,
+  ActionType,
   MultiTxAction,
   isBatchApprovalAction,
 } from '../services/actions/models';
@@ -44,12 +45,17 @@ type CachedBatchRequest = {
   resolve: (response: BatchApprovalResponse) => void;
 };
 
+type ActionToRequest = {
+  [ActionType.Single]: CachedRequest;
+  [ActionType.Batch]: CachedBatchRequest;
+};
+
 @singleton()
 export class ApprovalController implements BatchApprovalController {
   #walletService: WalletService;
   #networkService: NetworkService;
 
-  #requests = new Map<string, CachedRequest | CachedBatchRequest>();
+  #requests = new Map<string, ActionToRequest[keyof ActionToRequest]>();
 
   constructor(walletService: WalletService, networkService: NetworkService) {
     this.#walletService = walletService;
@@ -64,7 +70,7 @@ export class ApprovalController implements BatchApprovalController {
     // Transaction Reverted. Show a toast? Trigger browser notification?',
   };
 
-  onRejected = async (action: Action | MultiTxAction) => {
+  onRejected = async <A extends Action | MultiTxAction>(action: A) => {
     if (!action.actionId) {
       return;
     }
@@ -83,14 +89,15 @@ export class ApprovalController implements BatchApprovalController {
     this.#requests.delete(action.actionId);
   };
 
-  #getRequest(action: Action): CachedRequest | undefined;
-  #getRequest(action: MultiTxAction): CachedBatchRequest | undefined;
-  #getRequest(action) {
+  #getRequest<
+    A extends Action | MultiTxAction,
+    R extends ActionToRequest[A['type']],
+  >(action: A): R | undefined {
     if (!action.actionId) {
       return;
     }
 
-    return this.#requests.get(action.actionId);
+    return this.#requests.get(action.actionId) as R;
   }
 
   onApproved = async (action: Action | MultiTxAction) => {
@@ -327,6 +334,7 @@ export class ApprovalController implements BatchApprovalController {
   #buildAction = (params: ApprovalParamsWithContext): Action => {
     return {
       [ACTION_HANDLED_BY_MODULE]: true,
+      type: ActionType.Single,
       caipId: params.request.chainId,
       dappInfo: params.request.dappInfo,
       signingData: params.signingData,
@@ -346,6 +354,7 @@ export class ApprovalController implements BatchApprovalController {
   ): MultiTxAction => {
     return {
       [ACTION_HANDLED_BY_MODULE]: true,
+      type: ActionType.Batch,
       caipId: params.request.chainId,
       signingRequests: params.signingRequests,
       displayData: params.displayData,

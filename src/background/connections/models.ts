@@ -20,6 +20,8 @@ export type ExtensionConnectionMessage<
   Params = any,
 > = JsonRpcRequest<Method, Params>;
 
+export type HandlerParameters<Type> = ExtractHandlerTypes<Type>['Params'];
+
 export type ExtensionConnectionMessageResponse<
   Method extends ExtensionRequest | DAppProviderRequest | RpcMethod = any,
   Result = any,

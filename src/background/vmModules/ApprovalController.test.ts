@@ -19,6 +19,7 @@ import { ACTION_HANDLED_BY_MODULE } from '../models';
 import {
   Action,
   ActionStatus,
+  ActionType,
   MultiTxAction,
 } from '../services/actions/models';
 
@@ -338,7 +339,10 @@ describe('src/background/vmModules/ApprovalController', () => {
         await new Promise(process.nextTick);
 
         expect(openApprovalWindow).toHaveBeenCalledWith(
-          getExpectedAction(approvalParams),
+          {
+            ...getExpectedAction(approvalParams),
+            type: ActionType.Single,
+          },
           'approve/generic',
         );
       });
@@ -348,8 +352,9 @@ describe('src/background/vmModules/ApprovalController', () => {
 
         await new Promise(process.nextTick);
 
-        const action = {
+        const action: Action = {
           ...getExpectedAction(approvalParams),
+          type: ActionType.Single,
           actionId: crypto.randomUUID(),
         };
 
@@ -365,8 +370,9 @@ describe('src/background/vmModules/ApprovalController', () => {
         walletService.sign.mockRejectedValueOnce(signingError);
 
         const promise = controller.requestApproval(approvalParams);
-        const action = {
+        const action: Action = {
           ...getExpectedAction(approvalParams),
+          type: ActionType.Single,
           actionId: crypto.randomUUID(),
         };
 
@@ -405,8 +411,9 @@ describe('src/background/vmModules/ApprovalController', () => {
         });
 
         const promise = controller.requestApproval(approvalParams);
-        const action = {
+        const action: Action = {
           ...getExpectedAction(approvalParams),
+          type: ActionType.Single,
           actionId: crypto.randomUUID(),
         };
 
@@ -457,7 +464,10 @@ describe('src/background/vmModules/ApprovalController', () => {
         await new Promise(process.nextTick);
 
         expect(openApprovalWindow).toHaveBeenCalledWith(
-          getExpectedAction(batchApprovalParams),
+          {
+            ...getExpectedAction(batchApprovalParams),
+            type: ActionType.Batch,
+          },
           'approve/tx-batch',
         );
       });
@@ -467,8 +477,9 @@ describe('src/background/vmModules/ApprovalController', () => {
 
         await new Promise(process.nextTick);
 
-        const action = {
+        const action: MultiTxAction = {
           ...getExpectedAction(batchApprovalParams),
+          type: ActionType.Batch,
           actionId: crypto.randomUUID(),
         };
 
@@ -484,8 +495,9 @@ describe('src/background/vmModules/ApprovalController', () => {
         walletService.signTransactionBatch.mockRejectedValueOnce(signingError);
 
         const promise = controller.requestBatchApproval(batchApprovalParams);
-        const action = {
+        const action: MultiTxAction = {
           ...getExpectedAction(batchApprovalParams),
+          type: ActionType.Batch,
           actionId: crypto.randomUUID(),
         };
 
@@ -529,8 +541,9 @@ describe('src/background/vmModules/ApprovalController', () => {
         ]);
 
         const promise = controller.requestBatchApproval(batchApprovalParams);
-        const action = {
+        const action: MultiTxAction = {
           ...getExpectedAction(batchApprovalParams),
+          type: ActionType.Batch,
           actionId: crypto.randomUUID(),
         };
 

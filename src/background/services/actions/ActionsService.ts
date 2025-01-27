@@ -170,7 +170,7 @@ export class ActionsService implements OnStorageReady {
       }
 
       await handler.onActionApproved(
-        pendingMessage,
+        pendingMessage as Action,
         result,
         async (successResult) => {
           await this.emitResult(id, pendingMessage, true, successResult);

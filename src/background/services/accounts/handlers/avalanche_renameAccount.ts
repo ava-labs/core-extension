@@ -11,7 +11,7 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
 
 import { AccountsService } from '../AccountsService';
-import { Action } from '../../actions/models';
+import { Action, buildActionForRequest } from '../../actions/models';
 import { Account } from '../models';
 
 type Params = [accountId: string, newName: string];
@@ -79,14 +79,13 @@ export class AvalancheRenameAccountHandler extends DAppRequestHandler<
       }
     }
 
-    const actionData: Action<{ account: Account; newName: string }> = {
-      ...request,
+    const actionData = buildActionForRequest(request, {
       scope,
       displayData: {
         account,
         newName,
       },
-    };
+    });
 
     await openApprovalWindow(actionData, 'renameAccount');
 

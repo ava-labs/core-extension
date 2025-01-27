@@ -2,6 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { UpdateActionTxDataHandler } from './updateTxData';
 import { matchingPayload } from '@src/tests/test-utils';
 import { SendErrorMessage } from '@src/utils/send/models';
+import { HandlerParameters } from '@src/background/connections/models';
 
 describe('src/background/services/actions/handlers/updateTxData', () => {
   const actionsService = {
@@ -15,7 +16,9 @@ describe('src/background/services/actions/handlers/updateTxData', () => {
     return handler.handle(request);
   };
 
-  const getRequest = (params) => ({
+  const getRequest = (
+    params: HandlerParameters<UpdateActionTxDataHandler>,
+  ) => ({
     request: {
       id: '1234',
       method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
@@ -56,6 +59,19 @@ describe('src/background/services/actions/handlers/updateTxData', () => {
       'id',
       { feeRate: 5 },
       undefined,
+    );
+  });
+
+  it('passes the tx index for batch signing requests', async () => {
+    jest.mocked(actionsService.getActions).mockResolvedValue({
+      id: {},
+    });
+
+    await handleRequest(getRequest(['id', { maxFeeRate: 5n }, 3]));
+    expect(actionsService.updateTx).toHaveBeenCalledWith(
+      'id',
+      { maxFeeRate: 5n },
+      3,
     );
   });
 });

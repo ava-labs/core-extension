@@ -1,6 +1,5 @@
 import { Skeleton, Stack } from '@avalabs/core-k2-components';
 import {
-  DisplayData,
   NetworkTokenWithBalance,
   RpcMethod,
   SigningData,
@@ -17,7 +16,6 @@ import {
   CustomGasFeesProps,
   GasFeeModifier,
 } from '@src/components/common/CustomFees';
-import { useApproveAction } from '@src/hooks/useApproveAction';
 import { SendErrorMessage } from '@src/utils/send/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
@@ -26,6 +24,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import {
+  Action,
   MultiTxAction,
   isBatchApprovalAction,
 } from '@src/background/services/actions/models';
@@ -64,15 +63,14 @@ const isMultiTxFeeData = (
 ): data is MultiTxFeeData => data.type === MultiTxSymbol;
 
 export function useFeeCustomizer({
-  actionId,
+  action,
   network,
   txIndex,
 }: {
-  actionId: string;
+  action?: Action | MultiTxAction;
   network?: NetworkWithCaipId;
   txIndex?: number;
 }) {
-  const { action } = useApproveAction<DisplayData>(actionId);
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -164,7 +162,7 @@ export function useFeeCustomizer({
 
   const updateFee = useCallback(
     async (maxFeeRate: bigint, maxTipRate?: bigint) => {
-      if (!actionId || !isFeeSelectorEnabled) {
+      if (!action?.actionId || !isFeeSelectorEnabled) {
         return;
       }
 
@@ -177,11 +175,17 @@ export function useFeeCustomizer({
         method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
         params:
           typeof txIndex === 'undefined'
-            ? [actionId, newFeeConfig]
-            : [actionId, newFeeConfig, txIndex],
+            ? [action.actionId, newFeeConfig]
+            : [action.actionId, newFeeConfig, txIndex],
       });
     },
-    [actionId, isFeeSelectorEnabled, request, signingData?.type, txIndex],
+    [
+      action?.actionId,
+      isFeeSelectorEnabled,
+      request,
+      signingData?.type,
+      txIndex,
+    ],
   );
 
   const getFeeInfo = useCallback((data: SigningData | MultiTxFeeData) => {

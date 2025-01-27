@@ -1,5 +1,10 @@
-import { BatchApprovalParams, DisplayData } from '@avalabs/vm-module-types';
-import { DappInfo, RpcMethod, SigningData } from '@avalabs/vm-module-types';
+import {
+  BatchApprovalParams,
+  DisplayData,
+  DappInfo,
+  RpcMethod,
+  SigningData,
+} from '@avalabs/vm-module-types';
 import {
   DAppProviderRequest,
   JsonRpcRequestPayload,
@@ -16,10 +21,17 @@ export enum ActionStatus {
   ERROR = 'error',
   ERROR_USER_CANCELED = 'error-user-canceled',
 }
-export type Action<DisplayData = any, Params = any> = JsonRpcRequestPayload<
+
+export enum ActionType {
+  Single = 'single',
+  Batch = 'batch',
+}
+
+type ActionBase<DisplayData = any, Params = any> = JsonRpcRequestPayload<
   DAppProviderRequest | RpcMethod,
   Params
 > & {
+  type: ActionType;
   caipId?: string;
   scope: string;
   context?: Record<string, unknown>;
@@ -34,12 +46,19 @@ export type Action<DisplayData = any, Params = any> = JsonRpcRequestPayload<
   popupWindowId?: number;
   inAppPromptId?: number;
   actionId?: string;
-} & {
-  signingData?: SigningData;
   displayData: DisplayData;
 };
 
-export type MultiTxAction = Omit<Action, 'signingData' | 'displayData'> & {
+export type Action<DisplayData = any, Params = any> = ActionBase<
+  DisplayData,
+  Params
+> & {
+  type: ActionType.Single;
+  signingData?: SigningData;
+};
+
+export type MultiTxAction = ActionBase<DisplayData, unknown> & {
+  type: ActionType.Batch;
   signingRequests: BatchApprovalParams['signingRequests'];
   displayData: DisplayData;
 };
@@ -77,7 +96,18 @@ export type ActionCompletedEvent = {
 
 export const isBatchApprovalAction = (
   action: Action | MultiTxAction,
-): action is MultiTxAction =>
-  action &&
-  'signingRequests' in action &&
-  Array.isArray(action.signingRequests);
+): action is MultiTxAction => action && action.type === ActionType.Batch;
+
+export const buildActionForRequest = <
+  Params extends { scope: string; displayData: unknown },
+>(
+  request: JsonRpcRequestPayload<DAppProviderRequest | RpcMethod, unknown>,
+  params: Params,
+): Action<Params['displayData'], unknown> => {
+  return {
+    ...request,
+    type: ActionType.Single,
+    scope: params.scope,
+    displayData: params.displayData,
+  };
+};

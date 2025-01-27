@@ -9,6 +9,7 @@ import {
   ActionsEvent,
   ActionStatus,
   ACTIONS_STORAGE_KEY,
+  ActionType,
 } from './models';
 import { filterStaleActions } from './utils';
 import { ApprovalController } from '@src/background/vmModules/ApprovalController';
@@ -90,10 +91,12 @@ describe('background/services/actions/ActionsService.ts', () => {
       ];
       const pendingActions = {
         'id-0': {
+          type: ActionType.Single,
           actionId: 'id-0',
         },
         'id-1': {
           signingRequests,
+          type: ActionType.Batch,
           actionId: 'id-1',
         },
       };
