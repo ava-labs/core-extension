@@ -148,8 +148,6 @@ export class AppCheckService {
       }),
       isTokenAutoRefreshEnabled: true,
     });
-
-    this.getAppcheckToken(true);
   }
 
   #stopAppcheck() {
