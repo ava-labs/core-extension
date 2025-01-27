@@ -63,6 +63,26 @@ jest.mock('@avalabs/avalanche-module', () => {
     }),
   };
 });
+jest.mock('@avalabs/hvm-module', () => {
+  return {
+    HvmModule: jest.fn().mockImplementation(() => {
+      return {
+        getManifest: jest.fn().mockReturnValue({
+          name: 'hvm',
+          network: {
+            chainIds: [],
+            namespaces: ['hvm'],
+          },
+          permissions: {
+            rpc: {
+              methods: ['hvm_signTransaction'],
+            },
+          },
+        }),
+      };
+    }),
+  };
+});
 
 describe('ModuleManager', () => {
   let manager: ModuleManager;
@@ -110,6 +130,11 @@ describe('ModuleManager', () => {
           chainId: 'avax:1123',
           method: 'avalanche_sendTransaction',
           name: NetworkVMType.AVM,
+        },
+        {
+          chainId: 'hvm:1123',
+          method: 'hvm_signTransaction',
+          name: NetworkVMType.HVM,
         },
       ];
 

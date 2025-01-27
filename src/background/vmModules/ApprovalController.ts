@@ -320,6 +320,7 @@ export class ApprovalController implements BatchApprovalController {
       case RpcMethod.BITCOIN_SEND_TRANSACTION:
       case RpcMethod.BITCOIN_SIGN_TRANSACTION:
       case RpcMethod.ETH_SEND_TRANSACTION:
+      case RpcMethod.HVM_SIGN_TRANSACTION:
         return await this.#walletService.sign(
           signingData.data,
           network,

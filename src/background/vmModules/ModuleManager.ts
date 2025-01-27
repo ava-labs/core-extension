@@ -9,6 +9,7 @@ import { runtime } from 'webextension-polyfill';
 import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { AvalancheModule } from '@avalabs/avalanche-module';
 import { EvmModule } from '@avalabs/evm-module';
+import { HvmModule } from '@avalabs/hvm-module';
 import { ethErrors } from 'eth-rpc-errors';
 import { singleton } from 'tsyringe';
 
@@ -18,6 +19,7 @@ import { isDevelopment } from '@src/utils/environment';
 import { NetworkWithCaipId } from '../services/network/models';
 import { VMModuleError } from './models';
 import { ApprovalController } from './ApprovalController';
+import { AvaxCaipId, BitcoinCaipId } from '@src/utils/caipConversion';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2
@@ -71,6 +73,11 @@ export class ModuleManager {
         approvalController: this.#approvalController,
         appInfo,
       }),
+      new HvmModule({
+        environment,
+        approvalController: this.#approvalController,
+        appInfo,
+      }),
     ];
   }
 
@@ -105,9 +112,12 @@ export class ModuleManager {
     return this.loadModule(network.caipId, method);
   }
 
-  async #getModule(chainId: string): Promise<Module | undefined> {
-    const [namespace] = chainId.split(':');
-
+  async #getModule(chainIdOrScope: string): Promise<Module | undefined> {
+    const scopeConversion =
+      BitcoinCaipId[chainIdOrScope] ??
+      AvaxCaipId[chainIdOrScope] ??
+      chainIdOrScope;
+    const [namespace] = scopeConversion.split(':');
     if (!namespace || !NAMESPACE_REGEX.test(namespace)) {
       throw ethErrors.rpc.invalidParams({
         data: {
@@ -117,7 +127,7 @@ export class ModuleManager {
       });
     }
     return (
-      (await this.#getModuleByChainId(chainId)) ??
+      (await this.#getModuleByChainId(chainIdOrScope)) ??
       (await this.#getModuleByNamespace(namespace))
     );
   }
