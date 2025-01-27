@@ -55,7 +55,7 @@ jobs:
       - name: Remove large extension files
         run: |
           rm -fv ./dist/images/core-ext-hero-hq.webm
-					rm -fv ./dist/images/onboarding-background.svg
+          rm -fv ./dist/images/onboarding-background.svg
           rm -fv ./dist/images/onboarding-background.png
       - name: Add extension key to manifest file
         run: |
