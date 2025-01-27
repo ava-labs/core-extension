@@ -52,7 +52,7 @@ jobs:
         run: yarn setup
       - name: Build library
         run: yarn build:alpha
-      - name: Remove onboarding video
+      - name: Remove large extension files
         run: |
           rm -fv ./dist/images/core-ext-hero-hq.webm
 					rm -fv ./dist/images/onboarding-background.svg
