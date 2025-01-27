@@ -1,7 +1,9 @@
 import { FcmMessageEvents } from '../firebase/models';
+import * as Sentry from '@sentry/browser';
 
 export type ChallengeRequest = {
   id: string;
+  tracker: Sentry.Transaction;
   registrationId?: string;
   solution?: string;
 };

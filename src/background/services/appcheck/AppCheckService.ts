@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import {
   AppCheck,
   CustomProvider,
@@ -59,65 +60,96 @@ export class AppCheckService {
     this.#appCheck = initializeAppCheck(this.firebaseService.getFirebaseApp(), {
       provider: new CustomProvider({
         getToken: async () => {
-          if (!this.firebaseService.isFcmInitialized) {
-            throw new Error('fcm is not initialized');
-          }
-
-          const fcmToken = this.firebaseService.getFcmToken();
-
-          if (!fcmToken) {
-            throw new Error('fcm token is missing');
-          }
-
-          this.#lastChallengeRequest = { id: crypto.randomUUID() };
-
-          const waitForChallenge = () =>
-            new Promise<{ registrationId: string; solution: string }>(
-              (res, rej) => {
-                let remainingAttempts = WAIT_FOR_CHALLENGE_ATTEMPT_COUNT;
-
-                const timer = setInterval(() => {
-                  const registrationId =
-                    this.#lastChallengeRequest?.registrationId;
-                  const solution = this.#lastChallengeRequest?.solution;
-
-                  remainingAttempts--;
-
-                  if (registrationId && solution) {
-                    clearInterval(timer);
-                    res({ registrationId, solution });
-                  } else if (remainingAttempts < 1) {
-                    clearInterval(timer);
-                    rej('timeout');
-                  }
-                }, WAIT_FOR_CHALLENGE_DELAY_MS);
-              },
-            );
+          const sentryTracker = Sentry.startTransaction({
+            name: `AppCheckService: getToken`,
+          });
 
           try {
-            await registerForChallenge({
-              token: fcmToken,
-              requestId: this.#lastChallengeRequest.id,
-            });
+            if (!this.firebaseService.isFcmInitialized) {
+              throw new Error('fcm is not initialized');
+            }
 
-            const { registrationId, solution } = await waitForChallenge();
-            const { token, exp: expireTimeMillis } = await verifyChallenge({
-              registrationId,
-              solution,
-            });
+            const fcmToken = this.firebaseService.getFcmToken();
 
-            return {
-              token,
-              expireTimeMillis,
+            if (!fcmToken) {
+              throw new Error('fcm token is missing');
+            }
+
+            this.#lastChallengeRequest = {
+              id: crypto.randomUUID(),
+              tracker: sentryTracker,
             };
+
+            const waitForChallenge = () =>
+              new Promise<{ registrationId: string; solution: string }>(
+                (res, rej) => {
+                  let remainingAttempts = WAIT_FOR_CHALLENGE_ATTEMPT_COUNT;
+
+                  const timer = setInterval(() => {
+                    const registrationId =
+                      this.#lastChallengeRequest?.registrationId;
+                    const solution = this.#lastChallengeRequest?.solution;
+
+                    remainingAttempts--;
+
+                    if (registrationId && solution) {
+                      clearInterval(timer);
+                      res({ registrationId, solution });
+                    } else if (remainingAttempts < 1) {
+                      clearInterval(timer);
+                      rej('timeout');
+                    }
+                  }, WAIT_FOR_CHALLENGE_DELAY_MS);
+                },
+              );
+
+            try {
+              const registrationSpan = sentryTracker.startChild({
+                name: 'registerForChallenge',
+              });
+              await registerForChallenge({
+                token: fcmToken,
+                requestId: this.#lastChallengeRequest.id,
+              });
+              registrationSpan.finish();
+
+              const waitForChallengeSpan = sentryTracker.startChild({
+                name: 'waitForChallenge',
+              });
+              const { registrationId, solution } = await waitForChallenge();
+              waitForChallengeSpan.finish();
+
+              const verifyChallengeSpan = sentryTracker.startChild({
+                name: 'verifyChallenge',
+              });
+              const { token, exp: expireTimeMillis } = await verifyChallenge({
+                registrationId,
+                solution,
+              });
+              verifyChallengeSpan.finish();
+
+              sentryTracker.setStatus('success');
+
+              return {
+                token,
+                expireTimeMillis,
+              };
+            } catch (err) {
+              this.#lastChallengeRequest = undefined;
+              throw err;
+            }
           } catch (err) {
-            this.#lastChallengeRequest = undefined;
+            sentryTracker.setStatus('error');
             throw err;
+          } finally {
+            sentryTracker.finish();
           }
         },
       }),
       isTokenAutoRefreshEnabled: true,
     });
+
+    this.getAppcheckToken(true);
   }
 
   #stopAppcheck() {
@@ -144,9 +176,14 @@ export class AppCheckService {
     }
 
     this.#lastChallengeRequest.registrationId = challenge.registrationId;
+
+    const solveChallengeSpan = this.#lastChallengeRequest.tracker.startChild({
+      name: 'solveChallenge',
+    });
     this.#lastChallengeRequest.solution = await solveChallenge({
       type: challenge.type,
       challengeDetails: challenge.details,
     });
+    solveChallengeSpan.finish();
   }
 }

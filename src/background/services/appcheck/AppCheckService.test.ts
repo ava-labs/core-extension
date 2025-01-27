@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import {
   AppCheck,
   CustomProvider,
@@ -17,6 +18,7 @@ import { MessagePayload } from 'firebase/messaging/sw';
 import solveChallenge from './utils/solveChallenge';
 import verifyChallenge from './utils/verifyChallenge';
 
+jest.mock('@sentry/browser');
 jest.mock('firebase/app-check');
 jest.mock('./utils/registerForChallenge');
 jest.mock('./utils/verifyChallenge');
@@ -28,6 +30,14 @@ describe('AppCheckService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+
+    (Sentry.startTransaction as jest.Mock).mockReturnValue({
+      finish: jest.fn(),
+      setStatus: jest.fn(),
+      startChild: jest.fn(() => ({
+        finish: jest.fn(),
+      })),
+    });
 
     firebaseService = {
       isFcmInitialized: true,
