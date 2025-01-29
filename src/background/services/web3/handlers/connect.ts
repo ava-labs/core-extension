@@ -19,7 +19,10 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 @injectable()
 export class ConnectRequestHandler implements DAppRequestHandler {
-  methods = [DAppProviderRequest.CONNECT_METHOD];
+  methods = [
+    DAppProviderRequest.CONNECT_METHOD,
+    DAppProviderRequest.WALLET_CONNECT,
+  ];
 
   constructor(
     private accountsService: AccountsService,

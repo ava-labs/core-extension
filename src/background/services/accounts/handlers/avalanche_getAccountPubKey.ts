@@ -3,10 +3,12 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { WalletService } from '../../wallet/WalletService';
-
 @injectable()
 export class AvalancheGetAccountPubKeyHandler extends DAppRequestHandler {
-  methods = [DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY];
+  methods = [
+    DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
+    DAppProviderRequest.WALLET_GET_PUBKEY,
+  ];
 
   constructor(private walletService: WalletService) {
     super();

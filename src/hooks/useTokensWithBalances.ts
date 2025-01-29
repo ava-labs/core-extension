@@ -143,7 +143,11 @@ export const useTokensWithBalances = (
       return [];
     }
 
-    const address = getAddressForChain(selectedChainId, activeAccount);
+    const address = getAddressForChain(
+      selectedChainId,
+      activeAccount,
+      network?.caipId,
+    );
 
     if (!address) {
       return [];
@@ -183,6 +187,7 @@ export const useTokensWithBalances = (
   }, [
     selectedChainId,
     activeAccount,
+    network?.caipId,
     balances.tokens,
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,

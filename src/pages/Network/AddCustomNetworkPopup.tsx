@@ -79,8 +79,10 @@ export function AddCustomNetworkPopup() {
     await handleApproval();
   }, [apiKey, action, requestId, updateAction, handleApproval, isSavingApiKey]);
 
-  const shouldPromptForApiKey =
-    action?.displayData.options.requiresGlacierApiKey && !apiKey;
+  const shouldPromptForApiKey = action?.displayData?.options
+    ?.requiresGlacierApiKey
+    ? action?.displayData.options.requiresGlacierApiKey && !apiKey
+    : false;
 
   useEffect(() => {
     window.addEventListener('unload', cancelHandler);
@@ -148,7 +150,7 @@ export function AddCustomNetworkPopup() {
           </Typography>
         </Stack>
 
-        {action.displayData.options.requiresGlacierApiKey && (
+        {action?.displayData?.options?.requiresGlacierApiKey && (
           <Alert color="info" sx={{ mb: 2 }}>
             <AlertTitle>{t('Glacier API key is required')}</AlertTitle>
             <AlertContent>

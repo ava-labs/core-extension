@@ -59,6 +59,8 @@ export class BalancesService {
               return account.addressPVM;
             case NetworkVMType.CoreEth:
               return account.addressCoreEth;
+            case NetworkVMType.HVM:
+              return account.addressHVM;
             default:
               return undefined;
           }
@@ -109,6 +111,7 @@ export class BalancesService {
       },
       {},
     );
+
     sentryTracker.finish();
 
     return balances;
