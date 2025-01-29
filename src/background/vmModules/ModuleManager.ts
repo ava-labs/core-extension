@@ -30,6 +30,17 @@ export class ModuleManager {
   #_modules: Module[] | undefined;
   #approvalController: BatchApprovalController;
 
+  isNonRestrictedMethod(module: Module, method: string): boolean {
+    const nonRestrictedMethods =
+      module.getManifest()?.permissions.rpc.nonRestrictedMethods;
+
+    if (nonRestrictedMethods === undefined) {
+      return false;
+    }
+
+    return nonRestrictedMethods.includes(method);
+  }
+
   get #modules(): Module[] {
     assertPresent(this.#_modules, VMModuleError.ModulesNotInitialized);
 

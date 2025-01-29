@@ -24,7 +24,8 @@ export function DAppRequestHandlerMiddleware(
   }, new Map<string, DAppRequestHandler>());
 
   return async (context, next) => {
-    const handler = handlerMap.get(context.request.params.request.method);
+    const method = context.request.params.request.method;
+    const handler = handlerMap.get(method);
     // Call correct handler method based on authentication status
     let promise: Promise<JsonRpcResponse<unknown>>;
 
@@ -49,43 +50,43 @@ export function DAppRequestHandlerMiddleware(
         : handler.handleUnauthenticated(params);
     } else {
       const [module] = await resolve(
-        moduleManager.loadModule(
-          context.request.params.scope,
-          context.request.params.request.method,
-        ),
+        moduleManager.loadModule(context.request.params.scope, method),
       );
 
       if (!context.network) {
         promise = Promise.reject(ethErrors.provider.disconnected());
+      } else if (!module) {
+        promise = engine(context.network).then((e) =>
+          e.handle<unknown, unknown>({
+            ...context.request.params.request,
+            id: crypto.randomUUID(),
+            jsonrpc: '2.0',
+          }),
+        );
+      } else if (
+        !context.authenticated &&
+        !moduleManager.isNonRestrictedMethod(module, method)
+      ) {
+        promise = Promise.reject(ethErrors.provider.unauthorized());
       } else {
-        if (module) {
-          promise = module.onRpcRequest(
-            {
-              chainId: context.network.caipId,
-              dappInfo: {
-                icon: context.domainMetadata.icon ?? '',
-                name: context.domainMetadata.name ?? '',
-                url: context.domainMetadata.url ?? '',
-              },
-              requestId: context.request.id,
-              sessionId: context.request.params.sessionId,
-              method: context.request.params.request.method,
-              params: context.request.params.request.params,
-              // Do not pass context from unknown sources.
-              // This field is for our internal use only (only used with extension's direct connection)
-              context: undefined,
+        promise = module.onRpcRequest(
+          {
+            chainId: context.network.caipId,
+            dappInfo: {
+              icon: context.domainMetadata.icon ?? '',
+              name: context.domainMetadata.name ?? '',
+              url: context.domainMetadata.url ?? '',
             },
-            context.network,
-          );
-        } else {
-          promise = engine(context.network).then((e) =>
-            e.handle<unknown, unknown>({
-              ...context.request.params.request,
-              id: crypto.randomUUID(),
-              jsonrpc: '2.0',
-            }),
-          );
-        }
+            requestId: context.request.id,
+            sessionId: context.request.params.sessionId,
+            method: context.request.params.request.method,
+            params: context.request.params.request.params,
+            // Do not pass context from unknown sources.
+            // This field is for our internal use only (only used with extension's direct connection)
+            context: undefined,
+          },
+          context.network,
+        );
       }
     }
 
