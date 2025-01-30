@@ -79,4 +79,17 @@ export type Never<T> = {
 
 export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
+export type FirstParameter<T extends (...args: any) => any> = T extends (
+  ...args: infer P
+) => any
+  ? P[0]
+  : never;
+
 export const ACTION_HANDLED_BY_MODULE = '__handled.via.vm.modules__';
+
+export const hasDefined = <T extends object, K extends keyof T>(
+  obj: T,
+  key: K,
+): obj is EnsureDefined<T, K> => {
+  return obj[key] !== undefined;
+};

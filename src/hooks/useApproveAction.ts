@@ -1,7 +1,12 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { GetActionHandler } from '@src/background/services/actions/handlers/getActions';
 import { UpdateActionHandler } from '@src/background/services/actions/handlers/updateAction';
-import { Action, ActionUpdate } from '@src/background/services/actions/models';
+import {
+  Action,
+  ActionUpdate,
+  MultiTxAction,
+  isBatchApprovalAction,
+} from '@src/background/services/actions/models';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
@@ -13,54 +18,90 @@ import {
 import { useApprovalsContext } from '@src/contexts/ApprovalsProvider';
 import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
 
-export function useApproveAction<DisplayData = any>(actionId: string) {
+type ActionType<IsBatchApproval> = IsBatchApproval extends true
+  ? MultiTxAction
+  : Action;
+
+type ActionUpdater<T extends Action | MultiTxAction | undefined> = (
+  params: ActionUpdate<
+    Partial<T extends Action | MultiTxAction ? T['displayData'] : never>
+  >,
+  shouldWaitForResponse?: boolean,
+) => Promise<boolean>;
+
+type HookResult<T extends Action | MultiTxAction | undefined> = {
+  action: T;
+  updateAction: ActionUpdater<T>;
+  error: string;
+  cancelHandler: () => Promise<boolean>;
+};
+
+export function useApproveAction<DisplayData = any>(
+  actionId: string,
+  isBatchApproval?: false,
+): HookResult<Action<DisplayData>>;
+export function useApproveAction(
+  actionId: string,
+  isBatchApproval?: true,
+): HookResult<MultiTxAction>;
+export function useApproveAction<DisplayData = any>(
+  actionId: string,
+  isBatchApproval: boolean = false,
+): HookResult<Action<DisplayData> | MultiTxAction | undefined> {
   const { request } = useConnectionContext();
   const isConfirmPopup = useIsSpecificContextContainer(
     ContextContainer.CONFIRM,
   );
   const { approval } = useApprovalsContext();
-  const [action, setAction] = useState<Action<DisplayData>>();
-  const [error] = useState<string>('');
+  const [action, setAction] = useState<ActionType<typeof isBatchApproval>>();
+  const [error, setError] = useState<string>('');
 
-  const updateAction = useCallback(
-    async (
-      params: ActionUpdate<Partial<DisplayData>>,
-      shouldWaitForResponse?: boolean,
-    ) => {
-      // We need to update the status a bit faster for smoother UX.
-      // use function to avoid `action` as a dependency and thus infinite loops
-      setAction((prevActionData) => {
-        if (!prevActionData) {
-          return;
-        }
-        return {
-          ...prevActionData,
-          status: params.status,
-          displayData: {
-            ...prevActionData.displayData,
-            ...params.displayData,
-          },
-          signingData: getUpdatedSigningData(
-            prevActionData.signingData,
-            params.signingData,
-          ),
-        };
-      });
+  const updateAction: ActionUpdater<ActionType<typeof isBatchApproval>> =
+    useCallback(
+      async (params, shouldWaitForResponse) => {
+        // We need to update the status a bit faster for smoother UX.
+        // use function to avoid `action` as a dependency and thus infinite loops
+        setAction((prevActionData) => {
+          if (!prevActionData) {
+            return;
+          }
 
-      const shouldCloseAfterUpdate =
-        isConfirmPopup && params.status !== ActionStatus.PENDING;
+          // For MultiTxAction, we don't allow any updates besides the status.
+          if (isBatchApprovalAction(prevActionData)) {
+            return {
+              ...prevActionData,
+              status: params.status,
+            };
+          }
 
-      return request<UpdateActionHandler>({
-        method: ExtensionRequest.ACTION_UPDATE,
-        params: [params, shouldWaitForResponse],
-      }).finally(() => {
-        if (shouldCloseAfterUpdate) {
-          globalThis.close();
-        }
-      });
-    },
-    [request, isConfirmPopup],
-  );
+          return {
+            ...prevActionData,
+            status: params.status,
+            displayData: {
+              ...prevActionData.displayData,
+              ...params.displayData,
+            },
+            signingData: getUpdatedSigningData(
+              prevActionData.signingData,
+              params.signingData,
+            ),
+          };
+        });
+
+        const shouldCloseAfterUpdate =
+          isConfirmPopup && params.status !== ActionStatus.PENDING;
+
+        return request<UpdateActionHandler>({
+          method: ExtensionRequest.ACTION_UPDATE,
+          params: [params, shouldWaitForResponse],
+        }).finally(() => {
+          if (shouldCloseAfterUpdate) {
+            globalThis.close();
+          }
+        });
+      },
+      [request, isConfirmPopup],
+    );
 
   const cancelHandler = useCallback(
     async () =>
@@ -76,11 +117,19 @@ export function useApproveAction<DisplayData = any>(actionId: string) {
       request<GetActionHandler>({
         method: ExtensionRequest.ACTION_GET,
         params: [actionId],
-      }).then(setAction);
+      }).then((a) => {
+        if (isBatchApproval && !isBatchApprovalAction(a)) {
+          setError('Expected a batch approval action');
+        } else if (!isBatchApproval && isBatchApprovalAction(a)) {
+          setError('Expected a single approval action');
+        } else {
+          setAction(a as ActionType<typeof isBatchApproval>);
+        }
+      });
     } else if (approval?.action.actionId === actionId) {
-      setAction(approval.action);
+      setAction(approval.action as ActionType<typeof isBatchApproval>);
     }
-  }, [actionId, request, approval, isConfirmPopup]);
+  }, [actionId, request, approval, isConfirmPopup, isBatchApproval]);
 
   useWindowGetsClosedOrHidden(cancelHandler);
 

@@ -31,7 +31,7 @@ import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { CustomGasSettings } from './CustomGasSettings';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 
-interface CustomGasFeesProps {
+export interface CustomGasFeesProps {
   maxFeePerGas: bigint;
   limit: number;
   estimatedFee?: bigint;
@@ -49,6 +49,8 @@ interface CustomGasFeesProps {
   networkFee: NetworkFee | null;
   isLimitReadonly?: boolean;
   isCollapsible?: boolean;
+  size?: 'small' | 'normal';
+  hasEnoughForFee?: boolean;
 }
 
 export enum GasFeeModifier {
@@ -178,6 +180,8 @@ export function CustomFees({
   networkFee,
   isLimitReadonly,
   isCollapsible,
+  size = 'normal',
+  hasEnoughForFee = true,
 }: CustomGasFeesProps) {
   const { t } = useTranslation();
   const tokenPrice = useNativeTokenPrice(network);
@@ -389,7 +393,13 @@ export function CustomFees({
           mountOnEnter
           unmountOnExit
         >
-          <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              gap: size === 'small' ? 0.5 : 0,
+            }}
+          >
             <FeeButton
               data-testid="gas-fee-normal-button"
               disabled={gasPriceEditDisabled}
@@ -400,7 +410,10 @@ export function CustomFees({
                 handleModifierClick(GasFeeModifier.NORMAL);
               }}
             >
-              <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
+              <Typography
+                variant={size === 'small' ? 'caption' : 'body2'}
+                sx={{ fontWeight: 'semibold' }}
+              >
                 {t('Normal')}
               </Typography>
               <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
@@ -424,7 +437,10 @@ export function CustomFees({
                     handleModifierClick(GasFeeModifier.FAST);
                   }}
                 >
-                  <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
+                  <Typography
+                    variant={size === 'small' ? 'caption' : 'body2'}
+                    sx={{ fontWeight: 'semibold' }}
+                  >
                     {t('Fast')}
                   </Typography>
                   <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
@@ -446,7 +462,10 @@ export function CustomFees({
                     handleModifierClick(GasFeeModifier.INSTANT);
                   }}
                 >
-                  <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
+                  <Typography
+                    variant={size === 'small' ? 'caption' : 'body2'}
+                    sx={{ fontWeight: 'semibold' }}
+                  >
                     {t('Instant')}
                   </Typography>
                   <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
@@ -470,7 +489,10 @@ export function CustomFees({
                   }}
                   disableRipple
                 >
-                  <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
+                  <Typography
+                    variant={size === 'small' ? 'caption' : 'body2'}
+                    sx={{ fontWeight: 'semibold' }}
+                  >
                     {t('Custom')}
                   </Typography>
                   <CustomInput
@@ -522,7 +544,10 @@ export function CustomFees({
             <Typography
               variant="body2"
               data-testid="network-fee-token-amount"
-              sx={{ fontWeight: 'fontWeightSemibold' }}
+              sx={{
+                fontWeight: 'fontWeightSemibold',
+                color: hasEnoughForFee ? undefined : 'error.main',
+              }}
             >
               {feeAmount} {network?.networkToken.symbol}
             </Typography>

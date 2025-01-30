@@ -1,7 +1,7 @@
-import { Action } from '../actions/models';
+import { Action, MultiTxAction } from '../actions/models';
 
 export type ApprovalRequest = {
-  action: Action;
+  action: Action | MultiTxAction;
   url: string;
 };
 

@@ -1,3 +1,4 @@
+import { omit } from 'lodash';
 import { EventEmitter } from 'events';
 import { injectAll, singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
@@ -9,6 +10,8 @@ import {
   ActionStatus,
   ACTIONS_STORAGE_KEY,
   ActionUpdate,
+  MultiTxAction,
+  isBatchApprovalAction,
 } from './models';
 import { ethErrors } from 'eth-rpc-errors';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
@@ -78,8 +81,10 @@ export class ActionsService implements OnStorageReady {
     this.eventEmitter.emit(ActionsEvent.ACTION_UPDATED, actions);
   }
 
-  async addAction(action: Action): Promise<Action> {
-    const pendingAction: Action = {
+  async addAction(
+    action: Action | MultiTxAction,
+  ): Promise<Action | MultiTxAction> {
+    const pendingAction: Action | MultiTxAction = {
       ...action,
       time: Date.now(),
       status: ActionStatus.PENDING,
@@ -104,16 +109,21 @@ export class ActionsService implements OnStorageReady {
 
   async emitResult(
     id: string,
-    action: Action,
+    action: Action | MultiTxAction,
     isSuccess: boolean,
     result: any,
   ) {
     await this.removeAction(id);
 
-    // We dont want display data to be emitted. Sometimes it can not be serialized and it's content is internal to Core
-    // Make sure not to modify the original action object
-
-    const { displayData, ...actionWithoutDisplayData } = action;
+    // We dont want display data to be emitted. Sometimes it can be not serialized and it's content is internal to Core
+    const actionWithoutDisplayData = isBatchApprovalAction(action)
+      ? {
+          ...action,
+          signingRequests: action.signingRequests.map((req) =>
+            omit(req, 'displayData'),
+          ),
+        }
+      : omit(action, 'displayData');
 
     this.eventEmitter.emit(ActionsEvent.ACTION_COMPLETED, {
       type: isSuccess
@@ -160,7 +170,7 @@ export class ActionsService implements OnStorageReady {
       }
 
       await handler.onActionApproved(
-        pendingMessage,
+        pendingMessage as Action,
         result,
         async (successResult) => {
           await this.emitResult(id, pendingMessage, true, successResult);
@@ -193,29 +203,43 @@ export class ActionsService implements OnStorageReady {
         ethErrors.provider.userRejectedRequest(),
       );
     } else {
-      await this.saveActions({
-        ...currentPendingActions,
-        [id]: {
-          ...pendingMessage,
-          displayData: {
-            ...pendingMessage.displayData,
-            ...displayData,
+      if (isBatchApprovalAction(pendingMessage)) {
+        await this.saveActions({
+          ...currentPendingActions,
+          [id]: {
+            ...pendingMessage,
+            signingRequests: pendingMessage.signingRequests,
+            status,
+            result,
+            error,
           },
-          signingData: getUpdatedSigningData(
-            pendingMessage.signingData,
-            signingData,
-          ),
-          status,
-          result,
-          error,
-        },
-      });
+        });
+      } else {
+        await this.saveActions({
+          ...currentPendingActions,
+          [id]: {
+            ...pendingMessage,
+            displayData: {
+              ...pendingMessage.displayData,
+              ...displayData,
+            },
+            signingData: getUpdatedSigningData(
+              pendingMessage.signingData,
+              signingData,
+            ),
+            status,
+            result,
+            error,
+          },
+        });
+      }
     }
   }
 
   async updateTx(
     id: string,
     newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0],
+    txIndex?: number,
   ) {
     const currentPendingRequests = await this.getActions();
     const pendingRequest = currentPendingRequests[id];
@@ -224,19 +248,44 @@ export class ActionsService implements OnStorageReady {
       throw new Error(`No request found with id: ${id}`);
     }
 
-    const { signingData, displayData } = this.approvalController.updateTx(
-      id,
-      newData,
-    );
+    if (isBatchApprovalAction(pendingRequest)) {
+      if (
+        (!('maxFeeRate' in newData) && !('maxTipRate' in newData)) ||
+        typeof txIndex !== 'number'
+      ) {
+        return;
+      }
 
-    await this.saveActions({
-      ...currentPendingRequests,
-      [id]: {
-        ...pendingRequest,
-        signingData,
-        displayData,
-      },
-    });
+      const { displayData, signingRequests } =
+        this.approvalController.updateTxInBatch(
+          pendingRequest,
+          newData,
+          txIndex,
+        );
+
+      await this.saveActions({
+        ...currentPendingRequests,
+        [id]: {
+          ...pendingRequest,
+          signingRequests,
+          displayData,
+        },
+      });
+    } else {
+      const { signingData, displayData } = this.approvalController.updateTx(
+        pendingRequest,
+        newData,
+      );
+
+      await this.saveActions({
+        ...currentPendingRequests,
+        [id]: {
+          ...pendingRequest,
+          signingData,
+          displayData,
+        },
+      });
+    }
   }
 
   addListener(

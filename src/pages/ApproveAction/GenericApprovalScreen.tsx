@@ -66,7 +66,7 @@ export function GenericApprovalScreen() {
     hasEnoughForNetworkFee,
     renderFeeWidget,
   } = useFeeCustomizer({
-    actionId: requestId,
+    action,
     network,
   });
 
