@@ -5,15 +5,18 @@ import { RpcMethod } from '@avalabs/vm-module-types';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
+import { t } from 'i18next';
 
 import {
   CommonError,
+  WrappedError,
   isUserRejectionError,
   isWrappedError,
   wrapError,
 } from '@src/utils/errors';
 import { resolve } from '@src/utils/promiseResolver';
 import { RequestHandlerType } from '@src/background/connections/models';
+import { SwapError } from '@src/pages/Swap/hooks/useSwap';
 
 import {
   PARASWAP_RETRYABLE_ERRORS,
@@ -258,6 +261,51 @@ export const swapError = (
         : new Error('Unknown swap error'),
     },
   });
+};
+
+export const paraswapErrorToSwapError = (error: WrappedError): SwapError => {
+  if (!error.data.originalError) {
+    return {
+      message: t('Unknown error occurred, '),
+      hasTryAgain: true,
+    };
+  }
+
+  const originalError = error.data.originalError as Error;
+
+  switch (originalError.message) {
+    case 'ESTIMATED_LOSS_GREATER_THAN_MAX_IMPACT':
+      return {
+        message: t(
+          'Amount too low or too big to cover. Please adjust swap values.',
+        ),
+        hasTryAgain: false,
+      };
+
+    case 'No routes found with enough liquidity':
+      return {
+        message: t('No routes found with enough liquidity.'),
+        hasTryAgain: false,
+      };
+
+    case 'Internal Error while computing the price':
+      return {
+        message: t('An error occurred while computing the price.'),
+        hasTryAgain: false,
+      };
+  }
+
+  if (/is too small to proceed/.test(originalError.message)) {
+    return {
+      message: t('Amount is too small to proceed.'),
+      hasTryAgain: false,
+    };
+  }
+
+  return {
+    message: t('Unknown error occurred, '),
+    hasTryAgain: true,
+  };
 };
 
 export function checkForErrorsInGetRateResult(
