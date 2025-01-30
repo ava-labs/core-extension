@@ -8,6 +8,8 @@ export enum SentryExceptionTypes {
   EXTENSION_CONNECTION_MESSAGE = 'extensionConnectionMessage',
   EXTENSION_CONNECTION_EVENT = 'extensionConnectionEvent',
 
+  SWAP = 'swap',
+
   // ledger
   LEDGER = 'ledger',
 
