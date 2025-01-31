@@ -7,6 +7,11 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.10.0.tgz#d2a39395c587e092d77cbbc80acf956a54f38bf7"
   integrity sha512-nA9XHtlAkYfJxY7bce8DcN7eKxWWCWkU+1GR9d+U6MbNpfwQp8TI7vqOsBsMcHoT4mBu2kypKoSKnghEzOOq5Q==
 
+"@adraffy/ens-normalize@1.10.1":
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.10.1.tgz#63430d04bd8c5e74f8d7d049338f1cd9d4f02069"
+  integrity sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw==
+
 "@ampproject/remapping@^2.2.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.0.tgz#56c133824780de3174aed5ab6834f3026790154d"
@@ -29,10 +34,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-1.2.0.tgz#7c1b2f38bca9c32c196c6dfab0f0b52b01ee9556"
-  integrity sha512-6yuSCQWGCEdo4DFV24t6ipVVigdK2Ek/hk88q+mzaNJo44Xctgy9oNi5JUceDkkIpWaeV5/LS3S4P0jvy+R3MQ==
+"@avalabs/avalanche-module@0.0.0-feat-EIP-2930-support-20250131130746":
+  version "0.0.0-feat-EIP-2930-support-20250131130746"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-EIP-2930-support-20250131130746.tgz#6219cc25f9b47adc3efe516661f3b57a95623d44"
+  integrity sha512-npX+tXnGs1xROveihD/h8FqJdF1r+xtCNByF908qlHcjRDd7KtRtOZ6ryadA1pT6VJF96DcQctAg1ESlg94hfQ==
   dependencies:
     "@avalabs/avalanchejs" "4.1.2-alpha.3"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.32"
@@ -42,7 +47,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
     "@avalabs/glacier-sdk" "3.1.0-alpha.32"
     "@avalabs/types" "3.1.0-alpha.32"
-    "@avalabs/vm-module-types" "1.2.0"
+    "@avalabs/vm-module-types" "0.0.0-feat-EIP-2930-support-20250131130746"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -59,15 +64,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-1.2.0.tgz#e1fa2fbc8ba94b9eb5f90ff5a50a005f6921003b"
-  integrity sha512-rVhbTZxrvEn4N1eueJ2DqoaUoahktve7DU5Da+QBx9k+vAzEKlAC4nxOf6hbdbzgAWxueiqIDYeca3nhJcpjow==
+"@avalabs/bitcoin-module@0.0.0-feat-EIP-2930-support-20250131130746":
+  version "0.0.0-feat-EIP-2930-support-20250131130746"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-EIP-2930-support-20250131130746.tgz#d63a1be5ee9aee83bf1c8eca0e90e5f94ccf97d9"
+  integrity sha512-ea5MuzTnQ+uoQ28rPM84XwW9DRqUhWdYvkztGQTOb6XFfH+3HaebPBYWNo6csxFFQ92LR+nm6iQYjHM7I4BI8A==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.32"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.32"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
-    "@avalabs/vm-module-types" "1.2.0"
+    "@avalabs/vm-module-types" "0.0.0-feat-EIP-2930-support-20250131130746"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -205,10 +210,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-1.2.0.tgz#27b0468b3b3550262ea8107e3032a361cbdd4e4e"
-  integrity sha512-k7djFv+FikdqtX/3tPOqIILp61Fe6AlpnpEXwOv1S9YngUMsOP6NiYY//NgmIsKm3MkX5hVL3hhoHLDJeGUizQ==
+"@avalabs/evm-module@0.0.0-feat-EIP-2930-support-20250131130746":
+  version "0.0.0-feat-EIP-2930-support-20250131130746"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-EIP-2930-support-20250131130746.tgz#51b1cdafbadee1d6892df9965afd5e02320f085a"
+  integrity sha512-To9MtdR5nWRIpB6toAz9ncCAG8biRlPu75l08uT5B8ihpk8ekVJvOePf+3RdmhIlNfunm9mkswaOHAsxB3myOg==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.32"
     "@avalabs/core-etherscan-sdk" "3.1.0-alpha.32"
@@ -216,7 +221,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
     "@avalabs/glacier-sdk" "3.1.0-alpha.32"
     "@avalabs/types" "3.1.0-alpha.32"
-    "@avalabs/vm-module-types" "1.2.0"
+    "@avalabs/vm-module-types" "0.0.0-feat-EIP-2930-support-20250131130746"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -230,13 +235,13 @@
   resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.32.tgz#a03a130ed85f60dde076cf9feeb2a4c487aee8e4"
   integrity sha512-LTRdqpsiGIJVJxfcnNs/85/NnSneD3Jg+DZw6+F8AiJ1OcZftGu9Hz1GvWZhoz+9udHSbEXHEN5trws4vqTjkQ==
 
-"@avalabs/hvm-module@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-1.2.0.tgz#55c2bdc0cd4fb1cb1fe54752de14fe3867c40287"
-  integrity sha512-xnirW1pWWvGJvtsTGscgyOJ5t/DD9uGo9F13ZccBdHdxTnEtXcbNx4A66xkEvpYm+QkQHze9i+d3Y3l021uo9w==
+"@avalabs/hvm-module@0.0.0-feat-EIP-2930-support-20250131130746":
+  version "0.0.0-feat-EIP-2930-support-20250131130746"
+  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-0.0.0-feat-EIP-2930-support-20250131130746.tgz#dce6312603c5f6118c4080f6c0371e31a0a3d9bf"
+  integrity sha512-NqtNZ3c2N4wYw2lA5pRUN+FNnKyApFtsuh/ggBnKuEt9ttVlQJaKeNuybMfU+TUDyHx6RAcr5T3mTs6hLdj9og==
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.30"
-    "@avalabs/vm-module-types" "1.2.0"
+    "@avalabs/vm-module-types" "0.0.0-feat-EIP-2930-support-20250131130746"
     "@metamask/rpc-errors" "6.3.0"
     "@noble/hashes" "1.5.0"
     hypersdk-client "0.4.16"
@@ -258,10 +263,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.32.tgz#bb94019e3c3121bfc66e1d5fed5a8c5c78c10fb5"
   integrity sha512-EwIMmTPygrMMxA8GVfBL7UNia3IycMjkPxuaRuZ8PTkW2Yr24F7GGeufBMFU69N0xTyoM8VQgMYNZ2x7stpedg==
 
-"@avalabs/vm-module-types@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-1.2.0.tgz#ad98f74fe7592d4e899a70c6d6c0bf1f9ec5eb80"
-  integrity sha512-sODtianQoKjfQWio/Sip+qVITM9DJ2+ZPLF2rfT5Po21i1u7mv5lbMXEWz8r1i2rMXAvZy9SK0nn2vrfP8ahbg==
+"@avalabs/vm-module-types@0.0.0-feat-EIP-2930-support-20250131130746":
+  version "0.0.0-feat-EIP-2930-support-20250131130746"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-EIP-2930-support-20250131130746.tgz#582a583c4950d89316b5a29a2e4f880032fb7638"
+  integrity sha512-MJZFiUDQf6poLLmsqYGSTBx16FhYZStYQ2Yz+r+FL691UWUBYUOSlR7jj5OYCR2D0rCx2QNd2DEfabeLpS3fIA==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
     "@avalabs/glacier-sdk" "3.1.0-alpha.32"
@@ -6256,10 +6261,12 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.10.0.tgz#1cbca7c67ba9ff80675ada496f54a919e8c4c145"
   integrity sha512-In+/vAdT+kkHigDSN9lUDDmzsIyKn5efDcwmGGnBtZVHnBv1oDVn6vC0ckic9FxSm+X0BGJGECpI1ZOg60E21g==
 
-"@types/node@18.15.13":
-  version "18.15.13"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.15.13.tgz#f64277c341150c979e42b00e4ac289290c9df469"
-  integrity sha512-N+0kuo9KgrUQ1Sn/ifDXsvg0TTleP7rIy4zOBGECxAljqvqfqpTfzx0Q1NUedOixRMBfe2Whhb056a42cWs26Q==
+"@types/node@22.7.5":
+  version "22.7.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.7.5.tgz#cfde981727a7ab3611a481510b473ae54442b92b"
+  integrity sha512-jML7s2NAzMWc//QSJ1a3prpk78cOPchGvXJsC3C6R6PSMoooztvRVQEz89gmBTBY1SPMaqo5teB4uNHPdetShQ==
+  dependencies:
+    undici-types "~6.19.2"
 
 "@types/node@^12.12.6":
   version "12.20.55"
@@ -11774,18 +11781,18 @@ ethers@5.7.2:
     "@ethersproject/web" "5.7.1"
     "@ethersproject/wordlists" "5.7.0"
 
-ethers@6.8.1:
-  version "6.8.1"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-6.8.1.tgz#ee2a1a39b5f62a13678f90ccd879175391d0a2b4"
-  integrity sha512-iEKm6zox5h1lDn6scuRWdIdFJUCGg3+/aQWu0F4K0GVyEZiktFkqrJbRjTn1FlYEPz7RKA707D6g5Kdk6j7Ljg==
+ethers@6.13.5:
+  version "6.13.5"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-6.13.5.tgz#8c1d6ac988ac08abc3c1d8fabbd4b8b602851ac4"
+  integrity sha512-+knKNieu5EKRThQJWwqaJ10a6HE9sSehGeqWN65//wE7j47ZpFhKAnHB/JJFibwwg61I/koxaPsXbXpD/skNOQ==
   dependencies:
-    "@adraffy/ens-normalize" "1.10.0"
+    "@adraffy/ens-normalize" "1.10.1"
     "@noble/curves" "1.2.0"
     "@noble/hashes" "1.3.2"
-    "@types/node" "18.15.13"
+    "@types/node" "22.7.5"
     aes-js "4.0.0-beta.5"
-    tslib "2.4.0"
-    ws "8.5.0"
+    tslib "2.7.0"
+    ws "8.17.1"
 
 ethjs-unit@0.1.6:
   version "0.1.6"
@@ -21349,10 +21356,10 @@ tslib@1.14.1, tslib@^1.8.1, tslib@^1.9.3:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
-  integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
+tslib@2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.7.0.tgz#d9b40c5c40ab59e8738f297df3087bf1a2690c01"
+  integrity sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==
 
 tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.0:
   version "2.5.0"
@@ -21599,6 +21606,11 @@ undici-types@~5.26.4:
   version "5.26.5"
   resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-5.26.5.tgz#bcd539893d00b56e964fd2657a4866b221a65617"
   integrity sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==
+
+undici-types@~6.19.2:
+  version "6.19.8"
+  resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-6.19.8.tgz#35111c9d1437ab83a7cdc0abae2f26d88eda0a02"
+  integrity sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==
 
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.0"
@@ -23152,10 +23164,10 @@ ws@8.13.0, ws@^8.11.0, ws@^8.13.0:
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.13.0.tgz#9a9fb92f93cf41512a0735c8f4dd09b8a1211cd0"
   integrity sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==
 
-ws@8.5.0:
-  version "8.5.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-8.5.0.tgz#bfb4be96600757fe5382de12c670dab984a1ed4f"
-  integrity sha512-BWX0SWVgLPzYwF8lTzEy1egjhS4S4OEAHfsO8o65WOVsrnSRGaSiUaa9e0ggGlkMTtBlmOpEXiie9RUcBO86qg==
+ws@8.17.1, ws@~8.17.1:
+  version "8.17.1"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.17.1.tgz#9293da530bb548febc95371d90f9c878727d919b"
+  integrity sha512-6XQFvXTkbfUOZOKKILFG1PDK2NDQs4azKQl26T0YS5CxqWLgXajbPZ+h4gZekJyRqFU8pvnbAbbs/3TgRPy+GQ==
 
 ws@^3.0.0:
   version "3.3.3"
@@ -23170,11 +23182,6 @@ ws@^7.4.6, ws@^7.5.1:
   version "7.5.9"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.9.tgz#54fa7db29f4c7cec68b1ddd3a89de099942bb591"
   integrity sha512-F+P9Jil7UiSKSkppIiD94dN07AwvFixvLIj1Og1Rl9GGMuNipJnV9JzjD6XuqmAeiswGvUmNLjr5cFuXwNS77Q==
-
-ws@~8.17.1:
-  version "8.17.1"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-8.17.1.tgz#9293da530bb548febc95371d90f9c878727d919b"
-  integrity sha512-6XQFvXTkbfUOZOKKILFG1PDK2NDQs4azKQl26T0YS5CxqWLgXajbPZ+h4gZekJyRqFU8pvnbAbbs/3TgRPy+GQ==
 
 xhr-request-promise@^0.1.2:
   version "0.1.3"
