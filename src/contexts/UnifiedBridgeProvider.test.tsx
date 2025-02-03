@@ -291,6 +291,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
               from: `0x${type}`,
               to: `0x${type}`,
               data: `0x${type}`,
+              value: 1500n,
             } as any);
 
         await signer.sign(tx, async () => '0x' as const, step);
@@ -301,7 +302,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
               type === BridgeType.AVALANCHE_BTC_AVA
                 ? RpcMethod.BITCOIN_SIGN_TRANSACTION
                 : RpcMethod.ETH_SEND_TRANSACTION,
-            params: isBtc ? tx : [tx],
+            params: isBtc ? tx : [{ ...tx, value: '0x5dc' }],
           },
           {
             alert: {
