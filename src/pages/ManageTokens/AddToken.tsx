@@ -91,11 +91,13 @@ export function AddToken() {
         params: [addressInput],
       });
       setIsLoading(false);
-      setNewTokenData(undefined);
 
       if (!data) {
         setError(t('Not a valid ERC-20 token address.'));
+        setNewTokenData(undefined);
+        return;
       }
+      setNewTokenData(data);
     };
 
     getTokenData();
