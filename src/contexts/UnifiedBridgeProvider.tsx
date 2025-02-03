@@ -653,7 +653,7 @@ export function UnifiedBridgeProvider({
 
         return bridgeTransfer.sourceTxHash;
       } catch (err) {
-        console.log('DEBUG', err);
+        console.error(err);
         throw err;
       }
     },
