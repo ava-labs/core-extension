@@ -29,10 +29,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-1.2.0.tgz#7c1b2f38bca9c32c196c6dfab0f0b52b01ee9556"
-  integrity sha512-6yuSCQWGCEdo4DFV24t6ipVVigdK2Ek/hk88q+mzaNJo44Xctgy9oNi5JUceDkkIpWaeV5/LS3S4P0jvy+R3MQ==
+"@avalabs/avalanche-module@0.0.0-fix-transaction-simulation-20250204212922":
+  version "0.0.0-fix-transaction-simulation-20250204212922"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-fix-transaction-simulation-20250204212922.tgz#8e3f70083f245a21ac15024f6bef85774937f52a"
+  integrity sha512-ZFAXLXQImPBNcLxa6P7uM1NOIu+QxLxWgCZXkoVFEcYJLHk0K8hcxh36ZUomVnYx95rTXzPVUFgIUaUTGVzrDg==
   dependencies:
     "@avalabs/avalanchejs" "4.1.2-alpha.3"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.32"
@@ -42,7 +42,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
     "@avalabs/glacier-sdk" "3.1.0-alpha.32"
     "@avalabs/types" "3.1.0-alpha.32"
-    "@avalabs/vm-module-types" "1.2.0"
+    "@avalabs/vm-module-types" "0.0.0-fix-transaction-simulation-20250204212922"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -59,15 +59,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-1.2.0.tgz#e1fa2fbc8ba94b9eb5f90ff5a50a005f6921003b"
-  integrity sha512-rVhbTZxrvEn4N1eueJ2DqoaUoahktve7DU5Da+QBx9k+vAzEKlAC4nxOf6hbdbzgAWxueiqIDYeca3nhJcpjow==
+"@avalabs/bitcoin-module@0.0.0-fix-transaction-simulation-20250204212922":
+  version "0.0.0-fix-transaction-simulation-20250204212922"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-fix-transaction-simulation-20250204212922.tgz#82ab095f8c5f91acefd7ca6a087c08925047feb6"
+  integrity sha512-H/m4R032NG/S/O65Chn8sJttt9VYMJ5UVXBiIU4vqQ84kG01GLikitPg0x3lgRhvMyLnx6FCUuRX+86gtMEwIQ==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.32"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.32"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
-    "@avalabs/vm-module-types" "1.2.0"
+    "@avalabs/vm-module-types" "0.0.0-fix-transaction-simulation-20250204212922"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -205,10 +205,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-1.2.0.tgz#27b0468b3b3550262ea8107e3032a361cbdd4e4e"
-  integrity sha512-k7djFv+FikdqtX/3tPOqIILp61Fe6AlpnpEXwOv1S9YngUMsOP6NiYY//NgmIsKm3MkX5hVL3hhoHLDJeGUizQ==
+"@avalabs/evm-module@0.0.0-fix-transaction-simulation-20250204212922":
+  version "0.0.0-fix-transaction-simulation-20250204212922"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-fix-transaction-simulation-20250204212922.tgz#32a91349e0e1dc11bbbb95953bcd5cc39ba8b2b7"
+  integrity sha512-2iZDZvLoHDqvEwBW9ea1hAUP9ulC/mtesTeqnNspx+2qfYqoDJAgNY3ySxDoOZYaFG4gwW6sIGPU4s3COY1pAw==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.32"
     "@avalabs/core-etherscan-sdk" "3.1.0-alpha.32"
@@ -216,7 +216,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
     "@avalabs/glacier-sdk" "3.1.0-alpha.32"
     "@avalabs/types" "3.1.0-alpha.32"
-    "@avalabs/vm-module-types" "1.2.0"
+    "@avalabs/vm-module-types" "0.0.0-fix-transaction-simulation-20250204212922"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -230,13 +230,13 @@
   resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.32.tgz#a03a130ed85f60dde076cf9feeb2a4c487aee8e4"
   integrity sha512-LTRdqpsiGIJVJxfcnNs/85/NnSneD3Jg+DZw6+F8AiJ1OcZftGu9Hz1GvWZhoz+9udHSbEXHEN5trws4vqTjkQ==
 
-"@avalabs/hvm-module@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-1.2.0.tgz#55c2bdc0cd4fb1cb1fe54752de14fe3867c40287"
-  integrity sha512-xnirW1pWWvGJvtsTGscgyOJ5t/DD9uGo9F13ZccBdHdxTnEtXcbNx4A66xkEvpYm+QkQHze9i+d3Y3l021uo9w==
+"@avalabs/hvm-module@0.0.0-fix-transaction-simulation-20250204212922":
+  version "0.0.0-fix-transaction-simulation-20250204212922"
+  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-0.0.0-fix-transaction-simulation-20250204212922.tgz#4867b389294a95ad9ab374361ac3c4905420ab53"
+  integrity sha512-EnmF1cvVUdOz+yeeI35Z2YolANoXMYR71CeFWUupFxiEWXHjx+dUa6LBVqDI8K/J9484GZ0flg12tFeQ2J4Hnw==
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.30"
-    "@avalabs/vm-module-types" "1.2.0"
+    "@avalabs/vm-module-types" "0.0.0-fix-transaction-simulation-20250204212922"
     "@metamask/rpc-errors" "6.3.0"
     "@noble/hashes" "1.5.0"
     hypersdk-client "0.4.16"
@@ -258,10 +258,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.32.tgz#bb94019e3c3121bfc66e1d5fed5a8c5c78c10fb5"
   integrity sha512-EwIMmTPygrMMxA8GVfBL7UNia3IycMjkPxuaRuZ8PTkW2Yr24F7GGeufBMFU69N0xTyoM8VQgMYNZ2x7stpedg==
 
-"@avalabs/vm-module-types@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-1.2.0.tgz#ad98f74fe7592d4e899a70c6d6c0bf1f9ec5eb80"
-  integrity sha512-sODtianQoKjfQWio/Sip+qVITM9DJ2+ZPLF2rfT5Po21i1u7mv5lbMXEWz8r1i2rMXAvZy9SK0nn2vrfP8ahbg==
+"@avalabs/vm-module-types@0.0.0-fix-transaction-simulation-20250204212922":
+  version "0.0.0-fix-transaction-simulation-20250204212922"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-fix-transaction-simulation-20250204212922.tgz#802c19d906a921b328739d060f5d8edab5a557d5"
+  integrity sha512-Km1JIV48PIwalZcK5yBoFpsP6iN/wSqMYRh9fo95R9m4LaI0g05aoPR8MKyfYnvNz7kXlR0Q1XpWbQuwPjAvaQ==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
     "@avalabs/glacier-sdk" "3.1.0-alpha.32"
