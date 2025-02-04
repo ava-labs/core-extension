@@ -78,11 +78,11 @@ export class SeedlessOnboardingHandler implements HandlerType {
 
     const walletId = await this.walletService.init({
       secretType: SecretType.Seedless,
-      pubKeys: (await seedlessWallet.getPublicKeys()) ?? [],
+      publicKeys: (await seedlessWallet.getPublicKeys()) ?? [],
       seedlessSignerToken: await memorySessionStorage.retrieve(),
       userId,
       authProvider,
-      derivationPath: DerivationPath.BIP44,
+      derivationPathSpec: DerivationPath.BIP44,
       name: walletName,
     });
 
@@ -96,9 +96,15 @@ export class SeedlessOnboardingHandler implements HandlerType {
     const secrets =
       await this.secretsService.getWalletAccountsSecretsById(walletId);
     if (secrets?.secretType === SecretType.Seedless) {
+      // To get the number of accounts, we find the number of
+      // unique public keys with the most common derivation path (EVM).
+      const numberOfAccounts = secrets.publicKeys.filter((pubKey) =>
+        pubKey.derivationPath.startsWith("m/44'/60'/"),
+      ).length;
+
       // Adding accounts cannot be parallelized, they need to be added one-by-one.
       // Otherwise race conditions occur and addresses get mixed up.
-      for (let i = 0; i < secrets.pubKeys.length; i++) {
+      for (let i = 0; i < numberOfAccounts; i++) {
         await this.accountsService.addPrimaryAccount({
           walletId,
         });
