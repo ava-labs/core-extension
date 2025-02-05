@@ -61,6 +61,7 @@ export default [
     rules: {
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       'react/prop-types': 'off',
+      '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-var-requires': 'off',
       'no-shadow': 'off',
