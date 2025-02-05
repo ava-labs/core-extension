@@ -392,7 +392,14 @@ describe('src/background/services/storage/StorageService.ts', () => {
         'some-key',
         'some-data',
         expect.anything(),
+        expect.any(Function),
       );
+
+      const dependencyLoader = migrationSpy.mock.calls[0]?.[3];
+
+      const loadSpy = jest.spyOn(service, 'load');
+      dependencyLoader?.('some-dependency');
+      expect(loadSpy).toHaveBeenCalledWith('some-dependency', 'some-password');
     });
 
     it('decrypts data with encryption key', async () => {

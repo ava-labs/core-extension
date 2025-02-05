@@ -56,12 +56,7 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
 
     secretsService.getPrimaryAccountSecrets.mockResolvedValue({
       secretType: SecretType.Seedless,
-      pubKeys: [
-        {
-          evm: 'evm',
-          xp: 'xp',
-        },
-      ],
+      publicKeys: [{ key: 'evm' }],
     } as any);
   });
 

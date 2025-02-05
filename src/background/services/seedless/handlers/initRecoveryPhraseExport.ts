@@ -44,7 +44,7 @@ export class InitRecoveryPhraseExportHandler implements HandlerType {
     const wallet = new SeedlessWallet({
       networkService: this.networkService,
       sessionStorage: new SeedlessTokenStorage(this.secretsService),
-      addressPublicKey: secrets.pubKeys[0],
+      addressPublicKey: secrets.publicKeys[0],
       mfaService: this.seedlessMfaService,
     });
 

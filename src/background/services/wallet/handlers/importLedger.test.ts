@@ -3,9 +3,18 @@ import { WalletService } from '../WalletService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 import { ImportLedgerHandler } from './importLedger';
-import { SecretType } from '../../secrets/models';
-import { DerivationPath } from '@avalabs/core-wallets-sdk';
+import {
+  AVALANCHE_BASE_DERIVATION_PATH,
+  EVM_BASE_DERIVATION_PATH,
+  SecretType,
+} from '../../secrets/models';
+import {
+  DerivationPath,
+  getAddressDerivationPath,
+} from '@avalabs/core-wallets-sdk';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { buildExtendedPublicKey } from '../../secrets/utils';
+import { AddressPublicKey } from '../../secrets/AddressPublicKey';
 
 describe('src/background/services/wallet/handlers/importLedger', () => {
   const walletService = {
@@ -58,7 +67,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
     expect(error).toEqual('Missing required param: Need xpub or pubKeys');
   });
-  it('returns an error if the seed phrase is already imported', async () => {
+  it('returns an error if the wallet is already imported', async () => {
     secretsService.isKnownSecret.mockResolvedValueOnce(true);
 
     const { error } = await handle({
@@ -94,9 +103,12 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
     walletService.addPrimaryWallet.mockResolvedValue(walletId);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue({
       secretType: SecretType.Ledger,
-      xpub: xpubValue,
-      xpubXP: xpubXPValue,
-      derivationPath: DerivationPath.BIP44,
+      extendedPublicKeys: [
+        buildExtendedPublicKey(xpubValue, `m/44'/60'/0'/0/0`),
+        buildExtendedPublicKey(xpubXPValue, `m/44'/9000'/0'/0/0`),
+      ],
+      publicKeys: [],
+      derivationPathSpec: DerivationPath.BIP44,
       id: walletId,
       name: nameValue,
     });
@@ -111,9 +123,12 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
     expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
       secretType: SecretType.Ledger,
-      xpub: xpubValue,
-      xpubXP: xpubXPValue,
-      derivationPath: DerivationPath.BIP44,
+      extendedPublicKeys: [
+        buildExtendedPublicKey(xpubValue, EVM_BASE_DERIVATION_PATH),
+        buildExtendedPublicKey(xpubXPValue, AVALANCHE_BASE_DERIVATION_PATH),
+      ],
+      publicKeys: [],
+      derivationPathSpec: DerivationPath.BIP44,
       name: nameValue,
     });
 
@@ -134,14 +149,14 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       {
         evm: 'pubKeyEvm',
       },
-    ];
+    ] as any;
     const nameValue = 'walletName';
     secretsService.isKnownSecret.mockResolvedValueOnce(false);
     walletService.addPrimaryWallet.mockResolvedValue(walletId);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue({
       secretType: SecretType.LedgerLive,
-      pubKeys: pubKeysValue,
-      derivationPath: DerivationPath.LedgerLive,
+      publicKeys: pubKeysValue,
+      derivationPathSpec: DerivationPath.LedgerLive,
       id: walletId,
       name: nameValue,
     });
@@ -155,8 +170,18 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
     expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
       secretType: SecretType.LedgerLive,
-      pubKeys: pubKeysValue,
-      derivationPath: DerivationPath.LedgerLive,
+      publicKeys: pubKeysValue.map((key, index) =>
+        AddressPublicKey.fromJSON({
+          key: key.evm,
+          curve: 'secp256k1',
+          derivationPath: getAddressDerivationPath(
+            index,
+            DerivationPath.LedgerLive,
+            'EVM',
+          ),
+        }).toJSON(),
+      ),
+      derivationPathSpec: DerivationPath.LedgerLive,
       name: nameValue,
     });
 
@@ -185,14 +210,14 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       {
         evm: 'pubKeyEvm4',
       },
-    ];
+    ] as any;
     const nameValue = 'walletName';
     secretsService.isKnownSecret.mockResolvedValueOnce(false);
     walletService.addPrimaryWallet.mockResolvedValue(walletId);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue({
       secretType: SecretType.LedgerLive,
-      pubKeys: pubKeysValue,
-      derivationPath: DerivationPath.LedgerLive,
+      publicKeys: pubKeysValue,
+      derivationPathSpec: DerivationPath.LedgerLive,
       id: walletId,
       name: nameValue,
     });
@@ -206,8 +231,18 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
     expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
       secretType: SecretType.LedgerLive,
-      pubKeys: pubKeysValue,
-      derivationPath: DerivationPath.LedgerLive,
+      publicKeys: pubKeysValue.map((key, index) =>
+        AddressPublicKey.fromJSON({
+          key: key.evm,
+          curve: 'secp256k1',
+          derivationPath: getAddressDerivationPath(
+            index,
+            DerivationPath.LedgerLive,
+            'EVM',
+          ),
+        }).toJSON(),
+      ),
+      derivationPathSpec: DerivationPath.LedgerLive,
       name: nameValue,
     });
 
