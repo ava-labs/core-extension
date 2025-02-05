@@ -375,7 +375,10 @@ export const AccountsActionButton = ({
                 )}
                 {canCreateAccount && (
                   <StyledMenuItem
-                    onClick={onAddNewAccount}
+                    onClick={() => {
+                      onAddNewAccount();
+                      setIsMenuOpen(false);
+                    }}
                     data-testid={'add-primary-account'}
                   >
                     <IconColumn>
