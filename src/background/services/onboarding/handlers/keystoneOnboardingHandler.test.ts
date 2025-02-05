@@ -108,7 +108,6 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
     const request = getRequest([
       {
         xpub: 'xpub',
-        xpubXP: '',
         password: 'password',
         analyticsConsent: false,
         masterFingerprint: 'masterFingerprint',
