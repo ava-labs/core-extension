@@ -12,7 +12,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { GetAddressesInRangeDisplayData } from '@src/background/services/accounts/models';
+import type { GetAddressesInRangeDisplayData } from '@src/background/services/accounts/models';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
@@ -22,7 +22,7 @@ import {
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
 import { WebsiteDetails } from '../SignTransaction/components/ApprovalTxDetails';
-import { DomainMetadata } from '@src/background/models';
+import type { DomainMetadata } from '@src/background/models';
 import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 import { truncateAddress } from '@src/utils/truncateAddress';
 

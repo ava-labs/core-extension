@@ -1,5 +1,5 @@
 import { singleton } from 'tsyringe';
-import { StorageService } from '../storage/StorageService';
+import type { StorageService } from '../storage/StorageService';
 
 export const WALLET_CONNECT_STORAGE_KEY = 'wallet-connect-data-store';
 

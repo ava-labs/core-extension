@@ -3,7 +3,8 @@ import {
   blockchainToNetwork,
   networkToBlockchain,
 } from './blockchainConversion';
-import { Blockchain, BridgeConfig } from '@avalabs/core-bridge-sdk';
+import type { BridgeConfig } from '@avalabs/core-bridge-sdk';
+import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { t } from 'i18next';
 import { decorateWithCaipId } from '@src/utils/caipConversion';
 

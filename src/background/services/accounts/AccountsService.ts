@@ -1,32 +1,38 @@
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { StorageService } from '../storage/StorageService';
-import {
+import type { StorageService } from '../storage/StorageService';
+import type {
   Account,
   Accounts,
-  AccountsEvents,
-  ACCOUNTS_STORAGE_KEY,
-  AccountType,
   ImportData,
   ImportedAccount,
   ImportType,
-  IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP,
   PrimaryAccount,
   WalletId,
 } from './models';
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
-import { NetworkService } from '../network/NetworkService';
+import {
+  AccountsEvents,
+  ACCOUNTS_STORAGE_KEY,
+  AccountType,
+  IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP,
+} from './models';
+import type {
+  OnLock,
+  OnUnlock,
+} from '@src/background/runtime/lifecycleCallbacks';
+import type { NetworkService } from '../network/NetworkService';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { PermissionsService } from '../permissions/PermissionsService';
+import type { PermissionsService } from '../permissions/PermissionsService';
 import { isProductionBuild } from '@src/utils/environment';
-import { DerivedAddresses, SecretType } from '../secrets/models';
+import type { DerivedAddresses } from '../secrets/models';
+import { SecretType } from '../secrets/models';
 import { isPrimaryAccount } from './utils/typeGuards';
-import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
+import type { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
-import { SecretsService } from '../secrets/SecretsService';
-import { LedgerService } from '../ledger/LedgerService';
-import { WalletConnectService } from '../walletConnect/WalletConnectService';
-import { Network } from '../network/models';
+import type { SecretsService } from '../secrets/SecretsService';
+import type { LedgerService } from '../ledger/LedgerService';
+import type { WalletConnectService } from '../walletConnect/WalletConnectService';
+import type { Network } from '../network/models';
 import { isDevnet } from '@src/utils/isDevnet';
 
 type AddAccountParams = {

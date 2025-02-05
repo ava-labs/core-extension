@@ -1,11 +1,12 @@
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import type { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
-import { TransactionParams } from '@avalabs/evm-module';
+import type { TransactionParams } from '@avalabs/evm-module';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { useConnectionContext } from '../ConnectionProvider';
 import { SwapSide } from 'paraswap-core';
 import browser from 'webextension-polyfill';
-import { APIError, ETHER_ADDRESS, ParaSwap, Transaction } from 'paraswap';
+import type { APIError, Transaction } from 'paraswap';
+import { ETHER_ADDRESS, ParaSwap } from 'paraswap';
 import { useNetworkContext } from '../NetworkProvider';
 import { useAccountsContext } from '../AccountsProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
@@ -20,16 +21,16 @@ import { BN } from 'bn.js';
 import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import { useTranslation } from 'react-i18next';
-import {
+import type {
   GetRateParams,
   ParaswapPricesResponse,
   SwapContextAPI,
   SwapParams,
-  DISALLOWED_SWAP_ASSETS,
   BuildTxParams,
   GetSwapPropsParams,
   ValidTransactionResponse,
 } from './models';
+import { DISALLOWED_SWAP_ASSETS } from './models';
 import Joi from 'joi';
 import { isAPIError } from '@src/pages/Swap/utils';
 import {

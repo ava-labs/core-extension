@@ -1,7 +1,7 @@
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useCallback, useState } from 'react';
 
-import { OnConnectCallback } from '../../contexts/WalletConnectContextProvider/models';
+import type { OnConnectCallback } from '../../contexts/WalletConnectContextProvider/models';
 import ImportWithWalletConnect from '../ImportWithWalletConnect/ImportWithWalletConnect';
 
 import { FireblocksAvatar } from './components/FireblocksAvatar';

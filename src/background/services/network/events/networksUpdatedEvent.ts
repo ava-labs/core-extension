@@ -1,5 +1,5 @@
-import { Network } from '@avalabs/core-chains-sdk';
-import {
+import type { Network } from '@avalabs/core-chains-sdk';
+import type {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
   ConnectionInfo,
@@ -7,7 +7,7 @@ import {
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
 import { NetworkEvents } from '../models';
-import { NetworkService } from '../NetworkService';
+import type { NetworkService } from '../NetworkService';
 
 @injectable()
 export class NetworksUpdatedEvents implements ExtensionEventEmitter {

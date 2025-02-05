@@ -2,7 +2,7 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { ContactsService } from '../ContactsService';
+import type { ContactsService } from '../ContactsService';
 @injectable()
 export class AvalancheGetContactsHandler extends DAppRequestHandler {
   methods = [DAppProviderRequest.AVALANCHE_GET_CONTACTS];

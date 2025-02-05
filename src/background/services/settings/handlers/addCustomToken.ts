@@ -1,10 +1,10 @@
 import { resolve } from '@avalabs/core-utils-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { TokenManagerService } from '../../tokens/TokenManagerService';
-import { SettingsService } from '../SettingsService';
-import { NetworkService } from '../../network/NetworkService';
+import type { TokenManagerService } from '../../tokens/TokenManagerService';
+import type { SettingsService } from '../SettingsService';
+import type { NetworkService } from '../../network/NetworkService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_ADD_CUSTOM_TOKEN,

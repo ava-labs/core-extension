@@ -1,4 +1,4 @@
-import { Account } from '@src/background/services/accounts/models';
+import type { Account } from '@src/background/services/accounts/models';
 
 export default function getAllAddressesForAccount(acc: Partial<Account>) {
   return [

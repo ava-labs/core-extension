@@ -1,10 +1,10 @@
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
-import { NetworkService } from '../NetworkService';
-import { AddEthereumChainParameter } from '../models';
+import type { NetworkService } from '../NetworkService';
+import type { AddEthereumChainParameter } from '../models';
 import { ethErrors } from 'eth-rpc-errors';
-import { Network } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
 
 export const networkToGetEthChainResponse = (
   network: Network,

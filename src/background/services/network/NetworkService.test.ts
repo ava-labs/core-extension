@@ -6,14 +6,14 @@ import {
 import { FetchRequest } from 'ethers';
 import { Signal } from 'micro-signals';
 
-import { StorageService } from '../storage/StorageService';
+import type { StorageService } from '../storage/StorageService';
 import { NetworkService } from './NetworkService';
 import {
   NETWORK_LIST_STORAGE_KEY,
   NETWORK_OVERRIDES_STORAGE_KEY,
   NETWORK_STORAGE_KEY,
 } from './models';
-import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import type { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
 import { runtime } from 'webextension-polyfill';
 import { decorateWithCaipId } from '@src/utils/caipConversion';

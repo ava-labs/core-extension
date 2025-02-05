@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import Masonry from 'react-masonry-css';
 import { styled } from '@avalabs/core-k2-components';
 

@@ -1,5 +1,6 @@
 import { useHistory } from 'react-router-dom';
-import { ChangeEvent, useState } from 'react';
+import type { ChangeEvent } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   IconButton,

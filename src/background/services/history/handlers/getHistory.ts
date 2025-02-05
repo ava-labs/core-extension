@@ -1,9 +1,9 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { TxHistoryItem } from '../models';
-import { HistoryService } from './../HistoryService';
-import { NetworkService } from '../../network/NetworkService';
+import type { TxHistoryItem } from '../models';
+import type { HistoryService } from './../HistoryService';
+import type { NetworkService } from '../../network/NetworkService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.HISTORY_GET,

@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import LRU from 'lru-cache';
 import { Subject } from 'rxjs';
-import { DeviceResponseData } from './models';
+import type { DeviceResponseData } from './models';
 import { LedgerService } from './LedgerService';
 import { LedgerTransport } from './LedgerTransport';
 import { LedgerEvent } from './models';

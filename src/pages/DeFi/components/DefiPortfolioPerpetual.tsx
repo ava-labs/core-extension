@@ -1,12 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import {
-  Grid,
-  GridProps,
-  Stack,
-  Typography,
-} from '@avalabs/core-k2-components';
+import type { GridProps } from '@avalabs/core-k2-components';
+import { Grid, Stack, Typography } from '@avalabs/core-k2-components';
 
-import { DefiPerpetualItem } from '@src/background/services/defi/models';
+import type { DefiPerpetualItem } from '@src/background/services/defi/models';
 
 import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';
 import { DefiTokenAvatarGroup } from './DefiTokenAvatarGroup';

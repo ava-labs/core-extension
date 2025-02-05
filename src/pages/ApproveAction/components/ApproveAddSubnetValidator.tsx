@@ -8,7 +8,7 @@ import {
 import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 import { TruncatedIdentifier } from './TruncatedIdentifier';
 import { AvaxAmount } from './AvaxAmount';
-import { Avalanche } from '@avalabs/core-wallets-sdk';
+import type { Avalanche } from '@avalabs/core-wallets-sdk';
 
 export function AddSubnetValidatorView({
   tx,

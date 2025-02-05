@@ -7,8 +7,8 @@ import {
   responseLog,
 } from '@src/utils/logging';
 import { injectable, injectAll } from 'tsyringe';
-import { Runtime } from 'webextension-polyfill';
-import { Context, Pipeline } from '../middlewares/models';
+import type { Runtime } from 'webextension-polyfill';
+import type { Context, Pipeline } from '../middlewares/models';
 import { PermissionMiddleware } from '../middlewares/PermissionMiddleware';
 import { DAppRequestHandlerMiddleware } from '../middlewares/DAppRequestHandlerMiddleware';
 import {
@@ -16,26 +16,22 @@ import {
   SideToLog,
 } from '../middlewares/RequestLoggerMiddleware';
 import { SiteMetadataMiddleware } from '../middlewares/SiteMetadataMiddleware';
-import { ConnectionController, DAppEventEmitter } from '../models';
+import type { ConnectionController, DAppEventEmitter } from '../models';
 import { RequestProcessorPipeline } from '../RequestProcessorPipeline';
-import { PermissionsService } from '@src/background/services/permissions/PermissionsService';
-import { AccountsService } from '@src/background/services/accounts/AccountsService';
+import type { PermissionsService } from '@src/background/services/permissions/PermissionsService';
+import type { AccountsService } from '@src/background/services/accounts/AccountsService';
 
 import './registry';
-import { NetworkService } from '@src/background/services/network/NetworkService';
-import { DAppRequestHandler } from './DAppRequestHandler';
-import { LockService } from '@src/background/services/lock/LockService';
+import type { NetworkService } from '@src/background/services/network/NetworkService';
+import type { DAppRequestHandler } from './DAppRequestHandler';
+import type { LockService } from '@src/background/services/lock/LockService';
 import PortConnection from '@src/background/utils/messaging/PortConnection';
-import {
-  DAppProviderRequest,
-  JsonRpcFailure,
-  JsonRpcRequest,
-  JsonRpcSuccess,
-} from './models';
+import type { JsonRpcFailure, JsonRpcRequest, JsonRpcSuccess } from './models';
+import { DAppProviderRequest } from './models';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
-import { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import type { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
 
 /**

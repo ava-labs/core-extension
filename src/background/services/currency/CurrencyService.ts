@@ -1,14 +1,17 @@
 import { singleton } from 'tsyringe';
 import EventEmitter from 'events';
 
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import type {
+  OnLock,
+  OnUnlock,
+} from '@src/background/runtime/lifecycleCallbacks';
 
-import { StorageService } from '../storage/StorageService';
+import type { StorageService } from '../storage/StorageService';
+import type { CurrencyExchangeRatesState } from './models';
 import {
   CURRENCY_EXCHANGE_RATES_REFRESH_INTERVAL,
   CURRENCY_EXCHANGE_RATES_STORAGE_KEY,
   CURRENCY_EXCHANGE_RATES_URL,
-  CurrencyExchangeRatesState,
   CurrencyServiceEvents,
   ExchangeRatesSchema,
 } from './models';

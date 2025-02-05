@@ -1,28 +1,23 @@
 import { omit, pick } from 'lodash';
 import { singleton } from 'tsyringe';
 
-import {
-  Account,
-  AccountType,
-  ImportData,
-  ImportType,
-} from '../accounts/models';
-import { StorageService } from '../storage/StorageService';
-import {
+import type { Account, ImportData } from '../accounts/models';
+import { AccountType, ImportType } from '../accounts/models';
+import type { StorageService } from '../storage/StorageService';
+import type {
   BtcWalletPolicyDetails,
   WalletSecretInStorage,
-  WALLET_STORAGE_KEY,
   AddPrimaryWalletSecrets,
   WalletDetails,
   PubKeyType,
-  WalletEvents,
 } from '../wallet/models';
-import {
+import { WALLET_STORAGE_KEY, WalletEvents } from '../wallet/models';
+import type {
   DerivedAddresses,
   ImportedAccountSecrets,
   PrimaryWalletSecrets,
-  SecretType,
 } from './models';
+import { SecretType } from './models';
 import { isPrimaryAccount } from '../accounts/utils/typeGuards';
 import _ from 'lodash';
 import {
@@ -39,11 +34,11 @@ import { networks } from 'bitcoinjs-lib';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
-import { LedgerService } from '../ledger/LedgerService';
-import { NetworkService } from '../network/NetworkService';
-import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import type { LedgerService } from '../ledger/LedgerService';
+import type { NetworkService } from '../network/NetworkService';
+import type { WalletConnectService } from '../walletConnect/WalletConnectService';
 import EventEmitter from 'events';
-import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import type { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { getAddressForHvm } from './utils/getAddressForHvm';
 import { getAccountPrivateKeyFromMnemonic } from './utils/getAccountPrivateKeyFromMnemonic';
 

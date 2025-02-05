@@ -1,7 +1,7 @@
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';
-import { Network } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
 import { useApproveAction } from '../../hooks/useApproveAction';
 import { Trans, useTranslation } from 'react-i18next';
 import {

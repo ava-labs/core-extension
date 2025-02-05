@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { OnboardingState } from '../models';
-import { OnboardingService } from '../OnboardingService';
+import type { OnboardingState } from '../models';
+import type { OnboardingService } from '../OnboardingService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ONBOARDING_GET_STATE,
   OnboardingState

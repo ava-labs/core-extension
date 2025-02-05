@@ -1,4 +1,5 @@
-import { RefObject, useCallback, useState } from 'react';
+import type { RefObject } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ClickAwayListener,
   Grow,
@@ -13,8 +14,8 @@ import {
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { Account } from '@src/background/services/accounts/models';
-import { SecretType } from '@src/background/services/secrets/models';
+import type { Account } from '@src/background/services/accounts/models';
+import type { SecretType } from '@src/background/services/secrets/models';
 
 import { usePrivateKeyExport } from '../hooks/usePrivateKeyExport';
 import { useAccountManager } from '../providers/AccountManagerProvider';

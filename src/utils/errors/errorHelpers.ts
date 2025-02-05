@@ -1,5 +1,7 @@
-import { EthereumRpcError, ethErrors } from 'eth-rpc-errors';
-import { CommonError, ErrorCode } from './errorCodes';
+import type { EthereumRpcError } from 'eth-rpc-errors';
+import { ethErrors } from 'eth-rpc-errors';
+import type { ErrorCode } from './errorCodes';
+import { CommonError } from './errorCodes';
 
 export type ErrorData = {
   reason: ErrorCode;

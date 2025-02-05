@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { LockService } from '../LockService';
+import type { LockService } from '../LockService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LOCK_GET_STATE,

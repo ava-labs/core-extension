@@ -5,6 +5,7 @@ import {
   Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
+import type { FundsRecipientItem } from '@avalabs/vm-module-types';
 import {
   type AddressItem,
   type CurrencyItem,
@@ -12,7 +13,6 @@ import {
   type LinkItem,
   type TextItem,
   DetailItemType,
-  FundsRecipientItem,
 } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 

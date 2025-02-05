@@ -15,8 +15,8 @@ import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import type { AvalancheSendTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_sendTransaction';
 
 import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
-import { SendAdapterAVM } from './models';
-import { AVMSendOptions } from '../../models';
+import type { SendAdapterAVM } from './models';
+import type { AVMSendOptions } from '../../models';
 import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
 
 const XCHAIN_ALIAS = 'X' as const;

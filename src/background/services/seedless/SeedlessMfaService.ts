@@ -1,17 +1,23 @@
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
-import {
+import type {
   AddFidoChallenge,
   CubeSignerResponse,
-  SignerSession,
 } from '@cubist-labs/cubesigner-sdk';
-import { filter, firstValueFrom, map, Subject, Subscription } from 'rxjs';
+import { SignerSession } from '@cubist-labs/cubesigner-sdk';
+import type { Subscription } from 'rxjs';
+import { filter, firstValueFrom, map, Subject } from 'rxjs';
 
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
-import { DecodedFIDOResult, KeyType } from '@src/utils/seedless/fido/types';
+import type {
+  OnLock,
+  OnUnlock,
+} from '@src/background/runtime/lifecycleCallbacks';
+import type {
+  DecodedFIDOResult,
+  KeyType,
+} from '@src/utils/seedless/fido/types';
 
-import {
-  AuthErrorCode,
+import type {
   GetRecoveryMethodsOptions,
   MfaChoiceRequest,
   MfaChoiceResponse,
@@ -19,19 +25,22 @@ import {
   MfaFailureData,
   MfaFidoRequest,
   MfaRequestData,
-  MfaRequestType,
   MfaResponseData,
   MfaTotpRequest,
   RecoveryMethod,
+  TotpResetChallenge,
+} from './models';
+import {
+  AuthErrorCode,
+  MfaRequestType,
   SeedlessError,
   SeedlessEvents,
   TOTP_ISSUER,
-  TotpResetChallenge,
 } from './models';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
-import { SecretsService } from '../secrets/SecretsService';
+import type { SecretsService } from '../secrets/SecretsService';
 import { isFailedMfaError, mapMfasToRecoveryMethods } from './utils';
-import { PartialBy } from '@src/background/models';
+import type { PartialBy } from '@src/background/models';
 
 @singleton()
 export class SeedlessMfaService implements OnUnlock, OnLock {

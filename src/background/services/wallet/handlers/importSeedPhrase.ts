@@ -7,18 +7,18 @@ import {
 import { ethErrors } from 'eth-rpc-errors';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 
 import { SecretType } from '../../secrets/models';
-import { WalletService } from '../WalletService';
-import { SecretsService } from '../../secrets/SecretsService';
-import { AccountsService } from '../../accounts/AccountsService';
+import type { WalletService } from '../WalletService';
+import type { SecretsService } from '../../secrets/SecretsService';
+import type { AccountsService } from '../../accounts/AccountsService';
 
-import {
+import type {
   ImportSeedphraseWalletParams,
   ImportWalletResult,
-  SeedphraseImportError,
 } from './models';
+import { SeedphraseImportError } from './models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_IMPORT_SEED_PHRASE,

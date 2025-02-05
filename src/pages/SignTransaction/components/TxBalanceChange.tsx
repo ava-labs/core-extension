@@ -15,7 +15,7 @@ import {
   TransactionTokenCardVariant,
 } from './TransactionTokenCard';
 import { NftAccordion } from './NftAccordion';
-import { BalanceChange } from '@avalabs/vm-module-types';
+import type { BalanceChange } from '@avalabs/vm-module-types';
 
 type TxBalanceChangeProps = BalanceChange & {
   isSimulationSuccessful?: boolean;

@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import useRegisterBtcWalletPolicy from './hooks/useRegisterBtcWalletPolicy';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { StoreBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/storeBtcWalletPolicyDetails';
+import type { StoreBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/storeBtcWalletPolicyDetails';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { Trans, useTranslation } from 'react-i18next';
 

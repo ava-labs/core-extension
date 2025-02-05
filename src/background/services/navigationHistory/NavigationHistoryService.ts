@@ -1,11 +1,11 @@
 import { injectable } from 'tsyringe';
-import { StorageService } from '../storage/StorageService';
-import {
-  NAVIGATION_HISTORY_STORAGE_KEY,
+import type { StorageService } from '../storage/StorageService';
+import type {
   NavigationHistoryState,
   NavigationHistoryStorage,
   NavigationHistoryDataState,
 } from './models';
+import { NAVIGATION_HISTORY_STORAGE_KEY } from './models';
 
 @injectable()
 export class NavigationHistoryService {

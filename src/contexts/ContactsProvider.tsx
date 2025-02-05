@@ -8,13 +8,13 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
-import { ContactsState } from '@src/background/services/contacts/models';
+import type { ContactsState } from '@src/background/services/contacts/models';
 import type { Contact } from '@avalabs/types';
 import { contactsUpdatedEventListener } from '@src/background/services/contacts/events/listeners';
-import { GetContactsHandler } from '@src/background/services/contacts/handlers/getContacts';
-import { CreateContactHandler } from '@src/background/services/contacts/handlers/createContact';
-import { UpdateContactHandler } from '@src/background/services/contacts/handlers/updateContact';
-import { RemoveContactHandler } from '@src/background/services/contacts/handlers/removeContact';
+import type { GetContactsHandler } from '@src/background/services/contacts/handlers/getContacts';
+import type { CreateContactHandler } from '@src/background/services/contacts/handlers/createContact';
+import type { UpdateContactHandler } from '@src/background/services/contacts/handlers/updateContact';
+import type { RemoveContactHandler } from '@src/background/services/contacts/handlers/removeContact';
 
 type ContactsFromProvider = ContactsState & {
   createContact(contact: Contact): Promise<any>;

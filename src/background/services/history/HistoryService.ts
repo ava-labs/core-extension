@@ -1,16 +1,16 @@
 import { singleton } from 'tsyringe';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { NetworkWithCaipId } from '../network/models';
-import { ModuleManager } from '@src/background/vmModules/ModuleManager';
-import { AccountsService } from '../accounts/AccountsService';
-import { TxHistoryItem } from './models';
-import { Transaction } from '@avalabs/vm-module-types';
-import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
+import type { NetworkWithCaipId } from '../network/models';
+import type { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import type { AccountsService } from '../accounts/AccountsService';
+import type { TxHistoryItem } from './models';
+import type { Transaction } from '@avalabs/vm-module-types';
+import type { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
 import { resolve } from '@src/utils/promiseResolver';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
-import { AnalyzeTxParams } from '@avalabs/bridge-unified';
+import type { AnalyzeTxParams } from '@avalabs/bridge-unified';
 
 @singleton()
 export class HistoryService {

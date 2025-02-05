@@ -1,16 +1,16 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { GetPrivateKeyHandler } from './getPrivateKey';
+import type { PrimaryAccount } from '../models';
 import {
   AccountType,
   GetPrivateKeyErrorTypes,
-  PrimaryAccount,
   PrivateKeyChain,
 } from '../models';
-import { LockService } from '../../lock/LockService';
+import type { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
 import { getWalletFromMnemonic } from '@avalabs/core-wallets-sdk';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { AccountsService } from '../AccountsService';
+import type { AccountsService } from '../AccountsService';
 
 jest.mock('@avalabs/core-wallets-sdk', () => ({
   ...jest.requireActual('@avalabs/core-wallets-sdk'),

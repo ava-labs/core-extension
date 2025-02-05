@@ -1,5 +1,6 @@
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
-import { ReactEventHandler, useState } from 'react';
+import type { ReactEventHandler } from 'react';
+import { useState } from 'react';
 
 interface ImageWithFallbackProps {
   src?: string;

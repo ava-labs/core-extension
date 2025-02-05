@@ -1,11 +1,11 @@
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 import browser from 'webextension-polyfill';
-import { ConnectionService } from '@src/background/connections/ConnectionService';
+import type { ConnectionService } from '@src/background/connections/ConnectionService';
 import { singleton } from 'tsyringe';
-import { LockService } from '@src/background/services/lock/LockService';
-import { OnboardingService } from '@src/background/services/onboarding/OnboardingService';
-import { ModuleManager } from '../vmModules/ModuleManager';
-import { BridgeService } from '../services/bridge/BridgeService';
+import type { LockService } from '@src/background/services/lock/LockService';
+import type { OnboardingService } from '@src/background/services/onboarding/OnboardingService';
+import type { ModuleManager } from '../vmModules/ModuleManager';
+import type { BridgeService } from '../services/bridge/BridgeService';
 
 @singleton()
 export class BackgroundRuntime {

@@ -1,10 +1,6 @@
 import { StorageService } from '../storage/StorageService';
-import {
-  DappPermissions,
-  PermissionEvents,
-  Permissions,
-  PERMISSION_STORAGE_KEY,
-} from './models';
+import type { DappPermissions, Permissions } from './models';
+import { PermissionEvents, PERMISSION_STORAGE_KEY } from './models';
 import { PermissionsService } from './PermissionsService';
 
 jest.mock('../storage/StorageService');

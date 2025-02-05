@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { WalletDetails } from '../models';
-import { SecretsService } from '../../secrets/SecretsService';
+import type { WalletDetails } from '../models';
+import type { SecretsService } from '../../secrets/SecretsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_GET_DETAILS,

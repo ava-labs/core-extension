@@ -1,10 +1,10 @@
 import { OnboardingEvents } from '../models';
-import {
+import type {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
-import { OnboardingService } from '../OnboardingService';
+import type { OnboardingService } from '../OnboardingService';
 import { singleton } from 'tsyringe';
 @singleton()
 export class OnboardingUpdatedEvents implements ExtensionEventEmitter {

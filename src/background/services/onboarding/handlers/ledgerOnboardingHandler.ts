@@ -1,17 +1,17 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { SecretType } from '../../secrets/models';
-import { SettingsService } from '../../settings/SettingsService';
-import { StorageService } from '../../storage/StorageService';
-import { AnalyticsService } from '../../analytics/AnalyticsService';
-import { AccountsService } from '../../accounts/AccountsService';
-import { WalletService } from '../../wallet/WalletService';
-import { OnboardingService } from '../OnboardingService';
-import { LockService } from '../../lock/LockService';
-import { NetworkService } from '../../network/NetworkService';
+import type { SettingsService } from '../../settings/SettingsService';
+import type { StorageService } from '../../storage/StorageService';
+import type { AnalyticsService } from '../../analytics/AnalyticsService';
+import type { AccountsService } from '../../accounts/AccountsService';
+import type { WalletService } from '../../wallet/WalletService';
+import type { OnboardingService } from '../OnboardingService';
+import type { LockService } from '../../lock/LockService';
+import type { NetworkService } from '../../network/NetworkService';
 import { injectable } from 'tsyringe';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { PubKeyType } from '../../wallet/models';
+import type { PubKeyType } from '../../wallet/models';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
 

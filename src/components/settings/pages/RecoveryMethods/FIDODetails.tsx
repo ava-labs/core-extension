@@ -21,10 +21,8 @@ import { Overlay } from '@src/components/common/Overlay';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useSeedlessMfa } from '@src/hooks/useSeedlessMfa';
 import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
-import {
-  RecoveryMethodFido,
-  SeedlessError,
-} from '@src/background/services/seedless/models';
+import type { RecoveryMethodFido } from '@src/background/services/seedless/models';
+import { SeedlessError } from '@src/background/services/seedless/models';
 
 enum State {
   Initial = 'initial',

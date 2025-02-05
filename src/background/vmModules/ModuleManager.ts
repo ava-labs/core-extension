@@ -1,10 +1,9 @@
-import {
+import type {
   AppInfo,
-  AppName,
   BatchApprovalController,
-  Environment,
   Module,
 } from '@avalabs/vm-module-types';
+import { AppName, Environment } from '@avalabs/vm-module-types';
 import { runtime } from 'webextension-polyfill';
 import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { AvalancheModule } from '@avalabs/avalanche-module';
@@ -16,9 +15,9 @@ import { singleton } from 'tsyringe';
 import { assertPresent } from '@src/utils/assertions';
 import { isDevelopment } from '@src/utils/environment';
 
-import { NetworkWithCaipId } from '../services/network/models';
+import type { NetworkWithCaipId } from '../services/network/models';
 import { VMModuleError } from './models';
-import { ApprovalController } from './ApprovalController';
+import type { ApprovalController } from './ApprovalController';
 import { AvaxCaipId, BitcoinCaipId } from '@src/utils/caipConversion';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md

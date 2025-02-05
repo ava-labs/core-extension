@@ -1,17 +1,14 @@
-import {
-  Network,
-  NetworkContractToken,
-  NetworkVMType,
-} from '@avalabs/core-chains-sdk';
+import type { Network, NetworkContractToken } from '@avalabs/core-chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ethers } from 'ethers';
 import { singleton } from 'tsyringe';
-import { NetworkService } from '../network/NetworkService';
-import { SettingsService } from '../settings/SettingsService';
+import type { NetworkService } from '../network/NetworkService';
+import type { SettingsService } from '../settings/SettingsService';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import xss from 'xss';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { EnsureDefined } from '@src/background/models';
+import type { EnsureDefined } from '@src/background/models';
 
 @singleton()
 export class TokenManagerService {

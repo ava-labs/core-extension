@@ -1,36 +1,35 @@
 import { singleton } from 'tsyringe';
-import {
+import type {
   AnalyzeTxParams,
   AnalyzeTxResult,
   BridgeInitializer,
   BridgeTransfer,
+} from '@avalabs/bridge-unified';
+import {
   BridgeType,
   createUnifiedBridgeService,
   Environment,
   getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
-import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
+import type { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { wait } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
 
 import { getExponentialBackoffDelay } from '@src/utils/exponentialBackoff';
-import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
-import { NetworkService } from '../network/NetworkService';
-import { StorageService } from '../storage/StorageService';
+import type { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
+import type { NetworkService } from '../network/NetworkService';
+import type { StorageService } from '../storage/StorageService';
 
+import type { UnifiedBridgeState } from './models';
 import {
   UNIFIED_BRIDGE_DEFAULT_STATE,
   UNIFIED_BRIDGE_STATE_STORAGE_KEY,
   UNIFIED_BRIDGE_TRACKED_FLAGS,
   UnifiedBridgeEvent,
-  UnifiedBridgeState,
 } from './models';
-import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import {
-  FeatureFlagEvents,
-  FeatureFlags,
-  FeatureGates,
-} from '../featureFlags/models';
+import type { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import type { FeatureFlags, FeatureGates } from '../featureFlags/models';
+import { FeatureFlagEvents } from '../featureFlags/models';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';

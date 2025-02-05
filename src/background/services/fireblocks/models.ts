@@ -1,6 +1,7 @@
-import { DestinationTransferPeerPath, TransactionStatus } from 'fireblocks-sdk';
-import { KeyLike } from 'jose';
-import {
+import type { DestinationTransferPeerPath } from 'fireblocks-sdk';
+import { TransactionStatus } from 'fireblocks-sdk';
+import type { KeyLike } from 'jose';
+import type {
   AddressResponse as _AddressResponse,
   PaginatedAddressesResponse as _PaginatedAddressesResponse,
 } from 'fireblocks-sdk';

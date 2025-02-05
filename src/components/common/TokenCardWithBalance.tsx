@@ -1,6 +1,6 @@
 import { Card, Stack, Tooltip, Typography } from '@avalabs/core-k2-components';
 import { useEffect, useRef, useState } from 'react';
-import { TokenWithBalance } from '@avalabs/vm-module-types';
+import type { TokenWithBalance } from '@avalabs/vm-module-types';
 
 import { PAndL } from './ProfitAndLoss';
 import { MaliciousTokenWarningIcon } from './MaliciousTokenWarning';

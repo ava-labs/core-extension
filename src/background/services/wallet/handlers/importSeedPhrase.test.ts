@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import { WalletService } from '../WalletService';
-import { SecretsService } from '../../secrets/SecretsService';
-import { AccountsService } from '../../accounts/AccountsService';
+import type { WalletService } from '../WalletService';
+import type { SecretsService } from '../../secrets/SecretsService';
+import type { AccountsService } from '../../accounts/AccountsService';
 
 import { ImportSeedPhraseHandler } from './importSeedPhrase';
 import { SeedphraseImportError } from './models';

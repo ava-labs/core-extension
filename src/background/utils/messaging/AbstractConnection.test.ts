@@ -1,6 +1,6 @@
 import { ethErrors } from 'eth-rpc-errors';
 import AbstractConnection from './AbstractConnection';
-import { Message } from './models';
+import type { Message } from './models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import * as environment from '@src/utils/environment';
 

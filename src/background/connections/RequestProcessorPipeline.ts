@@ -1,4 +1,4 @@
-import { Context, Middleware, Pipeline } from './middlewares/models';
+import type { Context, Middleware, Pipeline } from './middlewares/models';
 
 export function RequestProcessorPipeline<RequestType, ResponseType>(
   ...middlewares: Middleware<RequestType, ResponseType>[]

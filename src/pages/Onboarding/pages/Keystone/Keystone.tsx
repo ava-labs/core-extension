@@ -17,7 +17,7 @@ import {
   KeystoneQRCodeScanner,
   KEYSTONE_CONNECT_SUPPORT_URL,
 } from './KeystoneQRCodeScanner';
-import { AddressType } from '../Ledger/LedgerConnect';
+import type { AddressType } from '../Ledger/LedgerConnect';
 import { getAddressFromXPub } from '@avalabs/core-wallets-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
 import { DerivedAddresses } from '../../components/DerivedAddresses';

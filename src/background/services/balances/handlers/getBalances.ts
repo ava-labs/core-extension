@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { BalanceAggregatorService } from '../BalanceAggregatorService';
-import { BalancesInfo } from '../events/balancesUpdatedEvent';
+import type { BalanceAggregatorService } from '../BalanceAggregatorService';
+import type { BalancesInfo } from '../events/balancesUpdatedEvent';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET,

@@ -1,11 +1,10 @@
 import { singleton } from 'tsyringe';
 
-import {
+import type {
   DefiDataProvider,
   DefiProtocol,
   DefiToken,
   DefiItem,
-  DefiItemType,
   DefiCommonItem,
   DefiLendingItem,
   DefiVestingItem,
@@ -14,21 +13,22 @@ import {
   DefiItemGroup,
   DefiPerpetualItem,
 } from '../defi/models';
+import { DefiItemType } from '../defi/models';
 
-import {
+import type {
   DebankChain,
   DebankComplexProtocol,
   DebankPortfolioItemObject,
-  DebankProtocolDetailTypes,
   DebankPortfolioTokenItem,
   DebankTxPreExecutionResult,
   ExplainTxResponse,
 } from './models';
-import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import { DebankProtocolDetailTypes } from './models';
+import type { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
-import { Network } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
 import { txParamsToTransactionData } from './utils/txParamsToTransactionData';
-import {
+import type {
   EthSendTransactionParamsWithGas,
   TransactionDisplayValues,
 } from '../wallet/handlers/eth_sendTransaction/models';

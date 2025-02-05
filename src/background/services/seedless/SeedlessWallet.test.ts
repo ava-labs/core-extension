@@ -1,5 +1,6 @@
 import { utils } from '@avalabs/avalanchejs';
-import { ChainId, Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { strip0x } from '@avalabs/core-utils-sdk';
 import {
   Avalanche,
@@ -37,8 +38,8 @@ import {
   typedSignatureHash,
 } from '@metamask/eth-sig-util';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
-import { SeedlessSessionManager } from './SeedlessSessionManager';
-import { SeedlessMfaService } from './SeedlessMfaService';
+import type { SeedlessSessionManager } from './SeedlessSessionManager';
+import type { SeedlessMfaService } from './SeedlessMfaService';
 import { MfaRequestType } from './models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 

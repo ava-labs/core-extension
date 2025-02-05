@@ -1,4 +1,4 @@
-import { TokensPriceShortData } from '../../tokens/models';
+import type { TokensPriceShortData } from '../../tokens/models';
 
 export function getPriceChangeValues(
   tokenSymbol: string,

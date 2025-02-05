@@ -1,28 +1,21 @@
 import { injectable } from 'tsyringe';
-import { WalletService } from '../WalletService';
-import {
-  DAppProviderRequest,
-  JsonRpcRequestParams,
-} from '@src/background/connections/dAppConnection/models';
+import type { WalletService } from '../WalletService';
+import type { JsonRpcRequestParams } from '@src/background/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
-import { Action, buildActionForRequest } from '../../actions/models';
+import type { Action } from '../../actions/models';
+import { buildActionForRequest } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import {
-  UnsignedTx,
-  EVMUnsignedTx,
-  EVM,
-  utils,
-  avaxSerial,
-  VM,
-} from '@avalabs/avalanchejs';
-import { NetworkService } from '@src/background/services/network/NetworkService';
+import type { avaxSerial, VM } from '@avalabs/avalanchejs';
+import { UnsignedTx, EVMUnsignedTx, EVM, utils } from '@avalabs/avalanchejs';
+import type { NetworkService } from '@src/background/services/network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
-import { AccountsService } from '../../accounts/AccountsService';
+import type { AccountsService } from '../../accounts/AccountsService';
 import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { Network } from '@avalabs/glacier-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
-import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
+import type { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { measureDuration } from '@src/utils/measureDuration';

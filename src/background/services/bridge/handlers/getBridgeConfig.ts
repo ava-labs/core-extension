@@ -1,8 +1,8 @@
-import { BridgeConfig } from '@avalabs/core-bridge-sdk';
+import type { BridgeConfig } from '@avalabs/core-bridge-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { BridgeService } from '../BridgeService';
+import type { BridgeService } from '../BridgeService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_GET_CONFIG,

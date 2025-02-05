@@ -1,8 +1,8 @@
 import { matchingPayload, render, waitFor } from '@src/tests/test-utils';
 import { createRef, forwardRef, useImperativeHandle } from 'react';
+import type { BridgeStepDetails } from '@avalabs/bridge-unified';
 import {
   BridgeSignatureReason,
-  BridgeStepDetails,
   BridgeType,
   Environment,
   TokenType,
@@ -14,8 +14,8 @@ import { useConnectionContext } from './ConnectionProvider';
 import { useAccountsContext } from './AccountsProvider';
 import { useNetworkContext } from './NetworkProvider';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
+import type { UnifiedBridgeContext } from './UnifiedBridgeProvider';
 import {
-  UnifiedBridgeContext,
   UnifiedBridgeProvider,
   useUnifiedBridgeContext,
 } from './UnifiedBridgeProvider';

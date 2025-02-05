@@ -1,24 +1,24 @@
-import { NetworkContractToken } from '@avalabs/core-chains-sdk';
-import {
+import type { NetworkContractToken } from '@avalabs/core-chains-sdk';
+import type {
   OnLock,
   OnStorageReady,
 } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { NetworkService } from '../network/NetworkService';
-import { StorageService } from '../storage/StorageService';
+import type { NetworkService } from '../network/NetworkService';
+import type { StorageService } from '../storage/StorageService';
 import { isTokenSupported } from '../tokens/utils/isTokenSupported';
+import type { TokensVisibility, CollectiblesVisibility } from './models';
 import {
   Languages,
   SettingsEvents,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
-  TokensVisibility,
-  CollectiblesVisibility,
   AnalyticsConsent,
 } from './models';
-import { SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant } from './models';
+import type { SettingsState } from './models';
+import { SETTINGS_STORAGE_KEY, ThemeVariant } from './models';
 import { changeLanguage } from 'i18next';
-import { EnsureDefined } from '@src/background/models';
+import type { EnsureDefined } from '@src/background/models';
 
 const DEFAULT_SETTINGS_STATE: SettingsState = {
   currency: 'USD',

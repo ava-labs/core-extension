@@ -1,10 +1,10 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { NetworkService } from '../../network/NetworkService';
-import { NetworkFee } from '../models';
-import { NetworkFeeService } from '../NetworkFeeService';
-import { NetworkWithCaipId } from '../../network/models';
+import type { NetworkService } from '../../network/NetworkService';
+import type { NetworkFee } from '../models';
+import type { NetworkFeeService } from '../NetworkFeeService';
+import type { NetworkWithCaipId } from '../../network/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_FEE_GET,

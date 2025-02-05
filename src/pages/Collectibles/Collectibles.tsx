@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction, useCallback } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   GridIcon,
@@ -26,7 +27,8 @@ import { InfiniteScroll } from '@src/components/common/infiniteScroll/InfiniteSc
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { ListType } from '../Home/components/Portfolio/Portfolio';
-import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import type { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 import { useNfts } from '@src/hooks/useNfts';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';

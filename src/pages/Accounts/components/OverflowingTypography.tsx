@@ -1,9 +1,7 @@
-import {
-  Tooltip,
-  Typography,
-  TypographyProps,
-} from '@avalabs/core-k2-components';
-import { useCallback, useState, ReactNode } from 'react';
+import type { TypographyProps } from '@avalabs/core-k2-components';
+import { Tooltip, Typography } from '@avalabs/core-k2-components';
+import type { ReactNode } from 'react';
+import { useCallback, useState } from 'react';
 
 type OverflowingTypographyProps = Omit<TypographyProps, 'children'> & {
   children?: ReactNode;

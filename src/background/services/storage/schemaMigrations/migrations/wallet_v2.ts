@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { ImportType } from '@src/background/services/accounts/models';
+import type { ImportType } from '@src/background/services/accounts/models';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 
 const VERSION = 2;

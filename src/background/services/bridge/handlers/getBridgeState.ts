@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { BridgeService } from '../BridgeService';
-import { BridgeState } from '../models';
+import type { BridgeService } from '../BridgeService';
+import type { BridgeState } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_GET_STATE,

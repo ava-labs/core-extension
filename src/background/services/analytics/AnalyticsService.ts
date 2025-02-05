@@ -1,15 +1,17 @@
-import {
+import type {
   OnLock,
   OnStorageReady,
 } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { StorageService } from '../storage/StorageService';
-import {
-  AnalyticsEvents,
+import type { StorageService } from '../storage/StorageService';
+import type {
   AnalyticsSessionState,
   AnalyticsState,
   AnalyticsUnencryptedState,
+} from './models';
+import {
+  AnalyticsEvents,
   ANALYTICS_SESSION_KEY,
   ANALYTICS_STORAGE_KEY,
   ANALYTICS_UNENCRYPTED_STORAGE_KEY,

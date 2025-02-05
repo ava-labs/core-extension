@@ -1,14 +1,12 @@
 import { sha256, toUtf8Bytes } from 'ethers';
 import { ethErrors } from 'eth-rpc-errors';
-import {
-  PagedVaultAccountsResponse,
-  PeerType,
-  VaultAccountResponse,
-} from 'fireblocks-sdk';
+import { PeerType } from 'fireblocks-sdk';
 import type {
   ExternalWalletAsset,
   InternalWalletAsset,
   WalletContainerResponse,
+  PagedVaultAccountsResponse,
+  VaultAccountResponse,
 } from 'fireblocks-sdk';
 import { SignJWT } from 'jose';
 import { inject, singleton } from 'tsyringe';
@@ -22,8 +20,9 @@ import type {
   AddressResponse,
   FireblocksSecretsProvider,
   PaginatedAddressesResponse,
+  KnownAddressDictionary,
 } from './models';
-import { FireblocksErrorCode, KnownAddressDictionary } from './models';
+import { FireblocksErrorCode } from './models';
 
 // Create registry for FireblocksSecretsProviders to be injected.
 // FireblocksSecretsProvider is an interface that can have multiple implementation,

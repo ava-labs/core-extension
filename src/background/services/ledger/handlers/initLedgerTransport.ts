@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { LedgerService } from '../LedgerService';
+import type { LedgerService } from '../LedgerService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_INIT_TRANSPORT,

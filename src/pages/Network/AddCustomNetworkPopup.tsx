@@ -24,7 +24,7 @@ import {
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { buildGlacierAuthHeaders } from '@src/background/services/network/utils/buildGlacierAuthHeaders';
 import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';
-import { AddEthereumChainDisplayData } from '@src/background/services/network/models';
+import type { AddEthereumChainDisplayData } from '@src/background/services/network/models';
 
 export function AddCustomNetworkPopup() {
   const { t } = useTranslation();

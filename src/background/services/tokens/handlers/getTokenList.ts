@@ -1,9 +1,9 @@
-import { NetworkContractToken } from '@avalabs/core-chains-sdk';
+import type { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
-import { TokenManagerService } from '../TokenManagerService';
+import type { TokenManagerService } from '../TokenManagerService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GET_NETWORK_TOKENS,

@@ -1,4 +1,4 @@
-import { CustomRpcHeaders } from '../models';
+import type { CustomRpcHeaders } from '../models';
 
 export const buildGlacierAuthHeaders = (apiKey: string): CustomRpcHeaders => {
   if (!apiKey) {

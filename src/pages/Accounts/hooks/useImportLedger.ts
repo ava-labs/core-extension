@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react';
 
-import {
+import type {
   ImportLedgerWalletParams,
   ImportWalletResult,
 } from '@src/background/services/wallet/handlers/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { ImportLedgerHandler } from '@src/background/services/wallet/handlers/importLedger';
+import type { ImportLedgerHandler } from '@src/background/services/wallet/handlers/importLedger';
 
 type ImportWalletFn = (
   params: ImportLedgerWalletParams,

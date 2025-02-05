@@ -1,7 +1,7 @@
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
-import { AccountsService } from '../AccountsService';
+import type { AccountsService } from '../AccountsService';
 
 /**
  * This is called right away by dapps to see if its already connected

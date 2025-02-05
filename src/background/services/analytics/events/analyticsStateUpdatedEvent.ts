@@ -1,10 +1,10 @@
 import { AnalyticsEvents } from '../models';
-import {
+import type {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
-import { AnalyticsService } from '../AnalyticsService';
+import type { AnalyticsService } from '../AnalyticsService';
 import { singleton } from 'tsyringe';
 
 @singleton()

@@ -1,4 +1,4 @@
-import { NetworkService } from '@src/background/services/network/NetworkService';
+import type { NetworkService } from '@src/background/services/network/NetworkService';
 import { ActiveNetworkMiddleware } from './ActiveNetworkMiddleware';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import getTargetNetworkForTx from '@src/background/services/wallet/handlers/eth_sendTransaction/utils/getTargetNetworkForTx';

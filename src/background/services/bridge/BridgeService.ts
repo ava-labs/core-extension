@@ -1,9 +1,12 @@
-import {
+import type {
   Asset,
   BitcoinConfigAsset,
-  Blockchain,
   BridgeConfig,
   BridgeTransaction,
+  TrackerSubscription,
+} from '@avalabs/core-bridge-sdk';
+import {
+  Blockchain,
   btcToSatoshi,
   Environment,
   estimateGas,
@@ -12,28 +15,24 @@ import {
   getMinimumConfirmations,
   setBridgeEnvironment,
   trackBridgeTransaction as trackBridgeTransactionSDK,
-  TrackerSubscription,
 } from '@avalabs/core-bridge-sdk';
 import { EventEmitter } from 'events';
-import { NetworkService } from '../network/NetworkService';
-import { StorageService } from '../storage/StorageService';
-import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import {
-  BRIDGE_STORAGE_KEY,
-  BridgeEvents,
-  BridgeState,
-  DefaultBridgeState,
-} from './models';
-import { AccountsService } from '../accounts/AccountsService';
+import type { NetworkService } from '../network/NetworkService';
+import type { StorageService } from '../storage/StorageService';
+import type { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import type { BridgeState } from './models';
+import { BRIDGE_STORAGE_KEY, BridgeEvents, DefaultBridgeState } from './models';
+import type { AccountsService } from '../accounts/AccountsService';
 import { singleton } from 'tsyringe';
-import {
+import type {
   OnLock,
   OnStorageReady,
 } from '@src/background/runtime/lifecycleCallbacks';
-import Big from 'big.js';
-import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
+import type Big from 'big.js';
+import type { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { FeatureGates } from '../featureFlags/models';
-import { TokenType, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import type { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BridgeService implements OnLock, OnStorageReady {

@@ -1,9 +1,5 @@
-import {
-  Erc1155Token,
-  Erc721Token,
-  Glacier,
-  Network,
-} from '@avalabs/glacier-sdk';
+import type { Erc1155Token, Erc721Token, Network } from '@avalabs/glacier-sdk';
+import { Glacier } from '@avalabs/glacier-sdk';
 import { singleton } from 'tsyringe';
 import { wait } from '@avalabs/core-utils-sdk';
 

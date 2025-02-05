@@ -1,6 +1,6 @@
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { BridgeService } from '../BridgeService';
+import type { BridgeService } from '../BridgeService';
 import { injectable } from 'tsyringe';
 import { resolve } from '@avalabs/core-utils-sdk';
 

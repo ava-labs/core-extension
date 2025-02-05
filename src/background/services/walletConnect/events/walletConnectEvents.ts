@@ -1,12 +1,12 @@
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 
-import {
+import type {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 
-import { WalletConnectService } from '../WalletConnectService';
+import type { WalletConnectService } from '../WalletConnectService';
 import { WalletConnectEvent } from '../models';
 
 @singleton()

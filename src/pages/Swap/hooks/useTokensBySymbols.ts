@@ -1,8 +1,8 @@
-import {
+import type {
   NftTokenWithBalance,
-  TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';

@@ -1,7 +1,7 @@
 import { startOnboarding } from './startOnboarding';
-import { SettingsService } from '../settings/SettingsService';
-import { AnalyticsService } from '../analytics/AnalyticsService';
-import { StorageService } from '../storage/StorageService';
+import type { SettingsService } from '../settings/SettingsService';
+import type { AnalyticsService } from '../analytics/AnalyticsService';
+import type { StorageService } from '../storage/StorageService';
 
 jest.mock('@avalabs/core-wallets-sdk', () => ({
   ...jest.requireActual('@avalabs/core-wallets-sdk'),

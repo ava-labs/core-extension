@@ -1,5 +1,6 @@
-import { JsonRpcRequestPayload } from '@src/background/connections/dAppConnection/models';
-import { MessageParams, MessageType } from '../models';
+import type { JsonRpcRequestPayload } from '@src/background/connections/dAppConnection/models';
+import type { MessageParams } from '../models';
+import { MessageType } from '../models';
 
 export function paramsToMessageParams(
   data: JsonRpcRequestPayload<MessageType, any[]>,

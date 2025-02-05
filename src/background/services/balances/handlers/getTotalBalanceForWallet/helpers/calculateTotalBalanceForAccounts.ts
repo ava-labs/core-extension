@@ -1,7 +1,7 @@
-import { Account } from '@src/background/services/accounts/models';
+import type { Account } from '@src/background/services/accounts/models';
 import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
 
-import { Balances } from '../../../models';
+import type { Balances } from '../../../models';
 
 export function calculateTotalBalanceForAccounts(
   balances: Balances,

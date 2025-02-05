@@ -3,9 +3,9 @@ import { runtime } from 'webextension-polyfill';
 
 import { resolve } from '@src/utils/promiseResolver';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 
-import { NetworkService } from '../NetworkService';
+import type { NetworkService } from '../NetworkService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SET_ACTIVE,

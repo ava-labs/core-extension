@@ -7,8 +7,8 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { Trans } from 'react-i18next';
-import { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
-import { Account } from '@src/background/services/accounts/models';
+import type { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
+import type { Account } from '@src/background/services/accounts/models';
 import { useMemo } from 'react';
 import { ApprovalStep } from '../../utils/getActiveStepForRemoteApproval';
 import { RemoteApprovalConfirmation } from '../RemoteApproval/RemoteApprovalConfirmation';

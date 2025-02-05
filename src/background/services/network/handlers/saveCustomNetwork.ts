@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { NetworkService } from '../NetworkService';
-import { CustomNetworkPayload } from '../models';
+import type { NetworkService } from '../NetworkService';
+import type { CustomNetworkPayload } from '../models';
 import { runtime } from 'webextension-polyfill';
 import { resolve } from '@avalabs/core-utils-sdk';
 

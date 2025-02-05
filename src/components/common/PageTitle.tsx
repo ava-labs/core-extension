@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
 import { ImageWithFallback } from '@src/components/common/ImageWithFallback';
 import {
   ChevronLeftIcon,

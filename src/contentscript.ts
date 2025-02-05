@@ -1,5 +1,6 @@
 import { CONTENT_SCRIPT, KEEPALIVE_SCRIPT } from './common';
-import browser, { Runtime } from 'webextension-polyfill';
+import type { Runtime } from 'webextension-polyfill';
+import browser from 'webextension-polyfill';
 import PortConnection from './background/utils/messaging/PortConnection';
 import onPageActivated from './background/providers/utils/onPageActivated';
 import AutoPairingPostMessageConnection from './background/utils/messaging/AutoPairingPostMessageConnection';

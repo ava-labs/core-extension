@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import { SessionTypes } from '@walletconnect/types';
+import type { SessionTypes } from '@walletconnect/types';
 import { isDevelopment } from '@src/utils/environment';
 
 export enum WalletConnectEvent {

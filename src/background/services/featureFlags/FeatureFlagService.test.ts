@@ -2,8 +2,8 @@ import { noop } from '@avalabs/core-utils-sdk';
 import browser from 'webextension-polyfill';
 
 import { AnalyticsEvents } from '../analytics/models';
-import { LockService } from '../lock/LockService';
-import { StorageService } from '../storage/StorageService';
+import type { LockService } from '../lock/LockService';
+import type { StorageService } from '../storage/StorageService';
 
 import { FeatureFlagService } from './FeatureFlagService';
 import { DEFAULT_FLAGS, FeatureFlagEvents, FeatureGates } from './models';

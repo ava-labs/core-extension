@@ -1,4 +1,4 @@
-import { ChainAddressChainIdMapListResponse } from '@avalabs/glacier-sdk';
+import type { ChainAddressChainIdMapListResponse } from '@avalabs/glacier-sdk';
 
 export type GetTotalBalanceForWalletParams = {
   walletId: string;

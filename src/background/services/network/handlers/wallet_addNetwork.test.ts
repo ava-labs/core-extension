@@ -1,4 +1,5 @@
-import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { NetworkService } from '../NetworkService';
 import { WalletAddNetworkHandler } from './wallet_addNetwork';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';

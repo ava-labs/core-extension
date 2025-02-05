@@ -1,6 +1,7 @@
-import { NetworkToken } from '@avalabs/core-chains-sdk';
+import type { NetworkToken } from '@avalabs/core-chains-sdk';
 import { getPriceChangeValues } from './getPriceChangeValues';
-import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import type { NetworkTokenWithBalance } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 
 describe('utils/getPriceChangeValues', () => {
   const networkToken1: NetworkToken = {

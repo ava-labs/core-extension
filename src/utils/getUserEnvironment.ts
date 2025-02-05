@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import { UserEnvironmentAnalytics } from '@src/background/services/analytics/models';
+import type { UserEnvironmentAnalytics } from '@src/background/services/analytics/models';
 
 // This is being used for analytics
 export async function getUserEnvironment(): Promise<UserEnvironmentAnalytics> {

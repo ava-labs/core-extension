@@ -1,11 +1,9 @@
 import { stringToBN } from '@avalabs/core-utils-sdk';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  BitcoinInputUTXO,
-  getMaxTransferAmount,
-} from '@avalabs/core-wallets-sdk';
+import type { BitcoinInputUTXO } from '@avalabs/core-wallets-sdk';
+import { getMaxTransferAmount } from '@avalabs/core-wallets-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
+import type { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
 import { SendErrorMessage } from '@src/utils/send/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
@@ -14,8 +12,8 @@ import {
   validateBtcSend,
 } from '@src/utils/send/btcSendUtils';
 
-import { SendAdapterBTC } from './models';
-import { BaseSendOptions } from '../../models';
+import type { SendAdapterBTC } from './models';
+import type { BaseSendOptions } from '../../models';
 
 export const useBtcSend: SendAdapterBTC = ({
   isMainnet,

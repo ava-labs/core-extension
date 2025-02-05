@@ -1,23 +1,22 @@
 import { EventEmitter } from 'events';
 import { container, singleton } from 'tsyringe';
-import {
+import type {
   AddPrimaryWalletSecrets,
   PubKeyType,
   SigningResult,
   SignTransactionRequest,
-  WalletEvents,
   WalletDetails,
-  SUPPORTED_PRIMARY_SECRET_TYPES,
 } from './models';
-import {
-  MessageParams,
-  MessageType,
-  SignMessageData,
-} from '../messages/models';
+import { WalletEvents, SUPPORTED_PRIMARY_SECRET_TYPES } from './models';
+import type { MessageParams, SignMessageData } from '../messages/models';
+import { MessageType } from '../messages/models';
+import type {
+  BitcoinProviderAbstract,
+  JsonRpcBatchInternal,
+} from '@avalabs/core-wallets-sdk';
 import {
   Avalanche,
   BitcoinLedgerWallet,
-  BitcoinProviderAbstract,
   BitcoinWallet,
   createWalletPolicy,
   DerivationPath,
@@ -25,49 +24,43 @@ import {
   getAddressPublicKeyFromXPub,
   getPublicKeyFromPrivateKey,
   getWalletFromMnemonic,
-  JsonRpcBatchInternal,
   LedgerSigner,
 } from '@avalabs/core-wallets-sdk';
-import { NetworkService } from '../network/NetworkService';
+import type { NetworkService } from '../network/NetworkService';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import type { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import {
   personalSign,
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
-import { LedgerService } from '../ledger/LedgerService';
-import {
-  BaseWallet,
-  HDNodeWallet,
-  TransactionRequest,
-  Wallet,
-  isHexString,
-} from 'ethers';
+import type { LedgerService } from '../ledger/LedgerService';
+import type { TransactionRequest } from 'ethers';
+import { BaseWallet, HDNodeWallet, Wallet, isHexString } from 'ethers';
 import { Transaction } from 'bitcoinjs-lib';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
 import { KeystoneWallet } from '../keystone/KeystoneWallet';
-import { KeystoneService } from '../keystone/KeystoneService';
+import type { KeystoneService } from '../keystone/KeystoneService';
 import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
-import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import type { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { FireblocksBTCSigner } from '../fireblocks/FireblocksBTCSigner';
-import { Action } from '../actions/models';
+import type { Action } from '../actions/models';
 import { UnsignedTx } from '@avalabs/avalanchejs';
 import { toUtf8 } from 'ethereumjs-util';
-import { FireblocksService } from '../fireblocks/FireblocksService';
-import { SecretsService } from '../secrets/SecretsService';
+import type { FireblocksService } from '../fireblocks/FireblocksService';
+import type { SecretsService } from '../secrets/SecretsService';
 import { SecretType } from '../secrets/models';
 import { FIREBLOCKS_REQUEST_EXPIRY } from '../fireblocks/models';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { Network } from '../network/models';
-import { AccountsService } from '../accounts/AccountsService';
+import type { Network } from '../network/models';
+import type { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
-import { Account } from '../accounts/models';
+import type { Account } from '../accounts/models';
 import { HVMWallet } from './HVMWallet';
 import { ed25519 } from '@noble/curves/ed25519';
 import { strip0x } from '@avalabs/core-utils-sdk';

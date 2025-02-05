@@ -23,7 +23,7 @@ import {
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import type { NetworkWithCaipId } from '@src/background/services/network/models';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { HallidayBanner } from '@src/components/common/HallidayBanner';
 

@@ -1,8 +1,5 @@
-import {
-  IconBaseProps,
-  QRCodeIcon,
-  useTheme,
-} from '@avalabs/core-k2-components';
+import type { IconBaseProps } from '@avalabs/core-k2-components';
+import { QRCodeIcon, useTheme } from '@avalabs/core-k2-components';
 
 export default function InvalidQRCodeIcon(props: IconBaseProps) {
   const theme = useTheme();

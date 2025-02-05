@@ -8,7 +8,7 @@ import {
   getEvmAddressFromPubKey,
 } from '@avalabs/core-wallets-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
-import { PubKeyType } from '@src/background/services/wallet/models';
+import type { PubKeyType } from '@src/background/services/wallet/models';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Button,

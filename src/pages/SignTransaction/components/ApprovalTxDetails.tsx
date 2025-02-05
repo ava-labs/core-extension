@@ -7,13 +7,13 @@ import {
   Link,
   Tooltip,
 } from '@avalabs/core-k2-components';
-import { Network } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { openNewTab } from '@src/utils/extensionUtils';
-import { DomainMetadata } from '@src/background/models';
+import type { DomainMetadata } from '@src/background/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 

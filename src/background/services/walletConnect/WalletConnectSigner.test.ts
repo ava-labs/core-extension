@@ -1,10 +1,13 @@
 import { WalletConnectSigner } from './WalletConnectSigner';
-import { TransactionRequest } from 'ethers';
-import { WalletConnectSessionInfo, WalletConnectTransport } from './models';
-import { PubKeyType } from '../wallet/models';
+import type { TransactionRequest } from 'ethers';
+import type {
+  WalletConnectSessionInfo,
+  WalletConnectTransport,
+} from './models';
+import type { PubKeyType } from '../wallet/models';
 import { AVM, EVM, PVM } from '@avalabs/avalanchejs';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { BNLike } from 'ethereumjs-util';
+import type { BNLike } from 'ethereumjs-util';
 import { makeBNLike } from '@src/utils/makeBNLike';
 
 jest.mock('@src/utils/makeBNLike', () => ({

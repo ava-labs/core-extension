@@ -1,4 +1,5 @@
-import { Network, ChainId } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 export function isAvalancheNetwork(network: Network) {
   return isAvalancheChainId(network.chainId);

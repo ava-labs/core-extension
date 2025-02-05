@@ -20,10 +20,8 @@ import {
   OnboardingURLs,
 } from '@src/background/services/onboarding/models';
 import { useHistory } from 'react-router-dom';
-import {
-  LedgerConnector,
-  LedgerConnectorData,
-} from '@src/components/ledger/LedgerConnector';
+import type { LedgerConnectorData } from '@src/components/ledger/LedgerConnector';
+import { LedgerConnector } from '@src/components/ledger/LedgerConnector';
 import { WalletType } from '@avalabs/types';
 
 export interface AddressType {

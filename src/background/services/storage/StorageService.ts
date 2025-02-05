@@ -1,6 +1,6 @@
 import { deserializeFromJSON } from '@src/background/serialization/deserialize';
 import { serializeToJSON } from '@src/background/serialization/serialize';
-import { CallbackManager } from '@src/background/runtime/CallbackManager';
+import type { CallbackManager } from '@src/background/runtime/CallbackManager';
 import {
   decryptWithKey,
   decryptWithPassword,
@@ -9,17 +9,13 @@ import {
 } from '@src/background/services/storage/utils/crypto';
 import browser from 'webextension-polyfill';
 import { singleton } from 'tsyringe';
-import {
-  EncryptedData,
-  KeyDerivationVersion,
-  WALLET_STORAGE_ENCRYPTION_KEY,
-  WalletStorageEncryptionKeyData,
-} from './models';
+import type { EncryptedData, WalletStorageEncryptionKeyData } from './models';
+import { KeyDerivationVersion, WALLET_STORAGE_ENCRYPTION_KEY } from './models';
 import {
   getDataWithSchemaVersion,
   migrateToLatest,
 } from './schemaMigrations/schemaMigrations';
-import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
+import type { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 
 @singleton()
 export class StorageService implements OnLock {

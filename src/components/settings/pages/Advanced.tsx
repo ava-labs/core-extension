@@ -12,7 +12,7 @@ import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isProductionBuild } from '@src/utils/environment';
 import { useHistory } from 'react-router-dom';
-import { SettingsPageProps } from '../models';
+import type { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation, Trans } from 'react-i18next';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';

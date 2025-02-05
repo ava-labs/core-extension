@@ -8,7 +8,7 @@ import {
 } from '@src/utils/keystore/keystore';
 import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
 import { isWrappedError } from '@src/utils/errors';
-import {
+import type {
   AllKeyFileTypes,
   KeystoreFileContentInfo,
 } from '@src/utils/keystore/models';

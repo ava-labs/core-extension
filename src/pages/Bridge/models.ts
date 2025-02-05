@@ -1,5 +1,9 @@
-import { BridgeAsset, BridgeType, GasSettings } from '@avalabs/bridge-unified';
-import Big from 'big.js';
+import type {
+  BridgeAsset,
+  BridgeType,
+  GasSettings,
+} from '@avalabs/bridge-unified';
+import type Big from 'big.js';
 
 export interface AssetBalance {
   symbol: string;

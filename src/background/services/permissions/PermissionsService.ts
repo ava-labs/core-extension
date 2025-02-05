@@ -1,13 +1,9 @@
-import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
+import type { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { StorageService } from '../storage/StorageService';
-import {
-  DappPermissions,
-  PermissionEvents,
-  Permissions,
-  PERMISSION_STORAGE_KEY,
-} from './models';
+import type { StorageService } from '../storage/StorageService';
+import type { DappPermissions, Permissions } from './models';
+import { PermissionEvents, PERMISSION_STORAGE_KEY } from './models';
 
 @singleton()
 export class PermissionsService implements OnLock {

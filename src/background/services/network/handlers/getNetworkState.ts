@@ -1,9 +1,9 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
-import { NetworkService } from '../NetworkService';
-import { ChainListWithCaipIds, NetworkWithCaipId } from '../models';
+import type { NetworkService } from '../NetworkService';
+import type { ChainListWithCaipIds, NetworkWithCaipId } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORKS_GET_STATE,

@@ -10,13 +10,13 @@ import {
   isErc721Send,
   isNativeSend,
 } from '../../utils/buildSendTx';
-import {
+import type {
   Erc20SendOptions,
   NativeSendOptions,
   NftSendOptions,
   SendOptions,
 } from '../../models';
-import { SendAdapterEVM } from './models';
+import type { SendAdapterEVM } from './models';
 import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@src/utils/stringToBigint';
 

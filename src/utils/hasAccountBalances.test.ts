@@ -1,8 +1,11 @@
-import { ChainId, NetworkToken } from '@avalabs/core-chains-sdk';
-import { Account, AccountType } from '@src/background/services/accounts/models';
-import { Balances } from '@src/background/services/balances/models';
+import type { NetworkToken } from '@avalabs/core-chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
+import type { Account } from '@src/background/services/accounts/models';
+import { AccountType } from '@src/background/services/accounts/models';
+import type { Balances } from '@src/background/services/balances/models';
 import { hasAccountBalances } from './hasAccountBalances';
-import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import type { NetworkTokenWithBalance } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 
 describe('utils/calculateTotalBalance', () => {
   const account1: Account = {

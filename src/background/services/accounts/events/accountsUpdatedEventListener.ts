@@ -1,5 +1,6 @@
-import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import { Accounts, AccountsEvents } from '../models';
+import type { ExtensionConnectionEvent } from '@src/background/connections/models';
+import type { Accounts } from '../models';
+import { AccountsEvents } from '../models';
 
 export function accountsUpdatedEventListener(
   evt: ExtensionConnectionEvent<Accounts>,

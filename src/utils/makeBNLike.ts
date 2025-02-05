@@ -1,5 +1,5 @@
-import { BNLike } from 'ethereumjs-util';
-import { BigNumberish } from 'ethers';
+import type { BNLike } from 'ethereumjs-util';
+import type { BigNumberish } from 'ethers';
 
 export function makeBNLike(
   n: BigNumberish | undefined | null,

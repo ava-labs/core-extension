@@ -2,7 +2,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { UpdateActionTxDataHandler } from './updateTxData';
 import { matchingPayload } from '@src/tests/test-utils';
 import { SendErrorMessage } from '@src/utils/send/models';
-import { HandlerParameters } from '@src/background/connections/models';
+import type { HandlerParameters } from '@src/background/connections/models';
 
 describe('src/background/services/actions/handlers/updateTxData', () => {
   const actionsService = {

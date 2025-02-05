@@ -1,6 +1,6 @@
-import { AnalyticsService } from '../analytics/AnalyticsService';
-import { SettingsService } from '../settings/SettingsService';
-import { StorageService } from '../storage/StorageService';
+import type { AnalyticsService } from '../analytics/AnalyticsService';
+import type { SettingsService } from '../settings/SettingsService';
+import type { StorageService } from '../storage/StorageService';
 
 export interface FinalizeOnboardingParams {
   storageService: StorageService;

@@ -8,7 +8,7 @@ import { useCallback, useState } from 'react';
 import { CustomSpendLimit } from './CustomSpendLimit';
 import { TransactionTokenCard } from '../TransactionTokenCard';
 import { MaxUint256 } from 'ethers';
-import {
+import type {
   DisplayData,
   ERC20Token,
   TokenApproval,
@@ -17,7 +17,7 @@ import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
+import type { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',

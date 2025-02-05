@@ -1,4 +1,4 @@
-import { Network } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';

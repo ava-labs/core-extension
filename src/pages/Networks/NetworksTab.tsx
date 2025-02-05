@@ -4,7 +4,7 @@ import { Stack } from '@avalabs/core-k2-components';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { EmptyContent } from '@src/components/common/EmptyContent';
 
-import { NetworkTabProps } from './Networks';
+import type { NetworkTabProps } from './Networks';
 import { NetworkList } from './common/NetworkList';
 
 export function NetworksTab({ searchTerm }: NetworkTabProps) {

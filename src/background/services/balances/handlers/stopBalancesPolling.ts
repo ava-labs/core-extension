@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { BalancePollingService } from '../BalancePollingService';
+import type { BalancePollingService } from '../BalancePollingService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_STOP_POLLING,

@@ -3,10 +3,10 @@ import { runtime } from 'webextension-polyfill';
 import { ChainId } from '@avalabs/core-chains-sdk';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 
-import { NetworkService } from '../NetworkService';
+import type { NetworkService } from '../NetworkService';
 import { chainIdToCaip } from '@src/utils/caipConversion';
 
 type HandlerType = ExtensionRequestHandler<

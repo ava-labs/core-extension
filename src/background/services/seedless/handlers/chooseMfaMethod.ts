@@ -1,10 +1,10 @@
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import { MfaChoiceResponse } from '../models';
-import { SeedlessMfaService } from '../SeedlessMfaService';
+import type { MfaChoiceResponse } from '../models';
+import type { SeedlessMfaService } from '../SeedlessMfaService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_CHOOSE_MFA_METHOD,

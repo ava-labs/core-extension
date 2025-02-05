@@ -13,7 +13,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 
-import { Account } from '@src/background/services/accounts/models';
+import type { Account } from '@src/background/services/accounts/models';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';

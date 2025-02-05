@@ -1,11 +1,11 @@
-import {
+import type {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { PermissionEvents } from '../models';
-import { PermissionsService } from '../PermissionsService';
+import type { PermissionsService } from '../PermissionsService';
 
 @singleton()
 export class PermissionStateUpdateEvents implements ExtensionEventEmitter {

@@ -9,7 +9,7 @@ import {
   GlobeIcon,
 } from '@avalabs/core-k2-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { Account } from '@src/background/services/accounts/models';
+import type { Account } from '@src/background/services/accounts/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { useApproveAction } from '@src/hooks/useApproveAction';
@@ -27,7 +27,8 @@ import { AlertBox } from './components/AlertBox';
 import { WarningBox } from './components/WarningBox';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { BlockaidData, useDAppScan } from '@src/hooks/useDAppScan';
+import type { BlockaidData } from '@src/hooks/useDAppScan';
+import { useDAppScan } from '@src/hooks/useDAppScan';
 
 export function PermissionsPage() {
   const { t } = useTranslation();

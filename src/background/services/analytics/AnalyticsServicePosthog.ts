@@ -1,10 +1,11 @@
 import { HttpClient } from '@avalabs/core-utils-sdk';
 import { getUserEnvironment } from '@src/utils/getUserEnvironment';
 import { singleton } from 'tsyringe';
-import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import { SettingsService } from '../settings/SettingsService';
-import { AnalyticsService } from './AnalyticsService';
-import { AnalyticsCapturedEvent, AnalyticsState, BlockchainId } from './models';
+import type { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import type { SettingsService } from '../settings/SettingsService';
+import type { AnalyticsService } from './AnalyticsService';
+import type { AnalyticsCapturedEvent, AnalyticsState } from './models';
+import { BlockchainId } from './models';
 import { FeatureGates } from '../featureFlags/models';
 import { AnalyticsConsent } from '../settings/models';
 import { encryptAnalyticsData } from './utils/encryptAnalyticsData';

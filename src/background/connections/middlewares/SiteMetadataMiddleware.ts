@@ -1,12 +1,12 @@
-import { DomainMetadata } from '@src/background/models';
-import { Runtime } from 'webextension-polyfill';
-import {
-  DAppProviderRequest,
+import type { DomainMetadata } from '@src/background/models';
+import type { Runtime } from 'webextension-polyfill';
+import type {
   JsonRpcRequest,
   JsonRpcRequestPayload,
   JsonRpcResponse,
 } from '../dAppConnection/models';
-import { Middleware } from './models';
+import { DAppProviderRequest } from '../dAppConnection/models';
+import type { Middleware } from './models';
 
 type DomainMetadataRequest = JsonRpcRequestPayload<
   DAppProviderRequest.DOMAIN_METADATA_METHOD,

@@ -4,12 +4,14 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { networks } from 'bitcoinjs-lib';
-import { Account, AccountType } from '../../accounts/models';
-import { AccountWithSecrets, SecretType } from '../../secrets/models';
-import { SecretsService } from '../../secrets/SecretsService';
+import type { Account } from '../../accounts/models';
+import { AccountType } from '../../accounts/models';
+import type { AccountWithSecrets } from '../../secrets/models';
+import { SecretType } from '../../secrets/models';
+import type { SecretsService } from '../../secrets/SecretsService';
 import { StoreBtcWalletPolicyDetails } from './storeBtcWalletPolicyDetails';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { AccountsService } from '../../accounts/AccountsService';
+import type { AccountsService } from '../../accounts/AccountsService';
 
 jest.mock('@avalabs/core-wallets-sdk');
 

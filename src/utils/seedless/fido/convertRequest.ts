@@ -1,6 +1,7 @@
 import { bufferToBase64Url } from '@src/utils/encoding';
 
-import { FIDOApiEndpoint, FIDOApiRequest } from './types';
+import type { FIDOApiRequest } from './types';
+import { FIDOApiEndpoint } from './types';
 
 export function convertRequest(
   endpoint: FIDOApiEndpoint,

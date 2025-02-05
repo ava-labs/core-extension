@@ -1,10 +1,10 @@
-import {
+import type {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { LedgerService } from '../LedgerService';
+import type { LedgerService } from '../LedgerService';
 import { LedgerEvent } from '../models';
 @singleton()
 export class LedgerTransportRequestEvents implements ExtensionEventEmitter {

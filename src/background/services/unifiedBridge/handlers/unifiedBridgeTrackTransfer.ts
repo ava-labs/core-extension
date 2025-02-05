@@ -1,10 +1,10 @@
 import { injectable } from 'tsyringe';
-import { BridgeTransfer } from '@avalabs/bridge-unified';
+import type { BridgeTransfer } from '@avalabs/bridge-unified';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 
-import { UnifiedBridgeService } from '../UnifiedBridgeService';
+import type { UnifiedBridgeService } from '../UnifiedBridgeService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.UNIFIED_BRIDGE_TRACK_TRANSFER,

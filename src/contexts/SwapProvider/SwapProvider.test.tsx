@@ -13,7 +13,7 @@ import { useWalletContext } from '../WalletProvider';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { Contract } from 'ethers';
 import Big from 'big.js';
-import { GetRateParams, SwapContextAPI, SwapParams } from './models';
+import type { GetRateParams, SwapContextAPI, SwapParams } from './models';
 import { SwapContextProvider, useSwapContext } from './SwapProvider';
 import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';

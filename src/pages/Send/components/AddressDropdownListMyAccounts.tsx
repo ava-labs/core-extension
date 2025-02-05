@@ -13,7 +13,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SettingsPages } from '@src/components/settings/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
-import { WalletId } from '@src/background/services/accounts/models';
+import type { WalletId } from '@src/background/services/accounts/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { useMemo } from 'react';

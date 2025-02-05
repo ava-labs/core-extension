@@ -2,9 +2,10 @@ import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
 import { keccakFromString } from 'ethereumjs-util';
 
-import { StorageService } from '../storage/StorageService';
-import { DebankService } from '../debank';
-import { DefiPortfolio, DefiProtocol, DefiServiceEvents } from './models';
+import type { StorageService } from '../storage/StorageService';
+import type { DebankService } from '../debank';
+import type { DefiPortfolio, DefiProtocol } from './models';
+import { DefiServiceEvents } from './models';
 
 @singleton()
 export class DefiService {

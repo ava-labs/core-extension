@@ -1,5 +1,5 @@
 import { Stack, Typography, useTheme } from '@avalabs/core-k2-components';
-import React from 'react';
+import type React from 'react';
 
 type TxDetailsRowProps = { label: string | React.ReactNode };
 

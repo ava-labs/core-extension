@@ -1,5 +1,5 @@
-import { APIError, Address, PriceString, SwapSide } from 'paraswap';
-import { OptimalRate } from 'paraswap-core';
+import type { APIError, Address, PriceString, SwapSide } from 'paraswap';
+import type { OptimalRate } from 'paraswap-core';
 
 /**
  * Paraswap may return both data and an error sometimes.

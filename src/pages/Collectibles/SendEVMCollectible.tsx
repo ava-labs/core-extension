@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
+import type { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,
@@ -22,11 +22,11 @@ import { ContactInput } from '../Send/components/ContactInput';
 import { useIdentifyAddress } from '../Send/hooks/useIdentifyAddress';
 import { getSendErrorMessage } from '../Send/utils/sendErrorMessages';
 import { useValidAddressFromParams } from '../Send/hooks/useValidAddressFromParams';
-import { SendOptions, SendPageProps } from '../Send/models';
+import type { SendOptions, SendPageProps } from '../Send/models';
 
 import { CollectibleMedia } from './components/CollectibleMedia';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
-import {
+import type {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
 } from '@avalabs/vm-module-types';

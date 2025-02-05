@@ -3,7 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useTokensWithBalances } from './useTokensWithBalances';
 import xss from 'xss';
-import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import type { TokenWithBalance } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 
 export function useTokenFromParams(
   withDefault = true,

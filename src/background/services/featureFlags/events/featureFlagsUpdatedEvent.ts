@@ -1,10 +1,10 @@
-import {
+import type {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { FeatureFlagService } from '../FeatureFlagService';
+import type { FeatureFlagService } from '../FeatureFlagService';
 import { FeatureFlagEvents } from '../models';
 
 @singleton()

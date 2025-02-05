@@ -6,7 +6,7 @@ import {
   KEYSTORE_V6,
 } from './fixtures';
 import { extractKeysFromDecryptedFile, readKeyFile } from './keystore';
-import { KeyFileV6 } from './models';
+import type { KeyFileV6 } from './models';
 
 describe('Keystore Import/Export', () => {
   test('can read v2', async () => {

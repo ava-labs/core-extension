@@ -1,11 +1,14 @@
-import {
+import type {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { LockEvents } from '../models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import type {
+  OnLock,
+  OnUnlock,
+} from '@src/background/runtime/lifecycleCallbacks';
 
 @singleton()
 export class LockStateChangedEvents

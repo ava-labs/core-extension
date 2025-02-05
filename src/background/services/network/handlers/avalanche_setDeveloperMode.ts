@@ -2,8 +2,8 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { injectable } from 'tsyringe';
-import { Action } from '../../actions/models';
-import { NetworkService } from '../NetworkService';
+import type { Action } from '../../actions/models';
+import type { NetworkService } from '../NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { ChainId } from '@avalabs/core-chains-sdk';

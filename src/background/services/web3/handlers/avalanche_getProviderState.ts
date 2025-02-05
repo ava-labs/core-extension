@@ -1,6 +1,6 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { NetworkService } from '../../network/NetworkService';
-import { AccountsService } from '../../accounts/AccountsService';
+import type { NetworkService } from '../../network/NetworkService';
+import type { AccountsService } from '../../accounts/AccountsService';
 import { injectable } from 'tsyringe';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 

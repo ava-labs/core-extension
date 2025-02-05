@@ -1,6 +1,6 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { HVMWallet } from './HVMWallet';
-import { TransactionPayload, VMABI } from 'hypersdk-client';
+import type { TransactionPayload, VMABI } from 'hypersdk-client';
 const returnedPublickKey = new Uint8Array(1);
 const returnedSign = new Uint8Array(2);
 

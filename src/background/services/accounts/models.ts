@@ -1,4 +1,4 @@
-import { PubKeyType } from '../wallet/models';
+import type { PubKeyType } from '../wallet/models';
 
 export enum AccountType {
   PRIMARY = 'primary',

@@ -1,4 +1,5 @@
-import balances_v3, { PreviousSchema } from './balances_v3';
+import type { PreviousSchema } from './balances_v3';
+import balances_v3 from './balances_v3';
 
 describe('background/services/storage/schemaMigrations/migrations/balances_v3', () => {
   const previousValue: PreviousSchema = {

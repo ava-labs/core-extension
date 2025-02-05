@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { SecretsService } from '../../secrets/SecretsService';
+import type { SecretsService } from '../../secrets/SecretsService';
 import { getAddressDerivationPath } from '@avalabs/core-wallets-sdk';
 import {
   AccountType,
@@ -9,9 +9,9 @@ import {
   PrivateKeyChain,
 } from '../models';
 import { utils } from '@avalabs/avalanchejs';
-import { LockService } from '../../lock/LockService';
+import type { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
-import { AccountsService } from '../AccountsService';
+import type { AccountsService } from '../AccountsService';
 import { mnemonicToSeedSync } from 'bip39';
 import { fromSeed } from 'bip32';
 import { getAccountPrivateKeyFromMnemonic } from '../../secrets/utils/getAccountPrivateKeyFromMnemonic';

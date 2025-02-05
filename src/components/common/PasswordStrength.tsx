@@ -1,11 +1,7 @@
 import { t as translate } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import {
-  useTheme,
-  darkTheme,
-  Typography,
-  Stack,
-} from '@avalabs/core-k2-components';
+import type { darkTheme } from '@avalabs/core-k2-components';
+import { useTheme, Typography, Stack } from '@avalabs/core-k2-components';
 import zxcvbn from 'zxcvbn';
 import { useEffect } from 'react';
 

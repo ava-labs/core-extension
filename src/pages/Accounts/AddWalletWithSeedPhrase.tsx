@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import type React from 'react';
+import { useCallback, useState } from 'react';
 import {
   Button,
   Card,
@@ -20,7 +21,7 @@ import {
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 
-import { Account } from '@src/background/services/accounts/models';
+import type { Account } from '@src/background/services/accounts/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';

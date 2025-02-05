@@ -8,7 +8,7 @@ import {
 import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useTranslation } from 'react-i18next';
-import { ActivityCardProp } from './ActivityCard';
+import type { ActivityCardProp } from './ActivityCard';
 import { TransactionType } from '@avalabs/vm-module-types';
 
 export function ActivityCardDetails({ historyItem }: ActivityCardProp) {

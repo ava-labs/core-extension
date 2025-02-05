@@ -1,5 +1,5 @@
 import { Web3Event } from '@src/background/connections/dAppConnection/models';
-import {
+import type {
   ExtensionConnectionEvent,
   DAppEventEmitter,
   ConnectionInfo,
@@ -7,7 +7,7 @@ import {
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
 import { caipToChainId } from '@src/utils/caipConversion';
-import { NetworkService } from '../NetworkService';
+import type { NetworkService } from '../NetworkService';
 import { getSyncDomain } from '../utils/getSyncDomain';
 
 /**

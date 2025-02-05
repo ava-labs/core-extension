@@ -1,11 +1,7 @@
-import Dialog, { DialogProps } from '@src/components/common/Dialog';
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useState,
-} from 'react';
+import type { DialogProps } from '@src/components/common/Dialog';
+import Dialog from '@src/components/common/Dialog';
+import type { ReactNode } from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
 
 interface DialogContextProviderProps {
   children?: ReactNode;

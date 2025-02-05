@@ -1,6 +1,6 @@
-import { Runtime } from 'webextension-polyfill';
+import type { Runtime } from 'webextension-polyfill';
 import AbstractConnection from './AbstractConnection';
-import { Message } from './models';
+import type { Message } from './models';
 import { serializeToJSON } from '@src/background/serialization/serialize';
 import { deserializeFromJSON } from '@src/background/serialization/deserialize';
 

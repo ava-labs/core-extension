@@ -2,7 +2,7 @@ import { Stack, Typography } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
 import { TokenIcon } from '@src/components/common/TokenIcon';
-import { TokenWithBalance } from '@avalabs/vm-module-types';
+import type { TokenWithBalance } from '@avalabs/vm-module-types';
 
 type TokenAmountProps = {
   token: TokenWithBalance;

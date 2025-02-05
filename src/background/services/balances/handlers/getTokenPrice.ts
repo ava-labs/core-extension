@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { SettingsService } from '../../settings/SettingsService';
-import { TokenPricesService } from '../TokenPricesService';
+import type { SettingsService } from '../../settings/SettingsService';
+import type { TokenPricesService } from '../TokenPricesService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.TOKEN_PRICE_GET,

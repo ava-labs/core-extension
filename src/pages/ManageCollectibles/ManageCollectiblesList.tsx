@@ -7,7 +7,8 @@ import {
 import { CollectibleListEmpty } from '@src/pages/Collectibles/components/CollectibleListEmpty';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
-import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import type { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 import { useNfts } from '@src/hooks/useNfts';
 
 type ManageTokensListProps = {

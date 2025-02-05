@@ -2,7 +2,7 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { WalletService } from '../../wallet/WalletService';
+import type { WalletService } from '../../wallet/WalletService';
 @injectable()
 export class AvalancheGetAccountPubKeyHandler extends DAppRequestHandler {
   methods = [

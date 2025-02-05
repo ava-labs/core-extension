@@ -1,17 +1,17 @@
-import { SettingsService } from './../SettingsService';
+import type { SettingsService } from './../SettingsService';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { injectable } from 'tsyringe';
-import { TokenManagerService } from '../../tokens/TokenManagerService';
+import type { TokenManagerService } from '../../tokens/TokenManagerService';
 import xss from 'xss';
 import { isTokenSupported } from '../../tokens/utils/isTokenSupported';
-import { NetworkService } from '../../network/NetworkService';
+import type { NetworkService } from '../../network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
-import { Action } from '../../actions/models';
+import type { Action } from '../../actions/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { AddCustomTokenData } from '../models';
+import type { AddCustomTokenData } from '../models';
 
 @injectable()
 export class WalletWatchAssetHandler extends DAppRequestHandler {

@@ -1,13 +1,15 @@
-import { NetworkService } from '@src/background/services/network/NetworkService';
-import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import {
+import type { NetworkService } from '@src/background/services/network/NetworkService';
+import type { AccountsService } from '@src/background/services/accounts/AccountsService';
+import type {
   AppConfig,
   Asset,
-  AssetType,
   Assets,
   BitcoinConfigAsset,
-  Blockchain,
   EthereumConfigAsset,
+} from '@avalabs/core-bridge-sdk';
+import {
+  AssetType,
+  Blockchain,
   btcToSatoshi,
   getAssets,
   isNativeAsset,
@@ -20,31 +22,32 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { injectable } from 'tsyringe';
-import { Action } from '../../actions/models';
-import { BridgeService } from '../BridgeService';
-import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
+import type { Action } from '../../actions/models';
+import type { BridgeService } from '../BridgeService';
+import type { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { blockchainToNetwork } from '@src/pages/Bridge/utils/blockchainConversion';
 import { findTokenForAsset } from '@src/pages/Bridge/utils/findTokenForAsset';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { isBitcoinNetwork } from '../../network/utils/isBitcoinNetwork';
-import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
-import { BridgeActionDisplayData } from '../models';
-import { WalletService } from '../../wallet/WalletService';
-import { ContractTransaction } from 'ethers';
-import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
+import type { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
+import type { BridgeActionDisplayData } from '../models';
+import type { WalletService } from '../../wallet/WalletService';
+import type { ContractTransaction } from 'ethers';
+import type { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../../featureFlags/models';
 import { isWalletConnectAccount } from '../../accounts/utils/typeGuards';
-import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
+import type { NetworkFeeService } from '../../networkFee/NetworkFeeService';
 import {
   buildBtcTx,
   getBtcInputUtxos,
   validateBtcSend,
 } from '@src/utils/send/btcSendUtils';
 import { resolve } from '@src/utils/promiseResolver';
-import { TokenType, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import type { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
+import type { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 
 type BridgeActionParams = [
   currentBlockchain: Blockchain,

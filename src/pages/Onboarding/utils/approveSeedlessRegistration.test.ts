@@ -1,4 +1,4 @@
-import { IdentityProof } from '@cubist-labs/cubesigner-sdk';
+import type { IdentityProof } from '@cubist-labs/cubesigner-sdk';
 import {
   SeedlessRegistartionResult,
   approveSeedlessRegistration,

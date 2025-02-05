@@ -1,9 +1,9 @@
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import { SeedlessSessionManager } from '../SeedlessSessionManager';
+import type { SeedlessSessionManager } from '../SeedlessSessionManager';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_HAS_TOKEN_EXPIRED,

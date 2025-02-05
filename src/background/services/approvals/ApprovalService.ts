@@ -4,8 +4,8 @@ import browser from 'webextension-polyfill';
 
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 
-import { Action, MultiTxAction } from '../actions/models';
-import { ActionsService } from '../actions/ActionsService';
+import type { Action, MultiTxAction } from '../actions/models';
+import type { ActionsService } from '../actions/ActionsService';
 import { ApprovalEvent } from './models';
 
 @singleton()

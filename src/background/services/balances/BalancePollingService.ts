@@ -1,12 +1,12 @@
 import { uniq } from 'lodash';
-import {
+import type {
   OnAllExtensionClosed,
   OnLock,
 } from '@src/background/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
-import { Account } from '../accounts/models';
-import { BalanceAggregatorService } from './BalanceAggregatorService';
-import { TokenType } from '@avalabs/vm-module-types';
+import type { Account } from '../accounts/models';
+import type { BalanceAggregatorService } from './BalanceAggregatorService';
+import type { TokenType } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BalancePollingService implements OnLock, OnAllExtensionClosed {

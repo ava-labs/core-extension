@@ -1,7 +1,7 @@
 import { Subject } from 'rxjs';
 import { StatusCodes } from '@ledgerhq/hw-transport';
 import { LedgerTransport } from './LedgerTransport';
-import { DeviceRequestData, DeviceResponseData } from './models';
+import type { DeviceRequestData, DeviceResponseData } from './models';
 
 describe('src/background/services/ledger/LedgerTransport.ts', () => {
   let ledgerDeviceRequest$: Subject<DeviceRequestData>;

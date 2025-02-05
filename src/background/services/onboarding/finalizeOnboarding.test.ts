@@ -1,10 +1,10 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { finalizeOnboarding } from './finalizeOnboarding';
-import { OnboardingService } from './OnboardingService';
-import { LockService } from '../lock/LockService';
-import { WalletService } from '../wallet/WalletService';
-import { AccountsService } from '../accounts/AccountsService';
-import { NetworkService } from '../network/NetworkService';
+import type { OnboardingService } from './OnboardingService';
+import type { LockService } from '../lock/LockService';
+import type { WalletService } from '../wallet/WalletService';
+import type { AccountsService } from '../accounts/AccountsService';
+import type { NetworkService } from '../network/NetworkService';
 import { addXPChainToFavoriteIfNeeded } from './utils/addXPChainsToFavoriteIfNeeded';
 
 jest.mock('./utils/addXPChainsToFavoriteIfNeeded');

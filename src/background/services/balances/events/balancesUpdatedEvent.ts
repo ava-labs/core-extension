@@ -1,12 +1,13 @@
-import {
+import type {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { BalanceServiceEvents, Balances } from '../models';
-import { BalanceAggregatorService } from '../BalanceAggregatorService';
-import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import type { Balances } from '../models';
+import { BalanceServiceEvents } from '../models';
+import type { BalanceAggregatorService } from '../BalanceAggregatorService';
+import type { NftTokenWithBalance } from '@avalabs/vm-module-types';
 
 export interface BalancesInfo {
   balances: {

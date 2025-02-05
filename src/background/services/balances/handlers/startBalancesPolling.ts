@@ -1,12 +1,12 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { BalanceAggregatorService } from '../BalanceAggregatorService';
-import { BalancePollingService } from '../BalancePollingService';
-import { Balances } from '../models';
-import { Account } from '../../accounts/models';
+import type { BalanceAggregatorService } from '../BalanceAggregatorService';
+import type { BalancePollingService } from '../BalancePollingService';
+import type { Balances } from '../models';
+import type { Account } from '../../accounts/models';
 import { caipToChainId } from '@src/utils/caipConversion';
-import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import type { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_START_POLLING,

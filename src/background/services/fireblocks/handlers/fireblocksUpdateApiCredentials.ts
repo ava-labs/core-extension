@@ -2,19 +2,19 @@ import { importPKCS8 } from 'jose';
 import { injectable } from 'tsyringe';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { FireblocksService } from '../FireblocksService';
-import { AccountsService } from '../../accounts/AccountsService';
+import type { AccountsService } from '../../accounts/AccountsService';
 import { AccountType } from '../../accounts/models';
-import { NetworkService } from '../../network/NetworkService';
+import type { NetworkService } from '../../network/NetworkService';
+import type { FireblocksSecretsProvider } from '../models';
 import {
   FireblocksBtcAccessError,
   FireblocksBtcAccessErrorCode,
-  FireblocksSecretsProvider,
   MAINNET_LOOKUP_ASSETS,
   TESTNET_LOOKUP_ASSETS,
 } from '../models';
-import { SecretsService } from '../../secrets/SecretsService';
+import type { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
 
 type HandlerType = ExtensionRequestHandler<

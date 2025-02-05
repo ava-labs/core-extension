@@ -18,11 +18,9 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { useMemo } from 'react';
-import {
-  PChainTransactionType,
-  XChainTransactionType,
-} from '@avalabs/glacier-sdk';
-import { TransactionType } from '@avalabs/vm-module-types';
+import type { XChainTransactionType } from '@avalabs/glacier-sdk';
+import { PChainTransactionType } from '@avalabs/glacier-sdk';
+import type { TransactionType } from '@avalabs/vm-module-types';
 export interface PrimaryNetworkMethodIconProp {
   methodName:
     | TransactionType

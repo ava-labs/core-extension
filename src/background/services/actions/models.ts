@@ -1,15 +1,15 @@
-import {
+import type {
   BatchApprovalParams,
   DisplayData,
   DappInfo,
   RpcMethod,
   SigningData,
 } from '@avalabs/vm-module-types';
-import {
+import type {
   DAppProviderRequest,
   JsonRpcRequestPayload,
 } from '@src/background/connections/dAppConnection/models';
-import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
+import type { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
 
 export enum ActionStatus {
   // user has been shown the UI and we are waiting on approval
@@ -27,7 +27,7 @@ export enum ActionType {
   Batch = 'batch',
 }
 
-type ActionBase<DisplayData = any, Params = any> = JsonRpcRequestPayload<
+type ActionBase<TDisplayData = any, Params = any> = JsonRpcRequestPayload<
   DAppProviderRequest | RpcMethod,
   Params
 > & {
@@ -46,11 +46,11 @@ type ActionBase<DisplayData = any, Params = any> = JsonRpcRequestPayload<
   popupWindowId?: number;
   inAppPromptId?: number;
   actionId?: string;
-  displayData: DisplayData;
+  displayData: TDisplayData;
 };
 
-export type Action<DisplayData = any, Params = any> = ActionBase<
-  DisplayData,
+export type Action<TDisplayData = any, Params = any> = ActionBase<
+  TDisplayData,
   Params
 > & {
   type: ActionType.Single;
@@ -60,17 +60,16 @@ export type Action<DisplayData = any, Params = any> = ActionBase<
 export type MultiTxAction = ActionBase<DisplayData, unknown> & {
   type: ActionType.Batch;
   signingRequests: BatchApprovalParams['signingRequests'];
-  displayData: DisplayData;
 };
 
 export interface Actions {
   [id: string]: Action | MultiTxAction;
 }
 
-export interface ActionUpdate<DisplayData = any> {
+export interface ActionUpdate<TDisplayData = any> {
   id: any;
   status: ActionStatus;
-  displayData?: DisplayData;
+  displayData?: TDisplayData;
   signingData?: never; // Don't allow overriding signingData this way
   result?: any;
   error?: string;

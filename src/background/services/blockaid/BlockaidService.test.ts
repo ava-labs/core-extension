@@ -1,5 +1,5 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import type { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
 import { BlockaidService } from './BlockaidService';
 import { MessageType } from '../messages/models';

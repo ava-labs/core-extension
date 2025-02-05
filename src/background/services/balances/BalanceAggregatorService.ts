@@ -1,29 +1,33 @@
-import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import type {
+  OnLock,
+  OnUnlock,
+} from '@src/background/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
-import { Account } from '../accounts/models';
-import { Balances, BalanceServiceEvents, BALANCES_CACHE_KEY } from './models';
-import { BalancesService } from './BalancesService';
-import { NetworkService } from '../network/NetworkService';
+import type { Account } from '../accounts/models';
+import type { Balances } from './models';
+import { BalanceServiceEvents, BALANCES_CACHE_KEY } from './models';
+import type { BalancesService } from './BalancesService';
+import type { NetworkService } from '../network/NetworkService';
 import { EventEmitter } from 'events';
 import * as Sentry from '@sentry/browser';
 import { isEqual, omit, pick } from 'lodash';
 
-import { LockService } from '../lock/LockService';
-import { StorageService } from '../storage/StorageService';
-import { CachedBalancesInfo } from './models';
-import {
+import type { LockService } from '../lock/LockService';
+import type { StorageService } from '../storage/StorageService';
+import type { CachedBalancesInfo } from './models';
+import type {
   PriceChangesData,
-  TOKENS_PRICE_DATA,
   TokensPriceChangeData,
   TokensPriceShortData,
-  priceChangeRefreshRate,
 } from '../tokens/models';
+import { TOKENS_PRICE_DATA, priceChangeRefreshRate } from '../tokens/models';
 import { resolve } from '@avalabs/core-utils-sdk';
-import { SettingsService } from '../settings/SettingsService';
+import type { SettingsService } from '../settings/SettingsService';
 import { isFulfilled } from '@src/utils/typeUtils';
-import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import type { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 import { groupTokensByType } from './utils/groupTokensByType';
-import { BalancesInfo } from './events/balancesUpdatedEvent';
+import type { BalancesInfo } from './events/balancesUpdatedEvent';
 
 @singleton()
 export class BalanceAggregatorService implements OnLock, OnUnlock {

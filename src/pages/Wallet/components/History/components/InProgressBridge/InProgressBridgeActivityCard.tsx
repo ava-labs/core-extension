@@ -1,4 +1,5 @@
-import { BridgeTransaction, useBridgeSDK } from '@avalabs/core-bridge-sdk';
+import type { BridgeTransaction } from '@avalabs/core-bridge-sdk';
+import { useBridgeSDK } from '@avalabs/core-bridge-sdk';
 import {
   Button,
   Card,
@@ -22,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useBlockchainNames } from '../../useBlockchainNames';
 import { InProgressBridgeIcon } from './InProgressBridgeIcon';
-import { BridgeTransfer } from '@avalabs/bridge-unified';
+import type { BridgeTransfer } from '@avalabs/bridge-unified';
 import { isUnifiedBridgeTransfer } from '@src/pages/Bridge/utils/isUnifiedBridgeTransfer';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';

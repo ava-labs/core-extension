@@ -1,11 +1,13 @@
-import {
+import type {
   CubeSignerResponse,
   EnvInterface,
   MfaReceipt,
   NewSessionResponse,
+  SignerSessionData,
+} from '@cubist-labs/cubesigner-sdk';
+import {
   OidcClient,
   SignerSession,
-  SignerSessionData,
   SignerSessionManager,
   envs,
 } from '@cubist-labs/cubesigner-sdk';

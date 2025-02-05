@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { truncateAddress } from '@avalabs/core-utils-sdk';
-import { Transaction } from '@avalabs/vm-module-types';
+import type { Transaction } from '@avalabs/vm-module-types';
 
 export interface PchainActivityCardProp {
   historyItem: Transaction;

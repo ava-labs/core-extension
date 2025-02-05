@@ -1,5 +1,5 @@
 import QRCode from 'qrcode.react';
-import { PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
 import { Stack, useTheme } from '@avalabs/core-k2-components';
 
 export function QRCodeWithLogo({

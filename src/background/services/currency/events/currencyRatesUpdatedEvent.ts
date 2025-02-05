@@ -1,12 +1,12 @@
 import { singleton } from 'tsyringe';
 import { EventEmitter } from 'events';
 
-import {
+import type {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 
-import { CurrencyService } from '../CurrencyService';
+import type { CurrencyService } from '../CurrencyService';
 import { CurrencyServiceEvents } from '../models';
 
 @singleton()

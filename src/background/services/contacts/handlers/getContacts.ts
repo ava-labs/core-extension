@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { ContactsService } from '../ContactsService';
-import { ContactsState } from '../models';
+import type { ContactsService } from '../ContactsService';
+import type { ContactsState } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.CONTACTS_GET,

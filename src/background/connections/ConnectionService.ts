@@ -1,4 +1,5 @@
-import browser, { Runtime } from 'webextension-polyfill';
+import type { Runtime } from 'webextension-polyfill';
+import browser from 'webextension-polyfill';
 import {
   CONTENT_SCRIPT,
   EXTENSION_SCRIPT,
@@ -6,10 +7,10 @@ import {
 } from '@src/common';
 import { container, singleton } from 'tsyringe';
 import { DAppConnectionController } from './dAppConnection/DAppConnectionController';
-import { ConnectionController } from './models';
+import type { ConnectionController } from './models';
 import { KeepaliveConnectionController } from './keepaliveConnection/KeepaliveConnectionController';
 import { ExtensionConnectionController } from './extensionConnection/ExtensionConnectionController';
-import { CallbackManager } from '../runtime/CallbackManager';
+import type { CallbackManager } from '../runtime/CallbackManager';
 
 @singleton()
 export class ConnectionService {

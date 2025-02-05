@@ -1,10 +1,10 @@
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { KeyType } from '@src/utils/seedless/fido/types';
 
-import { SeedlessMfaService } from '../SeedlessMfaService';
+import type { SeedlessMfaService } from '../SeedlessMfaService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_ADD_FIDO_DEVICE,

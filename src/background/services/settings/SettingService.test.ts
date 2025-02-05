@@ -1,20 +1,22 @@
-import {
+import type {
   Network,
   NetworkContractToken,
   NetworkToken,
-  NetworkVMType,
 } from '@avalabs/core-chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { SettingsService } from './SettingsService';
+import type {
+  SettingsState,
+  TokensVisibility,
+  CollectiblesVisibility,
+} from './models';
 import {
   AnalyticsConsent,
   Languages,
   SETTINGS_STORAGE_KEY,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
   SettingsEvents,
-  SettingsState,
   ThemeVariant,
-  TokensVisibility,
-  CollectiblesVisibility,
 } from './models';
 import { changeLanguage } from 'i18next';
 import { isTokenSupported } from '../tokens/utils/isTokenSupported';

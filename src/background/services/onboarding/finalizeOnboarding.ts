@@ -1,8 +1,8 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { NetworkService } from '../network/NetworkService';
-import { AccountsService } from '../accounts/AccountsService';
-import { OnboardingService } from './OnboardingService';
-import { LockService } from '../lock/LockService';
+import type { NetworkService } from '../network/NetworkService';
+import type { AccountsService } from '../accounts/AccountsService';
+import type { OnboardingService } from './OnboardingService';
+import type { LockService } from '../lock/LockService';
 import { runtime } from 'webextension-polyfill';
 import { addXPChainToFavoriteIfNeeded } from './utils/addXPChainsToFavoriteIfNeeded';
 

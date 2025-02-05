@@ -1,10 +1,10 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ExtensionRequestHandler } from '@src/background/connections/models';
+import type { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { LockService } from '../../lock/LockService';
+import type { LockService } from '../../lock/LockService';
 import { SecretType } from '../../secrets/models';
-import { SecretsService } from '../../secrets/SecretsService';
-import { AccountsService } from '../../accounts/AccountsService';
+import type { SecretsService } from '../../secrets/SecretsService';
+import type { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_UNENCRYPTED_MNEMONIC,

@@ -1,17 +1,17 @@
-import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import { LockService } from '@src/background/services/lock/LockService';
-import { PermissionsService } from '@src/background/services/permissions/PermissionsService';
-import {
-  CORE_DOMAINS,
+import type { AccountsService } from '@src/background/services/accounts/AccountsService';
+import type { LockService } from '@src/background/services/lock/LockService';
+import type { PermissionsService } from '@src/background/services/permissions/PermissionsService';
+import type {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
 } from '../models';
-import { Middleware } from './models';
-import {
-  DAppProviderRequest,
+import { CORE_DOMAINS } from '../models';
+import type { Middleware } from './models';
+import type {
   JsonRpcRequest,
   JsonRpcResponse,
 } from '@src/background/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { RpcMethod } from '@avalabs/vm-module-types';
 
 const RESTRICTED_METHODS = Object.freeze([] as string[]);

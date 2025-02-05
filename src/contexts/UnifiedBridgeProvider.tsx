@@ -6,16 +6,10 @@ import {
   useContext,
   useMemo,
 } from 'react';
-import {
+import type {
   BridgeAsset,
-  BridgeType,
   Chain,
-  Environment,
-  ErrorCode as UnifiedBridgeErrorCode,
-  TokenType,
-  createUnifiedBridgeService,
   BridgeTransfer,
-  getEnabledBridgeServices,
   BridgeServicesMap,
   AnalyzeTxParams,
   AnalyzeTxResult,
@@ -25,15 +19,23 @@ import {
   BridgeInitializer,
   GasSettings,
 } from '@avalabs/bridge-unified';
+import {
+  BridgeType,
+  Environment,
+  ErrorCode as UnifiedBridgeErrorCode,
+  TokenType,
+  createUnifiedBridgeService,
+  getEnabledBridgeServices,
+} from '@avalabs/bridge-unified';
 import { filter, map } from 'rxjs';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import type { UnifiedBridgeState } from '@src/background/services/unifiedBridge/models';
 import {
   UNIFIED_BRIDGE_DEFAULT_STATE,
   UnifiedBridgeError,
-  UnifiedBridgeState,
 } from '@src/background/services/unifiedBridge/models';
-import { UnifiedBridgeGetState } from '@src/background/services/unifiedBridge/handlers';
+import type { UnifiedBridgeGetState } from '@src/background/services/unifiedBridge/handlers';
 import { isUnifiedBridgeStateUpdate } from '@src/background/services/unifiedBridge/events/eventFilters';
 
 import { useNetworkContext } from './NetworkProvider';
@@ -42,18 +44,16 @@ import { CommonError } from '@src/utils/errors';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { useAccountsContext } from './AccountsProvider';
-import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
+import type { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { lowerCaseKeys } from '@src/utils/lowerCaseKeys';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { isBitcoinCaipId } from '@src/utils/caipConversion';
-import { Account } from '@src/background/services/accounts/models';
+import type { Account } from '@src/background/services/accounts/models';
 import { getEnabledBridgeTypes } from '@src/utils/getEnabledBridgeTypes';
-import {
-  SupportedProvider,
-  getProviderForNetwork,
-} from '@src/utils/network/getProviderForNetwork';
+import type { SupportedProvider } from '@src/utils/network/getProviderForNetwork';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { assert } from '@src/utils/assertions';
-import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
+import type { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
 import { isBridgeStateUpdateEventListener } from '@src/background/services/bridge/events/listeners';
 
 export interface UnifiedBridgeContext {

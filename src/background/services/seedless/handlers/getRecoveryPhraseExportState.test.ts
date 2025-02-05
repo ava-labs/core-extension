@@ -1,12 +1,12 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { GetRecoveryPhraseExportStateHandler } from './getRecoveryPhraseExportState';
-import { SecretsService } from '../../secrets/SecretsService';
+import type { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
-import { NetworkService } from '../../network/NetworkService';
-import { SeedlessMfaService } from '../SeedlessMfaService';
+import type { NetworkService } from '../../network/NetworkService';
+import type { SeedlessMfaService } from '../SeedlessMfaService';
 import { SeedlessWallet } from '../SeedlessWallet';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { AccountsService } from '../../accounts/AccountsService';
+import type { AccountsService } from '../../accounts/AccountsService';
 
 jest.mock('../SeedlessWallet');
 

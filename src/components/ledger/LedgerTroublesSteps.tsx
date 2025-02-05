@@ -1,9 +1,9 @@
 import { StyledNumberList } from '@src/components/common/StyledNumberList';
 import { Trans, useTranslation } from 'react-i18next';
+import type { SxProps } from '@avalabs/core-k2-components';
 import {
   Divider,
   Stack,
-  SxProps,
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';

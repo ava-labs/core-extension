@@ -1,5 +1,5 @@
+import type { BridgeService } from '@avalabs/bridge-unified';
 import {
-  BridgeService,
   BridgeType,
   Environment,
   createUnifiedBridgeService,

@@ -1,5 +1,5 @@
-import { BridgeTransaction } from '@avalabs/core-bridge-sdk';
-import { BridgeTransfer } from '@avalabs/bridge-unified';
+import type { BridgeTransaction } from '@avalabs/core-bridge-sdk';
+import type { BridgeTransfer } from '@avalabs/bridge-unified';
 
 import { isUnifiedBridgeTransfer } from '../utils/isUnifiedBridgeTransfer';
 

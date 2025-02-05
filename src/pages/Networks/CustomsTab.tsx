@@ -5,7 +5,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { EmptyContent } from '@src/components/common/EmptyContent';
 
 import { NetworkList } from './common/NetworkList';
-import { NetworkTabProps } from './Networks';
+import type { NetworkTabProps } from './Networks';
 
 export function CustomsTab({ searchTerm }: NetworkTabProps) {
   const { t } = useTranslation();

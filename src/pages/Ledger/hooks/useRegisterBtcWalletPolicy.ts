@@ -1,11 +1,9 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  AccountType,
-  PrimaryAccount,
-} from '@src/background/services/accounts/models';
-import { GetBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/getBtcWalletPolicyDetails';
-import { WalletDetails } from '@src/background/services/wallet/models';
+import type { PrimaryAccount } from '@src/background/services/accounts/models';
+import { AccountType } from '@src/background/services/accounts/models';
+import type { GetBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/getBtcWalletPolicyDetails';
+import type { WalletDetails } from '@src/background/services/wallet/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
