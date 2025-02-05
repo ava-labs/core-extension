@@ -7,6 +7,7 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { AccountType } from '../models';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { ApprovalService } from '@src/background/services/approvals/ApprovalService';
 
 jest.mock('@src/utils/canSkipApproval');
 jest.mock('@src/utils/extensionUtils', () => ({
@@ -27,6 +28,10 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
   } as any;
 
   container.registerInstance(ActionsService, actionsServiceMock as any);
+  container.registerInstance(
+    ApprovalService,
+    new ApprovalService(actionsServiceMock as any),
+  );
 
   beforeEach(() => {
     jest.resetAllMocks();
