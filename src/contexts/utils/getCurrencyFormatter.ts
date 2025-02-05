@@ -6,10 +6,13 @@ export const getCurrencyFormatter = (currency = 'USD') => {
     style: 'currency',
     currency: currency,
     currencyDisplay: 'narrowSymbol',
+    maximumFractionDigits: 6,
   });
 
   return (amount: number) => {
-    const parts = formatter.formatToParts(amount);
+    const transformedAmount = modifyFractionNumber(amount);
+    const parts = formatter.formatToParts(transformedAmount);
+
     /**
      *  This formats the currency to return
      *  <symbol><amount>
@@ -25,6 +28,19 @@ export const getCurrencyFormatter = (currency = 'USD') => {
       return flatArray.join('').trim();
     }
 
-    return formatter.format(amount);
+    return formatter.format(transformedAmount);
   };
+};
+
+const modifyFractionNumber = (amount: number) => {
+  const [integer, fraction] = amount.toString().split('.');
+  const indexOfNonZero = fraction?.search(/[1-9]/);
+
+  if (!indexOfNonZero || indexOfNonZero < 2 || integer !== '0') {
+    return parseFloat(`${integer}.${fraction?.slice(0, 2)}`);
+  }
+  if (indexOfNonZero && indexOfNonZero >= 2 && integer === '0') {
+    return parseFloat(`${integer}.${fraction?.slice(0, indexOfNonZero + 1)}`);
+  }
+  return amount;
 };

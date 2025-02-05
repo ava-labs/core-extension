@@ -12,11 +12,18 @@ import {
   SecretType,
 } from '../secrets/models';
 import { DistributiveOmit } from '@src/utils/distributiveomit';
+import { VMABI, TransactionPayload } from 'hypersdk-client';
+
+export interface HVMTransactionRequest {
+  txPayload: TransactionPayload;
+  abi: VMABI;
+}
 
 export type SignTransactionRequest =
   | TransactionRequest
   | BtcTransactionRequest
-  | AvalancheTransactionRequest;
+  | AvalancheTransactionRequest
+  | HVMTransactionRequest;
 
 export interface BtcTransactionRequest {
   inputs: BitcoinInputUTXO[];
@@ -135,6 +142,7 @@ export type PubKeyType = {
    */
   xp?: string;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
+  ed25519?: string;
 };
 
 export type SigningResult =

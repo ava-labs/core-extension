@@ -15,7 +15,8 @@ import {
   ListIcon,
   Typography,
   TypographyProps,
-  PlusIcon,
+  LedgerIcon,
+  KeystoreIcon,
 } from '@avalabs/core-k2-components';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -66,20 +67,14 @@ const RoundedButtonGroup = styled(ButtonGroup)`
   }
 `;
 
-const MenuSubheader = (props: TypographyProps) => (
+const MenuHeader = (props: TypographyProps) => (
   <Typography
-    variant="caption"
-    component="li"
-    sx={{ px: 2, pt: 1, pb: 0.5, cursor: 'default' }}
-    color="text.secondary"
+    variant="button"
+    sx={{ px: 2, py: 1, cursor: 'default', fontSize: 18 }}
+    color="grey.50"
     {...props}
   />
 );
-
-const WALLET_IMPORT_FLAGS = [
-  FeatureGates.ADD_WALLET_WITH_SEEDPHRASE,
-  FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE,
-];
 
 export const AccountsActionButton = ({
   isLoading,
@@ -142,10 +137,6 @@ export const AccountsActionButton = ({
     return '';
   }, [t, network]);
 
-  const isAnyWalletImportAvailable = WALLET_IMPORT_FLAGS.some(
-    (flag) => featureFlags[flag],
-  );
-
   return (
     <RoundedButtonGroup
       disabled={isLoading}
@@ -165,9 +156,8 @@ export const AccountsActionButton = ({
           data-testid={'add-primary-account'}
           isLoading={isLoading}
           disabled={isLoading || !canCreateAccount}
-          startIcon={<PlusIcon size={24} />}
         >
-          {t('Add Account')}
+          {t('Add New Address')}
         </Button>
       </Tooltip>
 
@@ -202,16 +192,18 @@ export const AccountsActionButton = ({
                     py: 0.5,
                     mb: 1,
                     overflow: 'hidden',
-                    backgroundColor: 'grey.800',
+                    backgroundColor: 'grey.850',
+                    width: 272,
+                    boxShadow: '0px 4px 24px 0px rgba(0, 0, 0, 0.60)',
                   }}
                 >
-                  <MenuSubheader>{t('Import Account')}</MenuSubheader>
+                  <MenuHeader>{t('Add Address via')}</MenuHeader>
                   <StyledMenuItem
                     onClick={goToImportScreen}
                     data-testid="add-import-account"
                   >
                     <KeyIcon size={16} sx={{ pr: 1 }} />
-                    {t('Import Private Key')}
+                    {t('Private Key')}
                   </StyledMenuItem>
                   {featureFlags[FeatureGates.IMPORT_WALLET_CONNECT] && (
                     <StyledMenuItem
@@ -219,7 +211,7 @@ export const AccountsActionButton = ({
                       onClick={goToWalletConnectScreen}
                     >
                       <WalletConnectIcon size={16} sx={{ pr: 1 }} />
-                      {t('Import with Wallet Connect')}
+                      {t('Wallet Connect')}
                     </StyledMenuItem>
                   )}
                   {featureFlags[FeatureGates.IMPORT_FIREBLOCKS] && (
@@ -237,30 +229,18 @@ export const AccountsActionButton = ({
                         disabled={Boolean(fireblocksDisabledReason)}
                       >
                         <FireblocksIcon size={16} sx={{ pr: 1 }} />
-                        {t('Import with Fireblocks')}
+                        {t('Fireblocks')}
                       </StyledMenuItem>
                     </Tooltip>
                   )}
 
-                  {isAnyWalletImportAvailable && (
-                    <MenuSubheader>{t('Add Wallet')}</MenuSubheader>
-                  )}
                   {featureFlags[FeatureGates.ADD_WALLET_WITH_SEEDPHRASE] && (
                     <StyledMenuItem
                       onClick={goToAddSeedphraseScreen}
                       data-testid="add-wallet-seed-phrase"
                     >
                       <ListIcon size={16} sx={{ pr: 1 }} />
-                      {t('Add Wallet with Recovery Phrase')}
-                    </StyledMenuItem>
-                  )}
-                  {featureFlags[FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE] && (
-                    <StyledMenuItem
-                      onClick={goToAddKeystoreFileScreen}
-                      data-testid="add-wallet-keystore-file"
-                    >
-                      <ListIcon size={16} sx={{ pr: 1 }} />
-                      {t('Add Wallet with Keystore File')}
+                      {t('Recovery Phrase')}
                     </StyledMenuItem>
                   )}
                   {featureFlags[FeatureGates.ADD_WALLET_WITH_LEDGER] && (
@@ -268,8 +248,17 @@ export const AccountsActionButton = ({
                       onClick={goToAddLedgerScreen}
                       data-testid="add-wallet-ledger"
                     >
-                      <ListIcon size={16} sx={{ pr: 1 }} />
-                      {t('Add Wallet with Ledger')}
+                      <LedgerIcon size={16} sx={{ pr: 1 }} />
+                      {t('Ledger')}
+                    </StyledMenuItem>
+                  )}
+                  {featureFlags[FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE] && (
+                    <StyledMenuItem
+                      onClick={goToAddKeystoreFileScreen}
+                      data-testid="add-wallet-keystore-file"
+                    >
+                      <KeystoreIcon size={16} sx={{ pr: 1 }} />
+                      {t('Keystore File')}
                     </StyledMenuItem>
                   )}
                 </MenuList>

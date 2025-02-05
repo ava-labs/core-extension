@@ -36,6 +36,8 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import { getUnconfirmedBalanceInCurrency } from '@src/background/services/balances/models';
+import { isTokenMalicious } from '@src/utils/isTokenMalicious';
+import { MaliciousTokenWarningBox } from '@src/components/common/MaliciousTokenWarning';
 
 export function TokenFlow() {
   const { t } = useTranslation();
@@ -187,6 +189,9 @@ export function TokenFlow() {
           </Stack>
         </Stack>
       </Stack>
+      {isTokenMalicious(token) && (
+        <MaliciousTokenWarningBox sx={{ mb: 1, mx: 2 }} />
+      )}
       <Stack
         direction="row"
         justifyContent="center"

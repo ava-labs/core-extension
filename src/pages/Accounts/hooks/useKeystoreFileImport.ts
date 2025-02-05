@@ -17,6 +17,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useImportSeedphrase } from './useImportSeedphrase';
 import { usePrivateKeyImport } from './usePrivateKeyImport';
 import { useJsonFileReader } from './useJsonFileReader';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 export const useKeystoreFileImport = () => {
   const { capture } = useAnalyticsContext();
@@ -26,6 +27,7 @@ export const useKeystoreFileImport = () => {
     useImportSeedphrase();
   const { isImporting: isImportingPrivateKey, importPrivateKey } =
     usePrivateKeyImport();
+  const { selectAccount } = useAccountsContext();
 
   const extractKeys = useCallback(
     async (file: File, password: string) => {
@@ -62,7 +64,8 @@ export const useKeystoreFileImport = () => {
             utils.base58check.decode(key.replace('PrivateKey-', '')),
           ).toString('hex');
 
-          await importPrivateKey(privateKey);
+          const accountId = await importPrivateKey(privateKey);
+          await selectAccount(accountId);
         } else if (type === 'mnemonic') {
           try {
             await importSeedphrase({
@@ -82,7 +85,7 @@ export const useKeystoreFileImport = () => {
         }
       }
     },
-    [extractKeys, importPrivateKey, importSeedphrase],
+    [extractKeys, importPrivateKey, importSeedphrase, selectAccount],
   );
 
   const getKeyCounts = useCallback(

@@ -10,7 +10,7 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
 
-import type { Action } from '../../actions/models';
+import { type Action, buildActionForRequest } from '../../actions/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../AccountsService';
 import type { ImportedAccount, PrimaryAccount } from '../models';
@@ -162,10 +162,7 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
       }
     }
 
-    const actionData: Action<{
-      accounts: DeleteAccountsDisplayData;
-    }> = {
-      ...request,
+    const actionData = buildActionForRequest(request, {
       scope,
       displayData: {
         accounts: {
@@ -174,7 +171,7 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
           wallet: walletNames,
         },
       },
-    };
+    });
 
     await openApprovalWindow(actionData, 'deleteAccounts');
 

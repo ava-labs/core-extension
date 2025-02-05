@@ -1,4 +1,4 @@
-import { BaseWallet, SigningKey } from 'ethers';
+import { BaseWallet, HDNodeWallet, SigningKey, Wallet } from 'ethers';
 
 import { WalletService } from './WalletService';
 import { MessageType } from './../messages/models';
@@ -21,6 +21,7 @@ import {
   Avalanche,
   createWalletPolicy,
   LedgerSigner,
+  getWalletFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { LedgerTransport } from '../ledger/LedgerTransport';
@@ -45,6 +46,9 @@ import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { Network } from '../network/models';
 import { decorateWithCaipId } from '@src/utils/caipConversion';
 import { AccountsService } from '../accounts/AccountsService';
+import { ed25519 } from '@noble/curves/ed25519';
+import { HVMWallet } from './HVMWallet';
+import { TransactionPayload, VMABI } from 'hypersdk-client';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -53,6 +57,13 @@ jest.mock('../keystone/KeystoneService');
 jest.mock('./utils/prepareBtcTxForLedger');
 jest.mock('./utils/ensureMessageFormatIsValid');
 jest.mock('@avalabs/core-wallets-sdk');
+jest.mock('@noble/curves/ed25519', () => {
+  return {
+    ed25519: {
+      getPublicKey: jest.fn(),
+    },
+  };
+});
 jest.mock('./utils/getDerivationPath');
 jest.mock('../seedless/SeedlessWallet');
 jest.mock('../seedless/SeedlessSessionManager');
@@ -84,6 +95,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     '4ae3e293d0161fa90bfbf51028ceb1e51fe70bc6167afe4e0fe0927d86555503';
   const walletMock = new BaseWallet(new SigningKey('0x' + privateKeyMock));
   const btcWalletMock = Object.create(BitcoinWallet.prototype);
+  const hvmWalletMock = new HVMWallet('0x' + privateKeyMock);
   const btcLedgerWalletMock = Object.create(BitcoinLedgerWallet.prototype);
   const btcKeystoneWalletMock = Object.create(BitcoinKeystoneWallet.prototype);
   const staticSignerMock = Object.create(Avalanche.StaticSigner.prototype);
@@ -275,6 +287,10 @@ describe('background/services/wallet/WalletService.ts', () => {
     (networkService.getAvalanceProviderXP as jest.Mock).mockReturnValue(
       Avalanche.JsonRpcProvider.getDefaultFujiProvider(),
     );
+    (getWalletFromMnemonic as jest.Mock).mockReturnValue({
+      path: 'derivePath',
+      privateKey: '123123123',
+    });
   });
 
   describe('onUnlock', () => {
@@ -602,6 +618,23 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(signedTx).toBe('0x1');
     });
 
+    it('sign hvm tx correctly', async () => {
+      hvmWalletMock.signEd25519 = jest.fn().mockReturnValueOnce('0x1');
+      getWalletSpy.mockResolvedValueOnce(hvmWalletMock);
+
+      const { signedTx } = await walletService.sign(
+        {
+          txPayload: { ...txMock } as unknown as TransactionPayload,
+          abi: {} as VMABI,
+        },
+        networkMock,
+        tabId,
+      );
+
+      expect(hvmWalletMock.signEd25519).toHaveBeenCalledWith({ ...txMock }, {});
+      expect(signedTx).toBe('0x1');
+    });
+
     describe('avalanche signing - XP / Coreth', () => {
       const unsignedTxJSON = {
         codecId: '0',
@@ -740,6 +773,86 @@ describe('background/services/wallet/WalletService.ts', () => {
           tx: unsignedTxMock,
         });
       });
+    });
+  });
+
+  describe('signTransactionBatch', () => {
+    let getWalletSpy: jest.SpyInstance;
+    const txMock = {
+      to: '0x1',
+      from: '0x1',
+      value: '0x1',
+    };
+
+    const networkMock = {
+      chainId: 111,
+    } as Network;
+
+    const tabId = 951;
+
+    beforeEach(() => {
+      getWalletSpy = jest.spyOn(walletService as any, 'getWallet');
+    });
+
+    it('throws if wallet is missing', async () => {
+      getWalletSpy.mockResolvedValueOnce(undefined);
+
+      await expect(
+        walletService.sign(txMock, networkMock, tabId),
+      ).rejects.toThrow('Wallet not found');
+    });
+
+    it.each([
+      ['WalletConnect wallets', Object.create(WalletConnectSigner.prototype)],
+      ['Ledger wallets', Object.create(LedgerSigner.prototype)],
+      ['Keystone wallets', Object.create(KeystoneWallet.prototype)],
+    ])('throws for %s', async (_, wallet) => {
+      getWalletSpy.mockResolvedValueOnce(wallet);
+      jest.spyOn(wallet, 'signTransaction');
+
+      const batch = [
+        { from: '0x1', to: '0x2', value: 10n },
+        { from: '0x1', to: '0xA', value: 10n },
+      ];
+
+      await expect(
+        walletService.signTransactionBatch(batch, networkMock, tabId),
+      ).rejects.toThrow(
+        'The active wallet does not support batch transactions',
+      );
+
+      expect(wallet.signTransaction).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['Seedless wallets', Object.create(SeedlessWallet.prototype)],
+      ['Mnemonic wallets', Object.create(HDNodeWallet.prototype)],
+      ['Private Keys', Object.create(Wallet.prototype)],
+    ])('works with %s', async (_, wallet) => {
+      getWalletSpy.mockResolvedValueOnce(wallet);
+      jest
+        .spyOn(wallet, 'signTransaction')
+        .mockResolvedValueOnce('0x1')
+        .mockResolvedValueOnce('0x2');
+
+      const batch = [
+        { from: '0x1', to: '0x2', value: 10n },
+        { from: '0x1', to: '0xA', value: 10n },
+      ];
+      const result = await walletService.signTransactionBatch(
+        [
+          { from: '0x1', to: '0x2', value: 10n },
+          { from: '0x1', to: '0xA', value: 10n },
+        ],
+        networkMock,
+        tabId,
+      );
+
+      expect(result).toEqual([{ signedTx: '0x1' }, { signedTx: '0x2' }]);
+
+      expect(wallet.signTransaction).toHaveBeenCalledTimes(2);
+      expect(wallet.signTransaction).toHaveBeenNthCalledWith(1, batch[0]);
+      expect(wallet.signTransaction).toHaveBeenNthCalledWith(2, batch[1]);
     });
   });
 
@@ -1196,7 +1309,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       it('returns the public keys for mnemonic wallets', async () => {
         const { xpub, xpubXP } = mockMnemonicWallet({}, { index: 0 });
-
+        (ed25519.getPublicKey as jest.Mock).mockReturnValue('123123');
         jest
           .mocked(getAddressPublicKeyFromXPub)
           .mockReturnValueOnce(evmPub as any);
@@ -1209,6 +1322,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         expect(result).toStrictEqual({
           evm: evmPub,
           xp: xpPub,
+          ed25519: '313233313233',
         });
 
         expect(getAddressPublicKeyFromXPub).toHaveBeenCalledWith(xpub, 0);
@@ -1327,12 +1441,14 @@ describe('background/services/wallet/WalletService.ts', () => {
           },
         );
         (getPublicKeyFromPrivateKey as jest.Mock).mockReturnValueOnce(evmPub);
+        (ed25519.getPublicKey as jest.Mock).mockReturnValue('123123');
 
         const result = await walletService.getActiveAccountPublicKey();
 
         expect(result).toStrictEqual({
           evm: evmPub,
           xp: evmPub,
+          ed25519: '313233313233',
         });
 
         expect(getPublicKeyFromPrivateKey).toHaveBeenCalledWith('secret1');

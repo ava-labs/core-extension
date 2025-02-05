@@ -1,6 +1,7 @@
 import {
   AppInfo,
   AppName,
+  BatchApprovalController,
   Environment,
   Module,
 } from '@avalabs/vm-module-types';
@@ -8,6 +9,7 @@ import { runtime } from 'webextension-polyfill';
 import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { AvalancheModule } from '@avalabs/avalanche-module';
 import { EvmModule } from '@avalabs/evm-module';
+import { HvmModule } from '@avalabs/hvm-module';
 import { ethErrors } from 'eth-rpc-errors';
 import { singleton } from 'tsyringe';
 
@@ -17,6 +19,7 @@ import { isDevelopment } from '@src/utils/environment';
 import { NetworkWithCaipId } from '../services/network/models';
 import { VMModuleError } from './models';
 import { ApprovalController } from './ApprovalController';
+import { AvaxCaipId, BitcoinCaipId } from '@src/utils/caipConversion';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2
@@ -25,7 +28,18 @@ const NAMESPACE_REGEX = new RegExp('^[-a-z0-9]{3,8}$');
 @singleton()
 export class ModuleManager {
   #_modules: Module[] | undefined;
-  #approvalController: ApprovalController;
+  #approvalController: BatchApprovalController;
+
+  isNonRestrictedMethod(module: Module, method: string): boolean {
+    const nonRestrictedMethods =
+      module.getManifest()?.permissions.rpc.nonRestrictedMethods;
+
+    if (nonRestrictedMethods === undefined) {
+      return false;
+    }
+
+    return nonRestrictedMethods.includes(method);
+  }
 
   get #modules(): Module[] {
     assertPresent(this.#_modules, VMModuleError.ModulesNotInitialized);
@@ -70,6 +84,11 @@ export class ModuleManager {
         approvalController: this.#approvalController,
         appInfo,
       }),
+      new HvmModule({
+        environment,
+        approvalController: this.#approvalController,
+        appInfo,
+      }),
     ];
   }
 
@@ -104,9 +123,12 @@ export class ModuleManager {
     return this.loadModule(network.caipId, method);
   }
 
-  async #getModule(chainId: string): Promise<Module | undefined> {
-    const [namespace] = chainId.split(':');
-
+  async #getModule(chainIdOrScope: string): Promise<Module | undefined> {
+    const scopeConversion =
+      BitcoinCaipId[chainIdOrScope] ??
+      AvaxCaipId[chainIdOrScope] ??
+      chainIdOrScope;
+    const [namespace] = scopeConversion.split(':');
     if (!namespace || !NAMESPACE_REGEX.test(namespace)) {
       throw ethErrors.rpc.invalidParams({
         data: {
@@ -116,7 +138,7 @@ export class ModuleManager {
       });
     }
     return (
-      (await this.#getModuleByChainId(chainId)) ??
+      (await this.#getModuleByChainId(chainIdOrScope)) ??
       (await this.#getModuleByNamespace(namespace))
     );
   }

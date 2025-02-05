@@ -12,6 +12,7 @@ interface TokenListItemProps {
     percentage?: number | undefined;
     value?: number | undefined;
   };
+  isMalicious?: boolean;
 }
 
 export function TokenListItem({
@@ -22,6 +23,7 @@ export function TokenListItem({
   balanceInCurrency,
   onClick,
   priceChanges,
+  isMalicious,
 }: TokenListItemProps) {
   const { currencyFormatter } = useSettingsContext();
   return (
@@ -33,6 +35,7 @@ export function TokenListItem({
       balanceInCurrency={balanceInCurrency}
       currencyFormatter={currencyFormatter}
       priceChanges={priceChanges}
+      isMalicious={isMalicious}
     >
       {children}
     </TokenCardWithBalance>

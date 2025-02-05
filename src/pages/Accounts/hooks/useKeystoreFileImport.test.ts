@@ -12,10 +12,12 @@ import { usePrivateKeyImport } from './usePrivateKeyImport';
 import { useKeystoreFileImport } from './useKeystoreFileImport';
 import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
 import { utils } from '@avalabs/avalanchejs';
+import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 jest.mock('@src/contexts/AnalyticsProvider');
 jest.mock('./useImportSeedphrase');
 jest.mock('./usePrivateKeyImport');
+jest.mock('@src/contexts/AccountsProvider');
 
 const getFile = (data) => {
   const encoder = new TextEncoder();
@@ -42,6 +44,10 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
       isImporting: false,
       importSeedphrase: jest.fn(),
     });
+
+    jest.mocked(useAccountsContext).mockReturnValue({
+      selectAccount: jest.fn(),
+    } as any);
   });
 
   describe('isValidKeystoreFile()', () => {

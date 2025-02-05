@@ -37,7 +37,13 @@ import {
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
 import { LedgerService } from '../ledger/LedgerService';
-import { BaseWallet, Wallet, isHexString } from 'ethers';
+import {
+  BaseWallet,
+  HDNodeWallet,
+  TransactionRequest,
+  Wallet,
+  isHexString,
+} from 'ethers';
 import { Transaction } from 'bitcoinjs-lib';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
@@ -62,6 +68,10 @@ import { Network } from '../network/models';
 import { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
 import { Account } from '../accounts/models';
+import { HVMWallet } from './HVMWallet';
+import { ed25519 } from '@noble/curves/ed25519';
+import { strip0x } from '@avalabs/core-utils-sdk';
+import { getAccountPrivateKeyFromMnemonic } from '../secrets/utils/getAccountPrivateKeyFromMnemonic';
 
 @singleton()
 export class WalletService implements OnUnlock {
@@ -166,9 +176,26 @@ export class WalletService implements OnUnlock {
       // wallet is not initialized
       return;
     }
+    const { secretType } = secrets;
+    // HVM
+    if (network.vmName === NetworkVMType.HVM) {
+      if (secretType === SecretType.Mnemonic) {
+        const accountIndexToUse =
+          accountIndex === undefined ? secrets.account.index : accountIndex;
+        return HVMWallet.fromMnemonic(
+          secrets.mnemonic,
+          accountIndexToUse,
+          secrets.derivationPath,
+        );
+      }
+      if (secretType === SecretType.PrivateKey) {
+        const { secret } = secrets;
+        return new HVMWallet(secret);
+      }
+      throw new Error('Unsupported wallet types');
+    }
 
     const provider = await getProviderForNetwork(network);
-    const { secretType } = secrets;
 
     // Seedless wallet uses a universal signer class (one for all tx types)
 
@@ -492,6 +519,36 @@ export class WalletService implements OnUnlock {
     }
   }
 
+  async signTransactionBatch(
+    batch: TransactionRequest[],
+    network: Network,
+    tabId?: number,
+  ) {
+    const wallet = await this.getWallet({ network, tabId });
+
+    if (!wallet) {
+      throw new Error('Wallet not found');
+    }
+
+    // Only wallets that provide us signed transactions without additional approvals
+    // can be used to sign transaction batches (so for example hardware wallets or accounts
+    // that connect through WalletConnect protocol would not work, since users have to approve
+    // each transaction one by one anyways.
+    const isSeedless = wallet instanceof SeedlessWallet;
+    const isSeedphrase = wallet instanceof HDNodeWallet;
+    const isPrivateKey = wallet instanceof Wallet;
+
+    if (!isSeedless && !isSeedphrase && !isPrivateKey) {
+      throw new Error('The active wallet does not support batch transactions');
+    }
+
+    return Promise.all(
+      batch.map(async (tx) => ({
+        signedTx: await wallet.signTransaction(tx),
+      })),
+    );
+  }
+
   async sign(
     tx: SignTransactionRequest,
     network: Network,
@@ -559,6 +616,15 @@ export class WalletService implements OnUnlock {
           : await wallet.signTx(txToSign, originalRequestMethod);
 
       return this.#normalizeSigningResult(result);
+    }
+
+    if ('abi' in tx) {
+      if (!(wallet instanceof HVMWallet)) {
+        throw new Error('ed25519 is not supported');
+      }
+      return this.#normalizeSigningResult(
+        await wallet.signEd25519(tx.txPayload, tx.abi),
+      );
     }
 
     if (
@@ -637,6 +703,9 @@ export class WalletService implements OnUnlock {
       return {
         evm: publicKey,
         xp: publicKey,
+        ed25519: Buffer.from(
+          ed25519.getPublicKey(strip0x(secrets.secret)),
+        ).toString('hex'),
       };
     }
 
@@ -645,6 +714,19 @@ export class WalletService implements OnUnlock {
         secrets.xpub,
         secrets.account.index,
       );
+
+      const ed25519Pub = Buffer.from(
+        ed25519.getPublicKey(
+          strip0x(
+            getAccountPrivateKeyFromMnemonic(
+              secrets.mnemonic,
+              secrets.account.index,
+              secrets.derivationPath,
+            ),
+          ),
+        ),
+      );
+
       const xpPub = Avalanche.getAddressPublicKeyFromXpub(
         secrets.xpubXP,
         secrets.account.index,
@@ -653,6 +735,7 @@ export class WalletService implements OnUnlock {
       return {
         evm: evmPub.toString('hex'),
         xp: xpPub.toString('hex'),
+        ed25519: ed25519Pub.toString('hex'),
       };
     }
 

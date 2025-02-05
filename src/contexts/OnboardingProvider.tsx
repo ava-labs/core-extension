@@ -82,6 +82,7 @@ const OnboardingContext = createContext<{
   isNewsletterEnabled: boolean;
   setIsNewsletterEnabled: Dispatch<SetStateAction<boolean>>;
   onboardingWalletType: WalletType | undefined;
+  setNumberOfAccountsToCreate: Dispatch<SetStateAction<number>>;
 }>({} as any);
 
 export function OnboardingContextProvider({ children }: { children: any }) {
@@ -131,6 +132,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
   const [walletType, setWalletType] = useState<string>();
 
   const [isSeedlessMfaRequired, setIsSeedlessMfaRequired] = useState(false);
+  const [numberOfAccountsToCreate, setNumberOfAccountsToCreate] = useState(0);
 
   const [onboardingWalletType, setOnboardingWalletType] = useState<
     WalletType | undefined
@@ -155,6 +157,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     setOnboardingWalletType(undefined);
     setIsNewsletterEnabled(false);
     setNewsletterEmail('');
+    setNumberOfAccountsToCreate(0);
   }, []);
 
   useEffect(() => {
@@ -272,11 +275,13 @@ export function OnboardingContextProvider({ children }: { children: any }) {
           password,
           analyticsConsent: !!analyticsConsent,
           walletName: walletName,
+          numberOfAccountsToCreate,
         },
       ],
     });
   }, [
     analyticsConsent,
+    numberOfAccountsToCreate,
     password,
     publicKeys,
     request,
@@ -437,6 +442,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setIsSeedlessMfaRequired,
         setOnboardingWalletType,
         onboardingWalletType,
+        setNumberOfAccountsToCreate,
       }}
     >
       {/*

@@ -124,4 +124,5 @@ export type DerivedAddresses = {
   addressAVM?: string;
   addressPVM?: string;
   addressCoreEth?: string;
+  addressHVM?: string;
 };
