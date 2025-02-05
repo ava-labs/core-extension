@@ -1,7 +1,9 @@
 import { Card, Stack, Tooltip, Typography } from '@avalabs/core-k2-components';
 import { useEffect, useRef, useState } from 'react';
-import { PAndL } from './ProfitAndLoss';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
+
+import { PAndL } from './ProfitAndLoss';
+import { MaliciousTokenWarningIcon } from './MaliciousTokenWarning';
 
 interface TokenCardProps {
   name: string;
@@ -13,6 +15,7 @@ interface TokenCardProps {
   currencyFormatter?: (balanceInCurrency: number) => string;
   currency?: string;
   priceChanges?: TokenWithBalance['priceChanges'];
+  isMalicious?: boolean;
 }
 
 export function TokenCardWithBalance({
@@ -25,6 +28,7 @@ export function TokenCardWithBalance({
   currencyFormatter,
   currency,
   priceChanges,
+  isMalicious,
 }: TokenCardProps) {
   const [hasNameOverflow, setHasNameOverflow] = useState(false);
 
@@ -68,8 +72,9 @@ export function TokenCardWithBalance({
             direction="row"
             justifyContent="space-between"
             alignItems="center"
-            sx={{ width: '100%' }}
+            sx={{ width: '100%', gap: 1 }}
           >
+            {isMalicious && <MaliciousTokenWarningIcon />}
             <Tooltip
               placement="bottom"
               title={<Typography variant="caption">{name}</Typography>}

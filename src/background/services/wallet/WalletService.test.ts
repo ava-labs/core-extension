@@ -1,4 +1,4 @@
-import { BaseWallet, SigningKey } from 'ethers';
+import { BaseWallet, HDNodeWallet, SigningKey, Wallet } from 'ethers';
 
 import { WalletService } from './WalletService';
 import { MessageType } from './../messages/models';
@@ -773,6 +773,86 @@ describe('background/services/wallet/WalletService.ts', () => {
           tx: unsignedTxMock,
         });
       });
+    });
+  });
+
+  describe('signTransactionBatch', () => {
+    let getWalletSpy: jest.SpyInstance;
+    const txMock = {
+      to: '0x1',
+      from: '0x1',
+      value: '0x1',
+    };
+
+    const networkMock = {
+      chainId: 111,
+    } as Network;
+
+    const tabId = 951;
+
+    beforeEach(() => {
+      getWalletSpy = jest.spyOn(walletService as any, 'getWallet');
+    });
+
+    it('throws if wallet is missing', async () => {
+      getWalletSpy.mockResolvedValueOnce(undefined);
+
+      await expect(
+        walletService.sign(txMock, networkMock, tabId),
+      ).rejects.toThrow('Wallet not found');
+    });
+
+    it.each([
+      ['WalletConnect wallets', Object.create(WalletConnectSigner.prototype)],
+      ['Ledger wallets', Object.create(LedgerSigner.prototype)],
+      ['Keystone wallets', Object.create(KeystoneWallet.prototype)],
+    ])('throws for %s', async (_, wallet) => {
+      getWalletSpy.mockResolvedValueOnce(wallet);
+      jest.spyOn(wallet, 'signTransaction');
+
+      const batch = [
+        { from: '0x1', to: '0x2', value: 10n },
+        { from: '0x1', to: '0xA', value: 10n },
+      ];
+
+      await expect(
+        walletService.signTransactionBatch(batch, networkMock, tabId),
+      ).rejects.toThrow(
+        'The active wallet does not support batch transactions',
+      );
+
+      expect(wallet.signTransaction).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['Seedless wallets', Object.create(SeedlessWallet.prototype)],
+      ['Mnemonic wallets', Object.create(HDNodeWallet.prototype)],
+      ['Private Keys', Object.create(Wallet.prototype)],
+    ])('works with %s', async (_, wallet) => {
+      getWalletSpy.mockResolvedValueOnce(wallet);
+      jest
+        .spyOn(wallet, 'signTransaction')
+        .mockResolvedValueOnce('0x1')
+        .mockResolvedValueOnce('0x2');
+
+      const batch = [
+        { from: '0x1', to: '0x2', value: 10n },
+        { from: '0x1', to: '0xA', value: 10n },
+      ];
+      const result = await walletService.signTransactionBatch(
+        [
+          { from: '0x1', to: '0x2', value: 10n },
+          { from: '0x1', to: '0xA', value: 10n },
+        ],
+        networkMock,
+        tabId,
+      );
+
+      expect(result).toEqual([{ signedTx: '0x1' }, { signedTx: '0x2' }]);
+
+      expect(wallet.signTransaction).toHaveBeenCalledTimes(2);
+      expect(wallet.signTransaction).toHaveBeenNthCalledWith(1, batch[0]);
+      expect(wallet.signTransaction).toHaveBeenNthCalledWith(2, batch[1]);
     });
   });
 

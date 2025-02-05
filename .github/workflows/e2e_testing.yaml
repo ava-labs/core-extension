@@ -52,9 +52,11 @@ jobs:
         run: yarn setup
       - name: Build library
         run: yarn build:alpha
-      - name: Remove onboarding video
+      - name: Remove large extension files
         run: |
           rm -fv ./dist/images/core-ext-hero-hq.webm
+          rm -fv ./dist/images/onboarding-background.svg
+          rm -fv ./dist/images/onboarding-background.png
       - name: Add extension key to manifest file
         run: |
           echo $(cat ./dist/manifest.json | jq '.key = "${{ secrets.EXTENSION_PUBLIC_KEY }}"') > ./dist/manifest.json

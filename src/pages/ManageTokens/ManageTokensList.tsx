@@ -1,6 +1,4 @@
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { TokenIcon } from '@src/components/common/TokenIcon';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useMemo } from 'react';
 import {
   Divider,
   Stack,
@@ -8,8 +6,14 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { TokenIcon } from '@src/components/common/TokenIcon';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { isTokenMalicious } from '@src/utils/isTokenMalicious';
+import { MaliciousTokenWarningIcon } from '@src/components/common/MaliciousTokenWarning';
+
 import { Sort } from './ManageTokens';
-import { useMemo } from 'react';
 
 type ManageTokensListProps = {
   searchQuery: string;
@@ -22,6 +26,7 @@ export const ManageTokensList = ({
 }: ManageTokensListProps) => {
   const tokensWithBalances = useTokensWithBalances({
     forceShowTokensWithoutBalances: true,
+    forceHiddenTokens: true,
   });
 
   const sortingTokens = useMemo(
@@ -95,11 +100,14 @@ const ManageTokensListItem = ({ token }: ManageTokensListItemProps) => {
           <Typography>{token.balanceDisplayValue}</Typography>
         </Stack>
       </Stack>
-      <Switch
-        size="small"
-        checked={getTokenVisibility(token)}
-        onChange={() => toggleTokenVisibility(token)}
-      />
+      <Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+        {isTokenMalicious(token) && <MaliciousTokenWarningIcon size={16} />}
+        <Switch
+          size="small"
+          checked={getTokenVisibility(token)}
+          onChange={() => toggleTokenVisibility(token)}
+        />
+      </Stack>
     </Stack>
   );
 };

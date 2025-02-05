@@ -8,7 +8,7 @@ import {
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
-import { Action } from '../../actions/models';
+import { Action, buildActionForRequest } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { CustomNetworkPayload } from '../models';
 import { resolve } from '@avalabs/core-utils-sdk';
@@ -72,10 +72,7 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
       };
     }
 
-    const actionData: Action<{
-      network: CustomNetworkPayload;
-    }> = {
-      ...request,
+    const actionData = buildActionForRequest(request, {
       scope,
       displayData: {
         network: {
@@ -83,7 +80,7 @@ export class WalletAddNetworkHandler extends DAppRequestHandler<Params, null> {
           chainId,
         },
       },
-    };
+    });
 
     await openApprovalWindow(actionData, 'networks/add-popup');
 

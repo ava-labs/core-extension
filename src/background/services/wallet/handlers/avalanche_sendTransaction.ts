@@ -5,7 +5,7 @@ import {
   JsonRpcRequestParams,
 } from '@src/background/connections/dAppConnection/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
-import { Action } from '../../actions/models';
+import { Action, buildActionForRequest } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import {
   UnsignedTx,
@@ -36,6 +36,12 @@ type TxParams = {
   internalIndices?: number[];
   utxos?: string[];
   feeTolerance?: number;
+};
+
+type AvalancheTxDisplayData = {
+  unsignedTxJson: string;
+  txData: Avalanche.Tx;
+  vm: VM;
 };
 
 @injectable()
@@ -174,19 +180,14 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       };
     }
 
-    const actionData: Action<{
-      unsignedTxJson: string;
-      txData: Avalanche.Tx;
-      vm: VM;
-    }> = {
-      ...request,
+    const actionData = buildActionForRequest(request, {
       scope,
       displayData: {
         unsignedTxJson: JSON.stringify(unsignedTx.toJSON()),
         txData,
         vm,
       },
-    };
+    });
 
     await openApprovalWindow(actionData, `approve/avalancheSignTx`);
 
@@ -234,11 +235,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
   }
 
   onActionApproved = async (
-    pendingAction: Action<{
-      unsignedTxJson: string;
-      txData: Avalanche.Tx;
-      vm: VM;
-    }>,
+    pendingAction: Action<AvalancheTxDisplayData>,
     _result,
     onSuccess,
     onError,

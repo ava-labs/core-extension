@@ -1,6 +1,7 @@
 import {
   AppInfo,
   AppName,
+  BatchApprovalController,
   Environment,
   Module,
 } from '@avalabs/vm-module-types';
@@ -27,7 +28,18 @@ const NAMESPACE_REGEX = new RegExp('^[-a-z0-9]{3,8}$');
 @singleton()
 export class ModuleManager {
   #_modules: Module[] | undefined;
-  #approvalController: ApprovalController;
+  #approvalController: BatchApprovalController;
+
+  isNonRestrictedMethod(module: Module, method: string): boolean {
+    const nonRestrictedMethods =
+      module.getManifest()?.permissions.rpc.nonRestrictedMethods;
+
+    if (nonRestrictedMethods === undefined) {
+      return false;
+    }
+
+    return nonRestrictedMethods.includes(method);
+  }
 
   get #modules(): Module[] {
     assertPresent(this.#_modules, VMModuleError.ModulesNotInitialized);

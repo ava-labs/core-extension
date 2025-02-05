@@ -8,6 +8,7 @@ import {
   Stack,
   Tooltip,
   Typography,
+  styled,
 } from '@avalabs/core-k2-components';
 
 import { useQueryParams } from '@src/hooks/useQueryParams';
@@ -35,6 +36,12 @@ type Props = SendPageProps<
   NetworkTokenWithBalance,
   [NftTokenWithBalance]
 >;
+
+const FlexScrollbars = styled(Scrollbars)`
+	> div {
+		display: flex;
+	}
+}`;
 
 export const SendEVMCollectible = ({
   network,
@@ -114,8 +121,15 @@ export const SendEVMCollectible = ({
 
   return (
     <Stack sx={{ flexGrow: 1, alignItems: 'center', width: '100%', pt: 1 }}>
-      <Scrollbars style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}>
-        <Stack ref={formRef}>
+      <FlexScrollbars
+        style={{
+          flexGrow: 1,
+          maxHeight: 'unset',
+          height: '100%',
+          display: 'flex',
+        }}
+      >
+        <Stack ref={formRef} sx={{ display: 'flex', flexGrow: 1, mb: 2 }}>
           <ContactInput
             contact={contact}
             onChange={(newContact) => {
@@ -171,7 +185,7 @@ export const SendEVMCollectible = ({
             </Card>
           </Stack>
         </Stack>
-      </Scrollbars>
+      </FlexScrollbars>
       {!isContactsOpen && (
         <Stack
           sx={{
