@@ -1,8 +1,8 @@
-import type { Maybe } from '@avalabs/core-utils-sdk';
-import type { RpcResponse } from '@avalabs/vm-module-types';
-import type { DomainMetadata } from '@src/background/models';
-import type { EthereumProviderError } from 'eth-rpc-errors';
-import type { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
+import { Maybe } from '@avalabs/core-utils-sdk';
+import { RpcResponse } from '@avalabs/vm-module-types';
+import { DomainMetadata } from '@src/background/models';
+import { EthereumProviderError } from 'eth-rpc-errors';
+import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 
 export enum DAppProviderRequest {
   DOMAIN_METADATA_METHOD = 'avalanche_sendDomainMetadata',

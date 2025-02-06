@@ -13,8 +13,7 @@ import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActio
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import type { RecoveryMethodTypes } from '../models';
-import { FIDOSteps } from '../models';
+import { FIDOSteps, RecoveryMethodTypes } from '../models';
 
 interface SeedlessModalProps {
   onFinish: () => void;

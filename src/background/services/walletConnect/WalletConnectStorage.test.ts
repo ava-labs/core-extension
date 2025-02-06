@@ -2,7 +2,7 @@ import {
   WALLET_CONNECT_STORAGE_KEY,
   WalletConnectStorage,
 } from './WalletConnectStorage';
-import type { StorageService } from '../storage/StorageService';
+import { StorageService } from '../storage/StorageService';
 
 const getMockedStorageService = (fails = false) => {
   const state = {};

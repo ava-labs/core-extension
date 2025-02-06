@@ -1,15 +1,19 @@
-import type { APIError, Transaction } from 'paraswap';
+import { APIError, Transaction } from 'paraswap';
 import { Contract } from 'ethers';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import type { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 
 import { resolve } from '@src/utils/promiseResolver';
-import type { RequestHandlerType } from '@src/background/connections/models';
+import { RequestHandlerType } from '@src/background/connections/models';
 
-import type { ParaswapPricesResponse, SwapParams } from './models';
-import { PARASWAP_RETRYABLE_ERRORS, hasParaswapError } from './models';
+import {
+  PARASWAP_RETRYABLE_ERRORS,
+  ParaswapPricesResponse,
+  SwapParams,
+  hasParaswapError,
+} from './models';
 
 export function validateParams(
   params: Partial<SwapParams>,

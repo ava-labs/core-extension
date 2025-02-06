@@ -1,5 +1,5 @@
-import type { Runtime } from 'webextension-polyfill';
-import type { ConnectionController } from '../models';
+import { Runtime } from 'webextension-polyfill';
+import { ConnectionController } from '../models';
 
 export class KeepaliveConnectionController implements ConnectionController {
   private connection?: Runtime.Port;

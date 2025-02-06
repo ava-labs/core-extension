@@ -1,5 +1,4 @@
-import type { SignerSession } from '@cubist-labs/cubesigner-sdk';
-import { CubeSigner } from '@cubist-labs/cubesigner-sdk';
+import { CubeSigner, SignerSession } from '@cubist-labs/cubesigner-sdk';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { SeedlessEvents } from './models';
 import sentryCaptureException, {

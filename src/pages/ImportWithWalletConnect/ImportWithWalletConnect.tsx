@@ -7,7 +7,7 @@ import { PageTitle } from '@src/components/common/PageTitle';
 import { WalletConnectCircledIcon } from './components/WalletConnectCircledIcon';
 import WalletConnectConnector from './components/WalletConnectConnector';
 
-import type { OnConnectCallback } from '@src/contexts/WalletConnectContextProvider/models';
+import { OnConnectCallback } from '@src/contexts/WalletConnectContextProvider/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 type ImportWithWalletConnectProps = {

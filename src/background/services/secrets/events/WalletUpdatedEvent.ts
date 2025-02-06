@@ -1,11 +1,11 @@
 import { WalletEvents } from '../../wallet/models';
-import type {
+import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import type { SecretsService } from '../SecretsService';
+import { SecretsService } from '../SecretsService';
 
 @singleton()
 export class WalletUpdatedEvents implements ExtensionEventEmitter {

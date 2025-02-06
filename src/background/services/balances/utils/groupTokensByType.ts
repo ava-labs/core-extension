@@ -1,4 +1,4 @@
-import type {
+import {
   NftTokenWithBalance,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';

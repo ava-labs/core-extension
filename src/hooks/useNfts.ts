@@ -3,7 +3,7 @@ import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
-import type { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 
 export const useNfts = () => {
   const { balances } = useBalancesContext();

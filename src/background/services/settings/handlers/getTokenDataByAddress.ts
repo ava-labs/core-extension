@@ -1,9 +1,9 @@
-import type { NetworkContractToken } from '@avalabs/core-chains-sdk';
+import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { TokenManagerService } from '../../tokens/TokenManagerService';
-import type { NetworkService } from '../../network/NetworkService';
+import { TokenManagerService } from '../../tokens/TokenManagerService';
+import { NetworkService } from '../../network/NetworkService';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';

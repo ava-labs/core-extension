@@ -2,13 +2,13 @@ import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import type { SecretsService } from '../../secrets/SecretsService';
-import type { NetworkService } from '../../network/NetworkService';
+import { SecretsService } from '../../secrets/SecretsService';
+import { NetworkService } from '../../network/NetworkService';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
-import type { Action } from '../../actions/models';
+import { Action } from '../../actions/models';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import type {
+import {
   GetAddressesInRangeDisplayData,
   GetAddressesInRangeResponse,
 } from '../models';
@@ -19,7 +19,7 @@ type Params = [
   externalLimit: number,
   internalLimit: number,
 ];
-import type { AccountsService } from '../AccountsService';
+import { AccountsService } from '../AccountsService';
 import { getAddressesInRange } from '../utils/getAddressesInRange';
 
 const EXPOSED_DOMAINS = [

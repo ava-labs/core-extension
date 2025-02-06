@@ -1,5 +1,5 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import type { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 import getDerivationPath from './getDerivationPath';
 

@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { ActionsService } from '../ActionsService';
-import type { ActionUpdate } from '../models';
+import { ActionsService } from '../ActionsService';
+import { ActionUpdate } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACTION_UPDATE,

@@ -5,13 +5,13 @@ import { GasFeeModifier } from '@src/components/common/CustomFees';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import type { NetworkFee } from '@src/background/services/networkFee/models';
-import type { Network } from '@avalabs/core-chains-sdk';
+import { NetworkFee } from '@src/background/services/networkFee/models';
+import { Network } from '@avalabs/core-chains-sdk';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { useDialog } from '@src/contexts/DialogContextProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useApproveAction } from '@src/hooks/useApproveAction';
-import type { Transaction } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import { Transaction } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { getNetworkCaipId } from '@src/utils/caipConversion';
 

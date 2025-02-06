@@ -5,14 +5,14 @@ import {
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { OnboardingService } from '../OnboardingService';
-import type { StorageService } from '../../storage/StorageService';
-import type { LockService } from '../../lock/LockService';
-import type { AnalyticsService } from '../../analytics/AnalyticsService';
-import type { WalletService } from '../../wallet/WalletService';
-import type { AccountsService } from '../../accounts/AccountsService';
-import type { SettingsService } from '../../settings/SettingsService';
-import type { NetworkService } from '../../network/NetworkService';
+import { OnboardingService } from '../OnboardingService';
+import { StorageService } from '../../storage/StorageService';
+import { LockService } from '../../lock/LockService';
+import { AnalyticsService } from '../../analytics/AnalyticsService';
+import { WalletService } from '../../wallet/WalletService';
+import { AccountsService } from '../../accounts/AccountsService';
+import { SettingsService } from '../../settings/SettingsService';
+import { NetworkService } from '../../network/NetworkService';
 import { KeystoneOnboardingHandler } from './keystoneOnboardingHandler';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';

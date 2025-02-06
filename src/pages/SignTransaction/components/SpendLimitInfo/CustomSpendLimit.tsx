@@ -14,10 +14,9 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { BNInput } from '@src/components/common/BNInput';
 import { PageTitle } from '@src/components/common/PageTitle';
-import type { DomainMetadata } from '@src/background/models';
-import type { SpendLimit } from './TokenSpendLimit';
-import { Limit } from './TokenSpendLimit';
-import type { ERC20Token } from '@avalabs/vm-module-types';
+import { DomainMetadata } from '@src/background/models';
+import { Limit, SpendLimit } from './TokenSpendLimit';
+import { ERC20Token } from '@avalabs/vm-module-types';
 
 const SpendLimitOption = ({ label, value, checked, ...props }) => (
   <FormControlLabel

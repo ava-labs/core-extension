@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import type { AccountType } from '@src/background/services/accounts/models';
+import { AccountType } from '@src/background/services/accounts/models';
 import { useAccountManager } from './providers/AccountManagerProvider';
 
 interface AccountBalanceProps {

@@ -1,15 +1,15 @@
 import { injectable } from 'tsyringe';
 
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import type { SecretsService } from '../../secrets/SecretsService';
+import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
 import { SeedlessWallet } from '../SeedlessWallet';
 import { SeedlessTokenStorage } from '../SeedlessTokenStorage';
-import type { NetworkService } from '../../network/NetworkService';
-import type { SeedlessMfaService } from '../SeedlessMfaService';
-import type { AccountsService } from '../../accounts/AccountsService';
+import { NetworkService } from '../../network/NetworkService';
+import { SeedlessMfaService } from '../SeedlessMfaService';
+import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_CANCEL_RECOVERY_PHRASE_EXPORT,

@@ -1,13 +1,13 @@
 import { singleton } from 'tsyringe';
 import { EventEmitter } from 'events';
 
-import type {
+import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 
 import { DefiServiceEvents } from '../models';
-import type { DefiService } from '../DefiService';
+import { DefiService } from '../DefiService';
 
 @singleton()
 export class DefiPortfolioUpdatedEvents implements ExtensionEventEmitter {

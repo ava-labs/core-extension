@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
-import type { LockService } from '../LockService';
+import { LockService } from '../LockService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LOCK_CHANGE_PASSWORD,

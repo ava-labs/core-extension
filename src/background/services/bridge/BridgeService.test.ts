@@ -6,12 +6,12 @@ import {
 import { BITCOIN_NETWORK, ChainId } from '@avalabs/core-chains-sdk';
 import Big from 'big.js';
 
-import type { AccountsService } from '../accounts/AccountsService';
+import { AccountsService } from '../accounts/AccountsService';
 import { AccountType } from '../accounts/models';
-import type { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
-import type { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import type { NetworkService } from '../network/NetworkService';
-import type { StorageService } from '../storage/StorageService';
+import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import { NetworkService } from '../network/NetworkService';
+import { StorageService } from '../storage/StorageService';
 
 import { BridgeService } from './BridgeService';
 

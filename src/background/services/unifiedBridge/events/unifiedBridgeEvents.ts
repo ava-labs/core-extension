@@ -1,12 +1,12 @@
 import { singleton } from 'tsyringe';
 import { EventEmitter } from 'events';
 
-import type {
+import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 
-import type { UnifiedBridgeService } from '../UnifiedBridgeService';
+import { UnifiedBridgeService } from '../UnifiedBridgeService';
 import { UnifiedBridgeEvent } from '../models';
 
 @singleton()

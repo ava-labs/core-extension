@@ -1,10 +1,10 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import type { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { singleton } from 'tsyringe';
-import type { NetworkFee } from './models';
-import type { NetworkWithCaipId } from '../network/models';
-import type { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { NetworkFee } from './models';
+import { NetworkWithCaipId } from '../network/models';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 
 @singleton()
 export class NetworkFeeService {

@@ -1,6 +1,5 @@
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import type { SettingsPageProps } from '../models';
-import { SettingsPages } from '../models';
+import { SettingsPageProps, SettingsPages } from '../models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { Logo } from '@src/components/icons/Logo';
 import { BrandName } from '@src/components/icons/BrandName';

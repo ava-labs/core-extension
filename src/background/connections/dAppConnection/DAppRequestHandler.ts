@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { Action } from '@src/background/services/actions/models';
-import type {
+import { Action } from '@src/background/services/actions/models';
+import {
   DAppProviderRequest,
   JsonRpcRequestParams,
   JsonRpcResponse,

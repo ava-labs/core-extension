@@ -1,22 +1,21 @@
 import { injectable } from 'tsyringe';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 
-import type { WalletConnectService } from '../WalletConnectService';
-import type { NetworkService } from '../../network/NetworkService';
-import type { AccountsService } from '../../accounts/AccountsService';
+import { WalletConnectService } from '../WalletConnectService';
+import { NetworkService } from '../../network/NetworkService';
+import { AccountsService } from '../../accounts/AccountsService';
 import {
   ImportType,
   IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP,
 } from '../../accounts/models';
 import { isCoreMobile } from '../utils';
-import type { PubKeyType } from '../../wallet/models';
+import { PubKeyType } from '../../wallet/models';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
-import type { WalletConnectSessionInfo } from '../models';
-import { FIREBLOCKS_APP_NAME } from '../models';
+import { FIREBLOCKS_APP_NAME, WalletConnectSessionInfo } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,

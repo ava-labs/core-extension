@@ -3,8 +3,8 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import type { Action } from '../../actions/models';
-import type { ContactsService } from '../ContactsService';
+import { Action } from '../../actions/models';
+import { ContactsService } from '../ContactsService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 @injectable()

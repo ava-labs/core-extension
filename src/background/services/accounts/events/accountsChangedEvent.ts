@@ -1,17 +1,20 @@
-import type {
+import {
   ConnectionInfo,
   DAppEventEmitter,
   ExtensionConnectionEvent,
 } from '@src/background/connections/models';
 import { AccountsEvents } from '../models';
 import { EventEmitter } from 'events';
-import type { AccountsService } from '../AccountsService';
-import type { PermissionsService } from '../../permissions/PermissionsService';
-import type { DappPermissions, Permissions } from '../../permissions/models';
-import { PermissionEvents } from '../../permissions/models';
+import { AccountsService } from '../AccountsService';
+import { PermissionsService } from '../../permissions/PermissionsService';
+import {
+  DappPermissions,
+  PermissionEvents,
+  Permissions,
+} from '../../permissions/models';
 import { Web3Event } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
-import type { AccountsChangedEventData } from '@src/background/providers/models';
+import { AccountsChangedEventData } from '@src/background/providers/models';
 
 /**
  * Emits `accountChanged` events for each dApp according to EIP-1193

@@ -1,5 +1,4 @@
-import type { Network } from '@avalabs/core-chains-sdk';
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   LedgerAppType,
   REQUIRED_LEDGER_VERSION,

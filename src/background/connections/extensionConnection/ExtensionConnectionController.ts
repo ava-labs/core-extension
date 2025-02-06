@@ -1,10 +1,8 @@
 import { injectable, injectAll, injectAllWithTransform } from 'tsyringe';
-import type { Runtime } from 'webextension-polyfill';
-import { runtime } from 'webextension-polyfill';
-import type { Pipeline } from '../middlewares/models';
-import { DEFERRED_RESPONSE } from '../middlewares/models';
+import { runtime, Runtime } from 'webextension-polyfill';
+import { DEFERRED_RESPONSE, Pipeline } from '../middlewares/models';
 import { ExtensionRequestHandlerMiddleware } from '../middlewares/ExtensionRequestHandlerMiddleware';
-import type {
+import {
   ConnectionController,
   DAppEventEmitter,
   ExtensionConnectionEvent,
@@ -32,8 +30,8 @@ import sentryCaptureException, {
 } from '@src/monitoring/sentryCaptureException';
 
 import { DappHandlerToExtensionHandlerTransformer } from './DappHandlerToExtensionHandlerTransformer';
-import type { NetworkService } from '@src/background/services/network/NetworkService';
-import type { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { NetworkService } from '@src/background/services/network/NetworkService';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
 
 @injectable()

@@ -8,7 +8,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useFidoErrorMessage } from '@src/hooks/useFidoErrorMessage';
 import { Trans, useTranslation } from 'react-i18next';
-import type { AuthErrorCode } from '@src/background/services/seedless/models';
+import { AuthErrorCode } from '@src/background/services/seedless/models';
 
 type Props = {
   error?: AuthErrorCode;

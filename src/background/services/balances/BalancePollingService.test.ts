@@ -1,5 +1,5 @@
 import { TokenType } from '@avalabs/vm-module-types';
-import type { BalanceAggregatorService } from './BalanceAggregatorService';
+import { BalanceAggregatorService } from './BalanceAggregatorService';
 import { BalancePollingService } from './BalancePollingService';
 
 describe('src/background/services/balances/BalancePollingService.ts', () => {

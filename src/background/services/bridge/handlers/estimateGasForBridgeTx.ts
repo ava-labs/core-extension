@@ -1,11 +1,11 @@
-import type Big from 'big.js';
+import Big from 'big.js';
 import { injectable } from 'tsyringe';
-import type { Asset, Blockchain } from '@avalabs/core-bridge-sdk';
+import { Asset, Blockchain } from '@avalabs/core-bridge-sdk';
 
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import type { BridgeService } from '../BridgeService';
+import { BridgeService } from '../BridgeService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_ESTIMATE_GAS,

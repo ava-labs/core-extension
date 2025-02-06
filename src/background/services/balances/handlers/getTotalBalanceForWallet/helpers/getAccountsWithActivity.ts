@@ -1,10 +1,13 @@
 import { uniq } from 'lodash';
-import type { Avalanche } from '@avalabs/core-wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 
 import { getAddressesInRange } from '@src/background/services/accounts/utils/getAddressesInRange';
 
-import type { AddressActivityFetcher } from '../models';
-import { GLACIER_ADDRESS_FETCH_LIMIT, ITERATION_LIMIT } from '../models';
+import {
+  AddressActivityFetcher,
+  GLACIER_ADDRESS_FETCH_LIMIT,
+  ITERATION_LIMIT,
+} from '../models';
 
 import { processGlacierAddresses } from './processGlacierAddresses';
 import { isDone } from './isDone';

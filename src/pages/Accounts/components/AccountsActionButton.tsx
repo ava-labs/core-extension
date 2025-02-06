@@ -1,4 +1,3 @@
-import type { TypographyProps } from '@avalabs/core-k2-components';
 import {
   Button,
   ButtonGroup,
@@ -15,6 +14,7 @@ import {
   Tooltip,
   ListIcon,
   Typography,
+  TypographyProps,
   LedgerIcon,
   KeystoreIcon,
 } from '@avalabs/core-k2-components';

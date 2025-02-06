@@ -1,29 +1,33 @@
 import { Skeleton, Stack } from '@avalabs/core-k2-components';
-import type {
+import {
   NetworkTokenWithBalance,
+  RpcMethod,
   SigningData,
+  TokenType,
 } from '@avalabs/vm-module-types';
-import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { NetworkWithCaipId } from '@src/background/services/network/models';
-import type { NetworkFee } from '@src/background/services/networkFee/models';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { NetworkFee } from '@src/background/services/networkFee/models';
 
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import type { CustomGasFeesProps } from '@src/components/common/CustomFees';
-import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
+import {
+  CustomFees,
+  CustomGasFeesProps,
+  GasFeeModifier,
+} from '@src/components/common/CustomFees';
 import { SendErrorMessage } from '@src/utils/send/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import type { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
+import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import type {
+import {
   Action,
   MultiTxAction,
+  isBatchApprovalAction,
 } from '@src/background/services/actions/models';
-import { isBatchApprovalAction } from '@src/background/services/actions/models';
 
 const getInitialFeeRate = (
   data?: SigningData | MultiTxFeeData,

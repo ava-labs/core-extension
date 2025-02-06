@@ -6,8 +6,8 @@ import { useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import type { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
-import type { GetTokenDataHandler } from '@src/background/services/settings/handlers/getTokenDataByAddress';
+import { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
+import { GetTokenDataHandler } from '@src/background/services/settings/handlers/getTokenDataByAddress';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
@@ -18,10 +18,9 @@ import {
 } from '@avalabs/core-k2-components';
 import { TokenCardWithBalance } from '@src/components/common/TokenCardWithBalance';
 import { TokenIcon } from '@src/components/common/TokenIcon';
-import type { TokenWithBalanceERC20 } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
+import { TokenType, TokenWithBalanceERC20 } from '@avalabs/vm-module-types';
 import { isTokenMalicious } from '@src/utils/isTokenMalicious';
-import type { NetworkContractToken } from '@avalabs/core-chains-sdk';
+import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { MaliciousTokenWarningBox } from '@src/components/common/MaliciousTokenWarning';
 
 export function AddToken() {

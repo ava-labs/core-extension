@@ -1,21 +1,23 @@
-import type { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
-import { MemorySessionStorage } from '@cubist-labs/cubesigner-sdk';
+import {
+  MemorySessionStorage,
+  SignerSessionData,
+} from '@cubist-labs/cubesigner-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { SecretType } from '../../secrets/models';
 import { SeedlessWallet } from '../../seedless/SeedlessWallet';
-import type { SeedlessAuthProvider } from '../../wallet/models';
+import { SeedlessAuthProvider } from '../../wallet/models';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import type { SecretsService } from '../../secrets/SecretsService';
-import type { NetworkService } from '../../network/NetworkService';
-import type { WalletService } from '../../wallet/WalletService';
-import type { AccountsService } from '../../accounts/AccountsService';
-import type { SettingsService } from '../../settings/SettingsService';
-import type { StorageService } from '../../storage/StorageService';
-import type { AnalyticsService } from '../../analytics/AnalyticsService';
-import type { OnboardingService } from '../OnboardingService';
-import type { LockService } from '../../lock/LockService';
+import { SecretsService } from '../../secrets/SecretsService';
+import { NetworkService } from '../../network/NetworkService';
+import { WalletService } from '../../wallet/WalletService';
+import { AccountsService } from '../../accounts/AccountsService';
+import { SettingsService } from '../../settings/SettingsService';
+import { StorageService } from '../../storage/StorageService';
+import { AnalyticsService } from '../../analytics/AnalyticsService';
+import { OnboardingService } from '../OnboardingService';
+import { LockService } from '../../lock/LockService';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
 

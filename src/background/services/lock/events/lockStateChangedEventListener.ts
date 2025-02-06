@@ -1,4 +1,4 @@
-import type { ExtensionConnectionEvent } from '@src/background/connections/models';
+import { ExtensionConnectionEvent } from '@src/background/connections/models';
 import { LockEvents } from '../models';
 
 export function lockStateChangedEventListener(

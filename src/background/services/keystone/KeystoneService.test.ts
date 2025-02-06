@@ -1,8 +1,7 @@
 import { KeystoneService } from './KeystoneService';
 import { ETHSignature, EthSignRequest } from '@keystonehq/bc-ur-registry-eth';
 
-import type { CBOR } from './models';
-import { KeystoneEvent } from './models';
+import { CBOR, KeystoneEvent } from './models';
 
 jest.mock('@keystonehq/bc-ur-registry-eth', () => {
   const actual = jest.requireActual('@keystonehq/bc-ur-registry-eth');

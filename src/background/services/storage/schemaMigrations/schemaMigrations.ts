@@ -1,5 +1,4 @@
-import type { SchemaMap } from './schemaMap';
-import { SCHEMA_MAP } from './schemaMap';
+import { SchemaMap, SCHEMA_MAP } from './schemaMap';
 
 export const getDataWithSchemaVersion = <T>(key: string, data: T) => {
   if (Array.isArray(data) || !SCHEMA_MAP[key] || data?.['version']) {

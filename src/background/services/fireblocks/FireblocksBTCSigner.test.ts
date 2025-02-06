@@ -2,8 +2,11 @@ import { waitForIntervalRuns } from '@src/tests/test-utils';
 import { PeerType, TransactionStatus } from 'fireblocks-sdk';
 import { FireblocksBTCSigner } from './FireblocksBTCSigner';
 import { FireblocksService } from './FireblocksService';
-import type { KnownAddressDictionary } from './models';
-import { FireblocksErrorCode, TRANSACTION_POLLING_INTERVAL_MS } from './models';
+import {
+  FireblocksErrorCode,
+  KnownAddressDictionary,
+  TRANSACTION_POLLING_INTERVAL_MS,
+} from './models';
 import { CommonError } from '@src/utils/errors';
 import { ethErrors } from 'eth-rpc-errors';
 

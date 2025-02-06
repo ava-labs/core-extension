@@ -1,17 +1,17 @@
 import { useTranslation } from 'react-i18next';
 import { Box, Button, Stack, Typography } from '@avalabs/core-k2-components';
-import type {
+import {
+  AlertType,
   SigningData_EthSendTx,
   SigningRequest,
 } from '@avalabs/vm-module-types';
-import { AlertType } from '@avalabs/vm-module-types';
 
 import { AlertBox } from '@src/pages/Permissions/components/AlertBox';
 import { WarningBox } from '@src/pages/Permissions/components/WarningBox';
 import { NetworkDetails } from '@src/pages/SignTransaction/components/ApprovalTxDetails';
 import { SpendLimitInfo } from '@src/pages/SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { TxBalanceChange } from '@src/pages/SignTransaction/components/TxBalanceChange';
-import type { NetworkWithCaipId } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { FlexScrollbars } from '@src/components/common/FlexScrollbars';
 import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import {
@@ -21,8 +21,8 @@ import {
 } from '@src/components/common/approval/ApprovalSection';
 import { TransactionDetailItem } from '@src/components/common/approval/TransactionDetailItem';
 import { useFeeCustomizer } from '../hooks/useFeeCustomizer';
-import type { MultiTxAction } from '@src/background/services/actions/models';
-import type { EnsureDefined } from '@src/background/models';
+import { MultiTxAction } from '@src/background/services/actions/models';
+import { EnsureDefined } from '@src/background/models';
 
 export const TransactionDetailsCardContent = ({
   tx,

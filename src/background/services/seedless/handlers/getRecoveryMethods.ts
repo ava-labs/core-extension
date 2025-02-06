@@ -1,14 +1,14 @@
 import { injectable } from 'tsyringe';
 
 import { resolve } from '@src/utils/promiseResolver';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import type { RecoveryMethod } from '../models';
-import type { SecretsService } from '../../secrets/SecretsService';
+import { RecoveryMethod } from '../models';
+import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
-import type { SeedlessMfaService } from '../SeedlessMfaService';
-import type { AccountsService } from '../../accounts/AccountsService';
+import { SeedlessMfaService } from '../SeedlessMfaService';
+import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_GET_RECOVERY_METHODS,

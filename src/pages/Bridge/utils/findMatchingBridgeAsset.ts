@@ -1,11 +1,13 @@
-import type { BridgeAsset } from '@avalabs/bridge-unified';
-import { TokenType as BridgeTokenType } from '@avalabs/bridge-unified';
+import {
+  BridgeAsset,
+  TokenType as BridgeTokenType,
+} from '@avalabs/bridge-unified';
 
-import type {
+import {
   NftTokenWithBalance,
+  TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
 
 export const findMatchingBridgeAsset = (
   assets: BridgeAsset[],

@@ -1,9 +1,14 @@
-import type { CallbackManager } from '@src/background/runtime/CallbackManager';
+import { CallbackManager } from '@src/background/runtime/CallbackManager';
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
-import type { StorageService } from '../storage/StorageService';
-import type { LockStateChangedEventPayload, SessionAuthData } from './models';
-import { LockEvents, LOCK_TIMEOUT, SESSION_AUTH_DATA_KEY } from './models';
+import { StorageService } from '../storage/StorageService';
+import {
+  LockEvents,
+  LockStateChangedEventPayload,
+  LOCK_TIMEOUT,
+  SessionAuthData,
+  SESSION_AUTH_DATA_KEY,
+} from './models';
 
 @singleton()
 export class LockService {

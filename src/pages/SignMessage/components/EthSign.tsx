@@ -5,10 +5,9 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
-import type { positionValues } from 'react-custom-scrollbars-2';
-import type { MessageParams } from '@src/background/services/messages/models';
-import type { ForwardedRef } from 'react';
-import { forwardRef } from 'react';
+import { positionValues } from 'react-custom-scrollbars-2';
+import { MessageParams } from '@src/background/services/messages/models';
+import { forwardRef, ForwardedRef } from 'react';
 
 // ref(ForwardedRef) is used to track if the whole content has been viewed by the parent component
 

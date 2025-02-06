@@ -1,10 +1,10 @@
-import type {
+import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import type { KeystoneService } from '../KeystoneService';
+import { KeystoneService } from '../KeystoneService';
 import { KeystoneEvent } from '../models';
 
 @singleton()

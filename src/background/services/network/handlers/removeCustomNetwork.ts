@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
-import type { NetworkService } from '../NetworkService';
+import { NetworkService } from '../NetworkService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_REMOVE_CUSTOM,

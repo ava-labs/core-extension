@@ -13,7 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { SecretType } from '@src/background/services/secrets/models';
-import type { WalletDetails } from '@src/background/services/wallet/models';
+import { WalletDetails } from '@src/background/services/wallet/models';
 
 import { useAccountManager } from '../providers/AccountManagerProvider';
 import { OverflowingTypography } from './OverflowingTypography';

@@ -1,13 +1,12 @@
 import { Avalanche, BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { injectable } from 'tsyringe';
-import type { NetworkService } from '../../network/NetworkService';
-import type { BalancesService } from '../BalancesService';
+import { NetworkService } from '../../network/NetworkService';
+import { BalancesService } from '../BalancesService';
 import { AccountType } from '../../accounts/models';
-import type { NetworkTokenWithBalance } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
+import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCE_AVAX_GET,

@@ -1,10 +1,11 @@
-import type { ReactNode } from 'react';
-import type {
+import { ReactNode } from 'react';
+import {
+  Backdrop,
   BackdropProps,
   SxProps,
   Theme,
+  useTheme,
 } from '@avalabs/core-k2-components';
-import { Backdrop, useTheme } from '@avalabs/core-k2-components';
 
 interface OverlayProps {
   children: ReactNode;

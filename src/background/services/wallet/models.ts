@@ -1,18 +1,18 @@
-import type {
+import {
   BitcoinInputUTXO,
   BitcoinOutputUTXO,
   DerivationPath,
 } from '@avalabs/core-wallets-sdk';
-import type { FireblocksApiData, ImportType } from '../accounts/models';
-import type { UnsignedTx } from '@avalabs/avalanchejs';
-import type { TransactionRequest } from 'ethers';
-import type {
+import { FireblocksApiData, ImportType } from '../accounts/models';
+import { UnsignedTx } from '@avalabs/avalanchejs';
+import { TransactionRequest } from 'ethers';
+import {
   ImportedAccountSecrets,
   PrimaryWalletSecrets,
+  SecretType,
 } from '../secrets/models';
-import { SecretType } from '../secrets/models';
-import type { DistributiveOmit } from '@src/utils/distributiveomit';
-import type { VMABI, TransactionPayload } from 'hypersdk-client';
+import { DistributiveOmit } from '@src/utils/distributiveomit';
+import { VMABI, TransactionPayload } from 'hypersdk-client';
 
 export interface HVMTransactionRequest {
   txPayload: TransactionPayload;

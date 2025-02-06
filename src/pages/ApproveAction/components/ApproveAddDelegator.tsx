@@ -7,7 +7,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { bigToLocaleString } from '@avalabs/core-utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import type { Avalanche } from '@avalabs/core-wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { AvalancheChainStrings } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 

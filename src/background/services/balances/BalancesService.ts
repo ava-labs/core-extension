@@ -1,13 +1,16 @@
 import { singleton } from 'tsyringe';
-import type { Account } from '../accounts/models';
-import type { TokensPriceShortData } from '../tokens/models';
-import type { NetworkWithCaipId } from '../network/models';
-import type { ModuleManager } from '@src/background/vmModules/ModuleManager';
-import type { SettingsService } from '../settings/SettingsService';
+import { Account } from '../accounts/models';
+import { TokensPriceShortData } from '../tokens/models';
+import { NetworkWithCaipId } from '../network/models';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { SettingsService } from '../settings/SettingsService';
 import { getPriceChangeValues } from './utils/getPriceChangeValues';
 import * as Sentry from '@sentry/browser';
-import type { TokenWithBalance } from '@avalabs/vm-module-types';
-import { NetworkVMType, TokenType } from '@avalabs/vm-module-types';
+import {
+  NetworkVMType,
+  TokenType,
+  TokenWithBalance,
+} from '@avalabs/vm-module-types';
 import LRUCache from 'lru-cache';
 
 const cacheStorage = new LRUCache({ max: 100, ttl: 60 * 1000 });

@@ -1,5 +1,4 @@
-import type { DragEventHandler } from 'react';
-import { useCallback, useRef, useState } from 'react';
+import { DragEventHandler, useCallback, useRef, useState } from 'react';
 import {
   Button,
   Dialog,
@@ -16,8 +15,10 @@ import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { PageTitle } from '@src/components/common/PageTitle';
-import type { KeystoreFileContentInfo } from '@src/utils/keystore/models';
-import { KeystoreError } from '@src/utils/keystore/models';
+import {
+  KeystoreError,
+  KeystoreFileContentInfo,
+} from '@src/utils/keystore/models';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';

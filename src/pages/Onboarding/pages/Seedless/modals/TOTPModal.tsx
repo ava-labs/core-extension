@@ -6,7 +6,7 @@ import {
   XIcon,
   useTheme,
 } from '@avalabs/core-k2-components';
-import type { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { Overlay } from '@src/components/common/Overlay';
 import { AuthStep, useSeedlessAuth } from '@src/hooks/useSeedlessAuth';
 import { useTotpErrorMessage } from '@src/hooks/useTotpErrorMessage';

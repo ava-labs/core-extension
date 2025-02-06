@@ -3,7 +3,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useTranslation } from 'react-i18next';
 import { useBlockchainNames } from '../../useBlockchainNames';
-import type { ActivityCardProp } from './ActivityCard';
+import { ActivityCardProp } from './ActivityCard';
 import { TransactionType } from '@avalabs/vm-module-types';
 
 export function ActivityCardSummary({ historyItem }: ActivityCardProp) {

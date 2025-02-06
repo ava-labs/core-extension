@@ -12,7 +12,7 @@ import {
   getEvmAddressFromPubKey,
   getPublicKeyFromPrivateKey,
 } from '@avalabs/core-wallets-sdk';
-import type { Account } from '@src/background/services/accounts/models';
+import { Account } from '@src/background/services/accounts/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
@@ -21,8 +21,7 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import { networks } from 'bitcoinjs-lib';
 import { t } from 'i18next';
-import type { KeyboardEvent } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
 import { utils } from '@avalabs/avalanchejs';

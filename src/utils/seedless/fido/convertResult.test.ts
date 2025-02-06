@@ -1,6 +1,6 @@
 import { base64UrlToBuffer } from '@src/utils/encoding';
 import { convertResult } from './convertResult';
-import type {
+import {
   EncodedFIDOAuthenticationResult,
   EncodedFIDORegistrationResult,
 } from './types';

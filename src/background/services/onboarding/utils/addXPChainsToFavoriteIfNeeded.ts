@@ -1,17 +1,17 @@
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { NetworkService } from '../../network/NetworkService';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import type { Balances } from '../../balances/models';
-import type { PrimaryAccount } from '../../accounts/models';
-import type { NetworkWithCaipId } from '../../network/models';
+import { Balances } from '../../balances/models';
+import { PrimaryAccount } from '../../accounts/models';
+import { NetworkWithCaipId } from '../../network/models';
 import { isString } from 'lodash';
 import { container } from 'tsyringe';
 import { HistoryService } from '../../history/HistoryService';
-import type {
+import {
+  TokenType,
   TokenWithBalanceAVM,
   TokenWithBalancePVM,
 } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
 
 export const addXPChainToFavoriteIfNeeded = async (
   accounts: PrimaryAccount[],

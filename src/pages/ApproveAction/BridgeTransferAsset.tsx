@@ -1,5 +1,4 @@
-import type { Action } from '@src/background/services/actions/models';
-import { ActionStatus } from '@src/background/services/actions/models';
+import { Action, ActionStatus } from '@src/background/services/actions/models';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography, Divider } from '@avalabs/core-k2-components';
@@ -15,7 +14,7 @@ import Big from 'big.js';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import type {
+import {
   BridgeActionDisplayData,
   CustomGasSettings,
 } from '@src/background/services/bridge/models';

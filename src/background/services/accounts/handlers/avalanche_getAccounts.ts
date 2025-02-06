@@ -1,10 +1,9 @@
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
-import type { AccountsService } from '../AccountsService';
-import type { Account } from '../models';
-import { AccountType } from '../models';
-import type { SecretsService } from '../../secrets/SecretsService';
+import { AccountsService } from '../AccountsService';
+import { Account, AccountType } from '../models';
+import { SecretsService } from '../../secrets/SecretsService';
 
 @injectable()
 export class AvalancheGetAccountsHandler extends DAppRequestHandler {

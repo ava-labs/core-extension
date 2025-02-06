@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 
-import type { ActionsService } from '../actions/ActionsService';
+import { ActionsService } from '../actions/ActionsService';
 import { ApprovalService } from './ApprovalService';
 import { ApprovalEvent } from './models';
 

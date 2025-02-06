@@ -1,5 +1,5 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { BalancePollingService } from '../BalancePollingService';
+import { BalancePollingService } from '../BalancePollingService';
 import { StopBalancesPollingHandler } from './stopBalancesPolling';
 import { buildRpcCall } from '@src/tests/test-utils';
 

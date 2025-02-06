@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { LedgerService } from '../LedgerService';
+import { LedgerService } from '../LedgerService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_REMOVE_TRANSPORT,

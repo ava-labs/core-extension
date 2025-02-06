@@ -8,7 +8,7 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { openNewTab } from '@src/utils/extensionUtils';
-import type { DefiProtocol } from '@src/background/services/defi/models';
+import { DefiProtocol } from '@src/background/services/defi/models';
 
 import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';
 

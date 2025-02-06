@@ -1,6 +1,4 @@
-import type { WheelEvent } from 'react';
-import type React from 'react';
-import { useEffect, useState } from 'react';
+import React, { WheelEvent, useEffect, useState } from 'react';
 import {
   Stack,
   TextField,

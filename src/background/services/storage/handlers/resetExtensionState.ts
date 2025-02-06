@@ -1,10 +1,10 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import browser from 'webextension-polyfill';
-import type { AnalyticsService } from '../../analytics/AnalyticsService';
-import type { OnboardingService } from '../../onboarding/OnboardingService';
-import type { StorageService } from '../StorageService';
+import { AnalyticsService } from '../../analytics/AnalyticsService';
+import { OnboardingService } from '../../onboarding/OnboardingService';
+import { StorageService } from '../StorageService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.RESET_EXTENSION_STATE,

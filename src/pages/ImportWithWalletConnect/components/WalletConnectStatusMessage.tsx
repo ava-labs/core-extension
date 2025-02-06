@@ -7,8 +7,10 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import type { AccountImportState } from '@src/contexts/WalletConnectContextProvider/models';
-import { AccountImportStatus } from '@src/contexts/WalletConnectContextProvider/models';
+import {
+  AccountImportState,
+  AccountImportStatus,
+} from '@src/contexts/WalletConnectContextProvider/models';
 
 import { getColorForStatus } from './utils/getColorForStatus';
 

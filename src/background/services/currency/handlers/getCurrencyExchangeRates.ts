@@ -1,10 +1,10 @@
 import { injectable } from 'tsyringe';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 
-import type { CurrencyExchangeRates } from '../models';
-import type { CurrencyService } from '../CurrencyService';
+import { CurrencyExchangeRates } from '../models';
+import { CurrencyService } from '../CurrencyService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.CURRENCIES_GET_EXCHANGE_RATES,

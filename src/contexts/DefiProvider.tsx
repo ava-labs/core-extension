@@ -7,8 +7,8 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 
-import type { DefiPortfolio } from '@src/background/services/defi/models';
-import type { GetDefiPortfolioHandler } from '@src/background/services/defi/handlers/getDefiPortfolio';
+import { DefiPortfolio } from '@src/background/services/defi/models';
+import { GetDefiPortfolioHandler } from '@src/background/services/defi/handlers/getDefiPortfolio';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { defiPortfolioUpdatedEventListener } from '@src/background/services/defi/events/listeners';
 

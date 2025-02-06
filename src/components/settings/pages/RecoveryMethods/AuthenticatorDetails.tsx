@@ -24,8 +24,10 @@ import { PageTitle } from '@src/components/common/PageTitle';
 import { useSeedlessMfa } from '@src/hooks/useSeedlessMfa';
 import { TOTPChallenge } from '@src/components/common/seedless/components/TOTPChallenge';
 import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
-import type { TotpResetChallenge } from '@src/background/services/seedless/models';
-import { AuthErrorCode } from '@src/background/services/seedless/models';
+import {
+  AuthErrorCode,
+  TotpResetChallenge,
+} from '@src/background/services/seedless/models';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 
 import { AuthenticatorVerifyScreen } from './AuthenticatorVerifyScreen';

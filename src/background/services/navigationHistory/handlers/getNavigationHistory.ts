@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { NavigationHistoryState } from '../models';
-import type { NavigationHistoryService } from '../NavigationHistoryService';
+import { NavigationHistoryState } from '../models';
+import { NavigationHistoryService } from '../NavigationHistoryService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NAVIGATION_HISTORY_GET,
   NavigationHistoryState

@@ -1,4 +1,4 @@
-import type { GetAvaxBalanceHandler } from '@src/background/services/balances/handlers/getAvaxBalance';
+import { GetAvaxBalanceHandler } from '@src/background/services/balances/handlers/getAvaxBalance';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 

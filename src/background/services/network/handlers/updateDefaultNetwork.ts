@@ -1,9 +1,9 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { resolve } from '@src/utils/promiseResolver';
 import { injectable } from 'tsyringe';
-import type { NetworkService } from '../NetworkService';
-import type { NetworkOverrides } from '../models';
+import { NetworkService } from '../NetworkService';
+import { NetworkOverrides } from '../models';
 import { isValidHttpHeader } from '../utils/isValidHttpHeader';
 
 type HandlerType = ExtensionRequestHandler<

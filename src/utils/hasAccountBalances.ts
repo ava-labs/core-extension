@@ -1,5 +1,5 @@
-import type { Account } from '@src/background/services/accounts/models';
-import type { Balances } from '@src/background/services/balances/models';
+import { Account } from '@src/background/services/accounts/models';
+import { Balances } from '@src/background/services/balances/models';
 import getAllAddressesForAccount from './getAllAddressesForAccount';
 
 export function hasAccountBalances(

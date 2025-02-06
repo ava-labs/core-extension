@@ -1,11 +1,10 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
-import type { AccountsService } from '../../accounts/AccountsService';
+import { AccountsService } from '../../accounts/AccountsService';
 import { AccountType } from '../../accounts/models';
-import type { Action } from '../../actions/models';
-import { ActionStatus } from '../../actions/models';
-import type { PermissionsService } from '../../permissions/PermissionsService';
+import { Action, ActionStatus } from '../../actions/models';
+import { PermissionsService } from '../../permissions/PermissionsService';
 import { WalletRequestPermissionsHandler } from './wallet_requestPermissions';
 import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';
 import { buildRpcCall } from '@src/tests/test-utils';

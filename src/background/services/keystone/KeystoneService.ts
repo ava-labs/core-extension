@@ -1,15 +1,14 @@
 import { singleton } from 'tsyringe';
-import type { Subscription } from 'rxjs';
-import { filter, firstValueFrom, map, Subject } from 'rxjs';
+import { filter, firstValueFrom, map, Subject, Subscription } from 'rxjs';
 import EventEmitter from 'events';
-import type {
+import {
   CBOR,
   DeviceRequestData,
   DeviceResponseData,
+  KeystoneEvent,
   KeystoneTransport,
 } from './models';
-import { KeystoneEvent } from './models';
-import type { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 
 @singleton()
 export class KeystoneService implements KeystoneTransport, OnUnlock {

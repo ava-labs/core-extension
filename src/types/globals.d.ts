@@ -1,5 +1,5 @@
-import type { EVMProvider } from '@avalabs/evm-module/dist/provider';
-import type { MultiWalletProviderProxy } from '@src/background/providers/MultiWalletProviderProxy';
+import { EVMProvider } from '@avalabs/evm-module/dist/provider';
+import { MultiWalletProviderProxy } from '@src/background/providers/MultiWalletProviderProxy';
 
 declare global {
   interface Window {

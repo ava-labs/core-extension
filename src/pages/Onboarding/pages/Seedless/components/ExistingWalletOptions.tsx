@@ -6,8 +6,7 @@ import {
   KeystoneIcon,
   ArrowLeftIconV2,
 } from '@avalabs/core-k2-components';
-import type { ForwardedRef } from 'react';
-import { forwardRef } from 'react';
+import { forwardRef, ForwardedRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';

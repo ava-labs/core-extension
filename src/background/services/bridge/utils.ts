@@ -1,5 +1,5 @@
-import type { Network } from '@avalabs/core-chains-sdk';
-import type { BridgeState } from './models';
+import { Network } from '@avalabs/core-chains-sdk';
+import { BridgeState } from './models';
 import { isAvalancheNetwork } from '../network/utils/isAvalancheNetwork';
 import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
 import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';

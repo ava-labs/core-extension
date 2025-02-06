@@ -1,5 +1,4 @@
-import type { KeyboardEventHandler } from 'react';
-import { useCallback } from 'react';
+import { KeyboardEventHandler, useCallback } from 'react';
 
 type Callback = () => void;
 type KeyNames = 'Enter' | 'Escape';

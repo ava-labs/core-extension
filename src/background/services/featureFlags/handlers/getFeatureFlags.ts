@@ -1,8 +1,8 @@
-import type { FeatureFlagService } from './../FeatureFlagService';
+import { FeatureFlagService } from './../FeatureFlagService';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { FeatureGates } from '../models';
+import { FeatureGates } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.FEATURE_FLAGS_GET,

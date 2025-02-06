@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { DefiService } from '../DefiService';
+import { DefiService } from '../DefiService';
 import { GetDefiPortfolioHandler } from './getDefiPortfolio';
-import type { DefiProtocol } from '../models';
+import { DefiProtocol } from '../models';
 import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/defi/handlers/getDefiPortfolio.ts', () => {

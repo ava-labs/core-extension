@@ -1,6 +1,6 @@
 import { uniq } from 'lodash';
 
-import type { ChainListWithCaipIds } from '@src/background/services/network/models';
+import { ChainListWithCaipIds } from '@src/background/services/network/models';
 import { getDefaultChainIds } from '@src/utils/getDefaultChainIds';
 
 export function getIncludedNetworks(

@@ -12,7 +12,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { weiToAvax } from '@avalabs/core-utils-sdk';
 import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
-import type { TxHistoryItem } from '@src/background/services/history/models';
+import { TxHistoryItem } from '@src/background/services/history/models';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';

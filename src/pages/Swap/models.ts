@@ -1,4 +1,4 @@
-import type {
+import {
   NetworkTokenWithBalance,
   TokenWithBalanceERC20,
 } from '@avalabs/vm-module-types';

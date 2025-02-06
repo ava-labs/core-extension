@@ -1,9 +1,9 @@
 import { useHistory } from 'react-router-dom';
-import type { CardProps } from '@avalabs/core-k2-components';
 import {
   Avatar,
   Card,
   CardActionArea,
+  CardProps,
   ExternalLinkIcon,
   IconButton,
   Stack,
@@ -11,7 +11,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 
-import type { DefiProtocol } from '@src/background/services/defi/models';
+import { DefiProtocol } from '@src/background/services/defi/models';
 import { openNewTab } from '@src/utils/extensionUtils';
 
 import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';

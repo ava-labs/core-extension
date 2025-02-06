@@ -1,11 +1,13 @@
 import { isEqual } from 'lodash';
-import type { FeatureGates } from '@src/background/services/featureFlags/models';
-import { DEFAULT_FLAGS } from '@src/background/services/featureFlags/models';
+import {
+  DEFAULT_FLAGS,
+  FeatureGates,
+} from '@src/background/services/featureFlags/models';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { featureFlagsUpdatedEventListener } from '@src/background/services/featureFlags/events/featureFlagsUpdatedEventListener';
-import type { GetFeatureFlagsHandler } from '@src/background/services/featureFlags/handlers/getFeatureFlags';
+import { GetFeatureFlagsHandler } from '@src/background/services/featureFlags/handlers/getFeatureFlags';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 const FeatureFlagsContext = createContext<{

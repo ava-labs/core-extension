@@ -9,7 +9,7 @@ import {
   Divider,
   Scrollbars,
 } from '@avalabs/core-k2-components';
-import type { SettingsPageProps } from '../models';
+import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import {
   REQUIRED_LEDGER_VERSION,

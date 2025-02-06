@@ -1,12 +1,15 @@
 import { filter } from 'rxjs';
 import { createContext, useCallback, useContext, useReducer } from 'react';
 
-import type { WalletConnectImportAccount } from '@src/background/services/walletConnect/handlers/walletConnectImportAccount';
+import { WalletConnectImportAccount } from '@src/background/services/walletConnect/handlers/walletConnectImportAccount';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { isUriGeneratedEvent } from '@src/background/services/walletConnect/events/eventFilters';
 
-import type { AccountImportState, OnConnectCallback } from './models';
-import { AccountImportStatus } from './models';
+import {
+  AccountImportState,
+  AccountImportStatus,
+  OnConnectCallback,
+} from './models';
 import { importReducer } from './importReducer';
 import { useConnectionContext } from '../ConnectionProvider';
 

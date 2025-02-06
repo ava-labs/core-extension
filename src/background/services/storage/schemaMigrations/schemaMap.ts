@@ -1,4 +1,4 @@
-import type Joi from 'joi';
+import Joi from 'joi';
 import { ACCOUNTS_STORAGE_KEY } from '../../accounts/models';
 import { WALLET_STORAGE_ENCRYPTION_KEY } from '../models';
 import { WALLET_STORAGE_KEY } from '@src/background/services/wallet/models';

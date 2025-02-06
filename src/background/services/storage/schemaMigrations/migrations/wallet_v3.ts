@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import type { ImportType } from '@src/background/services/accounts/models';
+import { ImportType } from '@src/background/services/accounts/models';
 import getDerivationPath from '@src/background/services/wallet/utils/getDerivationPath';
 
 const VERSION = 3;

@@ -2,21 +2,20 @@ import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
-import type { Network } from '@avalabs/core-chains-sdk';
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { formatUnits, parseUnits } from 'ethers';
 import { useTranslation } from 'react-i18next';
 import { TokenType } from '@avalabs/vm-module-types';
-import type {
+import {
   FeeRate,
   NetworkFee,
 } from '@src/background/services/networkFee/models';
-import type { DialogProps } from '@avalabs/core-k2-components';
 import {
   Button,
   ChevronDownIcon,
   Collapse,
   Dialog,
+  DialogProps,
   GearIcon,
   IconButton,
   Stack,

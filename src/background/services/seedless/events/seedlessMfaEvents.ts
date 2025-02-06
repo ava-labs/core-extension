@@ -1,13 +1,13 @@
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 
-import type {
+import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 
 import { SeedlessEvents } from '../models';
-import type { SeedlessMfaService } from '../SeedlessMfaService';
+import { SeedlessMfaService } from '../SeedlessMfaService';
 
 @singleton()
 export class SeedlessMfaEvents implements ExtensionEventEmitter {

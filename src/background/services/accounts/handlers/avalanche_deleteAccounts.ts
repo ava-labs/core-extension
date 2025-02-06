@@ -11,8 +11,8 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
 
 import { type Action, buildActionForRequest } from '../../actions/models';
-import type { SecretsService } from '../../secrets/SecretsService';
-import type { AccountsService } from '../AccountsService';
+import { SecretsService } from '../../secrets/SecretsService';
+import { AccountsService } from '../AccountsService';
 import type { ImportedAccount, PrimaryAccount } from '../models';
 import { isPrimaryAccount } from '../utils/typeGuards';
 

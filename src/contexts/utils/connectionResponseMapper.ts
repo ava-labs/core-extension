@@ -2,22 +2,20 @@ import { deserializeFromJSON } from '@src/background/serialization/deserialize';
 import { isDevelopment } from '@src/utils/environment';
 import { requestLog, responseLog } from '@src/utils/logging';
 import { firstValueFrom, Subject } from 'rxjs';
-import type { Runtime } from 'webextension-polyfill';
-import type {
+import { Runtime } from 'webextension-polyfill';
+import {
   ExtensionConnectionMessageResponse,
   ExtensionConnectionMessage,
-  ExtensionConnectionEvent,
-} from '../../background/connections/models';
-import {
   isConnectionResponse,
   isConnectionEvent,
+  ExtensionConnectionEvent,
 } from '../../background/connections/models';
 import { serializeToJSON } from '@src/background/serialization/serialize';
-import type {
+import {
   JsonRpcRequest,
   JsonRpcRequestPayload,
 } from '@src/background/connections/dAppConnection/models';
-import type { PartialBy } from '@src/background/models';
+import { PartialBy } from '@src/background/models';
 
 const responseMap = new Map<
   string,

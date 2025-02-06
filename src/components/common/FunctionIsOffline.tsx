@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
 import { PageTitle, PageTitleVariant } from './PageTitle';
 import { t as translate } from 'i18next';
 import {

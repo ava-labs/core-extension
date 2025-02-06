@@ -7,12 +7,12 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import type {
+import {
   MfaChoiceRequest,
   RecoveryMethod as RecoveryMethodT,
 } from '@src/background/services/seedless/models';
 import { RecoveryMethod } from '@src/components/common/seedless/components/RecoveryMethod';
-import type { PartialBy } from '@src/background/models';
+import { PartialBy } from '@src/background/models';
 
 type Props = {
   mfaChoice?: PartialBy<MfaChoiceRequest, 'mfaId'>;

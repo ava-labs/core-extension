@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { AccountsService } from '../AccountsService';
+import { AccountsService } from '../AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_SELECT,

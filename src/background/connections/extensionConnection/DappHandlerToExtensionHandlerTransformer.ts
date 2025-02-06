@@ -2,12 +2,12 @@ import browser from 'webextension-polyfill';
 
 import { resolve } from '@src/utils/promiseResolver';
 
-import type {
+import {
   DAppProviderRequest,
   JsonRpcRequestParams,
 } from '../dAppConnection/models';
-import type { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
-import type { ExtensionRequestHandler } from '../models';
+import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
+import { ExtensionRequestHandler } from '../models';
 
 const decorateWithExtensionMetadata = (
   rpcCall: JsonRpcRequestParams<DAppProviderRequest, any>,

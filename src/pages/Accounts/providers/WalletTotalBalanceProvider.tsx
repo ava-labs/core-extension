@@ -9,11 +9,13 @@ import {
 import { isString } from 'lodash';
 
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import type { TotalBalanceForWallet } from '@src/background/services/balances/handlers/getTotalBalanceForWallet/models';
-import { IMPORTED_ACCOUNTS_WALLET_ID } from '@src/background/services/balances/handlers/getTotalBalanceForWallet/models';
+import {
+  IMPORTED_ACCOUNTS_WALLET_ID,
+  TotalBalanceForWallet,
+} from '@src/background/services/balances/handlers/getTotalBalanceForWallet/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import type { GetTotalBalanceForWalletHandler } from '@src/background/services/balances/handlers/getTotalBalanceForWallet';
+import { GetTotalBalanceForWalletHandler } from '@src/background/services/balances/handlers/getTotalBalanceForWallet';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 interface WalletTotalBalanceContextProps {

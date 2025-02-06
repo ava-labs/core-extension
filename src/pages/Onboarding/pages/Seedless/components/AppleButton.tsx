@@ -2,7 +2,7 @@ import { AppleIcon, Button } from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useTranslation } from 'react-i18next';
-import type { SeedlesButton } from './GoogleButton';
+import { SeedlesButton } from './GoogleButton';
 import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,

@@ -1,5 +1,6 @@
-import type { Dispatch, SetStateAction } from 'react';
 import {
+  Dispatch,
+  SetStateAction,
   createContext,
   useCallback,
   useContext,
@@ -13,19 +14,19 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { networksUpdatedEventListener } from '@src/background/services/network/events/networksUpdatedEventListener';
 import { useAnalyticsContext } from './AnalyticsProvider';
-import type { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
-import type { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
-import type { RemoveCustomNetworkHandler } from '@src/background/services/network/handlers/removeCustomNetwork';
-import type { RemoveFavoriteNetworkHandler } from '@src/background/services/network/handlers/removeFavoriteNetwork';
-import type { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
-import type { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
-import type { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
-import type {
+import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
+import { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
+import { RemoveCustomNetworkHandler } from '@src/background/services/network/handlers/removeCustomNetwork';
+import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/handlers/removeFavoriteNetwork';
+import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
+import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
+import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
+import {
   Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
 } from '@avalabs/core-wallets-sdk';
-import type {
+import {
   CustomNetworkPayload,
   Network,
   NetworkOverrides,
@@ -33,7 +34,7 @@ import type {
 } from '@src/background/services/network/models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { isNetworkUpdatedEvent } from '@src/background/services/network/events/isNetworkUpdatedEvent';
-import type { SetActiveNetworkHandler } from '@src/background/services/network/handlers/setActiveNetwork';
+import { SetActiveNetworkHandler } from '@src/background/services/network/handlers/setActiveNetwork';
 import { updateIfDifferent } from '@src/utils/updateIfDifferent';
 import { getNetworkCaipId } from '@src/utils/caipConversion';
 import { networkChanged } from './NetworkProvider/networkChanges';

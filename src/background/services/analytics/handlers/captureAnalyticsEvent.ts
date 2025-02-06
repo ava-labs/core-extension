@@ -1,9 +1,9 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
-import type { AnalyticsServicePosthog } from '../AnalyticsServicePosthog';
-import type { AnalyticsCapturedEvent } from '../models';
+import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
+import { AnalyticsServicePosthog } from '../AnalyticsServicePosthog';
+import { AnalyticsCapturedEvent } from '../models';
 import { FeatureGates } from '../../featureFlags/models';
 
 type HandlerType = ExtensionRequestHandler<

@@ -1,5 +1,5 @@
 import { isBitcoinChainId } from '@src/background/services/network/utils/isBitcoinNetwork';
-import type { Account } from '@src/background/services/accounts/models';
+import { Account } from '@src/background/services/accounts/models';
 import { isPchainNetworkId } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { isXchainNetworkId } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import { getNameSpaceFromScope } from './caipConversion';

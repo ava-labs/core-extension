@@ -1,6 +1,5 @@
-import type { ExtensionConnectionEvent } from '@src/background/connections/models';
-import type { ApprovalRequest } from '../models';
-import { ApprovalEvent } from '../models';
+import { ExtensionConnectionEvent } from '@src/background/connections/models';
+import { ApprovalEvent, ApprovalRequest } from '../models';
 
 export function isApprovalRequest(
   evt: ExtensionConnectionEvent,

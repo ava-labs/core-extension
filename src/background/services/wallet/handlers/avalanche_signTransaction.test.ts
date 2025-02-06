@@ -10,7 +10,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { AvalancheSignTransactionHandler } from './avalanche_signTransaction';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import type { Action } from '../../actions/models';
+import { Action } from '../../actions/models';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';

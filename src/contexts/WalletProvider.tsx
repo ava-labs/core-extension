@@ -8,23 +8,23 @@ import {
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
-import type { WalletDetails } from '@src/background/services/wallet/models';
+import { WalletDetails } from '@src/background/services/wallet/models';
 import { WalletLocked } from '@src/pages/Wallet/WalletLocked';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useLedgerContext } from './LedgerProvider';
-import type { TxHistoryItem } from '@src/background/services/history/models';
-import type { UnlockWalletHandler } from '@src/background/services/lock/handlers/unlockWalletState';
-import type { LockChangePasswordHandler } from '@src/background/services/lock/handlers/changeWalletPassword';
-import type { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
-import type { GetWalletDetailsHandler } from '@src/background/services/wallet/handlers/getWalletDetails';
-import type { GetHistoryHandler } from '@src/background/services/history/handlers/getHistory';
-import type { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
+import { TxHistoryItem } from '@src/background/services/history/models';
+import { UnlockWalletHandler } from '@src/background/services/lock/handlers/unlockWalletState';
+import { LockChangePasswordHandler } from '@src/background/services/lock/handlers/changeWalletPassword';
+import { GetUnencryptedMnemonicHandler } from '@src/background/services/wallet/handlers/getUnencryptedMnemonic';
+import { GetWalletDetailsHandler } from '@src/background/services/wallet/handlers/getWalletDetails';
+import { GetHistoryHandler } from '@src/background/services/history/handlers/getHistory';
+import { GetLockStateHandler } from '@src/background/services/lock/handlers/getLockState';
 import { walletStateChangedEventListener } from '@src/background/services/secrets/events/WalletUpdatedEventListener';
 import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
 import { useAccountsContext } from './AccountsProvider';
 import { AccountType } from '@src/background/services/accounts/models';
 import { SecretType } from '@src/background/services/secrets/models';
-import type { AvalancheRenameWalletHandler } from '@src/background/services/secrets/handlers/avalanche_renameWallet';
+import { AvalancheRenameWalletHandler } from '@src/background/services/secrets/handlers/avalanche_renameWallet';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 
 type WalletStateAndMethods = {

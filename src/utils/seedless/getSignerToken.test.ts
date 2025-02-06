@@ -1,8 +1,8 @@
-import type {
+import {
+  SignerSessionManager,
   CubeSignerResponse,
   SignerSessionData,
 } from '@cubist-labs/cubesigner-sdk';
-import { SignerSessionManager } from '@cubist-labs/cubesigner-sdk';
 import { getSignerToken } from './getSignerToken';
 
 const retrieveMock = jest.fn();

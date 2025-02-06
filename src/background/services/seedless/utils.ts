@@ -1,10 +1,9 @@
-import type {
+import {
   SignerSession,
   UserExportInitResponse,
 } from '@cubist-labs/cubesigner-sdk';
-import type { ArrayElement } from '@src/background/models';
-import type { RecoveryMethod } from './models';
-import { MfaRequestType } from './models';
+import { ArrayElement } from '@src/background/models';
+import { MfaRequestType, RecoveryMethod } from './models';
 
 export const isTokenExpiredError = (
   err: unknown,

@@ -1,12 +1,11 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
-import type { AccountsService } from '@src/background/services/accounts/AccountsService';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
+import { AccountsService } from '@src/background/services/accounts/AccountsService';
 import { injectable } from 'tsyringe';
-import type { DappPermissions } from '../models';
-import type { PermissionsService } from '../PermissionsService';
-import type { ActionsService } from './../../actions/ActionsService';
-import type { ActionUpdate } from './../../actions/models';
-import { ActionStatus } from './../../actions/models';
+import { DappPermissions } from '../models';
+import { PermissionsService } from '../PermissionsService';
+import { ActionsService } from './../../actions/ActionsService';
+import { ActionStatus, ActionUpdate } from './../../actions/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.PERMISSIONS_ADD_DOMAIN,

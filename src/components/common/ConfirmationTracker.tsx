@@ -1,6 +1,5 @@
 import { Fragment, memo, useRef } from 'react';
-import type { Theme } from '@avalabs/core-k2-components';
-import { Box, styled, Typography } from '@avalabs/core-k2-components';
+import { Box, styled, Theme, Typography } from '@avalabs/core-k2-components';
 import { keyframes } from '@emotion/react';
 import { useTranslation } from 'react-i18next';
 

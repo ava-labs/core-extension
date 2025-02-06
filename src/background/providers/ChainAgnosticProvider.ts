@@ -1,12 +1,12 @@
 import EventEmitter from 'events';
-import type {
+import {
+  DAppProviderRequest,
   JsonRpcRequest,
   JsonRpcRequestPayload,
 } from '../connections/dAppConnection/models';
-import { DAppProviderRequest } from '../connections/dAppConnection/models';
-import type { PartialBy } from '../models';
+import { PartialBy } from '../models';
 import { ethErrors, serializeError } from 'eth-rpc-errors';
-import type AbstractConnection from '../utils/messaging/AbstractConnection';
+import AbstractConnection from '../utils/messaging/AbstractConnection';
 import RequestRatelimiter from './utils/RequestRatelimiter';
 import {
   InitializationStep,

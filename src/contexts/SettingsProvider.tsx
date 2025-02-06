@@ -1,22 +1,21 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { LockWalletHandler } from '@src/background/services/lock/handlers/lockWallet';
+import { LockWalletHandler } from '@src/background/services/lock/handlers/lockWallet';
 import { settingsUpdatedEventListener } from '@src/background/services/settings/events/listeners';
-import type { GetSettingsHandler } from '@src/background/services/settings/handlers/getSettings';
-import type { SetAnalyticsConsentHandler } from '@src/background/services/settings/handlers/setAnalyticsConsent';
-import type { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
-import type { UpdateCurrencyHandler } from '@src/background/services/settings/handlers/updateCurrencySelection';
-import type { UpdateShowNoBalanceHandler } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
-import type { UpdateThemeHandler } from '@src/background/services/settings/handlers/updateTheme';
-import type { UpdateTokensVisiblityHandler } from '@src/background/services/settings/handlers/updateTokensVisibility';
-import type { UpdateCollectiblesVisibilityHandler } from '@src/background/services/settings/handlers/updateCollectiblesVisibility';
-import type {
+import { GetSettingsHandler } from '@src/background/services/settings/handlers/getSettings';
+import { SetAnalyticsConsentHandler } from '@src/background/services/settings/handlers/setAnalyticsConsent';
+import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
+import { UpdateCurrencyHandler } from '@src/background/services/settings/handlers/updateCurrencySelection';
+import { UpdateShowNoBalanceHandler } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
+import { UpdateThemeHandler } from '@src/background/services/settings/handlers/updateTheme';
+import { UpdateTokensVisiblityHandler } from '@src/background/services/settings/handlers/updateTokensVisibility';
+import { UpdateCollectiblesVisibilityHandler } from '@src/background/services/settings/handlers/updateCollectiblesVisibility';
+import {
   Languages,
   SettingsState,
   ThemeVariant,
 } from '@src/background/services/settings/models';
 import { SettingsPages } from '@src/components/settings/models';
 import { changeLanguage } from 'i18next';
-import type { Dispatch, SetStateAction } from 'react';
 import {
   createContext,
   useContext,
@@ -24,17 +23,19 @@ import {
   useMemo,
   useCallback,
   useState,
+  Dispatch,
+  SetStateAction,
 } from 'react';
 import { filter, map } from 'rxjs';
 import { omit, set } from 'lodash';
 import { useConnectionContext } from './ConnectionProvider';
 import { getCurrencyFormatter } from './utils/getCurrencyFormatter';
 import { updateIfDifferent } from '@src/utils/updateIfDifferent';
-import type {
+import {
   NftTokenWithBalance,
+  TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
 import { isTokenMalicious } from '@src/utils/isTokenMalicious';
 
 type SettingsFromProvider = SettingsState & {

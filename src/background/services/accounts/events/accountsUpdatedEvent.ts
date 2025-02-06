@@ -1,10 +1,10 @@
-import type {
+import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { AccountsEvents } from '../models';
 import { EventEmitter } from 'events';
-import type { AccountsService } from '../AccountsService';
+import { AccountsService } from '../AccountsService';
 import { singleton } from 'tsyringe';
 
 @singleton()

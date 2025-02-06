@@ -1,4 +1,4 @@
-import type * as H from 'history';
+import * as H from 'history';
 
 export interface NavigationHistoryDataState {
   [key: string]: unknown;

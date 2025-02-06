@@ -2,14 +2,14 @@ import { injectable } from 'tsyringe';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 
 import { SecretType } from '../../secrets/models';
-import type { WalletService } from '../WalletService';
-import type { SecretsService } from '../../secrets/SecretsService';
-import type { AccountsService } from '../../accounts/AccountsService';
+import { WalletService } from '../WalletService';
+import { SecretsService } from '../../secrets/SecretsService';
+import { AccountsService } from '../../accounts/AccountsService';
 
-import type { ImportLedgerWalletParams, ImportWalletResult } from './models';
+import { ImportLedgerWalletParams, ImportWalletResult } from './models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_IMPORT_LEDGER,

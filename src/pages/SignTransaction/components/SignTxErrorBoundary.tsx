@@ -8,8 +8,7 @@ import {
   Typography,
   toast,
 } from '@avalabs/core-k2-components';
-import type { WithTranslation } from 'react-i18next';
-import { withTranslation } from 'react-i18next';
+import { WithTranslation, withTranslation } from 'react-i18next';
 
 interface SignTxErrorBoundaryProps extends WithTranslation {
   variant?: 'RenderError' | 'OpenError';

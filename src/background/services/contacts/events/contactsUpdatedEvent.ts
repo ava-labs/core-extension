@@ -1,9 +1,9 @@
 import { ContactsEvents } from '../models';
-import type {
+import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
-import type { ContactsService } from '../ContactsService';
+import { ContactsService } from '../ContactsService';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 

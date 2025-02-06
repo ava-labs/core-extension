@@ -1,13 +1,13 @@
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 
-import type {
+import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 
 import { SeedlessEvents } from '../models';
-import type { SeedlessSessionManager } from '../SeedlessSessionManager';
+import { SeedlessSessionManager } from '../SeedlessSessionManager';
 
 @singleton()
 export class SeedlessTokenEvents implements ExtensionEventEmitter {

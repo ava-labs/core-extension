@@ -1,8 +1,12 @@
-import type { StorageService } from '../storage/StorageService';
+import { StorageService } from '../storage/StorageService';
 import { DefiService } from './DefiService';
-import type { DebankService } from '../debank';
-import type { DefiItemGroup, DefiPortfolio, DefiProtocol } from './models';
-import { DefiServiceEvents } from './models';
+import { DebankService } from '../debank';
+import {
+  DefiItemGroup,
+  DefiPortfolio,
+  DefiProtocol,
+  DefiServiceEvents,
+} from './models';
 
 const mockDebankService = {
   getUserProtocols: jest.fn(),

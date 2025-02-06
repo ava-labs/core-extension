@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { LockService } from '../LockService';
+import { LockService } from '../LockService';
 
 type HandlerType = ExtensionRequestHandler<ExtensionRequest.LOCK_WALLET, true>;
 

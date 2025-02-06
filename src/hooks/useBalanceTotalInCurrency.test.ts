@@ -1,5 +1,4 @@
-import type { Account } from '@src/background/services/accounts/models';
-import { AccountType } from '@src/background/services/accounts/models';
+import { Account, AccountType } from '@src/background/services/accounts/models';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { renderHook } from '@testing-library/react-hooks';
 import { useBalanceTotalInCurrency } from './useBalanceTotalInCurrency';

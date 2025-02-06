@@ -5,13 +5,15 @@ import browser from 'webextension-polyfill';
 
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
-import type { RecoveryMethodFido } from '@src/background/services/seedless/models';
-import { RecoveryMethodType } from '@src/background/services/seedless/models';
+import {
+  RecoveryMethodFido,
+  RecoveryMethodType,
+} from '@src/background/services/seedless/models';
 import { KeyType } from '@src/utils/seedless/fido/types';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 
 import { SettingsHeader } from '../../SettingsHeader';
-import type { SettingsPageProps } from '../../models';
+import { SettingsPageProps } from '../../models';
 
 import { RecoveryMethod } from '../../../common/seedless/components/RecoveryMethod';
 import { RecoveryMethodsList } from './RecoveryMethodsList';

@@ -1,10 +1,10 @@
 import { injectable } from 'tsyringe';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 
-import type { DefiPortfolio } from '../models';
-import type { DefiService } from '../DefiService';
+import { DefiPortfolio } from '../models';
+import { DefiService } from '../DefiService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.DEFI_GET_PORTFOLIO,

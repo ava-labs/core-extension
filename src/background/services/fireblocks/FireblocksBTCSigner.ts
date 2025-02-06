@@ -15,13 +15,13 @@ import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 
 import { wrapError } from '@src/utils/errors';
 
-import type { BtcTransactionRequest, SigningResult } from '../wallet/models';
+import { BtcTransactionRequest, SigningResult } from '../wallet/models';
 import {
   FireblocksErrorCode,
   TRANSACTION_POLLING_INTERVAL_MS,
   TX_SUBMISSION_FAILURE_STATUSES,
 } from './models';
-import type { FireblocksService } from './FireblocksService';
+import { FireblocksService } from './FireblocksService';
 import { ethErrors } from 'eth-rpc-errors';
 
 /**

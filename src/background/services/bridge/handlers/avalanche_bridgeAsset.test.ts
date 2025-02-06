@@ -1,6 +1,6 @@
-import type { BridgeConfig } from '@avalabs/core-bridge-sdk';
 import {
   Blockchain,
+  BridgeConfig,
   btcToSatoshi,
   getAssets,
   transferAssetBTC,
@@ -10,11 +10,9 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { bnToBig, stringToBN } from '@avalabs/core-utils-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import type { PrimaryAccount } from '../../accounts/models';
-import { AccountType } from '../../accounts/models';
-import type { BtcTransactionResponse } from '../models';
-import type { Action } from './../../actions/models';
-import { ActionStatus } from './../../actions/models';
+import { AccountType, PrimaryAccount } from '../../accounts/models';
+import { BtcTransactionResponse } from '../models';
+import { Action, ActionStatus } from './../../actions/models';
 import { AvalancheBridgeAsset } from './avalanche_bridgeAsset';
 import { BN } from 'bn.js';
 import {

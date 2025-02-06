@@ -6,16 +6,16 @@ import {
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 import { CompleteRecoveryPhraseExportHandler } from './completeRecoveryPhraseExport';
-import type { SecretsService } from '../../secrets/SecretsService';
+import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
-import type { NetworkService } from '../../network/NetworkService';
-import type { SeedlessMfaService } from '../SeedlessMfaService';
+import { NetworkService } from '../../network/NetworkService';
+import { SeedlessMfaService } from '../SeedlessMfaService';
 import { SeedlessWallet } from '../SeedlessWallet';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
 import { buildRpcCall } from '@src/tests/test-utils';
-import type { AccountsService } from '../../accounts/AccountsService';
+import { AccountsService } from '../../accounts/AccountsService';
 
 jest.mock('../SeedlessWallet');
 jest.mock('@cubist-labs/cubesigner-sdk');

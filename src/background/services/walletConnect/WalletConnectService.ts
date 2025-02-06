@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
 import Core from '@walletconnect/core';
 import SignClient from '@walletconnect/sign-client';
-import type { SessionTypes } from '@walletconnect/types';
+import { SessionTypes } from '@walletconnect/types';
 import {
   getAccountsFromNamespaces,
   getSdkError,
@@ -15,24 +15,22 @@ import { intToHex } from 'ethereumjs-util';
 import { areArraysOverlapping } from '@src/utils/array';
 import { isDevelopment } from '@src/utils/environment';
 
-import type { WalletConnectStorage } from './WalletConnectStorage';
-import type {
+import { WalletConnectStorage } from './WalletConnectStorage';
+import {
   ConnectOptions,
   RequestOptions,
   RequestPayload,
-  WalletConnectSessionInfo,
-  WalletConnectTransport,
-} from './models';
-import {
   WALLET_CONNECT_APP_METADATA,
+  WalletConnectSessionInfo,
   WalletConnectError,
   WalletConnectErrorCode,
   WalletConnectEvent,
+  WalletConnectTransport,
   isNoMatchingKeyError,
   isProposalExpiredError,
 } from './models';
 import { buildSessionProposal } from './utils';
-import type { WalletConnectAddresses } from '../accounts/models';
+import { WalletConnectAddresses } from '../accounts/models';
 import { isUserRejectionError } from '@src/utils/errors';
 
 @singleton()

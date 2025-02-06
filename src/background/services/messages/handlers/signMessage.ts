@@ -3,17 +3,17 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import type { Action } from '../../actions/models';
-import type { NetworkService } from '../../network/NetworkService';
+import { Action } from '../../actions/models';
+import { NetworkService } from '../../network/NetworkService';
 import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';
-import type { WalletService } from '../../wallet/WalletService';
+import { WalletService } from '../../wallet/WalletService';
 import { MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
 import { TypedDataEncoder } from 'ethers';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import type { BlockaidService } from '../../blockaid/BlockaidService';
+import { BlockaidService } from '../../blockaid/BlockaidService';
 import { getValidationResultType } from '../../blockaid/utils';
-import type { SecretsService } from '../../secrets/SecretsService';
+import { SecretsService } from '../../secrets/SecretsService';
 
 @injectable()
 export class PersonalSignHandler extends DAppRequestHandler {

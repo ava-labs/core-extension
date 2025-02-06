@@ -1,18 +1,16 @@
-import type {
+import {
   BitcoinInputUTXO,
   BitcoinProvider,
-} from '@avalabs/core-wallets-sdk';
-import {
   createTransferTx,
   getMaxTransferAmount,
 } from '@avalabs/core-wallets-sdk';
 import { inputBytes } from 'coinselect/utils';
 
-import type { BtcSendOptions } from '@src/pages/Send/models';
+import { BtcSendOptions } from '@src/pages/Send/models';
 
 import { isBtcAddressInNetwork } from '../isBtcAddressInNetwork';
 import { SendErrorMessage } from './models';
-import type { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 export const getBtcInputUtxos = async (
   provider: BitcoinProvider,

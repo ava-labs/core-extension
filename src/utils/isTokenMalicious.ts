@@ -1,7 +1,6 @@
-import type { TokenWithBalance } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { Erc20TokenBalance } from '@avalabs/glacier-sdk';
-import type { NetworkContractToken } from '@avalabs/core-chains-sdk';
+import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 
 export const isTokenMalicious = (
   token: TokenWithBalance | NetworkContractToken,

@@ -1,21 +1,21 @@
-import type {
+import {
   Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
 } from '@avalabs/core-wallets-sdk';
-import type { Network } from '@avalabs/core-chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 
-import type {
+import {
   BaseSendOptions,
   NativeSendOptions,
   PVMSendOptions,
   SendOptions,
 } from '../../models';
 
-import type { Account } from '@src/background/services/accounts/models';
-import type { EnsureDefined } from '@src/background/models';
-import type { SendErrorMessage } from '@src/utils/send/models';
-import type {
+import { Account } from '@src/background/services/accounts/models';
+import { EnsureDefined } from '@src/background/models';
+import { SendErrorMessage } from '@src/utils/send/models';
+import {
   NetworkTokenWithBalance,
   TokenWithBalanceAVM,
   TokenWithBalanceBTC,

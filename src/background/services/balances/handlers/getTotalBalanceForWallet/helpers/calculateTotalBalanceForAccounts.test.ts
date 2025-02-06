@@ -1,4 +1,4 @@
-import type { Account } from '@src/background/services/accounts/models';
+import { Account } from '@src/background/services/accounts/models';
 import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
 
 import { calculateTotalBalanceForAccounts } from './calculateTotalBalanceForAccounts';

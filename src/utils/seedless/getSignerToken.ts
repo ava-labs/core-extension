@@ -1,8 +1,9 @@
-import type {
+import {
   CubeSigner,
   SignerSessionData,
+  SignerSessionManager,
+  envs,
 } from '@cubist-labs/cubesigner-sdk';
-import { SignerSessionManager, envs } from '@cubist-labs/cubesigner-sdk';
 
 export const getSignerToken = async (
   oidcAuthResponse: Awaited<ReturnType<CubeSigner['oidcLogin']>>,

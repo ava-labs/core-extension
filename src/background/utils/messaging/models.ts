@@ -1,4 +1,4 @@
-import type { JsonRpcRequest } from '@src/background/connections/dAppConnection/models';
+import { JsonRpcRequest } from '@src/background/connections/dAppConnection/models';
 
 export type Response = {
   type: 'response';

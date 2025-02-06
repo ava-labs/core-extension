@@ -5,7 +5,7 @@ import {
   Stack,
 } from '@avalabs/core-k2-components';
 import { Overlay } from '@src/components/common/Overlay';
-import type { PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
 interface ImageWrapperProps {
   isOverlay: boolean;
   onClick: () => void;

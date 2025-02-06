@@ -1,7 +1,6 @@
 import { sha256 } from 'ethers';
 import { PeerType } from 'fireblocks-sdk';
-import type { Account, FireblocksAccount } from '../accounts/models';
-import { AccountType } from '../accounts/models';
+import { Account, AccountType, FireblocksAccount } from '../accounts/models';
 import { SecretType } from '../secrets/models';
 import { SecretsService } from '../secrets/SecretsService';
 import { FireblocksSecretsService } from './FireblocksSecretsService';
@@ -12,7 +11,7 @@ import sentryCaptureException, {
 } from '@src/monitoring/sentryCaptureException';
 import { CommonError } from '@src/utils/errors';
 import { ethErrors } from 'eth-rpc-errors';
-import type { AccountsService } from '../accounts/AccountsService';
+import { AccountsService } from '../accounts/AccountsService';
 
 jest.mock('ethers');
 jest.mock('../accounts/AccountsService');

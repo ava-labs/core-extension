@@ -1,13 +1,13 @@
 import { TokenSpendLimit } from './TokenSpendLimit';
 import { NftSpendLimit } from './NftSpendLimit';
-import type {
+import {
   ERC1155Token,
   ERC20Token,
   ERC721Token,
   TokenApproval,
   TokenApprovals,
+  TokenType,
 } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
 
 type SpendLimitInfoProps = TokenApprovals & { actionId: string };
 

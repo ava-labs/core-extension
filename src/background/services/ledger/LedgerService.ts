@@ -1,14 +1,9 @@
-import type {
-  OnLock,
-  OnUnlock,
-} from '@src/background/runtime/lifecycleCallbacks';
+import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
-import type { Subscription } from 'rxjs';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { singleton } from 'tsyringe';
 import { LedgerTransport } from './LedgerTransport';
-import type { DeviceRequestData, DeviceResponseData } from './models';
-import { LedgerEvent } from './models';
+import { DeviceRequestData, DeviceResponseData, LedgerEvent } from './models';
 import LRU from 'lru-cache';
 
 const ledgerTransportLRUCache = new LRU<string, LedgerTransport>({

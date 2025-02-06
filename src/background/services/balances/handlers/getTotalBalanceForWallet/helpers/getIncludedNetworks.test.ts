@@ -1,6 +1,6 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
 
-import type { ChainListWithCaipIds } from '@src/background/services/network/models';
+import { ChainListWithCaipIds } from '@src/background/services/network/models';
 
 import { getIncludedNetworks } from './getIncludedNetworks';
 

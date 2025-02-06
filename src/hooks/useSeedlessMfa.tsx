@@ -6,15 +6,13 @@ import {
   isSeedlessMfaChoiceRequest,
   isSeedlessMfaEvent,
 } from '@src/background/services/seedless/events/eventFilters';
-import type { SubmitMfaResponseHandler } from '@src/background/services/seedless/handlers/submitMfaResponse';
-import type {
-  MfaChoiceRequest,
-  MfaRequestData,
-  RecoveryMethod as RecoveryMethodT,
-} from '@src/background/services/seedless/models';
+import { SubmitMfaResponseHandler } from '@src/background/services/seedless/handlers/submitMfaResponse';
 import {
   AuthErrorCode,
+  MfaChoiceRequest,
+  MfaRequestData,
   MfaRequestType,
+  RecoveryMethod as RecoveryMethodT,
   SeedlessEvents,
 } from '@src/background/services/seedless/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
@@ -29,7 +27,7 @@ import {
 import { TOTPChallenge } from '@src/components/common/seedless/components/TOTPChallenge';
 import { FIDOChallenge } from '@src/components/common/seedless/components/FIDOChallenge';
 import { useTranslation } from 'react-i18next';
-import type { ChooseMfaMethodHandler } from '@src/background/services/seedless/handlers/chooseMfaMethod';
+import { ChooseMfaMethodHandler } from '@src/background/services/seedless/handlers/chooseMfaMethod';
 import { MfaChoicePrompt } from '@src/components/common/seedless/components/MfaChoicePrompt';
 
 export const useSeedlessMfa = () => {

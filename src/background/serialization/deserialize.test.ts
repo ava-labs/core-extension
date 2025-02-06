@@ -1,9 +1,8 @@
 import Big from 'big.js';
 import BN from 'bn.js';
 import { ExtensionRequest } from '../connections/extensionConnection/models';
-import type { DeserializableValue } from './deserialize';
-import { deserializeFromJSON } from './deserialize';
-import type { SerializableValue } from './serialize';
+import { DeserializableValue, deserializeFromJSON } from './deserialize';
+import { SerializableValue } from './serialize';
 
 describe('deserialize', () => {
   const requestDefaults = {

@@ -1,10 +1,11 @@
-import type React from 'react';
-import type { TypographyProps, StackProps } from '@avalabs/core-k2-components';
+import React from 'react';
 import {
   Typography,
   Stack,
   toast,
   CopyIcon,
+  TypographyProps,
+  StackProps,
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 

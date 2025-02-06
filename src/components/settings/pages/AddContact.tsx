@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { SettingsPageProps } from '../models';
+import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import type { Contact } from '@avalabs/types';

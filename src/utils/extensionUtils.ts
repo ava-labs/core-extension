@@ -1,5 +1,4 @@
-import type { Windows } from 'webextension-polyfill';
-import browser from 'webextension-polyfill';
+import browser, { Windows } from 'webextension-polyfill';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';

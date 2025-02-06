@@ -1,5 +1,5 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
-import type { Account } from '@src/background/services/accounts/models';
+import { Account } from '@src/background/services/accounts/models';
 import {
   isFireblocksAccount,
   isWalletConnectAccount,

@@ -1,8 +1,8 @@
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { BridgeService } from '../BridgeService';
+import { BridgeService } from '../BridgeService';
 import { injectable } from 'tsyringe';
-import type { UnifiedBridgeService } from '../../unifiedBridge/UnifiedBridgeService';
+import { UnifiedBridgeService } from '../../unifiedBridge/UnifiedBridgeService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_TRANSACTION_REMOVE,

@@ -1,12 +1,11 @@
 import { BalancesService } from './BalancesService';
 import { AccountType } from '../accounts/models';
 import { PrimaryNetworkAssetType } from '@avalabs/glacier-sdk';
-import type { GetBalancesResponse } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
+import { GetBalancesResponse, TokenType } from '@avalabs/vm-module-types';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import * as Sentry from '@sentry/browser';
-import type { SettingsService } from '../settings/SettingsService';
+import { SettingsService } from '../settings/SettingsService';
 import LRUCache from 'lru-cache';
 
 jest.mock('@src/background/vmModules/ModuleManager');

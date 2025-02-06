@@ -1,11 +1,11 @@
 import Joi from 'joi';
-import type {
+import {
   AccountStorageItem,
+  AccountType,
   FireblocksAccount,
   ImportedAccount,
   WalletConnectAccount,
 } from '@src/background/services/accounts/models';
-import { AccountType } from '@src/background/services/accounts/models';
 
 const VERSION = 2;
 

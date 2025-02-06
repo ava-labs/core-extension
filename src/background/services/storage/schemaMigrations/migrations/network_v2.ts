@@ -1,6 +1,5 @@
 import Joi from 'joi';
-import type { Network } from '@avalabs/core-chains-sdk';
-import { ChainId } from '@avalabs/core-chains-sdk';
+import { ChainId, Network } from '@avalabs/core-chains-sdk';
 const VERSION = 2;
 
 enum OldChainIDs {

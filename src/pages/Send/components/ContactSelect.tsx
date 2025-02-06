@@ -17,8 +17,10 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { AddressDropdownList } from './AddressDropdownList';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import type { MyAccountContacts } from './AddressDropdownListMyAccounts';
-import { AddressDropdownListMyAccounts } from './AddressDropdownListMyAccounts';
+import {
+  AddressDropdownListMyAccounts,
+  MyAccountContacts,
+} from './AddressDropdownListMyAccounts';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { isNonXPHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';

@@ -1,10 +1,10 @@
-import type { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
 
 import { HttpClient } from '@avalabs/core-utils-sdk';
 import { AnalyticsServicePosthog } from './AnalyticsServicePosthog';
-import type { AnalyticsService } from './AnalyticsService';
-import type { SettingsService } from '../settings/SettingsService';
+import { AnalyticsService } from './AnalyticsService';
+import { SettingsService } from '../settings/SettingsService';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';

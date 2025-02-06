@@ -1,8 +1,12 @@
 import { useCallback, useState } from 'react';
-import type { ChipProps } from '@avalabs/core-k2-components';
-import { Chip, Tooltip, Typography } from '@avalabs/core-k2-components';
+import {
+  Chip,
+  ChipProps,
+  Tooltip,
+  Typography,
+} from '@avalabs/core-k2-components';
 
-import type { WalletDetails } from '@src/background/services/wallet/models';
+import { WalletDetails } from '@src/background/services/wallet/models';
 import { WalletTypeIcon } from '@src/pages/Accounts/components/WalletTypeIcon';
 
 type WalletChipProps = ChipProps & {

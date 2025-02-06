@@ -4,7 +4,7 @@ import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NoTransactions } from './components/NoTransactions';
 import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import type { TxHistoryItem } from '@src/background/services/history/models';
+import { TxHistoryItem } from '@src/background/services/history/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useTranslation } from 'react-i18next';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
@@ -38,8 +38,7 @@ import { isXchainNetwork } from '@src/background/services/network/utils/isAvalan
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { XchainActivityCard } from './components/History/components/ActivityCard/XchainActivityCard';
 import { getBridgedAssetSymbol } from '@src/utils/bridge/getBridgedAssetSymbol';
-import type { Transaction } from '@avalabs/vm-module-types';
-import { TransactionType } from '@avalabs/vm-module-types';
+import { Transaction, TransactionType } from '@avalabs/vm-module-types';
 
 type WalletRecentTxsProps = {
   isEmbedded?: boolean;

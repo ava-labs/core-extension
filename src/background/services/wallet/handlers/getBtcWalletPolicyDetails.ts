@@ -1,9 +1,9 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { AccountsService } from '../../accounts/AccountsService';
+import { AccountsService } from '../../accounts/AccountsService';
 import { AccountType } from '../../accounts/models';
-import type { SecretsService } from '../../secrets/SecretsService';
+import { SecretsService } from '../../secrets/SecretsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_GET_BTC_WALLET_POLICY_DETAILS,

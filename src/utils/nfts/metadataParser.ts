@@ -1,4 +1,4 @@
-import type {
+import {
   RawTokenAttribute,
   TokenAttribute,
 } from '@src/background/services/balances/models';

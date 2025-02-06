@@ -1,5 +1,5 @@
-import type { BitcoinProviderAbstract } from '@avalabs/core-wallets-sdk';
-import type { BtcTransactionRequest } from '../models';
+import { BitcoinProviderAbstract } from '@avalabs/core-wallets-sdk';
+import { BtcTransactionRequest } from '../models';
 
 export async function prepareBtcTxForLedger(
   tx: BtcTransactionRequest,

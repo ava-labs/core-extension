@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@avalabs/core-k2-components';
-import type { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 interface ExistingWalletButtonProps {
   icon: ReactNode;

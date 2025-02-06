@@ -1,11 +1,12 @@
 import { singleton } from 'tsyringe';
-import type {
+import {
   ApprovalParams,
   ApprovalResponse,
   BtcTxUpdateFn,
   DisplayData,
   EvmTxUpdateFn,
   BatchApprovalController,
+  RpcMethod,
   SigningData,
   BatchApprovalParams,
   BatchApprovalResponse,
@@ -13,21 +14,21 @@ import type {
   SigningRequest,
   SigningData_EthSendTx,
 } from '@avalabs/vm-module-types';
-import { RpcMethod } from '@avalabs/vm-module-types';
 import { rpcErrors, providerErrors } from '@metamask/rpc-errors';
 
-import type { WalletService } from '../services/wallet/WalletService';
-import type { Action, MultiTxAction } from '../services/actions/models';
+import { WalletService } from '../services/wallet/WalletService';
 import {
+  Action,
   ActionStatus,
   ActionType,
+  MultiTxAction,
   isBatchApprovalAction,
 } from '../services/actions/models';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
-import type { NetworkService } from '../services/network/NetworkService';
-import type { NetworkWithCaipId } from '../services/network/models';
+import { NetworkService } from '../services/network/NetworkService';
+import { NetworkWithCaipId } from '../services/network/models';
 
-import type {
+import {
   ApprovalParamsWithContext,
   MultiApprovalParamsWithContext,
 } from './models';

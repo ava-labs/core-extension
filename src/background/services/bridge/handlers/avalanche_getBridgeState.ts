@@ -1,7 +1,7 @@
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
-import type { BridgeService } from '../BridgeService';
+import { BridgeService } from '../BridgeService';
 
 @injectable()
 export class AvalancheGetBridgeTransactionHandler extends DAppRequestHandler {

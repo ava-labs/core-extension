@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { SettingsPageProps } from '../models';
+import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import {

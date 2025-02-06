@@ -1,13 +1,13 @@
-import type { StackProps } from '@avalabs/core-k2-components';
 import {
   Box,
   InfoCircleIcon,
   Stack,
+  StackProps,
   Tooltip,
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import type React from 'react';
+import React from 'react';
 
 type ApprovalSectionHeaderProps = {
   label: string;

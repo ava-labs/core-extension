@@ -1,11 +1,11 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import type { AccountsService } from '../../accounts/AccountsService';
+import { AccountsService } from '../../accounts/AccountsService';
 import { injectable } from 'tsyringe';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import type { PermissionsService } from '../../permissions/PermissionsService';
+import { PermissionsService } from '../../permissions/PermissionsService';
 import { ethErrors } from 'eth-rpc-errors';
-import type { Action } from '../../actions/models';
-import type { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
+import { Action } from '../../actions/models';
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 /**

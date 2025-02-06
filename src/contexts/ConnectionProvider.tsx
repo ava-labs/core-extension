@@ -1,4 +1,4 @@
-import type {
+import {
   ExtensionConnectionEvent,
   RequestHandlerType,
 } from '@src/background/connections/models';
@@ -9,10 +9,8 @@ import {
   useEffect,
   useState,
 } from 'react';
-import type { Observable } from 'rxjs';
-import { Subject } from 'rxjs';
-import type { Runtime } from 'webextension-polyfill';
-import browser from 'webextension-polyfill';
+import { Observable, Subject } from 'rxjs';
+import browser, { Runtime } from 'webextension-polyfill';
 import { EXTENSION_SCRIPT } from '@src/common';
 import { requestEngine } from '@src/contexts/utils/connectionResponseMapper';
 import { Signal, ValueCache } from 'micro-signals';

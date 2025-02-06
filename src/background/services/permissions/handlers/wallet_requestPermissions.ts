@@ -2,9 +2,9 @@ import { DAppRequestHandler } from '@src/background/connections/dAppConnection/D
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { injectable } from 'tsyringe';
-import type { AccountsService } from '../../accounts/AccountsService';
-import type { Action } from '../../actions/models';
-import type { PermissionsService } from '../PermissionsService';
+import { AccountsService } from '../../accounts/AccountsService';
+import { Action } from '../../actions/models';
+import { PermissionsService } from '../PermissionsService';
 import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';

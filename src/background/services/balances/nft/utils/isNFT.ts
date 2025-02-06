@@ -1,8 +1,8 @@
-import type {
+import {
   NftTokenWithBalance,
+  TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
 
 export function isNftTokenType(type: TokenType) {
   return type === TokenType.ERC721 || type === TokenType.ERC1155;

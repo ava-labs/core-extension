@@ -1,5 +1,5 @@
 import { container, singleton } from 'tsyringe';
-import type {
+import {
   OnAllExtensionClosed,
   OnLock,
   OnStorageReady,

@@ -2,17 +2,17 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography } from '@avalabs/core-k2-components';
 
-import type {
+import {
   DefiCommonItem,
   DefiInsuranceBuyerItem,
   DefiItem,
   DefiItemGroup,
+  DefiItemType,
   DefiLendingItem,
   DefiPerpetualItem,
   DefiRewardItem,
   DefiVestingItem,
 } from '@src/background/services/defi/models';
-import { DefiItemType } from '@src/background/services/defi/models';
 
 import { DefiPortfolioLending } from './DefiPortfolioLending';
 import { DefiPortfolioCommon } from './DefiPortfolioCommon';

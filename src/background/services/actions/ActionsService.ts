@@ -1,25 +1,28 @@
 import { omit } from 'lodash';
 import { EventEmitter } from 'events';
 import { injectAll, singleton } from 'tsyringe';
-import type { StorageService } from '../storage/StorageService';
-import type { Action, Actions, ActionUpdate, MultiTxAction } from './models';
+import { StorageService } from '../storage/StorageService';
 import {
+  Action,
   ActionCompletedEventType,
+  Actions,
   ActionsEvent,
   ActionStatus,
   ACTIONS_STORAGE_KEY,
+  ActionUpdate,
+  MultiTxAction,
   isBatchApprovalAction,
 } from './models';
 import { ethErrors } from 'eth-rpc-errors';
-import type { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
-import type { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
-import type { LockService } from '../lock/LockService';
+import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
+import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
+import { LockService } from '../lock/LockService';
 import { filterStaleActions } from './utils';
 import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
-import type { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
-import type { ApprovalController } from '@src/background/vmModules/ApprovalController';
-import type { BtcTxUpdateFn, EvmTxUpdateFn } from '@avalabs/vm-module-types';
+import { ApprovalController } from '@src/background/vmModules/ApprovalController';
+import { BtcTxUpdateFn, EvmTxUpdateFn } from '@avalabs/vm-module-types';
 
 @singleton()
 export class ActionsService implements OnStorageReady {

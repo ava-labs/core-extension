@@ -1,6 +1,6 @@
-import type { TxData } from '@ethereumjs/tx';
-import type { BufferLike } from 'ethereumjs-util';
-import type { TransactionRequest } from 'ethers';
+import { TxData } from '@ethereumjs/tx';
+import { BufferLike } from 'ethereumjs-util';
+import { TransactionRequest } from 'ethers';
 
 import { makeBNLike } from '@src/utils/makeBNLike';
 

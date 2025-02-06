@@ -1,5 +1,5 @@
-import type { DomainMetadata } from '@src/background/models';
-import type { NetworkWithCaipId } from '@src/background/services/network/models';
+import { DomainMetadata } from '@src/background/models';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 
 export type Next = () => Promise<void> | void;
 export type ErrorCallback = (error: Error) => void;

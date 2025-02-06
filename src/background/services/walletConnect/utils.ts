@@ -1,7 +1,10 @@
-import type { ProposalTypes } from '@walletconnect/types';
+import { ProposalTypes } from '@walletconnect/types';
 
-import type { WalletConnectSessionInfo } from './models';
-import { CORE_MOBILE_WALLET_ID, FIREBLOCKS_APP_NAME } from './models';
+import {
+  CORE_MOBILE_WALLET_ID,
+  FIREBLOCKS_APP_NAME,
+  WalletConnectSessionInfo,
+} from './models';
 
 export const isCoreMobile = (session: WalletConnectSessionInfo) =>
   session.walletApp.walletId === CORE_MOBILE_WALLET_ID;

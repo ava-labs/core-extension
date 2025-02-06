@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { LEDGER_VERSION_WARNING_WAS_CLOSED } from '../models';
-import type { StorageService } from '../../storage/StorageService';
+import { StorageService } from '../../storage/StorageService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SHOW_LEDGER_VERSION_WARNING,

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { EmptyContent } from '@src/components/common/EmptyContent';
 
-import type { NetworkTabProps } from './Networks';
+import { NetworkTabProps } from './Networks';
 import { NetworkList } from './common/NetworkList';
 
 export function FavoritesTab({ searchTerm }: NetworkTabProps) {

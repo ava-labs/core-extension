@@ -3,7 +3,7 @@ import { runtime } from 'webextension-polyfill';
 
 import { Web3Event } from '@src/background/connections/dAppConnection/models';
 
-import type { NetworkService } from '../NetworkService';
+import { NetworkService } from '../NetworkService';
 
 import { ChainChangedEvents } from './chainChangedEvent';
 

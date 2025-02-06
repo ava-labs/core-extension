@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { filter } from 'rxjs';
 
 import { isApprovalRequest } from '@src/background/services/approvals/events/approvalEventFilters';
-import type { ApprovalRequest } from '@src/background/services/approvals/models';
+import { ApprovalRequest } from '@src/background/services/approvals/models';
 import { isActionsUpdate } from '@src/background/services/actions/events/actionEventFilters';
 
 import { useConnectionContext } from './ConnectionProvider';

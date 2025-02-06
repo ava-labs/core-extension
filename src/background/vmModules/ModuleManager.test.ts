@@ -1,7 +1,7 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ModuleManager } from './ModuleManager';
 import { VMModuleError } from './models';
-import type { ApprovalController } from './ApprovalController';
+import { ApprovalController } from './ApprovalController';
 
 jest.mock('@avalabs/bitcoin-module', () => {
   return {

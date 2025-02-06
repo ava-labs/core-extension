@@ -5,8 +5,7 @@ import {
   Switch,
   Typography,
 } from '@avalabs/core-k2-components';
-import type { TokenWithBalance } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { TokenIcon } from '@src/components/common/TokenIcon';

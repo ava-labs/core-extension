@@ -1,9 +1,11 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { onboardingUpdatedEventListener } from '@src/background/services/onboarding/events/listeners';
-import type { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
-import type { OnboardingState } from '@src/background/services/onboarding/models';
-import { OnboardingPhase } from '@src/background/services/onboarding/models';
-import type {
+import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
+import {
+  OnboardingPhase,
+  OnboardingState,
+} from '@src/background/services/onboarding/models';
+import {
   PubKeyType,
   SeedlessAuthProvider,
 } from '@src/background/services/wallet/models';
@@ -11,7 +13,6 @@ import {
   useIsSpecificContextContainer,
   ContextContainer,
 } from '@src/hooks/useIsSpecificContextContainer';
-import type { Dispatch, SetStateAction } from 'react';
 import {
   createContext,
   useContext,
@@ -19,6 +20,8 @@ import {
   useEffect,
   lazy,
   useState,
+  Dispatch,
+  SetStateAction,
   useCallback,
 } from 'react';
 import { concat, filter, from, map } from 'rxjs';
@@ -27,12 +30,12 @@ import { useConnectionContext } from './ConnectionProvider';
 import { LoadingContent } from '@src/popup/LoadingContent';
 import { toast } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
-import type { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { useAnalyticsContext } from './AnalyticsProvider';
-import type { MnemonicOnboardingHandler } from '@src/background/services/onboarding/handlers/mnemonicOnboardingHandler';
-import type { SeedlessOnboardingHandler } from '@src/background/services/onboarding/handlers/seedlessOnboardingHandler';
-import type { KeystoneOnboardingHandler } from '@src/background/services/onboarding/handlers/keystoneOnboardingHandler';
-import type { LedgerOnboardingHandler } from '@src/background/services/onboarding/handlers/ledgerOnboardingHandler';
+import { MnemonicOnboardingHandler } from '@src/background/services/onboarding/handlers/mnemonicOnboardingHandler';
+import { SeedlessOnboardingHandler } from '@src/background/services/onboarding/handlers/seedlessOnboardingHandler';
+import { KeystoneOnboardingHandler } from '@src/background/services/onboarding/handlers/keystoneOnboardingHandler';
+import { LedgerOnboardingHandler } from '@src/background/services/onboarding/handlers/ledgerOnboardingHandler';
 import { WalletType } from '@avalabs/types';
 import { signUpForNewsletter } from '@src/utils/newsletter';
 import sentryCaptureException, {

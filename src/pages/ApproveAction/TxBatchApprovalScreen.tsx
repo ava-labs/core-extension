@@ -14,7 +14,7 @@ import {
 
 import { Overlay } from '@src/components/common/Overlay';
 import { ActionStatus } from '@src/background/services/actions/models';
-import type { NetworkWithCaipId } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';

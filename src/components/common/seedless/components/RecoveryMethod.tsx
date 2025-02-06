@@ -1,6 +1,6 @@
-import type { ButtonProps } from '@avalabs/core-k2-components';
 import {
   Button,
+  ButtonProps,
   ChevronRightIcon,
   Stack,
   Typography,

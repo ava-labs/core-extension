@@ -1,4 +1,4 @@
-import type { Contact } from '@avalabs/types';
+import { Contact } from '@avalabs/types';
 import { isContactValid } from './isContactValid';
 import { isAddress } from 'ethers';
 import { isBech32Address } from '@avalabs/core-bridge-sdk';

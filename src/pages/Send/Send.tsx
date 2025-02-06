@@ -14,8 +14,10 @@ import {
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import type { SupportedProvider } from '@src/utils/network/getProviderForNetwork';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import {
+  SupportedProvider,
+  getProviderForNetwork,
+} from '@src/utils/network/getProviderForNetwork';
 import {
   Avalanche,
   BitcoinProvider,
@@ -25,7 +27,7 @@ import { SendEVM } from './components/SendEVM';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useHistory } from 'react-router-dom';
-import type { Network } from '@src/background/services/network/models';
+import { Network } from '@src/background/services/network/models';
 import { SendBTC } from './components/SendBTC';
 import { LoadingSendForm } from './components/LoadingSendForm';
 import { SendPVM } from './components/SendPVM';
@@ -36,15 +38,15 @@ import {
   isAvmCapableAccount,
   isPvmCapableAccount,
 } from './hooks/useSend/models';
-import type {
+import {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
+  TokenType,
   TokenWithBalanceAVM,
   TokenWithBalanceBTC,
   TokenWithBalanceEVM,
   TokenWithBalancePVM,
 } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
 
 export function SendPage() {
   const { t } = useTranslation();

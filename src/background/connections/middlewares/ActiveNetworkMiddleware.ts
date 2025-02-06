@@ -1,9 +1,9 @@
-import type { NetworkService } from '@src/background/services/network/NetworkService';
+import { NetworkService } from '@src/background/services/network/NetworkService';
 
-import type { JsonRpcRequest, JsonRpcResponse } from '../dAppConnection/models';
+import { JsonRpcRequest, JsonRpcResponse } from '../dAppConnection/models';
 
-import type { Middleware } from './models';
-import type {
+import { Middleware } from './models';
+import {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
 } from '../models';

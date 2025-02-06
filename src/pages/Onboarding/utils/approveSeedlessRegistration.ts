@@ -1,4 +1,4 @@
-import type { IdentityProof } from '@cubist-labs/cubesigner-sdk';
+import { IdentityProof } from '@cubist-labs/cubesigner-sdk';
 
 export enum SeedlessRegistartionResult {
   ALREADY_REGISTERED = 'ALREADY_REGISTERED',

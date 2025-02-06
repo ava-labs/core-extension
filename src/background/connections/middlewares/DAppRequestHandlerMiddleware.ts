@@ -1,16 +1,16 @@
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import type { Middleware } from './models';
+import { Middleware } from './models';
 import { resolve } from '@src/utils/promiseResolver';
 import { engine } from '@src/utils/jsonRpcEngine';
-import type { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
+import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
 import { ethErrors } from 'eth-rpc-errors';
-import type {
+import {
   DAppProviderRequest,
   JsonRpcRequest,
   JsonRpcRequestParams,
   JsonRpcResponse,
 } from '../dAppConnection/models';
-import type { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],

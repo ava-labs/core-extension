@@ -1,6 +1,6 @@
-import type { ChainAddressChainIdMap } from '@avalabs/glacier-sdk';
+import { ChainAddressChainIdMap } from '@avalabs/glacier-sdk';
 
-import type { AddressActivityFetcher } from '../models';
+import { AddressActivityFetcher } from '../models';
 import { isDone } from './isDone';
 
 export async function processGlacierAddresses(

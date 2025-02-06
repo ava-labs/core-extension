@@ -1,10 +1,11 @@
-import type {
+import {
   AppConfigWithFullStaticFees,
+  AssetType,
   BitcoinStaticFeeConfigAsset,
+  Blockchain,
   EthereumStaticFeeAssetConfig,
   NativeAsset,
 } from '@avalabs/core-bridge-sdk';
-import { AssetType, Blockchain } from '@avalabs/core-bridge-sdk';
 
 export const btcAsset: BitcoinStaticFeeConfigAsset = {
   additionalTxFeeAmount: 0,

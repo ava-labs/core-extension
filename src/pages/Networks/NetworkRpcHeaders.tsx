@@ -1,6 +1,5 @@
 import { omit } from 'lodash';
-import type { Dispatch, SetStateAction } from 'react';
-import { useCallback } from 'react';
+import { Dispatch, SetStateAction, useCallback } from 'react';
 import {
   Grow,
   IconButton,
@@ -10,8 +9,10 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import type { CustomRpcHeaders } from '@src/background/services/network/models';
-import { PLACEHOLDER_RPC_HEADERS } from '@src/background/services/network/models';
+import {
+  CustomRpcHeaders,
+  PLACEHOLDER_RPC_HEADERS,
+} from '@src/background/services/network/models';
 import { isValidHttpHeader } from '@src/background/services/network/utils/isValidHttpHeader';
 
 type Props = {

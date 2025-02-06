@@ -1,9 +1,8 @@
 import * as WalletsSDK from '@avalabs/core-wallets-sdk';
 import { CryptoPSBT } from '@keystonehq/bc-ur-registry-eth';
-import type { Network } from 'bitcoinjs-lib';
-import { Psbt } from 'bitcoinjs-lib';
+import { Network, Psbt } from 'bitcoinjs-lib';
 import { BitcoinKeystoneWallet } from './BitcoinKeystoneWallet';
-import type { KeystoneTransport } from './models';
+import { KeystoneTransport } from './models';
 
 jest.mock('@avalabs/core-wallets-sdk');
 

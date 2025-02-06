@@ -1,11 +1,11 @@
-import type {
+import {
   Account,
+  AccountType,
   FireblocksAccount,
   ImportedAccount,
   PrimaryAccount,
   WalletConnectAccount,
 } from '../models';
-import { AccountType } from '../models';
 
 export const isFireblocksAccount = (
   account?: Account,

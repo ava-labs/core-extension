@@ -1,11 +1,10 @@
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import ERC721 from '@openzeppelin/contracts/build/contracts/ERC721.json';
 import ERC1155 from '@openzeppelin/contracts/build/contracts/ERC1155.json';
-import type { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
-import type { TransactionRequest } from 'ethers';
-import { Contract } from 'ethers';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
+import { Contract, TransactionRequest } from 'ethers';
 
-import type {
+import {
   Erc20SendOptions,
   NativeSendOptions,
   NftSendOptions,

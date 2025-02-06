@@ -6,7 +6,7 @@ import { buildRpcCall } from '@src/tests/test-utils';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import type { AccountsService } from '../AccountsService';
+import { AccountsService } from '../AccountsService';
 
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@src/utils/canSkipApproval');

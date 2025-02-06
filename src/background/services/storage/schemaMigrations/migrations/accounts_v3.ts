@@ -1,10 +1,10 @@
 import Joi from 'joi';
-import type {
+import {
+  AccountType,
   FireblocksAccount,
   ImportedAccount,
   WalletConnectAccount,
 } from '@src/background/services/accounts/models';
-import { AccountType } from '@src/background/services/accounts/models';
 import { WALLET_ID } from '../models';
 
 const VERSION = 3;

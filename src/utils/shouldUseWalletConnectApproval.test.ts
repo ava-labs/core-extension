@@ -1,12 +1,12 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import shouldUseWalletConnectApproval from './shouldUseWalletConnectApproval';
-import type {
+import {
+  AccountType,
   FireblocksAccount,
   ImportedPrivateKeyAccount,
   PrimaryAccount,
   WalletConnectAccount,
 } from '@src/background/services/accounts/models';
-import { AccountType } from '@src/background/services/accounts/models';
 
 describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
   const network = {

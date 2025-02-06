@@ -16,10 +16,10 @@ import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import type { AvalancheSendTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_sendTransaction';
 
 import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
-import type { PVMSendOptions } from '../../models';
-import type { SendAdapterPVM } from './models';
+import { PVMSendOptions } from '../../models';
+import { SendAdapterPVM } from './models';
 import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
-import type { FeeState } from '@avalabs/avalanchejs/dist/vms/pvm';
+import { FeeState } from '@avalabs/avalanchejs/dist/vms/pvm';
 
 const PCHAIN_ALIAS = 'P' as const;
 

@@ -1,6 +1,6 @@
-import type { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
-import type { SecretType } from '../../secrets/models';
-import type { PubKeyType } from '../models';
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { SecretType } from '../../secrets/models';
+import { PubKeyType } from '../models';
 
 export interface DisplayData_BitcoinSendTx {
   from: string;

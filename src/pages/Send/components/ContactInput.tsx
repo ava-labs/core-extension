@@ -1,5 +1,4 @@
-import type { RefObject } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import {
   IconButton,
   InputAdornment,

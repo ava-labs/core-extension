@@ -6,7 +6,7 @@ import {
   Typography,
   styled,
 } from '@avalabs/core-k2-components';
-import type { Network } from '@avalabs/core-chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
 
 import { TokenIcon } from '@src/components/common/TokenIcon';

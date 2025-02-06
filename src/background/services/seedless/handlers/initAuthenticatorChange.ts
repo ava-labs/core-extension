@@ -1,10 +1,10 @@
 import { injectable } from 'tsyringe';
-import type { TotpChallenge } from '@cubist-labs/cubesigner-sdk';
+import { TotpChallenge } from '@cubist-labs/cubesigner-sdk';
 
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import type { SeedlessMfaService } from '../SeedlessMfaService';
+import { SeedlessMfaService } from '../SeedlessMfaService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_INIT_AUTHENTICATOR_CHANGE,

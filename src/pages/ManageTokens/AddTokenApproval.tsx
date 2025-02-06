@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import type { AddCustomTokenData } from '@src/background/services/settings/models';
+import { AddCustomTokenData } from '@src/background/services/settings/models';
 
 export function AddTokenApproval() {
   const { t } = useTranslation();

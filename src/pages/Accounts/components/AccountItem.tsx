@@ -9,16 +9,21 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import type { ForwardedRef } from 'react';
-import { forwardRef, useCallback, useMemo, useRef, useState } from 'react';
+import {
+  ForwardedRef,
+  forwardRef,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import type { Account } from '@src/background/services/accounts/models';
-import { AccountType } from '@src/background/services/accounts/models';
+import { Account, AccountType } from '@src/background/services/accounts/models';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { SecretType } from '@src/background/services/secrets/models';

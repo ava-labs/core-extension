@@ -1,5 +1,5 @@
-import type { Account } from '@src/background/services/accounts/models';
-import type {
+import { Account } from '@src/background/services/accounts/models';
+import {
   Balances,
   TotalPriceChange,
 } from '@src/background/services/balances/models';

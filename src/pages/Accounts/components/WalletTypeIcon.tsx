@@ -1,15 +1,18 @@
-import type { IconBaseProps, SxProps } from '@avalabs/core-k2-components';
 import {
   AppleIcon,
   GoogleIcon,
+  IconBaseProps,
   KeystoneIcon,
   LedgerIcon,
   ListIcon,
+  SxProps,
 } from '@avalabs/core-k2-components';
 
 import { SecretType } from '@src/background/services/secrets/models';
-import type { WalletDetails } from '@src/background/services/wallet/models';
-import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
+import {
+  SeedlessAuthProvider,
+  WalletDetails,
+} from '@src/background/services/wallet/models';
 
 type WalletTypeIconProps = IconBaseProps & {
   walletDetails: WalletDetails;

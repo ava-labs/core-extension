@@ -1,6 +1,6 @@
 import { singleton } from 'tsyringe';
-import type { SimplePriceInCurrency } from '@avalabs/core-coingecko-sdk';
-import type { SettingsService } from '../settings/SettingsService';
+import { SimplePriceInCurrency } from '@avalabs/core-coingecko-sdk';
+import { SettingsService } from '../settings/SettingsService';
 import { getTokensPrice } from '@avalabs/core-token-prices-sdk';
 import {
   simplePrice,

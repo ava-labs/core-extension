@@ -3,10 +3,10 @@
 import { injectable } from 'tsyringe';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 
-import type { GlacierService } from '../../glacier/GlacierService';
-import type { Erc1155Token, Erc721Token } from '@avalabs/glacier-sdk';
+import { GlacierService } from '../../glacier/GlacierService';
+import { Erc1155Token, Erc721Token } from '@avalabs/glacier-sdk';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NFT_REFRESH_METADATA,

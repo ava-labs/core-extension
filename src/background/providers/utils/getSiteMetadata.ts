@@ -1,4 +1,4 @@
-import type { DomainMetadata } from '../../models';
+import { DomainMetadata } from '../../models';
 
 /**
  * Gets site metadata and returns it

@@ -1,7 +1,11 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { StackProps } from '@avalabs/core-k2-components';
-import { Button, Stack, Typography } from '@avalabs/core-k2-components';
+import {
+  Button,
+  Stack,
+  StackProps,
+  Typography,
+} from '@avalabs/core-k2-components';
 
 import { openNewTab } from '@src/utils/extensionUtils';
 

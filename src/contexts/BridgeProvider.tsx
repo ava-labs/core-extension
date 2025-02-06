@@ -1,5 +1,6 @@
-import type { Asset, BitcoinConfigAsset } from '@avalabs/core-bridge-sdk';
 import {
+  Asset,
+  BitcoinConfigAsset,
   Blockchain,
   BridgeSDKProvider,
   Environment,
@@ -12,17 +13,17 @@ import {
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { isBridgeStateUpdateEventListener } from '@src/background/services/bridge/events/listeners';
-import type { BridgeCreateTransactionHandler } from '@src/background/services/bridge/handlers/createBridgeTransaction';
-import type { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
-import type { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
-import type { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handlers/setIsDevEnv';
-import type {
+import { BridgeCreateTransactionHandler } from '@src/background/services/bridge/handlers/createBridgeTransaction';
+import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
+import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
+import { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handlers/setIsDevEnv';
+import {
   BridgeState,
+  DefaultBridgeState,
   PartialBridgeTransaction,
 } from '@src/background/services/bridge/models';
-import { DefaultBridgeState } from '@src/background/services/bridge/models';
 import { filterBridgeStateToNetwork } from '@src/background/services/bridge/utils';
-import type Big from 'big.js';
+import Big from 'big.js';
 import {
   createContext,
   useCallback,

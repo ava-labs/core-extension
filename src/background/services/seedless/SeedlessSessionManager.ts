@@ -1,9 +1,8 @@
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
-import type { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
-import { CubeSigner } from '@cubist-labs/cubesigner-sdk';
+import { CubeSigner, SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
-import type { SecretsService } from '../secrets/SecretsService';
+import { SecretsService } from '../secrets/SecretsService';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SeedlessEvents } from './models';
 import { isTokenExpiredError } from './utils';

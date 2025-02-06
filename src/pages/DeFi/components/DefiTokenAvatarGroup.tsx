@@ -1,9 +1,10 @@
-import type {
+import {
+  Avatar,
+  AvatarGroup,
   AvatarGroupProps,
   AvatarProps,
 } from '@avalabs/core-k2-components';
-import { Avatar, AvatarGroup } from '@avalabs/core-k2-components';
-import type { DefiToken } from '@src/background/services/defi/models';
+import { DefiToken } from '@src/background/services/defi/models';
 import { useMemo } from 'react';
 
 type Props = AvatarGroupProps & {

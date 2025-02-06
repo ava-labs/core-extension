@@ -6,8 +6,12 @@ import {
   UploadIcon,
   useTheme,
 } from '@avalabs/core-k2-components';
-import type { ChangeEventHandler, DragEventHandler, RefObject } from 'react';
-import { useState } from 'react';
+import {
+  ChangeEventHandler,
+  DragEventHandler,
+  RefObject,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 
 type KeystoreFileUploadProps = {

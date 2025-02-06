@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { TokensVisibility } from '../models';
-import type { SettingsService } from '../SettingsService';
+import { TokensVisibility } from '../models';
+import { SettingsService } from '../SettingsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_UPDATE_TOKENS_VISIBILITY,

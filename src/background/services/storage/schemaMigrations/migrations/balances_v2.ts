@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import type {
+import {
   Balances,
   TotalPriceChange,
 } from '@src/background/services/balances/models';

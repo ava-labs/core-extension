@@ -1,11 +1,11 @@
-import type {
+import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { NetworkEvents } from '../models';
-import type { NetworkService } from '../NetworkService';
+import { NetworkService } from '../NetworkService';
 
 @singleton()
 export class DeveloperModeChangedEvents implements ExtensionEventEmitter {

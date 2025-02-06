@@ -1,10 +1,10 @@
-import type {
+import {
   SignerSessionData,
   SignerSessionStorage,
 } from '@cubist-labs/cubesigner-sdk';
 
 import { SecretType } from '../secrets/models';
-import type { SecretsService } from '../secrets/SecretsService';
+import { SecretsService } from '../secrets/SecretsService';
 
 export class SeedlessTokenStorage implements SignerSessionStorage {
   constructor(private secretsService: SecretsService) {}

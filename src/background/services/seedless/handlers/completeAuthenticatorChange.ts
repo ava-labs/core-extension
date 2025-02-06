@@ -1,9 +1,9 @@
 import { injectable } from 'tsyringe';
 
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import type { SeedlessMfaService } from '../SeedlessMfaService';
+import { SeedlessMfaService } from '../SeedlessMfaService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_COMPLETE_AUTHENTICATOR_CHANGE,

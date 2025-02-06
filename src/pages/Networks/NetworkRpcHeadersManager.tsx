@@ -6,11 +6,11 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import type {
+import {
   CustomRpcHeaders,
   Network,
+  PLACEHOLDER_RPC_HEADERS,
 } from '@src/background/services/network/models';
-import { PLACEHOLDER_RPC_HEADERS } from '@src/background/services/network/models';
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { NetworkRpcHeaders } from './NetworkRpcHeaders';

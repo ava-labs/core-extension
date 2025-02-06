@@ -1,7 +1,5 @@
-import type { ForwardedRef } from 'react';
-import type React from 'react';
-import { forwardRef } from 'react';
-import type { positionValues } from 'react-custom-scrollbars-2';
+import React, { ForwardedRef, forwardRef } from 'react';
+import { positionValues } from 'react-custom-scrollbars-2';
 import { Card, Scrollbars, useTheme } from '@avalabs/core-k2-components';
 
 type Props = {

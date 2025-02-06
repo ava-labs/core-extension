@@ -6,7 +6,7 @@ import {
   CardActionArea,
   useTheme,
 } from '@avalabs/core-k2-components';
-import type { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { InlineBold } from '@src/components/common/InlineBold';
 
 interface MethodCardProps {

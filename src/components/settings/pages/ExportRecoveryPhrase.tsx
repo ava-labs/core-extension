@@ -26,7 +26,7 @@ import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedlessAnalytics';
 
 import { SettingsHeader } from '../SettingsHeader';
-import type { SettingsPageProps } from '../models';
+import { SettingsPageProps } from '../models';
 
 import { openExtensionNewWindow } from '@src/utils/extensionUtils';
 import { ExportPending } from '@src/components/common/seedless/components/ExportPending';

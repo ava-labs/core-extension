@@ -1,4 +1,4 @@
-import type { StorageService } from '../storage/StorageService';
+import { StorageService } from '../storage/StorageService';
 import { CurrencyService } from './CurrencyService';
 import {
   CURRENCY_EXCHANGE_RATES_REFRESH_INTERVAL,

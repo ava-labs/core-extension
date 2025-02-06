@@ -4,7 +4,7 @@ import {
   Typography,
   XIcon,
 } from '@avalabs/core-k2-components';
-import type { PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
 
 interface RemoteApprovalDialogProps {
   onReject: () => void;

@@ -6,9 +6,11 @@ import {
   AccordionDetails,
 } from '@avalabs/core-k2-components';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
-import type { TransactionTokenCardVariant } from './TransactionTokenCard';
-import { TransactionTokenCard } from './TransactionTokenCard';
-import type {
+import {
+  TransactionTokenCard,
+  TransactionTokenCardVariant,
+} from './TransactionTokenCard';
+import {
   NetworkContractToken,
   NetworkToken,
   TokenDiffItem,

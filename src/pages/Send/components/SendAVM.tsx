@@ -1,16 +1,16 @@
-import type { Avalanche } from '@avalabs/core-wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
 
-import type { SendPagePropsWithWalletAVM } from '../models';
+import { SendPagePropsWithWalletAVM } from '../models';
 import { SendForm } from './SendForm';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useQueryParams } from '@src/hooks/useQueryParams';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
 import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 import { useAvmSend } from '../hooks/useSend';
-import type { TokenWithBalanceAVM } from '@avalabs/vm-module-types';
+import { TokenWithBalanceAVM } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@src/utils/stringToBigint';
 
 export const SendAVM = ({

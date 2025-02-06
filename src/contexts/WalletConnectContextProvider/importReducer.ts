@@ -1,9 +1,9 @@
-import type {
+import {
   AccountImportState,
+  AccountImportStatus,
   AwaitingApprovalAccountImportState,
   WalletConnectUri,
 } from './models';
-import { AccountImportStatus } from './models';
 
 interface BaseAction {
   status: AccountImportStatus;

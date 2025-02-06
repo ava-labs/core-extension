@@ -1,6 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import type { SeedlessMfaService } from '../SeedlessMfaService';
+import { SeedlessMfaService } from '../SeedlessMfaService';
 import { RemoveTotpHandler } from './removeTotp';
 import { buildRpcCall } from '@src/tests/test-utils';
 

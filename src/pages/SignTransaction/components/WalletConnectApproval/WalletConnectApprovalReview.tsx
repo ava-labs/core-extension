@@ -7,9 +7,9 @@ import {
 } from '@avalabs/core-k2-components';
 import { Trans } from 'react-i18next';
 import { WalletConnectCircledIcon } from '../../../ImportWithWalletConnect/components/WalletConnectCircledIcon';
-import type { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
+import { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
 import { ImageWithFallback } from '@src/components/common/ImageWithFallback';
-import type { Account } from '@src/background/services/accounts/models';
+import { Account } from '@src/background/services/accounts/models';
 import { RemoteApprovalConfirmation } from '../RemoteApproval/RemoteApprovalConfirmation';
 
 interface WalletConnectApprovalReviewProps {

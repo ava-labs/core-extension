@@ -1,14 +1,14 @@
 import { injectable } from 'tsyringe';
-import type { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 import { resolve } from '@src/utils/promiseResolver';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import type { SeedlessSessionManager } from '../SeedlessSessionManager';
-import type { SecretsService } from '../../secrets/SecretsService';
+import { SeedlessSessionManager } from '../SeedlessSessionManager';
+import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
-import type { AccountsService } from '../../accounts/AccountsService';
+import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,

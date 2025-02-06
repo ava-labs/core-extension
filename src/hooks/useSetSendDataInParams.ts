@@ -1,5 +1,4 @@
-import type { TokenWithBalance } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';

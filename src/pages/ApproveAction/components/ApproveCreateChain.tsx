@@ -12,7 +12,7 @@ import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 import { AvaxAmount } from './AvaxAmount';
 import { TruncatedIdentifier } from './TruncatedIdentifier';
 import { BlockchainGenesisFile } from './BlockchainGenesisFile';
-import type { Avalanche } from '@avalabs/core-wallets-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 
 export function ApproveCreateChain({
   tx,

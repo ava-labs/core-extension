@@ -1,10 +1,9 @@
 import { SignerSession } from '@cubist-labs/cubesigner-sdk';
 
-import type { SecretsService } from '../secrets/SecretsService';
+import { SecretsService } from '../secrets/SecretsService';
 
 import { SeedlessMfaService } from './SeedlessMfaService';
-import type { MfaRequestData } from './models';
-import { MfaRequestType, SeedlessEvents } from './models';
+import { MfaRequestData, MfaRequestType, SeedlessEvents } from './models';
 import { KeyType } from '@src/utils/seedless/fido/types';
 
 jest.mock('@cubist-labs/cubesigner-sdk');

@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import type {
+import {
   EvmTxUpdateFn,
   BtcTxUpdateFn,
   EvmTxBatchUpdateFn,
@@ -7,9 +7,9 @@ import type {
 
 import { SendErrorMessage } from '@src/utils/send/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 
-import type { ActionsService } from '../ActionsService';
+import { ActionsService } from '../ActionsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACTION_UPDATE_TX_DATA,

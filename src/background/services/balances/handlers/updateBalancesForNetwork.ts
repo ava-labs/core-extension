@@ -1,14 +1,13 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { AccountsService } from '../../accounts/AccountsService';
-import type { Account } from '../../accounts/models';
-import type { NetworkService } from '../../network/NetworkService';
-import type { BalanceAggregatorService } from '../BalanceAggregatorService';
-import type { Balances } from '../models';
+import { AccountsService } from '../../accounts/AccountsService';
+import { Account } from '../../accounts/models';
+import { NetworkService } from '../../network/NetworkService';
+import { BalanceAggregatorService } from '../BalanceAggregatorService';
+import { Balances } from '../models';
 import { caipToChainId } from '@src/utils/caipConversion';
-import type { NftTokenWithBalance } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_BALANCES_UPDATE,

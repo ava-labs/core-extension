@@ -4,14 +4,14 @@ import {
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { AccountsService } from '../../accounts/AccountsService';
-import type { AnalyticsService } from '../../analytics/AnalyticsService';
-import type { LockService } from '../../lock/LockService';
-import type { NetworkService } from '../../network/NetworkService';
-import type { SettingsService } from '../../settings/SettingsService';
-import type { StorageService } from '../../storage/StorageService';
-import type { WalletService } from '../../wallet/WalletService';
-import type { OnboardingService } from '../OnboardingService';
+import { AccountsService } from '../../accounts/AccountsService';
+import { AnalyticsService } from '../../analytics/AnalyticsService';
+import { LockService } from '../../lock/LockService';
+import { NetworkService } from '../../network/NetworkService';
+import { SettingsService } from '../../settings/SettingsService';
+import { StorageService } from '../../storage/StorageService';
+import { WalletService } from '../../wallet/WalletService';
+import { OnboardingService } from '../OnboardingService';
 import { LedgerOnboardingHandler } from './ledgerOnboardingHandler';
 import { SecretType } from '../../secrets/models';
 import { buildRpcCall } from '@src/tests/test-utils';

@@ -1,10 +1,10 @@
 import { BridgeEvents } from '../models';
-import type {
+import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
-import type { BridgeService } from '../BridgeService';
+import { BridgeService } from '../BridgeService';
 import { singleton } from 'tsyringe';
 
 @singleton()

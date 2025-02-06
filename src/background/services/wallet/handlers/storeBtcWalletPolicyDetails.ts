@@ -3,14 +3,14 @@ import {
   getBech32AddressFromXPub,
 } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { networks } from 'bitcoinjs-lib';
 import { injectable } from 'tsyringe';
 import { AccountType } from '../../accounts/models';
-import type { NetworkService } from '../../network/NetworkService';
+import { NetworkService } from '../../network/NetworkService';
 import { SecretType } from '../../secrets/models';
-import type { SecretsService } from '../../secrets/SecretsService';
-import type { AccountsService } from '../../accounts/AccountsService';
+import { SecretsService } from '../../secrets/SecretsService';
+import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_STORE_BTC_WALLET_POLICY_DETAILS,

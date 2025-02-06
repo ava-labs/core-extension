@@ -2,9 +2,9 @@ import { jest } from '@jest/globals';
 import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
 import getTargetNetworkForTx from './getTargetNetworkForTx';
 import { NetworkService } from '@src/background/services/network/NetworkService';
-import type { StorageService } from '@src/background/services/storage/StorageService';
+import { StorageService } from '@src/background/services/storage/StorageService';
 import { errorCodes, EthereumRpcError } from 'eth-rpc-errors';
-import type { FeatureFlagService } from '@src/background/services/featureFlags/FeatureFlagService';
+import { FeatureFlagService } from '@src/background/services/featureFlags/FeatureFlagService';
 import { caipToChainId, decorateWithCaipId } from '@src/utils/caipConversion';
 
 jest.mock('@src/background/services/network/NetworkService');

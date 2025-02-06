@@ -9,12 +9,12 @@ import {
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useConnectionContext } from './ConnectionProvider';
 import { filter } from 'rxjs';
-import type {
+import {
   DeviceResponseData,
+  KeystoneEvent,
   DeviceRequestData,
 } from '@src/background/services/keystone/models';
-import { KeystoneEvent } from '@src/background/services/keystone/models';
-import type { SubmitKeystoneSignature } from '@src/background/services/keystone/handlers/keystoneSubmitSignature';
+import { SubmitKeystoneSignature } from '@src/background/services/keystone/handlers/keystoneSubmitSignature';
 
 const KeystoneContext = createContext<{
   txRequest?: DeviceRequestData;

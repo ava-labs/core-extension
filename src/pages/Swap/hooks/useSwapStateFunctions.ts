@@ -10,10 +10,9 @@ import { useSwap } from './useSwap';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
 import { stringToBigint } from '@src/utils/stringToBigint';
 
-import type { Amount, DestinationInput } from '../utils';
-import { getTokenAddress } from '../utils';
+import { Amount, DestinationInput, getTokenAddress } from '../utils';
 import { useTokensBySymbols } from './useTokensBySymbols';
-import type { SwappableToken } from '../models';
+import { SwappableToken } from '../models';
 
 export function useSwapStateFunctions() {
   const tokensWBalances = useTokensWithBalances({

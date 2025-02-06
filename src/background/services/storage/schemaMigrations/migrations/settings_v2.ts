@@ -1,13 +1,13 @@
 import Joi from 'joi';
 
-import type {
+import {
+  AnalyticsConsent,
   Languages,
   ThemeVariant,
   TokensVisibility,
   CollectiblesVisibility,
 } from '@src/background/services/settings/models';
-import { AnalyticsConsent } from '@src/background/services/settings/models';
-import type { NetworkContractToken } from '@avalabs/core-chains-sdk';
+import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 
 const VERSION = 2;
 

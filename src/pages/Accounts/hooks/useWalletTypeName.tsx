@@ -1,7 +1,6 @@
-import type { Account } from '@src/background/services/accounts/models';
-import { AccountType } from '@src/background/services/accounts/models';
+import { Account, AccountType } from '@src/background/services/accounts/models';
 import { SecretType } from '@src/background/services/secrets/models';
-import type { WalletDetails } from '@src/background/services/wallet/models';
+import { WalletDetails } from '@src/background/services/wallet/models';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 

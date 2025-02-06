@@ -1,4 +1,4 @@
-import type { TxHistoryItem } from '../models';
+import { TxHistoryItem } from '../models';
 import {
   NetworkVMType,
   TransactionType,

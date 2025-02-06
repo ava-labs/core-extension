@@ -1,23 +1,21 @@
 import { singleton } from 'tsyringe';
 import { merge, omit, pick } from 'lodash';
-import type {
+import {
   OnLock,
   OnStorageReady,
 } from '@src/background/runtime/lifecycleCallbacks';
-import type { StorageService } from '../storage/StorageService';
-import type {
+import { StorageService } from '../storage/StorageService';
+import {
+  NETWORK_LIST_STORAGE_KEY,
+  NETWORK_STORAGE_KEY,
   NetworkStorage,
   NetworkOverrides,
+  NETWORK_OVERRIDES_STORAGE_KEY,
   CustomNetworkPayload,
   ChainList,
   Network,
   ChainListWithCaipIds,
   NetworkWithCaipId,
-} from './models';
-import {
-  NETWORK_LIST_STORAGE_KEY,
-  NETWORK_STORAGE_KEY,
-  NETWORK_OVERRIDES_STORAGE_KEY,
 } from './models';
 import {
   AVALANCHE_P_DEV_NETWORK,
@@ -29,22 +27,24 @@ import {
   NetworkVMType,
   getChainsAndTokens,
 } from '@avalabs/core-chains-sdk';
-import type { ReadableSignal } from 'micro-signals';
-import { Signal, ValueCache } from 'micro-signals';
-import type { Avalanche } from '@avalabs/core-wallets-sdk';
+import { ReadableSignal, Signal, ValueCache } from 'micro-signals';
 import {
+  Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
 } from '@avalabs/core-wallets-sdk';
 import { resolve, wait } from '@avalabs/core-utils-sdk';
 import { Network as EthersNetwork } from 'ethers';
-import type { SigningResult } from '../wallet/models';
+import { SigningResult } from '../wallet/models';
 import { getExponentialBackoffDelay } from '@src/utils/exponentialBackoff';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import type { FeatureFlags } from '../featureFlags/models';
-import { FeatureFlagEvents, FeatureGates } from '../featureFlags/models';
+import {
+  FeatureFlagEvents,
+  FeatureFlags,
+  FeatureGates,
+} from '../featureFlags/models';
 import { isPchainNetwork } from './utils/isAvalanchePchainNetwork';
-import type { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { isXchainNetwork } from './utils/isAvalancheXchainNetwork';
 import { runtime } from 'webextension-polyfill';
 import {

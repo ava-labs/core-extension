@@ -2,8 +2,12 @@ import { windows } from 'webextension-polyfill';
 
 import { openPopup } from '../../extensionUtils';
 
-import type { DecodedFIDOResult, FIDOApiRequest, KeyType } from './types';
-import { FIDOApiEndpoint } from './types';
+import {
+  DecodedFIDOResult,
+  FIDOApiEndpoint,
+  FIDOApiRequest,
+  KeyType,
+} from './types';
 import { convertRequest } from './convertRequest';
 import { convertResult } from './convertResult';
 import { isValidResponse } from './validateResponse';

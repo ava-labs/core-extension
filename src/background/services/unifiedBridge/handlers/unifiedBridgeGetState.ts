@@ -1,10 +1,10 @@
 import { injectable } from 'tsyringe';
 
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 
-import type { UnifiedBridgeService } from '../UnifiedBridgeService';
-import type { UnifiedBridgeState } from '../models';
+import { UnifiedBridgeService } from '../UnifiedBridgeService';
+import { UnifiedBridgeState } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.UNIFIED_BRIDGE_GET_STATE,

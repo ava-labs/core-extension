@@ -14,8 +14,10 @@ import { useWalletConnectContext } from '@src/contexts/WalletConnectContextProvi
 import { WalletConnectQRCode } from './WalletConnectQRCode';
 import { WalletConnectStatusMessage } from './WalletConnectStatusMessage';
 import { WalletConnectURIField } from './WalletConnectURIField';
-import type { OnConnectCallback } from '@src/contexts/WalletConnectContextProvider/models';
-import { AccountImportStatus } from '@src/contexts/WalletConnectContextProvider/models';
+import {
+  AccountImportStatus,
+  OnConnectCallback,
+} from '@src/contexts/WalletConnectContextProvider/models';
 
 enum WalletConnectTabs {
   QR,

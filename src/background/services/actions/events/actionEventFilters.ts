@@ -1,6 +1,5 @@
-import type { ExtensionConnectionEvent } from '@src/background/connections/models';
-import type { Actions } from '../models';
-import { ActionsEvent } from '../models';
+import { ExtensionConnectionEvent } from '@src/background/connections/models';
+import { Actions, ActionsEvent } from '../models';
 
 export const isActionsUpdate = (
   ev: ExtensionConnectionEvent,

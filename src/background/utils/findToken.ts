@@ -1,6 +1,6 @@
-import type { Network, NetworkContractToken } from '@avalabs/core-chains-sdk';
+import { Network, NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { AccountsService } from '@src/background/services/accounts/AccountsService';
-import type { Balances } from '@src/background/services/balances/models';
+import { Balances } from '@src/background/services/balances/models';
 import { BalanceAggregatorService } from '@src/background/services/balances/BalanceAggregatorService';
 import { TokenManagerService } from '@src/background/services/tokens/TokenManagerService';
 import { ethers } from 'ethers';
@@ -8,11 +8,11 @@ import { container } from 'tsyringe';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import type {
+import {
+  TokenType,
   TokenWithBalance,
   TokenWithBalanceERC20,
 } from '@avalabs/vm-module-types';
-import { TokenType } from '@avalabs/vm-module-types';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
 const UNKNOWN_TOKEN = (address: string): TokenWithBalanceERC20 => ({

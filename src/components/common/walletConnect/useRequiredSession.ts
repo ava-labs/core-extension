@@ -7,9 +7,9 @@ import {
   isUriGeneratedEvent,
   isWalletConnectEvent,
 } from '@src/background/services/walletConnect/events/eventFilters';
-import type { EstablishRequiredSession } from '@src/background/services/walletConnect/handlers/establishRequiredSession';
+import { EstablishRequiredSession } from '@src/background/services/walletConnect/handlers/establishRequiredSession';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type {
+import {
   WalletConnectEventType,
   WalletConnectSessionInfo,
 } from '@src/background/services/walletConnect/models';

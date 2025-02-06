@@ -1,13 +1,13 @@
-import type { DerivationPath } from '@avalabs/core-wallets-sdk';
-import type { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
-import type {
+import {
   FireblocksApiData,
   ImportedAccount,
   PrimaryAccount,
   WalletConnectAddresses,
 } from '../accounts/models';
-import type {
+import {
   BtcWalletPolicyDetails,
   PubKeyType,
   SeedlessAuthProvider,

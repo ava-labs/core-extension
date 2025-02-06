@@ -1,11 +1,9 @@
-import type { BitcoinProviderAbstract } from '@avalabs/core-wallets-sdk';
-import { createPsbt } from '@avalabs/core-wallets-sdk';
+import { BitcoinProviderAbstract, createPsbt } from '@avalabs/core-wallets-sdk';
 import { CryptoPSBT } from '@keystonehq/bc-ur-registry-eth';
-import type { Transaction } from 'bitcoinjs-lib';
-import { Psbt } from 'bitcoinjs-lib';
+import { Psbt, Transaction } from 'bitcoinjs-lib';
 
-import type { BtcTransactionRequest } from '../wallet/models';
-import type { KeystoneTransport } from './models';
+import { BtcTransactionRequest } from '../wallet/models';
+import { KeystoneTransport } from './models';
 
 export class BitcoinKeystoneWallet {
   constructor(

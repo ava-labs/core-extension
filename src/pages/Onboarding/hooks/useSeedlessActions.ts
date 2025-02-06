@@ -1,4 +1,4 @@
-import type { SignerSession, TotpChallenge } from '@cubist-labs/cubesigner-sdk';
+import { SignerSession, TotpChallenge } from '@cubist-labs/cubesigner-sdk';
 import {
   SeedlessRegistartionResult,
   approveSeedlessRegistration,
@@ -14,10 +14,15 @@ import {
   getSignerSession,
 } from '@src/utils/seedless/getCubeSigner';
 import { useTranslation } from 'react-i18next';
-import type { Dispatch, SetStateAction } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import type { SeedlessAuthProvider } from '@src/background/services/wallet/models';
+import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
 import { getSignerToken } from '@src/utils/seedless/getSignerToken';
 import { RecoveryMethodTypes } from '../pages/Seedless/models';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';

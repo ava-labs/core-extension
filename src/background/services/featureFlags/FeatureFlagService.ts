@@ -2,17 +2,17 @@ import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
 import browser from 'webextension-polyfill';
 
-import type { AnalyticsService } from '../analytics/AnalyticsService';
-import type { FeatureFlags } from './models';
+import { AnalyticsService } from '../analytics/AnalyticsService';
 import {
   DEFAULT_FLAGS,
   FeatureFlagEvents,
+  FeatureFlags,
   FEATURE_FLAGS_OVERRIDES_KEY,
   FeatureGates,
 } from './models';
 import { AnalyticsEvents } from '../analytics/models';
-import type { LockService } from '../lock/LockService';
-import type { StorageService } from '../storage/StorageService';
+import { LockService } from '../lock/LockService';
+import { StorageService } from '../storage/StorageService';
 import { formatAndLog } from '../../../utils/logging';
 import { getFeatureFlags } from './utils/getFeatureFlags';
 import { coerce, satisfies, validRange } from 'semver';

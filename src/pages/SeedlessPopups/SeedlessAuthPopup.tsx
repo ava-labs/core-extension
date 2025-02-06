@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { Button, Stack } from '@avalabs/core-k2-components';
-import type { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { AuthStep, useSeedlessAuth } from '@src/hooks/useSeedlessAuth';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { UpdateSignerTokenHandler } from '@src/background/services/seedless/handlers/updateSignerToken';
+import { UpdateSignerTokenHandler } from '@src/background/services/seedless/handlers/updateSignerToken';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { getOidcTokenProvider } from '@src/utils/seedless/getOidcTokenProvider';

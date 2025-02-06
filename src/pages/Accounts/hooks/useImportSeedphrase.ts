@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react';
 
-import type {
+import {
   ImportSeedphraseWalletParams,
   ImportWalletResult,
 } from '@src/background/services/wallet/handlers/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import type { ImportSeedPhraseHandler } from '@src/background/services/wallet/handlers/importSeedPhrase';
+import { ImportSeedPhraseHandler } from '@src/background/services/wallet/handlers/importSeedPhrase';
 
 type ImportWalletFn = (
   params: ImportSeedphraseWalletParams,

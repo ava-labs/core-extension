@@ -8,13 +8,11 @@ import type { SecretsService } from '@src/background/services/secrets/SecretsSer
 import type { NetworkService } from '@src/background/services/network/NetworkService';
 import type { GlacierService } from '@src/background/services/glacier/GlacierService';
 import type { AccountsService } from '@src/background/services/accounts/AccountsService';
-import type {
-  PrimaryAccount,
-  ImportedAccount,
-} from '@src/background/services/accounts/models';
 import {
   type Accounts,
   AccountType,
+  PrimaryAccount,
+  ImportedAccount,
 } from '@src/background/services/accounts/models';
 
 import type { Balances } from '../../models';

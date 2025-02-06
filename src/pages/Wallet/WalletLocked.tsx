@@ -4,7 +4,7 @@ import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { useEffect, useRef, useState } from 'react';
 import animationData from '@src/images/OwlAnimation-short.json';
 import Lottie from 'react-lottie';
-import type { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
+import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Button,

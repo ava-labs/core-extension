@@ -16,7 +16,7 @@ import {
 } from '@src/components/common/approval/ApprovalSection';
 import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 import { WebsiteDetails } from '../SignTransaction/components/ApprovalTxDetails';
-import type { DomainMetadata } from '@src/background/models';
+import { DomainMetadata } from '@src/background/models';
 
 export function RenameWallet() {
   const { t } = useTranslation();

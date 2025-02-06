@@ -1,12 +1,11 @@
-import type { SettingsPageProps } from '../models';
-import { SettingsPages } from '../models';
+import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
+import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Badge,

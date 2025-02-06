@@ -1,6 +1,5 @@
 import { AccountType } from '@src/background/services/accounts/models';
-import type { PrimaryAccount } from './accounts_v3';
-import accounts_v3 from './accounts_v3';
+import accounts_v3, { PrimaryAccount } from './accounts_v3';
 import Joi from 'joi';
 
 describe('background/services/storage/schemaMigrations/migrations/accounts_v3', () => {

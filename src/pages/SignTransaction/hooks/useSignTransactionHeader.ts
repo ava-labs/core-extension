@@ -1,5 +1,7 @@
-import type { Transaction } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
-import { TransactionType } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import {
+  Transaction,
+  TransactionType,
+} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
 import { useTranslation } from 'react-i18next';
 
 export const useSignTransactionHeader = (

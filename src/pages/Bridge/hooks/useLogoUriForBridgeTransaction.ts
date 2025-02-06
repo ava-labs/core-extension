@@ -1,7 +1,6 @@
-import type { BridgeTransaction } from '@avalabs/core-bridge-sdk';
-import { Blockchain } from '@avalabs/core-bridge-sdk';
+import { Blockchain, BridgeTransaction } from '@avalabs/core-bridge-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import type { BridgeTransfer } from '@avalabs/bridge-unified';
+import { BridgeTransfer } from '@avalabs/bridge-unified';
 
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';

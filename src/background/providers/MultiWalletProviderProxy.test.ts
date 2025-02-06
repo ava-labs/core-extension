@@ -4,7 +4,7 @@ import {
   createMultiWalletProxy,
 } from './MultiWalletProviderProxy';
 import { EVMProvider } from '@avalabs/evm-module/dist/provider';
-import type { EIP6963ProviderInfo } from '@avalabs/vm-module-types';
+import { EIP6963ProviderInfo } from '@avalabs/vm-module-types';
 
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection');
 jest.mock('@avalabs/evm-module/dist/provider', () => ({

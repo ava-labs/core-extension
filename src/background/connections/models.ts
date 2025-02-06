@@ -1,19 +1,19 @@
 /* eslint-disable no-prototype-builtins */
 
-import type { Runtime } from 'webextension-polyfill';
-import type { RpcMethod } from '@avalabs/vm-module-types';
+import { Runtime } from 'webextension-polyfill';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
-import type { ArrayElement } from '../models';
-import type { ExtensionRequest } from './extensionConnection/models';
-import type {
+import { ArrayElement } from '../models';
+import { ExtensionRequest } from './extensionConnection/models';
+import {
   DAppProviderRequest,
   JsonRpcRequest,
   JsonRpcRequestPayload,
 } from './dAppConnection/models';
-import type { ErrorData } from '@src/utils/errors';
-import type { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
-import type { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
-import type { DAppRequestHandler } from './dAppConnection/DAppRequestHandler';
+import { ErrorData } from '@src/utils/errors';
+import { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
+import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
+import { DAppRequestHandler } from './dAppConnection/DAppRequestHandler';
 
 export type ExtensionConnectionMessage<
   Method extends ExtensionRequest | DAppProviderRequest | RpcMethod = any,

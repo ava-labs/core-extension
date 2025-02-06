@@ -1,12 +1,10 @@
 import { isTokenWithBalanceAVM } from './isTokenWithBalanceAVM';
-import type {
+import {
+  TokenType,
   TokenWithBalanceAVM,
   TokenWithBalanceBTC,
   TokenWithBalanceEVM,
   TokenWithBalancePVM,
-} from '@avalabs/vm-module-types';
-import {
-  TokenType,
   TokenType as VMModulesTokenType,
 } from '@avalabs/vm-module-types';
 

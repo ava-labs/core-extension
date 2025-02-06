@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { AnalyticsService } from '../AnalyticsService';
+import { AnalyticsService } from '../AnalyticsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ANALYTICS_CLEAR_IDS,

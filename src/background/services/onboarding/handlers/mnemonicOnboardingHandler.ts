@@ -1,19 +1,19 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
-import type { StorageService } from '../../storage/StorageService';
-import type { SettingsService } from '../../settings/SettingsService';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
+import { StorageService } from '../../storage/StorageService';
+import { SettingsService } from '../../settings/SettingsService';
 import { SecretType } from '../../secrets/models';
-import type { WalletService } from '../../wallet/WalletService';
-import type { AnalyticsService } from '../../analytics/AnalyticsService';
+import { WalletService } from '../../wallet/WalletService';
+import { AnalyticsService } from '../../analytics/AnalyticsService';
 import {
   Avalanche,
   DerivationPath,
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
-import type { AccountsService } from '../../accounts/AccountsService';
-import type { OnboardingService } from '../OnboardingService';
-import type { LockService } from '../../lock/LockService';
-import type { NetworkService } from '../../network/NetworkService';
+import { AccountsService } from '../../accounts/AccountsService';
+import { OnboardingService } from '../OnboardingService';
+import { LockService } from '../../lock/LockService';
+import { NetworkService } from '../../network/NetworkService';
 import { injectable } from 'tsyringe';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';

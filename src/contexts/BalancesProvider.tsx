@@ -1,10 +1,10 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type {
+import {
   Balances,
   TotalPriceChange,
 } from '@src/background/services/balances/models';
-import type { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
-import type { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
+import { GetBalancesHandler } from '@src/background/services/balances/handlers/getBalances';
+import { UpdateBalancesForNetworkHandler } from '@src/background/services/balances/handlers/updateBalancesForNetwork';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import {
   createContext,
@@ -17,22 +17,21 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 import { merge } from 'lodash';
-import type { Erc1155Token } from '@avalabs/glacier-sdk';
-import { Erc721Token } from '@avalabs/glacier-sdk';
+import { Erc1155Token, Erc721Token } from '@avalabs/glacier-sdk';
 
 import { useAccountsContext } from './AccountsProvider';
 import { useNetworkContext } from './NetworkProvider';
 import { balancesUpdatedEventListener } from '@src/background/services/balances/events/balancesUpdatedEventListener';
-import type { Account } from '@src/background/services/accounts/models';
-import type { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
-import type { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
-import type { RefreshNftMetadataHandler } from '@src/background/services/balances/handlers/refreshNftMetadata';
+import { Account } from '@src/background/services/accounts/models';
+import { StartBalancesPollingHandler } from '@src/background/services/balances/handlers/startBalancesPolling';
+import { StopBalancesPollingHandler } from '@src/background/services/balances/handlers/stopBalancesPolling';
+import { RefreshNftMetadataHandler } from '@src/background/services/balances/handlers/refreshNftMetadata';
 import { ipfsResolverWithFallback } from '@src/utils/ipsfResolverWithFallback';
 import { getSmallImageForNFT } from '@src/background/services/balances/nft/utils/getSmallImageForNFT';
-import type { TokensPriceShortData } from '@src/background/services/tokens/models';
+import { TokensPriceShortData } from '@src/background/services/tokens/models';
 import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
-import type { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
-import type { Network } from '@src/background/services/network/models';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import { Network } from '@src/background/services/network/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { getDefaultChainIds } from '@src/utils/getDefaultChainIds';
 

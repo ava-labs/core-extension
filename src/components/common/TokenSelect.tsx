@@ -1,5 +1,12 @@
-import type { ChangeEvent, MutableRefObject } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ChangeEvent,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import EthLogo from '@src/images/tokens/eth.png';
@@ -28,7 +35,7 @@ import { TokenEllipsis } from './TokenEllipsis';
 import { DropdownItem } from './Dropdown';
 import { useDisplaytokenlist } from '@src/hooks/useDisplayTokenList';
 import { TokenIcon } from './TokenIcon';
-import type { TokenWithBalance } from '@avalabs/vm-module-types';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
 import { bigintToBig } from '@src/utils/bigintToBig';
 import { stringToBigint } from '@src/utils/stringToBigint';
 

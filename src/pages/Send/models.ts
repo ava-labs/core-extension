@@ -1,10 +1,7 @@
-import type { Network } from '@src/background/services/network/models';
-import type { Account } from '@src/background/services/accounts/models';
-import type {
-  AvmCapableAccount,
-  PvmCapableAccount,
-} from './hooks/useSend/models';
-import type {
+import { Network } from '@src/background/services/network/models';
+import { Account } from '@src/background/services/accounts/models';
+import { AvmCapableAccount, PvmCapableAccount } from './hooks/useSend/models';
+import {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
   TokenWithBalanceAVM,
@@ -12,7 +9,7 @@ import type {
   TokenWithBalanceERC20,
   TokenWithBalancePVM,
 } from '@avalabs/vm-module-types';
-import type { NetworkFee } from '@src/background/services/networkFee/models';
+import { NetworkFee } from '@src/background/services/networkFee/models';
 
 export type SendPageProps<Provider, Token, Tokens> = {
   network: Network;

@@ -1,14 +1,17 @@
 import * as cs from '@cubist-labs/cubesigner-sdk';
 import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
 import { strip0x } from '@avalabs/core-utils-sdk';
-import type { TransactionRequest, BytesLike } from 'ethers';
-import { JsonRpcApiProvider, getBytes, hashMessage } from 'ethers';
-import type {
-  BitcoinInputUTXO,
-  BitcoinOutputUTXO,
-} from '@avalabs/core-wallets-sdk';
+import {
+  JsonRpcApiProvider,
+  TransactionRequest,
+  getBytes,
+  hashMessage,
+  BytesLike,
+} from 'ethers';
 import {
   Avalanche,
+  BitcoinInputUTXO,
+  BitcoinOutputUTXO,
   BitcoinProvider,
   createPsbt,
   getEvmAddressFromPubKey,
@@ -21,18 +24,17 @@ import {
   typedSignatureHash,
 } from '@metamask/eth-sig-util';
 
-import type { NetworkService } from '../network/NetworkService';
-import type { PubKeyType } from '../wallet/models';
-import type { MessageParams } from '../messages/models';
-import { MessageType } from '../messages/models';
+import { NetworkService } from '../network/NetworkService';
+import { PubKeyType } from '../wallet/models';
+import { MessageParams, MessageType } from '../messages/models';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
-import type { Transaction } from 'bitcoinjs-lib';
+import { Transaction } from 'bitcoinjs-lib';
 import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
-import type { Network } from '../network/models';
+import { Network } from '../network/models';
 import { CoreApiError } from './models';
-import type { SeedlessSessionManager } from './SeedlessSessionManager';
+import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { isTokenExpiredError } from './utils';
-import type { SeedlessMfaService } from './SeedlessMfaService';
+import { SeedlessMfaService } from './SeedlessMfaService';
 import { toUtf8 } from 'ethereumjs-util';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 

@@ -1,4 +1,4 @@
-import type { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
+import { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
 
 export enum ApprovalStep {
   APPROVAL,

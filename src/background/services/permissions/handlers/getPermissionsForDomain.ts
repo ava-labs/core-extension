@@ -1,8 +1,8 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { ExtensionRequestHandler } from '@src/background/connections/models';
+import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import type { DappPermissions } from '../models';
-import type { PermissionsService } from '../PermissionsService';
+import { DappPermissions } from '../models';
+import { PermissionsService } from '../PermissionsService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.PERMISSIONS_GET_PERMISSIONS,

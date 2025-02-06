@@ -1,7 +1,5 @@
-import type { ChangeEvent } from 'react';
-import { useState } from 'react';
-import type { SettingsPageProps } from '../models';
-import { SettingsPages } from '../models';
+import { ChangeEvent, useState } from 'react';
+import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { ContactListItem } from '../components/ContactListItem';

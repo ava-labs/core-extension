@@ -6,8 +6,10 @@ import {
   Typography,
   styled,
 } from '@avalabs/core-k2-components';
-import type { AccountType } from '@src/background/services/accounts/models';
-import { PrivateKeyChain } from '@src/background/services/accounts/models';
+import {
+  AccountType,
+  PrivateKeyChain,
+} from '@src/background/services/accounts/models';
 import { SecretType } from '@src/background/services/secrets/models';
 import { Dropdown, DropdownItem } from '@src/components/common/Dropdown';
 import { PageTitle } from '@src/components/common/PageTitle';

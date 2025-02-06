@@ -1,10 +1,10 @@
 import { SettingsEvents } from '../models';
-import type {
+import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
 } from '@src/background/connections/models';
 import { EventEmitter } from 'events';
-import type { SettingsService } from '../SettingsService';
+import { SettingsService } from '../SettingsService';
 import { singleton } from 'tsyringe';
 
 @singleton()
