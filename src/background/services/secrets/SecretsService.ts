@@ -684,9 +684,10 @@ export class SecretsService implements OnUnlock {
   }): Promise<void> {
     const secrets = await this.getWalletAccountsSecretsById(walletId);
 
-    const derivationPaths = await addressResolver.getDerivationPaths(
+    const derivationPaths = await addressResolver.getDerivationPathsByVM(
       index,
       secrets.derivationPathSpec,
+      [NetworkVMType.EVM, NetworkVMType.AVM, NetworkVMType.HVM],
     );
     const derivationPathEVM = derivationPaths[NetworkVMType.EVM];
     const derivationPathAVM = derivationPaths[NetworkVMType.AVM];

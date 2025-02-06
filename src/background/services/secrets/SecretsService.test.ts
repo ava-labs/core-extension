@@ -1203,15 +1203,17 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     let ledgerService: LedgerService;
 
     const addressResolver = {
-      getDerivationPaths: jest.fn(),
+      getDerivationPathsByVM: jest.fn(),
     } as any;
     beforeEach(() => {
       ledgerService = new LedgerService();
-      addressResolver.getDerivationPaths.mockImplementation((accountIndex) => ({
-        [NetworkVMType.EVM]: `m/44'/60'/0'/0/${accountIndex}`,
-        [NetworkVMType.AVM]: `m/44'/9000'/0'/0/${accountIndex}`,
-        [NetworkVMType.HVM]: `m/44'/9000'/0'/0'/${accountIndex}'`,
-      }));
+      addressResolver.getDerivationPathsByVM.mockImplementation(
+        (accountIndex) => ({
+          [NetworkVMType.EVM]: `m/44'/60'/0'/0/${accountIndex}`,
+          [NetworkVMType.AVM]: `m/44'/9000'/0'/0/${accountIndex}`,
+          [NetworkVMType.HVM]: `m/44'/9000'/0'/0'/${accountIndex}'`,
+        }),
+      );
     });
 
     describe('ledger', () => {

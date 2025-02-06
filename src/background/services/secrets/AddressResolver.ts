@@ -1,7 +1,10 @@
+import { pick } from 'lodash';
 import { singleton } from 'tsyringe';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Module, NetworkVMType } from '@avalabs/vm-module-types';
-import type { ModuleManager } from '@src/background/vmModules/ModuleManager';
 
+import type { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { PickKeys } from '@src/background/models';
 import { isDevnet } from '@src/utils/isDevnet';
 import { CommonError, SecretsError } from '@src/utils/errors';
 import { assertPresent } from '@src/utils/assertions';
@@ -9,7 +12,6 @@ import { assertPresent } from '@src/utils/assertions';
 import { NetworkWithCaipId } from '../network/models';
 import { NetworkService } from '../network/NetworkService';
 import { emptyAddresses, emptyDerivationPaths } from './utils';
-import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { SecretsService } from './SecretsService';
 import { DerivationPathsMap, SecretType } from './models';
 
@@ -66,25 +68,16 @@ export class AddressResolver {
     });
   }
 
-  async getDerivationPaths(
+  async getDerivationPathsByVM<VMs extends (keyof DerivationPathsMap)[]>(
     accountIndex: number,
     derivationPathType: DerivationPath,
-  ): Promise<DerivationPathsMap> {
+    vms: VMs,
+  ): Promise<PickKeys<DerivationPathsMap, VMs>> {
     assertPresent(this.#moduleManager, CommonError.ModuleManagerNotSet);
 
     const derivationPaths = emptyDerivationPaths();
 
-    const activeNetworks = await this.#getNetworksForAddressDerivation();
-    const modules = new Set<Module>();
-
-    for (const network of activeNetworks) {
-      const module = await this.#moduleManager.loadModuleByNetwork(network);
-      if (module && !modules.has(module)) {
-        modules.add(module);
-      }
-    }
-
-    for (const module of modules) {
+    for (const module of this.#moduleManager.modules) {
       const modulePaths = await module.buildDerivationPath({
         accountIndex,
         derivationPathType,
@@ -95,11 +88,15 @@ export class AddressResolver {
       }
     }
 
-    for (const [vmType, path] of Object.entries(derivationPaths)) {
-      assertPresent(path, SecretsError.DerivationPathMissing, vmType);
+    for (const vm of vms) {
+      assertPresent(
+        derivationPaths[vm],
+        SecretsError.DerivationPathMissing,
+        vm,
+      );
     }
 
-    return derivationPaths;
+    return pick(derivationPaths, vms) as PickKeys<DerivationPathsMap, VMs>;
   }
 
   async getAddressesForSecretId(
