@@ -1,6 +1,7 @@
 import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { findTokenForAsset } from './findTokenForAsset';
-import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import type { TokenWithBalance } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 
 describe('src/pages/Bridge/utils/findTokenForAsset', () => {
   const token: TokenWithBalance = {

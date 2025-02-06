@@ -1,4 +1,4 @@
-import { Eip1193Provider } from 'ethers';
+import type { Eip1193Provider } from 'ethers';
 
 export interface ChainChangedEventData {
   chainId: string;

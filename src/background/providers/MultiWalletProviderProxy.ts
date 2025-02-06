@@ -1,12 +1,12 @@
 import { ethErrors } from 'eth-rpc-errors';
-import {
-  DAppProviderRequest,
+import type {
   JsonRpcRequestPayload,
   JsonRpcResponse,
 } from '../connections/dAppConnection/models';
-import { Maybe } from '@avalabs/core-utils-sdk';
+import { DAppProviderRequest } from '../connections/dAppConnection/models';
+import type { Maybe } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
-import { EVMProvider } from '@avalabs/evm-module/dist/provider';
+import type { EVMProvider } from '@avalabs/evm-module/dist/provider';
 
 export class MultiWalletProviderProxy extends EventEmitter {
   #_providers: EVMProvider[] = [];

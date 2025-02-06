@@ -9,8 +9,8 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { SecretType } from '@src/background/services/secrets/models';
-import { WalletDetails } from '@src/background/services/wallet/models';
-import { PrimaryAccount } from '@src/background/services/accounts/models';
+import type { WalletDetails } from '@src/background/services/wallet/models';
+import type { PrimaryAccount } from '@src/background/services/accounts/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 import { useWalletTotalBalance } from '../hooks/useWalletTotalBalance';

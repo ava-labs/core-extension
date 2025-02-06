@@ -1,6 +1,7 @@
-import { Stack, SxProps } from '@avalabs/core-k2-components';
+import type { SxProps } from '@avalabs/core-k2-components';
+import { Stack } from '@avalabs/core-k2-components';
 
-import {
+import type {
   PrimaryAccount,
   WalletId,
 } from '@src/background/services/accounts/models';

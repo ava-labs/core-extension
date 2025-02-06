@@ -1,10 +1,12 @@
-import React, { FC, ReactElement } from 'react';
-import { render, RenderOptions } from '@testing-library/react';
-import {
+import type { FC, ReactElement } from 'react';
+import type React from 'react';
+import type { RenderOptions } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import type {
   JsonRpcRequestParams,
   JsonRpcRequestPayload,
 } from '@src/background/connections/dAppConnection/models';
-import { PartialBy } from '@src/background/models';
+import type { PartialBy } from '@src/background/models';
 
 const AllTheProviders: FC<{ children: React.ReactNode }> = ({ children }) => {
   // K2 ThemeProvider causes issues here.

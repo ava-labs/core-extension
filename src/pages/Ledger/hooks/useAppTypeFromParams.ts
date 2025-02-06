@@ -1,4 +1,4 @@
-import { LedgerAppType } from '@src/contexts/LedgerProvider';
+import type { LedgerAppType } from '@src/contexts/LedgerProvider';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import xss from 'xss';

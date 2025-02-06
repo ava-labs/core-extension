@@ -1,5 +1,6 @@
-import { PropsWithChildren } from 'react';
-import { SxProps, Tooltip } from '@avalabs/core-k2-components';
+import type { PropsWithChildren } from 'react';
+import type { SxProps } from '@avalabs/core-k2-components';
+import { Tooltip } from '@avalabs/core-k2-components';
 import { truncateAddress } from '@avalabs/core-utils-sdk';
 
 interface TokenEllipsisProps {

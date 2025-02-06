@@ -1,12 +1,12 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { GetActionHandler } from '@src/background/services/actions/handlers/getActions';
-import { UpdateActionHandler } from '@src/background/services/actions/handlers/updateAction';
-import {
+import type { GetActionHandler } from '@src/background/services/actions/handlers/getActions';
+import type { UpdateActionHandler } from '@src/background/services/actions/handlers/updateAction';
+import type {
   Action,
   ActionUpdate,
   MultiTxAction,
-  isBatchApprovalAction,
 } from '@src/background/services/actions/models';
+import { isBatchApprovalAction } from '@src/background/services/actions/models';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';

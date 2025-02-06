@@ -1,6 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import { SeedlessMfaService } from '../SeedlessMfaService';
+import type { SeedlessMfaService } from '../SeedlessMfaService';
 
 import { InitAuthenticatorChangeHandler } from './initAuthenticatorChange';
 import { buildRpcCall } from '@src/tests/test-utils';

@@ -1,4 +1,4 @@
-import {
+import type {
   TokenWithBalance,
   TokenWithBalanceAVM,
 } from '@avalabs/vm-module-types';

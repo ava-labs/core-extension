@@ -10,18 +10,18 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { concat, filter, from, map } from 'rxjs';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { accountsUpdatedEventListener } from '@src/background/services/accounts/events/accountsUpdatedEventListener';
-import {
+import type {
   Accounts,
   ImportData,
   Account,
 } from '@src/background/services/accounts/models';
-import { GetAccountsHandler } from '@src/background/services/accounts/handlers/getAccounts';
-import { SelectAccountHandler } from '@src/background/services/accounts/handlers/selectAccount';
-import { AvalancheRenameAccountHandler } from '@src/background/services/accounts/handlers/avalanche_renameAccount';
-import { AddAccountHandler } from '@src/background/services/accounts/handlers/addAccount';
+import type { GetAccountsHandler } from '@src/background/services/accounts/handlers/getAccounts';
+import type { SelectAccountHandler } from '@src/background/services/accounts/handlers/selectAccount';
+import type { AvalancheRenameAccountHandler } from '@src/background/services/accounts/handlers/avalanche_renameAccount';
+import type { AddAccountHandler } from '@src/background/services/accounts/handlers/addAccount';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { AvalancheDeleteAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_deleteAccounts';
+import type { AvalancheDeleteAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_deleteAccounts';
 
 const AccountsContext = createContext<{
   accounts: Accounts;

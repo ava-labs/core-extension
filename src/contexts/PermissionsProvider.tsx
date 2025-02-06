@@ -1,14 +1,14 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
+import type {
   DappPermissions,
   Permissions,
 } from '@src/background/services/permissions/models';
 import { permissionsUpdatedEventListener } from '@src/background/services/permissions/events/permissionsStateUpdatesListener';
 import { filter, map } from 'rxjs';
-import { PermissionsAddDomainHandler } from '@src/background/services/permissions/handlers/addPermissionsForDomain';
-import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
+import type { PermissionsAddDomainHandler } from '@src/background/services/permissions/handlers/addPermissionsForDomain';
+import type { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
 
 interface UpdateAccountPermission {
   addressC: string; // wallet c address

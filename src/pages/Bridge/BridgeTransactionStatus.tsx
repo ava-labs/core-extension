@@ -5,7 +5,7 @@ import { PageTitle } from '@src/components/common/PageTitle';
 import { useEffect, useMemo, useState } from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { VsCurrencyType } from '@avalabs/core-coingecko-sdk';
+import type { VsCurrencyType } from '@avalabs/core-coingecko-sdk';
 import { ElapsedTimer } from './components/ElapsedTimer';
 import { useIsMainnet } from '@src/hooks/useIsMainnet';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';

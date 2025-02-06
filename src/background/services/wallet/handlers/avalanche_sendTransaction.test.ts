@@ -10,7 +10,7 @@ import {
   PVM,
 } from '@avalabs/avalanchejs';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { Action } from '../../actions/models';
+import type { Action } from '../../actions/models';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { ChainId } from '@avalabs/core-chains-sdk';

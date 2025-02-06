@@ -9,7 +9,10 @@ import {
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
-import { AddPrimaryWalletSecrets, AvalancheTransactionRequest } from './models';
+import type {
+  AddPrimaryWalletSecrets,
+  AvalancheTransactionRequest,
+} from './models';
 import { AVALANCHE_XP_TEST_NETWORK } from '@avalabs/core-chains-sdk';
 import {
   BitcoinLedgerWallet,
@@ -24,31 +27,33 @@ import {
   getWalletFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
-import { LedgerTransport } from '../ledger/LedgerTransport';
+import type { LedgerTransport } from '../ledger/LedgerTransport';
 import getDerivationPath from './utils/getDerivationPath';
 import ensureMessageFormatIsValid from './utils/ensureMessageFormatIsValid';
 import { KeystoneService } from '../keystone/KeystoneService';
 import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
 import { KeystoneWallet } from '../keystone/KeystoneWallet';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
-import { WalletPolicy } from 'ledger-bitcoin';
+import type { WalletPolicy } from 'ledger-bitcoin';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
-import { Action, ActionStatus } from '../actions/models';
+import type { Action } from '../actions/models';
+import { ActionStatus } from '../actions/models';
 import { UnsignedTx } from '@avalabs/avalanchejs';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
-import { Account, AccountType } from '../accounts/models';
+import type { Account } from '../accounts/models';
+import { AccountType } from '../accounts/models';
 import { SecretType } from '../secrets/models';
 import { Transaction } from 'bitcoinjs-lib';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
-import { Network } from '../network/models';
+import type { Network } from '../network/models';
 import { decorateWithCaipId } from '@src/utils/caipConversion';
-import { AccountsService } from '../accounts/AccountsService';
+import type { AccountsService } from '../accounts/AccountsService';
 import { ed25519 } from '@noble/curves/ed25519';
 import { HVMWallet } from './HVMWallet';
-import { TransactionPayload, VMABI } from 'hypersdk-client';
+import type { TransactionPayload, VMABI } from 'hypersdk-client';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');

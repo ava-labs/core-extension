@@ -13,11 +13,8 @@ import {
 import { useConnectionContext } from './ConnectionProvider';
 import { useAccountsContext } from './AccountsProvider';
 import { useNetworkContext } from './NetworkProvider';
-import {
-  BridgeContext,
-  BridgeProvider,
-  useBridgeContext,
-} from './BridgeProvider';
+import type { BridgeContext } from './BridgeProvider';
+import { BridgeProvider, useBridgeContext } from './BridgeProvider';
 import { act } from 'react-dom/test-utils';
 import { RpcMethod } from '@avalabs/vm-module-types';
 

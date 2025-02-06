@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Dialog as K2Dialog, Typography } from '@avalabs/core-k2-components';
 
 export interface DialogProps {

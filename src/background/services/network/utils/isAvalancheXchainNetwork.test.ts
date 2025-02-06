@@ -1,4 +1,5 @@
-import { ChainId, Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { isXchainNetwork, isXchainNetworkId } from './isAvalancheXchainNetwork';
 
 describe('src/background/services/network/utils/isAvalancheXchainNetwork.ts', () => {

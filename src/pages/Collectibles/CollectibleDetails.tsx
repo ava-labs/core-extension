@@ -1,3 +1,4 @@
+import type { TypographyProps } from '@avalabs/core-k2-components';
 import {
   Button,
   Divider,
@@ -7,7 +8,6 @@ import {
   ToastCard,
   Tooltip,
   Typography,
-  TypographyProps,
   toast,
 } from '@avalabs/core-k2-components';
 

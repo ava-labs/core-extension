@@ -1,10 +1,10 @@
-import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import {
+import type { ExtensionConnectionEvent } from '@src/background/connections/models';
+import type {
   MfaChoiceRequest,
   MfaRequestData,
   RecoveryMethod,
-  SeedlessEvents,
 } from '../models';
+import { SeedlessEvents } from '../models';
 
 export function isSeedlessTokenEvent(
   evt: ExtensionConnectionEvent,

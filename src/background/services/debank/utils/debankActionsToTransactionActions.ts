@@ -1,8 +1,6 @@
-import {
-  TransactionAction,
-  TransactionType,
-} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
-import { TxAction } from '../models';
+import type { TransactionAction } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import { TransactionType } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import type { TxAction } from '../models';
 import { mapNftToTransactionNft } from './mapNftToTransactionNft';
 import { mapTokenItemToTransactionToken } from './mapTokenItemToTransactionToken';
 import { TokenType } from '@avalabs/vm-module-types';

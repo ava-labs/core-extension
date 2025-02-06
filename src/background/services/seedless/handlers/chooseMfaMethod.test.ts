@@ -1,6 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import { SeedlessMfaService } from '../SeedlessMfaService';
+import type { SeedlessMfaService } from '../SeedlessMfaService';
 
 import { ChooseMfaMethodHandler } from './chooseMfaMethod';
 import { buildRpcCall } from '@src/tests/test-utils';

@@ -1,13 +1,13 @@
-import { Context, Middleware } from './models';
+import type { Context, Middleware } from './models';
 import { resolve } from '@src/utils/promiseResolver';
-import {
+import type {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
   ExtensionRequestHandler,
 } from '../models';
 import * as Sentry from '@sentry/browser';
-import { ModuleManager } from '@src/background/vmModules/ModuleManager';
-import { Module } from '@avalabs/vm-module-types';
+import type { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import type { Module } from '@avalabs/vm-module-types';
 import { runtime } from 'webextension-polyfill';
 
 export function ExtensionRequestHandlerMiddleware(

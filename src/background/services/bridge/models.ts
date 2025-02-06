@@ -1,11 +1,11 @@
-import {
+import type {
   Asset,
   Blockchain,
   BridgeTransaction,
   WrapStatus,
 } from '@avalabs/core-bridge-sdk';
-import { Network } from '@avalabs/core-chains-sdk';
-import { TokenWithBalance } from '@avalabs/vm-module-types';
+import type { Network } from '@avalabs/core-chains-sdk';
+import type { TokenWithBalance } from '@avalabs/vm-module-types';
 
 export enum TransferEventType {
   WRAP_STATUS = 'wrap_status',

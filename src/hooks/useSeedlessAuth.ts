@@ -1,5 +1,6 @@
-import { Dispatch, SetStateAction, useCallback, useState } from 'react';
-import {
+import type { Dispatch, SetStateAction } from 'react';
+import { useCallback, useState } from 'react';
+import type {
   MfaRequestInfo,
   SignerSession,
   SignerSessionData,
@@ -15,14 +16,14 @@ import {
   getSignerSession,
   requestOidcAuth,
 } from '@src/utils/seedless/getCubeSigner';
-import { OidcTokenGetter } from '@src/utils/seedless/getOidcTokenProvider';
+import type { OidcTokenGetter } from '@src/utils/seedless/getOidcTokenProvider';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
 import { FIDOApiEndpoint } from '@src/utils/seedless/fido/types';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import type { RecoveryMethod } from '@src/background/services/seedless/models';
 import {
   AuthErrorCode,
   MfaRequestType,
-  RecoveryMethod,
 } from '@src/background/services/seedless/models';
 import { mapMfasToRecoveryMethods } from '@src/background/services/seedless/utils';
 

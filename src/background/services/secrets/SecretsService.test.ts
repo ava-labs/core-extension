@@ -8,21 +8,18 @@ import {
   getBtcAddressFromPubKey,
   getPublicKeyFromPrivateKey,
 } from '@avalabs/core-wallets-sdk';
-import { CallbackManager } from '@src/background/runtime/CallbackManager';
-import {
-  Account,
-  AccountType,
-  ImportType,
-  PrimaryAccount,
-} from '../accounts/models';
+import type { CallbackManager } from '@src/background/runtime/CallbackManager';
+import type { Account, PrimaryAccount } from '../accounts/models';
+import { AccountType, ImportType } from '../accounts/models';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
-import { PubKeyType, WALLET_STORAGE_KEY, WalletEvents } from '../wallet/models';
+import type { PubKeyType } from '../wallet/models';
+import { WALLET_STORAGE_KEY, WalletEvents } from '../wallet/models';
 import { SecretType } from './models';
 import { SecretsService } from './SecretsService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { LedgerService } from '../ledger/LedgerService';
-import { LedgerTransport } from '../ledger/LedgerTransport';
+import type { LedgerTransport } from '../ledger/LedgerTransport';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';

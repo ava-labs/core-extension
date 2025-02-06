@@ -1,5 +1,5 @@
-import { Network as _Network } from '@avalabs/core-chains-sdk';
-import { EnsureDefined, PartialBy } from '@src/background/models';
+import type { Network as _Network } from '@avalabs/core-chains-sdk';
+import type { EnsureDefined, PartialBy } from '@src/background/models';
 
 export enum NetworkEvents {
   NETWORK_UPDATE_EVENT = 'network-updated',

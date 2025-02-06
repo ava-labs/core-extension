@@ -1,4 +1,5 @@
-import { Utxo, VM, utils } from '@avalabs/avalanchejs';
+import type { VM } from '@avalabs/avalanchejs';
+import { Utxo, utils } from '@avalabs/avalanchejs';
 
 type Param = {
   utxoHexes?: string[];

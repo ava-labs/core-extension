@@ -1,5 +1,5 @@
-import Blockaid from '@blockaid/client';
-import { TransactionValidationResponse } from '@blockaid/client/resources';
+import type Blockaid from '@blockaid/client';
+import type { TransactionValidationResponse } from '@blockaid/client/resources';
 
 export const isToken = (
   asset: Asset,

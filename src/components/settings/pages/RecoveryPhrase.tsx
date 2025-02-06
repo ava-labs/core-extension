@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SettingsPageProps } from '../models';
+import type { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTranslation } from 'react-i18next';

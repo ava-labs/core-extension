@@ -1,7 +1,7 @@
+import type { BoxProps } from '@avalabs/core-k2-components';
 import {
   AlertTriangleIcon,
   Box,
-  BoxProps,
   Tooltip,
   useTheme,
 } from '@avalabs/core-k2-components';

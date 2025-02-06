@@ -2,7 +2,8 @@ import { useCallback, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { Account, AccountType } from '@src/background/services/accounts/models';
+import type { Account } from '@src/background/services/accounts/models';
+import { AccountType } from '@src/background/services/accounts/models';
 import { SecretType } from '@src/background/services/secrets/models';
 
 export const usePrivateKeyExport = (

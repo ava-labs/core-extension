@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { KeyType } from '@src/utils/seedless/fido/types';
 
-import { SeedlessMfaService } from '../SeedlessMfaService';
+import type { SeedlessMfaService } from '../SeedlessMfaService';
 import { AddFidoDeviceHandler } from './addFidoDevice';
 import { buildRpcCall } from '@src/tests/test-utils';
 

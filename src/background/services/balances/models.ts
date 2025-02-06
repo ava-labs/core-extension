@@ -1,10 +1,10 @@
-import {
+import type {
   TokenWithBalance,
   TokenWithBalanceAVM,
   TokenWithBalanceBTC,
   TokenWithBalancePVM,
 } from '@avalabs/vm-module-types';
-import { EnsureDefined } from '@src/background/models';
+import type { EnsureDefined } from '@src/background/models';
 
 export const BALANCES_CACHE_KEY = 'balances-service-cache';
 

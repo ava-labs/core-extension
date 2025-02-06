@@ -1,4 +1,4 @@
-import { Permissions } from '../models';
+import type { Permissions } from '../models';
 
 /**
  * In order to work with the @link https://metamask.github.io/test-dapp/ we convert our own

@@ -1,4 +1,5 @@
-import { ChangeEvent, useState } from 'react';
+import type { ChangeEvent } from 'react';
+import { useState } from 'react';
 import {
   Stack,
   Scrollbars,
@@ -8,11 +9,12 @@ import {
   CheckIcon,
   SearchBar,
 } from '@avalabs/core-k2-components';
-import { SettingsPageProps } from '../models';
+import type { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { CURRENCIES } from '@src/background/services/settings/models';
-import { TFunction, useTranslation } from 'react-i18next';
+import type { TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { StyledListButton } from '../components/StyledListItemButton';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 

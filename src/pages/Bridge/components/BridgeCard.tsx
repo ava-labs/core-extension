@@ -1,4 +1,5 @@
-import { Card, CardProps, useTheme } from '@avalabs/core-k2-components';
+import type { CardProps } from '@avalabs/core-k2-components';
+import { Card, useTheme } from '@avalabs/core-k2-components';
 
 type BridgeCardProps = CardProps & {
   isWaiting: boolean;

@@ -28,24 +28,24 @@ import {
   WalletPolicy,
 } from 'ledger-bitcoin';
 
-import Transport from '@ledgerhq/hw-transport';
+import type Transport from '@ledgerhq/hw-transport';
 import { ledgerDiscoverTransportsEventListener } from '@src/background/services/ledger/events/ledgerDiscoverTransportsEventListener';
 import { LedgerEvent } from '@src/background/services/ledger/models';
-import { LedgerResponseHandler } from '@src/background/services/ledger/handlers/ledgerResponse';
-import { InitLedgerTransportHandler } from '@src/background/services/ledger/handlers/initLedgerTransport';
-import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
+import type { LedgerResponseHandler } from '@src/background/services/ledger/handlers/ledgerResponse';
+import type { InitLedgerTransportHandler } from '@src/background/services/ledger/handlers/initLedgerTransport';
+import type { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
+import type { DerivationPath } from '@avalabs/core-wallets-sdk';
 import {
-  DerivationPath,
   getLedgerAppInfo,
   getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
-import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
-import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
-import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
+import type { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
+import type { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
+import type { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
-import { VM } from '@avalabs/avalanchejs';
+import type { VM } from '@avalabs/avalanchejs';
 import Eth from '@ledgerhq/hw-app-eth';
 
 export enum LedgerAppType {

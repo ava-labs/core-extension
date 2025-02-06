@@ -2,12 +2,12 @@ import { NetworkService } from '../network/NetworkService';
 import { AccountsService } from './AccountsService';
 import { StorageService } from '../storage/StorageService';
 import { LedgerService } from '../ledger/LedgerService';
+import type { ImportData } from './models';
 import {
   AccountsEvents,
   ACCOUNTS_STORAGE_KEY,
   AccountType,
   ImportType,
-  ImportData,
 } from './models';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';

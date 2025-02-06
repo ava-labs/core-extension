@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { TokenInfo, useTokenInfoContext } from '@avalabs/core-bridge-sdk';
+import type { TokenInfo } from '@avalabs/core-bridge-sdk';
+import { useTokenInfoContext } from '@avalabs/core-bridge-sdk';
 import { useCoinGeckoId } from './useCoinGeckoId';
 
 jest.mock('@avalabs/core-bridge-sdk', () => ({

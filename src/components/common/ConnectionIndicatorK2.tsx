@@ -1,12 +1,11 @@
-import { PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
+import type { StackProps, BoxProps } from '@avalabs/core-k2-components';
 import {
   Typography,
   Stack,
   Divider,
   useTheme,
-  StackProps,
   Box,
-  BoxProps,
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 

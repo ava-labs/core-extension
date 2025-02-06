@@ -1,6 +1,6 @@
 import { TokenType } from '@avalabs/vm-module-types';
-import { TransactionNft } from '../../wallet/handlers/eth_sendTransaction/models';
-import { DebankNFTItem } from '../models';
+import type { TransactionNft } from '../../wallet/handlers/eth_sendTransaction/models';
+import type { DebankNFTItem } from '../models';
 
 export const mapNftToTransactionNft = (t: DebankNFTItem): TransactionNft => ({
   type: t.is_erc1155 ? TokenType.ERC1155 : TokenType.ERC721,

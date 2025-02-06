@@ -1,9 +1,9 @@
+import type { DialogProps } from '@avalabs/core-k2-components';
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogProps,
   DialogTitle,
   Typography,
 } from '@avalabs/core-k2-components';

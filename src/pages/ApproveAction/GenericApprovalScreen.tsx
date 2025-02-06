@@ -4,7 +4,8 @@ import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useEffect, useState } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
-import { AlertType, DisplayData } from '@avalabs/vm-module-types';
+import type { DisplayData } from '@avalabs/vm-module-types';
+import { AlertType } from '@avalabs/vm-module-types';
 import {
   Alert,
   AlertContent,
@@ -27,7 +28,7 @@ import { getSendErrorMessage } from '../Send/utils/sendErrorMessages';
 import { TransactionDetailItem } from '@src/components/common/approval/TransactionDetailItem';
 import { useFeeCustomizer } from './hooks/useFeeCustomizer';
 import { DeviceApproval } from './components/DeviceApproval';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import type { NetworkWithCaipId } from '@src/background/services/network/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { TxBalanceChange } from '../SignTransaction/components/TxBalanceChange';
 import { AlertBox } from '../Permissions/components/AlertBox';

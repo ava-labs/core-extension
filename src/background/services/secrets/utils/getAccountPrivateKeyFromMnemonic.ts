@@ -1,7 +1,5 @@
-import {
-  DerivationPath,
-  getWalletFromMnemonic,
-} from '@avalabs/core-wallets-sdk';
+import type { DerivationPath } from '@avalabs/core-wallets-sdk';
+import { getWalletFromMnemonic } from '@avalabs/core-wallets-sdk';
 
 export function getAccountPrivateKeyFromMnemonic(
   mnemonic: string,

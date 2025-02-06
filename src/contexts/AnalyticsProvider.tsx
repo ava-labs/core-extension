@@ -1,9 +1,9 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { analyticsStateUpdatedEventListener } from '@src/background/services/analytics/events/listeners';
-import { CaptureAnalyticsEventHandler } from '@src/background/services/analytics/handlers/captureAnalyticsEvent';
-import { ClearAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/clearAnalyticsIds';
-import { GetAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/getAnalyticsIds';
-import { InitAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/initAnalyticsIds';
+import type { CaptureAnalyticsEventHandler } from '@src/background/services/analytics/handlers/captureAnalyticsEvent';
+import type { ClearAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/clearAnalyticsIds';
+import type { GetAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/getAnalyticsIds';
+import type { InitAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/initAnalyticsIds';
 import {
   createContext,
   useCallback,

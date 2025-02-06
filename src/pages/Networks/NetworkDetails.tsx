@@ -1,7 +1,8 @@
-import { Network } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
 import { useEffect, useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import type { ScrollbarsRef } from '@avalabs/core-k2-components';
 import {
   Button,
   ClickAwayListener,
@@ -13,7 +14,6 @@ import {
   MoreHorizontalIcon,
   Popper,
   Scrollbars,
-  ScrollbarsRef,
   Stack,
   StarFilledIcon,
   StarIcon,
@@ -27,11 +27,8 @@ import { NetworkLogo } from '@src/components/common/NetworkLogo';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
-import {
-  NetworkForm,
-  NetworkFormAction,
-  NetworkFormActions,
-} from './NetworkForm';
+import type { NetworkFormActions } from './NetworkForm';
+import { NetworkForm, NetworkFormAction } from './NetworkForm';
 import {
   NetworkDetailsDialogOptions,
   NetworkDetailsDialogs,

@@ -1,5 +1,6 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { Account, AccountType } from '@src/background/services/accounts/models';
+import type { Account } from '@src/background/services/accounts/models';
+import { AccountType } from '@src/background/services/accounts/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 describe('utils/getAddressForChain', () => {
   const account1: Account = {

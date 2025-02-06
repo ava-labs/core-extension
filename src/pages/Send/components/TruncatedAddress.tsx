@@ -5,7 +5,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { truncateAddress } from '@src/utils/truncateAddress';
-import React from 'react';
+import type React from 'react';
 
 type TruncatedAddressProps = {
   address?: string;

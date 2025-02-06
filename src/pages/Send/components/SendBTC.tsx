@@ -1,4 +1,4 @@
-import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
+import type { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
@@ -6,10 +6,10 @@ import { isBtcAddressInNetwork } from '@src/utils/isBtcAddressInNetwork';
 
 import { useBtcSend } from '../hooks/useSend';
 import { useValidAddressFromParams } from '../hooks/useValidAddressFromParams';
-import { SendPageProps } from '../models';
+import type { SendPageProps } from '../models';
 import { SendForm } from './SendForm';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
-import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import type { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@src/utils/stringToBigint';
 
 export const SendBTC = ({

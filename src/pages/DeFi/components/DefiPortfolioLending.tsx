@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Avatar, Stack, Typography } from '@avalabs/core-k2-components';
 
-import {
+import type {
   DefiLendingItem,
   DefiToken,
 } from '@src/background/services/defi/models';

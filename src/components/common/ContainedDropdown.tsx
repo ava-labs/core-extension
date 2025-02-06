@@ -1,11 +1,7 @@
-import { Stack, StackProps, useTheme } from '@avalabs/core-k2-components';
-import {
-  forwardRef,
-  MutableRefObject,
-  PropsWithChildren,
-  useEffect,
-  useRef,
-} from 'react';
+import type { StackProps } from '@avalabs/core-k2-components';
+import { Stack, useTheme } from '@avalabs/core-k2-components';
+import type { MutableRefObject, PropsWithChildren } from 'react';
+import { forwardRef, useEffect, useRef } from 'react';
 
 const BOTTOM_PADDING = 16;
 

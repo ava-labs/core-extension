@@ -16,7 +16,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SecretType } from '@src/background/services/secrets/models';
 import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { AddFidoDeviceHandler } from '@src/background/services/seedless/handlers/addFidoDevice';
+import type { AddFidoDeviceHandler } from '@src/background/services/seedless/handlers/addFidoDevice';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { KeyType } from '@src/utils/seedless/fido/types';
 import { useQueryParams } from '@src/hooks/useQueryParams';

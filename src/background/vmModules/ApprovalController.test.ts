@@ -1,27 +1,24 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { providerErrors, rpcErrors } from '@metamask/rpc-errors';
-import { DappInfo, DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
-import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
+import type { DappInfo } from '@avalabs/vm-module-types';
+import { DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
+import type { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
 import { chainIdToCaip } from '@src/utils/caipConversion';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 
-import { WalletService } from '../services/wallet/WalletService';
-import { NetworkService } from '../services/network/NetworkService';
+import type { WalletService } from '../services/wallet/WalletService';
+import type { NetworkService } from '../services/network/NetworkService';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
 
-import {
+import type {
   ApprovalParamsWithContext,
   MultiApprovalParamsWithContext,
 } from './models';
 import { ApprovalController } from './ApprovalController';
 import { ACTION_HANDLED_BY_MODULE } from '../models';
-import {
-  Action,
-  ActionStatus,
-  ActionType,
-  MultiTxAction,
-} from '../services/actions/models';
+import type { Action, MultiTxAction } from '../services/actions/models';
+import { ActionStatus, ActionType } from '../services/actions/models';
 
 jest.mock('tsyringe', () => {
   return {

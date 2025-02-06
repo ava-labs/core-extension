@@ -12,7 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import type { NetworkWithCaipId } from '@src/background/services/network/models';
 interface NetworkSelectorProps {
   testId?: string;
   disabled?: boolean;

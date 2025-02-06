@@ -1,5 +1,5 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { GlacierService } from '../../glacier/GlacierService';
+import type { GlacierService } from '../../glacier/GlacierService';
 import { RefreshNftMetadataHandler } from './refreshNftMetadata';
 import { buildRpcCall } from '@src/tests/test-utils';
 

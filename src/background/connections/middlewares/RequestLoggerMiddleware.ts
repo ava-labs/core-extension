@@ -1,10 +1,10 @@
 import { requestLog, responseLog } from '@src/utils/logging';
-import { JsonRpcRequest, JsonRpcResponse } from '../dAppConnection/models';
-import {
+import type { JsonRpcRequest, JsonRpcResponse } from '../dAppConnection/models';
+import type {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
 } from '../models';
-import { Middleware } from './models';
+import type { Middleware } from './models';
 
 /**
  * dApps call these function over and over

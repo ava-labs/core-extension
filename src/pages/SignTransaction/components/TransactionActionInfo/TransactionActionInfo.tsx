@@ -3,12 +3,12 @@ import { ApproveTokenDetails } from './ApproveTokenDetails';
 import { ApproveNftDetails } from './ApproveNftDetails';
 import { ApproveNftCollectionDetails } from './ApproveNftCollectionDetails';
 import { ApproveContractCallDetails } from './ApproveContractCallDetails';
-import {
+import type {
   Transaction,
   TransactionAction,
-  TransactionType,
 } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
-import { Action } from '@src/background/services/actions/models';
+import { TransactionType } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import type { Action } from '@src/background/services/actions/models';
 import { serializeToJSON } from '@src/background/serialization/serialize';
 
 const CALL_WITH_NO_DETAILS = JSON.stringify({ type: 'call' });

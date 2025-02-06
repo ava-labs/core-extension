@@ -2,14 +2,14 @@ import SignClient from '@walletconnect/sign-client';
 import { Core } from '@walletconnect/core';
 
 import { WalletConnectService } from './WalletConnectService';
-import { WalletConnectStorage } from './WalletConnectStorage';
+import type { WalletConnectStorage } from './WalletConnectStorage';
 import {
   WALLET_CONNECT_APP_METADATA,
   WalletConnectErrorCode,
   WalletConnectEvent,
 } from './models';
 import { mockedSession } from './__fixtures__/session';
-import { SessionTypes } from '@walletconnect/types';
+import type { SessionTypes } from '@walletconnect/types';
 
 jest.mock('@walletconnect/sign-client');
 

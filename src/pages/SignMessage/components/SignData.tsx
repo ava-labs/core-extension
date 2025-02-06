@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography } from '@avalabs/core-k2-components';
-import { positionValues } from 'react-custom-scrollbars-2';
+import type { positionValues } from 'react-custom-scrollbars-2';
 
-import { MessageParams } from '@src/background/services/messages/models';
-import { ForwardedRef, forwardRef } from 'react';
+import type { MessageParams } from '@src/background/services/messages/models';
+import type { ForwardedRef } from 'react';
+import { forwardRef } from 'react';
 import { ScrollableMessageCard } from './ScrollableMessageCard';
 
 /**

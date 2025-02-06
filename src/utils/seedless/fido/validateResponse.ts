@@ -1,9 +1,9 @@
 import Joi from 'joi';
-import {
+import type {
   EncodedFIDOAuthenticationResult,
   EncodedFIDORegistrationResult,
-  FIDOApiEndpoint,
 } from './types';
+import { FIDOApiEndpoint } from './types';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';

@@ -1,6 +1,6 @@
 import Big from 'big.js';
 import BN from 'bn.js';
-import { DeserializableValue } from './deserialize';
+import type { DeserializableValue } from './deserialize';
 
 export type SerializableValue = Big | bigint | BN | Buffer;
 

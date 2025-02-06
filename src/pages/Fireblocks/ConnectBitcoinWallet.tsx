@@ -17,7 +17,7 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useCallback, useState } from 'react';
 import { TextFieldLabel } from '@src/components/common/TextFieldLabel';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
-import { FireblocksUpdateApiCredentialsHandler } from '@src/background/services/fireblocks/handlers/fireblocksUpdateApiCredentials';
+import type { FireblocksUpdateApiCredentialsHandler } from '@src/background/services/fireblocks/handlers/fireblocksUpdateApiCredentials';
 import { useFireblocksErrorMessage } from './hooks/useFireblocksErrorMessage';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 

@@ -1,6 +1,6 @@
-import BN from 'bn.js';
+import type BN from 'bn.js';
 
-import {
+import type {
   TokenWithBalance,
   TokenWithBalanceBTC,
 } from '@avalabs/vm-module-types';

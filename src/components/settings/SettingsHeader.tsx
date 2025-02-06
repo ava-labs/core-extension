@@ -1,11 +1,11 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import {
   IconButton,
   Stack,
   Typography,
   ChevronLeftIcon,
 } from '@avalabs/core-k2-components';
-import { SettingsPageProps } from './models';
+import type { SettingsPageProps } from './models';
 interface SettingsHeaderProps {
   title: string;
   action?: ReactNode;

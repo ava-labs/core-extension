@@ -1,5 +1,6 @@
-import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import { SettingsEvents, SettingsState } from '../models';
+import type { ExtensionConnectionEvent } from '@src/background/connections/models';
+import type { SettingsState } from '../models';
+import { SettingsEvents } from '../models';
 
 export function settingsUpdatedEventListener(
   evt: ExtensionConnectionEvent<SettingsState>,

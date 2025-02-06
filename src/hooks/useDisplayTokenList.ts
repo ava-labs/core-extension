@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import Big from 'big.js';
 import { partition } from 'lodash';
 import { normalizeBalance } from '@src/utils/normalizeBalance';
-import { TokenWithBalance } from '@avalabs/vm-module-types';
+import type { TokenWithBalance } from '@avalabs/vm-module-types';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 
 export interface DisplayToken {

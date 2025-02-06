@@ -5,7 +5,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 import { ActiveNetworkWidget } from './ActiveNetworkWidget';
 import { NetworkList } from './NetworkList';
-import { TokenWithBalance } from '@avalabs/vm-module-types';
+import type { TokenWithBalance } from '@avalabs/vm-module-types';
 
 export const tokensWithBalances = (tokenList?: TokenWithBalance[]) => {
   if (!tokenList) {

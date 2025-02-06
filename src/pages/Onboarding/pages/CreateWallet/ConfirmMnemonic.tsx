@@ -6,7 +6,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MnemonicProps } from './Mnemonic';
+import type { MnemonicProps } from './Mnemonic';
 
 interface WordToConfirm {
   index: number;

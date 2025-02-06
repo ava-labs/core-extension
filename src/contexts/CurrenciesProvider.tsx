@@ -7,11 +7,11 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 
-import { CurrencyExchangeRates } from '@src/background/services/currency/models';
+import type { CurrencyExchangeRates } from '@src/background/services/currency/models';
 import { currencyRatesUpdatedEventListener } from '@src/background/services/currency/events/listeners';
 
 import { useConnectionContext } from './ConnectionProvider';
-import { GetCurrencyExchangeRatesHandler } from '@src/background/services/currency/handlers/getCurrencyExchangeRates';
+import type { GetCurrencyExchangeRatesHandler } from '@src/background/services/currency/handlers/getCurrencyExchangeRates';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
 type CurrencyConversionOptions = {

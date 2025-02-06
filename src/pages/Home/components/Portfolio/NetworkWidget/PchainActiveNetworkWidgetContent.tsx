@@ -1,7 +1,7 @@
 import { Stack, Typography } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
-import { TokenWithBalancePVM } from '@avalabs/vm-module-types';
+import type { TokenWithBalancePVM } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 interface PchainActiveNetworkWidgetContentProps {

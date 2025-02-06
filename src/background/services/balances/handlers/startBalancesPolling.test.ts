@@ -1,6 +1,6 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { BalanceAggregatorService } from '../BalanceAggregatorService';
-import { BalancePollingService } from '../BalancePollingService';
+import type { BalanceAggregatorService } from '../BalanceAggregatorService';
+import type { BalancePollingService } from '../BalancePollingService';
 import { StartBalancesPollingHandler } from './startBalancesPolling';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { caipToChainId } from '@src/utils/caipConversion';

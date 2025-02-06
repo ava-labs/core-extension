@@ -1,4 +1,5 @@
-import { Asset, isNft, isToken } from './utils';
+import type { Asset } from './utils';
+import { isNft, isToken } from './utils';
 
 describe('background/services/blockaid/utils', () => {
   it('should evaluate `isToken` as true', () => {

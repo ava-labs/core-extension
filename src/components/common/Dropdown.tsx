@@ -1,10 +1,12 @@
+import type {
+  IconBaseProps,
+  MenuItemProps,
+  TextFieldProps,
+} from '@avalabs/core-k2-components';
 import {
   ChevronDownIcon,
-  IconBaseProps,
   MenuItem,
-  MenuItemProps,
   Select,
-  TextFieldProps,
   useTheme,
 } from '@avalabs/core-k2-components';
 

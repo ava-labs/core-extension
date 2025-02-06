@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import type { ScrollbarsRef } from '@avalabs/core-k2-components';
 import {
   Button,
   Scrollbars,
-  ScrollbarsRef,
   Stack,
   Typography,
   toast,
@@ -13,16 +13,13 @@ import {
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import {
+import type {
   CustomRpcHeaders,
   Network,
 } from '@src/background/services/network/models';
 
-import {
-  NetworkForm,
-  NetworkFormAction,
-  NetworkFormActions,
-} from './NetworkForm';
+import type { NetworkFormActions } from './NetworkForm';
+import { NetworkForm, NetworkFormAction } from './NetworkForm';
 import {
   NetworkDetailsDialogOptions,
   NetworkDetailsDialogs,

@@ -1,10 +1,9 @@
 import { strip0x } from '@avalabs/core-utils-sdk';
-import {
-  BitcoinInputUTXO,
-  getBtcAddressFromPubKey,
-} from '@avalabs/core-wallets-sdk';
-import { SignerSession } from '@cubist-labs/cubesigner-sdk';
-import { Network, Psbt, SignerAsync, payments } from 'bitcoinjs-lib';
+import type { BitcoinInputUTXO } from '@avalabs/core-wallets-sdk';
+import { getBtcAddressFromPubKey } from '@avalabs/core-wallets-sdk';
+import type { SignerSession } from '@cubist-labs/cubesigner-sdk';
+import type { Network, Psbt, SignerAsync } from 'bitcoinjs-lib';
+import { payments } from 'bitcoinjs-lib';
 
 /**
  * This implementation is heavily based on CubeSigner's example:

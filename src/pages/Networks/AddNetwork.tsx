@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import type { ScrollbarsRef } from '@avalabs/core-k2-components';
 import {
   Button,
   Scrollbars,
-  ScrollbarsRef,
   Stack,
   Tooltip,
   Typography,
@@ -12,7 +12,8 @@ import {
   toast,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 
 import { PageTitle } from '@src/components/common/PageTitle';
 import { usePageHistory } from '@src/hooks/usePageHistory';

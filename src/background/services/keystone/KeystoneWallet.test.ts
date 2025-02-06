@@ -4,7 +4,7 @@ import {
   EthSignRequest,
 } from '@keystonehq/bc-ur-registry-eth';
 import { KeystoneWallet } from './KeystoneWallet';
-import { KeystoneTransport } from './models';
+import type { KeystoneTransport } from './models';
 import { FeeMarketEIP1559Transaction, Transaction } from '@ethereumjs/tx';
 
 const FIXTURES = {

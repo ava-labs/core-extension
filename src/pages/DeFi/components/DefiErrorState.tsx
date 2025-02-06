@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import type { StackProps } from '@avalabs/core-k2-components';
 import {
   AlertCircleIcon,
   Stack,
-  StackProps,
   Typography,
 } from '@avalabs/core-k2-components';
 

@@ -1,9 +1,7 @@
 import { useMemo } from 'react';
 
-import {
-  WalletTotalBalanceState,
-  useWalletTotalBalanceContext,
-} from '../providers/WalletTotalBalanceProvider';
+import type { WalletTotalBalanceState } from '../providers/WalletTotalBalanceProvider';
+import { useWalletTotalBalanceContext } from '../providers/WalletTotalBalanceProvider';
 
 export const useWalletTotalBalance = (walletId?: string) => {
   const { walletBalances } = useWalletTotalBalanceContext();

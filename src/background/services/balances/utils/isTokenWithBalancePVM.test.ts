@@ -1,10 +1,10 @@
-import {
-  TokenType,
+import type {
   TokenWithBalanceAVM,
   TokenWithBalanceBTC,
   TokenWithBalanceEVM,
   TokenWithBalancePVM,
 } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 import { isTokenWithBalancePVM } from './isTokenWithBalancePVM';
 
 describe('src/background/services/balances/utils/isTokenWithBalancePVM.ts', () => {

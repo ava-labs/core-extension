@@ -1,6 +1,7 @@
-import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { DefiItemType } from '../defi/models';
-import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import type { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
 import { DebankService } from './DebankService';
 
@@ -8,10 +9,8 @@ import fixture_chainList from './fixtures/chain_list.json';
 import fixture_explainTx from './fixtures/explain_tx.json';
 import fixture_preExecTx from './fixtures/pre_exec_tx.json';
 import fixture_userAllComplexProtocolList from './fixtures/user_all_complex_protocol_list.json';
-import {
-  EthSendTransactionParamsWithGas,
-  TransactionType,
-} from '../wallet/handlers/eth_sendTransaction/models';
+import type { EthSendTransactionParamsWithGas } from '../wallet/handlers/eth_sendTransaction/models';
+import { TransactionType } from '../wallet/handlers/eth_sendTransaction/models';
 import { debankActionsToTransactionActions } from './utils/debankActionsToTransactionActions';
 
 jest.mock('../featureFlags/FeatureFlagService');

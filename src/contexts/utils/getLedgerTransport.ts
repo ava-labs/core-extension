@@ -1,6 +1,6 @@
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import { resolve } from '../../utils/promiseResolver';
-import Transport from '@ledgerhq/hw-transport';
+import type Transport from '@ledgerhq/hw-transport';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';

@@ -1,10 +1,10 @@
-import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import {
-  WalletConnectEvent,
+import type { ExtensionConnectionEvent } from '@src/background/connections/models';
+import type {
   WalletConnectEventType,
   WalletConnectSessionPermissionsMismatch,
   WalletConnectUriGeneratedEvent,
 } from '../models';
+import { WalletConnectEvent } from '../models';
 
 export function isUriGeneratedEvent(
   evt: ExtensionConnectionEvent,

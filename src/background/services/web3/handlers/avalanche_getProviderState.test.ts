@@ -1,7 +1,7 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { AvalancheGetProviderState } from './avalanche_getProviderState';
-import { NetworkService } from '../../network/NetworkService';
-import { AccountsService } from '../../accounts/AccountsService';
+import type { NetworkService } from '../../network/NetworkService';
+import type { AccountsService } from '../../accounts/AccountsService';
 import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/web3/handlers/avalanche_getProviderState.ts', () => {

@@ -34,7 +34,7 @@ import { isTokenWithBalancePVM } from '@src/background/services/balances/utils/i
 import { isTokenWithBalanceAVM } from '@src/background/services/balances/utils/isTokenWithBalanceAVM';
 import { normalizeBalance } from '@src/utils/normalizeBalance';
 import Big from 'big.js';
-import { TokenWithBalance } from '@avalabs/vm-module-types';
+import type { TokenWithBalance } from '@avalabs/vm-module-types';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];

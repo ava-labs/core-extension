@@ -1,5 +1,5 @@
 import AbstractConnection from './AbstractConnection';
-import { Message } from './models';
+import type { Message } from './models';
 
 const CHANNEL_BROADCAST_EVENT = 'initialize-post-message-connection';
 const CHANNEL_BROADCAST_REQUEST_EVENT =

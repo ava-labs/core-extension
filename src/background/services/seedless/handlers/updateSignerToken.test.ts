@@ -1,10 +1,10 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { UpdateSignerTokenHandler } from './updateSignerToken';
-import { SecretsService } from '../../secrets/SecretsService';
+import type { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { AccountsService } from '../../accounts/AccountsService';
-import { Account } from '../../accounts/models';
+import type { AccountsService } from '../../accounts/AccountsService';
+import type { Account } from '../../accounts/models';
 
 describe('src/background/services/seedless/handlers/updateSignerToken', () => {
   let secretsService;

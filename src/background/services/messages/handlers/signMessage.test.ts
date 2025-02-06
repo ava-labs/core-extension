@@ -1,7 +1,8 @@
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
-import { MessageParams, MessageType } from '../models';
+import type { MessageParams } from '../models';
+import { MessageType } from '../models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
 import { PersonalSignHandler } from './signMessage';
 import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';

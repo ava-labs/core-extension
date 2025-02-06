@@ -1,13 +1,13 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 
-import { SecretsService } from '../../secrets/SecretsService';
+import type { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
-import { SeedlessMfaService } from '../SeedlessMfaService';
+import type { SeedlessMfaService } from '../SeedlessMfaService';
 
 import { GetRecoveryMethodsHandler } from './getRecoveryMethods';
 import { MfaRequestType } from '../models';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { AccountsService } from '../../accounts/AccountsService';
+import type { AccountsService } from '../../accounts/AccountsService';
 
 describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {
   const seedlessMfaService = jest.mocked<SeedlessMfaService>({

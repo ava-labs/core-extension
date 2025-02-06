@@ -1,8 +1,8 @@
-import {
+import type {
   Erc1155TokenBalance,
-  Erc721TokenBalance,
   ListErc1155BalancesResponse,
 } from '@avalabs/glacier-sdk';
+import { Erc721TokenBalance } from '@avalabs/glacier-sdk';
 
 export function is1155Response(
   item,

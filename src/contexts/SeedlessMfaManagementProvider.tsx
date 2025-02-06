@@ -10,25 +10,25 @@ import { filter } from 'rxjs';
 
 import { SecretType } from '@src/background/services/secrets/models';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
-import {
-  MfaRequestType,
+import type {
   RecoveryMethod,
   TotpResetChallenge,
 } from '@src/background/services/seedless/models';
+import { MfaRequestType } from '@src/background/services/seedless/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { GetRecoveryMethodsHandler } from '@src/background/services/seedless/handlers/getRecoveryMethods';
-import { InitAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/initAuthenticatorChange';
-import { CompleteAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/completeAuthenticatorChange';
+import type { GetRecoveryMethodsHandler } from '@src/background/services/seedless/handlers/getRecoveryMethods';
+import type { InitAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/initAuthenticatorChange';
+import type { CompleteAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/completeAuthenticatorChange';
 import { isSeedlessMfaMethodsUpdatedEvent } from '@src/background/services/seedless/events/eventFilters';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
-import { KeyType } from '@src/utils/seedless/fido/types';
-import { AddFidoDeviceHandler } from '@src/background/services/seedless/handlers/addFidoDevice';
-import { RemoveFidoDeviceHandler } from '@src/background/services/seedless/handlers/removeFidoDevice';
+import type { KeyType } from '@src/utils/seedless/fido/types';
+import type { AddFidoDeviceHandler } from '@src/background/services/seedless/handlers/addFidoDevice';
+import type { RemoveFidoDeviceHandler } from '@src/background/services/seedless/handlers/removeFidoDevice';
 
 import { useConnectionContext } from './ConnectionProvider';
 import { useWalletContext } from './WalletProvider';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
-import { RemoveTotpHandler } from '@src/background/services/seedless/handlers/removeTotp';
+import type { RemoveTotpHandler } from '@src/background/services/seedless/handlers/removeTotp';
 
 interface SeedlessMfaManagementContextProps {
   children?: React.ReactNode;

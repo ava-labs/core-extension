@@ -9,7 +9,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MnemonicProps } from './Mnemonic';
+import type { MnemonicProps } from './Mnemonic';
 import { getRandomMnemonicWord } from '../../utils/getRandomMnemonicWord';
 
 const FakeWord = () => (

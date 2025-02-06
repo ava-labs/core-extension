@@ -1,9 +1,9 @@
-import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import {
-  UnifiedBridgeEvent,
+import type { ExtensionConnectionEvent } from '@src/background/connections/models';
+import type {
   UnifiedBridgeStateUpdateEvent,
   UnifiedBridgeTransferStepChangeEvent,
 } from '../models';
+import { UnifiedBridgeEvent } from '../models';
 
 export const isUnifiedBridgeStateUpdate = (
   ev: ExtensionConnectionEvent,

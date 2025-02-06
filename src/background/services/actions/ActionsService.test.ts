@@ -1,10 +1,10 @@
-import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
+import type { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { ethErrors } from 'eth-rpc-errors';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { ActionsService } from './ActionsService';
+import type { Action } from './models';
 import {
-  Action,
   ActionCompletedEventType,
   ActionsEvent,
   ActionStatus,
@@ -12,7 +12,7 @@ import {
   ActionType,
 } from './models';
 import { filterStaleActions } from './utils';
-import { ApprovalController } from '@src/background/vmModules/ApprovalController';
+import type { ApprovalController } from '@src/background/vmModules/ApprovalController';
 import { ACTION_HANDLED_BY_MODULE } from '@src/background/models';
 
 jest.mock('../storage/StorageService');

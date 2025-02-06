@@ -1,18 +1,20 @@
 import * as Sentry from '@sentry/browser';
-import { Network, NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
+import type { Network, NetworkToken } from '@avalabs/core-chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 
 import { StorageService } from '../storage/StorageService';
-import { SettingsService } from '../settings/SettingsService';
-import { Account, AccountType } from '../accounts/models';
+import type { SettingsService } from '../settings/SettingsService';
+import type { Account } from '../accounts/models';
+import { AccountType } from '../accounts/models';
 
 import { BalanceAggregatorService } from './BalanceAggregatorService';
 import { BALANCES_CACHE_KEY, BalanceServiceEvents } from './models';
 import { LockService } from '../lock/LockService';
-import {
+import type {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
-  TokenType,
 } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');

@@ -1,5 +1,6 @@
 import Joi from 'joi';
-import { ChainId, Network } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { runtime } from 'webextension-polyfill';
 import { chainIdToCaip } from '@src/utils/caipConversion';
 

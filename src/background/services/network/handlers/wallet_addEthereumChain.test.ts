@@ -1,8 +1,10 @@
-import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
-import { Action, ActionStatus } from '../../actions/models';
+import type { Action } from '../../actions/models';
+import { ActionStatus } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { WalletAddEthereumChainHandler } from './wallet_addEthereumChain';
 import { buildRpcCall } from '@src/tests/test-utils';

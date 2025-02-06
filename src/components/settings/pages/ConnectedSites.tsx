@@ -14,10 +14,10 @@ import {
 } from '@avalabs/core-k2-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
-import { SettingsPageProps } from '../models';
+import type { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation, Trans } from 'react-i18next';
-import { Account } from '@src/background/services/accounts/models';
+import type { Account } from '@src/background/services/accounts/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 type ConnectedListType = {

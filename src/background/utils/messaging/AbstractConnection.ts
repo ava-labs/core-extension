@@ -2,9 +2,10 @@ import { DEFERRED_RESPONSE } from '../../../background/connections/middlewares/m
 import { ethErrors } from 'eth-rpc-errors';
 import { EventEmitter } from 'events';
 import { isDevelopment } from '../../../utils/environment';
-import { isRequest, isResponse, Message, Request, Response } from './models';
-import { JsonRpcRequest } from '@src/background/connections/dAppConnection/models';
-import { PartialBy } from '@src/background/models';
+import type { Message, Request, Response } from './models';
+import { isRequest, isResponse } from './models';
+import type { JsonRpcRequest } from '@src/background/connections/dAppConnection/models';
+import type { PartialBy } from '@src/background/models';
 
 export default abstract class AbstractConnection extends EventEmitter {
   #concurrentRequestLimit: number;

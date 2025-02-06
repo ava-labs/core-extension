@@ -6,9 +6,9 @@ import {
   useState,
 } from 'react';
 
-import { NetworkFee } from '@src/background/services/networkFee/models';
+import type { NetworkFee } from '@src/background/services/networkFee/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handlers/getNetworkFee';
+import type { GetNetworkFeeHandler } from '@src/background/services/networkFee/handlers/getNetworkFee';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { chainIdToCaip } from '@src/utils/caipConversion';
 

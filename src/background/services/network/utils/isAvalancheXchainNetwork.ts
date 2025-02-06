@@ -1,4 +1,5 @@
-import { ChainId, Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import type { Network } from '@avalabs/core-chains-sdk';
+import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
 
 export function isXchainNetwork(network?: Network) {
   if (!network) {

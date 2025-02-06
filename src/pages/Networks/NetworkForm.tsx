@@ -16,7 +16,7 @@ import {
 
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { TextFieldLabel } from '@src/components/common/TextFieldLabel';
-import {
+import type {
   CustomRpcHeaders,
   Network,
 } from '@src/background/services/network/models';

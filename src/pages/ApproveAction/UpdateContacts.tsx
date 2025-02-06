@@ -2,7 +2,7 @@ import { useApproveAction } from '@src/hooks/useApproveAction';
 import { ActionStatus } from '@src/background/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ContactInfo } from '@src/components/settings/components/ContactInfo';
-import { Contact } from '@avalabs/types';
+import type { Contact } from '@avalabs/types';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Button,

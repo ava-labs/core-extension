@@ -6,11 +6,11 @@ import {
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
-import { LedgerTransport } from '../LedgerTransport';
+import type { LedgerTransport } from '../LedgerTransport';
 import { MigrateMissingPublicKeysFromLedgerHandler } from './migrateMissingPublicKeysFromLedger';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { AccountsService } from '../../accounts/AccountsService';
-import { Account } from '../../accounts/models';
+import type { AccountsService } from '../../accounts/AccountsService';
+import type { Account } from '../../accounts/models';
 
 jest.mock('../../secrets/SecretsService');
 jest.mock('@avalabs/core-wallets-sdk');

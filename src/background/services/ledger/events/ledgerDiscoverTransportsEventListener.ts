@@ -1,4 +1,4 @@
-import { ExtensionConnectionEvent } from '@src/background/connections/models';
+import type { ExtensionConnectionEvent } from '@src/background/connections/models';
 import { LedgerEvent } from '../models';
 
 export function ledgerDiscoverTransportsEventListener(

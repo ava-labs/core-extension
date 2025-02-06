@@ -1,5 +1,5 @@
-import { NetworkContractToken } from '@avalabs/core-chains-sdk';
-import { EnsureDefined } from '@src/background/models';
+import type { NetworkContractToken } from '@avalabs/core-chains-sdk';
+import type { EnsureDefined } from '@src/background/models';
 
 export enum ThemeVariant {
   LIGHT = 'LIGHT',

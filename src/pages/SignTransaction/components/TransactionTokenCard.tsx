@@ -1,11 +1,5 @@
-import {
-  Card,
-  Stack,
-  SxProps,
-  Theme,
-  Tooltip,
-  Typography,
-} from '@avalabs/core-k2-components';
+import type { SxProps, Theme } from '@avalabs/core-k2-components';
+import { Card, Stack, Tooltip, Typography } from '@avalabs/core-k2-components';
 import {
   TokenType,
   type ERC1155Token,

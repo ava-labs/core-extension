@@ -1,21 +1,20 @@
 import { BN } from 'bn.js';
-import {
-  FeeMarketEIP1559Transaction,
-  FeeMarketEIP1559TxData,
-  Transaction,
-} from '@ethereumjs/tx';
+import type { FeeMarketEIP1559TxData } from '@ethereumjs/tx';
+import { FeeMarketEIP1559Transaction, Transaction } from '@ethereumjs/tx';
 import Common, { Hardfork } from '@ethereumjs/common';
 import {
   DataType,
   ETHSignature,
   EthSignRequest,
 } from '@keystonehq/bc-ur-registry-eth';
-import { TransactionRequest, hexlify } from 'ethers';
-import { BufferLike, rlp } from 'ethereumjs-util';
+import type { TransactionRequest } from 'ethers';
+import { hexlify } from 'ethers';
+import type { BufferLike } from 'ethereumjs-util';
+import { rlp } from 'ethereumjs-util';
 
 import { makeBNLike } from '@src/utils/makeBNLike';
 
-import { CBOR, KeystoneTransport } from './models';
+import type { CBOR, KeystoneTransport } from './models';
 import { convertTxData } from './utils';
 
 export class KeystoneWallet {

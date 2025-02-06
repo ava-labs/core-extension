@@ -1,5 +1,5 @@
 import { Blockchain } from '@avalabs/core-bridge-sdk';
-import { TokenWithBalance } from '@avalabs/vm-module-types';
+import type { TokenWithBalance } from '@avalabs/vm-module-types';
 
 export function findTokenForAsset(
   symbol: string,

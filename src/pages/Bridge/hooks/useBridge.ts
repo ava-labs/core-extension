@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  BridgeAsset,
-  TokenType as BridgeTokenType,
-} from '@avalabs/bridge-unified';
-import {
+import type { BridgeAsset } from '@avalabs/bridge-unified';
+import { TokenType as BridgeTokenType } from '@avalabs/bridge-unified';
+import type {
   NftTokenWithBalance,
-  TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import { TokenType } from '@avalabs/vm-module-types';
 
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import type { NetworkWithCaipId } from '@src/background/services/network/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
@@ -17,7 +15,7 @@ import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
 
 import { findMatchingBridgeAsset } from '../utils/findMatchingBridgeAsset';
-import { BridgeOptions } from '../models';
+import type { BridgeOptions } from '../models';
 
 interface Bridge {
   amount?: bigint;

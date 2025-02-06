@@ -14,15 +14,13 @@ import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
-import { PubKeyType } from '@src/background/services/wallet/models';
+import type { PubKeyType } from '@src/background/services/wallet/models';
 import { NameYourWallet } from './components/NameYourWallet';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { SecretType } from '@src/background/services/secrets/models';
 import { useImportLedger } from './hooks/useImportLedger';
-import {
-  LedgerConnector,
-  LedgerConnectorData,
-} from '../../components/ledger/LedgerConnector';
+import type { LedgerConnectorData } from '../../components/ledger/LedgerConnector';
+import { LedgerConnector } from '../../components/ledger/LedgerConnector';
 import {
   LedgerTroubleSteps,
   LedgerTroubleStepsFontVariant,

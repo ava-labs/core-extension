@@ -1,4 +1,4 @@
-import { SigningData } from '@avalabs/vm-module-types';
+import type { SigningData } from '@avalabs/vm-module-types';
 
 export const getUpdatedSigningData = (
   oldSigningData?: SigningData,

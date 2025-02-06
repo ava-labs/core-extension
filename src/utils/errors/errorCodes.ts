@@ -1,9 +1,9 @@
-import { FireblocksErrorCode } from '@src/background/services/fireblocks/models';
-import { SeedlessError } from '@src/background/services/seedless/models';
-import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
-import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
-import { VMModuleError } from '@src/background/vmModules/models';
-import { KeystoreError } from '@src/utils/keystore/models';
+import type { FireblocksErrorCode } from '@src/background/services/fireblocks/models';
+import type { SeedlessError } from '@src/background/services/seedless/models';
+import type { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
+import type { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
+import type { VMModuleError } from '@src/background/vmModules/models';
+import type { KeystoreError } from '@src/utils/keystore/models';
 
 export enum CommonError {
   Unknown = 'unknown',

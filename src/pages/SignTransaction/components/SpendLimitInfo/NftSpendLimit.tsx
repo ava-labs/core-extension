@@ -1,6 +1,6 @@
 import { Stack } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
-import {
+import type {
   ERC1155Token,
   ERC721Token,
   TokenApproval,
