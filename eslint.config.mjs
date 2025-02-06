@@ -45,6 +45,8 @@ export default [
       sourceType: 'module',
 
       parserOptions: {
+        emitDecoratorMetadata: true,
+        experimentalDecorators: true,
         ecmaFeatures: {
           jsx: true,
         },
