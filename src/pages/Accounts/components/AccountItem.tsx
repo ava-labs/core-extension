@@ -261,14 +261,14 @@ export const AccountItem = forwardRef(
                   cardHovered={cardHovered}
                   isActive={isActive}
                 />
-                {address && (
-                  <Stack
-                    sx={{
-                      flexDirection: 'row',
-                      gap: 1,
-                      alignItems: 'center',
-                    }}
-                  >
+                <Stack
+                  sx={{
+                    flexDirection: 'row',
+                    gap: 1,
+                    alignItems: 'center',
+                  }}
+                >
+                  {address ? (
                     <Tooltip
                       title={address}
                       slotProps={{
@@ -280,22 +280,31 @@ export const AccountItem = forwardRef(
                       <Typography
                         variant="caption"
                         color={isActive ? 'text.primary' : 'text.secondary'}
+                        fontStyle={address ? 'normal' : 'italic'}
                       >
                         {truncateAddress(address)}
                       </Typography>
                     </Tooltip>
-                    <Grow in={cardHovered || isActive}>
-                      <IconButton
-                        color="primary"
-                        size="small"
-                        sx={{ p: 0.5 }}
-                        onClick={handleCopyClick}
-                      >
-                        <CopyIcon size={12} />
-                      </IconButton>
-                    </Grow>
-                  </Stack>
-                )}
+                  ) : (
+                    <Typography
+                      variant="caption"
+                      color={isActive ? 'text.primary' : 'text.secondary'}
+                      fontStyle="italic"
+                    >
+                      {t('Active network is not supported')}
+                    </Typography>
+                  )}
+                  <Grow in={cardHovered || isActive}>
+                    <IconButton
+                      color="primary"
+                      size="small"
+                      sx={{ p: 0.5 }}
+                      onClick={handleCopyClick}
+                    >
+                      <CopyIcon size={12} />
+                    </IconButton>
+                  </Grow>
+                </Stack>
               </Stack>
               <Stack
                 sx={{
