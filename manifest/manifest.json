@@ -40,7 +40,8 @@
     "notifications",
     "tabs",
     "scripting",
-    "identity"
+    "identity",
+    "aiLanguageModelOriginTrial"
   ],
   "host_permissions": ["file://*/*", "http://*/*", "https://*/*"],
   "oauth2": {
@@ -57,5 +58,6 @@
   ],
   "content_security_policy": {
     "extension_pages": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; img-src 'self' https: ipfs: data:; connect-src 'self' http: https: wss:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; child-src 'none'; frame-ancestors 'none'; object-src 'none'"
-  }
+  },
+  "trial_tokens": ["__ORIGIN_TRIALS_PROMPT_API_KEY__"]
 }

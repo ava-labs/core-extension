@@ -35,6 +35,7 @@ module.exports = merge(common, {
             actionDefaultTitle: 'Core Dev Browser Extension',
             oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
             publicKey: process.env.EXTENSION_PUBLIC_KEY,
+            originTrialsPromptAPIKey: process.env.ORIGIN_TRIALS_PROMPT_API_KEY,
           }),
           force: true,
         },

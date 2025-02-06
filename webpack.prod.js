@@ -32,6 +32,7 @@ module.exports = merge(common, {
             shortName: 'Core',
             actionDefaultTitle: 'Core | Crypto Wallet & NFT Extension',
             oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+            originTrialsPromptAPIKey: process.env.ORIGIN_TRIALS_PROMPT_API_KEY,
           }),
           force: true,
         },
