@@ -137,12 +137,23 @@ export class AddressResolver {
     }
 
     for (const [module, network] of modules.entries()) {
-      const moduleAddresses = await module.deriveAddress({
-        accountIndex,
-        network,
-        secretId,
-        derivationPathType,
-      });
+      const moduleAddresses = await module
+        .deriveAddress({
+          accountIndex,
+          network,
+          secretId,
+          derivationPathType,
+        })
+        .catch((error) => {
+          console.error(
+            `Failed to derive address for account ${accountIndex} and ${network.caipId}`,
+            error,
+          );
+
+          // We don't want to completely fail the entire method -- we return all the addresses we could.
+          // The responsibility for validating the presence of required addresses lies with the caller.
+          return {};
+        });
 
       for (const [vmType, address] of Object.entries(moduleAddresses)) {
         addresses[vmType] = address;
