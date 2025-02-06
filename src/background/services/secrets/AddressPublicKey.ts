@@ -17,7 +17,11 @@ import {
   PrimaryWalletSecrets,
   SecretType,
 } from './models';
-import { assertDerivationPath, getExtendedPublicKeyFor } from './utils';
+import {
+  assertDerivationPath,
+  getExtendedPublicKeyFor,
+  getPublicKeyFor,
+} from './utils';
 
 export class AddressPublicKey<HasDerivationPath extends boolean = true> {
   private readonly type = 'address-pubkey';
@@ -55,6 +59,7 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
     curve: Curve,
     derivationPath?: string,
   ): Promise<AddressPublicKey<boolean>> {
+    // With mnemonic wallets, we can derive the public key from the seed phrase.
     if (secrets.secretType === SecretType.Mnemonic) {
       assertDerivationPath(derivationPath);
       return AddressPublicKey.fromSeedphrase(
@@ -64,7 +69,11 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
       );
     }
 
-    if (secrets.secretType === SecretType.Ledger) {
+    // For Ledger (BIP44) and Keystone, we only have the extended public keys.
+    if (
+      secrets.secretType === SecretType.Ledger ||
+      secrets.secretType === SecretType.Keystone
+    ) {
       assertDerivationPath(derivationPath);
       return AddressPublicKey.fromExtendedPublicKeys(
         secrets.extendedPublicKeys,
@@ -73,15 +82,15 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
       );
     }
 
-    if (secrets.secretType === SecretType.Seedless) {
+    // For Ledger Live and Seedless, we should already have the public keys stored.
+    // We just need to find them:
+    if (
+      secrets.secretType === SecretType.Seedless ||
+      secrets.secretType === SecretType.LedgerLive
+    ) {
       assertDerivationPath(derivationPath);
 
-      const pubKeyJson = secrets.publicKeys.find(
-        (publicKey) =>
-          publicKey.curve === curve &&
-          publicKey.derivationPath === derivationPath,
-      );
-
+      const pubKeyJson = getPublicKeyFor(secrets, derivationPath, curve);
       assertPresent(pubKeyJson, SecretsError.PublicKeyNotFound);
 
       return AddressPublicKey.fromJSON(pubKeyJson);
