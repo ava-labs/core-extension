@@ -24,7 +24,6 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { RpcMethod, TokenWithBalanceERC20 } from '@avalabs/vm-module-types';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { rpcErrors } from '@metamask/rpc-errors';
 import { errorValues } from 'eth-rpc-errors/dist/error-constants';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -292,6 +291,7 @@ export function Prompt() {
                     borderRadius: 1,
                     justifySelf:
                       p.type === 'system' ? 'flex-start' : 'flex-end',
+                    wordWrap: 'break-word',
                   }}
                 >
                   <Typography>{p.content}</Typography>
