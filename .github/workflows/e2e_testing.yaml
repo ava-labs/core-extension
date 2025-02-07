@@ -48,6 +48,8 @@ jobs:
           echo NEWSLETTER_BASE_URL=${{ secrets.NEWSLETTER_BASE_URL }} >> .env.production
           echo NEWSLETTER_PORTAL_ID=${{ secrets.NEWSLETTER_PORTAL_ID }} >> .env.production
           echo NEWSLETTER_FORM_ID=${{ secrets.NEWSLETTER_FORM_ID }} >> .env.production
+          echo FIREBASE_CONFIG=${{ secrets.FIREBASE_CONFIG }} >> .env.production
+          echo ID_SERVICE_URL=${{ secrets.ID_SERVICE_URL }} >> .env.production
       - name: Install dependencies
         run: yarn setup
       - name: Build library
