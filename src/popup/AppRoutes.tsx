@@ -213,12 +213,6 @@ const LedgerTroubleshootingPopup = lazy(() => {
   }));
 });
 
-const PromptAI = lazy(() => {
-  return import('../pages/Prompt/prompt').then((m) => ({
-    default: m.Prompt,
-  }));
-});
-
 export const AppRoutes = () => (
   <Switch>
     <Route path="/ledger/troubleshooting">
@@ -407,12 +401,6 @@ export const AppRoutes = () => (
     <Route path="/remove-totp">
       <Suspense fallback={<CircularProgress />}>
         <SeedlessRemoveTotp />
-      </Suspense>
-    </Route>
-
-    <Route path="/prompt-ai">
-      <Suspense fallback={<CircularProgress />}>
-        <PromptAI />
       </Suspense>
     </Route>
 
