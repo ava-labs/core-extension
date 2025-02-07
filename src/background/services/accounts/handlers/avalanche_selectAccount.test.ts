@@ -28,11 +28,6 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
   } as any;
 
   container.registerInstance(ActionsService, actionsServiceMock as any);
-  const actionService = container.resolve(ActionsService);
-  container.registerInstance(
-    ApprovalService,
-    new ApprovalService(actionService),
-  );
 
   beforeEach(() => {
     jest.resetAllMocks();
