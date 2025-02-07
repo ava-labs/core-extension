@@ -26,6 +26,7 @@ export const ManageTokensList = ({
 }: ManageTokensListProps) => {
   const tokensWithBalances = useTokensWithBalances({
     forceShowTokensWithoutBalances: true,
+    forceHiddenTokens: true,
   });
 
   const sortingTokens = useMemo(

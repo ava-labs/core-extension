@@ -167,7 +167,7 @@ export function UnifiedBridgeProvider({
   const evmSigner: EvmSigner = useMemo(
     () => ({
       sign: async (
-        { from, data, to },
+        { from, data, to, value },
         _,
         { currentSignature, requiredSignatures },
       ) => {
@@ -175,38 +175,47 @@ export function UnifiedBridgeProvider({
         assert(from, UnifiedBridgeError.InvalidTxPayload);
         assert(data, UnifiedBridgeError.InvalidTxPayload);
 
-        const result = await request(
-          {
-            method: RpcMethod.ETH_SEND_TRANSACTION,
-            params: [
-              {
-                from,
-                to,
-                data,
-              },
-            ],
-          },
-          {
-            customApprovalScreenTitle: t('Confirm Bridge'),
-            alert:
-              requiredSignatures > currentSignature
-                ? {
-                    type: 'info',
-                    title: t('This operation requires {{total}} approvals.', {
-                      total: requiredSignatures,
-                    }),
-                    notice: t(
-                      'You will be prompted {{remaining}} more time(s).',
-                      {
-                        remaining: requiredSignatures - currentSignature,
-                      },
-                    ),
-                  }
-                : undefined,
-          },
-        );
+        try {
+          const result = await request(
+            {
+              method: RpcMethod.ETH_SEND_TRANSACTION,
+              params: [
+                {
+                  from,
+                  to,
+                  data,
+                  value:
+                    typeof value === 'bigint'
+                      ? `0x${value.toString(16)}`
+                      : undefined,
+                },
+              ],
+            },
+            {
+              customApprovalScreenTitle: t('Confirm Bridge'),
+              alert:
+                requiredSignatures > currentSignature
+                  ? {
+                      type: 'info',
+                      title: t('This operation requires {{total}} approvals.', {
+                        total: requiredSignatures,
+                      }),
+                      notice: t(
+                        'You will be prompted {{remaining}} more time(s).',
+                        {
+                          remaining: requiredSignatures - currentSignature,
+                        },
+                      ),
+                    }
+                  : undefined,
+            },
+          );
 
-        return result as `0x${string}`;
+          return result as `0x${string}`;
+        } catch (err) {
+          console.error(err);
+          throw err;
+        }
       },
     }),
     [request, t],
@@ -219,35 +228,40 @@ export function UnifiedBridgeProvider({
         _,
         { requiredSignatures, currentSignature },
       ) => {
-        const result = await request(
-          {
-            method: RpcMethod.BITCOIN_SIGN_TRANSACTION,
-            params: {
-              inputs,
-              outputs,
+        try {
+          const result = await request(
+            {
+              method: RpcMethod.BITCOIN_SIGN_TRANSACTION,
+              params: {
+                inputs,
+                outputs,
+              },
             },
-          },
-          {
-            customApprovalScreenTitle: t('Confirm Bridge'),
-            alert:
-              requiredSignatures > currentSignature
-                ? {
-                    type: 'info',
-                    title: t('This operation requires {{total}} approvals.', {
-                      total: requiredSignatures,
-                    }),
-                    notice: t(
-                      'You will be prompted {{remaining}} more time(s).',
-                      {
-                        remaining: requiredSignatures - currentSignature,
-                      },
-                    ),
-                  }
-                : undefined,
-          },
-        );
+            {
+              customApprovalScreenTitle: t('Confirm Bridge'),
+              alert:
+                requiredSignatures > currentSignature
+                  ? {
+                      type: 'info',
+                      title: t('This operation requires {{total}} approvals.', {
+                        total: requiredSignatures,
+                      }),
+                      notice: t(
+                        'You will be prompted {{remaining}} more time(s).',
+                        {
+                          remaining: requiredSignatures - currentSignature,
+                        },
+                      ),
+                    }
+                  : undefined,
+            },
+          );
 
-        return result as `0x${string}`;
+          return result as `0x${string}`;
+        } catch (err) {
+          console.error(err);
+          throw err;
+        }
       },
     }),
     [request, t],
@@ -624,19 +638,24 @@ export function UnifiedBridgeProvider({
       const { fromAddress, toAddress, sourceChain, targetChain } =
         await buildParams(targetChainId);
 
-      const bridgeTransfer = await core.transferAsset({
-        asset,
-        fromAddress,
-        toAddress,
-        amount,
-        sourceChain,
-        targetChain,
-        gasSettings,
-      });
+      try {
+        const bridgeTransfer = await core.transferAsset({
+          asset,
+          fromAddress,
+          toAddress,
+          amount,
+          sourceChain,
+          targetChain,
+          gasSettings,
+        });
 
-      await trackBridgeTransfer(bridgeTransfer);
+        await trackBridgeTransfer(bridgeTransfer);
 
-      return bridgeTransfer.sourceTxHash;
+        return bridgeTransfer.sourceTxHash;
+      } catch (err) {
+        console.error(err);
+        throw err;
+      }
     },
     [getAsset, activeNetwork, buildParams, core, trackBridgeTransfer],
   );
