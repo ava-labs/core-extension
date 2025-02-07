@@ -6,6 +6,7 @@ import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { formatUnits, parseUnits } from 'ethers';
 import { useTranslation } from 'react-i18next';
 import { TokenType } from '@avalabs/vm-module-types';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 import {
   FeeRate,
   NetworkFee,
@@ -19,6 +20,7 @@ import {
   GearIcon,
   IconButton,
   Stack,
+  Tooltip,
   Typography,
   styled,
 } from '@avalabs/core-k2-components';
@@ -29,7 +31,6 @@ import {
 } from '@src/components/common/approval/ApprovalSection';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { CustomGasSettings } from './CustomGasSettings';
-import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 export interface CustomGasFeesProps {
   maxFeePerGas: bigint;
@@ -54,9 +55,9 @@ export interface CustomGasFeesProps {
 }
 
 export enum GasFeeModifier {
+  SLOW = 'SLOW',
   NORMAL = 'NORMAL',
   FAST = 'FAST',
-  INSTANT = 'INSTANT',
   CUSTOM = 'CUSTOM',
 }
 
@@ -189,7 +190,7 @@ export function CustomFees({
   const [customGasLimit, setCustomGasLimit] = useState<number | undefined>();
   const gasLimit = customGasLimit || limit;
   const [customFee, setCustomFee] = useState<FeeRate | undefined>(
-    networkFee?.low,
+    networkFee?.medium,
   );
   const [newFees, setNewFees] = useState<
     ReturnType<typeof calculateGasAndFees>
@@ -206,8 +207,8 @@ export function CustomFees({
   const [showEditGasLimit, setShowEditGasLimit] = useState(false);
   const [selectedFee, setSelectedFee] = useState<GasFeeModifier>(
     networkFee?.isFixedFee
-      ? GasFeeModifier.NORMAL
-      : selectedGasFeeModifier || GasFeeModifier.NORMAL,
+      ? GasFeeModifier.SLOW
+      : selectedGasFeeModifier || GasFeeModifier.SLOW,
   );
 
   useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest native balance.
@@ -281,11 +282,11 @@ export function CustomFees({
       }
       setSelectedFee(modifier);
       switch (modifier) {
-        case GasFeeModifier.FAST: {
+        case GasFeeModifier.NORMAL: {
           handleGasChange(networkFee.medium, modifier);
           break;
         }
-        case GasFeeModifier.INSTANT: {
+        case GasFeeModifier.FAST: {
           handleGasChange(networkFee.high, modifier);
           break;
         }
@@ -295,7 +296,7 @@ export function CustomFees({
           }
           break;
         default:
-          handleGasChange(networkFee.low, GasFeeModifier.NORMAL);
+          handleGasChange(networkFee.low, GasFeeModifier.SLOW);
       }
     },
     [handleGasChange, networkFee, customFee],
@@ -320,7 +321,7 @@ export function CustomFees({
     }
 
     if (networkFee.isFixedFee) {
-      updateGasFee(GasFeeModifier.NORMAL);
+      updateGasFee(GasFeeModifier.SLOW);
     } else {
       updateGasFee(selectedGasFeeModifier);
     }
@@ -328,19 +329,30 @@ export function CustomFees({
 
   const feeAmount = useMemo(() => {
     if (!network?.networkToken) {
-      return '-';
+      return {
+        rounded: '-',
+        precise: '',
+      };
     }
 
     if (typeof estimatedFee === 'bigint') {
-      return new TokenUnit(
+      const unit = new TokenUnit(
         estimatedFee,
         network?.networkToken.decimals,
         network?.networkToken.symbol,
-      ).toString();
+      );
+
+      return {
+        rounded: unit.toDisplay(),
+        precise: unit.toString(),
+      };
     }
 
-    return newFees.fee;
-  }, [network?.networkToken, estimatedFee, newFees.fee]);
+    return {
+      rounded: newFees.feeUnit.toDisplay(),
+      precise: newFees.feeUnit.toString(),
+    };
+  }, [network?.networkToken, estimatedFee, newFees.feeUnit]);
 
   if (!networkFee) {
     return null;
@@ -401,20 +413,20 @@ export function CustomFees({
             }}
           >
             <FeeButton
-              data-testid="gas-fee-normal-button"
+              data-testid="gas-fee-slow-button"
               disabled={gasPriceEditDisabled}
               color={
-                selectedFee === GasFeeModifier.NORMAL ? 'primary' : 'secondary'
+                selectedFee === GasFeeModifier.SLOW ? 'primary' : 'secondary'
               }
               onClick={() => {
-                handleModifierClick(GasFeeModifier.NORMAL);
+                handleModifierClick(GasFeeModifier.SLOW);
               }}
             >
               <Typography
                 variant={size === 'small' ? 'caption' : 'body2'}
                 sx={{ fontWeight: 'semibold' }}
               >
-                {t('Normal')}
+                {t('Slow')}
               </Typography>
               <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
                 {formatGasPrice(
@@ -425,6 +437,31 @@ export function CustomFees({
             </FeeButton>
             {!networkFee.isFixedFee && (
               <>
+                <FeeButton
+                  data-testid="gas-fee-normal-button"
+                  disabled={gasPriceEditDisabled}
+                  color={
+                    selectedFee === GasFeeModifier.NORMAL
+                      ? 'primary'
+                      : 'secondary'
+                  }
+                  onClick={() => {
+                    handleModifierClick(GasFeeModifier.NORMAL);
+                  }}
+                >
+                  <Typography
+                    variant={size === 'small' ? 'caption' : 'body2'}
+                    sx={{ fontWeight: 'semibold' }}
+                  >
+                    {t('Normal')}
+                  </Typography>
+                  <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
+                    {formatGasPrice(
+                      networkFee.medium.maxFeePerGas,
+                      networkFee.displayDecimals,
+                    )}
+                  </Typography>
+                </FeeButton>
                 <FeeButton
                   data-testid="gas-fee-fast-button"
                   disabled={gasPriceEditDisabled}
@@ -442,31 +479,6 @@ export function CustomFees({
                     sx={{ fontWeight: 'semibold' }}
                   >
                     {t('Fast')}
-                  </Typography>
-                  <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
-                    {formatGasPrice(
-                      networkFee.medium.maxFeePerGas,
-                      networkFee.displayDecimals,
-                    )}
-                  </Typography>
-                </FeeButton>
-                <FeeButton
-                  data-testid="gas-fee-instant-button"
-                  disabled={gasPriceEditDisabled}
-                  color={
-                    selectedFee === GasFeeModifier.INSTANT
-                      ? 'primary'
-                      : 'secondary'
-                  }
-                  onClick={() => {
-                    handleModifierClick(GasFeeModifier.INSTANT);
-                  }}
-                >
-                  <Typography
-                    variant={size === 'small' ? 'caption' : 'body2'}
-                    sx={{ fontWeight: 'semibold' }}
-                  >
-                    {t('Instant')}
                   </Typography>
                   <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
                     {formatGasPrice(
@@ -515,7 +527,10 @@ export function CustomFees({
                     }}
                     onBlur={(e) => {
                       if (e.target.value === '') {
-                        handleGasChange(networkFee.low, GasFeeModifier.CUSTOM);
+                        handleGasChange(
+                          networkFee.medium,
+                          GasFeeModifier.CUSTOM,
+                        );
                       }
                     }}
                   />
@@ -541,16 +556,24 @@ export function CustomFees({
             >
               {t('Fee Amount')}
             </Typography>
-            <Typography
-              variant="body2"
-              data-testid="network-fee-token-amount"
-              sx={{
-                fontWeight: 'fontWeightSemibold',
-                color: hasEnoughForFee ? undefined : 'error.main',
-              }}
-            >
-              {feeAmount} {network?.networkToken.symbol}
-            </Typography>
+
+            <Stack direction="row">
+              <Typography variant="body2" color="text.secondary">
+                ~
+              </Typography>
+              <Tooltip title={feeAmount.precise}>
+                <Typography
+                  variant="body2"
+                  data-testid="network-fee-token-amount"
+                  sx={{
+                    fontWeight: 'fontWeightSemibold',
+                    color: hasEnoughForFee ? undefined : 'error.main',
+                  }}
+                >
+                  {feeAmount.rounded} {network?.networkToken.symbol}
+                </Typography>
+              </Tooltip>
+            </Stack>
           </Stack>
           <Stack
             sx={{

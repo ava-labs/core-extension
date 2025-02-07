@@ -45,6 +45,7 @@ export function calculateGasAndFees({
   return {
     maxFeePerGas: maxFeePerGas,
     gasLimit: gasLimit || 0,
+    feeUnit: fee,
     fee: fee.toDisplay(),
     bnFee,
     feeUSD: price
