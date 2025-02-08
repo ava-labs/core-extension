@@ -29,12 +29,17 @@ import {
   Button,
   styled,
   IconButton,
+  ToastCard,
 } from '@avalabs/core-k2-components';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isUserRejectionError } from '@src/utils/errors';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
+import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { SwappableToken } from './models';
 
 const ReviewOrderButtonContainer = styled('div')<{
@@ -53,6 +58,7 @@ export function Swap() {
   const { network } = useNetworkContext();
   const { swap } = useSwapContext();
   const { networkFee } = useNetworkFeeContext();
+  const getTranslatedError = useErrorMessage();
 
   const {
     isFunctionAvailable: isSwapAvailable,
@@ -176,7 +182,23 @@ export function Swap() {
     }
 
     if (error && !isUserRejectionError(error)) {
-      toast.error(t('Swap Failed'));
+      console.error(error);
+      sentryCaptureException(error, SentryExceptionTypes.SWAP);
+
+      const { title, hint } = getTranslatedError(error);
+      toast.custom(
+        <ToastCard variant="error">
+          <Typography variant="body2" sx={{ fontWeight: 'fontWeightSemibold' }}>
+            {title}
+          </Typography>
+          {hint && (
+            <Typography variant="caption" color="text.primary">
+              {hint}
+            </Typography>
+          )}
+        </ToastCard>,
+        { duration: 5000 },
+      );
       captureEncrypted('SwapFailed', {
         address: activeAddress,
         chainId: network?.chainId,
