@@ -51,7 +51,9 @@ jobs:
           echo FIREBASE_CONFIG=${{ secrets.FIREBASE_CONFIG }} >> .env.production
           echo ID_SERVICE_URL=${{ secrets.ID_SERVICE_URL }} >> .env.production
       - name: Install dependencies
-        run: yarn setup
+        run: |
+          yarn install
+          yarn allow-scripts
       - name: Build library
         run: yarn build:alpha
       - name: Remove large extension files
