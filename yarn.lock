@@ -17847,21 +17847,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob-parent@npm:^3.1.0, glob-parent@npm:^5.1.2, glob-parent@npm:~5.1.2":
+"glob-parent@npm:5.1.2":
   version: 5.1.2
   resolution: "glob-parent@npm:5.1.2"
   dependencies:
     is-glob: "npm:^4.0.1"
   checksum: 10c0/cab87638e2112bee3f839ef5f6e0765057163d39c66be8ec1602f3823da4692297ad4e972de876ea17c44d652978638d2fd583c6713d0eb6591706825020c9ee
-  languageName: node
-  linkType: hard
-
-"glob-parent@npm:^6.0.1, glob-parent@npm:^6.0.2":
-  version: 6.0.2
-  resolution: "glob-parent@npm:6.0.2"
-  dependencies:
-    is-glob: "npm:^4.0.3"
-  checksum: 10c0/317034d88654730230b3f43bb7ad4f7c90257a426e872ea0bf157473ac61c99bf5d205fad8f0185f989be8d2fa6d3c7dce1645d99d545b6ea9089c39f838e7f8
   languageName: node
   linkType: hard
 
