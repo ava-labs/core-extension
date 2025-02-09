@@ -22,7 +22,9 @@ jobs:
           echo PROXY_URL=${{ secrets.PROXY_URL }} >> .env.production
           echo CORE_EXTENSION_LANDING_URL=${{ secrets.CORE_EXTENSION_LANDING_URL }} >> .env.production
       - name: Install dependencies
-        run: yarn setup
+        run: |
+          yarn install
+          yarn allow-scripts
       - name: Lint
         run: yarn lint
       - name: Typecheck
