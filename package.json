@@ -286,5 +286,5 @@
       "@avalabs/avalanche-module>@avalabs/vm-module-types>hypersdk-client>@metamask/sdk>eciesjs>secp256k1": false
     }
   },
-  "packageManager": "yarn@4.5.3"
+  "packageManager": "yarn@4.6.0"
 }
