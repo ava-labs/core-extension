@@ -39,8 +39,8 @@
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.32",
     "@avalabs/evm-module": "1.4.0",
     "@avalabs/glacier-sdk": "3.1.0-alpha.32",
-    "@avalabs/hw-app-avalanche": "0.14.1",
     "@avalabs/hvm-module": "1.4.0",
+    "@avalabs/hw-app-avalanche": "0.14.1",
     "@avalabs/types": "3.1.0-alpha.32",
     "@avalabs/vm-module-types": "1.4.0",
     "@blockaid/client": "0.10.0",
@@ -204,9 +204,6 @@
     "@types/react": "17.0.38",
     "@types/react-dom": "17.0.11",
     "json5": "2.2.2",
-    "react-scripts/@svgr/webpack/@svgr/plugin-svgo/svgo/css-select/nth-check": "2.0.1",
-    "react-scripts/react-dev-utils/recursive-readdir/minimatch": "3.0.5",
-    "i18next-scanner/vinyl-fs/glob-stream/glob-parent": "5.1.2",
     "got": "11.8.5",
     "@ledgerhq/hw-app-eth": "6.36.1",
     "@ledgerhq/hw-transport": "6.30.6",
@@ -225,7 +222,7 @@
   },
   "volta": {
     "node": "20.11.0",
-    "yarn": "1.22.19"
+    "yarn": "4.6.0"
   },
   "lavamoat": {
     "allowScripts": {
@@ -272,7 +269,11 @@
       "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>@ethereumjs/tx>@ethereumjs/common>ethereumjs-util>ethereum-cryptography>keccak": false,
       "@avalabs/avalanche-module>@avalabs/vm-module-types>hypersdk-client>@metamask/sdk>@metamask/sdk-communication-layer>bufferutil": false,
       "@avalabs/avalanche-module>@avalabs/vm-module-types>hypersdk-client>@metamask/sdk>@metamask/sdk-communication-layer>utf-8-validate": false,
-      "@avalabs/avalanche-module>@avalabs/vm-module-types>hypersdk-client>@metamask/sdk>eciesjs>secp256k1": false
+      "@avalabs/avalanche-module>@avalabs/vm-module-types>hypersdk-client>@metamask/sdk>eciesjs>secp256k1": false,
+      "@metamask/eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "@metamask/eth-sig-util>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "eth-json-rpc-middleware>eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>keccak": false
     }
-  }
+  },
+  "packageManager": "yarn@4.6.0"
 }
