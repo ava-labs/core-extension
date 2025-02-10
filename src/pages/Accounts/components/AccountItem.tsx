@@ -86,7 +86,7 @@ export const AccountItem = forwardRef(
       if (isActive) {
         const behavior = firstPageload.current ? 'instant' : 'smooth';
         itemRef?.current?.scrollIntoView({
-          block: 'center',
+          block: 'nearest',
           behavior,
         });
       }
