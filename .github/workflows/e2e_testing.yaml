@@ -59,6 +59,9 @@ jobs:
           rm -fv ./dist/images/core-ext-hero-hq.webm
           rm -fv ./dist/images/onboarding-background.svg
           rm -fv ./dist/images/onboarding-background.png
+          rm -fv ./dist/images/keystone/keystone_onboarding_step_1.png
+          rm -fv ./dist/images/keystone/keystone_onboarding_step_2.png
+          rm -fv ./dist/images/keystone/keystone_onboarding_step_3.png
       - name: Add extension key to manifest file
         run: |
           echo $(cat ./dist/manifest.json | jq '.key = "${{ secrets.EXTENSION_PUBLIC_KEY }}"') > ./dist/manifest.json
