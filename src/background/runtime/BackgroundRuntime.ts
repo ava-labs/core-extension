@@ -7,6 +7,7 @@ import { OnboardingService } from '@src/background/services/onboarding/Onboardin
 import { ModuleManager } from '../vmModules/ModuleManager';
 import { BridgeService } from '../services/bridge/BridgeService';
 import { AddressResolver } from '../services/secrets/AddressResolver';
+import { AppCheckService } from '@src/background/services/appcheck/AppCheckService';
 
 @singleton()
 export class BackgroundRuntime {
@@ -18,6 +19,7 @@ export class BackgroundRuntime {
     private bridgeService: BridgeService,
     private moduleManager: ModuleManager,
     private addressResolver: AddressResolver,
+    private appCheckService: AppCheckService,
   ) {}
 
   activate() {
@@ -32,6 +34,7 @@ export class BackgroundRuntime {
     this.moduleManager.activate();
 
     this.addressResolver.init(this.moduleManager);
+    this.appCheckService.activate();
   }
 
   private onInstalled() {
