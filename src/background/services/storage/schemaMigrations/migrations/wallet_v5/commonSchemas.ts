@@ -31,11 +31,13 @@ export const walletConnectSchema = Joi.object<
 >({
   secretType: Joi.string().valid('wallet-connect').required(),
   pubKey: pubKeyTypeSchema.optional(),
-  addressC: Joi.string().required(),
-  addressAVM: Joi.string().optional(),
-  addressBTC: Joi.string().optional(),
-  addressCoreEth: Joi.string().optional(),
-  addressPVM: Joi.string().optional(),
+  addresses: Joi.object({
+    addressC: Joi.string().required(),
+    addressAVM: Joi.string().optional(),
+    addressBTC: Joi.string().optional(),
+    addressCoreEth: Joi.string().optional(),
+    addressPVM: Joi.string().optional(),
+  }).required(),
 }).unknown();
 
 export const fireblocksSchema = Joi.object<ImportedFireblocksSecrets>({

@@ -4,10 +4,10 @@ import * as Legacy from './legacyModels';
 import {
   btcWalletPolicyDetailsSchema,
   fireblocksSchema,
+  privateKeySchema,
   pubKeyTypeSchema,
   walletConnectSchema,
 } from './commonSchemas';
-import { ImportedPrivateKeySecrets } from './commonModels';
 
 const seedlessSchema = Joi.object<Legacy.SeedlessSecrets, true>({
   id: Joi.string().required(),
@@ -56,11 +56,6 @@ const keystoneSchema = Joi.object<Legacy.KeystoneSecrets, true>({
   derivationPath: Joi.string().valid('bip44').required(),
   xpub: Joi.string().required(),
   masterFingerprint: Joi.string().required(),
-}).unknown();
-
-const privateKeySchema = Joi.object<ImportedPrivateKeySecrets, true>({
-  secretType: Joi.string().valid('private-key').required(),
-  secret: Joi.string().required(),
 }).unknown();
 
 export const legacySecretsSchema = Joi.object<Legacy.LegacySchema, true>({

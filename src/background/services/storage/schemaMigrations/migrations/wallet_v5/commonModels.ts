@@ -25,11 +25,13 @@ export type ImportedPrivateKeySecrets = {
 
 export type ImportedWalletConnectSecrets = {
   secretType: 'wallet-connect';
-  addressC: string;
-  addressBTC?: string;
-  addressAVM?: string;
-  addressPVM?: string;
-  addressCoreEth?: string;
+  addresses: {
+    addressC: string;
+    addressBTC?: string;
+    addressAVM?: string;
+    addressPVM?: string;
+    addressCoreEth?: string;
+  };
   pubKey?: PubKeyType;
 };
 
