@@ -107,8 +107,10 @@ describe('src/background/services/storage/schemaMigrations/migrations/wallet_v5'
       },
       'wc-acc': {
         secretType: 'wallet-connect',
-        addressC: 'walletConnectC',
-        addressBTC: 'walletConnectBTC',
+        addresses: {
+          addressC: 'walletConnectC',
+          addressBTC: 'walletConnectBTC',
+        },
         pubKey: {
           evm: 'evm',
           xp: 'xp',
