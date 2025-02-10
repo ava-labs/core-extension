@@ -1,7 +1,7 @@
-import { ImportedPrivateKeyAccount } from '@src/background/services/accounts/models';
 import {
   BtcWalletPolicyDetails,
   ImportedFireblocksSecrets,
+  ImportedPrivateKeySecrets,
   ImportedWalletConnectSecrets,
   PubKeyType,
 } from './commonModels';
@@ -65,11 +65,9 @@ export type LegacySchema = {
   >;
   importedAccounts: Record<
     string,
-    Array<
-      | ImportedPrivateKeyAccount
-      | ImportedWalletConnectSecrets
-      | ImportedFireblocksSecrets
-    >
+    | ImportedPrivateKeySecrets
+    | ImportedWalletConnectSecrets
+    | ImportedFireblocksSecrets
   >;
   version: 4;
 };

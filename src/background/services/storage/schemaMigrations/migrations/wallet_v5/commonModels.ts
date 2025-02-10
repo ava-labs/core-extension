@@ -25,11 +25,20 @@ export type ImportedPrivateKeySecrets = {
 
 export type ImportedWalletConnectSecrets = {
   secretType: 'wallet-connect';
+  addressC: string;
+  addressBTC?: string;
+  addressAVM?: string;
+  addressPVM?: string;
+  addressCoreEth?: string;
   pubKey?: PubKeyType;
 };
 
 export type ImportedFireblocksSecrets = {
   secretType: 'fireblocks';
+  addresses: {
+    addressC: string;
+    addressBTC?: string;
+  };
   api?: {
     vaultAccountId: string;
     key: string;

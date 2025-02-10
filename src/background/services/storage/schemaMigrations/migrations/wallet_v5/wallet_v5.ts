@@ -1,7 +1,4 @@
-import {
-  ACCOUNTS_STORAGE_KEY,
-  Accounts,
-} from '@src/background/services/accounts/models';
+import { ACCOUNTS_STORAGE_KEY } from '@src/background/services/accounts/models';
 
 import { MigrationWithDeps } from '../../models';
 
@@ -15,12 +12,15 @@ import {
 import { assertPresent } from '@src/utils/assertions';
 import { CommonError } from '@src/utils/errors';
 import { AddressPublicKey } from '@src/background/services/secrets/AddressPublicKey';
+import { rpcErrors } from '@metamask/rpc-errors';
 
 const VERSION = 5;
 const EVM_BASE_PATH = "m/44'/60'/0'";
 const AVALANCHE_BASE_PATH = "m/44'/9000'/0'";
 
-type DependencyModelTuples = [[typeof ACCOUNTS_STORAGE_KEY, Accounts]];
+type DependencyModelTuples = [
+  [typeof ACCOUNTS_STORAGE_KEY, { primary: { [walletId: string]: unknown[] } }],
+];
 
 type WalletV5Migration = MigrationWithDeps<
   Legacy.LegacySchema,
@@ -101,6 +101,7 @@ const migrateLedgerSecrets = (
       derivationPath: EVM_BASE_PATH,
       key: secrets.xpub,
       type: 'extended-pubkey',
+      btcWalletPolicyDetails: secrets.btcWalletPolicyDetails,
     },
   ];
 
@@ -111,7 +112,6 @@ const migrateLedgerSecrets = (
       derivationPath: AVALANCHE_BASE_PATH,
       key: secrets.xpubXP,
       type: 'extended-pubkey',
-      btcWalletPolicyDetails: secrets.btcWalletPolicyDetails,
     });
   }
 
@@ -153,7 +153,9 @@ const migrateLedgerLiveSecrets = (
         derivationPath: `m/44'/60'/${index}'/0/0`,
         key: legacyPubKey.evm,
         type: 'address-pubkey',
-        btcWalletPolicyDetails: legacyPubKey.btcWalletPolicyDetails,
+        ...(legacyPubKey.btcWalletPolicyDetails
+          ? { btcWalletPolicyDetails: legacyPubKey.btcWalletPolicyDetails }
+          : {}),
       });
     }
 
@@ -256,6 +258,17 @@ const migrateSeedlessSecrets = (
 
 const up: WalletV5Migration['up'] = async (currentSecrets, accounts) => {
   const primaryWallets: New.NewSchema['wallets'] = [];
+
+  const validationResult = legacySecretsSchema.validate(currentSecrets);
+
+  if (validationResult.error) {
+    throw rpcErrors.internal({
+      data: {
+        reason: CommonError.MigrationFailed,
+        context: validationResult.error.message,
+      },
+    });
+  }
 
   for (let i = 0; i < currentSecrets.wallets.length; i++) {
     const wallet = currentSecrets.wallets[i];
