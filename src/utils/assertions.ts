@@ -4,7 +4,7 @@ import { CommonError, ErrorCode } from './errors';
 export function assertPresent<T>(
   value: T,
   reason: ErrorCode,
-  additionalInfo?: string,
+  context?: string,
 ): asserts value is NonNullable<T> {
   const isNullish = typeof value === 'undefined' || value === null;
   const isEmptyBuffer = Buffer.isBuffer(value) && value.length === 0;
@@ -13,7 +13,7 @@ export function assertPresent<T>(
     throw ethErrors.rpc.internal({
       data: {
         reason: reason ?? CommonError.Unknown,
-        additionalInfo,
+        context,
       },
     });
   }

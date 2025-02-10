@@ -25,11 +25,15 @@ export enum LedgerError {
 
 export enum SecretsError {
   SecretsNotFound = 'secrets-not-found',
+  UnsupportedSecretType = 'unsupported-secret-type',
   MissingExtendedPublicKey = 'missing-ext-pubkey',
   WalletAlreadyExists = 'wallet-already-exists',
   PublicKeyNotFound = 'public-key-not-found',
   NoAccountIndex = 'no-account-index',
   DerivationPathMissing = 'derivation-path-missing',
+  UnknownDerivationPathFormat = 'unknown-derivation-path-format',
+  DerivationPathTooShort = 'derivation-path-too-short',
+  UnsupportedCurve = 'unsupported-curve',
 }
 
 export enum AccountError {

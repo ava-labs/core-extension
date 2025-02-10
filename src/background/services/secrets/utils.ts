@@ -1,4 +1,5 @@
 import { NetworkVMType } from '@avalabs/vm-module-types';
+import { ethErrors } from 'eth-rpc-errors';
 
 import {
   AddressPublicKeyJson,
@@ -9,6 +10,7 @@ import {
   PrimaryWalletSecrets,
   SecretType,
 } from './models';
+import { SecretsError } from '@src/utils/errors';
 
 export const emptyAddresses = (): Record<NetworkVMType, string> => ({
   [NetworkVMType.AVM]: '',
@@ -46,7 +48,32 @@ export const isPrimaryWalletSecrets = (
 
 export function assertDerivationPath(path?: string): asserts path is string {
   if (typeof path !== 'string') {
-    throw new Error('Derivation path is required for primary wallets');
+    throw ethErrors.rpc.internal({
+      data: {
+        reason: SecretsError.DerivationPathMissing,
+        context: `Expected a string. Received: ${path}`,
+      },
+    });
+  }
+
+  if (!path.startsWith(`m/44'`)) {
+    throw ethErrors.rpc.internal({
+      data: {
+        reason: SecretsError.UnknownDerivationPathFormat,
+        context: `Only BIP-44 compliant paths are supported. Received: ${path}`,
+      },
+    });
+  }
+
+  const levels = path.split('/').length - 1; // BIP-44 does not count the `m/` prefix as a path "level".
+
+  if (levels < 4) {
+    throw ethErrors.rpc.internal({
+      data: {
+        reason: SecretsError.DerivationPathTooShort,
+        context: `At least 4 derivation path levels need to be provided. Received: ${levels} in "${path}"`,
+      },
+    });
   }
 }
 

@@ -44,15 +44,23 @@ export const expectToThrowErrorCode = async (
   fnOrPromise: Function | Promise<any>, // eslint-disable-line
   reason: ErrorCode = CommonError.Unknown,
 ) => {
-  await expect(
-    typeof fnOrPromise === 'function' ? fnOrPromise() : fnOrPromise,
-  ).rejects.toThrow(
-    ethErrors.rpc.internal({
-      data: matchingPayload({
-        reason,
+  if (typeof fnOrPromise === 'function') {
+    expect(fnOrPromise).toThrow(
+      ethErrors.rpc.internal({
+        data: matchingPayload({
+          reason,
+        }),
       }),
-    }),
-  );
+    );
+  } else {
+    await expect(fnOrPromise).rejects.toThrow(
+      ethErrors.rpc.internal({
+        data: matchingPayload({
+          reason,
+        }),
+      }),
+    );
+  }
 };
 
 export * from '@testing-library/react';

@@ -5,6 +5,7 @@ import { ed25519 } from '@noble/curves/ed25519';
 import slip10 from 'micro-key-producer/slip10.js';
 import { BtcWalletPolicyDetails } from '@avalabs/vm-module-types';
 import { getPublicKeyFromPrivateKey } from '@avalabs/core-wallets-sdk';
+import { ethErrors } from 'eth-rpc-errors';
 
 import { SecretsError } from '@src/utils/errors';
 import { assertPresent } from '@src/utils/assertions';
@@ -100,7 +101,12 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
       return AddressPublicKey.fromPrivateKey(secrets.secret, curve);
     }
 
-    throw new Error('Not implemented yet');
+    throw ethErrors.rpc.internal({
+      data: {
+        reason: SecretsError.UnsupportedSecretType,
+        context: secrets.secretType,
+      },
+    });
   }
 
   static fromExtendedPublicKeys(
@@ -108,14 +114,28 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
     curve: Curve,
     derivationPath: string,
   ): AddressPublicKey<true> {
+    assertDerivationPath(derivationPath);
+
+    if (curve !== 'secp256k1') {
+      throw ethErrors.rpc.internal({
+        data: {
+          reason: SecretsError.UnsupportedCurve,
+          context: `"${curve}" is not supported with extended public keys`,
+        },
+      });
+    }
+
     const matchingXpub = getExtendedPublicKeyFor(xpubs, derivationPath, curve);
 
     if (!matchingXpub) {
-      throw new Error(
-        'No matching extended public key found for derivation path: ' +
-          derivationPath,
-      );
+      throw ethErrors.rpc.internal({
+        data: {
+          reason: SecretsError.MissingExtendedPublicKey,
+          context: `${derivationPath} / ${curve}`,
+        },
+      });
     }
+
     const pathSuffix = derivationPath.slice(
       matchingXpub.derivationPath.length + 1, // Add one to account for the trailing slash from the lookup
     );
@@ -144,6 +164,14 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
       case 'secp256k1':
         key = hex.encode(getPublicKeyFromPrivateKey(privateKey));
         break;
+
+      default:
+        throw ethErrors.rpc.internal({
+          data: {
+            reason: SecretsError.UnsupportedCurve,
+            context: curve,
+          },
+        });
     }
 
     return new AddressPublicKey(key, curve, null);
@@ -154,6 +182,7 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
     curve: Curve,
     derivationPath: string,
   ): Promise<AddressPublicKey> {
+    assertDerivationPath(derivationPath);
     const seed = await mnemonicToSeed(seedphrase);
     let key: string;
 
@@ -171,7 +200,12 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
       }
 
       default:
-        throw new Error('Unsupported curve');
+        throw ethErrors.rpc.internal({
+          data: {
+            reason: SecretsError.UnsupportedCurve,
+            context: curve,
+          },
+        });
     }
 
     return new AddressPublicKey(key, curve, derivationPath);
