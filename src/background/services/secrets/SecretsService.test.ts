@@ -24,7 +24,7 @@ import { LedgerTransport } from '../ledger/LedgerTransport';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import * as utils from './utils';
-import { expectToThrowErroCode } from '@src/tests/test-utils';
+import { expectToThrowErrorCode } from '@src/tests/test-utils';
 import { LedgerError } from '@src/utils/errors';
 import { AddressResolver } from './AddressResolver';
 import { mapVMAddresses } from '../accounts/utils/mapVMAddresses';
@@ -1225,7 +1225,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           .spyOn(ledgerService, 'recentTransport', 'get')
           .mockReturnValue(undefined);
 
-        await expectToThrowErroCode(
+        await expectToThrowErrorCode(
           secretsService.addAddress({
             index: 1,
             walletId: ACTIVE_WALLET_ID,
@@ -1250,7 +1250,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           Buffer.from(''),
         );
 
-        await expectToThrowErroCode(
+        await expectToThrowErrorCode(
           secretsService.addAddress({
             index: 1,
             walletId: ACTIVE_WALLET_ID,
@@ -1280,7 +1280,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           .mockReturnValueOnce(Buffer.from('evm'))
           .mockReturnValueOnce(Buffer.from(''));
 
-        await expectToThrowErroCode(
+        await expectToThrowErrorCode(
           secretsService.addAddress({
             index: 1,
             walletId: ACTIVE_WALLET_ID,

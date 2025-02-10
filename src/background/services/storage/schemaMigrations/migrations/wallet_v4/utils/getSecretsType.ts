@@ -8,7 +8,6 @@ export type WalletKeys = {
     /**
      * Public keys used for X/P chain are from a different derivation path.
      */
-    sol?: string;
     xp?: string;
     btcWalletPolicyDetails?: {
       hmacHex: string;

@@ -40,7 +40,7 @@ export const buildRpcCall = <M extends string>(
     request: payload,
   }) as const;
 
-export const expectToThrowErroCode = async (
+export const expectToThrowErrorCode = async (
   fnOrPromise: Function | Promise<any>, // eslint-disable-line
   reason: ErrorCode = CommonError.Unknown,
 ) => {

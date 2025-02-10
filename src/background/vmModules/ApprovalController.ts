@@ -83,7 +83,6 @@ export class ApprovalController implements BatchApprovalController {
     derivationPath,
     secretId,
   }: RequestPublicKeyParams): Promise<string> {
-    // TODO: Ask user approval if needed?
     return this.#secretsService.derivePublicKey(
       secretId,
       curve,

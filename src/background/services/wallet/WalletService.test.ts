@@ -54,7 +54,7 @@ import { ed25519 } from '@noble/curves/ed25519';
 import { HVMWallet } from './HVMWallet';
 import { TransactionPayload, VMABI } from 'hypersdk-client';
 import { buildExtendedPublicKey } from '../secrets/utils';
-import { expectToThrowErroCode } from '@src/tests/test-utils';
+import { expectToThrowErrorCode } from '@src/tests/test-utils';
 import { SecretsError } from '@src/utils/errors';
 
 jest.mock('../network/NetworkService');
@@ -1362,7 +1362,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       it('throws if pubKeys for the account are missing', async () => {
         mockLedgerLiveWallet({}, { index: 1 });
 
-        await expectToThrowErroCode(
+        await expectToThrowErrorCode(
           walletService.getActiveAccountPublicKey(),
           SecretsError.PublicKeyNotFound,
         );
@@ -1515,7 +1515,7 @@ describe('background/services/wallet/WalletService.ts', () => {
           },
         );
 
-        await expectToThrowErroCode(
+        await expectToThrowErrorCode(
           walletService.getActiveAccountPublicKey(),
           SecretsError.PublicKeyNotFound,
         );
