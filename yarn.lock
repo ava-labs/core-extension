@@ -34,10 +34,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-1.4.0.tgz#3c47d1e82dd379f1262713195f2adb6d56edba5d"
-  integrity sha512-diqLClfZ8obhy9g3ijINgkWRVVatfPW9JQ+aqlbjB4QPuR+r38/YMrhha0cTK2ZTadu9L9q/aJleTbjdPLhW6Q==
+"@avalabs/avalanche-module@0.0.0-CP-9822-allowance-approval-scr-20250211141248":
+  version "0.0.0-CP-9822-allowance-approval-scr-20250211141248"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-CP-9822-allowance-approval-scr-20250211141248.tgz#7bd9b4c82fa3672a82fa15e2267f6ef9116948ec"
+  integrity sha512-tkTa3Isgq7TOk62vgOh+KxR/ePtuA0O++xu6eF0tPEfSk+p+ct+xn2yHGgPFKvT37/R2pbVuTRUfJA5d8/4Nyw==
   dependencies:
     "@avalabs/avalanchejs" "4.1.2-alpha.3"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.32"
@@ -47,7 +47,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
     "@avalabs/glacier-sdk" "3.1.0-alpha.32"
     "@avalabs/types" "3.1.0-alpha.32"
-    "@avalabs/vm-module-types" "1.4.0"
+    "@avalabs/vm-module-types" "0.0.0-CP-9822-allowance-approval-scr-20250211141248"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -75,15 +75,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-1.4.0.tgz#8af9508c7937220e1325e6147a89e241d3bff5fe"
-  integrity sha512-CsMXW/qsnHYXvUhUr6FbpBABoy7pjKonYGX5cGFskeiE7dLXgZ6o5mi+/MSrqCxpG0LUfDmJTEKIF8F+2I8grA==
+"@avalabs/bitcoin-module@0.0.0-CP-9822-allowance-approval-scr-20250211141248":
+  version "0.0.0-CP-9822-allowance-approval-scr-20250211141248"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-CP-9822-allowance-approval-scr-20250211141248.tgz#e54114fc4365d21cd4a27956dd35335647628f02"
+  integrity sha512-ZgYQzGZInvizGIyDX+P4n0f6KAvCkr/s9Zks38kn1xK0LIyvOoaefr/DTCuu8GCsupwLQ5sflE+kTlUeg1vlGw==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.32"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.32"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
-    "@avalabs/vm-module-types" "1.4.0"
+    "@avalabs/vm-module-types" "0.0.0-CP-9822-allowance-approval-scr-20250211141248"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -275,10 +275,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-1.4.0.tgz#7f9959cc3769462c929986192cbb64e67562823c"
-  integrity sha512-B6hpQQ0o3fLWp+NwSpLJaG5OehOkJ3cGU2UDo/Yis4ikDcxfFED97WXcs5bWpNheL3fImsIjA1ozIsbGvKVQ9A==
+"@avalabs/evm-module@0.0.0-CP-9822-allowance-approval-scr-20250211141248":
+  version "0.0.0-CP-9822-allowance-approval-scr-20250211141248"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-CP-9822-allowance-approval-scr-20250211141248.tgz#64dc61e0d458bf0924064b4fb6cf9a2dfdd82c36"
+  integrity sha512-GF7QKjfd0ma1x4MqkTDWiOtpNcy11+C/GDy9Uc8EEJgeqVI1L2ttbFpRLSCpF66O46t8nAPIoOMPeAjonWSNTQ==
   dependencies:
     "@avalabs/core-chains-sdk" "3.1.0-alpha.32"
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.32"
@@ -287,8 +287,8 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
     "@avalabs/glacier-sdk" "3.1.0-alpha.32"
     "@avalabs/types" "3.1.0-alpha.32"
-    "@avalabs/vm-module-types" "1.4.0"
-    "@blockaid/client" "0.11.0"
+    "@avalabs/vm-module-types" "0.0.0-CP-9822-allowance-approval-scr-20250211141248"
+    "@blockaid/client" "0.36.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
     bn.js "5.2.1"
@@ -306,13 +306,13 @@
   resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.34.tgz#bc2b20bba5b1d5d6d970e4ed9989da37a7d3247a"
   integrity sha512-LtMvlWuLwhlKcc82bUFQgXeLjP2QOu3zh7UAn1AgkEOM3+XbX5hZ+I8gP0RxOHk3mzAsJOGIrpEXRIznYBvZIw==
 
-"@avalabs/hvm-module@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-1.4.0.tgz#e2244458bdd629f884241ee168138a2b8765e11b"
-  integrity sha512-ACF90VcB0fabU4D3E0Xb+9cePPRSNE+sL73+OLZDFV8Fn/KHwWga61zNLLeSHVeW0iYhHCHqo730aKvB0w9G7Q==
+"@avalabs/hvm-module@0.0.0-CP-9822-allowance-approval-scr-20250211141248":
+  version "0.0.0-CP-9822-allowance-approval-scr-20250211141248"
+  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-0.0.0-CP-9822-allowance-approval-scr-20250211141248.tgz#7c472a21934f6bf360cd6fb8f95f413c53db5db7"
+  integrity sha512-fBpdK1SkfmE7fZMtUKyOFSPBvFzc53e9n6/j/wyNz0ZwdYcFFzVb2lZchm61vNFvM6cCL7IMO40Ok1qhh7P6cw==
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.30"
-    "@avalabs/vm-module-types" "1.4.0"
+    "@avalabs/vm-module-types" "0.0.0-CP-9822-allowance-approval-scr-20250211141248"
     "@metamask/rpc-errors" "6.3.0"
     "@noble/hashes" "1.5.0"
     hypersdk-client "0.4.16"
@@ -339,10 +339,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.34.tgz#f560f7e512e4a11f0a94ad2718aa7ce57367200e"
   integrity sha512-v2/PAO+3QMk+xoubHzE810ZbZsIGXk+05eTXZvrNQy5KQjoPS02h11/EOSMGhpuAPg3jNCMLKQrIVkmKO/NFIw==
 
-"@avalabs/vm-module-types@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-1.4.0.tgz#bf819ace354c2f2ea66212f0fd4f4970331b3038"
-  integrity sha512-udByYqsngI/8b4p7kLpNdMtaUJW9afMb3YNo8JKWUwvUjXaqOxzWf8b3RNmZqQywwm5kO42U18Ln1xdKXy0pyg==
+"@avalabs/vm-module-types@0.0.0-CP-9822-allowance-approval-scr-20250211141248":
+  version "0.0.0-CP-9822-allowance-approval-scr-20250211141248"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-CP-9822-allowance-approval-scr-20250211141248.tgz#31900db1b7e1661f8e1c8f893bc1ec2ad7156e65"
+  integrity sha512-xzQafgquERZVLqSbpGeq1ZGeXkovRtl94Cq/+wG/RLKge0NYvZo9p81SWgOsDrOCmgEQ9NNEzHpNC3J+SsdMXQ==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
     "@avalabs/glacier-sdk" "3.1.0-alpha.32"
@@ -2448,10 +2448,10 @@
     node-fetch "^2.6.7"
     web-streams-polyfill "^3.2.1"
 
-"@blockaid/client@0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@blockaid/client/-/client-0.11.0.tgz#1fbc894d605eae0a8c8d7192ade4f344dd34946f"
-  integrity sha512-Lvg+lrQTDTBr03yKdrMOerjYovxEmWM5gUToO3Bbd5Qiybq4rBxoZBFvtBrg/vu5ENIA1f+jIo+1EI8TOktI4w==
+"@blockaid/client@0.36.0":
+  version "0.36.0"
+  resolved "https://registry.yarnpkg.com/@blockaid/client/-/client-0.36.0.tgz#20699fd2f6dc3d9003a453401e58454235afd5b5"
+  integrity sha512-38zdKJKGp8DhUzURRnnnIpi3prelKgMsPNhoY5hsyWcliE6ednG4wIvKIPmFZf1I1nMb3rzhtNN0hDQ0XvjEQg==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
@@ -2460,7 +2460,6 @@
     form-data-encoder "1.7.2"
     formdata-node "^4.3.2"
     node-fetch "^2.6.7"
-    web-streams-polyfill "^3.2.1"
 
 "@chainsafe/as-sha256@^0.3.1":
   version "0.3.1"
