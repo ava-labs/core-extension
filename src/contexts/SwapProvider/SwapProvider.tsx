@@ -45,6 +45,7 @@ import { assert, assertPresent } from '@src/utils/assertions';
 import { CommonError } from '@src/utils/errors';
 import { useWalletContext } from '../WalletProvider';
 import { SecretType } from '@src/background/services/secrets/models';
+import { toast } from '@avalabs/core-k2-components';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -273,11 +274,15 @@ export function SwapContextProvider({ children }: { children: any }) {
           .div(10 ** destDecimals)
           .toString();
 
+        const notificationText = isSuccessful
+          ? t('Swap transaction succeeded! 🎉')
+          : t('Swap transaction failed! ❌');
+
+        toast.success(notificationText);
+
         browser.notifications.create({
           type: 'basic',
-          title: isSuccessful
-            ? t('Swap transaction succeeded! 🎉')
-            : t('Swap transaction failed! ❌'),
+          title: notificationText,
           iconUrl: '../../../../images/icon-256.png',
           priority: 2,
           message: isSuccessful
