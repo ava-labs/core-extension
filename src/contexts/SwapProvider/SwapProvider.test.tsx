@@ -90,6 +90,11 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('ethers');
+jest.mock('@avalabs/core-k2-components', () => ({
+  toast: {
+    success: jest.fn(),
+  },
+}));
 
 describe('contexts/SwapProvider', () => {
   const connectionContext = {
