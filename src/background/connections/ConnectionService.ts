@@ -46,8 +46,4 @@ export class ConnectionService {
 
     return connectionController;
   }
-
-  get extensionsOpened() {
-    return this._extensionsOpened;
-  }
 }

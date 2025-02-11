@@ -1,6 +1,6 @@
 import { CallbackManager } from '@src/background/runtime/CallbackManager';
 import EventEmitter from 'events';
-import { container, singleton } from 'tsyringe';
+import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
   LockEvents,
@@ -10,15 +10,15 @@ import {
   SESSION_AUTH_DATA_KEY,
   AlarmsEvents,
 } from './models';
-import { ConnectionService } from '@src/background/connections/ConnectionService';
+import { OnAllExtensionClosed } from '@src/background/runtime/lifecycleCallbacks';
 
 @singleton()
-export class LockService {
+export class LockService implements OnAllExtensionClosed {
   private eventEmitter = new EventEmitter();
 
   private _locked = true;
 
-  private _autoLockInMinutes = 30;
+  #autoLockInMinutes = 30;
 
   public get locked(): boolean {
     return this._locked;
@@ -30,19 +30,7 @@ export class LockService {
   ) {}
 
   async activate() {
-    chrome.alarms.clear(AlarmsEvents.AUTO_LOCK);
-    chrome.runtime.onConnect.addListener((externalPort) => {
-      externalPort.onDisconnect.addListener(() => {
-        const connectedExtensions =
-          container.resolve(ConnectionService).extensionsOpened;
-
-        if (!connectedExtensions && !this._locked) {
-          chrome.alarms.create(AlarmsEvents.AUTO_LOCK, {
-            periodInMinutes: this._autoLockInMinutes,
-          });
-        }
-      });
-
+    chrome.runtime.onConnect.addListener(() => {
       chrome.alarms.clear(AlarmsEvents.AUTO_LOCK);
     });
 
@@ -66,6 +54,14 @@ export class LockService {
     }
 
     await this.unlock(authData.password);
+  }
+
+  onAllExtensionsClosed(): void | Promise<void> {
+    if (!this._locked) {
+      chrome.alarms.create(AlarmsEvents.AUTO_LOCK, {
+        periodInMinutes: this.#autoLockInMinutes,
+      });
+    }
   }
 
   async unlock(password: string) {
