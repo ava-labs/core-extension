@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo } from 'react';
+import { createContext, useCallback, useContext, useMemo, useRef } from 'react';
 import type { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { TransactionParams } from '@avalabs/evm-module';
 import { resolve } from '@avalabs/core-utils-sdk';
@@ -64,6 +64,7 @@ export function SwapContextProvider({ children }: { children: any }) {
     forceShowTokensWithoutBalances: true,
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
+  const pendingToastIdRef = useRef('');
 
   const paraswap = useMemo(
     () => new ParaSwap(ChainId.AVALANCHE_MAINNET_ID, undefined, new Web3()),
@@ -278,6 +279,7 @@ export function SwapContextProvider({ children }: { children: any }) {
           ? t('Swap transaction succeeded! 🎉')
           : t('Swap transaction failed! ❌');
 
+        toast.dismiss(pendingToastIdRef.current);
         toast.success(notificationText);
 
         browser.notifications.create({
@@ -462,6 +464,8 @@ export function SwapContextProvider({ children }: { children: any }) {
         swapTxHash = txHash;
       }
 
+      pendingToastIdRef.current = toast.loading(t('Swap pending...'));
+
       notifyOnSwapResult({
         provider: avaxProviderC,
         txHash: swapTxHash,
@@ -475,15 +479,16 @@ export function SwapContextProvider({ children }: { children: any }) {
       });
     },
     [
-      activeAccount,
-      activeNetwork,
-      avaxProviderC,
-      buildTx,
-      networkFee,
-      request,
-      notifyOnSwapResult,
-      getSwapTxProps,
       isFlagEnabled,
+      activeNetwork,
+      networkFee,
+      activeAccount,
+      avaxProviderC,
+      getSwapTxProps,
+      buildTx,
+      t,
+      notifyOnSwapResult,
+      request,
     ],
   );
 
@@ -574,6 +579,8 @@ export function SwapContextProvider({ children }: { children: any }) {
         }),
       );
 
+      pendingToastIdRef.current = toast.loading(t('Swap pending...'));
+
       if (signError || !swapTxHash) {
         return throwError(signError);
       }
@@ -591,14 +598,15 @@ export function SwapContextProvider({ children }: { children: any }) {
       });
     },
     [
-      activeAccount,
       activeNetwork,
-      avaxProviderC,
-      buildTx,
       networkFee,
-      request,
-      notifyOnSwapResult,
+      activeAccount,
+      avaxProviderC,
       getSwapTxProps,
+      request,
+      t,
+      notifyOnSwapResult,
+      buildTx,
     ],
   );
 

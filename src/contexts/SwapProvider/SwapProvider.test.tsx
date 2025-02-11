@@ -93,6 +93,8 @@ jest.mock('ethers');
 jest.mock('@avalabs/core-k2-components', () => ({
   toast: {
     success: jest.fn(),
+    loading: jest.fn(),
+    dismiss: jest.fn(),
   },
 }));
 
