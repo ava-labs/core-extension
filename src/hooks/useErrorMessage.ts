@@ -177,6 +177,22 @@ export const useErrorMessage = () => {
       [SecretsError.DerivationPathMissing]: {
         title: t('Attempted to use an unknown derivation path'),
       },
+      [SecretsError.DerivationPathTooShort]: {
+        title: t('Error while deriving address'),
+        hint: t('Requested derivation path is too short'),
+      },
+      [SecretsError.UnsupportedSecretType]: {
+        title: t('Error while deriving address'),
+        hint: t('Unsupporetd secret type'),
+      },
+      [SecretsError.UnsupportedCurve]: {
+        title: t('Error while deriving address'),
+        hint: t('Unsupported elliptic curve'),
+      },
+      [SecretsError.UnknownDerivationPathFormat]: {
+        title: t('Error while deriving address'),
+        hint: t('Unsupported derivation path format'),
+      },
     }),
     [t],
   );
