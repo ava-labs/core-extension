@@ -280,7 +280,13 @@ export function SwapContextProvider({ children }: { children: any }) {
           : t('Swap transaction failed! ❌');
 
         toast.dismiss(pendingToastIdRef.current);
-        toast.success(notificationText);
+        if (isSuccessful) {
+          toast.success(notificationText);
+        }
+
+        if (!isSuccessful) {
+          toast.error(notificationText);
+        }
 
         browser.notifications.create({
           type: 'basic',
@@ -464,7 +470,9 @@ export function SwapContextProvider({ children }: { children: any }) {
         swapTxHash = txHash;
       }
 
-      pendingToastIdRef.current = toast.loading(t('Swap pending...'));
+      pendingToastIdRef.current = toast.loading(t('Swap pending...'), {
+        duration: Infinity,
+      });
 
       notifyOnSwapResult({
         provider: avaxProviderC,
@@ -579,7 +587,9 @@ export function SwapContextProvider({ children }: { children: any }) {
         }),
       );
 
-      pendingToastIdRef.current = toast.loading(t('Swap pending...'));
+      pendingToastIdRef.current = toast.loading(t('Swap pending...'), {
+        duration: Infinity,
+      });
 
       if (signError || !swapTxHash) {
         return throwError(signError);
