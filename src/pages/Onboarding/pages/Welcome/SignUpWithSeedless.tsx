@@ -10,7 +10,6 @@ import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import { useRef, useState, useEffect } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { ExistingWalletOptions } from '../Seedless/components/ExistingWalletOptions';
-import { BlinkingLogo } from '@src/components/icons/BlinkLogo';
 
 export function SignUpWithSeedless() {
   const { t } = useTranslation();
@@ -58,7 +57,7 @@ export function SignUpWithSeedless() {
             height: '40%',
           }}
         >
-          <BlinkingLogo height={150} />
+          <img src="/images/logo-transparent.svg" height={80} />
         </Stack>
 
         <Stack sx={{ rowGap: 2, height: '40%' }}>

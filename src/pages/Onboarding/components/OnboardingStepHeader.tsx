@@ -1,4 +1,4 @@
-import { CoreIcon, Stack, Typography } from '@avalabs/core-k2-components';
+import { Stack, Typography } from '@avalabs/core-k2-components';
 
 interface OnboardingStepHeaderProps {
   testId?: string;
@@ -18,7 +18,7 @@ export function OnboardingStepHeader({
         textAlign: 'center',
       }}
     >
-      <CoreIcon size={30} />
+      <img src="/images/logo-transparent.svg" height={15} />
       {title && (
         <Typography
           variant="h3"
