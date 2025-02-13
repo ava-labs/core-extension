@@ -1,13 +1,8 @@
 import browser, { Runtime } from 'webextension-polyfill';
-import {
-  CONTENT_SCRIPT,
-  EXTENSION_SCRIPT,
-  KEEPALIVE_SCRIPT,
-} from '@src/common';
+import { CONTENT_SCRIPT, EXTENSION_SCRIPT } from '@src/common';
 import { container, singleton } from 'tsyringe';
 import { DAppConnectionController } from './dAppConnection/DAppConnectionController';
 import { ConnectionController } from './models';
-import { KeepaliveConnectionController } from './keepaliveConnection/KeepaliveConnectionController';
 import { ExtensionConnectionController } from './extensionConnection/ExtensionConnectionController';
 import { CallbackManager } from '../runtime/CallbackManager';
 
@@ -46,10 +41,7 @@ export class ConnectionService {
       connectionController = container.resolve(ExtensionConnectionController);
     } else if (connection.name === CONTENT_SCRIPT) {
       connectionController = container.resolve(DAppConnectionController);
-    } else if (connection.name === KEEPALIVE_SCRIPT) {
-      connectionController = container.resolve(KeepaliveConnectionController);
     }
-
     connectionController?.connect(connection);
 
     return connectionController;
