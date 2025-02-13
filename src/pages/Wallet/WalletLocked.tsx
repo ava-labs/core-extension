@@ -2,8 +2,6 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { useEffect, useRef, useState } from 'react';
-import animationData from '@src/images/OwlAnimation-short.json';
-import Lottie from 'react-lottie';
 import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -15,12 +13,6 @@ import {
   TextField,
   Typography,
 } from '@avalabs/core-k2-components';
-
-const defaultOptions = {
-  loop: false,
-  autoplay: true,
-  animationData: animationData,
-};
 
 export function WalletLocked({
   unlockWallet,
@@ -91,7 +83,10 @@ export function WalletLocked({
           alignItems: 'center',
         }}
       >
-        <Lottie options={defaultOptions} height={180} width={180} />
+        <img
+          src="/images/Core_logo_white_text_black_background.svg"
+          width={180}
+        />
       </Stack>
 
       <Stack

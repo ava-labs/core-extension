@@ -278,7 +278,7 @@ export function SwapContextProvider({ children }: { children: any }) {
           title: isSuccessful
             ? t('Swap transaction succeeded! 🎉')
             : t('Swap transaction failed! ❌'),
-          iconUrl: '../../../../images/icon-256.png',
+          iconUrl: '../../../../images/icon-192.png',
           priority: 2,
           message: isSuccessful
             ? t(
