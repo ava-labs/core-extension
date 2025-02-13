@@ -167,7 +167,6 @@ export function Accounts() {
             <Typography
               variant="caption"
               fontWeight={500}
-              fontSize={13}
               textAlign="end"
               color="text.secondary"
               // Prevents UI from jumping due to LoadingDotsIcon being larger than they appear
@@ -196,9 +195,9 @@ export function Accounts() {
             {active?.name}
           </OverflowingTypography>
           <Typography variant="h5" fontSize={18}>
-            {activeAccountBalance?.sum
+            {typeof activeAccountBalance?.sum === 'number'
               ? currencyFormatter(activeAccountBalance.sum)
-              : '...'}
+              : ''}
           </Typography>
         </Stack>
       </Stack>

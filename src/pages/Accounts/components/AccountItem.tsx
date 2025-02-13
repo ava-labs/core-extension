@@ -13,6 +13,7 @@ import {
   ForwardedRef,
   forwardRef,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -79,6 +80,18 @@ export const AccountItem = forwardRef(
     const address = network ? getAddressForChain(network.chainId, account) : '';
     const [cardHovered, setCardHovered] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
+    const firstPageload = useRef(true);
+
+    useEffect(() => {
+      if (isActive) {
+        const behavior = firstPageload.current ? 'instant' : 'smooth';
+        itemRef?.current?.scrollIntoView({
+          block: 'nearest',
+          behavior,
+        });
+      }
+      firstPageload.current = false;
+    }, [isActive]);
 
     const toggle = useCallback(
       (accountId: string) => {

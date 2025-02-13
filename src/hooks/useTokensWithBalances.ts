@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
@@ -13,6 +13,7 @@ import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 type UseTokensWithBalanceOptions = {
   // Requests the tokens WITH and WITHOUT balances
   forceShowTokensWithoutBalances?: boolean;
+  forceHiddenTokens?: boolean;
   // string array of asset symbols that are to be excluded from the result
   disallowedAssets?: string[];
   chainId?: number;
@@ -43,7 +44,8 @@ export const useTokensWithBalances = (
 
   const { request } = useConnectionContext();
   const { balances } = useBalancesContext();
-  const { showTokensWithoutBalances, customTokens } = useSettingsContext();
+  const { showTokensWithoutBalances, customTokens, getTokenVisibility } =
+    useSettingsContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -79,6 +81,17 @@ export const useTokensWithBalances = (
       return acc;
     }, {});
   }, [customTokens, network?.chainId]);
+
+  const visibleTokens = useCallback(
+    (tokens: TokenWithBalance[]) => {
+      if (options.forceHiddenTokens) {
+        return tokens;
+      }
+
+      return tokens.filter(getTokenVisibility);
+    },
+    [getTokenVisibility, options.forceHiddenTokens],
+  );
 
   useEffect(() => {
     setSelectedChainId(chainId ? chainId : network?.chainId);
@@ -162,7 +175,7 @@ export const useTokensWithBalances = (
         networkBalances,
       );
 
-      return nativeTokensFirst(Object.values(merged));
+      return visibleTokens(nativeTokensFirst(Object.values(merged)));
     }
 
     const unfilteredTokens = Object.values(networkBalances);
@@ -181,9 +194,9 @@ export const useTokensWithBalances = (
       return token.balance > 0n;
     });
 
-    return filteredTokens.length
-      ? nativeTokensFirst(filteredTokens)
-      : defaultResult;
+    return visibleTokens(
+      filteredTokens.length ? nativeTokensFirst(filteredTokens) : defaultResult,
+    );
   }, [
     selectedChainId,
     activeAccount,
@@ -192,5 +205,6 @@ export const useTokensWithBalances = (
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,
     allTokensWithPlaceholderBalances,
+    visibleTokens,
   ]);
 };

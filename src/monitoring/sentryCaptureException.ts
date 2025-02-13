@@ -32,6 +32,8 @@ export enum SentryExceptionTypes {
   VM_MODULES = 'vmModules',
 
   ONBOARDING = 'onboarding',
+
+  FIREBASE = 'firebase',
 }
 
 // wrapper to make error reporting contexts unfirom accross the codebase
