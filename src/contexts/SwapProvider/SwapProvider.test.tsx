@@ -96,6 +96,8 @@ jest.mock('@avalabs/core-k2-components', () => ({
     loading: jest.fn(),
     dismiss: jest.fn(),
     error: jest.fn(),
+    custom: jest.fn(),
+    remove: jest.fn(),
   },
 }));
 
