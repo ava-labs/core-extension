@@ -46,6 +46,7 @@ import { CommonError } from '@src/utils/errors';
 import { useWalletContext } from '../WalletProvider';
 import { SecretType } from '@src/background/services/secrets/models';
 import { toast } from '@avalabs/core-k2-components';
+import { SwapPendingToast } from '@src/pages/Swap/components/SwapPendingToast';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -279,7 +280,8 @@ export function SwapContextProvider({ children }: { children: any }) {
           ? t('Swap transaction succeeded! 🎉')
           : t('Swap transaction failed! ❌');
 
-        toast.dismiss(pendingToastIdRef.current);
+        toast.remove(pendingToastIdRef.current);
+
         if (isSuccessful) {
           toast.success(notificationText);
         }
@@ -470,9 +472,16 @@ export function SwapContextProvider({ children }: { children: any }) {
         swapTxHash = txHash;
       }
 
-      pendingToastIdRef.current = toast.loading(t('Swap pending...'), {
-        duration: Infinity,
-      });
+      const toastId = toast.custom(
+        <SwapPendingToast onDismiss={() => toast.remove(toastId)}>
+          {t('Swap pending...')}
+        </SwapPendingToast>,
+
+        {
+          duration: Infinity,
+        },
+      );
+      pendingToastIdRef.current = toastId;
 
       notifyOnSwapResult({
         provider: avaxProviderC,
@@ -587,9 +596,16 @@ export function SwapContextProvider({ children }: { children: any }) {
         }),
       );
 
-      pendingToastIdRef.current = toast.loading(t('Swap pending...'), {
-        duration: Infinity,
-      });
+      const toastId = toast.custom(
+        <SwapPendingToast onDismiss={() => toast.remove(toastId)}>
+          {t('Swap pending...')}
+        </SwapPendingToast>,
+
+        {
+          duration: Infinity,
+        },
+      );
+      pendingToastIdRef.current = toastId;
 
       if (signError || !swapTxHash) {
         return throwError(signError);
