@@ -38,6 +38,10 @@ import { isXchainNetwork } from '@src/background/services/network/utils/isAvalan
 import { getUnconfirmedBalanceInCurrency } from '@src/background/services/balances/models';
 import { isTokenMalicious } from '@src/utils/isTokenMalicious';
 import { MaliciousTokenWarningBox } from '@src/components/common/MaliciousTokenWarning';
+import { useLiveBalance } from '@src/hooks/useLiveBalance';
+import { TokenType } from '@avalabs/vm-module-types';
+
+const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
 export function TokenFlow() {
   const { t } = useTranslation();
@@ -96,6 +100,8 @@ export function TokenFlow() {
       setTokensWithBalancesAreReady(!!tokensWithBalances.length);
     }
   }, [activeAccount, hasAccessToActiveNetwork, tokensWithBalances]);
+
+  useLiveBalance(POLLED_BALANCES);
 
   if (!hasAccessToActiveNetwork) {
     return (

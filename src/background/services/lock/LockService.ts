@@ -8,15 +8,17 @@ import {
   LOCK_TIMEOUT,
   SessionAuthData,
   SESSION_AUTH_DATA_KEY,
+  AlarmsEvents,
 } from './models';
+import { OnAllExtensionClosed } from '@src/background/runtime/lifecycleCallbacks';
 
 @singleton()
-export class LockService {
+export class LockService implements OnAllExtensionClosed {
   private eventEmitter = new EventEmitter();
 
   private _locked = true;
 
-  private lockCheckInterval?: any;
+  #autoLockInMinutes = 30;
 
   public get locked(): boolean {
     return this._locked;
@@ -28,6 +30,15 @@ export class LockService {
   ) {}
 
   async activate() {
+    chrome.runtime.onConnect.addListener(() => {
+      chrome.alarms.clear(AlarmsEvents.AUTO_LOCK);
+    });
+
+    chrome.alarms.onAlarm.addListener((alarm) => {
+      if (alarm.name === AlarmsEvents.AUTO_LOCK) {
+        this.lock();
+      }
+    });
     const authData =
       await this.storageService.loadFromSessionStorage<SessionAuthData>(
         SESSION_AUTH_DATA_KEY,
@@ -43,7 +54,14 @@ export class LockService {
     }
 
     await this.unlock(authData.password);
-    this.startAutoLockInterval(authData?.loginTime);
+  }
+
+  onAllExtensionsClosed(): void | Promise<void> {
+    if (!this._locked) {
+      chrome.alarms.create(AlarmsEvents.AUTO_LOCK, {
+        periodInMinutes: this.#autoLockInMinutes,
+      });
+    }
   }
 
   async unlock(password: string) {
@@ -78,16 +96,6 @@ export class LockService {
     await this.storageService.changePassword(oldPassword, newPassword);
   }
 
-  private startAutoLockInterval(loginTime: number) {
-    const timeToLock = loginTime + LOCK_TIMEOUT;
-    this.lockCheckInterval = setInterval(() => {
-      if (Date.now() > timeToLock) {
-        clearInterval(this.lockCheckInterval);
-        this.lock();
-      }
-    }, 60000);
-  }
-
   async verifyPassword(password: string): Promise<boolean> {
     const authData =
       await this.storageService.loadFromSessionStorage<SessionAuthData>(
@@ -104,6 +112,7 @@ export class LockService {
     this.eventEmitter.emit(LockEvents.LOCK_STATE_CHANGED, {
       isUnlocked: false,
     });
+    chrome.alarms.clear(AlarmsEvents.AUTO_LOCK);
   }
 
   addListener(
