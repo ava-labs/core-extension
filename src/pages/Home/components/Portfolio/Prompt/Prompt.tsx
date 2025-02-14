@@ -10,9 +10,9 @@ import {
   useTheme,
   XIcon,
 } from '@avalabs/core-k2-components';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { FunctionCallingMode, GoogleGenerativeAI } from '@google/generative-ai';
-import { sendFunctionDeclaration, systemPromptTemplate } from './models';
+import { functionDeclarations, systemPromptTemplate } from './models';
 import { useTranslation } from 'react-i18next';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
@@ -22,9 +22,16 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { buildTx } from '@src/pages/Send/utils/buildSendTx';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
-import { RpcMethod, TokenWithBalanceERC20 } from '@avalabs/vm-module-types';
+import {
+  RpcMethod,
+  TokenType,
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { errorValues } from 'eth-rpc-errors/dist/error-constants';
+import { useSwapContext } from '@src/contexts/SwapProvider';
+import { stringToBigint } from '@src/utils/stringToBigint';
+import { isAPIError } from '@src/pages/Swap/utils';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -33,10 +40,11 @@ export function Prompt() {
   const { t } = useTranslation();
   const [input, setInput] = useState<string>('');
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
-  const { network } = useNetworkContext();
-  const { contacts } = useContactsContext();
-  const { accounts } = useAccountsContext();
+  const { network, networks } = useNetworkContext();
+  const { contacts, createContact } = useContactsContext();
+  const { accounts, selectAccount } = useAccountsContext();
   const { request } = useConnectionContext();
+  const { swap, getRate } = useSwapContext();
 
   const [prompts, setPrompts] = useState<
     {
@@ -51,50 +59,177 @@ export function Prompt() {
   ]);
   const tokens = useTokensWithBalances();
 
-  const functions = {
-    send: async ({ recepient, token, amount }) => {
-      console.log('SEND CALLED', { recepient, token, amount });
-      if (!accounts.active) {
-        throw new Error(`You don't have an active account`);
-      }
-      if (!network) {
-        throw new Error(`No network`);
-      }
-      const provider = await getProviderForNetwork(network);
-      if (!provider) {
-        throw new Error(`No network`);
-      }
+  const functions = useMemo(
+    () => ({
+      send: async ({ recepient, token, amount }) => {
+        console.log('SEND CALLED', { recepient, token, amount });
+        if (!accounts.active) {
+          throw new Error(`You don't have an active account`);
+        }
+        if (!network) {
+          throw new Error(`No network`);
+        }
+        const provider = await getProviderForNetwork(network);
+        if (!provider) {
+          throw new Error(`No network`);
+        }
 
-      const tokenToSend = tokens.find(
-        (item) => item.symbol === token,
-      ) as TokenWithBalanceERC20;
-      if (!tokenToSend) {
-        throw new Error(`Cannot find token`);
-      }
+        const tokenToSend = tokens.find(
+          (item) => item.symbol === token,
+        ) as TokenWithBalanceERC20;
+        if (!tokenToSend) {
+          throw new Error(`Cannot find token`);
+        }
 
-      const tx = await buildTx(
-        accounts.active.addressC,
-        provider as JsonRpcBatchInternal,
-        {
-          amount: amount.toString(),
-          address: recepient,
-          token: tokenToSend,
-        },
-      );
-
-      const hash = await request({
-        method: RpcMethod.ETH_SEND_TRANSACTION,
-        params: [
+        const tx = await buildTx(
+          accounts.active.addressC,
+          provider as JsonRpcBatchInternal,
           {
-            ...tx,
-            chainId: network.chainId,
+            amount: amount.toString(),
+            address: recepient,
+            token: tokenToSend,
           },
-        ],
-      });
+        );
 
-      return `Transaction successful. Tx hash: ${hash}`;
-    },
-  };
+        const hash = await request({
+          method: RpcMethod.ETH_SEND_TRANSACTION,
+          params: [
+            {
+              ...tx,
+              chainId: network.chainId,
+            },
+          ],
+        });
+
+        return {
+          recepient,
+          token,
+          amount,
+          content: `Transaction successful. Tx hash: ${hash}`,
+        };
+      },
+      switchAccount: async ({ accountId }: { accountId: string }) => {
+        await selectAccount(accountId);
+
+        return {
+          content: `Success! The new active account is ${accountId}`,
+        };
+      },
+      createContact: async ({
+        name,
+        address,
+        addressBitcoin,
+        addressAvalanche,
+      }: {
+        name: string;
+        address: string;
+        addressBitcoin?: string;
+        addressAvalanche?: string;
+      }) => {
+        await createContact({
+          id: '',
+          name,
+          address,
+          addressBTC: addressBitcoin,
+          addressXP: addressAvalanche,
+        });
+
+        return {
+          content: `Success! New contact added!`,
+        };
+      },
+      swap: async ({
+        amount,
+        fromTokenAddress,
+        toTokenAddress,
+      }: {
+        amount: number;
+        fromTokenAddress: string;
+        toTokenAddress: string;
+      }) => {
+        const srcToken = tokens.find(
+          (item) =>
+            item.symbol === fromTokenAddress ||
+            ('address' in item && item.address === fromTokenAddress),
+        );
+        const toToken = tokens.find(
+          (item) =>
+            item.symbol === toTokenAddress ||
+            ('address' in item && item.address === toTokenAddress),
+        );
+        if (
+          !srcToken ||
+          (srcToken.type !== TokenType.ERC20 &&
+            srcToken.type !== TokenType.NATIVE)
+        ) {
+          throw new Error(`Cannot find the source token`);
+        }
+        if (
+          !toToken ||
+          (toToken.type !== TokenType.ERC20 &&
+            toToken.type !== TokenType.NATIVE)
+        ) {
+          throw new Error(`Cannot find the destination token`);
+        }
+
+        const amountBigInt = stringToBigint(
+          amount.toString(),
+          srcToken.decimals,
+        );
+
+        const rate = await getRate({
+          srcDecimals: srcToken.decimals,
+          srcToken:
+            srcToken.type === TokenType.ERC20
+              ? srcToken.address
+              : srcToken.symbol,
+          destToken:
+            toToken.type === TokenType.ERC20 ? toToken.address : toToken.symbol,
+          destDecimals: toToken.decimals,
+          srcAmount: amountBigInt.toString(),
+        });
+        if (
+          isAPIError(rate.optimalRate) ||
+          !rate.optimalRate ||
+          !rate.destAmount
+        ) {
+          throw new Error(
+            `Error while getting swap rate. ${isAPIError(rate.optimalRate) ? rate.optimalRate.message : ''}`,
+          );
+        }
+
+        const result = await swap({
+          srcToken:
+            srcToken.type === TokenType.ERC20
+              ? srcToken.address
+              : srcToken.symbol,
+          destToken:
+            toToken.type === TokenType.ERC20 ? toToken.address : toToken.symbol,
+          srcDecimals: srcToken.decimals,
+          destDecimals: toToken.decimals,
+          srcAmount: rate.optimalRate.srcAmount,
+          priceRoute: rate.optimalRate,
+          destAmount: rate.destAmount,
+          gasLimit: Number(rate.optimalRate.gasCost),
+          slippage: 0.15,
+        });
+
+        return {
+          content: `Swap successful. Successfully swapped ${amount}${srcToken.symbol} to ${rate.destAmount}${toToken.symbol}. Tx hash: ${result.swapTxHash}`,
+        };
+      },
+    }),
+    [
+      accounts.active,
+      createContact,
+      getRate,
+      network,
+      request,
+      selectAccount,
+      swap,
+      tokens,
+    ],
+  );
 
   const systemPrompt = useMemo(() => {
     if (!network || !tokens) {
@@ -112,18 +247,49 @@ export function Prompt() {
           (_, v) => (typeof v === 'bigint' ? v.toString() : v),
         ),
       )
-      .replace('__CURRENT_NETWORK___', JSON.stringify(network))
+      .replace(
+        '__NETWORKS___',
+        JSON.stringify(
+          networks.map((n) => ({
+            id: n.caipId,
+            name: n.chainName,
+            isTestnet: n.isTestnet,
+          })),
+        ),
+      )
+      .replace(
+        '__CURRENT_NETWORK___',
+        JSON.stringify({
+          id: network.caipId,
+          name: network.chainName,
+          isTestnet: network.isTestnet,
+        }),
+      )
       .replace('__CONTACTS__', JSON.stringify(contacts))
-      .replace('__ACCOUNTS__', JSON.stringify(accounts));
-  }, [tokens, network, contacts, accounts]);
+      .replace(
+        '__ACCOUNTS__',
+        JSON.stringify(
+          [
+            ...Object.values(accounts.primary).flat(),
+            ...Object.values(accounts.imported),
+          ].map((a) => ({ name: a.name, id: a.id, address: a.addressC })),
+        ),
+      );
+  }, [tokens, network, contacts, accounts, networks]);
 
   const model = useMemo(() => {
     console.log('SYSTEM PROMPT', systemPrompt);
     return genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
+      generationConfig: {
+        temperature: 0.5,
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 8192,
+      },
       tools: [
         {
-          functionDeclarations: [sendFunctionDeclaration],
+          functionDeclarations,
         },
       ],
       toolConfig: {
@@ -164,7 +330,7 @@ export function Prompt() {
             {
               functionResponse: {
                 name: 'send',
-                response: { ...call.args, content: apiResponse },
+                response: apiResponse,
               },
             },
           ]);
@@ -211,7 +377,7 @@ export function Prompt() {
         });
       }
     },
-    [model],
+    [functions, model],
   );
 
   return (
