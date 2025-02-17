@@ -22,7 +22,6 @@ import { Network } from '@avalabs/glacier-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { HEADERS } from '../../glacier/glacierConfig';
-import { isDevnet } from '@src/utils/isDevnet';
 
 type TxParams = {
   transactionHex: string;
@@ -92,11 +91,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
       : await Avalanche.getUtxosByTxFromGlacier({
           transactionHex,
           chainAlias,
-          network: isDevnet(network)
-            ? Network.DEVNET
-            : network.isTestnet
-              ? Network.FUJI
-              : Network.MAINNET,
+          network: network.isTestnet ? Network.FUJI : Network.MAINNET,
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,
           headers: HEADERS,
