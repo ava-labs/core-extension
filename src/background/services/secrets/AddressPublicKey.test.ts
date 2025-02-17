@@ -252,14 +252,14 @@ describe('AddressPublicKey', () => {
 
     it('works with "ed25519" curve', async () => {
       const derivationPath = `${EVM_BASE_DERIVATION_PATH}/0/0`;
-      const publicKey = hex.decode('0123456789abcdef');
+      const publicKeyRaw = hex.decode('0123456789abcdef');
       const secrets = {
         secretType: SecretType.Mnemonic,
         mnemonic: 'testMnemonic',
       } as any;
 
       const seedNode = {
-        derive: jest.fn().mockReturnValue({ publicKey }),
+        derive: jest.fn().mockReturnValue({ publicKeyRaw }),
       } as any;
 
       jest.spyOn(slip10, 'fromMasterSeed').mockReturnValue(seedNode);
@@ -269,7 +269,7 @@ describe('AddressPublicKey', () => {
         await AddressPublicKey.fromSecrets(secrets, 'ed25519', derivationPath),
       ).toEqual(
         AddressPublicKey.fromJSON({
-          key: hex.encode(publicKey),
+          key: hex.encode(publicKeyRaw),
           curve: 'ed25519',
           derivationPath,
         }),

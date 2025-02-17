@@ -195,7 +195,7 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
 
       case 'ed25519': {
         const hdKey = slip10.fromMasterSeed(seed);
-        key = hex.encode(hdKey.derive(derivationPath).publicKey);
+        key = hex.encode(hdKey.derive(derivationPath).publicKeyRaw);
         break;
       }
 
