@@ -1,4 +1,4 @@
-import { SwapSide } from 'paraswap';
+import { ETHER_ADDRESS, SwapSide } from 'paraswap';
 import { createRef, forwardRef, useImperativeHandle } from 'react';
 
 import { matchingPayload, render } from '@src/tests/test-utils';
@@ -272,6 +272,60 @@ describe('contexts/SwapProvider', () => {
           },
         });
       });
+    });
+
+    it('maps srcToken to 0xEeEe... when its the native token', async () => {
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+        json: async () => ({
+          priceRoute: {
+            address: ROUTE_ADDRESS,
+            destAmount: 1000,
+          },
+        }),
+        ok: true,
+      } as any);
+
+      const { getRate } = getSwapProvider();
+      const params = buildGetRateParams({
+        srcToken: networkContext.network.networkToken.symbol,
+      });
+
+      await getRate(params);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        getExpectedURL('prices', {
+          ...params,
+          srcToken: ETHER_ADDRESS,
+          srcDecimals: 18,
+        }),
+      );
+    });
+
+    it('maps destToken to 0xEeEe... when its the native token', async () => {
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+        json: async () => ({
+          priceRoute: {
+            address: ROUTE_ADDRESS,
+            destAmount: 1000,
+          },
+        }),
+        ok: true,
+      } as any);
+
+      const { getRate } = getSwapProvider();
+      const params = buildGetRateParams({
+        destToken: networkContext.network.networkToken.symbol,
+      });
+
+      await getRate(params);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        getExpectedURL('prices', {
+          ...params,
+          destToken: ETHER_ADDRESS,
+          destDecimals: 18,
+        }),
+      );
     });
 
     describe('when a server times out', () => {
