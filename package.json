@@ -37,7 +37,7 @@
     "@avalabs/core-token-prices-sdk": "3.1.0-alpha.34",
     "@avalabs/core-utils-sdk": "3.1.0-alpha.34",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.34",
-    "@avalabs/evm-module": "1.4.0",
+    "@avalabs/evm-module": "0.0.0-CP-9855-replace-glacier-with-d-20250213161239",
     "@avalabs/glacier-sdk": "3.1.0-alpha.34",
     "@avalabs/hw-app-avalanche": "0.14.1",
     "@avalabs/hvm-module": "1.4.0",
