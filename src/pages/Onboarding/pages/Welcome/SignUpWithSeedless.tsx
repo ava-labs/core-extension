@@ -10,6 +10,7 @@ import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
 import { useRef, useState, useEffect } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { ExistingWalletOptions } from '../Seedless/components/ExistingWalletOptions';
+import { BrandName } from '@src/components/icons/BrandName';
 
 export function SignUpWithSeedless() {
   const { t } = useTranslation();
@@ -57,7 +58,7 @@ export function SignUpWithSeedless() {
             height: '40%',
           }}
         >
-          <img src="/images/logo-transparent.svg" height={80} />
+          <BrandName width={120} />
         </Stack>
 
         <Stack sx={{ rowGap: 2, height: '40%' }}>

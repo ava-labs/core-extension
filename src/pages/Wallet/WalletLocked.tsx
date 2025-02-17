@@ -13,6 +13,7 @@ import {
   TextField,
   Typography,
 } from '@avalabs/core-k2-components';
+import { BrandName } from '@src/components/icons/BrandName';
 
 export function WalletLocked({
   unlockWallet,
@@ -83,10 +84,7 @@ export function WalletLocked({
           alignItems: 'center',
         }}
       >
-        <img
-          src="/images/Core_logo_white_text_black_background.svg"
-          width={180}
-        />
+        <BrandName width={120} />
       </Stack>
 
       <Stack

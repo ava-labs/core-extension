@@ -8,13 +8,14 @@ interface BrandNameProps {
 }
 
 export function BrandName({
-  height = 43,
+  height,
+  width,
   margin = '0',
   padding = '0',
 }: BrandNameProps) {
   return (
     <Stack sx={{ margin, padding }}>
-      <img src="/images/logo-transparent.svg" height={height} />
+      <img src="/images/logo-transparent.svg" height={height} width={width} />
     </Stack>
   );
 }

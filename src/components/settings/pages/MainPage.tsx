@@ -77,7 +77,7 @@ export function MainPage({
         }}
       >
         <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
-          <BrandName height={17} />
+          <BrandName width={90} />
         </Stack>
         <IconButton
           data-testid="close-settings-menu-button"
