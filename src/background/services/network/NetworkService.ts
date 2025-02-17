@@ -18,7 +18,6 @@ import {
   NetworkWithCaipId,
 } from './models';
 import {
-  AVALANCHE_P_DEV_NETWORK,
   AVALANCHE_XP_NETWORK,
   AVALANCHE_XP_TEST_NETWORK,
   BITCOIN_NETWORK,
@@ -53,7 +52,6 @@ import {
   decorateWithCaipId,
 } from '@src/utils/caipConversion';
 import { getSyncDomain, isSyncDomain } from './utils/getSyncDomain';
-import { isDevnet } from '@src/utils/isDevnet';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -377,9 +375,6 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     return networkList;
   }
-  private _getPchainDevnet(): Network {
-    return decorateWithCaipId(AVALANCHE_P_DEV_NETWORK);
-  }
 
   private _getPchainNetwork(isTestnet: boolean): Network {
     const network = isTestnet
@@ -449,7 +444,6 @@ export class NetworkService implements OnLock, OnStorageReady {
           [ChainId.AVALANCHE_P]: this._getPchainNetwork(false),
           [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork(true),
           [ChainId.AVALANCHE_X]: this._getXchainNetwork(false),
-          [ChainId.AVALANCHE_DEVNET_P]: this._getPchainDevnet(),
         };
       } else {
         attempt += 1;
@@ -486,13 +480,7 @@ export class NetworkService implements OnLock, OnStorageReady {
    * Returns the network object for Avalanche X/P Chains
    */
   getAvalancheNetworkXP() {
-    // TODO(@meeh0w): clean up after E-upgrade activation on Fuji
-    const isDevnetActive =
-      this.uiActiveNetwork && isDevnet(this.uiActiveNetwork);
-
-    return isDevnetActive
-      ? this._getPchainDevnet()
-      : this._getXchainNetwork(!this.isMainnet());
+    return this._getXchainNetwork(!this.isMainnet());
   }
 
   async getAvalancheNetwork() {

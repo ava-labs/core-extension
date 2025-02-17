@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo } from 'react';
+import { createContext, useCallback, useContext, useMemo, useRef } from 'react';
 import type { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { TransactionParams } from '@avalabs/evm-module';
 import { resolve } from '@avalabs/core-utils-sdk';
@@ -45,6 +45,8 @@ import { assert, assertPresent } from '@src/utils/assertions';
 import { CommonError } from '@src/utils/errors';
 import { useWalletContext } from '../WalletProvider';
 import { SecretType } from '@src/background/services/secrets/models';
+import { toast } from '@avalabs/core-k2-components';
+import { SwapPendingToast } from '@src/pages/Swap/components/SwapPendingToast';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -63,6 +65,7 @@ export function SwapContextProvider({ children }: { children: any }) {
     forceShowTokensWithoutBalances: true,
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
+  const pendingToastIdRef = useRef('');
 
   const paraswap = useMemo(
     () => new ParaSwap(ChainId.AVALANCHE_MAINNET_ID, undefined, new Web3()),
@@ -273,11 +276,23 @@ export function SwapContextProvider({ children }: { children: any }) {
           .div(10 ** destDecimals)
           .toString();
 
+        const notificationText = isSuccessful
+          ? t('Swap transaction succeeded! 🎉')
+          : t('Swap transaction failed! ❌');
+
+        toast.remove(pendingToastIdRef.current);
+
+        if (isSuccessful) {
+          toast.success(notificationText);
+        }
+
+        if (!isSuccessful) {
+          toast.error(notificationText);
+        }
+
         browser.notifications.create({
           type: 'basic',
-          title: isSuccessful
-            ? t('Swap transaction succeeded! 🎉')
-            : t('Swap transaction failed! ❌'),
+          title: notificationText,
           iconUrl: '../../../../images/icon-256.png',
           priority: 2,
           message: isSuccessful
@@ -457,6 +472,17 @@ export function SwapContextProvider({ children }: { children: any }) {
         swapTxHash = txHash;
       }
 
+      const toastId = toast.custom(
+        <SwapPendingToast onDismiss={() => toast.remove(toastId)}>
+          {t('Swap pending...')}
+        </SwapPendingToast>,
+
+        {
+          duration: Infinity,
+        },
+      );
+      pendingToastIdRef.current = toastId;
+
       notifyOnSwapResult({
         provider: avaxProviderC,
         txHash: swapTxHash,
@@ -470,15 +496,16 @@ export function SwapContextProvider({ children }: { children: any }) {
       });
     },
     [
-      activeAccount,
-      activeNetwork,
-      avaxProviderC,
-      buildTx,
-      networkFee,
-      request,
-      notifyOnSwapResult,
-      getSwapTxProps,
       isFlagEnabled,
+      activeNetwork,
+      networkFee,
+      activeAccount,
+      avaxProviderC,
+      getSwapTxProps,
+      buildTx,
+      t,
+      notifyOnSwapResult,
+      request,
     ],
   );
 
@@ -569,6 +596,17 @@ export function SwapContextProvider({ children }: { children: any }) {
         }),
       );
 
+      const toastId = toast.custom(
+        <SwapPendingToast onDismiss={() => toast.remove(toastId)}>
+          {t('Swap pending...')}
+        </SwapPendingToast>,
+
+        {
+          duration: Infinity,
+        },
+      );
+      pendingToastIdRef.current = toastId;
+
       if (signError || !swapTxHash) {
         return throwError(signError);
       }
@@ -586,14 +624,15 @@ export function SwapContextProvider({ children }: { children: any }) {
       });
     },
     [
-      activeAccount,
       activeNetwork,
-      avaxProviderC,
-      buildTx,
       networkFee,
-      request,
-      notifyOnSwapResult,
+      activeAccount,
+      avaxProviderC,
       getSwapTxProps,
+      request,
+      t,
+      notifyOnSwapResult,
+      buildTx,
     ],
   );
 
