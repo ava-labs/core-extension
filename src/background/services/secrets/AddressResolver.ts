@@ -5,7 +5,6 @@ import { Module, NetworkVMType } from '@avalabs/vm-module-types';
 
 import type { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { PickKeys } from '@src/background/models';
-import { isDevnet } from '@src/utils/isDevnet';
 import { CommonError, SecretsError } from '@src/utils/errors';
 import { assertPresent } from '@src/utils/assertions';
 
@@ -29,43 +28,7 @@ export class AddressResolver {
   }
 
   async #getNetworksForAddressDerivation(): Promise<NetworkWithCaipId[]> {
-    const allNetworksForEnv = Object.values(
-      await this.networkService.activeNetworks.promisify(),
-    );
-
-    /**
-     * In some instances (like X- and P-Chain), we may get two conflicting networks
-     * in the test environment (e.g. both Fuji P-Chain, and Devnet P-Chain).
-     *
-     * The two variants would result in conflicting addresses, so we need to filter
-     * one of them out, based on whichever is active.
-     *
-     * TODO: find a nicer way to do it. Ideas:
-     *   1) have a 3rd environment (mainnet / testnet / devnet)
-     *   2) have separate NetworkVMType for testnets & devnets
-     *   3) in the AccountService, do not segregate addresses by NetworkVMType,
-     * 			but rather by CAIP-2 ids (whole ID or just namespace and then choose the more specific one)
-     */
-    const isDevnetOnTheList = allNetworksForEnv.some(isDevnet);
-
-    if (!isDevnetOnTheList) {
-      return allNetworksForEnv;
-    }
-
-    const isDevnetActive = this.networkService.uiActiveNetwork
-      ? isDevnet(this.networkService.uiActiveNetwork)
-      : false;
-
-    return allNetworksForEnv.filter((network) => {
-      if (
-        network.vmName !== NetworkVMType.AVM &&
-        network.vmName !== NetworkVMType.PVM
-      ) {
-        return true;
-      }
-
-      return isDevnetActive ? isDevnet(network) : true;
-    });
+    return Object.values(await this.networkService.activeNetworks.promisify());
   }
 
   async getDerivationPathsByVM<VMs extends (keyof DerivationPathsMap)[]>(
