@@ -254,9 +254,6 @@ export function Accounts() {
           <AccountsActionButton
             isLoading={addAccountLoading}
             canCreateAccount={canCreateAccount}
-            createAccountTooltip={
-              canCreateAccount ? '' : t('Please select a wallet')
-            }
             onAddNewAccount={addAccountAndFocus}
           />
         )}

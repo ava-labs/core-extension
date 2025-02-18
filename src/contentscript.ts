@@ -1,5 +1,5 @@
-import { CONTENT_SCRIPT, KEEPALIVE_SCRIPT } from './common';
-import browser, { Runtime } from 'webextension-polyfill';
+import { CONTENT_SCRIPT } from './common';
+import browser from 'webextension-polyfill';
 import PortConnection from './background/utils/messaging/PortConnection';
 import onPageActivated from './background/providers/utils/onPageActivated';
 import AutoPairingPostMessageConnection from './background/utils/messaging/AutoPairingPostMessageConnection';
@@ -29,21 +29,6 @@ function setupStream() {
     dappConnection.dispose();
     backgroundConnection.dispose();
   });
-
-  let backgroundKeepaliveConnection: Runtime.Port | null = null;
-
-  function keepAlive() {
-    if (backgroundKeepaliveConnection) return;
-    backgroundKeepaliveConnection = browser.runtime.connect({
-      name: KEEPALIVE_SCRIPT,
-    });
-    backgroundKeepaliveConnection?.onDisconnect.addListener(() => {
-      backgroundKeepaliveConnection = null;
-      keepAlive();
-    });
-  }
-
-  keepAlive();
 
   backgroundConnection.on('disconnect', () => {
     console.log('reconnecting...');
