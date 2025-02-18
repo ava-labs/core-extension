@@ -10,8 +10,6 @@ export function isXchainNetwork(network?: Network) {
 //TODO: Fix this once we figure out how to separate between x and p chain ID
 export function isXchainNetworkId(chainId: number) {
   return (
-    ChainId.AVALANCHE_X === chainId ||
-    ChainId.AVALANCHE_TEST_X === chainId ||
-    ChainId.AVALANCHE_DEVNET_X === chainId // TODO: to remove this.
+    ChainId.AVALANCHE_X === chainId || ChainId.AVALANCHE_TEST_X === chainId
   );
 }
