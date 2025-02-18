@@ -275,19 +275,19 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-1.4.0.tgz#7f9959cc3769462c929986192cbb64e67562823c"
-  integrity sha512-B6hpQQ0o3fLWp+NwSpLJaG5OehOkJ3cGU2UDo/Yis4ikDcxfFED97WXcs5bWpNheL3fImsIjA1ozIsbGvKVQ9A==
+"@avalabs/evm-module@0.0.0-CP-9855-replace-glacier-with-d-20250218092708":
+  version "0.0.0-CP-9855-replace-glacier-with-d-20250218092708"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-CP-9855-replace-glacier-with-d-20250218092708.tgz#cdc7712931889a12940004ecfabbc4dff06bc796"
+  integrity sha512-HmzIQ242N/2vRzWwbB2xVeRnUOVwGB1le1ZL0vudnHzlN6Yo+9bWdIHePAC6BdvjkS4qNY0xtb51CbxIyGqrFw==
   dependencies:
-    "@avalabs/core-chains-sdk" "3.1.0-alpha.32"
-    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.32"
-    "@avalabs/core-etherscan-sdk" "3.1.0-alpha.32"
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.32"
-    "@avalabs/core-wallets-sdk" "3.1.0-alpha.32"
-    "@avalabs/glacier-sdk" "3.1.0-alpha.32"
-    "@avalabs/types" "3.1.0-alpha.32"
-    "@avalabs/vm-module-types" "1.4.0"
+    "@avalabs/core-chains-sdk" "3.1.0-alpha.34"
+    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.34"
+    "@avalabs/core-etherscan-sdk" "3.1.0-alpha.34"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.34"
+    "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
+    "@avalabs/glacier-sdk" "3.1.0-alpha.34"
+    "@avalabs/types" "3.1.0-alpha.34"
+    "@avalabs/vm-module-types" "0.0.0-CP-9855-replace-glacier-with-d-20250218092708"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -338,6 +338,18 @@
   version "3.1.0-alpha.34"
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.34.tgz#f560f7e512e4a11f0a94ad2718aa7ce57367200e"
   integrity sha512-v2/PAO+3QMk+xoubHzE810ZbZsIGXk+05eTXZvrNQy5KQjoPS02h11/EOSMGhpuAPg3jNCMLKQrIVkmKO/NFIw==
+
+"@avalabs/vm-module-types@0.0.0-CP-9855-replace-glacier-with-d-20250218092708":
+  version "0.0.0-CP-9855-replace-glacier-with-d-20250218092708"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-CP-9855-replace-glacier-with-d-20250218092708.tgz#d772b0e9166bf419c1bf3a33dbe9270cc0142d59"
+  integrity sha512-jY1FQrSUQ1/+StqzwfKyToCfR8ssMYQFbspmNhyx7/rkm3HIyBvM3cneEaMTipk4e1BgGMGGV9+h4nGzOvHLNQ==
+  dependencies:
+    "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
+    "@avalabs/glacier-sdk" "3.1.0-alpha.34"
+    "@metamask/rpc-errors" "6.3.0"
+    bitcoinjs-lib "5.2.0"
+    hypersdk-client "0.4.16"
+    zod "3.23.8"
 
 "@avalabs/vm-module-types@1.4.0":
   version "1.4.0"
