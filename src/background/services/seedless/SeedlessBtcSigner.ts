@@ -5,6 +5,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { SignerSession } from '@cubist-labs/cubesigner-sdk';
 import { Network, Psbt, SignerAsync, payments } from 'bitcoinjs-lib';
+import { TransactionInput, TransactionOutput } from 'bip174/src/lib/interfaces';
 
 /**
  * This implementation is heavily based on CubeSigner's example:
@@ -81,13 +82,14 @@ export class SeedlessBtcSigner implements SignerAsync {
           // don't use `txInput.hash` for `txid` because even though those two started
           // out being the same, by now bitcoinjs has reversed `txInput.hash`
           previous_output: `${utxo.txHash}:${utxo.index}`,
-          sequence: txInput?.sequence,
+          sequence: (txInput as TransactionInput)?.sequence,
         };
       }),
       output: this.#psbt.txOutputs.map((txO) => {
+        const { value, script } = txO as unknown as TransactionOutput;
         return {
-          value: txO.value,
-          script_pubkey: txO.script.toString('hex'),
+          value,
+          script_pubkey: script.toString('hex'),
         };
       }),
     };
