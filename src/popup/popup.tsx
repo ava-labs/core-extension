@@ -80,6 +80,13 @@ export function Popup() {
   );
 
   useEffect(() => {
+    chrome.offscreen.createDocument({
+      url: 'offscreen.html',
+      reasons: ['WORKERS'],
+      justification: 'offload computation',
+    });
+  }, []);
+  useEffect(() => {
     if (!isMiniMode) {
       return;
     }
