@@ -298,7 +298,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         browser.notifications.create({
           type: 'basic',
           title: notificationText,
-          iconUrl: '../../../../images/icon-256.png',
+          iconUrl: '../../../../images/icon-192.png',
           priority: 2,
           message: isSuccessful
             ? t(
