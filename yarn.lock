@@ -254,10 +254,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@1.4.3":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-1.4.3.tgz#14537abf565c822d3cfd0ffa0c4af33245d95fc5"
-  integrity sha512-Di6uc88Cj5M6wLYu5XVat92khNNoDpz9hBUocJxrl10Jq0MM84caJvgPAE8+4RSEzqqDHQ9U3wFnUzLeYKhhhw==
+"@avalabs/evm-module@0.0.0-CP-9822-allowance-approval-scr-20250219092337":
+  version "0.0.0-CP-9822-allowance-approval-scr-20250219092337"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-CP-9822-allowance-approval-scr-20250219092337.tgz#94bb6a230fad9598ae3e7ea0cd39e3af8ba73d07"
+  integrity sha512-TA2NPKm4psmhlOeDgEJP0v3JkH1TkL/w1f8/MRY7vtUR1zhUkWPd/+Ml0AN9J6lFeap2PB7/QIT7Qa/C/J1s4Q==
   dependencies:
     "@avalabs/core-chains-sdk" "3.1.0-alpha.34"
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.34"
@@ -266,8 +266,8 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
     "@avalabs/glacier-sdk" "3.1.0-alpha.34"
     "@avalabs/types" "3.1.0-alpha.34"
-    "@avalabs/vm-module-types" "1.4.3"
-    "@blockaid/client" "0.11.0"
+    "@avalabs/vm-module-types" "0.0.0-CP-9822-allowance-approval-scr-20250219092337"
+    "@blockaid/client" "0.36.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
     bn.js "5.2.1"
@@ -322,18 +322,6 @@
   version "0.0.0-CP-9822-allowance-approval-scr-20250219092337"
   resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-CP-9822-allowance-approval-scr-20250219092337.tgz#44cebf3dcd17ba3ee48d4998499a51284d4d7d1e"
   integrity sha512-+iuq/7NhZszz99QEnkdvAMuLc4ydIAhLed8bO9gp25k5IdaswF4JPb/H/38L8TPuqYVt+vzlzxL32VK59b63dg==
-  dependencies:
-    "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
-    "@avalabs/glacier-sdk" "3.1.0-alpha.34"
-    "@metamask/rpc-errors" "6.3.0"
-    bitcoinjs-lib "5.2.0"
-    hypersdk-client "0.4.16"
-    zod "3.23.8"
-
-"@avalabs/vm-module-types@1.4.3":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-1.4.3.tgz#af3b4f9576be022774e7faba3c4a3b4add02bcc8"
-  integrity sha512-C42Ld9vYjXsO3+O9lmWvqVPodjRpsU3FBtMBvaD5uuW2Un5OvRnyGXrEW+9wnVSRzMtpsG9Sko6K1tzklMgoGQ==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
     "@avalabs/glacier-sdk" "3.1.0-alpha.34"
@@ -2439,10 +2427,10 @@
     node-fetch "^2.6.7"
     web-streams-polyfill "^3.2.1"
 
-"@blockaid/client@0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@blockaid/client/-/client-0.11.0.tgz#1fbc894d605eae0a8c8d7192ade4f344dd34946f"
-  integrity sha512-Lvg+lrQTDTBr03yKdrMOerjYovxEmWM5gUToO3Bbd5Qiybq4rBxoZBFvtBrg/vu5ENIA1f+jIo+1EI8TOktI4w==
+"@blockaid/client@0.36.0":
+  version "0.36.0"
+  resolved "https://registry.yarnpkg.com/@blockaid/client/-/client-0.36.0.tgz#20699fd2f6dc3d9003a453401e58454235afd5b5"
+  integrity sha512-38zdKJKGp8DhUzURRnnnIpi3prelKgMsPNhoY5hsyWcliE6ednG4wIvKIPmFZf1I1nMb3rzhtNN0hDQ0XvjEQg==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
@@ -2451,7 +2439,6 @@
     form-data-encoder "1.7.2"
     formdata-node "^4.3.2"
     node-fetch "^2.6.7"
-    web-streams-polyfill "^3.2.1"
 
 "@chainsafe/as-sha256@^0.3.1":
   version "0.3.1"
