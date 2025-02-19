@@ -7,7 +7,7 @@ import {
 } from '../models';
 import * as Sentry from '@sentry/browser';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
-import { Module } from '@avalabs/vm-module-types';
+import { Module, Network } from '@avalabs/vm-module-types';
 import { runtime } from 'webextension-polyfill';
 
 export function ExtensionRequestHandlerMiddleware(
@@ -96,7 +96,7 @@ const handleRequest = async (
       params: context.request.params.request.params,
       context: context.request.context,
     },
-    context.network,
+    context.network as Network, // TODO: Remove this cast after SVM network type appears in vm-module-types,
   );
 
   return {

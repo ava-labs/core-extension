@@ -1,7 +1,6 @@
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { Logo } from '@src/components/icons/Logo';
 import { BrandName } from '@src/components/icons/BrandName';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@src/hooks/useLanguages';
@@ -78,8 +77,7 @@ export function MainPage({
         }}
       >
         <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Logo height={29} />
-          <BrandName height={17} margin="0 0 0 8px" />
+          <BrandName width={90} />
         </Stack>
         <IconButton
           data-testid="close-settings-menu-button"

@@ -1,4 +1,4 @@
-import { SwapSide } from 'paraswap';
+import { ETHER_ADDRESS, SwapSide } from 'paraswap';
 import { createRef, forwardRef, useImperativeHandle } from 'react';
 
 import { matchingPayload, render } from '@src/tests/test-utils';
@@ -13,12 +13,19 @@ import { useWalletContext } from '../WalletProvider';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { Contract } from 'ethers';
 import Big from 'big.js';
-import { GetRateParams, SwapContextAPI, SwapParams } from './models';
+import {
+  GetRateParams,
+  SwapContextAPI,
+  SwapErrorCode,
+  SwapParams,
+} from './models';
 import { SwapContextProvider, useSwapContext } from './SwapProvider';
 import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { SecretType } from '@src/background/services/secrets/models';
 import { RpcMethod } from '@avalabs/vm-module-types';
+import * as swapUtils from './swap-utils';
+import { CommonError } from '@src/utils/errors';
 
 const API_URL = 'https://apiv5.paraswap.io';
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
@@ -132,6 +139,10 @@ describe('contexts/SwapProvider', () => {
     jest.resetAllMocks();
     jest.useRealTimers();
 
+    jest
+      .spyOn(swapUtils, 'getParaswapSpender')
+      .mockResolvedValue('0xParaswapContractAddress');
+
     jest.spyOn(global, 'fetch').mockResolvedValue({
       json: async () => ({}),
       ok: true,
@@ -210,7 +221,7 @@ describe('contexts/SwapProvider', () => {
           const { getRate } = getSwapProvider();
 
           await expect(getRate(buildGetRateParams())).rejects.toThrow(
-            'Unsupported network',
+            swapUtils.swapError(CommonError.UnknownNetwork),
           );
         },
       );
@@ -227,7 +238,7 @@ describe('contexts/SwapProvider', () => {
         const { getRate } = getSwapProvider();
 
         await expect(getRate(buildGetRateParams())).rejects.toThrow(
-          'Account address missing',
+          swapUtils.swapError(CommonError.NoActiveAccount),
         );
       });
     });
@@ -274,6 +285,60 @@ describe('contexts/SwapProvider', () => {
       });
     });
 
+    it('maps srcToken to 0xEeEe... when its the native token', async () => {
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+        json: async () => ({
+          priceRoute: {
+            address: ROUTE_ADDRESS,
+            destAmount: 1000,
+          },
+        }),
+        ok: true,
+      } as any);
+
+      const { getRate } = getSwapProvider();
+      const params = buildGetRateParams({
+        srcToken: networkContext.network.networkToken.symbol,
+      });
+
+      await getRate(params);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        getExpectedURL('prices', {
+          ...params,
+          srcToken: ETHER_ADDRESS,
+          srcDecimals: 18,
+        }),
+      );
+    });
+
+    it('maps destToken to 0xEeEe... when its the native token', async () => {
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+        json: async () => ({
+          priceRoute: {
+            address: ROUTE_ADDRESS,
+            destAmount: 1000,
+          },
+        }),
+        ok: true,
+      } as any);
+
+      const { getRate } = getSwapProvider();
+      const params = buildGetRateParams({
+        destToken: networkContext.network.networkToken.symbol,
+      });
+
+      await getRate(params);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        getExpectedURL('prices', {
+          ...params,
+          destToken: ETHER_ADDRESS,
+          destDecimals: 18,
+        }),
+      );
+    });
+
     describe('when a server times out', () => {
       beforeEach(() => {
         jest
@@ -318,7 +383,7 @@ describe('contexts/SwapProvider', () => {
         const { getRate } = getSwapProvider();
 
         await expect(getRate(buildGetRateParams())).rejects.toThrow(
-          'Invalid tokens',
+          swapUtils.swapError(CommonError.Unknown, new Error('Invalid tokens')),
         );
 
         expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -389,7 +454,10 @@ describe('contexts/SwapProvider', () => {
       const { swap } = getSwapProvider();
 
       await expect(swap(params)).rejects.toThrow(
-        `Missing parameter: ${paramName}`,
+        swapUtils.swapError(
+          SwapErrorCode.MissingParams,
+          new Error(`Missing parameter: ${paramName}`),
+        ),
       );
     });
 

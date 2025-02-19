@@ -7,6 +7,7 @@ import { SettingsService } from '../settings/SettingsService';
 import { getPriceChangeValues } from './utils/getPriceChangeValues';
 import * as Sentry from '@sentry/browser';
 import {
+  Network,
   NetworkVMType,
   TokenType,
   TokenWithBalance,
@@ -66,7 +67,7 @@ export class BalancesService {
           }
         })
         .filter((address): address is string => !!address),
-      network,
+      network: network as Network, // TODO: Remove this cast after SVM network type appears in vm-module-types
       currency,
       customTokens,
       tokenTypes,
