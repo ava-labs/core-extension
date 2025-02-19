@@ -206,7 +206,6 @@ export function Swap() {
     }
 
     if (!error) {
-      toast.loading(t('Swap pending...'));
       history.push('/home');
     }
   }

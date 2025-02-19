@@ -9,6 +9,10 @@ export enum LockEvents {
   LOCK_STATE_CHANGED = 'LockServiceEvents:Lock',
 }
 
+export enum AlarmsEvents {
+  AUTO_LOCK = 'auto-lock',
+}
+
 export interface LockStateChangedEventPayload {
   isUnlocked: boolean;
 }

@@ -51,6 +51,8 @@ import {
 } from '@src/utils/errors';
 import { useWalletContext } from '../WalletProvider';
 import { SecretType } from '@src/background/services/secrets/models';
+import { toast } from '@avalabs/core-k2-components';
+import { SwapPendingToast } from '@src/pages/Swap/components/SwapPendingToast';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -253,6 +255,15 @@ export function SwapContextProvider({ children }: { children: any }) {
       srcDecimals: number;
       destDecimals: number;
     }) => {
+      const toastId = toast.custom(
+        <SwapPendingToast onDismiss={() => toast.remove(toastId)}>
+          {t('Swap pending...')}
+        </SwapPendingToast>,
+        {
+          duration: Infinity,
+        },
+      );
+
       provider.waitForTransaction(txHash).then(async (tx) => {
         const isSuccessful = tx && tx.status === 1;
 
@@ -271,11 +282,23 @@ export function SwapContextProvider({ children }: { children: any }) {
           .div(10 ** destDecimals)
           .toString();
 
+        const notificationText = isSuccessful
+          ? t('Swap transaction succeeded! 🎉')
+          : t('Swap transaction failed! ❌');
+
+        toast.remove(toastId);
+
+        if (isSuccessful) {
+          toast.success(notificationText, { duration: 5000 });
+        }
+
+        if (!isSuccessful) {
+          toast.error(notificationText, { duration: 5000 });
+        }
+
         browser.notifications.create({
           type: 'basic',
-          title: isSuccessful
-            ? t('Swap transaction succeeded! 🎉')
-            : t('Swap transaction failed! ❌'),
+          title: notificationText,
           iconUrl: '../../../../images/icon-256.png',
           priority: 2,
           message: isSuccessful
@@ -472,15 +495,15 @@ export function SwapContextProvider({ children }: { children: any }) {
       });
     },
     [
-      activeAccount,
-      activeNetwork,
-      avaxProviderC,
-      buildTx,
-      networkFee,
-      request,
-      notifyOnSwapResult,
-      getSwapTxProps,
       isFlagEnabled,
+      activeNetwork,
+      networkFee,
+      activeAccount,
+      avaxProviderC,
+      getSwapTxProps,
+      buildTx,
+      notifyOnSwapResult,
+      request,
     ],
   );
 
@@ -590,14 +613,14 @@ export function SwapContextProvider({ children }: { children: any }) {
       });
     },
     [
-      activeAccount,
       activeNetwork,
-      avaxProviderC,
-      buildTx,
       networkFee,
+      activeAccount,
+      avaxProviderC,
+      getSwapTxProps,
       request,
       notifyOnSwapResult,
-      getSwapTxProps,
+      buildTx,
     ],
   );
 
