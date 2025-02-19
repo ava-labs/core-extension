@@ -32,11 +32,10 @@ import { SendBTC } from './components/SendBTC';
 import { LoadingSendForm } from './components/LoadingSendForm';
 import { SendPVM } from './components/SendPVM';
 import { SendAVM } from './components/SendAVM';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import {
   isAvmCapableAccount,
   isPvmCapableAccount,
+  isSvmCapableAccount,
 } from './hooks/useSend/models';
 import {
   NetworkTokenWithBalance,
@@ -46,7 +45,11 @@ import {
   TokenWithBalanceBTC,
   TokenWithBalanceEVM,
   TokenWithBalancePVM,
+  TokenWithBalanceSPL,
+  TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
+import { SendSVM } from './components/SendSVM';
+import { getAddressForChain } from '@src/utils/getAddressForChain';
 
 export function SendPage() {
   const { t } = useTranslation();
@@ -85,24 +88,13 @@ export function SendPage() {
     }
   }, [network]);
 
-  const fromAddress = useMemo(() => {
-    if (network?.vmName === NetworkVMType.EVM) {
-      return active?.addressC ?? '';
-    } else if (network?.vmName === NetworkVMType.BITCOIN) {
-      return active?.addressBTC ?? '';
-    } else if (isXchainNetwork(network)) {
-      return active?.addressAVM ?? '';
-    } else if (isPchainNetwork(network)) {
-      return active?.addressPVM ?? '';
-    }
-    return '';
-  }, [
-    active?.addressAVM,
-    active?.addressBTC,
-    active?.addressC,
-    active?.addressPVM,
-    network,
-  ]);
+  const fromAddress = useMemo(
+    () =>
+      network?.chainId && active
+        ? getAddressForChain(network?.chainId, active)
+        : '',
+    [active, network?.chainId],
+  );
 
   const onSuccess = useCallback(
     (txHash: string) => {
@@ -232,6 +224,22 @@ export function SendPage() {
             onApproved={onApproved}
           />
         )}
+      {!isLoading &&
+        network.vmName === NetworkVMType.SVM &&
+        isSvmCapableAccount(active) && (
+          <SendSVM
+            network={network}
+            fromAddress={fromAddress}
+            maxFee={0n} // TODO: fix
+            nativeToken={nativeToken as TokenWithBalanceSVM}
+            provider={provider}
+            tokenList={tokens as [TokenWithBalanceSPL]}
+            account={active}
+            onSuccess={onSuccess}
+            onFailure={onFailure}
+            onApproved={onApproved}
+          />
+        )}
     </Stack>
   );
 }
@@ -248,6 +256,8 @@ const doesProviderMatchTheNetwork = (
   }
 
   switch (network.vmName) {
+    case NetworkVMType.SVM:
+      return true; // TODO: fix
     case NetworkVMType.EVM:
       return provider instanceof JsonRpcBatchInternal;
 

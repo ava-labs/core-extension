@@ -252,6 +252,20 @@ export const AccountDetailsView = () => {
                   )}
                 />
               )}
+              {account.addressSVM && (
+                <AccountDetailsAddressRow
+                  data-testid="account-address-solana"
+                  icon={
+                    <BitcoinColorIcon size={32} />
+                  } /* TODO: This should be a Solana icon */
+                  label={t('Solana')}
+                  address={account.addressSVM}
+                  copyHandler={onAddressCopy(
+                    account.addressSVM,
+                    'AccountDetailsSolanaAddressCopied',
+                  )}
+                />
+              )}
             </Stack>
           </CardContent>
         </Card>

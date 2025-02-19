@@ -10,6 +10,7 @@ import {
   NativeSendOptions,
   PVMSendOptions,
   SendOptions,
+  SvmSendOptions,
 } from '../../models';
 
 import { Account } from '@src/background/services/accounts/models';
@@ -21,6 +22,7 @@ import {
   TokenWithBalanceBTC,
   TokenWithBalancePVM,
 } from '@avalabs/vm-module-types';
+import { TokenWithBalanceSVM } from '@avalabs/vm-module-types';
 
 type CommonAdapterOptions<Provider, Token> = {
   from: string;
@@ -35,6 +37,11 @@ export type AdapterOptionsEVM = {
 
 export type AdapterOptionsBTC = {
   isMainnet: boolean;
+};
+
+export type AdapterOptionsSVM = {
+  account: SvmCapableAccount;
+  networkType: 'mainnet' | 'devnet' | 'testnet';
 };
 
 export type AvmCapableAccount = EnsureDefined<
@@ -52,10 +59,16 @@ export type PvmCapableAccount = EnsureDefined<
   'addressPVM' | 'addressCoreEth'
 >;
 
+export type SvmCapableAccount = EnsureDefined<Account, 'addressSVM'>;
+
 export const isPvmCapableAccount = (
   account?: Account,
 ): account is PvmCapableAccount =>
   Boolean(account && account.addressPVM && account.addressCoreEth);
+
+export const isSvmCapableAccount = (
+  account?: Account,
+): account is SvmCapableAccount => Boolean(account && account.addressSVM);
 
 export type AdapterOptionsP = {
   network: Network;
@@ -96,6 +109,13 @@ export type SendAdapterBTC = SendAdapter<
   BaseSendOptions,
   AdapterOptionsBTC,
   TokenWithBalanceBTC
+>;
+
+export type SendAdapterSVM = SendAdapter<
+  any,
+  SvmSendOptions,
+  AdapterOptionsSVM,
+  TokenWithBalanceSVM
 >;
 
 export type SendAdapterPVM = SendAdapter<

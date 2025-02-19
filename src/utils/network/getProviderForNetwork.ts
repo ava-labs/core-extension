@@ -20,6 +20,9 @@ export const getProviderForNetwork = async (
   network: Network,
   useMulticall = false,
 ): Promise<SupportedProvider> => {
+  if (network.vmName === NetworkVMType.SVM) {
+    return {} as any; // TODO: fix
+  }
   if (network.vmName === NetworkVMType.BITCOIN) {
     return new BitcoinProvider(
       !network.isTestnet,

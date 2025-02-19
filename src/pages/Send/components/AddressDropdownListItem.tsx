@@ -119,6 +119,12 @@ export const AddressDropdownListItem = ({
             networkIcon={<XAndPChainsIcon size={16} />}
           />
         )}
+        {(contact as any).addressSVM && ( // TODO: fix
+          <ContactAddress
+            address={(contact as any).addressSVM} // TODO: fix
+            networkIcon={<XAndPChainsIcon size={16} />} // TODO: fix logo
+          />
+        )}
       </Stack>
     </Button>
   );

@@ -431,7 +431,8 @@ export class NetworkService implements OnLock, OnStorageReady {
       const [result] = await resolve(
         getChainsAndTokens(
           process.env.RELEASE === 'production',
-          process.env.TOKENLIST_OVERRIDE || '',
+          'http://127.0.0.1:8787/tokenlist?includeSolana', // TODO: bring back
+          // process.env.TOKENLIST_OVERRIDE || '',
         ),
       );
 

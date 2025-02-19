@@ -7,6 +7,7 @@ import { isBitcoin } from '@src/utils/isBitcoin';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import { correctAddressByPrefix } from '../utils/correctAddressByPrefix';
+import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
 
 const UNSAVED_CONTACT_BASE = {
   id: '',
@@ -30,6 +31,7 @@ export const useIdentifyAddress = () => {
           address: '',
           addressBTC: '',
           addressXP: '',
+          addressSVM: '',
         };
       const addressLowerCase = address.toLowerCase();
       for (const contact of contacts) {
@@ -82,26 +84,34 @@ export const useIdentifyAddress = () => {
         }
       }
 
-      return isBitcoin(network)
+      return isSolanaNetwork(network)
         ? {
             ...UNSAVED_CONTACT_BASE,
             address: '',
-            addressBTC: address,
             addressXP: '',
+            addressBTC: '',
+            addressSVM: address,
           }
-        : isPchainNetwork(network) || isXchainNetwork(network)
+        : isBitcoin(network)
           ? {
               ...UNSAVED_CONTACT_BASE,
               address: '',
-              addressBTC: '',
-              addressXP: address,
-            }
-          : {
-              ...UNSAVED_CONTACT_BASE,
-              address,
-              addressBTC: '',
+              addressBTC: address,
               addressXP: '',
-            };
+            }
+          : isPchainNetwork(network) || isXchainNetwork(network)
+            ? {
+                ...UNSAVED_CONTACT_BASE,
+                address: '',
+                addressBTC: '',
+                addressXP: address,
+              }
+            : {
+                ...UNSAVED_CONTACT_BASE,
+                address,
+                addressBTC: '',
+                addressXP: '',
+              };
     },
     [allAccounts, contacts, network],
   );

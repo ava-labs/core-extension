@@ -44,7 +44,7 @@ export function Header() {
   const { network } = useNetworkContext();
   const address =
     network && activeAccount
-      ? getAddressForChain(network?.chainId, activeAccount)
+      ? getAddressForChain(network?.chainId, activeAccount, network.caipId)
       : '';
   const theme = useTheme();
 
