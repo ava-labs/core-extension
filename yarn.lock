@@ -34,10 +34,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@1.4.3":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-1.4.3.tgz#87bc8346c0934880a76b6c88c6bc831bdd5d4e64"
-  integrity sha512-YNmxD7FDs629a3k1ctD08FdT/OzWLPDUQbIrrJV0vgpJW0favRtqQpnZcaB+jf0hka7Gkp4sNYvda14aV8Ykcw==
+"@avalabs/avalanche-module@0.0.0-CP-9822-allowance-approval-scr-20250219092337":
+  version "0.0.0-CP-9822-allowance-approval-scr-20250219092337"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-CP-9822-allowance-approval-scr-20250219092337.tgz#f0f01a5c47a84f0d4db6bf9f6aafed099c23cc49"
+  integrity sha512-M2XUpinI7J0mP4Gw0HwOIVZweLseJh0Ri14QpOXKu6Fez1uJIKyk0OHIxc6yg0b5nbEjQJlJQOj+LNE0+5afCg==
   dependencies:
     "@avalabs/avalanchejs" "4.2.0-alpha.1"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.34"
@@ -47,7 +47,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
     "@avalabs/glacier-sdk" "3.1.0-alpha.34"
     "@avalabs/types" "3.1.0-alpha.34"
-    "@avalabs/vm-module-types" "1.4.3"
+    "@avalabs/vm-module-types" "0.0.0-CP-9822-allowance-approval-scr-20250219092337"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -64,15 +64,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@1.4.3":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-1.4.3.tgz#5ce1a103d3e0b85313a637cf452580e41b0e0ece"
-  integrity sha512-7gzwIeXc+cay67SwqDBUHOkV3qr6FGV9r662eyFxpFV16kSHB0nP+kKe4kV1nX5R23QZLI0IDkb9XpjiIwtn/A==
+"@avalabs/bitcoin-module@0.0.0-CP-9822-allowance-approval-scr-20250219092337":
+  version "0.0.0-CP-9822-allowance-approval-scr-20250219092337"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-CP-9822-allowance-approval-scr-20250219092337.tgz#759b93ed96d5460cb153e2380da7efb7b9ef40b0"
+  integrity sha512-vSc61rDoi8L++KtI8hofF/ZM/u40g9JQROuu5rObq5S9CPBQR/tu4KuOJgtVJaS+Q0N2aQKiJ3bxljgTZPNSfQ==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.34"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.34"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
-    "@avalabs/vm-module-types" "1.4.3"
+    "@avalabs/vm-module-types" "0.0.0-CP-9822-allowance-approval-scr-20250219092337"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -285,13 +285,13 @@
   resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.37.tgz#c1f4e3e92f4acb2eaf0b62e5ae40fe213decc86e"
   integrity sha512-6LeLImgFenVOU3cdK5E07oXbSpRKIlfMz2knLaKJVc51QHvvZOx+S+Q4kX6yi8NZttQYO406f0tPG0bD3Bn/tg==
 
-"@avalabs/hvm-module@1.4.3":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-1.4.3.tgz#3fc15f0f7c34c2191bcbeb24468259661c7e64ba"
-  integrity sha512-d1gHAlr6o8bxsfISopuH65mSzOwpeKmYhXJpaEW+g8FdK5vq92qBkzm4sd2Tkgp+AJrzfIlBBA49PlV0UWlWIg==
+"@avalabs/hvm-module@0.0.0-CP-9822-allowance-approval-scr-20250219092337":
+  version "0.0.0-CP-9822-allowance-approval-scr-20250219092337"
+  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-0.0.0-CP-9822-allowance-approval-scr-20250219092337.tgz#c66b642f811e4e8354a71512018ccf2f7449bc5d"
+  integrity sha512-5h3PtnnUFYyPGRvNaKAb8bVR0CoN9XIjFo5jpIR0Bv1sgU0pBOeUn2z/QTCp+gyxqMQ3QvWc0Angpr7+Ap5hHg==
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.34"
-    "@avalabs/vm-module-types" "1.4.3"
+    "@avalabs/vm-module-types" "0.0.0-CP-9822-allowance-approval-scr-20250219092337"
     "@metamask/rpc-errors" "6.3.0"
     "@noble/hashes" "1.5.0"
     hypersdk-client "0.4.16"
@@ -317,6 +317,18 @@
   version "3.1.0-alpha.37"
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.37.tgz#2b92c7ef7e6a59c1314a541c08dbe5a812ea56e5"
   integrity sha512-0xbjZyNb6xTLVAaaLoalJbbDc6eFXOQphs5ZOvljAKgjtS4tc7DlrF466zMac/aMLG1YPaNfNbzJQKB1GrSsEQ==
+
+"@avalabs/vm-module-types@0.0.0-CP-9822-allowance-approval-scr-20250219092337":
+  version "0.0.0-CP-9822-allowance-approval-scr-20250219092337"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-CP-9822-allowance-approval-scr-20250219092337.tgz#44cebf3dcd17ba3ee48d4998499a51284d4d7d1e"
+  integrity sha512-+iuq/7NhZszz99QEnkdvAMuLc4ydIAhLed8bO9gp25k5IdaswF4JPb/H/38L8TPuqYVt+vzlzxL32VK59b63dg==
+  dependencies:
+    "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
+    "@avalabs/glacier-sdk" "3.1.0-alpha.34"
+    "@metamask/rpc-errors" "6.3.0"
+    bitcoinjs-lib "5.2.0"
+    hypersdk-client "0.4.16"
+    zod "3.23.8"
 
 "@avalabs/vm-module-types@1.4.3":
   version "1.4.3"
