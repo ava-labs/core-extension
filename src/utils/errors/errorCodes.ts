@@ -3,6 +3,7 @@ import { SeedlessError } from '@src/background/services/seedless/models';
 import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
 import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
 import { VMModuleError } from '@src/background/vmModules/models';
+import { SwapErrorCode } from '@src/contexts/SwapProvider/models';
 import { KeystoreError } from '@src/utils/keystore/models';
 
 export enum CommonError {
@@ -16,6 +17,8 @@ export enum CommonError {
   RequestTimeout = 'request-timeout',
   MigrationFailed = 'migration-failed',
   ModuleManagerNotSet = 'module-manager-not-set',
+  UnableToSign = 'unable-to-sign',
+  UnableToEstimateGas = 'unable-to-estimate-gas',
 }
 
 export enum LedgerError {
@@ -48,6 +51,7 @@ export enum RpcErrorCode {
 
 export type ErrorCode =
   | FireblocksErrorCode
+  | SwapErrorCode
   | CommonError
   | UnifiedBridgeError
   | SeedphraseImportError
