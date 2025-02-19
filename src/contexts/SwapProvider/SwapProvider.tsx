@@ -105,18 +105,17 @@ export function SwapContextProvider({ children }: { children: any }) {
         throw new Error(`Feature (SWAP) is currently unavailable`);
       }
 
+      const isFromTokenNative = activeNetwork.networkToken.symbol === srcToken;
+      const isDestTokenNative = activeNetwork.networkToken.symbol === destToken;
+
       const query = new URLSearchParams({
-        srcToken,
-        destToken,
+        srcToken: isFromTokenNative ? ETHER_ADDRESS : srcToken,
+        destToken: isDestTokenNative ? ETHER_ADDRESS : destToken,
         amount: srcAmount,
         side: swapSide || SwapSide.SELL,
         network: ChainId.AVALANCHE_MAINNET_ID.toString(),
-        srcDecimals: `${
-          activeNetwork.networkToken.symbol === srcToken ? 18 : srcDecimals
-        }`,
-        destDecimals: `${
-          activeNetwork.networkToken.symbol === destToken ? 18 : destDecimals
-        }`,
+        srcDecimals: `${isFromTokenNative ? 18 : srcDecimals}`,
+        destDecimals: `${isDestTokenNative ? 18 : destDecimals}`,
         userAddress: activeAccount.addressC,
       });
 
