@@ -87,9 +87,8 @@ export type FirstParameter<T extends (...args: any) => any> = T extends (
 
 export const ACTION_HANDLED_BY_MODULE = '__handled.via.vm.modules__';
 
-export const hasDefined = <T extends object, K extends keyof T>(
-  obj: T,
-  key: K,
-): obj is EnsureDefined<T, K> => {
-  return obj[key] !== undefined;
+export type ExcludeUndefined<T extends Record<PropertyKey, unknown>> = {
+  [K in keyof T as T[K] extends undefined ? never : K]: T[K];
 };
+
+export type PickKeys<T, K extends (keyof T)[]> = Omit<T, K[number]>;

@@ -3,14 +3,25 @@ import { Contract } from 'ethers';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
+import { ethErrors } from 'eth-rpc-errors';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
+import { t } from 'i18next';
 
+import {
+  CommonError,
+  WrappedError,
+  isUserRejectionError,
+  isWrappedError,
+  wrapError,
+} from '@src/utils/errors';
 import { resolve } from '@src/utils/promiseResolver';
 import { RequestHandlerType } from '@src/background/connections/models';
+import { SwapError } from '@src/pages/Swap/hooks/useSwap';
 
 import {
   PARASWAP_RETRYABLE_ERRORS,
   ParaswapPricesResponse,
+  SwapErrorCode,
   SwapParams,
   hasParaswapError,
 } from './models';
@@ -30,35 +41,59 @@ export function validateParams(
   } = params;
 
   if (!srcToken) {
-    throw new Error('Missing parameter: srcToken');
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: srcToken'),
+    );
   }
 
   if (!destToken) {
-    throw new Error('Missing parameter: destToken');
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: destToken'),
+    );
   }
 
   if (!srcAmount) {
-    throw new Error('Missing parameter: srcAmount');
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: srcAmount'),
+    );
   }
 
   if (!srcDecimals) {
-    throw new Error('Missing parameter: srcDecimals');
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: srcDecimals'),
+    );
   }
 
   if (!destDecimals) {
-    throw new Error('Missing parameter: destDecimals');
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: destDecimals'),
+    );
   }
 
   if (!destAmount) {
-    throw new Error('Missing parameter: destAmount');
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: destAmount'),
+    );
   }
 
   if (!priceRoute) {
-    throw new Error('Missing parameter: priceRoute');
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: priceRoute'),
+    );
   }
 
   if (!slippage) {
-    throw new Error('Missing parameter: slippage');
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: slippage'),
+    );
   }
 
   return {
@@ -103,9 +138,7 @@ export async function buildApprovalTx({
   );
 
   if (approvalGasLimitError) {
-    throw new Error(
-      `Unable to estimate gas limit for allowance approval. Error: ${approvalGasLimitError}`,
-    );
+    throw swapError(CommonError.UnableToEstimateGas, approvalGasLimitError);
   }
 
   return {
@@ -130,7 +163,10 @@ export async function hasEnoughAllowance({
   const contract = new Contract(tokenAddress, ERC20.abi, provider);
 
   if (!contract.allowance) {
-    throw new Error(`Allowance Conract Error`);
+    throw swapError(
+      SwapErrorCode.MissingContractMethod,
+      new Error(`Contract Error: allowance method is not available`),
+    );
   }
 
   const [allowance, allowanceError] = await resolve(
@@ -138,7 +174,7 @@ export async function hasEnoughAllowance({
   );
 
   if (allowanceError) {
-    throw new Error(`Allowance Fetching Error: ${allowanceError}`);
+    throw swapError(SwapErrorCode.CannotFetchAllowance, allowanceError);
   }
 
   return allowance >= requiredAmount;
@@ -186,17 +222,90 @@ export async function ensureAllowance({
     }),
   );
 
-  if (signError) {
-    throwError(signError);
+  if (isUserRejectionError(signError)) {
+    throw signError;
+  } else if (signError) {
+    throw swapError(CommonError.UnableToSign, signError);
   }
 }
 
-export const throwError = (err: string | unknown): never => {
-  if (typeof err === 'string') {
-    throw new Error(err);
+const normalizeError = (err: unknown) => {
+  if (isWrappedError(err)) {
+    return err;
   }
 
-  throw err;
+  if (err instanceof Error) {
+    return err;
+  }
+
+  if (typeof err === 'string') {
+    return new Error(err);
+  }
+
+  return new Error((err as any)?.message ?? 'Unknown error');
+};
+
+export const swapError = (
+  errorCode: CommonError | SwapErrorCode,
+  originalError?: unknown,
+) => {
+  if (isWrappedError(originalError)) {
+    return originalError;
+  }
+
+  return ethErrors.rpc.internal({
+    data: {
+      reason: errorCode,
+      originalError: originalError
+        ? normalizeError(originalError)
+        : new Error('Unknown swap error'),
+    },
+  });
+};
+
+export const paraswapErrorToSwapError = (error: WrappedError): SwapError => {
+  if (!error.data.originalError) {
+    return {
+      message: t('Unknown error occurred, '),
+      hasTryAgain: true,
+    };
+  }
+
+  const originalError = error.data.originalError as Error;
+
+  switch (originalError.message) {
+    case 'ESTIMATED_LOSS_GREATER_THAN_MAX_IMPACT':
+      return {
+        message: t(
+          'Amount too low or too big to cover. Please adjust swap values.',
+        ),
+        hasTryAgain: false,
+      };
+
+    case 'No routes found with enough liquidity':
+      return {
+        message: t('No routes found with enough liquidity.'),
+        hasTryAgain: false,
+      };
+
+    case 'Internal Error while computing the price':
+      return {
+        message: t('An error occurred while computing the price.'),
+        hasTryAgain: false,
+      };
+  }
+
+  if (/is too small to proceed/.test(originalError.message)) {
+    return {
+      message: t('Amount is too small to proceed.'),
+      hasTryAgain: false,
+    };
+  }
+
+  return {
+    message: t('Unknown error occurred, '),
+    hasTryAgain: true,
+  };
 };
 
 export function checkForErrorsInGetRateResult(
@@ -220,9 +329,9 @@ export function checkForErrorsInGetRateResult(
       // we need to propagate the error so we're able to show an approriate
       // message in the UI.
     } else if (isFetchError) {
-      throw response;
+      throw swapError(CommonError.NetworkError, response);
     } else {
-      throw new Error(response.error);
+      throw swapError(CommonError.Unknown, new Error(response.error));
     }
   }
 
@@ -238,3 +347,31 @@ export function checkForErrorsInBuildTxResult(result: Transaction | APIError) {
     result instanceof Error
   );
 }
+
+export const getParaswapSpender = async (paraswapApiUrl: string) => {
+  const response = await fetch(
+    `${paraswapApiUrl}/adapters/contracts?network=${
+      ChainId.AVALANCHE_MAINNET_ID
+    }`,
+  ).catch(wrapError(swapError(CommonError.NetworkError)));
+
+  const result = await response
+    .json()
+    .catch(
+      wrapError(
+        swapError(
+          SwapErrorCode.UnexpectedApiResponse,
+          new Error('Failed to /adapters/contracts response'),
+        ),
+      ),
+    );
+
+  if (!result.TokenTransferProxy) {
+    throw swapError(
+      SwapErrorCode.UnknownSpender,
+      new Error('Missing TokenTransferProxy address'),
+    );
+  }
+
+  return result.TokenTransferProxy;
+};

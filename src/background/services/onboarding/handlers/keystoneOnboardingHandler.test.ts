@@ -1,4 +1,4 @@
-import { SecretType } from '../../secrets/models';
+import { EVM_BASE_DERIVATION_PATH, SecretType } from '../../secrets/models';
 import {
   Avalanche,
   DerivationPath,
@@ -16,6 +16,7 @@ import { NetworkService } from '../../network/NetworkService';
 import { KeystoneOnboardingHandler } from './keystoneOnboardingHandler';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
+import { buildExtendedPublicKey } from '../../secrets/utils';
 
 jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
 
@@ -127,9 +128,12 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
       'password',
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
-      xpub: 'xpub',
+      extendedPublicKeys: [
+        buildExtendedPublicKey('xpub', EVM_BASE_DERIVATION_PATH),
+      ],
+      publicKeys: [],
       masterFingerprint: 'masterFingerprint',
-      derivationPath: DerivationPath.BIP44,
+      derivationPathSpec: DerivationPath.BIP44,
       secretType: SecretType.Keystone,
       name: undefined,
     });

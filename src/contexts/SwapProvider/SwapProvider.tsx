@@ -29,6 +29,7 @@ import {
   BuildTxParams,
   GetSwapPropsParams,
   ValidTransactionResponse,
+  SwapErrorCode,
 } from './models';
 import Joi from 'joi';
 import { isAPIError } from '@src/pages/Swap/utils';
@@ -37,14 +38,21 @@ import {
   checkForErrorsInBuildTxResult,
   checkForErrorsInGetRateResult,
   ensureAllowance,
+  getParaswapSpender,
   hasEnoughAllowance,
-  throwError,
+  swapError,
   validateParams,
 } from './swap-utils';
 import { assert, assertPresent } from '@src/utils/assertions';
-import { CommonError } from '@src/utils/errors';
+import {
+  CommonError,
+  isUserRejectionError,
+  wrapError,
+} from '@src/utils/errors';
 import { useWalletContext } from '../WalletProvider';
 import { SecretType } from '@src/background/services/secrets/models';
+import { toast } from '@avalabs/core-k2-components';
+import { SwapPendingToast } from '@src/pages/Swap/components/SwapPendingToast';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -92,28 +100,27 @@ export function SwapContextProvider({ children }: { children: any }) {
       swapSide,
     }: GetRateParams) => {
       if (!activeNetwork || activeNetwork.isTestnet) {
-        throw new Error(`Unsupported network: ${activeNetwork?.chainId}`);
+        throw swapError(CommonError.UnknownNetwork);
       }
       if (!activeAccount || !activeAccount.addressC) {
-        throw new Error('Account address missing');
+        throw swapError(CommonError.NoActiveAccount);
       }
 
       if (!isFlagEnabled(FeatureGates.SWAP)) {
         throw new Error(`Feature (SWAP) is currently unavailable`);
       }
 
+      const isFromTokenNative = activeNetwork.networkToken.symbol === srcToken;
+      const isDestTokenNative = activeNetwork.networkToken.symbol === destToken;
+
       const query = new URLSearchParams({
-        srcToken,
-        destToken,
+        srcToken: isFromTokenNative ? ETHER_ADDRESS : srcToken,
+        destToken: isDestTokenNative ? ETHER_ADDRESS : destToken,
         amount: srcAmount,
         side: swapSide || SwapSide.SELL,
         network: ChainId.AVALANCHE_MAINNET_ID.toString(),
-        srcDecimals: `${
-          activeNetwork.networkToken.symbol === srcToken ? 18 : srcDecimals
-        }`,
-        destDecimals: `${
-          activeNetwork.networkToken.symbol === destToken ? 18 : destDecimals
-        }`,
+        srcDecimals: `${isFromTokenNative ? 18 : srcDecimals}`,
+        destDecimals: `${isDestTokenNative ? 18 : destDecimals}`,
         userAddress: activeAccount.addressC,
       });
 
@@ -137,21 +144,6 @@ export function SwapContextProvider({ children }: { children: any }) {
     },
     [activeAccount, activeNetwork, isFlagEnabled, paraswap],
   );
-
-  const getParaswapSpender = useCallback(async () => {
-    if (!isFlagEnabled(FeatureGates.SWAP)) {
-      throw new Error(`Feature (SWAP) is currently unavailable`);
-    }
-
-    const response = await fetch(
-      `${(paraswap as any).apiURL}/adapters/contracts?network=${
-        ChainId.AVALANCHE_MAINNET_ID
-      }`,
-    );
-
-    const result = await response.json();
-    return result.TokenTransferProxy;
-  }, [paraswap, isFlagEnabled]);
 
   const buildTx = useCallback(
     async ({
@@ -201,7 +193,8 @@ export function SwapContextProvider({ children }: { children: any }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(txConfig),
-      });
+      }).catch(wrapError(swapError(CommonError.NetworkError)));
+
       const transactionParamsOrError: Transaction | APIError =
         await response.json();
       const validationResult = responseSchema.validate(
@@ -210,9 +203,15 @@ export function SwapContextProvider({ children }: { children: any }) {
 
       if (!response.ok || validationResult.error) {
         if (isAPIError(transactionParamsOrError)) {
-          throw new Error(transactionParamsOrError.message);
+          throw swapError(
+            SwapErrorCode.ApiError,
+            new Error(transactionParamsOrError.message),
+          );
         }
-        throw new Error('Invalid transaction params');
+        throw swapError(
+          SwapErrorCode.UnexpectedApiResponse,
+          validationResult.error,
+        );
       }
 
       const txPayload = validationResult.value;
@@ -255,6 +254,15 @@ export function SwapContextProvider({ children }: { children: any }) {
       srcDecimals: number;
       destDecimals: number;
     }) => {
+      const toastId = toast.custom(
+        <SwapPendingToast onDismiss={() => toast.remove(toastId)}>
+          {t('Swap pending...')}
+        </SwapPendingToast>,
+        {
+          duration: Infinity,
+        },
+      );
+
       provider.waitForTransaction(txHash).then(async (tx) => {
         const isSuccessful = tx && tx.status === 1;
 
@@ -273,12 +281,24 @@ export function SwapContextProvider({ children }: { children: any }) {
           .div(10 ** destDecimals)
           .toString();
 
+        const notificationText = isSuccessful
+          ? t('Swap transaction succeeded! 🎉')
+          : t('Swap transaction failed! ❌');
+
+        toast.remove(toastId);
+
+        if (isSuccessful) {
+          toast.success(notificationText, { duration: 5000 });
+        }
+
+        if (!isSuccessful) {
+          toast.error(notificationText, { duration: 5000 });
+        }
+
         browser.notifications.create({
           type: 'basic',
-          title: isSuccessful
-            ? t('Swap transaction succeeded! 🎉')
-            : t('Swap transaction failed! ❌'),
-          iconUrl: '../../../../images/icon-256.png',
+          title: notificationText,
+          iconUrl: '../../../../images/icon-192.png',
           priority: 2,
           message: isSuccessful
             ? t(
@@ -326,12 +346,12 @@ export function SwapContextProvider({ children }: { children: any }) {
       return {
         srcTokenAddress: srcToken === nativeToken ? ETHER_ADDRESS : srcToken,
         destTokenAddress: destToken === nativeToken ? ETHER_ADDRESS : destToken,
-        spender: await getParaswapSpender(),
+        spender: await getParaswapSpender((paraswap as any).apiURL),
         sourceAmount,
         destinationAmount,
       };
     },
-    [getParaswapSpender],
+    [paraswap],
   );
 
   /**
@@ -437,8 +457,10 @@ export function SwapContextProvider({ children }: { children: any }) {
           }),
         );
 
-        if (batchSignError || !txHashes) {
-          return throwError(batchSignError);
+        if (isUserRejectionError(batchSignError)) {
+          throw batchSignError;
+        } else if (batchSignError || !txHashes) {
+          throw swapError(CommonError.UnableToSign, batchSignError);
         }
 
         swapTxHash = txHashes[txHashes.length - 1];
@@ -450,8 +472,10 @@ export function SwapContextProvider({ children }: { children: any }) {
           }),
         );
 
-        if (signError || !txHash) {
-          return throwError(signError);
+        if (isUserRejectionError(signError)) {
+          throw signError;
+        } else if (signError || !txHash) {
+          throw swapError(CommonError.UnableToSign, signError);
         }
 
         swapTxHash = txHash;
@@ -470,15 +494,15 @@ export function SwapContextProvider({ children }: { children: any }) {
       });
     },
     [
-      activeAccount,
-      activeNetwork,
-      avaxProviderC,
-      buildTx,
-      networkFee,
-      request,
-      notifyOnSwapResult,
-      getSwapTxProps,
       isFlagEnabled,
+      activeNetwork,
+      networkFee,
+      activeAccount,
+      avaxProviderC,
+      getSwapTxProps,
+      buildTx,
+      notifyOnSwapResult,
+      request,
     ],
   );
 
@@ -559,7 +583,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       );
 
       if (txBuildDataError || !swapTx) {
-        throw new Error(`Data Error: ${txBuildDataError}`);
+        throw swapError(SwapErrorCode.CannotBuildTx, txBuildDataError);
       }
 
       const [swapTxHash, signError] = await resolve(
@@ -569,8 +593,10 @@ export function SwapContextProvider({ children }: { children: any }) {
         }),
       );
 
-      if (signError || !swapTxHash) {
-        return throwError(signError);
+      if (isUserRejectionError(signError)) {
+        throw signError;
+      } else if (signError || !swapTxHash) {
+        throw swapError(CommonError.UnableToSign, signError);
       }
 
       notifyOnSwapResult({
@@ -586,19 +612,23 @@ export function SwapContextProvider({ children }: { children: any }) {
       });
     },
     [
-      activeAccount,
       activeNetwork,
-      avaxProviderC,
-      buildTx,
       networkFee,
+      activeAccount,
+      avaxProviderC,
+      getSwapTxProps,
       request,
       notifyOnSwapResult,
-      getSwapTxProps,
+      buildTx,
     ],
   );
 
   const swap = useCallback(
     async (params: SwapParams) => {
+      if (!isFlagEnabled(FeatureGates.SWAP)) {
+        throw new Error(`Feature (SWAP) is currently unavailable`);
+      }
+
       const isOneClickSwapEnabled = isFlagEnabled(FeatureGates.ONE_CLICK_SWAP);
       const isOneClickSwapSupported =
         walletDetails?.type === SecretType.Mnemonic ||

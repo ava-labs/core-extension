@@ -3,15 +3,20 @@ import {
   DerivationPath,
   getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
+  getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { SecretType } from '../../secrets/models';
+import {
+  AVALANCHE_BASE_DERIVATION_PATH,
+  AddressPublicKeyJson,
+  SecretType,
+} from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
-import { PubKeyType } from '../../wallet/models';
 import { LedgerService } from '../LedgerService';
 import { AccountsService } from '../../accounts/AccountsService';
+import { getExtendedPublicKey, hasPublicKeyFor } from '../../secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_MIGRATE_MISSING_PUBKEYS,
@@ -60,7 +65,13 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
 
       if (secrets.secretType === SecretType.Ledger) {
         // nothing to update, exit early
-        if (secrets.xpubXP) {
+        if (
+          getExtendedPublicKey(
+            secrets.extendedPublicKeys,
+            AVALANCHE_BASE_DERIVATION_PATH,
+            'secp256k1',
+          )
+        ) {
           return {
             ...request,
             result: true,
@@ -73,14 +84,41 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
           Avalanche.LedgerWallet.getAccountPath('X'),
         );
 
-        await this.secretsService.updateSecrets({ xpubXP }, walletId);
-      } else if (secrets.secretType === SecretType.LedgerLive) {
-        const hasMissingXPPublicKey = (secrets.pubKeys ?? []).some(
-          (pubKey) => !pubKey.xp,
+        await this.secretsService.updateSecrets(
+          {
+            extendedPublicKeys: [
+              ...secrets.extendedPublicKeys,
+              {
+                type: 'extended-pubkey',
+                curve: 'secp256k1',
+                derivationPath: AVALANCHE_BASE_DERIVATION_PATH,
+                key: xpubXP,
+              },
+            ],
+          },
+          walletId,
         );
+      } else if (secrets.secretType === SecretType.LedgerLive) {
+        const accounts =
+          await this.accountsService.getPrimaryAccountsByWalletId(secrets.id);
+
+        const missingDerivationPaths: [number, string][] = [];
+
+        for (let i = 0; i < accounts.length; i++) {
+          const account = accounts[i]!;
+          const avmDerivationPath = getAddressDerivationPath(
+            account.index,
+            DerivationPath.LedgerLive,
+            'AVM',
+          );
+
+          if (!hasPublicKeyFor(secrets, avmDerivationPath, 'secp256k1')) {
+            missingDerivationPaths.push([account.index, avmDerivationPath]);
+          }
+        }
 
         // nothing to migrate, exit early
-        if (!hasMissingXPPublicKey) {
+        if (!missingDerivationPaths.length) {
           return {
             ...request,
             result: true,
@@ -88,39 +126,37 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
         }
 
         const migrationResult: {
-          updatedPubKeys: PubKeyType[];
+          newPubKeys: AddressPublicKeyJson[];
           hasError: boolean;
         } = {
-          updatedPubKeys: [],
+          newPubKeys: [],
           hasError: false,
         };
 
-        for (const [index, pubKey] of (secrets.pubKeys ?? []).entries()) {
-          if (!pubKey.xp) {
-            try {
-              const addressPublicKeyXP = await getPubKeyFromTransport(
-                transport,
-                index,
-                DerivationPath.LedgerLive,
-                'AVM',
-              );
+        for (const [accountIndex, derivationPath] of missingDerivationPaths) {
+          try {
+            const addressPublicKeyXP = await getPubKeyFromTransport(
+              transport,
+              accountIndex,
+              DerivationPath.LedgerLive,
+              'AVM',
+            );
 
-              migrationResult.updatedPubKeys.push({
-                ...pubKey,
-                xp: addressPublicKeyXP.toString('hex'),
-              });
-            } catch (_err) {
-              migrationResult.updatedPubKeys.push(pubKey);
-              migrationResult.hasError = true;
-            }
-          } else {
-            migrationResult.updatedPubKeys.push(pubKey);
+            migrationResult.newPubKeys.push({
+              curve: 'secp256k1',
+              derivationPath,
+              key: addressPublicKeyXP.toString('hex'),
+              type: 'address-pubkey',
+            });
+          } catch (_err) {
+            migrationResult.hasError = true;
+            break;
           }
         }
 
         await this.secretsService.updateSecrets(
           {
-            pubKeys: migrationResult.updatedPubKeys,
+            publicKeys: [...secrets.publicKeys, ...migrationResult.newPubKeys],
           },
           walletId,
         );

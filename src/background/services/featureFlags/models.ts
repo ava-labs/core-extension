@@ -46,6 +46,7 @@ export enum FeatureGates {
   BLOCKAID_TRANSACTION_SCAN = 'blockaid-transaction-scan',
   BLOCKAID_JSONRPC_SCAN = 'blockaid-jsonrpc-scan',
   HALLIDAY_BRIDGE_BANNER = 'halliday-bridge-banner',
+  FIREBASE_CLOUD_MESSAGING = 'firebase-cloud-messaging',
   ONE_CLICK_SWAP = 'one-click-swap',
 }
 
@@ -99,6 +100,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: false,
   [FeatureGates.BLOCKAID_JSONRPC_SCAN]: false,
   [FeatureGates.HALLIDAY_BRIDGE_BANNER]: false,
+  [FeatureGates.FIREBASE_CLOUD_MESSAGING]: false,
   [FeatureGates.ONE_CLICK_SWAP]: false,
 };
 
@@ -151,6 +153,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: true,
   [FeatureGates.BLOCKAID_JSONRPC_SCAN]: true,
   [FeatureGates.HALLIDAY_BRIDGE_BANNER]: true,
+  [FeatureGates.FIREBASE_CLOUD_MESSAGING]: true,
   [FeatureGates.ONE_CLICK_SWAP]: true,
 };
 

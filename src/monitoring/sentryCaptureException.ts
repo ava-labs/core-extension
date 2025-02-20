@@ -8,6 +8,8 @@ export enum SentryExceptionTypes {
   EXTENSION_CONNECTION_MESSAGE = 'extensionConnectionMessage',
   EXTENSION_CONNECTION_EVENT = 'extensionConnectionEvent',
 
+  SWAP = 'swap',
+
   // ledger
   LEDGER = 'ledger',
 
@@ -33,6 +35,8 @@ export enum SentryExceptionTypes {
   VM_MODULES = 'vmModules',
 
   ONBOARDING = 'onboarding',
+
+  FIREBASE = 'firebase',
 }
 
 // wrapper to make error reporting contexts unfirom accross the codebase

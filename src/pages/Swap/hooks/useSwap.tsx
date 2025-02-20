@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { OptimalRate, SwapSide } from 'paraswap-core';
-import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
-import { DestinationInput, isAPIError } from '../utils';
 import { useTranslation } from 'react-i18next';
+
+import { paraswapErrorToSwapError } from '@src/contexts/SwapProvider/swap-utils';
+import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
+
+import { DestinationInput, isAPIError } from '../utils';
 
 export interface SwapError {
   message?: string;
   hasTryAgain?: boolean;
-  errorInfo?: string;
-  canSwap?: boolean;
 }
 
 export function useSwap() {
@@ -115,23 +116,7 @@ export function useSwap() {
               .catch((error) => {
                 setOptimalRate(undefined);
                 setDestAmount('');
-                if (
-                  error?.message === 'ESTIMATED_LOSS_GREATER_THAN_MAX_IMPACT'
-                ) {
-                  setSwapError({
-                    message: t(
-                      'Estimated loss greater than impact. Try lowering the amount.',
-                    ),
-                    hasTryAgain: false,
-                    errorInfo: error,
-                  });
-                } else {
-                  setSwapError({
-                    message: t('Something went wrong, '),
-                    hasTryAgain: true,
-                    errorInfo: error,
-                  });
-                }
+                setSwapError(paraswapErrorToSwapError(error));
               })
               .finally(() => {
                 if (!isCalculateAvaxMax) {
