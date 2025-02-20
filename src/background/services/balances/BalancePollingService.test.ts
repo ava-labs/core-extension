@@ -36,6 +36,32 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
     }
   };
 
+  it('stops polling when extension is closed', async () => {
+    const service = new BalancePollingService(aggregatorServiceMock);
+
+    await service.startPolling(
+      account,
+      activeNetworkId,
+      roundRobinChainIds,
+      tokenTypes,
+    );
+
+    // Purposefully DO NOT await this, as we want to test the behavior
+    // of onAllExtensionsClosed() being called while polling is in progress.
+    runIntervalTimes(1);
+
+    expect(aggregatorServiceMock.getBalancesForNetworks).toHaveBeenCalledTimes(
+      2, // Once immediately after startPolling() and one more time after the first interval
+    );
+
+    service.onAllExtensionsClosed();
+
+    await runIntervalTimes(10); // Wait X intervals, 10 is arbitrary here
+    expect(aggregatorServiceMock.getBalancesForNetworks).toHaveBeenCalledTimes(
+      2, // Still only called twice. No more polling after onAllExtensionsClosed()
+    );
+  });
+
   describe('when polling is active', () => {
     beforeEach(async () => {
       const service = new BalancePollingService(aggregatorServiceMock);
