@@ -19,6 +19,10 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
 
   constructor(private balanceAggregator: BalanceAggregatorService) {}
 
+  get isPollingActive() {
+    return this.#isPollingActive;
+  }
+
   onLock() {
     this.stopPolling();
   }
