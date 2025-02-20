@@ -4,10 +4,7 @@ const { DefinePlugin } = require('webpack');
 
 const fs = require('fs');
 
-const svgPath = path.resolve(
-  __dirname,
-  'src/images/Core_logo_white_text_black_background.svg',
-);
+const svgPath = path.resolve(__dirname, 'src/images/favicon.svg');
 const svgCoreIcon = fs.readFileSync(svgPath, 'base64');
 
 const devEvmProviderConfig = {
