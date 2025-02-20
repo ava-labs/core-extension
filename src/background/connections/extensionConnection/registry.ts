@@ -129,6 +129,9 @@ import { BalancesUpdatedEvents } from '@src/background/services/balances/events/
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
 import { GetTotalBalanceForWalletHandler } from '@src/background/services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
+import { GetGaslessChallengeHandler } from '@src/background/services/gasless/handlers/getGaslessChallenge';
+import { SolveGaslessChallengeHandler } from '@src/background/services/gasless/handlers/solveGaslessChallange';
+import { FundTxHandler } from '@src/background/services/gasless/handlers/fundTx';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -375,6 +378,18 @@ import { GetTotalBalanceForWalletHandler } from '@src/background/services/balanc
   {
     token: 'ExtensionRequestHandler',
     useToken: GetTotalBalanceForWalletHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetGaslessChallengeHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SolveGaslessChallengeHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: FundTxHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

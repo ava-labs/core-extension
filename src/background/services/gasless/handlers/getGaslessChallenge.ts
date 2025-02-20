@@ -5,7 +5,8 @@ import { injectable } from 'tsyringe';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_GET_CHALLENGE,
   true,
-  [appCheckToken: any]
+  // [appCheckToken: any]
+  []
 >;
 
 @injectable()
@@ -15,7 +16,8 @@ export class GetGaslessChallengeHandler implements HandlerType {
   constructor() {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [appCheckToken] = request.params;
+    // const [appCheckToken] = request.params;
+    const appCheckToken = 'appCheckToken';
     console.log('appCheckToken: ', appCheckToken);
     return {
       ...request,

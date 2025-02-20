@@ -31,7 +31,8 @@ import {
 } from '@src/components/common/approval/ApprovalSection';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { CustomGasSettings } from './CustomGasSettings';
-import Gasless from './gasless';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import Gasless from './Gasless';
 
 export interface CustomGasFeesProps {
   maxFeePerGas: bigint;
@@ -212,8 +213,16 @@ export function CustomFees({
       : selectedGasFeeModifier || GasFeeModifier.SLOW,
   );
   const [isGaslessOn, setIsGaslessOn] = useState(false);
+  const [isGaslessCalculating, setIsGaslessCalculating] = useState(false);
+
+  const { getGaslessChallange, solveGaslessChallange, gaslessFundTx } =
+    useNetworkFeeContext();
 
   useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest native balance.
+
+  useEffect(() => {
+    getGaslessChallange();
+  }, [getGaslessChallange]);
 
   useEffect(() => {
     if (!customFee && networkFee) {
@@ -356,6 +365,20 @@ export function CustomFees({
     };
   }, [network?.networkToken, estimatedFee, newFees.feeUnit]);
 
+  const onGaslessSwitch = useCallback(
+    async (calculating) => {
+      if (!calculating) {
+        setIsGaslessCalculating(true);
+        const result = await solveGaslessChallange();
+        console.log('result: ', result);
+        const fund = await gaslessFundTx();
+        console.log('fund: ', fund);
+        setIsGaslessCalculating(false);
+      }
+    },
+    [gaslessFundTx, solveGaslessChallange],
+  );
+
   if (!networkFee) {
     return null;
   }
@@ -408,10 +431,14 @@ export function CustomFees({
           unmountOnExit
         >
           <Gasless
-            onSwitch={() => setIsGaslessOn(!isGaslessOn)}
+            onSwitch={() => {
+              setIsGaslessOn(!isGaslessOn);
+              onGaslessSwitch(isGaslessOn);
+            }}
             isTurnedOn={isGaslessOn}
+            isLoading={isGaslessCalculating}
           />
-          {!isGaslessOn && (
+          <Collapse in={!isGaslessOn} mountOnEnter unmountOnExit>
             <Stack
               sx={{
                 flexDirection: 'row',
@@ -551,7 +578,7 @@ export function CustomFees({
                 </>
               )}
             </Stack>
-          )}
+          </Collapse>
         </Collapse>
         <Stack>
           <Stack

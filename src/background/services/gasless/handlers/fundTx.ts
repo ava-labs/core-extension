@@ -5,7 +5,7 @@ import { injectable } from 'tsyringe';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_FUND_TX,
   true,
-  [tx: any, appCheckToken: any, challengeId: any, result: any]
+  [tx: any, challengeId: any, result: any]
 >;
 
 @injectable()
@@ -15,7 +15,8 @@ export class FundTxHandler implements HandlerType {
   constructor() {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [tx, appCheckToken, challengeId, result] = request.params;
+    const [tx, challengeId, result] = request.params;
+    const appCheckToken = 'appchecktoken3';
     console.log('result: ', result);
     console.log('challengeId: ', challengeId);
     console.log('appCheckToken: ', appCheckToken);

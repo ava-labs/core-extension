@@ -7,7 +7,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-interface GasslessProps {
+interface GaslessProps {
   onSwitch: () => void;
   isTurnedOn: boolean;
   isLoading?: boolean;
@@ -17,7 +17,7 @@ export default function Gasless({
   onSwitch,
   isTurnedOn,
   isLoading,
-}: GasslessProps) {
+}: GaslessProps) {
   const { t } = useTranslation();
   return (
     <Stack

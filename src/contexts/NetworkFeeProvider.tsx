@@ -13,13 +13,28 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { chainIdToCaip } from '@src/utils/caipConversion';
 
 import { useNetworkContext } from './NetworkProvider';
+import { GetGaslessChallengeHandler } from '@src/background/services/gasless/handlers/getGaslessChallenge';
+import { SolveGaslessChallengeHandler } from '@src/background/services/gasless/handlers/solveGaslessChallange';
+import { FundTxHandler } from '@src/background/services/gasless/handlers/fundTx';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;
   getNetworkFee: (caipId: string) => Promise<NetworkFee | null>;
+  getGaslessChallange: () => Promise<any | null>;
+  solveGaslessChallange: () => Promise<any | null>;
+  gaslessFundTx: () => Promise<any | null>;
 }>({
   networkFee: null,
   async getNetworkFee() {
+    return null;
+  },
+  async getGaslessChallange() {
+    return null;
+  },
+  async solveGaslessChallange() {
+    return null;
+  },
+  async gaslessFundTx() {
     return null;
   },
 });
@@ -66,11 +81,47 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
     };
   }, [getNetworkFee, iteration, network?.chainId]);
 
+  const getGaslessChallange = useCallback(
+    async () =>
+      request<GetGaslessChallengeHandler>({
+        method: ExtensionRequest.GASLESS_GET_CHALLENGE,
+        params: [],
+      }),
+    [request],
+  );
+
+  const solveGaslessChallange = useCallback(
+    async () =>
+      request<SolveGaslessChallengeHandler>({
+        method: ExtensionRequest.GASLESS_SOLVE_CHALLENGE,
+        params: [],
+      }),
+    [request],
+  );
+
+  const gaslessFundTx = useCallback(
+    async () =>
+      request<FundTxHandler>({
+        method: ExtensionRequest.GASLESS_FUND_TX,
+        params: [
+          {
+            txParam1: 'txParam1-asd',
+          },
+          'challangedId',
+          'result',
+        ],
+      }),
+    [request],
+  );
+
   return (
     <NetworkFeeContext.Provider
       value={{
         networkFee: fee,
         getNetworkFee,
+        getGaslessChallange,
+        solveGaslessChallange,
+        gaslessFundTx,
       }}
     >
       {children}
