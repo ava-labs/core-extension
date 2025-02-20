@@ -15,10 +15,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
   #timer: NodeJS.Timeout | null = null;
   #pollingIteration = 0;
   #lastPollingStartedAt?: number;
-
-  get isPollingActive() {
-    return this.#timer !== null;
-  }
+  #isPollingActive = false;
 
   constructor(private balanceAggregator: BalanceAggregatorService) {}
 
@@ -35,6 +32,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     // Stop any polling that may be occurring already
     this.stopPolling();
     // Start a new interval
+    this.#isPollingActive = true;
     return this.pollBalances(
       account,
       activeChainId,
@@ -48,6 +46,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
   }
 
   stopPolling() {
+    this.#isPollingActive = false;
     if (this.#timer) {
       clearTimeout(this.#timer);
       this.#timer = null;
@@ -85,7 +84,10 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
 
     // Only schedule the next update if another polling was not started
     // while we were waiting for balance results.
-    if (thisPollingStartedAt === this.#lastPollingStartedAt) {
+    if (
+      this.#isPollingActive &&
+      thisPollingStartedAt === this.#lastPollingStartedAt
+    ) {
       this.scheduleNextUpdate(
         account,
         activeChainId,
