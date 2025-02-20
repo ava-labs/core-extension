@@ -13,7 +13,7 @@ interface GaslessProps {
   isLoading?: boolean;
 }
 
-export default function Gasless({
+export default function GaslessFee({
   onSwitch,
   isTurnedOn,
   isLoading,

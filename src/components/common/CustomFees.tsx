@@ -32,7 +32,7 @@ import {
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { CustomGasSettings } from './CustomGasSettings';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import Gasless from './Gasless';
+import GaslessFee from './GaslessFee';
 
 export interface CustomGasFeesProps {
   maxFeePerGas: bigint;
@@ -430,7 +430,7 @@ export function CustomFees({
           mountOnEnter
           unmountOnExit
         >
-          <Gasless
+          <GaslessFee
             onSwitch={() => {
               setIsGaslessOn(!isGaslessOn);
               onGaslessSwitch(isGaslessOn);
