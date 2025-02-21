@@ -4,7 +4,7 @@ import { useAppDimensions } from '@src/hooks/useAppDimensions';
 
 const LogoContainer = styled('div')`
   img {
-    width: 37px;
+    width: 80px;
     animation: 6s ease-in-out infinite pulse;
   }
   @keyframes pulse {
@@ -35,7 +35,7 @@ export function LoadingContent() {
       }}
     >
       <LogoContainer>
-        <img src="/images/icon-256.png" />
+        <img src="/images/Core_logo_white_text_black_background.svg" />
       </LogoContainer>
     </Stack>
   );

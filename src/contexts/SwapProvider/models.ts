@@ -100,3 +100,13 @@ export type ValidTransactionResponse = {
   gas?: string;
   gasPrice?: string;
 };
+
+export enum SwapErrorCode {
+  MissingParams = 'missing-params',
+  CannotFetchAllowance = 'cannot-fetch-allowance',
+  MissingContractMethod = 'missing-contract-method',
+  ApiError = 'api-error',
+  UnknownSpender = 'unknown-spender',
+  UnexpectedApiResponse = 'unexpected-api-response',
+  CannotBuildTx = 'cannot-build-tx',
+}

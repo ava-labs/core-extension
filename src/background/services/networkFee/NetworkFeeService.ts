@@ -1,4 +1,4 @@
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { Network, NetworkVMType } from '@avalabs/vm-module-types';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { singleton } from 'tsyringe';
@@ -12,7 +12,7 @@ export class NetworkFeeService {
 
   async getNetworkFee(network: NetworkWithCaipId): Promise<NetworkFee | null> {
     const module = await this.moduleManager.loadModuleByNetwork(network);
-    const fees = await module.getNetworkFee(network);
+    const fees = await module.getNetworkFee(network as Network); // TODO: Remove this cast after SVM network type appears in vm-module-types
     return {
       ...fees,
       displayDecimals: fees.displayDecimals ?? 0,

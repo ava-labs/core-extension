@@ -1462,6 +1462,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       ).resolves.toStrictEqual({
         ...addressesMock('0x1', '0x2'),
         HVM: '0xhvm',
+        SVM: undefined,
       });
     });
     it('returns the addresses for xpub', async () => {
@@ -1473,6 +1474,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       ).resolves.toStrictEqual({
         ...addressesMock('0x1', '0x2'),
         HVM: undefined,
+        SVM: undefined,
       });
       expect(Avalanche.getAddressPublicKeyFromXpub).toBeCalledWith('xpubXP', 0);
       expect(getAddressFromXPub).toHaveBeenCalledWith('xpub', 0);
@@ -1508,6 +1510,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       ).resolves.toStrictEqual({
         ...addressesMock('0x1', '0x2'),
         HVM: undefined,
+        SVM: undefined,
       });
 
       expect(getEvmAddressFromPubKey).toHaveBeenCalledWith(pubKeyBuff);
