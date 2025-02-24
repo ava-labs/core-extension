@@ -132,6 +132,7 @@ import { GetTotalBalanceForWalletHandler } from '@src/background/services/balanc
 import { GetGaslessChallengeHandler } from '@src/background/services/gasless/handlers/getGaslessChallenge';
 import { SolveGaslessChallengeHandler } from '@src/background/services/gasless/handlers/solveGaslessChallange';
 import { FundTxHandler } from '@src/background/services/gasless/handlers/fundTx';
+import { GaslessSendMessageEvent } from '@src/background/services/gasless/events/gaslessSendMessageEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -421,5 +422,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: SeedlessMfaEvents },
   { token: 'ExtensionEventEmitter', useToken: UnifiedBridgeEvents },
   { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
+  { token: 'ExtensionEventEmitter', useToken: GaslessSendMessageEvent },
 ])
 export class ExtensionEventEmitterRegistry {}

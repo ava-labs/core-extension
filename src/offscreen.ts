@@ -7,8 +7,8 @@ const connection: Runtime.Port = browser.runtime.connect({
 });
 console.log('newConnection2: ', connection);
 
-connection.postMessage('welcome from offscreen message');
-
 connection.onMessage.addListener((param) => {
   console.log('param: ', param);
 });
+
+connection.postMessage('welcome from offscreen message');
