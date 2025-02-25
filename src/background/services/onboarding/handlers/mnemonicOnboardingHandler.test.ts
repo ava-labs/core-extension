@@ -1,4 +1,8 @@
-import { SecretType } from '../../secrets/models';
+import {
+  AVALANCHE_BASE_DERIVATION_PATH,
+  EVM_BASE_DERIVATION_PATH,
+  SecretType,
+} from '../../secrets/models';
 import {
   Avalanche,
   DerivationPath,
@@ -16,6 +20,7 @@ import { SettingsService } from '../../settings/SettingsService';
 import { NetworkService } from '../../network/NetworkService';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
+import { buildExtendedPublicKey } from '../../secrets/utils';
 
 jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
 
@@ -167,9 +172,15 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
       mnemonic: 'mnemonic',
-      xpub: 'xpubFromMnemonic',
-      xpubXP: 'xpubFromMnemonicXP',
-      derivationPath: DerivationPath.BIP44,
+      extendedPublicKeys: [
+        buildExtendedPublicKey('xpubFromMnemonic', EVM_BASE_DERIVATION_PATH),
+        buildExtendedPublicKey(
+          'xpubFromMnemonicXP',
+          AVALANCHE_BASE_DERIVATION_PATH,
+        ),
+      ],
+      publicKeys: [],
+      derivationPathSpec: DerivationPath.BIP44,
       secretType: SecretType.Mnemonic,
       name: undefined,
     });

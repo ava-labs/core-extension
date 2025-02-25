@@ -1,5 +1,9 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { SecretType } from '../../secrets/models';
+import {
+  EVM_BASE_DERIVATION_PATH,
+  AVALANCHE_BASE_DERIVATION_PATH,
+  SecretType,
+} from '../../secrets/models';
 import { SettingsService } from '../../settings/SettingsService';
 import { StorageService } from '../../storage/StorageService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
@@ -13,6 +17,7 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
+import { buildExtendedPublicKey } from '../../secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.KEYSTONE_ONBOARDING_SUBMIT,
@@ -21,6 +26,7 @@ type HandlerType = ExtensionRequestHandler<
     {
       masterFingerprint: string;
       xpub: string;
+      xpubXP: string;
       password: string;
       analyticsConsent: boolean;
       walletName?: string;
@@ -44,8 +50,14 @@ export class KeystoneOnboardingHandler implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const { masterFingerprint, xpub, password, analyticsConsent, walletName } =
-      (request.params ?? [])[0] ?? {};
+    const {
+      masterFingerprint,
+      xpub,
+      xpubXP,
+      password,
+      analyticsConsent,
+      walletName,
+    } = (request.params ?? [])[0] ?? {};
 
     await startOnboarding({
       settingsService: this.settingsService,
@@ -55,11 +67,22 @@ export class KeystoneOnboardingHandler implements HandlerType {
       analyticsConsent,
     });
 
+    const extendedPublicKeys = [
+      buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
+    ];
+
+    if (xpubXP) {
+      extendedPublicKeys.push(
+        buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH),
+      );
+    }
+
     const walletId = await this.walletService.init({
-      secretType: SecretType.Keystone,
-      xpub,
+      secretType: xpubXP ? SecretType.Keystone3Pro : SecretType.Keystone,
+      extendedPublicKeys,
+      publicKeys: [],
       masterFingerprint,
-      derivationPath: DerivationPath.BIP44,
+      derivationPathSpec: DerivationPath.BIP44,
       name: walletName,
     });
 

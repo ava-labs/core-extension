@@ -17,7 +17,7 @@ export const isWalletConnectAccount = (
   account?.type === AccountType.WALLET_CONNECT;
 
 export const isPrimaryAccount = (
-  account?: Account,
+  account?: Pick<Account, 'type'>,
 ): account is PrimaryAccount => account?.type === AccountType.PRIMARY;
 
 export const isImportedAccount = (

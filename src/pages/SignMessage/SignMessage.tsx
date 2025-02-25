@@ -22,6 +22,7 @@ import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import useIsUsingKeystone3Wallet from '@src/hooks/useIsUsingKeystone3Wallet';
 
 import { EthSign } from './components/EthSign';
 import { PersonalSign } from './components/PersonalSign';
@@ -32,8 +33,10 @@ import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBo
 import { useIsIntersecting } from './hooks/useIsIntersecting';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { useKeystone3DisconnectedDialog } from '@src/pages/SignTransaction/hooks/useKeystone3DisconnectedDialog';
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/components/LedgerApprovalOverlay';
+import { Keystone3ApprovalOverlay } from '../SignTransaction/components/Keystone3ApprovalOverlay';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
 import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
 import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
@@ -60,6 +63,7 @@ export function SignMessage() {
   } = useApproveAction(requestId);
 
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystone3Wallet = useIsUsingKeystone3Wallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
   const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
@@ -161,6 +165,10 @@ export function SignMessage() {
       return <LedgerApprovalOverlay />;
     }
 
+    if (isUsingKeystone3Wallet && action?.status === ActionStatus.SUBMITTING) {
+      return <Keystone3ApprovalOverlay />;
+    }
+
     return null;
   };
 
@@ -170,6 +178,7 @@ export function SignMessage() {
       ? LedgerAppType.AVALANCHE
       : LedgerAppType.ETHEREUM,
   );
+  useKeystone3DisconnectedDialog(() => handleRejection());
 
   if (!action) {
     return (

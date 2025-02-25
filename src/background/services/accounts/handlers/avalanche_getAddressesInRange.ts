@@ -21,6 +21,8 @@ type Params = [
 ];
 import { AccountsService } from '../AccountsService';
 import { getAddressesInRange } from '../utils/getAddressesInRange';
+import { getExtendedPublicKey } from '../../secrets/utils';
+import { AVALANCHE_BASE_DERIVATION_PATH } from '../../secrets/models';
 
 const EXPOSED_DOMAINS = [
   'develop.avacloud-app.pages.dev',
@@ -69,10 +71,20 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
       internal: [],
     };
 
-    if (secrets?.xpubXP) {
+    if (!secrets || !('extendedPublicKeys' in secrets)) {
+      return addresses;
+    }
+
+    const extendedPublicKey = getExtendedPublicKey(
+      secrets.extendedPublicKeys,
+      AVALANCHE_BASE_DERIVATION_PATH,
+      'secp256k1',
+    );
+
+    if (extendedPublicKey) {
       if (externalLimit > 0) {
         addresses.external = getAddressesInRange(
-          secrets.xpubXP,
+          extendedPublicKey.key,
           provXP,
           false,
           externalStart,
@@ -82,7 +94,7 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
 
       if (internalLimit > 0) {
         addresses.internal = getAddressesInRange(
-          secrets.xpubXP,
+          extendedPublicKey.key,
           provXP,
           true,
           internalStart,
