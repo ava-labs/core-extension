@@ -65,21 +65,24 @@ export const useIdentifyAddress = () => {
           account.addressAVM?.toLowerCase() ===
             correctAddressByPrefix(addressLowerCase, 'x-')
         ) {
-          const addressToUse = isBitcoin(network)
-            ? { addressBTC: account.addressBTC, address: '' }
-            : isPchainNetwork(network)
-              ? {
-                  addressXP: address,
-                  address: '',
-                  addressBTC: '',
-                }
-              : isXchainNetwork(network)
-                ? {
-                    addressXP: address,
-                    address: '',
-                    addressBTC: '',
-                  }
-                : { address: account.addressC };
+          const addressToUse =
+            network && isSolanaNetwork(network)
+              ? { addressSVM: account.addressSVM }
+              : isBitcoin(network)
+                ? { addressBTC: account.addressBTC, address: '' }
+                : isPchainNetwork(network)
+                  ? {
+                      addressXP: address,
+                      address: '',
+                      addressBTC: '',
+                    }
+                  : isXchainNetwork(network)
+                    ? {
+                        addressXP: address,
+                        address: '',
+                        addressBTC: '',
+                      }
+                    : { address: account.addressC };
           return { id: '', ...addressToUse, name: account.name, isKnown: true };
         }
       }

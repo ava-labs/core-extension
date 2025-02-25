@@ -1,31 +1,31 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
+import {
+  transferSol,
+  compileSolanaTx,
+  serializeSolanaTx,
+} from '@avalabs/core-wallets-sdk';
+import { isAddress } from '@solana/addresses';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
-import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SendErrorMessage } from '@src/utils/send/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 
 import { SendAdapterSVM } from './models';
+import { NativeSendOptions } from '../../models';
+import { stringToBigint } from '@src/utils/stringToBigint';
 
 export const useSvmSend: SendAdapterSVM = ({
-  networkType,
+  nativeToken,
   provider,
   account,
-  maxFee,
 }) => {
   const { request } = useConnectionContext();
-
-  const { featureFlags } = useFeatureFlagContext();
-  const { isLedgerWallet } = useWalletContext();
 
   const [error, setError] = useState<SendErrorMessage>();
   const [isValidating, setIsValidating] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [maxAmount, setMaxAmount] = useState('0');
-  const [estimatedFee, setEstimatedFee] = useState(0n);
-
-  const wallet = useMemo(() => ({}), []);
 
   function setErrorAndEndValidating(message: SendErrorMessage) {
     setError(message);
@@ -33,34 +33,78 @@ export const useSvmSend: SendAdapterSVM = ({
   }
 
   const buildTransaction = useCallback(
-    async ({ address, amount, gasPrice, token }) => {
-      throw 'not implemented';
+    async ({ address, amount }: NativeSendOptions) => {
+      return transferSol({
+        from: account.addressSVM,
+        to: address,
+        amount: BigInt(stringToBigint(amount, nativeToken.decimals)),
+        provider,
+      });
     },
-    [],
+    [account.addressSVM, nativeToken.decimals, provider],
   );
 
-  const parseTx = useCallback(async ({ address, amount, gasPrice, token }) => {
-    throw 'not implemented';
-  }, []);
+  const validate = useCallback(
+    async ({ address, amount }: NativeSendOptions) => {
+      if (!address) {
+        setErrorAndEndValidating(SendErrorMessage.ADDRESS_REQUIRED);
+        return;
+      }
 
-  const validate = useCallback(async (options) => {
-    return;
-  }, []);
+      if (!isAddress(address)) {
+        setErrorAndEndValidating(SendErrorMessage.INVALID_ADDRESS);
+        return;
+      }
 
-  const send = useCallback(async ({ address, amount, gasPrice, token }) => {
-    console.log(
-      'Sending',
-      amount,
-      'of',
-      token,
-      'to',
-      address,
-      'with gas @',
-      gasPrice,
-    );
+      const amountBigInt = stringToBigint(amount || '0', nativeToken.decimals);
 
-    return 'hash';
-  }, []);
+      if (!amountBigInt || amountBigInt < 0) {
+        setErrorAndEndValidating(SendErrorMessage.AMOUNT_REQUIRED);
+        return;
+      }
+      // TODO: calc gas limit and fee
+      const remainingBalance = nativeToken.balance - amountBigInt;
+
+      if (remainingBalance <= 0n) {
+        setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
+        return;
+      }
+
+      setError(undefined);
+      setIsValidating(false);
+    },
+    [nativeToken.balance, nativeToken.decimals],
+  );
+
+  const send = useCallback(
+    async ({ address, amount, token }: NativeSendOptions) => {
+      try {
+        setIsSending(true);
+
+        const tx = await buildTransaction({ address, amount, token });
+        const compiledTx = compileSolanaTx(tx);
+
+        const hash = await request({
+          method: RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION,
+          params: [
+            {
+              account: account.addressSVM,
+              serializedTx: serializeSolanaTx(compiledTx),
+            },
+          ],
+        });
+
+        return hash;
+      } catch (err) {
+        console.error(err);
+        setError(SendErrorMessage.UNKNOWN_ERROR);
+        throw err;
+      } finally {
+        setIsSending(false);
+      }
+    },
+    [buildTransaction, request, account.addressSVM],
+  );
 
   return {
     error,

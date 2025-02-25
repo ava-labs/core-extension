@@ -2,6 +2,7 @@ import {
   Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
+  SolanaProvider,
 } from '@avalabs/core-wallets-sdk';
 import { Network } from '@avalabs/core-chains-sdk';
 
@@ -10,7 +11,6 @@ import {
   NativeSendOptions,
   PVMSendOptions,
   SendOptions,
-  SvmSendOptions,
 } from '../../models';
 
 import { Account } from '@src/background/services/accounts/models';
@@ -112,8 +112,8 @@ export type SendAdapterBTC = SendAdapter<
 >;
 
 export type SendAdapterSVM = SendAdapter<
-  any,
-  SvmSendOptions,
+  SolanaProvider,
+  NativeSendOptions,
   AdapterOptionsSVM,
   TokenWithBalanceSVM
 >;
