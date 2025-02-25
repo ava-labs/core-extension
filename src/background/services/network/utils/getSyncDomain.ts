@@ -8,6 +8,7 @@ const SYNCED_DOMAINS = [
   // Helpful for Core Web devs:
   'localhost',
   '127.0.0.1',
+  'redesign-aa3.pages.dev',
 ];
 
 export const isSyncDomain = (
