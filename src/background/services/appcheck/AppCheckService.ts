@@ -15,7 +15,7 @@ import registerForChallenge from './utils/registerForChallenge';
 import verifyChallenge from './utils/verifyChallenge';
 import solveChallenge from './utils/solveChallenge';
 
-export const WAIT_FOR_CHALLENGE_ATTEMPT_COUNT = 10;
+export const WAIT_FOR_CHALLENGE_ATTEMPT_COUNT = 20;
 export const WAIT_FOR_CHALLENGE_DELAY_MS = 500;
 
 // Implementation based on https://github.com/ava-labs/core-id-service/blob/main/docs/extension-appcheck-attestation.md
