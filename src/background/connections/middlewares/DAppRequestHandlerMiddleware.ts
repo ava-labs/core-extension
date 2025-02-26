@@ -11,6 +11,8 @@ import {
   JsonRpcResponse,
 } from '../dAppConnection/models';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
+import { caipToChainId, chainIdToCaip } from '@src/utils/caipConversion';
+import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 
 export function DAppRequestHandlerMiddleware(
   handlers: DAppRequestHandler[],
@@ -49,9 +51,18 @@ export function DAppRequestHandlerMiddleware(
         ? handler.handleAuthenticated(params)
         : handler.handleUnauthenticated(params);
     } else {
-      const [module] = await resolve(
-        moduleManager.loadModule(context.request.params.scope, method),
-      );
+      const isBitcoin = context.network
+        ? isBitcoinNetwork(context.network)
+        : false;
+      const scope = context.request.params.scope;
+      const chainId = isBitcoin
+        ? scope.startsWith('0x')
+          ? Number(scope).toString()
+          : caipToChainId(scope).toString()
+        : scope;
+
+      const [module] = await resolve(moduleManager.loadModule(chainId, method));
+
 
       if (!context.network) {
         promise = Promise.reject(ethErrors.provider.disconnected());
