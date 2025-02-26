@@ -26,6 +26,7 @@ import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { TokenType } from '@avalabs/vm-module-types';
 import { parseRawAttributesString } from '@src/utils/nfts/metadataParser';
+import { isAvalancheNetwork } from '@src/background/services/network/utils/isAvalancheNetwork';
 
 type AttributeTypographyProps = Exclude<TypographyProps, 'variant' | 'sx'>;
 
@@ -126,26 +127,28 @@ export function CollectibleDetails() {
         >
           {nft?.name}
         </PageTitle>
-        <Tooltip
-          title={
-            canRefreshMetadata
-              ? ''
-              : t('Refresh is only available once per hour.')
-          }
-        >
-          <Button
-            variant="text"
-            size="large"
-            color="primary"
-            disabled={!canRefreshMetadata || isRefreshing}
-            sx={{ p: 0 }}
-            onClick={refreshMetadata}
-            disableRipple
-            data-testid="refresh-nft-metadata"
+        {network && isAvalancheNetwork(network) && (
+          <Tooltip
+            title={
+              canRefreshMetadata
+                ? ''
+                : t('Refresh is only available once per hour.')
+            }
           >
-            <RefreshIcon size={24} />
-          </Button>
-        </Tooltip>
+            <Button
+              variant="text"
+              size="large"
+              color="primary"
+              disabled={!canRefreshMetadata || isRefreshing}
+              sx={{ p: 0 }}
+              onClick={refreshMetadata}
+              disableRipple
+              data-testid="refresh-nft-metadata"
+            >
+              <RefreshIcon size={24} />
+            </Button>
+          </Tooltip>
+        )}
       </Stack>
       <Scrollbars
         style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
