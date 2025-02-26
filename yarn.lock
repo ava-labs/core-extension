@@ -254,10 +254,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@1.4.3":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-1.4.3.tgz#14537abf565c822d3cfd0ffa0c4af33245d95fc5"
-  integrity sha512-Di6uc88Cj5M6wLYu5XVat92khNNoDpz9hBUocJxrl10Jq0MM84caJvgPAE8+4RSEzqqDHQ9U3wFnUzLeYKhhhw==
+"@avalabs/evm-module@0.0.0-CP-9962-collectibles-tab-empty-20250226123304":
+  version "0.0.0-CP-9962-collectibles-tab-empty-20250226123304"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-CP-9962-collectibles-tab-empty-20250226123304.tgz#e1b5d153229d60cbcc0ce31ae5f0fa3aa1f5293b"
+  integrity sha512-mZGFdtywClL4NQYWXk3dFj7fPr8Q1rDkhcceBERAQp9Hcz02TCRP054rU0oiyf/Ui7vv05BOBSnmNNq14Ce7UQ==
   dependencies:
     "@avalabs/core-chains-sdk" "3.1.0-alpha.34"
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.34"
@@ -266,7 +266,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
     "@avalabs/glacier-sdk" "3.1.0-alpha.34"
     "@avalabs/types" "3.1.0-alpha.34"
-    "@avalabs/vm-module-types" "1.4.3"
+    "@avalabs/vm-module-types" "0.0.0-CP-9962-collectibles-tab-empty-20250226123304"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -317,6 +317,18 @@
   version "3.1.0-alpha.37"
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.37.tgz#2b92c7ef7e6a59c1314a541c08dbe5a812ea56e5"
   integrity sha512-0xbjZyNb6xTLVAaaLoalJbbDc6eFXOQphs5ZOvljAKgjtS4tc7DlrF466zMac/aMLG1YPaNfNbzJQKB1GrSsEQ==
+
+"@avalabs/vm-module-types@0.0.0-CP-9962-collectibles-tab-empty-20250226123304":
+  version "0.0.0-CP-9962-collectibles-tab-empty-20250226123304"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-CP-9962-collectibles-tab-empty-20250226123304.tgz#5628dea7ba7ba0c37305733d703baa054579e817"
+  integrity sha512-2oivvSVNsULW+VfndrBoUF4Dm7LSVuoPAZH3/LzOmbjdA4MOcB8jwPAeBxB0HQettt9SQL8o7VbzNSmwFp99Ag==
+  dependencies:
+    "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
+    "@avalabs/glacier-sdk" "3.1.0-alpha.34"
+    "@metamask/rpc-errors" "6.3.0"
+    bitcoinjs-lib "5.2.0"
+    hypersdk-client "0.4.16"
+    zod "3.23.8"
 
 "@avalabs/vm-module-types@1.4.3":
   version "1.4.3"
