@@ -67,8 +67,8 @@ export type BaseSendOptions = {
   amount: string;
 };
 
-export type SvmSendOptions = BaseSendOptions & {
-  token: TokenWithBalanceSVM | TokenWithBalanceSPL;
+export type SolSendOptions = BaseSendOptions & {
+  token: TokenWithBalanceSVM;
 };
 
 export type NativeSendOptions = BaseSendOptions & {
@@ -88,6 +88,10 @@ export type Erc20SendOptions = BaseSendOptions & {
   token: TokenWithBalanceERC20;
 };
 
+export type SplSendOptions = BaseSendOptions & {
+  token: TokenWithBalanceSPL;
+};
+
 export type NftSendOptions = BaseSendOptions & {
   token: NftTokenWithBalance;
   amount: never;
@@ -101,3 +105,5 @@ export type BtcSendOptions = {
 };
 
 export type SendOptions = NativeSendOptions | Erc20SendOptions | NftSendOptions;
+
+export type SolanaSendOptions = SolSendOptions | SplSendOptions;

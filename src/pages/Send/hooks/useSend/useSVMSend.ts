@@ -4,16 +4,19 @@ import {
   transferSol,
   compileSolanaTx,
   serializeSolanaTx,
+  transferToken,
 } from '@avalabs/core-wallets-sdk';
 import { isAddress } from '@solana/addresses';
-import { RpcMethod } from '@avalabs/vm-module-types';
+import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
 
 import { SendErrorMessage } from '@src/utils/send/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 import { SendAdapterSVM } from './models';
-import { NativeSendOptions } from '../../models';
+import { NativeSendOptions, SolanaSendOptions } from '../../models';
 import { stringToBigint } from '@src/utils/stringToBigint';
+import { ethErrors } from 'eth-rpc-errors';
+import { CommonError } from '@src/utils/errors';
 
 export const useSvmSend: SendAdapterSVM = ({
   nativeToken,
@@ -33,11 +36,21 @@ export const useSvmSend: SendAdapterSVM = ({
   }
 
   const buildTransaction = useCallback(
-    async ({ address, amount }: NativeSendOptions) => {
-      return transferSol({
+    async ({ address, amount, token }: SolanaSendOptions) => {
+      if (token.type === TokenType.NATIVE) {
+        return transferSol({
+          from: account.addressSVM,
+          to: address,
+          amount: BigInt(stringToBigint(amount, nativeToken.decimals)),
+          provider,
+        });
+      }
+
+      return transferToken({
         from: account.addressSVM,
         to: address,
-        amount: BigInt(stringToBigint(amount, nativeToken.decimals)),
+        mint: token.address,
+        amount: BigInt(stringToBigint(amount, token.decimals)),
         provider,
       });
     },
@@ -45,7 +58,7 @@ export const useSvmSend: SendAdapterSVM = ({
   );
 
   const validate = useCallback(
-    async ({ address, amount }: NativeSendOptions) => {
+    async ({ address, amount, token }: SolanaSendOptions) => {
       if (!address) {
         setErrorAndEndValidating(SendErrorMessage.ADDRESS_REQUIRED);
         return;
@@ -56,15 +69,16 @@ export const useSvmSend: SendAdapterSVM = ({
         return;
       }
 
-      const amountBigInt = stringToBigint(amount || '0', nativeToken.decimals);
+      const amountBigInt = stringToBigint(amount || '0', token.decimals);
 
       if (!amountBigInt || amountBigInt < 0) {
         setErrorAndEndValidating(SendErrorMessage.AMOUNT_REQUIRED);
         return;
       }
-      // TODO: calc gas limit and fee
-      const remainingBalance = nativeToken.balance - amountBigInt;
 
+      const remainingBalance = token.balance - amountBigInt;
+
+      // TODO: take fee into consideration
       if (remainingBalance <= 0n) {
         setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
         return;
@@ -73,15 +87,15 @@ export const useSvmSend: SendAdapterSVM = ({
       setError(undefined);
       setIsValidating(false);
     },
-    [nativeToken.balance, nativeToken.decimals],
+    [],
   );
 
   const send = useCallback(
-    async ({ address, amount, token }: NativeSendOptions) => {
+    async (options: SolanaSendOptions) => {
       try {
         setIsSending(true);
 
-        const tx = await buildTransaction({ address, amount, token });
+        const tx = await buildTransaction(options);
         const compiledTx = compileSolanaTx(tx);
 
         const hash = await request({

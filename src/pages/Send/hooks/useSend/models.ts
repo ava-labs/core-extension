@@ -11,6 +11,7 @@ import {
   NativeSendOptions,
   PVMSendOptions,
   SendOptions,
+  SolanaSendOptions,
 } from '../../models';
 
 import { Account } from '@src/background/services/accounts/models';
@@ -113,7 +114,7 @@ export type SendAdapterBTC = SendAdapter<
 
 export type SendAdapterSVM = SendAdapter<
   SolanaProvider,
-  NativeSendOptions,
+  SolanaSendOptions,
   AdapterOptionsSVM,
   TokenWithBalanceSVM
 >;

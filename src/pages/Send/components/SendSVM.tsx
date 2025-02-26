@@ -2,18 +2,22 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
 
-import { SendPagePropsWithWalletSVM } from '../models';
+import { SendPagePropsWithWalletSVM, SolanaSendOptions } from '../models';
 import { SendForm } from './SendForm';
 import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
 import { useQueryParams } from '@src/hooks/useQueryParams';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
 import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 import {
+  TokenType,
   TokenWithBalanceSPL,
   TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@src/utils/stringToBigint';
 import { useSvmSend } from '../hooks/useSend/useSVMSend';
+import { SolanaProvider } from '@avalabs/core-wallets-sdk';
+
+type SolanaToken = TokenWithBalanceSVM | TokenWithBalanceSPL;
 
 export const SendSVM = ({
   network,
@@ -27,14 +31,22 @@ export const SendSVM = ({
   onFailure,
   onApproved,
 }: SendPagePropsWithWalletSVM<
-  any,
+  SolanaProvider,
   TokenWithBalanceSVM,
-  [TokenWithBalanceSVM | TokenWithBalanceSPL]
+  SolanaToken[]
 >) => {
   const setStateInParams = useSetSendDataInParams();
   const params = useQueryParams();
+  const tokenFromParams = tokenList.find((t) => {
+    if (t.type === TokenType.SPL) {
+      return t.address === params.get('tokenAddress');
+    } else if (t.type === TokenType.NATIVE) {
+      return t.symbol === params.get('tokenSymbol');
+    }
+  });
   const [address, setAddress] = useState<string>(params.get('address') ?? '');
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(params.get('amount') ?? '');
+  const [token, setToken] = useState<SolanaToken | undefined>(tokenFromParams);
 
   const { error, isSending, isValid, isValidating, maxAmount, send, validate } =
     useSvmSend({
@@ -47,25 +59,17 @@ export const SendSVM = ({
     });
 
   useEffect(() => {
-    validate({ address, amount, token: nativeToken });
+    validate({ address, amount, token } as SolanaSendOptions);
 
-    if (address || amount) {
+    if (address || amount || token) {
       setStateInParams({
         address,
-        token: nativeToken,
+        token,
         amount,
         options: { replace: true },
       });
     }
-  }, [
-    address,
-    amount,
-    validate,
-    setStateInParams,
-    nativeToken,
-    account,
-    tokenList,
-  ]);
+  }, [address, amount, validate, setStateInParams, account, token, tokenList]);
 
   const onSend = useCallback(async () => {
     if (!isValid) {
@@ -77,7 +81,9 @@ export const SendSVM = ({
       hasError,
       result: txHash,
       error: txError,
-    } = await handleTxOutcome(send({ address, amount, token: nativeToken }));
+    } = await handleTxOutcome(
+      send({ address, amount, token } as SolanaSendOptions),
+    );
 
     if (isApproved) {
       onApproved();
@@ -88,24 +94,14 @@ export const SendSVM = ({
         onSuccess(txHash);
       }
     }
-  }, [
-    address,
-    amount,
-    isValid,
-    onApproved,
-    onFailure,
-    onSuccess,
-    send,
-    nativeToken,
-  ]);
+  }, [address, amount, isValid, onApproved, onFailure, onSuccess, send, token]);
 
   const inputAmount = useMemo(
-    () =>
-      amount ? stringToBigint(amount, nativeToken?.decimals ?? 18) : undefined,
-    [nativeToken, amount],
+    () => (amount ? stringToBigint(amount, token?.decimals ?? 9) : undefined),
+    [token?.decimals, amount],
   );
 
-  if (account && !account.addressPVM) {
+  if (account && !account.addressSVM) {
     return (
       <NotSupportedByWallet
         functionName={FunctionNames.TOKEN_DETAILS}
@@ -118,13 +114,13 @@ export const SendSVM = ({
     <SendForm
       address={address}
       inputAmount={inputAmount}
-      token={nativeToken}
+      token={token}
       tokenList={tokenList}
       onContactChanged={(contact) => {
         setAddress(contact?.addressSVM ?? '');
       }}
       onAmountChanged={(newAmount) => setAmount(newAmount)}
-      onTokenChanged={() => {}} // noop, AVAX has only one token
+      onTokenChanged={(newToken) => setToken(newToken as SolanaToken)}
       isSending={isSending}
       isValid={isValid}
       isValidating={isValidating}

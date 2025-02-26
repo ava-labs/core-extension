@@ -34,20 +34,20 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@0.0.0-feat-solana-sign-send-tx-20250225203641":
-  version "0.0.0-feat-solana-sign-send-tx-20250225203641"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-solana-sign-send-tx-20250225203641.tgz#e6c3841c562c37dfbbf9ec8c513f839db789be5e"
-  integrity sha512-D+hVsKSD8DV2K+2CnX/9GPu8RhR7Eg2cvApUgZD7CNIHks0Web3nWl5tdPWmI+Y7Y8vJ6jZBVqspNUyXGDAVLg==
+"@avalabs/avalanche-module@0.0.0-feat-solana-sign-send-tx-20250226150841":
+  version "0.0.0-feat-solana-sign-send-tx-20250226150841"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-solana-sign-send-tx-20250226150841.tgz#94c4b9dba5458ae3e1b3fc8f9fdb0df04e99d156"
+  integrity sha512-vhrLQ+M72+rlvAB5gpQoqSqKIVfAtlfnxBXHFcKud9bUcSrkw4+7HkWQkfexBdbIG+x7/vsDR5b0O+wFYvoMDA==
   dependencies:
     "@avalabs/avalanchejs" "4.2.0-alpha.1"
-    "@avalabs/core-chains-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/core-coingecko-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/core-etherscan-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/core-utils-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/core-wallets-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/glacier-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/types" "3.1.0-canary.801d1a5.0"
-    "@avalabs/vm-module-types" "0.0.0-feat-solana-sign-send-tx-20250225203641"
+    "@avalabs/core-chains-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/core-coingecko-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/core-etherscan-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/core-utils-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/core-wallets-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/glacier-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/types" "3.1.0-canary.4a6f312.0"
+    "@avalabs/vm-module-types" "0.0.0-feat-solana-sign-send-tx-20250226150841"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -75,15 +75,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@0.0.0-feat-solana-sign-send-tx-20250225203641":
-  version "0.0.0-feat-solana-sign-send-tx-20250225203641"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-solana-sign-send-tx-20250225203641.tgz#dc9cf43e55b870081c62e2e1f7a80203fda33f11"
-  integrity sha512-2esnKcVBKWvm77ECWbBblzTbZ9gf7ttBU3gDioYT1CtfZTxGOm98+hQuBGJTCO8RIRI2aT/q9ND3twfl1sxzyg==
+"@avalabs/bitcoin-module@0.0.0-feat-solana-sign-send-tx-20250226150841":
+  version "0.0.0-feat-solana-sign-send-tx-20250226150841"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-solana-sign-send-tx-20250226150841.tgz#f23112205189348ac23f05a78af399c64e35c86f"
+  integrity sha512-cMtvaby/YEIMuNRuxsAxcUgB+I1a7WyaNKMMjfK91XPltE/KoMa21uj/ZfdfhKX0uzpuYFthwoMFqK92UYakTw==
   dependencies:
-    "@avalabs/core-coingecko-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/core-utils-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/core-wallets-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/vm-module-types" "0.0.0-feat-solana-sign-send-tx-20250225203641"
+    "@avalabs/core-coingecko-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/core-utils-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/core-wallets-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/vm-module-types" "0.0.0-feat-solana-sign-send-tx-20250226150841"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -104,42 +104,42 @@
     viem "2.11.1"
     zod "3.23.8"
 
-"@avalabs/core-bridge-sdk@3.1.0-canary.801d1a5.0":
-  version "3.1.0-canary.801d1a5.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-bridge-sdk/-/core-bridge-sdk-3.1.0-canary.801d1a5.0.tgz#5e9d6eb2860fec7a43c2c538e62a34e4aa9f9c64"
-  integrity sha512-c0QyaQu3BL2Ku8GEsShqgVPOn02TdbBRVJODDHWhOx+IAX0hhmmbuKIxKxHroButRbe27x8Vrabz5uyee/Rb1g==
+"@avalabs/core-bridge-sdk@3.1.0-canary.4a6f312.0":
+  version "3.1.0-canary.4a6f312.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-bridge-sdk/-/core-bridge-sdk-3.1.0-canary.4a6f312.0.tgz#6cde357b478f3246c917b76500910f3a2256510f"
+  integrity sha512-OimPSZoW368aM1ehWYlQLGMakSBT+eYpncpNiH4a3eHRFwha+NPD6st+op48L9BrYh/EDLBqb24yWu1TeNhFEA==
   dependencies:
-    "@avalabs/core-coingecko-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
-    "@avalabs/core-utils-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
-    "@avalabs/core-wallets-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
+    "@avalabs/core-coingecko-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
+    "@avalabs/core-utils-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
+    "@avalabs/core-wallets-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
 
-"@avalabs/core-chains-sdk@3.1.0-canary.801d1a5.0", "@avalabs/core-chains-sdk@3.1.0-canary.801d1a5.0+801d1a5":
-  version "3.1.0-canary.801d1a5.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-chains-sdk/-/core-chains-sdk-3.1.0-canary.801d1a5.0.tgz#5378378b2413d04dd6631c1fee8458239d037ad7"
-  integrity sha512-Fdt+Tu5Ui2pJrUcZmgd9K/tRsV7Bph7w5xmJ4BEV+md9oLbljU73ngDsHRNdJnGmjFGeA3xEy1onSBv+o9p/bQ==
+"@avalabs/core-chains-sdk@3.1.0-canary.4a6f312.0", "@avalabs/core-chains-sdk@3.1.0-canary.4a6f312.0+4a6f312":
+  version "3.1.0-canary.4a6f312.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-chains-sdk/-/core-chains-sdk-3.1.0-canary.4a6f312.0.tgz#3f658dc7ca62a0cb36772d55488cf27c7e08b75f"
+  integrity sha512-sVWYm+jB+6kk71DZP+ymKgF3r03qLOnBoEvn6a2PJlKCx7HPw8vsrtf+gktgUJ1A5+guk8SqFa+vtXd6xkq//A==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
+    "@avalabs/core-utils-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
 
-"@avalabs/core-coingecko-sdk@3.1.0-canary.801d1a5.0", "@avalabs/core-coingecko-sdk@3.1.0-canary.801d1a5.0+801d1a5":
-  version "3.1.0-canary.801d1a5.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-coingecko-sdk/-/core-coingecko-sdk-3.1.0-canary.801d1a5.0.tgz#7e12fa0b3e319c1ea4b13ba7516c883da3b279c4"
-  integrity sha512-kF4LyvJl648KAEu82ZxzuCQCitxHTFftkaWIexHLwRG3EvCNGGoTReoT/r4GbthtyLF5LJ6gAD/FDao3qdfuXA==
+"@avalabs/core-coingecko-sdk@3.1.0-canary.4a6f312.0", "@avalabs/core-coingecko-sdk@3.1.0-canary.4a6f312.0+4a6f312":
+  version "3.1.0-canary.4a6f312.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-coingecko-sdk/-/core-coingecko-sdk-3.1.0-canary.4a6f312.0.tgz#de2909249aefe3d7f76b813dfaee7c67cfc4c98a"
+  integrity sha512-opWuFOg6Or7h6Lqcas562ZxsDdxJanoClhzq81dTfmNmP0V1Gy7TK/5/PpLBaKmJdLj99kVD8pvlOKVHaBdmFQ==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
+    "@avalabs/core-utils-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
 
-"@avalabs/core-covalent-sdk@3.1.0-canary.801d1a5.0":
-  version "3.1.0-canary.801d1a5.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-covalent-sdk/-/core-covalent-sdk-3.1.0-canary.801d1a5.0.tgz#36f3487dbd182ffeec00ba5a35bcbd79b1b389c2"
-  integrity sha512-o9E2kyFvbWq1kgJKB6e2ppcORs19H2KeDqvujyApOENK13qxswHxhFpZFL/uTnJmfxaJLNT0qJEbnYCcK6joXg==
+"@avalabs/core-covalent-sdk@3.1.0-canary.4a6f312.0":
+  version "3.1.0-canary.4a6f312.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-covalent-sdk/-/core-covalent-sdk-3.1.0-canary.4a6f312.0.tgz#a8ac8a2fd179e5371e927b16c0f105c66d2651cb"
+  integrity sha512-/H0xcS2wgVl/A72233eaJrifQwtKo3CPF3jLBS8Yfhn4iFJvL3taMw4w+eAZPZ4MroeiovtWfDVzuGV5IVzDBg==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
+    "@avalabs/core-utils-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
 
-"@avalabs/core-etherscan-sdk@3.1.0-canary.801d1a5.0":
-  version "3.1.0-canary.801d1a5.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-etherscan-sdk/-/core-etherscan-sdk-3.1.0-canary.801d1a5.0.tgz#ad72df620363fcf660fe8dd8b24e59ed2619b522"
-  integrity sha512-xDtf24ulDRd/IdWrLbtJcyVUUsPN075MbO+gSB2rh8FJrIdQaw1+muUv0VOfQv+7KnzD2A8rlxioI6O2C6TBow==
+"@avalabs/core-etherscan-sdk@3.1.0-canary.4a6f312.0":
+  version "3.1.0-canary.4a6f312.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-etherscan-sdk/-/core-etherscan-sdk-3.1.0-canary.4a6f312.0.tgz#53c95f0105ba4748840c69fbf1d6da65750bef8c"
+  integrity sha512-8Ej92kM3jTnTMOnTuMNreOs0ceqJtXIzSiB225n95WJvZ5TZJDfTlzwsomelY8X+Q4LoBXj9LNM4JvoVpmsOmw==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
+    "@avalabs/core-utils-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
 
 "@avalabs/core-k2-components@4.18.0-alpha.53":
   version "4.18.0-alpha.53"
@@ -164,20 +164,20 @@
     react-hotkeys-hook "4.4.3"
     uuid "9.0.1"
 
-"@avalabs/core-snowtrace-sdk@3.1.0-canary.801d1a5.0":
-  version "3.1.0-canary.801d1a5.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-snowtrace-sdk/-/core-snowtrace-sdk-3.1.0-canary.801d1a5.0.tgz#dec75d4741dee658a67a7e5a647db23a68adfcac"
-  integrity sha512-ExX/ruO9xk5NMpnetVc4OoNSYbaMvsNPCLd32WVzI86A7OmWcvQaGe68O2+iLti2on0EthyHoEmjoHQFQ1yy7w==
+"@avalabs/core-snowtrace-sdk@3.1.0-canary.4a6f312.0":
+  version "3.1.0-canary.4a6f312.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-snowtrace-sdk/-/core-snowtrace-sdk-3.1.0-canary.4a6f312.0.tgz#2b1379a0d6e26bfb033117d4a17da2c5593990e7"
+  integrity sha512-8cqQ/mmYK+jvN+iQvwQbNs58zvlED9BY/UQf1FOPQD3Tj32NPGhENitjYC3Nb0WQ7XskNucX8zW3ffNwKdmZNw==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
+    "@avalabs/core-utils-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
 
-"@avalabs/core-token-prices-sdk@3.1.0-canary.801d1a5.0":
-  version "3.1.0-canary.801d1a5.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-token-prices-sdk/-/core-token-prices-sdk-3.1.0-canary.801d1a5.0.tgz#876366eb795f85f34fda35443ec16572d7ce4bbd"
-  integrity sha512-2EtQeB1j19Sr6f0er3OdoIrOsdHu/6kYWzCkPsrQ90lIkHRA4Ss0QuozpPHTQrExgYQAGzbUM0R+i1hDGkLFGQ==
+"@avalabs/core-token-prices-sdk@3.1.0-canary.4a6f312.0":
+  version "3.1.0-canary.4a6f312.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-token-prices-sdk/-/core-token-prices-sdk-3.1.0-canary.4a6f312.0.tgz#1b0cf53fed68a032607a61d1d653e18889aa5c4e"
+  integrity sha512-IGozxAtJ0bYCRw7VG7x2mKazMi93EdGihOvr6NvT77/G6YgtJoZXP4pkguWPUPiaBxFt8NrCTaEGgsXIEfEZxg==
   dependencies:
-    "@avalabs/core-coingecko-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
-    "@avalabs/core-utils-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
+    "@avalabs/core-coingecko-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
+    "@avalabs/core-utils-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
 
 "@avalabs/core-utils-sdk@3.1.0-alpha.30":
   version "3.1.0-alpha.30"
@@ -188,22 +188,22 @@
     "@hpke/core" "1.2.5"
     is-ipfs "6.0.2"
 
-"@avalabs/core-utils-sdk@3.1.0-canary.801d1a5.0", "@avalabs/core-utils-sdk@3.1.0-canary.801d1a5.0+801d1a5":
-  version "3.1.0-canary.801d1a5.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-utils-sdk/-/core-utils-sdk-3.1.0-canary.801d1a5.0.tgz#94f495ec1b24539e53b85529329d8b174688ffdd"
-  integrity sha512-qfoCYhVRFFlzZVwPjAdpri0pWj21ThRQh/VW6w42fGWan7cEjQjKSY2daqYudKUWIwzIVlklC/a1GrzFE/4wBA==
+"@avalabs/core-utils-sdk@3.1.0-canary.4a6f312.0", "@avalabs/core-utils-sdk@3.1.0-canary.4a6f312.0+4a6f312":
+  version "3.1.0-canary.4a6f312.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-utils-sdk/-/core-utils-sdk-3.1.0-canary.4a6f312.0.tgz#d6d42c8616555f5498c638a17ed12c42952bdcbb"
+  integrity sha512-L4GYs0oRqFLr3o1oWYkf5XzMiwBKnlnAE89LctaIBePNROJtO1P6DAHqr5NOm2khO/Rn7OwsD8QGKV8gmd1bZg==
   dependencies:
     "@hpke/core" "1.2.5"
     is-ipfs "6.0.2"
 
-"@avalabs/core-wallets-sdk@3.1.0-canary.801d1a5.0", "@avalabs/core-wallets-sdk@3.1.0-canary.801d1a5.0+801d1a5":
-  version "3.1.0-canary.801d1a5.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-wallets-sdk/-/core-wallets-sdk-3.1.0-canary.801d1a5.0.tgz#c9c211b6dfda3e4b6f75160db36e29fbc5e9666c"
-  integrity sha512-VlwTAKvHgkTr66n4dSgFnMA3iatYvWdNQwWstJyOOqu/cTsfcDqOu/PKannP1jPcWhA7q+ShGh5+tGz1fzFluQ==
+"@avalabs/core-wallets-sdk@3.1.0-canary.4a6f312.0", "@avalabs/core-wallets-sdk@3.1.0-canary.4a6f312.0+4a6f312":
+  version "3.1.0-canary.4a6f312.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-wallets-sdk/-/core-wallets-sdk-3.1.0-canary.4a6f312.0.tgz#13d3b89ec9f89d6bab1d19ae88b31d3eb505d936"
+  integrity sha512-mSjtSf2dLnleA1pjQtego9mfMp5THu2BZgN2uLj0j4j07pQNGNroYTiVg2wTHiT814EEtfMVFWsYpo35/3Cfrw==
   dependencies:
     "@avalabs/avalanchejs" "4.2.0-alpha.1"
-    "@avalabs/core-chains-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
-    "@avalabs/glacier-sdk" "3.1.0-canary.801d1a5.0+801d1a5"
+    "@avalabs/core-chains-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
+    "@avalabs/glacier-sdk" "3.1.0-canary.4a6f312.0+4a6f312"
     "@avalabs/hw-app-avalanche" "0.14.1"
     "@ledgerhq/hw-app-btc" "10.2.4"
     "@ledgerhq/hw-app-eth" "6.36.1"
@@ -213,6 +213,7 @@
     "@openzeppelin/contracts" "4.9.6"
     "@scure/base" "1.2.4"
     "@solana-program/system" "0.6.2"
+    "@solana-program/token" "0.4.1"
     "@solana/web3.js" "2.0.0"
     bip32 "2.0.6"
     bip32-path "0.4.2"
@@ -225,18 +226,18 @@
     micro-key-producer "0.7.5"
     xss "1.0.14"
 
-"@avalabs/evm-module@0.0.0-feat-solana-sign-send-tx-20250225203641":
-  version "0.0.0-feat-solana-sign-send-tx-20250225203641"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-solana-sign-send-tx-20250225203641.tgz#c7be47e99f04a92478692e6f1a0fd4e0b51a0698"
-  integrity sha512-R/NjjojodQKy0sARTT7yC/oKrzChEG1E7DLftgNmcBmEpd6hgO+DkdLSMdA2xhEaw/xQVv9AQR2pECwA+z9wqg==
+"@avalabs/evm-module@0.0.0-feat-solana-sign-send-tx-20250226150841":
+  version "0.0.0-feat-solana-sign-send-tx-20250226150841"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-solana-sign-send-tx-20250226150841.tgz#fe2256f541807904f8105a53c6c11c03d52f98b1"
+  integrity sha512-gToUFd9nb7nqJSSfOK0QP5XdPdBo4ft8il2cKvRgvc3qFllUF9GSwDS1bJIMmjd4FgYGDmX3CvfwRgY2rk54Qw==
   dependencies:
-    "@avalabs/core-coingecko-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/core-etherscan-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/core-utils-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/core-wallets-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/glacier-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/types" "3.1.0-canary.801d1a5.0"
-    "@avalabs/vm-module-types" "0.0.0-feat-solana-sign-send-tx-20250225203641"
+    "@avalabs/core-coingecko-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/core-etherscan-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/core-utils-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/core-wallets-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/glacier-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/types" "3.1.0-canary.4a6f312.0"
+    "@avalabs/vm-module-types" "0.0.0-feat-solana-sign-send-tx-20250226150841"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -245,18 +246,18 @@
     xss "1.0.13"
     zod "3.23.8"
 
-"@avalabs/glacier-sdk@3.1.0-canary.801d1a5.0", "@avalabs/glacier-sdk@3.1.0-canary.801d1a5.0+801d1a5":
-  version "3.1.0-canary.801d1a5.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-canary.801d1a5.0.tgz#820b5e0fa15eb1bf5e21eb4e72878cc9063dc182"
-  integrity sha512-pnAFZWixARMqYfBzYZPGU1N/6K93uTNrNROySPH2obtdsgWZoj2wKxELTATOPBogJ8pEpbTLhZ1USRoOW+DU/w==
+"@avalabs/glacier-sdk@3.1.0-canary.4a6f312.0", "@avalabs/glacier-sdk@3.1.0-canary.4a6f312.0+4a6f312":
+  version "3.1.0-canary.4a6f312.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-canary.4a6f312.0.tgz#bbe6c69e78cda1b9445a4b1b54b4ed66f7324799"
+  integrity sha512-zTc9lHz4Fy/WVBswXE9wCcQ25GpA8dv1CnX/IrHiPQWMVCqdrnWh4E4uk9Kq4Rg44pHIIGSoa+bEa9qlIApatg==
 
-"@avalabs/hvm-module@0.0.0-feat-solana-sign-send-tx-20250225203641":
-  version "0.0.0-feat-solana-sign-send-tx-20250225203641"
-  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-0.0.0-feat-solana-sign-send-tx-20250225203641.tgz#2a71db5fb2fd8c05d33e2bac8c66a29f1583dc99"
-  integrity sha512-IDqBGWXM4XdAl3U8GhWSPAMHl9yJoibz+S6Ukl4n9Z5XxJqsYp0A4EytL8YyHecIaGT54I4xnFYNpwkku48pkQ==
+"@avalabs/hvm-module@0.0.0-feat-solana-sign-send-tx-20250226150841":
+  version "0.0.0-feat-solana-sign-send-tx-20250226150841"
+  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-0.0.0-feat-solana-sign-send-tx-20250226150841.tgz#29b6d52060bf1696817c82b06e4fc5335c79c558"
+  integrity sha512-eRG4WEUkuZ+LTNHIGfS922EXzJ6Yw/FqG7WU5HAePZZzUBZQcNQT/1PEEqKqYEQTKqX3vqX5aBp5UAU1I9osuA==
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.30"
-    "@avalabs/vm-module-types" "0.0.0-feat-solana-sign-send-tx-20250225203641"
+    "@avalabs/vm-module-types" "0.0.0-feat-solana-sign-send-tx-20250226150841"
     "@metamask/rpc-errors" "6.3.0"
     "@noble/hashes" "1.5.0"
     "@scure/base" "1.2.4"
@@ -274,33 +275,34 @@
     ledger-bitcoin "^0.2.1"
     sha3 "2.1.4"
 
-"@avalabs/svm-module@0.0.0-feat-solana-sign-send-tx-20250225203641":
-  version "0.0.0-feat-solana-sign-send-tx-20250225203641"
-  resolved "https://registry.yarnpkg.com/@avalabs/svm-module/-/svm-module-0.0.0-feat-solana-sign-send-tx-20250225203641.tgz#c1f76478f20473b4bb8d4be284d99436ff6cbc2b"
-  integrity sha512-eG/LXUsTL0VpeOYKPb4LYmGb2DkTwFOgHbXaWn2JQyBycuzcqNuRms/5Dg4Qn0Ak11TAqMNnAfU1A2TUBERicw==
+"@avalabs/svm-module@0.0.0-feat-solana-sign-send-tx-20250226150841":
+  version "0.0.0-feat-solana-sign-send-tx-20250226150841"
+  resolved "https://registry.yarnpkg.com/@avalabs/svm-module/-/svm-module-0.0.0-feat-solana-sign-send-tx-20250226150841.tgz#f7507294663bdfe4b46212357af1e7dc697fff7d"
+  integrity sha512-klvRyXPf+/BA5Q5VWoWL/4YWrpo/bHtlHeXMt0A4kJQ9ApsC5iF59JAVoHk9SMVbcF21ZSd+z6WZPstweKttoA==
   dependencies:
-    "@avalabs/core-coingecko-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/core-utils-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/core-wallets-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/vm-module-types" "0.0.0-feat-solana-sign-send-tx-20250225203641"
+    "@avalabs/core-coingecko-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/core-utils-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/core-wallets-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/vm-module-types" "0.0.0-feat-solana-sign-send-tx-20250226150841"
     "@metamask/rpc-errors" "6.3.0"
     "@scure/base" "1.2.4"
     "@solana-program/system" "0.6.2"
+    "@solana-program/token" "0.4.1"
     "@solana/web3.js" "2.0.0"
     zod "3.23.8"
 
-"@avalabs/types@3.1.0-canary.801d1a5.0":
-  version "3.1.0-canary.801d1a5.0"
-  resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-canary.801d1a5.0.tgz#3ceda5a65502fc31fe1950149d77760573318741"
-  integrity sha512-7pqxPUxyGkwvyZtkfbTaTGceotQvLXcUGGQsiBV+3tLbfZvdrSHFRegGoFZKHroQYbLVLTAFvi/+4MAJ2IhBMg==
+"@avalabs/types@3.1.0-canary.4a6f312.0":
+  version "3.1.0-canary.4a6f312.0"
+  resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-canary.4a6f312.0.tgz#a9e21b4e98e9433bf73996546296ab4fe7488b94"
+  integrity sha512-x/6in+0yCUlLMlXfOyp5tIGv7USNeKFEVY3JsHyYKngHInOFhCPrFRpLWKhFCAdGZwcLYmqJvVRz2A9VIe1CLA==
 
-"@avalabs/vm-module-types@0.0.0-feat-solana-sign-send-tx-20250225203641":
-  version "0.0.0-feat-solana-sign-send-tx-20250225203641"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-solana-sign-send-tx-20250225203641.tgz#f039e0614353565fa7739db8c03399b57e0b8a02"
-  integrity sha512-+FnzurQWY35l171TLEdvDtz/ytjgL+veUbqvxsRhhsqx9OapwTFnEvSQNecpNBuxq8NQNHm1WidlesuugwNi3w==
+"@avalabs/vm-module-types@0.0.0-feat-solana-sign-send-tx-20250226150841":
+  version "0.0.0-feat-solana-sign-send-tx-20250226150841"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-solana-sign-send-tx-20250226150841.tgz#4f941e750741b842df8217bf246700ca7d4ab0dc"
+  integrity sha512-vkELWucSDSORHlFZGbsgn/uS/bnE5V6Um4A97nLsnG+zhQXdlmpSLn6c2YkDM22CuKlc4V9y1WUdDsLTxFi2fA==
   dependencies:
-    "@avalabs/core-wallets-sdk" "3.1.0-canary.801d1a5.0"
-    "@avalabs/glacier-sdk" "3.1.0-canary.801d1a5.0"
+    "@avalabs/core-wallets-sdk" "3.1.0-canary.4a6f312.0"
+    "@avalabs/glacier-sdk" "3.1.0-canary.4a6f312.0"
     "@metamask/rpc-errors" "6.3.0"
     bitcoinjs-lib "5.2.0"
     hypersdk-client "0.4.16"
@@ -6085,6 +6087,11 @@
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/@solana-program/system/-/system-0.6.2.tgz#7b5d5097a03cb544da9e7df49fe7519594cdd294"
   integrity sha512-q0ZnylK+LISjuP2jH5GWV9IJPtpzQctj5KQwij9XCDRSGkcFr2fpqptNnVupTLQiNL6Q4c1OZuG8WBmyFXVXZw==
+
+"@solana-program/token@0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@solana-program/token/-/token-0.4.1.tgz#35dd4e89daab0ca400d0f422c3282a77a2876afd"
+  integrity sha512-eSYmjsapzE9jXT2J9xydlMj/zsangMEIZAy9dy75VCXM6kgDCSnH5R7+HsIoKOTvb2VggU7GojC+YhMwWGCIBw==
 
 "@solana/accounts@2.0.0":
   version "2.0.0"
