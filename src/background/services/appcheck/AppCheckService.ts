@@ -97,7 +97,7 @@ export class AppCheckService {
                       res({ registrationId, solution });
                     } else if (remainingAttempts < 1) {
                       clearInterval(timer);
-                      rej('timeout');
+                      rej('[AppCheck] challenge solution timeout');
                     }
                   }, WAIT_FOR_CHALLENGE_DELAY_MS);
                 },
