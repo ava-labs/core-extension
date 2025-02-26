@@ -25,6 +25,7 @@ import {
   isValidAvmAddress,
   isValidPvmAddress,
 } from '@src/utils/isAddressValid';
+import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
 
 const truncateName = (name: string) => {
   if (name.length < 28) return name;
@@ -87,11 +88,14 @@ export const ContactInput = ({
    * For non-BTC transactions, 'addressBTC' is empty.
    * @see useIdentifyAddress() hook.
    */
-  const contactAddress = isBitcoin(network)
-    ? contact?.addressBTC
-    : isPchainNetwork(network) || isXchainNetwork(network)
-      ? contact?.addressXP
-      : contact?.address;
+  const contactAddress =
+    network && isSolanaNetwork(network)
+      ? contact?.addressSVM
+      : isBitcoin(network)
+        ? contact?.addressBTC
+        : isPchainNetwork(network) || isXchainNetwork(network)
+          ? contact?.addressXP
+          : contact?.address;
 
   const [cursor, setCursor] = useState<number | null>(null);
 

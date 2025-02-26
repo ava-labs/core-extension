@@ -44,7 +44,6 @@ export class BalancesService {
     const customTokens = Object.values(
       settings.customTokens[network.chainId] ?? {},
     ).map((t) => ({ ...t, type: TokenType.ERC20 as const }));
-
     const rawBalances = await module.getBalances({
       // TODO: Use public key and module.getAddress instead to make this more modular
       addresses: accounts
@@ -62,6 +61,8 @@ export class BalancesService {
               return account.addressCoreEth;
             case NetworkVMType.HVM:
               return account.addressHVM;
+            case NetworkVMType.SVM:
+              return account.addressSVM;
             default:
               return undefined;
           }

@@ -330,12 +330,17 @@ export function BalancesProvider({ children }: { children: any }) {
       }
 
       const chainId = (lookupNetwork ?? network)?.chainId;
+      const caip2Id = (lookupNetwork ?? network)?.caipId;
 
       if (!chainId) {
         return;
       }
 
-      const addressForChain = getAddressForChain(chainId, activeAccount);
+      const addressForChain = getAddressForChain(
+        chainId,
+        activeAccount,
+        caip2Id,
+      );
 
       if (!addressForChain) {
         return;

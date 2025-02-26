@@ -346,6 +346,12 @@ export class ApprovalController implements BatchApprovalController {
           network,
           action.tabId,
         );
+      case RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION:
+        return await this.#walletService.sign(
+          signingData,
+          network,
+          action.tabId,
+        );
 
       default:
         throw new Error('Unrecognized method: ' + params.request.method);

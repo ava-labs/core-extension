@@ -9,6 +9,8 @@ import {
   NativeSendOptions,
   NftSendOptions,
   SendOptions,
+  SolanaSendOptions,
+  SplSendOptions,
 } from '../models';
 import { TokenType } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@src/utils/stringToBigint';
@@ -99,6 +101,10 @@ export const isErc20Send = (
 
 export const isErc721Send = (options: SendOptions): options is NftSendOptions =>
   options.token.type === TokenType.ERC721;
+
+export const isSplSend = (
+  options: SolanaSendOptions,
+): options is SplSendOptions => options.token.type === TokenType.SPL;
 
 export const isErc1155Send = (
   options: SendOptions,

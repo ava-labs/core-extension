@@ -431,7 +431,8 @@ export class NetworkService implements OnLock, OnStorageReady {
       const [result] = await resolve(
         getChainsAndTokens(
           process.env.RELEASE === 'production',
-          process.env.TOKENLIST_OVERRIDE || '',
+          'https://proxy-api-dev.avax.network/tokenlist?includeSolana', // TODO: restore
+          // process.env.TOKENLIST_OVERRIDE || '',
         ),
       );
 

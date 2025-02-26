@@ -9,4 +9,5 @@ export const mapVMAddresses = (addresses: Record<NetworkVMType, string>) =>
     addressPVM: addresses[NetworkVMType.PVM] || undefined,
     addressCoreEth: addresses[NetworkVMType.CoreEth] || undefined,
     addressHVM: addresses[NetworkVMType.HVM] || undefined,
+    addressSVM: addresses[NetworkVMType.SVM] || undefined,
   } as const);
