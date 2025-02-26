@@ -127,6 +127,7 @@ export function CollectibleDetails() {
         >
           {nft?.name}
         </PageTitle>
+        {/* The refresh is triggering a glacier reindex. Ethereum is using DeBank, this call is failing on that chain */}
         {network && isAvalancheNetwork(network) && (
           <Tooltip
             title={
