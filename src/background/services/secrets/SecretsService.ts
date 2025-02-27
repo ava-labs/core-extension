@@ -684,10 +684,9 @@ export class SecretsService implements OnUnlock {
   }): Promise<void> {
     const secrets = await this.getWalletAccountsSecretsById(walletId);
 
-    const derivationPaths = await addressResolver.getDerivationPathsByVM(
+    const derivationPaths = await addressResolver.getDerivationPaths(
       index,
       secrets.derivationPathSpec,
-      [NetworkVMType.EVM, NetworkVMType.AVM, NetworkVMType.HVM],
     );
     const derivationPathEVM = derivationPaths[NetworkVMType.EVM];
     const derivationPathAVM = derivationPaths[NetworkVMType.AVM];
@@ -817,7 +816,10 @@ export class SecretsService implements OnUnlock {
         );
         newPublicKeys.push(publicKeyAVM.toJSON());
       }
-      if (!hasPublicKeyFor(secrets, derivationPathHVM, 'ed25519')) {
+      if (
+        derivationPathHVM &&
+        !hasPublicKeyFor(secrets, derivationPathHVM, 'ed25519')
+      ) {
         const publicKeyHVM = await AddressPublicKey.fromSeedphrase(
           secrets.mnemonic,
           'ed25519',

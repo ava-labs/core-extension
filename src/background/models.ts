@@ -90,5 +90,3 @@ export const ACTION_HANDLED_BY_MODULE = '__handled.via.vm.modules__';
 export type ExcludeUndefined<T extends Record<PropertyKey, unknown>> = {
   [K in keyof T as T[K] extends undefined ? never : K]: T[K];
 };
-
-export type PickKeys<T, K extends (keyof T)[]> = Omit<T, K[number]>;
