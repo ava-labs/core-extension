@@ -32,28 +32,13 @@ describe('src/background/services/secrets/AddressResolver', () => {
 
     addressResolver = new AddressResolver(networkService, secretsService);
     addressResolver.init(moduleManager);
-
-    jest.resetAllMocks();
   });
 
   describe('getDerivationPathsByVM()', () => {
-    beforeEach(() => {
-      jest.spyOn(networkService.activeNetworks, 'promisify').mockResolvedValue(
-        Promise.resolve({
-          [ChainId.AVALANCHE_X]: { vmName: NetworkVMType.AVM },
-          [ChainId.AVALANCHE_MAINNET_ID]: { vmName: NetworkVMType.EVM },
-          [ChainId.BITCOIN]: { vmName: NetworkVMType.BITCOIN },
-        } as any),
-      );
-    });
-
     it('throws if required derivation path was not built', async () => {
-      jest.spyOn(moduleManager, 'loadModuleByNetwork').mockResolvedValueOnce({
-        buildDerivationPath: jest.fn().mockResolvedValue({
-          [NetworkVMType.PVM]: `m/44'/0'/1'/2'`,
-          [NetworkVMType.AVM]: '', // Mock missing
-        }),
-      } as any);
+      // eslint-disable-next-line
+      // @ts-ignore
+      moduleManager.modules = [];
 
       await expectToThrowErrorCode(
         addressResolver.getDerivationPathsByVM(0, DerivationPath.BIP44, [
@@ -75,10 +60,9 @@ describe('src/background/services/secrets/AddressResolver', () => {
         }),
       } as unknown as Module;
 
-      jest
-        .spyOn(moduleManager, 'loadModuleByNetwork')
-        .mockResolvedValueOnce(evmModuleMock)
-        .mockResolvedValueOnce(avmModuleMock);
+      // eslint-disable-next-line
+      // @ts-ignore
+      moduleManager.modules = [evmModuleMock, avmModuleMock];
 
       const result = await addressResolver.getDerivationPathsByVM(
         0,
