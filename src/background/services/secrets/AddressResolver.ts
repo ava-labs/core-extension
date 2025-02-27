@@ -1,9 +1,11 @@
+import { pick } from 'lodash';
 import { singleton } from 'tsyringe';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Module, NetworkVMType } from '@avalabs/vm-module-types';
 
 import type { ModuleManager } from '@src/background/vmModules/ModuleManager';
-import { CommonError } from '@src/utils/errors';
+import { PickKeys } from '@src/background/models';
+import { CommonError, SecretsError } from '@src/utils/errors';
 import { assertPresent } from '@src/utils/assertions';
 
 import { NetworkWithCaipId } from '../network/models';
@@ -45,10 +47,11 @@ export class AddressResolver {
     return modules;
   }
 
-  async getDerivationPaths(
+  async getDerivationPathsByVM<VMs extends (keyof DerivationPathsMap)[]>(
     accountIndex: number,
     derivationPathType: DerivationPath,
-  ): Promise<DerivationPathsMap> {
+    vms: VMs,
+  ): Promise<PickKeys<DerivationPathsMap, VMs>> {
     const derivationPaths = emptyDerivationPaths();
     const modules = await this.#getModulesForActiveNetworks();
 
@@ -63,7 +66,15 @@ export class AddressResolver {
       }
     }
 
-    return derivationPaths;
+    for (const vm of vms) {
+      assertPresent(
+        derivationPaths[vm],
+        SecretsError.DerivationPathMissing,
+        vm,
+      );
+    }
+
+    return pick(derivationPaths, vms) as PickKeys<DerivationPathsMap, VMs>;
   }
 
   async getAddressesForSecretId(
