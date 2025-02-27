@@ -1,5 +1,6 @@
 import { ChallengeSolver, ChallengeTypes } from '../models';
 import solveBasicChallenge from './challenges/basic';
+import solveReverseChallenge from './challenges/reverse';
 
 type Params = {
   type: ChallengeTypes;
@@ -8,6 +9,7 @@ type Params = {
 
 const CHALLENGE_MAP: Record<ChallengeTypes, ChallengeSolver> = {
   [ChallengeTypes.BASIC]: solveBasicChallenge,
+  [ChallengeTypes.REVERSE]: solveReverseChallenge,
 };
 
 const solveChallenge = async ({ type, challengeDetails }: Params) => {
