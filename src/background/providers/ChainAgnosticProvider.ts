@@ -54,14 +54,14 @@ export class ChainAgnosticProvider extends EventEmitter {
   // If the namespace is EIP155 and the reference is a known fake chain ID (e.g. Bitcoin or Avalanche X/P chains),
   // we convert it to the corresponding CAIP-2 chain ID. Otherwise, we return the original scope.
   #normalizeScope = (scope?: string | null) => {
-    // Do not touch empty or non-EVM chain ids
-    if (scope === null || scope === undefined || !scope.startsWith('eip155:')) {
-      return scope;
+    // If it's not an eip155: scope, don't touch it.
+    if (typeof scope === 'string' && scope.startsWith('eip155:')) {
+      const [_, chainId] = scope.split(':');
+
+      return chainIdToCaip(Number(chainId));
     }
 
-    const [_, chainId] = scope.split(':');
-
-    return chainIdToCaip(Number(chainId));
+    return scope;
   };
 
   #request = async ({
