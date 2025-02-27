@@ -122,13 +122,19 @@ const migrateLedgerSecrets = (
       'secp256k1',
       `${EVM_BASE_PATH}/0/${i}`,
     );
-    const avaPublicKey = AddressPublicKey.fromExtendedPublicKeys(
-      extendedPublicKeys,
-      'secp256k1',
-      `${AVALANCHE_BASE_PATH}/0/${i}`,
-    );
+    addressPublicKeys.push(evmPublicKey.toJSON());
+  }
 
-    addressPublicKeys.push(evmPublicKey.toJSON(), avaPublicKey.toJSON());
+  if (secrets.xpubXP) {
+    for (let i = 0; i < numberOfAccounts; i++) {
+      const avaPublicKey = AddressPublicKey.fromExtendedPublicKeys(
+        extendedPublicKeys,
+        'secp256k1',
+        `${AVALANCHE_BASE_PATH}/0/${i}`,
+      );
+
+      addressPublicKeys.push(avaPublicKey.toJSON());
+    }
   }
 
   return {
