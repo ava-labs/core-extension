@@ -177,6 +177,9 @@ export class AppCheckService {
 
     const solveChallengeSpan = this.#lastChallengeRequest.tracker.startChild({
       name: 'solveChallenge',
+      tags: {
+        type: challenge.type,
+      },
     });
     this.#lastChallengeRequest.solution = await solveChallenge({
       type: challenge.type,
