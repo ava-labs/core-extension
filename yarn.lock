@@ -254,10 +254,10 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/evm-module@0.0.0-CP-9962-collectibles-tab-empty-20250226123304":
-  version "0.0.0-CP-9962-collectibles-tab-empty-20250226123304"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-CP-9962-collectibles-tab-empty-20250226123304.tgz#e1b5d153229d60cbcc0ce31ae5f0fa3aa1f5293b"
-  integrity sha512-mZGFdtywClL4NQYWXk3dFj7fPr8Q1rDkhcceBERAQp9Hcz02TCRP054rU0oiyf/Ui7vv05BOBSnmNNq14Ce7UQ==
+"@avalabs/evm-module@0.0.0-CP-9962-collectibles-tab-empty-20250227105247":
+  version "0.0.0-CP-9962-collectibles-tab-empty-20250227105247"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-CP-9962-collectibles-tab-empty-20250227105247.tgz#749b36a4ad42a56a6b7329bbd6a6b3605d64a15c"
+  integrity sha512-KYzIcYOxzgq75MuczQI5wUMUN/X2y38Qr6Mdk7c5ZgYIc4KlH5q1IKX+GrVpsquhAIpKew+HX+f0lILc57uiLQ==
   dependencies:
     "@avalabs/core-chains-sdk" "3.1.0-alpha.34"
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.34"
@@ -266,7 +266,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
     "@avalabs/glacier-sdk" "3.1.0-alpha.34"
     "@avalabs/types" "3.1.0-alpha.34"
-    "@avalabs/vm-module-types" "0.0.0-CP-9962-collectibles-tab-empty-20250226123304"
+    "@avalabs/vm-module-types" "0.0.0-CP-9962-collectibles-tab-empty-20250227105247"
     "@blockaid/client" "0.11.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -318,10 +318,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.37.tgz#2b92c7ef7e6a59c1314a541c08dbe5a812ea56e5"
   integrity sha512-0xbjZyNb6xTLVAaaLoalJbbDc6eFXOQphs5ZOvljAKgjtS4tc7DlrF466zMac/aMLG1YPaNfNbzJQKB1GrSsEQ==
 
-"@avalabs/vm-module-types@0.0.0-CP-9962-collectibles-tab-empty-20250226123304":
-  version "0.0.0-CP-9962-collectibles-tab-empty-20250226123304"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-CP-9962-collectibles-tab-empty-20250226123304.tgz#5628dea7ba7ba0c37305733d703baa054579e817"
-  integrity sha512-2oivvSVNsULW+VfndrBoUF4Dm7LSVuoPAZH3/LzOmbjdA4MOcB8jwPAeBxB0HQettt9SQL8o7VbzNSmwFp99Ag==
+"@avalabs/vm-module-types@0.0.0-CP-9962-collectibles-tab-empty-20250227105247":
+  version "0.0.0-CP-9962-collectibles-tab-empty-20250227105247"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-CP-9962-collectibles-tab-empty-20250227105247.tgz#81f82f4f15de8eae8d1d75d3e6a2e9c154149d22"
+  integrity sha512-p7UvSsDrs4ZutK1B1JWsZSrFGjG5SnH3pVB1Y8mpA+FCtqLLUnkh1c8ogbLWl+P+p3MhiAE7K2UgR0GafAWXjg==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.34"
     "@avalabs/glacier-sdk" "3.1.0-alpha.34"

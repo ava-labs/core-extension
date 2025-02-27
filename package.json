@@ -37,7 +37,7 @@
     "@avalabs/core-token-prices-sdk": "3.1.0-alpha.37",
     "@avalabs/core-utils-sdk": "3.1.0-alpha.37",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.37",
-    "@avalabs/evm-module": "0.0.0-CP-9962-collectibles-tab-empty-20250226123304",
+    "@avalabs/evm-module": "0.0.0-CP-9962-collectibles-tab-empty-20250227105247",
     "@avalabs/glacier-sdk": "3.1.0-alpha.37",
     "@avalabs/hw-app-avalanche": "0.14.1",
     "@avalabs/hvm-module": "1.4.3",
