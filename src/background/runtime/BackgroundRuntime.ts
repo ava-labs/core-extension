@@ -6,6 +6,7 @@ import { LockService } from '@src/background/services/lock/LockService';
 import { OnboardingService } from '@src/background/services/onboarding/OnboardingService';
 import { ModuleManager } from '../vmModules/ModuleManager';
 import { BridgeService } from '../services/bridge/BridgeService';
+import { AddressResolver } from '../services/secrets/AddressResolver';
 import { AppCheckService } from '@src/background/services/appcheck/AppCheckService';
 
 @singleton()
@@ -17,6 +18,7 @@ export class BackgroundRuntime {
     // we try to fetch the bridge configs as soon as possible
     private bridgeService: BridgeService,
     private moduleManager: ModuleManager,
+    private addressResolver: AddressResolver,
     private appCheckService: AppCheckService,
   ) {}
 
@@ -30,6 +32,8 @@ export class BackgroundRuntime {
     this.lockService.activate();
     this.onboardingService.activate();
     this.moduleManager.activate();
+
+    this.addressResolver.init(this.moduleManager);
     this.appCheckService.activate();
   }
 

@@ -1,4 +1,3 @@
-import Joi from 'joi';
 import { ACCOUNTS_STORAGE_KEY } from '../../accounts/models';
 import { WALLET_STORAGE_ENCRYPTION_KEY } from '../models';
 import { WALLET_STORAGE_KEY } from '@src/background/services/wallet/models';
@@ -19,22 +18,7 @@ import network_v4 from './migrations/network_v4';
 import { UNIFIED_BRIDGE_STATE_STORAGE_KEY } from '../../unifiedBridge/models';
 import unified_bridge_v2 from './migrations/unified_bridge_v2';
 import balances_v3 from './migrations/balances_v3';
-
-export type Migration = {
-  previousSchema: Joi.Schema;
-  up: <T>(data: T) => Promise<T & { version: number }>;
-};
-
-export type SchemaMap = Record<
-  string,
-  {
-    latestVersion: number;
-    migrations: readonly {
-      version: number;
-      migration: Migration;
-    }[];
-  }
->;
+import wallet_v5 from './migrations/wallet_v5/wallet_v5';
 
 export const SCHEMA_MAP = {
   [ACCOUNTS_STORAGE_KEY]: {
@@ -51,7 +35,7 @@ export const SCHEMA_MAP = {
     ],
   },
   [WALLET_STORAGE_KEY]: {
-    latestVersion: 4,
+    latestVersion: 5,
     migrations: [
       {
         version: 2,
@@ -64,6 +48,10 @@ export const SCHEMA_MAP = {
       {
         version: 4,
         migration: wallet_v4,
+      },
+      {
+        version: 5,
+        migration: wallet_v5,
       },
     ],
   },

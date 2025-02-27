@@ -5,6 +5,8 @@ import {
   JsonRpcRequestPayload,
 } from '@src/background/connections/dAppConnection/models';
 import { PartialBy } from '@src/background/models';
+import { CommonError, ErrorCode } from '@src/utils/errors';
+import { ethErrors } from 'eth-rpc-errors';
 
 const AllTheProviders: FC<{ children: React.ReactNode }> = ({ children }) => {
   // K2 ThemeProvider causes issues here.
@@ -37,6 +39,29 @@ export const buildRpcCall = <M extends string>(
     sessionId: crypto.randomUUID(),
     request: payload,
   }) as const;
+
+export const expectToThrowErrorCode = async (
+  fnOrPromise: Function | Promise<any>, // eslint-disable-line
+  reason: ErrorCode = CommonError.Unknown,
+) => {
+  if (typeof fnOrPromise === 'function') {
+    expect(fnOrPromise).toThrow(
+      ethErrors.rpc.internal({
+        data: matchingPayload({
+          reason,
+        }),
+      }),
+    );
+  } else {
+    await expect(fnOrPromise).rejects.toThrow(
+      ethErrors.rpc.internal({
+        data: matchingPayload({
+          reason,
+        }),
+      }),
+    );
+  }
+};
 
 export * from '@testing-library/react';
 export { customRender as render };

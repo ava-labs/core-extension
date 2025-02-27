@@ -6,9 +6,14 @@ import { AccountsService } from '../../accounts/AccountsService';
 
 import { ImportSeedPhraseHandler } from './importSeedPhrase';
 import { SeedphraseImportError } from './models';
-import { SecretType } from '../../secrets/models';
+import {
+  AVALANCHE_BASE_DERIVATION_PATH,
+  EVM_BASE_DERIVATION_PATH,
+  SecretType,
+} from '../../secrets/models';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { buildExtendedPublicKey } from '../../secrets/utils';
 
 describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
   const walletService = {
@@ -81,10 +86,18 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
     const expectedCall = {
       secretType: SecretType.Mnemonic,
       mnemonic: mnemonicLowerCase,
-      xpub: 'xpub6DPsyHV2MhmxaY7FtPeVVeB1MCZ9XzDhHTHFqzq2BVMKnqCcHjnXCeTZWUbsarGTdWHHz7wFdNfKiggZYabqj3b8FodX7cDryEQgBWqPcY6',
-      xpubXP:
-        'xpub6CiZCQeZSo8jyK2ARkRKkFvo6rkaA9deyRaKNW2nFsbb8C3cnVLZxYuQ8YRABbBUA47xYd1EHoTqWtFX895Pb2VjcJUFD4kGbmetuh57mry',
-      derivationPath: DerivationPath.BIP44,
+      extendedPublicKeys: [
+        buildExtendedPublicKey(
+          'xpub6DPsyHV2MhmxaY7FtPeVVeB1MCZ9XzDhHTHFqzq2BVMKnqCcHjnXCeTZWUbsarGTdWHHz7wFdNfKiggZYabqj3b8FodX7cDryEQgBWqPcY6',
+          EVM_BASE_DERIVATION_PATH,
+        ),
+        buildExtendedPublicKey(
+          'xpub6CiZCQeZSo8jyK2ARkRKkFvo6rkaA9deyRaKNW2nFsbb8C3cnVLZxYuQ8YRABbBUA47xYd1EHoTqWtFX895Pb2VjcJUFD4kGbmetuh57mry',
+          AVALANCHE_BASE_DERIVATION_PATH,
+        ),
+      ],
+      publicKeys: [],
+      derivationPathSpec: DerivationPath.BIP44,
       name: 'Dummy mnemonic',
     };
 
@@ -118,10 +131,18 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
     expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
       secretType: SecretType.Mnemonic,
       mnemonic,
-      xpub: 'xpub6DPsyHV2MhmxaY7FtPeVVeB1MCZ9XzDhHTHFqzq2BVMKnqCcHjnXCeTZWUbsarGTdWHHz7wFdNfKiggZYabqj3b8FodX7cDryEQgBWqPcY6',
-      xpubXP:
-        'xpub6CiZCQeZSo8jyK2ARkRKkFvo6rkaA9deyRaKNW2nFsbb8C3cnVLZxYuQ8YRABbBUA47xYd1EHoTqWtFX895Pb2VjcJUFD4kGbmetuh57mry',
-      derivationPath: DerivationPath.BIP44,
+      publicKeys: [],
+      extendedPublicKeys: [
+        buildExtendedPublicKey(
+          'xpub6DPsyHV2MhmxaY7FtPeVVeB1MCZ9XzDhHTHFqzq2BVMKnqCcHjnXCeTZWUbsarGTdWHHz7wFdNfKiggZYabqj3b8FodX7cDryEQgBWqPcY6',
+          EVM_BASE_DERIVATION_PATH,
+        ),
+        buildExtendedPublicKey(
+          'xpub6CiZCQeZSo8jyK2ARkRKkFvo6rkaA9deyRaKNW2nFsbb8C3cnVLZxYuQ8YRABbBUA47xYd1EHoTqWtFX895Pb2VjcJUFD4kGbmetuh57mry',
+          AVALANCHE_BASE_DERIVATION_PATH,
+        ),
+      ],
+      derivationPathSpec: DerivationPath.BIP44,
       name: 'Dummy mnemonic',
     });
 

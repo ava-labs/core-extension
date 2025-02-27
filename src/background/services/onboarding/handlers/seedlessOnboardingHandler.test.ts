@@ -127,14 +127,26 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
       .mocked(secretsServiceMock.getWalletAccountsSecretsById)
       .mockResolvedValueOnce({
         secretType: SecretType.Seedless,
-        pubKeys: [
+        publicKeys: [
           {
-            evm: 'evm',
-            xp: 'xp',
+            key: 'evm',
+            derivationPath: `m/44'/60'/0'/0/0`,
+            curve: 'secp256k1',
           },
           {
-            evm: 'evm2',
-            xp: 'xp2',
+            key: 'xp',
+            derivationPath: `m/44'/9000'/0'/0/0`,
+            curve: 'secp256k1',
+          },
+          {
+            key: 'evm',
+            derivationPath: `m/44'/60'/0'/0/1`,
+            curve: 'secp256k1',
+          },
+          {
+            key: 'xp',
+            derivationPath: `m/44'/9000'/0'/0/1`,
+            curve: 'secp256k1',
           },
         ],
       } as any);
@@ -167,8 +179,8 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
       seedlessSignerToken: undefined,
       authProvider: SeedlessAuthProvider.Google,
       userId: '123',
-      pubKeys: [],
-      derivationPath: DerivationPath.BIP44,
+      publicKeys: [],
+      derivationPathSpec: DerivationPath.BIP44,
       secretType: SecretType.Seedless,
       name: 'wallet-name',
     });
