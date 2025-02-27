@@ -4,6 +4,7 @@ import { CommonError } from '@src/utils/errors';
 import walletV5Migration from './wallet_v5';
 import * as Legacy from './legacyModels';
 import { expectToThrowErrorCode } from '@src/tests/test-utils';
+import { Accounts } from '@src/background/services/accounts/models';
 
 jest.mock('@src/background/services/secrets/AddressPublicKey');
 
@@ -90,7 +91,7 @@ describe('src/background/services/storage/schemaMigrations/migrations/wallet_v5'
       [mockLedgerLiveSecrets.id]: ['account1', 'account2'],
       [mockSeedlessSecrets.id]: ['account1', 'account2'],
     },
-  };
+  } as unknown as Accounts;
 
   const mockCurrentSecrets: Legacy.LegacySchema = {
     wallets: [
@@ -148,7 +149,7 @@ describe('src/background/services/storage/schemaMigrations/migrations/wallet_v5'
   it('should throw an error if accounts for wallet are not present', async () => {
     const mockAccountsWithoutWallet = {
       primary: {},
-    };
+    } as Accounts;
 
     await expectToThrowErrorCode(
       walletV5Migration.up(mockCurrentSecrets, mockAccountsWithoutWallet),

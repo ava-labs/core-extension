@@ -1,4 +1,7 @@
-import { ACCOUNTS_STORAGE_KEY } from '@src/background/services/accounts/models';
+import {
+  ACCOUNTS_STORAGE_KEY,
+  Accounts,
+} from '@src/background/services/accounts/models';
 
 import { MigrationWithDeps } from '../../models';
 
@@ -18,9 +21,7 @@ const VERSION = 5;
 const EVM_BASE_PATH = "m/44'/60'/0'";
 const AVALANCHE_BASE_PATH = "m/44'/9000'/0'";
 
-type DependencyModelTuples = [
-  [typeof ACCOUNTS_STORAGE_KEY, { primary: { [walletId: string]: unknown[] } }],
-];
+type DependencyModelTuples = [[typeof ACCOUNTS_STORAGE_KEY, Accounts]];
 
 type WalletV5Migration = MigrationWithDeps<
   Legacy.LegacySchema,

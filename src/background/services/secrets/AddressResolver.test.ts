@@ -32,13 +32,28 @@ describe('src/background/services/secrets/AddressResolver', () => {
 
     addressResolver = new AddressResolver(networkService, secretsService);
     addressResolver.init(moduleManager);
+
+    jest.resetAllMocks();
   });
 
   describe('getDerivationPathsByVM()', () => {
+    beforeEach(() => {
+      jest.spyOn(networkService.activeNetworks, 'promisify').mockResolvedValue(
+        Promise.resolve({
+          [ChainId.AVALANCHE_X]: { vmName: NetworkVMType.AVM },
+          [ChainId.AVALANCHE_MAINNET_ID]: { vmName: NetworkVMType.EVM },
+          [ChainId.BITCOIN]: { vmName: NetworkVMType.BITCOIN },
+        } as any),
+      );
+    });
+
     it('throws if required derivation path was not built', async () => {
-      // eslint-disable-next-line
-      // @ts-ignore
-      moduleManager.modules = [];
+      jest.spyOn(moduleManager, 'loadModuleByNetwork').mockResolvedValueOnce({
+        buildDerivationPath: jest.fn().mockResolvedValue({
+          [NetworkVMType.PVM]: `m/44'/0'/1'/2'`,
+          [NetworkVMType.AVM]: '', // Mock missing
+        }),
+      } as any);
 
       await expectToThrowErrorCode(
         addressResolver.getDerivationPathsByVM(0, DerivationPath.BIP44, [
@@ -60,9 +75,10 @@ describe('src/background/services/secrets/AddressResolver', () => {
         }),
       } as unknown as Module;
 
-      // eslint-disable-next-line
-      // @ts-ignore
-      moduleManager.modules = [evmModuleMock, avmModuleMock];
+      jest
+        .spyOn(moduleManager, 'loadModuleByNetwork')
+        .mockResolvedValueOnce(evmModuleMock)
+        .mockResolvedValueOnce(avmModuleMock);
 
       const result = await addressResolver.getDerivationPathsByVM(
         0,
@@ -75,22 +91,6 @@ describe('src/background/services/secrets/AddressResolver', () => {
         [NetworkVMType.AVM]: "m/44'/9000'/0'/0/0",
       });
     });
-
-    // it('should throw error if derivation path is missing', async () => {
-    //   moduleManager.modules = [
-    //     {
-    //       buildDerivationPath: jest.fn().mockResolvedValue({
-    //         EVM: 'path1',
-    //       }),
-    //     } as unknown as Module,
-    //   ];
-
-    //   await expect(
-    //     addressResolver.getDerivationPathsByVM(0, DerivationPath.BIP44, [
-    //       'AVM',
-    //     ]),
-    //   ).rejects.toThrow(SecretsError.DerivationPathMissing);
-    // });
   });
 
   describe('getAddressesForSecretId()', () => {

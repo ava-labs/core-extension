@@ -51,10 +51,6 @@ export class ModuleManager {
     this.#_modules = modules;
   }
 
-  get modules(): Module[] {
-    return this.#modules;
-  }
-
   constructor(controller: ApprovalController) {
     this.#approvalController = controller;
   }

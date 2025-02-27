@@ -27,8 +27,24 @@ export class AddressResolver {
     this.#moduleManager = moduleManager;
   }
 
-  async #getNetworksForAddressDerivation(): Promise<NetworkWithCaipId[]> {
-    return Object.values(await this.networkService.activeNetworks.promisify());
+  async #getModulesForActiveNetworks(): Promise<
+    Map<Module, NetworkWithCaipId>
+  > {
+    assertPresent(this.#moduleManager, CommonError.ModuleManagerNotSet);
+
+    const activeNetworks = Object.values(
+      await this.networkService.activeNetworks.promisify(),
+    );
+    const modules = new Map<Module, NetworkWithCaipId>();
+
+    for (const network of activeNetworks) {
+      const module = await this.#moduleManager.loadModuleByNetwork(network);
+      if (module && !modules.has(module)) {
+        modules.set(module, network);
+      }
+    }
+
+    return modules;
   }
 
   async getDerivationPathsByVM<VMs extends (keyof DerivationPathsMap)[]>(
@@ -36,11 +52,10 @@ export class AddressResolver {
     derivationPathType: DerivationPath,
     vms: VMs,
   ): Promise<PickKeys<DerivationPathsMap, VMs>> {
-    assertPresent(this.#moduleManager, CommonError.ModuleManagerNotSet);
-
     const derivationPaths = emptyDerivationPaths();
+    const modules = await this.#getModulesForActiveNetworks();
 
-    for (const module of this.#moduleManager.modules) {
+    for (const [module] of modules.entries()) {
       const modulePaths = await module.buildDerivationPath({
         accountIndex,
         derivationPathType,
@@ -67,10 +82,8 @@ export class AddressResolver {
     accountIndex?: number,
     derivationPathType?: DerivationPath,
   ): Promise<Record<NetworkVMType, string> | never> {
-    assertPresent(this.#moduleManager, CommonError.ModuleManagerNotSet);
-
-    const secrets = await this.secretsService.getSecretsById(secretId);
     const addresses = emptyAddresses();
+    const secrets = await this.secretsService.getSecretsById(secretId);
 
     if (secrets.secretType === SecretType.Fireblocks) {
       return {
@@ -88,16 +101,7 @@ export class AddressResolver {
         [NetworkVMType.CoreEth]: secrets.addresses.addressCoreEth ?? '',
       };
     }
-
-    const activeNetworks = await this.#getNetworksForAddressDerivation();
-    const modules = new Map<Module, NetworkWithCaipId>();
-
-    for (const network of activeNetworks) {
-      const module = await this.#moduleManager.loadModuleByNetwork(network);
-      if (module && !modules.has(module)) {
-        modules.set(module, network);
-      }
-    }
+    const modules = await this.#getModulesForActiveNetworks();
 
     for (const [module, network] of modules.entries()) {
       const moduleAddresses = await module
