@@ -63,7 +63,6 @@ export enum GasFeeModifier {
   CUSTOM = 'CUSTOM',
 }
 
-// TODO: This button will be available through K2 soon (CP-4506). We should replace it then.
 const FeeButton = ({ sx = {}, ...props }) => (
   <Button
     sx={{
@@ -212,17 +211,21 @@ export function CustomFees({
       ? GasFeeModifier.SLOW
       : selectedGasFeeModifier || GasFeeModifier.SLOW,
   );
-  const [isGaslessOn, setIsGaslessOn] = useState(false);
-  const [isGaslessCalculating, setIsGaslessCalculating] = useState(false);
 
-  const { getGaslessChallange, solveGaslessChallange, gaslessFundTx } =
-    useNetworkFeeContext();
+  const {
+    fetchGaslessChallange,
+    isGaslessEligible,
+    challengeHex,
+    solutionHex,
+    isGaslessOn,
+    setIsGaslessOn,
+  } = useNetworkFeeContext();
 
   useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest native balance.
 
   useEffect(() => {
-    getGaslessChallange();
-  }, [getGaslessChallange]);
+    fetchGaslessChallange();
+  }, [fetchGaslessChallange]);
 
   useEffect(() => {
     if (!customFee && networkFee) {
@@ -365,19 +368,18 @@ export function CustomFees({
     };
   }, [network?.networkToken, estimatedFee, newFees.feeUnit]);
 
-  const onGaslessSwitch = useCallback(
-    async (calculating) => {
-      if (!calculating) {
-        setIsGaslessCalculating(true);
-        const result = await solveGaslessChallange();
-        console.log('result: ', result);
-        const fund = await gaslessFundTx();
-        console.log('fund: ', fund);
-        setIsGaslessCalculating(false);
-      }
-    },
-    [gaslessFundTx, solveGaslessChallange],
-  );
+  const onGaslessSwitch = useCallback(async () => {
+    setIsGaslessOn(!isGaslessOn);
+    if (!challengeHex || !solutionHex) {
+      fetchGaslessChallange();
+    }
+  }, [
+    challengeHex,
+    fetchGaslessChallange,
+    isGaslessOn,
+    setIsGaslessOn,
+    solutionHex,
+  ]);
 
   if (!networkFee) {
     return null;
@@ -430,14 +432,15 @@ export function CustomFees({
           mountOnEnter
           unmountOnExit
         >
-          <GaslessFee
-            onSwitch={() => {
-              setIsGaslessOn(!isGaslessOn);
-              onGaslessSwitch(isGaslessOn);
-            }}
-            isTurnedOn={isGaslessOn}
-            isLoading={isGaslessCalculating}
-          />
+          {isGaslessEligible && (
+            <GaslessFee
+              onSwitch={() => {
+                onGaslessSwitch();
+              }}
+              isTurnedOn={isGaslessOn}
+              isLoading={!solutionHex}
+            />
+          )}
           <Collapse in={!isGaslessOn} mountOnEnter unmountOnExit>
             <Stack
               sx={{

@@ -4,28 +4,24 @@ import { injectable } from 'tsyringe';
 import { GasStationService } from '../GasStationService';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.GASLESS_GET_CHALLENGE,
-  true,
-  // [appCheckToken: any]
-  []
+  ExtensionRequest.GASLESS_GET_ELIGIBILITY,
+  boolean,
+  [chainId: number | string]
 >;
 
 @injectable()
-export class GetGaslessChallengeHandler implements HandlerType {
-  method = ExtensionRequest.GASLESS_GET_CHALLENGE as const;
+export class GetGaslessEligibilityHandler implements HandlerType {
+  method = ExtensionRequest.GASLESS_GET_ELIGIBILITY as const;
 
   constructor(private gasStationService: GasStationService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    // const [appCheckToken] = request.params;
-    const appCheckToken = 'appCheckToken';
-    console.log('appCheckToken: ', appCheckToken);
-    await this.gasStationService.sendMessage(
-      'test message from GASLESS_GET_CHALLENGE',
-    );
+    const [chainId] = request.params;
+
+    const result = await this.gasStationService.getEligibility(`${chainId}`);
     return {
       ...request,
-      result: true,
+      result,
     };
   };
 }

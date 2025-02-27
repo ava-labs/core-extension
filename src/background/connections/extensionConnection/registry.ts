@@ -129,10 +129,12 @@ import { BalancesUpdatedEvents } from '@src/background/services/balances/events/
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
 import { GetTotalBalanceForWalletHandler } from '@src/background/services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
-import { GetGaslessChallengeHandler } from '@src/background/services/gasless/handlers/getGaslessChallenge';
-import { SolveGaslessChallengeHandler } from '@src/background/services/gasless/handlers/solveGaslessChallange';
+import { GetGaslessChallengeHexHandler } from '@src/background/services/gasless/handlers/getGaslessChallengeHex';
 import { FundTxHandler } from '@src/background/services/gasless/handlers/fundTx';
 import { GaslessSendMessageEvent } from '@src/background/services/gasless/events/gaslessSendMessageEvent';
+import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/handlers/getGaslessEligibility';
+import { FetchGaslessChallengeHandler } from '@src/background/services/gasless/handlers/fetchGaslessChallange';
+import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -382,15 +384,19 @@ import { GaslessSendMessageEvent } from '@src/background/services/gasless/events
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: GetGaslessChallengeHandler,
+    useToken: GetGaslessChallengeHexHandler,
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: SolveGaslessChallengeHandler,
+    useToken: FetchGaslessChallengeHandler,
   },
   {
     token: 'ExtensionRequestHandler',
     useToken: FundTxHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetGaslessEligibilityHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}
@@ -423,5 +429,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: UnifiedBridgeEvents },
   { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
   { token: 'ExtensionEventEmitter', useToken: GaslessSendMessageEvent },
+  { token: 'ExtensionEventEmitter', useToken: GaslessChallangeUpdateEvent },
 ])
 export class ExtensionEventEmitterRegistry {}

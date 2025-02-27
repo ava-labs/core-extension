@@ -4,7 +4,6 @@ import { DEFERRED_RESPONSE, Pipeline } from '../middlewares/models';
 import { ExtensionRequestHandlerMiddleware } from '../middlewares/ExtensionRequestHandlerMiddleware';
 import {
   ConnectionController,
-  DAppEventEmitter,
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
@@ -52,8 +51,6 @@ export class OffscreenConnectionController implements ConnectionController {
       'DAppRequestHandler',
       DappHandlerToExtensionHandlerTransformer,
     )
-    private dappHandlers: ExtensionRequestHandler<any, any>[],
-    @injectAll('DAppEventEmitter') private dappEmitters: DAppEventEmitter[],
     private networkService: NetworkService,
     private moduleManager: ModuleManager,
   ) {
@@ -63,42 +60,25 @@ export class OffscreenConnectionController implements ConnectionController {
   }
 
   connect(connection: Runtime.Port) {
-    console.log('OffscreenConnectionController connection: ', connection);
     this.connection = connection;
 
     this.pipeline = RequestProcessorPipeline(
       ActiveNetworkMiddleware(this.networkService),
-      ExtensionRequestHandlerMiddleware(
-        [...this.handlers, ...this.dappHandlers],
-        this.moduleManager,
-      ),
+      ExtensionRequestHandlerMiddleware([...this.handlers], this.moduleManager),
     );
 
-    connectionLog('Extension Provider');
+    connectionLog('Offscreen Connection Provider');
 
     this.connection?.onMessage.addListener(this.onMessage);
-
-    //TODO: remove
-    this.sendMessage('hello from background connect');
 
     this.connection?.onDisconnect.addListener(this.disconnect);
 
     this.eventEmitters.forEach((emitter) => emitter.addListener(this.onEvent));
-    this.dappEmitters.forEach((emitter) => {
-      emitter.addListener(this.onEvent);
-      emitter.setConnectionInfo({
-        domain: new URL(connection?.sender?.url || '').hostname,
-      });
-    });
   }
 
   disconnect(): void {
-    console.log('OffscreenConnectionController disconnect: ');
     this.connection?.onMessage.removeListener(this.onMessage);
     this.eventEmitters.forEach((emitter) =>
-      emitter.removeListener(this.onEvent),
-    );
-    this.dappEmitters.forEach((emitter) =>
       emitter.removeListener(this.onEvent),
     );
     disconnectLog('Offscreen Provider');
@@ -111,10 +91,6 @@ export class OffscreenConnectionController implements ConnectionController {
       const contexts = await chrome.runtime.getContexts({
         documentUrls: [`chrome-extension://${id}/${filename}`],
       });
-      console.log(
-        'OffscreenConnectionController  hasOffscreenDocument contexts: ',
-        contexts,
-      );
       return !!contexts.length;
     }
     return false;
@@ -128,17 +104,10 @@ export class OffscreenConnectionController implements ConnectionController {
         'OffscreenConnectionController is not connected to an offscreen document',
       );
     }
-    console.log(' this.connection?: ', this.connection);
-    console.log('hasOffscreenDocument: ', hasOffscreenDocument);
-    console.log('sendMessage message: ', message);
     this.connection?.postMessage(message);
   }
 
   private async onMessage(requestJSON: string) {
-    console.log(
-      'OffscreenConnectionController onMessage requestJSON: ',
-      requestJSON,
-    );
     if (!this.pipeline || !this.connection) {
       throw Error('OffscreenConnectionController is not connected to a port');
     }
@@ -230,7 +199,6 @@ export class OffscreenConnectionController implements ConnectionController {
 
     const requestNames: string[] = Object.values(OffscreenRequest);
     if (requestNames.includes(evt.name)) {
-      console.log('OffscreenRequest onEvent  evt.name: ', evt.name);
       try {
         this.connection?.postMessage(serializeToJSON(evt));
       } catch (e) {

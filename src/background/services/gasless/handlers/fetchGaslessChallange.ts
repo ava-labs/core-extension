@@ -2,37 +2,26 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { GasStationService } from '../GasStationService';
-import { TransactionRequest } from 'ethers';
+import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.GASLESS_FUND_TX,
-  string | undefined,
-  [
-    data: TransactionRequest,
-    challengeHex: string,
-    solutionHex: string,
-    fromAddress: string,
-  ]
+  ExtensionRequest.GASLESS_FETCH_CHALLENGE,
+  typeof DEFERRED_RESPONSE
 >;
 
 @injectable()
-export class FundTxHandler implements HandlerType {
-  method = ExtensionRequest.GASLESS_FUND_TX as const;
+export class FetchGaslessChallengeHandler implements HandlerType {
+  method = ExtensionRequest.GASLESS_FETCH_CHALLENGE as const;
 
   constructor(private gasStationService: GasStationService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [data, challengeHex, solutionHex, fromAddress] = request.params;
     try {
-      const fundResult = await this.gasStationService.fundTx({
-        data,
-        challengeHex: `${challengeHex}`,
-        solutionHex,
-        fromAddress,
-      });
+      this.gasStationService.fetchChallange();
+
       return {
         ...request,
-        result: fundResult,
+        result: DEFERRED_RESPONSE,
       };
     } catch (e: any) {
       return {

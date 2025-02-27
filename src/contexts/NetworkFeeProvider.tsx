@@ -1,5 +1,7 @@
 import {
   createContext,
+  Dispatch,
+  SetStateAction,
   useCallback,
   useContext,
   useEffect,
@@ -13,37 +15,69 @@ import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { chainIdToCaip } from '@src/utils/caipConversion';
 
 import { useNetworkContext } from './NetworkProvider';
-import { GetGaslessChallengeHandler } from '@src/background/services/gasless/handlers/getGaslessChallenge';
-import { SolveGaslessChallengeHandler } from '@src/background/services/gasless/handlers/solveGaslessChallange';
 import { FundTxHandler } from '@src/background/services/gasless/handlers/fundTx';
+import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/handlers/getGaslessEligibility';
+import { FetchGaslessChallengeHandler } from '@src/background/services/gasless/handlers/fetchGaslessChallange';
+import { filter, map } from 'rxjs';
+import { gaslessChallangeUpdateEventListener } from '@src/background/services/gasless/events/gaslessChallangeUpdateListener';
+import { TransactionRequest } from 'ethers';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;
   getNetworkFee: (caipId: string) => Promise<NetworkFee | null>;
-  getGaslessChallange: () => Promise<any | null>;
-  solveGaslessChallange: () => Promise<any | null>;
-  gaslessFundTx: () => Promise<any | null>;
+  fetchGaslessChallange: () => Promise<any | null>;
+  gaslessFundTx: ({
+    data,
+    addressFrom,
+  }: {
+    data: TransactionRequest;
+    addressFrom: string;
+  }) => Promise<string | undefined>;
+  getGaslessEligibility: (chainId?: string | number) => Promise<any | null>;
+  challengeHex: string;
+  solutionHex: string;
+  isGaslessOn: boolean;
+  setIsGaslessOn: Dispatch<SetStateAction<boolean>>;
+  isGaslessEligible: boolean;
+  setIsGaslessEligible: Dispatch<SetStateAction<boolean>>;
 }>({
   networkFee: null,
   async getNetworkFee() {
     return null;
   },
-  async getGaslessChallange() {
+  async fetchGaslessChallange() {
     return null;
   },
-  async solveGaslessChallange() {
-    return null;
-  },
+
   async gaslessFundTx() {
+    return undefined;
+  },
+  async getGaslessEligibility() {
+    return null;
+  },
+  challengeHex: '',
+  solutionHex: '',
+  isGaslessOn: false,
+  setIsGaslessOn() {
+    return null;
+  },
+  isGaslessEligible: false,
+  setIsGaslessEligible() {
     return null;
   },
 });
 
 export function NetworkFeeContextProvider({ children }: { children: any }) {
-  const { request } = useConnectionContext();
+  const { request, events } = useConnectionContext();
   const { network } = useNetworkContext();
   const [fee, setFee] = useState<NetworkFee | null>(null);
   const [iteration, setIteration] = useState(0);
+  const [challengeHex, setChallengeHex] = useState('');
+  const [solutionHex, setSolutionHex] = useState('');
+  const [isGaslessOn, setIsGaslessOn] = useState(false);
+  const [isGaslessEligible, setIsGaslessEligible] = useState(false);
+  // TODO: implement retrying
+  // const [countGaslessTries, setCountGaslessTries] = useState(0);
 
   const getNetworkFee = useCallback(
     async (caipId: string) =>
@@ -81,47 +115,67 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
     };
   }, [getNetworkFee, iteration, network?.chainId]);
 
-  const getGaslessChallange = useCallback(
+  const fetchGaslessChallange = useCallback(
     async () =>
-      request<GetGaslessChallengeHandler>({
-        method: ExtensionRequest.GASLESS_GET_CHALLENGE,
-        params: [],
-      }),
-    [request],
-  );
-
-  const solveGaslessChallange = useCallback(
-    async () =>
-      request<SolveGaslessChallengeHandler>({
-        method: ExtensionRequest.GASLESS_SOLVE_CHALLENGE,
+      request<FetchGaslessChallengeHandler>({
+        method: ExtensionRequest.GASLESS_FETCH_CHALLENGE,
         params: [],
       }),
     [request],
   );
 
   const gaslessFundTx = useCallback(
-    async () =>
+    async ({ data, fromAddress }) =>
       request<FundTxHandler>({
         method: ExtensionRequest.GASLESS_FUND_TX,
-        params: [
-          {
-            txParam1: 'txParam1-asd',
-          },
-          'challangedId',
-          'result',
-        ],
+        params: [data, challengeHex, solutionHex, fromAddress],
+      }),
+    [challengeHex, request, solutionHex],
+  );
+
+  const getGaslessEligibility = useCallback(
+    async (chainId) =>
+      request<GetGaslessEligibilityHandler>({
+        method: ExtensionRequest.GASLESS_GET_ELIGIBILITY,
+        params: [chainId],
       }),
     [request],
   );
+
+  useEffect(() => {
+    const gaslessEventSubscription = events()
+      .pipe(
+        filter(gaslessChallangeUpdateEventListener),
+        map((evt) => evt.value),
+      )
+      .subscribe(async (values) => {
+        if (values.solutionHex) {
+          setSolutionHex(values.solutionHex);
+        }
+        if (values.challengeHex) {
+          setChallengeHex(values.challengeHex);
+        }
+      });
+
+    return () => {
+      gaslessEventSubscription.unsubscribe();
+    };
+  }, [events, getNetworkFee]);
 
   return (
     <NetworkFeeContext.Provider
       value={{
         networkFee: fee,
         getNetworkFee,
-        getGaslessChallange,
-        solveGaslessChallange,
+        fetchGaslessChallange,
         gaslessFundTx,
+        getGaslessEligibility,
+        challengeHex,
+        solutionHex,
+        isGaslessOn,
+        setIsGaslessOn,
+        isGaslessEligible,
+        setIsGaslessEligible,
       }}
     >
       {children}
