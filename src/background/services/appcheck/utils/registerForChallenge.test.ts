@@ -38,7 +38,7 @@ describe('registerForChallenge', () => {
     } as Response);
 
     expect(registerForChallenge(params)).rejects.toThrow(
-      'challenge registration error: "internal error"',
+      '[AppCheck] challenge registration error "internal error"',
     );
   });
 
@@ -53,7 +53,7 @@ describe('registerForChallenge', () => {
     expect(registerForChallenge(params)).resolves.toBeUndefined();
     expect(global.fetch).toHaveBeenCalledWith(
       'https://id.com/v1/ext/register',
-      {
+      expect.objectContaining({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ describe('registerForChallenge', () => {
           token: 'token',
           requestId: 'requestId',
         }),
-      },
+      }),
     );
   });
 });

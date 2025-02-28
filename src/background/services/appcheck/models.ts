@@ -17,6 +17,7 @@ export enum Algorithm {
 
 export enum ChallengeTypes {
   BASIC = 'BASIC',
+  REVERSE = 'REVERSE',
 }
 
 export type AppCheckRegistrationChallenge = {
