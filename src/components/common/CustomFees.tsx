@@ -369,6 +369,7 @@ export function CustomFees({
   }, [network?.networkToken, estimatedFee, newFees.feeUnit]);
 
   const onGaslessSwitch = useCallback(async () => {
+    handleModifierClick(GasFeeModifier.NORMAL);
     setIsGaslessOn(!isGaslessOn);
     if (!challengeHex || !solutionHex) {
       fetchGaslessChallange();
@@ -376,6 +377,7 @@ export function CustomFees({
   }, [
     challengeHex,
     fetchGaslessChallange,
+    handleModifierClick,
     isGaslessOn,
     setIsGaslessOn,
     solutionHex,
