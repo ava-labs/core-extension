@@ -10,7 +10,7 @@ const connection: Runtime.Port = browser.runtime.connect({
 connection.onMessage.addListener(async (param) => {
   const params = JSON.parse(param);
   const { value } = params;
-  const { token } = value;
+  const { token, message } = value;
   const sdk = new GaslessSdk('https://core-gas-station.avax-test.network', {
     appCheckToken: token,
   });
@@ -25,6 +25,7 @@ connection.onMessage.addListener(async (param) => {
           solutionHex,
           challengeHex,
           tabId: -1,
+          pipelineIndex: message.pipelineIndex ?? undefined,
         },
       },
     }),

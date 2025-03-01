@@ -37,7 +37,6 @@ export class ConnectionService {
   }
 
   private handleConnection(connection: Runtime.Port) {
-    console.log('handleConnection connection: ', connection);
     if (connection.sender?.id !== browser.runtime.id) {
       return;
     }

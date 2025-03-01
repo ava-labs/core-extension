@@ -14,7 +14,13 @@ export class GasStationService {
   #gasStationUrl = 'https://core-gas-station.avax-test.network';
   solutionHex = new Signal<string | undefined>();
   challengeHex = new Signal<string | undefined>();
+  fundTxHex = new Signal<string | undefined>();
+  fundTxDoNotRertyError = new Signal<boolean | undefined>();
+  isFundProcessReady = new Signal<boolean>();
+  #fundDataPipeline: { fromAddress: string; data: any }[] = [];
+
   txHex = '';
+  #attempt = 0;
   #sdk: GaslessSdk;
 
   constructor(
@@ -22,6 +28,7 @@ export class GasStationService {
     private networkService: NetworkService,
   ) {
     this.#sdk = new GaslessSdk(this.#gasStationUrl);
+    this.createOffScreen();
   }
 
   async #getAppcheckToken() {
@@ -61,17 +68,43 @@ export class GasStationService {
     return await this.#sdk.isEligibleForChain(chainId);
   }
 
-  async setChallengeHex(challengeHex: string, solutionHex: string) {
-    this.solutionHex.dispatch(solutionHex);
+  async setChallengeHex(
+    challengeHex: string,
+    solutionHex: string,
+    pipelineIndex?: number,
+  ) {
     this.challengeHex.dispatch(challengeHex);
+    this.solutionHex.dispatch(solutionHex);
+    if (pipelineIndex === 0 || pipelineIndex) {
+      const pipelineData = this.#fundDataPipeline[pipelineIndex];
+      if (!pipelineData) {
+        throw new Error('No data for funding.');
+      }
+      try {
+        await this.fundTx({
+          challengeHex,
+          solutionHex,
+          data: pipelineData.data,
+          fromAddress: pipelineData?.fromAddress,
+        });
+      } catch (_) {
+        this.fundTxDoNotRertyError.dispatch(true);
+      }
+    }
+    // await this.closeOffscreen();
   }
 
-  async fetchChallange() {
-    await this.createOffScreen();
-    await this.sendMessage(null, ExtensionRequest.GASLESS_FETCH_CHALLENGE);
+  async fetchChallange(pipelineIndex?: number) {
+    await this.sendMessage(
+      { pipelineIndex },
+      ExtensionRequest.GASLESS_FETCH_CHALLENGE,
+    );
   }
 
   async fundTx({ data, challengeHex, solutionHex, fromAddress }) {
+    this.isFundProcessReady.dispatch(false);
+    this.#attempt++;
+
     const token = await this.#getAppcheckToken();
     if (!token) {
       throw new Error('Cannot get Appcheck Token');
@@ -82,6 +115,7 @@ export class GasStationService {
       ...data,
       from: null,
     }).unsignedSerialized;
+
     this.txHex = txHex;
     const result = await this.#sdk.fundTx({
       challengeHex,
@@ -94,7 +128,18 @@ export class GasStationService {
       throw new Error('No network');
     }
     if (result.error) {
-      throw new Error(result.error.category);
+      if (
+        result.error.category === 'RETRY_WITH_NEW_CHALLENGE' &&
+        this.#attempt < 2
+      ) {
+        const nextPipelineIndex = this.#fundDataPipeline.length;
+
+        this.#fundDataPipeline.push({ data, fromAddress });
+
+        await this.fetchChallange(nextPipelineIndex);
+      }
+      this.fundTxDoNotRertyError.dispatch(true);
+      return;
     }
     if (!result.txHash) {
       throw new Error('No tx hash');
@@ -105,8 +150,8 @@ export class GasStationService {
     ).waitForTransaction(result.txHash);
     this.solutionHex.dispatch(solutionHex);
     this.challengeHex.dispatch(challengeHex);
-    await this.closeOffscreen();
-    return waitForTransactionResult?.hash;
+    this.fundTxHex.dispatch(waitForTransactionResult?.hash);
+    this.isFundProcessReady.dispatch(true);
   }
 
   addListener(event: GaslessEvents, callback: (data: GaslessMessage) => void) {

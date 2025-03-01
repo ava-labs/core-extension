@@ -41,7 +41,7 @@ import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+// import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
@@ -65,6 +65,8 @@ export function GenericApprovalScreen() {
   const requestId = useGetRequestId();
   const { action, updateAction, cancelHandler } =
     useApproveAction<DisplayData>(requestId);
+  // need this for get the nonce
+  console.log('action: ', action);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const [network, setNetwork] = useState<NetworkWithCaipId>();
@@ -84,12 +86,14 @@ export function GenericApprovalScreen() {
     getGaslessEligibility,
     gaslessFundTx,
     setIsGaslessOn,
+    isFundProcessReady,
+    fundTxHex,
+    fundTxDoNotRertyError,
   } = useNetworkFeeContext();
-  const { captureEncrypted } = useAnalyticsContext();
+  // TODO: capture the successful transaction
+  // const { captureEncrypted } = useAnalyticsContext();
   const [gaslessFundStarted, setGaslessFundStarted] = useState(false);
   const [gaslessError, setGaslessError] = useState('');
-  //TODO: remove when implementing auto-retrying
-  const [gaslessWarning, setGaslessWarning] = useState('');
 
   const { displayData, context } = action ?? {};
   const hasFeeSelector = action?.displayData.networkFeeSelector;
@@ -117,58 +121,35 @@ export function GenericApprovalScreen() {
     cancelHandler();
   }, [cancelHandler]);
 
-  const handleGaslessError = useCallback(
-    (e: string) => {
-      const doNotRetryMessage = 'DO_NOT_RETRY';
-      setIsGaslessOn(false);
-      if (e.includes(doNotRetryMessage)) {
-        setIsGaslessEligible(false);
-        setGaslessError(
-          t(
-            `We're unable to cover the gas fees for your transaction at this time. As a result, this feature has been disabled.`,
-          ),
-        );
-        return;
-      }
-      setGaslessWarning(
-        t(
-          'It seems there was a temporary issue with our gasless service while trying to fund your gas fee. Please give it another try! ',
-        ),
-      );
-    },
-    [setIsGaslessEligible, setIsGaslessOn, t],
-  );
+  const handleGaslessError = useCallback(() => {
+    setIsGaslessOn(false);
+
+    setIsGaslessEligible(false);
+    setGaslessFundStarted(false);
+    setGaslessError(
+      t(
+        `We're unable to cover the gas fees for your transaction at this time. As a result, this feature has been disabled.`,
+      ),
+    );
+    return;
+  }, [setIsGaslessEligible, setIsGaslessOn, t]);
+
+  const fundGasless = useCallback(async () => {
+    console.log('fundGasless: ');
+    const fromAddress = action?.signingData?.data.from;
+    return await gaslessFundTx({
+      data: action.signingData?.data,
+      fromAddress,
+    });
+  }, [action?.signingData?.data, gaslessFundTx]);
 
   const signTx = useCallback(async () => {
     setGaslessError('');
     if (isGaslessOn) {
       setGaslessFundStarted(true);
-      if (action.signingData?.type === RpcMethod.ETH_SEND_TRANSACTION) {
-        const fromAddress = action.signingData?.data.from;
-        try {
-          const foundTransactionHash = await gaslessFundTx({
-            data: action.signingData?.data,
-            fromAddress,
-          });
-          captureEncrypted('GaslessFundSuccessful', {
-            address: fromAddress,
-            txHash: foundTransactionHash,
-            chainId: network?.chainId,
-          });
-
-          toastCardWithLink({
-            title: t('Gas Fund Successful'),
-            url: getExplorerAddressByNetwork(
-              network as Network,
-              foundTransactionHash,
-            ),
-            label: t('View in Explorer'),
-          });
-        } catch (e: any) {
-          handleGaslessError(e);
-          setGaslessFundStarted(false);
-          return;
-        }
+      if (action?.signingData?.type === RpcMethod.ETH_SEND_TRANSACTION) {
+        await fundGasless();
+        return;
       }
 
       setGaslessFundStarted(false);
@@ -181,12 +162,38 @@ export function GenericApprovalScreen() {
       isUsingLedgerWallet || isUsingKeystoneWallet,
     );
   }, [
-    action?.signingData?.data,
     action?.signingData?.type,
-    captureEncrypted,
-    gaslessFundTx,
-    handleGaslessError,
+    fundGasless,
     isGaslessOn,
+    isUsingKeystoneWallet,
+    isUsingLedgerWallet,
+    requestId,
+    updateAction,
+  ]);
+
+  useEffect(() => {
+    if (fundTxDoNotRertyError) {
+      handleGaslessError();
+    }
+    if (isFundProcessReady && fundTxHex) {
+      toastCardWithLink({
+        title: t('Gas Fund Successful'),
+        url: getExplorerAddressByNetwork(network as Network, fundTxHex),
+        label: t('View in Explorer'),
+      });
+      updateAction(
+        {
+          status: ActionStatus.SUBMITTING,
+          id: requestId,
+        },
+        isUsingLedgerWallet || isUsingKeystoneWallet,
+      );
+    }
+  }, [
+    fundTxDoNotRertyError,
+    fundTxHex,
+    handleGaslessError,
+    isFundProcessReady,
     isUsingKeystoneWallet,
     isUsingLedgerWallet,
     network,
@@ -260,11 +267,6 @@ export function GenericApprovalScreen() {
         {gaslessError && (
           <Stack sx={{ width: 1, px: 2, mb: 1 }}>
             <AlertBox title={t('Gasless Error')} text={gaslessError} />
-          </Stack>
-        )}
-        {gaslessWarning && (
-          <Stack sx={{ width: 1, px: 2, mb: 1 }}>
-            <WarningBox title={t('Gasless Warning')} text={gaslessWarning} />
           </Stack>
         )}
 

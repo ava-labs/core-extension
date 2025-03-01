@@ -16,11 +16,21 @@ export class GetGaslessChallengeHexHandler implements HandlerType {
 
   constructor(private gasStationService: GasStationService) {}
 
+  // e5bb36325ad177ebfda7737ed0ec9caa15eca82a353ad1145c5fc1a0f11df165
   handle: HandlerType['handle'] = async ({ request }) => {
     try {
+      const pipelineIndex = request.pipelineIndex;
       await this.gasStationService.setChallengeHex(
         request.challengeHex,
         request.solutionHex,
+        // TODO: remove these comment they can simulate the RETRY and DO NOT RETRY errors at the moment
+        // 'fail',
+        // pipelineIndex === 0
+        //   ? // ? request.solutionHex
+        //     'fail'
+        //   : 'e5bb36325ad177ebfda7737ed0ec9caa15eca82a353ad1145c5fc1a0f11df165',
+        pipelineIndex ?? undefined,
+        // 'e5bb36325ad177ebfda7737ed0ec9caa15eca82a353ad1145c5fc1a0f11df165',
       );
       return {
         ...request,

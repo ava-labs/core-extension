@@ -23,6 +23,26 @@ export class GaslessChallangeUpdateEvent implements ExtensionEventEmitter {
         value: { challengeHex },
       });
     });
+    this.gasStationService.isFundProcessReady.add((isFundProcessReady) => {
+      this.eventEmitter.emit('update', {
+        name: GaslessEvents.CHALLENGE_UPDATE,
+        value: { isFundProcessReady },
+      });
+    });
+    this.gasStationService.fundTxHex.add((fundTxHex) => {
+      this.eventEmitter.emit('update', {
+        name: GaslessEvents.CHALLENGE_UPDATE,
+        value: { fundTxHex },
+      });
+    });
+    this.gasStationService.fundTxDoNotRertyError.add(
+      (fundTxDoNotRertyError) => {
+        this.eventEmitter.emit('update', {
+          name: GaslessEvents.CHALLENGE_UPDATE,
+          value: { fundTxDoNotRertyError },
+        });
+      },
+    );
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {

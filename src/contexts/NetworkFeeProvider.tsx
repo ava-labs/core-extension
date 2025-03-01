@@ -40,6 +40,9 @@ const NetworkFeeContext = createContext<{
   setIsGaslessOn: Dispatch<SetStateAction<boolean>>;
   isGaslessEligible: boolean;
   setIsGaslessEligible: Dispatch<SetStateAction<boolean>>;
+  isFundProcessReady: boolean;
+  fundTxHex: string;
+  fundTxDoNotRertyError: boolean;
 }>({
   networkFee: null,
   async getNetworkFee() {
@@ -65,6 +68,9 @@ const NetworkFeeContext = createContext<{
   setIsGaslessEligible() {
     return null;
   },
+  isFundProcessReady: false,
+  fundTxHex: '',
+  fundTxDoNotRertyError: false,
 });
 
 export function NetworkFeeContextProvider({ children }: { children: any }) {
@@ -76,8 +82,9 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   const [solutionHex, setSolutionHex] = useState('');
   const [isGaslessOn, setIsGaslessOn] = useState(false);
   const [isGaslessEligible, setIsGaslessEligible] = useState(false);
-  // TODO: implement retrying
-  // const [countGaslessTries, setCountGaslessTries] = useState(0);
+  const [isFundProcessReady, setIsFundProcessReady] = useState(false);
+  const [fundTxHex, setFundTxHex] = useState('');
+  const [fundTxDoNotRertyError, setFundTxDoNotRertyError] = useState(false);
 
   const getNetworkFee = useCallback(
     async (caipId: string) =>
@@ -155,6 +162,15 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         if (values.challengeHex) {
           setChallengeHex(values.challengeHex);
         }
+        if (values.isFundProcessReady) {
+          setIsFundProcessReady(values.isFundProcessReady);
+        }
+        if (values.fundTxHex) {
+          setFundTxHex(values.fundTxHex);
+        }
+        if (values.fundTxDoNotRertyError) {
+          setFundTxDoNotRertyError(values.fundTxDoNotRertyError);
+        }
       });
 
     return () => {
@@ -176,6 +192,9 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         setIsGaslessOn,
         isGaslessEligible,
         setIsGaslessEligible,
+        isFundProcessReady,
+        fundTxHex,
+        fundTxDoNotRertyError,
       }}
     >
       {children}
