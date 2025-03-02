@@ -59,13 +59,25 @@ export class GasStationService {
     });
   }
 
-  async getEligibility(chainId: string) {
+  async getEligibility({
+    chainId,
+    fromAddress,
+    nonce,
+  }: {
+    chainId: string;
+    fromAddress?: string;
+    nonce?: number;
+  }) {
     const token = await this.#getAppcheckToken();
     if (!token) {
-      throw new Error('Cannot get Appcheck Token');
+      throw new Error('Cannot get the Appcheck Token');
     }
     this.#sdk.setAppCheckToken(token);
-    return await this.#sdk.isEligibleForChain(chainId);
+    return await this.#sdk.isEligibleForChain({
+      chainId,
+      from: fromAddress,
+      nonce,
+    });
   }
 
   async setChallengeHex(

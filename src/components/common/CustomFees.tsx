@@ -54,6 +54,7 @@ export interface CustomGasFeesProps {
   isCollapsible?: boolean;
   size?: 'small' | 'normal';
   hasEnoughForFee?: boolean;
+  isBatchApprovalScreen: boolean;
 }
 
 export enum GasFeeModifier {
@@ -184,6 +185,7 @@ export function CustomFees({
   isCollapsible,
   size = 'normal',
   hasEnoughForFee = true,
+  isBatchApprovalScreen,
 }: CustomGasFeesProps) {
   const { t } = useTranslation();
   const tokenPrice = useNativeTokenPrice(network);
@@ -434,7 +436,7 @@ export function CustomFees({
           mountOnEnter
           unmountOnExit
         >
-          {isGaslessEligible && (
+          {!isBatchApprovalScreen && isGaslessEligible && (
             <GaslessFee
               onSwitch={() => {
                 onGaslessSwitch();

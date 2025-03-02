@@ -6,7 +6,11 @@ import { GasStationService } from '../GasStationService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_GET_ELIGIBILITY,
   boolean,
-  [chainId: number | string]
+  [
+    chainId: number | string,
+    fromAddress: string | undefined,
+    nonce: number | undefined,
+  ]
 >;
 
 @injectable()
@@ -16,9 +20,13 @@ export class GetGaslessEligibilityHandler implements HandlerType {
   constructor(private gasStationService: GasStationService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [chainId] = request.params;
+    const [chainId, fromAddress, nonce] = request.params;
 
-    const result = await this.gasStationService.getEligibility(`${chainId}`);
+    const result = await this.gasStationService.getEligibility({
+      chainId: `${chainId}`,
+      fromAddress,
+      nonce,
+    });
     return {
       ...request,
       result,

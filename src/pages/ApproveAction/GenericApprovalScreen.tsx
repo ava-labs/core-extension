@@ -41,7 +41,7 @@ import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-// import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
@@ -90,12 +90,11 @@ export function GenericApprovalScreen() {
     fundTxHex,
     fundTxDoNotRertyError,
   } = useNetworkFeeContext();
-  // TODO: capture the successful transaction
-  // const { captureEncrypted } = useAnalyticsContext();
+  const { captureEncrypted } = useAnalyticsContext();
   const [gaslessFundStarted, setGaslessFundStarted] = useState(false);
   const [gaslessError, setGaslessError] = useState('');
 
-  const { displayData, context } = action ?? {};
+  const { displayData, context, signingData } = action ?? {};
   const hasFeeSelector = action?.displayData.networkFeeSelector;
   const isFeeValid =
     !hasFeeSelector ||
@@ -105,16 +104,31 @@ export function GenericApprovalScreen() {
     if (!displayData?.network?.chainId) {
       return;
     }
-    const getGaslessStatus = async (chainId) =>
-      setIsGaslessEligible(await getGaslessEligibility(chainId));
+    const getGaslessStatus = async (chainId, fromAddress, nonce) => {
+      const isGaslessEligible = await getGaslessEligibility(
+        chainId,
+        fromAddress,
+        nonce,
+      );
+      setIsGaslessEligible(isGaslessEligible);
+      setIsGaslessOn(isGaslessEligible);
+    };
 
     setNetwork(getNetwork(displayData.network.chainId));
-    getGaslessStatus(displayData.network.chainId);
+    getGaslessStatus(
+      displayData.network.chainId,
+      signingData?.data?.from,
+      signingData?.data?.nonce,
+    );
   }, [
+    displayData,
     displayData?.network?.chainId,
     getGaslessEligibility,
     getNetwork,
     setIsGaslessEligible,
+    setIsGaslessOn,
+    signingData?.data?.from,
+    signingData?.data?.nonce,
   ]);
 
   const handleRejection = useCallback(() => {
@@ -131,7 +145,6 @@ export function GenericApprovalScreen() {
         `We're unable to cover the gas fees for your transaction at this time. As a result, this feature has been disabled.`,
       ),
     );
-    return;
   }, [setIsGaslessEligible, setIsGaslessOn, t]);
 
   const fundGasless = useCallback(async () => {
@@ -153,6 +166,8 @@ export function GenericApprovalScreen() {
       }
 
       setGaslessFundStarted(false);
+      // when the gasless feature is turned on we handle the action update after the tx has ended
+      return;
     }
     updateAction(
       {
@@ -173,9 +188,13 @@ export function GenericApprovalScreen() {
 
   useEffect(() => {
     if (fundTxDoNotRertyError) {
+      captureEncrypted('GaslessFundFailed');
       handleGaslessError();
     }
     if (isFundProcessReady && fundTxHex) {
+      captureEncrypted('GaslessFundSuccessful', {
+        fundTxHex,
+      });
       toastCardWithLink({
         title: t('Gas Fund Successful'),
         url: getExplorerAddressByNetwork(network as Network, fundTxHex),
@@ -190,6 +209,7 @@ export function GenericApprovalScreen() {
       );
     }
   }, [
+    captureEncrypted,
     fundTxDoNotRertyError,
     fundTxHex,
     handleGaslessError,

@@ -21,6 +21,8 @@ import { FetchGaslessChallengeHandler } from '@src/background/services/gasless/h
 import { filter, map } from 'rxjs';
 import { gaslessChallangeUpdateEventListener } from '@src/background/services/gasless/events/gaslessChallangeUpdateListener';
 import { TransactionRequest } from 'ethers';
+import { useFeatureFlagContext } from './FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;
@@ -33,7 +35,11 @@ const NetworkFeeContext = createContext<{
     data: TransactionRequest;
     addressFrom: string;
   }) => Promise<string | undefined>;
-  getGaslessEligibility: (chainId?: string | number) => Promise<any | null>;
+  getGaslessEligibility: (
+    chainId?: string | number,
+    fromAddress?: string,
+    nonce?: number,
+  ) => Promise<any | null>;
   challengeHex: string;
   solutionHex: string;
   isGaslessOn: boolean;
@@ -85,6 +91,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   const [isFundProcessReady, setIsFundProcessReady] = useState(false);
   const [fundTxHex, setFundTxHex] = useState('');
   const [fundTxDoNotRertyError, setFundTxDoNotRertyError] = useState(false);
+  const { featureFlags } = useFeatureFlagContext();
 
   const getNetworkFee = useCallback(
     async (caipId: string) =>
@@ -141,12 +148,17 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   );
 
   const getGaslessEligibility = useCallback(
-    async (chainId) =>
-      request<GetGaslessEligibilityHandler>({
+    async (chainId, fromAddress, nonce) => {
+      if (!featureFlags[FeatureGates.GASLESS]) {
+        return false;
+      }
+      return request<GetGaslessEligibilityHandler>({
         method: ExtensionRequest.GASLESS_GET_ELIGIBILITY,
-        params: [chainId],
-      }),
-    [request],
+        params: [chainId, fromAddress, nonce],
+      });
+    },
+
+    [featureFlags, request],
   );
 
   useEffect(() => {
