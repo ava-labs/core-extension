@@ -1,7 +1,6 @@
 import { Stack, Typography, styled } from '@avalabs/core-k2-components';
 
 import { BrandName } from '@src/components/icons/BrandName';
-import { Logo } from '@src/components/icons/Logo';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 
 export const AnimatedLogo = styled('div')`
@@ -16,7 +15,7 @@ export const AnimatedLogo = styled('div')`
       opacity: 1;
     }
   }
-  animation: 6s ease-in infinite fade;
+  animation: 4s ease-in infinite fade;
 `;
 
 interface OfflineContent {
@@ -38,11 +37,8 @@ export function OfflineContent({ message }) {
       }}
     >
       <AnimatedLogo>
-        <Logo height={96} />
-      </AnimatedLogo>
-      <Stack sx={{ alignItems: 'end' }}>
         <BrandName height={42} />
-      </Stack>
+      </AnimatedLogo>
       {message && (
         <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
           {message}

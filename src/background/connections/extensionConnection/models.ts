@@ -163,4 +163,5 @@ export enum ExtensionRequest {
   GASLESS_FUND_TX = 'gasless_fund_tx',
   GASLESS_GET_ELIGIBILITY = 'gasless_get_eligibility',
   GASLESS_GET_CHALLENGE_HEX = 'gasless_get_challange_hex',
+  GASLESS_SET_DEFAUlT_VALUES = 'gasless_set_default_values',
 }

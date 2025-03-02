@@ -11,6 +11,8 @@ const sharedSentryConfig = {
     /^.*The user aborted a request\.$/, // ignore errors caused by chrome's throttling
     /^.*could not detect network.*$/, // ignore ethers provider connection errors
     /^.*Failed to fetch$/, // ignore network errors
+    /AbortError: Registration failed - push service error/, // ignore push service FCM registration failures
+    /^.*NotAllowedError: Registration failed - permission denied/, // ignore push service FCM registration failures
   ],
 };
 

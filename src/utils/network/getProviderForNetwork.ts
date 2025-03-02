@@ -9,7 +9,6 @@ import { info } from '@avalabs/avalanchejs';
 
 import { Network } from '@src/background/services/network/models';
 
-import { isDevnet } from '../isDevnet';
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 
 export type SupportedProvider =
@@ -68,11 +67,9 @@ export const getProviderForNetwork = async (
       .getUpgradesInfo()
       .catch(() => undefined);
 
-    return isDevnet(network)
-      ? Avalanche.JsonRpcProvider.getDefaultDevnetProvider(upgradesInfo)
-      : network.isTestnet
-        ? Avalanche.JsonRpcProvider.getDefaultFujiProvider(upgradesInfo)
-        : Avalanche.JsonRpcProvider.getDefaultMainnetProvider(upgradesInfo);
+    return network.isTestnet
+      ? Avalanche.JsonRpcProvider.getDefaultFujiProvider(upgradesInfo)
+      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider(upgradesInfo);
   } else {
     throw new Error('unsupported network');
   }

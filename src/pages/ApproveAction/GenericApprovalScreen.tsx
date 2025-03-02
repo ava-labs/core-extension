@@ -65,8 +65,6 @@ export function GenericApprovalScreen() {
   const requestId = useGetRequestId();
   const { action, updateAction, cancelHandler } =
     useApproveAction<DisplayData>(requestId);
-  // need this for get the nonce
-  console.log('action: ', action);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
   const [network, setNetwork] = useState<NetworkWithCaipId>();
@@ -84,11 +82,13 @@ export function GenericApprovalScreen() {
     isGaslessOn,
     setIsGaslessEligible,
     getGaslessEligibility,
+    isGaslessEligible,
     gaslessFundTx,
     setIsGaslessOn,
     isFundProcessReady,
     fundTxHex,
     fundTxDoNotRertyError,
+    setGaslessDefaultValues,
   } = useNetworkFeeContext();
   const { captureEncrypted } = useAnalyticsContext();
   const [gaslessFundStarted, setGaslessFundStarted] = useState(false);
@@ -97,6 +97,7 @@ export function GenericApprovalScreen() {
   const { displayData, context, signingData } = action ?? {};
   const hasFeeSelector = action?.displayData.networkFeeSelector;
   const isFeeValid =
+    (isGaslessOn && isGaslessEligible) ||
     !hasFeeSelector ||
     (!feeError && !isCalculatingFee && hasEnoughForNetworkFee);
 
@@ -105,13 +106,12 @@ export function GenericApprovalScreen() {
       return;
     }
     const getGaslessStatus = async (chainId, fromAddress, nonce) => {
-      const isGaslessEligible = await getGaslessEligibility(
+      const gaslessEligibility = await getGaslessEligibility(
         chainId,
         fromAddress,
         nonce,
       );
-      setIsGaslessEligible(isGaslessEligible);
-      setIsGaslessOn(isGaslessEligible);
+      setIsGaslessEligible(gaslessEligibility);
     };
 
     setNetwork(getNetwork(displayData.network.chainId));
@@ -125,11 +125,16 @@ export function GenericApprovalScreen() {
     displayData?.network?.chainId,
     getGaslessEligibility,
     getNetwork,
+    isGaslessEligible,
     setIsGaslessEligible,
     setIsGaslessOn,
     signingData?.data?.from,
     signingData?.data?.nonce,
   ]);
+
+  useEffect(() => {
+    setIsGaslessOn(isGaslessEligible);
+  }, [isGaslessEligible, setIsGaslessOn]);
 
   const handleRejection = useCallback(() => {
     cancelHandler();
@@ -148,7 +153,6 @@ export function GenericApprovalScreen() {
   }, [setIsGaslessEligible, setIsGaslessOn, t]);
 
   const fundGasless = useCallback(async () => {
-    console.log('fundGasless: ');
     const fromAddress = action?.signingData?.data.from;
     return await gaslessFundTx({
       data: action.signingData?.data,
@@ -200,6 +204,7 @@ export function GenericApprovalScreen() {
         url: getExplorerAddressByNetwork(network as Network, fundTxHex),
         label: t('View in Explorer'),
       });
+      setGaslessDefaultValues();
       updateAction(
         {
           status: ActionStatus.SUBMITTING,
@@ -218,6 +223,7 @@ export function GenericApprovalScreen() {
     isUsingLedgerWallet,
     network,
     requestId,
+    setGaslessDefaultValues,
     t,
     updateAction,
   ]);

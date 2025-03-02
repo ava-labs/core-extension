@@ -23,6 +23,7 @@ import { gaslessChallangeUpdateEventListener } from '@src/background/services/ga
 import { TransactionRequest } from 'ethers';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { SetGaslessDefaultValuesHandler } from '@src/background/services/gasless/handlers/setDefaultValues';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;
@@ -49,6 +50,7 @@ const NetworkFeeContext = createContext<{
   isFundProcessReady: boolean;
   fundTxHex: string;
   fundTxDoNotRertyError: boolean;
+  setGaslessDefaultValues: () => Promise<any | null>;
 }>({
   networkFee: null,
   async getNetworkFee() {
@@ -77,6 +79,9 @@ const NetworkFeeContext = createContext<{
   isFundProcessReady: false,
   fundTxHex: '',
   fundTxDoNotRertyError: false,
+  async setGaslessDefaultValues() {
+    return null;
+  },
 });
 
 export function NetworkFeeContextProvider({ children }: { children: any }) {
@@ -146,6 +151,14 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
       }),
     [challengeHex, request, solutionHex],
   );
+  const setGaslessDefaultValues = useCallback(
+    async () =>
+      request<SetGaslessDefaultValuesHandler>({
+        method: ExtensionRequest.GASLESS_SET_DEFAUlT_VALUES,
+        params: [],
+      }),
+    [request],
+  );
 
   const getGaslessEligibility = useCallback(
     async (chainId, fromAddress, nonce) => {
@@ -168,19 +181,22 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         map((evt) => evt.value),
       )
       .subscribe(async (values) => {
-        if (values.solutionHex) {
+        if (values.solutionHex || values.solutionHex === '') {
           setSolutionHex(values.solutionHex);
         }
-        if (values.challengeHex) {
+        if (values.challengeHex || values.challengeHex === '') {
           setChallengeHex(values.challengeHex);
         }
-        if (values.isFundProcessReady) {
+        if (values.isFundProcessReady || values.isFundProcessReady === false) {
           setIsFundProcessReady(values.isFundProcessReady);
         }
-        if (values.fundTxHex) {
+        if (values.fundTxHex || values.fundTxHex === '') {
           setFundTxHex(values.fundTxHex);
         }
-        if (values.fundTxDoNotRertyError) {
+        if (
+          values.fundTxDoNotRertyError ||
+          values.fundTxDoNotRertyError === false
+        ) {
           setFundTxDoNotRertyError(values.fundTxDoNotRertyError);
         }
       });
@@ -207,6 +223,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         isFundProcessReady,
         fundTxHex,
         fundTxDoNotRertyError,
+        setGaslessDefaultValues,
       }}
     >
       {children}

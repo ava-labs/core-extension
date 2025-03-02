@@ -106,6 +106,12 @@ export class GasStationService {
     // await this.closeOffscreen();
   }
 
+  setDefaultValues() {
+    console.log('setDefaultValues: ');
+    this.isFundProcessReady.dispatch(false);
+    this.fundTxHex.dispatch(undefined);
+  }
+
   async fetchChallange(pipelineIndex?: number) {
     await this.sendMessage(
       { pipelineIndex },

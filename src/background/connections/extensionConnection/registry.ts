@@ -135,6 +135,7 @@ import { GaslessSendMessageEvent } from '@src/background/services/gasless/events
 import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/handlers/getGaslessEligibility';
 import { FetchGaslessChallengeHandler } from '@src/background/services/gasless/handlers/fetchGaslessChallange';
 import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
+import { SetGaslessDefaultValuesHandler } from '@src/background/services/gasless/handlers/setDefaultValues';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -397,6 +398,10 @@ import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/ev
   {
     token: 'ExtensionRequestHandler',
     useToken: GetGaslessEligibilityHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetGaslessDefaultValuesHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}
