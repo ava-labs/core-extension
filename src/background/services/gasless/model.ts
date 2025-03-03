@@ -8,7 +8,10 @@ export interface GaslessMessage {
   data: string;
 }
 
-// TODO: fix the type
 export interface GaslessChallange {
-  any;
+  solutionHex?: string;
+  challengeHex?: string;
+  fundTxHex?: string;
+  isFundProcessReady?: boolean;
+  fundTxDoNotRertyError?: boolean;
 }

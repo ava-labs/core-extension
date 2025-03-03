@@ -7,8 +7,8 @@ import { useTranslation } from 'react-i18next';
 import {
   AlertType,
   DisplayData,
-  Network,
   RpcMethod,
+  SigningData_EthSendTx,
 } from '@avalabs/vm-module-types';
 import {
   Alert,
@@ -114,6 +114,9 @@ export function GenericApprovalScreen() {
       setIsGaslessEligible(gaslessEligibility);
     };
 
+    if (!signingData || signingData.type !== RpcMethod.ETH_SEND_TRANSACTION) {
+      return;
+    }
     setNetwork(getNetwork(displayData.network.chainId));
     getGaslessStatus(
       displayData.network.chainId,
@@ -128,8 +131,7 @@ export function GenericApprovalScreen() {
     isGaslessEligible,
     setIsGaslessEligible,
     setIsGaslessOn,
-    signingData?.data?.from,
-    signingData?.data?.nonce,
+    signingData,
   ]);
 
   useEffect(() => {
@@ -152,20 +154,22 @@ export function GenericApprovalScreen() {
     );
   }, [setIsGaslessEligible, setIsGaslessOn, t]);
 
-  const fundGasless = useCallback(async () => {
-    const fromAddress = action?.signingData?.data.from;
-    return await gaslessFundTx({
-      data: action.signingData?.data,
-      fromAddress,
-    });
-  }, [action?.signingData?.data, gaslessFundTx]);
+  const fundGasless = useCallback(
+    async (data: SigningData_EthSendTx) => {
+      return await gaslessFundTx({
+        data: data.data,
+        fromAddress: data.account,
+      });
+    },
+    [gaslessFundTx],
+  );
 
   const signTx = useCallback(async () => {
     setGaslessError('');
     if (isGaslessOn) {
       setGaslessFundStarted(true);
       if (action?.signingData?.type === RpcMethod.ETH_SEND_TRANSACTION) {
-        await fundGasless();
+        await fundGasless(action.signingData);
         return;
       }
 
@@ -181,7 +185,7 @@ export function GenericApprovalScreen() {
       isUsingLedgerWallet || isUsingKeystoneWallet,
     );
   }, [
-    action?.signingData?.type,
+    action,
     fundGasless,
     isGaslessOn,
     isUsingKeystoneWallet,
@@ -201,7 +205,7 @@ export function GenericApprovalScreen() {
       });
       toastCardWithLink({
         title: t('Gas Fund Successful'),
-        url: getExplorerAddressByNetwork(network as Network, fundTxHex),
+        url: network && getExplorerAddressByNetwork(network, fundTxHex),
         label: t('View in Explorer'),
       });
       updateAction(

@@ -31,10 +31,10 @@ const NetworkFeeContext = createContext<{
   fetchGaslessChallange: () => Promise<any | null>;
   gaslessFundTx: ({
     data,
-    addressFrom,
+    fromAddress,
   }: {
     data: TransactionRequest;
-    addressFrom: string;
+    fromAddress: string;
   }) => Promise<string | undefined>;
   getGaslessEligibility: (
     chainId?: string | number,
@@ -138,7 +138,6 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
     async () =>
       request<FetchGaslessChallengeHandler>({
         method: ExtensionRequest.GASLESS_FETCH_CHALLENGE,
-        params: [],
       }),
     [request],
   );
@@ -156,7 +155,6 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
     async () =>
       request<SetGaslessDefaultValuesHandler>({
         method: ExtensionRequest.GASLESS_SET_DEFAUlT_VALUES,
-        params: [],
       }),
     [request],
   );

@@ -3,6 +3,7 @@ import { RpcResponse } from '@avalabs/vm-module-types';
 import { DomainMetadata } from '@src/background/models';
 import { EthereumProviderError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
+import { DEFERRED_RESPONSE } from '../middlewares/models';
 
 export enum DAppProviderRequest {
   DOMAIN_METADATA_METHOD = 'avalanche_sendDomainMetadata',
@@ -97,7 +98,7 @@ interface JsonRpcRequestPayloadWithParams<
 
 interface JsonRpcRequestPayloadWithoutParams<Method extends string = any>
   extends JsonRpcRequestPayloadBase<Method> {
-  readonly params?: never;
+  readonly params?: never | typeof DEFERRED_RESPONSE;
 }
 
 export interface JsonRpcSuccess<T = unknown> {

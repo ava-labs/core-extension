@@ -7,7 +7,11 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_GET_CHALLENGE_HEX,
   typeof DEFERRED_RESPONSE,
-  { challangeHex: string }
+  {
+    challengeHex: string;
+    solutionHex: string;
+    pipelineIndex: number | undefined;
+  }
 >;
 
 @injectable()
@@ -16,17 +20,20 @@ export class GetGaslessChallengeHexHandler implements HandlerType {
 
   constructor(private gasStationService: GasStationService) {}
 
+  // this is an example for a retry error message
   // e5bb36325ad177ebfda7737ed0ec9caa15eca82a353ad1145c5fc1a0f11df165
   handle: HandlerType['handle'] = async ({ request }) => {
     try {
-      const pipelineIndex = request.pipelineIndex;
+      const { challengeHex, solutionHex, pipelineIndex } = request.params;
       await this.gasStationService.setChallengeHex(
-        request.challengeHex,
-        request.solutionHex,
+        challengeHex,
+        solutionHex,
         // TODO: remove these comment they can simulate the RETRY and DO NOT RETRY errors at the moment
         // 'fail',
-        // pipelineIndex === 0 ? request.solutionHex : 'fail',
-        // 'e5bb36325ad177ebfda7737ed0ec9caa15eca82a353ad1145c5fc1a0f11df165',
+        // pipelineIndex === 0
+        //   ? solutionHex
+        //   : // : 'fail',
+        //     'e5bb36325ad177ebfda7737ed0ec9caa15eca82a353ad1145c5fc1a0f11df165',
         pipelineIndex ?? undefined,
         // 'e5bb36325ad177ebfda7737ed0ec9caa15eca82a353ad1145c5fc1a0f11df165',
       );

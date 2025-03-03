@@ -2,11 +2,11 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { GasStationService } from '../GasStationService';
-import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
+// import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_FETCH_CHALLENGE,
-  typeof DEFERRED_RESPONSE
+  undefined
 >;
 
 @injectable()
@@ -21,7 +21,7 @@ export class FetchGaslessChallengeHandler implements HandlerType {
 
       return {
         ...request,
-        result: DEFERRED_RESPONSE,
+        result: undefined,
       };
     } catch (e: any) {
       return {

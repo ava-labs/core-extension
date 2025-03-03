@@ -22,10 +22,12 @@ connection.onMessage.addListener(async (param) => {
       params: {
         request: {
           method: ExtensionRequest.GASLESS_GET_CHALLENGE_HEX,
-          solutionHex,
-          challengeHex,
           tabId: -1,
-          pipelineIndex: message.pipelineIndex ?? undefined,
+          params: {
+            solutionHex,
+            challengeHex,
+            pipelineIndex: message.pipelineIndex ?? undefined,
+          },
         },
       },
     }),
