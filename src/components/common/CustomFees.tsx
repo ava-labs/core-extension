@@ -54,7 +54,7 @@ export interface CustomGasFeesProps {
   isCollapsible?: boolean;
   size?: 'small' | 'normal';
   hasEnoughForFee?: boolean;
-  isBatchApprovalScreen: boolean;
+  isBatchApprovalScreen?: boolean;
 }
 
 export enum GasFeeModifier {
