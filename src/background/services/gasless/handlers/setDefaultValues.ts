@@ -16,7 +16,6 @@ export class SetGaslessDefaultValuesHandler implements HandlerType {
   constructor(private gasStationService: GasStationService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    console.log('SetGaslessDefaultValuesHandler: ');
     this.gasStationService.setDefaultValues();
     return {
       ...request,

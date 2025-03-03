@@ -137,12 +137,12 @@ export function GenericApprovalScreen() {
   }, [isGaslessEligible, setIsGaslessOn]);
 
   const handleRejection = useCallback(() => {
+    setGaslessDefaultValues();
     cancelHandler();
-  }, [cancelHandler]);
+  }, [cancelHandler, setGaslessDefaultValues]);
 
   const handleGaslessError = useCallback(() => {
     setIsGaslessOn(false);
-
     setIsGaslessEligible(false);
     setGaslessFundStarted(false);
     setGaslessError(
@@ -204,7 +204,6 @@ export function GenericApprovalScreen() {
         url: getExplorerAddressByNetwork(network as Network, fundTxHex),
         label: t('View in Explorer'),
       });
-      setGaslessDefaultValues();
       updateAction(
         {
           status: ActionStatus.SUBMITTING,
@@ -212,6 +211,7 @@ export function GenericApprovalScreen() {
         },
         isUsingLedgerWallet || isUsingKeystoneWallet,
       );
+      setGaslessDefaultValues();
     }
   }, [
     captureEncrypted,

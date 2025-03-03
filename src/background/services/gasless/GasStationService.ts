@@ -109,7 +109,10 @@ export class GasStationService {
   setDefaultValues() {
     console.log('setDefaultValues: ');
     this.isFundProcessReady.dispatch(false);
-    this.fundTxHex.dispatch(undefined);
+    this.fundTxHex.dispatch('');
+    this.fundTxDoNotRertyError.dispatch(false);
+    this.solutionHex.dispatch('');
+    this.challengeHex.dispatch('');
   }
 
   async fetchChallange(pipelineIndex?: number) {
@@ -155,8 +158,11 @@ export class GasStationService {
         this.#fundDataPipeline.push({ data, fromAddress });
 
         await this.fetchChallange(nextPipelineIndex);
+        return;
       }
       this.fundTxDoNotRertyError.dispatch(true);
+      this.#attempt = 0;
+      this.#fundDataPipeline = [];
       return;
     }
     if (!result.txHash) {
@@ -170,6 +176,8 @@ export class GasStationService {
     this.challengeHex.dispatch(challengeHex);
     this.fundTxHex.dispatch(waitForTransactionResult?.hash);
     this.isFundProcessReady.dispatch(true);
+    this.#attempt = 0;
+    this.#fundDataPipeline = [];
   }
 
   addListener(event: GaslessEvents, callback: (data: GaslessMessage) => void) {

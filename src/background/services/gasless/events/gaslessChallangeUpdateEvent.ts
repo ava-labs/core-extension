@@ -24,14 +24,12 @@ export class GaslessChallangeUpdateEvent implements ExtensionEventEmitter {
       });
     });
     this.gasStationService.isFundProcessReady.add((isFundProcessReady) => {
-      console.log('isFundProcessReady: ', isFundProcessReady);
       this.eventEmitter.emit('update', {
         name: GaslessEvents.CHALLENGE_UPDATE,
         value: { isFundProcessReady },
       });
     });
     this.gasStationService.fundTxHex.add((fundTxHex) => {
-      console.log('fundTxHex: ', fundTxHex);
       this.eventEmitter.emit('update', {
         name: GaslessEvents.CHALLENGE_UPDATE,
         value: { fundTxHex },

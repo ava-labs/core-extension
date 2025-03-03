@@ -151,6 +151,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
       }),
     [challengeHex, request, solutionHex],
   );
+
   const setGaslessDefaultValues = useCallback(
     async () =>
       request<SetGaslessDefaultValuesHandler>({
@@ -162,7 +163,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
 
   const getGaslessEligibility = useCallback(
     async (chainId, fromAddress, nonce) => {
-      if (!featureFlags[FeatureGates.GASLESS]) {
+      if (!featureFlags[FeatureGates.GASLESS] || fundTxDoNotRertyError) {
         return false;
       }
       return request<GetGaslessEligibilityHandler>({
@@ -171,7 +172,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
       });
     },
 
-    [featureFlags, request],
+    [featureFlags, fundTxDoNotRertyError, request],
   );
 
   useEffect(() => {
