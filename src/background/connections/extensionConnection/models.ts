@@ -158,4 +158,10 @@ export enum ExtensionRequest {
   WALLET_IMPORT_LEDGER = 'wallet_import_ledger',
 
   BLOCKAID_DAPP_SCAN = 'blockaid_dapp_scan',
+
+  GASLESS_FETCH_CHALLENGE = 'gasless_fetch_challange',
+  GASLESS_FUND_TX = 'gasless_fund_tx',
+  GASLESS_GET_ELIGIBILITY = 'gasless_get_eligibility',
+  GASLESS_GET_CHALLENGE_HEX = 'gasless_get_challange_hex',
+  GASLESS_SET_DEFAUlT_VALUES = 'gasless_set_default_values',
 }

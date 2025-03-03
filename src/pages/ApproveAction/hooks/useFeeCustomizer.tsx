@@ -85,6 +85,7 @@ export function useFeeCustomizer({
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
     GasFeeModifier.SLOW,
   );
+  const [isBatchApprovalScreen, setIsBatchApprovalScreen] = useState(false);
   const isFeeSelectorEnabled = Boolean(action?.displayData.networkFeeSelector);
 
   const tokens = useTokensWithBalances({
@@ -102,6 +103,7 @@ export function useFeeCustomizer({
     }
 
     if (isBatchApprovalAction(action)) {
+      setIsBatchApprovalScreen(true);
       if (typeof txIndex !== 'number') {
         const gasLimit = action.signingRequests.reduce((sum, req) => {
           if (req.signingData.type === RpcMethod.ETH_SEND_TRANSACTION) {
@@ -370,6 +372,7 @@ export function useFeeCustomizer({
           selectedGasFeeModifier={gasFeeModifier}
           network={network}
           networkFee={networkFee}
+          isBatchApprovalScreen={isBatchApprovalScreen}
           {...props}
         />
       );
@@ -377,6 +380,7 @@ export function useFeeCustomizer({
     [
       gasFeeModifier,
       getFeeInfo,
+      isBatchApprovalScreen,
       network,
       networkFee,
       setCustomFee,

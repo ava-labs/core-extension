@@ -4,7 +4,12 @@ import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useEffect, useState } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
-import { AlertType, DisplayData } from '@avalabs/vm-module-types';
+import {
+  AlertType,
+  DisplayData,
+  RpcMethod,
+  SigningData_EthSendTx,
+} from '@avalabs/vm-module-types';
 import {
   Alert,
   AlertContent,
@@ -35,6 +40,10 @@ import { WarningBox } from '../Permissions/components/WarningBox';
 import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { toastCardWithLink } from '@src/utils/toastCardWithLink';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
 type WithContextAlert = {
   alert: { type: 'info'; title: string; notice: string };
@@ -69,10 +78,26 @@ export function GenericApprovalScreen() {
     action,
     network,
   });
+  const {
+    isGaslessOn,
+    setIsGaslessEligible,
+    getGaslessEligibility,
+    isGaslessEligible,
+    gaslessFundTx,
+    setIsGaslessOn,
+    isFundProcessReady,
+    fundTxHex,
+    fundTxDoNotRertyError,
+    setGaslessDefaultValues,
+  } = useNetworkFeeContext();
+  const { captureEncrypted } = useAnalyticsContext();
+  const [gaslessFundStarted, setGaslessFundStarted] = useState(false);
+  const [gaslessError, setGaslessError] = useState('');
 
-  const { displayData, context } = action ?? {};
+  const { displayData, context, signingData } = action ?? {};
   const hasFeeSelector = action?.displayData.networkFeeSelector;
   const isFeeValid =
+    (isGaslessOn && isGaslessEligible) ||
     !hasFeeSelector ||
     (!feeError && !isCalculatingFee && hasEnoughForNetworkFee);
 
@@ -80,15 +105,78 @@ export function GenericApprovalScreen() {
     if (!displayData?.network?.chainId) {
       return;
     }
+    const getGaslessStatus = async (chainId, fromAddress, nonce) => {
+      const gaslessEligibility = await getGaslessEligibility(
+        chainId,
+        fromAddress,
+        nonce,
+      );
+      setIsGaslessEligible(gaslessEligibility);
+    };
 
+    if (!signingData || signingData.type !== RpcMethod.ETH_SEND_TRANSACTION) {
+      return;
+    }
     setNetwork(getNetwork(displayData.network.chainId));
-  }, [getNetwork, displayData?.network?.chainId]);
+    getGaslessStatus(
+      displayData.network.chainId,
+      signingData?.data?.from,
+      signingData?.data?.nonce,
+    );
+  }, [
+    displayData,
+    displayData?.network?.chainId,
+    getGaslessEligibility,
+    getNetwork,
+    isGaslessEligible,
+    setIsGaslessEligible,
+    setIsGaslessOn,
+    signingData,
+  ]);
+
+  useEffect(() => {
+    setIsGaslessOn(isGaslessEligible);
+  }, [isGaslessEligible, setIsGaslessOn]);
 
   const handleRejection = useCallback(() => {
+    setGaslessDefaultValues();
     cancelHandler();
-  }, [cancelHandler]);
+  }, [cancelHandler, setGaslessDefaultValues]);
 
-  const signTx = useCallback(() => {
+  const handleGaslessError = useCallback(() => {
+    setIsGaslessOn(false);
+    setIsGaslessEligible(false);
+    setGaslessFundStarted(false);
+    setGaslessError(
+      t(
+        `We're unable to cover the gas fees for your transaction at this time. As a result, this feature has been disabled.`,
+      ),
+    );
+  }, [setIsGaslessEligible, setIsGaslessOn, t]);
+
+  const fundGasless = useCallback(
+    async (data: SigningData_EthSendTx) => {
+      return await gaslessFundTx({
+        data: data.data,
+        fromAddress: data.account,
+      });
+    },
+    [gaslessFundTx],
+  );
+
+  const signTx = useCallback(async () => {
+    setGaslessError('');
+    if (isGaslessOn) {
+      setGaslessFundStarted(true);
+      if (action?.signingData?.type === RpcMethod.ETH_SEND_TRANSACTION) {
+        await fundGasless(action.signingData);
+        return;
+      }
+
+      setGaslessFundStarted(false);
+      // when the gasless feature is turned on we handle the action update after the tx has ended
+      return;
+    }
     updateAction(
       {
         status: ActionStatus.SUBMITTING,
@@ -96,7 +184,53 @@ export function GenericApprovalScreen() {
       },
       isUsingLedgerWallet || isUsingKeystoneWallet,
     );
-  }, [requestId, updateAction, isUsingLedgerWallet, isUsingKeystoneWallet]);
+  }, [
+    action,
+    fundGasless,
+    isGaslessOn,
+    isUsingKeystoneWallet,
+    isUsingLedgerWallet,
+    requestId,
+    updateAction,
+  ]);
+
+  useEffect(() => {
+    if (fundTxDoNotRertyError) {
+      captureEncrypted('GaslessFundFailed');
+      handleGaslessError();
+    }
+    if (isFundProcessReady && fundTxHex) {
+      captureEncrypted('GaslessFundSuccessful', {
+        fundTxHex,
+      });
+      toastCardWithLink({
+        title: t('Gas Fund Successful'),
+        url: network && getExplorerAddressByNetwork(network, fundTxHex),
+        label: t('View in Explorer'),
+      });
+      updateAction(
+        {
+          status: ActionStatus.SUBMITTING,
+          id: requestId,
+        },
+        isUsingLedgerWallet || isUsingKeystoneWallet,
+      );
+      setGaslessDefaultValues();
+    }
+  }, [
+    captureEncrypted,
+    fundTxDoNotRertyError,
+    fundTxHex,
+    handleGaslessError,
+    isFundProcessReady,
+    isUsingKeystoneWallet,
+    isUsingLedgerWallet,
+    network,
+    requestId,
+    setGaslessDefaultValues,
+    t,
+    updateAction,
+  ]);
 
   // Make the user switch to the correct app or close the window
   useLedgerDisconnectedDialog(handleRejection, undefined, network);
@@ -157,6 +291,12 @@ export function GenericApprovalScreen() {
                 text={displayData.alert.details.description}
               />
             )}
+          </Stack>
+        )}
+
+        {gaslessError && (
+          <Stack sx={{ width: 1, px: 2, mb: 1 }}>
+            <AlertBox title={t('Gasless Error')} text={gaslessError} />
           </Stack>
         )}
 
@@ -246,10 +386,13 @@ export function GenericApprovalScreen() {
           disabled={
             !displayData ||
             action.status === ActionStatus.SUBMITTING ||
-            !isFeeValid
+            !isFeeValid ||
+            gaslessFundStarted
           }
           isLoading={
-            action.status === ActionStatus.SUBMITTING || isCalculatingFee
+            action.status === ActionStatus.SUBMITTING ||
+            isCalculatingFee ||
+            gaslessFundStarted
           }
           size="large"
           fullWidth
