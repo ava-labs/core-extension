@@ -15,7 +15,7 @@ import registerForChallenge from './utils/registerForChallenge';
 import verifyChallenge from './utils/verifyChallenge';
 import solveChallenge from './utils/solveChallenge';
 
-export const WAIT_FOR_CHALLENGE_ATTEMPT_COUNT = 10;
+export const WAIT_FOR_CHALLENGE_ATTEMPT_COUNT = 20;
 export const WAIT_FOR_CHALLENGE_DELAY_MS = 500;
 
 // Implementation based on https://github.com/ava-labs/core-id-service/blob/main/docs/extension-appcheck-attestation.md
@@ -97,7 +97,7 @@ export class AppCheckService {
                       res({ registrationId, solution });
                     } else if (remainingAttempts < 1) {
                       clearInterval(timer);
-                      rej('timeout');
+                      rej('[AppCheck] challenge solution timeout');
                     }
                   }, WAIT_FOR_CHALLENGE_DELAY_MS);
                 },
@@ -177,6 +177,9 @@ export class AppCheckService {
 
     const solveChallengeSpan = this.#lastChallengeRequest.tracker.startChild({
       name: 'solveChallenge',
+      tags: {
+        type: challenge.type,
+      },
     });
     this.#lastChallengeRequest.solution = await solveChallenge({
       type: challenge.type,
