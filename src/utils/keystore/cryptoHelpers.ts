@@ -73,7 +73,7 @@ export const decrypt = async (
     {
       name: 'AES-GCM',
       iv, // The initialization vector you used to encrypt
-      additionalData: salt, // The addtionalData you used to encrypt (if any)
+      additionalData: salt, // The additionalData you used to encrypt (if any)
       tagLength: TAG_LENGTH, // The tagLength you used to encrypt (if any)
     },
     pkey, // from importKey above

@@ -326,7 +326,7 @@ export function checkForErrorsInGetRateResult(
     if (shouldBeRetried) {
       return true;
       // If an error occurred, but there is no point in retrying a request,
-      // we need to propagate the error so we're able to show an approriate
+      // we need to propagate the error so we're able to show an appropriate
       // message in the UI.
     } else if (isFetchError) {
       throw swapError(CommonError.NetworkError, response);

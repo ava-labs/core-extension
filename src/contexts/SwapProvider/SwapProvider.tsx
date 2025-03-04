@@ -359,7 +359,7 @@ export function SwapContextProvider({ children }: { children: any }) {
    * Some notes:
    *
    *  - Requires a feature flag to be enabled.
-   *  - When transfering AVAX, it performs the usual eth_sendTransaction request.
+   *  - When transferring AVAX, it performs the usual eth_sendTransaction request.
    *  - If the allowance covers the transfer amount, it performs the usual eth_sendTransaction request
    */
   const oneClickSwap = useCallback(
