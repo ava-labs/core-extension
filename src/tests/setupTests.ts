@@ -9,6 +9,16 @@ import crypto from 'node:crypto';
 global.TextEncoder = MockTextEncoder;
 global.TextDecoder = TextDecoder as any;
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+global.AbortSignal = {
+  timeout(ms: number) {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(new DOMException('TimeoutError')), ms);
+    return controller.signal;
+  },
+};
+
 Object.defineProperties(global.crypto, {
   randomUUID: {
     value: jest.fn().mockReturnValue('00000000-0000-0000-0000-000000000000'),

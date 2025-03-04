@@ -97,6 +97,7 @@ export function AddToken() {
         setNewTokenData(undefined);
         return;
       }
+      setError('');
       setNewTokenData(data);
     };
 
