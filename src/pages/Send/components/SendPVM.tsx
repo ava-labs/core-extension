@@ -132,8 +132,6 @@ export const SendPVM = ({
     );
   }
 
-  const supportsCustomFees = provider.isEtnaEnabled();
-
   return (
     <SendForm
       address={address}
@@ -152,11 +150,7 @@ export const SendPVM = ({
       maxAmount={maxAmount}
       onSend={onSend}
     >
-      <Grow
-        in={supportsCustomFees && Boolean(estimatedFee)}
-        mountOnEnter
-        unmountOnExit
-      >
+      <Grow in={Boolean(estimatedFee)} mountOnEnter unmountOnExit>
         <Stack sx={{ py: 0, px: 2, mt: 2, width: '100%' }}>
           <CustomFees
             isCollapsible

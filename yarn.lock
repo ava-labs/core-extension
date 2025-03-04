@@ -93,7 +93,7 @@
     viem "2.11.1"
     zod "3.23.8"
 
-"@avalabs/core-bridge-sdk@v3.1.0-alpha.40 ":
+"@avalabs/core-bridge-sdk@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/core-bridge-sdk/-/core-bridge-sdk-3.1.0-alpha.40.tgz#a32be00ebb40438823b0b4d72a14079b67cc340c"
   integrity sha512-iZiSHWysFX5Qq/0RZLbkR/410x5YwEPE+KtwqPei3g+xqTyZkAkBNnWdlcVrqjT9/u6A3nXzzJSjoDxdetwGKA==
@@ -109,7 +109,7 @@
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.34"
 
-"@avalabs/core-chains-sdk@3.1.0-alpha.40", "@avalabs/core-chains-sdk@v3.1.0-alpha.40 ":
+"@avalabs/core-chains-sdk@3.1.0-alpha.40", "@avalabs/core-chains-sdk@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/core-chains-sdk/-/core-chains-sdk-3.1.0-alpha.40.tgz#b72b66cda881b509e2a484ba897f79ae105ada7e"
   integrity sha512-nm2ZcRPSkrJd2PslFIb6z7nErFoRswwyeu8gKCXUY0+dLiltpCuKNGZ3krgCpL0sUqFBuu4PjWNYgMhzX5GZOg==
@@ -123,14 +123,14 @@
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.34"
 
-"@avalabs/core-coingecko-sdk@3.1.0-alpha.40", "@avalabs/core-coingecko-sdk@v3.1.0-alpha.40 ":
+"@avalabs/core-coingecko-sdk@3.1.0-alpha.40", "@avalabs/core-coingecko-sdk@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/core-coingecko-sdk/-/core-coingecko-sdk-3.1.0-alpha.40.tgz#e39085c0964c8553e91eedbe0cd64f3bb2acb258"
   integrity sha512-qmYSCcZtSf93aXjIqBiZCtLQmEAV1yPUmfq9mLVXwdv3TaRZBLySVADKsToKaff98TnMFWEaHrNGgTqO+76+5w==
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.40"
 
-"@avalabs/core-covalent-sdk@v3.1.0-alpha.40 ":
+"@avalabs/core-covalent-sdk@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/core-covalent-sdk/-/core-covalent-sdk-3.1.0-alpha.40.tgz#a067946fbcb8efb63f68e12238441ef152ed9481"
   integrity sha512-CiZQCAYNqO2k7WXeUgnXfmkE423D1tzYbkwInGEZUfAIP6p96ZBwpWnvxfULxtbWp/m5o0KI2EWIU8sG9Fx6vg==
@@ -144,14 +144,14 @@
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.34"
 
-"@avalabs/core-etherscan-sdk@v3.1.0-alpha.40 ":
+"@avalabs/core-etherscan-sdk@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/core-etherscan-sdk/-/core-etherscan-sdk-3.1.0-alpha.40.tgz#406c5c096a95f42a4288c213d165ca17c807d51c"
   integrity sha512-6pFMFflc5IlMJKY5DWoB9Y2fnUEr7P++kYII1SzdwKZhdy4MQFIfI/6GoEYqvS4EbClPV3d/B6y4+4RNWXEvJA==
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.40"
 
-"@avalabs/core-gasless-sdk@v3.1.0-alpha.40 ":
+"@avalabs/core-gasless-sdk@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/core-gasless-sdk/-/core-gasless-sdk-3.1.0-alpha.40.tgz#0a6ff9fdfb10a30246f7c028b1a89da1cdbed832"
   integrity sha512-A3+u08Y6Zzpoc43tgdZ3CmK2fxIrsecezvU3wawxpyupJ0NnbFDSZoYXuMCf4bZ5kJRXdo/vfVr1CMCdmXNiqQ==
@@ -182,14 +182,14 @@
     react-hotkeys-hook "4.4.3"
     uuid "9.0.1"
 
-"@avalabs/core-snowtrace-sdk@v3.1.0-alpha.40 ":
+"@avalabs/core-snowtrace-sdk@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/core-snowtrace-sdk/-/core-snowtrace-sdk-3.1.0-alpha.40.tgz#a5e8d517c0151b948bf91a47104d99586803766a"
   integrity sha512-MbPekvka4nEWNPJsy9KNjvFvJnqvfdVBaJe7WTo9vztKmBY3Lmw4MImCGbQD349hA0CDI0ZnQHPgVwm82CqA7w==
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.40"
 
-"@avalabs/core-token-prices-sdk@v3.1.0-alpha.40 ":
+"@avalabs/core-token-prices-sdk@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/core-token-prices-sdk/-/core-token-prices-sdk-3.1.0-alpha.40.tgz#330220e9f875d8c8fa8db774872e0966ffd50e13"
   integrity sha512-W+R510IhwQhi8OkyDk3aGhgzQ6+e/lHvP6INcGGZTSyVbH1Wy6sedLWHu/KXHsHYOQsHo/wII4SVdHF6nI5OnQ==
@@ -206,7 +206,7 @@
     "@hpke/core" "1.2.5"
     is-ipfs "6.0.2"
 
-"@avalabs/core-utils-sdk@3.1.0-alpha.40", "@avalabs/core-utils-sdk@v3.1.0-alpha.40 ":
+"@avalabs/core-utils-sdk@3.1.0-alpha.40", "@avalabs/core-utils-sdk@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/core-utils-sdk/-/core-utils-sdk-3.1.0-alpha.40.tgz#59db49831fb208e02946fed2299ab5234c7b36ca"
   integrity sha512-nR1Vfy/qPN1C3UzrzCZREWuftt6tv2fdBz/K9R4qv46BrMKpyUzsHFdA76hL8swl+CcoJfgmnPfP4wpVb8QTrA==
@@ -238,7 +238,7 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/core-wallets-sdk@3.1.0-alpha.40", "@avalabs/core-wallets-sdk@v3.1.0-alpha.40 ":
+"@avalabs/core-wallets-sdk@3.1.0-alpha.40", "@avalabs/core-wallets-sdk@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/core-wallets-sdk/-/core-wallets-sdk-3.1.0-alpha.40.tgz#b1e347ffb7840ecd2937b54211423cc521e402a3"
   integrity sha512-lAgLYA5f4jFsgL57ViFv6MSwV/yr495alV1td9e6jCzOitCOkpi7gSPE37D+XRFFZl35uFdXi5apl+4xKrwuHg==
@@ -288,7 +288,7 @@
   resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.34.tgz#bc2b20bba5b1d5d6d970e4ed9989da37a7d3247a"
   integrity sha512-LtMvlWuLwhlKcc82bUFQgXeLjP2QOu3zh7UAn1AgkEOM3+XbX5hZ+I8gP0RxOHk3mzAsJOGIrpEXRIznYBvZIw==
 
-"@avalabs/glacier-sdk@3.1.0-alpha.40", "@avalabs/glacier-sdk@v3.1.0-alpha.40 ":
+"@avalabs/glacier-sdk@3.1.0-alpha.40", "@avalabs/glacier-sdk@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.40.tgz#4b9b9569decc8c4b69e6a0d3b350237be8c918ff"
   integrity sha512-U1ywhuLp93ZbTXF+A3UOafzCCWBGb32JfiYnEw0fhOmstQCc9lmfp1bpbKmdIcaJeJItmYJ8gIqdKp/DozIftA==
@@ -321,7 +321,7 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.34.tgz#f560f7e512e4a11f0a94ad2718aa7ce57367200e"
   integrity sha512-v2/PAO+3QMk+xoubHzE810ZbZsIGXk+05eTXZvrNQy5KQjoPS02h11/EOSMGhpuAPg3jNCMLKQrIVkmKO/NFIw==
 
-"@avalabs/types@v3.1.0-alpha.40 ":
+"@avalabs/types@v3.1.0-alpha.40":
   version "3.1.0-alpha.40"
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.40.tgz#e2e8286037ea1729f2f020df1ea98b1bbcdd9d71"
   integrity sha512-GrNT5hk18MSbVXKBFTu3E1ll2L9JA7dD7q56hNSYG3LxFQbawd55si8kAY9D7pbCngutkH+3dH3V4lrmkSEjJg==
