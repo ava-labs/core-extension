@@ -586,58 +586,57 @@ export function CustomFees({
             </Stack>
           </Collapse>
         </Collapse>
-        <Stack>
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Typography
-              component="span"
-              variant="caption"
+        {!isGaslessOn && (
+          <Stack>
+            <Stack
               sx={{
-                color: 'text.secondary',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
               }}
             >
-              {t('Fee Amount')}
-            </Typography>
-
-            <Stack direction="row">
-              <Typography variant="body2" color="text.secondary">
-                ~
+              <Typography
+                component="span"
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
+                {t('Fee Amount')}
               </Typography>
-              <Tooltip title={feeAmount.precise}>
-                <Typography
-                  variant="body2"
-                  data-testid="network-fee-token-amount"
-                  sx={{
-                    fontWeight: 'fontWeightSemibold',
-                    color: hasEnoughForFee ? undefined : 'error.main',
-                  }}
-                >
-                  {feeAmount.rounded} {network?.networkToken.symbol}
-                </Typography>
-              </Tooltip>
+
+              <Stack direction="row">
+                <Tooltip title={feeAmount.precise}>
+                  <Typography
+                    variant="body2"
+                    data-testid="network-fee-token-amount"
+                    sx={{
+                      fontWeight: 'fontWeightSemibold',
+                      color: hasEnoughForFee ? undefined : 'error.main',
+                    }}
+                  >
+                    {feeAmount.rounded} {network?.networkToken.symbol}
+                  </Typography>
+                </Tooltip>
+              </Stack>
+            </Stack>
+            <Stack
+              sx={{
+                alignItems: 'flex-end',
+              }}
+            >
+              <Typography
+                data-testid="network-fee-currency-amount"
+                variant="caption"
+                sx={{ color: 'text.secondary' }}
+              >
+                {!isNaN(Number(newFees.feeUSD))
+                  ? `${currencyFormatter(Number(newFees.feeUSD))}`
+                  : ''}
+              </Typography>
             </Stack>
           </Stack>
-          <Stack
-            sx={{
-              alignItems: 'flex-end',
-            }}
-          >
-            <Typography
-              data-testid="network-fee-currency-amount"
-              variant="caption"
-              sx={{ color: 'text.secondary' }}
-            >
-              {!isNaN(Number(newFees.feeUSD))
-                ? `${currencyFormatter(Number(newFees.feeUSD))}`
-                : ''}
-            </Typography>
-          </Stack>
-        </Stack>
+        )}
       </ApprovalSectionBody>
       <CustomGasLimitDialog
         open={Boolean(

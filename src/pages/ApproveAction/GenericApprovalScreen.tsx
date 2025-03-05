@@ -376,7 +376,7 @@ export function GenericApprovalScreen() {
             )}
           </Stack>
         </Scrollbars>
-        {feeError && (
+        {feeError && !isGaslessOn && (
           <Typography variant="caption" color="error.main" sx={{ mt: -1 }}>
             {getSendErrorMessage(feeError)}
           </Typography>
