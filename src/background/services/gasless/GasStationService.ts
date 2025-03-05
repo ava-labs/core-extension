@@ -28,7 +28,10 @@ export class GasStationService {
     private networkService: NetworkService,
   ) {
     this.#sdk = new GaslessSdk(this.#gasStationUrl);
-    this.createOffScreen();
+  }
+
+  async createOffScreen() {
+    await this.#createOffScreen();
   }
 
   async #getAppcheckToken() {
@@ -36,7 +39,7 @@ export class GasStationService {
     return tokenResult?.token;
   }
 
-  async createOffScreen() {
+  async #createOffScreen() {
     await chrome.offscreen.createDocument({
       url: 'offscreen.html',
       reasons: ['WORKERS'],
@@ -49,7 +52,6 @@ export class GasStationService {
     return true;
   }
 
-  //TODO: "maybe" don't need the message param
   async sendMessage(message, request: ExtensionRequest) {
     const token = await this.#getAppcheckToken();
     this.#eventEmitter.emit(GaslessEvents.SEND_MESSAGE, {
@@ -103,11 +105,9 @@ export class GasStationService {
         this.fundTxDoNotRertyError.dispatch(true);
       }
     }
-    // await this.closeOffscreen();
   }
 
   setDefaultValues() {
-    console.log('setDefaultValues: ');
     this.isFundProcessReady.dispatch(false);
     this.fundTxHex.dispatch('');
     this.fundTxDoNotRertyError.dispatch(false);

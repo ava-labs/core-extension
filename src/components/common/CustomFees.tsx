@@ -442,7 +442,6 @@ export function CustomFees({
                 onGaslessSwitch();
               }}
               isTurnedOn={isGaslessOn}
-              isLoading={!solutionHex}
             />
           )}
           <Collapse in={!isGaslessOn} mountOnEnter unmountOnExit>

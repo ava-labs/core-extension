@@ -17,7 +17,9 @@ import {
   Box,
   Button,
   Scrollbars,
+  Skeleton,
   Stack,
+  Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
@@ -89,7 +91,11 @@ export function GenericApprovalScreen() {
     fundTxHex,
     fundTxDoNotRertyError,
     setGaslessDefaultValues,
+    createGaslessOffscreen,
+    closeGaslessOffscreen,
+    solutionHex,
   } = useNetworkFeeContext();
+
   const { captureEncrypted } = useAnalyticsContext();
   const [gaslessFundStarted, setGaslessFundStarted] = useState(false);
   const [gaslessError, setGaslessError] = useState('');
@@ -135,7 +141,14 @@ export function GenericApprovalScreen() {
   ]);
 
   useEffect(() => {
-    setIsGaslessOn(isGaslessEligible);
+    createGaslessOffscreen();
+    return () => {
+      closeGaslessOffscreen();
+    };
+  }, [closeGaslessOffscreen, createGaslessOffscreen]);
+
+  useEffect(() => {
+    setIsGaslessOn(!!isGaslessEligible);
   }, [isGaslessEligible, setIsGaslessOn]);
 
   const handleRejection = useCallback(() => {
@@ -349,7 +362,18 @@ export function GenericApprovalScreen() {
                 />
               )}
             </Stack>
-            {displayData.networkFeeSelector && renderFeeWidget()}
+            {isGaslessEligible === null ? (
+              <Stack
+                sx={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Skeleton sx={{ width: '100%', height: 140 }} />
+              </Stack>
+            ) : (
+              displayData.networkFeeSelector && renderFeeWidget()
+            )}
           </Stack>
         </Scrollbars>
         {feeError && (
@@ -374,32 +398,46 @@ export function GenericApprovalScreen() {
         <Button
           color="secondary"
           data-testid="transaction-reject-btn"
-          disabled={action.status === ActionStatus.SUBMITTING}
+          disabled={
+            action.status === ActionStatus.SUBMITTING || gaslessFundStarted
+          }
           size="large"
           fullWidth
           onClick={handleRejection}
         >
           {t('Reject')}
         </Button>
-        <Button
-          data-testid="transaction-approve-btn"
-          disabled={
-            !displayData ||
-            action.status === ActionStatus.SUBMITTING ||
-            !isFeeValid ||
-            gaslessFundStarted
+        <Tooltip
+          title={
+            !solutionHex &&
+            isGaslessOn &&
+            t(
+              `If you're looking to approve the transaction despite the gasless feature, please turn it off to proceed.`,
+            )
           }
-          isLoading={
-            action.status === ActionStatus.SUBMITTING ||
-            isCalculatingFee ||
-            gaslessFundStarted
-          }
-          size="large"
-          fullWidth
-          onClick={signTx}
+          sx={{ width: '100%' }}
         >
-          {t('Approve')}
-        </Button>
+          <Button
+            data-testid="transaction-approve-btn"
+            disabled={
+              !displayData ||
+              action.status === ActionStatus.SUBMITTING ||
+              !isFeeValid ||
+              gaslessFundStarted ||
+              (!solutionHex && isGaslessOn)
+            }
+            isLoading={
+              action.status === ActionStatus.SUBMITTING ||
+              isCalculatingFee ||
+              gaslessFundStarted
+            }
+            size="large"
+            fullWidth
+            onClick={signTx}
+          >
+            {gaslessFundStarted ? t('Approving') : t('Approve')}
+          </Button>
+        </Tooltip>
       </Stack>
       <DeviceApproval
         action={action}

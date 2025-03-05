@@ -33,7 +33,7 @@ export class GetGaslessChallengeHexHandler implements HandlerType {
         // pipelineIndex === 0
         //   ? solutionHex
         //   : // : 'fail',
-        //     'e5bb36325ad177ebfda7737ed0ec9caa15eca82a353ad1145c5fc1a0f11df165',
+        // 'e5bb36325ad177ebfda7737ed0ec9caa15eca82a353ad1145c5fc1a0f11df165',
         pipelineIndex ?? undefined,
         // 'e5bb36325ad177ebfda7737ed0ec9caa15eca82a353ad1145c5fc1a0f11df165',
       );

@@ -10,14 +10,9 @@ import { useTranslation } from 'react-i18next';
 interface GaslessProps {
   onSwitch: () => void;
   isTurnedOn: boolean;
-  isLoading?: boolean;
 }
 
-export default function GaslessFee({
-  onSwitch,
-  isTurnedOn,
-  isLoading,
-}: GaslessProps) {
+export default function GaslessFee({ onSwitch, isTurnedOn }: GaslessProps) {
   const { t } = useTranslation();
   return (
     <Stack
@@ -40,11 +35,7 @@ export default function GaslessFee({
           <InfoCircleIcon sx={{ mx: 0.5, cursor: 'pointer' }} />
         </Tooltip>
       </Stack>
-      <Switch
-        onChange={onSwitch}
-        checked={isTurnedOn}
-        disabled={isTurnedOn && isLoading}
-      />
+      <Switch onChange={onSwitch} checked={isTurnedOn} />
     </Stack>
   );
 }

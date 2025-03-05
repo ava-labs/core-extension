@@ -24,6 +24,8 @@ import { TransactionRequest } from 'ethers';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { SetGaslessDefaultValuesHandler } from '@src/background/services/gasless/handlers/setDefaultValues';
+import { InitGaslessOffscreenHandler } from '@src/background/services/gasless/handlers/initOffscreen';
+import { CloseGaslessOffscreenHandler } from '@src/background/services/gasless/handlers/closeOffscreen';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;
@@ -45,12 +47,14 @@ const NetworkFeeContext = createContext<{
   solutionHex: string;
   isGaslessOn: boolean;
   setIsGaslessOn: Dispatch<SetStateAction<boolean>>;
-  isGaslessEligible: boolean;
-  setIsGaslessEligible: Dispatch<SetStateAction<boolean>>;
+  isGaslessEligible: boolean | null;
+  setIsGaslessEligible: Dispatch<SetStateAction<boolean | null>>;
   isFundProcessReady: boolean;
   fundTxHex: string;
   fundTxDoNotRertyError: boolean;
   setGaslessDefaultValues: () => Promise<any | null>;
+  createGaslessOffscreen: () => Promise<true>;
+  closeGaslessOffscreen: () => Promise<true>;
 }>({
   networkFee: null,
   async getNetworkFee() {
@@ -72,7 +76,7 @@ const NetworkFeeContext = createContext<{
   setIsGaslessOn() {
     return null;
   },
-  isGaslessEligible: false,
+  isGaslessEligible: null,
   setIsGaslessEligible() {
     return null;
   },
@@ -81,6 +85,12 @@ const NetworkFeeContext = createContext<{
   fundTxDoNotRertyError: false,
   async setGaslessDefaultValues() {
     return null;
+  },
+  async createGaslessOffscreen() {
+    return true;
+  },
+  async closeGaslessOffscreen() {
+    return true;
   },
 });
 
@@ -92,7 +102,9 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   const [challengeHex, setChallengeHex] = useState('');
   const [solutionHex, setSolutionHex] = useState('');
   const [isGaslessOn, setIsGaslessOn] = useState(false);
-  const [isGaslessEligible, setIsGaslessEligible] = useState(false);
+  const [isGaslessEligible, setIsGaslessEligible] = useState<boolean | null>(
+    null,
+  );
   const [isFundProcessReady, setIsFundProcessReady] = useState(false);
   const [fundTxHex, setFundTxHex] = useState('');
   const [fundTxDoNotRertyError, setFundTxDoNotRertyError] = useState(false);
@@ -155,6 +167,22 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
     async () =>
       request<SetGaslessDefaultValuesHandler>({
         method: ExtensionRequest.GASLESS_SET_DEFAUlT_VALUES,
+      }),
+    [request],
+  );
+
+  const createGaslessOffscreen = useCallback(
+    async () =>
+      request<InitGaslessOffscreenHandler>({
+        method: ExtensionRequest.GASLESS_CREATE_OFFSCREEN,
+      }),
+    [request],
+  );
+
+  const closeGaslessOffscreen = useCallback(
+    async () =>
+      request<CloseGaslessOffscreenHandler>({
+        method: ExtensionRequest.GASLESS_CLOSE_OFFSCREEN,
       }),
     [request],
   );
@@ -223,6 +251,8 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         fundTxHex,
         fundTxDoNotRertyError,
         setGaslessDefaultValues,
+        createGaslessOffscreen,
+        closeGaslessOffscreen,
       }}
     >
       {children}
