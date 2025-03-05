@@ -82,7 +82,7 @@ export class GasStationService {
     });
   }
 
-  async setChallengeHex(
+  async setHexValuesAndFund(
     challengeHex: string,
     solutionHex: string,
     pipelineIndex?: number,
@@ -107,7 +107,7 @@ export class GasStationService {
     }
   }
 
-  setDefaultValues() {
+  setDefaultStateValues() {
     this.isFundProcessReady.dispatch(false);
     this.fundTxHex.dispatch('');
     this.fundTxDoNotRertyError.dispatch(false);
@@ -115,10 +115,10 @@ export class GasStationService {
     this.challengeHex.dispatch('');
   }
 
-  async fetchChallange(pipelineIndex?: number) {
+  async fetchAndSolveChallange(pipelineIndex?: number) {
     await this.sendMessage(
       { pipelineIndex },
-      ExtensionRequest.GASLESS_FETCH_CHALLENGE,
+      ExtensionRequest.GASLESS_FETCH_AND_SOLVE_CHALLENGE,
     );
   }
 
@@ -157,7 +157,7 @@ export class GasStationService {
 
         this.#fundDataPipeline.push({ data, fromAddress });
 
-        await this.fetchChallange(nextPipelineIndex);
+        await this.fetchAndSolveChallange(nextPipelineIndex);
         return;
       }
       this.fundTxDoNotRertyError.dispatch(true);

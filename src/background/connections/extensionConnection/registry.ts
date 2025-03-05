@@ -129,13 +129,13 @@ import { BalancesUpdatedEvents } from '@src/background/services/balances/events/
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
 import { GetTotalBalanceForWalletHandler } from '@src/background/services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
-import { GetGaslessChallengeHexHandler } from '@src/background/services/gasless/handlers/getGaslessChallengeHex';
+import { SetGaslessHexValues } from '@src/background/services/gasless/handlers/setHexValues';
 import { FundTxHandler } from '@src/background/services/gasless/handlers/fundTx';
 import { GaslessSendMessageEvent } from '@src/background/services/gasless/events/gaslessSendMessageEvent';
 import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/handlers/getGaslessEligibility';
-import { FetchGaslessChallengeHandler } from '@src/background/services/gasless/handlers/fetchGaslessChallange';
+import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallange';
 import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
-import { SetGaslessDefaultValuesHandler } from '@src/background/services/gasless/handlers/setDefaultValues';
+import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
 import { InitGaslessOffscreenHandler } from '@src/background/services/gasless/handlers/initOffscreen';
 import { CloseGaslessOffscreenHandler } from '@src/background/services/gasless/handlers/closeOffscreen';
 
@@ -387,11 +387,11 @@ import { CloseGaslessOffscreenHandler } from '@src/background/services/gasless/h
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: GetGaslessChallengeHexHandler,
+    useToken: SetGaslessHexValues,
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: FetchGaslessChallengeHandler,
+    useToken: FetchAndSolveChallengeHandler,
   },
   {
     token: 'ExtensionRequestHandler',
@@ -403,7 +403,7 @@ import { CloseGaslessOffscreenHandler } from '@src/background/services/gasless/h
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: SetGaslessDefaultValuesHandler,
+    useToken: SetDefaultStateValuesHandler,
   },
   {
     token: 'ExtensionRequestHandler',

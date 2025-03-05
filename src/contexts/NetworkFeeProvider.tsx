@@ -17,13 +17,13 @@ import { chainIdToCaip } from '@src/utils/caipConversion';
 import { useNetworkContext } from './NetworkProvider';
 import { FundTxHandler } from '@src/background/services/gasless/handlers/fundTx';
 import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/handlers/getGaslessEligibility';
-import { FetchGaslessChallengeHandler } from '@src/background/services/gasless/handlers/fetchGaslessChallange';
+import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallange';
 import { filter, map } from 'rxjs';
 import { gaslessChallangeUpdateEventListener } from '@src/background/services/gasless/events/gaslessChallangeUpdateListener';
 import { TransactionRequest } from 'ethers';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { SetGaslessDefaultValuesHandler } from '@src/background/services/gasless/handlers/setDefaultValues';
+import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
 import { InitGaslessOffscreenHandler } from '@src/background/services/gasless/handlers/initOffscreen';
 import { CloseGaslessOffscreenHandler } from '@src/background/services/gasless/handlers/closeOffscreen';
 
@@ -148,8 +148,8 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
 
   const fetchGaslessChallange = useCallback(
     async () =>
-      request<FetchGaslessChallengeHandler>({
-        method: ExtensionRequest.GASLESS_FETCH_CHALLENGE,
+      request<FetchAndSolveChallengeHandler>({
+        method: ExtensionRequest.GASLESS_FETCH_AND_SOLVE_CHALLENGE,
       }),
     [request],
   );
@@ -165,8 +165,8 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
 
   const setGaslessDefaultValues = useCallback(
     async () =>
-      request<SetGaslessDefaultValuesHandler>({
-        method: ExtensionRequest.GASLESS_SET_DEFAUlT_VALUES,
+      request<SetDefaultStateValuesHandler>({
+        method: ExtensionRequest.GASLESS_SET_DEFAUlT_STATE_VALUES,
       }),
     [request],
   );

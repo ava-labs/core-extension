@@ -2,22 +2,21 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { GasStationService } from '../GasStationService';
-// import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.GASLESS_FETCH_CHALLENGE,
+  ExtensionRequest.GASLESS_FETCH_AND_SOLVE_CHALLENGE,
   undefined
 >;
 
 @injectable()
-export class FetchGaslessChallengeHandler implements HandlerType {
-  method = ExtensionRequest.GASLESS_FETCH_CHALLENGE as const;
+export class FetchAndSolveChallengeHandler implements HandlerType {
+  method = ExtensionRequest.GASLESS_FETCH_AND_SOLVE_CHALLENGE as const;
 
   constructor(private gasStationService: GasStationService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     try {
-      this.gasStationService.fetchChallange();
+      this.gasStationService.fetchAndSolveChallange();
 
       return {
         ...request,

@@ -1,6 +1,6 @@
 export enum GaslessEvents {
   SEND_MESSAGE = 'Gasless: SEND_MESSAGE',
-  CHALLENGE_UPDATE = 'Gasless: CHALLENGE_UPDATE',
+  STATE_UPDATE = 'Gasless: STATE_UPDATE',
 }
 
 export interface GaslessMessage {
@@ -8,7 +8,7 @@ export interface GaslessMessage {
   data: string;
 }
 
-export interface GaslessChallange {
+export interface GaslessState {
   solutionHex?: string;
   challengeHex?: string;
   fundTxHex?: string;

@@ -21,7 +21,7 @@ connection.onMessage.addListener(async (param) => {
     JSON.stringify({
       params: {
         request: {
-          method: ExtensionRequest.GASLESS_GET_CHALLENGE_HEX,
+          method: ExtensionRequest.GASLESS_SET_HEX_VALUES,
           tabId: -1,
           params: {
             solutionHex,

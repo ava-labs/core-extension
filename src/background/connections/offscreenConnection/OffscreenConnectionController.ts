@@ -1,4 +1,4 @@
-import { injectable, injectAll, injectAllWithTransform } from 'tsyringe';
+import { injectable, injectAll } from 'tsyringe';
 import { runtime, Runtime } from 'webextension-polyfill';
 import { DEFERRED_RESPONSE, Pipeline } from '../middlewares/models';
 import { ExtensionRequestHandlerMiddleware } from '../middlewares/ExtensionRequestHandlerMiddleware';
@@ -27,11 +27,7 @@ import { deserializeFromJSON } from '@src/background/serialization/deserialize';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
-
-import { DappHandlerToExtensionHandlerTransformer } from '../extensionConnection/DappHandlerToExtensionHandlerTransformer';
-import { NetworkService } from '@src/background/services/network/NetworkService';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
-import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
 import { OffscreenRequest } from './models';
 
 @injectable()
@@ -47,11 +43,6 @@ export class OffscreenConnectionController implements ConnectionController {
     private handlers: ExtensionRequestHandler<any, any>[],
     @injectAll('ExtensionEventEmitter')
     private eventEmitters: ExtensionEventEmitter[],
-    @injectAllWithTransform(
-      'DAppRequestHandler',
-      DappHandlerToExtensionHandlerTransformer,
-    )
-    private networkService: NetworkService,
     private moduleManager: ModuleManager,
   ) {
     this.onMessage = this.onMessage.bind(this);
@@ -63,7 +54,6 @@ export class OffscreenConnectionController implements ConnectionController {
     this.connection = connection;
 
     this.pipeline = RequestProcessorPipeline(
-      ActiveNetworkMiddleware(this.networkService),
       ExtensionRequestHandlerMiddleware([...this.handlers], this.moduleManager),
     );
 

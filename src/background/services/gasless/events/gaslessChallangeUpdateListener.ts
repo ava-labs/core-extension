@@ -1,8 +1,8 @@
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
-import { GaslessChallange, GaslessEvents } from '../model';
+import { GaslessState, GaslessEvents } from '../model';
 
 export function gaslessChallangeUpdateEventListener(
-  evt: ExtensionConnectionEvent<GaslessChallange>,
+  evt: ExtensionConnectionEvent<GaslessState>,
 ) {
-  return evt.name === GaslessEvents.CHALLENGE_UPDATE;
+  return evt.name === GaslessEvents.STATE_UPDATE;
 }
