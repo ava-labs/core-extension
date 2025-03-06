@@ -21,7 +21,7 @@ export default function GaslessFee({ onSwitch, isTurnedOn }: GaslessProps) {
         alignItems: 'center',
         flexDirection: 'row',
         width: '100%',
-        mb: 2,
+        mb: isTurnedOn ? 0 : 2,
       }}
     >
       <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>

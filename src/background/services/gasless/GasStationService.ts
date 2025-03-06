@@ -8,6 +8,7 @@ import { Signal } from 'micro-signals';
 import { JsonRpcProvider, Transaction } from 'ethers';
 import { NetworkService } from '../network/NetworkService';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 @singleton()
 export class GasStationService {
   #eventEmitter = new EventEmitter();
@@ -26,6 +27,7 @@ export class GasStationService {
   constructor(
     private appCheckService: AppCheckService,
     private networkService: NetworkService,
+    private networkFeeService: NetworkFeeService,
   ) {
     this.#sdk = new GaslessSdk(this.#gasStationUrl);
   }
@@ -132,8 +134,18 @@ export class GasStationService {
     }
     this.#sdk.setAppCheckToken(token);
 
+    const network = await this.networkService.getNetwork(data.chainId);
+    if (!network) {
+      throw new Error('No network');
+    }
+
+    const networkFee = await this.networkFeeService.getNetworkFee(network);
+
+    const maxFeePerGas = networkFee?.medium.maxFeePerGas || data.maxFeePerGas;
+
     const txHex = Transaction.from({
       ...data,
+      maxFeePerGas,
       from: null,
     }).unsignedSerialized;
 
@@ -144,10 +156,7 @@ export class GasStationService {
       txHex,
       from: fromAddress,
     });
-    const network = await this.networkService.getNetwork(data.chainId);
-    if (!network) {
-      throw new Error('No network');
-    }
+
     if (result.error) {
       if (
         result.error.category === 'RETRY_WITH_NEW_CHALLENGE' &&

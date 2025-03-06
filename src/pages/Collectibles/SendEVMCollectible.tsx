@@ -30,6 +30,7 @@ import {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
 } from '@avalabs/vm-module-types';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 
 type Props = SendPageProps<
   JsonRpcBatchInternal,
@@ -68,6 +69,9 @@ export const SendEVMCollectible = ({
   const setCollectibleParams = useSetCollectibleParams();
   const [token] = tokenList;
   const { capture } = useAnalyticsContext();
+  const { setIsGaslessEligible, isGaslessEligible, getGaslessEligibility } =
+    useNetworkFeeContext();
+  console.log('isGaslessEligible: ', isGaslessEligible);
 
   const { error, isSending, isValid, isValidating, send, validate } =
     useEVMSend({
@@ -93,6 +97,14 @@ export const SendEVMCollectible = ({
       });
     }
   }, [address, token, validate, setCollectibleParams, params]);
+
+  useEffect(() => {
+    const getGaslessStatus = async () => {
+      const gaslessEligibility = await getGaslessEligibility(network.chainId);
+      setIsGaslessEligible(gaslessEligibility);
+    };
+    getGaslessStatus();
+  }, [getGaslessEligibility, network.chainId, setIsGaslessEligible]);
 
   const onSend = useCallback(async () => {
     if (!isValid) {
@@ -216,7 +228,9 @@ export const SendEVMCollectible = ({
               variant="contained"
               size="large"
               onClick={onSend}
-              disabled={isValidating || !isValid || isSending}
+              disabled={
+                !isGaslessEligible && (isValidating || !isValid || isSending)
+              }
               isLoading={isSending}
               fullWidth
             >

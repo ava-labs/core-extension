@@ -419,7 +419,8 @@ export function CustomFees({
             />
           </IconButton>
         ) : (
-          isCustomGasLimitSupported && (
+          isCustomGasLimitSupported &&
+          !isGaslessOn && (
             <IconButton
               size="small"
               data-testid="edit-gas-limit-button"
