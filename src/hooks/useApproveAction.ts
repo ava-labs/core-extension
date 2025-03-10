@@ -131,7 +131,7 @@ export function useApproveAction<DisplayData = any>(
     }
   }, [actionId, request, approval, isConfirmPopup, isBatchApproval]);
 
-  useWindowGetsClosedOrHidden(cancelHandler);
+  // useWindowGetsClosedOrHidden(cancelHandler);
 
   return { action, updateAction, error, cancelHandler };
 }

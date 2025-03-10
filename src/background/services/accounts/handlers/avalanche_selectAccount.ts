@@ -13,6 +13,7 @@ import { Action, buildActionForRequest } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { isPrimaryAccount } from '../utils/typeGuards';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 type Params = [selectedIndexOrID: number | string];
 
@@ -114,6 +115,7 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler<
         await this.permissionsService.setAccountPermissionForDomain(
           pendingAction.site.domain,
           selectedAccount.addressC,
+          NetworkVMType.EVM,
           true,
         );
       }

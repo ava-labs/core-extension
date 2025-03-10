@@ -9,6 +9,7 @@ import { permissionsUpdatedEventListener } from '@src/background/services/permis
 import { filter, map } from 'rxjs';
 import { PermissionsAddDomainHandler } from '@src/background/services/permissions/handlers/addPermissionsForDomain';
 import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 interface UpdateAccountPermission {
   addressC: string; // wallet c address
@@ -19,7 +20,7 @@ interface UpdateAccountPermission {
 
 function updateAnAccount(
   domain: string,
-  account: { [address: string]: boolean },
+  account: { [address: string]: { hasAccess: boolean; vm: NetworkVMType } },
 ): DappPermissions {
   return {
     domain,

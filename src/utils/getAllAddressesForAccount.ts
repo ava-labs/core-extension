@@ -9,5 +9,5 @@ export default function getAllAddressesForAccount(acc: Partial<Account>) {
     acc.addressCoreEth,
     acc.addressHVM,
     acc.addressSVM,
-  ];
+  ].filter((addr): addr is string => typeof addr === 'string');
 }

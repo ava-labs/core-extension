@@ -1,12 +1,17 @@
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import {
+  DAppProviderRequest,
+  JsonRpcRequestParams,
+} from '@src/background/connections/dAppConnection/models';
 import { AccountsService } from '../../accounts/AccountsService';
 import { injectable } from 'tsyringe';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { ethErrors } from 'eth-rpc-errors';
-import { Action } from '../../actions/models';
+import { Action, ActionType } from '../../actions/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { NetworkVMType } from '@avalabs/vm-module-types';
+import { getAddressByVMType } from '@src/utils/address';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -17,8 +22,13 @@ import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
  * @returns
  */
 
+type Params = {
+  addressVM?: NetworkVMType;
+  onlyIfTrusted?: boolean;
+};
+
 @injectable()
-export class ConnectRequestHandler implements DAppRequestHandler {
+export class ConnectRequestHandler implements DAppRequestHandler<Params> {
   methods = [
     DAppProviderRequest.CONNECT_METHOD,
     DAppProviderRequest.WALLET_CONNECT,
@@ -29,7 +39,9 @@ export class ConnectRequestHandler implements DAppRequestHandler {
     private permissionsService: PermissionsService,
   ) {}
 
-  async handleAuthenticated(rpcCall) {
+  async handleAuthenticated(
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>,
+  ) {
     const { request } = rpcCall;
 
     if (!this.accountsService.activeAccount) {
@@ -39,14 +51,30 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       };
     }
 
+    const address = getAddressByVMType(
+      this.accountsService.activeAccount,
+      request.params.addressVM ?? NetworkVMType.EVM,
+    );
+
+    if (!address) {
+      return {
+        ...request,
+        error: ethErrors.rpc.internal(
+          'The selected account does not support the selected VM',
+        ),
+      };
+    }
+
     return {
       ...request,
-      result: [this.accountsService.activeAccount.addressC],
+      result: [address],
     };
   }
 
-  handleUnauthenticated = async (rpcCall) => {
-    const { request } = rpcCall;
+  handleUnauthenticated = async (
+    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>,
+  ) => {
+    const { request, scope } = rpcCall;
 
     if (!request.site?.domain) {
       return {
@@ -55,10 +83,20 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       };
     }
 
+    if (request.params.onlyIfTrusted) {
+      return {
+        ...request,
+        error: ethErrors.provider.unauthorized(),
+      };
+    }
+
     await openApprovalWindow(
       {
         ...request,
+        scope,
+        type: ActionType.Single,
         displayData: {
+          addressVM: request.params.addressVM || NetworkVMType.EVM, // Default to EVM
           domainName: request.site?.name,
           domainUrl: request.site?.domain,
           domainIcon: request.site?.icon,
@@ -76,6 +114,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
     onSuccess,
     onError,
   ) => {
+    const vm = pendingAction.params.addressVM;
     const selectedAccount = this.accountsService.getAccountByID(result);
 
     if (!selectedAccount) {
@@ -88,27 +127,48 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       return;
     }
 
+    const address = getAddressByVMType(selectedAccount, vm);
+
+    if (!address) {
+      onError(
+        ethErrors.rpc.internal(
+          'The selected account does not support the selected VM',
+        ),
+      );
+      return;
+    }
+
     // The site was already approved
     // We usually get here when an already approved site attempts to connect and the extension was locked
     if (
       this.accountsService.activeAccount?.id === result &&
       (await this.permissionsService.hasDomainPermissionForAccount(
         pendingAction.site.domain,
-        selectedAccount.addressC,
+        address,
       ))
     ) {
-      onSuccess([selectedAccount.addressC]);
+      onSuccess([address]);
       return;
     }
 
     await this.permissionsService.setAccountPermissionForDomain(
       pendingAction.site.domain,
-      selectedAccount.addressC,
+      address,
+      vm,
       true,
     );
 
     await this.accountsService.activateAccount(result);
 
-    onSuccess([selectedAccount.addressC]);
+    if (!address) {
+      onError(
+        ethErrors.rpc.internal(
+          'The active account does not support the selected VM',
+        ),
+      );
+      return;
+    }
+
+    onSuccess([address]);
   };
 }

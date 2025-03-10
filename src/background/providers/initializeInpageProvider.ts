@@ -1,8 +1,11 @@
+import { EVMProvider } from '@avalabs/evm-module/dist/provider';
+import { SolanaWalletProvider } from '@avalabs/svm-module/dist/provider';
+
 import type AbstractConnection from '../utils/messaging/AbstractConnection';
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
+import { initialize as initializeSolana } from './solana';
 import { EventNames, type EIP6963ProviderDetail } from './models';
-import { EVMProvider } from '@avalabs/evm-module/dist/provider';
 
 /**
  * Initializes a CoreProvide and assigns it as window.ethereum.
@@ -23,6 +26,10 @@ export function initializeProvider(
       deleteProperty: () => true,
     },
   );
+
+  const solanaProvider = new Proxy(new SolanaWalletProvider(), {
+    deleteProperty: () => true,
+  });
 
   const evmProvider = new Proxy(
     new EVMProvider({

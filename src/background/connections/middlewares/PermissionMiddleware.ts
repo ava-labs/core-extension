@@ -73,6 +73,7 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   'eth_signTypedData_v4',
   'eth_submitHashrate',
   'eth_submitWork',
+
   'eth_syncing',
   'eth_uninstallFilter',
   'avalanche_getProviderState',
@@ -100,6 +101,8 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   DAppProviderRequest.WALLET_GET_PUBKEY,
   DAppProviderRequest.WALLET_CONNECT,
   RpcMethod.HVM_SIGN_TRANSACTION,
+  RpcMethod.SOLANA_SIGN_TRANSACTION,
+  RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION,
 ]);
 
 const CORE_METHODS = Object.freeze([

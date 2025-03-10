@@ -117,6 +117,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     private storageService: StorageService,
     private featureFlagService: FeatureFlagService,
   ) {
+    globalThis.ns = this;
     this._initChainList();
 
     this.allNetworks = this._allNetworks

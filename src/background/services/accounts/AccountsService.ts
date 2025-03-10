@@ -30,7 +30,7 @@ import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { assertPresent, assertPropDefined } from '@src/utils/assertions';
 import { AccountError, SecretsError } from '@src/utils/errors';
-import { mapVMAddresses } from './utils/mapVMAddresses';
+import { mapVMAddresses } from '@src/utils/address';
 
 type AddAccountParams = {
   walletId: string;

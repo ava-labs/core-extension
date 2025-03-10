@@ -1,7 +1,12 @@
+import { NetworkVMType } from '@avalabs/vm-module-types';
+
 export interface DappPermissions {
   domain: string;
   accounts: {
-    [addressC: string]: boolean;
+    [address: string]: {
+      vm: NetworkVMType;
+      hasAccess: boolean;
+    };
   };
 }
 

@@ -19,10 +19,17 @@ import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation, Trans } from 'react-i18next';
 import { Account } from '@src/background/services/accounts/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 type ConnectedListType = {
   [key: string]: {
-    accounts: { [key: string]: boolean };
+    accounts: {
+      [key: string]: {
+        hasAccess: boolean;
+        vm: NetworkVMType;
+      };
+    };
   };
 };
 
@@ -36,8 +43,10 @@ const getAccountConnectedSites = ({
   if (!account) {
     return [];
   }
-  return Object.values(list).filter(
-    (listItem: any) => listItem?.accounts[account.addressC],
+  return Object.values(list).filter((listItem: any) =>
+    Object.keys(listItem?.accounts).some((address) =>
+      getAllAddressesForAccount(account).includes(address),
+    ),
   );
 };
 

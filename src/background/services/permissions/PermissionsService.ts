@@ -1,3 +1,4 @@
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
@@ -8,6 +9,7 @@ import {
   Permissions,
   PERMISSION_STORAGE_KEY,
 } from './models';
+import { omit } from 'lodash';
 
 @singleton()
 export class PermissionsService implements OnLock {
@@ -44,9 +46,11 @@ export class PermissionsService implements OnLock {
     }
 
     try {
-      this.permissions =
+      this.permissions = omit(
         (await this.storageService.load<Permissions>(PERMISSION_STORAGE_KEY)) ??
-        {};
+          {},
+        'version',
+      );
     } catch (_err) {
       /**
        * If permissions arent pulled then dont set permissions to an empty object
@@ -98,7 +102,8 @@ export class PermissionsService implements OnLock {
   async setAccountPermissionForDomain(
     domain: string,
     address: string,
-    hasPermission: boolean,
+    vm: NetworkVMType,
+    hasAccess: boolean,
   ) {
     const currentPermissions = await this.getPermissions();
 
@@ -115,7 +120,10 @@ export class PermissionsService implements OnLock {
         ...permissionsForDomain,
         accounts: {
           ...permissionsForDomain.accounts,
-          [address]: hasPermission,
+          [address]: {
+            vm,
+            hasAccess,
+          },
         },
       },
     };
@@ -128,8 +136,18 @@ export class PermissionsService implements OnLock {
 
   async addWhitelistDomains(addressC: string) {
     try {
-      await this.setAccountPermissionForDomain('core.app', addressC, true);
-      await this.setAccountPermissionForDomain('test.core.app', addressC, true);
+      await this.setAccountPermissionForDomain(
+        'core.app',
+        addressC,
+        NetworkVMType.EVM,
+        true,
+      );
+      await this.setAccountPermissionForDomain(
+        'test.core.app',
+        addressC,
+        NetworkVMType.EVM,
+        true,
+      );
     } catch (err) {
       console.error(err);
     }
