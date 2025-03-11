@@ -221,6 +221,7 @@ export function CustomFees({
     solutionHex,
     isGaslessOn,
     setIsGaslessOn,
+    isGaslessFundStarted,
   } = useNetworkFeeContext();
 
   useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest native balance.
@@ -443,6 +444,7 @@ export function CustomFees({
                 onGaslessSwitch();
               }}
               isTurnedOn={isGaslessOn}
+              isGaslessFundStarted={isGaslessFundStarted}
             />
           )}
           <Collapse in={!isGaslessOn} mountOnEnter unmountOnExit>

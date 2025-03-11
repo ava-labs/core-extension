@@ -40,8 +40,8 @@ const NetworkFeeContext = createContext<{
   }) => Promise<string | undefined>;
   getGaslessEligibility: (
     chainId?: string | number,
-    fromAddress?: string,
-    nonce?: number,
+    fromAddress?: string | null,
+    nonce?: number | null,
   ) => Promise<any | null>;
   challengeHex: string;
   solutionHex: string;
@@ -55,6 +55,8 @@ const NetworkFeeContext = createContext<{
   setGaslessDefaultValues: () => Promise<any | null>;
   createGaslessOffscreen: () => Promise<true>;
   closeGaslessOffscreen: () => Promise<true>;
+  isGaslessFundStarted: boolean;
+  setIsGaslessFundStarted: Dispatch<SetStateAction<boolean>>;
 }>({
   networkFee: null,
   async getNetworkFee() {
@@ -92,6 +94,10 @@ const NetworkFeeContext = createContext<{
   async closeGaslessOffscreen() {
     return true;
   },
+  isGaslessFundStarted: false,
+  setIsGaslessFundStarted() {
+    return false;
+  },
 });
 
 export function NetworkFeeContextProvider({ children }: { children: any }) {
@@ -109,6 +115,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   const [fundTxHex, setFundTxHex] = useState('');
   const [fundTxDoNotRertyError, setFundTxDoNotRertyError] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
+  const [isGaslessFundStarted, setIsGaslessFundStarted] = useState(false);
 
   const getNetworkFee = useCallback(
     async (caipId: string) =>
@@ -253,6 +260,8 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         setGaslessDefaultValues,
         createGaslessOffscreen,
         closeGaslessOffscreen,
+        setIsGaslessFundStarted,
+        isGaslessFundStarted,
       }}
     >
       {children}

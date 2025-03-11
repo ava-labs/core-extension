@@ -46,6 +46,7 @@ import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { AddressLike } from 'ethers';
 
 type WithContextAlert = {
   alert: { type: 'info'; title: string; notice: string };
@@ -94,10 +95,11 @@ export function GenericApprovalScreen() {
     createGaslessOffscreen,
     closeGaslessOffscreen,
     solutionHex,
+    isGaslessFundStarted,
+    setIsGaslessFundStarted,
   } = useNetworkFeeContext();
 
   const { captureEncrypted } = useAnalyticsContext();
-  const [gaslessFundStarted, setGaslessFundStarted] = useState(false);
   const [gaslessError, setGaslessError] = useState('');
 
   const { displayData, context, signingData } = action ?? {};
@@ -111,19 +113,25 @@ export function GenericApprovalScreen() {
     if (!displayData?.network?.chainId) {
       return;
     }
-    const getGaslessStatus = async (chainId, fromAddress, nonce) => {
+    const getGaslessStatus = async (
+      chainId: number | string,
+      fromAddress?: AddressLike | null,
+      nonce?: number | null,
+    ) => {
       const gaslessEligibility = await getGaslessEligibility(
         chainId,
-        fromAddress,
+        fromAddress?.toString(),
         nonce,
       );
       setIsGaslessEligible(gaslessEligibility);
     };
 
+    setNetwork(getNetwork(displayData.network.chainId));
+
     if (!signingData || signingData.type !== RpcMethod.ETH_SEND_TRANSACTION) {
+      setIsGaslessEligible(false);
       return;
     }
-    setNetwork(getNetwork(displayData.network.chainId));
     getGaslessStatus(
       displayData.network.chainId,
       signingData?.data?.from,
@@ -143,9 +151,10 @@ export function GenericApprovalScreen() {
   useEffect(() => {
     createGaslessOffscreen();
     return () => {
+      setIsGaslessFundStarted(false);
       closeGaslessOffscreen();
     };
-  }, [closeGaslessOffscreen, createGaslessOffscreen]);
+  }, [closeGaslessOffscreen, createGaslessOffscreen, setIsGaslessFundStarted]);
 
   useEffect(() => {
     setIsGaslessOn(!!isGaslessEligible);
@@ -159,13 +168,13 @@ export function GenericApprovalScreen() {
   const handleGaslessError = useCallback(() => {
     setIsGaslessOn(false);
     setIsGaslessEligible(false);
-    setGaslessFundStarted(false);
+    setIsGaslessFundStarted(false);
     setGaslessError(
       t(
         `We're unable to cover the gas fees for your transaction at this time. As a result, this feature has been disabled.`,
       ),
     );
-  }, [setIsGaslessEligible, setIsGaslessOn, t]);
+  }, [setIsGaslessEligible, setIsGaslessFundStarted, setIsGaslessOn, t]);
 
   const fundGasless = useCallback(
     async (data: SigningData_EthSendTx) => {
@@ -180,13 +189,13 @@ export function GenericApprovalScreen() {
   const signTx = useCallback(async () => {
     setGaslessError('');
     if (isGaslessOn) {
-      setGaslessFundStarted(true);
+      setIsGaslessFundStarted(true);
       if (action?.signingData?.type === RpcMethod.ETH_SEND_TRANSACTION) {
         await fundGasless(action.signingData);
         return;
       }
 
-      setGaslessFundStarted(false);
+      setIsGaslessFundStarted(false);
       // when the gasless feature is turned on we handle the action update after the tx has ended
       return;
     }
@@ -198,12 +207,13 @@ export function GenericApprovalScreen() {
       isUsingLedgerWallet || isUsingKeystoneWallet,
     );
   }, [
-    action,
+    action?.signingData,
     fundGasless,
     isGaslessOn,
     isUsingKeystoneWallet,
     isUsingLedgerWallet,
     requestId,
+    setIsGaslessFundStarted,
     updateAction,
   ]);
 
@@ -399,7 +409,7 @@ export function GenericApprovalScreen() {
           color="secondary"
           data-testid="transaction-reject-btn"
           disabled={
-            action.status === ActionStatus.SUBMITTING || gaslessFundStarted
+            action.status === ActionStatus.SUBMITTING || isGaslessFundStarted
           }
           size="large"
           fullWidth
@@ -423,19 +433,19 @@ export function GenericApprovalScreen() {
               !displayData ||
               action.status === ActionStatus.SUBMITTING ||
               !isFeeValid ||
-              gaslessFundStarted ||
+              isGaslessFundStarted ||
               (!solutionHex && isGaslessOn)
             }
             isLoading={
               action.status === ActionStatus.SUBMITTING ||
               isCalculatingFee ||
-              gaslessFundStarted
+              isGaslessFundStarted
             }
             size="large"
             fullWidth
             onClick={signTx}
           >
-            {gaslessFundStarted ? t('Approving') : t('Approve')}
+            {isGaslessFundStarted ? t('Approving') : t('Approve')}
           </Button>
         </Tooltip>
       </Stack>

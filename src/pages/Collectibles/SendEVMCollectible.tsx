@@ -51,7 +51,6 @@ export const SendEVMCollectible = ({
   nativeToken,
   provider,
   tokenList,
-
   onSuccess,
   onFailure,
   onApproved,
@@ -71,8 +70,8 @@ export const SendEVMCollectible = ({
   const { capture } = useAnalyticsContext();
   const { setIsGaslessEligible, isGaslessEligible, getGaslessEligibility } =
     useNetworkFeeContext();
-  console.log('isGaslessEligible: ', isGaslessEligible);
 
+  console.log('isGaslessEligible: ', isGaslessEligible);
   const { error, isSending, isValid, isValidating, send, validate } =
     useEVMSend({
       chainId: `0x${network.chainId.toString(16)}`,
@@ -106,8 +105,13 @@ export const SendEVMCollectible = ({
     getGaslessStatus();
   }, [getGaslessEligibility, network.chainId, setIsGaslessEligible]);
 
+  const isSendAvailableWithGasless =
+    isGaslessEligible &&
+    error === SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE;
+
+  console.log('isSendAvailableWithGasless: ', isSendAvailableWithGasless);
   const onSend = useCallback(async () => {
-    if (!isValid) {
+    if (!isValid && !isSendAvailableWithGasless) {
       return;
     }
 
@@ -127,7 +131,16 @@ export const SendEVMCollectible = ({
         onSuccess(txHash);
       }
     }
-  }, [address, isValid, onApproved, onFailure, onSuccess, send, token]);
+  }, [
+    address,
+    isSendAvailableWithGasless,
+    isValid,
+    onApproved,
+    onFailure,
+    onSuccess,
+    send,
+    token,
+  ]);
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -214,7 +227,7 @@ export const SendEVMCollectible = ({
             placement="top"
             sx={{ width: '100%' }}
             title={
-              error ? (
+              error && !isSendAvailableWithGasless ? (
                 <Typography variant="body2">
                   {getSendErrorMessage(error)}
                 </Typography>
@@ -229,7 +242,8 @@ export const SendEVMCollectible = ({
               size="large"
               onClick={onSend}
               disabled={
-                !isGaslessEligible && (isValidating || !isValid || isSending)
+                !isSendAvailableWithGasless &&
+                (isValidating || !isValid || isSending)
               }
               isLoading={isSending}
               fullWidth
