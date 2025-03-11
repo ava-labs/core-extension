@@ -22,6 +22,8 @@ import {
   Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
+  SolanaProvider,
+  isSolanaProvider,
 } from '@avalabs/core-wallets-sdk';
 import { SendEVM } from './components/SendEVM';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
@@ -232,7 +234,7 @@ export function SendPage() {
             fromAddress={fromAddress}
             maxFee={0n} // TODO: fix
             nativeToken={nativeToken as TokenWithBalanceSVM}
-            provider={provider}
+            provider={provider as SolanaProvider}
             tokenList={tokens as [TokenWithBalanceSPL]}
             account={active}
             onSuccess={onSuccess}
@@ -257,7 +259,7 @@ const doesProviderMatchTheNetwork = (
 
   switch (network.vmName) {
     case NetworkVMType.SVM:
-      return true; // TODO: fix
+      return isSolanaProvider(provider);
     case NetworkVMType.EVM:
       return provider instanceof JsonRpcBatchInternal;
 

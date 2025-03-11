@@ -1,7 +1,7 @@
 import { Network, ChainId } from '@avalabs/core-chains-sdk';
 
-export function isSolanaNetwork(network: Network) {
-  return isSolanaChainId(network.chainId);
+export function isSolanaNetwork(network?: Network) {
+  return network ? isSolanaChainId(network.chainId) : false;
 }
 
 export function isSolanaChainId(chainId: number) {

@@ -67,7 +67,7 @@ export const useIdentifyAddress = () => {
         ) {
           const addressToUse =
             network && isSolanaNetwork(network)
-              ? { addressSVM: account.addressSVM }
+              ? { addressSVM: account.addressSVM, address: '' }
               : isBitcoin(network)
                 ? { addressBTC: account.addressBTC, address: '' }
                 : isPchainNetwork(network)

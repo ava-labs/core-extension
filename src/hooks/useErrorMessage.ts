@@ -162,6 +162,10 @@ export const useErrorMessage = () => {
       [CommonError.UserRejected]: {
         title: t('User declined the transaction'),
       },
+      [CommonError.UnsupportedTokenType]: {
+        title: t('Unsupported token type'),
+        hint: t('Sending this type of token is not supported by Core'),
+      },
       [CommonError.NetworkError]: {
         title: t('Network error'),
         hint: t('Please check your connection and try again.'),

@@ -26,6 +26,7 @@ import {
   getWalletFromMnemonic,
   JsonRpcBatchInternal,
   LedgerSigner,
+  SolanaProvider,
   SolanaSigner,
 } from '@avalabs/core-wallets-sdk';
 import { NetworkService } from '../network/NetworkService';
@@ -560,14 +561,17 @@ export class WalletService implements OnUnlock {
 
     if (isSolanaSigningRequest(tx)) {
       if (wallet instanceof SolanaSigner) {
-        const signedTx = await wallet.signTx(tx.data);
+        const signedTx = await wallet.signTx(
+          tx.data,
+          (await getProviderForNetwork(network)) as SolanaProvider,
+        );
 
         return {
           signedTx,
         };
       }
 
-      throw new Error('Signing error, wrong network');
+      throw new Error('Unable to find a proper signer');
     }
 
     // handle BTC signing
