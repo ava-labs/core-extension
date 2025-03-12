@@ -100,6 +100,8 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   DAppProviderRequest.WALLET_GET_PUBKEY,
   DAppProviderRequest.WALLET_CONNECT,
   RpcMethod.HVM_SIGN_TRANSACTION,
+  RpcMethod.SOLANA_SIGN_TRANSACTION,
+  RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION,
 ]);
 
 const CORE_METHODS = Object.freeze([

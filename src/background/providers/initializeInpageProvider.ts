@@ -1,8 +1,10 @@
+import { EVMProvider } from '@avalabs/evm-module/dist/provider';
+import { SolanaWalletProvider } from '@avalabs/svm-module/dist/provider';
+
 import type AbstractConnection from '../utils/messaging/AbstractConnection';
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { EventNames, type EIP6963ProviderDetail } from './models';
-import { EVMProvider } from '@avalabs/evm-module/dist/provider';
 
 /**
  * Initializes a CoreProvide and assigns it as window.ethereum.
@@ -65,6 +67,8 @@ export function initializeProvider(
   setAvalancheGlobalProvider(evmProvider, globalObject);
   announceWalletProvider(evmProvider, globalObject);
   announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
+
+  new SolanaWalletProvider(); // It waits for ChainAgnosticProvider to be announced, attaches to it and then annouces itself
 
   return evmProvider;
 }
