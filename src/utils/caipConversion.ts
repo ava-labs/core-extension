@@ -9,12 +9,20 @@ export enum CaipNamespace {
   BIP122 = 'bip122',
   EIP155 = 'eip155',
   HVM = 'hvm',
+  SOLANA = 'solana',
 }
 
 export const BitcoinCaipId = {
   [ChainId.BITCOIN]: `${CaipNamespace.BIP122}:000000000019d6689c085ae165831e93`,
   [ChainId.BITCOIN_TESTNET]: `${CaipNamespace.BIP122}:000000000933ea01ad0ee984209779ba`,
 };
+
+export const SolanaCaipId = {
+  [ChainId.SOLANA_MAINNET_ID]: `${CaipNamespace.SOLANA}:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`,
+  [ChainId.SOLANA_DEVNET_ID]: `${CaipNamespace.SOLANA}:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`,
+  [ChainId.SOLANA_TESTNET_ID]: `${CaipNamespace.SOLANA}:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z`,
+};
+
 export const AvaxCaipId = {
   [ChainId.AVALANCHE_P]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.pBlockchainID}`,
   [ChainId.AVALANCHE_X]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.xBlockchainID}`,
@@ -25,6 +33,8 @@ export const AvaxCaipId = {
 export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
   if (network.caipId) {
     return network.caipId;
+  } else if (network.caip2Id) {
+    return network.caip2Id;
   }
   if (network.vmName === NetworkVMType.EVM) {
     return `eip155:${network.chainId}`;
@@ -65,6 +75,17 @@ export const caipToChainId = (identifier: string): number => {
 
   if (reference.length === 32 && namespace === CaipNamespace.HVM) {
     return parseInt(reference.slice(0, 16), 16);
+  }
+  if (namespace === CaipNamespace.SOLANA) {
+    const chainId = Object.keys(SolanaCaipId).find(
+      (chainIdLookup) => SolanaCaipId[chainIdLookup] === identifier,
+    );
+
+    if (!chainId) {
+      throw new Error('No chainId match for CAIP identifier: ' + identifier);
+    }
+
+    return Number(chainId);
   }
   if (namespace === CaipNamespace.BIP122) {
     const chainId = Object.keys(BitcoinCaipId).find(

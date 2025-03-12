@@ -160,6 +160,8 @@ const enabledFeatures = {
     ChainId.AVALANCHE_MAINNET_ID,
     ChainId.AVALANCHE_TESTNET_ID,
     ChainId.ETHEREUM_HOMESTEAD,
+    ChainId.SOLANA_MAINNET_ID,
+    ChainId.SOLANA_DEVNET_ID,
   ],
   Swap: [ChainId.AVALANCHE_MAINNET_ID],
   Buy: [ChainId.AVALANCHE_MAINNET_ID, ChainId.AVALANCHE_TESTNET_ID],

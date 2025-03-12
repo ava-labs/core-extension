@@ -52,6 +52,7 @@ import {
   decorateWithCaipId,
 } from '@src/utils/caipConversion';
 import { getSyncDomain, isSyncDomain } from './utils/getSyncDomain';
+import { isDevelopment } from '@src/utils/environment';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -431,7 +432,9 @@ export class NetworkService implements OnLock, OnStorageReady {
       const [result] = await resolve(
         getChainsAndTokens(
           process.env.RELEASE === 'production',
-          process.env.TOKENLIST_OVERRIDE || '',
+          isDevelopment()
+            ? `${process.env.PROXY_URL}/tokenlist?includeSolana`
+            : process.env.TOKENLIST_OVERRIDE || '',
         ),
       );
 
