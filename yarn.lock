@@ -5042,6 +5042,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@firebase/messaging@patch:@firebase/messaging@npm%3A0.12.15#~/.yarn/patches/@firebase-messaging-npm-0.12.15-983d487531.patch":
+  version: 0.12.15
+  resolution: "@firebase/messaging@patch:@firebase/messaging@npm%3A0.12.15#~/.yarn/patches/@firebase-messaging-npm-0.12.15-983d487531.patch::version=0.12.15&hash=a408fa"
+  dependencies:
+    "@firebase/component": "npm:0.6.11"
+    "@firebase/installations": "npm:0.6.11"
+    "@firebase/messaging-interop-types": "npm:0.2.3"
+    "@firebase/util": "npm:1.10.2"
+    idb: "npm:7.1.1"
+    tslib: "npm:^2.1.0"
+  peerDependencies:
+    "@firebase/app": 0.x
+  checksum: 10c0/8923f82155ecc28e78ab5bd08cb6a3afe08014730911a297290777207ee4a55acce2a2aece665c506c9dd125767d9e4a4a76edc8a7715603afc560c61fcf79a5
+  languageName: node
+  linkType: hard
+
 "@firebase/performance-compat@npm:0.2.11":
   version: 0.2.11
   resolution: "@firebase/performance-compat@npm:0.2.11"
@@ -20701,6 +20717,35 @@ __metadata:
     p-limit: "npm:^3.1.0"
     source-map-support: "npm:0.5.13"
   checksum: 10c0/2194b4531068d939f14c8d3274fe5938b77fa73126aedf9c09ec9dec57d13f22c72a3b5af01ac04f5c1cf2e28d0ac0b4a54212a61b05f10b5d6b47f2a1097bb4
+  languageName: node
+  linkType: hard
+
+"jest-runner@patch:jest-runner@npm%3A29.7.0#~/.yarn/patches/jest-runner-npm-29.7.0-3bc9f82b58.patch":
+  version: 29.7.0
+  resolution: "jest-runner@patch:jest-runner@npm%3A29.7.0#~/.yarn/patches/jest-runner-npm-29.7.0-3bc9f82b58.patch::version=29.7.0&hash=a79dea"
+  dependencies:
+    "@jest/console": "npm:^29.7.0"
+    "@jest/environment": "npm:^29.7.0"
+    "@jest/test-result": "npm:^29.7.0"
+    "@jest/transform": "npm:^29.7.0"
+    "@jest/types": "npm:^29.6.3"
+    "@types/node": "npm:*"
+    chalk: "npm:^4.0.0"
+    emittery: "npm:^0.13.1"
+    graceful-fs: "npm:^4.2.9"
+    jest-docblock: "npm:^29.7.0"
+    jest-environment-node: "npm:^29.7.0"
+    jest-haste-map: "npm:^29.7.0"
+    jest-leak-detector: "npm:^29.7.0"
+    jest-message-util: "npm:^29.7.0"
+    jest-resolve: "npm:^29.7.0"
+    jest-runtime: "npm:^29.7.0"
+    jest-util: "npm:^29.7.0"
+    jest-watcher: "npm:^29.7.0"
+    jest-worker: "npm:^29.7.0"
+    p-limit: "npm:^3.1.0"
+    source-map-support: "npm:0.5.13"
+  checksum: 10c0/79bfdf03b0144e78551bf77f4976ba0ccc5be252828a2c2d1d53558c9db120530bb297ff6b0a7f75a900c48b925f046755171b9a654ffb91636527f243fdf8c6
   languageName: node
   linkType: hard
 

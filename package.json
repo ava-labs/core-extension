@@ -7,12 +7,12 @@
     "start": "yarn dev",
     "build:inpage": "webpack --config webpack.inpage.js",
     "dev:inpage": "webpack -w --config webpack.inpage.js",
-    "build": "yarn run patch-package && yarn run build:inpage --mode=production && webpack --config webpack.prod.js",
-    "build:alpha": "yarn run patch-package && yarn run build:inpage --mode=production && webpack --config webpack.alpha.js",
-    "dev": "yarn run patch-package && yarn run build:inpage && webpack -w --config webpack.dev.js",
+    "build": "yarn run build:inpage --mode=production && webpack --config webpack.prod.js",
+    "build:alpha": "yarn run build:inpage --mode=production && webpack --config webpack.alpha.js",
+    "dev": "yarn run build:inpage && webpack -w --config webpack.dev.js",
     "lint": "eslint --fix \"src/**/*.ts*\"",
     "typecheck": "yarn tsc --skipLibCheck --noEmit",
-    "postinstall": "husky install && patch-package",
+    "postinstall": "husky install",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "setup": "yarn install && yarn allow-scripts",
     "test": "yarn jest",
@@ -211,7 +211,9 @@
     "got": "11.8.5",
     "@ledgerhq/hw-app-eth": "6.36.1",
     "@ledgerhq/hw-transport": "6.30.6",
-    "jest-runner": "29.7.0"
+    "jest-runner@npm:^29.7.0": "patch:jest-runner@npm%3A29.7.0#~/.yarn/patches/jest-runner-npm-29.7.0-3bc9f82b58.patch",
+    "jest-runner@npm:^27.5.1": "patch:jest-runner@npm%3A29.7.0#~/.yarn/patches/jest-runner-npm-29.7.0-3bc9f82b58.patch",
+    "@firebase/messaging@npm:0.12.15": "patch:@firebase/messaging@npm%3A0.12.15#~/.yarn/patches/@firebase-messaging-npm-0.12.15-983d487531.patch"
   },
   "prettier": {
     "tabWidth": 2,
