@@ -27,7 +27,7 @@ import { getAddressForChain } from '@src/utils/getAddressForChain';
 
 export function Header() {
   const domain = useCurrentDomain();
-  const { updateAccountPermission, isDomainConnectedToAccount } =
+  const { revokeAddressPermisson, isDomainConnectedToAccount } =
     usePermissionContext();
   const {
     accounts: { active: activeAccount },
@@ -44,7 +44,7 @@ export function Header() {
   const { network } = useNetworkContext();
   const address =
     network && activeAccount
-      ? getAddressForChain(network?.chainId, activeAccount)
+      ? getAddressForChain(network?.chainId, activeAccount, network.caipId)
       : '';
   const theme = useTheme();
 
@@ -101,11 +101,11 @@ export function Header() {
                         fontSize: 'caption.fontSize',
                       }}
                       onClick={() => {
-                        updateAccountPermission({
-                          addressC: activeAccount?.addressC,
-                          hasPermission: false,
-                          domain,
-                        });
+                        if (domain && activeAccount) {
+                          revokeAddressPermisson(domain, [
+                            activeAccount.addressC,
+                          ]);
+                        }
                       }}
                     >
                       {t('Disconnect')}

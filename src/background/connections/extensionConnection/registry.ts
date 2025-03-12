@@ -44,7 +44,7 @@ import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handle
 import { OnboardingUpdatedEvents } from '@src/background/services/onboarding/events/onboardingUpdatedEvent';
 import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
 import { PermissionStateUpdateEvents } from '@src/background/services/permissions/events/permissionsStateUpdates';
-import { PermissionsAddDomainHandler } from '@src/background/services/permissions/handlers/addPermissionsForDomain';
+import { RevokeAddressPermissionsForDomainHandler } from '@src/background/services/permissions/handlers/revokeAddressPermissionsForDomain';
 import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
 import { GetPermissionsForDomainHandler } from '@src/background/services/permissions/handlers/getPermissionsForDomain';
 import { SettingsUpdatedEvents } from '@src/background/services/settings/events/settingsUpdatedEvent';
@@ -215,7 +215,10 @@ import { GetTotalBalanceForWalletHandler } from '@src/background/services/balanc
   { token: 'ExtensionRequestHandler', useToken: SeedlessOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: KeystoneOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: LedgerOnboardingHandler },
-  { token: 'ExtensionRequestHandler', useToken: PermissionsAddDomainHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: RevokeAddressPermissionsForDomainHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: GetAllPermissionsHandler },
   {
     token: 'ExtensionRequestHandler',

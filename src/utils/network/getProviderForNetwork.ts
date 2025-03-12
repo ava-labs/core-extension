@@ -5,7 +5,6 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { FetchRequest, Network as EthersNetwork } from 'ethers';
-import { info } from '@avalabs/avalanchejs';
 
 import { Network } from '@src/background/services/network/models';
 
@@ -63,13 +62,9 @@ export const getProviderForNetwork = async (
     network.vmName === NetworkVMType.AVM ||
     network.vmName === NetworkVMType.PVM
   ) {
-    const upgradesInfo = await new info.InfoApi(network.rpcUrl)
-      .getUpgradesInfo()
-      .catch(() => undefined);
-
     return network.isTestnet
-      ? Avalanche.JsonRpcProvider.getDefaultFujiProvider(upgradesInfo)
-      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider(upgradesInfo);
+      ? Avalanche.JsonRpcProvider.getDefaultFujiProvider()
+      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider();
   } else {
     throw new Error('unsupported network');
   }

@@ -20,7 +20,7 @@ import { SecretType } from '../secrets/models';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { mapVMAddresses } from './utils/mapVMAddresses';
+import { mapVMAddresses } from '@src/utils/address';
 import { expectToThrowErrorCode } from '@src/tests/test-utils';
 import { AccountError } from '@src/utils/errors';
 import { NetworkVMType } from '@avalabs/vm-module-types';

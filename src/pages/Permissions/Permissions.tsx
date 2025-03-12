@@ -28,6 +28,8 @@ import { WarningBox } from './components/WarningBox';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { BlockaidData, useDAppScan } from '@src/hooks/useDAppScan';
+import { mapAddressesToVMs } from '@src/utils/address';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 
 export function PermissionsPage() {
   const { t } = useTranslation();
@@ -36,7 +38,7 @@ export function PermissionsPage() {
   const theme = useTheme();
   const {
     accounts: { active: activeAccount },
-    allAccounts,
+    getAllAccountsForVM,
   } = useAccountsContext();
   const [selectedAccount, setSelectedAccount] = useState<Account>();
   const [dAppScanningResult, setDAppScanningResult] = useState<
@@ -53,7 +55,9 @@ export function PermissionsPage() {
 
   const { action, cancelHandler, updateAction } = useApproveAction(requestId);
   const isSubmitting = action?.status === ActionStatus.SUBMITTING;
-  const isEthRequestAccounts = action?.method === 'eth_requestAccounts';
+  const isRequestingAccess =
+    action?.method === DAppProviderRequest.CONNECT_METHOD ||
+    action?.method === DAppProviderRequest.WALLET_CONNECT;
   const isWalletRequestPermissions =
     action?.method === 'wallet_requestPermissions';
 
@@ -79,21 +83,31 @@ export function PermissionsPage() {
     });
   }, [selectedAccount, updateAction, requestId]);
 
+  const activeAccountAddressForRequestedVM =
+    activeAccount && action
+      ? mapAddressesToVMs(activeAccount)[action?.displayData.addressVM]
+      : null;
+
   const isAccountPermissionGranted = useMemo(
     () =>
       action &&
-      activeAccount &&
+      activeAccountAddressForRequestedVM &&
       isDomainConnectedToAccount(
         action.displayData.domainUrl,
-        activeAccount.addressC,
+        activeAccountAddressForRequestedVM,
       ) &&
       isConfirmContainer,
-    [action, activeAccount, isDomainConnectedToAccount, isConfirmContainer],
+    [
+      action,
+      activeAccountAddressForRequestedVM,
+      isDomainConnectedToAccount,
+      isConfirmContainer,
+    ],
   );
 
   // If the domain already has permissions for the active account, close the popup
   useEffect(() => {
-    if (isAccountPermissionGranted && isEthRequestAccounts) {
+    if (isAccountPermissionGranted && isRequestingAccess) {
       if (activeAccount?.id) {
         // make sure we return a response even if the site was already approved
         updateAction({
@@ -108,7 +122,7 @@ export function PermissionsPage() {
   }, [
     activeAccount?.id,
     isAccountPermissionGranted,
-    isEthRequestAccounts,
+    isRequestingAccess,
     requestId,
     updateAction,
   ]);
@@ -186,9 +200,12 @@ export function PermissionsPage() {
             </Stack>
           </Stack>
           <AccountsDropdown
-            accounts={allAccounts}
+            allAccountsForRequestedVM={getAllAccountsForVM(
+              action.displayData.addressVM,
+            )}
             activeAccount={activeAccount}
             onSelectedAccountChanged={(acc) => setSelectedAccount(acc)}
+            addressVM={action.displayData.addressVM}
           />
         </Stack>
         <Stack

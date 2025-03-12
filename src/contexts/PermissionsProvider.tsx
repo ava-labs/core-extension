@@ -1,37 +1,24 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  DappPermissions,
-  Permissions,
-} from '@src/background/services/permissions/models';
+import { Permissions } from '@src/background/services/permissions/models';
 import { permissionsUpdatedEventListener } from '@src/background/services/permissions/events/permissionsStateUpdatesListener';
 import { filter, map } from 'rxjs';
-import { PermissionsAddDomainHandler } from '@src/background/services/permissions/handlers/addPermissionsForDomain';
 import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
-
-interface UpdateAccountPermission {
-  addressC: string; // wallet c address
-  hasPermission: boolean;
-  domain: string;
-  requestId: string;
-}
-
-function updateAnAccount(
-  domain: string,
-  account: { [address: string]: boolean },
-): DappPermissions {
-  return {
-    domain,
-    accounts: {
-      ...account,
-    },
-  };
-}
+import { RevokeAddressPermissionsForDomainHandler } from '@src/background/services/permissions/handlers/revokeAddressPermissionsForDomain';
 
 const PermissionContext = createContext<{
   permissions: Permissions;
-  updateAccountPermission: (UpdateAccountPermission) => void;
+  revokeAddressPermisson: (
+    domain: string,
+    addresses: string[],
+  ) => Promise<true>;
   isDomainConnectedToAccount: (domain?: string, address?: string) => boolean;
 }>({} as any);
 
@@ -42,42 +29,28 @@ export function PermissionContextProvider({ children }: { children: any }) {
     {} as Permissions,
   );
 
-  function addPermissionsForDomain(
-    permissions: DappPermissions,
-    requestId: string,
-  ) {
-    return request<PermissionsAddDomainHandler>({
-      method: ExtensionRequest.PERMISSIONS_ADD_DOMAIN,
-      params: [permissions, requestId],
-    });
-  }
+  const revokeAddressPermisson = useCallback(
+    (domain: string, addresses: string[]) =>
+      request<RevokeAddressPermissionsForDomainHandler>({
+        method: ExtensionRequest.PERMISSIONS_REVOKE_ADDRESS_ACCESS_FOR_DOMAIN,
+        params: [domain, addresses],
+      }),
+    [request],
+  );
 
-  async function updateAccountPermission({
-    addressC, // wallet c address
-    hasPermission,
-    domain,
-    requestId,
-  }: UpdateAccountPermission) {
-    const newPermissions = updateAnAccount(domain, {
-      [addressC]: hasPermission,
-    });
-
-    if (!newPermissions) {
-      return;
-    }
-    await addPermissionsForDomain(newPermissions, requestId);
-  }
-
-  function isDomainConnectedToAccount(domain?: string, address?: string) {
-    if (!domain || !address) {
-      return false;
-    }
-    const domainData = permissionState[domain];
-    if (!domainData?.accounts) {
-      return false;
-    }
-    return !!domainData.accounts[address];
-  }
+  const isDomainConnectedToAccount = useCallback(
+    (domain?: string, address?: string) => {
+      if (!domain || !address) {
+        return false;
+      }
+      const domainData = permissionState[domain];
+      if (!domainData?.accounts) {
+        return false;
+      }
+      return !!domainData.accounts[address];
+    },
+    [permissionState],
+  );
 
   // listen for permissions changes
   useEffect(() => {
@@ -114,7 +87,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
     <PermissionContext.Provider
       value={{
         permissions: permissionState,
-        updateAccountPermission,
+        revokeAddressPermisson,
         isDomainConnectedToAccount,
       }}
     >

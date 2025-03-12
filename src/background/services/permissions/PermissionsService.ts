@@ -1,13 +1,16 @@
+import { lowerCase, omit } from 'lodash';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
-  DappPermissions,
   PermissionEvents,
   Permissions,
   PERMISSION_STORAGE_KEY,
 } from './models';
+import { Account } from '../accounts/models';
+import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 
 @singleton()
 export class PermissionsService implements OnLock {
@@ -44,9 +47,11 @@ export class PermissionsService implements OnLock {
     }
 
     try {
-      this.permissions =
+      this.permissions = omit(
         (await this.storageService.load<Permissions>(PERMISSION_STORAGE_KEY)) ??
-        {};
+          {},
+        'version',
+      );
     } catch (_err) {
       /**
        * If permissions arent pulled then dont set permissions to an empty object
@@ -67,44 +72,54 @@ export class PermissionsService implements OnLock {
 
   async hasDomainPermissionForAccount(
     domain: string,
-    address: string,
+    account: Account,
   ): Promise<boolean> {
     const domainPermissions = await this.getPermissionsForDomain(domain);
-    return !!domainPermissions?.accounts[address];
-  }
+    const permittedAddresses = Object.keys(
+      domainPermissions?.accounts ?? {},
+    ).map(lowerCase);
+    const accountAddresses = getAllAddressesForAccount(account).map(lowerCase);
 
-  async addPermission(dappPermissions: DappPermissions) {
-    const currentPermissions = await this.getPermissions();
-    const permissionsForDomain: DappPermissions =
-      currentPermissions[dappPermissions.domain] || dappPermissions;
-
-    this.permissions = {
-      ...currentPermissions,
-      [dappPermissions.domain]: {
-        ...permissionsForDomain,
-        accounts: {
-          ...permissionsForDomain.accounts,
-          ...dappPermissions.accounts,
-        },
-      },
-    };
-
-    this.storageService.save<Permissions | undefined>(
-      PERMISSION_STORAGE_KEY,
-      this.permissions,
+    return accountAddresses.some((address) =>
+      permittedAddresses.includes(address),
     );
   }
 
-  async setAccountPermissionForDomain(
-    domain: string,
-    address: string,
-    hasPermission: boolean,
-  ) {
+  async revokePermission(domain: string, addresses: string[]) {
     const currentPermissions = await this.getPermissions();
+    const permissionsForDomain = currentPermissions[domain];
 
-    const permissionsForDomain: DappPermissions = currentPermissions[
-      domain
-    ] || {
+    if (!permissionsForDomain) {
+      // Nothing to revoke
+      return;
+    }
+
+    const newPermissionsForDomain = {
+      ...permissionsForDomain,
+      accounts: omit(permissionsForDomain.accounts, addresses),
+    };
+
+    if (Object.keys(newPermissionsForDomain.accounts).length === 0) {
+      // dApp no longer has any permissions, just remove the whole domain
+      this.permissions = omit(currentPermissions, domain);
+    } else {
+      this.permissions = {
+        ...currentPermissions,
+        [domain]: newPermissionsForDomain,
+      };
+    }
+
+    await this.storageService.save<Permissions | undefined>(
+      PERMISSION_STORAGE_KEY,
+      this.permissions,
+    );
+
+    return this.permissions;
+  }
+
+  async grantPermission(domain: string, address: string, vm: NetworkVMType) {
+    const currentPermissions = await this.getPermissions();
+    const permissionsForDomain = currentPermissions[domain] ?? {
       domain,
       accounts: {},
     };
@@ -115,21 +130,23 @@ export class PermissionsService implements OnLock {
         ...permissionsForDomain,
         accounts: {
           ...permissionsForDomain.accounts,
-          [address]: hasPermission,
+          [address]: vm,
         },
       },
     };
 
-    this.storageService.save<Permissions | undefined>(
+    await this.storageService.save<Permissions | undefined>(
       PERMISSION_STORAGE_KEY,
       this.permissions,
     );
+
+    return this.permissions;
   }
 
   async addWhitelistDomains(addressC: string) {
     try {
-      await this.setAccountPermissionForDomain('core.app', addressC, true);
-      await this.setAccountPermissionForDomain('test.core.app', addressC, true);
+      await this.grantPermission('core.app', addressC, NetworkVMType.EVM);
+      await this.grantPermission('test.core.app', addressC, NetworkVMType.EVM);
     } catch (err) {
       console.error(err);
     }

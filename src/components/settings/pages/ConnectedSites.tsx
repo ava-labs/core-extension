@@ -19,10 +19,14 @@ import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation, Trans } from 'react-i18next';
 import { Account } from '@src/background/services/accounts/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 type ConnectedListType = {
   [key: string]: {
-    accounts: { [key: string]: boolean };
+    accounts: {
+      [key: string]: NetworkVMType;
+    };
   };
 };
 
@@ -36,8 +40,10 @@ const getAccountConnectedSites = ({
   if (!account) {
     return [];
   }
-  return Object.values(list).filter(
-    (listItem: any) => listItem?.accounts[account.addressC],
+  return Object.values(list).filter((listItem: any) =>
+    Object.keys(listItem?.accounts).some((address) =>
+      getAllAddressesForAccount(account).includes(address),
+    ),
   );
 };
 
@@ -47,7 +53,7 @@ export function ConnectedSites({
   width,
 }: SettingsPageProps) {
   const { t } = useTranslation();
-  const { updateAccountPermission, permissions } = usePermissionContext();
+  const { revokeAddressPermisson, permissions } = usePermissionContext();
   const { capture } = useAnalyticsContext();
   const {
     accounts: { active: activeAccount },
@@ -107,12 +113,12 @@ export function ConnectedSites({
                       edge="end"
                       data-testid={`connected-site-${index}-trash`}
                       onClick={() => {
-                        capture('ConnectedSiteRemoved');
-                        updateAccountPermission({
-                          addressC: activeAccount?.addressC,
-                          hasPermission: false,
-                          domain: site.domain,
-                        });
+                        if (activeAccount) {
+                          capture('ConnectedSiteRemoved');
+                          revokeAddressPermisson(site.domain, [
+                            activeAccount.addressC,
+                          ]);
+                        }
                       }}
                     >
                       <XIcon size={24} />
