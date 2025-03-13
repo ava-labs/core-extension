@@ -46,10 +46,7 @@ export function Header() {
       )) ||
     false;
   const { network } = useNetworkContext();
-  const address =
-    network && activeAccount
-      ? getAddressForChain(network?.chainId, activeAccount, network.caipId)
-      : '';
+  const address = getAddressForChain(network, activeAccount);
   const theme = useTheme();
 
   const showWalletInfo = Boolean(

@@ -1,4 +1,3 @@
-import { Network } from '@avalabs/core-chains-sdk';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -23,6 +22,7 @@ import { filterBridgeStateToNetwork } from '@src/background/services/bridge/util
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { caipToChainId } from '@src/utils/caipConversion';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 
 const LogoContainer = styled('div')`
   margin-top: 4px;
@@ -49,11 +49,9 @@ export function NetworkList() {
     state: { pendingTransfers: unifiedBridgeTxs },
   } = useUnifiedBridgeContext();
 
-  function getNetworkValue({ chainId, caip2Id }: Network) {
-    const networkAddress = activeAccount
-      ? getAddressForChain(chainId, activeAccount, caip2Id) || ''
-      : '';
-    const networkBalances = balances.tokens?.[chainId];
+  function getNetworkValue(lookupNetwork: NetworkWithCaipId) {
+    const networkAddress = getAddressForChain(lookupNetwork, activeAccount);
+    const networkBalances = balances.tokens?.[lookupNetwork.chainId];
     const networkAssetList = networkBalances
       ? tokensWithBalances(Object.values(networkBalances[networkAddress] ?? {}))
       : null;
