@@ -5,18 +5,21 @@ import {
   compileSolanaTx,
   serializeSolanaTx,
   transferToken,
+  SolanaProvider,
 } from '@avalabs/core-wallets-sdk';
-import { isAddress } from '@solana/addresses';
+import { isAddress, Address } from '@solana/kit';
+import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
 
 import { SendErrorMessage } from '@src/utils/send/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 import { SendAdapterSVM } from './models';
-import { NativeSendOptions, SolanaSendOptions } from '../../models';
+import { SolanaSendOptions } from '../../models';
 import { stringToBigint } from '@src/utils/stringToBigint';
-import { ethErrors } from 'eth-rpc-errors';
-import { CommonError } from '@src/utils/errors';
+
+const RENT_EXEMPT_CACHE = new Map<bigint, bigint>();
+const ACCOUNT_SPACE_CACHE = new Map<Address, bigint>();
 
 export const useSvmSend: SendAdapterSVM = ({
   nativeToken,
@@ -29,6 +32,7 @@ export const useSvmSend: SendAdapterSVM = ({
   const [isValidating, setIsValidating] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [maxAmount, setMaxAmount] = useState('0');
+  const [minAmount, setMinAmount] = useState<string>();
 
   function setErrorAndEndValidating(message: SendErrorMessage) {
     setError(message);
@@ -59,6 +63,8 @@ export const useSvmSend: SendAdapterSVM = ({
 
   const validate = useCallback(
     async ({ address, amount, token }: SolanaSendOptions) => {
+      setIsValidating(true);
+
       if (!address) {
         setErrorAndEndValidating(SendErrorMessage.ADDRESS_REQUIRED);
         return;
@@ -84,10 +90,27 @@ export const useSvmSend: SendAdapterSVM = ({
         return;
       }
 
+      const spaceOccupied = await getAccountOccupiedSpace(address, provider);
+
+      // If the recipient account does not hold any data, the first transfer
+      // must be greater than the rent-exempt minimum.
+      if (spaceOccupied === 0n) {
+        const minimum = await getRentExemptMinimum(0n, provider);
+
+        setMinAmount(bigIntToString(minimum, token.decimals));
+
+        if (amountBigInt < minimum) {
+          setErrorAndEndValidating(SendErrorMessage.AMOUNT_TOO_LOW);
+          return;
+        }
+      } else {
+        setMinAmount(undefined);
+      }
+
       setError(undefined);
       setIsValidating(false);
     },
-    [],
+    [provider],
   );
 
   const send = useCallback(
@@ -125,8 +148,41 @@ export const useSvmSend: SendAdapterSVM = ({
     isSending,
     isValid: !isValidating && !error,
     isValidating,
+    minAmount,
     maxAmount,
     send,
     validate,
   };
+};
+
+const getAccountOccupiedSpace = async (
+  address: Address,
+  provider: SolanaProvider,
+): Promise<bigint> => {
+  if (ACCOUNT_SPACE_CACHE.has(address)) {
+    return ACCOUNT_SPACE_CACHE.get(address)!;
+  }
+
+  const accountInfo = await provider.getAccountInfo(address).send();
+  const space = accountInfo.value?.space ?? 0n;
+  ACCOUNT_SPACE_CACHE.set(address, space);
+
+  return space;
+};
+
+const getRentExemptMinimum = async (
+  space: bigint,
+  provider: SolanaProvider,
+): Promise<bigint> => {
+  if (RENT_EXEMPT_CACHE.has(space)) {
+    return RENT_EXEMPT_CACHE.get(space)!;
+  }
+
+  const rentExemptMinimum = await provider
+    .getMinimumBalanceForRentExemption(0n)
+    .send();
+
+  RENT_EXEMPT_CACHE.set(0n, rentExemptMinimum);
+
+  return rentExemptMinimum;
 };

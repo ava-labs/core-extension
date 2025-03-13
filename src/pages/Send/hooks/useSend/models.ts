@@ -42,7 +42,6 @@ export type AdapterOptionsBTC = {
 
 export type AdapterOptionsSVM = {
   account: SvmCapableAccount;
-  networkType: 'mainnet' | 'devnet' | 'testnet';
 };
 
 export type AvmCapableAccount = EnsureDefined<
@@ -116,7 +115,10 @@ export type SendAdapterSVM = SendAdapter<
   SolanaProvider,
   SolanaSendOptions,
   AdapterOptionsSVM,
-  TokenWithBalanceSVM
+  TokenWithBalanceSVM,
+  {
+    minAmount?: string;
+  }
 >;
 
 export type SendAdapterPVM = SendAdapter<

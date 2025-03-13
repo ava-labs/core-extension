@@ -7,6 +7,7 @@ import {
   Tooltip,
   UserSearchIcon,
 } from '@avalabs/core-k2-components';
+import { isAddress as isSolanaAddress } from '@solana/kit';
 import type { Contact } from '@avalabs/types';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { isBech32Address } from '@avalabs/core-bridge-sdk';
@@ -123,6 +124,12 @@ export const ContactInput = ({
       return contact && contact.addressXP
         ? isValidAvmAddress(contact.addressXP)
         : false;
+    }
+
+    if (isSolanaNetwork(network)) {
+      return Boolean(
+        contact && contact.addressSVM && isSolanaAddress(contact.addressSVM),
+      );
     }
     return false;
   };

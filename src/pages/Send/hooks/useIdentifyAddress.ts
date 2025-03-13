@@ -63,7 +63,8 @@ export const useIdentifyAddress = () => {
           account.addressPVM?.toLocaleLowerCase() ===
             correctAddressByPrefix(addressLowerCase, 'p-') ||
           account.addressAVM?.toLowerCase() ===
-            correctAddressByPrefix(addressLowerCase, 'x-')
+            correctAddressByPrefix(addressLowerCase, 'x-') ||
+          account.addressSVM?.toLowerCase() === addressLowerCase
         ) {
           const addressToUse =
             network && isSolanaNetwork(network)

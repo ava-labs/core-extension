@@ -48,15 +48,22 @@ export const SendSVM = ({
   const [amount, setAmount] = useState(params.get('amount') ?? '');
   const [token, setToken] = useState<SolanaToken | undefined>(tokenFromParams);
 
-  const { error, isSending, isValid, isValidating, maxAmount, send, validate } =
-    useSvmSend({
-      networkType: 'mainnet', // TODO: fix
-      from: fromAddress,
-      maxFee,
-      provider,
-      nativeToken,
-      account,
-    });
+  const {
+    error,
+    isSending,
+    isValid,
+    isValidating,
+    minAmount,
+    maxAmount,
+    send,
+    validate,
+  } = useSvmSend({
+    from: fromAddress,
+    maxFee,
+    provider,
+    nativeToken,
+    account,
+  });
 
   useEffect(() => {
     validate({ address, amount, token } as SolanaSendOptions);
@@ -125,6 +132,7 @@ export const SendSVM = ({
       isValid={isValid}
       isValidating={isValidating}
       error={error}
+      minAmount={minAmount}
       maxAmount={maxAmount}
       onSend={onSend}
     />
