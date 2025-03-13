@@ -72,7 +72,9 @@ export const AccountsDropdown = ({
       return;
     }
 
-    getBalance();
+    if (selectedAccount) {
+      getBalance();
+    }
   }, [activeAccount, selectedAccount, updateBalanceOnNetworks]);
 
   // Update balance & notify parent component about changes when account is selected
@@ -90,6 +92,7 @@ export const AccountsDropdown = ({
             (acc) => acc.id === activeAccount?.id,
           ),
           onChange: (ev) => setSelectedAccount(ev.target.value),
+          renderValue: (value) => renderValue(value as Account, addressVM),
           // We need the @ts-ignore, because MUI's "nested props" (such as SelectProps)
           // do not allow passing data-attributes.
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment

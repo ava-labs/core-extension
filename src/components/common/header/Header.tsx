@@ -24,6 +24,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { AccountType } from '@src/background/services/accounts/models';
 import { WalletChip } from '../WalletChip';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
+import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 
 export function Header() {
   const domain = useCurrentDomain();
@@ -102,9 +103,10 @@ export function Header() {
                       }}
                       onClick={() => {
                         if (domain && activeAccount) {
-                          revokeAddressPermisson(domain, [
-                            activeAccount.addressC,
-                          ]);
+                          revokeAddressPermisson(
+                            domain,
+                            getAllAddressesForAccount(activeAccount),
+                          );
                         }
                       }}
                     >

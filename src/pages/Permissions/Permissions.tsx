@@ -30,6 +30,7 @@ import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { BlockaidData, useDAppScan } from '@src/hooks/useDAppScan';
 import { mapAddressesToVMs } from '@src/utils/address';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 export function PermissionsPage() {
   const { t } = useTranslation();
@@ -127,10 +128,16 @@ export function PermissionsPage() {
     updateAction,
   ]);
 
+  const allAccountsForRequestedVM = getAllAccountsForVM(
+    action?.displayData?.addressVM ?? NetworkVMType.EVM,
+  );
+
   // Must also wait for isAccountPermissionGranted since `onApproveClicked` is async
   if (
     !permissions ||
     !action ||
+    allAccountsForRequestedVM.length === 0 ||
+    !activeAccount ||
     (isAccountPermissionGranted && !isWalletRequestPermissions)
   ) {
     return <LoadingDots size={20} />;
@@ -200,9 +207,7 @@ export function PermissionsPage() {
             </Stack>
           </Stack>
           <AccountsDropdown
-            allAccountsForRequestedVM={getAllAccountsForVM(
-              action.displayData.addressVM,
-            )}
+            allAccountsForRequestedVM={allAccountsForRequestedVM}
             activeAccount={activeAccount}
             onSelectedAccountChanged={(acc) => setSelectedAccount(acc)}
             addressVM={action.displayData.addressVM}

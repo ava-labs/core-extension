@@ -115,9 +115,10 @@ export function ConnectedSites({
                       onClick={() => {
                         if (activeAccount) {
                           capture('ConnectedSiteRemoved');
-                          revokeAddressPermisson(site.domain, [
-                            activeAccount.addressC,
-                          ]);
+                          revokeAddressPermisson(
+                            site.domain,
+                            getAllAddressesForAccount(activeAccount),
+                          );
                         }
                       }}
                     >
