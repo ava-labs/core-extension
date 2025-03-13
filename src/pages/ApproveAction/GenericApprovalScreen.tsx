@@ -92,8 +92,6 @@ export function GenericApprovalScreen() {
     fundTxHex,
     fundTxDoNotRertyError,
     setGaslessDefaultValues,
-    createGaslessOffscreen,
-    closeGaslessOffscreen,
     solutionHex,
     isGaslessFundStarted,
     setIsGaslessFundStarted,
@@ -147,14 +145,6 @@ export function GenericApprovalScreen() {
     setIsGaslessOn,
     signingData,
   ]);
-
-  useEffect(() => {
-    createGaslessOffscreen();
-    return () => {
-      setIsGaslessFundStarted(false);
-      closeGaslessOffscreen();
-    };
-  }, [closeGaslessOffscreen, createGaslessOffscreen, setIsGaslessFundStarted]);
 
   useEffect(() => {
     setIsGaslessOn(!!isGaslessEligible);

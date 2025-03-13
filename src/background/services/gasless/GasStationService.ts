@@ -30,10 +30,7 @@ export class GasStationService {
     private networkFeeService: NetworkFeeService,
   ) {
     this.#sdk = new GaslessSdk(this.#gasStationUrl);
-  }
-
-  async createOffScreen() {
-    await this.#createOffScreen();
+    this.#createOffScreen();
   }
 
   async #getAppcheckToken() {
@@ -47,11 +44,6 @@ export class GasStationService {
       reasons: ['WORKERS'],
       justification: 'offload computation',
     });
-  }
-
-  async closeOffscreen() {
-    await chrome.offscreen.closeDocument();
-    return true;
   }
 
   async sendMessage(message, request: ExtensionRequest) {

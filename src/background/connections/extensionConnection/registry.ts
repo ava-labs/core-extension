@@ -136,8 +136,6 @@ import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/h
 import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallange';
 import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
 import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
-import { InitGaslessOffscreenHandler } from '@src/background/services/gasless/handlers/initOffscreen';
-import { CloseGaslessOffscreenHandler } from '@src/background/services/gasless/handlers/closeOffscreen';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -404,14 +402,6 @@ import { CloseGaslessOffscreenHandler } from '@src/background/services/gasless/h
   {
     token: 'ExtensionRequestHandler',
     useToken: SetDefaultStateValuesHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: InitGaslessOffscreenHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: CloseGaslessOffscreenHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

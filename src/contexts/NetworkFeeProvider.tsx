@@ -24,8 +24,6 @@ import { TransactionRequest } from 'ethers';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
-import { InitGaslessOffscreenHandler } from '@src/background/services/gasless/handlers/initOffscreen';
-import { CloseGaslessOffscreenHandler } from '@src/background/services/gasless/handlers/closeOffscreen';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;
@@ -53,8 +51,6 @@ const NetworkFeeContext = createContext<{
   fundTxHex: string;
   fundTxDoNotRertyError: boolean;
   setGaslessDefaultValues: () => Promise<any | null>;
-  createGaslessOffscreen: () => Promise<true>;
-  closeGaslessOffscreen: () => Promise<true>;
   isGaslessFundStarted: boolean;
   setIsGaslessFundStarted: Dispatch<SetStateAction<boolean>>;
 }>({
@@ -87,12 +83,6 @@ const NetworkFeeContext = createContext<{
   fundTxDoNotRertyError: false,
   async setGaslessDefaultValues() {
     return null;
-  },
-  async createGaslessOffscreen() {
-    return true;
-  },
-  async closeGaslessOffscreen() {
-    return true;
   },
   isGaslessFundStarted: false,
   setIsGaslessFundStarted() {
@@ -178,22 +168,6 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
     [request],
   );
 
-  const createGaslessOffscreen = useCallback(
-    async () =>
-      request<InitGaslessOffscreenHandler>({
-        method: ExtensionRequest.GASLESS_CREATE_OFFSCREEN,
-      }),
-    [request],
-  );
-
-  const closeGaslessOffscreen = useCallback(
-    async () =>
-      request<CloseGaslessOffscreenHandler>({
-        method: ExtensionRequest.GASLESS_CLOSE_OFFSCREEN,
-      }),
-    [request],
-  );
-
   const getGaslessEligibility = useCallback(
     async (chainId, fromAddress, nonce) => {
       if (!featureFlags[FeatureGates.GASLESS] || fundTxDoNotRertyError) {
@@ -258,8 +232,6 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         fundTxHex,
         fundTxDoNotRertyError,
         setGaslessDefaultValues,
-        createGaslessOffscreen,
-        closeGaslessOffscreen,
         setIsGaslessFundStarted,
         isGaslessFundStarted,
       }}
