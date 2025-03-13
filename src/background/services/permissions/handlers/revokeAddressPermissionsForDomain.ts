@@ -4,6 +4,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 
 import { PermissionsService } from '../PermissionsService';
+import { ethErrors } from 'eth-rpc-errors';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.PERMISSIONS_REVOKE_ADDRESS_ACCESS_FOR_DOMAIN,
@@ -24,11 +25,13 @@ export class RevokeAddressPermissionsForDomainHandler implements HandlerType {
     if (!domain || !addresses.length) {
       return {
         ...request,
-        error: 'no permissions in params',
+        error: ethErrors.rpc.invalidParams(
+          'Expected a domain and list of addresses',
+        ),
       };
     }
 
-    this.permissionsService.revokePermission(domain, addresses);
+    await this.permissionsService.revokePermission(domain, addresses);
 
     return {
       ...request,

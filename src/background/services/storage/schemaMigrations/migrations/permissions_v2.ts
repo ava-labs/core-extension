@@ -1,4 +1,7 @@
 import Joi from 'joi';
+import { rpcErrors } from '@metamask/rpc-errors';
+
+import { CommonError } from '@src/utils/errors';
 
 const VERSION = 2 as const;
 
@@ -12,8 +15,10 @@ type LegacySchema = Record<
   }
 >;
 
-const previousSchema = Joi.object<LegacySchema>().pattern(
-  Joi.string(),
+const previousSchema = Joi.object<LegacySchema>({
+  version: Joi.number().valid(1),
+}).pattern(
+  Joi.string().not('version'),
   Joi.object({
     domain: Joi.string().required(),
     accounts: Joi.object().pattern(Joi.string(), Joi.boolean().required()),
@@ -30,8 +35,19 @@ type NewSchema = Record<
   }
 >;
 
-const up = (legacyPermissions: LegacySchema) => {
-  const newPermissions = Object.entries(legacyPermissions).reduce(
+const up = (legacyPermissions) => {
+  const validationResult = previousSchema.validate(legacyPermissions);
+
+  if (validationResult.error) {
+    throw rpcErrors.internal({
+      data: {
+        reason: CommonError.MigrationFailed,
+        context: validationResult.error.message,
+      },
+    });
+  }
+
+  const newPermissions = Object.entries(validationResult.value).reduce(
     (permAcc, [domain, { domain: _, accounts }]) => {
       permAcc[domain] = {
         domain,
