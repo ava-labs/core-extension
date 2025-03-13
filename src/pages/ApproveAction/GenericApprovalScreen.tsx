@@ -255,7 +255,7 @@ export function GenericApprovalScreen() {
           fullWidth
           onClick={signTx}
         >
-          {t('Approve')}
+          {context?.customApprovalButtonText || t('Approve')}
         </Button>
       </Stack>
       <DeviceApproval

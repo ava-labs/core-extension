@@ -1,6 +1,5 @@
 import { APIError, Transaction } from 'paraswap';
 import { Contract } from 'ethers';
-import { ChainId } from '@avalabs/core-chains-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
@@ -127,10 +126,11 @@ export async function buildApprovalTx({
     amount,
   );
 
+  const chainId = `0x${provider._network.chainId.toString(16)}`;
   const tx = {
     from: userAddress,
     to: tokenAddress,
-    chainId: `0x${ChainId.AVALANCHE_MAINNET_ID.toString(16)}`,
+    chainId,
     data,
   };
   const [approvalGasLimit, approvalGasLimitError] = await resolve(
@@ -348,11 +348,12 @@ export function checkForErrorsInBuildTxResult(result: Transaction | APIError) {
   );
 }
 
-export const getParaswapSpender = async (paraswapApiUrl: string) => {
+export const getParaswapSpender = async (
+  paraswapApiUrl: string,
+  chainId: number,
+) => {
   const response = await fetch(
-    `${paraswapApiUrl}/adapters/contracts?network=${
-      ChainId.AVALANCHE_MAINNET_ID
-    }`,
+    `${paraswapApiUrl}/adapters/contracts?network=${chainId}`,
   ).catch(wrapError(swapError(CommonError.NetworkError)));
 
   const result = await response
