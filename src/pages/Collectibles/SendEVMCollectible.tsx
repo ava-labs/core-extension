@@ -71,7 +71,6 @@ export const SendEVMCollectible = ({
   const { setIsGaslessEligible, isGaslessEligible, getGaslessEligibility } =
     useNetworkFeeContext();
 
-  console.log('isGaslessEligible: ', isGaslessEligible);
   const { error, isSending, isValid, isValidating, send, validate } =
     useEVMSend({
       chainId: `0x${network.chainId.toString(16)}`,
@@ -109,7 +108,6 @@ export const SendEVMCollectible = ({
     isGaslessEligible &&
     error === SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE;
 
-  console.log('isSendAvailableWithGasless: ', isSendAvailableWithGasless);
   const onSend = useCallback(async () => {
     if (!isValid && !isSendAvailableWithGasless) {
       return;

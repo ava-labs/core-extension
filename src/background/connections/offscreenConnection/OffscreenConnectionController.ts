@@ -77,7 +77,6 @@ export class OffscreenConnectionController implements ConnectionController {
   private async hasOffscreenDocument(filename: string) {
     if ('getContexts' in chrome.runtime) {
       const id = chrome.runtime.id;
-      console.log('id: ', id);
       const contexts = await chrome.runtime.getContexts({
         documentUrls: [`chrome-extension://${id}/${filename}`],
       });
