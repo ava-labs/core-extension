@@ -34,10 +34,10 @@
   resolved "https://registry.yarnpkg.com/@apocentre/alias-sampling/-/alias-sampling-0.5.3.tgz#897ff181b48ad7b2bcb4ecf29400214888244f08"
   integrity sha512-7UDWIIF9hIeJqfKXkNIzkVandlwLf1FWTSdrb9iXvOP8oF544JRXQjCbiTmCv2c9n44n/FIWtehhBfNuAx2CZA==
 
-"@avalabs/avalanche-module@0.0.0-feat-solana-dapp-provider-20250311215339":
-  version "0.0.0-feat-solana-dapp-provider-20250311215339"
-  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-solana-dapp-provider-20250311215339.tgz#663e57bc067b5c6bf6d9c812377c1f93c00f950a"
-  integrity sha512-KK1D3+W8qHcxPEEd4Xhyd8+4l6esGbm8HF+wcsuKrsL3ls2gfl1eiUactaZj4idnvGNlRF8A7FZ0ucGFZ5BE8A==
+"@avalabs/avalanche-module@0.0.0-feat-solana-dapp-provider-20250314134823":
+  version "0.0.0-feat-solana-dapp-provider-20250314134823"
+  resolved "https://registry.yarnpkg.com/@avalabs/avalanche-module/-/avalanche-module-0.0.0-feat-solana-dapp-provider-20250314134823.tgz#99daaedca995e2c9ff89395f4d1a34b069eff013"
+  integrity sha512-DHeb/sbvWCI6T1vp14NM+M1d3vW70yKLVutqnkbxFHtFGpRYxWrNqcmZT3ijUDZS4ot4gc++qsbLWnYii1uEEA==
   dependencies:
     "@avalabs/avalanchejs" "4.2.0-alpha.1"
     "@avalabs/core-chains-sdk" "3.1.0-alpha.43"
@@ -47,7 +47,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.43"
     "@avalabs/glacier-sdk" "3.1.0-alpha.43"
     "@avalabs/types" "3.1.0-alpha.43"
-    "@avalabs/vm-module-types" "0.0.0-feat-solana-dapp-provider-20250311215339"
+    "@avalabs/vm-module-types" "0.0.0-feat-solana-dapp-provider-20250314134823"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bn.js "5.2.1"
@@ -64,15 +64,15 @@
     "@scure/base" "1.1.5"
     micro-eth-signer "0.7.2"
 
-"@avalabs/bitcoin-module@0.0.0-feat-solana-dapp-provider-20250311215339":
-  version "0.0.0-feat-solana-dapp-provider-20250311215339"
-  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-solana-dapp-provider-20250311215339.tgz#f8f6a2ba4227ded700d1cebc3ccc3a6868ebf977"
-  integrity sha512-NLrkc81CTzD6pQF/8ZwN6SsiU5olGMk5aC2Ru6BniyPYvNSya0hITsyyl3AwOCO72Y9bE8rRa5B0mdFY5kIr6A==
+"@avalabs/bitcoin-module@0.0.0-feat-solana-dapp-provider-20250314134823":
+  version "0.0.0-feat-solana-dapp-provider-20250314134823"
+  resolved "https://registry.yarnpkg.com/@avalabs/bitcoin-module/-/bitcoin-module-0.0.0-feat-solana-dapp-provider-20250314134823.tgz#78c5caa1a72a075571354e46d402cb2ba5cc2be5"
+  integrity sha512-OhEuiAItKWOeuaOBQd5gdsIuW+dZ8gzvArO9pfKF0zOUAbM4VYe3o+NiqLlchyHzc3iMrWN7JOVgKaYPKVXtAQ==
   dependencies:
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.43"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.43"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.43"
-    "@avalabs/vm-module-types" "0.0.0-feat-solana-dapp-provider-20250311215339"
+    "@avalabs/vm-module-types" "0.0.0-feat-solana-dapp-provider-20250314134823"
     "@metamask/rpc-errors" "6.3.0"
     big.js "6.2.1"
     bitcoinjs-lib "5.2.0"
@@ -206,10 +206,10 @@
     micro-key-producer "0.7.5"
     xss "1.0.14"
 
-"@avalabs/evm-module@0.0.0-feat-solana-dapp-provider-20250311215339":
-  version "0.0.0-feat-solana-dapp-provider-20250311215339"
-  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-solana-dapp-provider-20250311215339.tgz#7a73fc4b22113ada4b9b05c56422ff30b0fa0b35"
-  integrity sha512-pMgjhDZXmAGunhNlf8/OhbHST07SWpU0cq9+EZVnaWxA5PlDJuinRqW41MQyMNUw3pucaNIXQbKOrCR1XdBI9Q==
+"@avalabs/evm-module@0.0.0-feat-solana-dapp-provider-20250314134823":
+  version "0.0.0-feat-solana-dapp-provider-20250314134823"
+  resolved "https://registry.yarnpkg.com/@avalabs/evm-module/-/evm-module-0.0.0-feat-solana-dapp-provider-20250314134823.tgz#2ddc3866d5f97d674f6618104167773863466597"
+  integrity sha512-cgltaMC95Y+xPEl9+CtNLsIAMp23/YZfvfyXcvoMehPYbCflIVwwZ7J59fQAU4QYGWhfn6f21FIh5PnZRdvfGg==
   dependencies:
     "@avalabs/core-chains-sdk" "3.1.0-alpha.43"
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.43"
@@ -218,7 +218,7 @@
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.43"
     "@avalabs/glacier-sdk" "3.1.0-alpha.43"
     "@avalabs/types" "3.1.0-alpha.43"
-    "@avalabs/vm-module-types" "0.0.0-feat-solana-dapp-provider-20250311215339"
+    "@avalabs/vm-module-types" "0.0.0-feat-solana-dapp-provider-20250314134823"
     "@blockaid/client" "0.36.0"
     "@metamask/rpc-errors" "6.3.0"
     "@openzeppelin/contracts" "4.9.6"
@@ -232,13 +232,13 @@
   resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.43.tgz#2a723c5a7b6d132d7cdb26c11fc7156c54760102"
   integrity sha512-q1LsiL4Qb1Co5wXQvmu4esLKFEChzpSE8l4t7GeaMta+xrshBzohkFIXa38XZP9cKP9aZBTsHpYqxVGnBK285w==
 
-"@avalabs/hvm-module@0.0.0-feat-solana-dapp-provider-20250311215339":
-  version "0.0.0-feat-solana-dapp-provider-20250311215339"
-  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-0.0.0-feat-solana-dapp-provider-20250311215339.tgz#11ea6033474ab72673f91eaca08edc08dd656633"
-  integrity sha512-dNPnFfsLyf0lBLrBdPLTKb6lXzscLfieWtKXuuVT1EP+pL28sPE4Dr25zF1Rba23mza/LoZUas02MLII5WYbAw==
+"@avalabs/hvm-module@0.0.0-feat-solana-dapp-provider-20250314134823":
+  version "0.0.0-feat-solana-dapp-provider-20250314134823"
+  resolved "https://registry.yarnpkg.com/@avalabs/hvm-module/-/hvm-module-0.0.0-feat-solana-dapp-provider-20250314134823.tgz#ab2c78e83607eef0c1ca97cf99e025fb8f3a7e62"
+  integrity sha512-eizSwQPmu9p8xsb/f9IOQHbz9IlqdZgoUKZTJdWaD65W8U7BlB3Z/HyIymb3HLtUsfttm0Eja0dlHyZEMUHg5w==
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.43"
-    "@avalabs/vm-module-types" "0.0.0-feat-solana-dapp-provider-20250311215339"
+    "@avalabs/vm-module-types" "0.0.0-feat-solana-dapp-provider-20250314134823"
     "@metamask/rpc-errors" "6.3.0"
     "@noble/hashes" "1.5.0"
     "@scure/base" "1.2.4"
@@ -256,16 +256,16 @@
     ledger-bitcoin "^0.2.1"
     sha3 "2.1.4"
 
-"@avalabs/svm-module@0.0.0-feat-solana-dapp-provider-20250311215339":
-  version "0.0.0-feat-solana-dapp-provider-20250311215339"
-  resolved "https://registry.yarnpkg.com/@avalabs/svm-module/-/svm-module-0.0.0-feat-solana-dapp-provider-20250311215339.tgz#7b12a93f3941c518613d8072b6c5be20593decbc"
-  integrity sha512-zQ3QG+tbAQqaZSvBuXPJfVwvPklc7FHdfb/MzAF3wqNkWlavf+11pboVkXc4PXbIoSE8+uHDdQJxk6Ysvv0BGQ==
+"@avalabs/svm-module@0.0.0-feat-solana-dapp-provider-20250314134823":
+  version "0.0.0-feat-solana-dapp-provider-20250314134823"
+  resolved "https://registry.yarnpkg.com/@avalabs/svm-module/-/svm-module-0.0.0-feat-solana-dapp-provider-20250314134823.tgz#ba98514623cfe70b47359979d59c0c60b2862c08"
+  integrity sha512-TGvI0aQ0H26985gj23QFQjV1hDuSXns+TmF9H0++kZ55AQs/e+dbHrklvG6nyBL3sUJ8V/CJrwHbEqQpqykzlA==
   dependencies:
     "@avalabs/core-chains-sdk" "3.1.0-alpha.43"
     "@avalabs/core-coingecko-sdk" "3.1.0-alpha.43"
     "@avalabs/core-utils-sdk" "3.1.0-alpha.43"
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.43"
-    "@avalabs/vm-module-types" "0.0.0-feat-solana-dapp-provider-20250311215339"
+    "@avalabs/vm-module-types" "0.0.0-feat-solana-dapp-provider-20250314134823"
     "@metamask/rpc-errors" "6.3.0"
     "@scure/base" "1.2.4"
     "@solana-program/system" "0.7.0"
@@ -281,10 +281,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.43.tgz#871b325fe1ef9b30b1e74f2b93b17e107a9ef631"
   integrity sha512-vt2Af77L3CrCAWmmTxHOGgAobM2OgQHMBBO6Hxet7MnlPgAhW5NRqy3NNXaQchDRkGvy0p+JqRAdzWm9S0cDZg==
 
-"@avalabs/vm-module-types@0.0.0-feat-solana-dapp-provider-20250311215339":
-  version "0.0.0-feat-solana-dapp-provider-20250311215339"
-  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-solana-dapp-provider-20250311215339.tgz#f61beed1c81ca36cfff275efc66862eba572e5e6"
-  integrity sha512-nlDqx1bMqwgg+RXscP5k0DUdNcFwlvwGW1jgafUPROQ0T6FNLikdjyWG9udUI8UjIaztLgOOWTYCxDYlq/1RmQ==
+"@avalabs/vm-module-types@0.0.0-feat-solana-dapp-provider-20250314134823":
+  version "0.0.0-feat-solana-dapp-provider-20250314134823"
+  resolved "https://registry.yarnpkg.com/@avalabs/vm-module-types/-/vm-module-types-0.0.0-feat-solana-dapp-provider-20250314134823.tgz#0abd834788cc8529a91178e301aa1f34049eb413"
+  integrity sha512-sjRLJKNxg8Ea4Oz1mFvqbRwedRy1UUW0Sk3yoxw5IrCm81AG/5HLdv3ySBlsoRf65jVGVEA799n1lz2Ii4feQg==
   dependencies:
     "@avalabs/core-wallets-sdk" "3.1.0-alpha.43"
     "@avalabs/glacier-sdk" "3.1.0-alpha.43"

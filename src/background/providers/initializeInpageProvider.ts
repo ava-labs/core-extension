@@ -1,5 +1,8 @@
 import { EVMProvider } from '@avalabs/evm-module/dist/provider';
-import { SolanaWalletProvider } from '@avalabs/svm-module/dist/provider';
+import {
+  initialize as initializeSolanaProvider,
+  SolanaWalletProvider,
+} from '@avalabs/svm-module/dist/provider';
 
 import type AbstractConnection from '../utils/messaging/AbstractConnection';
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
@@ -68,7 +71,13 @@ export function initializeProvider(
   announceWalletProvider(evmProvider, globalObject);
   announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
 
-  new SolanaWalletProvider(); // It waits for ChainAgnosticProvider to be announced, attaches to it and then annouces itself
+  initializeSolanaProvider(
+    new SolanaWalletProvider(chainAgnosticProvider, {
+      icon: EVM_PROVIDER_INFO_ICON,
+      name: EVM_PROVIDER_INFO_NAME,
+      version: CORE_EXTENSION_VERSION,
+    }),
+  );
 
   return evmProvider;
 }
