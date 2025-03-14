@@ -42,14 +42,7 @@ export const Receive = () => {
   const { checkIsFunctionSupported } = useIsFunctionAvailable();
 
   const address = useMemo(
-    () =>
-      network && activeAccount
-        ? (getAddressForChain(
-            network?.chainId,
-            activeAccount,
-            network?.caipId,
-          ) ?? '')
-        : '',
+    () => getAddressForChain(network, activeAccount),
     [activeAccount, network],
   );
 

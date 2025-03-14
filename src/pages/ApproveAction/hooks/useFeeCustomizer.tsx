@@ -87,9 +87,7 @@ export function useFeeCustomizer({
   );
   const isFeeSelectorEnabled = Boolean(action?.displayData.networkFeeSelector);
 
-  const tokens = useTokensWithBalances({
-    chainId: network?.chainId,
-  });
+  const tokens = useTokensWithBalances({ network });
 
   const nativeToken = useMemo(
     () => tokens.find(({ type }) => type === TokenType.NATIVE) ?? null,

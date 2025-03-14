@@ -15,7 +15,7 @@ export const mapVMAddresses = (addresses: Record<NetworkVMType, string>) =>
   } as const);
 
 export const mapAddressesToVMs = (
-  account: Account,
+  account: Partial<Account>,
 ): Partial<Record<NetworkVMType, string>> =>
   omitUndefined({
     [NetworkVMType.EVM]: account.addressC,

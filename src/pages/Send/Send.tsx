@@ -91,11 +91,8 @@ export function SendPage() {
   }, [network]);
 
   const fromAddress = useMemo(
-    () =>
-      network?.chainId && active
-        ? getAddressForChain(network?.chainId, active)
-        : '',
-    [active, network?.chainId],
+    () => getAddressForChain(network, active),
+    [active, network],
   );
 
   const onSuccess = useCallback(

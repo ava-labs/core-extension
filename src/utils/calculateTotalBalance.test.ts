@@ -2,7 +2,12 @@ import { ChainId, NetworkToken } from '@avalabs/core-chains-sdk';
 import { Account, AccountType } from '@src/background/services/accounts/models';
 import { Balances } from '@src/background/services/balances/models';
 import { calculateTotalBalance } from './calculateTotalBalance';
-import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import {
+  NetworkTokenWithBalance,
+  NetworkVMType,
+  TokenType,
+} from '@avalabs/vm-module-types';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 
 describe('utils/calculateTotalBalance', () => {
   const account1: Account = {
@@ -53,7 +58,10 @@ describe('utils/calculateTotalBalance', () => {
   it('it should calculate the balance', () => {
     const balance = calculateTotalBalance(
       account1,
-      [ChainId.AVALANCHE_MAINNET_ID, ChainId.DFK],
+      [
+        { chainId: ChainId.AVALANCHE_MAINNET_ID, vmName: NetworkVMType.EVM },
+        { chainId: ChainId.DFK, vmName: NetworkVMType.EVM },
+      ] as NetworkWithCaipId[],
       balances,
     );
     expect(balance).toEqual({
