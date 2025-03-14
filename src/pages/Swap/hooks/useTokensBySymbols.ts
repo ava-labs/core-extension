@@ -1,7 +1,7 @@
 import {
-  NftTokenWithBalance,
+  NetworkTokenWithBalance,
   TokenType,
-  TokenWithBalance,
+  TokenWithBalanceERC20,
 } from '@avalabs/vm-module-types';
 
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
@@ -14,7 +14,7 @@ type RequestedTokens = {
 
 type Result<T extends RequestedTokens> = Record<
   keyof T,
-  Exclude<TokenWithBalance, NftTokenWithBalance> | undefined
+  NetworkTokenWithBalance | TokenWithBalanceERC20 | undefined
 >;
 
 export function useTokensBySymbols<T extends RequestedTokens>(
@@ -38,7 +38,7 @@ export function useTokensBySymbols<T extends RequestedTokens>(
             return token.type === TokenType.NATIVE && token.symbol === symbol;
           } else if (typeof identifier === 'string') {
             return (
-              token.type !== TokenType.NATIVE &&
+              token.type === TokenType.ERC20 &&
               token.address.toLowerCase() === identifier.toLowerCase()
             );
           }

@@ -33,6 +33,7 @@ import { AvalancheRenameAccountHandler } from '@src/background/services/accounts
 import { AvalancheRenameWalletHandler } from '@src/background/services/secrets/handlers/avalanche_renameWallet';
 import { WalletAddNetworkHandler } from '@src/background/services/network/handlers/wallet_addNetwork';
 import { AvalancheDeleteAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_deleteAccounts';
+import { AccountsChangedCAEvents } from '@src/background/services/accounts/events/accountsChangedCAEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -94,6 +95,7 @@ export class DappRequestHandlerRegistry {}
  */
 @registry([
   { token: 'DAppEventEmitter', useToken: AccountsChangedEvents },
+  { token: 'DAppEventEmitter', useToken: AccountsChangedCAEvents },
   { token: 'DAppEventEmitter', useToken: ChainChangedEvents },
   { token: 'DAppEventEmitter', useToken: ActionEvents },
 ])

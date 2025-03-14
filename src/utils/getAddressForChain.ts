@@ -3,6 +3,7 @@ import { Account } from '@src/background/services/accounts/models';
 import { isPchainNetworkId } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { isXchainNetworkId } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import { getNameSpaceFromScope } from './caipConversion';
+import { isSolanaChainId } from '@src/background/services/network/utils/isSolanaNetwork';
 
 export function getAddressForChain(
   chainId: number,
@@ -20,6 +21,9 @@ export function getAddressForChain(
   }
   if (getNameSpaceFromScope(caipId) === 'hvm') {
     return account.addressHVM;
+  }
+  if (isSolanaChainId(chainId) || getNameSpaceFromScope(caipId) === 'solana') {
+    return account.addressSVM;
   }
   return account.addressC;
 }

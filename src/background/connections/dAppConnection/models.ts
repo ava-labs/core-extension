@@ -55,6 +55,7 @@ export enum Web3Event {
   DISCONNECT = 'disconnect',
   // https://eips.ethereum.org/EIPS/eip-1193#accountschanged-1
   ACCOUNTS_CHANGED = 'accountsChanged',
+  ACCOUNTS_CHANGED_CA = 'accountsChangedCA', // Chain-agnostic version of ACCOUNTS_CHANGED
   // https://eips.ethereum.org/EIPS/eip-1193#chainchanged-1
   CHAIN_CHANGED = 'chainChanged',
 }

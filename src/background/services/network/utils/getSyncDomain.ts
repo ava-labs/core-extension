@@ -1,6 +1,6 @@
 import { runtime } from 'webextension-polyfill';
 
-const SYNCED_DOMAINS = [
+export const SYNCED_DOMAINS = [
   'core-web.pages.dev',
   'core.app',
   'test.core.app',
