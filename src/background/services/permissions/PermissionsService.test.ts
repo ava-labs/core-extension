@@ -11,6 +11,7 @@ import { omit } from 'lodash';
 import { Account } from '../accounts/models';
 import { mapAddressesToVMs } from '@src/utils/address';
 import { SYNCED_DOMAINS } from '../network/utils/getSyncDomain';
+import { runtime } from 'webextension-polyfill';
 
 jest.mock('../storage/StorageService');
 
@@ -493,7 +494,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       // Ensure new data is added and existing data is preserved
       expect(permissionService.permissions).toEqual(
-        SYNCED_DOMAINS.reduce(
+        SYNCED_DOMAINS.filter((d) => d !== runtime.id).reduce(
           (perms, domain) => ({
             ...perms,
             [domain]: {

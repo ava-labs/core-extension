@@ -14,6 +14,7 @@ import {
 import { Account } from '../accounts/models';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 import { SYNCED_DOMAINS } from '../network/utils/getSyncDomain';
+import { runtime } from 'webextension-polyfill';
 
 @singleton()
 export class PermissionsService implements OnLock {
@@ -157,7 +158,9 @@ export class PermissionsService implements OnLock {
         ]),
       );
       const currentPermissions = await this.getPermissions();
-      const newPermissions: Permissions = SYNCED_DOMAINS.reduce(
+      const newPermissions: Permissions = SYNCED_DOMAINS.filter(
+        (d) => d !== runtime.id,
+      ).reduce(
         (perms, domain) => ({
           ...perms,
           [domain]: {
