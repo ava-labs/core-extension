@@ -12,6 +12,7 @@ import { permissionsUpdatedEventListener } from '@src/background/services/permis
 import { filter, map } from 'rxjs';
 import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
 import { RevokeAddressPermissionsForDomainHandler } from '@src/background/services/permissions/handlers/revokeAddressPermissionsForDomain';
+import { toLower } from 'lodash';
 
 const PermissionContext = createContext<{
   permissions: Permissions;
@@ -19,7 +20,10 @@ const PermissionContext = createContext<{
     domain: string,
     addresses: string[],
   ) => Promise<true>;
-  isDomainConnectedToAccount: (domain?: string, address?: string) => boolean;
+  isDomainConnectedToAccount: (
+    domain?: string,
+    addresses?: string[],
+  ) => boolean;
 }>({} as any);
 
 export function PermissionContextProvider({ children }: { children: any }) {
@@ -39,15 +43,19 @@ export function PermissionContextProvider({ children }: { children: any }) {
   );
 
   const isDomainConnectedToAccount = useCallback(
-    (domain?: string, address?: string) => {
-      if (!domain || !address) {
+    (domain?: string, addresses?: string[]) => {
+      if (!domain || !addresses?.length) {
         return false;
       }
       const domainData = permissionState[domain];
       if (!domainData?.accounts) {
         return false;
       }
-      return !!domainData.accounts[address];
+      return addresses
+        .map(toLower)
+        .some((addr) =>
+          Object.keys(domainData.accounts).map(toLower).includes(addr),
+        );
     },
     [permissionState],
   );

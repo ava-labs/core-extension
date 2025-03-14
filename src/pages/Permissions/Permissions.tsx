@@ -93,10 +93,9 @@ export function PermissionsPage() {
     () =>
       action &&
       activeAccountAddressForRequestedVM &&
-      isDomainConnectedToAccount(
-        action.displayData.domainUrl,
+      isDomainConnectedToAccount(action.displayData.domainUrl, [
         activeAccountAddressForRequestedVM,
-      ) &&
+      ]) &&
       isConfirmContainer,
     [
       action,

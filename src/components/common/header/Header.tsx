@@ -40,7 +40,10 @@ export function Header() {
 
   const isConnected =
     (isDomainConnectedToAccount &&
-      isDomainConnectedToAccount(domain, activeAccount?.addressC)) ||
+      isDomainConnectedToAccount(
+        domain,
+        getAllAddressesForAccount(activeAccount ?? {}),
+      )) ||
     false;
   const { network } = useNetworkContext();
   const address =
