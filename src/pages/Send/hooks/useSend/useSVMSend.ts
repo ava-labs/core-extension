@@ -90,18 +90,22 @@ export const useSvmSend: SendAdapterSVM = ({
         return;
       }
 
-      const spaceOccupied = await getAccountOccupiedSpace(address, provider);
+      if (token.type === TokenType.NATIVE) {
+        const spaceOccupied = await getAccountOccupiedSpace(address, provider);
 
-      // If the recipient account does not hold any data, the first transfer
-      // must be greater than the rent-exempt minimum.
-      if (spaceOccupied === 0n) {
-        const minimum = await getRentExemptMinimum(0n, provider);
+        // If the recipient account does not hold any data, the first transfer
+        // must be greater than the rent-exempt minimum.
+        if (spaceOccupied === 0n) {
+          const minimum = await getRentExemptMinimum(0n, provider);
 
-        setMinAmount(bigIntToString(minimum, token.decimals));
+          setMinAmount(bigIntToString(minimum, token.decimals));
 
-        if (amountBigInt < minimum) {
-          setErrorAndEndValidating(SendErrorMessage.AMOUNT_TOO_LOW);
-          return;
+          if (amountBigInt < minimum) {
+            setErrorAndEndValidating(SendErrorMessage.AMOUNT_TOO_LOW);
+            return;
+          }
+        } else {
+          setMinAmount(undefined);
         }
       } else {
         setMinAmount(undefined);
