@@ -8,6 +8,7 @@ import {
   AccountType,
   ImportType,
   ImportData,
+  Account,
 } from './models';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
@@ -20,7 +21,7 @@ import { SecretType } from '../secrets/models';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { mapVMAddresses } from '@src/utils/address';
+import { mapAddressesToVMs, mapVMAddresses } from '@src/utils/address';
 import { expectToThrowErrorCode } from '@src/tests/test-utils';
 import { AccountError } from '@src/utils/errors';
 import { NetworkVMType } from '@avalabs/vm-module-types';
@@ -597,9 +598,9 @@ describe('background/services/accounts/AccountsService', () => {
         ledgerService,
         addressResolver,
       });
-      expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000000',
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+        mapAddressesToVMs(getAllAddresses() as Account),
       );
 
       const accounts = accountsService.getAccounts();
@@ -638,9 +639,9 @@ describe('background/services/accounts/AccountsService', () => {
         ledgerService,
         addressResolver,
       });
-      expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000000',
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+        mapAddressesToVMs(getAllAddresses() as Account),
       );
 
       const accounts = accountsService.getAccounts();
@@ -674,9 +675,9 @@ describe('background/services/accounts/AccountsService', () => {
         name: 'New Account',
         walletId: WALLET_ID,
       });
-      expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000000',
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+        mapAddressesToVMs(getAllAddresses() as Account),
       );
 
       const newAccounts = { ...mockedAccounts };
@@ -731,9 +732,9 @@ describe('background/services/accounts/AccountsService', () => {
         addressResolver,
       );
       expect(commitMock).toHaveBeenCalled();
-      expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000000',
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+        mapAddressesToVMs(getAllAddresses() as Account),
       );
 
       const accounts = accountsService.getAccounts();
@@ -789,9 +790,9 @@ describe('background/services/accounts/AccountsService', () => {
         addressResolver,
       );
       expect(commitMock).toHaveBeenCalled();
-      expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000001',
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+        mapAddressesToVMs(getAllAddresses(true) as Account),
       );
 
       const accounts = accountsService.getAccounts();
@@ -838,9 +839,9 @@ describe('background/services/accounts/AccountsService', () => {
         name: 'New Account',
         options,
       });
-      expect(permissionsService.addWhitelistDomains).toBeCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toBeCalledWith(
-        '0x000000001',
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+        mapAddressesToVMs(getAllAddresses(true) as Account),
       );
 
       const newAccounts = {

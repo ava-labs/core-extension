@@ -82,15 +82,17 @@ describe('src/background/services/storage/schemaMigrations/migrations/permission
 
   it('properly migrates permissions', () => {
     expect(permissionsV2Migration.up(perms)).toEqual({
-      'core.app': {
-        domain: 'core.app',
-        accounts: {
-          '0x123': 'EVM',
+      permissions: {
+        'core.app': {
+          domain: 'core.app',
+          accounts: {
+            '0x123': 'EVM',
+          },
         },
-      },
-      'other.app': {
-        domain: 'other.app',
-        accounts: {},
+        'other.app': {
+          domain: 'other.app',
+          accounts: {},
+        },
       },
       version: 2,
     });

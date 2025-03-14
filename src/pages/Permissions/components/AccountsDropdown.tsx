@@ -34,7 +34,7 @@ const renderValue = (account: Account, vmType: NetworkVMType) => (
       sx={{ flexShrink: 0, pl: 0.5 }}
       fontSize="inherit"
     >
-      ({truncateAddress(getAddressByVMType(account, vmType)!)}) {/*  */}
+      ({truncateAddress(getAddressByVMType(account, vmType)!)})
     </Typography>
   </Typography>
 );

@@ -25,15 +25,18 @@ const previousSchema = Joi.object<LegacySchema>({
   }),
 );
 
-type NewSchema = Record<
-  string,
-  {
-    domain: string;
-    accounts: {
-      [address: string]: 'EVM'; // At the moment of writing this migration, we only stored permissions for EVM addresses
-    };
-  }
->;
+type NewSchema = {
+  permissions: Record<
+    string,
+    {
+      domain: string;
+      accounts: {
+        [address: string]: 'EVM'; // At the moment of writing this migration, we only stored permissions for EVM addresses
+      };
+    }
+  >;
+  version: typeof VERSION;
+};
 
 const up = (legacyPermissions) => {
   const validationResult = previousSchema.validate(legacyPermissions);
@@ -49,6 +52,10 @@ const up = (legacyPermissions) => {
 
   const newPermissions = Object.entries(validationResult.value).reduce(
     (permAcc, [domain, { domain: _, accounts }]) => {
+      // "version" is a reserved key for the schema, so we need to skip it
+      if (domain === 'version') {
+        return permAcc;
+      }
       permAcc[domain] = {
         domain,
         accounts: Object.entries(accounts).reduce(
@@ -58,7 +65,7 @@ const up = (legacyPermissions) => {
             }
             return accountsAcc;
           },
-          {} as NewSchema[string]['accounts'],
+          {} as NewSchema['permissions'][string]['accounts'],
         ),
       };
       return permAcc;
@@ -67,7 +74,7 @@ const up = (legacyPermissions) => {
   );
 
   return {
-    ...newPermissions,
+    permissions: newPermissions,
     version: VERSION,
   };
 };

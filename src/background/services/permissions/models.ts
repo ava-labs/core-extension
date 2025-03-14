@@ -11,6 +11,10 @@ export interface Permissions {
   [domain: string]: DappPermissions;
 }
 
+export interface PermissionsState {
+  permissions: Permissions;
+}
+
 export enum PermissionEvents {
   PERMISSIONS_STATE_UPDATE = 'permissions-state-updated',
 }

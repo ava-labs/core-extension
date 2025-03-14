@@ -8,9 +8,12 @@ import {
   PermissionEvents,
   Permissions,
   PERMISSION_STORAGE_KEY,
+  PermissionsState,
+  DappPermissions,
 } from './models';
 import { Account } from '../accounts/models';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
+import { SYNCED_DOMAINS } from '../network/utils/getSyncDomain';
 
 @singleton()
 export class PermissionsService implements OnLock {
@@ -47,11 +50,11 @@ export class PermissionsService implements OnLock {
     }
 
     try {
-      this.permissions = omit(
-        (await this.storageService.load<Permissions>(PERMISSION_STORAGE_KEY)) ??
-          {},
-        'version',
-      );
+      const storedPermissions =
+        await this.storageService.load<PermissionsState>(
+          PERMISSION_STORAGE_KEY,
+        );
+      this.permissions = storedPermissions?.permissions ?? {};
     } catch (_err) {
       /**
        * If permissions arent pulled then dont set permissions to an empty object
@@ -109,9 +112,9 @@ export class PermissionsService implements OnLock {
       };
     }
 
-    await this.storageService.save<Permissions | undefined>(
+    await this.storageService.save<PermissionsState | undefined>(
       PERMISSION_STORAGE_KEY,
-      this.permissions,
+      { permissions: this.permissions },
     );
 
     return this.permissions;
@@ -135,18 +138,44 @@ export class PermissionsService implements OnLock {
       },
     };
 
-    await this.storageService.save<Permissions | undefined>(
+    await this.storageService.save<PermissionsState | undefined>(
       PERMISSION_STORAGE_KEY,
-      this.permissions,
+      { permissions: this.permissions },
     );
 
     return this.permissions;
   }
 
-  async addWhitelistDomains(addressC: string) {
+  async addWhitelistDomains(
+    addressMap: Partial<Record<NetworkVMType, string>>,
+  ) {
     try {
-      await this.grantPermission('core.app', addressC, NetworkVMType.EVM);
-      await this.grantPermission('test.core.app', addressC, NetworkVMType.EVM);
+      const domainAccounts: DappPermissions['accounts'] = Object.fromEntries(
+        Object.entries(addressMap).map(([vm, address]) => [
+          address,
+          vm as NetworkVMType,
+        ]),
+      );
+      const currentPermissions = await this.getPermissions();
+      const newPermissions: Permissions = SYNCED_DOMAINS.reduce(
+        (perms, domain) => ({
+          ...perms,
+          [domain]: {
+            domain,
+            accounts: {
+              ...perms[domain]?.accounts,
+              ...domainAccounts,
+            },
+          },
+        }),
+        currentPermissions,
+      );
+      this.permissions = newPermissions;
+
+      await this.storageService.save<PermissionsState | undefined>(
+        PERMISSION_STORAGE_KEY,
+        { permissions: this.permissions },
+      );
     } catch (err) {
       console.error(err);
     }
