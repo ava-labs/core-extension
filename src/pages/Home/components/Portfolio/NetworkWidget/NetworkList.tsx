@@ -49,9 +49,9 @@ export function NetworkList() {
     state: { pendingTransfers: unifiedBridgeTxs },
   } = useUnifiedBridgeContext();
 
-  function getNetworkValue({ chainId }: Network) {
+  function getNetworkValue({ chainId, caip2Id }: Network) {
     const networkAddress = activeAccount
-      ? getAddressForChain(chainId, activeAccount) || ''
+      ? getAddressForChain(chainId, activeAccount, caip2Id) || ''
       : '';
     const networkBalances = balances.tokens?.[chainId];
     const networkAssetList = networkBalances

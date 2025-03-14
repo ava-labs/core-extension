@@ -89,6 +89,8 @@ export class HistoryService {
         return this.accountsService.activeAccount?.addressPVM;
       case NetworkVMType.CoreEth:
         return this.accountsService.activeAccount?.addressCoreEth;
+      case NetworkVMType.SVM:
+        return this.accountsService.activeAccount?.addressSVM;
       default:
         return undefined;
     }

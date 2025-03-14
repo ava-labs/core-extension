@@ -41,6 +41,7 @@
     "@avalabs/glacier-sdk": "3.1.0-alpha.43",
     "@avalabs/hw-app-avalanche": "0.14.1",
     "@avalabs/hvm-module": "0.0.0-feat-solana-dapp-provider-20250311215339",
+    "@avalabs/svm-module": "0.0.0-feat-solana-dapp-provider-20250311215339",
     "@avalabs/types": "3.1.0-alpha.43",
     "@avalabs/vm-module-types": "0.0.0-feat-solana-dapp-provider-20250311215339",
     "@blockaid/client": "0.10.0",

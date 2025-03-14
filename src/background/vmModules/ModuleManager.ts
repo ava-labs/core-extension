@@ -10,6 +10,7 @@ import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { AvalancheModule } from '@avalabs/avalanche-module';
 import { EvmModule } from '@avalabs/evm-module';
 import { HvmModule } from '@avalabs/hvm-module';
+import { SvmModule } from '@avalabs/svm-module';
 import { ethErrors } from 'eth-rpc-errors';
 import { singleton } from 'tsyringe';
 
@@ -88,6 +89,11 @@ export class ModuleManager {
         appInfo,
       }),
       new HvmModule({
+        environment,
+        approvalController: this.#approvalController,
+        appInfo,
+      }),
+      new SvmModule({
         environment,
         approvalController: this.#approvalController,
         appInfo,

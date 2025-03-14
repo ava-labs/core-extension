@@ -13,17 +13,34 @@ import {
 } from '../secrets/models';
 import { DistributiveOmit } from '@src/utils/distributiveomit';
 import { VMABI, TransactionPayload } from 'hypersdk-client';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 export interface HVMTransactionRequest {
   txPayload: TransactionPayload;
   abi: VMABI;
 }
 
+export type SolanaSigningRequest = {
+  type:
+    | RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION
+    | RpcMethod.SOLANA_SIGN_TRANSACTION;
+  data: string; // Base-64 encoded "Wire Transaction"
+  account: string;
+};
+
 export type SignTransactionRequest =
   | TransactionRequest
   | BtcTransactionRequest
   | AvalancheTransactionRequest
-  | HVMTransactionRequest;
+  | HVMTransactionRequest
+  | SolanaSigningRequest;
+
+export const isSolanaSigningRequest = (
+  sigReq: SignTransactionRequest,
+): sigReq is SolanaSigningRequest =>
+  'type' in sigReq &&
+  (sigReq.type === RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION ||
+    sigReq.type === RpcMethod.SOLANA_SIGN_TRANSACTION);
 
 export interface BtcTransactionRequest {
   inputs: BitcoinInputUTXO[];

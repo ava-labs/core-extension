@@ -19,6 +19,7 @@ export enum CommonError {
   ModuleManagerNotSet = 'module-manager-not-set',
   UnableToSign = 'unable-to-sign',
   UnableToEstimateGas = 'unable-to-estimate-gas',
+  UnsupportedTokenType = 'unsupported-token-type',
 }
 
 export enum LedgerError {

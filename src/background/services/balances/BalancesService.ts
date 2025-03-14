@@ -62,6 +62,8 @@ export class BalancesService {
               return account.addressCoreEth;
             case NetworkVMType.HVM:
               return account.addressHVM;
+            case NetworkVMType.SVM:
+              return account.addressSVM;
             default:
               return undefined;
           }

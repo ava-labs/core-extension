@@ -28,6 +28,7 @@ import { indexOf } from 'lodash';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
+import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
 
 interface ContactSelectProps {
   selectedContact?: Contact;
@@ -142,7 +143,15 @@ export const ContactSelect = ({
         return;
       }
       const result = walletAccount.map(
-        ({ id, addressC, name, addressBTC, addressPVM, addressAVM }) => ({
+        ({
+          id,
+          addressC,
+          name,
+          addressBTC,
+          addressPVM,
+          addressAVM,
+          addressSVM,
+        }) => ({
           id,
           address: network?.vmName == NetworkVMType.EVM ? addressC : '',
           addressBTC:
@@ -153,6 +162,7 @@ export const ContactSelect = ({
               : isXchainNetwork(network) && addressAVM
                 ? stripAddressPrefix(addressAVM)
                 : '',
+          addressSVM: network && isSolanaNetwork(network) ? addressSVM : '',
           name,
           isKnown: true,
         }),
@@ -166,7 +176,15 @@ export const ContactSelect = ({
     }
 
     const formattedImported = importedAccountToPrep?.map(
-      ({ id, addressC, name, addressBTC, addressPVM, addressAVM }) => ({
+      ({
+        id,
+        addressC,
+        name,
+        addressBTC,
+        addressPVM,
+        addressAVM,
+        addressSVM,
+      }) => ({
         id,
         address: network?.vmName == NetworkVMType.EVM ? addressC : '',
         addressBTC:
@@ -179,6 +197,7 @@ export const ContactSelect = ({
             : isXchainNetwork(network) && addressAVM
               ? stripAddressPrefix(addressAVM)
               : '',
+        addressSVM: network && isSolanaNetwork(network) ? addressSVM : '',
         name,
         isKnown: true,
       }),
@@ -202,6 +221,9 @@ export const ContactSelect = ({
         if (isPchainNetwork(network) || isXchainNetwork(network)) {
           return contact.addressXP;
         }
+        if (isSolanaNetwork(network)) {
+          return contact.addressSVM;
+        }
       })
       .map((contact) => ({
         ...contact,
@@ -210,6 +232,8 @@ export const ContactSelect = ({
           network?.vmName === NetworkVMType.BITCOIN ? contact.addressBTC : '',
         addressPVM: isPchainNetwork(network) ? contact.addressXP : '',
         addressAVM: isXchainNetwork(network) ? contact.addressXP : '',
+        addressSVM:
+          network && isSolanaNetwork(network) ? contact.addressSVM : '',
         isKnown: true,
       }));
   }, [contacts, network]);
