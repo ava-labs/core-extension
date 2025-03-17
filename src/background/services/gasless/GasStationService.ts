@@ -88,7 +88,7 @@ export class GasStationService {
     });
   }
 
-  async setDefaultStateValues(value: GaslessStateValues) {
+  async setDefaultStateValues(value?: GaslessStateValues) {
     await this.updateState({
       ...this.#defaultGaslessState,
       ...value,
