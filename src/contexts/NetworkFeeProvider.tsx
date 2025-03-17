@@ -93,14 +93,9 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   const [isGaslessEligible, setIsGaslessEligible] = useState<boolean | null>(
     null,
   );
-  console.log(
-    'NetworkFeeContextProvider isGaslessEligible: ',
-    isGaslessEligible,
-  );
   const [fundTxHex, setFundTxHex] = useState('');
   const { featureFlags } = useFeatureFlagContext();
   const [gaslessPhase, setGaslessPhase] = useState<GaslessPhase | null>(null);
-  console.log('gaslessPhase: ', gaslessPhase);
 
   const getNetworkFee = useCallback(
     async (caipId: string) =>
