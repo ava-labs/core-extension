@@ -17,7 +17,7 @@ import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 @singleton()
 export class GasStationService {
   #eventEmitter = new EventEmitter();
-  #gasStationUrl = 'https://core-gas-station.avax-test.network';
+  #gasStationUrl = process.env.GASLESS_SERVICE_URL;
   #fundDataPipeline: { fromAddress: string; data: any }[] = [];
   gaslessState = new Signal<GaslessState>();
   #defaultGaslessState: GaslessState = {
@@ -38,6 +38,9 @@ export class GasStationService {
     private networkService: NetworkService,
     private networkFeeService: NetworkFeeService,
   ) {
+    if (!this.#gasStationUrl) {
+      throw new Error('GASLESS_SERVICE_URL is missing');
+    }
     this.#sdk = new GaslessSdk(this.#gasStationUrl);
     this.#createOffScreen();
   }
