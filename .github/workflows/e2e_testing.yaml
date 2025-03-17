@@ -103,15 +103,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - name: enable corepack
-        run: |
-          corepack enable
       - name: Checkout automation repo
         uses: actions/checkout@v4
         with:
           repository: 'ava-labs/avalanche-test-automation'
           path: './'
           ssh-key: ${{ secrets.SSH_DEPLOY_KEY }}
+      - name: enable corepack
+        run: |
+          corepack enable
       - name: Install automation repo dependencies
         run: yarn install
       - name: Download builded zip file
