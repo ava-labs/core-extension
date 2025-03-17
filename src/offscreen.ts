@@ -2,14 +2,30 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { OFFSCREEN_SCRIPT } from './common';
 import { GaslessSdk } from '@avalabs/core-gasless-sdk';
 import { ExtensionRequest } from './background/connections/extensionConnection/models';
+import { GaslessEvents } from './background/services/gasless/model';
 
 const connection: Runtime.Port = browser.runtime.connect({
   name: OFFSCREEN_SCRIPT,
 });
 
-connection.onMessage.addListener(async (param) => {
-  const params = JSON.parse(param);
-  const { value } = params;
+connection.onMessage.addListener(async (param: string) => {
+  const params: {
+    name: string;
+    value: {
+      request: string;
+      token: string;
+      message: {
+        pipelineIndex?: number;
+      };
+    };
+  } = JSON.parse(param);
+  const { value, name } = params;
+  if (
+    name !== GaslessEvents.SEND_MESSAGE ||
+    value.request !== ExtensionRequest.GASLESS_FETCH_AND_SOLVE_CHALLENGE
+  ) {
+    throw new Error('Incorrect offscreen message or request name');
+  }
   const { token, message } = value;
   const sdk = new GaslessSdk('https://core-gas-station.avax-test.network', {
     appCheckToken: token,

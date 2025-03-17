@@ -7,8 +7,8 @@ import {
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
-  ExtensionEventEmitter,
   ExtensionRequestHandler,
+  OffscreenEventEmitter,
 } from '../models';
 import { RequestProcessorPipeline } from '../RequestProcessorPipeline';
 import {
@@ -17,6 +17,7 @@ import {
   eventLog,
   responseLog,
 } from '@src/utils/logging';
+import './registry';
 
 import { resolve } from '@avalabs/core-utils-sdk';
 import { isDevelopment } from '@src/utils/environment';
@@ -28,7 +29,6 @@ import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
 import { ModuleManager } from '@src/background/vmModules/ModuleManager';
-import { OffscreenRequest } from './models';
 
 @injectable()
 export class OffscreenConnectionController implements ConnectionController {
@@ -39,10 +39,10 @@ export class OffscreenConnectionController implements ConnectionController {
   private connection?: Runtime.Port;
 
   constructor(
-    @injectAll('ExtensionRequestHandler')
+    @injectAll('OffscreenRequestHandler')
     private handlers: ExtensionRequestHandler<any, any>[],
-    @injectAll('ExtensionEventEmitter')
-    private eventEmitters: ExtensionEventEmitter[],
+    @injectAll('OffscreenEventEmitter')
+    private eventEmitters: OffscreenEventEmitter[],
     private moduleManager: ModuleManager,
   ) {
     this.onMessage = this.onMessage.bind(this);
@@ -100,7 +100,6 @@ export class OffscreenConnectionController implements ConnectionController {
     if (!this.pipeline || !this.connection) {
       throw Error('OffscreenConnectionController is not connected to a port');
     }
-    await this.hasOffscreenDocument('offscreen.html');
 
     const deserializedRequest =
       deserializeFromJSON<ExtensionConnectionMessage>(requestJSON);
@@ -185,18 +184,14 @@ export class OffscreenConnectionController implements ConnectionController {
     if (isDevelopment()) {
       eventLog(`extension event (${evt.name})`, evt);
     }
-
-    const requestNames: string[] = Object.values(OffscreenRequest);
-    if (requestNames.includes(evt.name)) {
-      try {
-        this.connection?.postMessage(serializeToJSON(evt));
-      } catch (e) {
-        sentryCaptureException(
-          e as Error,
-          SentryExceptionTypes.EXTENSION_CONNECTION_EVENT,
-        );
-        console.error(e);
-      }
+    try {
+      this.connection?.postMessage(serializeToJSON(evt));
+    } catch (e) {
+      sentryCaptureException(
+        e as Error,
+        SentryExceptionTypes.EXTENSION_CONNECTION_EVENT,
+      );
+      console.error(e);
     }
   }
 }
