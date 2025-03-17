@@ -20,15 +20,16 @@ import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/h
 import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallange';
 import { filter, map } from 'rxjs';
 import { gaslessChallangeUpdateEventListener } from '@src/background/services/gasless/events/gaslessChallangeUpdateListener';
-import { TransactionRequest } from 'ethers';
+import { AddressLike, TransactionRequest } from 'ethers';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
+import { GaslessPhase } from '@src/background/services/gasless/model';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;
   getNetworkFee: (caipId: string) => Promise<NetworkFee | null>;
-  fetchGaslessChallange: () => Promise<any | null>;
+  fetchAndSolveGaslessChallange: () => Promise<any | null>;
   gaslessFundTx: ({
     data,
     fromAddress,
@@ -36,57 +37,48 @@ const NetworkFeeContext = createContext<{
     data: TransactionRequest;
     fromAddress: string;
   }) => Promise<string | undefined>;
-  getGaslessEligibility: (
-    chainId?: string | number,
-    fromAddress?: string | null,
-    nonce?: number | null,
-  ) => Promise<any | null>;
-  challengeHex: string;
-  solutionHex: string;
   isGaslessOn: boolean;
   setIsGaslessOn: Dispatch<SetStateAction<boolean>>;
   isGaslessEligible: boolean | null;
-  setIsGaslessEligible: Dispatch<SetStateAction<boolean | null>>;
-  isFundProcessReady: boolean;
   fundTxHex: string;
-  fundTxDoNotRertyError: boolean;
   setGaslessDefaultValues: () => Promise<any | null>;
-  isGaslessFundStarted: boolean;
-  setIsGaslessFundStarted: Dispatch<SetStateAction<boolean>>;
+  gaslessPhase: GaslessPhase | null;
+  setGaslessPhase: Dispatch<SetStateAction<GaslessPhase | null>>;
+  setGaslessEligibility: (
+    chainId: string | number,
+    fromAddress?: AddressLike | null,
+    nonce?: number | null,
+  ) => Promise<void>;
 }>({
   networkFee: null,
   async getNetworkFee() {
     return null;
   },
-  async fetchGaslessChallange() {
+  async fetchAndSolveGaslessChallange() {
     return null;
   },
 
   async gaslessFundTx() {
     return undefined;
   },
-  async getGaslessEligibility() {
-    return null;
-  },
-  challengeHex: '',
-  solutionHex: '',
   isGaslessOn: false,
   setIsGaslessOn() {
     return null;
   },
   isGaslessEligible: null,
-  setIsGaslessEligible() {
-    return null;
-  },
-  isFundProcessReady: false,
+
   fundTxHex: '',
-  fundTxDoNotRertyError: false,
+
   async setGaslessDefaultValues() {
     return null;
   },
-  isGaslessFundStarted: false,
-  setIsGaslessFundStarted() {
-    return false;
+
+  gaslessPhase: null,
+  setGaslessPhase() {
+    return null;
+  },
+  async setGaslessEligibility() {
+    return;
   },
 });
 
@@ -101,11 +93,14 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   const [isGaslessEligible, setIsGaslessEligible] = useState<boolean | null>(
     null,
   );
-  const [isFundProcessReady, setIsFundProcessReady] = useState(false);
+  console.log(
+    'NetworkFeeContextProvider isGaslessEligible: ',
+    isGaslessEligible,
+  );
   const [fundTxHex, setFundTxHex] = useState('');
-  const [fundTxDoNotRertyError, setFundTxDoNotRertyError] = useState(false);
   const { featureFlags } = useFeatureFlagContext();
-  const [isGaslessFundStarted, setIsGaslessFundStarted] = useState(false);
+  const [gaslessPhase, setGaslessPhase] = useState<GaslessPhase | null>(null);
+  console.log('gaslessPhase: ', gaslessPhase);
 
   const getNetworkFee = useCallback(
     async (caipId: string) =>
@@ -116,10 +111,37 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
     [request],
   );
 
+  const setGaslessEligibility = useCallback(
+    async (
+      chainId: string | number,
+      fromAddress?: AddressLike | null,
+      nonce?: number | null,
+    ) => {
+      if (!featureFlags[FeatureGates.GASLESS]) {
+        setIsGaslessEligible(false);
+        return;
+      }
+      try {
+        const result = await request<GetGaslessEligibilityHandler>({
+          method: ExtensionRequest.GASLESS_GET_ELIGIBILITY,
+          params: [chainId, fromAddress?.toString(), nonce ?? undefined],
+        });
+        setIsGaslessEligible(result);
+      } catch (e: any) {
+        console.error(e);
+        setIsGaslessEligible(false);
+      }
+    },
+
+    [featureFlags, request],
+  );
+
   useEffect(() => {
     if (!network?.chainId) {
       return;
     }
+
+    setGaslessEligibility(network.chainId);
 
     let timer: ReturnType<typeof setTimeout>;
     let isMounted = true;
@@ -141,9 +163,9 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [getNetworkFee, iteration, network?.chainId]);
+  }, [getNetworkFee, iteration, network?.chainId, setGaslessEligibility]);
 
-  const fetchGaslessChallange = useCallback(
+  const fetchAndSolveGaslessChallange = useCallback(
     async () =>
       request<FetchAndSolveChallengeHandler>({
         method: ExtensionRequest.GASLESS_FETCH_AND_SOLVE_CHALLENGE,
@@ -168,20 +190,6 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
     [request],
   );
 
-  const getGaslessEligibility = useCallback(
-    async (chainId, fromAddress, nonce) => {
-      if (!featureFlags[FeatureGates.GASLESS] || fundTxDoNotRertyError) {
-        return false;
-      }
-      return request<GetGaslessEligibilityHandler>({
-        method: ExtensionRequest.GASLESS_GET_ELIGIBILITY,
-        params: [chainId, fromAddress, nonce],
-      });
-    },
-
-    [featureFlags, fundTxDoNotRertyError, request],
-  );
-
   useEffect(() => {
     const gaslessEventSubscription = events()
       .pipe(
@@ -189,23 +197,26 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         map((evt) => evt.value),
       )
       .subscribe(async (values) => {
-        if (values.solutionHex || values.solutionHex === '') {
-          setSolutionHex(values.solutionHex);
-        }
-        if (values.challengeHex || values.challengeHex === '') {
-          setChallengeHex(values.challengeHex);
-        }
-        if (values.isFundProcessReady || values.isFundProcessReady === false) {
-          setIsFundProcessReady(values.isFundProcessReady);
-        }
-        if (values.fundTxHex || values.fundTxHex === '') {
-          setFundTxHex(values.fundTxHex);
-        }
+        setSolutionHex(values.solutionHex);
+        setChallengeHex(values.challengeHex);
+        setFundTxHex(values.fundTxHex);
         if (
-          values.fundTxDoNotRertyError ||
-          values.fundTxDoNotRertyError === false
+          values.challengeHex &&
+          values.solutionHex &&
+          !values.isFundInProgress &&
+          !values.fundTxDoNotRetryError
         ) {
-          setFundTxDoNotRertyError(values.fundTxDoNotRertyError);
+          setGaslessPhase(GaslessPhase.READY);
+        }
+
+        if (values.isFundInProgress === true) {
+          setGaslessPhase(GaslessPhase.FUNDING_IN_PROGRESS);
+        }
+        if (values.fundTxHex) {
+          setGaslessPhase(GaslessPhase.FUNDED);
+        }
+        if (values.fundTxDoNotRetryError) {
+          setGaslessPhase(GaslessPhase.ERROR);
         }
       });
 
@@ -219,21 +230,16 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
       value={{
         networkFee: fee,
         getNetworkFee,
-        fetchGaslessChallange,
+        fetchAndSolveGaslessChallange,
         gaslessFundTx,
-        getGaslessEligibility,
-        challengeHex,
-        solutionHex,
+        setGaslessEligibility,
         isGaslessOn,
         setIsGaslessOn,
         isGaslessEligible,
-        setIsGaslessEligible,
-        isFundProcessReady,
         fundTxHex,
-        fundTxDoNotRertyError,
         setGaslessDefaultValues,
-        setIsGaslessFundStarted,
-        isGaslessFundStarted,
+        gaslessPhase,
+        setGaslessPhase,
       }}
     >
       {children}

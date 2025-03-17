@@ -33,6 +33,7 @@ import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { CustomGasSettings } from './CustomGasSettings';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import GaslessFee from './GaslessFee';
+import { GaslessPhase } from '@src/background/services/gasless/model';
 
 export interface CustomGasFeesProps {
   maxFeePerGas: bigint;
@@ -214,21 +215,10 @@ export function CustomFees({
       : selectedGasFeeModifier || GasFeeModifier.SLOW,
   );
 
-  const {
-    fetchGaslessChallange,
-    isGaslessEligible,
-    challengeHex,
-    solutionHex,
-    isGaslessOn,
-    setIsGaslessOn,
-    isGaslessFundStarted,
-  } = useNetworkFeeContext();
+  const { isGaslessEligible, isGaslessOn, setIsGaslessOn, gaslessPhase } =
+    useNetworkFeeContext();
 
   useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest native balance.
-
-  useEffect(() => {
-    fetchGaslessChallange();
-  }, [fetchGaslessChallange]);
 
   useEffect(() => {
     if (!customFee && networkFee) {
@@ -374,17 +364,7 @@ export function CustomFees({
   const onGaslessSwitch = useCallback(async () => {
     handleModifierClick(GasFeeModifier.NORMAL);
     setIsGaslessOn(!isGaslessOn);
-    if (!challengeHex || !solutionHex) {
-      fetchGaslessChallange();
-    }
-  }, [
-    challengeHex,
-    fetchGaslessChallange,
-    handleModifierClick,
-    isGaslessOn,
-    setIsGaslessOn,
-    solutionHex,
-  ]);
+  }, [handleModifierClick, isGaslessOn, setIsGaslessOn]);
 
   if (!networkFee) {
     return null;
@@ -438,15 +418,17 @@ export function CustomFees({
           mountOnEnter
           unmountOnExit
         >
-          {!isBatchApprovalScreen && isGaslessEligible && (
-            <GaslessFee
-              onSwitch={() => {
-                onGaslessSwitch();
-              }}
-              isTurnedOn={isGaslessOn}
-              isGaslessFundStarted={isGaslessFundStarted}
-            />
-          )}
+          {!isBatchApprovalScreen &&
+            isGaslessEligible &&
+            gaslessPhase !== GaslessPhase.ERROR && (
+              <GaslessFee
+                onSwitch={() => {
+                  onGaslessSwitch();
+                }}
+                isTurnedOn={isGaslessOn}
+                disabled={gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS}
+              />
+            )}
           <Collapse in={!isGaslessOn} mountOnEnter unmountOnExit>
             <Stack
               sx={{

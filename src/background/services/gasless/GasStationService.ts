@@ -1,6 +1,11 @@
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
-import { GaslessEvents, GaslessMessage } from './model';
+import {
+  GaslessEvents,
+  GaslessMessage,
+  GaslessState,
+  GaslessStateValues,
+} from './model';
 import { AppCheckService } from '../appcheck/AppCheckService';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { GaslessSdk } from '@avalabs/core-gasless-sdk';
@@ -13,12 +18,16 @@ import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 export class GasStationService {
   #eventEmitter = new EventEmitter();
   #gasStationUrl = 'https://core-gas-station.avax-test.network';
-  solutionHex = new Signal<string | undefined>();
-  challengeHex = new Signal<string | undefined>();
-  fundTxHex = new Signal<string | undefined>();
-  fundTxDoNotRertyError = new Signal<boolean | undefined>();
-  isFundProcessReady = new Signal<boolean>();
   #fundDataPipeline: { fromAddress: string; data: any }[] = [];
+  gaslessState = new Signal<GaslessState>();
+  #defaultGaslessState: GaslessState = {
+    isFundInProgress: false,
+    fundTxHex: '',
+    fundTxDoNotRetryError: false,
+    solutionHex: '',
+    challengeHex: '',
+  };
+  #gaslessState: GaslessState = this.#defaultGaslessState;
 
   txHex = '';
   #attempt = 0;
@@ -76,13 +85,31 @@ export class GasStationService {
     });
   }
 
+  async setDefaultStateValues(value: GaslessStateValues) {
+    await this.updateState({
+      ...this.#defaultGaslessState,
+      ...value,
+    });
+  }
+
+  async updateState(value: GaslessState) {
+    this.#gaslessState = {
+      ...this.#gaslessState,
+      ...value,
+    };
+
+    this.gaslessState.dispatch({ ...this.#gaslessState });
+  }
+
   async setHexValuesAndFund(
     challengeHex: string,
     solutionHex: string,
     pipelineIndex?: number,
   ) {
-    this.challengeHex.dispatch(challengeHex);
-    this.solutionHex.dispatch(solutionHex);
+    await this.setDefaultStateValues({
+      challengeHex,
+      solutionHex,
+    });
     if (pipelineIndex === 0 || pipelineIndex) {
       const pipelineData = this.#fundDataPipeline[pipelineIndex];
       if (!pipelineData) {
@@ -96,17 +123,9 @@ export class GasStationService {
           fromAddress: pipelineData?.fromAddress,
         });
       } catch (_) {
-        this.fundTxDoNotRertyError.dispatch(true);
+        this.setDefaultStateValues({ fundTxDoNotRetryError: true });
       }
     }
-  }
-
-  setDefaultStateValues() {
-    this.isFundProcessReady.dispatch(false);
-    this.fundTxHex.dispatch('');
-    this.fundTxDoNotRertyError.dispatch(false);
-    this.solutionHex.dispatch('');
-    this.challengeHex.dispatch('');
   }
 
   async fetchAndSolveChallange(pipelineIndex?: number) {
@@ -117,7 +136,11 @@ export class GasStationService {
   }
 
   async fundTx({ data, challengeHex, solutionHex, fromAddress }) {
-    this.isFundProcessReady.dispatch(false);
+    await this.setDefaultStateValues({
+      isFundInProgress: true,
+      challengeHex,
+      solutionHex,
+    });
     this.#attempt++;
 
     const token = await this.#getAppcheckToken();
@@ -161,7 +184,7 @@ export class GasStationService {
         await this.fetchAndSolveChallange(nextPipelineIndex);
         return;
       }
-      this.fundTxDoNotRertyError.dispatch(true);
+      this.setDefaultStateValues({ fundTxDoNotRetryError: true });
       this.#attempt = 0;
       this.#fundDataPipeline = [];
       return;
@@ -173,10 +196,11 @@ export class GasStationService {
     const waitForTransactionResult = await (
       provider as JsonRpcProvider
     ).waitForTransaction(result.txHash);
-    this.solutionHex.dispatch(solutionHex);
-    this.challengeHex.dispatch(challengeHex);
-    this.fundTxHex.dispatch(waitForTransactionResult?.hash);
-    this.isFundProcessReady.dispatch(true);
+    this.setDefaultStateValues({
+      solutionHex,
+      challengeHex,
+      fundTxHex: waitForTransactionResult?.hash,
+    });
     this.#attempt = 0;
     this.#fundDataPipeline = [];
   }

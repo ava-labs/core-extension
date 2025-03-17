@@ -68,8 +68,7 @@ export const SendEVMCollectible = ({
   const setCollectibleParams = useSetCollectibleParams();
   const [token] = tokenList;
   const { capture } = useAnalyticsContext();
-  const { setIsGaslessEligible, isGaslessEligible, getGaslessEligibility } =
-    useNetworkFeeContext();
+  const { isGaslessEligible } = useNetworkFeeContext();
 
   const { error, isSending, isValid, isValidating, send, validate } =
     useEVMSend({
@@ -95,14 +94,6 @@ export const SendEVMCollectible = ({
       });
     }
   }, [address, token, validate, setCollectibleParams, params]);
-
-  useEffect(() => {
-    const getGaslessStatus = async () => {
-      const gaslessEligibility = await getGaslessEligibility(network.chainId);
-      setIsGaslessEligible(gaslessEligibility);
-    };
-    getGaslessStatus();
-  }, [getGaslessEligibility, network.chainId, setIsGaslessEligible]);
 
   const isSendAvailableWithGasless =
     isGaslessEligible &&

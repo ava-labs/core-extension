@@ -11,38 +11,12 @@ import { GasStationService } from '../GasStationService';
 export class GaslessChallangeUpdateEvent implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
   constructor(private gasStationService: GasStationService) {
-    this.gasStationService.solutionHex.add((solutionHex) => {
+    this.gasStationService.gaslessState.add((state) => {
       this.eventEmitter.emit('update', {
         name: GaslessEvents.STATE_UPDATE,
-        value: { solutionHex },
+        value: { ...state },
       });
     });
-    this.gasStationService.challengeHex.add((challengeHex) => {
-      this.eventEmitter.emit('update', {
-        name: GaslessEvents.STATE_UPDATE,
-        value: { challengeHex },
-      });
-    });
-    this.gasStationService.isFundProcessReady.add((isFundProcessReady) => {
-      this.eventEmitter.emit('update', {
-        name: GaslessEvents.STATE_UPDATE,
-        value: { isFundProcessReady },
-      });
-    });
-    this.gasStationService.fundTxHex.add((fundTxHex) => {
-      this.eventEmitter.emit('update', {
-        name: GaslessEvents.STATE_UPDATE,
-        value: { fundTxHex },
-      });
-    });
-    this.gasStationService.fundTxDoNotRertyError.add(
-      (fundTxDoNotRertyError) => {
-        this.eventEmitter.emit('update', {
-          name: GaslessEvents.STATE_UPDATE,
-          value: { fundTxDoNotRertyError },
-        });
-      },
-    );
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {

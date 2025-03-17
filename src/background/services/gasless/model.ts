@@ -8,10 +8,24 @@ export interface GaslessMessage {
   data: string;
 }
 
-export interface GaslessState {
+export interface GaslessStateValues {
   solutionHex?: string;
   challengeHex?: string;
   fundTxHex?: string;
-  isFundProcessReady?: boolean;
-  fundTxDoNotRertyError?: boolean;
+  isFundInProgress?: boolean;
+  fundTxDoNotRetryError?: boolean;
+}
+export interface GaslessState {
+  solutionHex: string;
+  challengeHex: string;
+  fundTxHex: string;
+  fundTxDoNotRetryError: boolean;
+  isFundInProgress: boolean;
+}
+
+export enum GaslessPhase {
+  READY = 'ready',
+  FUNDING_IN_PROGRESS = 'funding_in_progress',
+  FUNDED = 'funded',
+  ERROR = 'error',
 }
