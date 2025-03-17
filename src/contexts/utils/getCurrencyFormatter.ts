@@ -46,6 +46,7 @@ const modifyFractionNumber = (amount: number) => {
 };
 
 const parseScientificNotation = (amount: string) => {
+  // When the number is extremely small or big we don't want to take care of it at the moment
   if (amount.toString().includes('e') && amount.toString().includes('-')) {
     return ['0', '00'];
   }
