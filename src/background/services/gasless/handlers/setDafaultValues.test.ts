@@ -1,1 +1,3 @@
-describe('src/background/services/gasless/handlers/setDefaultValues', () => {});
+describe('src/background/services/gasless/handlers/setDefaultValues', () => {
+  it('should pass', () => {});
+});

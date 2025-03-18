@@ -1,1 +1,3 @@
-describe('src/background/services/gasless/handlers/fundTx', () => {});
+describe('src/background/services/gasless/handlers/fundTx', () => {
+  it('should pass', () => {});
+});
