@@ -32,6 +32,7 @@
     "@avalabs/core-coingecko-sdk": "v3.1.0-alpha.44",
     "@avalabs/core-covalent-sdk": "v3.1.0-alpha.44",
     "@avalabs/core-etherscan-sdk": "v3.1.0-alpha.44",
+    "@avalabs/core-gasless-sdk": "v3.1.0-alpha.44",
     "@avalabs/core-k2-components": "4.18.0-alpha.53",
     "@avalabs/core-snowtrace-sdk": "v3.1.0-alpha.44",
     "@avalabs/core-token-prices-sdk": "v3.1.0-alpha.44",

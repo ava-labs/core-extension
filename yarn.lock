@@ -151,6 +151,14 @@
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.44"
 
+"@avalabs/core-gasless-sdk@v3.1.0-alpha.44":
+  version "3.1.0-alpha.44"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-gasless-sdk/-/core-gasless-sdk-3.1.0-alpha.44.tgz#c7cd11f1ed183a25b00ec76a3d5bafe69dc3298a"
+  integrity sha512-PvXsFgBNP/FvTZ0/uKEys8DmLMP5028Crg+u7zXRnGTlD/QTBjfgyiiW9ZljR4mGFlbdVmw0dIASz1+3n5n7Kw==
+  dependencies:
+    "@noble/hashes" "1.7.1"
+    zod "3.23.8"
+
 "@avalabs/core-k2-components@4.18.0-alpha.53":
   version "4.18.0-alpha.53"
   resolved "https://registry.yarnpkg.com/@avalabs/core-k2-components/-/core-k2-components-4.18.0-alpha.53.tgz#a7a06a613b7a33706adb0817a06462f73d4324a7"
@@ -6924,10 +6932,10 @@
     "@types/node" "*"
     "@types/responselike" "^1.0.0"
 
-"@types/chrome@0.0.180":
-  version "0.0.180"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.180.tgz#b7fb831848f6b6c49abffd85410b73037c02381e"
-  integrity sha512-A/CuuKAaHq2CHEpYBAtl0lp2ib7TTXK7VjJI4q+c+1U/HDvZLJ8IlsdEDzzHdvkNdh36bGONxrMnO9YZrKqbAw==
+"@types/chrome@0.0.304":
+  version "0.0.304"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.304.tgz#8d696ba6c0bb464c3f23fdfa61326439469ea55c"
+  integrity sha512-ms9CLILU+FEMK7gcmgz/Mtn2E81YQWiMIzCFF8ktp98EVNIIfoqaDTD4+ailOCq1sGjbnEmfJxQ1FAsQtk5M3A==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"
