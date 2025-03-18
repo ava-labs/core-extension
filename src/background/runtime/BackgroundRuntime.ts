@@ -7,6 +7,7 @@ import { OnboardingService } from '@src/background/services/onboarding/Onboardin
 import { ModuleManager } from '../vmModules/ModuleManager';
 import { BridgeService } from '../services/bridge/BridgeService';
 import { AppCheckService } from '@src/background/services/appcheck/AppCheckService';
+import { GasStationService } from '../services/gasless/GasStationService';
 
 @singleton()
 export class BackgroundRuntime {
@@ -18,6 +19,7 @@ export class BackgroundRuntime {
     private bridgeService: BridgeService,
     private moduleManager: ModuleManager,
     private appCheckService: AppCheckService,
+    private gasStationService: GasStationService,
   ) {}
 
   activate() {
@@ -31,6 +33,7 @@ export class BackgroundRuntime {
     this.onboardingService.activate();
     this.moduleManager.activate();
     this.appCheckService.activate();
+    this.#createOffScreen();
   }
 
   private onInstalled() {
@@ -88,5 +91,13 @@ export class BackgroundRuntime {
        */
       console.warn(`Dropped attempt to register inpage content script. ${err}`);
     }
+  }
+
+  async #createOffScreen() {
+    await chrome.offscreen.createDocument({
+      url: 'offscreen.html',
+      reasons: ['WORKERS'],
+      justification: 'offload computation',
+    });
   }
 }
