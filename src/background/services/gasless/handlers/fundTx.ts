@@ -3,7 +3,6 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { GasStationService } from '../GasStationService';
 import { TransactionRequest } from 'ethers';
-// import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_FUND_TX,
