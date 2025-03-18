@@ -109,18 +109,15 @@ jobs:
           repository: 'ava-labs/avalanche-test-automation'
           path: './'
           ssh-key: ${{ secrets.SSH_DEPLOY_KEY }}
-      - name: enable corepack for install
+      - name: Install automation repo dependencies
         run: |
           corepack enable
-      - name: Install automation repo dependencies
-        run: yarn install
+          corepack use yarn@4.7.0
+          yarn install
       - name: Download builded zip file
         uses: actions/download-artifact@v4
         with:
           name: extension
-      - name: enable corepack for running tests
-        run: |
-          corepack enable
       - name: Running browser extension smoke tests on testnet/mainnet against generated zip
         run: yarn ext:testnet/mainnet-smoke
       - if: always()
