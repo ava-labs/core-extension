@@ -21,13 +21,19 @@ connection.onMessage.addListener(async (param: string) => {
   } = JSON.parse(param);
   const { value, name } = params;
   if (
-    name !== GaslessEvents.SEND_MESSAGE ||
+    name !== GaslessEvents.SEND_OFFSCREEN_MESSAGE ||
     value.request !== ExtensionRequest.GASLESS_FETCH_AND_SOLVE_CHALLENGE
   ) {
     throw new Error('Incorrect offscreen message or request name');
   }
   const { token, message } = value;
-  const sdk = new GaslessSdk('https://core-gas-station.avax-test.network', {
+  const gasStationUrl = process.env.GASLESS_SERVICE_URL;
+
+  if (!gasStationUrl) {
+    throw new Error('GASLESS_SERVICE_URL is missing');
+  }
+
+  const sdk = new GaslessSdk(gasStationUrl, {
     appCheckToken: token,
   });
 

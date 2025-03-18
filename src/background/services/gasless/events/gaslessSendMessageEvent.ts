@@ -8,14 +8,14 @@ import { GaslessEvents } from '../model';
 import { GasStationService } from '../GasStationService';
 
 @singleton()
-export class GaslessSendMessageEvent implements ExtensionEventEmitter {
+export class GaslessSendOffscreenMessageEvent implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
   constructor(private gasStationService: GasStationService) {
     this.gasStationService.addListener(
-      GaslessEvents.SEND_MESSAGE,
+      GaslessEvents.SEND_OFFSCREEN_MESSAGE,
       (message) => {
         this.eventEmitter.emit('update', {
-          name: GaslessEvents.SEND_MESSAGE,
+          name: GaslessEvents.SEND_OFFSCREEN_MESSAGE,
           value: message,
         });
       },

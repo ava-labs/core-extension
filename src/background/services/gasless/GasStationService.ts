@@ -42,6 +42,9 @@ export class GasStationService {
       throw new Error('GASLESS_SERVICE_URL is missing');
     }
     this.#sdk = new GaslessSdk(this.#gasStationUrl);
+  }
+
+  async activate() {
     this.#createOffScreen();
   }
 
@@ -60,7 +63,7 @@ export class GasStationService {
 
   async sendMessage(message, request: ExtensionRequest) {
     const token = await this.#getAppcheckToken();
-    this.#eventEmitter.emit(GaslessEvents.SEND_MESSAGE, {
+    this.#eventEmitter.emit(GaslessEvents.SEND_OFFSCREEN_MESSAGE, {
       message,
       token,
       request,

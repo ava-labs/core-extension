@@ -135,7 +135,7 @@ export function GenericApprovalScreen() {
 
   const handleRejection = useCallback(() => {
     setGaslessError('');
-    setGaslessPhase(null);
+    setGaslessPhase(GaslessPhase.NOT_READY);
     setGaslessDefaultValues();
     cancelHandler();
   }, [cancelHandler, setGaslessDefaultValues, setGaslessPhase]);
@@ -168,7 +168,7 @@ export function GenericApprovalScreen() {
         return;
       }
 
-      setGaslessPhase(null);
+      setGaslessPhase(GaslessPhase.NOT_READY);
       // when the gasless feature is turned on we handle the action update after the tx has ended
       return;
     }

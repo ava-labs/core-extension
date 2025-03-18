@@ -1,5 +1,5 @@
 export enum GaslessEvents {
-  SEND_MESSAGE = 'Gasless: SEND_MESSAGE',
+  SEND_OFFSCREEN_MESSAGE = 'Gasless: SEND_OFFSCREEN_MESSAGE',
   STATE_UPDATE = 'Gasless: STATE_UPDATE',
 }
 
@@ -24,6 +24,7 @@ export interface GaslessState {
 }
 
 export enum GaslessPhase {
+  NOT_READY = 'not_ready',
   READY = 'ready',
   FUNDING_IN_PROGRESS = 'funding_in_progress',
   FUNDED = 'funded',

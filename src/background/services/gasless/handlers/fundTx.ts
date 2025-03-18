@@ -27,7 +27,7 @@ export class FundTxHandler implements HandlerType {
     try {
       await this.gasStationService.fundTx({
         data,
-        challengeHex: `${challengeHex}`,
+        challengeHex,
         solutionHex,
         fromAddress,
       });
