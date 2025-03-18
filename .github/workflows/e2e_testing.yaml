@@ -110,10 +110,7 @@ jobs:
           path: './'
           ssh-key: ${{ secrets.SSH_DEPLOY_KEY }}
       - name: Install automation repo dependencies
-        run: |
-          corepack enable
-          corepack use yarn@4.7.0
-          yarn install
+        run: yarn install
       - name: Download builded zip file
         uses: actions/download-artifact@v4
         with:
