@@ -132,6 +132,8 @@ export interface ConnectionInfo {
 }
 
 export type ExtensionEventEmitter = ConnectionEventEmitter;
+
+export type OffscreenEventEmitter = ConnectionEventEmitter;
 export interface DAppEventEmitter extends ConnectionEventEmitter {
   setConnectionInfo(connectionInfo: ConnectionInfo): void;
 }
