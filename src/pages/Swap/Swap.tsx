@@ -1,6 +1,7 @@
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { resolve } from '@src/utils/promiseResolver';
 import { TransactionDetails } from './components/TransactionDetails';
 import { PageTitle } from '@src/components/common/PageTitle';
@@ -39,6 +40,7 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isUserRejectionError } from '@src/utils/errors';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
+import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { SwappableToken } from './models';
 
@@ -51,8 +53,11 @@ const ReviewOrderButtonContainer = styled('div')<{
   left: 0;
   width: 100%;
 `;
+const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
 export function Swap() {
+  useLiveBalance(POLLED_BALANCES);
+
   const { t } = useTranslation();
   const { capture, captureEncrypted } = useAnalyticsContext();
   const { network } = useNetworkContext();
@@ -105,7 +110,36 @@ export function Swap() {
     toTokenValue,
     optimalRate,
     destAmount,
+    resetValues,
   } = useSwapStateFunctions();
+
+  const isFromTokenKnown = useMemo(
+    () =>
+      selectedFromToken
+        ? tokensWBalances.some(getTokenFinder(selectedFromToken))
+        : true,
+    [tokensWBalances, selectedFromToken],
+  );
+
+  const isToTokenKnown = useMemo(
+    () =>
+      selectedToToken
+        ? allTokensOnNetwork.some(getTokenFinder(selectedToToken))
+        : true,
+    [allTokensOnNetwork, selectedToToken],
+  );
+
+  // If we detect the form has tokens that do not belong to the newly selected network,
+  // we reset the values to avoid any potential issues with the swap.
+  useEffect(() => {
+    if (!network) {
+      return;
+    }
+
+    if (!isToTokenKnown || !isFromTokenKnown) {
+      resetValues(true);
+    }
+  }, [network, isToTokenKnown, isFromTokenKnown, resetValues]);
 
   const activeAddress = useMemo(
     () =>
@@ -414,3 +448,13 @@ export function Swap() {
     </Stack>
   );
 }
+
+const getTokenFinder = (selectedToken: SwappableToken) => {
+  if (selectedToken.type === TokenType.NATIVE) {
+    return (token: TokenWithBalance) =>
+      token.type === TokenType.NATIVE && token.symbol === selectedToken.symbol;
+  }
+
+  return (token: TokenWithBalance) =>
+    token.type === TokenType.ERC20 && token.address === selectedToken.address;
+};

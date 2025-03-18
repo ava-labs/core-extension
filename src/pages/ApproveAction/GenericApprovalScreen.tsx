@@ -386,7 +386,7 @@ export function GenericApprovalScreen() {
           >
             {gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS
               ? t('Approving')
-              : t('Approve')}
+              : context?.customApprovalButtonText || t('Approve')}
           </Button>
         </Tooltip>
       </Stack>
