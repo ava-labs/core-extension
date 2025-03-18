@@ -20,29 +20,23 @@ import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/h
 import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallange';
 import { filter, map } from 'rxjs';
 import { gaslessChallangeUpdateEventListener } from '@src/background/services/gasless/events/gaslessChallangeUpdateListener';
-import { AddressLike, TransactionRequest } from 'ethers';
+import { AddressLike } from 'ethers';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
 import { GaslessPhase } from '@src/background/services/gasless/model';
+import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;
   getNetworkFee: (caipId: string) => Promise<NetworkFee | null>;
   fetchAndSolveGaslessChallange: () => Promise<any | null>;
-  gaslessFundTx: ({
-    data,
-    fromAddress,
-  }: {
-    data: TransactionRequest;
-    fromAddress: string;
-  }) => Promise<string | undefined>;
+  gaslessFundTx: (signingData?: SigningData) => Promise<string | undefined>;
   isGaslessOn: boolean;
   setIsGaslessOn: Dispatch<SetStateAction<boolean>>;
   fundTxHex: string;
   setGaslessDefaultValues: () => Promise<any | null>;
   gaslessPhase: GaslessPhase;
-  setGaslessPhase: Dispatch<SetStateAction<GaslessPhase>>;
   setGaslessEligibility: (
     chainId: string | number,
     fromAddress?: AddressLike | null,
@@ -72,9 +66,6 @@ const NetworkFeeContext = createContext<{
   },
 
   gaslessPhase: GaslessPhase.NOT_READY,
-  setGaslessPhase() {
-    return null;
-  },
   async setGaslessEligibility() {
     return;
   },
@@ -168,21 +159,32 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   );
 
   const gaslessFundTx = useCallback(
-    async ({ data, fromAddress }) =>
-      request<FundTxHandler>({
+    async (signingData?: SigningData) => {
+      if (!signingData || signingData.type !== RpcMethod.ETH_SEND_TRANSACTION) {
+        setIsGaslessOn(false);
+        setGaslessPhase(GaslessPhase.ERROR);
+        return undefined;
+      }
+      setGaslessPhase(GaslessPhase.FUNDING_IN_PROGRESS);
+      return request<FundTxHandler>({
         method: ExtensionRequest.GASLESS_FUND_TX,
-        params: [data, challengeHex, solutionHex, fromAddress],
-      }),
+        params: [
+          signingData.data,
+          challengeHex,
+          solutionHex,
+          signingData.account,
+        ],
+      });
+    },
     [challengeHex, request, solutionHex],
   );
 
-  const setGaslessDefaultValues = useCallback(
-    async () =>
-      request<SetDefaultStateValuesHandler>({
-        method: ExtensionRequest.GASLESS_SET_DEFAUlT_STATE_VALUES,
-      }),
-    [request],
-  );
+  const setGaslessDefaultValues = useCallback(async () => {
+    setGaslessPhase(GaslessPhase.NOT_READY);
+    return request<SetDefaultStateValuesHandler>({
+      method: ExtensionRequest.GASLESS_SET_DEFAUlT_STATE_VALUES,
+    });
+  }, [request]);
 
   useEffect(() => {
     const gaslessEventSubscription = events()
@@ -210,6 +212,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
           setGaslessPhase(GaslessPhase.FUNDED);
         }
         if (values.fundTxDoNotRetryError) {
+          setIsGaslessOn(false);
           setGaslessPhase(GaslessPhase.ERROR);
         }
       });
@@ -232,7 +235,6 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         fundTxHex,
         setGaslessDefaultValues,
         gaslessPhase,
-        setGaslessPhase,
       }}
     >
       {children}

@@ -4,12 +4,7 @@ import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useEffect, useState } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
-import {
-  AlertType,
-  DisplayData,
-  RpcMethod,
-  SigningData_EthSendTx,
-} from '@avalabs/vm-module-types';
+import { AlertType, DisplayData, RpcMethod } from '@avalabs/vm-module-types';
 import {
   Alert,
   AlertContent,
@@ -88,13 +83,11 @@ export function GenericApprovalScreen() {
     fundTxHex,
     setGaslessDefaultValues,
     gaslessPhase,
-    setGaslessPhase,
     setGaslessEligibility,
     fetchAndSolveGaslessChallange,
   } = useNetworkFeeContext();
 
   const { captureEncrypted } = useAnalyticsContext();
-  const [gaslessError, setGaslessError] = useState('');
 
   const { displayData, context, signingData } = action ?? {};
   const hasFeeSelector = action?.displayData.networkFeeSelector;
@@ -134,43 +127,13 @@ export function GenericApprovalScreen() {
   }, [fetchAndSolveGaslessChallange]);
 
   const handleRejection = useCallback(() => {
-    setGaslessError('');
-    setGaslessPhase(GaslessPhase.NOT_READY);
     setGaslessDefaultValues();
     cancelHandler();
-  }, [cancelHandler, setGaslessDefaultValues, setGaslessPhase]);
-
-  const handleGaslessError = useCallback(() => {
-    setIsGaslessOn(false);
-    setGaslessError(
-      t(
-        `We're unable to cover the gas fees for your transaction at this time. As a result, this feature has been disabled.`,
-      ),
-    );
-  }, [setIsGaslessOn, t]);
-
-  const fundGasless = useCallback(
-    async (data: SigningData_EthSendTx) => {
-      return await gaslessFundTx({
-        data: data.data,
-        fromAddress: data.account,
-      });
-    },
-    [gaslessFundTx],
-  );
+  }, [cancelHandler, setGaslessDefaultValues]);
 
   const signTx = useCallback(async () => {
-    setGaslessError('');
     if (isGaslessOn) {
-      setGaslessPhase(GaslessPhase.FUNDING_IN_PROGRESS);
-      if (action?.signingData?.type === RpcMethod.ETH_SEND_TRANSACTION) {
-        await fundGasless(action.signingData);
-        return;
-      }
-
-      setGaslessPhase(GaslessPhase.NOT_READY);
-      // when the gasless feature is turned on we handle the action update after the tx has ended
-      return;
+      return await gaslessFundTx(action?.signingData);
     }
     updateAction(
       {
@@ -181,19 +144,17 @@ export function GenericApprovalScreen() {
     );
   }, [
     action?.signingData,
-    fundGasless,
+    gaslessFundTx,
     isGaslessOn,
     isUsingKeystoneWallet,
     isUsingLedgerWallet,
     requestId,
-    setGaslessPhase,
     updateAction,
   ]);
 
   useEffect(() => {
     if (gaslessPhase === GaslessPhase.ERROR) {
       captureEncrypted('GaslessFundFailed');
-      handleGaslessError();
     }
     if (gaslessPhase === GaslessPhase.FUNDED && fundTxHex) {
       captureEncrypted('GaslessFundSuccessful', {
@@ -217,7 +178,6 @@ export function GenericApprovalScreen() {
     captureEncrypted,
     fundTxHex,
     gaslessPhase,
-    handleGaslessError,
     isUsingKeystoneWallet,
     isUsingLedgerWallet,
     network,
@@ -289,9 +249,14 @@ export function GenericApprovalScreen() {
           </Stack>
         )}
 
-        {gaslessError && (
+        {gaslessPhase === GaslessPhase.ERROR && (
           <Stack sx={{ width: 1, px: 2, mb: 1 }}>
-            <AlertBox title={t('Gasless Error')} text={gaslessError} />
+            <AlertBox
+              title={t('Gasless Error')}
+              text={t(
+                `We're unable to cover the gas fees for your transaction at this time. As a result, this feature has been disabled.`,
+              )}
+            />
           </Stack>
         )}
 
@@ -392,7 +357,7 @@ export function GenericApprovalScreen() {
         </Button>
         <Tooltip
           title={
-            gaslessPhase !== GaslessPhase.READY &&
+            gaslessPhase === GaslessPhase.NOT_READY &&
             isGaslessOn &&
             t(
               `If you're looking to approve the transaction despite the gasless feature, please turn it off to proceed.`,
