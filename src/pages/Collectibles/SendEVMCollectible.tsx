@@ -30,6 +30,8 @@ import {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
 } from '@avalabs/vm-module-types';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { GaslessPhase } from '@src/background/services/gasless/model';
 
 type Props = SendPageProps<
   JsonRpcBatchInternal,
@@ -50,7 +52,6 @@ export const SendEVMCollectible = ({
   nativeToken,
   provider,
   tokenList,
-
   onSuccess,
   onFailure,
   onApproved,
@@ -68,6 +69,7 @@ export const SendEVMCollectible = ({
   const setCollectibleParams = useSetCollectibleParams();
   const [token] = tokenList;
   const { capture } = useAnalyticsContext();
+  const { gaslessPhase } = useNetworkFeeContext();
 
   const { error, isSending, isValid, isValidating, send, validate } =
     useEVMSend({
@@ -94,8 +96,12 @@ export const SendEVMCollectible = ({
     }
   }, [address, token, validate, setCollectibleParams, params]);
 
+  const isSendAvailableWithGasless =
+    gaslessPhase !== GaslessPhase.NOT_ELIGIBLE &&
+    error === SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE;
+
   const onSend = useCallback(async () => {
-    if (!isValid) {
+    if (!isValid && !isSendAvailableWithGasless) {
       return;
     }
 
@@ -115,7 +121,16 @@ export const SendEVMCollectible = ({
         onSuccess(txHash);
       }
     }
-  }, [address, isValid, onApproved, onFailure, onSuccess, send, token]);
+  }, [
+    address,
+    isSendAvailableWithGasless,
+    isValid,
+    onApproved,
+    onFailure,
+    onSuccess,
+    send,
+    token,
+  ]);
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -202,7 +217,7 @@ export const SendEVMCollectible = ({
             placement="top"
             sx={{ width: '100%' }}
             title={
-              error ? (
+              error && !isSendAvailableWithGasless ? (
                 <Typography variant="body2">
                   {getSendErrorMessage(error)}
                 </Typography>
@@ -216,7 +231,10 @@ export const SendEVMCollectible = ({
               variant="contained"
               size="large"
               onClick={onSend}
-              disabled={isValidating || !isValid || isSending}
+              disabled={
+                !isSendAvailableWithGasless &&
+                (isValidating || !isValid || isSending)
+              }
               isLoading={isSending}
               fullWidth
             >

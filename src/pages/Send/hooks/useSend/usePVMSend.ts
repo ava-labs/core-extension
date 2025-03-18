@@ -76,23 +76,19 @@ export const usePvmSend: SendAdapterPVM = ({
   useEffect(() => {
     let isMounted = true;
 
-    if (provider.isEtnaEnabled()) {
-      provider
-        .getApiP()
-        .getFeeState()
-        .then((state) => {
-          if (!isMounted) {
-            return;
-          }
+    provider
+      .getApiP()
+      .getFeeState()
+      .then((state) => {
+        if (!isMounted) {
+          return;
+        }
 
-          setFeeState(state);
-        })
-        .catch(() => {
-          setError(SendErrorMessage.INVALID_NETWORK_FEE);
-        });
-    } else {
-      setFeeState(undefined);
-    }
+        setFeeState(state);
+      })
+      .catch(() => {
+        setError(SendErrorMessage.INVALID_NETWORK_FEE);
+      });
 
     return () => {
       isMounted = false;
@@ -210,7 +206,7 @@ export const usePvmSend: SendAdapterPVM = ({
         }
       }
 
-      if (provider.isEtnaEnabled() && !feeState) {
+      if (!feeState) {
         // Fee state has not been fetched yet, we can't proceed with other validations.
         // If there is an error with fetching the fee state when it's required,
         // that error is captured outside of the validate() function.

@@ -93,14 +93,14 @@
     viem "2.11.1"
     zod "3.23.8"
 
-"@avalabs/core-bridge-sdk@3.1.0-alpha.37":
-  version "3.1.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-bridge-sdk/-/core-bridge-sdk-3.1.0-alpha.37.tgz#b33dca6a45ea7533e8ac029ce3171f29a4170e01"
-  integrity sha512-xfCJT5AccXRBPYuAoe9cBD/GbdWZ9U2DTTScTs++i91YWn8/FHKwG2e86UwdqfgbAOruNRybrLl2cQ/maAoVog==
+"@avalabs/core-bridge-sdk@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-bridge-sdk/-/core-bridge-sdk-3.1.0-alpha.40.tgz#a32be00ebb40438823b0b4d72a14079b67cc340c"
+  integrity sha512-iZiSHWysFX5Qq/0RZLbkR/410x5YwEPE+KtwqPei3g+xqTyZkAkBNnWdlcVrqjT9/u6A3nXzzJSjoDxdetwGKA==
   dependencies:
-    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.37"
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.37"
-    "@avalabs/core-wallets-sdk" "3.1.0-alpha.37"
+    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.40"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.40"
+    "@avalabs/core-wallets-sdk" "3.1.0-alpha.40"
 
 "@avalabs/core-chains-sdk@3.1.0-alpha.34":
   version "3.1.0-alpha.34"
@@ -109,12 +109,12 @@
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.34"
 
-"@avalabs/core-chains-sdk@3.1.0-alpha.37":
-  version "3.1.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-chains-sdk/-/core-chains-sdk-3.1.0-alpha.37.tgz#954d1c2fe482317d0dd7ba98cacfd49aeac273ec"
-  integrity sha512-qzAIbbCO9fRddYqlsGvFf9ZwasJMjbVDqxizT2VwpGkhEnKY+tEUt+ua8wRcoHLfZjMBnN2JCeljOKzAbmScog==
+"@avalabs/core-chains-sdk@3.1.0-alpha.40", "@avalabs/core-chains-sdk@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-chains-sdk/-/core-chains-sdk-3.1.0-alpha.40.tgz#b72b66cda881b509e2a484ba897f79ae105ada7e"
+  integrity sha512-nm2ZcRPSkrJd2PslFIb6z7nErFoRswwyeu8gKCXUY0+dLiltpCuKNGZ3krgCpL0sUqFBuu4PjWNYgMhzX5GZOg==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.37"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.40"
 
 "@avalabs/core-coingecko-sdk@3.1.0-alpha.34":
   version "3.1.0-alpha.34"
@@ -123,19 +123,19 @@
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.34"
 
-"@avalabs/core-coingecko-sdk@3.1.0-alpha.37":
-  version "3.1.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-coingecko-sdk/-/core-coingecko-sdk-3.1.0-alpha.37.tgz#c51eb66ce42dd1faa6a333824590966fdf496e6c"
-  integrity sha512-66k6PXwQl0POBdvbLl9K62Xehk3O1UNCmBgy7JbrkUagB2RXbnHZROb8kzv83Mmzf/OXEZG2nL6xO6AmS7z6jQ==
+"@avalabs/core-coingecko-sdk@3.1.0-alpha.40", "@avalabs/core-coingecko-sdk@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-coingecko-sdk/-/core-coingecko-sdk-3.1.0-alpha.40.tgz#e39085c0964c8553e91eedbe0cd64f3bb2acb258"
+  integrity sha512-qmYSCcZtSf93aXjIqBiZCtLQmEAV1yPUmfq9mLVXwdv3TaRZBLySVADKsToKaff98TnMFWEaHrNGgTqO+76+5w==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.37"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.40"
 
-"@avalabs/core-covalent-sdk@3.1.0-alpha.37":
-  version "3.1.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-covalent-sdk/-/core-covalent-sdk-3.1.0-alpha.37.tgz#02b7f7608d6944f6185ecfd8f3a3aab0a00f54b3"
-  integrity sha512-bOL0SmMTbifesZpSYu1510LUpLbFNmQW/jsPkiC35u2ICnM8CYvqIdbd77C5neAfNAcxMISeVeHQc91+9ILswg==
+"@avalabs/core-covalent-sdk@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-covalent-sdk/-/core-covalent-sdk-3.1.0-alpha.40.tgz#a067946fbcb8efb63f68e12238441ef152ed9481"
+  integrity sha512-CiZQCAYNqO2k7WXeUgnXfmkE423D1tzYbkwInGEZUfAIP6p96ZBwpWnvxfULxtbWp/m5o0KI2EWIU8sG9Fx6vg==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.37"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.40"
 
 "@avalabs/core-etherscan-sdk@3.1.0-alpha.34":
   version "3.1.0-alpha.34"
@@ -144,12 +144,20 @@
   dependencies:
     "@avalabs/core-utils-sdk" "3.1.0-alpha.34"
 
-"@avalabs/core-etherscan-sdk@3.1.0-alpha.37":
-  version "3.1.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-etherscan-sdk/-/core-etherscan-sdk-3.1.0-alpha.37.tgz#a6c7be839bd6d6def9cdb2642f7b2919e0b341d2"
-  integrity sha512-/w4XJItey96pEAuvotndfUHjocdUl0mCjw02lU+9HbmZPNAu8XfPlRq785+7lOXhzSU2Y02lEtDYhksh1qJMJg==
+"@avalabs/core-etherscan-sdk@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-etherscan-sdk/-/core-etherscan-sdk-3.1.0-alpha.40.tgz#406c5c096a95f42a4288c213d165ca17c807d51c"
+  integrity sha512-6pFMFflc5IlMJKY5DWoB9Y2fnUEr7P++kYII1SzdwKZhdy4MQFIfI/6GoEYqvS4EbClPV3d/B6y4+4RNWXEvJA==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.37"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.40"
+
+"@avalabs/core-gasless-sdk@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-gasless-sdk/-/core-gasless-sdk-3.1.0-alpha.40.tgz#0a6ff9fdfb10a30246f7c028b1a89da1cdbed832"
+  integrity sha512-A3+u08Y6Zzpoc43tgdZ3CmK2fxIrsecezvU3wawxpyupJ0NnbFDSZoYXuMCf4bZ5kJRXdo/vfVr1CMCdmXNiqQ==
+  dependencies:
+    "@noble/hashes" "1.7.1"
+    zod "3.23.8"
 
 "@avalabs/core-k2-components@4.18.0-alpha.53":
   version "4.18.0-alpha.53"
@@ -174,20 +182,20 @@
     react-hotkeys-hook "4.4.3"
     uuid "9.0.1"
 
-"@avalabs/core-snowtrace-sdk@3.1.0-alpha.37":
-  version "3.1.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-snowtrace-sdk/-/core-snowtrace-sdk-3.1.0-alpha.37.tgz#51fd8bea3e13b2c788a287b879fede92af0986a1"
-  integrity sha512-7EKPkB3RLbV21PI5Zhy+SoxBNNsT52F260VfzfkWvLM40aj/F8RZq1k6oesDtWnZ/B0/WpGPKSGbDNVd8BO/XA==
+"@avalabs/core-snowtrace-sdk@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-snowtrace-sdk/-/core-snowtrace-sdk-3.1.0-alpha.40.tgz#a5e8d517c0151b948bf91a47104d99586803766a"
+  integrity sha512-MbPekvka4nEWNPJsy9KNjvFvJnqvfdVBaJe7WTo9vztKmBY3Lmw4MImCGbQD349hA0CDI0ZnQHPgVwm82CqA7w==
   dependencies:
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.37"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.40"
 
-"@avalabs/core-token-prices-sdk@3.1.0-alpha.37":
-  version "3.1.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-token-prices-sdk/-/core-token-prices-sdk-3.1.0-alpha.37.tgz#600641fca5a50542f46c2d94c63213345d91bc8f"
-  integrity sha512-yAFzCM7v+V5eZN8070W0299/TNvJ3/uQWHriCcLSoWOjxqcCKhPYvDJzZkuF0fFaC0yJpFNflFbak/WGTm6XFw==
+"@avalabs/core-token-prices-sdk@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-token-prices-sdk/-/core-token-prices-sdk-3.1.0-alpha.40.tgz#330220e9f875d8c8fa8db774872e0966ffd50e13"
+  integrity sha512-W+R510IhwQhi8OkyDk3aGhgzQ6+e/lHvP6INcGGZTSyVbH1Wy6sedLWHu/KXHsHYOQsHo/wII4SVdHF6nI5OnQ==
   dependencies:
-    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.37"
-    "@avalabs/core-utils-sdk" "3.1.0-alpha.37"
+    "@avalabs/core-coingecko-sdk" "3.1.0-alpha.40"
+    "@avalabs/core-utils-sdk" "3.1.0-alpha.40"
 
 "@avalabs/core-utils-sdk@3.1.0-alpha.34":
   version "3.1.0-alpha.34"
@@ -198,10 +206,10 @@
     "@hpke/core" "1.2.5"
     is-ipfs "6.0.2"
 
-"@avalabs/core-utils-sdk@3.1.0-alpha.37":
-  version "3.1.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-utils-sdk/-/core-utils-sdk-3.1.0-alpha.37.tgz#2b41db88ef830a727f8a9997a90eed5720da6d5d"
-  integrity sha512-VY4i2YVlW4A6U5VlLcus3H+8dEi1RxlTyK/RdA4zjYGCsCfOYfFFIHFfWbRJzzXxQ1auZ9cEXNnRli70sK6kPg==
+"@avalabs/core-utils-sdk@3.1.0-alpha.40", "@avalabs/core-utils-sdk@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-utils-sdk/-/core-utils-sdk-3.1.0-alpha.40.tgz#59db49831fb208e02946fed2299ab5234c7b36ca"
+  integrity sha512-nR1Vfy/qPN1C3UzrzCZREWuftt6tv2fdBz/K9R4qv46BrMKpyUzsHFdA76hL8swl+CcoJfgmnPfP4wpVb8QTrA==
   dependencies:
     "@hpke/core" "1.2.5"
     is-ipfs "6.0.2"
@@ -230,14 +238,14 @@
     ledger-bitcoin "0.2.3"
     xss "1.0.14"
 
-"@avalabs/core-wallets-sdk@3.1.0-alpha.37":
-  version "3.1.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@avalabs/core-wallets-sdk/-/core-wallets-sdk-3.1.0-alpha.37.tgz#19267f5d629f77c9fdbca093b71f6005f432fffe"
-  integrity sha512-PTmwWzAVA7D0YeqqiEk5wVkzf+aNQPls2do15hSChHtYXacFVxeXZhRRjaJQhLD8FF/VL7Qr9A3xPDwVfQVbGg==
+"@avalabs/core-wallets-sdk@3.1.0-alpha.40", "@avalabs/core-wallets-sdk@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/core-wallets-sdk/-/core-wallets-sdk-3.1.0-alpha.40.tgz#b1e347ffb7840ecd2937b54211423cc521e402a3"
+  integrity sha512-lAgLYA5f4jFsgL57ViFv6MSwV/yr495alV1td9e6jCzOitCOkpi7gSPE37D+XRFFZl35uFdXi5apl+4xKrwuHg==
   dependencies:
     "@avalabs/avalanchejs" "4.2.0-alpha.1"
-    "@avalabs/core-chains-sdk" "3.1.0-alpha.37"
-    "@avalabs/glacier-sdk" "3.1.0-alpha.37"
+    "@avalabs/core-chains-sdk" "3.1.0-alpha.40"
+    "@avalabs/glacier-sdk" "3.1.0-alpha.40"
     "@avalabs/hw-app-avalanche" "0.14.1"
     "@ledgerhq/hw-app-btc" "10.2.4"
     "@ledgerhq/hw-app-eth" "6.36.1"
@@ -280,10 +288,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.34.tgz#bc2b20bba5b1d5d6d970e4ed9989da37a7d3247a"
   integrity sha512-LtMvlWuLwhlKcc82bUFQgXeLjP2QOu3zh7UAn1AgkEOM3+XbX5hZ+I8gP0RxOHk3mzAsJOGIrpEXRIznYBvZIw==
 
-"@avalabs/glacier-sdk@3.1.0-alpha.37":
-  version "3.1.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.37.tgz#c1f4e3e92f4acb2eaf0b62e5ae40fe213decc86e"
-  integrity sha512-6LeLImgFenVOU3cdK5E07oXbSpRKIlfMz2knLaKJVc51QHvvZOx+S+Q4kX6yi8NZttQYO406f0tPG0bD3Bn/tg==
+"@avalabs/glacier-sdk@3.1.0-alpha.40", "@avalabs/glacier-sdk@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/glacier-sdk/-/glacier-sdk-3.1.0-alpha.40.tgz#4b9b9569decc8c4b69e6a0d3b350237be8c918ff"
+  integrity sha512-U1ywhuLp93ZbTXF+A3UOafzCCWBGb32JfiYnEw0fhOmstQCc9lmfp1bpbKmdIcaJeJItmYJ8gIqdKp/DozIftA==
 
 "@avalabs/hvm-module@1.4.6":
   version "1.4.6"
@@ -313,10 +321,10 @@
   resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.34.tgz#f560f7e512e4a11f0a94ad2718aa7ce57367200e"
   integrity sha512-v2/PAO+3QMk+xoubHzE810ZbZsIGXk+05eTXZvrNQy5KQjoPS02h11/EOSMGhpuAPg3jNCMLKQrIVkmKO/NFIw==
 
-"@avalabs/types@3.1.0-alpha.37":
-  version "3.1.0-alpha.37"
-  resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.37.tgz#2b92c7ef7e6a59c1314a541c08dbe5a812ea56e5"
-  integrity sha512-0xbjZyNb6xTLVAaaLoalJbbDc6eFXOQphs5ZOvljAKgjtS4tc7DlrF466zMac/aMLG1YPaNfNbzJQKB1GrSsEQ==
+"@avalabs/types@v3.1.0-alpha.40":
+  version "3.1.0-alpha.40"
+  resolved "https://registry.yarnpkg.com/@avalabs/types/-/types-3.1.0-alpha.40.tgz#e2e8286037ea1729f2f020df1ea98b1bbcdd9d71"
+  integrity sha512-GrNT5hk18MSbVXKBFTu3E1ll2L9JA7dD7q56hNSYG3LxFQbawd55si8kAY9D7pbCngutkH+3dH3V4lrmkSEjJg==
 
 "@avalabs/vm-module-types@1.4.6":
   version "1.4.6"
@@ -5149,6 +5157,11 @@
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.6.0.tgz#d4bfb516ad6e7b5111c216a5cc7075f4cf19e6c5"
   integrity sha512-YUULf0Uk4/mAA89w+k3+yUYh6NrEvxZa5T6SY3wlMvE2chHkxFUUIDI8/XW1QSC357iA5pSnqt7XEhvFOqmDyQ==
 
+"@noble/hashes@1.7.1":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.7.1.tgz#5738f6d765710921e7a751e00c20ae091ed8db0f"
+  integrity sha512-B8XBPsn4vT/KJAGqDzbwztd+6Yte3P4V7iafm24bxgDe/mlRuK6xmWPuCNrKt2vDafZ8MfJLlchDG/vYafQEjQ==
+
 "@noble/hashes@^1.5.0":
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.6.1.tgz#df6e5943edcea504bac61395926d6fd67869a0d5"
@@ -6521,10 +6534,10 @@
     "@types/node" "*"
     "@types/responselike" "^1.0.0"
 
-"@types/chrome@0.0.180":
-  version "0.0.180"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.180.tgz#b7fb831848f6b6c49abffd85410b73037c02381e"
-  integrity sha512-A/CuuKAaHq2CHEpYBAtl0lp2ib7TTXK7VjJI4q+c+1U/HDvZLJ8IlsdEDzzHdvkNdh36bGONxrMnO9YZrKqbAw==
+"@types/chrome@0.0.304":
+  version "0.0.304"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.304.tgz#8d696ba6c0bb464c3f23fdfa61326439469ea55c"
+  integrity sha512-ms9CLILU+FEMK7gcmgz/Mtn2E81YQWiMIzCFF8ktp98EVNIIfoqaDTD4+ailOCq1sGjbnEmfJxQ1FAsQtk5M3A==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"

@@ -9,6 +9,7 @@ module.exports = {
     backgroundPage: path.join(__dirname, 'src/background/index.ts'),
     popup: path.join(__dirname, 'src/popup/index.tsx'),
     contentscript: path.join(__dirname, 'src/contentscript.ts'),
+    offscreen: path.join(__dirname, 'src/offscreen.ts'),
   },
   output: {
     path: path.join(__dirname, 'dist/js'),
@@ -110,6 +111,7 @@ module.exports = {
         { from: 'src/index.html', to: '../fullscreen.html' },
         { from: 'src/images', to: '../images' },
         { from: 'src/localization/locales', to: '../locales', force: true },
+        { from: 'src/offscreen.html', to: '../offscreen.html' },
       ],
       options: {
         concurrency: 100,

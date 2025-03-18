@@ -49,6 +49,7 @@ export enum FeatureGates {
   HALLIDAY_BRIDGE_BANNER = 'halliday-bridge-banner',
   FIREBASE_CLOUD_MESSAGING = 'firebase-cloud-messaging',
   ONE_CLICK_SWAP = 'one-click-swap',
+  GASLESS = 'gasless',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -104,6 +105,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.HALLIDAY_BRIDGE_BANNER]: false,
   [FeatureGates.FIREBASE_CLOUD_MESSAGING]: false,
   [FeatureGates.ONE_CLICK_SWAP]: false,
+  [FeatureGates.GASLESS]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -158,6 +160,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.HALLIDAY_BRIDGE_BANNER]: true,
   [FeatureGates.FIREBASE_CLOUD_MESSAGING]: true,
   [FeatureGates.ONE_CLICK_SWAP]: true,
+  [FeatureGates.GASLESS]: true,
 };
 
 export enum FeatureFlagEvents {
