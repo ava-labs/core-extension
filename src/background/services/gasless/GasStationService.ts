@@ -44,21 +44,9 @@ export class GasStationService {
     this.#sdk = new GaslessSdk(this.#gasStationUrl);
   }
 
-  async activate() {
-    this.#createOffScreen();
-  }
-
   async #getAppcheckToken() {
     const tokenResult = await this.appCheckService.getAppcheckToken();
     return tokenResult?.token;
-  }
-
-  async #createOffScreen() {
-    await chrome.offscreen.createDocument({
-      url: 'offscreen.html',
-      reasons: ['WORKERS'],
-      justification: 'offload computation',
-    });
   }
 
   async sendMessage(message, request: ExtensionRequest) {

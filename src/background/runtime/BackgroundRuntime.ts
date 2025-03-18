@@ -33,7 +33,7 @@ export class BackgroundRuntime {
     this.onboardingService.activate();
     this.moduleManager.activate();
     this.appCheckService.activate();
-    this.gasStationService.activate();
+    this.#createOffScreen();
   }
 
   private onInstalled() {
@@ -91,5 +91,13 @@ export class BackgroundRuntime {
        */
       console.warn(`Dropped attempt to register inpage content script. ${err}`);
     }
+  }
+
+  async #createOffScreen() {
+    await chrome.offscreen.createDocument({
+      url: 'offscreen.html',
+      reasons: ['WORKERS'],
+      justification: 'offload computation',
+    });
   }
 }
