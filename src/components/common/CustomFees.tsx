@@ -215,8 +215,7 @@ export function CustomFees({
       : selectedGasFeeModifier || GasFeeModifier.SLOW,
   );
 
-  const { isGaslessEligible, isGaslessOn, setIsGaslessOn, gaslessPhase } =
-    useNetworkFeeContext();
+  const { isGaslessOn, setIsGaslessOn, gaslessPhase } = useNetworkFeeContext();
 
   useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest native balance.
 
@@ -419,7 +418,7 @@ export function CustomFees({
           unmountOnExit
         >
           {!isBatchApprovalScreen &&
-            isGaslessEligible &&
+            gaslessPhase !== GaslessPhase.NOT_ELIGIBLE &&
             gaslessPhase !== GaslessPhase.ERROR && (
               <GaslessFee
                 onSwitch={() => {

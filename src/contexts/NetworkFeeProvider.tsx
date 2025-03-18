@@ -39,11 +39,10 @@ const NetworkFeeContext = createContext<{
   }) => Promise<string | undefined>;
   isGaslessOn: boolean;
   setIsGaslessOn: Dispatch<SetStateAction<boolean>>;
-  isGaslessEligible: boolean | null;
   fundTxHex: string;
   setGaslessDefaultValues: () => Promise<any | null>;
-  gaslessPhase: GaslessPhase | null;
-  setGaslessPhase: Dispatch<SetStateAction<GaslessPhase | null>>;
+  gaslessPhase: GaslessPhase;
+  setGaslessPhase: Dispatch<SetStateAction<GaslessPhase>>;
   setGaslessEligibility: (
     chainId: string | number,
     fromAddress?: AddressLike | null,
@@ -65,7 +64,6 @@ const NetworkFeeContext = createContext<{
   setIsGaslessOn() {
     return null;
   },
-  isGaslessEligible: null,
 
   fundTxHex: '',
 
@@ -73,7 +71,7 @@ const NetworkFeeContext = createContext<{
     return null;
   },
 
-  gaslessPhase: null,
+  gaslessPhase: GaslessPhase.NOT_READY,
   setGaslessPhase() {
     return null;
   },
@@ -90,12 +88,11 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   const [challengeHex, setChallengeHex] = useState('');
   const [solutionHex, setSolutionHex] = useState('');
   const [isGaslessOn, setIsGaslessOn] = useState(false);
-  const [isGaslessEligible, setIsGaslessEligible] = useState<boolean | null>(
-    null,
-  );
   const [fundTxHex, setFundTxHex] = useState('');
   const { featureFlags } = useFeatureFlagContext();
-  const [gaslessPhase, setGaslessPhase] = useState<GaslessPhase | null>(null);
+  const [gaslessPhase, setGaslessPhase] = useState<GaslessPhase>(
+    GaslessPhase.NOT_READY,
+  );
 
   const getNetworkFee = useCallback(
     async (caipId: string) =>
@@ -113,7 +110,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
       nonce?: number | null,
     ) => {
       if (!featureFlags[FeatureGates.GASLESS]) {
-        setIsGaslessEligible(false);
+        setGaslessPhase(GaslessPhase.NOT_ELIGIBLE);
         return;
       }
       try {
@@ -121,10 +118,12 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
           method: ExtensionRequest.GASLESS_GET_ELIGIBILITY,
           params: [chainId, fromAddress?.toString(), nonce ?? undefined],
         });
-        setIsGaslessEligible(result);
+        if (!result) {
+          setGaslessPhase(GaslessPhase.NOT_ELIGIBLE);
+        }
       } catch (e: any) {
         console.error(e);
-        setIsGaslessEligible(false);
+        setGaslessPhase(GaslessPhase.NOT_ELIGIBLE);
       }
     },
 
@@ -230,7 +229,6 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         setGaslessEligibility,
         isGaslessOn,
         setIsGaslessOn,
-        isGaslessEligible,
         fundTxHex,
         setGaslessDefaultValues,
         gaslessPhase,

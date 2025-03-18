@@ -25,6 +25,7 @@ export interface GaslessState {
 
 export enum GaslessPhase {
   NOT_READY = 'not_ready',
+  NOT_ELIGIBLE = 'not_eligible',
   READY = 'ready',
   FUNDING_IN_PROGRESS = 'funding_in_progress',
   FUNDED = 'funded',

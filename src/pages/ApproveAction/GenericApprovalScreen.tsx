@@ -83,7 +83,6 @@ export function GenericApprovalScreen() {
   });
   const {
     isGaslessOn,
-    isGaslessEligible,
     gaslessFundTx,
     setIsGaslessOn,
     fundTxHex,
@@ -99,6 +98,7 @@ export function GenericApprovalScreen() {
 
   const { displayData, context, signingData } = action ?? {};
   const hasFeeSelector = action?.displayData.networkFeeSelector;
+  const isGaslessEligible = gaslessPhase !== GaslessPhase.NOT_ELIGIBLE;
   const isFeeValid =
     (isGaslessOn && isGaslessEligible) ||
     !hasFeeSelector ||
@@ -126,7 +126,7 @@ export function GenericApprovalScreen() {
   ]);
 
   useEffect(() => {
-    setIsGaslessOn(!!isGaslessEligible);
+    setIsGaslessOn(isGaslessEligible);
   }, [isGaslessEligible, setIsGaslessOn]);
 
   useEffect(() => {
