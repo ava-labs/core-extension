@@ -50,6 +50,7 @@ jobs:
           echo NEWSLETTER_FORM_ID=${{ secrets.NEWSLETTER_FORM_ID }} >> .env.production
           echo FIREBASE_CONFIG=${{ secrets.FIREBASE_CONFIG }} >> .env.production
           echo ID_SERVICE_URL=${{ secrets.ID_SERVICE_URL }} >> .env.production
+          echo GASLESS_SERVICE_URL=${{ secrets.GASLESS_SERVICE_URL }} >> .env.production
       - name: Install dependencies
         run: yarn setup
       - name: Build library
