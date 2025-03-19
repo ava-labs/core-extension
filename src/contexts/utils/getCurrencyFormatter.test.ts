@@ -40,4 +40,13 @@ describe('contexts/utils/getCurrencyFormatter', () => {
     const value4 = formatter(0.00000023);
     expect(value4).not.toBe('$0.0000002');
   });
+
+  it('should transform a small number to `0.00` or a big number to `∞` from scientific notation', () => {
+    const value = formatter(0.0000000001);
+    expect(value).toBe('$0.00');
+
+    // eslint-disable-next-line no-loss-of-precision
+    const value2 = formatter(999999999999999999999);
+    expect(value2).toBe('$∞');
+  });
 });

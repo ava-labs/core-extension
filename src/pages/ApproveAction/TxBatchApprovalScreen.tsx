@@ -53,7 +53,7 @@ export function TxBatchApprovalScreen() {
       network,
     });
 
-  const { displayData } = action ?? {};
+  const { displayData, context } = action ?? {};
   const isFeeValid =
     !actionError && !feeError && !isCalculatingFee && hasEnoughForNetworkFee;
 
@@ -346,7 +346,7 @@ export function TxBatchApprovalScreen() {
                     fullWidth
                     onClick={signTx}
                   >
-                    {t('Approve All')}
+                    {context?.customApprovalButtonText || t('Approve All')}
                   </Button>
                   <Button
                     color="secondary"
