@@ -107,3 +107,5 @@ export type BtcSendOptions = {
 export type SendOptions = NativeSendOptions | Erc20SendOptions | NftSendOptions;
 
 export type SolanaSendOptions = SolSendOptions | SplSendOptions;
+
+export const SOLANA_FIXED_BASE_FEE = 5000n;

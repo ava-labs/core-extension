@@ -232,7 +232,7 @@ export function SendPage() {
           <SendSVM
             network={network}
             fromAddress={fromAddress}
-            maxFee={0n} // TODO: fix
+            maxFee={0n} // Irrelevant for Solana at the moment, since we're only using the fixed, base fee (no priority fees).
             nativeToken={nativeToken as TokenWithBalanceSVM}
             provider={provider as SolanaProvider}
             tokenList={tokens as [TokenWithBalanceSPL]}

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useCallback, useState } from 'react';
 import {
   transferSol,
@@ -15,7 +14,7 @@ import { SendErrorMessage } from '@src/utils/send/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 import { SendAdapterSVM } from './models';
-import { SolanaSendOptions } from '../../models';
+import { SOLANA_FIXED_BASE_FEE, SolanaSendOptions } from '../../models';
 import { stringToBigint } from '@src/utils/stringToBigint';
 
 const RENT_EXEMPT_CACHE = new Map<bigint, bigint>();
@@ -65,16 +64,6 @@ export const useSvmSend: SendAdapterSVM = ({
     async ({ address, amount, token }: SolanaSendOptions) => {
       setIsValidating(true);
 
-      if (!address) {
-        setErrorAndEndValidating(SendErrorMessage.ADDRESS_REQUIRED);
-        return;
-      }
-
-      if (!isAddress(address)) {
-        setErrorAndEndValidating(SendErrorMessage.INVALID_ADDRESS);
-        return;
-      }
-
       const amountBigInt = stringToBigint(amount || '0', token.decimals);
 
       if (!amountBigInt || amountBigInt < 0) {
@@ -84,9 +73,30 @@ export const useSvmSend: SendAdapterSVM = ({
 
       const remainingBalance = token.balance - amountBigInt;
 
-      // TODO: take fee into consideration
-      if (remainingBalance <= 0n) {
-        setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
+      // Handle max amount first
+      if (token.type === TokenType.NATIVE) {
+        setMaxAmount((nativeToken.balance - SOLANA_FIXED_BASE_FEE).toString());
+
+        if (remainingBalance < SOLANA_FIXED_BASE_FEE) {
+          setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
+          return;
+        }
+      } else {
+        setMaxAmount(nativeToken.balance.toString());
+
+        if (remainingBalance < 0n) {
+          setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
+          return;
+        }
+      }
+
+      if (!address) {
+        setErrorAndEndValidating(SendErrorMessage.ADDRESS_REQUIRED);
+        return;
+      }
+
+      if (!isAddress(address)) {
+        setErrorAndEndValidating(SendErrorMessage.INVALID_ADDRESS);
         return;
       }
 
@@ -114,7 +124,7 @@ export const useSvmSend: SendAdapterSVM = ({
       setError(undefined);
       setIsValidating(false);
     },
-    [provider],
+    [provider, nativeToken.balance],
   );
 
   const send = useCallback(
