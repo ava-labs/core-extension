@@ -2,7 +2,16 @@ import { t } from 'i18next';
 
 import { SendErrorMessage } from '@src/utils/send/models';
 
-export function getSendErrorMessage(key: SendErrorMessage): string {
+export function getSendErrorMessage(
+  key: SendErrorMessage,
+  details?: Record<string, string | undefined>,
+): string {
+  if (key === SendErrorMessage.AMOUNT_TOO_LOW) {
+    return details?.minAmount
+      ? t('At least {{minAmount}} is required', details)
+      : t('Amount too low');
+  }
+
   const translations = {
     [SendErrorMessage.AMOUNT_REQUIRED]: t('Amount required'),
     [SendErrorMessage.ADDRESS_REQUIRED]: t('Address required'),

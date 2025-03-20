@@ -15,6 +15,8 @@ import { isPchainNetwork } from '@src/background/services/network/utils/isAvalan
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 
+import SolanaLogo from '@src/images/logos/solana.png';
+
 type AddressDropdownListItemProps = {
   contact: Contact;
   isSelected: boolean;
@@ -117,6 +119,12 @@ export const AddressDropdownListItem = ({
                 : `X-${contact.addressXP}`
             }
             networkIcon={<XAndPChainsIcon size={16} />}
+          />
+        )}
+        {contact.addressSVM && (
+          <ContactAddress
+            address={contact.addressSVM}
+            networkIcon={<img src={SolanaLogo} alt="Solana" height={24} />}
           />
         )}
       </Stack>

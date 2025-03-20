@@ -18,6 +18,7 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { useMemo } from 'react';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
 
 export type MyAccountContact = {
   id: string;
@@ -49,17 +50,20 @@ export const AddressDropdownListMyAccounts = ({
   const { t } = useTranslation();
   const { network } = useNetworkContext();
   const useBtcAddress = isBitcoin(network);
+  const useSvmAddress = network && isSolanaNetwork(network);
   const { wallets } = useWalletContext();
 
   const useXpAddress = useMemo(() => {
     return isPchainNetwork(network) || isXchainNetwork(network);
   }, [network]);
 
-  const addressType = useBtcAddress
-    ? 'addressBTC'
-    : useXpAddress
-      ? 'addressXP'
-      : 'address';
+  const addressType = useSvmAddress
+    ? 'addressSVM'
+    : useBtcAddress
+      ? 'addressBTC'
+      : useXpAddress
+        ? 'addressXP'
+        : 'address';
   const selectedAddress = selectedContact?.[addressType]?.toLowerCase();
 
   const { setIsSettingsOpen, setSettingsActivePage } = useSettingsContext();

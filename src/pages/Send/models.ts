@@ -1,6 +1,10 @@
 import { Network } from '@src/background/services/network/models';
 import { Account } from '@src/background/services/accounts/models';
-import { AvmCapableAccount, PvmCapableAccount } from './hooks/useSend/models';
+import {
+  AvmCapableAccount,
+  PvmCapableAccount,
+  SvmCapableAccount,
+} from './hooks/useSend/models';
 import {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
@@ -8,6 +12,8 @@ import {
   TokenWithBalanceBTC,
   TokenWithBalanceERC20,
   TokenWithBalancePVM,
+  TokenWithBalanceSPL,
+  TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
 import { NetworkFee } from '@src/background/services/networkFee/models';
 
@@ -30,6 +36,7 @@ export type SendPagePropsWithWallet<Provider, Token, Tokens> = SendPageProps<
 > & {
   account: Account;
 };
+
 export type SendPagePropsWithWalletPVM<Provider, Token, Tokens> = SendPageProps<
   Provider,
   Token,
@@ -37,6 +44,14 @@ export type SendPagePropsWithWalletPVM<Provider, Token, Tokens> = SendPageProps<
 > & {
   account: PvmCapableAccount;
   networkFee: NetworkFee;
+};
+
+export type SendPagePropsWithWalletSVM<Provider, Token, Tokens> = SendPageProps<
+  Provider,
+  Token,
+  Tokens
+> & {
+  account: SvmCapableAccount;
 };
 
 export type SendPagePropsWithWalletAVM<Provider, Token, Tokens> = SendPageProps<
@@ -50,6 +65,10 @@ export type SendPagePropsWithWalletAVM<Provider, Token, Tokens> = SendPageProps<
 export type BaseSendOptions = {
   address: string;
   amount: string;
+};
+
+export type SolSendOptions = BaseSendOptions & {
+  token: TokenWithBalanceSVM;
 };
 
 export type NativeSendOptions = BaseSendOptions & {
@@ -69,6 +88,10 @@ export type Erc20SendOptions = BaseSendOptions & {
   token: TokenWithBalanceERC20;
 };
 
+export type SplSendOptions = BaseSendOptions & {
+  token: TokenWithBalanceSPL;
+};
+
 export type NftSendOptions = BaseSendOptions & {
   token: NftTokenWithBalance;
   amount: never;
@@ -82,3 +105,7 @@ export type BtcSendOptions = {
 };
 
 export type SendOptions = NativeSendOptions | Erc20SendOptions | NftSendOptions;
+
+export type SolanaSendOptions = SolSendOptions | SplSendOptions;
+
+export const SOLANA_FIXED_BASE_FEE = 5000n;
