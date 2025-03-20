@@ -598,8 +598,8 @@ describe('background/services/accounts/AccountsService', () => {
         ledgerService,
         addressResolver,
       });
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledWith(
         mapAddressesToVMs(getAllAddresses() as Account),
       );
 
@@ -639,8 +639,8 @@ describe('background/services/accounts/AccountsService', () => {
         ledgerService,
         addressResolver,
       });
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledWith(
         mapAddressesToVMs(getAllAddresses() as Account),
       );
 
@@ -675,8 +675,8 @@ describe('background/services/accounts/AccountsService', () => {
         name: 'New Account',
         walletId: WALLET_ID,
       });
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledWith(
         mapAddressesToVMs(getAllAddresses() as Account),
       );
 
@@ -732,8 +732,8 @@ describe('background/services/accounts/AccountsService', () => {
         addressResolver,
       );
       expect(commitMock).toHaveBeenCalled();
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledWith(
         mapAddressesToVMs(getAllAddresses() as Account),
       );
 
@@ -790,8 +790,8 @@ describe('background/services/accounts/AccountsService', () => {
         addressResolver,
       );
       expect(commitMock).toHaveBeenCalled();
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledWith(
         mapAddressesToVMs(getAllAddresses(true) as Account),
       );
 
@@ -839,8 +839,8 @@ describe('background/services/accounts/AccountsService', () => {
         name: 'New Account',
         options,
       });
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledTimes(1);
-      expect(permissionsService.addWhitelistDomains).toHaveBeenCalledWith(
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledTimes(1);
+      expect(permissionsService.whitelistCoreDomains).toHaveBeenCalledWith(
         mapAddressesToVMs(getAllAddresses(true) as Account),
       );
 
@@ -891,7 +891,7 @@ describe('background/services/accounts/AccountsService', () => {
         addressResolver,
       );
       expect(commitMock).not.toHaveBeenCalled();
-      expect(permissionsService.addWhitelistDomains).not.toHaveBeenCalled();
+      expect(permissionsService.whitelistCoreDomains).not.toHaveBeenCalled();
     });
 
     it('throws on error', async () => {
@@ -904,7 +904,7 @@ describe('background/services/accounts/AccountsService', () => {
       (secretsService.addImportedWallet as jest.Mock).mockRejectedValueOnce(
         new Error(errorMessage),
       );
-      expect(permissionsService.addWhitelistDomains).not.toHaveBeenCalled();
+      expect(permissionsService.whitelistCoreDomains).not.toHaveBeenCalled();
 
       await expect(
         accountsService.addImportedAccount({ name: 'New Account', options }),
