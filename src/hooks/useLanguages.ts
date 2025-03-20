@@ -74,7 +74,7 @@ export function useLanguage() {
     {
       code: Languages.TR,
       name: t('Turkish'),
-      originalName: 'Türk',
+      originalName: 'Türkçe',
       linkCode: LanguageLinks.TR,
     },
   ];
