@@ -132,9 +132,6 @@ describe('background/services/web3/handlers/connect.ts', () => {
       },
       status: ActionStatus.SUBMITTING,
       displayData: {},
-      params: {
-        addressVM: NetworkVMType.EVM,
-      },
       time: 12312312,
       actionId: 'uuid',
     } as any;

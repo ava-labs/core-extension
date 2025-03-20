@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useCallback, useState } from 'react';
 import {
   transferSol,
@@ -15,7 +14,7 @@ import { SendErrorMessage } from '@src/utils/send/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 import { SendAdapterSVM } from './models';
-import { SolanaSendOptions } from '../../models';
+import { SOLANA_FIXED_BASE_FEE, SolanaSendOptions } from '../../models';
 import { stringToBigint } from '@src/utils/stringToBigint';
 
 const RENT_EXEMPT_CACHE = new Map<bigint, bigint>();
@@ -65,6 +64,32 @@ export const useSvmSend: SendAdapterSVM = ({
     async ({ address, amount, token }: SolanaSendOptions) => {
       setIsValidating(true);
 
+      const amountBigInt = stringToBigint(amount || '0', token.decimals);
+
+      if (!amountBigInt || amountBigInt < 0) {
+        setErrorAndEndValidating(SendErrorMessage.AMOUNT_REQUIRED);
+        return;
+      }
+
+      const remainingBalance = token.balance - amountBigInt;
+
+      // Handle max amount first
+      if (token.type === TokenType.NATIVE) {
+        setMaxAmount((nativeToken.balance - SOLANA_FIXED_BASE_FEE).toString());
+
+        if (remainingBalance < SOLANA_FIXED_BASE_FEE) {
+          setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
+          return;
+        }
+      } else {
+        setMaxAmount(nativeToken.balance.toString());
+
+        if (remainingBalance < 0n) {
+          setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
+          return;
+        }
+      }
+
       if (!address) {
         setErrorAndEndValidating(SendErrorMessage.ADDRESS_REQUIRED);
         return;
@@ -75,33 +100,22 @@ export const useSvmSend: SendAdapterSVM = ({
         return;
       }
 
-      const amountBigInt = stringToBigint(amount || '0', token.decimals);
+      if (token.type === TokenType.NATIVE) {
+        const spaceOccupied = await getAccountOccupiedSpace(address, provider);
 
-      if (!amountBigInt || amountBigInt < 0) {
-        setErrorAndEndValidating(SendErrorMessage.AMOUNT_REQUIRED);
-        return;
-      }
+        // If the recipient account does not hold any data, the first transfer
+        // must be greater than the rent-exempt minimum.
+        if (spaceOccupied === 0n) {
+          const minimum = await getRentExemptMinimum(0n, provider);
 
-      const remainingBalance = token.balance - amountBigInt;
+          setMinAmount(bigIntToString(minimum, token.decimals));
 
-      // TODO: take fee into consideration
-      if (remainingBalance <= 0n) {
-        setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
-        return;
-      }
-
-      const spaceOccupied = await getAccountOccupiedSpace(address, provider);
-
-      // If the recipient account does not hold any data, the first transfer
-      // must be greater than the rent-exempt minimum.
-      if (spaceOccupied === 0n) {
-        const minimum = await getRentExemptMinimum(0n, provider);
-
-        setMinAmount(bigIntToString(minimum, token.decimals));
-
-        if (amountBigInt < minimum) {
-          setErrorAndEndValidating(SendErrorMessage.AMOUNT_TOO_LOW);
-          return;
+          if (amountBigInt < minimum) {
+            setErrorAndEndValidating(SendErrorMessage.AMOUNT_TOO_LOW);
+            return;
+          }
+        } else {
+          setMinAmount(undefined);
         }
       } else {
         setMinAmount(undefined);
@@ -110,7 +124,7 @@ export const useSvmSend: SendAdapterSVM = ({
       setError(undefined);
       setIsValidating(false);
     },
-    [provider],
+    [provider, nativeToken.balance],
   );
 
   const send = useCallback(
