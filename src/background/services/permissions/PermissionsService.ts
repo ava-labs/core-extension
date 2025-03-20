@@ -13,8 +13,7 @@ import {
 } from './models';
 import { Account } from '../accounts/models';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
-import { SYNCED_DOMAINS } from '../network/utils/getSyncDomain';
-import { runtime } from 'webextension-polyfill';
+import { SYNCED_DOMAINS } from '@src/constants';
 
 @singleton()
 export class PermissionsService implements OnLock {
@@ -147,7 +146,7 @@ export class PermissionsService implements OnLock {
     return this.permissions;
   }
 
-  async addWhitelistDomains(
+  async whitelistCoreDomains(
     addressMap: Partial<Record<NetworkVMType, string>>,
   ) {
     try {
@@ -158,9 +157,7 @@ export class PermissionsService implements OnLock {
         ]),
       );
       const currentPermissions = await this.getPermissions();
-      const newPermissions: Permissions = SYNCED_DOMAINS.filter(
-        (d) => d !== runtime.id,
-      ).reduce(
+      const newPermissions: Permissions = SYNCED_DOMAINS.reduce(
         (perms, domain) => ({
           ...perms,
           [domain]: {

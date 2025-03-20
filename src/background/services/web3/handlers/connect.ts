@@ -1,17 +1,13 @@
-import {
-  DAppProviderRequest,
-  JsonRpcRequestParams,
-} from '@src/background/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { AccountsService } from '../../accounts/AccountsService';
 import { injectable } from 'tsyringe';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { ethErrors } from 'eth-rpc-errors';
-import { Action, ActionType } from '../../actions/models';
+import { Action } from '../../actions/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { getAddressByVMType } from '@src/utils/address';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -22,15 +18,8 @@ import { getAddressByVMType } from '@src/utils/address';
  * @returns
  */
 
-type Params =
-  | {
-      addressVM?: NetworkVMType;
-      onlyIfTrusted?: boolean;
-    }
-  | undefined;
-
 @injectable()
-export class ConnectRequestHandler implements DAppRequestHandler<Params> {
+export class ConnectRequestHandler implements DAppRequestHandler {
   methods = [
     DAppProviderRequest.CONNECT_METHOD,
     DAppProviderRequest.WALLET_CONNECT,
@@ -41,9 +30,7 @@ export class ConnectRequestHandler implements DAppRequestHandler<Params> {
     private permissionsService: PermissionsService,
   ) {}
 
-  async handleAuthenticated(
-    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>,
-  ) {
+  async handleAuthenticated(rpcCall) {
     const { request } = rpcCall;
 
     if (!this.accountsService.activeAccount) {
@@ -53,30 +40,14 @@ export class ConnectRequestHandler implements DAppRequestHandler<Params> {
       };
     }
 
-    const address = getAddressByVMType(
-      this.accountsService.activeAccount,
-      request.params?.addressVM ?? NetworkVMType.EVM,
-    );
-
-    if (!address) {
-      return {
-        ...request,
-        error: ethErrors.rpc.internal(
-          'The selected account does not support the selected VM',
-        ),
-      };
-    }
-
     return {
       ...request,
-      result: [address],
+      result: [this.accountsService.activeAccount.addressC],
     };
   }
 
-  handleUnauthenticated = async (
-    rpcCall: JsonRpcRequestParams<DAppProviderRequest, Params>,
-  ) => {
-    const { request, scope } = rpcCall;
+  handleUnauthenticated = async (rpcCall) => {
+    const { request } = rpcCall;
 
     if (!request.site?.domain) {
       return {
@@ -85,20 +56,11 @@ export class ConnectRequestHandler implements DAppRequestHandler<Params> {
       };
     }
 
-    if (request.params?.onlyIfTrusted) {
-      return {
-        ...request,
-        error: ethErrors.provider.unauthorized(),
-      };
-    }
-
     await openApprovalWindow(
       {
         ...request,
-        scope,
-        type: ActionType.Single,
         displayData: {
-          addressVM: request.params?.addressVM || NetworkVMType.EVM, // Default to EVM
+          addressVM: NetworkVMType.EVM,
           domainName: request.site?.name,
           domainUrl: request.site?.domain,
           domainIcon: request.site?.icon,
@@ -116,7 +78,6 @@ export class ConnectRequestHandler implements DAppRequestHandler<Params> {
     onSuccess,
     onError,
   ) => {
-    const vm = pendingAction.params.addressVM;
     const selectedAccount = this.accountsService.getAccountByID(result);
 
     if (!selectedAccount) {
@@ -126,17 +87,6 @@ export class ConnectRequestHandler implements DAppRequestHandler<Params> {
 
     if (!pendingAction?.site?.domain) {
       onError(ethErrors.rpc.internal('Domain not set'));
-      return;
-    }
-
-    const address = getAddressByVMType(selectedAccount, vm);
-
-    if (!address) {
-      onError(
-        ethErrors.rpc.internal(
-          'The selected account does not support the selected VM',
-        ),
-      );
       return;
     }
 
@@ -151,27 +101,18 @@ export class ConnectRequestHandler implements DAppRequestHandler<Params> {
         activeAccount,
       ))
     ) {
-      onSuccess([address]);
+      onSuccess([selectedAccount.addressC]);
       return;
     }
 
     await this.permissionsService.grantPermission(
       pendingAction.site.domain,
-      address,
-      vm,
+      selectedAccount.addressC,
+      NetworkVMType.EVM,
     );
 
     await this.accountsService.activateAccount(result);
 
-    if (!address) {
-      onError(
-        ethErrors.rpc.internal(
-          'The active account does not support the selected VM',
-        ),
-      );
-      return;
-    }
-
-    onSuccess([address]);
+    onSuccess([selectedAccount.addressC]);
   };
 }

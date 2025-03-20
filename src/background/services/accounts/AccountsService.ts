@@ -387,7 +387,7 @@ export class AccountsService implements OnLock, OnUnlock {
         ],
       },
     };
-    await this.permissionsService.addWhitelistDomains(
+    await this.permissionsService.whitelistCoreDomains(
       mapAddressesToVMs({
         ...newAccount,
         ...addresses,
@@ -440,7 +440,7 @@ export class AccountsService implements OnLock, OnUnlock {
           [newAccount.id]: newAccount,
         },
       };
-      await this.permissionsService.addWhitelistDomains(
+      await this.permissionsService.whitelistCoreDomains(
         mapAddressesToVMs(newAccount),
       );
       this.analyticsServicePosthog.captureEncryptedEvent({
