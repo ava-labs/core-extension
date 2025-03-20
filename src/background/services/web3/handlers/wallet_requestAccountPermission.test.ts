@@ -5,24 +5,27 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { AccountType } from '../../accounts/models';
 import { Action, ActionStatus } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
-import { ConnectRequestHandler } from './connect';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
+import { RequestAccountPermissionHandler } from './wallet_requestAccountPermission';
 
 jest.mock('@src/background/runtime/openApprovalWindow');
 
-describe('background/services/web3/handlers/connect.ts', () => {
+describe('background/services/web3/handlers/wallet_requestAccountPermission', () => {
+  const addressC = '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+  const addressSVM = '123456789asdfghjl';
+
   describe('handleAuthenticated', () => {
     it('returns error when no active account available', async () => {
-      const handler = new ConnectRequestHandler(
+      const handler = new RequestAccountPermissionHandler(
         { activeAccount: undefined } as AccountsService,
         {} as PermissionsService,
       );
 
       const mockRequest = {
         id: '1234',
-        method: DAppProviderRequest.CONNECT_METHOD,
+        method: DAppProviderRequest.WALLET_CONNECT,
       };
 
       expect(
@@ -33,12 +36,12 @@ describe('background/services/web3/handlers/connect.ts', () => {
       });
     });
 
-    it('returns active account address', async () => {
-      const handler = new ConnectRequestHandler(
+    it('returns active account address for selected VM', async () => {
+      const handler = new RequestAccountPermissionHandler(
         {
           activeAccount: {
-            addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-            addressBTC: '',
+            addressC,
+            addressSVM,
           },
         } as AccountsService,
         {} as PermissionsService,
@@ -46,47 +49,50 @@ describe('background/services/web3/handlers/connect.ts', () => {
 
       const mockRequest = {
         id: '1235',
-        method: DAppProviderRequest.CONNECT_METHOD,
+        method: DAppProviderRequest.WALLET_CONNECT,
+        params: {
+          addressVM: NetworkVMType.SVM,
+        },
       };
 
       expect(
         await handler.handleAuthenticated(buildRpcCall(mockRequest)),
       ).toEqual({
         ...mockRequest,
-        result: ['0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'],
+        result: [addressSVM],
       });
     });
   });
 
   describe('handleUnauthenticated', () => {
     it('returns error when domain not set', async () => {
-      const handler = new ConnectRequestHandler(
+      const handler = new RequestAccountPermissionHandler(
         {} as AccountsService,
         {} as PermissionsService,
       );
 
       const mockRequest = {
         id: '1235',
-        method: DAppProviderRequest.CONNECT_METHOD,
+        method: DAppProviderRequest.WALLET_CONNECT,
       };
 
       expect(
         await handler.handleUnauthenticated(buildRpcCall(mockRequest)),
       ).toEqual({
         ...mockRequest,
-        error: ethErrors.rpc.invalidRequest('domain unknown'),
+        error: ethErrors.rpc.invalidRequest('Unspecified dApp domain'),
       });
     });
 
     it('opens approval window', async () => {
-      const handler = new ConnectRequestHandler(
+      const handler = new RequestAccountPermissionHandler(
         {} as AccountsService,
         {} as PermissionsService,
       );
 
       const mockRequest = {
         id: '1235',
-        method: DAppProviderRequest.CONNECT_METHOD,
+        method: DAppProviderRequest.WALLET_CONNECT,
         site: {
           domain: 'example.com',
           name: 'Example dapp',
@@ -128,12 +134,17 @@ describe('background/services/web3/handlers/connect.ts', () => {
     const mockAction: Action = {
       request: {
         id: '1235',
-        method: DAppProviderRequest.CONNECT_METHOD,
+        method: DAppProviderRequest.WALLET_CONNECT,
+        params: {
+          addressVM: NetworkVMType.SVM,
+        },
       },
       status: ActionStatus.SUBMITTING,
-      displayData: {},
+      displayData: {
+        addressVM: NetworkVMType.SVM,
+      },
       params: {
-        addressVM: NetworkVMType.EVM,
+        addressVM: NetworkVMType.SVM,
       },
       time: 12312312,
       actionId: 'uuid',
@@ -144,7 +155,8 @@ describe('background/services/web3/handlers/connect.ts', () => {
       accountsServiceMock.getAccountByID.mockReturnValue({
         index: 2,
         id: 'uuid',
-        addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        addressC,
+        addressSVM,
         type: AccountType.PRIMARY,
       });
     });
@@ -152,7 +164,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
     it('returns error when no account is selected', async () => {
       accountsServiceMock.getAccountByID.mockReturnValueOnce(undefined);
 
-      const handler = new ConnectRequestHandler(
+      const handler = new RequestAccountPermissionHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
       );
@@ -174,7 +186,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
     });
 
     it('returns error when domain not set', async () => {
-      const handler = new ConnectRequestHandler(
+      const handler = new RequestAccountPermissionHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
       );
@@ -188,7 +200,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
 
       expect(onErrorMock).toHaveBeenCalledTimes(1);
       expect(onErrorMock).toHaveBeenCalledWith(
-        ethErrors.rpc.internal('Domain not set'),
+        ethErrors.rpc.internal('Unspecified dApp domain'),
       );
       expect(permissionServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();
@@ -198,13 +210,14 @@ describe('background/services/web3/handlers/connect.ts', () => {
     it('returns address when permissons already set for the selected active account', async () => {
       permissionServiceMock.hasDomainPermissionForAccount.mockReturnValue(true);
 
-      const handler = new ConnectRequestHandler(
+      const handler = new RequestAccountPermissionHandler(
         {
           ...accountsServiceMock,
           activeAccount: {
             index: 2,
             id: 'uuid',
-            addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+            addressC,
+            addressSVM,
             type: AccountType.PRIMARY,
           },
         } as any,
@@ -230,19 +243,18 @@ describe('background/services/web3/handlers/connect.ts', () => {
       ).toHaveBeenCalledWith(
         'example.com',
         expect.objectContaining({
-          addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          addressSVM,
         }),
+        NetworkVMType.SVM,
       );
       expect(permissionServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();
       expect(onSuccessMock).toHaveBeenCalledTimes(1);
-      expect(onSuccessMock).toHaveBeenCalledWith([
-        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-      ]);
+      expect(onSuccessMock).toHaveBeenCalledWith([addressSVM]);
     });
 
     it('updates permissons for primary account', async () => {
-      const handler = new ConnectRequestHandler(
+      const handler = new RequestAccountPermissionHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
       );
@@ -261,25 +273,24 @@ describe('background/services/web3/handlers/connect.ts', () => {
       expect(permissionServiceMock.grantPermission).toHaveBeenCalledTimes(1);
       expect(permissionServiceMock.grantPermission).toHaveBeenCalledWith(
         'example.com',
-        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        NetworkVMType.EVM,
+        addressSVM,
+        NetworkVMType.SVM,
       );
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledTimes(1);
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith('uuid');
       expect(onSuccessMock).toHaveBeenCalledTimes(1);
-      expect(onSuccessMock).toHaveBeenCalledWith([
-        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-      ]);
+      expect(onSuccessMock).toHaveBeenCalledWith([addressSVM]);
     });
 
     it('updates permissons for imported account', async () => {
       accountsServiceMock.getAccountByID.mockReturnValue({
         id: '0x2',
-        addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        addressC,
+        addressSVM,
         type: AccountType.IMPORTED,
       });
 
-      const handler = new ConnectRequestHandler(
+      const handler = new RequestAccountPermissionHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
       );
@@ -298,15 +309,13 @@ describe('background/services/web3/handlers/connect.ts', () => {
       expect(permissionServiceMock.grantPermission).toHaveBeenCalledTimes(1);
       expect(permissionServiceMock.grantPermission).toHaveBeenCalledWith(
         'example.com',
-        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        NetworkVMType.EVM,
+        addressSVM,
+        NetworkVMType.SVM,
       );
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledTimes(1);
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith('0x2');
       expect(onSuccessMock).toHaveBeenCalledTimes(1);
-      expect(onSuccessMock).toHaveBeenCalledWith([
-        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-      ]);
+      expect(onSuccessMock).toHaveBeenCalledWith([addressSVM]);
     });
   });
 });

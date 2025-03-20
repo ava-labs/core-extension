@@ -1,4 +1,5 @@
 import { lowerCase, omit } from 'lodash';
+import { ethErrors } from 'eth-rpc-errors';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
@@ -14,6 +15,7 @@ import {
 import { Account } from '../accounts/models';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 import { SYNCED_DOMAINS } from '@src/constants';
+import { getAddressByVMType } from '@src/utils/address';
 
 @singleton()
 export class PermissionsService implements OnLock {
@@ -76,13 +78,26 @@ export class PermissionsService implements OnLock {
   async hasDomainPermissionForAccount(
     domain: string,
     account: Account,
+    vm?: NetworkVMType,
   ): Promise<boolean> {
     const domainPermissions = await this.getPermissionsForDomain(domain);
     const permittedAddresses = Object.keys(
       domainPermissions?.accounts ?? {},
     ).map(lowerCase);
-    const accountAddresses = getAllAddressesForAccount(account).map(lowerCase);
 
+    if (vm) {
+      const address = getAddressByVMType(account, vm);
+
+      if (!address) {
+        throw ethErrors.rpc.internal(
+          `Provided account has no address derived for the "${vm}" virtual machine`,
+        );
+      }
+
+      return permittedAddresses.includes(lowerCase(address));
+    }
+
+    const accountAddresses = getAllAddressesForAccount(account).map(lowerCase);
     return accountAddresses.some((address) =>
       permittedAddresses.includes(address),
     );
