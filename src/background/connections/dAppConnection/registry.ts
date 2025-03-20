@@ -34,6 +34,7 @@ import { AvalancheRenameWalletHandler } from '@src/background/services/secrets/h
 import { WalletAddNetworkHandler } from '@src/background/services/network/handlers/wallet_addNetwork';
 import { AvalancheDeleteAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_deleteAccounts';
 import { AccountsChangedCAEvents } from '@src/background/services/accounts/events/accountsChangedCAEvent';
+import { RequestAccountPermissionHandler } from '@src/background/services/web3/handlers/wallet_requestAccountPermission';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -74,6 +75,7 @@ import { AccountsChangedCAEvents } from '@src/background/services/accounts/event
   { token: 'DAppRequestHandler', useToken: WalletRequestPermissionsHandler },
   { token: 'DAppRequestHandler', useToken: WalletWatchAssetHandler },
   { token: 'DAppRequestHandler', useToken: ConnectRequestHandler },
+  { token: 'DAppRequestHandler', useToken: RequestAccountPermissionHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheGetProviderState },
   { token: 'DAppRequestHandler', useToken: AvalancheRenameWalletHandler },
   { token: 'DAppRequestHandler', useToken: WalletAddNetworkHandler },
