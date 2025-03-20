@@ -12,8 +12,11 @@ import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
 import { truncateAddress } from '@src/utils/truncateAddress';
+import { NetworkVMType } from '@avalabs/vm-module-types';
+import { getAddressByVMType } from '@src/utils/address';
+import { Account } from '@src/background/services/accounts/models';
 
-const renderValue = (account) => (
+const renderValue = (account: Account, vmType: NetworkVMType) => (
   <Typography
     component="span"
     fontSize="inherit"
@@ -31,15 +34,16 @@ const renderValue = (account) => (
       sx={{ flexShrink: 0, pl: 0.5 }}
       fontSize="inherit"
     >
-      ({truncateAddress(account.addressC)})
+      ({truncateAddress(getAddressByVMType(account, vmType)!)})
     </Typography>
   </Typography>
 );
 
 export const AccountsDropdown = ({
-  accounts,
+  allAccountsForRequestedVM,
   activeAccount,
   onSelectedAccountChanged,
+  addressVM = NetworkVMType.EVM,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -68,7 +72,9 @@ export const AccountsDropdown = ({
       return;
     }
 
-    getBalance();
+    if (selectedAccount) {
+      getBalance();
+    }
   }, [activeAccount, selectedAccount, updateBalanceOnNetworks]);
 
   // Update balance & notify parent component about changes when account is selected
@@ -82,9 +88,11 @@ export const AccountsDropdown = ({
         SelectProps={{
           // <Select /> expects reference equality and `activeAccount` is a different object
           // than the one in `accounts` array.
-          defaultValue: accounts.find((acc) => acc.id === activeAccount?.id),
+          defaultValue: allAccountsForRequestedVM.find(
+            (acc) => acc.id === activeAccount?.id,
+          ),
           onChange: (ev) => setSelectedAccount(ev.target.value),
-          renderValue,
+          renderValue: (value) => renderValue(value as Account, addressVM),
           // We need the @ts-ignore, because MUI's "nested props" (such as SelectProps)
           // do not allow passing data-attributes.
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -93,7 +101,7 @@ export const AccountsDropdown = ({
         }}
         label={t('Select Account')}
       >
-        {accounts.map((acc) => (
+        {allAccountsForRequestedVM.map((acc) => (
           <DropdownItem
             key={acc.id}
             value={acc}
@@ -101,7 +109,7 @@ export const AccountsDropdown = ({
             data-testid="connect-account-menu-item"
             title={acc.name}
           >
-            {renderValue(acc)}
+            {renderValue(acc, addressVM)}
             {selectedAccount?.id === acc.id && <CheckIcon />}
           </DropdownItem>
         ))}

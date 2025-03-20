@@ -22,10 +22,13 @@ import { AddAccountHandler } from '@src/background/services/accounts/handlers/ad
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { AvalancheDeleteAccountsHandler } from '@src/background/services/accounts/handlers/avalanche_deleteAccounts';
+import { NetworkVMType } from '@avalabs/vm-module-types';
+import { getAddressByVMType } from '@src/utils/address';
 
 const AccountsContext = createContext<{
   accounts: Accounts;
   allAccounts: Account[];
+  getAllAccountsForVM: (vm: NetworkVMType) => Account[];
   isActiveAccount(id: string): boolean;
   selectAccount(id: string): Promise<any>;
   renameAccount(id: string, name: string): Promise<any>;
@@ -74,6 +77,12 @@ export function AccountsContextProvider({ children }: { children: any }) {
       ...Object.values(accounts.imported),
     ],
     [accounts.imported, accounts.primary],
+  );
+
+  const getAllAccountsForVM = useCallback(
+    (vm: NetworkVMType) =>
+      allAccounts.filter((acc) => getAddressByVMType(acc, vm)),
+    [allAccounts],
   );
 
   const getAccount = useCallback(
@@ -146,6 +155,7 @@ export function AccountsContextProvider({ children }: { children: any }) {
         getAccount,
         getAccountById,
         allAccounts,
+        getAllAccountsForVM,
         isActiveAccount,
         selectAccount,
         renameAccount,

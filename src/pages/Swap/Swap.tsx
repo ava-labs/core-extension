@@ -41,6 +41,7 @@ import { isUserRejectionError } from '@src/utils/errors';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { SwappableToken } from './models';
+import { TokenType } from '@avalabs/vm-module-types';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -74,6 +75,14 @@ export function Swap() {
     forceShowTokensWithoutBalances: true,
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
+  const allSwappableTokens = useMemo(
+    () =>
+      allTokensOnNetwork.filter(
+        (token) =>
+          token.type === TokenType.ERC20 || token.type === TokenType.NATIVE,
+      ),
+    [allTokensOnNetwork],
+  );
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -360,7 +369,7 @@ export function Swap() {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
               setIsFromTokenSelectOpen(false);
             }}
-            tokensList={allTokensOnNetwork}
+            tokensList={allSwappableTokens}
             isOpen={isToTokenSelectOpen}
             selectedToken={selectedToToken}
             inputAmount={toAmount}

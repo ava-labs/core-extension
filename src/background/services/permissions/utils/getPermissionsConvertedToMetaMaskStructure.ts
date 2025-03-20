@@ -16,7 +16,9 @@ export function getPermissionsConvertedToMetaMaskStructure(
     return [];
   }
 
-  const hasAccountsPermission = permissions?.[domain]?.accounts[addressC];
+  const hasAccountsPermission = Boolean(
+    permissions?.[domain]?.accounts[addressC],
+  );
 
   return hasAccountsPermission
     ? [

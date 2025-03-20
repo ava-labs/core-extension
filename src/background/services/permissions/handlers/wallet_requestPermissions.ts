@@ -8,6 +8,7 @@ import { PermissionsService } from '../PermissionsService';
 import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 @injectable()
 export class WalletRequestPermissionsHandler extends DAppRequestHandler {
@@ -59,12 +60,12 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
       return;
     }
 
-    await this.permissionsService.addPermission({
-      domain: pendingAction.site.domain,
-      accounts: { [selectedAccount.addressC]: true },
-    });
+    const currentPermissions = await this.permissionsService.grantPermission(
+      pendingAction.site.domain,
+      selectedAccount.addressC,
+      NetworkVMType.EVM,
+    );
 
-    const currentPermissions = await this.permissionsService.getPermissions();
     await this.accountsService.activateAccount(result);
 
     onSuccess(

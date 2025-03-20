@@ -27,9 +27,7 @@ export async function getMaxUtxoSet(
   let filteredUtxos = Avalanche.sortUTXOsByAmount(utxos.getUTXOs(), true);
 
   if (isPchainNetwork(network)) {
-    if (provider.isEtnaEnabled()) {
-      assert(feeState, CommonError.UnknownNetworkFee);
-    }
+    assert(feeState, CommonError.UnknownNetworkFee);
 
     try {
       filteredUtxos = Avalanche.getMaximumUtxoSet({

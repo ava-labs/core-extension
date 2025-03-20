@@ -135,16 +135,15 @@ export function PermissionMiddleware(
     }
 
     // check if domain has permission
-    const permissions = await permissionService.getPermissions();
-    const activeAccountAddress = accountsService.activeAccount?.addressC;
+    const domain = context.domainMetadata?.domain ?? '';
+    const activeAccount = accountsService.activeAccount;
 
-    if (
-      activeAccountAddress &&
-      context.domainMetadata?.domain &&
-      permissions[context.domainMetadata.domain]?.accounts[activeAccountAddress]
-    ) {
-      // toggle authenticated since domain was previously approved
-      context.authenticated = true;
+    if (domain && activeAccount) {
+      context.authenticated =
+        await permissionService.hasDomainPermissionForAccount(
+          domain,
+          activeAccount,
+        );
     }
 
     const method = context.request.params.request.method;
@@ -159,9 +158,6 @@ export function PermissionMiddleware(
     }
 
     if (CORE_METHODS.includes(method)) {
-      const domain = context.domainMetadata?.domain
-        ? context.domainMetadata.domain
-        : '';
       const [, ...domainWithoutSubdomain] = domain.split('.'); // support any subdomains of core-web.pages.dev
 
       if (
