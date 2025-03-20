@@ -131,7 +131,7 @@ export function GenericApprovalScreen() {
   }, [cancelHandler, setGaslessDefaultValues]);
 
   const signTx = useCallback(async () => {
-    if (isGaslessOn) {
+    if (isGaslessOn && isGaslessEligible) {
       return await gaslessFundTx(action?.signingData);
     }
     updateAction(
@@ -144,6 +144,7 @@ export function GenericApprovalScreen() {
   }, [
     action?.signingData,
     gaslessFundTx,
+    isGaslessEligible,
     isGaslessOn,
     isUsingKeystoneWallet,
     isUsingLedgerWallet,

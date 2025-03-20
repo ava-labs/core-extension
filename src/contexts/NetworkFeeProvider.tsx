@@ -190,6 +190,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   const setGaslessDefaultValues = useCallback(async () => {
     setGaslessPhase(GaslessPhase.NOT_READY);
     setIsGaslessEligible(false);
+    setIsGaslessOn(false);
     return request<SetDefaultStateValuesHandler>({
       method: ExtensionRequest.GASLESS_SET_DEFAUlT_STATE_VALUES,
     });
