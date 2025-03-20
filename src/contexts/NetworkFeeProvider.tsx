@@ -209,6 +209,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
           setGaslessPhase(GaslessPhase.FUNDING_IN_PROGRESS);
         }
         if (values.fundTxHex) {
+          setIsGaslessOn(false);
           setGaslessPhase(GaslessPhase.FUNDED);
         }
         if (values.fundTxDoNotRetryError) {

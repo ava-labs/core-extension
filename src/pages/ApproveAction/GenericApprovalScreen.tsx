@@ -79,7 +79,6 @@ export function GenericApprovalScreen() {
   const {
     isGaslessOn,
     gaslessFundTx,
-    setIsGaslessOn,
     fundTxHex,
     setGaslessDefaultValues,
     gaslessPhase,
@@ -117,10 +116,6 @@ export function GenericApprovalScreen() {
     setGaslessEligibility,
     signingData,
   ]);
-
-  useEffect(() => {
-    setIsGaslessOn(isGaslessEligible);
-  }, [isGaslessEligible, setIsGaslessOn]);
 
   useEffect(() => {
     fetchAndSolveGaslessChallange();
