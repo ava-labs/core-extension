@@ -1,4 +1,5 @@
 import { lowerCase, omit } from 'lodash';
+import { ethErrors } from 'eth-rpc-errors';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { OnLock } from '@src/background/runtime/lifecycleCallbacks';
 import { EventEmitter } from 'events';
@@ -13,8 +14,8 @@ import {
 } from './models';
 import { Account } from '../accounts/models';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
-import { SYNCED_DOMAINS } from '../network/utils/getSyncDomain';
-import { runtime } from 'webextension-polyfill';
+import { SYNCED_DOMAINS } from '@src/constants';
+import { getAddressByVMType } from '@src/utils/address';
 
 @singleton()
 export class PermissionsService implements OnLock {
@@ -77,13 +78,26 @@ export class PermissionsService implements OnLock {
   async hasDomainPermissionForAccount(
     domain: string,
     account: Account,
+    vm?: NetworkVMType,
   ): Promise<boolean> {
     const domainPermissions = await this.getPermissionsForDomain(domain);
     const permittedAddresses = Object.keys(
       domainPermissions?.accounts ?? {},
     ).map(lowerCase);
-    const accountAddresses = getAllAddressesForAccount(account).map(lowerCase);
 
+    if (vm) {
+      const address = getAddressByVMType(account, vm);
+
+      if (!address) {
+        throw ethErrors.rpc.internal(
+          `Provided account has no address derived for the "${vm}" virtual machine`,
+        );
+      }
+
+      return permittedAddresses.includes(lowerCase(address));
+    }
+
+    const accountAddresses = getAllAddressesForAccount(account).map(lowerCase);
     return accountAddresses.some((address) =>
       permittedAddresses.includes(address),
     );
@@ -147,7 +161,7 @@ export class PermissionsService implements OnLock {
     return this.permissions;
   }
 
-  async addWhitelistDomains(
+  async whitelistCoreDomains(
     addressMap: Partial<Record<NetworkVMType, string>>,
   ) {
     try {
@@ -158,9 +172,7 @@ export class PermissionsService implements OnLock {
         ]),
       );
       const currentPermissions = await this.getPermissions();
-      const newPermissions: Permissions = SYNCED_DOMAINS.filter(
-        (d) => d !== runtime.id,
-      ).reduce(
+      const newPermissions: Permissions = SYNCED_DOMAINS.reduce(
         (perms, domain) => ({
           ...perms,
           [domain]: {

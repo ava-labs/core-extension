@@ -10,8 +10,7 @@ import { PermissionsService } from './PermissionsService';
 import { omit } from 'lodash';
 import { Account } from '../accounts/models';
 import { mapAddressesToVMs } from '@src/utils/address';
-import { SYNCED_DOMAINS } from '../network/utils/getSyncDomain';
-import { runtime } from 'webextension-polyfill';
+import { SYNCED_DOMAINS } from '@src/constants';
 
 jest.mock('../storage/StorageService');
 
@@ -476,7 +475,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
     });
   });
 
-  describe('addWhitelistDomains', () => {
+  describe('whitelistCoreDomains', () => {
     it('calls setAccountPermissionForDomain', async () => {
       const permissionService = new PermissionsService(storageService);
       permissionService.grantPermission = jest.fn();
@@ -485,7 +484,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
         ...mockPermissionData,
       });
 
-      await permissionService.addWhitelistDomains(
+      await permissionService.whitelistCoreDomains(
         mapAddressesToVMs({
           addressC: '0x000000',
           addressSVM: 'jklghbcda',
@@ -494,7 +493,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       // Ensure new data is added and existing data is preserved
       expect(permissionService.permissions).toEqual(
-        SYNCED_DOMAINS.filter((d) => d !== runtime.id).reduce(
+        SYNCED_DOMAINS.reduce(
           (perms, domain) => ({
             ...perms,
             [domain]: {

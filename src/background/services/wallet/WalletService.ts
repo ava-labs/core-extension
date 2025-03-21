@@ -560,18 +560,18 @@ export class WalletService implements OnUnlock {
     }
 
     if (isSolanaSigningRequest(tx)) {
-      if (wallet instanceof SolanaSigner) {
-        const signedTx = await wallet.signTx(
-          tx.data,
-          (await getProviderForNetwork(network)) as SolanaProvider,
-        );
-
-        return {
-          signedTx,
-        };
+      if (!(wallet instanceof SolanaSigner)) {
+        throw new Error('Unable to find a proper signer');
       }
 
-      throw new Error('Unable to find a proper signer');
+      const signedTx = await wallet.signTx(
+        tx.data,
+        (await getProviderForNetwork(network)) as SolanaProvider,
+      );
+
+      return {
+        signedTx,
+      };
     }
 
     // handle BTC signing
