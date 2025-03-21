@@ -34,6 +34,8 @@ import { CustomGasSettings } from './CustomGasSettings';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import GaslessFee from './GaslessFee';
 import { GaslessPhase } from '@src/background/services/gasless/model';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 
 export interface CustomGasFeesProps {
   maxFeePerGas: bigint;
@@ -207,6 +209,7 @@ export function CustomFees({
     }),
   );
   const [isCollapsed, setIsCollapsed] = useState(isCollapsible);
+  const { featureFlags } = useFeatureFlagContext();
   const customInputRef = useRef<HTMLInputElement>(null);
   const [showEditGasLimit, setShowEditGasLimit] = useState(false);
   const [selectedFee, setSelectedFee] = useState<GasFeeModifier>(
@@ -419,7 +422,8 @@ export function CustomFees({
         >
           {!isBatchApprovalScreen &&
             gaslessPhase !== GaslessPhase.NOT_ELIGIBLE &&
-            gaslessPhase !== GaslessPhase.ERROR && (
+            gaslessPhase !== GaslessPhase.ERROR &&
+            featureFlags[FeatureGates.GASLESS] && (
               <GaslessFee
                 onSwitch={() => {
                   onGaslessSwitch();
