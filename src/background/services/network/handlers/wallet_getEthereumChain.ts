@@ -48,7 +48,7 @@ export class WalletGetEthereumChainHandler extends DAppRequestHandler {
     };
   };
 
-  handleUnauthenticated = ({ request }) => {
+  handleUnauthenticated = async ({ request }) => {
     return {
       ...request,
       error: ethErrors.rpc.invalidRequest({

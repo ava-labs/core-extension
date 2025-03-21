@@ -218,7 +218,8 @@ export function CustomFees({
       : selectedGasFeeModifier || GasFeeModifier.SLOW,
   );
 
-  const { isGaslessOn, setIsGaslessOn, gaslessPhase } = useNetworkFeeContext();
+  const { isGaslessOn, setIsGaslessOn, gaslessPhase, isGaslessEligible } =
+    useNetworkFeeContext();
 
   useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest native balance.
 
@@ -421,7 +422,7 @@ export function CustomFees({
           unmountOnExit
         >
           {!isBatchApprovalScreen &&
-            gaslessPhase !== GaslessPhase.NOT_ELIGIBLE &&
+            isGaslessEligible &&
             gaslessPhase !== GaslessPhase.ERROR &&
             featureFlags[FeatureGates.GASLESS] && (
               <GaslessFee
@@ -432,7 +433,11 @@ export function CustomFees({
                 disabled={gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS}
               />
             )}
-          <Collapse in={!isGaslessOn} mountOnEnter unmountOnExit>
+          <Collapse
+            in={!isGaslessOn || !isGaslessEligible}
+            mountOnEnter
+            unmountOnExit
+          >
             <Stack
               sx={{
                 flexDirection: 'row',
