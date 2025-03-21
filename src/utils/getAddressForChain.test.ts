@@ -1,5 +1,6 @@
-import { ChainId } from '@avalabs/core-chains-sdk';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { Account, AccountType } from '@src/background/services/accounts/models';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 describe('utils/getAddressForChain', () => {
   const account1: Account = {
@@ -13,11 +14,17 @@ describe('utils/getAddressForChain', () => {
   };
 
   it('should return the c-chain address', () => {
-    const address = getAddressForChain(ChainId.AVALANCHE_MAINNET_ID, account1);
+    const address = getAddressForChain(
+      { vmName: NetworkVMType.EVM } as NetworkWithCaipId,
+      account1,
+    );
     expect(address).toBe(account1.addressC);
   });
   it('should return the btc address', () => {
-    const address = getAddressForChain(ChainId.BITCOIN, account1);
+    const address = getAddressForChain(
+      { vmName: NetworkVMType.BITCOIN } as NetworkWithCaipId,
+      account1,
+    );
     expect(address).toBe(account1.addressBTC);
   });
 });
