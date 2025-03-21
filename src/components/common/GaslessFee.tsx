@@ -40,7 +40,12 @@ export default function GaslessFee({
           <InfoCircleIcon sx={{ mx: 0.5, cursor: 'pointer' }} />
         </Tooltip>
       </Stack>
-      <Switch onChange={onSwitch} checked={isTurnedOn} disabled={disabled} />
+      <Switch
+        onChange={onSwitch}
+        checked={isTurnedOn}
+        disabled={disabled}
+        size="small"
+      />
     </Stack>
   );
 }
