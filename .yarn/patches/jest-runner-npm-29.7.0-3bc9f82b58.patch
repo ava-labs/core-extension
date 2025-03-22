@@ -1,7 +1,7 @@
-diff --git a/node_modules/jest-runner/build/index.js b/node_modules/jest-runner/build/index.js
-index 65c0ed1..3bb4938 100644
---- a/node_modules/jest-runner/build/index.js
-+++ b/node_modules/jest-runner/build/index.js
+diff --git a/build/index.js b/build/index.js
+index 65c0ed180a1f44a5095f80d572aacb68be1db3da..3bb4938110a50a2eca1b2f01466b7be16c9c8145 100644
+--- a/build/index.js
++++ b/build/index.js
 @@ -124,7 +124,7 @@ class TestRunner extends _types.EmittingTestRunner {
        enableWorkerThreads: this._globalConfig.workerThreads,
        exposedMethods: ['worker'],
