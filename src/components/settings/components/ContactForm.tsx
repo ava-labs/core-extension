@@ -198,23 +198,6 @@ export const ContactForm = ({
       />
 
       <TextField
-        data-testid="btc-address-textarea"
-        size="small"
-        onChange={(e) => {
-          e.stopPropagation();
-          handleUpdate('addressBTC', e.target.value);
-        }}
-        value={contact.addressBTC}
-        label={t('Bitcoin Address')}
-        error={!!addressBtcError}
-        helperText={addressBtcError}
-        placeholder={t(`Enter Bitcoin address`)}
-        fullWidth
-        multiline
-        rows={2}
-      />
-
-      <TextField
         data-testid="xp-address-textarea"
         size="small"
         onChange={(e) => {
@@ -231,6 +214,23 @@ export const ContactForm = ({
         error={!!addressXpError}
         helperText={addressXpError}
         placeholder={t(`Enter X/P-Chain address`)}
+        fullWidth
+        multiline
+        rows={2}
+      />
+
+      <TextField
+        data-testid="btc-address-textarea"
+        size="small"
+        onChange={(e) => {
+          e.stopPropagation();
+          handleUpdate('addressBTC', e.target.value);
+        }}
+        value={contact.addressBTC}
+        label={t('Bitcoin Address')}
+        error={!!addressBtcError}
+        helperText={addressBtcError}
+        placeholder={t(`Enter Bitcoin address`)}
         fullWidth
         multiline
         rows={2}
