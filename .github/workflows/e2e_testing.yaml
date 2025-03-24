@@ -17,6 +17,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
+      - name: enable corepack
+        run: |
+          corepack enable
       - name: Checkout extension
         uses: actions/checkout@v4
         with:
@@ -52,7 +55,9 @@ jobs:
           echo ID_SERVICE_URL=${{ secrets.ID_SERVICE_URL }} >> .env.production
           echo GASLESS_SERVICE_URL=${{ secrets.GASLESS_SERVICE_URL }} >> .env.production
       - name: Install dependencies
-        run: yarn setup
+        run: |
+          yarn install
+          yarn allow-scripts
       - name: Build library
         run: yarn build:alpha
       - name: Remove large extension files
