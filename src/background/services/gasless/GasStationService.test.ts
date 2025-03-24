@@ -135,7 +135,10 @@ describe('src/background/services/gasless/GasStationService', () => {
       networkFeeService,
     );
     jest.spyOn(service.gaslessState, 'dispatch');
-    service.setHexValuesAndFund('challengeHex', 'solutionHex');
+    service.setHexValuesAndFund({
+      challengeHex: 'challengeHex',
+      solutionHex: 'solutionHex',
+    });
     expect(service.gaslessState.dispatch).toHaveBeenCalledWith({
       fundTxDoNotRetryError: false,
       solutionHex: 'solutionHex',

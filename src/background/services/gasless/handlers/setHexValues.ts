@@ -23,11 +23,11 @@ export class SetGaslessHexValues implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     try {
       const { challengeHex, solutionHex, pipelineIndex } = request.params;
-      await this.gasStationService.setHexValuesAndFund(
+      await this.gasStationService.setHexValuesAndFund({
         challengeHex,
         solutionHex,
-        pipelineIndex ?? undefined,
-      );
+        pipelineIndex: pipelineIndex ?? undefined,
+      });
       return {
         ...request,
         result: DEFERRED_RESPONSE,

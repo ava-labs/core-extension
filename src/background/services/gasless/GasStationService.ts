@@ -95,11 +95,15 @@ export class GasStationService {
     this.gaslessState.dispatch({ ...this.#gaslessState });
   }
 
-  async setHexValuesAndFund(
-    challengeHex: string,
-    solutionHex: string,
-    pipelineIndex?: number,
-  ) {
+  async setHexValuesAndFund({
+    challengeHex,
+    solutionHex,
+    pipelineIndex,
+  }: {
+    challengeHex: string;
+    solutionHex: string;
+    pipelineIndex?: number;
+  }) {
     await this.setDefaultStateValues({
       challengeHex,
       solutionHex,
