@@ -95,6 +95,7 @@ export function NetworkSwitcher() {
           anchorEl={selectButtonRef.current}
           placement="bottom-end"
           transition
+          sx={{ zIndex: 1 }}
         >
           {({ TransitionProps }) => (
             <Grow {...TransitionProps} timeout={250}>

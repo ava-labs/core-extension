@@ -98,7 +98,7 @@ export function Assetlist({ assetList }: AssetListProps) {
             justifyContent="space-between"
             margin="0 -16px"
             padding="4px 16px"
-            key={token.symbol}
+            key={token.type === TokenType.NATIVE ? token.symbol : token.address}
             onClick={(e) => {
               e.stopPropagation();
               capture('PortfolioTokenSelected', {

@@ -142,7 +142,7 @@ describe('AppCheckService', () => {
         .mocked(CustomProvider)
         .mock.calls[0]?.[0].getToken()
         .catch((err) => {
-          expect(err).toBe('timeout');
+          expect(err).toBe('[AppCheck] challenge solution timeout');
         });
 
       for (let i = 0; i <= WAIT_FOR_CHALLENGE_ATTEMPT_COUNT; i++) {

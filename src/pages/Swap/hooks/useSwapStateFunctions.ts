@@ -2,7 +2,7 @@ import { t } from 'i18next';
 import { useCallback, useEffect, useState } from 'react';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
-import { USDC_ADDRESS_C_CHAIN } from '@src/utils/constants';
+import { USDC_ADDRESSES } from '@src/utils/constants';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
@@ -79,9 +79,9 @@ export function useSwapStateFunctions() {
     [setValuesDebouncedSubject],
   );
 
-  const { AVAX, USDC } = useTokensBySymbols({
-    AVAX: true,
-    USDC: USDC_ADDRESS_C_CHAIN,
+  const { $NATIVE, USDC } = useTokensBySymbols({
+    $NATIVE: true,
+    USDC: USDC_ADDRESSES,
   });
 
   // reload and recalculate the data from the history
@@ -97,7 +97,7 @@ export function useSwapStateFunctions() {
             ...pageHistory.selectedFromToken,
             balance: pageHistory.selectedFromToken.balance,
           }
-        : AVAX;
+        : $NATIVE;
       setSelectedFromToken(historyFromToken);
       const historyToToken = pageHistory.selectedToToken
         ? {
@@ -128,25 +128,33 @@ export function useSwapStateFunctions() {
   }, [
     calculateTokenValueToInput,
     pageHistory,
-    AVAX,
     USDC,
+    $NATIVE,
     selectedFromToken,
     selectedToToken,
   ]);
 
-  const resetValues = () => {
-    setFromTokenValue(undefined);
-    setFromDefaultValue(undefined);
-    setToTokenValue(undefined);
-    setSwapWarning('');
-    setDestinationInputField('');
+  const resetValues = useCallback(
+    (clearTokens?: boolean) => {
+      setFromTokenValue(undefined);
+      setFromDefaultValue(undefined);
+      setToTokenValue(undefined);
+      setSwapWarning('');
+      setDestinationInputField('');
 
-    setValuesDebouncedSubject.next({
-      ...setValuesDebouncedSubject.getValue(),
-      amount: undefined,
-      destinationInputField: undefined,
-    });
-  };
+      if (clearTokens) {
+        setSelectedFromToken(undefined);
+        setSelectedToToken(undefined);
+      }
+
+      setValuesDebouncedSubject.next({
+        ...setValuesDebouncedSubject.getValue(),
+        amount: undefined,
+        destinationInputField: undefined,
+      });
+    },
+    [setValuesDebouncedSubject],
+  );
 
   const calculateSwapValue = ({
     fromToken,
@@ -355,5 +363,6 @@ export function useSwapStateFunctions() {
     optimalRate,
     destAmount,
     getSwapValues,
+    resetValues,
   };
 }
