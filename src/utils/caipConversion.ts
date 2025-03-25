@@ -1,5 +1,8 @@
-import { ChainId } from '@avalabs/core-chains-sdk';
-import { Avalanche } from '@avalabs/core-wallets-sdk';
+import {
+  AvalancheCaip2ChainId,
+  BitcoinCaip2ChainId,
+  ChainId,
+} from '@avalabs/core-chains-sdk';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { EnsureDefined, PartialBy } from '@src/background/models';
 import { Network } from '@src/background/services/network/models';
@@ -13,8 +16,8 @@ export enum CaipNamespace {
 }
 
 export const BitcoinCaipId = {
-  [ChainId.BITCOIN]: `${CaipNamespace.BIP122}:000000000019d6689c085ae165831e93`,
-  [ChainId.BITCOIN_TESTNET]: `${CaipNamespace.BIP122}:000000000933ea01ad0ee984209779ba`,
+  [ChainId.BITCOIN]: BitcoinCaip2ChainId.MAINNET,
+  [ChainId.BITCOIN_TESTNET]: BitcoinCaip2ChainId.TESTNET,
 };
 
 export const SolanaCaipId = {
@@ -24,10 +27,10 @@ export const SolanaCaipId = {
 };
 
 export const AvaxCaipId = {
-  [ChainId.AVALANCHE_P]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.pBlockchainID}`,
-  [ChainId.AVALANCHE_X]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.xBlockchainID}`,
-  [ChainId.AVALANCHE_TEST_P]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.pBlockchainID}`,
-  [ChainId.AVALANCHE_TEST_X]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.xBlockchainID}`,
+  [ChainId.AVALANCHE_P]: AvalancheCaip2ChainId.P,
+  [ChainId.AVALANCHE_X]: AvalancheCaip2ChainId.X,
+  [ChainId.AVALANCHE_TEST_P]: AvalancheCaip2ChainId.P_TESTNET,
+  [ChainId.AVALANCHE_TEST_X]: AvalancheCaip2ChainId.X_TESTNET,
 } as const;
 
 export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
@@ -133,4 +136,4 @@ export const getNameSpaceFromScope = (scope?: string | null) => {
   return namespace;
 };
 export const isBitcoinCaipId = (caipId: string) =>
-  Object.values(BitcoinCaipId).includes(caipId);
+  (Object.values(BitcoinCaipId) as string[]).includes(caipId);

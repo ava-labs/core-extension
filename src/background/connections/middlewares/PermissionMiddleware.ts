@@ -97,6 +97,7 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   DAppProviderRequest.AVALANCHE_SIGN_MESSAGE,
   DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
   DAppProviderRequest.WALLET_ADD_NETWORK,
+  DAppProviderRequest.WALLET_GET_CHAIN,
   DAppProviderRequest.WALLET_GET_PUBKEY,
   DAppProviderRequest.WALLET_CONNECT,
   RpcMethod.HVM_SIGN_TRANSACTION,
@@ -117,7 +118,6 @@ const CORE_METHODS = Object.freeze([
   DAppProviderRequest.ACCOUNT_RENAME,
   DAppProviderRequest.ACCOUNTS_DELETE,
   DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
-  DAppProviderRequest.WALLET_GET_CHAIN,
   DAppProviderRequest.WALLET_RENAME,
 ]);
 

@@ -1,5 +1,6 @@
 import { ETHER_ADDRESS, SwapSide } from 'paraswap';
 import { createRef, forwardRef, useImperativeHandle } from 'react';
+import { act } from 'react-dom/test-utils';
 
 import { matchingPayload, render } from '@src/tests/test-utils';
 
@@ -26,19 +27,23 @@ import { SecretType } from '@src/background/services/secrets/models';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import * as swapUtils from './swap-utils';
 import { CommonError } from '@src/utils/errors';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 
 const API_URL = 'https://apiv5.paraswap.io';
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
 const ROUTE_ADDRESS = '0x0000000000';
 
-const getSwapProvider = (): SwapContextAPI => {
+const getSwapProvider = async (): Promise<SwapContextAPI> => {
   const ref = createRef<SwapContextAPI>();
 
-  render(
-    <SwapContextProvider>
-      <TestConsumerComponent ref={ref} />
-    </SwapContextProvider>,
-  );
+  await act(async () => {
+    render(
+      <SwapContextProvider>
+        <TestConsumerComponent ref={ref} />
+      </SwapContextProvider>,
+    );
+  });
 
   return ref.current ?? ({} as SwapContextAPI);
 };
@@ -90,6 +95,9 @@ jest.mock('../ConnectionProvider', () => ({
   useConnectionContext: jest.fn(),
 }));
 
+jest.mock('@src/utils/network/getProviderForNetwork');
+jest.mock('@src/hooks/useTokensWithBalances');
+
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (k) => k,
@@ -122,16 +130,21 @@ describe('contexts/SwapProvider', () => {
     },
   } as any;
 
-  const networkContext = {
+  const rpcProvider = {
+    waitForTransaction: jest.fn(),
+    estimateGas: jest.fn(),
+    _network: {
+      chainId: ChainId.AVALANCHE_MAINNET_ID,
+    },
+  } as any;
+
+  const networkContextAVA = {
     network: {
+      chainId: ChainId.AVALANCHE_MAINNET_ID,
       isTestnet: false,
       networkToken: {
         symbol: 'AVAX',
       },
-    },
-    avaxProviderC: {
-      waitForTransaction: jest.fn(),
-      estimateGas: jest.fn(),
     },
   } as any;
 
@@ -155,14 +168,13 @@ describe('contexts/SwapProvider', () => {
     } as any);
     jest.mocked(useConnectionContext).mockReturnValue(connectionContext);
     jest.mocked(useAccountsContext).mockReturnValue(accountsContext);
-    jest.mocked(useNetworkContext).mockReturnValue(networkContext);
+    jest.mocked(useNetworkContext).mockReturnValue(networkContextAVA);
     jest.mocked(useFeatureFlagContext).mockReturnValue({
       isFlagEnabled: (flagName) => flagName !== FeatureGates.ONE_CLICK_SWAP,
     } as any);
-
-    jest
-      .mocked(networkContext.avaxProviderC.estimateGas)
-      .mockResolvedValue(10000n);
+    jest.mocked(useTokensWithBalances).mockReturnValue([]);
+    jest.mocked(rpcProvider.estimateGas).mockResolvedValue(10000n);
+    jest.mocked(getProviderForNetwork).mockResolvedValue(rpcProvider);
     jest.mocked(useNetworkFeeContext).mockReturnValue({
       networkFee: {
         low: {
@@ -218,7 +230,7 @@ describe('contexts/SwapProvider', () => {
           jest
             .mocked(useNetworkContext)
             .mockReturnValue(failingNetworkContext as any);
-          const { getRate } = getSwapProvider();
+          const { getRate } = await getSwapProvider();
 
           await expect(getRate(buildGetRateParams())).rejects.toThrow(
             swapUtils.swapError(CommonError.UnknownNetwork),
@@ -235,7 +247,7 @@ describe('contexts/SwapProvider', () => {
         jest
           .mocked(useAccountsContext)
           .mockReturnValue(failingAccountsContext as any);
-        const { getRate } = getSwapProvider();
+        const { getRate } = await getSwapProvider();
 
         await expect(getRate(buildGetRateParams())).rejects.toThrow(
           swapUtils.swapError(CommonError.NoActiveAccount),
@@ -251,7 +263,7 @@ describe('contexts/SwapProvider', () => {
       });
 
       it('returns an error', async () => {
-        const { getRate } = getSwapProvider();
+        const { getRate } = await getSwapProvider();
 
         await expect(getRate(buildGetRateParams())).rejects.toThrow(
           'Feature (SWAP) is currently unavailable',
@@ -272,7 +284,7 @@ describe('contexts/SwapProvider', () => {
       });
 
       it('retries the fetch call', async () => {
-        const { getRate } = getSwapProvider();
+        const { getRate } = await getSwapProvider();
 
         const result = await getRate(buildGetRateParams());
 
@@ -296,9 +308,9 @@ describe('contexts/SwapProvider', () => {
         ok: true,
       } as any);
 
-      const { getRate } = getSwapProvider();
+      const { getRate } = await getSwapProvider();
       const params = buildGetRateParams({
-        srcToken: networkContext.network.networkToken.symbol,
+        srcToken: networkContextAVA.network.networkToken.symbol,
       });
 
       await getRate(params);
@@ -323,9 +335,9 @@ describe('contexts/SwapProvider', () => {
         ok: true,
       } as any);
 
-      const { getRate } = getSwapProvider();
+      const { getRate } = await getSwapProvider();
       const params = buildGetRateParams({
-        destToken: networkContext.network.networkToken.symbol,
+        destToken: networkContextAVA.network.networkToken.symbol,
       });
 
       await getRate(params);
@@ -356,7 +368,7 @@ describe('contexts/SwapProvider', () => {
       });
 
       it('retries the fetch call', async () => {
-        const { getRate } = getSwapProvider();
+        const { getRate } = await getSwapProvider();
 
         const result = await getRate(buildGetRateParams());
 
@@ -380,7 +392,7 @@ describe('contexts/SwapProvider', () => {
       });
 
       it('does not retry', async () => {
-        const { getRate } = getSwapProvider();
+        const { getRate } = await getSwapProvider();
 
         await expect(getRate(buildGetRateParams())).rejects.toThrow(
           swapUtils.swapError(CommonError.Unknown, new Error('Invalid tokens')),
@@ -401,7 +413,7 @@ describe('contexts/SwapProvider', () => {
         ok: true,
       } as any);
 
-      const { getRate } = getSwapProvider();
+      const { getRate } = await getSwapProvider();
       const params = buildGetRateParams({ swapSide: undefined });
 
       expect(await getRate(params)).toStrictEqual({
@@ -437,7 +449,7 @@ describe('contexts/SwapProvider', () => {
       }) as SwapParams;
 
     beforeEach(() => {
-      networkContext.avaxProviderC.waitForTransaction.mockResolvedValue({
+      rpcProvider.waitForTransaction.mockResolvedValue({
         status: 1,
       });
     });
@@ -451,7 +463,7 @@ describe('contexts/SwapProvider', () => {
       ['priceRoute', getSwapParams({ priceRoute: undefined })],
       ['destAmount', getSwapParams({ destAmount: undefined })],
     ])('validates the presence of %s parameter', async (paramName, params) => {
-      const { swap } = getSwapProvider();
+      const { swap } = await getSwapProvider();
 
       await expect(swap(params)).rejects.toThrow(
         swapUtils.swapError(
@@ -468,7 +480,7 @@ describe('contexts/SwapProvider', () => {
           jest
             .mocked(useNetworkContext)
             .mockReturnValue(failingNetworkContext as any);
-          const { swap } = getSwapProvider();
+          const { swap } = await getSwapProvider();
 
           await expect(swap(getSwapParams())).rejects.toThrow();
         },
@@ -483,7 +495,7 @@ describe('contexts/SwapProvider', () => {
         jest
           .mocked(useAccountsContext)
           .mockReturnValue(failingAccountsContext as any);
-        const { swap } = getSwapProvider();
+        const { swap } = await getSwapProvider();
 
         await expect(swap(getSwapParams())).rejects.toThrow();
       });
@@ -497,7 +509,7 @@ describe('contexts/SwapProvider', () => {
       });
 
       it('returns an error', async () => {
-        const { swap } = getSwapProvider();
+        const { swap } = await getSwapProvider();
 
         await expect(swap(getSwapParams())).rejects.toThrow(
           'Feature (SWAP) is currently unavailable',
@@ -518,7 +530,7 @@ describe('contexts/SwapProvider', () => {
       });
 
       it('returns an error', async () => {
-        const { swap } = getSwapProvider();
+        const { swap } = await getSwapProvider();
 
         await expect(
           swap(
@@ -541,9 +553,7 @@ describe('contexts/SwapProvider', () => {
           .fn()
           .mockRejectedValueOnce(new Error('Insufficient funds'));
 
-        jest
-          .mocked(networkContext.avaxProviderC.estimateGas)
-          .mockResolvedValue(10000n);
+        jest.mocked(rpcProvider.estimateGas).mockResolvedValue(10000n);
 
         jest.mocked(Contract).mockReturnValue({
           allowance: allowanceMock,
@@ -561,7 +571,7 @@ describe('contexts/SwapProvider', () => {
       });
 
       it('returns an error', async () => {
-        const { swap } = getSwapProvider();
+        const { swap } = await getSwapProvider();
 
         await expect(
           swap(
@@ -598,9 +608,7 @@ describe('contexts/SwapProvider', () => {
         allowanceMock = jest.fn().mockResolvedValue(0);
         requestMock = jest.fn().mockResolvedValue('0xALLOWANCE_HASH');
 
-        jest
-          .mocked(networkContext.avaxProviderC.estimateGas)
-          .mockResolvedValue(10000n);
+        jest.mocked(rpcProvider.estimateGas).mockResolvedValue(10000n);
         jest.mocked(Contract).mockReturnValue({
           allowance: allowanceMock,
           approve: {
@@ -615,7 +623,7 @@ describe('contexts/SwapProvider', () => {
       });
 
       it('prompts a spend approval first', async () => {
-        const { swap } = getSwapProvider();
+        const { swap } = await getSwapProvider();
 
         await swap(
           getSwapParams({
@@ -657,7 +665,7 @@ describe('contexts/SwapProvider', () => {
         events: jest.fn(),
       } as any);
 
-      const { swap } = getSwapProvider();
+      const { swap } = await getSwapProvider();
 
       const {
         destAmount,
@@ -723,7 +731,7 @@ describe('contexts/SwapProvider', () => {
         events: jest.fn(),
       } as any);
 
-      const { swap } = getSwapProvider();
+      const { swap } = await getSwapProvider();
 
       const {
         destAmount,
@@ -777,7 +785,7 @@ describe('contexts/SwapProvider', () => {
         events: jest.fn(),
       } as any);
 
-      const { swap } = getSwapProvider();
+      const { swap } = await getSwapProvider();
 
       const {
         destAmount,
@@ -835,7 +843,7 @@ describe('contexts/SwapProvider', () => {
         events: jest.fn(),
       } as any);
 
-      const { swap } = getSwapProvider();
+      const { swap } = await getSwapProvider();
 
       const {
         destAmount,
@@ -936,7 +944,7 @@ describe('contexts/SwapProvider', () => {
             ? 'uses batch signing'
             : 'does not use batch signing',
           async () => {
-            const { swap } = getSwapProvider();
+            const { swap } = await getSwapProvider();
 
             await swap(
               getSwapParams({
@@ -950,6 +958,10 @@ describe('contexts/SwapProvider', () => {
                   ? RpcMethod.ETH_SEND_TRANSACTION_BATCH
                   : RpcMethod.ETH_SEND_TRANSACTION,
               }),
+              {
+                customApprovalButtonText: 'Swap',
+                customApprovalScreenTitle: 'Confirm Swap',
+              },
             );
           },
         );
@@ -977,7 +989,7 @@ describe('contexts/SwapProvider', () => {
         });
 
         it('uses eth_sendTransaction request', async () => {
-          const { swap } = getSwapProvider();
+          const { swap } = await getSwapProvider();
 
           await swap(
             getSwapParams({
@@ -1015,7 +1027,7 @@ describe('contexts/SwapProvider', () => {
         });
 
         it('uses eth_sendTransactionBatch request', async () => {
-          const { swap } = getSwapProvider();
+          const { swap } = await getSwapProvider();
 
           await swap(
             getSwapParams({
@@ -1031,6 +1043,10 @@ describe('contexts/SwapProvider', () => {
                 matchingPayload({ to: '0xParaswapContractAddress' }),
               ],
             }),
+            {
+              customApprovalButtonText: 'Swap',
+              customApprovalScreenTitle: 'Confirm Swap',
+            },
           );
         });
       });
@@ -1064,9 +1080,9 @@ describe('contexts/SwapProvider', () => {
       });
 
       it('resolves', async () => {
-        const { swap } = getSwapProvider();
+        const { swap } = await getSwapProvider();
 
-        await expect(() =>
+        expect(() =>
           swap(
             getSwapParams({
               srcToken: 'JEWEL',

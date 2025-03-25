@@ -187,7 +187,7 @@ export const useTokensWithBalances = (
     const defaultResult = nativeToken ? [nativeToken] : [];
 
     const filteredTokens = unfilteredTokens.filter((token) => {
-      return token.balance > 0n;
+      return token.type === TokenType.NATIVE || token.balance > 0n;
     });
 
     return visibleTokens(

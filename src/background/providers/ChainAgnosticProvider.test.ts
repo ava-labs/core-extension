@@ -3,6 +3,8 @@ import AutoPairingPostMessageConnection from '../utils/messaging/AutoPairingPost
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import onDomReady from './utils/onDomReady';
 import { DAppProviderRequest } from '../connections/dAppConnection/models';
+import { ChainId } from '@avalabs/core-chains-sdk';
+import { chainIdToCaip } from '@src/utils/caipConversion';
 
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
   const mocks = {
@@ -29,6 +31,43 @@ jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
 });
 describe('src/background/providers/ChainAgnosticProvider', () => {
   const channelMock = new AutoPairingPostMessageConnection(false);
+
+  it('normalizes fake chain IDs into valid CAIP-2 blockchain ids', async () => {
+    const provider = new ChainAgnosticProvider(channelMock);
+
+    await new Promise(process.nextTick);
+
+    (onDomReady as jest.Mock).mock.calls[0][0]();
+
+    const numericIds = [
+      ChainId.ETHEREUM_HOMESTEAD,
+      ChainId.AVALANCHE_MAINNET_ID,
+      ChainId.BITCOIN,
+      ChainId.BITCOIN_TESTNET,
+      ChainId.AVALANCHE_P,
+      ChainId.AVALANCHE_X,
+      ChainId.AVALANCHE_XP,
+      ChainId.AVALANCHE_TEST_X,
+      ChainId.AVALANCHE_TEST_P,
+    ];
+
+    for (let i = 0; i < numericIds.length; i++) {
+      await provider.request({
+        data: { method: 'some-method', params: [] },
+        sessionId: 'irrelevant',
+        scope: `eip155:${numericIds[i]}`,
+      });
+
+      expect(channelMock.request).toHaveBeenNthCalledWith(
+        i + 2, // First call is done internally to pass domain metadata, so we skip one
+        expect.objectContaining({
+          params: expect.objectContaining({
+            scope: chainIdToCaip(numericIds[i]!),
+          }),
+        }),
+      );
+    }
+  });
 
   describe('initialization', () => {
     it('should connect to the backgroundscript', async () => {

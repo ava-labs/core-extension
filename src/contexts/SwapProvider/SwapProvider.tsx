@@ -1,5 +1,12 @@
-import { createContext, useCallback, useContext, useMemo } from 'react';
-import type { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { TransactionParams } from '@avalabs/evm-module';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { useConnectionContext } from '../ConnectionProvider';
@@ -53,12 +60,16 @@ import { useWalletContext } from '../WalletProvider';
 import { SecretType } from '@src/background/services/secrets/models';
 import { toast } from '@avalabs/core-k2-components';
 import { SwapPendingToast } from '@src/pages/Swap/components/SwapPendingToast';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { toastCardWithLink } from '@src/utils/toastCardWithLink';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
 export function SwapContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
-  const { network: activeNetwork, avaxProviderC } = useNetworkContext();
+  const { network: activeNetwork } = useNetworkContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -72,10 +83,37 @@ export function SwapContextProvider({ children }: { children: any }) {
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
 
-  const paraswap = useMemo(
-    () => new ParaSwap(ChainId.AVALANCHE_MAINNET_ID, undefined, new Web3()),
-    [],
-  );
+  const [rpcProvider, setRpcProvider] = useState<JsonRpcBatchInternal>();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (activeNetwork) {
+      getProviderForNetwork(activeNetwork)
+        .then((prov) => {
+          if (isMounted) {
+            setRpcProvider(prov as JsonRpcBatchInternal);
+          }
+        })
+        .catch(() => {
+          if (isMounted) {
+            setRpcProvider(undefined);
+          }
+        });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeNetwork]);
+
+  const paraswap = useMemo(() => {
+    const chainId = activeNetwork?.chainId;
+
+    return isSwapCapableChain(chainId)
+      ? new ParaSwap(chainId, undefined, new Web3())
+      : null;
+  }, [activeNetwork?.chainId]);
 
   const findSymbol = useCallback(
     (symbolOrAddress: string) => {
@@ -99,6 +137,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       srcAmount,
       swapSide,
     }: GetRateParams) => {
+      assertPresent(paraswap, SwapErrorCode.ClientNotInitialized);
       if (!activeNetwork || activeNetwork.isTestnet) {
         throw swapError(CommonError.UnknownNetwork);
       }
@@ -118,7 +157,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         destToken: isDestTokenNative ? ETHER_ADDRESS : destToken,
         amount: srcAmount,
         side: swapSide || SwapSide.SELL,
-        network: ChainId.AVALANCHE_MAINNET_ID.toString(),
+        network: activeNetwork.chainId.toString(),
         srcDecimals: `${isFromTokenNative ? 18 : srcDecimals}`,
         destDecimals: `${isDestTokenNative ? 18 : destDecimals}`,
         userAddress: activeAccount.addressC,
@@ -159,6 +198,9 @@ export function SwapContextProvider({ children }: { children: any }) {
       ignoreChecks,
       isNativeTokenSwap,
     }: BuildTxParams) => {
+      assertPresent(activeNetwork, CommonError.NoActiveNetwork);
+      assertPresent(paraswap, SwapErrorCode.ClientNotInitialized);
+
       if (!isFlagEnabled(FeatureGates.SWAP)) {
         throw new Error(`Feature (SWAP) is currently unavailable`);
       }
@@ -217,7 +259,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       const txPayload = validationResult.value;
 
       return {
-        chainId: `0x${ChainId.AVALANCHE_MAINNET_ID.toString(16)}`,
+        chainId: `0x${activeNetwork.chainId.toString(16)}`,
         gas: txPayload.gas
           ? '0x' + Number(txPayload.gas).toString(16)
           : undefined,
@@ -229,13 +271,14 @@ export function SwapContextProvider({ children }: { children: any }) {
           : undefined, // AVAX value needs to be sent with the transaction
       };
     },
-    [isFlagEnabled, paraswap],
+    [isFlagEnabled, paraswap, activeNetwork],
   );
 
   const notifyOnSwapResult = useCallback(
     async ({
       provider,
       txHash,
+      chainId,
       userAddress,
       srcToken,
       destToken,
@@ -246,6 +289,7 @@ export function SwapContextProvider({ children }: { children: any }) {
     }: {
       provider: JsonRpcBatchInternal;
       txHash: string;
+      chainId: number;
       userAddress: string;
       srcToken: string;
       destToken: string;
@@ -269,7 +313,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         captureEncrypted(isSuccessful ? 'SwapSuccessful' : 'SwapFailed', {
           address: userAddress,
           txHash: txHash,
-          chainId: ChainId.AVALANCHE_MAINNET_ID,
+          chainId,
         });
 
         const srcAsset = findSymbol(srcToken);
@@ -288,10 +332,15 @@ export function SwapContextProvider({ children }: { children: any }) {
         toast.remove(toastId);
 
         if (isSuccessful) {
-          toast.success(notificationText, { duration: 5000 });
-        }
-
-        if (!isSuccessful) {
+          toastCardWithLink({
+            title: notificationText,
+            url: getExplorerAddressByNetwork(
+              activeNetwork as NetworkWithCaipId,
+              txHash,
+            ),
+            label: t('View in Explorer'),
+          });
+        } else {
           toast.error(notificationText, { duration: 5000 });
         }
 
@@ -322,7 +371,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         });
       });
     },
-    [captureEncrypted, findSymbol, t],
+    [activeNetwork, captureEncrypted, findSymbol, t],
   );
 
   const getSwapTxProps = useCallback(
@@ -334,6 +383,9 @@ export function SwapContextProvider({ children }: { children: any }) {
       nativeToken,
       priceRoute,
     }: GetSwapPropsParams) => {
+      assertPresent(paraswap, SwapErrorCode.ClientNotInitialized);
+      assertPresent(activeNetwork, CommonError.NoActiveNetwork);
+
       const minAmount = new Big(priceRoute.destAmount)
         .times(1 - slippage / 100)
         .toFixed(0);
@@ -346,12 +398,15 @@ export function SwapContextProvider({ children }: { children: any }) {
       return {
         srcTokenAddress: srcToken === nativeToken ? ETHER_ADDRESS : srcToken,
         destTokenAddress: destToken === nativeToken ? ETHER_ADDRESS : destToken,
-        spender: await getParaswapSpender((paraswap as any).apiURL),
+        spender: await getParaswapSpender(
+          (paraswap as any).apiURL,
+          activeNetwork.chainId,
+        ),
         sourceAmount,
         destinationAmount,
       };
     },
-    [paraswap],
+    [paraswap, activeNetwork],
   );
 
   /**
@@ -359,7 +414,7 @@ export function SwapContextProvider({ children }: { children: any }) {
    * Some notes:
    *
    *  - Requires a feature flag to be enabled.
-   *  - When transfering AVAX, it performs the usual eth_sendTransaction request.
+   *  - When transferring AVAX, it performs the usual eth_sendTransaction request.
    *  - If the allowance covers the transfer amount, it performs the usual eth_sendTransaction request
    */
   const oneClickSwap = useCallback(
@@ -371,7 +426,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       assertPresent(activeNetwork, CommonError.NoActiveNetwork);
       assertPresent(networkFee, CommonError.UnknownNetworkFee);
       assertPresent(activeAccount, CommonError.NoActiveAccount);
-      assertPresent(avaxProviderC, CommonError.Unknown);
+      assertPresent(rpcProvider, CommonError.Unknown);
       assert(!activeNetwork.isTestnet, CommonError.UnknownNetwork);
 
       const {
@@ -409,7 +464,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       if (!isNativeTokenSwap) {
         const allowanceCoversAmount = await hasEnoughAllowance({
           tokenAddress: srcTokenAddress,
-          provider: avaxProviderC,
+          provider: rpcProvider,
           userAddress,
           spenderAddress: spender,
           requiredAmount: BigInt(sourceAmount),
@@ -421,7 +476,7 @@ export function SwapContextProvider({ children }: { children: any }) {
             spenderAddress: spender,
             tokenAddress: srcTokenAddress,
             amount: BigInt(sourceAmount),
-            provider: avaxProviderC,
+            provider: rpcProvider,
           });
 
           batch.push(approvalTx);
@@ -430,7 +485,7 @@ export function SwapContextProvider({ children }: { children: any }) {
 
       const ignoreChecks = batch.length > 0; // Only ignore checks if we have an approval transaction in the batch
       const swapTx = await buildTx({
-        network: ChainId.AVALANCHE_MAINNET_ID.toString(),
+        network: activeNetwork.chainId.toString(),
         srcToken: srcTokenAddress,
         destToken: destTokenAddress,
         srcAmount: sourceAmount,
@@ -451,10 +506,16 @@ export function SwapContextProvider({ children }: { children: any }) {
 
       if (batch.length > 1) {
         const [txHashes, batchSignError] = await resolve<string[]>(
-          request({
-            method: RpcMethod.ETH_SEND_TRANSACTION_BATCH,
-            params: batch,
-          }),
+          request(
+            {
+              method: RpcMethod.ETH_SEND_TRANSACTION_BATCH,
+              params: batch,
+            },
+            {
+              customApprovalScreenTitle: t('Confirm Swap'),
+              customApprovalButtonText: t('Swap'),
+            },
+          ),
         );
 
         if (isUserRejectionError(batchSignError)) {
@@ -482,8 +543,9 @@ export function SwapContextProvider({ children }: { children: any }) {
       }
 
       notifyOnSwapResult({
-        provider: avaxProviderC,
+        provider: rpcProvider,
         txHash: swapTxHash,
+        chainId: activeNetwork.chainId,
         userAddress,
         srcToken,
         destToken,
@@ -498,11 +560,12 @@ export function SwapContextProvider({ children }: { children: any }) {
       activeNetwork,
       networkFee,
       activeAccount,
-      avaxProviderC,
+      rpcProvider,
       getSwapTxProps,
       buildTx,
       notifyOnSwapResult,
       request,
+      t,
     ],
   );
 
@@ -511,7 +574,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       assertPresent(activeNetwork, CommonError.NoActiveNetwork);
       assertPresent(networkFee, CommonError.UnknownNetworkFee);
       assertPresent(activeAccount, CommonError.NoActiveAccount);
-      assertPresent(avaxProviderC, CommonError.Unknown);
+      assertPresent(rpcProvider, CommonError.Unknown);
       assert(!activeNetwork.isTestnet, CommonError.UnknownNetwork);
 
       const {
@@ -547,7 +610,7 @@ export function SwapContextProvider({ children }: { children: any }) {
       if (!isNativeTokenSwap) {
         await ensureAllowance({
           amount: BigInt(sourceAmount),
-          provider: avaxProviderC,
+          provider: rpcProvider,
           request,
           spenderAddress: spender,
           tokenAddress: srcTokenAddress,
@@ -559,7 +622,7 @@ export function SwapContextProvider({ children }: { children: any }) {
         incrementalPromiseResolve(
           () =>
             buildTx({
-              network: ChainId.AVALANCHE_MAINNET_ID.toString(),
+              network: activeNetwork.chainId.toString(),
               srcToken: srcTokenAddress,
               destToken: destTokenAddress,
               srcAmount: sourceAmount,
@@ -587,10 +650,16 @@ export function SwapContextProvider({ children }: { children: any }) {
       }
 
       const [swapTxHash, signError] = await resolve(
-        request({
-          method: RpcMethod.ETH_SEND_TRANSACTION,
-          params: [swapTx],
-        }),
+        request(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [swapTx],
+          },
+          {
+            customApprovalScreenTitle: t('Confirm Swap'),
+            customApprovalButtonText: t('Swap'),
+          },
+        ),
       );
 
       if (isUserRejectionError(signError)) {
@@ -600,8 +669,9 @@ export function SwapContextProvider({ children }: { children: any }) {
       }
 
       notifyOnSwapResult({
-        provider: avaxProviderC,
+        provider: rpcProvider,
         txHash: swapTxHash,
+        chainId: activeNetwork.chainId,
         userAddress,
         srcToken,
         destToken,
@@ -615,11 +685,12 @@ export function SwapContextProvider({ children }: { children: any }) {
       activeNetwork,
       networkFee,
       activeAccount,
-      avaxProviderC,
+      rpcProvider,
       getSwapTxProps,
       request,
       notifyOnSwapResult,
       buildTx,
+      t,
     ],
   );
 
@@ -655,6 +726,12 @@ export function SwapContextProvider({ children }: { children: any }) {
     </SwapContext.Provider>
   );
 }
+
+const isSwapCapableChain = (
+  chainId?: number,
+): chainId is ChainId.AVALANCHE_MAINNET_ID | ChainId.ETHEREUM_HOMESTEAD =>
+  chainId === ChainId.AVALANCHE_MAINNET_ID ||
+  chainId === ChainId.ETHEREUM_HOMESTEAD;
 
 export function useSwapContext() {
   return useContext(SwapContext);

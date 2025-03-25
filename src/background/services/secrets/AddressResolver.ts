@@ -23,6 +23,11 @@ export class AddressResolver {
     private readonly secretsService: SecretsService,
   ) {}
 
+  /**
+   * We're not using the dependency injection here due to cyclic dependency that's hard to resolve at the moment.
+   *
+   * ModuleManager -> ApprovalController -> WalletService -> AccountsService -> AddressResolver -> ModuleManager
+   */
   init(moduleManager: ModuleManager) {
     this.#moduleManager = moduleManager;
   }

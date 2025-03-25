@@ -4,7 +4,7 @@ import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useEffect, useState } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
-import { AlertType, DisplayData } from '@avalabs/vm-module-types';
+import { AlertType, DisplayData, RpcMethod } from '@avalabs/vm-module-types';
 import {
   Alert,
   AlertContent,
@@ -12,7 +12,9 @@ import {
   Box,
   Button,
   Scrollbars,
+  Skeleton,
   Stack,
+  Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
@@ -35,6 +37,9 @@ import { WarningBox } from '../Permissions/components/WarningBox';
 import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { GaslessPhase } from '@src/background/services/gasless/model';
 
 type WithContextAlert = {
   alert: { type: 'info'; title: string; notice: string };
@@ -69,10 +74,23 @@ export function GenericApprovalScreen() {
     action,
     network,
   });
+  const {
+    isGaslessOn,
+    gaslessFundTx,
+    fundTxHex,
+    setGaslessDefaultValues,
+    gaslessPhase,
+    setGaslessEligibility,
+    fetchAndSolveGaslessChallange,
+    isGaslessEligible,
+  } = useNetworkFeeContext();
 
-  const { displayData, context } = action ?? {};
+  const { captureEncrypted } = useAnalyticsContext();
+
+  const { displayData, context, signingData } = action ?? {};
   const hasFeeSelector = action?.displayData.networkFeeSelector;
   const isFeeValid =
+    (isGaslessOn && isGaslessEligible) ||
     !hasFeeSelector ||
     (!feeError && !isCalculatingFee && hasEnoughForNetworkFee);
 
@@ -82,13 +100,40 @@ export function GenericApprovalScreen() {
     }
 
     setNetwork(getNetwork(displayData.network.chainId));
-  }, [getNetwork, displayData?.network?.chainId]);
+
+    if (signingData && signingData.type === RpcMethod.ETH_SEND_TRANSACTION) {
+      setGaslessEligibility(
+        displayData.network.chainId,
+        signingData?.data?.from,
+        signingData?.data?.nonce,
+      );
+      return;
+    }
+    setGaslessEligibility(displayData.network.chainId);
+  }, [
+    displayData,
+    displayData?.network?.chainId,
+    fetchAndSolveGaslessChallange,
+    getNetwork,
+    setGaslessEligibility,
+    signingData,
+  ]);
+
+  useEffect(() => {
+    if (gaslessPhase === GaslessPhase.NOT_READY && isGaslessEligible) {
+      fetchAndSolveGaslessChallange();
+    }
+  }, [fetchAndSolveGaslessChallange, gaslessPhase, isGaslessEligible]);
 
   const handleRejection = useCallback(() => {
+    setGaslessDefaultValues();
     cancelHandler();
-  }, [cancelHandler]);
+  }, [cancelHandler, setGaslessDefaultValues]);
 
-  const signTx = useCallback(() => {
+  const signTx = useCallback(async () => {
+    if (isGaslessOn && isGaslessEligible) {
+      return await gaslessFundTx(action?.signingData);
+    }
     updateAction(
       {
         status: ActionStatus.SUBMITTING,
@@ -96,7 +141,46 @@ export function GenericApprovalScreen() {
       },
       isUsingLedgerWallet || isUsingKeystoneWallet,
     );
-  }, [requestId, updateAction, isUsingLedgerWallet, isUsingKeystoneWallet]);
+  }, [
+    action?.signingData,
+    gaslessFundTx,
+    isGaslessEligible,
+    isGaslessOn,
+    isUsingKeystoneWallet,
+    isUsingLedgerWallet,
+    requestId,
+    updateAction,
+  ]);
+
+  useEffect(() => {
+    if (gaslessPhase === GaslessPhase.ERROR) {
+      captureEncrypted('GaslessFundFailed');
+    }
+    if (gaslessPhase === GaslessPhase.FUNDED && fundTxHex) {
+      captureEncrypted('GaslessFundSuccessful', {
+        fundTxHex,
+      });
+      updateAction(
+        {
+          status: ActionStatus.SUBMITTING,
+          id: requestId,
+        },
+        isUsingLedgerWallet || isUsingKeystoneWallet,
+      );
+      setGaslessDefaultValues();
+    }
+  }, [
+    captureEncrypted,
+    fundTxHex,
+    gaslessPhase,
+    isUsingKeystoneWallet,
+    isUsingLedgerWallet,
+    network,
+    requestId,
+    setGaslessDefaultValues,
+    t,
+    updateAction,
+  ]);
 
   // Make the user switch to the correct app or close the window
   useLedgerDisconnectedDialog(handleRejection, undefined, network);
@@ -160,6 +244,17 @@ export function GenericApprovalScreen() {
           </Stack>
         )}
 
+        {gaslessPhase === GaslessPhase.ERROR && (
+          <Stack sx={{ width: 1, px: 2, mb: 1 }}>
+            <AlertBox
+              title={t('Gasless Error')}
+              text={t(
+                `We're unable to cover the gas fees for your transaction at this time. As a result, this feature has been disabled.`,
+              )}
+            />
+          </Stack>
+        )}
+
         {hasContextInfo(context) && (
           <Stack sx={{ width: 1, px: 2 }}>
             <Alert
@@ -209,10 +304,21 @@ export function GenericApprovalScreen() {
                 />
               )}
             </Stack>
-            {displayData.networkFeeSelector && renderFeeWidget()}
+            {isGaslessEligible === null ? (
+              <Stack
+                sx={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Skeleton sx={{ width: '100%', height: 140 }} />
+              </Stack>
+            ) : (
+              displayData.networkFeeSelector && renderFeeWidget()
+            )}
           </Stack>
         </Scrollbars>
-        {feeError && (
+        {feeError && !isGaslessOn && isGaslessEligible !== null && (
           <Typography variant="caption" color="error.main" sx={{ mt: -1 }}>
             {getSendErrorMessage(feeError)}
           </Typography>
@@ -234,29 +340,50 @@ export function GenericApprovalScreen() {
         <Button
           color="secondary"
           data-testid="transaction-reject-btn"
-          disabled={action.status === ActionStatus.SUBMITTING}
+          disabled={
+            action.status === ActionStatus.SUBMITTING ||
+            gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS
+          }
           size="large"
           fullWidth
           onClick={handleRejection}
         >
           {t('Reject')}
         </Button>
-        <Button
-          data-testid="transaction-approve-btn"
-          disabled={
-            !displayData ||
-            action.status === ActionStatus.SUBMITTING ||
-            !isFeeValid
+        <Tooltip
+          title={
+            gaslessPhase === GaslessPhase.NOT_READY &&
+            isGaslessOn &&
+            t(
+              `If you're looking to approve the transaction despite the gasless feature, please turn it off to proceed.`,
+            )
           }
-          isLoading={
-            action.status === ActionStatus.SUBMITTING || isCalculatingFee
-          }
-          size="large"
-          fullWidth
-          onClick={signTx}
+          sx={{ width: '100%' }}
         >
-          {t('Approve')}
-        </Button>
+          <Button
+            data-testid="transaction-approve-btn"
+            disabled={
+              !displayData ||
+              action.status === ActionStatus.SUBMITTING ||
+              !isFeeValid ||
+              (isGaslessOn &&
+                (gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS ||
+                  gaslessPhase !== GaslessPhase.READY))
+            }
+            isLoading={
+              action.status === ActionStatus.SUBMITTING ||
+              isCalculatingFee ||
+              gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS
+            }
+            size="large"
+            fullWidth
+            onClick={signTx}
+          >
+            {gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS
+              ? t('Approving')
+              : context?.customApprovalButtonText || t('Approve')}
+          </Button>
+        </Tooltip>
       </Stack>
       <DeviceApproval
         action={action}
