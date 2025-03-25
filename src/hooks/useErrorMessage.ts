@@ -3,12 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { errorCodes } from 'eth-rpc-errors';
 
 import { FireblocksErrorCode } from '@src/background/services/fireblocks/models';
-import {
-  CommonError,
-  RpcErrorCode,
-  SecretsError,
-  isWrappedError,
-} from '@src/utils/errors';
+import { CommonError, RpcErrorCode, isWrappedError } from '@src/utils/errors';
 import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
 import { KeystoreError } from '@src/utils/keystore/models';
 import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
@@ -188,57 +183,11 @@ export const useErrorMessage = () => {
         title: t('Request timed out'),
         hint: t('This is taking longer than expected. Please try again later.'),
       },
-      [CommonError.ModuleManagerNotSet]: {
-        title: t('Internal error occurred.'), // Do not leak implementation details to the UI
-      },
-      [CommonError.MigrationFailed]: {
-        title: t('Storage update failed'),
-      },
       [CommonError.UnableToSign]: {
         title: t('Unable to sign or broadcast transaction'),
       },
       [CommonError.UnableToEstimateGas]: {
         title: t('Unable to estimate gas'),
-      },
-    }),
-    [t],
-  );
-
-  const secretErrors: Record<SecretsError, ErrorTranslation> = useMemo(
-    () => ({
-      [SecretsError.MissingExtendedPublicKey]: {
-        title: t('Extended public key not found'),
-      },
-      [SecretsError.NoAccountIndex]: {
-        title: t('No account index was provided'),
-      },
-      [SecretsError.PublicKeyNotFound]: {
-        title: t('Public key not found'),
-      },
-      [SecretsError.SecretsNotFound]: {
-        title: t('Wallet secrets not found for the requested ID'),
-      },
-      [SecretsError.WalletAlreadyExists]: {
-        title: t('This wallet is already imported'),
-      },
-      [SecretsError.DerivationPathMissing]: {
-        title: t('Attempted to use an unknown derivation path'),
-      },
-      [SecretsError.DerivationPathTooShort]: {
-        title: t('Error while deriving address'),
-        hint: t('Requested derivation path is too short'),
-      },
-      [SecretsError.UnsupportedSecretType]: {
-        title: t('Error while deriving address'),
-        hint: t('Unsupporetd secret type'),
-      },
-      [SecretsError.UnsupportedCurve]: {
-        title: t('Error while deriving address'),
-        hint: t('Unsupported elliptic curve'),
-      },
-      [SecretsError.UnknownDerivationPathFormat]: {
-        title: t('Error while deriving address'),
-        hint: t('Unsupported derivation path format'),
       },
     }),
     [t],
@@ -295,7 +244,6 @@ export const useErrorMessage = () => {
       ...keystoreErrors,
       ...seedphraseImportError,
       ...rpcErrors,
-      ...secretErrors,
       ...swapErrors,
     }),
     [
@@ -306,7 +254,6 @@ export const useErrorMessage = () => {
       keystoreErrors,
       seedphraseImportError,
       rpcErrors,
-      secretErrors,
       swapErrors,
     ],
   );

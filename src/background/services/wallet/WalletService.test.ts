@@ -17,7 +17,7 @@ import {
   BitcoinProvider,
   DerivationPath,
   getPublicKeyFromPrivateKey,
-  getAddressDerivationPath,
+  getAddressPublicKeyFromXPub,
   Avalanche,
   createWalletPolicy,
   LedgerSigner,
@@ -40,11 +40,7 @@ import { UnsignedTx } from '@avalabs/avalanchejs';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
 import { Account, AccountType } from '../accounts/models';
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  EVM_BASE_DERIVATION_PATH,
-  SecretType,
-} from '../secrets/models';
+import { SecretType } from '../secrets/models';
 import { Transaction } from 'bitcoinjs-lib';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { Network } from '../network/models';
@@ -53,9 +49,6 @@ import { AccountsService } from '../accounts/AccountsService';
 import { ed25519 } from '@noble/curves/ed25519';
 import { HVMWallet } from './HVMWallet';
 import { TransactionPayload, VMABI } from 'hypersdk-client';
-import { buildExtendedPublicKey } from '../secrets/utils';
-import { expectToThrowErrorCode } from '@src/tests/test-utils';
-import { SecretsError } from '@src/utils/errors';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -122,21 +115,16 @@ describe('background/services/wallet/WalletService.ts', () => {
 
   const WALLET_ID = 'wallet-id';
 
-  const extendedPublicKeys = [
-    buildExtendedPublicKey('xpub', EVM_BASE_DERIVATION_PATH),
-    buildExtendedPublicKey('xpubXP', AVALANCHE_BASE_DERIVATION_PATH),
-  ];
-
   const mockMnemonicWallet = (
-    additionalData: any = {},
+    additionalData = {},
     account?: Partial<Account>,
   ) => {
     const data = {
       secretType: SecretType.Mnemonic,
       mnemonic: 'mnemonic',
-      extendedPublicKeys,
-      publicKeys: [],
-      derivationPathSpec: DerivationPath.BIP44,
+      xpub: 'xpub',
+      xpubXP: 'xpubXP',
+      derivationPath: DerivationPath.BIP44,
       walletId: WALLET_ID,
       name: 'mnemonic',
       ...additionalData,
@@ -151,7 +139,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     secretsService.getPrimaryWalletsDetails.mockResolvedValue([
       {
         type: data.secretType,
-        derivationPath: data.derivationPathSpec,
+        derivationPath: data.derivationPath,
         id: data.walletId,
         name: data.name,
       },
@@ -161,35 +149,16 @@ describe('background/services/wallet/WalletService.ts', () => {
   };
 
   const mockLedgerWallet = (
-    additionalData: any = {},
+    additionalData = {},
     account?: Partial<Account>,
   ) => {
     const data = {
       secretType: SecretType.Ledger,
-      derivationPathSpec: DerivationPath.BIP44,
+      xpub: 'xpub',
+      xpubXP: 'xpubXP',
+      derivationPath: DerivationPath.BIP44,
       walletId: WALLET_ID,
       name: 'ledger',
-      publicKeys: [
-        {
-          key: 'evm',
-          curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.BIP44,
-            'EVM',
-          ),
-        },
-        {
-          key: 'xp',
-          curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.BIP44,
-            'AVM',
-          ),
-        },
-      ],
-      extendedPublicKeys: [],
       ...additionalData,
       account: {
         type: AccountType.PRIMARY,
@@ -202,7 +171,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     secretsService.getPrimaryWalletsDetails.mockResolvedValue([
       {
         type: data.secretType,
-        derivationPath: data.derivationPathSpec,
+        derivationPath: data.derivationPath,
         id: data.walletId,
         name: data.name,
       },
@@ -218,26 +187,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     const data = {
       secretType: SecretType.LedgerLive,
       derivationPath: DerivationPath.LedgerLive,
-      publicKeys: [
-        {
-          curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
-          key: 'evm',
-        },
-        {
-          key: 'xp',
-          curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.LedgerLive,
-            'AVM',
-          ),
-        },
-      ],
+      pubKeys: [{ evm: 'evm', xp: 'xp' }],
       walletId: WALLET_ID,
       name: 'ledger live',
       ...additionalData,
@@ -268,7 +218,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     const data = {
       secretType: SecretType.Seedless,
       derivationPath: DerivationPath.BIP44,
-      publicKeys: [{ evm: 'evm', xp: 'xp' }],
+      pubKeys: [{ evm: 'evm', xp: 'xp' }],
       walletId: WALLET_ID,
       name: 'seedles',
       userId: '123',
@@ -311,16 +261,6 @@ describe('background/services/wallet/WalletService.ts', () => {
     secretsService = jest.mocked(new SecretsService({} as any));
 
     secretsService.getPrimaryWalletsDetails = jest.fn().mockResolvedValue([]);
-
-    jest
-      .mocked(getAddressDerivationPath)
-      .mockImplementation((index, pathSpec, vm) => {
-        const coin = vm === 'EVM' ? 60 : 9000;
-
-        return pathSpec === DerivationPath.BIP44
-          ? `m/44'/${coin}'/0'/0/${index}`
-          : `m/44'/${coin}'/${index}'/0/0`;
-      });
 
     getAddressMock = jest.fn().mockImplementation((_pubkey, chain) => {
       return `${chain}-`;
@@ -445,9 +385,9 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       await walletService.init({
         mnemonic,
-        extendedPublicKeys,
-        publicKeys: [],
-        derivationPathSpec: DerivationPath.BIP44,
+        xpub: 'xpub',
+        xpubXP: 'xpubXP',
+        derivationPath: DerivationPath.BIP44,
         secretType: SecretType.Mnemonic,
       });
 
@@ -455,9 +395,9 @@ describe('background/services/wallet/WalletService.ts', () => {
         expect.objectContaining({
           mnemonic,
           secretType: SecretType.Mnemonic,
-          extendedPublicKeys,
-          publicKeys: [],
-          derivationPathSpec: DerivationPath.BIP44,
+          xpub: 'xpub',
+          xpubXP: 'xpubXP',
+          derivationPath: DerivationPath.BIP44,
         }),
       );
       expect(onUnlockSpy).toHaveBeenCalled();
@@ -516,9 +456,9 @@ describe('background/services/wallet/WalletService.ts', () => {
     it('should save the new wallet values', async () => {
       const params = {
         mnemonic: 'mnemonic',
-        extendedPublicKeys,
-        publicKeys: [],
-        derivationPathSpec: DerivationPath.BIP44,
+        xpub: 'xpub',
+        xpubXP: 'xpubXP',
+        derivationPath: DerivationPath.BIP44,
         secretType: SecretType.Mnemonic,
       } as AddPrimaryWalletSecrets;
       (getDerivationPath as jest.Mock).mockReturnValueOnce(
@@ -1362,82 +1302,65 @@ describe('background/services/wallet/WalletService.ts', () => {
       it('throws if pubKeys for the account are missing', async () => {
         mockLedgerLiveWallet({}, { index: 1 });
 
-        await expectToThrowErrorCode(
-          walletService.getActiveAccountPublicKey(),
-          SecretsError.PublicKeyNotFound,
+        await expect(walletService.getActiveAccountPublicKey()).rejects.toThrow(
+          'Can not find public key for the given index',
         );
       });
 
       it('returns the public keys for mnemonic wallets', async () => {
-        const { publicKeys } = mockMnemonicWallet(
-          {
-            publicKeys: [
-              {
-                curve: 'secp256k1',
-                key: 'evm',
-                derivationPath: `m/44'/60'/0'/0/0`,
-              },
-              {
-                curve: 'secp256k1',
-                key: 'xp',
-                derivationPath: `m/44'/9000'/0'/0/0`,
-              },
-              {
-                curve: 'ed25519',
-                key: 'hvm',
-                derivationPath: `m/44'/9000'/0'/0/0`,
-              },
-            ],
-          },
-          { index: 0 },
-        );
+        const { xpub, xpubXP } = mockMnemonicWallet({}, { index: 0 });
+        (ed25519.getPublicKey as jest.Mock).mockReturnValue('123123');
+        jest
+          .mocked(getAddressPublicKeyFromXPub)
+          .mockReturnValueOnce(evmPub as any);
+        jest
+          .mocked(Avalanche.getAddressPublicKeyFromXpub)
+          .mockReturnValueOnce(xpPub as any);
 
         const result = await walletService.getActiveAccountPublicKey();
 
         expect(result).toStrictEqual({
-          evm: publicKeys[0]!.key,
-          xp: publicKeys[1]!.key,
-          ed25519: publicKeys[2]!.key,
+          evm: evmPub,
+          xp: xpPub,
+          ed25519: '313233313233',
         });
+
+        expect(getAddressPublicKeyFromXPub).toHaveBeenCalledWith(xpub, 0);
+        expect(Avalanche.getAddressPublicKeyFromXpub).toHaveBeenCalledWith(
+          xpubXP,
+          0,
+        );
       });
 
       it('returns the public keys based on the extended public key correctly', async () => {
-        mockLedgerWallet(
-          {
-            extendedPublicKeys,
-          },
-          { index: 0 },
-        );
+        const { xpub, xpubXP } = mockLedgerWallet({}, { index: 0 });
+
+        (getAddressPublicKeyFromXPub as jest.Mock).mockReturnValueOnce(evmPub);
+        (
+          Avalanche.getAddressPublicKeyFromXpub as jest.Mock
+        ).mockReturnValueOnce(xpPub);
 
         const result = await walletService.getActiveAccountPublicKey();
 
         expect(result).toStrictEqual({
-          evm: 'evm',
-          xp: 'xp',
+          evm: evmPub,
+          xp: xpPub,
         });
+
+        expect(getAddressPublicKeyFromXPub).toHaveBeenCalledWith(xpub, 0);
+        expect(Avalanche.getAddressPublicKeyFromXpub).toHaveBeenCalledWith(
+          xpubXP,
+          0,
+        );
       });
 
       it('returns the public keys based from the storage', async () => {
         mockLedgerLiveWallet(
           {
-            publicKeys: [
+            pubKeys: [
               {
-                key: evmPub,
-                curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.LedgerLive,
-                  'EVM',
-                ),
-              },
-              {
-                key: xpPub,
-                curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.LedgerLive,
-                  'AVM',
-                ),
+                evm: evmPub,
+                xp: xpPub,
               },
             ],
           },
@@ -1455,24 +1378,10 @@ describe('background/services/wallet/WalletService.ts', () => {
       it('returns the public keys for seedless wallets', async () => {
         mockSeedlessWallet(
           {
-            publicKeys: [
+            pubKeys: [
               {
-                key: evmPub,
-                curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.BIP44,
-                  'EVM',
-                ),
-              },
-              {
-                key: xpPub,
-                curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.BIP44,
-                  'AVM',
-                ),
+                evm: evmPub,
+                xp: xpPub,
               },
             ],
           },
@@ -1515,9 +1424,8 @@ describe('background/services/wallet/WalletService.ts', () => {
           },
         );
 
-        await expectToThrowErrorCode(
-          walletService.getActiveAccountPublicKey(),
-          SecretsError.PublicKeyNotFound,
+        await expect(walletService.getActiveAccountPublicKey()).rejects.toThrow(
+          'Unable to get public key',
         );
       });
 
@@ -1678,9 +1586,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     it('returns the correct list of addresses', async () => {
       secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce({
-        extendedPublicKeys: [
-          buildExtendedPublicKey('xpubXP', AVALANCHE_BASE_DERIVATION_PATH),
-        ],
+        xpubXP,
       } as any);
 
       (Avalanche.getAddressFromXpub as jest.Mock)

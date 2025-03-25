@@ -21,11 +21,6 @@ import type { BalanceAggregatorService } from '../../BalanceAggregatorService';
 import { getAccountsWithActivity } from './helpers';
 import { IMPORTED_ACCOUNTS_WALLET_ID } from './models';
 import { GetTotalBalanceForWalletHandler } from './getTotalBalanceForWallet';
-import { buildExtendedPublicKey } from '@src/background/services/secrets/utils';
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  SecretType,
-} from '@src/background/services/secrets/models';
 
 jest.mock('./helpers/getAccountsWithActivity');
 
@@ -112,10 +107,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
   const mockSecrets = (xpubXP?: string) => {
     secretsService.getWalletAccountsSecretsById.mockResolvedValueOnce({
-      secretType: SecretType.Mnemonic,
-      extendedPublicKeys: xpubXP
-        ? [buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH)]
-        : [],
+      xpubXP,
     } as any);
   };
 

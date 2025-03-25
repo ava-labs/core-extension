@@ -25,6 +25,7 @@ import {
 } from '@metamask/eth-sig-util';
 
 import { NetworkService } from '../network/NetworkService';
+import { PubKeyType } from '../wallet/models';
 import { MessageParams, MessageType } from '../messages/models';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { Transaction } from 'bitcoinjs-lib';
@@ -36,23 +37,20 @@ import { isTokenExpiredError } from './utils';
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { toUtf8 } from 'ethereumjs-util';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { AddressPublicKeyJson } from '../secrets/models';
-import { assertPresent } from '@src/utils/assertions';
-import { CommonError } from '@src/utils/errors';
 
 type ConstructorOpts = {
-  networkService?: NetworkService;
+  networkService: NetworkService;
   sessionStorage: cs.SessionStorage<cs.SignerSessionData>;
-  addressPublicKey?: AddressPublicKeyJson;
+  addressPublicKey?: PubKeyType;
   network?: Network;
   sessionManager?: SeedlessSessionManager;
   mfaService?: SeedlessMfaService;
 };
 
 export class SeedlessWallet {
+  #networkService: NetworkService;
   #sessionStorage: cs.SessionStorage<cs.SignerSessionData>;
-  #networkService?: NetworkService;
-  #addressPublicKey?: AddressPublicKeyJson;
+  #addressPublicKey?: PubKeyType;
   #network?: Network;
   #sessionManager?: SeedlessSessionManager;
   #signerSession?: cs.SignerSession;
@@ -141,7 +139,7 @@ export class SeedlessWallet {
       const keys = await session.keys();
 
       const activeAccountKey = keys.find(
-        (key) => strip0x(key.publicKey) === this.#addressPublicKey?.key,
+        (key) => strip0x(key.publicKey) === this.#addressPublicKey?.evm,
       );
 
       const mnemonicId = activeAccountKey?.derivation_info?.mnemonic_id;
@@ -252,7 +250,7 @@ export class SeedlessWallet {
     return result.data();
   }
 
-  async getPublicKeys(): Promise<AddressPublicKeyJson[]> {
+  async getPublicKeys(): Promise<PubKeyType[]> {
     const session = await this.#getSession();
     // get keys and filter out non derived ones and group them
     let rawKeys: cs.KeyInfo[];
@@ -316,34 +314,17 @@ export class SeedlessWallet {
 
     // If there are multiple valid sets, we choose the first one.
     const derivedKeys = validKeySets[0];
-    const pubkeys = [] as AddressPublicKeyJson[];
+    const pubkeys = [] as PubKeyType[];
 
     derivedKeys.forEach((key) => {
       if (!key || !key['SecpAvaAddr'] || !key['SecpEthAddr']) {
         return;
       }
 
-      if (
-        !key['SecpEthAddr'].derivation_info?.derivation_path ||
-        !key['SecpAvaAddr'].derivation_info?.derivation_path
-      ) {
-        throw new Error('Derivation path not found');
-      }
-
-      pubkeys.push(
-        {
-          curve: 'secp256k1',
-          derivationPath: key['SecpEthAddr'].derivation_info.derivation_path,
-          key: strip0x(key['SecpEthAddr'].public_key),
-          type: 'address-pubkey',
-        },
-        {
-          curve: 'secp256k1',
-          derivationPath: key['SecpAvaAddr'].derivation_info.derivation_path,
-          key: strip0x(key['SecpAvaAddr'].public_key),
-          type: 'address-pubkey',
-        },
-      );
+      pubkeys.push({
+        evm: strip0x(key['SecpEthAddr'].public_key),
+        xp: strip0x(key['SecpAvaAddr'].public_key),
+      });
     });
 
     if (!pubkeys?.length) {
@@ -380,7 +361,7 @@ export class SeedlessWallet {
   }
 
   async signTransaction(transaction: TransactionRequest): Promise<string> {
-    if (!this.#addressPublicKey || !this.#addressPublicKey.key) {
+    if (!this.#addressPublicKey || !this.#addressPublicKey.evm) {
       throw new Error('Public key not available');
     }
 
@@ -395,7 +376,7 @@ export class SeedlessWallet {
 
     try {
       const signer = new Signer(
-        getEvmAddressFromPubKey(Buffer.from(this.#addressPublicKey.key, 'hex')),
+        getEvmAddressFromPubKey(Buffer.from(this.#addressPublicKey.evm, 'hex')),
         await this.#getSession(),
         provider,
       );
@@ -410,8 +391,6 @@ export class SeedlessWallet {
   async signAvalancheTx(
     request: Avalanche.SignTxRequest,
   ): Promise<Avalanche.SignTxRequest['tx']> {
-    assertPresent(this.#networkService, CommonError.UnknownNetwork);
-
     if (!this.#addressPublicKey) {
       throw new Error('Public key not available');
     }
@@ -420,10 +399,10 @@ export class SeedlessWallet {
     const isMainnet = this.#networkService.isMainnet();
     const session = await this.#getSession();
     const key = isEvmTx
-      ? await this.#getSigningKey(cs.Secp256k1.Evm, this.#addressPublicKey.key)
+      ? await this.#getSigningKey(cs.Secp256k1.Evm, this.#addressPublicKey.evm)
       : await this.#getSigningKey(
           isMainnet ? cs.Secp256k1.Ava : cs.Secp256k1.AvaTest,
-          this.#addressPublicKey.key,
+          this.#addressPublicKey.xp,
         );
 
     try {
@@ -469,7 +448,7 @@ export class SeedlessWallet {
           }
 
           const signer = new SeedlessBtcSigner(
-            this.#addressPublicKey.key,
+            this.#addressPublicKey.evm,
             psbt,
             i,
             ins,
@@ -494,7 +473,6 @@ export class SeedlessWallet {
     messageType: MessageType,
     messageParams: MessageParams,
   ): Promise<string | Buffer> {
-    assertPresent(this.#networkService, CommonError.UnknownNetwork); // TODO: is networkService actually needed? why is #network not enough?
     if (!this.#addressPublicKey) {
       throw new Error('Public key not available');
     }
@@ -504,13 +482,13 @@ export class SeedlessWallet {
     }
 
     if (messageType === MessageType.AVALANCHE_SIGN) {
-      if (!this.#addressPublicKey.key) {
+      if (!this.#addressPublicKey.xp) {
         throw new Error('X/P public key not available');
       }
 
       const xpProvider = await this.#networkService.getAvalanceProviderXP();
       const addressAVM = await xpProvider
-        .getAddress(Buffer.from(this.#addressPublicKey.key, 'hex'), 'X')
+        .getAddress(Buffer.from(this.#addressPublicKey.xp, 'hex'), 'X')
         .slice(2); // remove chain prefix
       const message = toUtf8(messageParams.data);
 
@@ -526,7 +504,7 @@ export class SeedlessWallet {
     }
 
     const addressEVM = getEvmAddressFromPubKey(
-      Buffer.from(this.#addressPublicKey.key, 'hex'),
+      Buffer.from(this.#addressPublicKey.evm, 'hex'),
     ).toLowerCase();
 
     switch (messageType) {

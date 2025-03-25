@@ -4,27 +4,14 @@ import { CommonError, ErrorCode } from './errors';
 export function assertPresent<T>(
   value: T,
   reason: ErrorCode,
-  context?: string,
 ): asserts value is NonNullable<T> {
-  const isNullish = typeof value === 'undefined' || value === null;
-  const isEmptyBuffer = Buffer.isBuffer(value) && value.length === 0;
-
-  if (isNullish || isEmptyBuffer || value === '') {
+  if (typeof value === 'undefined' || value === null) {
     throw ethErrors.rpc.internal({
       data: {
         reason: reason ?? CommonError.Unknown,
-        context,
       },
     });
   }
-}
-
-export function assertPropDefined<T, K extends keyof T>(
-  obj: T,
-  prop: K,
-  reason: ErrorCode,
-): asserts obj is T & Record<K, NonNullable<T[K]>> {
-  assertPresent(obj[prop], reason);
 }
 
 type NonEmptyString<T> = T extends '' ? never : T;

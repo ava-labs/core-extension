@@ -1,7 +1,6 @@
 import { omit, pick } from 'lodash';
 import { singleton } from 'tsyringe';
 
-import EventEmitter from 'events';
 import {
   Account,
   AccountType,
@@ -15,33 +14,38 @@ import {
   WALLET_STORAGE_KEY,
   AddPrimaryWalletSecrets,
   WalletDetails,
+  PubKeyType,
   WalletEvents,
 } from '../wallet/models';
 import {
-  AddressPublicKeyJson,
-  Curve,
-  EVM_BASE_DERIVATION_PATH,
+  DerivedAddresses,
   ImportedAccountSecrets,
   PrimaryWalletSecrets,
   SecretType,
 } from './models';
 import { isPrimaryAccount } from '../accounts/utils/typeGuards';
+import _ from 'lodash';
 import {
+  Avalanche,
+  getAddressFromXPub,
+  getAddressPublicKeyFromXPub,
+  getBech32AddressFromXPub,
+  getBtcAddressFromPubKey,
+  getEvmAddressFromPubKey,
   getPubKeyFromTransport,
-  DerivationPath,
+  getPublicKeyFromPrivateKey,
 } from '@avalabs/core-wallets-sdk';
-import { NetworkVMType } from '@avalabs/vm-module-types';
+import { networks } from 'bitcoinjs-lib';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { LedgerService } from '../ledger/LedgerService';
+import { NetworkService } from '../network/NetworkService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import EventEmitter from 'events';
 import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
-import { hasPublicKeyFor } from './utils';
-import { AddressPublicKey } from './AddressPublicKey';
-import { AddressResolver } from './AddressResolver';
-import { mapVMAddresses } from '../accounts/utils/mapVMAddresses';
-import { assertPresent } from '@src/utils/assertions';
-import { LedgerError } from '@src/utils/errors';
+import { getAddressForHvm } from './utils/getAddressForHvm';
+import { getAccountPrivateKeyFromMnemonic } from './utils/getAccountPrivateKeyFromMnemonic';
 
 /**
  * Use this service to fetch, save or delete account secrets.
@@ -49,13 +53,6 @@ import { LedgerError } from '@src/utils/errors';
 @singleton()
 export class SecretsService implements OnUnlock {
   #eventEmitter = new EventEmitter();
-
-  /**
-   * This is used when we need to store a secret temporarily,
-   * like when we need to calculate addresses for a private key
-   * before letting the AccountService commit the secret.
-   */
-  #temporarySecretStorage = new Map<string, ImportedAccountSecrets>();
 
   constructor(private storageService: StorageService) {}
 
@@ -127,7 +124,7 @@ export class SecretsService implements OnUnlock {
           id: wallet.id,
           name: wallet.name,
           type: wallet.secretType,
-          derivationPath: wallet.derivationPathSpec as DerivationPath,
+          derivationPath: wallet.derivationPath,
           authProvider: wallet.authProvider,
           userEmail: wallet.userEmail,
           userId: wallet.userId,
@@ -138,7 +135,7 @@ export class SecretsService implements OnUnlock {
         id: wallet.id,
         name: wallet.name,
         type: wallet.secretType,
-        derivationPath: wallet.derivationPathSpec as DerivationPath,
+        derivationPath: wallet.derivationPath,
       };
     });
   }
@@ -294,32 +291,6 @@ export class SecretsService implements OnUnlock {
     };
   }
 
-  async getSecretsById(walletId: string) {
-    const tempSecret = this.#temporarySecretStorage.get(walletId);
-
-    if (tempSecret) {
-      return tempSecret;
-    }
-
-    const secrets = await this.#loadSecrets(true);
-
-    const importedAccountSecrets = secrets.importedAccounts?.[walletId];
-
-    if (importedAccountSecrets) {
-      return importedAccountSecrets;
-    }
-
-    const primaryWalletSecrets = secrets.wallets.find(
-      ({ id }) => id === walletId,
-    );
-
-    if (!primaryWalletSecrets) {
-      throw new Error('No secrets found for this id');
-    }
-
-    return primaryWalletSecrets;
-  }
-
   async getWalletAccountsSecretsById(walletId: string) {
     const walletKeys = await this.#loadSecrets(true);
 
@@ -412,9 +383,8 @@ export class SecretsService implements OnUnlock {
     const { account } = secrets;
 
     if (secrets.secretType === SecretType.LedgerLive && account) {
-      const pubKeyInfo = secrets.publicKeys.find(
-        (key) => key.derivationPath === `m/44'/60'/${account.index}'/0/0`,
-      );
+      const pubKeys = secrets.pubKeys ?? [];
+      const pubKeyInfo = pubKeys[account.index];
 
       if (!pubKeyInfo) {
         throw new Error(
@@ -435,40 +405,31 @@ export class SecretsService implements OnUnlock {
         name,
       };
 
-      secrets.publicKeys[account.index] = pubKeyInfo;
+      pubKeys[account.index] = pubKeyInfo;
 
       return await this.updateSecrets(
         {
-          publicKeys: secrets.publicKeys,
+          pubKeys,
         },
         walletId,
       );
     }
 
     if (secrets.secretType === SecretType.Ledger) {
-      const extPubKey = secrets.extendedPublicKeys.find(
-        (key) => key.derivationPath === EVM_BASE_DERIVATION_PATH,
-      );
-      if (!extPubKey) {
-        throw new Error('No matching extended public key found');
-      }
-
-      if (extPubKey?.btcWalletPolicyDetails) {
+      if (secrets?.btcWalletPolicyDetails) {
         throw new Error(
           'Error while saving wallet policy details: policy details already stored.',
         );
       }
 
-      extPubKey.btcWalletPolicyDetails = {
-        xpub,
-        masterFingerprint,
-        hmacHex,
-        name,
-      };
-
       return await this.updateSecrets(
         {
-          extendedPublicKeys: secrets.extendedPublicKeys,
+          btcWalletPolicyDetails: {
+            xpub,
+            masterFingerprint,
+            hmacHex,
+            name,
+          },
         },
         walletId,
       );
@@ -491,9 +452,7 @@ export class SecretsService implements OnUnlock {
 
     if (secrets.secretType === SecretType.LedgerLive && secrets.account) {
       const accountIndex = secrets.account.index;
-      const pubKeyInfo = secrets.publicKeys.find(
-        (key) => key.derivationPath === `m/44'/60'/${accountIndex}'/0/0`, // TODO: extract as util function
-      );
+      const pubKeyInfo = secrets.pubKeys[accountIndex];
 
       return {
         accountIndex,
@@ -502,13 +461,9 @@ export class SecretsService implements OnUnlock {
     }
 
     if (secrets.secretType === SecretType.Ledger) {
-      const extPubKey = secrets.extendedPublicKeys.find(
-        (key) => key.btcWalletPolicyDetails,
-      );
-
       return {
         accountIndex: 0,
-        details: extPubKey?.btcWalletPolicyDetails,
+        details: secrets.btcWalletPolicyDetails,
       };
     }
   }
@@ -539,12 +494,8 @@ export class SecretsService implements OnUnlock {
     privateKey: string,
   ): Promise<boolean>;
   async isKnownSecret(
-    type: SecretType.LedgerLive,
-    publicKey: string,
-  ): Promise<boolean>;
-  async isKnownSecret(
-    type: SecretType.Ledger,
-    extendedPublicKey: string,
+    type: SecretType.LedgerLive | SecretType.Ledger,
+    pub: string | PubKeyType[],
   ): Promise<boolean>;
   async isKnownSecret(
     type:
@@ -582,8 +533,7 @@ export class SecretsService implements OnUnlock {
     if (type === SecretType.Ledger) {
       return secrets.wallets.some(
         (wallet) =>
-          wallet.secretType === SecretType.Ledger &&
-          wallet.extendedPublicKeys.some((pub) => pub.key === secret),
+          wallet.secretType === SecretType.Ledger && wallet.xpub === secret,
       );
     }
 
@@ -591,7 +541,8 @@ export class SecretsService implements OnUnlock {
       return secrets.wallets.some((wallet) => {
         return (
           wallet.secretType === SecretType.LedgerLive &&
-          wallet.publicKeys.some((pub) => pub.key === secret)
+          Array.isArray(secret) &&
+          _.isEqual(wallet.pubKeys[0], secret[0])
         );
       });
     }
@@ -606,7 +557,7 @@ export class SecretsService implements OnUnlock {
 
   async addImportedWallet(
     importData: ImportData,
-    addressResolver: AddressResolver,
+    networkService: NetworkService,
   ) {
     const id = crypto.randomUUID();
 
@@ -649,217 +600,267 @@ export class SecretsService implements OnUnlock {
     }
 
     if (importData.importType === ImportType.PRIVATE_KEY) {
-      this.#temporarySecretStorage.set(id, {
-        secretType: SecretType.PrivateKey,
-        secret: importData.data,
-      });
+      const addresses = await this.#calculateAddressesForPrivateKey(
+        importData.data,
+        networkService,
+      );
 
-      try {
-        const addresses = await addressResolver.getAddressesForSecretId(id);
-        return {
-          account: {
-            id,
-            ...mapVMAddresses(addresses),
-          },
-          commit,
-        };
-      } finally {
-        this.#temporarySecretStorage.delete(id);
-      }
+      return {
+        account: {
+          id,
+          ...addresses,
+        },
+        commit,
+      };
     }
 
     throw new Error('Unknown import type');
+  }
+
+  async #calculateAddressesForPrivateKey(
+    privateKey: string,
+    networkService: NetworkService,
+  ): Promise<DerivedAddresses> {
+    const addresses: DerivedAddresses = {
+      addressBTC: '',
+      addressC: '',
+      addressAVM: '',
+      addressPVM: '',
+      addressCoreEth: '',
+    };
+
+    const provXP = await networkService.getAvalanceProviderXP();
+
+    try {
+      const publicKey = getPublicKeyFromPrivateKey(privateKey);
+      addresses.addressC = getEvmAddressFromPubKey(publicKey);
+      addresses.addressBTC = getBtcAddressFromPubKey(
+        publicKey,
+        networkService.isMainnet() ? networks.bitcoin : networks.testnet,
+      );
+      addresses.addressAVM = provXP.getAddress(publicKey, 'X');
+      addresses.addressPVM = provXP.getAddress(publicKey, 'P');
+      addresses.addressCoreEth = provXP.getAddress(publicKey, 'C');
+      addresses.addressHVM = getAddressForHvm(privateKey);
+    } catch (_err) {
+      throw new Error('Error while calculating addresses');
+    }
+
+    if (
+      !addresses.addressC ||
+      !addresses.addressBTC ||
+      !addresses.addressAVM ||
+      !addresses.addressPVM ||
+      !addresses.addressCoreEth
+    ) {
+      throw new Error(`Missing address`);
+    }
+
+    return addresses;
   }
 
   async addAddress({
     index,
     walletId,
     ledgerService,
-    addressResolver,
+    networkService,
   }: {
     index: number;
     walletId: string;
     ledgerService: LedgerService;
-    addressResolver: AddressResolver;
-  }): Promise<void> {
+    networkService: NetworkService;
+  }): Promise<Record<NetworkVMType, string | undefined>> {
     const secrets = await this.getWalletAccountsSecretsById(walletId);
 
-    const derivationPaths = await addressResolver.getDerivationPathsByVM(
-      index,
-      secrets.derivationPathSpec,
-      [NetworkVMType.EVM, NetworkVMType.AVM, NetworkVMType.HVM],
-    );
-    const derivationPathEVM = derivationPaths[NetworkVMType.EVM];
-    const derivationPathAVM = derivationPaths[NetworkVMType.AVM];
-    const derivationPathHVM = derivationPaths[NetworkVMType.HVM];
-
-    const hasEVMPublicKey = hasPublicKeyFor(
-      secrets,
-      derivationPathEVM,
-      'secp256k1',
-    );
-    const hasAVMPublicKey = hasPublicKeyFor(
-      secrets,
-      derivationPathAVM,
-      'secp256k1',
-    );
-
     if (
-      secrets.secretType === SecretType.Seedless &&
-      (!hasAVMPublicKey || !hasEVMPublicKey)
+      secrets.secretType === SecretType.LedgerLive &&
+      !secrets.pubKeys[index]
     ) {
+      // With LedgerLive, we don't have xPub or Mnemonic, so we need
+      // to get the new address pubkey from the Ledger device.
+      if (!ledgerService.recentTransport) {
+        throw new Error('Ledger transport not available');
+      }
+
+      // Get EVM public key from transport
+      const addressPublicKeyC = await getPubKeyFromTransport(
+        ledgerService.recentTransport,
+        index,
+        secrets.derivationPath,
+      );
+
+      // Get X/P public key from transport
+      const addressPublicKeyXP = await getPubKeyFromTransport(
+        ledgerService.recentTransport,
+        index,
+        secrets.derivationPath,
+        'AVM',
+      );
+
+      if (
+        !addressPublicKeyC ||
+        !addressPublicKeyC.byteLength ||
+        !addressPublicKeyXP ||
+        !addressPublicKeyXP.byteLength
+      ) {
+        throw new Error('Failed to get public key from device.');
+      }
+
+      const pubKeys = [...(secrets?.pubKeys || [])];
+      pubKeys[index] = {
+        evm: addressPublicKeyC.toString('hex'),
+        xp: addressPublicKeyXP.toString('hex'),
+      };
+
+      await this.updateSecrets(
+        {
+          pubKeys,
+        },
+        walletId,
+      );
+    }
+
+    if (secrets.secretType === SecretType.Seedless && !secrets.pubKeys[index]) {
       const wallet = new SeedlessWallet({
+        networkService,
         sessionStorage: new SeedlessTokenStorage(this),
-        addressPublicKey: secrets.publicKeys[0],
+        addressPublicKey: secrets.pubKeys[0],
       });
 
       // Prompt Core Seedless API to derive new keys
       await wallet.addAccount(index);
-
-      // With Seedless, we're always getting the entire collection
-      // of derive public keys, so we replace the existing ones
-      // instead of appending new ones.
+      // Update the public keys in wallet
       await this.updateSecrets(
         {
-          publicKeys: await wallet.getPublicKeys(),
-        },
-        walletId,
-      );
-
-      return;
-    }
-
-    const newPublicKeys: AddressPublicKeyJson[] = [];
-
-    if (secrets.secretType === SecretType.LedgerLive) {
-      if (!hasEVMPublicKey) {
-        assertPresent(
-          ledgerService.recentTransport,
-          LedgerError.TransportNotFound,
-        );
-        const addressPublicKeyC = await getPubKeyFromTransport(
-          ledgerService.recentTransport,
-          index,
-          secrets.derivationPathSpec as DerivationPath,
-          'EVM',
-        );
-        assertPresent(
-          addressPublicKeyC,
-          LedgerError.NoPublicKeyReturned,
-          `EVM @ ${derivationPathEVM}`,
-        );
-        newPublicKeys.push({
-          curve: 'secp256k1',
-          derivationPath: derivationPathEVM,
-          key: addressPublicKeyC.toString('hex'),
-          type: 'address-pubkey',
-        });
-      }
-
-      if (!hasAVMPublicKey) {
-        assertPresent(
-          ledgerService.recentTransport,
-          LedgerError.TransportNotFound,
-        );
-        const addressPublicKeyXP = await getPubKeyFromTransport(
-          ledgerService.recentTransport,
-          index,
-          secrets.derivationPathSpec as DerivationPath,
-          'AVM',
-        );
-        assertPresent(
-          addressPublicKeyXP,
-          LedgerError.NoPublicKeyReturned,
-          `AVM @ ${derivationPathAVM}`,
-        );
-        newPublicKeys.push({
-          curve: 'secp256k1',
-          derivationPath: derivationPathAVM,
-          key: addressPublicKeyXP.toString('hex'),
-          type: 'address-pubkey',
-        });
-      }
-    } else if (secrets.secretType === SecretType.Ledger) {
-      // For Ledger, we can only use the extended public keys to
-      // derive EVM/Bitcoin & AVM public keys.
-      if (!hasEVMPublicKey) {
-        const publicKeyEVM = AddressPublicKey.fromExtendedPublicKeys(
-          secrets.extendedPublicKeys,
-          'secp256k1',
-          derivationPathEVM,
-        ).toJSON();
-        newPublicKeys.push(publicKeyEVM);
-      }
-
-      if (!hasAVMPublicKey) {
-        const publicKeyAVM = AddressPublicKey.fromExtendedPublicKeys(
-          secrets.extendedPublicKeys,
-          'secp256k1',
-          derivationPathAVM,
-        ).toJSON();
-        newPublicKeys.push(publicKeyAVM);
-      }
-    } else if (secrets.secretType === SecretType.Mnemonic) {
-      // For mnemonic, we can derive public keys for EVM/Bitcoin, AVM and HVM
-      if (!hasEVMPublicKey) {
-        const publicKeyEVM = await AddressPublicKey.fromSeedphrase(
-          secrets.mnemonic,
-          'secp256k1',
-          derivationPathEVM,
-        );
-        newPublicKeys.push(publicKeyEVM.toJSON());
-      }
-      if (!hasAVMPublicKey) {
-        const publicKeyAVM = await AddressPublicKey.fromSeedphrase(
-          secrets.mnemonic,
-          'secp256k1',
-          derivationPathAVM,
-        );
-        newPublicKeys.push(publicKeyAVM.toJSON());
-      }
-      if (!hasPublicKeyFor(secrets, derivationPathHVM, 'ed25519')) {
-        const publicKeyHVM = await AddressPublicKey.fromSeedphrase(
-          secrets.mnemonic,
-          'ed25519',
-          derivationPathHVM,
-        );
-        newPublicKeys.push(publicKeyHVM.toJSON());
-      }
-    } else if (secrets.secretType === SecretType.Keystone) {
-      // For Keystone, we can only derive EVM/Bitcoin public key.
-      if (!hasEVMPublicKey) {
-        const publicKeyEVM = AddressPublicKey.fromExtendedPublicKeys(
-          secrets.extendedPublicKeys,
-          'secp256k1',
-          derivationPathEVM,
-        ).toJSON();
-        newPublicKeys.push(publicKeyEVM);
-      }
-    }
-
-    if (newPublicKeys.length > 0) {
-      await this.updateSecrets(
-        {
-          publicKeys: [...secrets.publicKeys, ...newPublicKeys],
+          pubKeys: await wallet.getPublicKeys(),
         },
         walletId,
       );
     }
+    const addresses = this.getAddresses(index, walletId, networkService);
+    return addresses;
   }
 
-  async derivePublicKey(
-    secretId: string,
-    curve: Curve,
-    derivationPath?: string,
-  ): Promise<string> {
-    const secrets = await this.getSecretsById(secretId);
+  async getAddresses(
+    index: number,
+    walletId: string,
+    networkService: NetworkService,
+  ): Promise<Record<NetworkVMType, string | undefined> | never> {
+    if (!walletId) {
+      throw new Error('Wallet id not provided');
+    }
 
-    const pubkey = await AddressPublicKey.fromSecrets(
-      secrets,
-      curve,
-      derivationPath,
-    );
+    const secrets = await this.getWalletAccountsSecretsById(walletId);
 
-    return pubkey.key;
+    if (!secrets) {
+      throw new Error('Wallet is not initialized');
+    }
+
+    const isMainnet = networkService.isMainnet();
+    const providerXP = await networkService.getAvalanceProviderXP();
+
+    if (
+      secrets.secretType === SecretType.Ledger ||
+      secrets.secretType === SecretType.Mnemonic ||
+      secrets.secretType === SecretType.Keystone
+    ) {
+      // C-avax... this address uses the same public key as EVM
+      const cPubkey = getAddressPublicKeyFromXPub(secrets.xpub, index);
+      const cAddr = providerXP.getAddress(cPubkey, 'C');
+
+      let xAddr: string | undefined = undefined;
+      let pAddr: string | undefined = undefined;
+      // We can only get X/P addresses if xpubXP is set
+      if (secrets.xpubXP) {
+        // X and P addresses different derivation path m/44'/9000'/0'...
+        const xpPub = Avalanche.getAddressPublicKeyFromXpub(
+          secrets.xpubXP,
+          index,
+        );
+        xAddr = providerXP.getAddress(xpPub, 'X');
+        pAddr = providerXP.getAddress(xpPub, 'P');
+      }
+
+      return {
+        [NetworkVMType.EVM]: getAddressFromXPub(secrets.xpub, index),
+        [NetworkVMType.BITCOIN]: getBech32AddressFromXPub(
+          secrets.xpub,
+          index,
+          isMainnet ? networks.bitcoin : networks.testnet,
+        ),
+        [NetworkVMType.AVM]: xAddr,
+        [NetworkVMType.PVM]: pAddr,
+        [NetworkVMType.CoreEth]: cAddr,
+        [NetworkVMType.SVM]: undefined,
+        [NetworkVMType.HVM]:
+          secrets.secretType === SecretType.Mnemonic
+            ? getAddressForHvm(
+                getAccountPrivateKeyFromMnemonic(
+                  secrets.mnemonic,
+                  index,
+                  secrets.derivationPath,
+                ),
+              )
+            : undefined,
+      };
+    }
+
+    if (
+      secrets.secretType === SecretType.LedgerLive ||
+      secrets.secretType === SecretType.Seedless
+    ) {
+      // pubkeys are used for LedgerLive derivation paths m/44'/60'/n'/0/0
+      // and for X/P derivation paths  m/44'/9000'/n'/0/0
+      const addressPublicKey = secrets.pubKeys[index];
+
+      if (!addressPublicKey?.evm) {
+        throw new Error('Account not added');
+      }
+
+      const pubKeyBuffer = Buffer.from(addressPublicKey.evm, 'hex');
+
+      // X/P addresses use a different public key because derivation path is different
+      let addrX, addrP;
+      if (addressPublicKey.xp) {
+        const pubKeyBufferXP = Buffer.from(addressPublicKey.xp, 'hex');
+        addrX = providerXP.getAddress(pubKeyBufferXP, 'X');
+        addrP = providerXP.getAddress(pubKeyBufferXP, 'P');
+      }
+
+      return {
+        [NetworkVMType.EVM]: getEvmAddressFromPubKey(pubKeyBuffer),
+        [NetworkVMType.BITCOIN]: getBtcAddressFromPubKey(
+          pubKeyBuffer,
+          isMainnet ? networks.bitcoin : networks.testnet,
+        ),
+        [NetworkVMType.AVM]: addrX,
+        [NetworkVMType.PVM]: addrP,
+        [NetworkVMType.CoreEth]: providerXP.getAddress(pubKeyBuffer, 'C'),
+        [NetworkVMType.HVM]: undefined,
+        [NetworkVMType.SVM]: undefined,
+      };
+    }
+
+    throw new Error('No public key available');
+  }
+
+  async getImportedAddresses(id: string, networkService: NetworkService) {
+    const secrets = await this.getImportedAccountSecrets(id);
+
+    if (
+      secrets.secretType === SecretType.WalletConnect ||
+      secrets.secretType === SecretType.Fireblocks
+    ) {
+      return secrets.addresses;
+    }
+
+    if (secrets.secretType === SecretType.PrivateKey) {
+      return this.#calculateAddressesForPrivateKey(
+        secrets.secret,
+        networkService,
+      );
+    }
+
+    throw new Error('Unsupported import type');
   }
 }

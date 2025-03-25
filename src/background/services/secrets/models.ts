@@ -1,3 +1,4 @@
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 import {
@@ -11,8 +12,6 @@ import {
   PubKeyType,
   SeedlessAuthProvider,
 } from '../wallet/models';
-import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { NetworkVMType } from '@avalabs/vm-module-types';
 
 export enum SecretType {
   // Primary wallet types
@@ -27,28 +26,6 @@ export enum SecretType {
   Fireblocks = 'fireblocks',
 }
 
-export type Secp256k1 = 'secp256k1';
-export type Ed25519 = 'ed25519';
-export type Curve = Secp256k1 | Ed25519;
-export const EVM_BASE_DERIVATION_PATH = "m/44'/60'/0'";
-export const AVALANCHE_BASE_DERIVATION_PATH = "m/44'/9000'/0'";
-
-export type AddressPublicKeyJson<HasDerivationPath extends boolean = true> = {
-  type: 'address-pubkey';
-  curve: Curve;
-  derivationPath: HasDerivationPath extends true ? string : null;
-  key: string;
-  btcWalletPolicyDetails?: BtcWalletPolicyDetails;
-};
-
-export type ExtendedPublicKey = {
-  type: 'extended-pubkey';
-  curve: Secp256k1;
-  derivationPath: string;
-  key: string;
-  btcWalletPolicyDetails?: BtcWalletPolicyDetails;
-};
-
 interface SecretsBase {
   secretType: SecretType;
 }
@@ -58,43 +35,48 @@ interface PrimarySecretsBase extends SecretsBase {
   name: string;
 }
 
-export interface SeedlessSecrets extends PrimarySecretsBase {
+interface SeedlessSecrets extends PrimarySecretsBase {
   secretType: SecretType.Seedless;
-  publicKeys: AddressPublicKeyJson[];
-  derivationPathSpec: DerivationPath.BIP44;
+  pubKeys: PubKeyType[];
   seedlessSignerToken: SignerSessionData;
+  derivationPath: DerivationPath;
   authProvider: SeedlessAuthProvider;
   userEmail?: string;
   userId?: string;
+  mnemonic?: never;
+  xpub?: never;
+  xpubXP?: never;
 }
 
-export interface MnemonicSecrets extends PrimarySecretsBase {
+interface MnemonicSecrets extends PrimarySecretsBase {
   secretType: SecretType.Mnemonic;
   mnemonic: string;
-  extendedPublicKeys: ExtendedPublicKey[];
-  publicKeys: AddressPublicKeyJson[];
-  derivationPathSpec: DerivationPath.BIP44;
+  xpub: string;
+  xpubXP: string;
+  derivationPath: DerivationPath;
 }
 
-export interface KeystoneSecrets extends PrimarySecretsBase {
+interface KeystoneSecrets extends PrimarySecretsBase {
   secretType: SecretType.Keystone;
   masterFingerprint: string;
-  publicKeys: AddressPublicKeyJson[];
-  extendedPublicKeys: ExtendedPublicKey[];
-  derivationPathSpec: DerivationPath.BIP44;
+  xpub: string;
+  xpubXP?: never;
+  derivationPath: DerivationPath;
 }
 
-export interface LedgerSecrets extends PrimarySecretsBase {
+interface LedgerSecrets extends PrimarySecretsBase {
   secretType: SecretType.Ledger;
-  publicKeys: AddressPublicKeyJson[];
-  extendedPublicKeys: ExtendedPublicKey[];
-  derivationPathSpec: DerivationPath.BIP44;
+  xpub: string;
+  xpubXP?: string;
+  derivationPath: DerivationPath.BIP44;
+  btcWalletPolicyDetails?: BtcWalletPolicyDetails;
 }
 
-export interface LedgerLiveSecrets extends PrimarySecretsBase {
+interface LedgerLiveSecrets extends PrimarySecretsBase {
   secretType: SecretType.LedgerLive;
-  publicKeys: AddressPublicKeyJson[];
-  derivationPathSpec: DerivationPath.LedgerLive;
+  pubKeys: PubKeyType[];
+  xpubXP?: never;
+  derivationPath: DerivationPath.LedgerLive;
 }
 
 interface ImportedPrivateKeySecrets extends SecretsBase {
@@ -143,8 +125,3 @@ export type DerivedAddresses = {
   addressCoreEth?: string;
   addressHVM?: string;
 };
-
-export type DerivationPathsMap = Record<
-  Exclude<NetworkVMType, NetworkVMType.PVM | NetworkVMType.CoreEth>,
-  string
->;

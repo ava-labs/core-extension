@@ -37,7 +37,6 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     {} as any,
     {} as any,
     {} as any,
-    {} as any,
   );
   const fireblocksServiceMock = new FireblocksService({} as any);
 

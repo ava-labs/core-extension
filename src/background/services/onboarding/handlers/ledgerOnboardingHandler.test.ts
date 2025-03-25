@@ -2,7 +2,6 @@ import {
   Avalanche,
   DerivationPath,
   getXpubFromMnemonic,
-  getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { AccountsService } from '../../accounts/AccountsService';
@@ -14,14 +13,9 @@ import { StorageService } from '../../storage/StorageService';
 import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
 import { LedgerOnboardingHandler } from './ledgerOnboardingHandler';
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  EVM_BASE_DERIVATION_PATH,
-  SecretType,
-} from '../../secrets/models';
+import { SecretType } from '../../secrets/models';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
-import { buildExtendedPublicKey } from '../../secrets/utils';
 
 jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
 
@@ -135,12 +129,9 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
       mnemonic: undefined,
-      extendedPublicKeys: [
-        buildExtendedPublicKey('xpub', EVM_BASE_DERIVATION_PATH),
-        buildExtendedPublicKey('xpubXP', AVALANCHE_BASE_DERIVATION_PATH),
-      ],
-      publicKeys: [],
-      derivationPathSpec: DerivationPath.BIP44,
+      xpub: 'xpub',
+      xpubXP: 'xpubXP',
+      derivationPath: DerivationPath.BIP44,
       secretType: SecretType.Ledger,
       name: 'wallet-name',
     });
@@ -159,10 +150,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     const handler = getHandler();
     const request = getRequest([
       {
-        pubKeys: [
-          { evm: 'evm1', xp: 'xp1' },
-          { evm: 'evm2', xp: 'xp2' },
-        ],
+        pubKeys: ['pubkey1', 'pubkey2', 'pubkey3'],
         password: 'password',
         walletName: 'wallet-name',
         analyticsConsent: false,
@@ -183,49 +171,8 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       'password',
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
-      publicKeys: [
-        {
-          curve: 'secp256k1',
-          key: 'evm1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
-          type: 'address-pubkey',
-        },
-        {
-          curve: 'secp256k1',
-          key: 'xp1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.LedgerLive,
-            'AVM',
-          ),
-          type: 'address-pubkey',
-        },
-        {
-          curve: 'secp256k1',
-          key: 'evm2',
-          derivationPath: getAddressDerivationPath(
-            1,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
-          type: 'address-pubkey',
-        },
-        {
-          curve: 'secp256k1',
-          key: 'xp2',
-          derivationPath: getAddressDerivationPath(
-            1,
-            DerivationPath.LedgerLive,
-            'AVM',
-          ),
-          type: 'address-pubkey',
-        },
-      ],
-      derivationPathSpec: DerivationPath.LedgerLive,
+      pubKeys: ['pubkey1', 'pubkey2', 'pubkey3'],
+      derivationPath: DerivationPath.LedgerLive,
       secretType: SecretType.LedgerLive,
       name: 'wallet-name',
     });

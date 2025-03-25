@@ -34,7 +34,7 @@ import { useFeeCustomizer } from './hooks/useFeeCustomizer';
 import { TransactionDetailsCardContent } from './components/TransactionDetailsCardContent';
 import { DetailedCardWrapper } from './components/DetailedCardWrapper';
 import { FlexScrollbars } from '@src/components/common/FlexScrollbars';
-import { hasDefined } from '@src/utils/object';
+import { hasDefined } from '@src/background/models';
 
 export function TxBatchApprovalScreen() {
   const { t } = useTranslation();

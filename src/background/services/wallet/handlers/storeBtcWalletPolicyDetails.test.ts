@@ -95,7 +95,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
   it('does nothing if the device is incorrect (BTC addresses dont match)', async () => {
     secretsServiceMock.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Ledger,
-      derivationPathSpec: DerivationPath.BIP44,
+      derivationPath: DerivationPath.BIP44,
       account: {
         type: AccountType.PRIMARY,
         index: 0,
@@ -128,7 +128,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
   it('stores the details if the device is correct for BIP44', async () => {
     secretsServiceMock.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Ledger,
-      derivationPathSpec: DerivationPath.BIP44,
+      derivationPath: DerivationPath.BIP44,
       id: 'wallet-id',
       account: {
         type: AccountType.PRIMARY,
@@ -172,7 +172,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
   it('stores the details if the device is correct for Ledger Live', async () => {
     secretsServiceMock.getAccountSecrets.mockResolvedValue({
       secretType: SecretType.Ledger,
-      derivationPathSpec: DerivationPath.BIP44,
+      derivationPath: DerivationPath.BIP44,
       id: 'wallet-id',
       account: {
         type: AccountType.PRIMARY,

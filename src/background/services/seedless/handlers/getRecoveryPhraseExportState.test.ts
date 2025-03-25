@@ -46,7 +46,12 @@ describe('src/background/services/seedless/handlers/ge', () => {
 
     secretsService.getPrimaryAccountSecrets.mockResolvedValue({
       secretType: SecretType.Seedless,
-      publicKeys: [{ key: 'evm' }],
+      pubKeys: [
+        {
+          evm: 'evm',
+          xp: 'xp',
+        },
+      ],
     } as any);
   });
 

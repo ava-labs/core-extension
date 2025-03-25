@@ -1,13 +1,5 @@
-import {
-  DerivationPath,
-  getAddressDerivationPath,
-} from '@avalabs/core-wallets-sdk';
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  AddressPublicKeyJson,
-  EVM_BASE_DERIVATION_PATH,
-  SecretType,
-} from '../../secrets/models';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
+import { SecretType } from '../../secrets/models';
 import { SettingsService } from '../../settings/SettingsService';
 import { StorageService } from '../../storage/StorageService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
@@ -22,7 +14,6 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { PubKeyType } from '../../wallet/models';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
-import { buildExtendedPublicKey } from '../../secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_ONBOARDING_SUBMIT,
@@ -86,49 +77,18 @@ export class LedgerOnboardingHandler implements HandlerType {
     if (xpub && xpubXP) {
       walletId = await this.walletService.init({
         secretType: SecretType.Ledger,
-        extendedPublicKeys: [
-          buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
-          buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH),
-        ],
-        publicKeys: [],
-        derivationPathSpec: DerivationPath.BIP44,
+        xpub,
+        xpubXP,
+        derivationPath: DerivationPath.BIP44,
         name: walletName,
       });
     }
 
     if (pubKeys?.length) {
-      const publicKeys: AddressPublicKeyJson<true>[] = [];
-
-      for (const [index, pubKey] of pubKeys.entries()) {
-        publicKeys.push({
-          curve: 'secp256k1',
-          key: pubKey.evm,
-          derivationPath: getAddressDerivationPath(
-            index,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
-          type: 'address-pubkey',
-        });
-
-        if (pubKey.xp) {
-          publicKeys.push({
-            curve: 'secp256k1',
-            key: pubKey.xp,
-            derivationPath: getAddressDerivationPath(
-              index,
-              DerivationPath.LedgerLive,
-              'AVM',
-            ),
-            type: 'address-pubkey',
-          });
-        }
-      }
-
       walletId = await this.walletService.init({
         secretType: SecretType.LedgerLive,
-        publicKeys,
-        derivationPathSpec: DerivationPath.LedgerLive,
+        pubKeys,
+        derivationPath: DerivationPath.LedgerLive,
         name: walletName,
       });
     }
