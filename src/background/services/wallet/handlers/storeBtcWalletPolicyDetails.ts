@@ -55,14 +55,12 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
     const [xpub, masterFingerPrint, hmacHex, name] = request.params;
     const isMainnet = this.networkService.isMainnet();
 
-    if (!secrets.derivationPathSpec) {
+    if (!secrets.derivationPath) {
       throw new Error('unknown derivation path');
     }
 
     const accountIndex =
-      secrets.derivationPathSpec === DerivationPath.BIP44
-        ? activeAccount.index
-        : 0;
+      secrets.derivationPath === DerivationPath.BIP44 ? activeAccount.index : 0;
 
     const derivedAddressBtc = getBech32AddressFromXPub(
       xpub,

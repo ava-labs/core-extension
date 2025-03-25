@@ -22,7 +22,6 @@ import {
   ActionType,
   MultiTxAction,
 } from '../services/actions/models';
-import { SecretsService } from '../services/secrets/SecretsService';
 
 jest.mock('tsyringe', () => {
   return {
@@ -199,7 +198,6 @@ describe('src/background/vmModules/ApprovalController', () => {
 
   let walletService: jest.Mocked<WalletService>;
   let networkService: jest.Mocked<NetworkService>;
-  let secretsService: jest.Mocked<SecretsService>;
   let controller: ApprovalController;
 
   beforeEach(() => {
@@ -212,15 +210,7 @@ describe('src/background/vmModules/ApprovalController', () => {
       getNetwork: jest.fn(),
     } as any;
 
-    secretsService = {
-      derivePublicKey: jest.fn(),
-    } as any;
-
-    controller = new ApprovalController(
-      secretsService,
-      walletService,
-      networkService,
-    );
+    controller = new ApprovalController(walletService, networkService);
 
     jest.mocked(networkService.getNetwork).mockResolvedValue(btcNetwork);
     jest.mocked(getProviderForNetwork).mockReturnValue(provider);
@@ -228,22 +218,6 @@ describe('src/background/vmModules/ApprovalController', () => {
       ...action,
       actionId,
     }));
-  });
-
-  describe('requestPublicKey()', () => {
-    it('passes the request down to the SecretsService', async () => {
-      controller.requestPublicKey({
-        curve: 'ed25519',
-        derivationPath: 'm/44/1234/0/0',
-        secretId: 'secretId',
-      });
-
-      expect(secretsService.derivePublicKey).toHaveBeenCalledWith(
-        'secretId',
-        'ed25519',
-        'm/44/1234/0/0',
-      );
-    });
   });
 
   describe('updateTx()', () => {

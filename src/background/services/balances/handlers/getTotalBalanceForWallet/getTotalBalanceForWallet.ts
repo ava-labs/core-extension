@@ -24,8 +24,6 @@ import {
   getIncludedNetworks,
 } from './helpers';
 import { getXPChainIds } from '@src/utils/getDefaultChainIds';
-import { getExtendedPublicKey } from '@src/background/services/secrets/utils';
-import { AVALANCHE_BASE_DERIVATION_PATH } from '@src/background/services/secrets/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,
@@ -61,20 +59,10 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     const derivedAddressesUnprefixed = derivedWalletAddresses.map((addr) =>
       addr.replace(/^[PXC]-/i, ''),
     );
-
-    const extendedPublicKey =
-      'extendedPublicKeys' in secrets
-        ? getExtendedPublicKey(
-            secrets.extendedPublicKeys,
-            AVALANCHE_BASE_DERIVATION_PATH,
-            'secp256k1',
-          )
-        : null;
-
-    const underivedXPChainAddresses = extendedPublicKey
+    const underivedXPChainAddresses = secrets.xpubXP
       ? (
           await getAccountsWithActivity(
-            extendedPublicKey.key,
+            secrets.xpubXP,
             await this.networkService.getAvalanceProviderXP(),
             this.#getAddressesActivity,
           )

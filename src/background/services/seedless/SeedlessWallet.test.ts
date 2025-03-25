@@ -41,7 +41,6 @@ import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { MfaRequestType } from './models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { AddressPublicKey } from '../secrets/AddressPublicKey';
 
 jest.mock('@cubist-labs/cubesigner-sdk');
 jest.mock('@cubist-labs/cubesigner-sdk-ethers-v6');
@@ -165,16 +164,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('correctly extracts the public keys', async () => {
         expect(await wallet.getPublicKeys()).toEqual([
-          AddressPublicKey.fromJSON({
-            key: strip0x(evmKey.publicKey),
-            derivationPath: evmKey.derivation_info.derivation_path,
-            curve: 'secp256k1',
-          }).toJSON(),
-          AddressPublicKey.fromJSON({
-            key: strip0x(avaKey.publicKey),
-            derivationPath: avaKey.derivation_info.derivation_path,
-            curve: 'secp256k1',
-          }).toJSON(),
+          {
+            evm: strip0x(evmKey.publicKey),
+            xp: avaKey.publicKey,
+          },
         ]);
       });
     });
@@ -190,26 +183,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it(`sorts them by derivation path's account index`, async () => {
         expect(await wallet.getPublicKeys()).toEqual([
-          AddressPublicKey.fromJSON({
-            key: strip0x(evmKey.publicKey),
-            derivationPath: evmKey.derivation_info.derivation_path,
-            curve: 'secp256k1',
-          }).toJSON(),
-          AddressPublicKey.fromJSON({
-            key: strip0x(avaKey.publicKey),
-            derivationPath: avaKey.derivation_info.derivation_path,
-            curve: 'secp256k1',
-          }).toJSON(),
-          AddressPublicKey.fromJSON({
-            key: strip0x(evmKey2.publicKey),
-            derivationPath: evmKey2.derivation_info.derivation_path,
-            curve: 'secp256k1',
-          }).toJSON(),
-          AddressPublicKey.fromJSON({
-            key: strip0x(avaKey2.publicKey),
-            derivationPath: avaKey2.derivation_info.derivation_path,
-            curve: 'secp256k1',
-          }).toJSON(),
+          {
+            evm: strip0x(evmKey.publicKey),
+            xp: avaKey.publicKey,
+          },
+          {
+            evm: evmKey2.publicKey,
+            xp: avaKey2.publicKey,
+          },
         ]);
       });
     });
@@ -231,16 +212,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('extracts the public keys from the first valid set', async () => {
         expect(await wallet.getPublicKeys()).toEqual([
-          AddressPublicKey.fromJSON({
-            key: strip0x(anotherValidEvmKey.publicKey),
-            derivationPath: anotherValidEvmKey.derivation_info.derivation_path,
-            curve: 'secp256k1',
-          }).toJSON(),
-          AddressPublicKey.fromJSON({
-            key: strip0x(anotherValidAvaKey.publicKey),
-            derivationPath: anotherValidAvaKey.derivation_info.derivation_path,
-            curve: 'secp256k1',
-          }).toJSON(),
+          {
+            evm: anotherValidEvmKey.publicKey,
+            xp: anotherValidAvaKey.publicKey,
+          },
         ]);
       });
     });
@@ -271,8 +246,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           networkService,
           sessionStorage,
           addressPublicKey: {
-            key: 'la la la',
-          } as any,
+            evm: 'la la la',
+          },
         });
       });
 
@@ -290,8 +265,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           networkService,
           sessionStorage,
           addressPublicKey: {
-            key: 'la la la',
-          } as any,
+            evm: 'la la la',
+          },
           network: {} as any,
         });
       });
@@ -323,8 +298,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           networkService,
           sessionStorage,
           addressPublicKey: {
-            key: 'la la la',
-          } as any,
+            evm: evmKey.publicKey,
+          },
           network: { vmName: NetworkVMType.EVM } as any,
           sessionManager,
         });
@@ -423,8 +398,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           networkService,
           sessionStorage,
           addressPublicKey: {
-            key: strip0x(evmKey.publicKey),
-          } as any,
+            evm: strip0x(evmKey.publicKey),
+            xp: 'xp xp xp',
+          },
           network: {} as any,
           sessionManager,
         });
@@ -492,8 +468,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           networkService,
           sessionStorage,
           addressPublicKey: {
-            key: strip0x(avaKey.publicKey),
-          } as any,
+            evm: strip0x(evmKey.publicKey),
+            xp: strip0x(avaKey.publicKey),
+          },
           network: {} as any,
           sessionManager,
         });
@@ -620,8 +597,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           networkService,
           sessionStorage,
           addressPublicKey: {
-            key: strip0x(evmKey.publicKey),
-          } as any,
+            evm: strip0x(evmKey.publicKey),
+          },
           network: {} as any,
           sessionManager,
         });
@@ -738,8 +715,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           networkService,
           sessionStorage,
           addressPublicKey: {
-            key: strip0x(evmKey.publicKey),
-          } as any,
+            evm: strip0x(evmKey.publicKey),
+            xp: 'xp xp xp',
+          },
           network: {} as any,
         });
       });
@@ -749,8 +727,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           networkService,
           sessionStorage,
           addressPublicKey: {
-            key: '',
-          } as any,
+            evm: strip0x(evmKey.publicKey),
+          },
           network: {} as any,
         });
 
@@ -787,8 +765,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         networkService,
         sessionStorage,
         addressPublicKey: {
-          key: strip0x(evmKey.publicKey),
-        } as any,
+          evm: strip0x(evmKey.publicKey),
+        },
         network: {} as any,
       });
 
@@ -825,8 +803,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         networkService,
         sessionStorage,
         addressPublicKey: {
-          key: strip0x(evmKey.publicKey),
-        } as any,
+          evm: strip0x(evmKey.publicKey),
+        },
       });
 
       global.fetch = jest.fn().mockResolvedValue({
@@ -859,8 +837,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           networkService,
           sessionStorage,
           addressPublicKey: {
-            key: 'uknown key',
-          } as any,
+            evm: 'unpaired-public-key',
+          },
         });
       });
 
@@ -976,8 +954,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           networkService,
           sessionStorage,
           addressPublicKey: {
-            key: strip0x(evmKey.publicKey),
-          } as any,
+            evm: 'la la la',
+          },
           network: { chainId: ChainId.BITCOIN } as any,
         });
       });
@@ -1012,7 +990,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     });
 
     describe('when all requirements are met', () => {
-      const pubKey = { key: btcKey.publicKey } as any;
+      const pubKey = { evm: btcKey.publicKey };
       const network: any = {
         chainId: ChainId.BITCOIN,
       };
@@ -1054,7 +1032,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         inputs.forEach((_, i) => {
           expect(SeedlessBtcSigner).toHaveBeenNthCalledWith(
             i + 1,
-            pubKey.key,
+            pubKey.evm,
             psbt,
             i,
             inputs,
@@ -1133,8 +1111,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         networkService,
         sessionStorage,
         addressPublicKey: {
-          key: strip0x(evmKey.publicKey),
-        } as any,
+          evm: strip0x(evmKey.publicKey),
+        },
         mfaService,
       });
     });

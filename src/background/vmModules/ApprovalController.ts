@@ -13,7 +13,6 @@ import {
   EvmTxBatchUpdateFn,
   SigningRequest,
   SigningData_EthSendTx,
-  RequestPublicKeyParams,
 } from '@avalabs/vm-module-types';
 import { rpcErrors, providerErrors } from '@metamask/rpc-errors';
 
@@ -34,7 +33,6 @@ import {
   MultiApprovalParamsWithContext,
 } from './models';
 import { ACTION_HANDLED_BY_MODULE } from '../models';
-import { SecretsService } from '../services/secrets/SecretsService';
 
 type CachedRequest = {
   params: ApprovalParams;
@@ -56,16 +54,10 @@ type ActionToRequest = {
 export class ApprovalController implements BatchApprovalController {
   #walletService: WalletService;
   #networkService: NetworkService;
-  #secretsService: SecretsService;
 
   #requests = new Map<string, ActionToRequest[keyof ActionToRequest]>();
 
-  constructor(
-    secretsService: SecretsService,
-    walletService: WalletService,
-    networkService: NetworkService,
-  ) {
-    this.#secretsService = secretsService;
+  constructor(walletService: WalletService, networkService: NetworkService) {
     this.#walletService = walletService;
     this.#networkService = networkService;
   }
@@ -77,18 +69,6 @@ export class ApprovalController implements BatchApprovalController {
   onTransactionReverted = () => {
     // Transaction Reverted. Show a toast? Trigger browser notification?',
   };
-
-  async requestPublicKey({
-    curve,
-    derivationPath,
-    secretId,
-  }: RequestPublicKeyParams): Promise<string> {
-    return this.#secretsService.derivePublicKey(
-      secretId,
-      curve,
-      derivationPath,
-    );
-  }
 
   onRejected = async <A extends Action | MultiTxAction>(action: A) => {
     if (!action.actionId) {

@@ -42,7 +42,7 @@ export class CancelRecoveryPhraseExportHandler implements HandlerType {
     const wallet = new SeedlessWallet({
       networkService: this.networkService,
       sessionStorage: new SeedlessTokenStorage(this.secretsService),
-      addressPublicKey: secrets.publicKeys[0],
+      addressPublicKey: secrets.pubKeys[0],
       mfaService: this.seedlessMfaService,
     });
 

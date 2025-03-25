@@ -1,4 +1,3 @@
-import { PartialBy } from '@avalabs/vm-module-types';
 import { PubKeyType } from '../wallet/models';
 
 export enum AccountType {
@@ -148,8 +147,3 @@ export enum PrivateKeyChain {
   C = 'C',
   XP = 'XP',
 }
-
-export type AccountWithOptionalAddresses = PartialBy<
-  Account,
-  Extract<keyof Account, `address${string}`>
->;

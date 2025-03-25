@@ -1,5 +1,5 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { EVM_BASE_DERIVATION_PATH, SecretType } from '../../secrets/models';
+import { SecretType } from '../../secrets/models';
 import { SettingsService } from '../../settings/SettingsService';
 import { StorageService } from '../../storage/StorageService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
@@ -13,7 +13,6 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
-import { buildExtendedPublicKey } from '../../secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.KEYSTONE_ONBOARDING_SUBMIT,
@@ -58,12 +57,9 @@ export class KeystoneOnboardingHandler implements HandlerType {
 
     const walletId = await this.walletService.init({
       secretType: SecretType.Keystone,
-      extendedPublicKeys: [
-        buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
-      ],
-      publicKeys: [],
+      xpub,
       masterFingerprint,
-      derivationPathSpec: DerivationPath.BIP44,
+      derivationPath: DerivationPath.BIP44,
       name: walletName,
     });
 

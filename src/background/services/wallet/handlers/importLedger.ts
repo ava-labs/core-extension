@@ -1,27 +1,15 @@
 import { injectable } from 'tsyringe';
-import {
-  DerivationPath,
-  getAddressDerivationPath,
-} from '@avalabs/core-wallets-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
-import { assertPresent } from '@src/utils/assertions';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  AddressPublicKeyJson,
-  EVM_BASE_DERIVATION_PATH,
-  ExtendedPublicKey,
-  SecretType,
-} from '../../secrets/models';
+import { SecretType } from '../../secrets/models';
 import { WalletService } from '../WalletService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 
 import { ImportLedgerWalletParams, ImportWalletResult } from './models';
-import { SecretsError } from '@src/utils/errors';
-import { buildExtendedPublicKey } from '../../secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_IMPORT_LEDGER,
@@ -75,39 +63,22 @@ export class ImportLedgerHandler implements HandlerType {
         error: `Invalid type: ${secretType}`,
       };
     }
+    const secret = secretType === SecretType.Ledger ? xpub : pubKeys;
 
-    if (!xpub && !pubKeys) {
+    if (!secret) {
       return {
         ...request,
         error: `Missing required param: Need xpub or pubKeys`,
       };
     }
 
-    if (secretType === SecretType.Ledger) {
-      assertPresent(xpub, SecretsError.MissingExtendedPublicKey);
+    const isKnown = await this.secretsService.isKnownSecret(secretType, secret);
 
-      const isKnown = await this.secretsService.isKnownSecret(secretType, xpub);
-
-      if (isKnown) {
-        return {
-          ...request,
-          error: 'This wallet already exists',
-        };
-      }
-    } else if (secretType === SecretType.LedgerLive) {
-      assertPresent(pubKeys?.[0], SecretsError.PublicKeyNotFound);
-
-      const isKnown = await this.secretsService.isKnownSecret(
-        secretType,
-        pubKeys[0].evm,
-      );
-
-      if (isKnown) {
-        return {
-          ...request,
-          error: 'This wallet already exists',
-        };
-      }
+    if (isKnown) {
+      return {
+        ...request,
+        error: `This wallet already exists`,
+      };
     }
 
     if (dryRun) {
@@ -123,20 +94,12 @@ export class ImportLedgerHandler implements HandlerType {
 
     let id: string;
     if (secretType === SecretType.Ledger) {
-      const extendedPublicKeys: ExtendedPublicKey[] = [
-        buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
-      ];
-      if (xpubXP) {
-        extendedPublicKeys.push(
-          buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH),
-        );
-      }
       id = await this.walletService.addPrimaryWallet({
         secretType,
-        derivationPathSpec: DerivationPath.BIP44,
-        extendedPublicKeys,
-        publicKeys: [], // Those will be populated at the end of this function
+        xpub,
+        xpubXP,
         name,
+        derivationPath: DerivationPath.BIP44,
       });
     } else {
       if (!pubKeys) {
@@ -146,39 +109,11 @@ export class ImportLedgerHandler implements HandlerType {
         };
       }
 
-      const publicKeys: AddressPublicKeyJson<true>[] = [];
-
-      for (const [index, pubKey] of pubKeys.entries()) {
-        publicKeys.push({
-          curve: 'secp256k1',
-          key: pubKey.evm,
-          derivationPath: getAddressDerivationPath(
-            index,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
-          type: 'address-pubkey',
-        });
-
-        if (pubKey.xp) {
-          publicKeys.push({
-            curve: 'secp256k1',
-            key: pubKey.xp,
-            derivationPath: getAddressDerivationPath(
-              index,
-              DerivationPath.LedgerLive,
-              'AVM',
-            ),
-            type: 'address-pubkey',
-          });
-        }
-      }
-
       id = await this.walletService.addPrimaryWallet({
         secretType,
-        derivationPathSpec: DerivationPath.LedgerLive,
-        publicKeys,
+        pubKeys,
         name,
+        derivationPath: DerivationPath.LedgerLive,
       });
     }
 

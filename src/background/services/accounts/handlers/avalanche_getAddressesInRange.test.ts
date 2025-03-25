@@ -7,10 +7,6 @@ import { canSkipApproval } from '@src/utils/canSkipApproval';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { AccountsService } from '../AccountsService';
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  SecretType,
-} from '../../secrets/models';
 
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@src/utils/canSkipApproval');
@@ -80,14 +76,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
 
       beforeEach(() => {
         getPrimaryAccountSecretsMock.mockResolvedValue({
-          secretType: SecretType.Mnemonic,
-          extendedPublicKeys: [
-            {
-              curve: 'secp256k1',
-              derivationPath: AVALANCHE_BASE_DERIVATION_PATH,
-              key: xpubXP,
-            },
-          ],
+          xpubXP,
         });
 
         jest
