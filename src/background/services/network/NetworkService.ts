@@ -52,7 +52,7 @@ import {
   decorateWithCaipId,
 } from '@src/utils/caipConversion';
 import { getSyncDomain, isSyncDomain } from './utils/getSyncDomain';
-import { isDevelopment } from '@src/utils/environment';
+import { isSolanaNetwork } from './utils/isSolanaNetwork';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -140,6 +140,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     const trackedFlags = [
       FeatureGates.IN_APP_SUPPORT_P_CHAIN,
       FeatureGates.IN_APP_SUPPORT_X_CHAIN,
+      FeatureGates.SOLANA_SUPPORT,
     ];
 
     return Object.fromEntries(
@@ -432,9 +433,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       const [result] = await resolve(
         getChainsAndTokens(
           process.env.RELEASE === 'production',
-          isDevelopment()
-            ? `${process.env.PROXY_URL}/tokenlist?includeSolana`
-            : process.env.TOKENLIST_OVERRIDE || '',
+          `${process.env.PROXY_URL}/tokenlist?includeSolana`,
         ),
       );
 
@@ -742,6 +741,11 @@ export class NetworkService implements OnLock, OnStorageReady {
           ]
         );
       })
+      .filter(
+        (network) =>
+          !isSolanaNetwork(network) ||
+          this.featureFlagService.featureFlags[FeatureGates.SOLANA_SUPPORT],
+      )
       .reduce(
         (acc, network) => ({
           ...acc,
