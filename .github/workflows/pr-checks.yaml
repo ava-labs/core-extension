@@ -7,13 +7,16 @@ jobs:
     environment: alpha
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
+      - name: enable corepack
+        run: |
+          corepack enable
       - name: Create env file
         run: |
           touch .env.production
@@ -22,7 +25,9 @@ jobs:
           echo PROXY_URL=${{ secrets.PROXY_URL }} >> .env.production
           echo CORE_EXTENSION_LANDING_URL=${{ secrets.CORE_EXTENSION_LANDING_URL }} >> .env.production
       - name: Install dependencies
-        run: yarn setup
+        run: |
+          yarn install
+          yarn allow-scripts
       - name: Lint
         run: yarn lint
       - name: Typecheck

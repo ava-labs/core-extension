@@ -42,6 +42,7 @@ const NetworkFeeContext = createContext<{
     fromAddress?: AddressLike | null,
     nonce?: number | null,
   ) => Promise<void>;
+  isGaslessEligible: boolean;
 }>({
   networkFee: null,
   async getNetworkFee() {
@@ -69,6 +70,7 @@ const NetworkFeeContext = createContext<{
   async setGaslessEligibility() {
     return;
   },
+  isGaslessEligible: false,
 });
 
 export function NetworkFeeContextProvider({ children }: { children: any }) {
@@ -84,6 +86,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   const [gaslessPhase, setGaslessPhase] = useState<GaslessPhase>(
     GaslessPhase.NOT_READY,
   );
+  const [isGaslessEligible, setIsGaslessEligible] = useState(false);
 
   const getNetworkFee = useCallback(
     async (caipId: string) =>
@@ -100,8 +103,11 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
       fromAddress?: AddressLike | null,
       nonce?: number | null,
     ) => {
+      if (gaslessPhase === GaslessPhase.READY) {
+        return;
+      }
       if (!featureFlags[FeatureGates.GASLESS]) {
-        setGaslessPhase(GaslessPhase.NOT_ELIGIBLE);
+        setIsGaslessEligible(false);
         return;
       }
       try {
@@ -109,16 +115,18 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
           method: ExtensionRequest.GASLESS_GET_ELIGIBILITY,
           params: [chainId, fromAddress?.toString(), nonce ?? undefined],
         });
-        if (!result) {
-          setGaslessPhase(GaslessPhase.NOT_ELIGIBLE);
+        if (result) {
+          setIsGaslessEligible(true);
+          return;
         }
+        setIsGaslessEligible(false);
       } catch (e: any) {
         console.error(e);
-        setGaslessPhase(GaslessPhase.NOT_ELIGIBLE);
+        setIsGaslessEligible(false);
       }
     },
 
-    [featureFlags, request],
+    [featureFlags, gaslessPhase, request],
   );
 
   useEffect(() => {
@@ -181,6 +189,8 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
 
   const setGaslessDefaultValues = useCallback(async () => {
     setGaslessPhase(GaslessPhase.NOT_READY);
+    setIsGaslessEligible(false);
+    setIsGaslessOn(false);
     return request<SetDefaultStateValuesHandler>({
       method: ExtensionRequest.GASLESS_SET_DEFAUlT_STATE_VALUES,
     });
@@ -209,6 +219,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
           setGaslessPhase(GaslessPhase.FUNDING_IN_PROGRESS);
         }
         if (values.fundTxHex) {
+          setIsGaslessOn(false);
           setGaslessPhase(GaslessPhase.FUNDED);
         }
         if (values.fundTxDoNotRetryError) {
@@ -235,6 +246,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
         fundTxHex,
         setGaslessDefaultValues,
         gaslessPhase,
+        isGaslessEligible,
       }}
     >
       {children}

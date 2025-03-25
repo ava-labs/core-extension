@@ -39,8 +39,6 @@ import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/Spe
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { toastCardWithLink } from '@src/utils/toastCardWithLink';
-import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { GaslessPhase } from '@src/background/services/gasless/model';
 
 type WithContextAlert = {
@@ -79,19 +77,18 @@ export function GenericApprovalScreen() {
   const {
     isGaslessOn,
     gaslessFundTx,
-    setIsGaslessOn,
     fundTxHex,
     setGaslessDefaultValues,
     gaslessPhase,
     setGaslessEligibility,
     fetchAndSolveGaslessChallange,
+    isGaslessEligible,
   } = useNetworkFeeContext();
 
   const { captureEncrypted } = useAnalyticsContext();
 
   const { displayData, context, signingData } = action ?? {};
   const hasFeeSelector = action?.displayData.networkFeeSelector;
-  const isGaslessEligible = gaslessPhase !== GaslessPhase.NOT_ELIGIBLE;
   const isFeeValid =
     (isGaslessOn && isGaslessEligible) ||
     !hasFeeSelector ||
@@ -110,21 +107,23 @@ export function GenericApprovalScreen() {
         signingData?.data?.from,
         signingData?.data?.nonce,
       );
+      return;
     }
+    setGaslessEligibility(displayData.network.chainId);
   }, [
+    displayData,
     displayData?.network?.chainId,
+    fetchAndSolveGaslessChallange,
     getNetwork,
     setGaslessEligibility,
     signingData,
   ]);
 
   useEffect(() => {
-    setIsGaslessOn(isGaslessEligible);
-  }, [isGaslessEligible, setIsGaslessOn]);
-
-  useEffect(() => {
-    fetchAndSolveGaslessChallange();
-  }, [fetchAndSolveGaslessChallange]);
+    if (gaslessPhase === GaslessPhase.NOT_READY && isGaslessEligible) {
+      fetchAndSolveGaslessChallange();
+    }
+  }, [fetchAndSolveGaslessChallange, gaslessPhase, isGaslessEligible]);
 
   const handleRejection = useCallback(() => {
     setGaslessDefaultValues();
@@ -132,7 +131,7 @@ export function GenericApprovalScreen() {
   }, [cancelHandler, setGaslessDefaultValues]);
 
   const signTx = useCallback(async () => {
-    if (isGaslessOn) {
+    if (isGaslessOn && isGaslessEligible) {
       return await gaslessFundTx(action?.signingData);
     }
     updateAction(
@@ -145,6 +144,7 @@ export function GenericApprovalScreen() {
   }, [
     action?.signingData,
     gaslessFundTx,
+    isGaslessEligible,
     isGaslessOn,
     isUsingKeystoneWallet,
     isUsingLedgerWallet,
@@ -159,11 +159,6 @@ export function GenericApprovalScreen() {
     if (gaslessPhase === GaslessPhase.FUNDED && fundTxHex) {
       captureEncrypted('GaslessFundSuccessful', {
         fundTxHex,
-      });
-      toastCardWithLink({
-        title: t('Gas Fund Successful'),
-        url: network && getExplorerAddressByNetwork(network, fundTxHex),
-        label: t('View in Explorer'),
       });
       updateAction(
         {
