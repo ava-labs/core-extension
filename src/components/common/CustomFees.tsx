@@ -31,6 +31,11 @@ import {
 } from '@src/components/common/approval/ApprovalSection';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { CustomGasSettings } from './CustomGasSettings';
+import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import GaslessFee from './GaslessFee';
+import { GaslessPhase } from '@src/background/services/gasless/model';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 
 export interface CustomGasFeesProps {
   maxFeePerGas: bigint;
@@ -52,6 +57,7 @@ export interface CustomGasFeesProps {
   isCollapsible?: boolean;
   size?: 'small' | 'normal';
   hasEnoughForFee?: boolean;
+  isBatchApprovalScreen?: boolean;
 }
 
 export enum GasFeeModifier {
@@ -61,7 +67,6 @@ export enum GasFeeModifier {
   CUSTOM = 'CUSTOM',
 }
 
-// TODO: This button will be available through K2 soon (CP-4506). We should replace it then.
 const FeeButton = ({ sx = {}, ...props }) => (
   <Button
     sx={{
@@ -183,6 +188,7 @@ export function CustomFees({
   isCollapsible,
   size = 'normal',
   hasEnoughForFee = true,
+  isBatchApprovalScreen,
 }: CustomGasFeesProps) {
   const { t } = useTranslation();
   const tokenPrice = useNativeTokenPrice(network);
@@ -203,6 +209,7 @@ export function CustomFees({
     }),
   );
   const [isCollapsed, setIsCollapsed] = useState(isCollapsible);
+  const { featureFlags } = useFeatureFlagContext();
   const customInputRef = useRef<HTMLInputElement>(null);
   const [showEditGasLimit, setShowEditGasLimit] = useState(false);
   const [selectedFee, setSelectedFee] = useState<GasFeeModifier>(
@@ -210,6 +217,9 @@ export function CustomFees({
       ? GasFeeModifier.SLOW
       : selectedGasFeeModifier || GasFeeModifier.SLOW,
   );
+
+  const { isGaslessOn, setIsGaslessOn, gaslessPhase, isGaslessEligible } =
+    useNetworkFeeContext();
 
   useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest native balance.
 
@@ -354,6 +364,11 @@ export function CustomFees({
     };
   }, [network?.networkToken, estimatedFee, newFees.feeUnit]);
 
+  const onGaslessSwitch = useCallback(async () => {
+    handleModifierClick(GasFeeModifier.NORMAL);
+    setIsGaslessOn(!isGaslessOn);
+  }, [handleModifierClick, isGaslessOn, setIsGaslessOn]);
+
   if (!networkFee) {
     return null;
   }
@@ -388,7 +403,8 @@ export function CustomFees({
             />
           </IconButton>
         ) : (
-          isCustomGasLimitSupported && (
+          isCustomGasLimitSupported &&
+          !isGaslessOn && (
             <IconButton
               size="small"
               data-testid="edit-gas-limit-button"
@@ -405,192 +421,215 @@ export function CustomFees({
           mountOnEnter
           unmountOnExit
         >
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              gap: size === 'small' ? 0.5 : 0,
-            }}
+          {!isBatchApprovalScreen &&
+            isGaslessEligible &&
+            gaslessPhase !== GaslessPhase.ERROR &&
+            featureFlags[FeatureGates.GASLESS] && (
+              <GaslessFee
+                onSwitch={() => {
+                  onGaslessSwitch();
+                }}
+                isTurnedOn={isGaslessOn}
+                disabled={gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS}
+              />
+            )}
+          <Collapse
+            in={!isGaslessOn || !isGaslessEligible}
+            mountOnEnter
+            unmountOnExit
           >
-            <FeeButton
-              data-testid="gas-fee-slow-button"
-              disabled={gasPriceEditDisabled}
-              color={
-                selectedFee === GasFeeModifier.SLOW ? 'primary' : 'secondary'
-              }
-              onClick={() => {
-                handleModifierClick(GasFeeModifier.SLOW);
+            <Stack
+              sx={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                gap: size === 'small' ? 0.5 : 0,
+              }}
+            >
+              <FeeButton
+                data-testid="gas-fee-slow-button"
+                disabled={gasPriceEditDisabled}
+                color={
+                  selectedFee === GasFeeModifier.SLOW ? 'primary' : 'secondary'
+                }
+                onClick={() => {
+                  handleModifierClick(GasFeeModifier.SLOW);
+                }}
+              >
+                <Typography
+                  variant={size === 'small' ? 'caption' : 'body2'}
+                  sx={{ fontWeight: 'semibold' }}
+                >
+                  {t('Slow')}
+                </Typography>
+                <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
+                  {formatGasPrice(
+                    networkFee.low.maxFeePerGas,
+                    networkFee.displayDecimals,
+                  )}
+                </Typography>
+              </FeeButton>
+              {!networkFee.isFixedFee && (
+                <>
+                  <FeeButton
+                    data-testid="gas-fee-normal-button"
+                    disabled={gasPriceEditDisabled}
+                    color={
+                      selectedFee === GasFeeModifier.NORMAL
+                        ? 'primary'
+                        : 'secondary'
+                    }
+                    onClick={() => {
+                      handleModifierClick(GasFeeModifier.NORMAL);
+                    }}
+                  >
+                    <Typography
+                      variant={size === 'small' ? 'caption' : 'body2'}
+                      sx={{ fontWeight: 'semibold' }}
+                    >
+                      {t('Normal')}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ fontWeight: 'semibold' }}
+                    >
+                      {formatGasPrice(
+                        networkFee.medium.maxFeePerGas,
+                        networkFee.displayDecimals,
+                      )}
+                    </Typography>
+                  </FeeButton>
+                  <FeeButton
+                    data-testid="gas-fee-fast-button"
+                    disabled={gasPriceEditDisabled}
+                    color={
+                      selectedFee === GasFeeModifier.FAST
+                        ? 'primary'
+                        : 'secondary'
+                    }
+                    onClick={() => {
+                      handleModifierClick(GasFeeModifier.FAST);
+                    }}
+                  >
+                    <Typography
+                      variant={size === 'small' ? 'caption' : 'body2'}
+                      sx={{ fontWeight: 'semibold' }}
+                    >
+                      {t('Fast')}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ fontWeight: 'semibold' }}
+                    >
+                      {formatGasPrice(
+                        networkFee.high.maxFeePerGas,
+                        networkFee.displayDecimals,
+                      )}
+                    </Typography>
+                  </FeeButton>
+                  <FeeButton
+                    data-testid="gas-fee-custom-button"
+                    disabled={gasPriceEditDisabled}
+                    color={
+                      selectedFee === GasFeeModifier.CUSTOM
+                        ? 'primary'
+                        : 'secondary'
+                    }
+                    onClick={() => {
+                      handleModifierClick(GasFeeModifier.CUSTOM);
+                      customInputRef?.current?.focus();
+                    }}
+                    disableRipple
+                  >
+                    <Typography
+                      variant={size === 'small' ? 'caption' : 'body2'}
+                      sx={{ fontWeight: 'semibold' }}
+                    >
+                      {t('Custom')}
+                    </Typography>
+                    <CustomInput
+                      ref={customInputRef}
+                      type="number"
+                      value={formatGasPrice(
+                        customFee?.maxFeePerGas ?? 0n,
+                        networkFee.displayDecimals,
+                      )}
+                      min={1}
+                      step={1}
+                      onChange={(e) => {
+                        handleGasChange(
+                          getFeeRateForCustomGasPrice(
+                            e.target.value || '0',
+                            networkFee,
+                          ),
+                          GasFeeModifier.CUSTOM,
+                        );
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value === '') {
+                          handleGasChange(
+                            networkFee.medium,
+                            GasFeeModifier.CUSTOM,
+                          );
+                        }
+                      }}
+                    />
+                  </FeeButton>
+                </>
+              )}
+            </Stack>
+          </Collapse>
+        </Collapse>
+        {!isGaslessOn && (
+          <Stack>
+            <Stack
+              sx={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
               }}
             >
               <Typography
-                variant={size === 'small' ? 'caption' : 'body2'}
-                sx={{ fontWeight: 'semibold' }}
+                component="span"
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
               >
-                {t('Slow')}
+                {t('Fee Amount')}
               </Typography>
-              <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
-                {formatGasPrice(
-                  networkFee.low.maxFeePerGas,
-                  networkFee.displayDecimals,
-                )}
-              </Typography>
-            </FeeButton>
-            {!networkFee.isFixedFee && (
-              <>
-                <FeeButton
-                  data-testid="gas-fee-normal-button"
-                  disabled={gasPriceEditDisabled}
-                  color={
-                    selectedFee === GasFeeModifier.NORMAL
-                      ? 'primary'
-                      : 'secondary'
-                  }
-                  onClick={() => {
-                    handleModifierClick(GasFeeModifier.NORMAL);
-                  }}
-                >
+
+              <Stack direction="row">
+                <Tooltip title={feeAmount.precise}>
                   <Typography
-                    variant={size === 'small' ? 'caption' : 'body2'}
-                    sx={{ fontWeight: 'semibold' }}
-                  >
-                    {t('Normal')}
-                  </Typography>
-                  <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
-                    {formatGasPrice(
-                      networkFee.medium.maxFeePerGas,
-                      networkFee.displayDecimals,
-                    )}
-                  </Typography>
-                </FeeButton>
-                <FeeButton
-                  data-testid="gas-fee-fast-button"
-                  disabled={gasPriceEditDisabled}
-                  color={
-                    selectedFee === GasFeeModifier.FAST
-                      ? 'primary'
-                      : 'secondary'
-                  }
-                  onClick={() => {
-                    handleModifierClick(GasFeeModifier.FAST);
-                  }}
-                >
-                  <Typography
-                    variant={size === 'small' ? 'caption' : 'body2'}
-                    sx={{ fontWeight: 'semibold' }}
-                  >
-                    {t('Fast')}
-                  </Typography>
-                  <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
-                    {formatGasPrice(
-                      networkFee.high.maxFeePerGas,
-                      networkFee.displayDecimals,
-                    )}
-                  </Typography>
-                </FeeButton>
-                <FeeButton
-                  data-testid="gas-fee-custom-button"
-                  disabled={gasPriceEditDisabled}
-                  color={
-                    selectedFee === GasFeeModifier.CUSTOM
-                      ? 'primary'
-                      : 'secondary'
-                  }
-                  onClick={() => {
-                    handleModifierClick(GasFeeModifier.CUSTOM);
-                    customInputRef?.current?.focus();
-                  }}
-                  disableRipple
-                >
-                  <Typography
-                    variant={size === 'small' ? 'caption' : 'body2'}
-                    sx={{ fontWeight: 'semibold' }}
-                  >
-                    {t('Custom')}
-                  </Typography>
-                  <CustomInput
-                    ref={customInputRef}
-                    type="number"
-                    value={formatGasPrice(
-                      customFee?.maxFeePerGas ?? 0n,
-                      networkFee.displayDecimals,
-                    )}
-                    min={1}
-                    step={1}
-                    onChange={(e) => {
-                      handleGasChange(
-                        getFeeRateForCustomGasPrice(
-                          e.target.value || '0',
-                          networkFee,
-                        ),
-                        GasFeeModifier.CUSTOM,
-                      );
+                    variant="body2"
+                    data-testid="network-fee-token-amount"
+                    sx={{
+                      fontWeight: 'fontWeightSemibold',
+                      color: hasEnoughForFee ? undefined : 'error.main',
                     }}
-                    onBlur={(e) => {
-                      if (e.target.value === '') {
-                        handleGasChange(
-                          networkFee.medium,
-                          GasFeeModifier.CUSTOM,
-                        );
-                      }
-                    }}
-                  />
-                </FeeButton>
-              </>
-            )}
-          </Stack>
-        </Collapse>
-        <Stack>
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Typography
-              component="span"
-              variant="caption"
+                  >
+                    {feeAmount.rounded} {network?.networkToken.symbol}
+                  </Typography>
+                </Tooltip>
+              </Stack>
+            </Stack>
+            <Stack
               sx={{
-                color: 'text.secondary',
+                alignItems: 'flex-end',
               }}
             >
-              {t('Fee Amount')}
-            </Typography>
-
-            <Stack direction="row">
-              <Typography variant="body2" color="text.secondary">
-                ~
+              <Typography
+                data-testid="network-fee-currency-amount"
+                variant="caption"
+                sx={{ color: 'text.secondary' }}
+              >
+                {!isNaN(Number(newFees.feeUSD))
+                  ? `${currencyFormatter(Number(newFees.feeUSD))}`
+                  : ''}
               </Typography>
-              <Tooltip title={feeAmount.precise}>
-                <Typography
-                  variant="body2"
-                  data-testid="network-fee-token-amount"
-                  sx={{
-                    fontWeight: 'fontWeightSemibold',
-                    color: hasEnoughForFee ? undefined : 'error.main',
-                  }}
-                >
-                  {feeAmount.rounded} {network?.networkToken.symbol}
-                </Typography>
-              </Tooltip>
             </Stack>
           </Stack>
-          <Stack
-            sx={{
-              alignItems: 'flex-end',
-            }}
-          >
-            <Typography
-              data-testid="network-fee-currency-amount"
-              variant="caption"
-              sx={{ color: 'text.secondary' }}
-            >
-              {!isNaN(Number(newFees.feeUSD))
-                ? `${currencyFormatter(Number(newFees.feeUSD))}`
-                : ''}
-            </Typography>
-          </Stack>
-        </Stack>
+        )}
       </ApprovalSectionBody>
       <CustomGasLimitDialog
         open={Boolean(
