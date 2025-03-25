@@ -33,7 +33,7 @@ export const getCurrencyFormatter = (currency = 'USD') => {
 };
 
 const modifyFractionNumber = (amount: number) => {
-  const [integer, fraction] = amount.toString().split('.');
+  const [integer, fraction] = parseScientificNotation(amount.toString());
   const indexOfNonZero = fraction?.search(/[1-9]/);
 
   if (!indexOfNonZero || indexOfNonZero < 2 || integer !== '0') {
@@ -43,4 +43,15 @@ const modifyFractionNumber = (amount: number) => {
     return parseFloat(`${integer}.${fraction?.slice(0, indexOfNonZero + 1)}`);
   }
   return amount;
+};
+
+const parseScientificNotation = (amount: string) => {
+  // When the number is extremely small or big we don't want to take care of it at the moment
+  if (amount.toString().includes('e') && amount.toString().includes('-')) {
+    return ['0', '00'];
+  }
+  if (amount.toString().includes('e') && amount.toString().includes('+')) {
+    return ['Infinity', 'Infinity'];
+  }
+  return amount.toString().split('.');
 };

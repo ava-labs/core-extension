@@ -2,6 +2,7 @@ import { Stack, Typography } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';
 import { TokenWithBalanceAVM } from '@avalabs/vm-module-types';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 interface XchainActiveNetworkWidgetContentProps {
   balances?: TokenWithBalanceAVM;
@@ -19,17 +20,22 @@ export function XchainActiveNetworkWidgetContent({
     atomicMemoryUnlocked: t('Atomic Memory Unlocked'),
   };
 
-  if (!balances) {
+  if (!balances?.balancePerType) {
     return null;
   }
+
   return (
     <>
-      {Object.keys(typeDisplayNames).map((type) => {
-        const show = balances[type] && balances[type] > 0;
-
-        if (!show) {
+      {Object.entries(balances.balancePerType).map(([type, balanceRaw]) => {
+        if (!balanceRaw) {
           return null;
         }
+
+        const balance = new TokenUnit(
+          balanceRaw,
+          balances.decimals,
+          balances.symbol,
+        ).toDisplay();
 
         return (
           <Stack
@@ -55,7 +61,7 @@ export function XchainActiveNetworkWidgetContent({
                 data-testid="token-row-token-balance"
                 variant="caption"
               >
-                {`${balances[type]} AVAX`}
+                {`${balance} AVAX`}
               </Typography>
             </BalanceColumn>
           </Stack>

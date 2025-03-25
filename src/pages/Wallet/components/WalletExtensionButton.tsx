@@ -50,6 +50,7 @@ const StyledMenuItem = styled(MenuItem)`
 const CoreButton = styled(Button)`
   img {
     transition: transform 0.3s ease-in-out;
+    border-radius: 50%;
   }
   color: ${({ theme }) => theme.palette.text.secondary};
   &:hover {

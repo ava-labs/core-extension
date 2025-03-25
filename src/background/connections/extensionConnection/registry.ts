@@ -129,6 +129,11 @@ import { BalancesUpdatedEvents } from '@src/background/services/balances/events/
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
 import { GetTotalBalanceForWalletHandler } from '@src/background/services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
+import { FundTxHandler } from '@src/background/services/gasless/handlers/fundTx';
+import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/handlers/getGaslessEligibility';
+import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallange';
+import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
+import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -379,6 +384,22 @@ import { GetTotalBalanceForWalletHandler } from '@src/background/services/balanc
     token: 'ExtensionRequestHandler',
     useToken: GetTotalBalanceForWalletHandler,
   },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: FetchAndSolveChallengeHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: FundTxHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetGaslessEligibilityHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetDefaultStateValuesHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -409,5 +430,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: SeedlessMfaEvents },
   { token: 'ExtensionEventEmitter', useToken: UnifiedBridgeEvents },
   { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
+  { token: 'ExtensionEventEmitter', useToken: GaslessChallangeUpdateEvent },
 ])
 export class ExtensionEventEmitterRegistry {}

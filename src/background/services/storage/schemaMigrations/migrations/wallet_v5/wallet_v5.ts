@@ -282,6 +282,22 @@ const up: WalletV5Migration['up'] = async (currentSecrets, accounts) => {
     assertPresent(wallet, CommonError.MigrationFailed);
     const { secretType } = wallet;
 
+    /**
+     * If this throws type errors due to Accounts model being updated,
+     * you're likely introducing a migration for ACCOUNTS_STORAGE_KEY.
+     *
+     * There are a few things that need to be done:
+     *
+     * The new migration needs to have both up and down methods, so that once
+     * Accounts is migrated to v4+, other places (like this migration here) can still request v3.
+     * The StorageService needs a way to load a key with requested version
+     * (i.e. StorageService.loadVersion(storageKey: string, version: number)).
+     *
+     * If the key is at specified version already, just return it. If it's already been
+     * migrated to a higher version - use migration.down() to go back (don't store it, just return it).
+     *
+     * This migration (wallet_v5) needs to be re-written so that it uses the new StorageService.loadVersion() method.
+     */
     const accountsForWallet = accounts.primary[wallet.id];
     assertPresent(accountsForWallet, CommonError.MigrationFailed);
 
