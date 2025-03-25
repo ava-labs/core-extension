@@ -1,7 +1,7 @@
 import {
-  NftTokenWithBalance,
+  NetworkTokenWithBalance,
   TokenType,
-  TokenWithBalance,
+  TokenWithBalanceERC20,
 } from '@avalabs/vm-module-types';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
@@ -15,7 +15,7 @@ type RequestedTokens = {
 
 type Result<T extends RequestedTokens> = Record<
   keyof T,
-  Exclude<TokenWithBalance, NftTokenWithBalance> | undefined
+  NetworkTokenWithBalance | TokenWithBalanceERC20 | undefined
 >;
 
 export function useTokensBySymbols<T extends RequestedTokens>(

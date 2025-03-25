@@ -144,7 +144,7 @@ export class GetPrivateKeyHandler implements HandlerType {
         const pvmNode = master.derivePath(
           getAddressDerivationPath(
             accountIndex,
-            primaryAccount.derivationPath,
+            primaryAccount.derivationPathSpec,
             'PVM',
           ),
         );
@@ -170,7 +170,7 @@ export class GetPrivateKeyHandler implements HandlerType {
           result: getAccountPrivateKeyFromMnemonic(
             primaryAccount.mnemonic,
             accountIndex,
-            primaryAccount.derivationPath,
+            primaryAccount.derivationPathSpec,
           ),
         };
       } catch (e) {

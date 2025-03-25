@@ -2,20 +2,62 @@ import {
   DerivationPath,
   getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
+  getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { SecretType } from '../../secrets/models';
+import {
+  AVALANCHE_BASE_DERIVATION_PATH,
+  AddressPublicKeyJson,
+  EVM_BASE_DERIVATION_PATH,
+  SecretType,
+} from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { LedgerTransport } from '../LedgerTransport';
 import { MigrateMissingPublicKeysFromLedgerHandler } from './migrateMissingPublicKeysFromLedger';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
 import { Account } from '../../accounts/models';
+import { AddressPublicKey } from '../../secrets/AddressPublicKey';
+import { PubKeyType } from '../../wallet/models';
+import { buildExtendedPublicKey } from '../../secrets/utils';
 
 jest.mock('../../secrets/SecretsService');
-jest.mock('@avalabs/core-wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk', () => ({
+  ...jest.requireActual('@avalabs/core-wallets-sdk'),
+  getLedgerExtendedPublicKey: jest.fn(),
+  getPubKeyFromTransport: jest.fn(),
+}));
 
 const WALLET_ID = 'wallet_id';
+
+const mapLegacyPubKeys = (pubKeys: PubKeyType[]): AddressPublicKeyJson[] =>
+  pubKeys
+    .flatMap(({ evm, xp }, index) => [
+      AddressPublicKey.fromJSON({
+        key: evm,
+        curve: 'secp256k1',
+        derivationPath: getAddressDerivationPath(
+          index,
+          DerivationPath.LedgerLive,
+          'EVM',
+        ),
+      }).toJSON(),
+      xp
+        ? AddressPublicKey.fromJSON({
+            key: xp,
+            curve: 'secp256k1',
+            derivationPath: getAddressDerivationPath(
+              index,
+              DerivationPath.LedgerLive,
+              'AVM',
+            ),
+          }).toJSON()
+        : undefined,
+    ])
+    .filter<AddressPublicKeyJson>(
+      (key): key is AddressPublicKeyJson => key !== undefined,
+    );
+
 describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger.ts', () => {
   const request = {
     id: '123',
@@ -23,6 +65,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
   } as any;
   const accountsService: jest.Mocked<AccountsService> = {
     activeAccount: {} as unknown as Account,
+    getPrimaryAccountsByWalletId: jest.fn(),
   } as any;
 
   const secretsService = jest.mocked(new SecretsService({} as any));
@@ -77,9 +120,12 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
     it('terminates early if there is nothing to update', async () => {
       secretsService.getAccountSecrets.mockResolvedValue({
         secretType: SecretType.Ledger,
-        xpub: 'xpub',
-        xpubXP: 'xpubXP',
-        derivationPath: DerivationPath.BIP44,
+        extendedPublicKeys: [
+          buildExtendedPublicKey('xpub', EVM_BASE_DERIVATION_PATH),
+          buildExtendedPublicKey('xpubXP', AVALANCHE_BASE_DERIVATION_PATH),
+        ],
+        publicKeys: [],
+        derivationPathSpec: DerivationPath.BIP44,
         id: WALLET_ID,
       } as any);
 
@@ -92,8 +138,11 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
     it('updates the extended public key correctly', async () => {
       secretsService.getAccountSecrets.mockResolvedValue({
         secretType: SecretType.Ledger,
-        xpub: 'xpub',
-        derivationPath: DerivationPath.BIP44,
+        extendedPublicKeys: [
+          buildExtendedPublicKey('xpub', EVM_BASE_DERIVATION_PATH),
+        ],
+        publicKeys: [],
+        derivationPathSpec: DerivationPath.BIP44,
         id: WALLET_ID,
       } as any);
 
@@ -103,7 +152,10 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
       expect(result).toBe(true);
       expect(secretsService.updateSecrets).toHaveBeenCalledWith(
         {
-          xpubXP: 'xpubXP',
+          extendedPublicKeys: [
+            buildExtendedPublicKey('xpub', EVM_BASE_DERIVATION_PATH),
+            buildExtendedPublicKey('xpubXP', AVALANCHE_BASE_DERIVATION_PATH),
+          ],
         },
         WALLET_ID,
       );
@@ -112,10 +164,15 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
   describe('Derivation path: Ledger Live', () => {
     it('terminates early if there is nothing to update', async () => {
+      accountsService.getPrimaryAccountsByWalletId.mockReturnValueOnce([
+        {
+          index: 0,
+        },
+      ] as any);
       secretsService.getAccountSecrets.mockResolvedValue({
         secretType: SecretType.LedgerLive,
-        pubKeys: [],
-        derivationPath: DerivationPath.LedgerLive,
+        publicKeys: mapLegacyPubKeys([{ evm: 'evm', xp: 'xp' }]),
+        derivationPathSpec: DerivationPath.LedgerLive,
         id: WALLET_ID,
       } as any);
 
@@ -125,6 +182,11 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
     });
 
     it('updates the pubkeys and throws if an error happened', async () => {
+      accountsService.getPrimaryAccountsByWalletId.mockReturnValueOnce([
+        { index: 0 },
+        { index: 1 },
+        { index: 2 },
+      ] as any);
       const pubKeys = [
         { evm: 'evm', xp: 'xp' },
         { evm: 'evm2', xp: '' },
@@ -132,8 +194,8 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
       ];
       secretsService.getAccountSecrets.mockResolvedValue({
         secretType: SecretType.LedgerLive,
-        pubKeys,
-        derivationPath: DerivationPath.LedgerLive,
+        publicKeys: mapLegacyPubKeys(pubKeys),
+        derivationPathSpec: DerivationPath.LedgerLive,
         id: WALLET_ID,
       } as any);
 
@@ -149,14 +211,16 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
       expect(secretsService.updateSecrets).toHaveBeenCalledWith(
         {
-          pubKeys: [
-            { evm: 'evm', xp: 'xp' },
-            {
-              evm: 'evm2',
-              xp: '1234',
-            },
-            { evm: 'evm3', xp: '' },
-          ],
+          publicKeys: expect.arrayContaining(
+            mapLegacyPubKeys([
+              { evm: 'evm', xp: 'xp' },
+              {
+                evm: 'evm2',
+                xp: '1234',
+              },
+              { evm: 'evm3', xp: '' },
+            ]),
+          ),
         },
         WALLET_ID,
       );
@@ -178,6 +242,11 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
     });
 
     it('updates the pubkeys correctly', async () => {
+      accountsService.getPrimaryAccountsByWalletId.mockReturnValueOnce([
+        { index: 0 },
+        { index: 1 },
+        { index: 2 },
+      ] as any);
       const pubKeys = [
         { evm: 'evm', xp: 'xp' },
         { evm: 'evm2', xp: '' },
@@ -186,8 +255,8 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
 
       secretsService.getAccountSecrets.mockResolvedValue({
         secretType: SecretType.LedgerLive,
-        pubKeys,
-        derivationPath: DerivationPath.LedgerLive,
+        publicKeys: mapLegacyPubKeys(pubKeys),
+        derivationPathSpec: DerivationPath.LedgerLive,
         id: WALLET_ID,
       } as any);
       jest
@@ -200,14 +269,13 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
       expect(result).toBe(true);
       expect(secretsService.updateSecrets).toHaveBeenCalledWith(
         {
-          pubKeys: [
-            { evm: 'evm', xp: 'xp' },
-            {
-              evm: 'evm2',
-              xp: '1234',
-            },
-            { evm: 'evm3', xp: '5678' },
-          ],
+          publicKeys: expect.arrayContaining(
+            mapLegacyPubKeys([
+              { evm: 'evm', xp: 'xp' },
+              { evm: 'evm2', xp: '1234' },
+              { evm: 'evm3', xp: '5678' },
+            ]),
+          ),
         },
         WALLET_ID,
       );
