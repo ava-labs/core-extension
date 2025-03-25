@@ -1,10 +1,15 @@
 import browser, { Runtime } from 'webextension-polyfill';
-import { CONTENT_SCRIPT, EXTENSION_SCRIPT } from '@src/common';
+import {
+  CONTENT_SCRIPT,
+  EXTENSION_SCRIPT,
+  OFFSCREEN_SCRIPT,
+} from '@src/common';
 import { container, singleton } from 'tsyringe';
 import { DAppConnectionController } from './dAppConnection/DAppConnectionController';
 import { ConnectionController } from './models';
 import { ExtensionConnectionController } from './extensionConnection/ExtensionConnectionController';
 import { CallbackManager } from '../runtime/CallbackManager';
+import { OffscreenConnectionController } from './offscreenConnection/OffscreenConnectionController';
 
 @singleton()
 export class ConnectionService {
@@ -41,6 +46,8 @@ export class ConnectionService {
       connectionController = container.resolve(ExtensionConnectionController);
     } else if (connection.name === CONTENT_SCRIPT) {
       connectionController = container.resolve(DAppConnectionController);
+    } else if (connection.name === OFFSCREEN_SCRIPT) {
+      connectionController = container.resolve(OffscreenConnectionController);
     }
     connectionController?.connect(connection);
 

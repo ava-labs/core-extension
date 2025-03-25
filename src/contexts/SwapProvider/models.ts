@@ -102,6 +102,7 @@ export type ValidTransactionResponse = {
 };
 
 export enum SwapErrorCode {
+  ClientNotInitialized = 'client-not-initialized',
   MissingParams = 'missing-params',
   CannotFetchAllowance = 'cannot-fetch-allowance',
   MissingContractMethod = 'missing-contract-method',

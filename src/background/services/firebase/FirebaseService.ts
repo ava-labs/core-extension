@@ -13,10 +13,11 @@ import sentryCaptureException, {
 } from '@src/monitoring/sentryCaptureException';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureFlagEvents, FeatureGates } from '../featureFlags/models';
+import { isSupportedBrowser } from '@src/utils/isSupportedBrowser';
 
 @singleton()
 export class FirebaseService {
-  #app: FirebaseApp;
+  #app?: FirebaseApp;
   #isFcmInitialized = false;
   #fcmToken?: string;
   #firebaseEventEmitter = new EventEmitter();
@@ -25,6 +26,10 @@ export class FirebaseService {
   constructor(private featureFlagService: FeatureFlagService) {
     if (!process.env.FIREBASE_CONFIG) {
       throw new Error('FIREBASE_CONFIG is missing');
+    }
+
+    if (!isSupportedBrowser()) {
+      return;
     }
 
     this.#app = initializeApp(

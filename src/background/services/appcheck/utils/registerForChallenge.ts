@@ -3,6 +3,8 @@ type Params = {
   requestId: string;
 };
 
+const REGISTER_TIMEOUT_MS = 10_000;
+
 const registerForChallenge = async ({ token, requestId }: Params) => {
   const url = process.env.ID_SERVICE_URL;
 
@@ -10,22 +12,27 @@ const registerForChallenge = async ({ token, requestId }: Params) => {
     throw new Error('ID_SERVICE_URL is missing');
   }
 
-  const registerResponse = await fetch(`${url}/v1/ext/register`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-App-Type': 'extension',
-      'X-App-Version': chrome.runtime.getManifest().version,
-    },
-    body: JSON.stringify({
-      token,
-      requestId,
-    }),
-  });
+  try {
+    const registerResponse = await fetch(`${url}/v1/ext/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-App-Type': 'extension',
+        'X-App-Version': chrome.runtime.getManifest().version,
+      },
+      body: JSON.stringify({
+        token,
+        requestId,
+      }),
+      signal: AbortSignal.timeout(REGISTER_TIMEOUT_MS),
+    });
 
-  if (!registerResponse.ok) {
+    if (!registerResponse.ok) {
+      throw new Error(registerResponse.statusText);
+    }
+  } catch (err) {
     throw new Error(
-      `challenge registration error: "${registerResponse.statusText}"`,
+      `[AppCheck] challenge registration error "${(err as Error).message}"`,
     );
   }
 };
