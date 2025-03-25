@@ -1,9 +1,9 @@
 import { TokenIcon as TokenImage } from '@src/components/common/TokenIcon';
-import { APIError } from 'paraswap';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { OptimalRate } from 'paraswap-core';
 import { TokenType, TokenWithBalanceEVM } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@src/utils/stringToBigint';
+import { WrappedError } from '@src/utils/errors';
+import { OptimalRate } from '@paraswap/sdk';
 
 interface GetTokenIconProps {
   token?: TokenWithBalanceEVM;
@@ -49,7 +49,7 @@ export const getMaxValue = (token?: TokenWithBalanceEVM, fee?: string) => {
   return token.balance;
 };
 
-export function isAPIError(rate: any): rate is APIError {
+export function isAPIError(rate: any): rate is WrappedError {
   return typeof rate.message === 'string';
 }
 

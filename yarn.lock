@@ -7676,6 +7676,37 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@paraswap/core@npm:2.4.0":
+  version: 2.4.0
+  resolution: "@paraswap/core@npm:2.4.0"
+  checksum: 10c0/12d032e838182ff6736ab6b5baac82608bf8a73b70c8dbe76c99f7b9ed6eaea4e4e65245dc6c979dd4fc8f4420fe50407d10f561ec6d3aba892429eee0b14b5b
+  languageName: node
+  linkType: hard
+
+"@paraswap/sdk@npm:7.2.3":
+  version: 7.2.3
+  resolution: "@paraswap/sdk@npm:7.2.3"
+  dependencies:
+    "@paraswap/core": "npm:2.4.0"
+    ts-essentials: "npm:^10.0.3"
+  peerDependencies:
+    axios: ">=0.25.0 <2.0.0"
+    ethers: ^5.5.0 || ^6.0.0
+    viem: ^2.21.0
+    web3: ^4.14.0
+  peerDependenciesMeta:
+    axios:
+      optional: true
+    ethers:
+      optional: true
+    viem:
+      optional: true
+    web3:
+      optional: true
+  checksum: 10c0/e8f1e2173303abb080e9bdc4ed6a790b3989aad6ca2c548d06a5bc459e12602f49dfe008da991a7a3eb2094419aac89864f2f4ebbfff7d555dabeb71a1c2737d
+  languageName: node
+  linkType: hard
+
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
@@ -11846,7 +11877,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:^3.1.0, async@npm:^3.2.0, async@npm:^3.2.3":
+"async@npm:^3.2.0, async@npm:^3.2.3":
   version: 3.2.4
   resolution: "async@npm:3.2.4"
   checksum: 10c0/b5d02fed64717edf49e35b2b156debd9cf524934ea670108fa5528e7615ed66a5e0bf6c65f832c9483b63aa7f0bffe3e588ebe8d58a539b833798d324516e1c9
@@ -11965,6 +11996,7 @@ __metadata:
     "@noble/curves": "npm:1.6.0"
     "@noble/hashes": "npm:1.3.2"
     "@openzeppelin/contracts": "npm:4.9.6"
+    "@paraswap/sdk": "npm:7.2.3"
     "@semantic-release/commit-analyzer": "npm:9.0.2"
     "@semantic-release/exec": "npm:6.0.3"
     "@semantic-release/github": "npm:8.0.2"
@@ -12047,7 +12079,6 @@ __metadata:
     lru-cache: "npm:7.10.1"
     micro-signals: "npm:2.4.0"
     node-polyfill-webpack-plugin: "npm:1.1.4"
-    paraswap: "npm:5.1.0"
     path-browserify: "npm:1.0.1"
     postinstall-postinstall: "npm:2.1.0"
     prettier: "npm:3.4.2"
@@ -12125,15 +12156,6 @@ __metadata:
   dependencies:
     lock: "npm:^1.1.0"
   checksum: 10c0/8b7b5d4f36c6b4d5326acf84fb1f74f9b76c351f4ddb2ffaff587a6c49f433c51a842d237a59cbca8979529aa290fa724377eef972b5d672405bf3e4fad7817d
-  languageName: node
-  linkType: hard
-
-"axios@npm:0.21.2":
-  version: 0.21.2
-  resolution: "axios@npm:0.21.2"
-  dependencies:
-    follow-redirects: "npm:^1.14.0"
-  checksum: 10c0/4d971edbf8a0fd292566985c2b1c27bf6b61f57e4bc9886ad7c40901dc29aacd18998fbe83ee492bc550e859530cb58453dbb33f0130e6089228ab8dbfaa44f7
   languageName: node
   linkType: hard
 
@@ -12595,13 +12617,6 @@ __metadata:
   version: 6.1.1
   resolution: "big.js@npm:6.1.1"
   checksum: 10c0/28fa65b097279a6851878bc2cb9aaea1e5201b5792a67edab45fd3e3673d41a2aae87ff9f716b3adb489e36c3c7e6680c03d392aee9b507e9522690fa80c93c8
-  languageName: node
-  linkType: hard
-
-"bignumber.js@npm:8.1.1":
-  version: 8.1.1
-  resolution: "bignumber.js@npm:8.1.1"
-  checksum: 10c0/0161025011754c00fa78f4ddc08c28b35321b455a2c2fbc98b0a73aa0dbc8ab932ab223912cba08a8028ffa2d2199ff00941598667dc27c3275ff49e01efa365
   languageName: node
   linkType: hard
 
@@ -17910,7 +17925,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.15.0, follow-redirects@npm:^1.15.4, follow-redirects@npm:^1.15.6":
+"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.15.0, follow-redirects@npm:^1.15.4, follow-redirects@npm:^1.15.6":
   version: 1.15.6
   resolution: "follow-redirects@npm:1.15.6"
   peerDependenciesMeta:
@@ -24905,29 +24920,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"paraswap-core@npm:1.0.2":
-  version: 1.0.2
-  resolution: "paraswap-core@npm:1.0.2"
-  checksum: 10c0/4d2ef6e71cd62772e9421d28d4546b0ff9e76fca785aa94cda8a207fa79ded6e26371d208e2d11836e4053becea91568e9fe7838f9282ecfbd4b3e29e9a2829c
-  languageName: node
-  linkType: hard
-
-"paraswap@npm:5.1.0":
-  version: 5.1.0
-  resolution: "paraswap@npm:5.1.0"
-  dependencies:
-    async: "npm:^3.1.0"
-    axios: "npm:0.21.2"
-    bignumber.js: "npm:8.1.1"
-    lodash: "npm:4.17.21"
-    paraswap-core: "npm:1.0.2"
-    qs: "npm:^6.9.1"
-    ts-essentials: "npm:^7.0.0"
-    web3: "npm:^1.5.0"
-  checksum: 10c0/952b1acc235ae368d0a24892c7b0826a9349a5bfbf12242843b16ffdf06dbed829803159f4eb4aeb7a1fd142e32de4a7a56034a74cc97335ed2d901884104cf0
-  languageName: node
-  linkType: hard
-
 "parent-module@npm:^1.0.0":
   version: 1.0.1
   resolution: "parent-module@npm:1.0.1"
@@ -26556,15 +26548,6 @@ __metadata:
   dependencies:
     side-channel: "npm:^1.0.4"
   checksum: 10c0/4f95d4ff18ed480befcafa3390022817ffd3087fc65f146cceb40fc5edb9fa96cb31f648cae2fa96ca23818f0798bd63ad4ca369a0e22702fcd41379b3ab6571
-  languageName: node
-  linkType: hard
-
-"qs@npm:^6.9.1":
-  version: 6.11.1
-  resolution: "qs@npm:6.11.1"
-  dependencies:
-    side-channel: "npm:^1.0.4"
-  checksum: 10c0/7ec57d3d62334c6313346b54f2b588b28c983793bf73981b77d769396fbb04fec911fa4e8a085528c3ebe7c04cfc9c9130410b277b3328da91087ae8ca728437
   languageName: node
   linkType: hard
 
@@ -30145,12 +30128,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-essentials@npm:^7.0.0":
-  version: 7.0.3
-  resolution: "ts-essentials@npm:7.0.3"
+"ts-essentials@npm:^10.0.3":
+  version: 10.0.4
+  resolution: "ts-essentials@npm:10.0.4"
   peerDependencies:
-    typescript: ">=3.7.0"
-  checksum: 10c0/ea1919534ec6ce4ca4d9cb0ff1ab8e053509237da8d4298762ab3bfba4e78ca5649a599ce78a5c7c2624f3a7a971f62b265b7b0c3c881336e4fa6acaf6f37544
+    typescript: ">=4.5.0"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10c0/99a5dd3ae6ed885e0f6cdb9556c07ba5c9e00d447a58a3308440739d624bcd92d370f8bb060ae7a2992023b4a03acdf669ac8f1e0427b3fbc792a2857f85ab0d
   languageName: node
   linkType: hard
 
@@ -31768,7 +31754,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"web3@npm:*, web3@npm:^1.5.0":
+"web3@npm:*":
   version: 1.9.0
   resolution: "web3@npm:1.9.0"
   dependencies:

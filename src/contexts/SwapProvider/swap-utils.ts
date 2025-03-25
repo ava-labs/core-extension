@@ -1,10 +1,10 @@
-import { APIError, Transaction } from 'paraswap';
 import { Contract } from 'ethers';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { t } from 'i18next';
+import type { BuildTxInputBase } from '@paraswap/sdk/dist/methods/swap/transaction';
 
 import {
   CommonError,
@@ -24,6 +24,11 @@ import {
   SwapParams,
   hasParaswapError,
 } from './models';
+import {
+  PARASWAP_PARTNER_ADDRESS,
+  PARASWAP_PARTNER_FEE_BPS,
+} from './constants';
+import { FetcherError } from '@paraswap/sdk';
 
 export function validateParams(
   params: Partial<SwapParams>,
@@ -263,21 +268,19 @@ export const swapError = (
   });
 };
 
-export const paraswapErrorToSwapError = (error: WrappedError): SwapError => {
-  if (!error.data.originalError) {
+export const paraswapErrorToSwapError = (error: FetcherError): SwapError => {
+  if (!error.message) {
     return {
       message: t('Unknown error occurred, '),
       hasTryAgain: true,
     };
   }
 
-  const originalError = error.data.originalError as Error;
-
-  switch (originalError.message) {
+  switch (error.message) {
     case 'ESTIMATED_LOSS_GREATER_THAN_MAX_IMPACT':
       return {
         message: t(
-          'Amount too low or too big to cover. Please adjust swap values.',
+          'Slippage tolerance exceeded, increase the slippage and try again.',
         ),
         hasTryAgain: false,
       };
@@ -295,7 +298,7 @@ export const paraswapErrorToSwapError = (error: WrappedError): SwapError => {
       };
   }
 
-  if (/is too small to proceed/.test(originalError.message)) {
+  if (/is too small to proceed/.test(error.message)) {
     return {
       message: t('Amount is too small to proceed.'),
       hasTryAgain: false,
@@ -338,7 +341,9 @@ export function checkForErrorsInGetRateResult(
   return false;
 }
 
-export function checkForErrorsInBuildTxResult(result: Transaction | APIError) {
+export function checkForErrorsInBuildTxResult(
+  result: Transaction | WrappedError,
+) {
   return (
     (result as APIError).message === 'Server too busy' ||
     // paraswap returns responses like this: {error: 'Not enough 0x4f60a160d8c2dddaafe16fcc57566db84d674…}
@@ -375,4 +380,37 @@ export const getParaswapSpender = async (
   }
 
   return result.TokenTransferProxy;
+};
+
+/**
+ * Responsible for adding the needed parameters to a swap transaction
+ * in ParaSwap so that Core can gather fees from the swap.
+ *
+ * Should only be enabled if the feature flag is enabled. Otherwise no fees should be collected.
+ *
+ * @see https://ava-labs.atlassian.net/browse/CP-10050
+ *
+ * @param {boolean} featureFlagEnabled - Whether the feature flag is enabled or not.
+ *
+ * @returns The necessary parameters for Core to gather fees from the swap.
+ */
+export const getPartnerFeeParams = (
+  featureFlagEnabled: boolean,
+): Pick<
+  BuildTxInputBase,
+  'isDirectFeeTransfer' | 'partnerAddress' | 'partnerFeeBps'
+> => {
+  if (!featureFlagEnabled) {
+    return {
+      isDirectFeeTransfer: false,
+      partnerAddress: undefined,
+      partnerFeeBps: undefined,
+    };
+  }
+
+  return {
+    partnerAddress: PARASWAP_PARTNER_ADDRESS,
+    partnerFeeBps: PARASWAP_PARTNER_FEE_BPS,
+    isDirectFeeTransfer: true,
+  };
 };

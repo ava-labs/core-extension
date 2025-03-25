@@ -1,4 +1,3 @@
-import { ETHER_ADDRESS, SwapSide } from 'paraswap';
 import { createRef, forwardRef, useImperativeHandle } from 'react';
 import { act } from 'react-dom/test-utils';
 
@@ -29,6 +28,8 @@ import * as swapUtils from './swap-utils';
 import { CommonError } from '@src/utils/errors';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { SwapSide } from '@paraswap/sdk';
+import { NATIVE_TOKEN_ADDRESS } from './constants';
 
 const API_URL = 'https://apiv5.paraswap.io';
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
@@ -318,7 +319,7 @@ describe('contexts/SwapProvider', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         getExpectedURL('prices', {
           ...params,
-          srcToken: ETHER_ADDRESS,
+          srcToken: NATIVE_TOKEN_ADDRESS,
           srcDecimals: 18,
         }),
       );
@@ -345,7 +346,7 @@ describe('contexts/SwapProvider', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         getExpectedURL('prices', {
           ...params,
-          destToken: ETHER_ADDRESS,
+          destToken: NATIVE_TOKEN_ADDRESS,
           destDecimals: 18,
         }),
       );

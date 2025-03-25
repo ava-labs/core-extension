@@ -10,15 +10,12 @@ import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { TransactionParams } from '@avalabs/evm-module';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { useConnectionContext } from '../ConnectionProvider';
-import { SwapSide } from 'paraswap-core';
 import browser from 'webextension-polyfill';
-import { APIError, ETHER_ADDRESS, ParaSwap, Transaction } from 'paraswap';
 import { useNetworkContext } from '../NetworkProvider';
 import { useAccountsContext } from '../AccountsProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import Web3 from 'web3';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import Big from 'big.js';
 import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
@@ -29,7 +26,6 @@ import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import { useTranslation } from 'react-i18next';
 import {
   GetRateParams,
-  ParaswapPricesResponse,
   SwapContextAPI,
   SwapParams,
   DISALLOWED_SWAP_ASSETS,
@@ -55,6 +51,7 @@ import {
   CommonError,
   isUserRejectionError,
   wrapError,
+  WrappedError,
 } from '@src/utils/errors';
 import { useWalletContext } from '../WalletProvider';
 import { SecretType } from '@src/background/services/secrets/models';
@@ -64,6 +61,16 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { NetworkWithCaipId } from '@src/background/services/network/models';
+import {
+  constructPartialSDK,
+  constructFetchFetcher,
+  constructGetRate,
+  constructGetBalances,
+  constructBuildTx,
+  OptimalRate,
+  SwapSide,
+} from '@paraswap/sdk';
+import { NATIVE_TOKEN_ADDRESS } from './constants';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -109,9 +116,16 @@ export function SwapContextProvider({ children }: { children: any }) {
 
   const paraswap = useMemo(() => {
     const chainId = activeNetwork?.chainId;
-
     return isSwapCapableChain(chainId)
-      ? new ParaSwap(chainId, undefined, new Web3())
+      ? constructPartialSDK(
+          {
+            chainId: chainId,
+            fetcher: constructFetchFetcher(fetch),
+          },
+          constructGetRate,
+          constructGetBalances,
+          constructBuildTx,
+        )
       : null;
   }, [activeNetwork?.chainId]);
 
@@ -152,33 +166,26 @@ export function SwapContextProvider({ children }: { children: any }) {
       const isFromTokenNative = activeNetwork.networkToken.symbol === srcToken;
       const isDestTokenNative = activeNetwork.networkToken.symbol === destToken;
 
-      const query = new URLSearchParams({
-        srcToken: isFromTokenNative ? ETHER_ADDRESS : srcToken,
-        destToken: isDestTokenNative ? ETHER_ADDRESS : destToken,
-        amount: srcAmount,
-        side: swapSide || SwapSide.SELL,
-        network: activeNetwork.chainId.toString(),
-        srcDecimals: `${isFromTokenNative ? 18 : srcDecimals}`,
-        destDecimals: `${isDestTokenNative ? 18 : destDecimals}`,
-        userAddress: activeAccount.addressC,
-      });
-
-      // apiURL is a private property
-      const url = `${(paraswap as any).apiURL}/prices/?${query.toString()}`;
-
       const optimalRates = async () => {
-        const response = await fetch(url);
-        return response.json();
+        return await paraswap.getRate({
+          srcToken: isFromTokenNative ? NATIVE_TOKEN_ADDRESS : srcToken,
+          destToken: isDestTokenNative ? NATIVE_TOKEN_ADDRESS : destToken,
+          amount: srcAmount,
+          side: swapSide || SwapSide.SELL,
+          srcDecimals: isFromTokenNative ? 18 : srcDecimals,
+          destDecimals: isDestTokenNative ? 18 : destDecimals,
+          userAddress: activeAccount.addressC,
+        });
       };
 
-      const result = await incrementalPromiseResolve<ParaswapPricesResponse>(
+      const result = await incrementalPromiseResolve<OptimalRate>(
         () => optimalRates(),
         checkForErrorsInGetRateResult,
       );
 
       return {
-        optimalRate: result.priceRoute ?? null,
-        destAmount: result.priceRoute?.destAmount,
+        optimalRate: result ?? null,
+        destAmount: result?.destAmount,
       };
     },
     [activeAccount, activeNetwork, isFlagEnabled, paraswap],
@@ -186,7 +193,6 @@ export function SwapContextProvider({ children }: { children: any }) {
 
   const buildTx = useCallback(
     async ({
-      network,
       srcToken,
       destToken,
       srcAmount,
@@ -215,35 +221,31 @@ export function SwapContextProvider({ children }: { children: any }) {
         gasPrice: Joi.string().optional(),
       }).unknown();
 
-      const txURL = `${(paraswap as any).apiURL}/transactions/${network}`;
-      const txConfig = {
-        srcToken,
-        srcDecimals,
-        srcAmount,
-        destToken,
-        destDecimals,
-        destAmount,
-        priceRoute,
-        userAddress,
-        partner: 'Avalanche',
-        ignoreChecks,
-      };
+      const transactionParamsOrError: TransactionParams | WrappedError =
+        await paraswap
+          .buildTx(
+            {
+              srcToken,
+              srcDecimals,
+              srcAmount,
+              destToken,
+              destDecimals,
+              destAmount,
+              priceRoute,
+              userAddress,
+              partner: 'Avalanche',
+            },
+            {
+              ignoreChecks,
+            },
+          )
+          .catch(wrapError(swapError(CommonError.NetworkError)));
 
-      const response = await fetch(txURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(txConfig),
-      }).catch(wrapError(swapError(CommonError.NetworkError)));
-
-      const transactionParamsOrError: Transaction | APIError =
-        await response.json();
       const validationResult = responseSchema.validate(
         transactionParamsOrError,
       );
 
-      if (!response.ok || validationResult.error) {
+      if (validationResult.error) {
         if (isAPIError(transactionParamsOrError)) {
           throw swapError(
             SwapErrorCode.ApiError,
@@ -390,16 +392,19 @@ export function SwapContextProvider({ children }: { children: any }) {
         .times(1 - slippage / 100)
         .toFixed(0);
       const maxAmount = new Big(srcAmount).times(1 + slippage / 100).toFixed(0);
-      const sourceAmount = priceRoute.side === 'SELL' ? srcAmount : maxAmount;
+      const sourceAmount =
+        priceRoute.side === SwapSide.SELL ? srcAmount : maxAmount;
 
       const destinationAmount =
-        priceRoute.side === 'SELL' ? minAmount : priceRoute.destAmount;
+        priceRoute.side === SwapSide.SELL ? minAmount : priceRoute.destAmount;
 
       return {
-        srcTokenAddress: srcToken === nativeToken ? ETHER_ADDRESS : srcToken,
-        destTokenAddress: destToken === nativeToken ? ETHER_ADDRESS : destToken,
+        srcTokenAddress:
+          srcToken === nativeToken ? NATIVE_TOKEN_ADDRESS : srcToken,
+        destTokenAddress:
+          destToken === nativeToken ? NATIVE_TOKEN_ADDRESS : destToken,
         spender: await getParaswapSpender(
-          (paraswap as any).apiURL,
+          paraswap.apiURL,
           activeNetwork.chainId,
         ),
         sourceAmount,

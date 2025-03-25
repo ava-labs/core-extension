@@ -1,5 +1,5 @@
-import { APIError, Address, PriceString, SwapSide } from 'paraswap';
-import { OptimalRate } from 'paraswap-core';
+import { Address, OptimalRate, PriceString, SwapSide } from '@paraswap/sdk';
+import { WrappedError } from '@src/utils/errors';
 
 /**
  * Paraswap may return both data and an error sometimes.
@@ -57,7 +57,7 @@ export type GetRateParams = {
 
 export type SwapContextAPI = {
   getRate(params: GetRateParams): Promise<{
-    optimalRate: OptimalRate | APIError | null;
+    optimalRate: OptimalRate | WrappedError | null;
     destAmount: string | undefined;
   }>;
   swap(params: SwapParams): Promise<void>;
