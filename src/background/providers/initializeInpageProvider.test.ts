@@ -20,6 +20,7 @@ jest.mock('@avalabs/evm-module/dist/provider', () => ({
 }));
 jest.mock('@avalabs/svm-module/dist/provider', () => ({
   SolanaWalletProvider: jest.fn().mockImplementation(() => ({})),
+  initialize: jest.fn(),
 }));
 jest.mock('./MultiWalletProviderProxy', () => ({
   createMultiWalletProxy: jest.fn(),
