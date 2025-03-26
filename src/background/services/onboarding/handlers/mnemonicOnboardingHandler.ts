@@ -2,7 +2,11 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { StorageService } from '../../storage/StorageService';
 import { SettingsService } from '../../settings/SettingsService';
-import { SecretType } from '../../secrets/models';
+import {
+  AVALANCHE_BASE_DERIVATION_PATH,
+  EVM_BASE_DERIVATION_PATH,
+  SecretType,
+} from '../../secrets/models';
 import { WalletService } from '../../wallet/WalletService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
 import {
@@ -17,6 +21,7 @@ import { NetworkService } from '../../network/NetworkService';
 import { injectable } from 'tsyringe';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
+import { buildExtendedPublicKey } from '../../secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.MNEMONIC_ONBOARDING_SUBMIT,
@@ -69,9 +74,12 @@ export class MnemonicOnboardingHandler implements HandlerType {
     const walletId = await this.walletService.init({
       secretType: SecretType.Mnemonic,
       mnemonic,
-      xpub,
-      xpubXP,
-      derivationPath: DerivationPath.BIP44,
+      extendedPublicKeys: [
+        buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
+        buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH),
+      ],
+      publicKeys: [],
+      derivationPathSpec: DerivationPath.BIP44,
       name: walletName,
     });
 

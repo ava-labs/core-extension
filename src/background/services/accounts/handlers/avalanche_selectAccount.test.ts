@@ -7,6 +7,7 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { AccountType } from '../models';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 jest.mock('@src/utils/canSkipApproval');
 jest.mock('@src/utils/extensionUtils', () => ({
@@ -23,7 +24,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
     addAction: addActionMock,
   };
   const permissionsServiceMock = {
-    setAccountPermissionForDomain: jest.fn(),
+    grantPermission: jest.fn(),
   } as any;
 
   container.registerInstance(ActionsService, actionsServiceMock as any);
@@ -279,9 +280,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         onErrorMock,
       );
 
-      expect(
-        permissionsServiceMock.setAccountPermissionForDomain,
-      ).not.toHaveBeenCalled();
+      expect(permissionsServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(onErrorMock).not.toHaveBeenCalled();
       expect(activateAccountMock).toHaveBeenCalledWith('uuid');
       expect(onSuccessMock).toHaveBeenCalled();
@@ -307,9 +306,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         onErrorMock,
       );
 
-      expect(
-        permissionsServiceMock.setAccountPermissionForDomain,
-      ).not.toHaveBeenCalled();
+      expect(permissionsServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(onErrorMock).not.toHaveBeenCalled();
       expect(activateAccountMock).toHaveBeenCalledWith('0x1');
       expect(onSuccessMock).toHaveBeenCalled();
@@ -341,12 +338,11 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         onErrorMock,
       );
 
-      expect(
-        permissionsServiceMock.setAccountPermissionForDomain,
-      ).toHaveBeenCalled();
-      expect(
-        permissionsServiceMock.setAccountPermissionForDomain,
-      ).toHaveBeenCalledWith('core.app', '0x1', true);
+      expect(permissionsServiceMock.grantPermission).toHaveBeenCalledWith(
+        'core.app',
+        '0x1',
+        NetworkVMType.EVM,
+      );
       expect(activateAccountMock).toHaveBeenCalledWith('0x1');
       expect(onSuccessMock).toBeCalledWith(null);
     });
@@ -373,9 +369,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         onSuccessMock,
         onErrorMock,
       );
-      expect(
-        permissionsServiceMock.setAccountPermissionForDomain,
-      ).not.toHaveBeenCalled();
+      expect(permissionsServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(onSuccessMock).not.toHaveBeenCalled();
       expect(onErrorMock).toHaveBeenCalled();
       expect(onErrorMock).toBeCalledWith(mockError);

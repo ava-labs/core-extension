@@ -24,10 +24,11 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { AccountType } from '@src/background/services/accounts/models';
 import { WalletChip } from '../WalletChip';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
+import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 
 export function Header() {
   const domain = useCurrentDomain();
-  const { updateAccountPermission, isDomainConnectedToAccount } =
+  const { revokeAddressPermisson, isDomainConnectedToAccount } =
     usePermissionContext();
   const {
     accounts: { active: activeAccount },
@@ -39,12 +40,15 @@ export function Header() {
 
   const isConnected =
     (isDomainConnectedToAccount &&
-      isDomainConnectedToAccount(domain, activeAccount?.addressC)) ||
+      isDomainConnectedToAccount(
+        domain,
+        getAllAddressesForAccount(activeAccount ?? {}),
+      )) ||
     false;
   const { network } = useNetworkContext();
   const address =
     network && activeAccount
-      ? getAddressForChain(network?.chainId, activeAccount)
+      ? getAddressForChain(network?.chainId, activeAccount, network.caipId)
       : '';
   const theme = useTheme();
 
@@ -101,11 +105,12 @@ export function Header() {
                         fontSize: 'caption.fontSize',
                       }}
                       onClick={() => {
-                        updateAccountPermission({
-                          addressC: activeAccount?.addressC,
-                          hasPermission: false,
-                          domain,
-                        });
+                        if (domain && activeAccount) {
+                          revokeAddressPermisson(
+                            domain,
+                            getAllAddressesForAccount(activeAccount),
+                          );
+                        }
                       }}
                     >
                       {t('Disconnect')}

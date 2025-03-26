@@ -9,7 +9,11 @@ import { ethErrors } from 'eth-rpc-errors';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 
-import { SecretType } from '../../secrets/models';
+import {
+  AVALANCHE_BASE_DERIVATION_PATH,
+  EVM_BASE_DERIVATION_PATH,
+  SecretType,
+} from '../../secrets/models';
 import { WalletService } from '../WalletService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
@@ -19,6 +23,7 @@ import {
   ImportWalletResult,
   SeedphraseImportError,
 } from './models';
+import { buildExtendedPublicKey } from '../../secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_IMPORT_SEED_PHRASE,
@@ -79,9 +84,12 @@ export class ImportSeedPhraseHandler implements HandlerType {
     const id = await this.walletService.addPrimaryWallet({
       secretType: SecretType.Mnemonic,
       mnemonic,
-      xpub,
-      xpubXP,
-      derivationPath: DerivationPath.BIP44,
+      extendedPublicKeys: [
+        buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
+        buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH),
+      ],
+      publicKeys: [],
+      derivationPathSpec: DerivationPath.BIP44,
       name,
     });
 
