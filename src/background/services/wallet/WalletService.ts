@@ -26,6 +26,7 @@ import {
   getWalletFromMnemonic,
   JsonRpcBatchInternal,
   LedgerSigner,
+  SolanaLedgerSigner,
   SolanaProvider,
   SolanaSigner,
 } from '@avalabs/core-wallets-sdk';
@@ -198,6 +199,19 @@ export class WalletService implements OnUnlock {
           );
         case SecretType.PrivateKey:
           return new SolanaSigner(Buffer.from(secrets.secret, 'hex'));
+        case SecretType.Ledger:
+        case SecretType.LedgerLive: {
+          if (!this.ledgerService.recentTransport) {
+            throw new Error('Ledger transport not available');
+          }
+          const accountIndexToUse =
+            accountIndex === undefined ? secrets.account.index : accountIndex;
+
+          return new SolanaLedgerSigner(
+            accountIndexToUse,
+            this.ledgerService.recentTransport,
+          );
+        }
         default:
           throw new Error(
             `Unsupported wallet type for Solana transaction: ${secretType}`,
@@ -560,7 +574,10 @@ export class WalletService implements OnUnlock {
     }
 
     if (isSolanaSigningRequest(tx)) {
-      if (!(wallet instanceof SolanaSigner)) {
+      if (
+        !(wallet instanceof SolanaSigner) &&
+        !(wallet instanceof SolanaLedgerSigner)
+      ) {
         throw new Error('Unable to find a proper signer');
       }
 

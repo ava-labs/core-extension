@@ -21,6 +21,8 @@ export enum ExtensionRequest {
   ACCOUNT_ADD = 'account_add',
   ACCOUNT_GET_PRIVATEKEY = 'account_get_privatekey',
 
+  SECRETS_APPEND_SOLANA_PUBLIC_KEYS = 'secrets_append_solana_public_keys',
+
   BALANCES_GET = 'balances_get',
   BALANCES_START_POLLING = 'balances_start_polling',
   BALANCES_STOP_POLLING = 'balances_stop_polling',
@@ -29,7 +31,7 @@ export enum ExtensionRequest {
   NFT_BALANCES_GET = 'nft_balances_get',
   NFT_REFRESH_METADATA = 'nft_refresh_metadata',
   TOKEN_PRICE_GET = 'token_price_get',
-  BALANCE_AVAX_GET = 'balance_avax_get',
+  BALANCE_NATIVE_GET = 'balance_native_get',
 
   BRIDGE_GET_CONFIG = 'bridge_get_config',
 

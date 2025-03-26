@@ -1,5 +1,6 @@
 import {
   Checkbox,
+  Chip,
   Collapse,
   CopyIcon,
   Grow,
@@ -41,6 +42,8 @@ import { AccountBalance } from '../AccountBalance';
 import { AccountItemMenu } from './AccountItemMenu';
 import AccountNameNew from './AccountName';
 import { useAccountRemoval } from '../hooks/useAccountRemoval';
+import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
+import { openFullscreenTab } from '@src/utils/openFullscreenTab';
 
 type AccountItemProps = {
   account: Account;
@@ -304,10 +307,23 @@ export const AccountItem = forwardRef(
                       color={isActive ? 'text.primary' : 'text.secondary'}
                       fontStyle="italic"
                     >
-                      {t('Active network is not supported')}
+                      {isSolanaNetwork(network) ? (
+                        <Chip
+                          size="small"
+                          color="default"
+                          clickable
+                          sx={{ fontStyle: 'normal', py: 0 }}
+                          onClick={() =>
+                            openFullscreenTab('ledger/derive-solana-addresses')
+                          }
+                          label={t('Add Solana address')}
+                        />
+                      ) : (
+                        t('Active network is not supported')
+                      )}
                     </Typography>
                   )}
-                  <Grow in={cardHovered || isActive}>
+                  <Grow in={Boolean(address) && (cardHovered || isActive)}>
                     <IconButton
                       color="primary"
                       size="small"

@@ -29,6 +29,8 @@ export enum OnboardingURLs {
   CREATE_PASSWORD = '/onboarding/create-password',
   ANALYTICS_CONSENT = '/onboarding/analytics-consent',
   LEDGER_TROUBLE = '/onboarding/ledger-trouble',
+  SOLANA_ASK = '/onboarding/solana-ask',
+  SOLANA_DERIVE = '/onboarding/solana-derive',
   SIGN_IN = '/onboarding/sign-in',
   RECOVERY_METHODS = '/onboarding/recovery-methods',
   RECOVERY_METHODS_LOGIN = '/onboarding/recovery-methods-login',

@@ -4,7 +4,7 @@ import { AccountsService } from '../accounts/AccountsService';
 import { OnboardingService } from './OnboardingService';
 import { LockService } from '../lock/LockService';
 import { runtime } from 'webextension-polyfill';
-import { addXPChainToFavoriteIfNeeded } from './utils/addXPChainsToFavoriteIfNeeded';
+import { addChainsToFavoriteIfNeeded } from './utils/addChainsToFavoriteIfNeeded';
 
 export interface FinalizeOnboardingParams {
   walletId: string;
@@ -33,7 +33,7 @@ export async function finalizeOnboarding({
   const addedAccounts = allAccounts.primary[walletId];
 
   if (addedAccounts) {
-    await addXPChainToFavoriteIfNeeded(addedAccounts);
+    await addChainsToFavoriteIfNeeded(addedAccounts);
   }
 
   const account = addedAccounts?.[0];

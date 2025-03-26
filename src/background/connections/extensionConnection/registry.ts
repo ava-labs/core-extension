@@ -75,7 +75,7 @@ import { GetFeatureFlagsHandler } from '@src/background/services/featureFlags/ha
 import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/events/featureFlagsUpdatedEvent';
 import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
 import { LedgerCloseTransportEvent } from '@src/background/services/ledger/events/ledgerCloseTransport';
-import { GetAvaxBalanceHandler } from '@src/background/services/balances/handlers/getAvaxBalance';
+import { GetNativeBalanceHandler } from '@src/background/services/balances/handlers/getNativeBalance';
 import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
@@ -134,6 +134,7 @@ import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/h
 import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallenge';
 import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
 import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
+import { AppendSolanaPublicKeysHandler } from '@src/background/services/secrets/handlers/appendSolanaPublicKeys';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -249,7 +250,7 @@ import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/h
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
   { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetAvaxBalanceHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetNativeBalanceHandler },
   {
     token: 'ExtensionRequestHandler',
     useToken: GetLedgerVersionWarningHandler,
@@ -399,6 +400,10 @@ import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/h
   {
     token: 'ExtensionRequestHandler',
     useToken: SetDefaultStateValuesHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: AppendSolanaPublicKeysHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}
