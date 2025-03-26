@@ -20,10 +20,10 @@ import {
   SecretType,
 } from '../../secrets/models';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
+import { addChainsToFavoriteIfNeeded } from '../utils/addChainsToFavoriteIfNeeded';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
-jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
+jest.mock('../utils/addChainsToFavoriteIfNeeded');
 
 const WALLET_ID = 'wallet-id';
 
@@ -118,6 +118,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
         password: 'password',
         walletName: 'wallet-name',
         analyticsConsent: false,
+        numberOfAccountsToCreate: 1,
       },
     ]);
 
@@ -248,6 +249,6 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       analyticsServiceMock.saveTemporaryAnalyticsIds,
     ).not.toHaveBeenCalled();
 
-    expect(addXPChainToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
+    expect(addChainsToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });

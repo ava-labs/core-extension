@@ -21,10 +21,12 @@ import { DerivationPathDropdown } from '@src/pages/Onboarding/components/Derivat
 import { DerivedAddresses } from '@src/pages/Onboarding/components/DerivedAddresses';
 import { SecretType } from '@src/background/services/secrets/models';
 import { useImportLedger } from '@src/pages/Accounts/hooks/useImportLedger';
+import { getAvalancheAddressLink } from '@src/utils/getExplorerAddress';
 
 export interface AddressType {
   address: string;
   balance: string;
+  explorerLink: string;
 }
 
 export enum LedgerStatus {
@@ -106,7 +108,11 @@ export function LedgerConnector({
 
       const newAddresses = [
         ...addressList,
-        { address, balance: balance.balanceDisplayValue || '0' },
+        {
+          address,
+          balance: balance.balanceDisplayValue || '0',
+          explorerLink: getAvalancheAddressLink(address),
+        },
       ];
       setAddresses(newAddresses);
       lastAccountIndexWithBalance.current = Math.max(
@@ -221,7 +227,11 @@ export function LedgerConnector({
         const { balance } = await getAvaxBalance(address);
         const newAddresses = [
           ...addressList,
-          { address, balance: balance.balanceDisplayValue || '0' },
+          {
+            address,
+            balance: balance.balanceDisplayValue || '0',
+            explorerLink: getAvalancheAddressLink(address),
+          },
         ];
         setAddresses(newAddresses);
         lastAccountIndexWithBalance.current = Math.max(
@@ -392,7 +402,7 @@ export function LedgerConnector({
               }}
             >
               <Divider flexItem />
-              <DerivedAddresses addresses={addresses} />
+              <DerivedAddresses addresses={addresses} balanceSymbol="AVAX" />
             </Stack>
           )}
       </Stack>
