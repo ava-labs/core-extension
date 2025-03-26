@@ -41,7 +41,6 @@ import {
   checkForErrorsInBuildTxResult,
   checkForErrorsInGetRateResult,
   ensureAllowance,
-  getParaswapSpender,
   getPartnerFeeParams,
   hasEnoughAllowance,
   swapError,
@@ -70,6 +69,7 @@ import {
   constructBuildTx,
   OptimalRate,
   SwapSide,
+  constructGetSpender,
 } from '@paraswap/sdk';
 import { NATIVE_TOKEN_ADDRESS } from './constants';
 
@@ -126,6 +126,7 @@ export function SwapContextProvider({ children }: { children: any }) {
           constructGetRate,
           constructGetBalances,
           constructBuildTx,
+          constructGetSpender,
         )
       : null;
   }, [activeNetwork?.chainId]);
@@ -405,10 +406,7 @@ export function SwapContextProvider({ children }: { children: any }) {
           srcToken === nativeToken ? NATIVE_TOKEN_ADDRESS : srcToken,
         destTokenAddress:
           destToken === nativeToken ? NATIVE_TOKEN_ADDRESS : destToken,
-        spender: await getParaswapSpender(
-          paraswap.apiURL,
-          activeNetwork.chainId,
-        ),
+        spender: await paraswap.getSpender(),
         sourceAmount,
         destinationAmount,
       };

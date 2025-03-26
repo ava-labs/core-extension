@@ -8,10 +8,9 @@ import type { BuildTxInputBase } from '@paraswap/sdk/dist/methods/swap/transacti
 
 import {
   CommonError,
-  WrappedError,
   isUserRejectionError,
   isWrappedError,
-  wrapError,
+  WrappedError,
 } from '@src/utils/errors';
 import { resolve } from '@src/utils/promiseResolver';
 import { RequestHandlerType } from '@src/background/connections/models';
@@ -28,7 +27,7 @@ import {
   PARASWAP_PARTNER_ADDRESS,
   PARASWAP_PARTNER_FEE_BPS,
 } from './constants';
-import { FetcherError } from '@paraswap/sdk';
+import { FetcherError, TransactionParams } from '@paraswap/sdk';
 
 export function validateParams(
   params: Partial<SwapParams>,
@@ -342,45 +341,20 @@ export function checkForErrorsInGetRateResult(
 }
 
 export function checkForErrorsInBuildTxResult(
-  result: Transaction | WrappedError,
+  result: TransactionParams | WrappedError,
 ) {
   return (
-    (result as APIError).message === 'Server too busy' ||
+    (isWrappedError(result) &&
+      typeof result.data.originalError === 'object' &&
+      result.data.originalError &&
+      'message' in result.data.originalError &&
+      result.data.originalError.message === 'Server too busy') ||
     // paraswap returns responses like this: {error: 'Not enough 0x4f60a160d8c2dddaafe16fcc57566db84d674…}
     // when they are too slow to detect the approval
     (result as any).error ||
     result instanceof Error
   );
 }
-
-export const getParaswapSpender = async (
-  paraswapApiUrl: string,
-  chainId: number,
-) => {
-  const response = await fetch(
-    `${paraswapApiUrl}/adapters/contracts?network=${chainId}`,
-  ).catch(wrapError(swapError(CommonError.NetworkError)));
-
-  const result = await response
-    .json()
-    .catch(
-      wrapError(
-        swapError(
-          SwapErrorCode.UnexpectedApiResponse,
-          new Error('Failed to /adapters/contracts response'),
-        ),
-      ),
-    );
-
-  if (!result.TokenTransferProxy) {
-    throw swapError(
-      SwapErrorCode.UnknownSpender,
-      new Error('Missing TokenTransferProxy address'),
-    );
-  }
-
-  return result.TokenTransferProxy;
-};
 
 /**
  * Responsible for adding the needed parameters to a swap transaction
