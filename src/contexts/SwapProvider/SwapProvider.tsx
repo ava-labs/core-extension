@@ -42,6 +42,7 @@ import {
   checkForErrorsInGetRateResult,
   ensureAllowance,
   getParaswapSpender,
+  getPartnerFeeParams,
   hasEnoughAllowance,
   swapError,
   validateParams,
@@ -234,6 +235,7 @@ export function SwapContextProvider({ children }: { children: any }) {
               priceRoute,
               userAddress,
               partner: 'Avalanche',
+              ...getPartnerFeeParams(isFlagEnabled(FeatureGates.SWAP_FEES)),
             },
             {
               ignoreChecks,
