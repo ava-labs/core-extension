@@ -98,6 +98,12 @@ export class BackgroundRuntime {
   }
 
   async #createOffScreen() {
+    try {
+      await chrome.offscreen.closeDocument();
+    } catch {
+      // nothing to close
+    }
+
     await chrome.offscreen.createDocument({
       url: 'offscreen.html',
       reasons: ['WORKERS'],
