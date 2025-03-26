@@ -7,6 +7,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import { Action } from '../../actions/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -59,6 +60,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       {
         ...request,
         displayData: {
+          addressVM: NetworkVMType.EVM,
           domainName: request.site?.name,
           domainUrl: request.site?.domain,
           domainIcon: request.site?.icon,
@@ -88,23 +90,25 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       return;
     }
 
+    const activeAccount = this.accountsService.activeAccount;
     // The site was already approved
     // We usually get here when an already approved site attempts to connect and the extension was locked
     if (
-      this.accountsService.activeAccount?.id === result &&
+      activeAccount &&
+      activeAccount.id === result &&
       (await this.permissionsService.hasDomainPermissionForAccount(
         pendingAction.site.domain,
-        selectedAccount.addressC,
+        activeAccount,
       ))
     ) {
       onSuccess([selectedAccount.addressC]);
       return;
     }
 
-    await this.permissionsService.setAccountPermissionForDomain(
+    await this.permissionsService.grantPermission(
       pendingAction.site.domain,
       selectedAccount.addressC,
-      true,
+      NetworkVMType.EVM,
     );
 
     await this.accountsService.activateAccount(result);

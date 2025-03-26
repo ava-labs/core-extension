@@ -39,7 +39,7 @@ import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { hasPublicKeyFor } from './utils';
 import { AddressPublicKey } from './AddressPublicKey';
 import { AddressResolver } from './AddressResolver';
-import { mapVMAddresses } from '../accounts/utils/mapVMAddresses';
+import { mapVMAddresses } from '@src/utils/address';
 import { assertPresent } from '@src/utils/assertions';
 import { LedgerError } from '@src/utils/errors';
 

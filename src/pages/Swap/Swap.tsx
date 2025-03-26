@@ -79,6 +79,14 @@ export function Swap() {
     forceShowTokensWithoutBalances: true,
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
+  const allSwappableTokens = useMemo(
+    () =>
+      allTokensOnNetwork.filter(
+        (token) =>
+          token.type === TokenType.ERC20 || token.type === TokenType.NATIVE,
+      ),
+    [allTokensOnNetwork],
+  );
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -394,7 +402,7 @@ export function Swap() {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
               setIsFromTokenSelectOpen(false);
             }}
-            tokensList={allTokensOnNetwork}
+            tokensList={allSwappableTokens}
             isOpen={isToTokenSelectOpen}
             selectedToken={selectedToToken}
             inputAmount={toAmount}

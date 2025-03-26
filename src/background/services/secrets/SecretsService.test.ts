@@ -27,7 +27,7 @@ import * as utils from './utils';
 import { expectToThrowErrorCode } from '@src/tests/test-utils';
 import { LedgerError } from '@src/utils/errors';
 import { AddressResolver } from './AddressResolver';
-import { mapVMAddresses } from '../accounts/utils/mapVMAddresses';
+import { mapVMAddresses } from '@src/utils/address';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 jest.mock('../storage/StorageService');

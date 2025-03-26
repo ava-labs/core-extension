@@ -9,6 +9,7 @@ import { WalletRequestPermissionsHandler } from './wallet_requestPermissions';
 import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 jest.mock('@src/background/runtime/openApprovalWindow');
 jest.mock('../utils/getPermissionsConvertedToMetaMaskStructure');
@@ -84,8 +85,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
     };
 
     const permissionServiceMock = {
-      addPermission: jest.fn(),
-      getPermissions: jest.fn(),
+      grantPermission: jest.fn(),
     };
 
     const mockAction: Action = {
@@ -124,7 +124,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
         onErrorMock,
       );
 
-      expect(permissionServiceMock.addPermission).not.toHaveBeenCalled();
+      expect(permissionServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(onSuccessMock).not.toHaveBeenCalled();
 
       expect(onErrorMock).toHaveBeenCalledTimes(1);
@@ -150,7 +150,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       expect(onErrorMock).toHaveBeenCalledWith(
         ethErrors.rpc.internal('Domain not set'),
       );
-      expect(permissionServiceMock.addPermission).not.toHaveBeenCalled();
+      expect(permissionServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();
       expect(onSuccessMock).not.toHaveBeenCalled();
     });
@@ -160,8 +160,8 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
         'example.com': {
           domain: 'example.com',
           accounts: {
-            '123': true,
-            '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': true,
+            '123': NetworkVMType.EVM,
+            '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': NetworkVMType.EVM,
           },
         },
       };
@@ -172,7 +172,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
         metamaskStructure,
       );
 
-      permissionServiceMock.getPermissions.mockReturnValue(mockPermissions);
+      permissionServiceMock.grantPermission.mockReturnValue(mockPermissions);
 
       const handler = new WalletRequestPermissionsHandler(
         permissionServiceMock as any,
@@ -190,14 +190,12 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       );
 
       expect(onErrorMock).not.toHaveBeenCalled();
-      expect(permissionServiceMock.addPermission).toHaveBeenCalledTimes(1);
-      expect(permissionServiceMock.addPermission).toHaveBeenCalledWith({
-        domain: 'example.com',
-        accounts: { '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': true },
-      });
-      expect(permissionServiceMock.getPermissions).toHaveBeenCalledTimes(1);
-      const currentPermissions = await permissionServiceMock.getPermissions();
-      expect(currentPermissions).toBe(mockPermissions);
+      expect(permissionServiceMock.grantPermission).toHaveBeenCalledTimes(1);
+      expect(permissionServiceMock.grantPermission).toHaveBeenCalledWith(
+        'example.com',
+        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        NetworkVMType.EVM,
+      );
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledTimes(1);
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith('uuid');
       expect(onSuccessMock).toHaveBeenCalledTimes(1);

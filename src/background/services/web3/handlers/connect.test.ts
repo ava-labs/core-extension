@@ -8,6 +8,7 @@ import { PermissionsService } from '../../permissions/PermissionsService';
 import { ConnectRequestHandler } from './connect';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 jest.mock('@src/background/runtime/openApprovalWindow');
 
@@ -120,7 +121,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
     };
 
     const permissionServiceMock = {
-      setAccountPermissionForDomain: jest.fn(),
+      grantPermission: jest.fn(),
       hasDomainPermissionForAccount: jest.fn(),
     };
 
@@ -160,9 +161,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
         onErrorMock,
       );
 
-      expect(
-        permissionServiceMock.setAccountPermissionForDomain,
-      ).not.toHaveBeenCalled();
+      expect(permissionServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(onSuccessMock).not.toHaveBeenCalled();
 
       expect(onErrorMock).toHaveBeenCalledTimes(1);
@@ -188,9 +187,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       expect(onErrorMock).toHaveBeenCalledWith(
         ethErrors.rpc.internal('Domain not set'),
       );
-      expect(
-        permissionServiceMock.setAccountPermissionForDomain,
-      ).not.toHaveBeenCalled();
+      expect(permissionServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();
       expect(onSuccessMock).not.toHaveBeenCalled();
     });
@@ -229,11 +226,11 @@ describe('background/services/web3/handlers/connect.ts', () => {
         permissionServiceMock.hasDomainPermissionForAccount,
       ).toHaveBeenCalledWith(
         'example.com',
-        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        expect.objectContaining({
+          addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        }),
       );
-      expect(
-        permissionServiceMock.setAccountPermissionForDomain,
-      ).not.toHaveBeenCalled();
+      expect(permissionServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();
       expect(onSuccessMock).toHaveBeenCalledTimes(1);
       expect(onSuccessMock).toHaveBeenCalledWith([
@@ -258,15 +255,11 @@ describe('background/services/web3/handlers/connect.ts', () => {
       );
 
       expect(onErrorMock).not.toHaveBeenCalled();
-      expect(
-        permissionServiceMock.setAccountPermissionForDomain,
-      ).toHaveBeenCalledTimes(1);
-      expect(
-        permissionServiceMock.setAccountPermissionForDomain,
-      ).toHaveBeenCalledWith(
+      expect(permissionServiceMock.grantPermission).toHaveBeenCalledTimes(1);
+      expect(permissionServiceMock.grantPermission).toHaveBeenCalledWith(
         'example.com',
         '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        true,
+        NetworkVMType.EVM,
       );
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledTimes(1);
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith('uuid');
@@ -299,15 +292,11 @@ describe('background/services/web3/handlers/connect.ts', () => {
       );
 
       expect(onErrorMock).not.toHaveBeenCalled();
-      expect(
-        permissionServiceMock.setAccountPermissionForDomain,
-      ).toHaveBeenCalledTimes(1);
-      expect(
-        permissionServiceMock.setAccountPermissionForDomain,
-      ).toHaveBeenCalledWith(
+      expect(permissionServiceMock.grantPermission).toHaveBeenCalledTimes(1);
+      expect(permissionServiceMock.grantPermission).toHaveBeenCalledWith(
         'example.com',
         '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        true,
+        NetworkVMType.EVM,
       );
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledTimes(1);
       expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith('0x2');
