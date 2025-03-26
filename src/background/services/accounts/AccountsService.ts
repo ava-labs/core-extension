@@ -13,6 +13,7 @@ import {
   IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP,
   PrimaryAccount,
   WalletId,
+  AccountWithOptionalAddresses,
 } from './models';
 import { OnLock, OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { NetworkService } from '../network/NetworkService';
@@ -26,6 +27,10 @@ import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 import { SecretsService } from '../secrets/SecretsService';
 import { LedgerService } from '../ledger/LedgerService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import { AddressResolver } from '../secrets/AddressResolver';
+import { assertPresent, assertPropDefined } from '@src/utils/assertions';
+import { AccountError, SecretsError } from '@src/utils/errors';
+import { mapVMAddresses } from './utils/mapVMAddresses';
 
 type AddAccountParams = {
   walletId: string;
@@ -90,6 +95,7 @@ export class AccountsService implements OnLock, OnUnlock {
     private secretsService: SecretsService,
     private ledgerService: LedgerService,
     private walletConnectService: WalletConnectService,
+    private addressResolver: AddressResolver,
   ) {}
 
   async onUnlock(): Promise<void> {
@@ -199,32 +205,38 @@ export class AccountsService implements OnLock, OnUnlock {
     };
   };
 
-  async getAddressesForAccount(account: Account): Promise<DerivedAddresses> {
-    if (account.type !== AccountType.PRIMARY) {
-      return this.secretsService.getImportedAddresses(
-        account.id,
-        this.networkService,
-      );
-    }
+  async getAddressesForAccount(
+    account: AccountWithOptionalAddresses,
+  ): Promise<DerivedAddresses> {
+    if (isPrimaryAccount(account)) {
+      const secrets =
+        await this.secretsService.getPrimaryAccountSecrets(account);
 
-    const addresses = await this.secretsService.getAddresses(
-      account.index,
-      account.walletId,
-      this.networkService,
+      assertPresent(secrets, SecretsError.SecretsNotFound);
+
+      const addresses = await this.addressResolver.getAddressesForSecretId(
+        account.walletId,
+        account.index,
+        secrets.derivationPathSpec,
+      );
+
+      assertPresent(
+        addresses[NetworkVMType.EVM],
+        AccountError.EVMAddressNotFound,
+      );
+
+      return mapVMAddresses(addresses);
+    }
+    const addresses = await this.addressResolver.getAddressesForSecretId(
+      account.id,
     );
 
-    if (!addresses[NetworkVMType.EVM]) {
-      throw new Error('The account has no EVM address');
-    }
+    assertPresent(
+      addresses[NetworkVMType.EVM],
+      AccountError.EVMAddressNotFound,
+    );
 
-    return {
-      addressC: addresses[NetworkVMType.EVM],
-      addressBTC: addresses[NetworkVMType.BITCOIN],
-      addressAVM: addresses[NetworkVMType.AVM],
-      addressPVM: addresses[NetworkVMType.PVM],
-      addressCoreEth: addresses[NetworkVMType.CoreEth],
-      addressHVM: addresses[NetworkVMType.HVM],
-    };
+    return mapVMAddresses(addresses);
   }
 
   async refreshAddressesForAccount(accountId: string): Promise<void> {
@@ -341,25 +353,26 @@ export class AccountsService implements OnLock, OnUnlock {
     const lastAccount = selectedWalletAccounts.at(-1);
 
     const nextIndex = lastAccount ? lastAccount.index + 1 : 0;
+    const id = crypto.randomUUID();
     const newAccount = {
+      id,
       index: nextIndex,
       name: `Account ${nextIndex + 1}`,
       type: AccountType.PRIMARY as const,
       walletId: walletId,
     };
 
-    const addresses = await this.secretsService.addAddress({
+    await this.secretsService.addAddress({
       index: nextIndex,
       walletId,
-      networkService: this.networkService,
       ledgerService: this.ledgerService,
+      addressResolver: this.addressResolver,
     });
 
-    if (!addresses[NetworkVMType.EVM] || !addresses[NetworkVMType.BITCOIN]) {
-      throw new Error('The account has no EVM or BTC address');
-    }
+    const addresses = await this.getAddressesForAccount(newAccount);
 
-    const id = crypto.randomUUID();
+    assertPropDefined(addresses, 'addressC', AccountError.EVMAddressNotFound);
+    assertPropDefined(addresses, 'addressBTC', AccountError.BTCAddressNotFound);
 
     this.accounts = {
       ...this.accounts,
@@ -369,20 +382,12 @@ export class AccountsService implements OnLock, OnUnlock {
           ...selectedWalletAccounts,
           {
             ...newAccount,
-            id,
-            addressC: addresses[NetworkVMType.EVM],
-            addressBTC: addresses[NetworkVMType.BITCOIN],
-            addressAVM: addresses[NetworkVMType.AVM],
-            addressPVM: addresses[NetworkVMType.PVM],
-            addressCoreEth: addresses[NetworkVMType.CoreEth],
-            addressHVM: addresses[NetworkVMType.HVM],
+            ...addresses,
           },
         ],
       },
     };
-    await this.permissionsService.addWhitelistDomains(
-      addresses[NetworkVMType.EVM],
-    );
+    await this.permissionsService.addWhitelistDomains(addresses.addressC);
 
     this.analyticsServicePosthog.captureEncryptedEvent({
       name: 'addedNewPrimaryAccount',
@@ -402,8 +407,10 @@ export class AccountsService implements OnLock, OnUnlock {
     try {
       const { account, commit } = await this.secretsService.addImportedWallet(
         options,
-        this.networkService,
+        this.addressResolver,
       );
+
+      assertPropDefined(account, 'addressC', AccountError.EVMAddressNotFound);
 
       const existingAccount = this.#findAccountByAddress(account.addressC);
 
