@@ -64,5 +64,12 @@ export function getExplorerAddressByNetwork(
   hash: string,
   hashType: 'address' | 'tx' = 'tx',
 ) {
-  return `${network.explorerUrl}/${hashType}/${hash}`;
+  try {
+    // Try to respect any query params set on {network.explorerUrl}
+    const baseUrl = new URL(network.explorerUrl);
+    baseUrl.pathname = `/${hashType}/${hash}`;
+    return baseUrl.toString();
+  } catch {
+    return `${network.explorerUrl}/${hashType}/${hash}`;
+  }
 }

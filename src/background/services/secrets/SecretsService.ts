@@ -692,6 +692,7 @@ export class SecretsService implements OnUnlock {
     const derivationPathEVM = derivationPaths[NetworkVMType.EVM];
     const derivationPathAVM = derivationPaths[NetworkVMType.AVM];
     const derivationPathHVM = derivationPaths[NetworkVMType.HVM];
+    const derivationPathSVM = derivationPaths[NetworkVMType.SVM];
 
     const hasEVMPublicKey = hasPublicKeyFor(
       secrets,
@@ -824,6 +825,14 @@ export class SecretsService implements OnUnlock {
           derivationPathHVM,
         );
         newPublicKeys.push(publicKeyHVM.toJSON());
+      }
+      if (!hasPublicKeyFor(secrets, derivationPathSVM, 'ed25519')) {
+        const publicKeySVM = await AddressPublicKey.fromSeedphrase(
+          secrets.mnemonic,
+          'ed25519',
+          derivationPathSVM,
+        );
+        newPublicKeys.push(publicKeySVM.toJSON());
       }
     } else if (secrets.secretType === SecretType.Keystone) {
       // For Keystone, we can only derive EVM/Bitcoin public key.

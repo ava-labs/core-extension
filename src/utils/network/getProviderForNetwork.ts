@@ -25,7 +25,9 @@ export const getProviderForNetwork = async (
   if (network.vmName === NetworkVMType.SVM) {
     return getSolanaProvider({
       isTestnet: Boolean(network.isTestnet),
-      rpcUrl: `${process.env.PROXY_URL}/proxy/nownodes/sol`,
+      rpcUrl: network.isTestnet
+        ? 'https://api.devnet.solana.com' // NowNodes does not support Solana Devnet
+        : `${process.env.PROXY_URL}/proxy/nownodes/sol`,
     });
   }
 
