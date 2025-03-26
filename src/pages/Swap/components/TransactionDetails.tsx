@@ -9,7 +9,11 @@ import {
   ChevronUpIcon,
   TextField,
   Grow,
+  Tooltip,
+  InfoCircleIcon,
 } from '@avalabs/core-k2-components';
+import { PARASWAP_PARTNER_FEE_BPS } from '@src/contexts/SwapProvider/constants';
+import { formatBasisPointsToPercentage } from '../utils';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
@@ -150,6 +154,36 @@ export function TransactionDetails({
               />
             </Stack>
           </Stack>
+          <DetailsRow
+            sx={{
+              mt: 2,
+              justifyContent: 'start',
+            }}
+          >
+            <Typography variant="caption" color="text.secondary">
+              {t('Quote includes an {{formattedFeePercent}} Core fee', {
+                formattedFeePercent: formatBasisPointsToPercentage(
+                  PARASWAP_PARTNER_FEE_BPS,
+                ),
+              })}
+            </Typography>
+            <Tooltip
+              sx={{
+                px: 1,
+              }}
+              isInfo
+              title={t(
+                'Core always finds the best price from the top liquidity providers. A fee of {{formattedFeePercent}} is automatically factored into this quote.',
+                {
+                  formattedFeePercent: formatBasisPointsToPercentage(
+                    PARASWAP_PARTNER_FEE_BPS,
+                  ),
+                },
+              )}
+            >
+              <InfoCircleIcon sx={{ color: 'text.secondary' }} />
+            </Tooltip>
+          </DetailsRow>
         </DetailsContainer>
       </Grow>
     </Container>
