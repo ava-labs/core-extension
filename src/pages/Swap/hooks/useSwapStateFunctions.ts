@@ -143,8 +143,8 @@ export function useSwapStateFunctions() {
       setDestinationInputField('');
 
       if (clearTokens) {
-        setSelectedFromToken(undefined);
-        setSelectedToToken(undefined);
+        setSelectedFromToken($NATIVE);
+        setSelectedToToken(USDC);
       }
 
       setValuesDebouncedSubject.next({
@@ -153,7 +153,7 @@ export function useSwapStateFunctions() {
         destinationInputField: undefined,
       });
     },
-    [setValuesDebouncedSubject],
+    [setValuesDebouncedSubject, $NATIVE, USDC],
   );
 
   const calculateSwapValue = ({

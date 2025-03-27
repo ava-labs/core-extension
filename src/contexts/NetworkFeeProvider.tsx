@@ -17,7 +17,7 @@ import { chainIdToCaip } from '@src/utils/caipConversion';
 import { useNetworkContext } from './NetworkProvider';
 import { FundTxHandler } from '@src/background/services/gasless/handlers/fundTx';
 import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/handlers/getGaslessEligibility';
-import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallange';
+import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallenge';
 import { filter, map } from 'rxjs';
 import { gaslessChallangeUpdateEventListener } from '@src/background/services/gasless/events/gaslessChallangeUpdateListener';
 import { AddressLike } from 'ethers';

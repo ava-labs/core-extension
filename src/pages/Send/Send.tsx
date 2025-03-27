@@ -143,7 +143,8 @@ export function SendPage() {
     return <FunctionIsOffline functionName={FunctionNames.SEND} />;
   }
 
-  const isNetworkFeeReady = !!networkFee?.low?.maxFeePerGas;
+  const isNetworkFeeReady =
+    typeof networkFee?.low?.maxFeePerGas !== 'undefined';
   const isProviderReady = doesProviderMatchTheNetwork(network, provider);
 
   const isLoading =

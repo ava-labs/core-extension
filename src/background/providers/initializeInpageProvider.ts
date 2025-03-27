@@ -71,13 +71,20 @@ export function initializeProvider(
   announceWalletProvider(evmProvider, globalObject);
   announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
 
-  initializeSolanaProvider(
-    new SolanaWalletProvider(chainAgnosticProvider, {
-      icon: EVM_PROVIDER_INFO_ICON,
-      name: EVM_PROVIDER_INFO_NAME,
-      version: CORE_EXTENSION_VERSION,
-    }),
-  );
+  // TODO: remove prior to actual release and also uncomment the test
+  try {
+    if (localStorage.getItem('__core__solana__enabled') === 'true') {
+      initializeSolanaProvider(
+        new SolanaWalletProvider(chainAgnosticProvider, {
+          icon: EVM_PROVIDER_INFO_ICON,
+          name: EVM_PROVIDER_INFO_NAME,
+          version: CORE_EXTENSION_VERSION,
+        }),
+      );
+    }
+  } catch {
+    // Do nothing
+  }
 
   return evmProvider;
 }
