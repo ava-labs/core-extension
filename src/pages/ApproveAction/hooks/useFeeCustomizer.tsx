@@ -88,9 +88,7 @@ export function useFeeCustomizer({
   const [isBatchApprovalScreen, setIsBatchApprovalScreen] = useState(false);
   const isFeeSelectorEnabled = Boolean(action?.displayData.networkFeeSelector);
 
-  const tokens = useTokensWithBalances({
-    chainId: network?.chainId,
-  });
+  const tokens = useTokensWithBalances({ network });
 
   const nativeToken = useMemo(
     () => tokens.find(({ type }) => type === TokenType.NATIVE) ?? null,

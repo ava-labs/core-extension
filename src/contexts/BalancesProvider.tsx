@@ -31,9 +31,10 @@ import { getSmallImageForNFT } from '@src/background/services/balances/nft/utils
 import { TokensPriceShortData } from '@src/background/services/tokens/models';
 import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
-import { Network } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { getDefaultChainIds } from '@src/utils/getDefaultChainIds';
+import { isNotNullish } from '@src/utils/typeUtils';
 
 export const IPFS_URL = 'https://ipfs.io';
 
@@ -157,7 +158,7 @@ function balancesReducer(
 
 export function BalancesProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-  const { network, favoriteNetworks } = useNetworkContext();
+  const { network, favoriteNetworks, getNetwork } = useNetworkContext();
   const {
     accounts: { active: activeAccount },
     getAccount,
@@ -300,14 +301,17 @@ export function BalancesProvider({ children }: { children: any }) {
 
   const getTotalBalance = useCallback(
     (addressC: string) => {
+      const chainIds = [
+        network?.chainId,
+        ...getDefaultChainIds(!network?.isTestnet),
+        ...favoriteNetworks.map(({ chainId }) => chainId),
+      ].filter(isNotNullish);
+      const networks = chainIds.map(getNetwork).filter(isNotNullish);
+
       if (balances.tokens && network?.chainId) {
         return calculateTotalBalance(
           getAccount(addressC),
-          [
-            network.chainId,
-            ...getDefaultChainIds(!network?.isTestnet),
-            ...favoriteNetworks.map(({ chainId }) => chainId),
-          ],
+          networks,
           balances.tokens,
         );
       }
@@ -317,6 +321,7 @@ export function BalancesProvider({ children }: { children: any }) {
     [
       getAccount,
       favoriteNetworks,
+      getNetwork,
       network?.chainId,
       network?.isTestnet,
       balances.tokens,
@@ -324,30 +329,27 @@ export function BalancesProvider({ children }: { children: any }) {
   );
 
   const getTokenPrice = useCallback(
-    (addressOrSymbol: string, lookupNetwork?: Network) => {
+    (addressOrSymbol: string, lookupNetwork?: NetworkWithCaipId) => {
       if (!activeAccount) {
         return;
       }
 
-      const chainId = (lookupNetwork ?? network)?.chainId;
-      const caip2Id = (lookupNetwork ?? network)?.caipId;
+      const tokenNetwork = lookupNetwork ?? network;
 
-      if (!chainId) {
+      if (!tokenNetwork) {
         return;
       }
 
-      const addressForChain = getAddressForChain(
-        chainId,
-        activeAccount,
-        caip2Id,
-      );
+      const addressForChain = getAddressForChain(tokenNetwork, activeAccount);
 
       if (!addressForChain) {
         return;
       }
 
       const token =
-        balances.tokens?.[chainId]?.[addressForChain]?.[addressOrSymbol];
+        balances.tokens?.[tokenNetwork.chainId]?.[addressForChain]?.[
+          addressOrSymbol
+        ];
 
       return token?.priceInCurrency;
     },

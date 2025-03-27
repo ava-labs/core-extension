@@ -12001,7 +12001,7 @@ __metadata:
     i18next: "npm:21.9.2"
     i18next-http-backend: "npm:1.4.4"
     i18next-scanner: "npm:4.1.1"
-    i18next-scanner-typescript: "npm:1.1.1"
+    i18next-scanner-typescript: "npm:1.2.1"
     identity-obj-proxy: "npm:3.0.0"
     jest: "npm:29.7.0"
     jest-environment-jsdom: "npm:29.3.1"
@@ -19361,12 +19361,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next-scanner-typescript@npm:1.1.1":
-  version: 1.1.1
-  resolution: "i18next-scanner-typescript@npm:1.1.1"
-  dependencies:
-    typescript: "npm:^3.0.0"
-  checksum: 10c0/cc9e07f2a4270c8e8e40971735572d432d97d78dd6bf3ec72da87d2ae23893bd39e25b330d8b37b1eea5972810cdc10d0725946cfea33c287383d640259d5f34
+"i18next-scanner-typescript@npm:1.2.1":
+  version: 1.2.1
+  resolution: "i18next-scanner-typescript@npm:1.2.1"
+  peerDependencies:
+    typescript: 5.x
+  checksum: 10c0/6e94e0fdb9f18250a1f0b1b6b42dc527ea726d431411cafbd01f7b96c0ee37f42a888d1f4d9fb7e9354d0937e7cb1327e75dbc2de4afdfa9e1930b163b9dc1b4
   languageName: node
   linkType: hard
 
@@ -30504,16 +30504,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^3.0.0":
-  version: 3.9.10
-  resolution: "typescript@npm:3.9.10"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/863cc06070fa18a0f9c6a83265fb4922a8b51bf6f2c6760fb0b73865305ce617ea4bc6477381f9f4b7c3a8cb4a455b054f5469e6e41307733fe6a2bd9aae82f8
-  languageName: node
-  linkType: hard
-
 "typescript@npm:^4.6.4 || ^5.0.0":
   version: 5.0.2
   resolution: "typescript@npm:5.0.2"
@@ -30531,16 +30521,6 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/062c1cee1990e6b9419ce8a55162b8dc917eb87f807e4de0327dbc1c2fa4e5f61bc0dd4e034d38ff541d1ed0479b53bcee8e4de3a4075c51a1724eb6216cb6f5
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A^3.0.0#optional!builtin<compat/typescript>":
-  version: 3.9.10
-  resolution: "typescript@patch:typescript@npm%3A3.9.10#optional!builtin<compat/typescript>::version=3.9.10&hash=3bd3d3"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/9041fb3886e7d6a560f985227b8c941d17a750f2edccb5f9b3a15a2480574654d9be803ad4a14aabcc2f2553c4d272a25fd698a7c42692f03f66b009fb46883c
   languageName: node
   linkType: hard
 

@@ -4,14 +4,15 @@ import {
   TotalPriceChange,
 } from '@src/background/services/balances/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { hasAccountBalances } from './hasAccountBalances';
 
 export function calculateTotalBalance(
   account?: Partial<Account>,
-  networkIds?: number[],
+  networks?: NetworkWithCaipId[],
   balances?: Balances,
 ) {
-  if (!account || !balances || !networkIds?.length) {
+  if (!account || !balances || !networks?.length) {
     return {
       sum: null,
       priceChange: {
@@ -21,7 +22,14 @@ export function calculateTotalBalance(
     };
   }
 
-  const chainIdsToSum = new Set(networkIds);
+  const networkDict: Record<number, NetworkWithCaipId> = networks.reduce(
+    (dict, network) => ({
+      ...dict,
+      [network.chainId]: network,
+    }),
+    {},
+  );
+  const chainIdsToSum = new Set(Object.keys(networkDict).map(Number));
 
   const hasBalances = hasAccountBalances(
     balances,
@@ -45,16 +53,16 @@ export function calculateTotalBalance(
         sum: number;
         priceChange: TotalPriceChange;
       },
-      networkItem,
+      chainId,
     ) => {
-      const address = getAddressForChain(networkItem, account);
+      const address = getAddressForChain(networkDict[chainId], account);
 
       if (!address) {
         return total;
       }
 
       const sumValues = Object.values(
-        balances?.[networkItem]?.[address] ?? {},
+        balances?.[chainId]?.[address] ?? {},
       )?.reduce(
         (
           sumTotal: {

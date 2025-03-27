@@ -1,6 +1,10 @@
 import { Network } from '@avalabs/glacier-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { TokenType, type TokenWithBalance } from '@avalabs/vm-module-types';
+import {
+  NetworkVMType,
+  TokenType,
+  type TokenWithBalance,
+} from '@avalabs/vm-module-types';
 
 import { buildRpcCall } from '@src/tests/test-utils';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
@@ -41,6 +45,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
   const networkService: jest.Mocked<NetworkService> = {
     getAvalanceProviderXP: jest.fn(),
     getFavoriteNetworks: jest.fn(),
+    getNetwork: jest.fn(),
     isMainnet: jest.fn(),
     activeNetworks: {
       promisify: jest.fn(),
@@ -64,19 +69,49 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
   const PROVIDER_XP = {} as any;
 
   const MAINNETS = {
-    [ChainId.AVALANCHE_MAINNET_ID]: {},
-    [ChainId.AVALANCHE_X]: {},
-    [ChainId.AVALANCHE_P]: {},
-    [ChainId.ETHEREUM_HOMESTEAD]: {},
-    [ChainId.BITCOIN]: {},
+    [ChainId.AVALANCHE_MAINNET_ID]: {
+      chainId: ChainId.AVALANCHE_MAINNET_ID,
+      vmName: NetworkVMType.EVM,
+    },
+    [ChainId.AVALANCHE_X]: {
+      chainId: ChainId.AVALANCHE_X,
+      vmName: NetworkVMType.AVM,
+    },
+    [ChainId.AVALANCHE_P]: {
+      chainId: ChainId.AVALANCHE_P,
+      vmName: NetworkVMType.PVM,
+    },
+    [ChainId.ETHEREUM_HOMESTEAD]: {
+      chainId: ChainId.ETHEREUM_HOMESTEAD,
+      vmName: NetworkVMType.EVM,
+    },
+    [ChainId.BITCOIN]: {
+      chainId: ChainId.BITCOIN,
+      vmName: NetworkVMType.BITCOIN,
+    },
   } as any;
 
   const TESTNETS = {
-    [ChainId.AVALANCHE_TESTNET_ID]: {},
-    [ChainId.AVALANCHE_TEST_X]: {},
-    [ChainId.AVALANCHE_TEST_P]: {},
-    [ChainId.ETHEREUM_TEST_SEPOLIA]: {},
-    [ChainId.BITCOIN_TESTNET]: {},
+    [ChainId.AVALANCHE_TESTNET_ID]: {
+      chainId: ChainId.AVALANCHE_TESTNET_ID,
+      vmName: NetworkVMType.EVM,
+    },
+    [ChainId.AVALANCHE_TEST_X]: {
+      chainId: ChainId.AVALANCHE_TEST_X,
+      vmName: NetworkVMType.AVM,
+    },
+    [ChainId.AVALANCHE_TEST_P]: {
+      chainId: ChainId.AVALANCHE_TEST_P,
+      vmName: NetworkVMType.PVM,
+    },
+    [ChainId.ETHEREUM_TEST_SEPOLIA]: {
+      chainId: ChainId.ETHEREUM_TEST_SEPOLIA,
+      vmName: NetworkVMType.EVM,
+    },
+    [ChainId.BITCOIN_TESTNET]: {
+      chainId: ChainId.BITCOIN_TESTNET,
+      vmName: NetworkVMType.BITCOIN,
+    },
   } as any;
 
   const buildHandler = () =>
@@ -255,6 +290,9 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     jest.resetAllMocks();
 
     networkService.getFavoriteNetworks.mockResolvedValue(FAVORITE_NETWORKS);
+    networkService.getNetwork.mockImplementation(
+      (chainId: number) => MAINNETS[chainId] ?? TESTNETS[chainId],
+    );
     networkService.getAvalanceProviderXP.mockResolvedValue(PROVIDER_XP);
   });
 

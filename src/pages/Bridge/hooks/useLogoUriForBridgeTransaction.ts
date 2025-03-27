@@ -13,7 +13,7 @@ import { getBridgedAssetSymbol } from '@src/utils/bridge/getBridgedAssetSymbol';
 export function useLogoUriForBridgeTransaction(
   bridgeTransaction: BridgeTransaction | BridgeTransfer | undefined,
 ): string | undefined {
-  const { network, networks } = useNetworkContext();
+  const { network, networks, getNetwork } = useNetworkContext();
 
   const isMainnet = !network?.isTestnet;
   const isUnifiedTransfer = typeof bridgeTransaction?.sourceChain === 'object';
@@ -43,7 +43,7 @@ export function useLogoUriForBridgeTransaction(
 
   const tokens = useTokensWithBalances({
     forceShowTokensWithoutBalances: true,
-    chainId,
+    network: getNetwork(chainId),
   });
 
   if (!bridgeTransaction || !targetBlockchain) {
