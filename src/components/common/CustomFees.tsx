@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { formatUnits, parseUnits } from 'ethers';
 import { useTranslation } from 'react-i18next';
 import { TokenType } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
@@ -17,12 +16,10 @@ import {
   Collapse,
   Dialog,
   DialogProps,
-  GearIcon,
   IconButton,
   Stack,
   Tooltip,
   Typography,
-  styled,
 } from '@avalabs/core-k2-components';
 import {
   ApprovalSection,
@@ -36,6 +33,7 @@ import GaslessFee from './GaslessFee';
 import { GaslessPhase } from '@src/background/services/gasless/model';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { TruncateFeeAmount } from './TruncateFeeAmount';
 
 export interface CustomGasFeesProps {
   maxFeePerGas: bigint;
@@ -110,42 +108,6 @@ const CustomGasLimitDialog = ({ sx = {}, ...props }: DialogProps) => (
     {...props}
   />
 );
-
-const CustomInput = styled('input')`
-  width: 100%;
-  background: transparent;
-  font-size: 12px;
-  font-weight: 600;
-  color: inherit;
-  line-height: 1.143;
-  text-align: center;
-  border: none;
-  font-family: ${({ theme }) => theme.typography.caption.fontFamily};
-  padding: 0 4px;
-
-  ::-webkit-outer-spin-button,
-  ::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-  }
-`;
-
-const formatGasPrice = (value: bigint, decimals: number): string => {
-  const formatted = formatUnits(value, decimals);
-  const [wholes, fraction] = formatted.split('.');
-
-  // If something has changed and it's not dot-separated, just return the formatted string.
-  if (!wholes || !fraction) {
-    return formatted;
-  }
-
-  // Otherwise, simplify
-  if (fraction === '0') {
-    return wholes;
-  }
-
-  return fraction.length > 2 ? Number(formatted).toFixed(2) : formatted;
-};
 
 export const getGasFeeToDisplay = (fee: string, networkFee: NetworkFee) => {
   if (fee === '') {
@@ -266,25 +228,6 @@ export function CustomFees({
     ],
   );
 
-  const getFeeRateForCustomGasPrice = useCallback(
-    (customFeePerGas: string, fee: NetworkFee): FeeRate => {
-      const maxFee = parseUnits(customFeePerGas, fee.displayDecimals);
-      const { baseFee: baseMaxFee } = fee;
-      // When the user manually sets a max. fee, we also use it to calculate
-      // the max. priority fee (tip) for EVM transactions.
-      // If the custom max. fee is greater than the current base fee,
-      // the max. tip will be set to the difference between the two.
-      const maxTip =
-        baseMaxFee && maxFee > baseMaxFee ? maxFee - baseMaxFee : undefined;
-
-      return {
-        maxFeePerGas: maxFee,
-        maxPriorityFeePerGas: maxTip,
-      };
-    },
-    [],
-  );
-
   const updateGasFee = useCallback(
     (modifier?: GasFeeModifier) => {
       if (!modifier || !networkFee) {
@@ -376,8 +319,6 @@ export function CustomFees({
   const isMaxFeeUsed =
     network?.vmName === NetworkVMType.EVM && !networkFee.isFixedFee;
 
-  const isCustomGasLimitSupported = network?.vmName === NetworkVMType.EVM;
-
   return (
     <ApprovalSection>
       <ApprovalSectionHeader
@@ -390,7 +331,7 @@ export function CustomFees({
             : undefined
         }
       >
-        {isCollapsible ? (
+        {isCollapsible && (
           <IconButton
             size="small"
             data-testid="customize-fee-button"
@@ -402,17 +343,6 @@ export function CustomFees({
               }}
             />
           </IconButton>
-        ) : (
-          isCustomGasLimitSupported &&
-          !isGaslessOn && (
-            <IconButton
-              size="small"
-              data-testid="edit-gas-limit-button"
-              onClick={() => setShowEditGasLimit(true)}
-            >
-              <GearIcon />
-            </IconButton>
-          )
         )}
       </ApprovalSectionHeader>
       <ApprovalSectionBody>
@@ -461,12 +391,6 @@ export function CustomFees({
                 >
                   {t('Slow')}
                 </Typography>
-                <Typography variant="caption" sx={{ fontWeight: 'semibold' }}>
-                  {formatGasPrice(
-                    networkFee.low.maxFeePerGas,
-                    networkFee.displayDecimals,
-                  )}
-                </Typography>
               </FeeButton>
               {!networkFee.isFixedFee && (
                 <>
@@ -488,15 +412,6 @@ export function CustomFees({
                     >
                       {t('Normal')}
                     </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 'semibold' }}
-                    >
-                      {formatGasPrice(
-                        networkFee.medium.maxFeePerGas,
-                        networkFee.displayDecimals,
-                      )}
-                    </Typography>
                   </FeeButton>
                   <FeeButton
                     data-testid="gas-fee-fast-button"
@@ -516,15 +431,6 @@ export function CustomFees({
                     >
                       {t('Fast')}
                     </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 'semibold' }}
-                    >
-                      {formatGasPrice(
-                        networkFee.high.maxFeePerGas,
-                        networkFee.displayDecimals,
-                      )}
-                    </Typography>
                   </FeeButton>
                   <FeeButton
                     data-testid="gas-fee-custom-button"
@@ -537,6 +443,7 @@ export function CustomFees({
                     onClick={() => {
                       handleModifierClick(GasFeeModifier.CUSTOM);
                       customInputRef?.current?.focus();
+                      setShowEditGasLimit(true);
                     }}
                     disableRipple
                   >
@@ -546,33 +453,6 @@ export function CustomFees({
                     >
                       {t('Custom')}
                     </Typography>
-                    <CustomInput
-                      ref={customInputRef}
-                      type="number"
-                      value={formatGasPrice(
-                        customFee?.maxFeePerGas ?? 0n,
-                        networkFee.displayDecimals,
-                      )}
-                      min={1}
-                      step={1}
-                      onChange={(e) => {
-                        handleGasChange(
-                          getFeeRateForCustomGasPrice(
-                            e.target.value || '0',
-                            networkFee,
-                          ),
-                          GasFeeModifier.CUSTOM,
-                        );
-                      }}
-                      onBlur={(e) => {
-                        if (e.target.value === '') {
-                          handleGasChange(
-                            networkFee.medium,
-                            GasFeeModifier.CUSTOM,
-                          );
-                        }
-                      }}
-                    />
                   </FeeButton>
                 </>
               )}
@@ -600,16 +480,21 @@ export function CustomFees({
 
               <Stack direction="row">
                 <Tooltip title={feeAmount.precise}>
-                  <Typography
-                    variant="body2"
-                    data-testid="network-fee-token-amount"
-                    sx={{
-                      fontWeight: 'fontWeightSemibold',
-                      color: hasEnoughForFee ? undefined : 'error.main',
-                    }}
-                  >
-                    {feeAmount.rounded} {network?.networkToken.symbol}
-                  </Typography>
+                  <>
+                    <TruncateFeeAmount
+                      data-testid="network-fee-token-amount"
+                      amount={feeAmount.precise}
+                    />
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 'fontWeightSemibold',
+                        color: hasEnoughForFee ? undefined : 'error.main',
+                      }}
+                    >
+                      {network?.networkToken.symbol}
+                    </Typography>
+                  </>
                 </Tooltip>
               </Stack>
             </Stack>
