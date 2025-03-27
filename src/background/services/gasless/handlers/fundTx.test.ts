@@ -1,22 +1,21 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { AppCheckService } from '../../appcheck/AppCheckService';
-import { GetGaslessEligibilityHandler } from './getGaslessEligibility';
 import { GasStationService } from '../GasStationService';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { FundTxHandler } from './fundTx';
 
-describe('src/background/services/gasless/handlers/getGaslessEligibility', () => {
-  let handler: GetGaslessEligibilityHandler;
+describe('src/background/services/gasless/handlers/fundTx', () => {
+  let handler: FundTxHandler;
   const appCheckMock = jest.mocked<AppCheckService>({
     getAppcheckToken: jest.fn().mockResolvedValue({ token: 'appCheckToken' }),
   } as any);
   const request = {
-    method: ExtensionRequest.GASLESS_GET_ELIGIBILITY,
+    method: ExtensionRequest.GASLESS_FUND_TX,
     id: '1234',
-    params: [1, 'fromAddress', 'nonce'],
+    params: ['data', 'challengeHex', 'solutionHex', 'fromAddress'],
   };
   const realEnv = process.env;
   let gasStationServiceMock;
-
   beforeEach(() => {
     process.env = {
       ...realEnv,
@@ -27,15 +26,16 @@ describe('src/background/services/gasless/handlers/getGaslessEligibility', () =>
       {} as any,
       {} as any,
     );
-    gasStationServiceMock.getEligibility = jest.fn();
-    handler = new GetGaslessEligibilityHandler(gasStationServiceMock);
+    gasStationServiceMock.fundTx = jest.fn();
+    handler = new FundTxHandler(gasStationServiceMock);
   });
-  it('should call the service `getEligibility` function with the right params', () => {
+  it('should call the service `fundTx` function with the right params', () => {
     handler.handle(buildRpcCall(request) as any);
-    expect(gasStationServiceMock.getEligibility).toHaveBeenCalledWith({
-      chainId: '1',
+    expect(gasStationServiceMock.fundTx).toHaveBeenCalledWith({
+      data: 'data',
+      challengeHex: 'challengeHex',
+      solutionHex: 'solutionHex',
       fromAddress: 'fromAddress',
-      nonce: 'nonce',
     });
   });
 });
