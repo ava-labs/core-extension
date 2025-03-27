@@ -28,6 +28,7 @@ type SendFormProps = {
   isValid: boolean;
   isValidating: boolean;
   isSending: boolean;
+  minAmount?: string;
   maxAmount: string;
   error?: SendErrorMessage;
   onAmountChanged(newAmount: string): void;
@@ -62,6 +63,7 @@ export const SendForm = ({
   isValid,
   isValidating,
   isSending,
+  minAmount,
   maxAmount,
   error,
   onAmountChanged,
@@ -148,7 +150,7 @@ export const SendForm = ({
                 error &&
                 (errorsToExcludeForTokenSelect.includes(error)
                   ? undefined
-                  : getSendErrorMessage(error))
+                  : getSendErrorMessage(error, { minAmount }))
               }
               setIsOpen={(open) => setIsTokenSelectOpen(open)}
             />
@@ -157,7 +159,7 @@ export const SendForm = ({
           {error && generalErrors.includes(error) && (
             <Stack sx={{ py: 0, px: 2, mt: 2, width: '100%' }}>
               <Typography variant="caption" color="error.main">
-                {getSendErrorMessage(error)}
+                {getSendErrorMessage(error, { minAmount })}
               </Typography>
             </Stack>
           )}
@@ -181,7 +183,7 @@ export const SendForm = ({
             title={
               error ? (
                 <Typography variant="body2">
-                  {getSendErrorMessage(error)}
+                  {getSendErrorMessage(error, { minAmount })}
                 </Typography>
               ) : (
                 ''

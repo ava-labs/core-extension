@@ -335,6 +335,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@avalabs/svm-module@npm:1.5.0":
+  version: 1.5.0
+  resolution: "@avalabs/svm-module@npm:1.5.0"
+  dependencies:
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.44"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.44"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.44"
+    "@avalabs/vm-module-types": "npm:1.5.0"
+    "@metamask/rpc-errors": "npm:6.3.0"
+    "@scure/base": "npm:1.2.4"
+    "@solana-program/system": "npm:0.7.0"
+    "@solana-program/token": "npm:0.5.1"
+    "@solana/kit": "npm:2.1.0"
+    zod: "npm:3.23.8"
+  checksum: 10c0/cbe4b96dbfe8d4b1a7ed75eda390379713ebd548697b92a1fdd76c18eb99e42dcdb71b2af6d6787bf78e4e5080a6b6f187a8b7ca80b1dc3857d05d960ff66486
+  languageName: node
+  linkType: hard
+
 "@avalabs/types@npm:3.1.0-alpha.44":
   version: 3.1.0-alpha.44
   resolution: "@avalabs/types@npm:3.1.0-alpha.44"
@@ -11848,6 +11866,7 @@ __metadata:
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.44"
     "@avalabs/hvm-module": "npm:1.5.0"
     "@avalabs/hw-app-avalanche": "npm:0.14.1"
+    "@avalabs/svm-module": "npm:1.5.0"
     "@avalabs/types": "npm:3.1.0-alpha.44"
     "@avalabs/vm-module-types": "npm:1.5.0"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"

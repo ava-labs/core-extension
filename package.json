@@ -42,6 +42,7 @@
     "@avalabs/glacier-sdk": "3.1.0-alpha.44",
     "@avalabs/hvm-module": "1.5.0",
     "@avalabs/hw-app-avalanche": "0.14.1",
+    "@avalabs/svm-module": "1.5.0",
     "@avalabs/types": "3.1.0-alpha.44",
     "@avalabs/vm-module-types": "1.5.0",
     "@blockaid/client": "0.10.0",

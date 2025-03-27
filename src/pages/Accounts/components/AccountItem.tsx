@@ -77,7 +77,9 @@ export const AccountItem = forwardRef(
         : isManageMode && isAccountSelectable(account);
     const balanceTotalUSD = useBalanceTotalInCurrency(account);
     const totalBalance = (balanceTotalUSD && balanceTotalUSD.sum) ?? null;
-    const address = network ? getAddressForChain(network.chainId, account) : '';
+    const address = network
+      ? getAddressForChain(network.chainId, account, network.caipId)
+      : '';
     const [cardHovered, setCardHovered] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
     const firstPageload = useRef(true);

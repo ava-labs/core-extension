@@ -8,6 +8,7 @@ import {
   WalletEvents,
   WalletDetails,
   SUPPORTED_PRIMARY_SECRET_TYPES,
+  isSolanaSigningRequest,
 } from './models';
 import {
   MessageParams,
@@ -25,6 +26,8 @@ import {
   getWalletFromMnemonic,
   JsonRpcBatchInternal,
   LedgerSigner,
+  SolanaProvider,
+  SolanaSigner,
 } from '@avalabs/core-wallets-sdk';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
@@ -184,6 +187,23 @@ export class WalletService implements OnUnlock {
       return;
     }
     const { secretType } = secrets;
+
+    // Solana
+    if (network.vmName === NetworkVMType.SVM) {
+      switch (secretType) {
+        case SecretType.Mnemonic:
+          return SolanaSigner.fromMnemonic(
+            secrets.mnemonic,
+            secrets.account.index,
+          );
+        case SecretType.PrivateKey:
+          return new SolanaSigner(Buffer.from(secrets.secret, 'hex'));
+        default:
+          throw new Error(
+            `Unsupported wallet type for Solana transaction: ${secretType}`,
+          );
+      }
+    }
     // HVM
     if (network.vmName === NetworkVMType.HVM) {
       if (secretType === SecretType.Mnemonic) {
@@ -530,10 +550,28 @@ export class WalletService implements OnUnlock {
     tabId?: number,
     originalRequestMethod?: string,
   ): Promise<SigningResult> {
-    const wallet = await this.getWallet({ network, tabId });
+    const wallet = await this.getWallet({
+      network,
+      tabId,
+    });
 
     if (!wallet) {
       throw new Error('Wallet not found');
+    }
+
+    if (isSolanaSigningRequest(tx)) {
+      if (!(wallet instanceof SolanaSigner)) {
+        throw new Error('Unable to find a proper signer');
+      }
+
+      const signedTx = await wallet.signTx(
+        tx.data,
+        (await getProviderForNetwork(network)) as SolanaProvider,
+      );
+
+      return {
+        signedTx,
+      };
     }
 
     // handle BTC signing
@@ -710,6 +748,7 @@ export class WalletService implements OnUnlock {
       evm: evmPub?.key,
       xp: avmPub?.key,
       ed25519: hvmPub?.key,
+      svm: secrets.account.addressSVM,
     });
   }
 
