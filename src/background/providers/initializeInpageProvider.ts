@@ -71,7 +71,7 @@ export function initializeProvider(
   announceWalletProvider(evmProvider, globalObject);
   announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
 
-  // TODO: remove prior to actual release
+  // TODO: remove prior to actual release and also uncomment the test
   try {
     if (localStorage.getItem('__core__solana__enabled') === 'true') {
       initializeSolanaProvider(
