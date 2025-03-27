@@ -60,10 +60,22 @@ export class BackgroundRuntime {
         title: '🔒 Lock wallet',
         contexts: ['action'],
       });
+      browser.contextMenus.create({
+        id: 'lock-restart-separator',
+        type: 'separator',
+        contexts: ['action'],
+      });
+      browser.contextMenus.create({
+        id: 'restart-wallet',
+        title: '🔄 Restart',
+        contexts: ['action'],
+      });
 
       browser.contextMenus.onClicked.addListener((info) => {
         if (info.menuItemId === 'lock-wallet') {
           this.lockService.lock();
+        } else if (info.menuItemId === 'restart-wallet') {
+          browser.runtime.reload();
         }
       });
     });
