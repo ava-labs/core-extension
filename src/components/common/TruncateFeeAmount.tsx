@@ -16,7 +16,7 @@ export function TruncateFeeAmount({ amount }: { amount: string }) {
   }
 
   const indexOfNonZero = fraction?.search(/[1-9]/);
-  const zeroCount = fraction.slice(1, indexOfNonZero).length;
+  const zeroCount = fraction.slice(0, indexOfNonZero).length;
   if (fraction && indexOfNonZero) {
     return (
       <>
