@@ -15,7 +15,7 @@ describe('background/providers/utils/AutoPairingPostMessageConnection', () => {
   });
 
   afterEach(() => {
-    window.location = originalLocation;
+    (window as any).location = originalLocation;
     jest.clearAllMocks();
   });
 
