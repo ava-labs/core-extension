@@ -102,7 +102,7 @@ export class ChainAgnosticProvider extends EventEmitter {
     return result;
   };
 
-  request = async ({
+  request = async <Response = unknown>({
     data,
     sessionId,
     scope,
@@ -115,7 +115,7 @@ export class ChainAgnosticProvider extends EventEmitter {
       return this.#requestRateLimiter.call(data.method, () =>
         this.#request({ data, scope, sessionId }),
       );
-    });
+    }) as Response;
   };
 
   subscribeToMessage = (callback) => {
