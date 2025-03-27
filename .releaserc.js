@@ -73,8 +73,8 @@ const releaseReplaceSetting = [
           {
             file: 'dist/js/inpage.js',
             hasChanged: true,
-            numMatches: 1,
-            numReplacements: 1,
+            numMatches: 2,
+            numReplacements: 2,
           },
         ],
         countMatches: true,
