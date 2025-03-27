@@ -153,7 +153,6 @@ export function SwapContextProvider({ children }: { children: any }) {
       srcAmount,
       swapSide,
     }: GetRateParams) => {
-      assertPresent(paraswap, SwapErrorCode.ClientNotInitialized);
       if (!activeNetwork || activeNetwork.isTestnet) {
         throw swapError(CommonError.UnknownNetwork);
       }
@@ -164,6 +163,8 @@ export function SwapContextProvider({ children }: { children: any }) {
       if (!isFlagEnabled(FeatureGates.SWAP)) {
         throw new Error(`Feature (SWAP) is currently unavailable`);
       }
+
+      assertPresent(paraswap, SwapErrorCode.ClientNotInitialized);
 
       const isFromTokenNative = activeNetwork.networkToken.symbol === srcToken;
       const isDestTokenNative = activeNetwork.networkToken.symbol === destToken;

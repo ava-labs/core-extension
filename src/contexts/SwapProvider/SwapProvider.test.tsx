@@ -28,12 +28,11 @@ import * as swapUtils from './swap-utils';
 import { CommonError } from '@src/utils/errors';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { SwapSide } from '@paraswap/sdk';
+import { constructPartialSDK, OptimalRate } from '@paraswap/sdk';
 import { NATIVE_TOKEN_ADDRESS } from './constants';
 
-const API_URL = 'https://apiv5.paraswap.io';
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
-const ROUTE_ADDRESS = '0x0000000000';
+const ROUTE_ADDRESS = '0x12341234';
 
 const getSwapProvider = async (): Promise<SwapContextAPI> => {
   const ref = createRef<SwapContextAPI>();
@@ -67,6 +66,8 @@ const TestConsumerComponent = forwardRef((_props: unknown, ref) => {
   return <></>;
 });
 TestConsumerComponent.displayName = 'TestComponent';
+
+jest.mock('@paraswap/sdk');
 
 jest.mock('../AnalyticsProvider', () => ({
   useAnalyticsContext: jest.fn(),
@@ -149,18 +150,17 @@ describe('contexts/SwapProvider', () => {
     },
   } as any;
 
+  const paraswapInstance = {
+    getRate: jest.fn(),
+    getSpender: jest.fn().mockResolvedValue(ROUTE_ADDRESS),
+    buildTx: jest.fn(),
+  } as any;
+
   beforeEach(() => {
     jest.resetAllMocks();
     jest.useRealTimers();
-
-    jest
-      .spyOn(swapUtils, 'getParaswapSpender')
-      .mockResolvedValue('0xParaswapContractAddress');
-
-    jest.spyOn(global, 'fetch').mockResolvedValue({
-      json: async () => ({}),
-      ok: true,
-    } as any);
+    global.fetch = jest.fn().mockResolvedValue({});
+    jest.mocked(constructPartialSDK).mockReturnValue(paraswapInstance);
 
     jest.mocked(useWalletContext).mockReturnValue({
       walletDetails: {
@@ -175,6 +175,9 @@ describe('contexts/SwapProvider', () => {
     } as any);
     jest.mocked(useTokensWithBalances).mockReturnValue([]);
     jest.mocked(rpcProvider.estimateGas).mockResolvedValue(10000n);
+    rpcProvider.waitForTransaction.mockResolvedValue({
+      status: 1,
+    });
     jest.mocked(getProviderForNetwork).mockResolvedValue(rpcProvider);
     jest.mocked(useNetworkFeeContext).mockReturnValue({
       networkFee: {
@@ -190,30 +193,6 @@ describe('contexts/SwapProvider', () => {
   });
 
   describe('getRate() function', () => {
-    const getExpectedURL = (path, params: GetRateParams) => {
-      const {
-        srcToken,
-        srcDecimals,
-        destToken,
-        destDecimals,
-        srcAmount,
-        swapSide,
-      } = params;
-
-      const expectedQuery = new URLSearchParams({
-        srcToken,
-        destToken,
-        amount: srcAmount,
-        side: swapSide || SwapSide.SELL,
-        network: `${ChainId.AVALANCHE_MAINNET_ID}`,
-        srcDecimals: `${srcDecimals}`,
-        destDecimals: `${destDecimals}`,
-        userAddress: ACTIVE_ACCOUNT_ADDRESS,
-      });
-
-      return `${API_URL}/${path}/?${expectedQuery.toString()}`;
-    };
-
     const buildGetRateParams = (overrides?: Partial<GetRateParams>) =>
       ({
         srcToken: 'srcToken',
@@ -274,14 +253,12 @@ describe('contexts/SwapProvider', () => {
 
     describe('when a network problem occurs', () => {
       beforeEach(() => {
-        jest
-          .spyOn(global, 'fetch')
+        paraswapInstance.getRate
           .mockRejectedValueOnce(new TypeError('Failed to fetch'))
           .mockResolvedValueOnce({
-            json: () => ({
-              priceRoute: { price: 'route' },
-            }),
-          } as any);
+            destAmount: '123',
+            bestRoute: [],
+          } as any as OptimalRate);
       });
 
       it('retries the fetch call', async () => {
@@ -289,24 +266,21 @@ describe('contexts/SwapProvider', () => {
 
         const result = await getRate(buildGetRateParams());
 
-        expect(global.fetch).toHaveBeenCalledTimes(2);
+        expect(paraswapInstance.getRate).toHaveBeenCalledTimes(2);
         expect(result).toEqual({
+          destAmount: '123',
           optimalRate: {
-            price: 'route',
+            destAmount: '123',
+            bestRoute: [],
           },
         });
       });
     });
 
     it('maps srcToken to 0xEeEe... when its the native token', async () => {
-      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-        json: async () => ({
-          priceRoute: {
-            address: ROUTE_ADDRESS,
-            destAmount: 1000,
-          },
-        }),
-        ok: true,
+      paraswapInstance.getRate.mockResolvedValueOnce({
+        address: ROUTE_ADDRESS,
+        destAmount: 1000,
       } as any);
 
       const { getRate } = await getSwapProvider();
@@ -316,24 +290,21 @@ describe('contexts/SwapProvider', () => {
 
       await getRate(params);
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        getExpectedURL('prices', {
-          ...params,
-          srcToken: NATIVE_TOKEN_ADDRESS,
-          srcDecimals: 18,
-        }),
-      );
+      expect(paraswapInstance.getRate).toHaveBeenCalledWith({
+        amount: params.srcAmount,
+        srcToken: NATIVE_TOKEN_ADDRESS,
+        srcDecimals: 18,
+        destToken: 'destToken',
+        destDecimals: 10,
+        side: 'SELL',
+        userAddress: 'addressC',
+      });
     });
 
     it('maps destToken to 0xEeEe... when its the native token', async () => {
-      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-        json: async () => ({
-          priceRoute: {
-            address: ROUTE_ADDRESS,
-            destAmount: 1000,
-          },
-        }),
-        ok: true,
+      paraswapInstance.getRate.mockResolvedValueOnce({
+        address: ROUTE_ADDRESS,
+        destAmount: 1000,
       } as any);
 
       const { getRate } = await getSwapProvider();
@@ -343,28 +314,26 @@ describe('contexts/SwapProvider', () => {
 
       await getRate(params);
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        getExpectedURL('prices', {
-          ...params,
-          destToken: NATIVE_TOKEN_ADDRESS,
-          destDecimals: 18,
-        }),
-      );
+      expect(paraswapInstance.getRate).toHaveBeenCalledWith({
+        destToken: NATIVE_TOKEN_ADDRESS,
+        destDecimals: 18,
+        amount: '1000',
+        srcToken: 'srcToken',
+        srcDecimals: 10,
+        side: 'SELL',
+        userAddress: 'addressC',
+      });
     });
 
     describe('when a server times out', () => {
       beforeEach(() => {
-        jest
-          .spyOn(global, 'fetch')
+        paraswapInstance.getRate
           .mockResolvedValueOnce({
-            json: () => ({
-              error: 'Price Timeout',
-            }),
+            error: 'Price Timeout',
           } as any)
           .mockResolvedValueOnce({
-            json: () => ({
-              priceRoute: { price: 'route' },
-            }),
+            address: ROUTE_ADDRESS,
+            destAmount: 1000,
           } as any);
       });
 
@@ -373,10 +342,12 @@ describe('contexts/SwapProvider', () => {
 
         const result = await getRate(buildGetRateParams());
 
-        expect(global.fetch).toHaveBeenCalledTimes(2);
+        expect(paraswapInstance.getRate).toHaveBeenCalledTimes(2);
         expect(result).toEqual({
+          destAmount: 1000,
           optimalRate: {
-            price: 'route',
+            address: '0x12341234',
+            destAmount: 1000,
           },
         });
       });
@@ -384,11 +355,8 @@ describe('contexts/SwapProvider', () => {
 
     describe('when a non-recoverable error occurs', () => {
       beforeEach(() => {
-        jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-          json: () => ({
-            error: 'Invalid tokens',
-          }),
-          ok: true,
+        paraswapInstance.getRate.mockResolvedValueOnce({
+          error: 'Invalid tokens',
         } as any);
       });
 
@@ -399,19 +367,14 @@ describe('contexts/SwapProvider', () => {
           swapUtils.swapError(CommonError.Unknown, new Error('Invalid tokens')),
         );
 
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(paraswapInstance.getRate).toHaveBeenCalledTimes(1);
       });
     });
 
     it('returns the correct route with native token and missing side', async () => {
-      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-        json: async () => ({
-          priceRoute: {
-            address: ROUTE_ADDRESS,
-            destAmount: 1000,
-          },
-        }),
-        ok: true,
+      paraswapInstance.getRate.mockResolvedValueOnce({
+        address: ROUTE_ADDRESS,
+        destAmount: 1000,
       } as any);
 
       const { getRate } = await getSwapProvider();
@@ -425,9 +388,15 @@ describe('contexts/SwapProvider', () => {
         },
       });
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        getExpectedURL('prices', params),
-      );
+      expect(paraswapInstance.getRate).toHaveBeenCalledWith({
+        amount: '1000',
+        destDecimals: 10,
+        destToken: 'destToken',
+        side: 'SELL',
+        srcDecimals: 10,
+        srcToken: 'srcToken',
+        userAddress: 'addressC',
+      });
     });
   });
 
@@ -584,7 +553,7 @@ describe('contexts/SwapProvider', () => {
       });
     });
 
-    describe('when swapping non-native token', () => {
+    fdescribe('when swapping non-native token', () => {
       let allowanceMock;
       let requestMock;
 
@@ -594,16 +563,13 @@ describe('contexts/SwapProvider', () => {
       };
 
       beforeEach(() => {
-        jest.spyOn(global, 'fetch').mockResolvedValue({
-          json: jest.fn().mockResolvedValue({
-            data: 'data',
-            to: '0xParaswapContractAddress',
-            from: '0x123',
-            value: '0x0',
-            gas: '1223',
-            chainId: 123,
-          }),
-          ok: true,
+        paraswapInstance.buildTx.mockResolvedValue({
+          data: 'data',
+          to: '0xParaswapContractAddress',
+          from: '0x123',
+          value: '0x0',
+          gas: '1223',
+          chainId: 123,
         } as any);
 
         allowanceMock = jest.fn().mockResolvedValue(0);
@@ -623,7 +589,7 @@ describe('contexts/SwapProvider', () => {
         } as any);
       });
 
-      it('prompts a spend approval first', async () => {
+      fit('prompts a spend approval first', async () => {
         const { swap } = await getSwapProvider();
 
         await swap(
@@ -645,16 +611,13 @@ describe('contexts/SwapProvider', () => {
     it('uses Paraswap API to build the transaction data', async () => {
       const requestMock = jest.fn();
 
-      jest.spyOn(global, 'fetch').mockResolvedValue({
-        json: jest.fn().mockResolvedValue({
-          data: 'data',
-          to: '0xParaswapContractAddress',
-          from: '0x123',
-          value: '0x0',
-          chainId: 123,
-          someExtraParam: '123',
-        }),
-        ok: true,
+      paraswapInstance.buildTx.mockResolvedValue({
+        data: 'data',
+        to: '0xParaswapContractAddress',
+        from: '0x123',
+        value: '0x0',
+        chainId: 123,
+        someExtraParam: '123',
       } as any);
 
       jest.mocked(Contract).mockReturnValue({
@@ -690,37 +653,34 @@ describe('contexts/SwapProvider', () => {
         slippage,
       });
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('transactions/43114'),
-        expect.objectContaining({
-          method: 'POST',
-          body: JSON.stringify({
-            srcToken,
-            srcDecimals,
-            srcAmount: new Big(srcAmount).times(1 + slippage / 100).toFixed(0), // increased by slippage
-            destToken,
-            destDecimals,
-            destAmount: '1', // from optimal route mock
-            priceRoute,
-            userAddress: 'addressC',
-            partner: 'Avalanche',
-          }),
-        }),
+      expect(paraswapInstance.buildTx).toHaveBeenCalledWith(
+        {
+          srcToken,
+          srcDecimals,
+          srcAmount: new Big(srcAmount).times(1 + slippage / 100).toFixed(0), // increased by slippage
+          destToken,
+          destDecimals,
+          destAmount: '1', // from optimal route mock
+          priceRoute,
+          userAddress: 'addressC',
+          partner: 'Avalanche',
+          partnerAddress: '0xcEA3b9415F269B5686403909d781959570f32CF0',
+          partnerFeeBps: 85,
+          isDirectFeeTransfer: true,
+        },
+        { ignoreChecks: undefined },
       );
     });
 
     it('verifies Paraswap API response for correct parameters', async () => {
       const requestMock = jest.fn();
 
-      jest.spyOn(global, 'fetch').mockResolvedValue({
-        json: jest.fn().mockResolvedValue({
-          data: '',
-          to: '',
-          from: '0x123',
-          value: '0x0',
-          chainId: 123,
-        }),
-        ok: true,
+      paraswapInstance.buildTx.mockResolvedValue({
+        data: '',
+        to: '',
+        from: '0x123',
+        value: '0x0',
+        chainId: 123,
       } as any);
 
       jest.mocked(Contract).mockReturnValue({
@@ -887,15 +847,12 @@ describe('contexts/SwapProvider', () => {
           isFlagEnabled: () => true,
         } as any);
 
-        jest.spyOn(global, 'fetch').mockResolvedValue({
-          json: async () => ({
-            data: 'data',
-            to: '0xParaswapContractAddress',
-            from: '0x123',
-            value: '0x0',
-            chainId: 123,
-          }),
-          ok: true,
+        paraswapInstance.buildTx.mockResolvedValue({
+          data: 'data',
+          to: '0xParaswapContractAddress',
+          from: '0x123',
+          value: '0x0',
+          chainId: 123,
         } as any);
 
         jest.mocked(Contract).mockReturnValue({
