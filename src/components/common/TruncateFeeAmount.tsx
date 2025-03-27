@@ -42,7 +42,7 @@ export function TruncateFeeAmount({ amount }: { amount: string }) {
           color="text.primary"
           sx={{ fontWeight: 'fontWeightSemibold' }}
         >
-          {fraction.slice(indexOfNonZero, fraction.length)}
+          {fraction.slice(indexOfNonZero, indexOfNonZero + 2)}
         </Typography>
       </>
     );
