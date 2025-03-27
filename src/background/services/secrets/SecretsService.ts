@@ -687,7 +687,12 @@ export class SecretsService implements OnUnlock {
     const derivationPaths = await addressResolver.getDerivationPathsByVM(
       index,
       secrets.derivationPathSpec,
-      [NetworkVMType.EVM, NetworkVMType.AVM, NetworkVMType.HVM],
+      [
+        NetworkVMType.EVM,
+        NetworkVMType.AVM,
+        NetworkVMType.HVM,
+        NetworkVMType.SVM,
+      ],
     );
     const derivationPathEVM = derivationPaths[NetworkVMType.EVM];
     const derivationPathAVM = derivationPaths[NetworkVMType.AVM];
