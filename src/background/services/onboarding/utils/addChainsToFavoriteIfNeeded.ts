@@ -11,16 +11,17 @@ import {
   TokenType,
   TokenWithBalanceAVM,
   TokenWithBalancePVM,
+  TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
 
-export const addXPChainToFavoriteIfNeeded = async (
+export const addChainsToFavoriteIfNeeded = async (
   accounts: PrimaryAccount[],
 ) => {
   const balanceService = container.resolve(BalanceAggregatorService);
   const networkService = container.resolve(NetworkService);
   const historyService = container.resolve(HistoryService);
   const balances = await balanceService.getBalancesForNetworks(
-    [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
+    [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X, ChainId.SOLANA_MAINNET_ID],
     accounts,
     [TokenType.NATIVE],
   );
@@ -60,6 +61,10 @@ export const addXPChainToFavoriteIfNeeded = async (
       }
     }
   }
+
+  if (hasBalance(balances.tokens, accounts, ChainId.SOLANA_MAINNET_ID)) {
+    await networkService.addFavoriteNetwork(ChainId.SOLANA_MAINNET_ID);
+  }
 };
 
 async function hasChainActivity(
@@ -88,7 +93,11 @@ function hasBalance(
 ) {
   return activeAccounts.some((account) => {
     const address =
-      chainId === ChainId.AVALANCHE_P ? account.addressPVM : account.addressAVM;
+      chainId === ChainId.AVALANCHE_P
+        ? account.addressPVM
+        : chainId === ChainId.AVALANCHE_X
+          ? account.addressAVM
+          : account.addressSVM;
 
     if (!address) {
       return false;
@@ -99,10 +108,11 @@ function hasBalance(
       return false;
     }
 
-    const avaxBalance = balance['AVAX'] as
+    const nativeBalance = (balance['AVAX'] ?? balance['SOL']) as
       | TokenWithBalanceAVM
-      | TokenWithBalancePVM;
+      | TokenWithBalancePVM
+      | TokenWithBalanceSVM;
 
-    return avaxBalance && avaxBalance.balance > 0n;
+    return nativeBalance && nativeBalance.balance > 0n;
   });
 }

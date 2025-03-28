@@ -2,7 +2,7 @@ import { BN } from 'bn.js';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { container } from 'tsyringe';
 
-import { addXPChainToFavoriteIfNeeded } from './addXPChainsToFavoriteIfNeeded';
+import { addChainsToFavoriteIfNeeded } from './addChainsToFavoriteIfNeeded';
 
 describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded.ts', () => {
   const accounts = [
@@ -46,7 +46,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
       nfts: {},
     });
 
-    await addXPChainToFavoriteIfNeeded(accounts as any);
+    await addChainsToFavoriteIfNeeded(accounts as any);
 
     expect(addFavoriteNetwork).toHaveBeenCalledWith(ChainId.AVALANCHE_X);
   });
@@ -65,7 +65,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
       nfts: {},
     });
 
-    await addXPChainToFavoriteIfNeeded(accounts as any);
+    await addChainsToFavoriteIfNeeded(accounts as any);
 
     expect(addFavoriteNetwork).toHaveBeenCalledWith(ChainId.AVALANCHE_P);
   });
@@ -81,7 +81,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
 
     getTxHistory.mockResolvedValueOnce([{ anything: ':-)' } as any]); // P-chain info is fetched first
 
-    await addXPChainToFavoriteIfNeeded(accounts as any);
+    await addChainsToFavoriteIfNeeded(accounts as any);
 
     expect(addFavoriteNetwork).toHaveBeenCalledWith(ChainId.AVALANCHE_P);
   });
@@ -101,7 +101,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
 
     getTxHistory.mockResolvedValueOnce([{ anything: ':-)' } as any]); // X-chain call for account 1
 
-    await addXPChainToFavoriteIfNeeded(accounts as any);
+    await addChainsToFavoriteIfNeeded(accounts as any);
 
     expect(addFavoriteNetwork).toHaveBeenCalledWith(ChainId.AVALANCHE_X);
   });
@@ -115,7 +115,7 @@ describe('src/background/services/onboarding/utils/addXPChainsToFavoriteIfNeeded
       nfts: {},
     });
 
-    await addXPChainToFavoriteIfNeeded(accounts as any);
+    await addChainsToFavoriteIfNeeded(accounts as any);
 
     expect(addFavoriteNetwork).not.toHaveBeenCalled();
   });
