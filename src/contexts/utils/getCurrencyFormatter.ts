@@ -11,7 +11,7 @@ export const getCurrencyFormatter = (currency = 'USD') => {
 
   return (amount: number) => {
     const minAmount = 0.001;
-    const isTooSmall = amount < minAmount ? true : false;
+    const isTooSmall = amount < minAmount && amount > 0 ? true : false;
     const prefixString = isTooSmall ? '<' : '';
 
     const transformedAmount = isTooSmall
