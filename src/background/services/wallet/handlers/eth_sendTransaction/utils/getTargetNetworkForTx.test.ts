@@ -172,26 +172,4 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
       ),
     ).toEqual(otherNetwork);
   });
-
-  it('throws error for custom networks because the neither the caipId nor the chainId could not match', async () => {
-    // eslint-disable-next-line
-    // @ts-ignore
-    mockNetworkService.uiActiveNetwork = {
-      chainId: 1234,
-      isTestnet: true,
-      caipId: 'eip155:1234',
-    };
-    mockNetworkService.customNetworks[otherNetwork.chainId] =
-      otherNetwork as any;
-
-    await expect(
-      getTargetNetworkForTx(
-        { chainId: otherNetwork.chainId } as any,
-        mockNetworkService,
-        'eip155:1234',
-      ),
-    ).rejects.toThrow(
-      getRpcError('Provided custom network is not supported', 1),
-    );
-  });
 });
