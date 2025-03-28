@@ -43,16 +43,6 @@ const getTargetNetworkForTx = async (
   }
   assertSameEnvironment(network, uiActiveNetwork);
 
-  const isCustomNetwork = network.chainId in networkService.customNetworks;
-
-  // Only allow custom networks if they are also the active network for the dApp
-  if (isCustomNetwork && network.caipId !== activeScope) {
-    throw ethErrors.rpc.invalidParams({
-      message: 'ChainID is not supported for custom networks',
-      data: { chainId },
-    });
-  }
-
   return network;
 };
 
