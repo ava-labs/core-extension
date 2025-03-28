@@ -106,7 +106,7 @@ export function WalletLocked({
           size="large"
           onKeyPress={(e) => {
             // When we click the enter key within the password input
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && password) {
               handleSubmit(e);
             }
           }}
