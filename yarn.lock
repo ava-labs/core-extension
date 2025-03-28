@@ -12064,6 +12064,7 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:1.0.0"
     "@ledgerhq/hw-app-btc": "npm:10.2.4"
     "@ledgerhq/hw-app-eth": "npm:6.36.1"
+    "@ledgerhq/hw-app-solana": "npm:7.2.4"
     "@ledgerhq/hw-transport-webusb": "npm:6.28.6"
     "@metamask/eth-sig-util": "npm:4.0.1"
     "@metamask/rpc-errors": "npm:6.3.0"

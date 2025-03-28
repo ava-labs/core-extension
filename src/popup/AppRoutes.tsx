@@ -213,11 +213,22 @@ const LedgerTroubleshootingPopup = lazy(() => {
   }));
 });
 
+const LedgerDeriveSolanaAddresses = lazy(() => {
+  return import('../pages/Ledger/LedgerDeriveSolanaAddresses').then((m) => ({
+    default: m.LedgerDeriveSolanaAddresses,
+  }));
+});
+
 export const AppRoutes = () => (
   <Switch>
     <Route path="/ledger/troubleshooting">
       <Suspense fallback={<CircularProgress />}>
         <LedgerTroubleshootingPopup />
+      </Suspense>
+    </Route>
+    <Route path="/ledger/derive-solana-addresses">
+      <Suspense fallback={<CircularProgress />}>
+        <LedgerDeriveSolanaAddresses />
       </Suspense>
     </Route>
     <Route path="/token/add">
