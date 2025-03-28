@@ -248,22 +248,22 @@ export class AccountsService implements OnLock, OnUnlock {
 
     const addresses = await this.getAddressesForAccount(account);
     if (account.type === AccountType.PRIMARY) {
+      const walletAccounts = this.accounts.primary[account.walletId]!;
+
       this.accounts = {
         ...this.accounts,
         primary: {
           ...this.accounts.primary,
-          [account.walletId]: Object.values(this.accounts.primary)
-            .flat()
-            .map((acc) => {
-              if (acc.id !== accountId) {
-                return acc;
-              }
+          [account.walletId]: Object.values(walletAccounts).map((acc) => {
+            if (acc.id !== accountId) {
+              return acc;
+            }
 
-              return {
-                ...acc,
-                ...addresses,
-              };
-            }),
+            return {
+              ...acc,
+              ...addresses,
+            };
+          }),
         },
       };
 
