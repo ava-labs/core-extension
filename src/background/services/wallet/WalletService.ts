@@ -8,6 +8,7 @@ import {
   WalletEvents,
   WalletDetails,
   SUPPORTED_PRIMARY_SECRET_TYPES,
+  isSolanaSigningRequest,
 } from './models';
 import {
   MessageParams,
@@ -20,13 +21,13 @@ import {
   BitcoinProviderAbstract,
   BitcoinWallet,
   createWalletPolicy,
-  DerivationPath,
   getAddressDerivationPath,
-  getAddressPublicKeyFromXPub,
   getPublicKeyFromPrivateKey,
   getWalletFromMnemonic,
   JsonRpcBatchInternal,
   LedgerSigner,
+  SolanaProvider,
+  SolanaSigner,
 } from '@avalabs/core-wallets-sdk';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
@@ -37,7 +38,13 @@ import {
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
 import { LedgerService } from '../ledger/LedgerService';
-import { BaseWallet, Wallet, isHexString } from 'ethers';
+import {
+  BaseWallet,
+  HDNodeWallet,
+  TransactionRequest,
+  Wallet,
+  isHexString,
+} from 'ethers';
 import { Transaction } from 'bitcoinjs-lib';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
@@ -65,7 +72,14 @@ import { Account } from '../accounts/models';
 import { HVMWallet } from './HVMWallet';
 import { ed25519 } from '@noble/curves/ed25519';
 import { strip0x } from '@avalabs/core-utils-sdk';
-import { getAccountPrivateKeyFromMnemonic } from '../secrets/utils/getAccountPrivateKeyFromMnemonic';
+import {
+  getExtendedPublicKeyFor,
+  getPublicKeyFor,
+  isPrimaryWalletSecrets,
+} from '../secrets/utils';
+import { assertPresent } from '@src/utils/assertions';
+import { CommonError, LedgerError, SecretsError } from '@src/utils/errors';
+import { omitUndefined } from '@src/utils/object';
 
 @singleton()
 export class WalletService implements OnUnlock {
@@ -135,13 +149,16 @@ export class WalletService implements OnUnlock {
         'Mnemonic or xpub or pubKey is required to create a new wallet!',
       );
     }
-    if (secrets.secretType === SecretType.LedgerLive && !secrets.pubKeys) {
+    if (
+      secrets.secretType === SecretType.LedgerLive &&
+      !secrets.publicKeys?.length
+    ) {
       throw new Error('PubKey is required to create a new wallet!');
     }
     if (
       (secrets.secretType === SecretType.Keystone ||
         secrets.secretType === SecretType.Ledger) &&
-      !secrets.xpub
+      !secrets.extendedPublicKeys?.length
     ) {
       throw new Error(
         'Mnemonic or xpub or pubKey is required to create a new wallet!',
@@ -170,6 +187,23 @@ export class WalletService implements OnUnlock {
       return;
     }
     const { secretType } = secrets;
+
+    // Solana
+    if (network.vmName === NetworkVMType.SVM) {
+      switch (secretType) {
+        case SecretType.Mnemonic:
+          return SolanaSigner.fromMnemonic(
+            secrets.mnemonic,
+            secrets.account.index,
+          );
+        case SecretType.PrivateKey:
+          return new SolanaSigner(Buffer.from(secrets.secret, 'hex'));
+        default:
+          throw new Error(
+            `Unsupported wallet type for Solana transaction: ${secretType}`,
+          );
+      }
+    }
     // HVM
     if (network.vmName === NetworkVMType.HVM) {
       if (secretType === SecretType.Mnemonic) {
@@ -178,7 +212,7 @@ export class WalletService implements OnUnlock {
         return HVMWallet.fromMnemonic(
           secrets.mnemonic,
           accountIndexToUse,
-          secrets.derivationPath,
+          secrets.derivationPathSpec,
         );
       }
       if (secretType === SecretType.PrivateKey) {
@@ -195,7 +229,7 @@ export class WalletService implements OnUnlock {
     if (secretType === SecretType.Seedless) {
       const accountIndexToUse =
         accountIndex === undefined ? secrets.account.index : accountIndex;
-      const addressPublicKey = secrets.pubKeys[accountIndexToUse];
+      const addressPublicKey = secrets.publicKeys[accountIndexToUse];
 
       if (!addressPublicKey) {
         throw new Error('Account public key not available');
@@ -219,7 +253,7 @@ export class WalletService implements OnUnlock {
         const signer = getWalletFromMnemonic(
           secrets.mnemonic,
           accountIndexToUse,
-          secrets.derivationPath,
+          secrets.derivationPathSpec,
         );
         return signer.connect(provider as JsonRpcBatchInternal);
       }
@@ -237,7 +271,7 @@ export class WalletService implements OnUnlock {
         return new LedgerSigner(
           accountIndexToUse,
           this.ledgerService.recentTransport,
-          secrets.derivationPath,
+          secrets.derivationPathSpec,
           provider as JsonRpcBatchInternal,
         );
       }
@@ -282,15 +316,6 @@ export class WalletService implements OnUnlock {
 
     // Bitcoin signers
     if (network.vmName === NetworkVMType.BITCOIN) {
-      if (secretType === SecretType.Mnemonic) {
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
-        return await BitcoinWallet.fromMnemonic(
-          secrets.mnemonic,
-          accountIndexToUse,
-          provider as BitcoinProviderAbstract,
-        );
-      }
       if (secretType === SecretType.Fireblocks) {
         if (!secrets.api) {
           throw new Error(`Fireblocks API access keys not configured`);
@@ -310,17 +335,37 @@ export class WalletService implements OnUnlock {
         );
       }
 
+      if (!isPrimaryWalletSecrets(secrets)) {
+        throw new Error(
+          `No proper signer could be constructed for Bitcoin and ${secretType} account`,
+        );
+      }
+
+      const accountIndexToUse =
+        accountIndex === undefined ? secrets.account.index : accountIndex;
+
+      if (secretType === SecretType.Mnemonic) {
+        return await BitcoinWallet.fromMnemonic(
+          secrets.mnemonic,
+          accountIndexToUse,
+          provider as BitcoinProviderAbstract,
+        );
+      }
+
+      const derivationPath = getAddressDerivationPath(
+        accountIndexToUse,
+        secrets.derivationPathSpec,
+        'EVM',
+      );
+      const publicKey = getPublicKeyFor(secrets, derivationPath, 'secp256k1');
+
+      assertPresent(publicKey, SecretsError.PublicKeyNotFound);
+
       if (secretType === SecretType.Keystone) {
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
         return new BitcoinKeystoneWallet(
           secrets.masterFingerprint,
-          getAddressPublicKeyFromXPub(secrets.xpub, accountIndexToUse),
-          getAddressDerivationPath(
-            accountIndexToUse,
-            secrets.derivationPath,
-            'EVM',
-          ),
+          Buffer.from(publicKey.key, 'hex'),
+          derivationPath,
           this.keystoneService,
           provider as BitcoinProviderAbstract,
           tabId,
@@ -335,16 +380,10 @@ export class WalletService implements OnUnlock {
         const walletPolicy = await this.parseWalletPolicyDetails(
           this.accountsService.activeAccount,
         );
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
 
         return new BitcoinLedgerWallet(
-          getAddressPublicKeyFromXPub(secrets.xpub, accountIndexToUse),
-          getAddressDerivationPath(
-            accountIndexToUse,
-            secrets.derivationPath,
-            'EVM',
-          ),
+          Buffer.from(publicKey.key, 'hex'),
+          derivationPath,
           provider as BitcoinProviderAbstract,
           this.ledgerService.recentTransport,
           walletPolicy,
@@ -356,35 +395,18 @@ export class WalletService implements OnUnlock {
         if (!this.ledgerService.recentTransport) {
           throw new Error('Ledger transport not available');
         }
-
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
-        const addressPublicKey = secrets.pubKeys[accountIndexToUse];
-
-        if (!addressPublicKey) {
-          throw new Error('Account public key not available');
-        }
-
         const walletPolicy = await this.parseWalletPolicyDetails(
           secrets.account,
         );
 
         return new BitcoinLedgerWallet(
-          Buffer.from(addressPublicKey.evm, 'hex'),
-          getAddressDerivationPath(
-            accountIndexToUse,
-            secrets.derivationPath,
-            'EVM',
-          ),
+          Buffer.from(publicKey.key, 'hex'),
+          derivationPath,
           provider as BitcoinProviderAbstract,
           this.ledgerService.recentTransport,
           walletPolicy,
         );
       }
-
-      throw new Error(
-        `No proper signer could be constructed for Bitcoin and ${secretType} account`,
-      );
     }
 
     // Avalanche signers
@@ -399,51 +421,72 @@ export class WalletService implements OnUnlock {
       }
 
       if (secretType === SecretType.Ledger) {
-        if (!this.ledgerService.recentTransport) {
-          throw new Error('Ledger transport not available');
-        }
+        assertPresent(
+          this.ledgerService.recentTransport,
+          LedgerError.TransportNotFound,
+        );
+
         const accountIndexToUse =
           accountIndex === undefined ? secrets.account.index : accountIndex;
+
+        const derivationPath = getAddressDerivationPath(
+          accountIndexToUse,
+          secrets.derivationPathSpec,
+          'AVM',
+        );
+        const extPublicKey = getExtendedPublicKeyFor(
+          secrets.extendedPublicKeys,
+          derivationPath,
+          'secp256k1',
+        );
+
+        assertPresent(extPublicKey, SecretsError.MissingExtendedPublicKey);
 
         return new Avalanche.SimpleLedgerSigner(
           accountIndexToUse,
           provider as Avalanche.JsonRpcProvider,
-          secrets.xpubXP,
+          extPublicKey.key,
         );
       }
 
       if (secretType === SecretType.LedgerLive) {
-        if (!this.ledgerService.recentTransport) {
-          throw new Error('Ledger transport not available');
-        }
+        assertPresent(
+          this.ledgerService.recentTransport,
+          LedgerError.TransportNotFound,
+        );
         const accountIndexToUse =
           accountIndex === undefined ? secrets.account.index : accountIndex;
-        const pubkey = secrets.pubKeys[accountIndexToUse];
+        const derivationPathEVM = getAddressDerivationPath(
+          accountIndexToUse,
+          secrets.derivationPathSpec,
+          'EVM',
+        );
+        const derivationPathAVM = getAddressDerivationPath(
+          accountIndexToUse,
+          secrets.derivationPathSpec,
+          'AVM',
+        );
+        const pubkeyEVM = getPublicKeyFor(
+          secrets,
+          derivationPathEVM,
+          'secp256k1',
+        );
+        const pubkeyAVM = getPublicKeyFor(
+          secrets,
+          derivationPathAVM,
+          'secp256k1',
+        );
 
-        if (!pubkey) {
-          throw new Error('Cannot find public key for the active account');
-        }
-
-        // Verify public key exists for X/P path
-        if (!pubkey.xp) {
-          throw new Error('X/P Chain public key is not set');
-        }
+        assertPresent(pubkeyEVM, SecretsError.PublicKeyNotFound);
+        assertPresent(pubkeyAVM, SecretsError.PublicKeyNotFound);
 
         // TODO: SimpleLedgerSigner doesn't support LedgerLive derivation paths ATM
         // https://ava-labs.atlassian.net/browse/CP-5861
         return new Avalanche.LedgerSigner(
-          Buffer.from(pubkey.xp, 'hex'),
-          getAddressDerivationPath(
-            accountIndexToUse,
-            DerivationPath.LedgerLive,
-            'AVM',
-          ),
-          Buffer.from(pubkey.evm, 'hex'),
-          getAddressDerivationPath(
-            accountIndexToUse,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
+          Buffer.from(pubkeyAVM.key, 'hex'),
+          derivationPathAVM,
+          Buffer.from(pubkeyEVM.key, 'hex'),
+          derivationPathEVM,
           provider as Avalanche.JsonRpcProvider,
         );
       }
@@ -471,16 +514,64 @@ export class WalletService implements OnUnlock {
     }
   }
 
+  async signTransactionBatch(
+    batch: TransactionRequest[],
+    network: Network,
+    tabId?: number,
+  ) {
+    const wallet = await this.getWallet({ network, tabId });
+
+    if (!wallet) {
+      throw new Error('Wallet not found');
+    }
+
+    // Only wallets that provide us signed transactions without additional approvals
+    // can be used to sign transaction batches (so for example hardware wallets or accounts
+    // that connect through WalletConnect protocol would not work, since users have to approve
+    // each transaction one by one anyways.
+    const isSeedless = wallet instanceof SeedlessWallet;
+    const isSeedphrase = wallet instanceof HDNodeWallet;
+    const isPrivateKey = wallet instanceof Wallet;
+
+    if (!isSeedless && !isSeedphrase && !isPrivateKey) {
+      throw new Error('The active wallet does not support batch transactions');
+    }
+
+    return Promise.all(
+      batch.map(async (tx) => ({
+        signedTx: await wallet.signTransaction(tx),
+      })),
+    );
+  }
+
   async sign(
     tx: SignTransactionRequest,
     network: Network,
     tabId?: number,
     originalRequestMethod?: string,
   ): Promise<SigningResult> {
-    const wallet = await this.getWallet({ network, tabId });
+    const wallet = await this.getWallet({
+      network,
+      tabId,
+    });
 
     if (!wallet) {
       throw new Error('Wallet not found');
+    }
+
+    if (isSolanaSigningRequest(tx)) {
+      if (!(wallet instanceof SolanaSigner)) {
+        throw new Error('Unable to find a proper signer');
+      }
+
+      const signedTx = await wallet.signTx(
+        tx.data,
+        (await getProviderForNetwork(network)) as SolanaProvider,
+      );
+
+      return {
+        signedTx,
+      };
     }
 
     // handle BTC signing
@@ -630,70 +721,35 @@ export class WalletService implements OnUnlock {
       };
     }
 
-    if (secrets.secretType === SecretType.Mnemonic && secrets.account) {
-      const evmPub = getAddressPublicKeyFromXPub(
-        secrets.xpub,
-        secrets.account.index,
-      );
+    assertPresent(secrets.account, CommonError.NoActiveAccount);
 
-      const ed25519Pub = Buffer.from(
-        ed25519.getPublicKey(
-          strip0x(
-            getAccountPrivateKeyFromMnemonic(
-              secrets.mnemonic,
-              secrets.account.index,
-              secrets.derivationPath,
-            ),
-          ),
-        ),
-      );
+    const derivationPathEVM = getAddressDerivationPath(
+      secrets.account.index,
+      secrets.derivationPathSpec,
+      'EVM',
+    );
+    const derivationPathAVM = getAddressDerivationPath(
+      secrets.account.index,
+      secrets.derivationPathSpec,
+      'AVM',
+    );
 
-      const xpPub = Avalanche.getAddressPublicKeyFromXpub(
-        secrets.xpubXP,
-        secrets.account.index,
-      );
+    const evmPub = getPublicKeyFor(secrets, derivationPathEVM, 'secp256k1');
+    const avmPub = getPublicKeyFor(secrets, derivationPathAVM, 'secp256k1');
+    const hvmPub = getPublicKeyFor(secrets, derivationPathAVM, 'ed25519');
 
-      return {
-        evm: evmPub.toString('hex'),
-        xp: xpPub.toString('hex'),
-        ed25519: ed25519Pub.toString('hex'),
-      };
-    }
+    assertPresent(
+      evmPub,
+      SecretsError.PublicKeyNotFound,
+      `EVM @ ${derivationPathEVM}`,
+    );
 
-    if (
-      secrets.secretType === SecretType.Ledger &&
-      secrets.xpubXP &&
-      secrets.account
-    ) {
-      const evmPub = getAddressPublicKeyFromXPub(
-        secrets.xpub,
-        secrets.account.index,
-      );
-      const xpPub = Avalanche.getAddressPublicKeyFromXpub(
-        secrets.xpubXP,
-        secrets.account.index,
-      );
-
-      return {
-        evm: evmPub.toString('hex'),
-        xp: xpPub.toString('hex'),
-      };
-    }
-
-    if (
-      (secrets.secretType === SecretType.LedgerLive ||
-        secrets.secretType === SecretType.Seedless) &&
-      secrets.account
-    ) {
-      const publicKey = secrets.pubKeys[secrets.account.index];
-
-      if (!publicKey)
-        throw new Error('Can not find public key for the given index');
-
-      return publicKey;
-    }
-
-    throw new Error('Unable to get public key');
+    return omitUndefined({
+      evm: evmPub?.key,
+      xp: avmPub?.key,
+      ed25519: hvmPub?.key,
+      svm: secrets.account.addressSVM,
+    });
   }
 
   /**
@@ -851,7 +907,7 @@ export class WalletService implements OnUnlock {
       this.accountsService.activeAccount,
     );
 
-    if (!secrets || !secrets.xpubXP) {
+    if (!secrets || !('extendedPublicKeys' in secrets)) {
       return [];
     }
 
@@ -859,9 +915,28 @@ export class WalletService implements OnUnlock {
       return [];
     }
 
+    assertPresent(indices[0], SecretsError.NoAccountIndex);
+
+    const avmDerivationPath = getAddressDerivationPath(
+      0,
+      secrets.derivationPathSpec,
+      'AVM',
+    );
+    const avmExtendedPubKey = getExtendedPublicKeyFor(
+      secrets.extendedPublicKeys,
+      avmDerivationPath,
+      'secp256k1',
+    );
+
+    assertPresent(
+      avmExtendedPubKey,
+      SecretsError.MissingExtendedPublicKey,
+      `AVM @ ${avmDerivationPath}`,
+    );
+
     return indices.map((index) =>
       Avalanche.getAddressFromXpub(
-        secrets.xpubXP as string,
+        avmExtendedPubKey.key,
         index,
         provXP,
         chainAlias,

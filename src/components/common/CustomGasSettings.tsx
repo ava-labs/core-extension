@@ -1,3 +1,5 @@
+import { formatUnits, parseUnits } from 'ethers';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
 import { useEffect, useState } from 'react';
@@ -16,7 +18,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { TextFieldLabel } from './TextFieldLabel';
-import { parseUnits } from 'ethers';
+import { TruncateFeeAmount } from './TruncateFeeAmount';
 
 type GasSettings = {
   customGasLimit: number;
@@ -51,32 +53,36 @@ const FiatValue = ({ value }) => (
   </Box>
 );
 
-const FeeAmount = ({ value, fiatValue, tokenSymbol }) => (
-  <Stack sx={{ textAlign: 'end', gap: 0.5 }}>
-    <Stack sx={{ textAlign: 'end' }}>
-      <Stack
-        sx={{
-          flexDirection: 'row',
-          gap: 0.5,
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant="h5" component="span" color="text.primary">
-          {value}
-        </Typography>
-        <Typography variant="h6" component="span" color="text.secondary">
-          {tokenSymbol}
-        </Typography>
+const FeeAmount = ({ decimals, value, fiatValue, tokenSymbol }) => {
+  const unit = new TokenUnit(value, decimals, tokenSymbol);
+
+  return (
+    <Stack sx={{ textAlign: 'end', gap: 0.5 }}>
+      <Stack sx={{ textAlign: 'end' }}>
+        <Stack
+          sx={{
+            flexDirection: 'row',
+            gap: 0.5,
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+          }}
+        >
+          <Tooltip title={unit.toString()}>
+            <TruncateFeeAmount amount={unit.toDisplay()} />
+          </Tooltip>
+          <Typography variant="subtitle2" component="span" color="text.primary">
+            {tokenSymbol}
+          </Typography>
+        </Stack>
+        {fiatValue && (
+          <Typography variant="body2" color="text.secondary">
+            {fiatValue}
+          </Typography>
+        )}
       </Stack>
-      {fiatValue && (
-        <Typography variant="body2" color="text.secondary">
-          {fiatValue}
-        </Typography>
-      )}
     </Stack>
-  </Stack>
-);
+  );
+};
 
 export function CustomGasSettings({
   feeDisplayDecimals,
@@ -239,9 +245,7 @@ export function CustomGasSettings({
             autoFocus
             fullWidth
             type={'number'}
-            value={
-              Number(customMaxPriorityFeePerGas) / 10 ** feeDisplayDecimals
-            }
+            value={formatUnits(customMaxPriorityFeePerGas, feeDisplayDecimals)}
             onChange={(evt) => {
               setCustomMaxPriorityFeePerGas(
                 parseUnits(evt.currentTarget.value || '0', feeDisplayDecimals),
@@ -327,7 +331,8 @@ export function CustomGasSettings({
             </Tooltip>
           </Stack>
           <FeeAmount
-            value={newFees.fee}
+            value={newFees.bnFee}
+            decimals={network?.networkToken.decimals}
             fiatValue={
               newFees.feeUSD ? currencyFormatter(newFees.feeUSD) : null
             }

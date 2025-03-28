@@ -1,6 +1,7 @@
 import {
   AppInfo,
   AppName,
+  BatchApprovalController,
   Environment,
   Module,
 } from '@avalabs/vm-module-types';
@@ -9,6 +10,7 @@ import { BitcoinModule } from '@avalabs/bitcoin-module';
 import { AvalancheModule } from '@avalabs/avalanche-module';
 import { EvmModule } from '@avalabs/evm-module';
 import { HvmModule } from '@avalabs/hvm-module';
+import { SvmModule } from '@avalabs/svm-module';
 import { ethErrors } from 'eth-rpc-errors';
 import { singleton } from 'tsyringe';
 
@@ -27,7 +29,18 @@ const NAMESPACE_REGEX = new RegExp('^[-a-z0-9]{3,8}$');
 @singleton()
 export class ModuleManager {
   #_modules: Module[] | undefined;
-  #approvalController: ApprovalController;
+  #approvalController: BatchApprovalController;
+
+  isNonRestrictedMethod(module: Module, method: string): boolean {
+    const nonRestrictedMethods =
+      module.getManifest()?.permissions.rpc.nonRestrictedMethods;
+
+    if (nonRestrictedMethods === undefined) {
+      return false;
+    }
+
+    return nonRestrictedMethods.includes(method);
+  }
 
   get #modules(): Module[] {
     assertPresent(this.#_modules, VMModuleError.ModulesNotInitialized);
@@ -37,6 +50,10 @@ export class ModuleManager {
 
   set #modules(modules: Module[]) {
     this.#_modules = modules;
+  }
+
+  get modules(): Module[] {
+    return this.#modules;
   }
 
   constructor(controller: ApprovalController) {
@@ -61,7 +78,6 @@ export class ModuleManager {
         approvalController: this.#approvalController,
         appInfo,
       }),
-
       new AvalancheModule({
         environment,
         approvalController: this.#approvalController,
@@ -73,6 +89,11 @@ export class ModuleManager {
         appInfo,
       }),
       new HvmModule({
+        environment,
+        approvalController: this.#approvalController,
+        appInfo,
+      }),
+      new SvmModule({
         environment,
         approvalController: this.#approvalController,
         appInfo,

@@ -17,6 +17,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
+      - name: enable corepack
+        run: |
+          corepack enable
       - name: Checkout extension
         uses: actions/checkout@v4
         with:
@@ -48,8 +51,13 @@ jobs:
           echo NEWSLETTER_BASE_URL=${{ secrets.NEWSLETTER_BASE_URL }} >> .env.production
           echo NEWSLETTER_PORTAL_ID=${{ secrets.NEWSLETTER_PORTAL_ID }} >> .env.production
           echo NEWSLETTER_FORM_ID=${{ secrets.NEWSLETTER_FORM_ID }} >> .env.production
+          echo FIREBASE_CONFIG=${{ secrets.FIREBASE_CONFIG }} >> .env.production
+          echo ID_SERVICE_URL=${{ secrets.ID_SERVICE_URL }} >> .env.production
+          echo GASLESS_SERVICE_URL=${{ secrets.GASLESS_SERVICE_URL }} >> .env.production
       - name: Install dependencies
-        run: yarn setup
+        run: |
+          yarn install
+          yarn allow-scripts
       - name: Build library
         run: yarn build:alpha
       - name: Remove large extension files
@@ -57,6 +65,9 @@ jobs:
           rm -fv ./dist/images/core-ext-hero-hq.webm
           rm -fv ./dist/images/onboarding-background.svg
           rm -fv ./dist/images/onboarding-background.png
+          rm -fv ./dist/images/keystone/keystone_onboarding_step_1.png
+          rm -fv ./dist/images/keystone/keystone_onboarding_step_2.png
+          rm -fv ./dist/images/keystone/keystone_onboarding_step_3.png
       - name: Add extension key to manifest file
         run: |
           echo $(cat ./dist/manifest.json | jq '.key = "${{ secrets.EXTENSION_PUBLIC_KEY }}"') > ./dist/manifest.json

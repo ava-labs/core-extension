@@ -20,6 +20,8 @@ export type ExtensionConnectionMessage<
   Params = any,
 > = JsonRpcRequest<Method, Params>;
 
+export type HandlerParameters<Type> = ExtractHandlerTypes<Type>['Params'];
+
 export type ExtensionConnectionMessageResponse<
   Method extends ExtensionRequest | DAppProviderRequest | RpcMethod = any,
   Result = any,
@@ -130,6 +132,8 @@ export interface ConnectionInfo {
 }
 
 export type ExtensionEventEmitter = ConnectionEventEmitter;
+
+export type OffscreenEventEmitter = ConnectionEventEmitter;
 export interface DAppEventEmitter extends ConnectionEventEmitter {
   setConnectionInfo(connectionInfo: ConnectionInfo): void;
 }
@@ -146,6 +150,7 @@ export const CORE_DOMAINS = [
   'ava-labs.github.io', // playground
   'avacloud.io',
   'avacloud-app.pages.dev',
+  'redesign-aa3.pages.dev',
 ];
 
 export interface ConnectionController {

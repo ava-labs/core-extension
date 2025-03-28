@@ -18,12 +18,13 @@ export const SpendLimitInfo = ({
 }: SpendLimitInfoProps) => {
   return (
     <>
-      {approvals.map((approval) => {
+      {approvals.map((approval, index) => {
         switch (approval.token.type) {
           case TokenType.ERC721:
           case TokenType.ERC1155:
             return (
               <NftSpendLimit
+                key={index}
                 approval={
                   approval as TokenApproval & {
                     token: ERC1155Token | ERC721Token;
@@ -35,12 +36,14 @@ export const SpendLimitInfo = ({
           case TokenType.ERC20:
             return (
               <TokenSpendLimit
+                key={index}
                 actionId={actionId}
                 approval={
                   approval as TokenApproval & {
                     token: ERC20Token;
                   }
                 }
+                withTitle={index === 0}
                 isEditable={isEditable}
               />
             );

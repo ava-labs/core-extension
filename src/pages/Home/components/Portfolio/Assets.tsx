@@ -28,11 +28,15 @@ import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitco
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTokenPriceMissing } from '@src/hooks/useTokenPriceIsMissing';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
+import { useLiveBalance } from '@src/hooks/useLiveBalance';
+import { TokenType } from '@avalabs/vm-module-types';
 
 enum AssetsTabs {
   TOKENS,
   ACTIVITY,
 }
+
+const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
 export function Assets() {
   const { t } = useTranslation();
@@ -69,6 +73,8 @@ export function Assets() {
     }
     return isPriceMissingFromNetwork(network?.chainId);
   }, [isPriceMissingFromNetwork, network]);
+
+  useLiveBalance(POLLED_BALANCES);
 
   return (
     <Stack sx={{ flexGrow: 1 }}>

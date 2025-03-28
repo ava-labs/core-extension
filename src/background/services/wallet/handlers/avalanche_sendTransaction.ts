@@ -5,7 +5,7 @@ import {
   JsonRpcRequestParams,
 } from '@src/background/connections/dAppConnection/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
-import { Action } from '../../actions/models';
+import { Action, buildActionForRequest } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import {
   UnsignedTx,
@@ -27,7 +27,6 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { measureDuration } from '@src/utils/measureDuration';
 import { HEADERS } from '../../glacier/glacierConfig';
-import { isDevnet } from '@src/utils/isDevnet';
 
 type TxParams = {
   transactionHex: string;
@@ -36,6 +35,12 @@ type TxParams = {
   internalIndices?: number[];
   utxos?: string[];
   feeTolerance?: number;
+};
+
+type AvalancheTxDisplayData = {
+  unsignedTxJson: string;
+  txData: Avalanche.Tx;
+  vm: VM;
 };
 
 @injectable()
@@ -104,11 +109,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       : await Avalanche.getUtxosByTxFromGlacier({
           transactionHex,
           chainAlias,
-          network: isDevnet(network)
-            ? Network.DEVNET
-            : network.isTestnet
-              ? Network.FUJI
-              : Network.MAINNET,
+          network: network.isTestnet ? Network.FUJI : Network.MAINNET,
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,
           headers: HEADERS,
@@ -174,19 +175,14 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       };
     }
 
-    const actionData: Action<{
-      unsignedTxJson: string;
-      txData: Avalanche.Tx;
-      vm: VM;
-    }> = {
-      ...request,
+    const actionData = buildActionForRequest(request, {
       scope,
       displayData: {
         unsignedTxJson: JSON.stringify(unsignedTx.toJSON()),
         txData,
         vm,
       },
-    };
+    });
 
     await openApprovalWindow(actionData, `approve/avalancheSignTx`);
 
@@ -234,11 +230,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
   }
 
   onActionApproved = async (
-    pendingAction: Action<{
-      unsignedTxJson: string;
-      txData: Avalanche.Tx;
-      vm: VM;
-    }>,
+    pendingAction: Action<AvalancheTxDisplayData>,
     _result,
     onSuccess,
     onError,

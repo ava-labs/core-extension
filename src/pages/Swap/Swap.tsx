@@ -1,6 +1,7 @@
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { resolve } from '@src/utils/promiseResolver';
 import { TransactionDetails } from './components/TransactionDetails';
 import { PageTitle } from '@src/components/common/PageTitle';
@@ -29,12 +30,18 @@ import {
   Button,
   styled,
   IconButton,
+  ToastCard,
 } from '@avalabs/core-k2-components';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isUserRejectionError } from '@src/utils/errors';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
+import { useLiveBalance } from '@src/hooks/useLiveBalance';
+import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { SwappableToken } from './models';
 
 const ReviewOrderButtonContainer = styled('div')<{
@@ -46,13 +53,17 @@ const ReviewOrderButtonContainer = styled('div')<{
   left: 0;
   width: 100%;
 `;
+const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
 export function Swap() {
+  useLiveBalance(POLLED_BALANCES);
+
   const { t } = useTranslation();
   const { capture, captureEncrypted } = useAnalyticsContext();
   const { network } = useNetworkContext();
   const { swap } = useSwapContext();
   const { networkFee } = useNetworkFeeContext();
+  const getTranslatedError = useErrorMessage();
 
   const {
     isFunctionAvailable: isSwapAvailable,
@@ -68,6 +79,14 @@ export function Swap() {
     forceShowTokensWithoutBalances: true,
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
+  const allSwappableTokens = useMemo(
+    () =>
+      allTokensOnNetwork.filter(
+        (token) =>
+          token.type === TokenType.ERC20 || token.type === TokenType.NATIVE,
+      ),
+    [allTokensOnNetwork],
+  );
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -99,7 +118,36 @@ export function Swap() {
     toTokenValue,
     optimalRate,
     destAmount,
+    resetValues,
   } = useSwapStateFunctions();
+
+  const isFromTokenKnown = useMemo(
+    () =>
+      selectedFromToken
+        ? tokensWBalances.some(getTokenFinder(selectedFromToken))
+        : true,
+    [tokensWBalances, selectedFromToken],
+  );
+
+  const isToTokenKnown = useMemo(
+    () =>
+      selectedToToken
+        ? allTokensOnNetwork.some(getTokenFinder(selectedToToken))
+        : true,
+    [allTokensOnNetwork, selectedToToken],
+  );
+
+  // If we detect the form has tokens that do not belong to the newly selected network,
+  // we reset the values to avoid any potential issues with the swap.
+  useEffect(() => {
+    if (!network) {
+      return;
+    }
+
+    if (!isToTokenKnown || !isFromTokenKnown) {
+      resetValues(true);
+    }
+  }, [network, isToTokenKnown, isFromTokenKnown, resetValues]);
 
   const activeAddress = useMemo(
     () =>
@@ -160,7 +208,6 @@ export function Swap() {
         srcAmount: optimalRate.srcAmount,
         priceRoute: optimalRate,
         destAmount: optimalRate.destAmount,
-        gasLimit: swapGasLimit,
         slippage: parseFloat(slippage),
       }),
     );
@@ -177,7 +224,23 @@ export function Swap() {
     }
 
     if (error && !isUserRejectionError(error)) {
-      toast.error(t('Swap Failed'));
+      console.error(error);
+      sentryCaptureException(error, SentryExceptionTypes.SWAP);
+
+      const { title, hint } = getTranslatedError(error);
+      toast.custom(
+        <ToastCard variant="error">
+          <Typography variant="body2" sx={{ fontWeight: 'fontWeightSemibold' }}>
+            {title}
+          </Typography>
+          {hint && (
+            <Typography variant="caption" color="text.primary">
+              {hint}
+            </Typography>
+          )}
+        </ToastCard>,
+        { duration: 5000 },
+      );
       captureEncrypted('SwapFailed', {
         address: activeAddress,
         chainId: network?.chainId,
@@ -185,7 +248,6 @@ export function Swap() {
     }
 
     if (!error) {
-      toast.loading(t('Swap pending...'));
       history.push('/home');
     }
   }
@@ -340,7 +402,7 @@ export function Swap() {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
               setIsFromTokenSelectOpen(false);
             }}
-            tokensList={allTokensOnNetwork}
+            tokensList={allSwappableTokens}
             isOpen={isToTokenSelectOpen}
             selectedToken={selectedToToken}
             inputAmount={toAmount}
@@ -394,3 +456,13 @@ export function Swap() {
     </Stack>
   );
 }
+
+const getTokenFinder = (selectedToken: SwappableToken) => {
+  if (selectedToken.type === TokenType.NATIVE) {
+    return (token: TokenWithBalance) =>
+      token.type === TokenType.NATIVE && token.symbol === selectedToken.symbol;
+  }
+
+  return (token: TokenWithBalance) =>
+    token.type === TokenType.ERC20 && token.address === selectedToken.address;
+};

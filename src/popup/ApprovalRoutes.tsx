@@ -88,6 +88,12 @@ const GenericApprovalScreen = lazy(() => {
   }));
 });
 
+const TxBatchApprovalScreen = lazy(() => {
+  return import('../pages/ApproveAction/TxBatchApprovalScreen').then((m) => ({
+    default: m.TxBatchApprovalScreen,
+  }));
+});
+
 const ApproveAction = lazy(() => {
   return import('../pages/ApproveAction/ApproveAction').then((m) => ({
     default: m.ApproveAction,
@@ -137,6 +143,11 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       <Route path="/approve/generic">
         <SignTxErrorBoundary variant="OpenError">
           <GenericApprovalScreen />
+        </SignTxErrorBoundary>
+      </Route>
+      <Route path="/approve/tx-batch">
+        <SignTxErrorBoundary variant="OpenError">
+          <TxBatchApprovalScreen />
         </SignTxErrorBoundary>
       </Route>
       <Route path="/sign">

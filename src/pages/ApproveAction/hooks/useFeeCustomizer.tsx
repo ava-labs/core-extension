@@ -1,6 +1,5 @@
 import { Skeleton, Stack } from '@avalabs/core-k2-components';
 import {
-  DisplayData,
   NetworkTokenWithBalance,
   RpcMethod,
   SigningData,
@@ -12,8 +11,11 @@ import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { NetworkFee } from '@src/background/services/networkFee/models';
 
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
-import { useApproveAction } from '@src/hooks/useApproveAction';
+import {
+  CustomFees,
+  CustomGasFeesProps,
+  GasFeeModifier,
+} from '@src/components/common/CustomFees';
 import { SendErrorMessage } from '@src/utils/send/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
@@ -21,8 +23,23 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import {
+  Action,
+  MultiTxAction,
+  isBatchApprovalAction,
+} from '@src/background/services/actions/models';
 
-const getInitialFeeRate = (data?: SigningData): bigint | undefined => {
+const getInitialFeeRate = (
+  data?: SigningData | MultiTxFeeData,
+): bigint | undefined => {
+  if (!data) {
+    return undefined;
+  }
+
+  if (isMultiTxFeeData(data)) {
+    return undefined;
+  }
+
   if (data?.type === RpcMethod.BITCOIN_SEND_TRANSACTION) {
     return BigInt(data.data.feeRate);
   }
@@ -32,14 +49,28 @@ const getInitialFeeRate = (data?: SigningData): bigint | undefined => {
   }
 };
 
-export const useFeeCustomizer = ({
-  actionId,
+const MultiTxSymbol: unique symbol = Symbol();
+
+type MultiTxFeeData = {
+  type: typeof MultiTxSymbol;
+  gasLimit: bigint;
+  feeRate?: bigint;
+  maxTipRate?: bigint;
+};
+
+const isMultiTxFeeData = (
+  data: SigningData | MultiTxFeeData,
+): data is MultiTxFeeData => data.type === MultiTxSymbol;
+
+export function useFeeCustomizer({
+  action,
   network,
+  txIndex,
 }: {
-  actionId: string;
+  action?: Action | MultiTxAction;
   network?: NetworkWithCaipId;
-}) => {
-  const { action } = useApproveAction<DisplayData>(actionId);
+  txIndex?: number;
+}) {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -52,13 +83,12 @@ export const useFeeCustomizer = ({
 
   const [isCalculatingFee, setIsCalculatingFee] = useState(false);
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
-    GasFeeModifier.NORMAL,
+    GasFeeModifier.SLOW,
   );
+  const [isBatchApprovalScreen, setIsBatchApprovalScreen] = useState(false);
   const isFeeSelectorEnabled = Boolean(action?.displayData.networkFeeSelector);
 
-  const tokens = useTokensWithBalances({
-    chainId: network?.chainId,
-  });
+  const tokens = useTokensWithBalances({ network });
 
   const nativeToken = useMemo(
     () => tokens.find(({ type }) => type === TokenType.NATIVE) ?? null,
@@ -66,8 +96,56 @@ export const useFeeCustomizer = ({
   ) as NetworkTokenWithBalance | null;
 
   const signingData = useMemo(() => {
-    if (!isFeeSelectorEnabled) {
+    if (!action || !isFeeSelectorEnabled) {
       return undefined;
+    }
+
+    if (isBatchApprovalAction(action)) {
+      setIsBatchApprovalScreen(true);
+      if (typeof txIndex !== 'number') {
+        const gasLimit = action.signingRequests.reduce((sum, req) => {
+          if (req.signingData.type === RpcMethod.ETH_SEND_TRANSACTION) {
+            return sum + BigInt(req.signingData.data.gasLimit ?? 0n);
+          }
+
+          throw new Error(
+            'This transaction type is not supported in bulk approvals: ' +
+              req.signingData.type,
+          );
+        }, 0n);
+
+        return {
+          type: MultiTxSymbol,
+          feeRate: action.signingRequests.reduce((sum, req) => {
+            if (req.signingData.type === RpcMethod.ETH_SEND_TRANSACTION) {
+              const txGas = req.signingData.data.gasLimit;
+              const maxFee = req.signingData.data.maxFeePerGas;
+
+              if (!txGas || !maxFee) {
+                return 0n;
+              }
+
+              const weight = Number(txGas) / Number(gasLimit);
+
+              return sum + BigInt(Math.ceil(Number(maxFee) * weight));
+            }
+
+            throw new Error(
+              'This transaction type is not supported in bulk approvals: ' +
+                req.signingData.type,
+            );
+          }, 0n),
+          gasLimit,
+        } as MultiTxFeeData;
+      }
+
+      const signingRequest = (action as MultiTxAction).signingRequests[txIndex];
+
+      if (!signingRequest) {
+        return;
+      }
+
+      return signingRequest.signingData;
     }
 
     switch (action?.signingData?.type) {
@@ -80,11 +158,11 @@ export const useFeeCustomizer = ({
       default:
         return undefined;
     }
-  }, [action, isFeeSelectorEnabled]);
+  }, [action, isFeeSelectorEnabled, txIndex]);
 
   const updateFee = useCallback(
     async (maxFeeRate: bigint, maxTipRate?: bigint) => {
-      if (!actionId || !isFeeSelectorEnabled) {
+      if (!action?.actionId || !isFeeSelectorEnabled) {
         return;
       }
 
@@ -95,13 +173,29 @@ export const useFeeCustomizer = ({
 
       await request<UpdateActionTxDataHandler>({
         method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
-        params: [actionId, newFeeConfig],
+        params:
+          typeof txIndex === 'undefined'
+            ? [action.actionId, newFeeConfig]
+            : [action.actionId, newFeeConfig, txIndex],
       });
     },
-    [actionId, isFeeSelectorEnabled, request, signingData?.type],
+    [
+      action?.actionId,
+      isFeeSelectorEnabled,
+      request,
+      signingData?.type,
+      txIndex,
+    ],
   );
 
-  const getFeeInfo = useCallback((data: SigningData) => {
+  const getFeeInfo = useCallback((data: SigningData | MultiTxFeeData) => {
+    if (isMultiTxFeeData(data)) {
+      return {
+        limit: Number(data.gasLimit ?? 0n),
+        feeRate: data.feeRate ?? 0n,
+        maxTipRate: data.maxTipRate ?? 0n,
+      };
+    }
     switch (data.type) {
       case RpcMethod.AVALANCHE_SIGN_MESSAGE:
       case RpcMethod.ETH_SIGN:
@@ -247,38 +341,50 @@ export const useFeeCustomizer = ({
     return () => {
       isMounted = false;
     };
-  }, [isFeeSelectorEnabled, maxFeePerGas, maxPriorityFeePerGas, updateFee]);
-
-  const renderFeeWidget = useCallback(() => {
-    if (!networkFee || !signingData) {
-      return (
-        <Stack sx={{ gap: 0.5, justifyContent: 'flex-start' }}>
-          <Skeleton variant="text" width={120} />
-          <Skeleton variant="rounded" height={128} />
-        </Stack>
-      );
-    }
-
-    const { feeRate, limit } = getFeeInfo(signingData);
-
-    return (
-      <CustomFees
-        maxFeePerGas={feeRate}
-        limit={limit}
-        onChange={setCustomFee}
-        selectedGasFeeModifier={gasFeeModifier}
-        network={network}
-        networkFee={networkFee}
-      />
-    );
   }, [
-    gasFeeModifier,
-    getFeeInfo,
-    network,
-    networkFee,
-    setCustomFee,
-    signingData,
+    isFeeSelectorEnabled,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    updateFee,
+    txIndex,
   ]);
+
+  const renderFeeWidget = useCallback(
+    (props?: Partial<CustomGasFeesProps>) => {
+      if (!networkFee || !signingData) {
+        return (
+          <Stack sx={{ gap: 0.5, justifyContent: 'flex-start' }}>
+            <Skeleton variant="text" width={120} />
+            <Skeleton variant="rounded" height={128} />
+          </Stack>
+        );
+      }
+
+      const { feeRate, limit } = getFeeInfo(signingData);
+
+      return (
+        <CustomFees
+          maxFeePerGas={feeRate}
+          limit={limit}
+          onChange={setCustomFee}
+          selectedGasFeeModifier={gasFeeModifier}
+          network={network}
+          networkFee={networkFee}
+          isBatchApprovalScreen={isBatchApprovalScreen}
+          {...props}
+        />
+      );
+    },
+    [
+      gasFeeModifier,
+      getFeeInfo,
+      isBatchApprovalScreen,
+      network,
+      networkFee,
+      setCustomFee,
+      signingData,
+    ],
+  );
 
   return {
     isCalculatingFee,
@@ -286,4 +392,4 @@ export const useFeeCustomizer = ({
     renderFeeWidget,
     feeError,
   };
-};
+}

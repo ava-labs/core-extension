@@ -79,4 +79,16 @@ export type Never<T> = {
 
 export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
+export type FirstParameter<T extends (...args: any) => any> = T extends (
+  ...args: infer P
+) => any
+  ? P[0]
+  : never;
+
 export const ACTION_HANDLED_BY_MODULE = '__handled.via.vm.modules__';
+
+export type ExcludeUndefined<T extends Record<PropertyKey, unknown>> = {
+  [K in keyof T as T[K] extends undefined ? never : K]: T[K];
+};
+
+export type PickKeys<T, K extends (keyof T)[]> = Omit<T, K[number]>;

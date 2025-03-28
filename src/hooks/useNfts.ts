@@ -16,7 +16,7 @@ export const useNfts = () => {
     if (!network || !balances.nfts || !activeAccount) {
       return [];
     }
-    const userAddress = getAddressForChain(network.chainId, activeAccount);
+    const userAddress = getAddressForChain(network, activeAccount);
 
     if (!userAddress) {
       return [];

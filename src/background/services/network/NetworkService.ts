@@ -18,7 +18,6 @@ import {
   NetworkWithCaipId,
 } from './models';
 import {
-  AVALANCHE_P_DEV_NETWORK,
   AVALANCHE_XP_NETWORK,
   AVALANCHE_XP_TEST_NETWORK,
   BITCOIN_NETWORK,
@@ -53,7 +52,7 @@ import {
   decorateWithCaipId,
 } from '@src/utils/caipConversion';
 import { getSyncDomain, isSyncDomain } from './utils/getSyncDomain';
-import { isDevnet } from '@src/utils/isDevnet';
+import { isSolanaNetwork } from './utils/isSolanaNetwork';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -141,6 +140,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     const trackedFlags = [
       FeatureGates.IN_APP_SUPPORT_P_CHAIN,
       FeatureGates.IN_APP_SUPPORT_X_CHAIN,
+      FeatureGates.SOLANA_SUPPORT,
     ];
 
     return Object.fromEntries(
@@ -377,9 +377,6 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     return networkList;
   }
-  private _getPchainDevnet(): Network {
-    return decorateWithCaipId(AVALANCHE_P_DEV_NETWORK);
-  }
 
   private _getPchainNetwork(isTestnet: boolean): Network {
     const network = isTestnet
@@ -436,7 +433,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       const [result] = await resolve(
         getChainsAndTokens(
           process.env.RELEASE === 'production',
-          process.env.TOKENLIST_OVERRIDE || '',
+          `${process.env.PROXY_URL}/tokenlist?includeSolana`,
         ),
       );
 
@@ -449,7 +446,6 @@ export class NetworkService implements OnLock, OnStorageReady {
           [ChainId.AVALANCHE_P]: this._getPchainNetwork(false),
           [ChainId.AVALANCHE_TEST_X]: this._getXchainNetwork(true),
           [ChainId.AVALANCHE_X]: this._getXchainNetwork(false),
-          [ChainId.AVALANCHE_DEVNET_P]: this._getPchainDevnet(),
         };
       } else {
         attempt += 1;
@@ -486,13 +482,7 @@ export class NetworkService implements OnLock, OnStorageReady {
    * Returns the network object for Avalanche X/P Chains
    */
   getAvalancheNetworkXP() {
-    // TODO(@meeh0w): clean up after E-upgrade activation on Fuji
-    const isDevnetActive =
-      this.uiActiveNetwork && isDevnet(this.uiActiveNetwork);
-
-    return isDevnetActive
-      ? this._getPchainDevnet()
-      : this._getXchainNetwork(!this.isMainnet());
+    return this._getXchainNetwork(!this.isMainnet());
   }
 
   async getAvalancheNetwork() {
@@ -751,6 +741,11 @@ export class NetworkService implements OnLock, OnStorageReady {
           ]
         );
       })
+      .filter(
+        (network) =>
+          !isSolanaNetwork(network) ||
+          this.featureFlagService.featureFlags[FeatureGates.SOLANA_SUPPORT],
+      )
       .reduce(
         (acc, network) => ({
           ...acc,

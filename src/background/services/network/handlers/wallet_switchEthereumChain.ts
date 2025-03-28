@@ -6,7 +6,7 @@ import {
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { Action } from '../../actions/models';
+import { Action, buildActionForRequest } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { NetworkWithCaipId } from '../models';
@@ -83,13 +83,12 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler<
         return { ...request, result: null };
       }
 
-      const actionData = {
-        ...request,
+      const actionData = buildActionForRequest(request, {
         scope,
         displayData: {
           network: supportedNetwork,
         },
-      };
+      });
       await openApprovalWindow(actionData, `network/switch`);
 
       return { ...request, result: DEFERRED_RESPONSE };

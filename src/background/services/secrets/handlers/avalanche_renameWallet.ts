@@ -10,7 +10,7 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
 
-import { Action } from '../../actions/models';
+import { Action, ActionType } from '../../actions/models';
 import { SecretsService } from '../SecretsService';
 
 type Params = [walletId: string, newName: string];
@@ -91,6 +91,7 @@ export class AvalancheRenameWalletHandler extends DAppRequestHandler<
       walletName: string;
     }> = {
       ...request,
+      type: ActionType.Single,
       scope,
       displayData: {
         walletId,

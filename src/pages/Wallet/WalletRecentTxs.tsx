@@ -170,7 +170,7 @@ export function WalletRecentTxs({
       return undefined;
     }
 
-    const address = getAddressForChain(network.chainId, activeAccount);
+    const address = getAddressForChain(network, activeAccount);
 
     // Some WalletConnect accounts may come without the BTC address.
     if (!address) {

@@ -46,25 +46,6 @@ export const ContactInfo = ({ contact }: { contact: Contact }) => {
             <SimpleAddress address={contact.address} />
           </Stack>
         )}
-        {contact.addressBTC && (
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              width: '120px',
-              mt: 1,
-            }}
-            data-testid="contact-li-copy-btc-address"
-          >
-            <BitcoinColorIcon
-              sx={{
-                mr: 0.5,
-              }}
-              size={16}
-            />
-            <SimpleAddress address={contact.addressBTC} />
-          </Stack>
-        )}
         {contact.addressXP && (
           <Stack
             sx={{
@@ -82,6 +63,25 @@ export const ContactInfo = ({ contact }: { contact: Contact }) => {
               size={16}
             />
             <SimpleAddress address={contact.addressXP} />
+          </Stack>
+        )}
+        {contact.addressBTC && (
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              width: '120px',
+              mt: 1,
+            }}
+            data-testid="contact-li-copy-btc-address"
+          >
+            <BitcoinColorIcon
+              sx={{
+                mr: 0.5,
+              }}
+              size={16}
+            />
+            <SimpleAddress address={contact.addressBTC} />
           </Stack>
         )}
       </Stack>

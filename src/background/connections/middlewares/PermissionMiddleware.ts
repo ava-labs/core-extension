@@ -97,9 +97,12 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   DAppProviderRequest.AVALANCHE_SIGN_MESSAGE,
   DAppProviderRequest.AVALANCHE_GET_ACCOUNT_PUB_KEY,
   DAppProviderRequest.WALLET_ADD_NETWORK,
+  DAppProviderRequest.WALLET_GET_CHAIN,
   DAppProviderRequest.WALLET_GET_PUBKEY,
   DAppProviderRequest.WALLET_CONNECT,
   RpcMethod.HVM_SIGN_TRANSACTION,
+  RpcMethod.SOLANA_SIGN_TRANSACTION,
+  RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION,
 ]);
 
 const CORE_METHODS = Object.freeze([
@@ -115,7 +118,6 @@ const CORE_METHODS = Object.freeze([
   DAppProviderRequest.ACCOUNT_RENAME,
   DAppProviderRequest.ACCOUNTS_DELETE,
   DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
-  DAppProviderRequest.WALLET_GET_CHAIN,
   DAppProviderRequest.WALLET_RENAME,
 ]);
 
@@ -135,16 +137,15 @@ export function PermissionMiddleware(
     }
 
     // check if domain has permission
-    const permissions = await permissionService.getPermissions();
-    const activeAccountAddress = accountsService.activeAccount?.addressC;
+    const domain = context.domainMetadata?.domain ?? '';
+    const activeAccount = accountsService.activeAccount;
 
-    if (
-      activeAccountAddress &&
-      context.domainMetadata?.domain &&
-      permissions[context.domainMetadata.domain]?.accounts[activeAccountAddress]
-    ) {
-      // toggle authenticated since domain was previously approved
-      context.authenticated = true;
+    if (domain && activeAccount) {
+      context.authenticated =
+        await permissionService.hasDomainPermissionForAccount(
+          domain,
+          activeAccount,
+        );
     }
 
     const method = context.request.params.request.method;
@@ -159,9 +160,6 @@ export function PermissionMiddleware(
     }
 
     if (CORE_METHODS.includes(method)) {
-      const domain = context.domainMetadata?.domain
-        ? context.domainMetadata.domain
-        : '';
       const [, ...domainWithoutSubdomain] = domain.split('.'); // support any subdomains of core-web.pages.dev
 
       if (

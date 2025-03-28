@@ -19,7 +19,6 @@ module.exports = merge(prod, {
             shortName: 'Core Beta',
             actionDefaultTitle: 'Core Beta Browser Extension DEVELOPMENT BUILD',
             oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
-            originTrialsPromptAPIKey: process.env.ORIGIN_TRIALS_PROMPT_API_KEY,
           }),
           force: true,
         },

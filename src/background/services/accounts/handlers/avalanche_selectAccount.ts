@@ -9,10 +9,11 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { AccountsService } from '../AccountsService';
 import { Account } from '../models';
-import { Action } from '../../actions/models';
+import { Action, buildActionForRequest } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { isPrimaryAccount } from '../utils/typeGuards';
 import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 type Params = [selectedIndexOrID: number | string];
 
@@ -82,13 +83,12 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler<
       return { ...request, result: null };
     }
 
-    const actionData: Action<{ selectedAccount: Account }> = {
-      ...request,
+    const actionData = buildActionForRequest(request, {
       scope,
       displayData: {
         selectedAccount,
       },
-    };
+    });
 
     await openApprovalWindow(actionData, `switchAccount`);
 
@@ -112,10 +112,10 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler<
       const { selectedAccount } = pendingAction.displayData;
 
       if (pendingAction.site?.domain) {
-        await this.permissionsService.setAccountPermissionForDomain(
+        await this.permissionsService.grantPermission(
           pendingAction.site.domain,
           selectedAccount.addressC,
-          true,
+          NetworkVMType.EVM,
         );
       }
       await this.accountsService.activateAccount(selectedAccount.id);

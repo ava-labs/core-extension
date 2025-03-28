@@ -44,7 +44,7 @@ import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handle
 import { OnboardingUpdatedEvents } from '@src/background/services/onboarding/events/onboardingUpdatedEvent';
 import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
 import { PermissionStateUpdateEvents } from '@src/background/services/permissions/events/permissionsStateUpdates';
-import { PermissionsAddDomainHandler } from '@src/background/services/permissions/handlers/addPermissionsForDomain';
+import { RevokeAddressPermissionsForDomainHandler } from '@src/background/services/permissions/handlers/revokeAddressPermissionsForDomain';
 import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
 import { GetPermissionsForDomainHandler } from '@src/background/services/permissions/handlers/getPermissionsForDomain';
 import { SettingsUpdatedEvents } from '@src/background/services/settings/events/settingsUpdatedEvent';
@@ -129,6 +129,11 @@ import { BalancesUpdatedEvents } from '@src/background/services/balances/events/
 import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
 import { GetTotalBalanceForWalletHandler } from '@src/background/services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
+import { FundTxHandler } from '@src/background/services/gasless/handlers/fundTx';
+import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/handlers/getGaslessEligibility';
+import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallenge';
+import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
+import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -215,7 +220,10 @@ import { GetTotalBalanceForWalletHandler } from '@src/background/services/balanc
   { token: 'ExtensionRequestHandler', useToken: SeedlessOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: KeystoneOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: LedgerOnboardingHandler },
-  { token: 'ExtensionRequestHandler', useToken: PermissionsAddDomainHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: RevokeAddressPermissionsForDomainHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: GetAllPermissionsHandler },
   {
     token: 'ExtensionRequestHandler',
@@ -376,6 +384,22 @@ import { GetTotalBalanceForWalletHandler } from '@src/background/services/balanc
     token: 'ExtensionRequestHandler',
     useToken: GetTotalBalanceForWalletHandler,
   },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: FetchAndSolveChallengeHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: FundTxHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetGaslessEligibilityHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetDefaultStateValuesHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -406,5 +430,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: SeedlessMfaEvents },
   { token: 'ExtensionEventEmitter', useToken: UnifiedBridgeEvents },
   { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
+  { token: 'ExtensionEventEmitter', useToken: GaslessChallangeUpdateEvent },
 ])
 export class ExtensionEventEmitterRegistry {}

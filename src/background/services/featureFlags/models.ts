@@ -2,6 +2,9 @@ export enum FeatureGates {
   EVERYTHING = 'everything',
   EVENTS = 'events',
   SWAP = 'swap-feature',
+  SWAP_C_CHAIN = 'swap-c-chain',
+  SWAP_ETHEREUM = 'swap-ethereum',
+  SWAP_FEES = 'swap-fees',
   BRIDGE = 'bridge-feature',
   BRIDGE_ETH = 'bridge-feature-eth',
   BRIDGE_BTC = 'bridge-feature-btc',
@@ -45,6 +48,10 @@ export enum FeatureGates {
   BLOCKAID_TRANSACTION_SCAN = 'blockaid-transaction-scan',
   BLOCKAID_JSONRPC_SCAN = 'blockaid-jsonrpc-scan',
   HALLIDAY_BRIDGE_BANNER = 'halliday-bridge-banner',
+  FIREBASE_CLOUD_MESSAGING = 'firebase-cloud-messaging',
+  ONE_CLICK_SWAP = 'one-click-swap',
+  GASLESS = 'gasless',
+  SOLANA_SUPPORT = 'solana-support',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -53,6 +60,9 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.EVERYTHING]: false,
   [FeatureGates.EVENTS]: false,
   [FeatureGates.SWAP]: false,
+  [FeatureGates.SWAP_C_CHAIN]: false,
+  [FeatureGates.SWAP_ETHEREUM]: false,
+  [FeatureGates.SWAP_FEES]: false,
   [FeatureGates.BRIDGE]: false,
   [FeatureGates.BRIDGE_ETH]: false,
   [FeatureGates.BRIDGE_BTC]: false,
@@ -96,6 +106,10 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: false,
   [FeatureGates.BLOCKAID_JSONRPC_SCAN]: false,
   [FeatureGates.HALLIDAY_BRIDGE_BANNER]: false,
+  [FeatureGates.FIREBASE_CLOUD_MESSAGING]: false,
+  [FeatureGates.ONE_CLICK_SWAP]: false,
+  [FeatureGates.GASLESS]: false,
+  [FeatureGates.SOLANA_SUPPORT]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -103,6 +117,9 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.EVERYTHING]: true,
   [FeatureGates.EVENTS]: true,
   [FeatureGates.SWAP]: true,
+  [FeatureGates.SWAP_C_CHAIN]: true,
+  [FeatureGates.SWAP_ETHEREUM]: true,
+  [FeatureGates.SWAP_FEES]: true,
   [FeatureGates.BRIDGE]: true,
   [FeatureGates.BRIDGE_ETH]: true,
   [FeatureGates.BRIDGE_BTC]: true,
@@ -146,6 +163,10 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.BLOCKAID_TRANSACTION_SCAN]: true,
   [FeatureGates.BLOCKAID_JSONRPC_SCAN]: true,
   [FeatureGates.HALLIDAY_BRIDGE_BANNER]: true,
+  [FeatureGates.FIREBASE_CLOUD_MESSAGING]: true,
+  [FeatureGates.ONE_CLICK_SWAP]: true,
+  [FeatureGates.GASLESS]: true,
+  [FeatureGates.SOLANA_SUPPORT]: true,
 };
 
 export enum FeatureFlagEvents {

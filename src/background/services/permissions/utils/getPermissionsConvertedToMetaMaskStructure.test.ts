@@ -1,3 +1,4 @@
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { getPermissionsConvertedToMetaMaskStructure } from './getPermissionsConvertedToMetaMaskStructure';
 
 describe('background/services/permissions/utils/getPermissionConvertedToMetaMaskStructure', () => {
@@ -5,8 +6,7 @@ describe('background/services/permissions/utils/getPermissionConvertedToMetaMask
     'example.com': {
       domain: 'example.com',
       accounts: {
-        '123': false,
-        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': true,
+        '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': NetworkVMType.EVM,
       },
     },
   };

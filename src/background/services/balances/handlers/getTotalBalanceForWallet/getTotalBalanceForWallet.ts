@@ -24,6 +24,9 @@ import {
   getIncludedNetworks,
 } from './helpers';
 import { getXPChainIds } from '@src/utils/getDefaultChainIds';
+import { getExtendedPublicKey } from '@src/background/services/secrets/utils';
+import { AVALANCHE_BASE_DERIVATION_PATH } from '@src/background/services/secrets/models';
+import { isNotNullish } from '@src/utils/typeUtils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,
@@ -59,10 +62,20 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     const derivedAddressesUnprefixed = derivedWalletAddresses.map((addr) =>
       addr.replace(/^[PXC]-/i, ''),
     );
-    const underivedXPChainAddresses = secrets.xpubXP
+
+    const extendedPublicKey =
+      'extendedPublicKeys' in secrets
+        ? getExtendedPublicKey(
+            secrets.extendedPublicKeys,
+            AVALANCHE_BASE_DERIVATION_PATH,
+            'secp256k1',
+          )
+        : null;
+
+    const underivedXPChainAddresses = extendedPublicKey
       ? (
           await getAccountsWithActivity(
-            secrets.xpubXP,
+            extendedPublicKey.key,
             await this.networkService.getAvalanceProviderXP(),
             this.#getAddressesActivity,
           )
@@ -108,7 +121,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       // Get balance for derived addresses
       const { tokens: derivedAddressesBalances } =
         await this.balanceAggregatorService.getBalancesForNetworks(
-          networksIncludedInTotal,
+          networksIncludedInTotal.map((network) => network.chainId),
           derivedAccounts,
           [TokenType.NATIVE, TokenType.ERC20],
         );
@@ -133,10 +146,18 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             false, // Don't cache this
           );
 
+        const xpChains = (
+          await Promise.all(
+            getXPChainIds(this.networkService.isMainnet()).map((chainId) =>
+              this.networkService.getNetwork(chainId),
+            ),
+          )
+        ).filter(isNotNullish);
+
         const underivedAccountsTotal = calculateTotalBalanceForAccounts(
           underivedAddressesBalances,
           underivedAccounts,
-          getXPChainIds(this.networkService.isMainnet()),
+          xpChains,
         );
         totalBalanceInCurrency += underivedAccountsTotal;
         hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;

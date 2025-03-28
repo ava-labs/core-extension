@@ -7,11 +7,10 @@ import {
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { Action } from '../../actions/models';
+import { Action, buildActionForRequest } from '../../actions/models';
 import {
   AddEthereumChainDisplayData,
   AddEthereumChainParameter,
-  Network,
   NetworkWithCaipId,
 } from '../models';
 import { NetworkService } from '../NetworkService';
@@ -147,13 +146,12 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
     }
 
     if (chainRequestedIsSupported) {
-      const actionData: Action<{ network: Network }> = {
-        ...request,
+      const actionData = buildActionForRequest(request, {
         scope,
         displayData: {
           network: customNetwork,
         },
-      };
+      });
 
       await openApprovalWindow(actionData, `network/switch`);
 
@@ -173,8 +171,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
       };
     }
 
-    const actionData: Action<AddEthereumChainDisplayData> = {
-      ...request,
+    const actionData = buildActionForRequest(request, {
       scope,
       displayData: {
         network: customNetwork,
@@ -182,7 +179,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
           requiresGlacierApiKey: Boolean(requestedChain.requiresGlacierApiKey),
         },
       },
-    };
+    });
 
     await openApprovalWindow(actionData, `networks/add-popup`);
 

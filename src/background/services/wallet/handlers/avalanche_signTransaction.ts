@@ -5,7 +5,7 @@ import {
   JsonRpcRequestParams,
 } from '@src/background/connections/dAppConnection/models';
 import { DAppRequestHandler } from '@src/background/connections/dAppConnection/DAppRequestHandler';
-import { Action } from '../../actions/models';
+import { Action, buildActionForRequest } from '../../actions/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import {
   utils,
@@ -22,7 +22,6 @@ import { Network } from '@avalabs/glacier-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { HEADERS } from '../../glacier/glacierConfig';
-import { isDevnet } from '@src/utils/isDevnet';
 
 type TxParams = {
   transactionHex: string;
@@ -92,11 +91,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
       : await Avalanche.getUtxosByTxFromGlacier({
           transactionHex,
           chainAlias,
-          network: isDevnet(network)
-            ? Network.DEVNET
-            : network.isTestnet
-              ? Network.FUJI
-              : Network.MAINNET,
+          network: network.isTestnet ? Network.FUJI : Network.MAINNET,
           url: process.env.GLACIER_URL as string,
           token: process.env.GLACIER_API_KEY,
           headers: HEADERS,
@@ -196,8 +191,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
       };
     }
 
-    const actionData = {
-      ...request,
+    const actionData = buildActionForRequest(request, {
       scope,
       displayData: {
         unsignedTxJson: JSON.stringify(unsignedTx.toJSON()),
@@ -205,7 +199,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
         vm,
         ownSignatureIndices,
       },
-    };
+    });
 
     await openApprovalWindow(actionData, `approve/avalancheSignTx`);
 

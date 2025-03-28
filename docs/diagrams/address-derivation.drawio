@@ -1,0 +1,173 @@
+<mxfile host="app.diagrams.net" modified="2025-02-05T18:47:22.074Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" version="24.6.4" etag="cuE5NES3UAO8Z2zfU5ZQ" type="device">
+  <diagram id="lq-RA1kHXfyaoD9Zy4br" name="Page-1">
+    <mxGraphModel dx="5809" dy="2491" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1000" pageHeight="2000" background="#114B5F" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="246" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;fontFamily=Courier New;fontSize=14;fillColor=#696969;gradientColor=none;gradientDirection=east;opacity=20;" parent="1" vertex="1">
+          <mxGeometry x="-827" y="44" width="725" height="1093" as="geometry" />
+        </mxCell>
+        <mxCell id="247" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;fontFamily=Courier New;fontSize=14;fillColor=#696969;gradientColor=none;gradientDirection=east;opacity=20;" parent="1" vertex="1">
+          <mxGeometry x="104" y="71" width="371" height="941" as="geometry" />
+        </mxCell>
+        <mxCell id="116" value="" style="whiteSpace=wrap;html=1;rounded=0;fillStyle=solid;fillColor=default;strokeColor=none;opacity=70;" parent="1" vertex="1">
+          <mxGeometry x="-404" y="171" width="240" height="919" as="geometry" />
+        </mxCell>
+        <mxCell id="194" style="edgeStyle=orthogonalEdgeStyle;html=1;curved=1;strokeWidth=2;dashed=1;opacity=60;" parent="1" target="196" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="79" y="321" as="targetPoint" />
+            <mxPoint x="-281" y="278" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="16" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;rounded=0;" parent="1" target="14" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-281" y="191" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="17" value="&lt;b&gt;AddressResolver&lt;/b&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="-404" y="123" width="240" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="62" value="&lt;h1&gt;Wallet&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;" parent="1" vertex="1">
+          <mxGeometry x="-834" y="57" width="720" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="211" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;strokeWidth=2;fontFamily=Courier New;" parent="1" target="22" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-182" y="381" as="sourcePoint" />
+            <mxPoint x="30" y="378" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="208" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="-386" y="227" width="204" height="855" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-261" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.95;exitY=0.078;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="lhzwdMQ4_wXxhe9hBCGK-252" target="lhzwdMQ4_wXxhe9hBCGK-262">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-539.6000000000001" y="244.51999999999998" as="sourcePoint" />
+            <mxPoint x="-386" y="245.47826086956525" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-252" value="" style="whiteSpace=wrap;html=1;rounded=0;fillStyle=solid;fillColor=default;strokeColor=none;opacity=70;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="-782" y="171" width="240" height="919" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-253" value="&lt;b&gt;&amp;lt;any part of the app&amp;gt;&lt;/b&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="-782" y="123" width="240" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-254" value="needs to compute addresses for a&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;given secret, for example:&lt;/span&gt;&lt;div&gt;&lt;br&gt;&lt;br class=&quot;Apple-interchange-newline&quot;&gt;- public key&lt;br&gt;- private key&lt;/div&gt;&lt;div&gt;- seedphrase&lt;/div&gt;&lt;div&gt;- extended public key&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-748.75" y="195" width="173.5" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-262" value="&lt;meta charset=&quot;utf-8&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: &amp;quot;Courier New&amp;quot;; font-size: 12px; font-style: italic; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;.getAddressesForSecretId()&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-386" y="227.5" width="204" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-263" value="&lt;ol&gt;&lt;li&gt;Enumerates all VM Modules relevant to the active environment (mainnet / testnet)&lt;br&gt;&lt;br&gt;&lt;/li&gt;&lt;li&gt;For each module found, calls:&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;/li&gt;&lt;li&gt;Aggregates addresses computed by the VM modules and returns them to the requesting party&lt;/li&gt;&lt;/ol&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-395" y="239" width="190" height="672" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-264" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: &amp;quot;Courier New&amp;quot;; font-size: 12px; font-style: italic; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Module.deriveAddress()&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-386" y="367" width="204" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-267" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;fontFamily=Courier New;fontSize=14;fillColor=#696969;gradientColor=none;gradientDirection=east;opacity=20;" vertex="1" parent="1">
+          <mxGeometry x="124" y="51" width="371" height="937" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-265" value="&lt;pre&gt;secretId&lt;/pre&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-507" y="219" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-266" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.patternFillRect;fillStyle=diag;step=5;fillStrokeWidth=0.2;fillStrokeColor=#dddddd;fontFamily=Courier New;fontSize=14;fillColor=#696969;gradientColor=none;gradientDirection=east;opacity=20;" vertex="1" parent="1">
+          <mxGeometry x="114" y="61" width="371" height="939" as="geometry" />
+        </mxCell>
+        <mxCell id="91" value="" style="whiteSpace=wrap;html=1;rounded=0;fillStyle=solid;fillColor=default;strokeColor=none;opacity=70;" parent="1" vertex="1">
+          <mxGeometry x="115" y="401" width="353" height="569" as="geometry" />
+        </mxCell>
+        <mxCell id="22" value="deriveAddress()" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="115" y="353" width="353" height="57" as="geometry" />
+        </mxCell>
+        <mxCell id="10" value="&lt;h1&gt;VM Modules&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontStyle=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="106" y="77" width="365" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-269" value="&lt;pre&gt;&lt;ul&gt;&lt;li&gt;secretId&lt;/li&gt;&lt;li&gt;derivationPathType&lt;/li&gt;&lt;li&gt;accountIndex&lt;/li&gt;&lt;li&gt;network&lt;/li&gt;&lt;/ul&gt;&lt;/pre&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-108" y="332" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-305" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" target="lhzwdMQ4_wXxhe9hBCGK-264">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-287" y="784" as="sourcePoint" />
+            <mxPoint x="-247" y="696" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-270" value="" style="whiteSpace=wrap;html=1;rounded=0;fillStyle=solid;fillColor=default;strokeColor=none;opacity=70;" vertex="1" parent="1">
+          <mxGeometry x="-425" y="484" width="282" height="277" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-271" value="&lt;b&gt;ApprovalController&lt;/b&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="-425" y="436" width="282" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-272" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-395" y="510" width="223" height="205" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-280" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="lhzwdMQ4_wXxhe9hBCGK-279" target="lhzwdMQ4_wXxhe9hBCGK-282">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-168" y="529" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-281" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="134" y="440" width="317" height="129" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-279" value="&lt;span style=&quot;background-color: initial; font-size: 12px;&quot;&gt;Builds the derivation path specific to the requested spec (BIP44 or LedgerLive) and account index.&lt;br style=&quot;font-size: 12px;&quot;&gt;&lt;br style=&quot;font-size: 12px;&quot;&gt;Then passes the derivation path and chosen cryptographic curve to the ApprovalController in order to obtain the public key from which the address is to be computed.&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="145" y="458" width="277" height="94" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-282" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: &amp;quot;Courier New&amp;quot;; font-size: 12px; font-style: italic; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;.requestPublicKey()&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-386" y="513.5" width="204" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-284" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="134" y="117" width="331" height="122" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-285" value="Each VM Module is built &amp;amp; used with the assumption that it knows how to construct the derivation path needed to compute the address.&lt;div&gt;&lt;br&gt;It should also know what cryptographic curve should be used -- at the moment Secp256k1 and Ed25519 curves are supported by the Core wallet.&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="145" y="150" width="303" height="57" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-290" value="&lt;i&gt;In the future, a user approval may be needed.&lt;/i&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;i&gt;At the moment, the request is simply passed to the SecretsService,&lt;br&gt;which knows how to derive public keys from each secret type it stores.&lt;/i&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-385" y="534" width="202" height="172" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-291" value="&lt;pre&gt;&lt;ul&gt;&lt;li&gt;secretId&lt;/li&gt;&lt;li&gt;derivationPath&lt;/li&gt;&lt;li&gt;curve&lt;/li&gt;&lt;/ul&gt;&lt;/pre&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-108" y="491" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-295" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="134" y="633" width="317" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-296" value="Given the public key, the addresses are derived.&lt;div&gt;&lt;br&gt;Some modules may derive multiple addresses from one public key, one for each virtual machine the module supports.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;An example of this would be the Avalanche Module, which will return addresses for both P- and X-Chains.&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="145" y="665" width="277" height="94" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-298" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0.003;entryY=0.152;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="lhzwdMQ4_wXxhe9hBCGK-272" target="lhzwdMQ4_wXxhe9hBCGK-295">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-297" y="745" as="sourcePoint" />
+            <mxPoint x="44" y="664" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-299" value="&lt;pre&gt;&lt;ul&gt;&lt;li&gt;public key (hex)&lt;/li&gt;&lt;/ul&gt;&lt;/pre&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-108" y="639" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-308" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.004;exitY=0.889;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="lhzwdMQ4_wXxhe9hBCGK-295">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="43" y="819" as="sourcePoint" />
+            <mxPoint x="-177" y="819" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-309" value="&lt;pre&gt;&lt;ul&gt;&lt;li&gt;address(es)&lt;/li&gt;&lt;/ul&gt;&lt;/pre&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-98" y="794" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-312" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=-0.001;exitY=0.935;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1.019;entryY=0.758;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="lhzwdMQ4_wXxhe9hBCGK-263" target="lhzwdMQ4_wXxhe9hBCGK-252">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-505" y="869" as="sourcePoint" />
+            <mxPoint x="-742" y="869" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-313" value="&lt;pre&gt;&lt;ul&gt;&lt;li&gt;aggregated&lt;br/&gt;addresses&lt;/li&gt;&lt;/ul&gt;&lt;/pre&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-542" y="834" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-314" value="&lt;div&gt;receives the requested addresses&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-748.75" y="858" width="173.5" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="lhzwdMQ4_wXxhe9hBCGK-315" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="lhzwdMQ4_wXxhe9hBCGK-314" target="lhzwdMQ4_wXxhe9hBCGK-254">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-667" y="794" as="sourcePoint" />
+            <mxPoint x="-664" y="407" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

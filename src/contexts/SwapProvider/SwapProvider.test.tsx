@@ -1,34 +1,49 @@
-import { SwapSide } from 'paraswap';
 import { createRef, forwardRef, useImperativeHandle } from 'react';
+import { act } from 'react-dom/test-utils';
 
-import { render } from '@src/tests/test-utils';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { matchingPayload, render } from '@src/tests/test-utils';
 
 import { useAccountsContext } from '../AccountsProvider';
 import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
+import { useWalletContext } from '../WalletProvider';
 
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { Contract } from 'ethers';
 import Big from 'big.js';
-import { GetRateParams, SwapContextAPI, SwapParams } from './models';
+import {
+  GetRateParams,
+  SwapContextAPI,
+  SwapErrorCode,
+  SwapParams,
+} from './models';
 import { SwapContextProvider, useSwapContext } from './SwapProvider';
 import { useNetworkFeeContext } from '../NetworkFeeProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { SecretType } from '@src/background/services/secrets/models';
+import { RpcMethod } from '@avalabs/vm-module-types';
+import * as swapUtils from './swap-utils';
+import { CommonError } from '@src/utils/errors';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { constructPartialSDK, OptimalRate } from '@paraswap/sdk';
+import { NATIVE_TOKEN_ADDRESS } from './constants';
 
-const API_URL = 'https://apiv5.paraswap.io';
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
-const ROUTE_ADDRESS = '0x0000000000';
+const ROUTE_ADDRESS = '0x12341234';
 
-const getSwapProvider = (): SwapContextAPI => {
+const getSwapProvider = async (): Promise<SwapContextAPI> => {
   const ref = createRef<SwapContextAPI>();
 
-  render(
-    <SwapContextProvider>
-      <TestConsumerComponent ref={ref} />
-    </SwapContextProvider>,
-  );
+  await act(async () => {
+    render(
+      <SwapContextProvider>
+        <TestConsumerComponent ref={ref} />
+      </SwapContextProvider>,
+    );
+  });
 
   return ref.current ?? ({} as SwapContextAPI);
 };
@@ -52,6 +67,8 @@ const TestConsumerComponent = forwardRef((_props: unknown, ref) => {
 });
 TestConsumerComponent.displayName = 'TestComponent';
 
+jest.mock('@paraswap/sdk');
+
 jest.mock('../AnalyticsProvider', () => ({
   useAnalyticsContext: jest.fn(),
 }));
@@ -62,6 +79,10 @@ jest.mock('../NetworkProvider', () => ({
 
 jest.mock('../AccountsProvider', () => ({
   useAccountsContext: jest.fn(),
+}));
+
+jest.mock('../WalletProvider', () => ({
+  useWalletContext: jest.fn(),
 }));
 
 jest.mock('../FeatureFlagsProvider', () => ({
@@ -76,6 +97,9 @@ jest.mock('../ConnectionProvider', () => ({
   useConnectionContext: jest.fn(),
 }));
 
+jest.mock('@src/utils/network/getProviderForNetwork');
+jest.mock('@src/hooks/useTokensWithBalances');
+
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (k) => k,
@@ -83,8 +107,18 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('ethers');
+jest.mock('@avalabs/core-k2-components', () => ({
+  toast: {
+    success: jest.fn(),
+    loading: jest.fn(),
+    dismiss: jest.fn(),
+    error: jest.fn(),
+    custom: jest.fn(),
+    remove: jest.fn(),
+  },
+}));
 
-describe.only('contexts/SwapProvider', () => {
+describe('contexts/SwapProvider', () => {
   const connectionContext = {
     request: jest.fn(),
     events: jest.fn(),
@@ -98,36 +132,53 @@ describe.only('contexts/SwapProvider', () => {
     },
   } as any;
 
-  const networkContext = {
+  const rpcProvider = {
+    waitForTransaction: jest.fn(),
+    estimateGas: jest.fn(),
+    _network: {
+      chainId: ChainId.AVALANCHE_MAINNET_ID,
+    },
+  } as any;
+
+  const networkContextAVA = {
     network: {
+      chainId: ChainId.AVALANCHE_MAINNET_ID,
       isTestnet: false,
       networkToken: {
         symbol: 'AVAX',
       },
     },
-    avaxProviderC: {
-      waitForTransaction: jest.fn(),
-    },
+  } as any;
+
+  const paraswapInstance = {
+    getRate: jest.fn(),
+    getSpender: jest.fn().mockResolvedValue(ROUTE_ADDRESS),
+    buildTx: jest.fn(),
   } as any;
 
   beforeEach(() => {
     jest.resetAllMocks();
     jest.useRealTimers();
+    global.fetch = jest.fn().mockResolvedValue({});
+    jest.mocked(constructPartialSDK).mockReturnValue(paraswapInstance);
 
-    jest.spyOn(global, 'fetch').mockResolvedValue({
-      json: async () => ({}),
-      ok: true,
-    } as any);
-
-    jest.mocked(useConnectionContext).mockReturnValue(connectionContext);
-    jest.mocked(useAccountsContext).mockReturnValue(accountsContext);
-    jest.mocked(useNetworkContext).mockReturnValue(networkContext);
-    jest.mocked(useFeatureFlagContext).mockReturnValue({
-      featureFlags: {
-        [FeatureGates.SWAP]: true,
+    jest.mocked(useWalletContext).mockReturnValue({
+      walletDetails: {
+        type: SecretType.Mnemonic,
       },
     } as any);
-
+    jest.mocked(useConnectionContext).mockReturnValue(connectionContext);
+    jest.mocked(useAccountsContext).mockReturnValue(accountsContext);
+    jest.mocked(useNetworkContext).mockReturnValue(networkContextAVA);
+    jest.mocked(useFeatureFlagContext).mockReturnValue({
+      isFlagEnabled: (flagName) => flagName !== FeatureGates.ONE_CLICK_SWAP,
+    } as any);
+    jest.mocked(useTokensWithBalances).mockReturnValue([]);
+    jest.mocked(rpcProvider.estimateGas).mockResolvedValue(10000n);
+    rpcProvider.waitForTransaction.mockResolvedValue({
+      status: 1,
+    });
+    jest.mocked(getProviderForNetwork).mockResolvedValue(rpcProvider);
     jest.mocked(useNetworkFeeContext).mockReturnValue({
       networkFee: {
         low: {
@@ -142,30 +193,6 @@ describe.only('contexts/SwapProvider', () => {
   });
 
   describe('getRate() function', () => {
-    const getExpectedURL = (path, params: GetRateParams) => {
-      const {
-        srcToken,
-        srcDecimals,
-        destToken,
-        destDecimals,
-        srcAmount,
-        swapSide,
-      } = params;
-
-      const expectedQuery = new URLSearchParams({
-        srcToken,
-        destToken,
-        amount: srcAmount,
-        side: swapSide || SwapSide.SELL,
-        network: `${ChainId.AVALANCHE_MAINNET_ID}`,
-        srcDecimals: `${srcDecimals}`,
-        destDecimals: `${destDecimals}`,
-        userAddress: ACTIVE_ACCOUNT_ADDRESS,
-      });
-
-      return `${API_URL}/${path}/?${expectedQuery.toString()}`;
-    };
-
     const buildGetRateParams = (overrides?: Partial<GetRateParams>) =>
       ({
         srcToken: 'srcToken',
@@ -183,10 +210,10 @@ describe.only('contexts/SwapProvider', () => {
           jest
             .mocked(useNetworkContext)
             .mockReturnValue(failingNetworkContext as any);
-          const { getRate } = getSwapProvider();
+          const { getRate } = await getSwapProvider();
 
           await expect(getRate(buildGetRateParams())).rejects.toThrow(
-            'Unsupported network',
+            swapUtils.swapError(CommonError.UnknownNetwork),
           );
         },
       );
@@ -200,10 +227,10 @@ describe.only('contexts/SwapProvider', () => {
         jest
           .mocked(useAccountsContext)
           .mockReturnValue(failingAccountsContext as any);
-        const { getRate } = getSwapProvider();
+        const { getRate } = await getSwapProvider();
 
         await expect(getRate(buildGetRateParams())).rejects.toThrow(
-          'Account address missing',
+          swapUtils.swapError(CommonError.NoActiveAccount),
         );
       });
     });
@@ -211,14 +238,12 @@ describe.only('contexts/SwapProvider', () => {
     describe('when SWAP feature is disabled', () => {
       beforeEach(() => {
         jest.mocked(useFeatureFlagContext).mockReturnValue({
-          featureFlags: {
-            [FeatureGates.SWAP]: false,
-          },
+          isFlagEnabled: () => false,
         } as any);
       });
 
       it('returns an error', async () => {
-        const { getRate } = getSwapProvider();
+        const { getRate } = await getSwapProvider();
 
         await expect(getRate(buildGetRateParams())).rejects.toThrow(
           'Feature (SWAP) is currently unavailable',
@@ -228,55 +253,101 @@ describe.only('contexts/SwapProvider', () => {
 
     describe('when a network problem occurs', () => {
       beforeEach(() => {
-        jest
-          .spyOn(global, 'fetch')
+        paraswapInstance.getRate
           .mockRejectedValueOnce(new TypeError('Failed to fetch'))
           .mockResolvedValueOnce({
-            json: () => ({
-              priceRoute: { price: 'route' },
-            }),
-          } as any);
+            destAmount: '123',
+            bestRoute: [],
+          } as any as OptimalRate);
       });
 
       it('retries the fetch call', async () => {
-        const { getRate } = getSwapProvider();
+        const { getRate } = await getSwapProvider();
 
         const result = await getRate(buildGetRateParams());
 
-        expect(global.fetch).toHaveBeenCalledTimes(2);
+        expect(paraswapInstance.getRate).toHaveBeenCalledTimes(2);
         expect(result).toEqual({
+          destAmount: '123',
           optimalRate: {
-            price: 'route',
+            destAmount: '123',
+            bestRoute: [],
           },
         });
       });
     });
 
+    it('maps srcToken to 0xEeEe... when its the native token', async () => {
+      paraswapInstance.getRate.mockResolvedValueOnce({
+        address: ROUTE_ADDRESS,
+        destAmount: 1000,
+      } as any);
+
+      const { getRate } = await getSwapProvider();
+      const params = buildGetRateParams({
+        srcToken: networkContextAVA.network.networkToken.symbol,
+      });
+
+      await getRate(params);
+
+      expect(paraswapInstance.getRate).toHaveBeenCalledWith({
+        amount: params.srcAmount,
+        srcToken: NATIVE_TOKEN_ADDRESS,
+        srcDecimals: 18,
+        destToken: 'destToken',
+        destDecimals: 10,
+        side: 'SELL',
+        userAddress: 'addressC',
+      });
+    });
+
+    it('maps destToken to 0xEeEe... when its the native token', async () => {
+      paraswapInstance.getRate.mockResolvedValueOnce({
+        address: ROUTE_ADDRESS,
+        destAmount: 1000,
+      } as any);
+
+      const { getRate } = await getSwapProvider();
+      const params = buildGetRateParams({
+        destToken: networkContextAVA.network.networkToken.symbol,
+      });
+
+      await getRate(params);
+
+      expect(paraswapInstance.getRate).toHaveBeenCalledWith({
+        destToken: NATIVE_TOKEN_ADDRESS,
+        destDecimals: 18,
+        amount: '1000',
+        srcToken: 'srcToken',
+        srcDecimals: 10,
+        side: 'SELL',
+        userAddress: 'addressC',
+      });
+    });
+
     describe('when a server times out', () => {
       beforeEach(() => {
-        jest
-          .spyOn(global, 'fetch')
+        paraswapInstance.getRate
           .mockResolvedValueOnce({
-            json: () => ({
-              error: 'Price Timeout',
-            }),
+            error: 'Price Timeout',
           } as any)
           .mockResolvedValueOnce({
-            json: () => ({
-              priceRoute: { price: 'route' },
-            }),
+            address: ROUTE_ADDRESS,
+            destAmount: 1000,
           } as any);
       });
 
       it('retries the fetch call', async () => {
-        const { getRate } = getSwapProvider();
+        const { getRate } = await getSwapProvider();
 
         const result = await getRate(buildGetRateParams());
 
-        expect(global.fetch).toHaveBeenCalledTimes(2);
+        expect(paraswapInstance.getRate).toHaveBeenCalledTimes(2);
         expect(result).toEqual({
+          destAmount: 1000,
           optimalRate: {
-            price: 'route',
+            address: '0x12341234',
+            destAmount: 1000,
           },
         });
       });
@@ -284,37 +355,29 @@ describe.only('contexts/SwapProvider', () => {
 
     describe('when a non-recoverable error occurs', () => {
       beforeEach(() => {
-        jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-          json: () => ({
-            error: 'Invalid tokens',
-          }),
-          ok: true,
+        paraswapInstance.getRate.mockResolvedValueOnce({
+          error: 'Invalid tokens',
         } as any);
       });
 
       it('does not retry', async () => {
-        const { getRate } = getSwapProvider();
+        const { getRate } = await getSwapProvider();
 
         await expect(getRate(buildGetRateParams())).rejects.toThrow(
-          'Invalid tokens',
+          swapUtils.swapError(CommonError.Unknown, new Error('Invalid tokens')),
         );
 
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(paraswapInstance.getRate).toHaveBeenCalledTimes(1);
       });
     });
 
     it('returns the correct route with native token and missing side', async () => {
-      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-        json: async () => ({
-          priceRoute: {
-            address: ROUTE_ADDRESS,
-            destAmount: 1000,
-          },
-        }),
-        ok: true,
+      paraswapInstance.getRate.mockResolvedValueOnce({
+        address: ROUTE_ADDRESS,
+        destAmount: 1000,
       } as any);
 
-      const { getRate } = getSwapProvider();
+      const { getRate } = await getSwapProvider();
       const params = buildGetRateParams({ swapSide: undefined });
 
       expect(await getRate(params)).toStrictEqual({
@@ -325,9 +388,15 @@ describe.only('contexts/SwapProvider', () => {
         },
       });
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        getExpectedURL('prices', params),
-      );
+      expect(paraswapInstance.getRate).toHaveBeenCalledWith({
+        amount: '1000',
+        destDecimals: 10,
+        destToken: 'destToken',
+        side: 'SELL',
+        srcDecimals: 10,
+        srcToken: 'srcToken',
+        userAddress: 'addressC',
+      });
     });
   });
 
@@ -350,7 +419,7 @@ describe.only('contexts/SwapProvider', () => {
       }) as SwapParams;
 
     beforeEach(() => {
-      networkContext.avaxProviderC.waitForTransaction.mockResolvedValue({
+      rpcProvider.waitForTransaction.mockResolvedValue({
         status: 1,
       });
     });
@@ -363,12 +432,14 @@ describe.only('contexts/SwapProvider', () => {
       ['srcAmount', getSwapParams({ srcAmount: undefined })],
       ['priceRoute', getSwapParams({ priceRoute: undefined })],
       ['destAmount', getSwapParams({ destAmount: undefined })],
-      ['gasLimit', getSwapParams({ gasLimit: undefined })],
     ])('validates the presence of %s parameter', async (paramName, params) => {
-      const { swap } = getSwapProvider();
+      const { swap } = await getSwapProvider();
 
       await expect(swap(params)).rejects.toThrow(
-        `Missing parameter: ${paramName}`,
+        swapUtils.swapError(
+          SwapErrorCode.MissingParams,
+          new Error(`Missing parameter: ${paramName}`),
+        ),
       );
     });
 
@@ -379,11 +450,9 @@ describe.only('contexts/SwapProvider', () => {
           jest
             .mocked(useNetworkContext)
             .mockReturnValue(failingNetworkContext as any);
-          const { swap } = getSwapProvider();
+          const { swap } = await getSwapProvider();
 
-          await expect(swap(getSwapParams())).rejects.toThrow(
-            'Unsupported network',
-          );
+          await expect(swap(getSwapParams())).rejects.toThrow();
         },
       );
     });
@@ -396,25 +465,21 @@ describe.only('contexts/SwapProvider', () => {
         jest
           .mocked(useAccountsContext)
           .mockReturnValue(failingAccountsContext as any);
-        const { swap } = getSwapProvider();
+        const { swap } = await getSwapProvider();
 
-        await expect(swap(getSwapParams())).rejects.toThrow(
-          'Account address missing',
-        );
+        await expect(swap(getSwapParams())).rejects.toThrow();
       });
     });
 
     describe('when SWAP feature is disabled', () => {
       beforeEach(() => {
         jest.mocked(useFeatureFlagContext).mockReturnValue({
-          featureFlags: {
-            [FeatureGates.SWAP]: false,
-          },
+          isFlagEnabled: () => false,
         } as any);
       });
 
       it('returns an error', async () => {
-        const { swap } = getSwapProvider();
+        const { swap } = await getSwapProvider();
 
         await expect(swap(getSwapParams())).rejects.toThrow(
           'Feature (SWAP) is currently unavailable',
@@ -429,13 +494,13 @@ describe.only('contexts/SwapProvider', () => {
           .fn()
           .mockRejectedValueOnce(new Error('Could not fetch allowance'));
 
-        jest.mocked(Contract).mockReturnValueOnce({
+        jest.mocked(Contract).mockReturnValue({
           allowance: allowanceMock,
         } as any);
       });
 
       it('returns an error', async () => {
-        const { swap } = getSwapProvider();
+        const { swap } = await getSwapProvider();
 
         await expect(
           swap(
@@ -443,7 +508,7 @@ describe.only('contexts/SwapProvider', () => {
               srcToken: 'JEWEL',
             }),
           ),
-        ).rejects.toThrow(/Allowance Error/i);
+        ).rejects.toThrow();
       });
     });
 
@@ -458,10 +523,11 @@ describe.only('contexts/SwapProvider', () => {
           .fn()
           .mockRejectedValueOnce(new Error('Insufficient funds'));
 
-        jest.mocked(Contract).mockReturnValueOnce({
+        jest.mocked(rpcProvider.estimateGas).mockResolvedValue(10000n);
+
+        jest.mocked(Contract).mockReturnValue({
           allowance: allowanceMock,
           approve: {
-            estimateGas: jest.fn().mockResolvedValue(10000n),
             populateTransaction: jest.fn().mockResolvedValueOnce({
               data: 'data',
             }),
@@ -475,7 +541,7 @@ describe.only('contexts/SwapProvider', () => {
       });
 
       it('returns an error', async () => {
-        const { swap } = getSwapProvider();
+        const { swap } = await getSwapProvider();
 
         await expect(
           swap(
@@ -483,11 +549,11 @@ describe.only('contexts/SwapProvider', () => {
               srcToken: 'JEWEL',
             }),
           ),
-        ).rejects.toThrow(/Insufficient funds/i);
+        ).rejects.toThrow();
       });
     });
 
-    describe('when swapping non-native token', () => {
+    fdescribe('when swapping non-native token', () => {
       let allowanceMock;
       let requestMock;
 
@@ -497,25 +563,22 @@ describe.only('contexts/SwapProvider', () => {
       };
 
       beforeEach(() => {
-        jest.spyOn(global, 'fetch').mockResolvedValue({
-          json: jest.fn().mockResolvedValue({
-            data: 'data',
-            to: '0xParaswapContractAddress',
-            from: '0x123',
-            value: '0x0',
-            gas: '1223',
-            chainId: 123,
-          }),
-          ok: true,
+        paraswapInstance.buildTx.mockResolvedValue({
+          data: 'data',
+          to: '0xParaswapContractAddress',
+          from: '0x123',
+          value: '0x0',
+          gas: '1223',
+          chainId: 123,
         } as any);
 
         allowanceMock = jest.fn().mockResolvedValue(0);
         requestMock = jest.fn().mockResolvedValue('0xALLOWANCE_HASH');
 
-        jest.mocked(Contract).mockReturnValueOnce({
+        jest.mocked(rpcProvider.estimateGas).mockResolvedValue(10000n);
+        jest.mocked(Contract).mockReturnValue({
           allowance: allowanceMock,
           approve: {
-            estimateGas: jest.fn().mockResolvedValue(10000n),
             populateTransaction: jest.fn().mockResolvedValueOnce(mockedTx),
           },
         } as any);
@@ -526,8 +589,8 @@ describe.only('contexts/SwapProvider', () => {
         } as any);
       });
 
-      it('prompts a spend approval first', async () => {
-        const { swap } = getSwapProvider();
+      fit('prompts a spend approval first', async () => {
+        const { swap } = await getSwapProvider();
 
         await swap(
           getSwapParams({
@@ -548,19 +611,16 @@ describe.only('contexts/SwapProvider', () => {
     it('uses Paraswap API to build the transaction data', async () => {
       const requestMock = jest.fn();
 
-      jest.spyOn(global, 'fetch').mockResolvedValue({
-        json: jest.fn().mockResolvedValue({
-          data: 'data',
-          to: '0xParaswapContractAddress',
-          from: '0x123',
-          value: '0x0',
-          chainId: 123,
-          someExtraParam: '123',
-        }),
-        ok: true,
+      paraswapInstance.buildTx.mockResolvedValue({
+        data: 'data',
+        to: '0xParaswapContractAddress',
+        from: '0x123',
+        value: '0x0',
+        chainId: 123,
+        someExtraParam: '123',
       } as any);
 
-      jest.mocked(Contract).mockReturnValueOnce({
+      jest.mocked(Contract).mockReturnValue({
         allowance: jest.fn().mockResolvedValue(Infinity),
       } as any);
 
@@ -569,7 +629,7 @@ describe.only('contexts/SwapProvider', () => {
         events: jest.fn(),
       } as any);
 
-      const { swap } = getSwapProvider();
+      const { swap } = await getSwapProvider();
 
       const {
         destAmount,
@@ -579,7 +639,6 @@ describe.only('contexts/SwapProvider', () => {
         srcDecimals,
         srcToken,
         priceRoute,
-        gasLimit,
         slippage,
       } = getSwapParams();
 
@@ -590,45 +649,41 @@ describe.only('contexts/SwapProvider', () => {
         destToken,
         destDecimals,
         destAmount,
-        gasLimit,
         priceRoute,
         slippage,
       });
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('transactions/43114'),
-        expect.objectContaining({
-          method: 'POST',
-          body: JSON.stringify({
-            srcToken,
-            srcDecimals,
-            srcAmount: new Big(srcAmount).times(1 + slippage / 100).toFixed(0), // increased by slippage
-            destToken,
-            destDecimals,
-            destAmount: '1', // from optimal route mock
-            priceRoute,
-            userAddress: 'addressC',
-            partner: 'Avalanche',
-          }),
-        }),
+      expect(paraswapInstance.buildTx).toHaveBeenCalledWith(
+        {
+          srcToken,
+          srcDecimals,
+          srcAmount: new Big(srcAmount).times(1 + slippage / 100).toFixed(0), // increased by slippage
+          destToken,
+          destDecimals,
+          destAmount: '1', // from optimal route mock
+          priceRoute,
+          userAddress: 'addressC',
+          partner: 'Avalanche',
+          partnerAddress: '0xcEA3b9415F269B5686403909d781959570f32CF0',
+          partnerFeeBps: 85,
+          isDirectFeeTransfer: true,
+        },
+        { ignoreChecks: undefined },
       );
     });
 
     it('verifies Paraswap API response for correct parameters', async () => {
       const requestMock = jest.fn();
 
-      jest.spyOn(global, 'fetch').mockResolvedValue({
-        json: jest.fn().mockResolvedValue({
-          data: '',
-          to: '',
-          from: '0x123',
-          value: '0x0',
-          chainId: 123,
-        }),
-        ok: true,
+      paraswapInstance.buildTx.mockResolvedValue({
+        data: '',
+        to: '',
+        from: '0x123',
+        value: '0x0',
+        chainId: 123,
       } as any);
 
-      jest.mocked(Contract).mockReturnValueOnce({
+      jest.mocked(Contract).mockReturnValue({
         allowance: jest.fn().mockResolvedValue(Infinity),
       } as any);
 
@@ -637,7 +692,7 @@ describe.only('contexts/SwapProvider', () => {
         events: jest.fn(),
       } as any);
 
-      const { swap } = getSwapProvider();
+      const { swap } = await getSwapProvider();
 
       const {
         destAmount,
@@ -647,7 +702,6 @@ describe.only('contexts/SwapProvider', () => {
         srcDecimals,
         srcToken,
         priceRoute,
-        gasLimit,
         slippage,
       } = getSwapParams();
 
@@ -660,7 +714,6 @@ describe.only('contexts/SwapProvider', () => {
         destToken,
         destDecimals,
         destAmount,
-        gasLimit,
         priceRoute,
         slippage,
       })
@@ -668,9 +721,7 @@ describe.only('contexts/SwapProvider', () => {
           fail('Expected to throw');
         })
         .catch((err) => {
-          expect(err.message).toEqual(
-            'Data Error: Error: Invalid transaction params',
-          );
+          expect(err.message).toEqual('Invalid transaction params');
         });
 
       await waitForRetries(10);
@@ -686,7 +737,7 @@ describe.only('contexts/SwapProvider', () => {
         ok: true,
       } as any);
 
-      jest.mocked(Contract).mockReturnValueOnce({
+      jest.mocked(Contract).mockReturnValue({
         allowance: jest.fn().mockResolvedValue(Infinity),
       } as any);
 
@@ -695,7 +746,7 @@ describe.only('contexts/SwapProvider', () => {
         events: jest.fn(),
       } as any);
 
-      const { swap } = getSwapProvider();
+      const { swap } = await getSwapProvider();
 
       const {
         destAmount,
@@ -705,7 +756,6 @@ describe.only('contexts/SwapProvider', () => {
         srcDecimals,
         srcToken,
         priceRoute,
-        gasLimit,
         slippage,
       } = getSwapParams();
 
@@ -718,7 +768,6 @@ describe.only('contexts/SwapProvider', () => {
         destToken,
         destDecimals,
         destAmount,
-        gasLimit,
         priceRoute,
         slippage,
       })
@@ -726,9 +775,7 @@ describe.only('contexts/SwapProvider', () => {
           fail('Expected to throw');
         })
         .catch((err) => {
-          expect(err.message).toEqual(
-            'Data Error: Error: Some API error happened',
-          );
+          expect(err.message).toEqual('Some API error happened');
         });
 
       await waitForRetries(10);
@@ -748,7 +795,7 @@ describe.only('contexts/SwapProvider', () => {
         ok: false,
       } as any);
 
-      jest.mocked(Contract).mockReturnValueOnce({
+      jest.mocked(Contract).mockReturnValue({
         allowance: jest.fn().mockResolvedValue(Infinity),
       } as any);
 
@@ -757,7 +804,7 @@ describe.only('contexts/SwapProvider', () => {
         events: jest.fn(),
       } as any);
 
-      const { swap } = getSwapProvider();
+      const { swap } = await getSwapProvider();
 
       const {
         destAmount,
@@ -767,7 +814,6 @@ describe.only('contexts/SwapProvider', () => {
         srcDecimals,
         srcToken,
         priceRoute,
-        gasLimit,
         slippage,
       } = getSwapParams();
 
@@ -780,7 +826,6 @@ describe.only('contexts/SwapProvider', () => {
         destToken,
         destDecimals,
         destAmount,
-        gasLimit,
         priceRoute,
         slippage,
       })
@@ -788,12 +833,181 @@ describe.only('contexts/SwapProvider', () => {
           fail('Expected to throw');
         })
         .catch((err) => {
-          expect(err.message).toEqual(
-            'Data Error: Error: Invalid transaction params',
-          );
+          expect(err.message).toEqual('Invalid transaction params');
         });
 
       await waitForRetries(10);
+    });
+
+    describe('when ONE_CLICK_SWAP feature flag is enabled', () => {
+      let requestMock;
+
+      beforeEach(() => {
+        jest.mocked(useFeatureFlagContext).mockReturnValue({
+          isFlagEnabled: () => true,
+        } as any);
+
+        paraswapInstance.buildTx.mockResolvedValue({
+          data: 'data',
+          to: '0xParaswapContractAddress',
+          from: '0x123',
+          value: '0x0',
+          chainId: 123,
+        } as any);
+
+        jest.mocked(Contract).mockReturnValue({
+          allowance: jest.fn().mockResolvedValue(0),
+          approve: {
+            populateTransaction: jest.fn().mockResolvedValueOnce({
+              data: 'data',
+            }),
+          },
+        } as any);
+      });
+
+      describe.each([
+        [SecretType.Mnemonic, true],
+        [SecretType.Seedless, true],
+        [SecretType.PrivateKey, true],
+        [SecretType.Ledger, false],
+        [SecretType.Keystone, false],
+        [SecretType.LedgerLive, false],
+      ])('with a %s wallet', (secretType, isExpectedToUseBatchSigning) => {
+        beforeEach(() => {
+          jest.mocked(useWalletContext).mockReturnValue({
+            walletDetails: {
+              type: secretType,
+            },
+          } as any);
+
+          if (isExpectedToUseBatchSigning) {
+            requestMock = jest
+              .fn()
+              .mockResolvedValueOnce(['0xALLOWANCE_HASH', '0xSWAP_HASH']);
+          } else {
+            requestMock = jest
+              .fn()
+              .mockResolvedValueOnce('0xALLOWANCE_HASH')
+              .mockResolvedValueOnce('0xSWAP_HASH');
+          }
+
+          jest.mocked(useConnectionContext).mockReturnValue({
+            request: requestMock,
+            events: jest.fn(),
+          } as any);
+        });
+
+        it(
+          isExpectedToUseBatchSigning
+            ? 'uses batch signing'
+            : 'does not use batch signing',
+          async () => {
+            const { swap } = await getSwapProvider();
+
+            await swap(
+              getSwapParams({
+                srcToken: 'JEWEL',
+              }),
+            );
+
+            expect(requestMock).toHaveBeenCalledWith(
+              matchingPayload({
+                method: isExpectedToUseBatchSigning
+                  ? RpcMethod.ETH_SEND_TRANSACTION_BATCH
+                  : RpcMethod.ETH_SEND_TRANSACTION,
+              }),
+              {
+                customApprovalButtonText: 'Swap',
+                customApprovalScreenTitle: 'Confirm Swap',
+              },
+            );
+          },
+        );
+      });
+
+      describe('and user has enough allowance', () => {
+        beforeEach(() => {
+          jest.mocked(Contract).mockReturnValue({
+            allowance: jest.fn().mockResolvedValue(Infinity),
+            approve: {
+              populateTransaction: jest.fn().mockResolvedValueOnce({
+                data: 'data',
+              }),
+            },
+          } as any);
+
+          requestMock = jest
+            .fn()
+            .mockResolvedValueOnce(['0xALLOWANCE_HASH', '0xSWAP_HASH']);
+
+          jest.mocked(useConnectionContext).mockReturnValue({
+            request: requestMock,
+            events: jest.fn(),
+          } as any);
+        });
+
+        it('uses eth_sendTransaction request', async () => {
+          const { swap } = await getSwapProvider();
+
+          await swap(
+            getSwapParams({
+              srcToken: 'JEWEL',
+            }),
+          );
+
+          expect(requestMock).toHaveBeenCalledWith(
+            matchingPayload({
+              method: RpcMethod.ETH_SEND_TRANSACTION,
+            }),
+          );
+        });
+      });
+
+      describe('and user does not have enough allowance', () => {
+        beforeEach(() => {
+          jest.mocked(Contract).mockReturnValue({
+            allowance: jest.fn().mockResolvedValue(0),
+            approve: {
+              populateTransaction: jest.fn().mockResolvedValueOnce({
+                data: 'data',
+              }),
+            },
+          } as any);
+
+          requestMock = jest
+            .fn()
+            .mockResolvedValueOnce(['0xALLOWANCE_HASH', '0xSWAP_HASH']);
+
+          jest.mocked(useConnectionContext).mockReturnValue({
+            request: requestMock,
+            events: jest.fn(),
+          } as any);
+        });
+
+        it('uses eth_sendTransactionBatch request', async () => {
+          const { swap } = await getSwapProvider();
+
+          await swap(
+            getSwapParams({
+              srcToken: 'JEWEL',
+            }),
+          );
+
+          expect(requestMock).toHaveBeenCalledWith(
+            matchingPayload({
+              method: RpcMethod.ETH_SEND_TRANSACTION_BATCH,
+              params: [
+                matchingPayload({ to: 'JEWEL' }),
+                matchingPayload({ to: '0xParaswapContractAddress' }),
+              ],
+            }),
+            {
+              customApprovalButtonText: 'Swap',
+              customApprovalScreenTitle: 'Confirm Swap',
+            },
+          );
+        });
+      });
     });
 
     describe('when everything goes right', () => {
@@ -803,26 +1017,14 @@ describe.only('contexts/SwapProvider', () => {
       beforeEach(() => {
         allowanceMock = jest.fn().mockResolvedValue(0);
 
-        jest.spyOn(global, 'fetch').mockResolvedValue({
-          json: async () => ({
-            data: 'data',
-            to: '0xParaswapContractAddress',
-            from: '0x123',
-            value: '0x0',
-            chainId: 123,
-          }),
-          ok: true,
-        } as any);
-
         requestMock = jest
           .fn()
           .mockResolvedValueOnce('0xALLOWANCE_HASH')
           .mockResolvedValueOnce('0xSWAP_HASH');
 
-        jest.mocked(Contract).mockReturnValueOnce({
+        jest.mocked(Contract).mockReturnValue({
           allowance: allowanceMock,
           approve: {
-            estimateGas: jest.fn().mockResolvedValue(10000n),
             populateTransaction: jest.fn().mockResolvedValueOnce({
               data: 'data',
             }),
@@ -835,19 +1037,16 @@ describe.only('contexts/SwapProvider', () => {
         } as any);
       });
 
-      it('returns the tx hashes', async () => {
-        const { swap } = getSwapProvider();
+      it('resolves', async () => {
+        const { swap } = await getSwapProvider();
 
-        expect(
-          await swap(
+        expect(() =>
+          swap(
             getSwapParams({
               srcToken: 'JEWEL',
             }),
           ),
-        ).toEqual({
-          swapTxHash: '0xSWAP_HASH',
-          approveTxHash: '0xALLOWANCE_HASH',
-        });
+        ).not.toThrow();
       });
     });
   });

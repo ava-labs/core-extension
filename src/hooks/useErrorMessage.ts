@@ -3,10 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { errorCodes } from 'eth-rpc-errors';
 
 import { FireblocksErrorCode } from '@src/background/services/fireblocks/models';
-import { CommonError, RpcErrorCode, isWrappedError } from '@src/utils/errors';
+import {
+  CommonError,
+  RpcErrorCode,
+  SecretsError,
+  isWrappedError,
+} from '@src/utils/errors';
 import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
 import { KeystoreError } from '@src/utils/keystore/models';
 import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
+import { SwapErrorCode } from '@src/contexts/SwapProvider/models';
 
 type ErrorTranslation = {
   title: string;
@@ -112,6 +118,46 @@ export const useErrorMessage = () => {
       [t],
     );
 
+  const swapErrors: Record<SwapErrorCode, ErrorTranslation> = useMemo(
+    () => ({
+      [SwapErrorCode.ClientNotInitialized]: {
+        title: t('Swap client is not initialized'),
+        hint: t('Please try switching to a different network.'),
+      },
+      [SwapErrorCode.ApiError]: {
+        title: t('There was an error contacting our pricing provider.'),
+        hint: t('Please try again later.'),
+      },
+      [SwapErrorCode.CannotBuildTx]: {
+        title: t('Pricing provider did not respond with a valid transaction.'),
+        hint: t('Please try again later.'),
+      },
+      [SwapErrorCode.CannotFetchAllowance]: {
+        title: t('There was an error fetching your spend approvals.'),
+        hint: t('Try swapping a different token or try again later.'),
+      },
+      [SwapErrorCode.MissingContractMethod]: {
+        title: t('This token contract is missing a required method.'),
+        hint: t('Try swapping a different token.'),
+      },
+      [SwapErrorCode.MissingParams]: {
+        title: t('Some of the required parameters are missing.'),
+        hint: t(
+          'Our team was made aware of this issue. Feel free to contact us for further information.',
+        ),
+      },
+      [SwapErrorCode.UnexpectedApiResponse]: {
+        title: t('Unexpected response from our pricing provider.'),
+        hint: t('Please try again later.'),
+      },
+      [SwapErrorCode.UnknownSpender]: {
+        title: t('Unexpected response from our pricing provider.'),
+        hint: t('Please try again later.'),
+      },
+    }),
+    [t],
+  );
+
   const commonErrors: Record<CommonError, ErrorTranslation> = useMemo(
     () => ({
       [CommonError.Unknown]: {
@@ -120,9 +166,13 @@ export const useErrorMessage = () => {
       [CommonError.UserRejected]: {
         title: t('User declined the transaction'),
       },
+      [CommonError.UnsupportedTokenType]: {
+        title: t('Unsupported token type'),
+        hint: t('Sending this type of token is not supported by Core'),
+      },
       [CommonError.NetworkError]: {
         title: t('Network error'),
-        hint: t('Please try again'),
+        hint: t('Please check your connection and try again.'),
       },
       [CommonError.NoActiveAccount]: {
         title: t('No account is active'),
@@ -141,6 +191,58 @@ export const useErrorMessage = () => {
       [CommonError.RequestTimeout]: {
         title: t('Request timed out'),
         hint: t('This is taking longer than expected. Please try again later.'),
+      },
+      [CommonError.ModuleManagerNotSet]: {
+        title: t('Internal error occurred.'), // Do not leak implementation details to the UI
+      },
+      [CommonError.MigrationFailed]: {
+        title: t('Storage update failed'),
+      },
+      [CommonError.UnableToSign]: {
+        title: t('Unable to sign or broadcast transaction'),
+      },
+      [CommonError.UnableToEstimateGas]: {
+        title: t('Unable to estimate gas'),
+      },
+    }),
+    [t],
+  );
+
+  const secretErrors: Record<SecretsError, ErrorTranslation> = useMemo(
+    () => ({
+      [SecretsError.MissingExtendedPublicKey]: {
+        title: t('Extended public key not found'),
+      },
+      [SecretsError.NoAccountIndex]: {
+        title: t('No account index was provided'),
+      },
+      [SecretsError.PublicKeyNotFound]: {
+        title: t('Public key not found'),
+      },
+      [SecretsError.SecretsNotFound]: {
+        title: t('Wallet secrets not found for the requested ID'),
+      },
+      [SecretsError.WalletAlreadyExists]: {
+        title: t('This wallet is already imported'),
+      },
+      [SecretsError.DerivationPathMissing]: {
+        title: t('Attempted to use an unknown derivation path'),
+      },
+      [SecretsError.DerivationPathTooShort]: {
+        title: t('Error while deriving address'),
+        hint: t('Requested derivation path is too short'),
+      },
+      [SecretsError.UnsupportedSecretType]: {
+        title: t('Error while deriving address'),
+        hint: t('Unsupporetd secret type'),
+      },
+      [SecretsError.UnsupportedCurve]: {
+        title: t('Error while deriving address'),
+        hint: t('Unsupported elliptic curve'),
+      },
+      [SecretsError.UnknownDerivationPathFormat]: {
+        title: t('Error while deriving address'),
+        hint: t('Unsupported derivation path format'),
       },
     }),
     [t],
@@ -197,6 +299,8 @@ export const useErrorMessage = () => {
       ...keystoreErrors,
       ...seedphraseImportError,
       ...rpcErrors,
+      ...secretErrors,
+      ...swapErrors,
     }),
     [
       fireblocksErrors,
@@ -206,6 +310,8 @@ export const useErrorMessage = () => {
       keystoreErrors,
       seedphraseImportError,
       rpcErrors,
+      secretErrors,
+      swapErrors,
     ],
   );
 

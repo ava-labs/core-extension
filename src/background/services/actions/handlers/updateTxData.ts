@@ -1,5 +1,9 @@
 import { injectable } from 'tsyringe';
-import { EvmTxUpdateFn, BtcTxUpdateFn } from '@avalabs/vm-module-types';
+import {
+  EvmTxUpdateFn,
+  BtcTxUpdateFn,
+  EvmTxBatchUpdateFn,
+} from '@avalabs/vm-module-types';
 
 import { SendErrorMessage } from '@src/utils/send/models';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
@@ -10,10 +14,11 @@ import { ActionsService } from '../ActionsService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACTION_UPDATE_TX_DATA,
   null,
-  [
-    id: string,
-    newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0],
-  ]
+  | [
+      id: string,
+      newData: Parameters<EvmTxUpdateFn>[0] | Parameters<BtcTxUpdateFn>[0],
+    ]
+  | [id: string, newData: Parameters<EvmTxBatchUpdateFn>[0], txIndex: number]
 >;
 
 @injectable()
@@ -22,7 +27,7 @@ export class UpdateActionTxDataHandler implements HandlerType {
 
   constructor(private actionsService: ActionsService) {}
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [id, newData] = request.params;
+    const [id, newData, txIndex] = request.params;
 
     if (!id) {
       return {
@@ -44,7 +49,7 @@ export class UpdateActionTxDataHandler implements HandlerType {
     }
 
     try {
-      await this.actionsService.updateTx(id, newData);
+      await this.actionsService.updateTx(id, newData, txIndex);
       return { ...request, result: null };
     } catch (err: any) {
       if (err?.message === 'Unable to create transaction') {

@@ -6,11 +6,20 @@ export const getCurrencyFormatter = (currency = 'USD') => {
     style: 'currency',
     currency: currency,
     currencyDisplay: 'narrowSymbol',
-    maximumSignificantDigits: 6,
+    maximumFractionDigits: 6,
   });
 
   return (amount: number) => {
-    const parts = formatter.formatToParts(amount);
+    const minAmount = 0.001;
+    const isTooSmall = amount < minAmount && amount > 0 ? true : false;
+    const prefixString = isTooSmall ? '<' : '';
+
+    const transformedAmount = isTooSmall
+      ? minAmount
+      : modifyFractionNumber(amount);
+
+    const parts = formatter.formatToParts(transformedAmount);
+
     /**
      *  This formats the currency to return
      *  <symbol><amount>
@@ -26,6 +35,36 @@ export const getCurrencyFormatter = (currency = 'USD') => {
       return flatArray.join('').trim();
     }
 
-    return formatter.format(amount);
+    return `${prefixString}${formatter.format(transformedAmount)}`;
   };
+};
+
+const modifyFractionNumber = (amount: number) => {
+  const maxFractionLengt = 3;
+
+  const [integer, fraction] = parseScientificNotation(amount.toString());
+  if (!fraction) {
+    return amount;
+  }
+  const lastNonZeroFractionIndex =
+    maxFractionLengt -
+    (fraction
+      ?.split('')
+      .reverse()
+      .findIndex((value) => value !== '0') || 0);
+
+  return parseFloat(
+    `${integer}.${fraction?.slice(0, lastNonZeroFractionIndex)}`,
+  );
+};
+
+const parseScientificNotation = (amount: string) => {
+  // When the number is extremely small or big we don't want to take care of it at the moment
+  if (amount.toString().includes('e') && amount.toString().includes('-')) {
+    return ['0', '001'];
+  }
+  if (amount.toString().includes('e') && amount.toString().includes('+')) {
+    return ['Infinity', 'Infinity'];
+  }
+  return amount.toString().split('.');
 };

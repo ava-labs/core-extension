@@ -2,11 +2,11 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { ActionsService } from '../ActionsService';
-import { Action } from '../models';
+import { Action, MultiTxAction } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACTION_GET,
-  Action,
+  Action | MultiTxAction,
   [messageId: string]
 >;
 

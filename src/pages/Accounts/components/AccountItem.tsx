@@ -13,6 +13,7 @@ import {
   ForwardedRef,
   forwardRef,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -76,9 +77,21 @@ export const AccountItem = forwardRef(
         : isManageMode && isAccountSelectable(account);
     const balanceTotalUSD = useBalanceTotalInCurrency(account);
     const totalBalance = (balanceTotalUSD && balanceTotalUSD.sum) ?? null;
-    const address = network ? getAddressForChain(network.chainId, account) : '';
+    const address = getAddressForChain(network, account);
     const [cardHovered, setCardHovered] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
+    const firstPageload = useRef(true);
+
+    useEffect(() => {
+      if (isActive) {
+        const behavior = firstPageload.current ? 'instant' : 'smooth';
+        itemRef?.current?.scrollIntoView({
+          block: 'nearest',
+          behavior,
+        });
+      }
+      firstPageload.current = false;
+    }, [isActive]);
 
     const toggle = useCallback(
       (accountId: string) => {
@@ -261,14 +274,14 @@ export const AccountItem = forwardRef(
                   cardHovered={cardHovered}
                   isActive={isActive}
                 />
-                {address && (
-                  <Stack
-                    sx={{
-                      flexDirection: 'row',
-                      gap: 1,
-                      alignItems: 'center',
-                    }}
-                  >
+                <Stack
+                  sx={{
+                    flexDirection: 'row',
+                    gap: 1,
+                    alignItems: 'center',
+                  }}
+                >
+                  {address ? (
                     <Tooltip
                       title={address}
                       slotProps={{
@@ -280,22 +293,31 @@ export const AccountItem = forwardRef(
                       <Typography
                         variant="caption"
                         color={isActive ? 'text.primary' : 'text.secondary'}
+                        fontStyle={address ? 'normal' : 'italic'}
                       >
                         {truncateAddress(address)}
                       </Typography>
                     </Tooltip>
-                    <Grow in={cardHovered || isActive}>
-                      <IconButton
-                        color="primary"
-                        size="small"
-                        sx={{ p: 0.5 }}
-                        onClick={handleCopyClick}
-                      >
-                        <CopyIcon size={12} />
-                      </IconButton>
-                    </Grow>
-                  </Stack>
-                )}
+                  ) : (
+                    <Typography
+                      variant="caption"
+                      color={isActive ? 'text.primary' : 'text.secondary'}
+                      fontStyle="italic"
+                    >
+                      {t('Active network is not supported')}
+                    </Typography>
+                  )}
+                  <Grow in={cardHovered || isActive}>
+                    <IconButton
+                      color="primary"
+                      size="small"
+                      sx={{ p: 0.5 }}
+                      onClick={handleCopyClick}
+                    >
+                      <CopyIcon size={12} />
+                    </IconButton>
+                  </Grow>
+                </Stack>
               </Stack>
               <Stack
                 sx={{

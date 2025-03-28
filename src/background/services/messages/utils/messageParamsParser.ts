@@ -19,9 +19,13 @@ export function paramsToMessageParams(
 
       return {
         data: params.find((param) => Array.isArray(param)),
-        from: params.find(
-          (param: any) => typeof param === 'string' || param instanceof String,
-        ),
+        from:
+          params
+            .find(
+              (param: any) =>
+                typeof param === 'string' || param instanceof String,
+            )
+            ?.toString() || '',
       };
     case MessageType.ETH_SIGN:
       return {

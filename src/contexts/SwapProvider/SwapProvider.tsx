@@ -1,27 +1,23 @@
-import { createContext, useCallback, useContext, useMemo } from 'react';
-import { useConnectionContext } from '../ConnectionProvider';
-import { OptimalRate, SwapSide } from 'paraswap-core';
-import browser from 'webextension-polyfill';
 import {
-  APIError,
-  Address,
-  BuildOptions,
-  ETHER_ADDRESS,
-  ParaSwap,
-  PriceString,
-  Transaction,
-} from 'paraswap';
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
+import { TransactionParams } from '@avalabs/evm-module';
+import { resolve } from '@avalabs/core-utils-sdk';
+import { useConnectionContext } from '../ConnectionProvider';
+import browser from 'webextension-polyfill';
 import { useNetworkContext } from '../NetworkProvider';
 import { useAccountsContext } from '../AccountsProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
-import Web3 from 'web3';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import Big from 'big.js';
-import { resolve } from '@src/utils/promiseResolver';
-import { ethers } from 'ethers';
 import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { BN } from 'bn.js';
@@ -30,25 +26,63 @@ import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import { useTranslation } from 'react-i18next';
 import {
   GetRateParams,
-  PARASWAP_RETRYABLE_ERRORS,
-  ParaswapPricesResponse,
   SwapContextAPI,
   SwapParams,
-  hasParaswapError,
   DISALLOWED_SWAP_ASSETS,
+  BuildTxParams,
+  GetSwapPropsParams,
+  ValidTransactionResponse,
+  SwapErrorCode,
 } from './models';
 import Joi from 'joi';
 import { isAPIError } from '@src/pages/Swap/utils';
+import {
+  buildApprovalTx,
+  checkForErrorsInBuildTxResult,
+  checkForErrorsInGetRateResult,
+  ensureAllowance,
+  getPartnerFeeParams,
+  hasEnoughAllowance,
+  swapError,
+  validateParams,
+} from './swap-utils';
+import { assert, assertPresent } from '@src/utils/assertions';
+import {
+  CommonError,
+  isUserRejectionError,
+  wrapError,
+  WrappedError,
+} from '@src/utils/errors';
+import { useWalletContext } from '../WalletProvider';
+import { SecretType } from '@src/background/services/secrets/models';
+import { toast } from '@avalabs/core-k2-components';
+import { SwapPendingToast } from '@src/pages/Swap/components/SwapPendingToast';
+import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { toastCardWithLink } from '@src/utils/toastCardWithLink';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
+import {
+  constructPartialSDK,
+  constructFetchFetcher,
+  constructGetRate,
+  constructGetBalances,
+  constructBuildTx,
+  OptimalRate,
+  SwapSide,
+  constructGetSpender,
+} from '@paraswap/sdk';
+import { NATIVE_TOKEN_ADDRESS } from './constants';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
 export function SwapContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
-  const { network: activeNetwork, avaxProviderC } = useNetworkContext();
+  const { network: activeNetwork } = useNetworkContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-  const { featureFlags } = useFeatureFlagContext();
+  const { walletDetails } = useWalletContext();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const { networkFee } = useNetworkFeeContext();
   const { captureEncrypted } = useAnalyticsContext();
   const { t } = useTranslation();
@@ -57,10 +91,45 @@ export function SwapContextProvider({ children }: { children: any }) {
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
 
-  const paraswap = useMemo(
-    () => new ParaSwap(ChainId.AVALANCHE_MAINNET_ID, undefined, new Web3()),
-    [],
-  );
+  const [rpcProvider, setRpcProvider] = useState<JsonRpcBatchInternal>();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (activeNetwork) {
+      getProviderForNetwork(activeNetwork)
+        .then((prov) => {
+          if (isMounted) {
+            setRpcProvider(prov as JsonRpcBatchInternal);
+          }
+        })
+        .catch(() => {
+          if (isMounted) {
+            setRpcProvider(undefined);
+          }
+        });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeNetwork]);
+
+  const paraswap = useMemo(() => {
+    const chainId = activeNetwork?.chainId;
+    return isSwapCapableChain(chainId)
+      ? constructPartialSDK(
+          {
+            chainId: chainId,
+            fetcher: constructFetchFetcher(fetch),
+          },
+          constructGetRate,
+          constructGetBalances,
+          constructBuildTx,
+          constructGetSpender,
+        )
+      : null;
+  }, [activeNetwork?.chainId]);
 
   const findSymbol = useCallback(
     (symbolOrAddress: string) => {
@@ -85,122 +154,67 @@ export function SwapContextProvider({ children }: { children: any }) {
       swapSide,
     }: GetRateParams) => {
       if (!activeNetwork || activeNetwork.isTestnet) {
-        throw new Error(`Unsupported network: ${activeNetwork?.chainId}`);
+        throw swapError(CommonError.UnknownNetwork);
       }
       if (!activeAccount || !activeAccount.addressC) {
-        throw new Error('Account address missing');
+        throw swapError(CommonError.NoActiveAccount);
       }
 
-      if (!featureFlags[FeatureGates.SWAP]) {
+      if (!isFlagEnabled(FeatureGates.SWAP)) {
         throw new Error(`Feature (SWAP) is currently unavailable`);
       }
 
-      const query = new URLSearchParams({
-        srcToken,
-        destToken,
-        amount: srcAmount,
-        side: swapSide || SwapSide.SELL,
-        network: ChainId.AVALANCHE_MAINNET_ID.toString(),
-        srcDecimals: `${
-          activeNetwork.networkToken.symbol === srcToken ? 18 : srcDecimals
-        }`,
-        destDecimals: `${
-          activeNetwork.networkToken.symbol === destToken ? 18 : destDecimals
-        }`,
-        userAddress: activeAccount.addressC,
-      });
+      assertPresent(paraswap, SwapErrorCode.ClientNotInitialized);
 
-      // apiURL is a private property
-      const url = `${(paraswap as any).apiURL}/prices/?${query.toString()}`;
+      const isFromTokenNative = activeNetwork.networkToken.symbol === srcToken;
+      const isDestTokenNative = activeNetwork.networkToken.symbol === destToken;
 
       const optimalRates = async () => {
-        const response = await fetch(url);
-        return response.json();
+        return await paraswap.getRate({
+          srcToken: isFromTokenNative ? NATIVE_TOKEN_ADDRESS : srcToken,
+          destToken: isDestTokenNative ? NATIVE_TOKEN_ADDRESS : destToken,
+          amount: srcAmount,
+          side: swapSide || SwapSide.SELL,
+          srcDecimals: isFromTokenNative ? 18 : srcDecimals,
+          destDecimals: isDestTokenNative ? 18 : destDecimals,
+          userAddress: activeAccount.addressC,
+        });
       };
 
-      function checkForErrorsInResult(
-        response: ParaswapPricesResponse | TypeError,
-      ) {
-        const isFetchError = response instanceof TypeError;
-        const isParaswapError = !isFetchError && hasParaswapError(response);
-
-        if (isFetchError || isParaswapError) {
-          // If there is an error, we may want to retry the request if a network issue
-          // or some of the documented Paraswap API errors occurred.
-          const isNetworkIssue =
-            isFetchError && response.message === 'Failed to fetch';
-          const shouldBeRetried =
-            isNetworkIssue ||
-            (isParaswapError &&
-              PARASWAP_RETRYABLE_ERRORS.includes(response.error));
-
-          if (shouldBeRetried) {
-            return true;
-            // If an error occurred, but there is no point in retrying a request,
-            // we need to propagate the error so we're able to show an approriate
-            // message in the UI.
-          } else if (isFetchError) {
-            throw response;
-          } else {
-            throw new Error(response.error);
-          }
-        }
-
-        return false;
-      }
-
-      const result = await incrementalPromiseResolve<ParaswapPricesResponse>(
+      const result = await incrementalPromiseResolve<OptimalRate>(
         () => optimalRates(),
-        checkForErrorsInResult,
+        checkForErrorsInGetRateResult,
       );
 
       return {
-        optimalRate: result.priceRoute ?? null,
-        destAmount: result.priceRoute?.destAmount,
+        optimalRate: result ?? null,
+        destAmount: result?.destAmount,
       };
     },
-    [activeAccount, activeNetwork, featureFlags, paraswap],
+    [activeAccount, activeNetwork, isFlagEnabled, paraswap],
   );
 
-  const getParaswapSpender = useCallback(async () => {
-    if (!featureFlags[FeatureGates.SWAP]) {
-      throw new Error(`Feature (SWAP) is currently unavailable`);
-    }
-
-    const response = await fetch(
-      `${(paraswap as any).apiURL}/adapters/contracts?network=${
-        ChainId.AVALANCHE_MAINNET_ID
-      }`,
-    );
-
-    const result = await response.json();
-    return result.TokenTransferProxy;
-  }, [paraswap, featureFlags]);
-
   const buildTx = useCallback(
-    async (
-      network: string,
-      srcToken: Address,
-      destToken: Address,
-      srcAmount: PriceString,
-      destAmount: PriceString,
-      priceRoute: OptimalRate,
-      userAddress: Address,
-      partner?: string,
-      partnerAddress?: string,
-      partnerFeeBps?: number,
-      receiver?: Address,
-      options?: BuildOptions,
-      srcDecimals?: number,
-      destDecimals?: number,
-      permit?: string,
-      deadline?: string,
-    ) => {
-      if (!featureFlags[FeatureGates.SWAP]) {
+    async ({
+      srcToken,
+      destToken,
+      srcAmount,
+      destAmount,
+      srcDecimals,
+      destDecimals,
+      priceRoute,
+      userAddress,
+      ignoreChecks,
+      isNativeTokenSwap,
+    }: BuildTxParams) => {
+      assertPresent(activeNetwork, CommonError.NoActiveNetwork);
+      assertPresent(paraswap, SwapErrorCode.ClientNotInitialized);
+
+      if (!isFlagEnabled(FeatureGates.SWAP)) {
         throw new Error(`Feature (SWAP) is currently unavailable`);
       }
 
-      const responseSchema = Joi.object({
+      const responseSchema = Joi.object<ValidTransactionResponse>({
         to: Joi.string().required(),
         from: Joi.string().required(),
         value: Joi.string().required(),
@@ -210,275 +224,102 @@ export function SwapContextProvider({ children }: { children: any }) {
         gasPrice: Joi.string().optional(),
       }).unknown();
 
-      const query = new URLSearchParams(options as Record<string, string>);
-      const txURL = `${
-        (paraswap as any).apiURL
-      }/transactions/${network}/?${query.toString()}`;
-      const txConfig = {
-        srcToken,
-        srcDecimals,
-        srcAmount,
-        destToken,
-        destDecimals,
-        destAmount,
-        priceRoute,
-        userAddress,
-        partner,
-        partnerAddress,
-        partnerFeeBps,
-        receiver,
-        permit,
-        deadline,
-      };
+      const transactionParamsOrError: TransactionParams | WrappedError =
+        await paraswap
+          .buildTx(
+            {
+              srcToken,
+              srcDecimals,
+              srcAmount,
+              destToken,
+              destDecimals,
+              destAmount,
+              priceRoute,
+              userAddress,
+              partner: 'Avalanche',
+              ...getPartnerFeeParams(isFlagEnabled(FeatureGates.SWAP_FEES)),
+            },
+            {
+              ignoreChecks,
+            },
+          )
+          .catch(wrapError(swapError(CommonError.NetworkError)));
 
-      const response = await fetch(txURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(txConfig),
-      });
-      const transactionParamsOrError: Transaction | APIError =
-        await response.json();
       const validationResult = responseSchema.validate(
         transactionParamsOrError,
       );
 
-      if (!response.ok || validationResult.error) {
+      if (validationResult.error) {
         if (isAPIError(transactionParamsOrError)) {
-          throw new Error(transactionParamsOrError.message);
+          throw swapError(
+            SwapErrorCode.ApiError,
+            new Error(transactionParamsOrError.message),
+          );
         }
-        throw new Error('Invalid transaction params');
+        throw swapError(
+          SwapErrorCode.UnexpectedApiResponse,
+          validationResult.error,
+        );
       }
 
-      return transactionParamsOrError;
+      const txPayload = validationResult.value;
+
+      return {
+        chainId: `0x${activeNetwork.chainId.toString(16)}`,
+        gas: txPayload.gas
+          ? '0x' + Number(txPayload.gas).toString(16)
+          : undefined,
+        data: txPayload.data,
+        to: txPayload.to,
+        from: userAddress,
+        value: isNativeTokenSwap
+          ? `0x${new BN(srcAmount).toString('hex')}`
+          : undefined, // AVAX value needs to be sent with the transaction
+      };
     },
-    [featureFlags, paraswap],
+    [isFlagEnabled, paraswap, activeNetwork],
   );
 
-  const swap = useCallback(
+  const notifyOnSwapResult = useCallback(
     async ({
+      provider,
+      txHash,
+      chainId,
+      userAddress,
       srcToken,
       destToken,
+      srcAmount,
+      destAmount,
       srcDecimals,
       destDecimals,
-      srcAmount,
-      priceRoute,
-      destAmount,
-      gasLimit,
-      slippage,
-    }: SwapParams) => {
-      if (!srcToken) {
-        throw new Error('Missing parameter: srcToken');
-      }
-
-      if (!destToken) {
-        throw new Error('Missing parameter: destToken');
-      }
-
-      if (!srcAmount) {
-        throw new Error('Missing parameter: srcAmount');
-      }
-
-      if (!srcDecimals) {
-        throw new Error('Missing parameter: srcDecimals');
-      }
-
-      if (!destDecimals) {
-        throw new Error('Missing parameter: destDecimals');
-      }
-
-      if (!destAmount) {
-        throw new Error('Missing parameter: destAmount');
-      }
-
-      if (!priceRoute) {
-        throw new Error('Missing parameter: priceRoute');
-      }
-
-      if (!gasLimit) {
-        throw new Error('Missing parameter: gasLimit');
-      }
-
-      if (!activeNetwork || activeNetwork.isTestnet) {
-        throw new Error(`Unsupported network: ${activeNetwork?.chainId}`);
-      }
-
-      if (!networkFee) {
-        throw new Error('Unknown network fee');
-      }
-
-      const srcTokenAddress =
-        srcToken === activeNetwork.networkToken.symbol
-          ? ETHER_ADDRESS
-          : srcToken;
-      const destTokenAddress =
-        destToken === activeNetwork.networkToken.symbol
-          ? ETHER_ADDRESS
-          : destToken;
-
-      if (!activeAccount?.addressC) {
-        throw new Error('Account address missing');
-      }
-
-      if (!avaxProviderC) {
-        throw new Error('RPC provider is not available');
-      }
-
-      const buildOptions = undefined,
-        partnerAddress = undefined,
-        partner = 'Avalanche',
-        userAddress = activeAccount.addressC,
-        receiver = undefined,
-        permit = undefined,
-        deadline = undefined,
-        partnerFeeBps = undefined;
-
-      const spender = await getParaswapSpender();
-
-      let approveTxHash;
-
-      const minAmount = new Big(priceRoute.destAmount)
-        .times(1 - slippage / 100)
-        .toFixed(0);
-
-      const maxAmount = new Big(srcAmount).times(1 + slippage / 100).toFixed(0);
-
-      //TODO: it may fail when we want to swap erc20 tokens -> investigate
-      const sourceAmount = priceRoute.side === 'SELL' ? srcAmount : maxAmount;
-
-      const destinationAmount =
-        priceRoute.side === 'SELL' ? minAmount : priceRoute.destAmount;
-
-      // no need to approve AVAX
-      if (srcToken !== activeNetwork.networkToken.symbol) {
-        const contract = new ethers.Contract(
-          srcTokenAddress,
-          ERC20.abi,
-          avaxProviderC,
-        );
-
-        if (!contract.allowance) {
-          throw new Error(`Allowance Conract Error`);
-        }
-
-        const [allowance, allowanceError] = await resolve(
-          contract.allowance(userAddress, spender),
-        );
-
-        if (allowanceError) {
-          throw new Error(`Allowance Error: ${allowanceError}`);
-        }
-
-        if (allowance < sourceAmount) {
-          const [approveGasLimit] = await resolve(
-            contract.approve!.estimateGas(spender, sourceAmount),
-          );
-
-          if (allowance < sourceAmount) {
-            const { data } = await contract.approve!.populateTransaction(
-              spender,
-              sourceAmount,
-            );
-            const [hash, signError] = await resolve(
-              request({
-                method: RpcMethod.ETH_SEND_TRANSACTION,
-                params: [
-                  {
-                    chainId: ChainId.AVALANCHE_MAINNET_ID.toString(),
-                    gas:
-                      '0x' + Number(approveGasLimit || gasLimit).toString(16),
-                    data,
-                    from: activeAccount.addressC,
-                    to: srcTokenAddress,
-                  },
-                ],
-              }),
-            );
-
-            if (signError) {
-              throwError(signError);
-            }
-            approveTxHash = hash;
-          } else {
-            approveTxHash = [];
-          }
-        }
-      }
-
-      function checkForErrorsInResult(result: Transaction | APIError) {
-        return (
-          (result as APIError).message === 'Server too busy' ||
-          // paraswap returns responses like this: {error: 'Not enough 0x4f60a160d8c2dddaafe16fcc57566db84d674…}
-          // when they are too slow to detect the approval
-          (result as any).error ||
-          result instanceof Error
-        );
-      }
-
-      const [txBuildData, txBuildDataError] = await resolve(
-        incrementalPromiseResolve(
-          () =>
-            buildTx(
-              ChainId.AVALANCHE_MAINNET_ID.toString(),
-              srcTokenAddress,
-              destTokenAddress,
-              sourceAmount,
-              destinationAmount,
-              priceRoute,
-              userAddress,
-              partner,
-              partnerAddress,
-              partnerFeeBps,
-              receiver,
-              buildOptions,
-              activeNetwork.networkToken.symbol === srcToken ? 18 : srcDecimals,
-              activeNetwork.networkToken.symbol === destToken
-                ? 18
-                : destDecimals,
-              permit,
-              deadline,
-            ),
-          checkForErrorsInResult,
-          0,
-          10,
-        ),
+    }: {
+      provider: JsonRpcBatchInternal;
+      txHash: string;
+      chainId: number;
+      userAddress: string;
+      srcToken: string;
+      destToken: string;
+      srcAmount: string;
+      destAmount: string;
+      srcDecimals: number;
+      destDecimals: number;
+    }) => {
+      const toastId = toast.custom(
+        <SwapPendingToast onDismiss={() => toast.remove(toastId)}>
+          {t('Swap pending...')}
+        </SwapPendingToast>,
+        {
+          duration: Infinity,
+        },
       );
 
-      if (txBuildDataError) {
-        throw new Error(`Data Error: ${txBuildDataError}`);
-      }
-
-      const [swapTxHash, signError] = await resolve(
-        request({
-          method: RpcMethod.ETH_SEND_TRANSACTION,
-          params: [
-            {
-              chainId: ChainId.AVALANCHE_MAINNET_ID.toString(),
-              gas: '0x' + Number(txBuildData.gas).toString(16),
-              data: txBuildData.data,
-              to: txBuildData.to,
-              from: activeAccount.addressC,
-              value:
-                srcToken === activeNetwork.networkToken.symbol
-                  ? `0x${new BN(sourceAmount).toString('hex')}`
-                  : undefined, // AVAX value needs to be sent with the transaction
-            },
-          ],
-        }),
-      );
-
-      if (signError) {
-        throwError(signError);
-      }
-
-      avaxProviderC.waitForTransaction(swapTxHash).then(async (tx) => {
+      provider.waitForTransaction(txHash).then(async (tx) => {
         const isSuccessful = tx && tx.status === 1;
 
         captureEncrypted(isSuccessful ? 'SwapSuccessful' : 'SwapFailed', {
           address: userAddress,
-          txHash: swapTxHash,
-          chainId: ChainId.AVALANCHE_MAINNET_ID,
+          txHash: txHash,
+          chainId,
         });
 
         const srcAsset = findSymbol(srcToken);
@@ -490,12 +331,29 @@ export function SwapContextProvider({ children }: { children: any }) {
           .div(10 ** destDecimals)
           .toString();
 
+        const notificationText = isSuccessful
+          ? t('Swap transaction succeeded! 🎉')
+          : t('Swap transaction failed! ❌');
+
+        toast.remove(toastId);
+
+        if (isSuccessful) {
+          toastCardWithLink({
+            title: notificationText,
+            url: getExplorerAddressByNetwork(
+              activeNetwork as NetworkWithCaipId,
+              txHash,
+            ),
+            label: t('View in Explorer'),
+          });
+        } else {
+          toast.error(notificationText, { duration: 5000 });
+        }
+
         browser.notifications.create({
           type: 'basic',
-          title: isSuccessful
-            ? t('Swap transaction succeeded! 🎉')
-            : t('Swap transaction failed! ❌'),
-          iconUrl: '../../../../images/icon-256.png',
+          title: notificationText,
+          iconUrl: '../../../../images/icon-192.png',
           priority: 2,
           message: isSuccessful
             ? t(
@@ -518,24 +376,349 @@ export function SwapContextProvider({ children }: { children: any }) {
               ),
         });
       });
+    },
+    [activeNetwork, captureEncrypted, findSymbol, t],
+  );
+
+  const getSwapTxProps = useCallback(
+    async ({
+      srcToken,
+      destToken,
+      srcAmount,
+      slippage,
+      nativeToken,
+      priceRoute,
+    }: GetSwapPropsParams) => {
+      assertPresent(paraswap, SwapErrorCode.ClientNotInitialized);
+      assertPresent(activeNetwork, CommonError.NoActiveNetwork);
+
+      const minAmount = new Big(priceRoute.destAmount)
+        .times(1 - slippage / 100)
+        .toFixed(0);
+      const maxAmount = new Big(srcAmount).times(1 + slippage / 100).toFixed(0);
+      const sourceAmount =
+        priceRoute.side === SwapSide.SELL ? srcAmount : maxAmount;
+
+      const destinationAmount =
+        priceRoute.side === SwapSide.SELL ? minAmount : priceRoute.destAmount;
 
       return {
-        swapTxHash,
-        approveTxHash,
+        srcTokenAddress:
+          srcToken === nativeToken ? NATIVE_TOKEN_ADDRESS : srcToken,
+        destTokenAddress:
+          destToken === nativeToken ? NATIVE_TOKEN_ADDRESS : destToken,
+        spender: await paraswap.getSpender(),
+        sourceAmount,
+        destinationAmount,
       };
     },
+    [paraswap, activeNetwork],
+  );
+
+  /**
+   * Used to perform a batch swap operation (approval + transfer) in a single click for the user.
+   * Some notes:
+   *
+   *  - Requires a feature flag to be enabled.
+   *  - When transferring AVAX, it performs the usual eth_sendTransaction request.
+   *  - If the allowance covers the transfer amount, it performs the usual eth_sendTransaction request
+   */
+  const oneClickSwap = useCallback(
+    async (params: SwapParams) => {
+      if (!isFlagEnabled(FeatureGates.ONE_CLICK_SWAP)) {
+        throw new Error(`Feature (SWAP) is currently unavailable`);
+      }
+
+      assertPresent(activeNetwork, CommonError.NoActiveNetwork);
+      assertPresent(networkFee, CommonError.UnknownNetworkFee);
+      assertPresent(activeAccount, CommonError.NoActiveAccount);
+      assertPresent(rpcProvider, CommonError.Unknown);
+      assert(!activeNetwork.isTestnet, CommonError.UnknownNetwork);
+
+      const {
+        srcToken,
+        destToken,
+        srcAmount,
+        srcDecimals,
+        destDecimals,
+        destAmount,
+        priceRoute,
+        slippage,
+      } = validateParams(params);
+
+      const userAddress = activeAccount.addressC;
+      const {
+        srcTokenAddress,
+        destTokenAddress,
+        destinationAmount,
+        sourceAmount,
+        spender,
+      } = await getSwapTxProps({
+        srcToken,
+        destToken,
+        srcAmount,
+        slippage,
+        nativeToken: activeNetwork.networkToken.symbol,
+        priceRoute,
+      });
+
+      const batch: TransactionParams[] = [];
+
+      const isNativeTokenSwap = srcToken === activeNetwork.networkToken.symbol;
+
+      // no need to approve AVAX
+      if (!isNativeTokenSwap) {
+        const allowanceCoversAmount = await hasEnoughAllowance({
+          tokenAddress: srcTokenAddress,
+          provider: rpcProvider,
+          userAddress,
+          spenderAddress: spender,
+          requiredAmount: BigInt(sourceAmount),
+        });
+
+        if (!allowanceCoversAmount) {
+          const approvalTx = await buildApprovalTx({
+            userAddress,
+            spenderAddress: spender,
+            tokenAddress: srcTokenAddress,
+            amount: BigInt(sourceAmount),
+            provider: rpcProvider,
+          });
+
+          batch.push(approvalTx);
+        }
+      }
+
+      const ignoreChecks = batch.length > 0; // Only ignore checks if we have an approval transaction in the batch
+      const swapTx = await buildTx({
+        network: activeNetwork.chainId.toString(),
+        srcToken: srcTokenAddress,
+        destToken: destTokenAddress,
+        srcAmount: sourceAmount,
+        destAmount: destinationAmount,
+        priceRoute,
+        userAddress,
+        srcDecimals:
+          activeNetwork.networkToken.symbol === srcToken ? 18 : srcDecimals,
+        destDecimals:
+          activeNetwork.networkToken.symbol === destToken ? 18 : destDecimals,
+        ignoreChecks,
+        isNativeTokenSwap,
+      });
+
+      batch.push(swapTx);
+
+      let swapTxHash;
+
+      if (batch.length > 1) {
+        const [txHashes, batchSignError] = await resolve<string[]>(
+          request(
+            {
+              method: RpcMethod.ETH_SEND_TRANSACTION_BATCH,
+              params: batch,
+            },
+            {
+              customApprovalScreenTitle: t('Confirm Swap'),
+              customApprovalButtonText: t('Swap'),
+            },
+          ),
+        );
+
+        if (isUserRejectionError(batchSignError)) {
+          throw batchSignError;
+        } else if (batchSignError || !txHashes) {
+          throw swapError(CommonError.UnableToSign, batchSignError);
+        }
+
+        swapTxHash = txHashes[txHashes.length - 1];
+      } else {
+        const [txHash, signError] = await resolve(
+          request({
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [batch[0]],
+          }),
+        );
+
+        if (isUserRejectionError(signError)) {
+          throw signError;
+        } else if (signError || !txHash) {
+          throw swapError(CommonError.UnableToSign, signError);
+        }
+
+        swapTxHash = txHash;
+      }
+
+      notifyOnSwapResult({
+        provider: rpcProvider,
+        txHash: swapTxHash,
+        chainId: activeNetwork.chainId,
+        userAddress,
+        srcToken,
+        destToken,
+        srcAmount,
+        destAmount,
+        srcDecimals,
+        destDecimals,
+      });
+    },
     [
-      activeAccount?.addressC,
+      isFlagEnabled,
       activeNetwork,
-      avaxProviderC,
-      buildTx,
-      captureEncrypted,
-      getParaswapSpender,
       networkFee,
+      activeAccount,
+      rpcProvider,
+      getSwapTxProps,
+      buildTx,
+      notifyOnSwapResult,
       request,
       t,
-      findSymbol,
     ],
+  );
+
+  const regularSwap = useCallback(
+    async (params: SwapParams) => {
+      assertPresent(activeNetwork, CommonError.NoActiveNetwork);
+      assertPresent(networkFee, CommonError.UnknownNetworkFee);
+      assertPresent(activeAccount, CommonError.NoActiveAccount);
+      assertPresent(rpcProvider, CommonError.Unknown);
+      assert(!activeNetwork.isTestnet, CommonError.UnknownNetwork);
+
+      const {
+        srcToken,
+        destToken,
+        srcAmount,
+        srcDecimals,
+        destDecimals,
+        destAmount,
+        priceRoute,
+        slippage,
+      } = validateParams(params);
+
+      const userAddress = activeAccount.addressC;
+      const {
+        srcTokenAddress,
+        destTokenAddress,
+        destinationAmount,
+        sourceAmount,
+        spender,
+      } = await getSwapTxProps({
+        srcToken,
+        destToken,
+        srcAmount,
+        slippage,
+        nativeToken: activeNetwork.networkToken.symbol,
+        priceRoute,
+      });
+
+      // no need to approve AVAX
+      const isNativeTokenSwap = srcToken === activeNetwork.networkToken.symbol;
+
+      if (!isNativeTokenSwap) {
+        await ensureAllowance({
+          amount: BigInt(sourceAmount),
+          provider: rpcProvider,
+          request,
+          spenderAddress: spender,
+          tokenAddress: srcTokenAddress,
+          userAddress,
+        });
+      }
+
+      const [swapTx, txBuildDataError] = await resolve(
+        incrementalPromiseResolve(
+          () =>
+            buildTx({
+              network: activeNetwork.chainId.toString(),
+              srcToken: srcTokenAddress,
+              destToken: destTokenAddress,
+              srcAmount: sourceAmount,
+              destAmount: destinationAmount,
+              priceRoute,
+              userAddress,
+              isNativeTokenSwap,
+              srcDecimals:
+                activeNetwork.networkToken.symbol === srcToken
+                  ? 18
+                  : srcDecimals,
+              destDecimals:
+                activeNetwork.networkToken.symbol === destToken
+                  ? 18
+                  : destDecimals,
+            }),
+          checkForErrorsInBuildTxResult,
+          0,
+          10,
+        ),
+      );
+
+      if (txBuildDataError || !swapTx) {
+        throw swapError(SwapErrorCode.CannotBuildTx, txBuildDataError);
+      }
+
+      const [swapTxHash, signError] = await resolve(
+        request(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [swapTx],
+          },
+          {
+            customApprovalScreenTitle: t('Confirm Swap'),
+            customApprovalButtonText: t('Swap'),
+          },
+        ),
+      );
+
+      if (isUserRejectionError(signError)) {
+        throw signError;
+      } else if (signError || !swapTxHash) {
+        throw swapError(CommonError.UnableToSign, signError);
+      }
+
+      notifyOnSwapResult({
+        provider: rpcProvider,
+        txHash: swapTxHash,
+        chainId: activeNetwork.chainId,
+        userAddress,
+        srcToken,
+        destToken,
+        srcAmount,
+        destAmount,
+        srcDecimals,
+        destDecimals,
+      });
+    },
+    [
+      activeNetwork,
+      networkFee,
+      activeAccount,
+      rpcProvider,
+      getSwapTxProps,
+      request,
+      notifyOnSwapResult,
+      buildTx,
+      t,
+    ],
+  );
+
+  const swap = useCallback(
+    async (params: SwapParams) => {
+      if (!isFlagEnabled(FeatureGates.SWAP)) {
+        throw new Error(`Feature (SWAP) is currently unavailable`);
+      }
+
+      const isOneClickSwapEnabled = isFlagEnabled(FeatureGates.ONE_CLICK_SWAP);
+      const isOneClickSwapSupported =
+        walletDetails?.type === SecretType.Mnemonic ||
+        walletDetails?.type === SecretType.Seedless ||
+        walletDetails?.type === SecretType.PrivateKey;
+
+      if (isOneClickSwapEnabled && isOneClickSwapSupported) {
+        return oneClickSwap(params);
+      }
+
+      return regularSwap(params);
+    },
+    [regularSwap, oneClickSwap, isFlagEnabled, walletDetails?.type],
   );
 
   return (
@@ -550,13 +733,11 @@ export function SwapContextProvider({ children }: { children: any }) {
   );
 }
 
-const throwError = (err: string | unknown): never => {
-  if (typeof err === 'string') {
-    throw new Error(err);
-  }
-
-  throw err;
-};
+const isSwapCapableChain = (
+  chainId?: number,
+): chainId is ChainId.AVALANCHE_MAINNET_ID | ChainId.ETHEREUM_HOMESTEAD =>
+  chainId === ChainId.AVALANCHE_MAINNET_ID ||
+  chainId === ChainId.ETHEREUM_HOMESTEAD;
 
 export function useSwapContext() {
   return useContext(SwapContext);

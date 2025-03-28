@@ -10,10 +10,19 @@ import { WalletService } from '../services/wallet/WalletService';
 import { NetworkService } from '../services/network/NetworkService';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
 
-import { ApprovalParamsWithContext } from './models';
+import {
+  ApprovalParamsWithContext,
+  MultiApprovalParamsWithContext,
+} from './models';
 import { ApprovalController } from './ApprovalController';
 import { ACTION_HANDLED_BY_MODULE } from '../models';
-import { ActionStatus } from '../services/actions/models';
+import {
+  Action,
+  ActionStatus,
+  ActionType,
+  MultiTxAction,
+} from '../services/actions/models';
+import { SecretsService } from '../services/secrets/SecretsService';
 
 jest.mock('tsyringe', () => {
   return {
@@ -31,6 +40,11 @@ const btcNetwork = {
   rpcUrl: '',
 } as any;
 
+const cChain = {
+  chainId: ChainId.AVALANCHE_MAINNET_ID,
+  rpcUrl: '',
+} as any;
+
 const dappInfo: DappInfo = {
   icon: 'icon',
   name: 'name',
@@ -40,8 +54,10 @@ const dappInfo: DappInfo = {
 const actionId = crypto.randomUUID();
 const getExpectedAction = (params) => ({
   [ACTION_HANDLED_BY_MODULE]: true,
+  caipId: params.request.chainId,
   dappInfo: params.request.dappInfo,
   signingData: params.signingData,
+  signingRequests: params.signingRequests,
   context: params.request.context,
   status: ActionStatus.PENDING,
   tabId: params.request.context?.tabId,
@@ -105,6 +121,75 @@ describe('src/background/vmModules/ApprovalController', () => {
     },
   };
 
+  const batchApprovalParams: MultiApprovalParamsWithContext = {
+    request: {
+      chainId: chainIdToCaip(cChain.chainId),
+      method: RpcMethod.ETH_SEND_TRANSACTION_BATCH,
+      requestId: 'requestId',
+      sessionId: 'sessionId',
+      dappInfo,
+      context: {
+        tabId: 1234,
+      },
+      params: [
+        { from: '0x1', to: '0x2', data: '0xA' },
+        { from: '0x1', to: '0x3', value: '0xB' },
+      ],
+    },
+    displayData: {
+      details: [
+        {
+          title: 'Transaction Details',
+          items: [
+            {
+              label: 'From',
+              type: DetailItemType.ADDRESS,
+              value: params.from,
+            },
+          ],
+        },
+      ],
+      network: cChain,
+      title: 'Approve 2 Transactions',
+      networkFeeSelector: true,
+    },
+    updateTx: jest.fn(),
+    signingRequests: [
+      {
+        displayData: {
+          details: [],
+          network: cChain,
+          title: 'Token Spend Approval',
+        },
+        signingData: {
+          account: params.from,
+          type: RpcMethod.ETH_SEND_TRANSACTION,
+          data: {
+            from: '0x1',
+            to: '0x2',
+            data: '0xA',
+          },
+        },
+      },
+      {
+        displayData: {
+          details: [],
+          network: cChain,
+          title: 'Approve Transaction',
+        },
+        signingData: {
+          account: params.from,
+          type: RpcMethod.ETH_SEND_TRANSACTION,
+          data: {
+            from: '0x1',
+            to: '0x3',
+            value: '0xB',
+          },
+        },
+      },
+    ],
+  };
+
   const provider = {} as any;
   const btcTx = {
     inputs: [],
@@ -114,18 +199,28 @@ describe('src/background/vmModules/ApprovalController', () => {
 
   let walletService: jest.Mocked<WalletService>;
   let networkService: jest.Mocked<NetworkService>;
+  let secretsService: jest.Mocked<SecretsService>;
   let controller: ApprovalController;
 
   beforeEach(() => {
     walletService = {
       sign: jest.fn(),
+      signTransactionBatch: jest.fn(),
     } as any;
 
     networkService = {
       getNetwork: jest.fn(),
     } as any;
 
-    controller = new ApprovalController(walletService, networkService);
+    secretsService = {
+      derivePublicKey: jest.fn(),
+    } as any;
+
+    controller = new ApprovalController(
+      secretsService,
+      walletService,
+      networkService,
+    );
 
     jest.mocked(networkService.getNetwork).mockResolvedValue(btcNetwork);
     jest.mocked(getProviderForNetwork).mockReturnValue(provider);
@@ -133,6 +228,22 @@ describe('src/background/vmModules/ApprovalController', () => {
       ...action,
       actionId,
     }));
+  });
+
+  describe('requestPublicKey()', () => {
+    it('passes the request down to the SecretsService', async () => {
+      controller.requestPublicKey({
+        curve: 'ed25519',
+        derivationPath: 'm/44/1234/0/0',
+        secretId: 'secretId',
+      });
+
+      expect(secretsService.derivePublicKey).toHaveBeenCalledWith(
+        'secretId',
+        'ed25519',
+        'm/44/1234/0/0',
+      );
+    });
   });
 
   describe('updateTx()', () => {
@@ -152,7 +263,7 @@ describe('src/background/vmModules/ApprovalController', () => {
 
       await new Promise(process.nextTick);
 
-      const result = controller.updateTx(actionId, {
+      const result = controller.updateTx({ actionId } as Action, {
         maxFeeRate: 150n,
       });
 
@@ -161,6 +272,74 @@ describe('src/background/vmModules/ApprovalController', () => {
       expect(result).toEqual({
         ...approvalParams.signingData,
         data: { ...approvalParams.signingData, feeRate: 150 },
+      });
+    });
+  });
+
+  describe('updateTxInBatch()', () => {
+    it('uses `updateTxs` callback to update the transaction payloads', async () => {
+      const updateTx = jest
+        .fn()
+        .mockImplementation(({ maxFeeRate, maxTipRate }, index) => ({
+          displayData: batchApprovalParams.displayData,
+          signingRequests: batchApprovalParams.signingRequests.map((req, i) =>
+            i === index
+              ? {
+                  ...req,
+                  signingData: {
+                    ...req.signingData,
+                    data: {
+                      ...req.signingData.data,
+                      maxFeePerGas: maxFeeRate,
+                      maxPriorityFeePerGas: maxTipRate,
+                    },
+                  },
+                }
+              : req,
+          ),
+        }));
+
+      controller.requestBatchApproval({
+        ...batchApprovalParams,
+        updateTx,
+      });
+
+      await new Promise(process.nextTick);
+
+      const result = controller.updateTxInBatch(
+        { actionId } as MultiTxAction,
+        {
+          maxFeeRate: 150n,
+          maxTipRate: 50n,
+        },
+        0,
+      );
+
+      expect(updateTx).toHaveBeenCalledWith(
+        {
+          maxFeeRate: 150n,
+          maxTipRate: 50n,
+        },
+        0,
+      );
+
+      expect(result).toEqual({
+        displayData: batchApprovalParams.displayData,
+        signingRequests: batchApprovalParams.signingRequests.map((req, i) =>
+          i === 0
+            ? {
+                ...req,
+                signingData: {
+                  ...req.signingData,
+                  data: {
+                    ...req.signingData.data,
+                    maxFeePerGas: 150n,
+                    maxPriorityFeePerGas: 50n,
+                  },
+                },
+              }
+            : req,
+        ),
       });
     });
   });
@@ -186,7 +365,10 @@ describe('src/background/vmModules/ApprovalController', () => {
         await new Promise(process.nextTick);
 
         expect(openApprovalWindow).toHaveBeenCalledWith(
-          getExpectedAction(approvalParams),
+          {
+            ...getExpectedAction(approvalParams),
+            type: ActionType.Single,
+          },
           'approve/generic',
         );
       });
@@ -196,8 +378,9 @@ describe('src/background/vmModules/ApprovalController', () => {
 
         await new Promise(process.nextTick);
 
-        const action = {
+        const action: Action = {
           ...getExpectedAction(approvalParams),
+          type: ActionType.Single,
           actionId: crypto.randomUUID(),
         };
 
@@ -213,8 +396,9 @@ describe('src/background/vmModules/ApprovalController', () => {
         walletService.sign.mockRejectedValueOnce(signingError);
 
         const promise = controller.requestApproval(approvalParams);
-        const action = {
+        const action: Action = {
           ...getExpectedAction(approvalParams),
+          type: ActionType.Single,
           actionId: crypto.randomUUID(),
         };
 
@@ -253,8 +437,9 @@ describe('src/background/vmModules/ApprovalController', () => {
         });
 
         const promise = controller.requestApproval(approvalParams);
-        const action = {
+        const action: Action = {
           ...getExpectedAction(approvalParams),
+          type: ActionType.Single,
           actionId: crypto.randomUUID(),
         };
 
@@ -276,6 +461,137 @@ describe('src/background/vmModules/ApprovalController', () => {
         );
 
         expect(await promise).toEqual({ signedData: signedTx });
+      });
+    });
+  });
+
+  describe('requestBatchApproval()', () => {
+    it('returns error if network cannot be resolved', async () => {
+      jest.mocked(networkService.getNetwork).mockResolvedValueOnce(undefined);
+      expect(
+        await controller.requestBatchApproval({
+          request: {
+            chainId: 'abcd-1234',
+          },
+        } as any),
+      ).toEqual({
+        error: expect.objectContaining({ message: 'Unsupported network' }),
+      });
+    });
+
+    describe(`after approval`, () => {
+      beforeEach(() => {
+        jest.mocked(networkService.getNetwork).mockResolvedValue(cChain);
+      });
+
+      it('opens the batch approval screen', async () => {
+        controller.requestBatchApproval(batchApprovalParams);
+
+        await new Promise(process.nextTick);
+
+        expect(openApprovalWindow).toHaveBeenCalledWith(
+          {
+            ...getExpectedAction(batchApprovalParams),
+            type: ActionType.Batch,
+          },
+          'approve/tx-batch',
+        );
+      });
+
+      it('returns error when user cancels the transaction', async () => {
+        const promise = controller.requestBatchApproval(batchApprovalParams);
+
+        await new Promise(process.nextTick);
+
+        const action: MultiTxAction = {
+          ...getExpectedAction(batchApprovalParams),
+          type: ActionType.Batch,
+          actionId: crypto.randomUUID(),
+        };
+
+        controller.onRejected(action);
+
+        expect(await promise).toEqual({
+          error: providerErrors.userRejectedRequest(),
+        });
+      });
+
+      it('returns error if transaction cannot be signed', async () => {
+        const signingError = new Error('Invalid transaction payload');
+        walletService.signTransactionBatch.mockRejectedValueOnce(signingError);
+
+        const promise = controller.requestBatchApproval(batchApprovalParams);
+        const action: MultiTxAction = {
+          ...getExpectedAction(batchApprovalParams),
+          type: ActionType.Batch,
+          actionId: crypto.randomUUID(),
+        };
+
+        // Await network resolution
+        await new Promise(process.nextTick);
+
+        controller.onApproved(action);
+
+        // Wait for transaction to be constructed
+        await new Promise(process.nextTick);
+
+        expect(walletService.signTransactionBatch).toHaveBeenCalledWith(
+          batchApprovalParams.signingRequests.map(
+            (req) => req.signingData.data,
+          ),
+          cChain,
+          action.tabId,
+        );
+
+        expect(await promise).toEqual({
+          error: rpcErrors.internal({
+            message: 'Unable to sign the batch of transactions',
+            data: {
+              originalError: signingError,
+            },
+          }),
+        });
+      });
+
+      it('signs the transaction on user approval', async () => {
+        const signedTxA = '0x1234';
+        const signedTxB = '0x5678';
+
+        walletService.signTransactionBatch.mockResolvedValueOnce([
+          {
+            signedTx: signedTxA,
+          },
+          {
+            signedTx: signedTxB,
+          },
+        ]);
+
+        const promise = controller.requestBatchApproval(batchApprovalParams);
+        const action: MultiTxAction = {
+          ...getExpectedAction(batchApprovalParams),
+          type: ActionType.Batch,
+          actionId: crypto.randomUUID(),
+        };
+
+        // Await network resolution
+        await new Promise(process.nextTick);
+
+        controller.onApproved(action);
+
+        // Wait for transaction to be constructed
+        await new Promise(process.nextTick);
+
+        expect(walletService.signTransactionBatch).toHaveBeenCalledWith(
+          batchApprovalParams.signingRequests.map(
+            (req) => req.signingData.data,
+          ),
+          cChain,
+          action.tabId,
+        );
+
+        expect(await promise).toEqual({
+          result: [{ signedData: signedTxA }, { signedData: signedTxB }],
+        });
       });
     });
   });

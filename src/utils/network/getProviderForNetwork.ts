@@ -2,25 +2,35 @@ import {
   Avalanche,
   BitcoinProvider,
   JsonRpcBatchInternal,
+  SolanaProvider,
+  getSolanaProvider,
 } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { FetchRequest, Network as EthersNetwork } from 'ethers';
-import { info } from '@avalabs/avalanchejs';
 
 import { Network } from '@src/background/services/network/models';
 
-import { isDevnet } from '../isDevnet';
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 
 export type SupportedProvider =
   | BitcoinProvider
   | JsonRpcBatchInternal
-  | Avalanche.JsonRpcProvider;
+  | Avalanche.JsonRpcProvider
+  | SolanaProvider;
 
 export const getProviderForNetwork = async (
   network: Network,
   useMulticall = false,
 ): Promise<SupportedProvider> => {
+  if (network.vmName === NetworkVMType.SVM) {
+    return getSolanaProvider({
+      isTestnet: Boolean(network.isTestnet),
+      rpcUrl: network.isTestnet
+        ? 'https://api.devnet.solana.com' // NowNodes does not support Solana Devnet
+        : `${process.env.PROXY_URL}/proxy/nownodes/sol`,
+    });
+  }
+
   if (network.vmName === NetworkVMType.BITCOIN) {
     return new BitcoinProvider(
       !network.isTestnet,
@@ -64,15 +74,9 @@ export const getProviderForNetwork = async (
     network.vmName === NetworkVMType.AVM ||
     network.vmName === NetworkVMType.PVM
   ) {
-    const upgradesInfo = await new info.InfoApi(network.rpcUrl)
-      .getUpgradesInfo()
-      .catch(() => undefined);
-
-    return isDevnet(network)
-      ? Avalanche.JsonRpcProvider.getDefaultDevnetProvider(upgradesInfo)
-      : network.isTestnet
-        ? Avalanche.JsonRpcProvider.getDefaultFujiProvider(upgradesInfo)
-        : Avalanche.JsonRpcProvider.getDefaultMainnetProvider(upgradesInfo);
+    return network.isTestnet
+      ? Avalanche.JsonRpcProvider.getDefaultFujiProvider()
+      : Avalanche.JsonRpcProvider.getDefaultMainnetProvider();
   } else {
     throw new Error('unsupported network');
   }

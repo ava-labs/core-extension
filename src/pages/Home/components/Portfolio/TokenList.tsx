@@ -18,6 +18,7 @@ import { TokenIcon } from '@src/components/common/TokenIcon';
 import { normalizeBalance } from '@src/utils/normalizeBalance';
 import Big from 'big.js';
 import { TokenType } from '@avalabs/vm-module-types';
+import { isTokenMalicious } from '@src/utils/isTokenMalicious';
 
 const TokenRow = styled('div')`
   padding: 0 10px 0 16px;
@@ -97,6 +98,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
           balanceDisplayValue={token.balanceDisplayValue}
           balanceInCurrency={token.balanceInCurrency?.toString()}
           priceChanges={token.priceChanges}
+          isMalicious={isTokenMalicious(token)}
         >
           <TokenIcon
             width="32px"

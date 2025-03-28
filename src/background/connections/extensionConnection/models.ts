@@ -56,7 +56,7 @@ export enum ExtensionRequest {
   ACTION_UPDATE = 'action_updateAction',
   ACTION_UPDATE_TX_DATA = 'action_updateTxData',
 
-  PERMISSIONS_ADD_DOMAIN = 'permissions_addDomain',
+  PERMISSIONS_REVOKE_ADDRESS_ACCESS_FOR_DOMAIN = 'permissions_revokeAddressAccessForDomain',
   PERMISSIONS_GET_PERMISSIONS = 'permissions_getPermissionsForDomain',
   PERMISSIONS_GET_ALL_PERMISSIONS = 'permissions_getAllPermissions',
 
@@ -158,4 +158,12 @@ export enum ExtensionRequest {
   WALLET_IMPORT_LEDGER = 'wallet_import_ledger',
 
   BLOCKAID_DAPP_SCAN = 'blockaid_dapp_scan',
+
+  GASLESS_FETCH_AND_SOLVE_CHALLENGE = 'gasless_fetch_and_solve_challange',
+  GASLESS_FUND_TX = 'gasless_fund_tx',
+  GASLESS_GET_ELIGIBILITY = 'gasless_get_eligibility',
+  GASLESS_SET_HEX_VALUES = 'gasless_set_hex_values',
+  GASLESS_SET_DEFAUlT_STATE_VALUES = 'gasless_set_default_state_values',
+  GASLESS_CREATE_OFFSCREEN = 'gasless_create_offscreen',
+  GASLESS_CLOSE_OFFSCREEN = 'gasless_close_offscreen',
 }

@@ -1,4 +1,10 @@
-import { DappInfo, RpcMethod, SigningData } from '@avalabs/vm-module-types';
+import {
+  BatchApprovalParams,
+  DisplayData,
+  DappInfo,
+  RpcMethod,
+  SigningData,
+} from '@avalabs/vm-module-types';
 import {
   DAppProviderRequest,
   JsonRpcRequestPayload,
@@ -15,29 +21,50 @@ export enum ActionStatus {
   ERROR = 'error',
   ERROR_USER_CANCELED = 'error-user-canceled',
 }
-export type Action<DisplayData = any, Params = any> = JsonRpcRequestPayload<
+
+export enum ActionType {
+  Single = 'single',
+  Batch = 'batch',
+}
+
+type ActionBase<DisplayData = any, Params = any> = JsonRpcRequestPayload<
   DAppProviderRequest | RpcMethod,
   Params
 > & {
+  type: ActionType;
+  caipId?: string;
   scope: string;
   context?: Record<string, unknown>;
-  signingData?: SigningData;
   dappInfo?: DappInfo;
   [ACTION_HANDLED_BY_MODULE]?: boolean;
   time?: number;
   status?: ActionStatus;
   result?: any;
   error?: string;
-  displayData: DisplayData;
   // we store the window ID of the confirmation popup so
   // that we can clean up stale actions later
   popupWindowId?: number;
   inAppPromptId?: number;
   actionId?: string;
+  displayData: DisplayData;
+};
+
+export type Action<DisplayData = any, Params = any> = ActionBase<
+  DisplayData,
+  Params
+> & {
+  type: ActionType.Single;
+  signingData?: SigningData;
+};
+
+export type MultiTxAction = ActionBase<DisplayData, unknown> & {
+  type: ActionType.Batch;
+  signingRequests: BatchApprovalParams['signingRequests'];
+  displayData: DisplayData;
 };
 
 export interface Actions {
-  [id: string]: Action;
+  [id: string]: Action | MultiTxAction;
 }
 
 export interface ActionUpdate<DisplayData = any> {
@@ -65,4 +92,22 @@ export type ActionCompletedEvent = {
   type: ActionCompletedEventType;
   action: Action;
   result: string;
+};
+
+export const isBatchApprovalAction = (
+  action: Action | MultiTxAction,
+): action is MultiTxAction => action && action.type === ActionType.Batch;
+
+export const buildActionForRequest = <
+  Params extends { scope: string; displayData: unknown },
+>(
+  request: JsonRpcRequestPayload<DAppProviderRequest | RpcMethod, unknown>,
+  params: Params,
+): Action<Params['displayData'], unknown> => {
+  return {
+    ...request,
+    type: ActionType.Single,
+    scope: params.scope,
+    displayData: params.displayData,
+  };
 };

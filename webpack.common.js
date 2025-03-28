@@ -9,6 +9,7 @@ module.exports = {
     backgroundPage: path.join(__dirname, 'src/background/index.ts'),
     popup: path.join(__dirname, 'src/popup/index.tsx'),
     contentscript: path.join(__dirname, 'src/contentscript.ts'),
+    offscreen: path.join(__dirname, 'src/offscreen.ts'),
   },
   output: {
     path: path.join(__dirname, 'dist/js'),
@@ -82,7 +83,7 @@ module.exports = {
       path: require.resolve('path-browserify'),
       '@hpke/core': path.resolve('./node_modules/@hpke/core/esm/core/mod.js'),
       '@cubist-labs/cubesigner-sdk': path.resolve(
-        './node_modules/@cubist-labs/cubesigner-sdk/dist/cjs/src/index.js'
+        './node_modules/@cubist-labs/cubesigner-sdk/dist/cjs/src/index.js',
       ),
       // Joi by default goes to browser-specific version which does not include the list of TLDS (which we need for email validation)
       joi: path.resolve('./node_modules/joi/lib/index.js'),
@@ -110,6 +111,7 @@ module.exports = {
         { from: 'src/index.html', to: '../fullscreen.html' },
         { from: 'src/images', to: '../images' },
         { from: 'src/localization/locales', to: '../locales', force: true },
+        { from: 'src/offscreen.html', to: '../offscreen.html' },
       ],
       options: {
         concurrency: 100,
