@@ -14,6 +14,7 @@ import { useDialog } from '@src/contexts/DialogContextProvider';
 import { LedgerDisconnected } from '@src/pages/Ledger/LedgerDisconnected';
 import { LedgerIncorrectApp } from '@src/pages/Ledger/LedgerIncorrectApp';
 import { isEthereumNetwork } from '@src/background/services/network/utils/isEthereumNetwork';
+import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
 
 export function useLedgerDisconnectedDialog(
   onCancel: () => void,
@@ -40,6 +41,10 @@ export function useLedgerDisconnectedDialog(
 
     if (network && isEthereumNetwork(network)) {
       return LedgerAppType.ETHEREUM;
+    }
+
+    if (network && isSolanaNetwork(network)) {
+      return LedgerAppType.SOLANA;
     }
 
     return LedgerAppType.AVALANCHE;

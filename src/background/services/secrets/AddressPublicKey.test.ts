@@ -53,6 +53,7 @@ describe('AddressPublicKey', () => {
         ];
         const secrets = {
           secretType,
+          publicKeys: [],
           extendedPublicKeys,
         } as any;
 

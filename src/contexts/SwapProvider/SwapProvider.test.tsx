@@ -553,7 +553,7 @@ describe('contexts/SwapProvider', () => {
       });
     });
 
-    fdescribe('when swapping non-native token', () => {
+    describe('when swapping non-native token', () => {
       let allowanceMock;
       let requestMock;
 
@@ -589,7 +589,7 @@ describe('contexts/SwapProvider', () => {
         } as any);
       });
 
-      fit('prompts a spend approval first', async () => {
+      it('prompts a spend approval first', async () => {
         const { swap } = await getSwapProvider();
 
         await swap(

@@ -31,6 +31,8 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isProductionBuild } from '@src/utils/environment';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
+import { useWalletContext } from '@src/contexts/WalletProvider';
 
 type AccountsActionButtonProps = {
   isLoading: boolean;
@@ -67,12 +69,18 @@ export const AccountsActionButton = ({
   canCreateAccount,
 }: AccountsActionButtonProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { hasLedgerTransport, appType } = useLedgerContext();
+  const { isLedgerWallet } = useWalletContext();
   const history = useHistory();
   const toggleButtonRef = useRef();
   const { t } = useTranslation();
   const { featureFlags } = useFeatureFlagContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
+
+  const canAddNewAccount =
+    !isLedgerWallet ||
+    (hasLedgerTransport && appType === LedgerAppType.AVALANCHE);
 
   const goToImportScreen = useCallback(() => {
     capture('ImportPrivateKey_Clicked');
@@ -374,40 +382,51 @@ export const AccountsActionButton = ({
                   </StyledMenuItem>
                 )}
                 {canCreateAccount && (
-                  <StyledMenuItem
-                    onClick={() => {
-                      onAddNewAccount();
-                      setIsMenuOpen(false);
-                    }}
-                    data-testid={'add-primary-account'}
+                  <Tooltip
+                    title={
+                      canAddNewAccount
+                        ? ''
+                        : t(
+                            'Connect your Ledger device and open the Avalanche app',
+                          )
+                    }
                   >
-                    <IconColumn>
-                      <PlusIcon size={24} />
-                    </IconColumn>
-                    <MenuItemColumn hasNoBorder>
-                      <Stack>
-                        <Box>
-                          <Typography
-                            variant="body2"
-                            sx={{ fontWeight: 'bold' }}
-                          >
-                            {t('Create New Account ')}
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="caption">
-                            {t('Add a new account to your active wallet')}
-                          </Typography>
-                        </Box>
-                      </Stack>
+                    <StyledMenuItem
+                      disabled={!canAddNewAccount}
+                      onClick={() => {
+                        onAddNewAccount();
+                        setIsMenuOpen(false);
+                      }}
+                      data-testid={'add-primary-account'}
+                    >
                       <IconColumn>
-                        <ChevronRightIcon
-                          size={24}
-                          sx={{ color: 'grey.500' }}
-                        />
+                        <PlusIcon size={24} />
                       </IconColumn>
-                    </MenuItemColumn>
-                  </StyledMenuItem>
+                      <MenuItemColumn hasNoBorder>
+                        <Stack>
+                          <Box>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 'bold' }}
+                            >
+                              {t('Create New Account ')}
+                            </Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="caption">
+                              {t('Add a new account to your active wallet')}
+                            </Typography>
+                          </Box>
+                        </Stack>
+                        <IconColumn>
+                          <ChevronRightIcon
+                            size={24}
+                            sx={{ color: 'grey.500' }}
+                          />
+                        </IconColumn>
+                      </MenuItemColumn>
+                    </StyledMenuItem>
+                  </Tooltip>
                 )}
               </MenuList>
             </Grow>

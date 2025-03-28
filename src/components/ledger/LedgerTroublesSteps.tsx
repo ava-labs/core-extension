@@ -17,9 +17,11 @@ export enum LedgerTroubleStepsFontVariant {
 export function LedgerTroubleSteps({
   fontVariant = LedgerTroubleStepsFontVariant.small,
   sx = {},
+  appName,
 }: {
   fontVariant?: LedgerTroubleStepsFontVariant;
   sx?: SxProps;
+  appName: string;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -58,15 +60,17 @@ export function LedgerTroubleSteps({
           <StyledNumberList>{t('3.')}</StyledNumberList>
           <Typography variant={fontVariant}>
             <Trans
-              i18nKey="Ensure you have installed the latest <typography>Avalanche App</typography> and open it on your device."
+              i18nKey="Ensure you have installed the latest <appName/> and open it on your device."
               components={{
-                typography: (
+                appName: (
                   <Typography
                     as="span"
                     sx={{
                       fontWeight: 'bold',
                     }}
-                  />
+                  >
+                    {appName}
+                  </Typography>
                 ),
               }}
             />
@@ -77,8 +81,18 @@ export function LedgerTroubleSteps({
 
         <Typography variant={fontVariant}>
           <Trans
-            i18nKey="If you do not have the latest Avalanche App, please add it through the <ledgerLink>Ledger Live</ledgerLink> app manager."
+            i18nKey="If you do not have the latest <appName/>, please add it through the <ledgerLink>Ledger Live</ledgerLink> app manager."
             components={{
+              appName: (
+                <Typography
+                  as="span"
+                  sx={{
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {appName}
+                </Typography>
+              ),
               ledgerLink: (
                 <TypographyLink
                   as="a"

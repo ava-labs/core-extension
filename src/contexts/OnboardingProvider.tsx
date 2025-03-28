@@ -82,6 +82,7 @@ const OnboardingContext = createContext<{
   isNewsletterEnabled: boolean;
   setIsNewsletterEnabled: Dispatch<SetStateAction<boolean>>;
   onboardingWalletType: WalletType | undefined;
+  numberOfAccountsToCreate: number;
   setNumberOfAccountsToCreate: Dispatch<SetStateAction<number>>;
 }>({} as any);
 
@@ -441,6 +442,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         setIsSeedlessMfaRequired,
         setOnboardingWalletType,
         onboardingWalletType,
+        numberOfAccountsToCreate,
         setNumberOfAccountsToCreate,
       }}
     >

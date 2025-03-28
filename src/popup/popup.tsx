@@ -42,6 +42,7 @@ import { ApprovalRoutes } from './ApprovalRoutes';
 import { AppRoutes } from './AppRoutes';
 import { InAppApprovalOverlay } from '@src/components/common/InAppApprovalOverlay';
 import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
+import LedgerSolanaAddressPrompt from '@src/pages/Ledger/LedgerSolanaAddressPrompt';
 
 const pagesWithoutHeader = [
   '/tokens/manage',
@@ -125,9 +126,9 @@ export function Popup() {
     <DialogContextProvider>
       <LedgerContextProvider>
         <KeystoneContextProvider>
-          <OnboardingContextProvider>
-            <AccountsContextProvider>
-              <NetworkContextProvider>
+          <AccountsContextProvider>
+            <NetworkContextProvider>
+              <OnboardingContextProvider>
                 <NetworkFeeContextProvider>
                   <WalletContextProvider>
                     <CurrenciesContextProvider>
@@ -178,6 +179,7 @@ export function Popup() {
                                                 )}
                                                 <LedgerIncorrectDevice />
                                                 <LedgerRegisterBtcWalletPolicy />
+                                                <LedgerSolanaAddressPrompt />
                                                 <SeedlessAuthPrompt />
                                                 {isMiniMode && (
                                                   <InAppApprovalOverlay />
@@ -198,9 +200,9 @@ export function Popup() {
                     </CurrenciesContextProvider>
                   </WalletContextProvider>
                 </NetworkFeeContextProvider>
-              </NetworkContextProvider>
-            </AccountsContextProvider>
-          </OnboardingContextProvider>
+              </OnboardingContextProvider>
+            </NetworkContextProvider>
+          </AccountsContextProvider>
         </KeystoneContextProvider>
       </LedgerContextProvider>
     </DialogContextProvider>

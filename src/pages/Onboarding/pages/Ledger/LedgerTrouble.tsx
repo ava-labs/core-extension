@@ -2,7 +2,6 @@ import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
-  ExternalLinkIcon,
   RemoteIcon,
   Stack,
   Typography,
@@ -10,15 +9,13 @@ import {
 } from '@avalabs/core-k2-components';
 import { useHistory } from 'react-router-dom';
 import { OnboardingURLs } from '@src/background/services/onboarding/models';
-import { useLanguage } from '@src/hooks/useLanguages';
-import { TypographyLink } from '../../components/TypographyLink';
 import { LedgerTroubleSteps } from '../../../../components/ledger/LedgerTroublesSteps';
+import { LedgerLiveSupportButton } from '@src/components/ledger/LedgerLiveSupportButton';
 
 export function LedgerTrouble() {
   const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
-  const { currentLanguage } = useLanguage();
 
   return (
     <Stack
@@ -49,7 +46,7 @@ export function LedgerTrouble() {
             <RemoteIcon size={88} />
           </Stack>
 
-          <LedgerTroubleSteps sx={{ pt: 1.5 }} />
+          <LedgerTroubleSteps appName={t('Avalanche App')} sx={{ pt: 1.5 }} />
         </Stack>
       </Stack>
       <Stack
@@ -94,21 +91,7 @@ export function LedgerTrouble() {
           </Button>
         </Stack>
         <Stack sx={{ justifyContent: 'center', flexDirection: 'row' }}>
-          <TypographyLink
-            as="a"
-            href={`https://support.ledger.com/hc/${
-              currentLanguage?.code || 'en-us'
-            }/categories/4404376139409?docs=true`}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="body2"
-          >
-            {t('Ledger Live Support')}
-          </TypographyLink>
-          <ExternalLinkIcon
-            size={16}
-            sx={{ color: 'secondary.main', marginLeft: 1 }}
-          />
+          <LedgerLiveSupportButton />
         </Stack>
       </Stack>
     </Stack>

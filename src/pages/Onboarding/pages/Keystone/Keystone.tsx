@@ -31,6 +31,7 @@ import {
 import { useHistory } from 'react-router-dom';
 import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 import { WalletType } from '@avalabs/types';
+import { getAvalancheAddressLink } from '@src/utils/getExplorerAddress';
 
 const KeystoneStepImage = styled(Stack)`
   position: relative;
@@ -98,7 +99,11 @@ export const Keystone = () => {
       const { balance } = await getAvaxBalance(address);
       const newAddresses = [
         ...addressList,
-        { address, balance: balance.balanceDisplayValue || '0' },
+        {
+          address,
+          balance: balance.balanceDisplayValue || '0',
+          explorerLink: getAvalancheAddressLink(address),
+        },
       ];
       setAddresses(newAddresses);
       if (accountIndex < 2) {
@@ -200,7 +205,7 @@ export const Keystone = () => {
           )}
           {stepNumber === tutorialLastStep + 1 && (
             <Stack sx={{ alignItems: 'center', mt: 3 }}>
-              <DerivedAddresses addresses={addresses} />
+              <DerivedAddresses addresses={addresses} balanceSymbol="AVAX" />
             </Stack>
           )}
         </Stack>

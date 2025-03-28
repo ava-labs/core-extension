@@ -1,9 +1,8 @@
 import {
   Button,
   CheckIcon,
-  ExternalLinkIcon,
-  Grid,
   Stack,
+  StackProps,
   Tooltip,
   Typography,
   toast,
@@ -11,7 +10,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
 import { PubKeyType } from '@src/background/services/wallet/models';
@@ -34,20 +33,29 @@ import sentryCaptureException, {
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { Overlay } from '@src/components/common/Overlay';
-import { AppBackground } from '@src/components/common/AppBackground';
 import browser from 'webextension-polyfill';
+import { FakeOnboardingBackground } from '@src/components/common/FakeOnboardingBackground';
+import { LedgerLiveSupportButton } from '@src/components/ledger/LedgerLiveSupportButton';
+import { SolanaPublicKey } from '../Ledger/models';
+import { LedgerConnectorSolana } from '@src/components/ledger/LedgerConnectorSolana';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { MagicSolanaLogo } from '@src/components/common/MagicSolanaLogo';
 
 enum Step {
   Import,
   Name,
   Troubleshoot,
   Completed,
+  AskAboutSolana,
+  DeriveSolana,
 }
 
 export function AddWalletWithLedger() {
   const theme = useTheme();
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const getErrorMessage = useErrorMessage();
 
   const [xpub, setXpub] = useState('');
@@ -60,7 +68,12 @@ export function AddWalletWithLedger() {
     DerivationPath.BIP44,
   );
   const lastAccountIndexWithBalance = useRef(0);
+  const [solanaKeys, setSolanaKeys] = useState<SolanaPublicKey[]>([]);
 
+  const withSolana = useMemo(
+    () => isFlagEnabled(FeatureGates.SOLANA_SUPPORT),
+    [isFlagEnabled],
+  );
   const { popDeviceSelection } = useLedgerContext();
 
   useEffect(() => {
@@ -78,39 +91,25 @@ export function AddWalletWithLedger() {
     lastAccountIndexWithBalance.current = data.lastAccountIndexWithBalance;
   }
 
-  const LedgerLiveSupportButton = () => (
-    <Button
-      variant="text"
-      onClick={() => {
-        window.open(
-          'https://www.ledger.com/ledger-live',
-          '_blank',
-          'noreferrer',
-        );
-      }}
-    >
-      <ExternalLinkIcon size={16} sx={{ color: 'secondary.main' }} />
-      <Typography
-        variant="caption"
-        sx={{
-          ml: 1,
-          color: 'secondary.main',
-        }}
-      >
-        {t('Ledger Live Support')}
-      </Typography>
-    </Button>
-  );
-
   const handleImport = useCallback(
     async (name?: string) => {
       try {
         capture('LedgerImportStarted');
 
+        const mergedKeys =
+          publicKeys && publicKeys.length > 0
+            ? publicKeys.map((key, index) => ({
+                ...key,
+                svm:
+                  solanaKeys.find((solanaKey) => solanaKey.index === index)
+                    ?.key ?? '',
+              }))
+            : solanaKeys.map(({ key }) => ({ evm: '', svm: key }));
+
         await importLedger({
           xpub,
           xpubXP,
-          pubKeys: publicKeys,
+          pubKeys: mergedKeys,
           name,
           secretType:
             pathSpec === DerivationPath.BIP44
@@ -119,7 +118,7 @@ export function AddWalletWithLedger() {
           numberOfAccountsToCreate: lastAccountIndexWithBalance.current + 1,
         });
 
-        capture('SeedphraseImportSuccess');
+        capture('LedgerImportSuccess');
         setStep(Step.Completed);
       } catch (err) {
         capture('LedgerImportFailure');
@@ -140,62 +139,13 @@ export function AddWalletWithLedger() {
       publicKeys,
       xpub,
       xpubXP,
+      solanaKeys,
     ],
-  );
-
-  // This will create a fake background that overlay is going to blur for design.
-  const BackgroundPlaceholder = () => (
-    <Grid container spacing={2}>
-      <Grid item xs={6} md={6} sx={{ px: 20 }}>
-        <Stack
-          sx={{
-            height: 724,
-            width: 550,
-            justifyContent: 'space-between',
-            pt: 10,
-            pl: 15,
-          }}
-        >
-          <Stack
-            sx={{
-              pt: 15,
-              justifyContent: 'center',
-            }}
-          >
-            <Typography variant="h2">
-              {'The best way to connect to crypto'}
-            </Typography>
-            <Typography variant="h2" sx={{ color: 'secondary.main' }}>
-              {'Core Extension'}
-            </Typography>
-          </Stack>
-
-          <Stack
-            sx={{
-              p: 10,
-              justifyContent: 'center',
-            }}
-          >
-            <Button sx={{ width: 300 }}>{t('Next')}</Button>
-          </Stack>
-        </Stack>
-      </Grid>
-      <Grid
-        item
-        xs={6}
-        md={6}
-        sx={{
-          backgroundColor: 'background.paper',
-        }}
-      >
-        <AppBackground />
-      </Grid>
-    </Grid>
   );
 
   return (
     <>
-      <BackgroundPlaceholder />
+      <FakeOnboardingBackground />
       <Overlay isBackgroundFilled={false}>
         {step === Step.Completed && (
           <Stack
@@ -249,15 +199,7 @@ export function AddWalletWithLedger() {
         )}
 
         {step === Step.Troubleshoot && (
-          <Stack
-            sx={{
-              height: 724,
-              width: 432,
-              borderRadius: 1,
-              justifyContent: 'space-between',
-              backgroundColor: 'background.paper',
-            }}
-          >
+          <Container>
             <Stack justifyContent="space-between" sx={{ height: '100%' }}>
               <Stack alignItems="flex-start" sx={{ mt: 2.5, mb: 0.5 }}>
                 <PageTitle onBackClick={() => setStep(Step.Import)}>
@@ -265,6 +207,7 @@ export function AddWalletWithLedger() {
                 </PageTitle>
                 <Stack sx={{ px: 2 }}>
                   <LedgerTroubleSteps
+                    appName={t('Avalanche App')}
                     fontVariant={LedgerTroubleStepsFontVariant.large}
                   />
                 </Stack>
@@ -277,18 +220,10 @@ export function AddWalletWithLedger() {
                 <LedgerLiveSupportButton />
               </Stack>
             </Stack>
-          </Stack>
+          </Container>
         )}
         {step === Step.Name && (
-          <Stack
-            sx={{
-              height: 724,
-              width: 432,
-              borderRadius: 1,
-              justifyContent: 'space-between',
-              backgroundColor: 'background.paper',
-            }}
-          >
+          <Container>
             <Stack
               justifyContent="space-between"
               sx={{ height: '100%', width: '100%' }}
@@ -300,18 +235,10 @@ export function AddWalletWithLedger() {
                 backgroundColor={theme.palette.background.default}
               />
             </Stack>
-          </Stack>
+          </Container>
         )}
         {step === Step.Import && (
-          <Stack
-            sx={{
-              height: 724,
-              width: 432,
-              borderRadius: 1,
-              justifyContent: 'space-between',
-              backgroundColor: 'background.paper',
-            }}
-          >
+          <Container>
             <Stack
               justifyContent="space-between"
               sx={{ height: '100%', pt: 1 }}
@@ -351,7 +278,11 @@ export function AddWalletWithLedger() {
                   </Stack>
                   <Button
                     disabled={!hasPublicKeys}
-                    onClick={() => setStep(Step.Name)}
+                    onClick={() =>
+                      withSolana
+                        ? setStep(Step.AskAboutSolana)
+                        : setStep(Step.Name)
+                    }
                     sx={{ width: '50%' }}
                     fullWidth
                   >
@@ -361,10 +292,139 @@ export function AddWalletWithLedger() {
                 <LedgerLiveSupportButton />
               </Stack>
             </Stack>
-          </Stack>
+          </Container>
+        )}
+        {step === Step.AskAboutSolana && (
+          <Container>
+            <Stack
+              justifyContent="space-between"
+              sx={{ height: '100%', pt: 1 }}
+            >
+              <Stack sx={{ flexGrow: 1 }}>
+                <Stack direction="row" alignItems="flex-start" sx={{ mb: 1 }}>
+                  <PageTitle showBackButton={false}>
+                    {t('Add Solana to Your Wallet?')}
+                  </PageTitle>
+                </Stack>
+                <Stack sx={{ flexGrow: 1, pt: 1, px: 6, textAlign: 'center' }}>
+                  <Typography variant="body2">
+                    {t(
+                      'To use Solana in Core you will need to add an account from your Ledger device. You can always add this later at any time.',
+                    )}
+                  </Typography>
+                </Stack>
+                <Stack sx={{ flexGrow: 1, justifyContent: 'center' }}>
+                  <MagicSolanaLogo outerSize={340} innerSize={187} />
+                </Stack>
+              </Stack>
+              <Stack sx={{ p: 2, mb: 2, rowGap: 1 }}>
+                <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
+                  <Stack sx={{ width: '50%' }}>
+                    <Button
+                      color="secondary"
+                      onClick={() => setStep(Step.Name)}
+                      fullWidth
+                    >
+                      {t('Skip')}
+                    </Button>
+                  </Stack>
+                  <Button
+                    disabled={!hasPublicKeys}
+                    onClick={() => setStep(Step.DeriveSolana)}
+                    sx={{ width: '50%' }}
+                    fullWidth
+                  >
+                    {t('Add')}
+                  </Button>
+                </Stack>
+                <LedgerLiveSupportButton />
+              </Stack>
+            </Stack>
+          </Container>
+        )}
+        {step === Step.DeriveSolana && (
+          <Container>
+            <Stack
+              justifyContent="space-between"
+              sx={{ height: '100%', pt: 1 }}
+            >
+              <Stack sx={{ flexGrow: 1 }}>
+                <Stack direction="row" alignItems="flex-start" sx={{ mb: 1 }}>
+                  <PageTitle showBackButton={false}>
+                    {t('Connect your Ledger')}
+                  </PageTitle>
+                </Stack>
+                <Stack sx={{ pt: 1, px: 6, textAlign: 'center' }}>
+                  <Typography variant="body2">
+                    {t('Open the Solana app on your Ledger device.')}
+                  </Typography>
+                </Stack>
+                <LedgerConnectorSolana
+                  numberOfKeys={lastAccountIndexWithBalance.current + 1}
+                  onSuccess={(solanaRetrievedKeys) => {
+                    setSolanaKeys(solanaRetrievedKeys);
+                    capture('LedgerImportSolanaKeysSuccess');
+                  }}
+                  onFailure={() => {
+                    capture('LedgerImportSolanaKeysFailure');
+                  }}
+                  onTroubleshoot={() => setStep(Step.Troubleshoot)}
+                />
+              </Stack>
+            </Stack>
+
+            <Stack sx={{ p: 2, mb: 2, rowGap: 1 }}>
+              <Stack sx={{ flexDirection: 'row', columnGap: 2 }}>
+                <Stack sx={{ width: '50%' }}>
+                  <Tooltip
+                    title={t(
+                      'Clicking the cancel button will close the tab and open the extension for you. If the extension doesn’t open automatically, please open it manually.',
+                    )}
+                  >
+                    <Button
+                      color="secondary"
+                      onClick={() => {
+                        browser.action.openPopup();
+                        window.close();
+                      }}
+                      fullWidth
+                    >
+                      {t('Cancel')}
+                    </Button>
+                  </Tooltip>
+                </Stack>
+                <Button
+                  disabled={
+                    solanaKeys.length !==
+                    lastAccountIndexWithBalance.current + 1
+                  }
+                  onClick={() => setStep(Step.Name)}
+                  sx={{ width: '50%' }}
+                  fullWidth
+                >
+                  {t('Next')}
+                </Button>
+              </Stack>
+              <LedgerLiveSupportButton />
+            </Stack>
+          </Container>
         )}
       </Overlay>
       <LedgerWrongVersionOverlay />
     </>
   );
 }
+
+const Container = ({ sx, ...props }: StackProps) => (
+  <Stack
+    sx={{
+      height: 724,
+      width: 432,
+      borderRadius: 1,
+      justifyContent: 'space-between',
+      backgroundColor: 'background.paper',
+      ...sx,
+    }}
+    {...props}
+  />
+);

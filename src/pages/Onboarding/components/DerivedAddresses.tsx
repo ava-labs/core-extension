@@ -1,6 +1,5 @@
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { AddressType } from '../pages/Ledger/LedgerConnect';
-import { getAvalancheAddressLink } from '@src/utils/getExplorerAddress';
 import { useTranslation } from 'react-i18next';
 import {
   Card,
@@ -17,8 +16,16 @@ import { useMemo } from 'react';
 
 interface DerivedAddressesProps {
   addresses: AddressType[];
+  numberOfExpectedAddresses?: number;
+  balanceSymbol: string;
+  header?: string;
 }
-export function DerivedAddresses({ addresses }: DerivedAddressesProps) {
+export function DerivedAddresses({
+  addresses,
+  numberOfExpectedAddresses,
+  balanceSymbol,
+  header,
+}: DerivedAddressesProps) {
   const theme = useTheme();
   const { t } = useTranslation();
   const hasBalance = useMemo(() => {
@@ -36,14 +43,17 @@ export function DerivedAddresses({ addresses }: DerivedAddressesProps) {
       <CardContent>
         <Stack>
           <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
-            {t('Your Derived Addresses')}
+            {header ?? t('Your Derived Addresses')}
           </Typography>
           <Stack alignItems="space-between" divider={<Divider flexItem />}>
             {addresses.map((addressData, index) => {
-              if (hasBalance && addressData.balance === '0') {
+              if (
+                typeof numberOfExpectedAddresses !== 'number' &&
+                hasBalance &&
+                addressData.balance === '0'
+              ) {
                 return;
               }
-              const explorerLink = getAvalancheAddressLink(addressData.address);
 
               return (
                 <Stack key={index}>
@@ -93,12 +103,12 @@ export function DerivedAddresses({ addresses }: DerivedAddressesProps) {
                       }}
                     >
                       <Typography variant="body2">
-                        {addressData.balance} AVAX
+                        {addressData.balance} {balanceSymbol}
                       </Typography>
-                      {explorerLink && (
+                      {addressData.explorerLink && (
                         <Typography
                           as="a"
-                          href={explorerLink}
+                          href={addressData.explorerLink}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -110,7 +120,7 @@ export function DerivedAddresses({ addresses }: DerivedAddressesProps) {
                 </Stack>
               );
             })}
-            {addresses.length < 3 && (
+            {addresses.length < (numberOfExpectedAddresses ?? 3) && (
               <Stack
                 sx={{
                   flexDirection: 'row',
