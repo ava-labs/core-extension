@@ -1678,6 +1678,7 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     it('returns the correct list of addresses', async () => {
       secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce({
+        derivationPathSpec: DerivationPath.BIP44,
         extendedPublicKeys: [
           buildExtendedPublicKey('xpubXP', AVALANCHE_BASE_DERIVATION_PATH),
         ],
