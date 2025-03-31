@@ -917,7 +917,7 @@ export class WalletService implements OnUnlock {
 
     return indices.map((index) => {
       const avmDerivationPath = getAddressDerivationPath(
-        0,
+        index,
         secrets.derivationPathSpec,
         'AVM',
       );
