@@ -14,10 +14,12 @@ import {
 } from '../featureFlags/models';
 import { deleteToken, getToken, MessagePayload } from 'firebase/messaging';
 import { FcmMessageEvents, FirebaseEvents } from './models';
+import { isSupportedBrowser } from '@src/utils/isSupportedBrowser';
 
 jest.mock('firebase/app');
 jest.mock('firebase/messaging');
 jest.mock('firebase/messaging/sw');
+jest.mock('@src/utils/isSupportedBrowser');
 
 describe('FirebaseService', () => {
   const realEnv = process.env;
@@ -31,6 +33,7 @@ describe('FirebaseService', () => {
     jest.resetAllMocks();
     jest.mocked(initializeApp).mockReturnValue(appMock);
     jest.mocked(getMessaging).mockReturnValue(messagingMock);
+    jest.mocked(isSupportedBrowser).mockReturnValue(true);
 
     process.env = {
       ...realEnv,
@@ -50,6 +53,14 @@ describe('FirebaseService', () => {
     expect(() => new FirebaseService(featureFlagService)).toThrow(
       'FIREBASE_CONFIG is missing',
     );
+  });
+
+  it('does not initialize when the browser is not supported', () => {
+    jest.mocked(isSupportedBrowser).mockReturnValueOnce(false);
+
+    const firebaseService = new FirebaseService(featureFlagService);
+    expect(firebaseService.getFirebaseApp()).toBeUndefined();
+    expect(initializeApp).not.toHaveBeenCalled();
   });
 
   it('initializes correctly', () => {

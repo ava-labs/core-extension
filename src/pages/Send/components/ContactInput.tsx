@@ -7,6 +7,7 @@ import {
   Tooltip,
   UserSearchIcon,
 } from '@avalabs/core-k2-components';
+import { isAddress as isSolanaAddress } from '@solana/kit';
 import type { Contact } from '@avalabs/types';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { isBech32Address } from '@avalabs/core-bridge-sdk';
@@ -25,6 +26,7 @@ import {
   isValidAvmAddress,
   isValidPvmAddress,
 } from '@src/utils/isAddressValid';
+import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
 
 const truncateName = (name: string) => {
   if (name.length < 28) return name;
@@ -87,11 +89,14 @@ export const ContactInput = ({
    * For non-BTC transactions, 'addressBTC' is empty.
    * @see useIdentifyAddress() hook.
    */
-  const contactAddress = isBitcoin(network)
-    ? contact?.addressBTC
-    : isPchainNetwork(network) || isXchainNetwork(network)
-      ? contact?.addressXP
-      : contact?.address;
+  const contactAddress =
+    network && isSolanaNetwork(network)
+      ? contact?.addressSVM
+      : isBitcoin(network)
+        ? contact?.addressBTC
+        : isPchainNetwork(network) || isXchainNetwork(network)
+          ? contact?.addressXP
+          : contact?.address;
 
   const [cursor, setCursor] = useState<number | null>(null);
 
@@ -119,6 +124,12 @@ export const ContactInput = ({
       return contact && contact.addressXP
         ? isValidAvmAddress(contact.addressXP)
         : false;
+    }
+
+    if (isSolanaNetwork(network)) {
+      return Boolean(
+        contact && contact.addressSVM && isSolanaAddress(contact.addressSVM),
+      );
     }
     return false;
   };

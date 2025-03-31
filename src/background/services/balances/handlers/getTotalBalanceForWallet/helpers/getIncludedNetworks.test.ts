@@ -1,3 +1,4 @@
+import { pick } from 'lodash';
 import { ChainId } from '@avalabs/core-chains-sdk';
 
 import { ChainListWithCaipIds } from '@src/background/services/network/models';
@@ -17,24 +18,32 @@ describe('src/background/services/balances/handlers/getTotalBalanceForWallet/hel
     } as unknown as ChainListWithCaipIds;
 
     it('always adds C-, X- and P-Chain mainnets', () => {
-      expect(getIncludedNetworks(true, mainnets, [])).toEqual([
-        ChainId.AVALANCHE_MAINNET_ID,
-        ChainId.AVALANCHE_P,
-        ChainId.AVALANCHE_X,
-      ]);
+      expect(getIncludedNetworks(true, mainnets, [])).toEqual(
+        Object.values(
+          pick(mainnets, [
+            ChainId.AVALANCHE_MAINNET_ID,
+            ChainId.AVALANCHE_P,
+            ChainId.AVALANCHE_X,
+          ]),
+        ),
+      );
     });
 
     it('adds favorite networks', () => {
-      expect(getIncludedNetworks(true, mainnets, favoriteNetworks)).toEqual([
-        ChainId.AVALANCHE_MAINNET_ID,
-        ChainId.AVALANCHE_P,
-        ChainId.AVALANCHE_X,
-        ChainId.BITCOIN,
-      ]);
+      expect(getIncludedNetworks(true, mainnets, favoriteNetworks)).toEqual(
+        Object.values(
+          pick(mainnets, [
+            ChainId.AVALANCHE_MAINNET_ID,
+            ChainId.AVALANCHE_P,
+            ChainId.AVALANCHE_X,
+            ChainId.BITCOIN,
+          ]),
+        ),
+      );
     });
   });
 
-  describe('for mainnet environment', () => {
+  describe('for testnet environment', () => {
     const testnets = {
       [ChainId.AVALANCHE_TESTNET_ID]: {},
       [ChainId.AVALANCHE_TEST_X]: {},
@@ -44,20 +53,28 @@ describe('src/background/services/balances/handlers/getTotalBalanceForWallet/hel
     } as unknown as ChainListWithCaipIds;
 
     it('always adds testnet C-, X- and P-Chain', () => {
-      expect(getIncludedNetworks(false, testnets, [])).toEqual([
-        ChainId.AVALANCHE_TESTNET_ID,
-        ChainId.AVALANCHE_TEST_P,
-        ChainId.AVALANCHE_TEST_X,
-      ]);
+      expect(getIncludedNetworks(false, testnets, [])).toEqual(
+        Object.values(
+          pick(testnets, [
+            ChainId.AVALANCHE_TESTNET_ID,
+            ChainId.AVALANCHE_TEST_P,
+            ChainId.AVALANCHE_TEST_X,
+          ]),
+        ),
+      );
     });
 
     it('adds favorite networks', () => {
-      expect(getIncludedNetworks(false, testnets, favoriteNetworks)).toEqual([
-        ChainId.AVALANCHE_TESTNET_ID,
-        ChainId.AVALANCHE_TEST_P,
-        ChainId.AVALANCHE_TEST_X,
-        ChainId.ETHEREUM_TEST_SEPOLIA,
-      ]);
+      expect(getIncludedNetworks(false, testnets, favoriteNetworks)).toEqual(
+        Object.values(
+          pick(testnets, [
+            ChainId.AVALANCHE_TESTNET_ID,
+            ChainId.AVALANCHE_TEST_P,
+            ChainId.AVALANCHE_TEST_X,
+            ChainId.ETHEREUM_TEST_SEPOLIA,
+          ]),
+        ),
+      );
     });
   });
 });

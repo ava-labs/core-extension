@@ -1,9 +1,9 @@
 import { TokenIcon as TokenImage } from '@src/components/common/TokenIcon';
-import { APIError } from 'paraswap';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { OptimalRate } from 'paraswap-core';
 import { TokenType, TokenWithBalanceEVM } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@src/utils/stringToBigint';
+import { WrappedError } from '@src/utils/errors';
+import { OptimalRate } from '@paraswap/sdk';
 
 interface GetTokenIconProps {
   token?: TokenWithBalanceEVM;
@@ -49,7 +49,7 @@ export const getMaxValue = (token?: TokenWithBalanceEVM, fee?: string) => {
   return token.balance;
 };
 
-export function isAPIError(rate: any): rate is APIError {
+export function isAPIError(rate: any): rate is WrappedError {
   return typeof rate.message === 'string';
 }
 
@@ -109,3 +109,14 @@ export interface Amount {
   bigint: bigint;
   amount: string;
 }
+
+export const formatBasisPointsToPercentage = (basisPoints: number): string => {
+  // E.g. 85 -> 0.85%
+
+  // Use Intl.NumberFormat to format the number as a percentage
+  return new Intl.NumberFormat('en-US', {
+    style: 'percent',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(basisPoints / 10_000);
+};

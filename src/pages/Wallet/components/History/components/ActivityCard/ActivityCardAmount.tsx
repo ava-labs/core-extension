@@ -1,9 +1,10 @@
-import { Stack, Typography } from '@avalabs/core-k2-components';
+import { Stack, Tooltip, Typography } from '@avalabs/core-k2-components';
 import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
 import { TxHistoryItem } from '@src/background/services/history/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { ActivityCardProp } from './ActivityCard';
 import { TransactionType } from '@avalabs/vm-module-types';
+import { TruncateFeeAmount } from '@src/components/common/TruncateFeeAmount';
 
 export function ActivityCardAmount({ historyItem }: ActivityCardProp) {
   const {
@@ -65,9 +66,11 @@ export function ActivityCardAmount({ historyItem }: ActivityCardProp) {
   const symbol = historyItem.tokens?.[0]?.symbol;
   return (
     <Stack sx={{ flexDirection: 'row', columnGap: 0.5 }}>
-      <Typography variant="body2" sx={{ fontWeight: 'fontWeightSemibold' }}>
-        {amount}
-      </Typography>
+      {amount && (
+        <Tooltip title={amount}>
+          <TruncateFeeAmount amount={amount} />
+        </Tooltip>
+      )}
       <Typography
         variant="body2"
         sx={(theme) => ({ color: theme.palette.primary.dark })}

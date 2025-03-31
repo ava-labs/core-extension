@@ -19,6 +19,31 @@ export enum CommonError {
   ModuleManagerNotSet = 'module-manager-not-set',
   UnableToSign = 'unable-to-sign',
   UnableToEstimateGas = 'unable-to-estimate-gas',
+  UnsupportedTokenType = 'unsupported-token-type',
+}
+
+export enum LedgerError {
+  TransportNotFound = 'ledger-transport-not-found',
+  NoPublicKeyReturned = 'ledger-no-public-key-returned',
+}
+
+export enum SecretsError {
+  SecretsNotFound = 'secrets-not-found',
+  UnsupportedSecretType = 'unsupported-secret-type',
+  MissingExtendedPublicKey = 'missing-ext-pubkey',
+  WalletAlreadyExists = 'wallet-already-exists',
+  PublicKeyNotFound = 'public-key-not-found',
+  NoAccountIndex = 'no-account-index',
+  DerivationPathMissing = 'derivation-path-missing',
+  UnknownDerivationPathFormat = 'unknown-derivation-path-format',
+  DerivationPathTooShort = 'derivation-path-too-short',
+  UnsupportedCurve = 'unsupported-curve',
+}
+
+export enum AccountError {
+  EVMAddressNotFound = 'evm-address-not-found',
+  BTCAddressNotFound = 'btc-address-not-found',
+  NoAddressesFound = 'no-addresses-found',
 }
 
 export enum LedgerError {

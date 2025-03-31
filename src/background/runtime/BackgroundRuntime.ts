@@ -8,6 +8,7 @@ import { ModuleManager } from '../vmModules/ModuleManager';
 import { BridgeService } from '../services/bridge/BridgeService';
 import { AddressResolver } from '../services/secrets/AddressResolver';
 import { AppCheckService } from '@src/background/services/appcheck/AppCheckService';
+import { GasStationService } from '../services/gasless/GasStationService';
 
 @singleton()
 export class BackgroundRuntime {
@@ -20,6 +21,7 @@ export class BackgroundRuntime {
     private moduleManager: ModuleManager,
     private addressResolver: AddressResolver,
     private appCheckService: AppCheckService,
+    private gasStationService: GasStationService,
   ) {}
 
   activate() {
@@ -35,6 +37,7 @@ export class BackgroundRuntime {
 
     this.addressResolver.init(this.moduleManager);
     this.appCheckService.activate();
+    this.#createOffScreen();
   }
 
   private onInstalled() {
@@ -57,10 +60,22 @@ export class BackgroundRuntime {
         title: '🔒 Lock wallet',
         contexts: ['action'],
       });
+      browser.contextMenus.create({
+        id: 'lock-restart-separator',
+        type: 'separator',
+        contexts: ['action'],
+      });
+      browser.contextMenus.create({
+        id: 'restart-wallet',
+        title: '🔄 Restart',
+        contexts: ['action'],
+      });
 
       browser.contextMenus.onClicked.addListener((info) => {
         if (info.menuItemId === 'lock-wallet') {
           this.lockService.lock();
+        } else if (info.menuItemId === 'restart-wallet') {
+          browser.runtime.reload();
         }
       });
     });
@@ -92,5 +107,19 @@ export class BackgroundRuntime {
        */
       console.warn(`Dropped attempt to register inpage content script. ${err}`);
     }
+  }
+
+  async #createOffScreen() {
+    try {
+      await chrome.offscreen.closeDocument();
+    } catch {
+      // nothing to close
+    }
+
+    await chrome.offscreen.createDocument({
+      url: 'offscreen.html',
+      reasons: ['WORKERS'],
+      justification: 'offload computation',
+    });
   }
 }

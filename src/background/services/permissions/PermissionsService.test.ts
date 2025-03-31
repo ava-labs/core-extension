@@ -1,11 +1,16 @@
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { StorageService } from '../storage/StorageService';
 import {
   DappPermissions,
   PermissionEvents,
-  Permissions,
   PERMISSION_STORAGE_KEY,
+  PermissionsState,
 } from './models';
 import { PermissionsService } from './PermissionsService';
+import { omit } from 'lodash';
+import { Account } from '../accounts/models';
+import { mapAddressesToVMs } from '@src/utils/address';
+import { SYNCED_DOMAINS } from '@src/constants';
 
 jest.mock('../storage/StorageService');
 
@@ -14,16 +19,17 @@ describe('background/services/permissions/PermissionsService.ts', () => {
     jest.resetAllMocks();
   });
 
-  const mockPermissionData: Permissions = {
-    'noaccounts.example': {
-      domain: 'noaccounts.example',
-      accounts: {},
-    },
-    'oneaccount.example': {
-      domain: 'oneaccount.example',
-      accounts: {
-        '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': true,
-        '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': false,
+  const mockPermissionData: PermissionsState = {
+    permissions: {
+      'noaccounts.example': {
+        domain: 'noaccounts.example',
+        accounts: {},
+      },
+      'oneaccount.example': {
+        domain: 'oneaccount.example',
+        accounts: {
+          '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': NetworkVMType.EVM,
+        },
       },
     },
   };
@@ -39,7 +45,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       const result = await permissionService.getPermissions();
 
-      expect(result).toEqual(mockPermissionData);
+      expect(result).toEqual(mockPermissionData.permissions);
 
       expect(storageService.load).toHaveBeenCalledTimes(1);
       expect(storageService.load).toHaveBeenCalledWith(PERMISSION_STORAGE_KEY);
@@ -53,11 +59,11 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       });
 
       const result = await permissionService.getPermissions();
-      expect(result).toEqual(mockPermissionData);
+      expect(result).toEqual(mockPermissionData.permissions);
       expect(storageService.load).toHaveBeenCalledTimes(1);
 
       const result2 = await permissionService.getPermissions();
-      expect(result2).toEqual(mockPermissionData);
+      expect(result2).toEqual(mockPermissionData.permissions);
       expect(storageService.load).toHaveBeenCalledTimes(1);
     });
 
@@ -86,9 +92,11 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       );
 
       const result = await permissionService.getPermissions();
-      expect(result).toEqual(mockPermissionData);
+      expect(result).toEqual(mockPermissionData.permissions);
       expect(eventListener).toHaveBeenCalledTimes(1);
-      expect(eventListener).toHaveBeenCalledWith(mockPermissionData);
+      expect(eventListener).toHaveBeenCalledWith(
+        mockPermissionData.permissions,
+      );
 
       await permissionService.getPermissions();
       expect(eventListener).toHaveBeenCalledTimes(1);
@@ -109,13 +117,18 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       );
 
       await permissionService.getPermissions();
-      expect(permissionService['permissions']).toEqual(mockPermissionData);
+      expect(permissionService['permissions']).toEqual(
+        mockPermissionData.permissions,
+      );
 
       permissionService.onLock();
       expect(permissionService['permissions']).toBeUndefined();
 
       expect(eventListener).toHaveBeenCalledTimes(2);
-      expect(eventListener).toHaveBeenNthCalledWith(1, mockPermissionData);
+      expect(eventListener).toHaveBeenNthCalledWith(
+        1,
+        mockPermissionData.permissions,
+      );
       expect(eventListener).toHaveBeenNthCalledWith(2, {});
     });
   });
@@ -131,7 +144,9 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       const result =
         await permissionService.getPermissionsForDomain('oneaccount.example');
 
-      expect(result).toEqual(mockPermissionData['oneaccount.example']);
+      expect(result).toEqual(
+        mockPermissionData.permissions['oneaccount.example'],
+      );
     });
 
     it('returns undefined for unknown domains', async () => {
@@ -157,7 +172,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       const result = await permissionService.hasDomainPermissionForAccount(
         'oneaccount.example',
-        '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        { addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' } as Account,
       );
 
       expect(result).toEqual(true);
@@ -172,7 +187,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       const result = await permissionService.hasDomainPermissionForAccount(
         'oneaccount.example',
-        '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        { addressC: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' } as Account,
       );
 
       expect(result).toEqual(false);
@@ -187,7 +202,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       const result = await permissionService.hasDomainPermissionForAccount(
         'oneaccount.example',
-        '0xnonexistentaccount',
+        { addressC: '0xnonexistentaccount' } as Account,
       );
 
       expect(result).toEqual(false);
@@ -202,7 +217,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       const result = await permissionService.hasDomainPermissionForAccount(
         'unkown.domain',
-        '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        { addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' } as Account,
       );
 
       expect(result).toEqual(false);
@@ -215,15 +230,22 @@ describe('background/services/permissions/PermissionsService.ts', () => {
 
       (storageService.load as jest.Mock).mockResolvedValue({});
 
-      const newPermission = {
-        ...mockPermissionData['oneaccount.example'],
-      } as DappPermissions;
-
-      await permissionService.addPermission(newPermission);
+      await permissionService.grantPermission(
+        'oneaccount.example',
+        '0x000000',
+        NetworkVMType.EVM,
+      );
 
       expect(storageService.save).toHaveBeenCalledTimes(1);
       expect(storageService.save).toHaveBeenCalledWith(PERMISSION_STORAGE_KEY, {
-        'oneaccount.example': newPermission,
+        permissions: {
+          'oneaccount.example': {
+            domain: 'oneaccount.example',
+            accounts: {
+              '0x000000': NetworkVMType.EVM,
+            },
+          },
+        },
       });
     });
 
@@ -234,23 +256,22 @@ describe('background/services/permissions/PermissionsService.ts', () => {
         ...mockPermissionData,
       });
 
-      const newPermission = {
-        domain: 'oneaccount.example',
-        accounts: {
-          '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': true,
-        },
-      } as DappPermissions;
+      const domain = 'oneaccount.example';
+      const newAddress = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      const vm = NetworkVMType.EVM;
 
-      await permissionService.addPermission(newPermission);
+      await permissionService.grantPermission(domain, newAddress, vm);
 
       expect(storageService.save).toHaveBeenCalledTimes(1);
       expect(storageService.save).toHaveBeenCalledWith(PERMISSION_STORAGE_KEY, {
-        ...mockPermissionData,
-        'oneaccount.example': {
-          ...newPermission,
-          accounts: {
-            ...mockPermissionData[newPermission.domain]?.accounts,
-            ...newPermission.accounts,
+        permissions: {
+          ...mockPermissionData.permissions,
+          [domain]: {
+            domain,
+            accounts: {
+              ...mockPermissionData.permissions[domain]?.accounts,
+              [newAddress]: vm,
+            },
           },
         },
       });
@@ -269,9 +290,13 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       );
 
       const newPermission = {
-        ...mockPermissionData['oneaccount.example'],
+        ...mockPermissionData.permissions['oneaccount.example'],
       } as DappPermissions;
-      await permissionService.addPermission(newPermission);
+      await permissionService.grantPermission(
+        'oneaccount.example',
+        '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        NetworkVMType.EVM,
+      );
 
       expect(eventListener).toHaveBeenCalledTimes(1);
       expect(eventListener).toHaveBeenCalledWith({
@@ -280,35 +305,94 @@ describe('background/services/permissions/PermissionsService.ts', () => {
     });
   });
 
-  describe('setAccountPermissionForDomain', () => {
-    it('changes permission of an already added account', async () => {
+  describe('revokePermission', () => {
+    const addressA = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    const addressB = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+    const domain = 'twoaccounts.example';
+    const domainPermissions = {
+      domain,
+      accounts: {
+        [addressA]: NetworkVMType.EVM,
+        [addressB]: NetworkVMType.EVM,
+      },
+    };
+
+    it('removes permissions for specified addresses', async () => {
       const permissionService = new PermissionsService(storageService);
 
       (storageService.load as jest.Mock).mockResolvedValue({
-        ...mockPermissionData,
+        permissions: {
+          ...mockPermissionData.permissions,
+          [domain]: domainPermissions,
+        },
       });
 
       const permissions = await permissionService.getPermissions();
-      expect(
-        permissions['oneaccount.example']?.accounts[
-          '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
-        ],
-      ).toBe(true);
+      expect(permissions[domain]?.accounts).toHaveProperty(addressA);
+      expect(permissions[domain]?.accounts).toHaveProperty(addressB);
 
-      await permissionService.setAccountPermissionForDomain(
-        'oneaccount.example',
-        '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        false,
-      );
+      await permissionService.revokePermission(domain, [addressA]);
 
       const newPermissions = await permissionService.getPermissions();
-      expect(
-        newPermissions['oneaccount.example']?.accounts[
-          '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
-        ],
-      ).toBe(false);
+
+      expect(newPermissions[domain]?.accounts).not.toHaveProperty(addressA);
+      expect(newPermissions[domain]?.accounts).toHaveProperty(addressB);
     });
 
+    it('saves updates to storage', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        permissions: {
+          ...mockPermissionData.permissions,
+          [domain]: domainPermissions,
+        },
+      });
+
+      const permissions = await permissionService.getPermissions();
+
+      await permissionService.revokePermission(domain, [addressA]);
+
+      expect(storageService.save).toHaveBeenCalledTimes(1);
+      expect(storageService.save).toHaveBeenCalledWith(PERMISSION_STORAGE_KEY, {
+        permissions: {
+          ...permissions,
+          [domain]: {
+            ...domainPermissions,
+            accounts: omit(domainPermissions.accounts, addressA),
+          },
+        },
+      });
+    });
+
+    it('emits updates when permissions change', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      (storageService.load as jest.Mock).mockResolvedValue({
+        permissions: {
+          [domain]: domainPermissions,
+        },
+      });
+      const eventListener = jest.fn();
+
+      await permissionService.getPermissions();
+
+      permissionService.addListener(
+        PermissionEvents.PERMISSIONS_STATE_UPDATE,
+        eventListener,
+      );
+
+      const newPermissions = await permissionService.revokePermission(domain, [
+        addressA,
+        addressB,
+      ]);
+
+      expect(eventListener).toHaveBeenCalledTimes(1);
+      expect(eventListener).toHaveBeenCalledWith(newPermissions);
+    });
+  });
+
+  describe('grantPermission', () => {
     it('adds domain if missing', async () => {
       const permissionService = new PermissionsService(storageService);
 
@@ -323,10 +407,10 @@ describe('background/services/permissions/PermissionsService.ts', () => {
         ],
       ).toBe(undefined);
 
-      await permissionService.setAccountPermissionForDomain(
+      await permissionService.grantPermission(
         'newdomain.example',
         '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        true,
+        NetworkVMType.EVM,
       );
 
       const newPermissions = await permissionService.getPermissions();
@@ -334,24 +418,28 @@ describe('background/services/permissions/PermissionsService.ts', () => {
         newPermissions['newdomain.example']?.accounts[
           '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
         ],
-      ).toBe(true);
+      ).toBe(NetworkVMType.EVM);
     });
 
     it('saves updates to storage', async () => {
       const permissionService = new PermissionsService(storageService);
 
       (storageService.load as jest.Mock).mockResolvedValue({});
-      await permissionService.setAccountPermissionForDomain(
+      await permissionService.grantPermission(
         'newdomain.example',
         '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        true,
+        NetworkVMType.EVM,
       );
 
       expect(storageService.save).toHaveBeenCalledTimes(1);
       expect(storageService.save).toHaveBeenCalledWith(PERMISSION_STORAGE_KEY, {
-        'newdomain.example': {
-          domain: 'newdomain.example',
-          accounts: { '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': true },
+        permissions: {
+          'newdomain.example': {
+            domain: 'newdomain.example',
+            accounts: {
+              '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': NetworkVMType.EVM,
+            },
+          },
         },
       });
     });
@@ -369,39 +457,60 @@ describe('background/services/permissions/PermissionsService.ts', () => {
         eventListener,
       );
 
-      await permissionService.setAccountPermissionForDomain(
+      await permissionService.grantPermission(
         'newdomain.example',
         '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        true,
+        NetworkVMType.EVM,
       );
 
       expect(eventListener).toHaveBeenCalledTimes(1);
       expect(eventListener).toHaveBeenCalledWith({
         'newdomain.example': {
           domain: 'newdomain.example',
-          accounts: { '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': true },
+          accounts: {
+            '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': NetworkVMType.EVM,
+          },
         },
       });
     });
   });
 
-  describe('addWhitelistDomains', () => {
+  describe('whitelistCoreDomains', () => {
     it('calls setAccountPermissionForDomain', async () => {
       const permissionService = new PermissionsService(storageService);
-      permissionService.setAccountPermissionForDomain = jest.fn();
+      permissionService.grantPermission = jest.fn();
 
-      (storageService.load as jest.Mock).mockResolvedValue({});
+      (storageService.load as jest.Mock).mockResolvedValue({
+        ...mockPermissionData,
+      });
 
-      await permissionService.addWhitelistDomains('0x000000');
-      expect(
-        permissionService.setAccountPermissionForDomain,
-      ).toHaveBeenCalledTimes(2);
-      expect(
-        permissionService.setAccountPermissionForDomain,
-      ).toHaveBeenNthCalledWith(1, 'core.app', '0x000000', true);
-      expect(
-        permissionService.setAccountPermissionForDomain,
-      ).toHaveBeenNthCalledWith(2, 'test.core.app', '0x000000', true);
+      await permissionService.whitelistCoreDomains(
+        mapAddressesToVMs({
+          addressC: '0x000000',
+          addressSVM: 'jklghbcda',
+        } as Account),
+      );
+
+      // Ensure new data is added and existing data is preserved
+      expect(permissionService.permissions).toEqual(
+        SYNCED_DOMAINS.reduce(
+          (perms, domain) => ({
+            ...perms,
+            [domain]: {
+              domain,
+              accounts: {
+                ...perms[domain]?.accounts,
+                '0x000000': NetworkVMType.EVM,
+                jklghbcda: NetworkVMType.SVM,
+              },
+            },
+          }),
+          { ...mockPermissionData.permissions },
+        ),
+      );
+      expect(storageService.save).toHaveBeenCalledWith(PERMISSION_STORAGE_KEY, {
+        permissions: permissionService.permissions,
+      });
     });
   });
 });

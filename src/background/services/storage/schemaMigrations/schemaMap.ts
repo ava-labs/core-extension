@@ -19,6 +19,9 @@ import { UNIFIED_BRIDGE_STATE_STORAGE_KEY } from '../../unifiedBridge/models';
 import unified_bridge_v2 from './migrations/unified_bridge_v2';
 import balances_v3 from './migrations/balances_v3';
 import wallet_v5 from './migrations/wallet_v5/wallet_v5';
+import { PERMISSION_STORAGE_KEY } from '../../permissions/models';
+import permissions_v2 from './migrations/permissions_v2';
+import wallet_v6 from './migrations/wallet_v6/wallet_v6';
 
 export const SCHEMA_MAP = {
   [ACCOUNTS_STORAGE_KEY]: {
@@ -35,7 +38,7 @@ export const SCHEMA_MAP = {
     ],
   },
   [WALLET_STORAGE_KEY]: {
-    latestVersion: 5,
+    latestVersion: 6,
     migrations: [
       {
         version: 2,
@@ -52,6 +55,10 @@ export const SCHEMA_MAP = {
       {
         version: 5,
         migration: wallet_v5,
+      },
+      {
+        version: 6,
+        migration: wallet_v6,
       },
     ],
   },
@@ -106,5 +113,9 @@ export const SCHEMA_MAP = {
   [UNIFIED_BRIDGE_STATE_STORAGE_KEY]: {
     latestVersion: 2,
     migrations: [{ version: 2, migration: unified_bridge_v2 }],
+  },
+  [PERMISSION_STORAGE_KEY]: {
+    latestVersion: 2,
+    migrations: [{ version: 2, migration: permissions_v2 }],
   },
 } as const;

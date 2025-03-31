@@ -38,13 +38,11 @@ export const Receive = () => {
   const isBitcoinActive = network?.vmName === NetworkVMType.BITCOIN;
   const isPchainActive = useMemo(() => isPchainNetwork(network), [network]);
   const isXchainActive = useMemo(() => isXchainNetwork(network), [network]);
+  const isSolanaActive = network?.vmName === NetworkVMType.SVM;
   const { checkIsFunctionSupported } = useIsFunctionAvailable();
 
   const address = useMemo(
-    () =>
-      network && activeAccount
-        ? (getAddressForChain(network?.chainId, activeAccount) ?? '')
-        : '',
+    () => getAddressForChain(network, activeAccount),
     [activeAccount, network],
   );
 
@@ -73,6 +71,8 @@ export const Receive = () => {
       return t('Avalanche (P-Chain) Address');
     } else if (isXchainActive) {
       return t('Avalanche (X-Chain) Address');
+    } else if (isSolanaActive) {
+      return t('Solana Address');
     } else {
       return t('Avalanche (C-Chain) Address');
     }

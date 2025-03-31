@@ -20,7 +20,7 @@ class RequestRatelimiter {
 
       resolve(
         defer().finally(() => {
-          this.#requestsInflight[key]--;
+          this.#requestsInflight[key] = (this.#requestsInflight[key] || 0) - 1;
           if (!this.#requestsInflight[key]) {
             delete this.#requestsInflight[key];
           }

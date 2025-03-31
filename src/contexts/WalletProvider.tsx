@@ -6,6 +6,7 @@ import {
   useState,
   useMemo,
 } from 'react';
+import { useRouteMatch } from 'react-router-dom';
 import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
 import { WalletDetails } from '@src/background/services/wallet/models';
@@ -175,7 +176,11 @@ export function WalletContextProvider({ children }: { children: any }) {
     [request],
   );
 
-  if (!isWalletLoading && isWalletLocked) {
+  // We do not require extension to be unlocked for wallet selection
+  const routeMatch = useRouteMatch('/approve/select-wallet');
+  const allowWalletSelection = routeMatch?.isExact;
+
+  if (!isWalletLoading && isWalletLocked && !allowWalletSelection) {
     return <WalletLocked unlockWallet={unlockWallet} />;
   }
 

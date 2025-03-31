@@ -9,6 +9,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
 import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
 import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
 
 type AddressDropdownListProps = {
   contacts: Contact[];
@@ -27,10 +28,17 @@ export const AddressDropdownList = ({
   const { network } = useNetworkContext();
   const useBtcAddress = isBitcoin(network);
   const useXPAddress = isPchainNetwork(network) || isXchainNetwork(network);
+  const useSVMAddress = Boolean(network && isSolanaNetwork(network));
 
   const selectedAddress =
     selectedContact?.[
-      useBtcAddress ? 'addressBTC' : useXPAddress ? 'addressXP' : 'address'
+      useSVMAddress
+        ? 'addressSVM'
+        : useBtcAddress
+          ? 'addressBTC'
+          : useXPAddress
+            ? 'addressXP'
+            : 'address'
     ]?.toLowerCase();
 
   const { setIsSettingsOpen, setSettingsActivePage } = useSettingsContext();
@@ -57,11 +65,13 @@ export const AddressDropdownList = ({
             contact={contact}
             isSelected={
               contact?.[
-                useBtcAddress
-                  ? 'addressBTC'
-                  : useXPAddress
-                    ? 'addressXP'
-                    : 'address'
+                useSVMAddress
+                  ? 'addressSVM'
+                  : useBtcAddress
+                    ? 'addressBTC'
+                    : useXPAddress
+                      ? 'addressXP'
+                      : 'address'
               ]?.toLowerCase() === selectedAddress
             }
             onChange={onChange}

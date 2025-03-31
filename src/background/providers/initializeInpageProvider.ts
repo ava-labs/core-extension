@@ -1,8 +1,13 @@
+import { EVMProvider } from '@avalabs/evm-module/dist/provider';
+import {
+  initialize as initializeSolanaProvider,
+  SolanaWalletProvider,
+} from '@avalabs/svm-module/dist/provider';
+
 import type AbstractConnection from '../utils/messaging/AbstractConnection';
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { EventNames, type EIP6963ProviderDetail } from './models';
-import { EVMProvider } from '@avalabs/evm-module/dist/provider';
 
 /**
  * Initializes a CoreProvide and assigns it as window.ethereum.
@@ -65,6 +70,21 @@ export function initializeProvider(
   setAvalancheGlobalProvider(evmProvider, globalObject);
   announceWalletProvider(evmProvider, globalObject);
   announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
+
+  // TODO: remove prior to actual release and also uncomment the test
+  try {
+    if (localStorage.getItem('__core__solana__enabled') === 'true') {
+      initializeSolanaProvider(
+        new SolanaWalletProvider(chainAgnosticProvider, {
+          icon: EVM_PROVIDER_INFO_ICON,
+          name: EVM_PROVIDER_INFO_NAME,
+          version: CORE_EXTENSION_VERSION,
+        }),
+      );
+    }
+  } catch {
+    // Do nothing
+  }
 
   return evmProvider;
 }

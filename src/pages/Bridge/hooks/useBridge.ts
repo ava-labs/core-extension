@@ -64,7 +64,7 @@ export function useBridge(): Bridge {
   const [minimum, setMinimum] = useState<bigint>();
   const [bridgeFee, setBridgeFee] = useState<bigint>();
   const balances = useTokensWithBalances({
-    chainId: network?.chainId,
+    network,
     forceShowTokensWithoutBalances: true,
   });
 

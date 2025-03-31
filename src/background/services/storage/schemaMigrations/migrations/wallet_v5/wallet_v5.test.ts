@@ -4,6 +4,7 @@ import { CommonError } from '@src/utils/errors';
 import walletV5Migration from './wallet_v5';
 import * as Legacy from './legacyModels';
 import { expectToThrowErrorCode } from '@src/tests/test-utils';
+import { Accounts } from '@src/background/services/accounts/models';
 
 jest.mock('@src/background/services/secrets/AddressPublicKey');
 
@@ -30,6 +31,18 @@ describe('src/background/services/storage/schemaMigrations/migrations/wallet_v5'
       name: 'name',
       xpub: 'xpub',
     },
+  };
+  const mockLedgerWithoutXpubXPSecrets: Legacy.LedgerSecrets = {
+    ...mockLedgerSecrets,
+    id: 'ledgy-no-xpub-xp',
+    name: 'Ledger Wallet Without XpubXP',
+    xpubXP: undefined,
+  };
+  const mockLedgerWithoutBtcPolicy: Legacy.LedgerSecrets = {
+    ...mockLedgerSecrets,
+    id: 'ledgy-no-btc-policy',
+    name: 'Ledger Wallet Without BTC Policy',
+    btcWalletPolicyDetails: undefined,
   };
   const mockKeystoneSecrets: Legacy.KeystoneSecrets = {
     id: 'keystone',
@@ -61,6 +74,12 @@ describe('src/background/services/storage/schemaMigrations/migrations/wallet_v5'
       },
     ],
   };
+  const mockLedgerLiveWithoutXPubsSecrets: Legacy.LedgerLiveSecrets = {
+    ...mockLedgerLiveSecrets,
+    id: 'ledger-live-no-XPs',
+    name: 'LedgerLive Wallet Without XPs',
+    pubKeys: mockLedgerLiveSecrets.pubKeys.map(({ xp, ...rest }) => rest),
+  };
   const mockSeedlessSecrets: Legacy.SeedlessSecrets = {
     id: 'seedless',
     derivationPath: 'bip44',
@@ -89,8 +108,11 @@ describe('src/background/services/storage/schemaMigrations/migrations/wallet_v5'
       [mockKeystoneSecrets.id]: ['account1'],
       [mockLedgerLiveSecrets.id]: ['account1', 'account2'],
       [mockSeedlessSecrets.id]: ['account1', 'account2'],
+      [mockLedgerWithoutXpubXPSecrets.id]: ['account1'],
+      [mockLedgerLiveWithoutXPubsSecrets.id]: ['account1', 'account2'],
+      [mockLedgerWithoutBtcPolicy.id]: ['account1'],
     },
-  };
+  } as unknown as Accounts;
 
   const mockCurrentSecrets: Legacy.LegacySchema = {
     wallets: [
@@ -99,6 +121,9 @@ describe('src/background/services/storage/schemaMigrations/migrations/wallet_v5'
       mockKeystoneSecrets,
       mockLedgerLiveSecrets,
       mockSeedlessSecrets,
+      mockLedgerWithoutXpubXPSecrets,
+      mockLedgerLiveWithoutXPubsSecrets,
+      mockLedgerWithoutBtcPolicy,
     ],
     importedAccounts: {
       pkey: {
@@ -148,7 +173,7 @@ describe('src/background/services/storage/schemaMigrations/migrations/wallet_v5'
   it('should throw an error if accounts for wallet are not present', async () => {
     const mockAccountsWithoutWallet = {
       primary: {},
-    };
+    } as Accounts;
 
     await expectToThrowErrorCode(
       walletV5Migration.up(mockCurrentSecrets, mockAccountsWithoutWallet),
@@ -371,6 +396,87 @@ describe('src/background/services/storage/schemaMigrations/migrations/wallet_v5'
             },
           ],
           secretType: mockSeedlessSecrets.secretType,
+        },
+        {
+          id: mockLedgerWithoutXpubXPSecrets.id,
+          name: mockLedgerWithoutXpubXPSecrets.name,
+          derivationPathSpec: mockLedgerWithoutXpubXPSecrets.derivationPath,
+          extendedPublicKeys: [
+            {
+              curve: 'secp256k1',
+              derivationPath: "m/44'/60'/0'",
+              key: mockLedgerWithoutXpubXPSecrets.xpub,
+              type: 'extended-pubkey',
+              btcWalletPolicyDetails:
+                mockLedgerWithoutXpubXPSecrets.btcWalletPolicyDetails,
+            },
+          ],
+          publicKeys: [
+            {
+              curve: 'secp256k1',
+              derivationPath: "m/44'/60'/0'/0/0",
+              key: 'publicKey',
+              type: 'address-pubkey',
+            },
+          ],
+          secretType: mockLedgerWithoutXpubXPSecrets.secretType,
+        },
+        {
+          id: mockLedgerLiveWithoutXPubsSecrets.id,
+          name: mockLedgerLiveWithoutXPubsSecrets.name,
+          derivationPathSpec: mockLedgerLiveWithoutXPubsSecrets.derivationPath,
+          publicKeys: [
+            {
+              curve: 'secp256k1',
+              derivationPath: "m/44'/60'/0'/0/0",
+              key: mockLedgerLiveWithoutXPubsSecrets.pubKeys[0]!.evm,
+              type: 'address-pubkey',
+              btcWalletPolicyDetails:
+                mockLedgerLiveWithoutXPubsSecrets.pubKeys[0]!
+                  .btcWalletPolicyDetails,
+            },
+            {
+              curve: 'secp256k1',
+              derivationPath: "m/44'/60'/1'/0/0",
+              key: mockLedgerLiveWithoutXPubsSecrets.pubKeys[1]!.evm,
+              type: 'address-pubkey',
+            },
+          ],
+          secretType: mockLedgerLiveWithoutXPubsSecrets.secretType,
+        },
+        {
+          id: mockLedgerWithoutBtcPolicy.id,
+          name: mockLedgerWithoutBtcPolicy.name,
+          derivationPathSpec: mockLedgerWithoutBtcPolicy.derivationPath,
+          extendedPublicKeys: [
+            {
+              curve: 'secp256k1',
+              derivationPath: "m/44'/60'/0'",
+              key: mockLedgerWithoutBtcPolicy.xpub,
+              type: 'extended-pubkey',
+            },
+            {
+              curve: 'secp256k1',
+              derivationPath: "m/44'/9000'/0'",
+              key: mockLedgerWithoutBtcPolicy.xpubXP,
+              type: 'extended-pubkey',
+            },
+          ],
+          publicKeys: [
+            {
+              curve: 'secp256k1',
+              derivationPath: "m/44'/60'/0'/0/0",
+              key: 'publicKey',
+              type: 'address-pubkey',
+            },
+            {
+              curve: 'secp256k1',
+              derivationPath: "m/44'/9000'/0'/0/0",
+              key: 'publicKey',
+              type: 'address-pubkey',
+            },
+          ],
+          secretType: mockLedgerWithoutBtcPolicy.secretType,
         },
       ],
       version: 5,

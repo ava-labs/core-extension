@@ -9,6 +9,7 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { merge } from 'lodash';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
 
 type UseTokensWithBalanceOptions = {
   // Requests the tokens WITH and WITHOUT balances
@@ -16,7 +17,7 @@ type UseTokensWithBalanceOptions = {
   forceHiddenTokens?: boolean;
   // string array of asset symbols that are to be excluded from the result
   disallowedAssets?: string[];
-  chainId?: number;
+  network?: NetworkWithCaipId;
 };
 
 const nativeTokensFirst = (tokens: TokenWithBalance[]): TokenWithBalance[] =>
@@ -32,9 +33,6 @@ const DISALLOWED_ASSETS = [];
 export const useTokensWithBalances = (
   options: UseTokensWithBalanceOptions = {},
 ) => {
-  const [selectedChainId, setSelectedChainId] = useState<number | undefined>(
-    undefined,
-  );
   const [
     allTokensWithPlaceholderBalances,
     setAllTokensWithPlaceholderBalances,
@@ -49,11 +47,11 @@ export const useTokensWithBalances = (
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-  const { network } = useNetworkContext();
+  const { network: activeNetwork } = useNetworkContext();
   const {
     forceShowTokensWithoutBalances = false,
     disallowedAssets = DISALLOWED_ASSETS,
-    chainId = undefined,
+    network,
   } = options;
 
   const customTokensWithZeroBalance: {
@@ -93,13 +91,14 @@ export const useTokensWithBalances = (
     [getTokenVisibility, options.forceHiddenTokens],
   );
 
-  useEffect(() => {
-    setSelectedChainId(chainId ? chainId : network?.chainId);
-  }, [chainId, network?.chainId]);
+  const selectedNetwork = useMemo(
+    () => network ?? activeNetwork,
+    [network, activeNetwork],
+  );
 
   useEffect(() => {
     const getNetworkTokens = async () => {
-      if (!selectedChainId) {
+      if (!selectedNetwork?.chainId) {
         setAllTokensWithPlaceholderBalances({});
         return;
       }
@@ -107,7 +106,7 @@ export const useTokensWithBalances = (
       try {
         const networkTokens = await request<GetTokensListHandler>({
           method: ExtensionRequest.GET_NETWORK_TOKENS,
-          params: [selectedChainId, disallowedAssets],
+          params: [selectedNetwork.chainId, disallowedAssets],
         });
 
         const tokensWithPlaceholderBalances = Object.entries(
@@ -144,7 +143,7 @@ export const useTokensWithBalances = (
     setAllTokensWithPlaceholderBalances({});
   }, [
     request,
-    selectedChainId,
+    selectedNetwork?.chainId,
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,
     customTokensWithZeroBalance,
@@ -152,21 +151,18 @@ export const useTokensWithBalances = (
   ]);
 
   return useMemo<TokenWithBalance[]>(() => {
-    if (!selectedChainId || !activeAccount) {
+    if (!selectedNetwork?.chainId || !activeAccount) {
       return [];
     }
 
-    const address = getAddressForChain(
-      selectedChainId,
-      activeAccount,
-      network?.caipId,
-    );
+    const address = getAddressForChain(selectedNetwork, activeAccount);
 
     if (!address) {
       return [];
     }
 
-    const networkBalances = balances.tokens?.[selectedChainId]?.[address] ?? {};
+    const networkBalances =
+      balances.tokens?.[selectedNetwork?.chainId]?.[address] ?? {};
 
     if (forceShowTokensWithoutBalances || showTokensWithoutBalances) {
       const merged = merge(
@@ -191,16 +187,15 @@ export const useTokensWithBalances = (
     const defaultResult = nativeToken ? [nativeToken] : [];
 
     const filteredTokens = unfilteredTokens.filter((token) => {
-      return token.balance > 0n;
+      return token.type === TokenType.NATIVE || token.balance > 0n;
     });
 
     return visibleTokens(
       filteredTokens.length ? nativeTokensFirst(filteredTokens) : defaultResult,
     );
   }, [
-    selectedChainId,
+    selectedNetwork,
     activeAccount,
-    network?.caipId,
     balances.tokens,
     forceShowTokensWithoutBalances,
     showTokensWithoutBalances,

@@ -76,6 +76,7 @@ export interface AccountStorageItem {
   addressPVM?: string;
   addressCoreEth?: string;
   addressHVM?: string;
+  addressSVM?: string;
   type?: AccountType;
 }
 

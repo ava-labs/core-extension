@@ -120,6 +120,10 @@ export const useErrorMessage = () => {
 
   const swapErrors: Record<SwapErrorCode, ErrorTranslation> = useMemo(
     () => ({
+      [SwapErrorCode.ClientNotInitialized]: {
+        title: t('Swap client is not initialized'),
+        hint: t('Please try switching to a different network.'),
+      },
       [SwapErrorCode.ApiError]: {
         title: t('There was an error contacting our pricing provider.'),
         hint: t('Please try again later.'),
@@ -161,6 +165,10 @@ export const useErrorMessage = () => {
       },
       [CommonError.UserRejected]: {
         title: t('User declined the transaction'),
+      },
+      [CommonError.UnsupportedTokenType]: {
+        title: t('Unsupported token type'),
+        hint: t('Sending this type of token is not supported by Core'),
       },
       [CommonError.NetworkError]: {
         title: t('Network error'),

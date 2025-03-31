@@ -30,7 +30,7 @@ import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { assertPresent, assertPropDefined } from '@src/utils/assertions';
 import { AccountError, SecretsError } from '@src/utils/errors';
-import { mapVMAddresses } from './utils/mapVMAddresses';
+import { mapAddressesToVMs, mapVMAddresses } from '@src/utils/address';
 
 type AddAccountParams = {
   walletId: string;
@@ -387,7 +387,12 @@ export class AccountsService implements OnLock, OnUnlock {
         ],
       },
     };
-    await this.permissionsService.addWhitelistDomains(addresses.addressC);
+    await this.permissionsService.whitelistCoreDomains(
+      mapAddressesToVMs({
+        ...newAccount,
+        ...addresses,
+      }),
+    );
 
     this.analyticsServicePosthog.captureEncryptedEvent({
       name: 'addedNewPrimaryAccount',
@@ -435,7 +440,9 @@ export class AccountsService implements OnLock, OnUnlock {
           [newAccount.id]: newAccount,
         },
       };
-      await this.permissionsService.addWhitelistDomains(newAccount.addressC);
+      await this.permissionsService.whitelistCoreDomains(
+        mapAddressesToVMs(newAccount),
+      );
       this.analyticsServicePosthog.captureEncryptedEvent({
         name: 'addedNewImportedAccount',
         windowId: crypto.randomUUID(),

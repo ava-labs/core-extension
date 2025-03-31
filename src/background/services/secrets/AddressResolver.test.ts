@@ -75,22 +75,6 @@ describe('src/background/services/secrets/AddressResolver', () => {
         [NetworkVMType.AVM]: "m/44'/9000'/0'/0/0",
       });
     });
-
-    // it('should throw error if derivation path is missing', async () => {
-    //   moduleManager.modules = [
-    //     {
-    //       buildDerivationPath: jest.fn().mockResolvedValue({
-    //         EVM: 'path1',
-    //       }),
-    //     } as unknown as Module,
-    //   ];
-
-    //   await expect(
-    //     addressResolver.getDerivationPathsByVM(0, DerivationPath.BIP44, [
-    //       'AVM',
-    //     ]),
-    //   ).rejects.toThrow(SecretsError.DerivationPathMissing);
-    // });
   });
 
   describe('getAddressesForSecretId()', () => {

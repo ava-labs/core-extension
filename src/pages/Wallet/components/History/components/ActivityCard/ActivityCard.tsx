@@ -10,9 +10,10 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { weiToAvax } from '@avalabs/core-utils-sdk';
+import { TokenUnit, weiToAvax } from '@avalabs/core-utils-sdk';
 import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
 import { TxHistoryItem } from '@src/background/services/history/models';
+import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
@@ -24,6 +25,7 @@ import { ActivityCardDetails } from './ActivityCardDetails';
 import { ActivityCardIcon } from './ActivityCardIcon';
 import { ActivityCardSummary } from './ActivityCardSummary';
 import { TransactionType } from '@avalabs/vm-module-types';
+import { TruncateFeeAmount } from '@src/components/common/TruncateFeeAmount';
 
 export interface ActivityCardProp {
   historyItem: TxHistoryItem;
@@ -58,6 +60,15 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
   const gasDisplayAmount = useMemo(() => {
     if (network && isBitcoinNetwork(network)) {
       return satoshiToBtc(Number(historyItem.gasUsed)).toFixed(6).toString();
+    }
+    if (network && isSolanaNetwork(network)) {
+      const unit = new TokenUnit(
+        Number(historyItem.gasUsed) * Number(historyItem.gasPrice ?? 1),
+        9,
+        '',
+      );
+
+      return unit.toDisplay();
     }
     return weiToAvax(
       new Big(
@@ -221,7 +232,8 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
               }}
               data-testid="explorer-link"
             >
-              <Typography>{gasDisplayAmount}</Typography>
+              <TruncateFeeAmount amount={gasDisplayAmount} />
+
               <Typography>{network?.networkToken.symbol}</Typography>
               <ExternalLinkIcon
                 size={16}

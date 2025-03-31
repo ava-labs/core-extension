@@ -181,6 +181,38 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
           </Tooltip>
         </>
       )}
+      {contact.addressXP && (
+        <Stack sx={{ mt: 4 }}>
+          <Tooltip
+            title={contact.addressXP}
+            sx={{ display: 'block' }}
+            disableInteractive
+          >
+            <TextField
+              size="small"
+              InputProps={{
+                readOnly: true,
+                endAdornment: (
+                  <CopyIcon
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      copyAddress(contact.addressXP || '');
+                    }}
+                    sx={{
+                      cursor: 'pointer',
+                    }}
+                  />
+                ),
+              }}
+              value={truncateAddress(contact.addressXP)}
+              label={t('Avalanche (X/P-Chain) Address')}
+              placeholder={t(`Enter X/P-Chain address`)}
+              fullWidth
+              rows={2}
+            />
+          </Tooltip>
+        </Stack>
+      )}
       {contact.addressBTC && (
         <Stack sx={{ mt: 4 }}>
           <Tooltip

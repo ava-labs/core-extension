@@ -10,7 +10,14 @@ export const getCurrencyFormatter = (currency = 'USD') => {
   });
 
   return (amount: number) => {
-    const transformedAmount = modifyFractionNumber(amount);
+    const minAmount = 0.001;
+    const isTooSmall = amount < minAmount && amount > 0 ? true : false;
+    const prefixString = isTooSmall ? '<' : '';
+
+    const transformedAmount = isTooSmall
+      ? minAmount
+      : modifyFractionNumber(amount);
+
     const parts = formatter.formatToParts(transformedAmount);
 
     /**
@@ -28,19 +35,36 @@ export const getCurrencyFormatter = (currency = 'USD') => {
       return flatArray.join('').trim();
     }
 
-    return formatter.format(transformedAmount);
+    return `${prefixString}${formatter.format(transformedAmount)}`;
   };
 };
 
 const modifyFractionNumber = (amount: number) => {
-  const [integer, fraction] = amount.toString().split('.');
-  const indexOfNonZero = fraction?.search(/[1-9]/);
+  const maxFractionLengt = 3;
 
-  if (!indexOfNonZero || indexOfNonZero < 2 || integer !== '0') {
-    return parseFloat(`${integer}.${fraction?.slice(0, 2)}`);
+  const [integer, fraction] = parseScientificNotation(amount.toString());
+  if (!fraction) {
+    return amount;
   }
-  if (indexOfNonZero && indexOfNonZero >= 2 && integer === '0') {
-    return parseFloat(`${integer}.${fraction?.slice(0, indexOfNonZero + 1)}`);
+  const lastNonZeroFractionIndex =
+    maxFractionLengt -
+    (fraction
+      ?.split('')
+      .reverse()
+      .findIndex((value) => value !== '0') || 0);
+
+  return parseFloat(
+    `${integer}.${fraction?.slice(0, lastNonZeroFractionIndex)}`,
+  );
+};
+
+const parseScientificNotation = (amount: string) => {
+  // When the number is extremely small or big we don't want to take care of it at the moment
+  if (amount.toString().includes('e') && amount.toString().includes('-')) {
+    return ['0', '001'];
   }
-  return amount;
+  if (amount.toString().includes('e') && amount.toString().includes('+')) {
+    return ['Infinity', 'Infinity'];
+  }
+  return amount.toString().split('.');
 };

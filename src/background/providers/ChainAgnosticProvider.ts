@@ -14,6 +14,7 @@ import {
 } from './utils/ProviderReadyPromise';
 import onDomReady from './utils/onDomReady';
 import { getSiteMetadata } from './utils/getSiteMetadata';
+import { chainIdToCaip } from '../../utils/caipConversion';
 
 export class ChainAgnosticProvider extends EventEmitter {
   #contentScriptConnection: AbstractConnection;
@@ -50,6 +51,19 @@ export class ChainAgnosticProvider extends EventEmitter {
     });
   }
 
+  // If the namespace is EIP155 and the reference is a known fake chain ID (e.g. Bitcoin or Avalanche X/P chains),
+  // we convert it to the corresponding CAIP-2 chain ID. Otherwise, we return the original scope.
+  #normalizeScope = (scope?: string | null) => {
+    // If it's not an eip155: scope, don't touch it.
+    if (typeof scope === 'string' && scope.startsWith('eip155:')) {
+      const [_, chainId] = scope.split(':');
+
+      return chainIdToCaip(Number(chainId));
+    }
+
+    return scope;
+  };
+
   #request = async ({
     data,
     sessionId,
@@ -62,12 +76,13 @@ export class ChainAgnosticProvider extends EventEmitter {
     if (!data) {
       throw ethErrors.rpc.invalidRequest();
     }
+
     const result = this.#contentScriptConnection
       .request({
         method: 'provider_request',
         jsonrpc: '2.0',
         params: {
-          scope,
+          scope: this.#normalizeScope(scope),
           sessionId,
           request: {
             params: [],
@@ -87,7 +102,7 @@ export class ChainAgnosticProvider extends EventEmitter {
     return result;
   };
 
-  request = async ({
+  request = async <Response = unknown>({
     data,
     sessionId,
     scope,
@@ -100,7 +115,7 @@ export class ChainAgnosticProvider extends EventEmitter {
       return this.#requestRateLimiter.call(data.method, () =>
         this.#request({ data, scope, sessionId }),
       );
-    });
+    }) as Response;
   };
 
   subscribeToMessage = (callback) => {

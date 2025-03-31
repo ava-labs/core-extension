@@ -18,6 +18,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { TextFieldLabel } from './TextFieldLabel';
+import { TruncateFeeAmount } from './TruncateFeeAmount';
 
 type GasSettings = {
   customGasLimit: number;
@@ -66,15 +67,10 @@ const FeeAmount = ({ decimals, value, fiatValue, tokenSymbol }) => {
             alignItems: 'center',
           }}
         >
-          <Typography variant="h5" color="text.secondary">
-            ~
-          </Typography>
           <Tooltip title={unit.toString()}>
-            <Typography variant="h5" component="span" color="text.primary">
-              {unit.toDisplay()}
-            </Typography>
+            <TruncateFeeAmount amount={unit.toDisplay()} />
           </Tooltip>
-          <Typography variant="h6" component="span" color="text.secondary">
+          <Typography variant="subtitle2" component="span" color="text.primary">
             {tokenSymbol}
           </Typography>
         </Stack>

@@ -38,7 +38,7 @@ describe('verifyChallenge', () => {
     } as Response);
 
     expect(verifyChallenge(params)).rejects.toThrow(
-      'challenge verification error: "internal error"',
+      '[AppCheck] challenge verification error "internal error"',
     );
   });
 
@@ -52,17 +52,20 @@ describe('verifyChallenge', () => {
     } as unknown as Response);
 
     expect(verifyChallenge(params)).resolves.toStrictEqual({ foo: 'bar' });
-    expect(global.fetch).toHaveBeenCalledWith('https://id.com/v1/ext/verify', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-App-Type': 'extension',
-        'X-App-Version': '0.0.1',
-      },
-      body: JSON.stringify({
-        registrationId: 'registrationId',
-        solution: 'solution',
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://id.com/v1/ext/verify',
+      expect.objectContaining({
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-App-Type': 'extension',
+          'X-App-Version': '0.0.1',
+        },
+        body: JSON.stringify({
+          registrationId: 'registrationId',
+          solution: 'solution',
+        }),
       }),
-    });
+    );
   });
 });

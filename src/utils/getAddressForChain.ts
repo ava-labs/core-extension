@@ -1,25 +1,19 @@
-import { isBitcoinChainId } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { NetworkVMType } from '@avalabs/vm-module-types';
+
 import { Account } from '@src/background/services/accounts/models';
-import { isPchainNetworkId } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { isXchainNetworkId } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
-import { getNameSpaceFromScope } from './caipConversion';
+import { NetworkWithCaipId } from '@src/background/services/network/models';
+
+import { mapAddressesToVMs } from './address';
 
 export function getAddressForChain(
-  chainId: number,
-  account: Partial<Account>,
-  caipId?: string,
+  network?: NetworkWithCaipId,
+  account?: Partial<Account>,
 ) {
-  if (isBitcoinChainId(chainId)) {
-    return account.addressBTC;
+  if (!network || !account) {
+    return '';
   }
-  if (isPchainNetworkId(chainId)) {
-    return account.addressPVM;
-  }
-  if (isXchainNetworkId(chainId)) {
-    return account.addressAVM;
-  }
-  if (getNameSpaceFromScope(caipId) === 'hvm') {
-    return account.addressHVM;
-  }
-  return account.addressC;
+
+  return (
+    mapAddressesToVMs(account)[network.vmName satisfies NetworkVMType] ?? ''
+  );
 }
