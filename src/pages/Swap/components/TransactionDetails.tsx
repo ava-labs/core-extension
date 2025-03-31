@@ -28,7 +28,10 @@ interface TransactionDetailsProps {
 }
 
 const isSlippageValid = (value: string) => {
-  if ((0 <= parseFloat(value) && parseFloat(value) <= 100) || !value) {
+  if (
+    (MIN_SLIPPAGE <= parseFloat(value) && parseFloat(value) <= 100) ||
+    !value
+  ) {
     return true;
   }
   return false;
@@ -54,6 +57,8 @@ const DetailsRow = styled(Stack)`
   align-items: center;
 `;
 
+const MIN_SLIPPAGE = 0.1;
+
 export function TransactionDetails({
   fromTokenSymbol,
   toTokenSymbol,
@@ -68,6 +73,7 @@ export function TransactionDetails({
   const [isDetailsOpen, setIsDetailsOpen] = useState(
     isTransactionDetailsOpen || false,
   );
+  const [error, setError] = useState('');
 
   const theme = useTheme();
 
@@ -130,9 +136,7 @@ export function TransactionDetails({
               </Typography>
               <SlippageToolTip />
             </Stack>
-            <Stack
-              sx={{ flexDirection: 'row', alignItems: 'center', width: '100%' }}
-            >
+            <Stack sx={{ flexDirection: 'column', gap: 0.5, width: '100%' }}>
               <TextField
                 data-testid="swap-slippage-tolerance-input"
                 size={'small'}
@@ -142,19 +146,26 @@ export function TransactionDetails({
                 type="number"
                 InputProps={{
                   inputProps: {
-                    min: 0,
+                    min: MIN_SLIPPAGE,
                     max: 100,
+                    step: 0.1,
                   },
                 }}
                 onChange={(e) => {
                   const value = e.target.value;
-                  const isValid = isSlippageValid(value);
-                  if (!isValid) {
-                    return;
+                  if (isSlippageValid(value)) {
+                    setError('');
+                    setSlippage(value);
+                  } else {
+                    setSlippage(MIN_SLIPPAGE.toString());
+                    setError(t('Enter a value of at least 0.1%'));
                   }
-                  setSlippage(value);
                 }}
               />
+              <Typography variant="caption" color="error.main">
+                {error || ' '}
+                {/* This space is intentional to keep the UI from jumping */}
+              </Typography>
             </Stack>
           </Stack>
           {isFlagEnabled(FeatureGates.SWAP_FEES) && (
