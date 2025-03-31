@@ -166,4 +166,7 @@ export enum ExtensionRequest {
   GASLESS_SET_DEFAUlT_STATE_VALUES = 'gasless_set_default_state_values',
   GASLESS_CREATE_OFFSCREEN = 'gasless_create_offscreen',
   GASLESS_CLOSE_OFFSCREEN = 'gasless_close_offscreen',
+
+  BALANCE_NOTIFICATION_SUBSCRIBE = 'balance_notification_subscribe',
+  BALANCE_NOTIFICATION_UNSUBSCRIBE = 'balance_notification_unsubscribe',
 }

@@ -134,6 +134,8 @@ import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/h
 import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallenge';
 import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
 import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
+import { SubscribeToBalanceNotifications } from '@src/background/services/notifications/notifications/balance/handlers/subscribeToBalanceNotifications';
+import { UnsubscribeFromBalanceNotifications } from '@src/background/services/notifications/notifications/balance/handlers/unsubscribeFromBalanceNotifications';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -399,6 +401,14 @@ import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/h
   {
     token: 'ExtensionRequestHandler',
     useToken: SetDefaultStateValuesHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SubscribeToBalanceNotifications,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: UnsubscribeFromBalanceNotifications,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

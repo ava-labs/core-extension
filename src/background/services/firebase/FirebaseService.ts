@@ -37,6 +37,7 @@ export class FirebaseService {
     );
 
     onBackgroundMessage(getMessaging(this.#app), (payload) => {
+      console.log(payload);
       this.#handleMessage(payload);
     });
 
@@ -63,6 +64,8 @@ export class FirebaseService {
             this.#fcmToken = await getToken(getMessaging(this.#app), {
               serviceWorkerRegistration: globalThis.registration,
             });
+
+            console.log(this.#fcmToken);
 
             this.#isFcmInitialized = true;
             this.#firebaseEventEmitter.emit(FirebaseEvents.FCM_INITIALIZED);

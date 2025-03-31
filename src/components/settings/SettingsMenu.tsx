@@ -31,6 +31,7 @@ import {
 } from '@src/hooks/useSeedlessMnemonicExport';
 import { RecoveryMethods } from './pages/RecoveryMethods/RecoveryMethods';
 import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
+import { Notifications } from './pages/Notifications';
 
 const AnimatedContainer = styled(Stack)`
   height: 100%;
@@ -192,6 +193,9 @@ export function SettingsMenu() {
       break;
     case SettingsPages.FEEDBACK:
       pageElement = <Feedback {...pageProps} />;
+      break;
+    case SettingsPages.NOTIFICATIONS:
+      pageElement = <Notifications {...pageProps} />;
       break;
     default:
       pageElement = (
