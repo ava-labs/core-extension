@@ -43,11 +43,7 @@ export function getSecretsType(walletKeys: WalletKeys) {
   }
 
   if (masterFingerprint && xpub) {
-    return SecretType.Keystone;
-  }
-
-  if (masterFingerprint && xpub && xpubXP) {
-    return SecretType.Keystone3Pro;
+    return xpubXP ? SecretType.Keystone3Pro : SecretType.Keystone;
   }
 
   if (xpub) {

@@ -826,8 +826,11 @@ export class SecretsService implements OnUnlock {
         );
         newPublicKeys.push(publicKeyHVM.toJSON());
       }
-    } else if (secrets.secretType === SecretType.Keystone) {
-      // For Keystone, we can only derive EVM/Bitcoin public key.
+    } else if (
+      [SecretType.Keystone, SecretType.Keystone3Pro].includes(
+        secrets.secretType,
+      )
+    ) {
       if (!hasEVMPublicKey) {
         const publicKeyEVM = AddressPublicKey.fromExtendedPublicKeys(
           secrets.extendedPublicKeys,
@@ -835,6 +838,14 @@ export class SecretsService implements OnUnlock {
           derivationPathEVM,
         ).toJSON();
         newPublicKeys.push(publicKeyEVM);
+      }
+      if (!hasAVMPublicKey) {
+        const publicKeyAVM = AddressPublicKey.fromExtendedPublicKeys(
+          secrets.extendedPublicKeys,
+          'secp256k1',
+          derivationPathAVM,
+        ).toJSON();
+        newPublicKeys.push(publicKeyAVM);
       }
     }
 

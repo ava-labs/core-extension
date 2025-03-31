@@ -311,6 +311,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     request,
     walletName,
     xpub,
+    xpubXP,
   ]);
 
   const submit = useCallback(
