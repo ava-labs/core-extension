@@ -1,16 +1,17 @@
 import {
   Box,
   Button,
-  Drawer,
   InputAdornment,
+  keyframes,
   SendIcon,
   Stack,
+  styled,
   TextField,
   Typography,
   useTheme,
   XIcon,
 } from '@avalabs/core-k2-components';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FunctionCallingMode, GoogleGenerativeAI } from '@google/generative-ai';
 import { functionDeclarations, systemPromptTemplate } from './models';
 import { useTranslation } from 'react-i18next';
@@ -32,14 +33,50 @@ import { errorValues } from 'eth-rpc-errors/dist/error-constants';
 import { useSwapContext } from '@src/contexts/SwapProvider';
 import { stringToBigint } from '@src/utils/stringToBigint';
 import { isAPIError } from '@src/pages/Swap/utils';
+import { Overlay } from '@src/components/common/Overlay';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
+const promptBackgroundAnimation = keyframes`
+ to {
+		--angle: 360deg;
+	}
+`;
+
+// CSS.registerProperty({
+//   name: '--angle',
+//   syntax: '<angle>',
+//   inherits: false,
+//   initialValue: '0deg',
+// });
+
+const PromptBackground = styled(Stack)(({ hasAnimation }: any) => ({
+  background: `conic-gradient(
+    from var(--angle),
+    #000000 0deg,
+    #B0FF18 50deg,
+    #A1FF68 100deg,
+    #26F2FF 140deg,
+    #7748FF 180deg,
+    #FF048C 220deg,
+    #000000 270deg
+  )`,
+  opacity: 0.2,
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100vw',
+  height: '100vh',
+  animation: hasAnimation
+    ? `10s ${promptBackgroundAnimation} linear infinite`
+    : 'none',
+}));
 
 export function Prompt() {
   const theme = useTheme();
   const { t } = useTranslation();
   const [input, setInput] = useState<string>('');
-  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const { network, networks } = useNetworkContext();
   const { contacts, createContact } = useContactsContext();
   const { accounts, selectAccount } = useAccountsContext();
@@ -382,7 +419,7 @@ export function Prompt() {
 
   return (
     <>
-      <TextField
+      <Button
         placeholder="Core AI - Manage your wallet"
         value={input}
         size="small"
@@ -391,111 +428,106 @@ export function Prompt() {
           mb: 1,
           mx: 2,
         }}
-        onChange={(e) => {
-          if (e.target.value !== '') {
-            setIsDrawerOpen(true);
-          }
-          setInput(e.target.value);
-        }}
-        onKeyPress={(e) => {
-          if (e.key === 'Enter') {
-            prompt(input);
-          }
-        }}
         onClick={() => {
-          setIsDrawerOpen(true);
+          setIsDialogOpen(true);
         }}
-      />
-      <Drawer anchor="bottom" open={isDrawerOpen}>
-        <Stack
-          sx={{
-            height: 'calc(100vh - 70px)',
-            overflow: 'hidden',
-            width: '100vw',
-            position: 'relative',
-            backgroundColor: 'background.paper',
-            p: 2,
-          }}
-        >
+      >
+        {t('Core AI - Manage your wallet')}
+      </Button>
+      {isDialogOpen && (
+        <Overlay>
+          <PromptBackground hasAnimation />
           <Stack
             sx={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
+              width: '375px',
+              height: '568px',
+              m: 2,
+              p: 2,
+              overflow: 'hidden',
+              position: 'relative',
+              backgroundColor: 'background.paper',
             }}
           >
-            <Typography variant="h4">{t('Core AI Assistant')}</Typography>
-            <Button
-              variant="text"
-              onClick={() => {
-                setIsDrawerOpen(false);
-              }}
+            <Stack
               sx={{
-                p: 0,
-                height: theme.spacing(3),
-                width: theme.spacing(3),
-                minWidth: theme.spacing(3),
+                flexDirection: 'row',
+                justifyContent: 'space-between',
               }}
             >
-              <XIcon size={24} sx={{ color: 'primary.main' }} />
-            </Button>
-          </Stack>
-          <Stack sx={{ flexGrow: 1 }}>
-            <Scrollbars>
-              {prompts.map((p, i) => (
-                <Box
-                  key={i}
-                  sx={{
-                    backgroundColor:
-                      p.type === 'system'
-                        ? theme.palette.grey[600]
-                        : theme.palette.grey[800],
-                    py: 1,
-                    px: 2,
-                    my: 1,
-                    maxWidth: '70%',
-                    width: 'fit-content',
-                    borderRadius: 1,
-                    justifySelf:
-                      p.type === 'system' ? 'flex-start' : 'flex-end',
-                    wordWrap: 'break-word',
-                  }}
-                >
-                  <Typography>{p.content}</Typography>
-                </Box>
-              ))}
-            </Scrollbars>
-          </Stack>
-          <TextField
-            placeholder="Core AI - Manage your wallet"
-            value={input}
-            size="small"
-            focused
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <SendIcon
+              <Typography variant="h4">{t('Core AI Assistant')}</Typography>
+              <Button
+                variant="text"
+                onClick={() => {
+                  setIsDialogOpen(false);
+                }}
+                sx={{
+                  p: 0,
+                  height: theme.spacing(3),
+                  width: theme.spacing(3),
+                  minWidth: theme.spacing(3),
+                }}
+              >
+                <XIcon size={24} sx={{ color: 'primary.main' }} />
+              </Button>
+            </Stack>
+            <Stack sx={{ flexGrow: 1 }}>
+              <Scrollbars>
+                {prompts.map((p, i) => (
+                  <Box
+                    key={i}
                     sx={{
-                      cursor: 'pointer',
+                      backgroundColor:
+                        p.type === 'system'
+                          ? theme.palette.grey[600]
+                          : theme.palette.grey[800],
+                      py: 1,
+                      px: 2,
+                      my: 1,
+                      maxWidth: '70%',
+                      width: 'fit-content',
+                      borderRadius: 1,
+                      justifySelf:
+                        p.type === 'system' ? 'flex-start' : 'flex-end',
+                      wordWrap: 'break-word',
                     }}
-                    onClick={() => {
-                      prompt(input);
-                    }}
-                  />
-                </InputAdornment>
-              ),
-            }}
-            onChange={(e) => {
-              setInput(e.target.value);
-            }}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                prompt(input);
-              }
-            }}
-          />
-        </Stack>
-      </Drawer>
+                  >
+                    <Typography>{p.content}</Typography>
+                  </Box>
+                ))}
+              </Scrollbars>
+            </Stack>
+            <TextField
+              placeholder="Core AI - Manage your wallet"
+              value={input}
+              size="small"
+              focused
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <SendIcon
+                      sx={{
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => {
+                        prompt(input);
+                      }}
+                    />
+                  </InputAdornment>
+                ),
+              }}
+              onChange={(e) => {
+                setInput(e.target.value);
+              }}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  prompt(input);
+                }
+              }}
+            />
+          </Stack>
+        </Overlay>
+      )}
     </>
   );
 }
