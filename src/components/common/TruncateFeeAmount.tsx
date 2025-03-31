@@ -1,4 +1,4 @@
-import { Typography } from '@avalabs/core-k2-components';
+import { Stack, Typography } from '@avalabs/core-k2-components';
 
 export function TruncateFeeAmount({ amount }: { amount: string }) {
   const [integer, fraction] = amount.split('.');
@@ -31,7 +31,7 @@ export function TruncateFeeAmount({ amount }: { amount: string }) {
   const zeroCount = fraction.slice(0, indexOfNonZero).length;
   if (fraction && indexOfNonZero) {
     return (
-      <>
+      <Stack sx={{ flexDirection: 'row', columnGap: 0 }}>
         <Typography
           variant="body2"
           component="span"
@@ -56,7 +56,7 @@ export function TruncateFeeAmount({ amount }: { amount: string }) {
         >
           {fraction.slice(indexOfNonZero, indexOfNonZero + 2)}
         </Typography>
-      </>
+      </Stack>
     );
   }
   return (
