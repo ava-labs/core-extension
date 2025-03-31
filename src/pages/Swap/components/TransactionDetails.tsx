@@ -13,7 +13,11 @@ import {
   InfoCircleIcon,
 } from '@avalabs/core-k2-components';
 import { PARASWAP_PARTNER_FEE_BPS } from '@src/contexts/SwapProvider/constants';
-import { formatBasisPointsToPercentage } from '../utils';
+import {
+  formatBasisPointsToPercentage,
+  isSlippageValid,
+  MIN_SLIPPAGE,
+} from '../utils';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 
@@ -26,16 +30,6 @@ interface TransactionDetailsProps {
   setIsOpen?: (isOpen: boolean) => void;
   isTransactionDetailsOpen?: boolean;
 }
-
-const isSlippageValid = (value: string) => {
-  if (
-    (MIN_SLIPPAGE <= parseFloat(value) && parseFloat(value) <= 100) ||
-    !value
-  ) {
-    return true;
-  }
-  return false;
-};
 
 const Container = styled('div')`
   margin-bottom: 32px;
@@ -56,8 +50,6 @@ const DetailsRow = styled(Stack)`
   margin: 8px 0;
   align-items: center;
 `;
-
-const MIN_SLIPPAGE = 0.1;
 
 export function TransactionDetails({
   fromTokenSymbol,
@@ -152,19 +144,18 @@ export function TransactionDetails({
                   },
                 }}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  if (isSlippageValid(value)) {
+                  const inputValue = e.target.value;
+                  setSlippage(inputValue);
+
+                  if (isSlippageValid(inputValue)) {
                     setError('');
-                    setSlippage(value);
                   } else {
-                    setSlippage(MIN_SLIPPAGE.toString());
                     setError(t('Enter a value of at least 0.1%'));
                   }
                 }}
               />
-              <Typography variant="caption" color="error.main">
-                {error || ' '}
-                {/* This space is intentional to keep the UI from jumping */}
+              <Typography variant="caption" color="error.main" minHeight="14px">
+                {error}
               </Typography>
             </Stack>
           </Stack>
