@@ -217,7 +217,7 @@ export function CustomGasSettings({
           <TextField
             fullWidth
             type={'number'}
-            value={Number(customMaxFeePerGas) / 10 ** feeDisplayDecimals}
+            value={formatUnits(customMaxFeePerGas, feeDisplayDecimals)}
             onChange={(evt) => {
               setCustomMaxFeePerGas(
                 parseUnits(evt.currentTarget.value || '0', feeDisplayDecimals),

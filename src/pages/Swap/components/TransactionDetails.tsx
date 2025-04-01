@@ -13,7 +13,11 @@ import {
   InfoCircleIcon,
 } from '@avalabs/core-k2-components';
 import { PARASWAP_PARTNER_FEE_BPS } from '@src/contexts/SwapProvider/constants';
-import { formatBasisPointsToPercentage } from '../utils';
+import {
+  formatBasisPointsToPercentage,
+  isSlippageValid,
+  MIN_SLIPPAGE,
+} from '../utils';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 
@@ -26,13 +30,6 @@ interface TransactionDetailsProps {
   setIsOpen?: (isOpen: boolean) => void;
   isTransactionDetailsOpen?: boolean;
 }
-
-const isSlippageValid = (value: string) => {
-  if ((0 <= parseFloat(value) && parseFloat(value) <= 100) || !value) {
-    return true;
-  }
-  return false;
-};
 
 const Container = styled('div')`
   margin-bottom: 32px;
@@ -68,6 +65,7 @@ export function TransactionDetails({
   const [isDetailsOpen, setIsDetailsOpen] = useState(
     isTransactionDetailsOpen || false,
   );
+  const [error, setError] = useState('');
 
   const theme = useTheme();
 
@@ -130,9 +128,7 @@ export function TransactionDetails({
               </Typography>
               <SlippageToolTip />
             </Stack>
-            <Stack
-              sx={{ flexDirection: 'row', alignItems: 'center', width: '100%' }}
-            >
+            <Stack sx={{ flexDirection: 'column', gap: 0.5, width: '100%' }}>
               <TextField
                 data-testid="swap-slippage-tolerance-input"
                 size={'small'}
@@ -142,19 +138,25 @@ export function TransactionDetails({
                 type="number"
                 InputProps={{
                   inputProps: {
-                    min: 0,
+                    min: MIN_SLIPPAGE,
                     max: 100,
+                    step: 0.1,
                   },
                 }}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  const isValid = isSlippageValid(value);
-                  if (!isValid) {
-                    return;
+                  const inputValue = e.target.value;
+                  setSlippage(inputValue);
+
+                  if (isSlippageValid(inputValue)) {
+                    setError('');
+                  } else {
+                    setError(t('Enter a value of at least 0.1%'));
                   }
-                  setSlippage(value);
                 }}
               />
+              <Typography variant="caption" color="error.main" minHeight="14px">
+                {error}
+              </Typography>
             </Stack>
           </Stack>
           {isFlagEnabled(FeatureGates.SWAP_FEES) && (

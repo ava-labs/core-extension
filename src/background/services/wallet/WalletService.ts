@@ -991,34 +991,32 @@ export class WalletService implements OnUnlock {
       return [];
     }
 
-    assertPresent(indices[0], SecretsError.NoAccountIndex);
+    return indices.map((index) => {
+      const avmDerivationPath = getAddressDerivationPath(
+        index,
+        secrets.derivationPathSpec,
+        'AVM',
+      );
+      const avmExtendedPubKey = getExtendedPublicKeyFor(
+        secrets.extendedPublicKeys,
+        avmDerivationPath,
+        'secp256k1',
+      );
 
-    const avmDerivationPath = getAddressDerivationPath(
-      0,
-      secrets.derivationPathSpec,
-      'AVM',
-    );
-    const avmExtendedPubKey = getExtendedPublicKeyFor(
-      secrets.extendedPublicKeys,
-      avmDerivationPath,
-      'secp256k1',
-    );
+      assertPresent(
+        avmExtendedPubKey,
+        SecretsError.MissingExtendedPublicKey,
+        `AVM @ ${avmDerivationPath}`,
+      );
 
-    assertPresent(
-      avmExtendedPubKey,
-      SecretsError.MissingExtendedPublicKey,
-      `AVM @ ${avmDerivationPath}`,
-    );
-
-    return indices.map((index) =>
-      Avalanche.getAddressFromXpub(
+      return Avalanche.getAddressFromXpub(
         avmExtendedPubKey.key,
         index,
         provXP,
         chainAlias,
         isChange,
-      ),
-    );
+      );
+    });
   }
 
   private async parseWalletPolicyDetails(account: Account) {
