@@ -25,6 +25,7 @@ import { ActivityCardDetails } from './ActivityCardDetails';
 import { ActivityCardIcon } from './ActivityCardIcon';
 import { ActivityCardSummary } from './ActivityCardSummary';
 import { TransactionType } from '@avalabs/vm-module-types';
+import { TruncateFeeAmount } from '@src/components/common/TruncateFeeAmount';
 
 export interface ActivityCardProp {
   historyItem: TxHistoryItem;
@@ -231,7 +232,8 @@ export function ActivityCard({ historyItem }: ActivityCardProp) {
               }}
               data-testid="explorer-link"
             >
-              <Typography>{gasDisplayAmount}</Typography>
+              <TruncateFeeAmount amount={gasDisplayAmount} />
+
               <Typography>{network?.networkToken.symbol}</Typography>
               <ExternalLinkIcon
                 size={16}
