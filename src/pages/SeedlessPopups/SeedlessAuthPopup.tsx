@@ -55,7 +55,10 @@ export const SeedlessAuthPopup = () => {
   );
 
   const getOidcToken = useMemo(
-    () => getOidcTokenProvider(walletDetails?.authProvider),
+    () =>
+      walletDetails?.authProvider
+        ? getOidcTokenProvider(walletDetails?.authProvider)
+        : () => Promise.reject(new Error('No auth provider')),
     [walletDetails],
   );
 
