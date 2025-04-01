@@ -90,7 +90,9 @@ export function TokenList({ searchQuery }: TokenListProps) {
             });
             capture('TokenListTokenSelected', {
               selectedToken:
-                token.type === TokenType.ERC20 ? token.address : token.symbol,
+                token.type === TokenType.ERC20 || token.type === TokenType.SPL
+                  ? token.address
+                  : token.symbol,
             });
           }}
           name={token.name}
