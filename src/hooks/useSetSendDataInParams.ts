@@ -25,7 +25,10 @@ export function useSetSendDataInParams() {
         pathname: options?.path ?? pathname,
         search: `?${new URLSearchParams({
           tokenSymbol: token?.symbol || network?.networkToken.symbol || '',
-          tokenAddress: token?.type === TokenType.ERC20 ? token?.address : '',
+          tokenAddress:
+            token?.type === TokenType.ERC20 || token?.type === TokenType.SPL
+              ? token?.address
+              : '',
           amount: amount ?? '',
           address: address ?? '',
         }).toString()}`,

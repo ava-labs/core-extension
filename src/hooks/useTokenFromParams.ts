@@ -42,7 +42,7 @@ export function useTokenFromParams(
         firstNativeToken = token;
       }
 
-      return token.type === TokenType.ERC20
+      return token.type === TokenType.ERC20 || token.type === TokenType.SPL
         ? token.address === tokenAddress
         : token.type === TokenType.NATIVE
           ? token.symbol === tokenSymbol

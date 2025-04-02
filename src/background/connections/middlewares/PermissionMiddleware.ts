@@ -103,6 +103,7 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   RpcMethod.HVM_SIGN_TRANSACTION,
   RpcMethod.SOLANA_SIGN_TRANSACTION,
   RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION,
+  RpcMethod.SOLANA_SIGN_MESSAGE,
 ]);
 
 const CORE_METHODS = Object.freeze([

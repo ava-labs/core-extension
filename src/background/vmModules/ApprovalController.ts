@@ -344,11 +344,11 @@ export class ApprovalController implements BatchApprovalController {
         return await this.#walletService.sign(
           signingData.data,
           network,
-
           action.tabId,
         );
       case RpcMethod.SOLANA_SIGN_TRANSACTION:
       case RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION:
+      case RpcMethod.SOLANA_SIGN_MESSAGE:
         return await this.#walletService.sign(
           signingData,
           network,
