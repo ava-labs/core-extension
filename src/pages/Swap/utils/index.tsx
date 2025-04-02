@@ -9,6 +9,8 @@ interface GetTokenIconProps {
   token?: TokenWithBalanceEVM;
 }
 
+export const MIN_SLIPPAGE = 0.1;
+
 export const TokenIcon = ({ token }: GetTokenIconProps) => {
   if (!token) {
     return null;
@@ -119,4 +121,11 @@ export const formatBasisPointsToPercentage = (basisPoints: number): string => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(basisPoints / 10_000);
+};
+
+export const isSlippageValid = (value: string) => {
+  if (MIN_SLIPPAGE <= parseFloat(value) && parseFloat(value) <= 100) {
+    return true;
+  }
+  return false;
 };
