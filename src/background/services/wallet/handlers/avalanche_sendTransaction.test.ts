@@ -57,6 +57,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
   const txBytes = new Uint8Array([0, 1, 2]);
 
   const getAvalanceProviderXPMock = jest.fn();
+  const getAvalancheNetworkMock = jest.fn();
   const getAvalancheNetworkXPMock = jest.fn();
   const signMock = jest.fn();
   const issueTxHexMock = jest.fn();
@@ -78,6 +79,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
   } as any;
   const networkServiceMock = {
     getAvalanceProviderXP: getAvalanceProviderXPMock,
+    getAvalancheNetwork: getAvalancheNetworkMock,
     getAvalancheNetworkXP: getAvalancheNetworkXPMock,
     isMainnet: jest.fn(),
   } as any;
@@ -130,7 +132,14 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     (UnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
     (EVMUnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
     signMock.mockReturnValue({ signedTx: 'baz' });
-    getAvalancheNetworkXPMock.mockReturnValue({ rpcUrl: 'RPCURL' });
+    getAvalancheNetworkXPMock.mockReturnValue({
+      rpcUrl: 'RPCURL',
+      vmName: 'AVM',
+    });
+    getAvalancheNetworkMock.mockReturnValue({
+      rpcUrl: 'RPCURL',
+      vmName: 'EVM',
+    });
     issueTxHexMock.mockResolvedValue({ txID: 1 });
     getAvalanceProviderXPMock.mockResolvedValue(providerMock);
     getAddressesMock.mockReturnValue([]);
@@ -582,7 +591,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: undefined,
           internalIndices: undefined,
         },
-        { rpcUrl: 'RPCURL' },
+        { rpcUrl: 'RPCURL', vmName: 'EVM' },
         frontendTabId,
         'avalanche_sendTransaction',
       );
@@ -627,7 +636,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: undefined,
           internalIndices: undefined,
         },
-        { rpcUrl: 'RPCURL' },
+        { rpcUrl: 'RPCURL', vmName: 'AVM' },
         frontendTabId,
         'avalanche_sendTransaction',
       );
@@ -677,7 +686,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: [0, 1],
           internalIndices: [2, 3],
         },
-        { rpcUrl: 'RPCURL' },
+        { rpcUrl: 'RPCURL', vmName: 'AVM' },
         frontendTabId,
         'avalanche_sendTransaction',
       );
