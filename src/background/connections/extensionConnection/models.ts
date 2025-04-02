@@ -21,6 +21,8 @@ export enum ExtensionRequest {
   ACCOUNT_ADD = 'account_add',
   ACCOUNT_GET_PRIVATEKEY = 'account_get_privatekey',
 
+  SECRETS_APPEND_SOLANA_PUBLIC_KEYS = 'secrets_append_solana_public_keys',
+
   BALANCES_GET = 'balances_get',
   BALANCES_START_POLLING = 'balances_start_polling',
   BALANCES_STOP_POLLING = 'balances_stop_polling',

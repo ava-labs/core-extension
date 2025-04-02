@@ -143,11 +143,91 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
     });
   });
 
+  it('handles the combination of extended keys and Solana public keys', async () => {
+    const xpubValue = 'xpubValue';
+    const xpubXPValue = 'xpubXPValue';
+    const walletId = crypto.randomUUID();
+    const pubKeysValue = [
+      {
+        evm: '',
+        svm: 'pubKeySvm',
+      },
+      {
+        evm: '',
+        svm: 'pubKeySvm2',
+      },
+    ] as any;
+
+    secretsService.isKnownSecret.mockResolvedValueOnce(false);
+    walletService.addPrimaryWallet.mockResolvedValue(walletId);
+    secretsService.getWalletAccountsSecretsById.mockResolvedValue({
+      secretType: SecretType.Ledger,
+      publicKeys: [
+        AddressPublicKey.fromJSON({
+          curve: 'ed25519',
+          derivationPath: "m/44'/501'/0'/0'",
+          key: 'pubKeySvm',
+        }).toJSON(),
+        AddressPublicKey.fromJSON({
+          curve: 'ed25519',
+          derivationPath: "m/44'/501'/1'/0'",
+          key: 'pubKeySvm2',
+        }).toJSON(),
+      ],
+      extendedPublicKeys: [
+        buildExtendedPublicKey(xpubValue, EVM_BASE_DERIVATION_PATH),
+        buildExtendedPublicKey(xpubXPValue, AVALANCHE_BASE_DERIVATION_PATH),
+      ],
+      derivationPathSpec: DerivationPath.BIP44,
+      id: walletId,
+      name: 'Ledger 01',
+    });
+
+    const { result } = await handle({
+      secretType: SecretType.Ledger,
+      xpub: xpubValue,
+      xpubXP: xpubXPValue,
+      pubKeys: pubKeysValue,
+      numberOfAccountsToCreate: 2,
+    });
+
+    expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
+      secretType: SecretType.Ledger,
+      extendedPublicKeys: [
+        buildExtendedPublicKey(xpubValue, EVM_BASE_DERIVATION_PATH),
+        buildExtendedPublicKey(xpubXPValue, AVALANCHE_BASE_DERIVATION_PATH),
+      ],
+      publicKeys: [
+        AddressPublicKey.fromJSON({
+          curve: 'ed25519',
+          derivationPath: "m/44'/501'/0'/0'",
+          key: 'pubKeySvm',
+        }).toJSON(),
+        AddressPublicKey.fromJSON({
+          curve: 'ed25519',
+          derivationPath: "m/44'/501'/1'/0'",
+          key: 'pubKeySvm2',
+        }).toJSON(),
+      ],
+      derivationPathSpec: DerivationPath.BIP44,
+    });
+
+    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(2);
+    expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
+
+    expect(result).toEqual({
+      type: SecretType.Ledger,
+      name: 'Ledger 01',
+      id: walletId,
+    });
+  });
+
   it('only imports accounts with pubkeys', async () => {
     const walletId = crypto.randomUUID();
     const pubKeysValue = [
       {
         evm: 'pubKeyEvm',
+        svm: 'pubKeySvm',
       },
     ] as any;
     const nameValue = 'walletName';
@@ -170,17 +250,22 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
     expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
       secretType: SecretType.LedgerLive,
-      publicKeys: pubKeysValue.map((key, index) =>
+      publicKeys: [
         AddressPublicKey.fromJSON({
-          key: key.evm,
+          key: 'pubKeyEvm',
           curve: 'secp256k1',
           derivationPath: getAddressDerivationPath(
-            index,
+            0,
             DerivationPath.LedgerLive,
             'EVM',
           ),
         }).toJSON(),
-      ),
+        AddressPublicKey.fromJSON({
+          curve: 'ed25519',
+          derivationPath: "m/44'/501'/0'/0'",
+          key: 'pubKeySvm',
+        }).toJSON(),
+      ],
       derivationPathSpec: DerivationPath.LedgerLive,
       name: nameValue,
     });

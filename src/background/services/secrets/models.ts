@@ -56,11 +56,11 @@ interface SecretsBase {
 interface PrimarySecretsBase extends SecretsBase {
   id: string;
   name: string;
+  publicKeys: AddressPublicKeyJson[];
 }
 
 export interface SeedlessSecrets extends PrimarySecretsBase {
   secretType: SecretType.Seedless;
-  publicKeys: AddressPublicKeyJson[];
   derivationPathSpec: DerivationPath.BIP44;
   seedlessSignerToken: SignerSessionData;
   authProvider: SeedlessAuthProvider;
@@ -72,28 +72,24 @@ export interface MnemonicSecrets extends PrimarySecretsBase {
   secretType: SecretType.Mnemonic;
   mnemonic: string;
   extendedPublicKeys: ExtendedPublicKey[];
-  publicKeys: AddressPublicKeyJson[];
   derivationPathSpec: DerivationPath.BIP44;
 }
 
 export interface KeystoneSecrets extends PrimarySecretsBase {
   secretType: SecretType.Keystone;
   masterFingerprint: string;
-  publicKeys: AddressPublicKeyJson[];
   extendedPublicKeys: ExtendedPublicKey[];
   derivationPathSpec: DerivationPath.BIP44;
 }
 
 export interface LedgerSecrets extends PrimarySecretsBase {
   secretType: SecretType.Ledger;
-  publicKeys: AddressPublicKeyJson[];
   extendedPublicKeys: ExtendedPublicKey[];
   derivationPathSpec: DerivationPath.BIP44;
 }
 
 export interface LedgerLiveSecrets extends PrimarySecretsBase {
   secretType: SecretType.LedgerLive;
-  publicKeys: AddressPublicKeyJson[];
   derivationPathSpec: DerivationPath.LedgerLive;
 }
 

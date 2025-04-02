@@ -1,6 +1,7 @@
 import {
   DerivationPath,
   getAddressDerivationPath,
+  getSolanaDerivationPath,
 } from '@avalabs/core-wallets-sdk';
 import {
   AVALANCHE_BASE_DERIVATION_PATH,
@@ -23,6 +24,7 @@ import { PubKeyType } from '../../wallet/models';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
 import { buildExtendedPublicKey } from '../../secrets/utils';
+import { isNotNullish } from '@src/utils/typeUtils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_ONBOARDING_SUBMIT,
@@ -35,7 +37,7 @@ type HandlerType = ExtensionRequestHandler<
       password: string;
       analyticsConsent: boolean;
       walletName?: string;
-      numberOfAccountsToCreate?: number;
+      numberOfAccountsToCreate: number;
     },
   ]
 >;
@@ -66,12 +68,32 @@ export class LedgerOnboardingHandler implements HandlerType {
       numberOfAccountsToCreate,
     } = (request.params ?? [])[0] ?? {};
 
-    if ((xpub || xpubXP) && pubKeys?.length) {
-      return {
-        ...request,
-        error:
-          'Conflicting payload: both XPub and public keys array are provided',
-      };
+    if (xpub || xpubXP) {
+      const hasNonSolanaKeys = pubKeys?.some(
+        (pubKey) => pubKey.evm || pubKey.xp,
+      );
+
+      if (hasNonSolanaKeys) {
+        return {
+          ...request,
+          error:
+            'Conflicting payload: both XPub and non-Solana public keys array are provided',
+        };
+      }
+
+      const numberOfSolanaKeys = pubKeys
+        ? pubKeys.filter((pubKey) => pubKey.svm).length
+        : 0;
+
+      if (
+        numberOfSolanaKeys > 0 &&
+        numberOfSolanaKeys < numberOfAccountsToCreate
+      ) {
+        return {
+          ...request,
+          error: `Mismatching payload: expected ${numberOfAccountsToCreate} Solana public keys, got ${numberOfSolanaKeys}`,
+        };
+      }
     }
 
     await startOnboarding({
@@ -84,19 +106,32 @@ export class LedgerOnboardingHandler implements HandlerType {
 
     let walletId = '';
     if (xpub && xpubXP) {
+      const solanaKeys = (pubKeys ?? [])
+        .map((pubKey, index) => {
+          if (!pubKey.svm) {
+            return null;
+          }
+
+          return {
+            type: 'address-pubkey',
+            curve: 'ed25519',
+            derivationPath: getSolanaDerivationPath(index),
+            key: pubKey.svm,
+          } as const;
+        })
+        .filter(isNotNullish);
+
       walletId = await this.walletService.init({
         secretType: SecretType.Ledger,
         extendedPublicKeys: [
           buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
           buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH),
         ],
-        publicKeys: [],
+        publicKeys: solanaKeys,
         derivationPathSpec: DerivationPath.BIP44,
         name: walletName,
       });
-    }
-
-    if (pubKeys?.length) {
+    } else if (pubKeys?.length) {
       const publicKeys: AddressPublicKeyJson<true>[] = [];
 
       for (const [index, pubKey] of pubKeys.entries()) {
@@ -120,6 +155,15 @@ export class LedgerOnboardingHandler implements HandlerType {
               DerivationPath.LedgerLive,
               'AVM',
             ),
+            type: 'address-pubkey',
+          });
+        }
+
+        if (pubKey.svm) {
+          publicKeys.push({
+            curve: 'ed25519',
+            key: pubKey.svm,
+            derivationPath: getSolanaDerivationPath(index),
             type: 'address-pubkey',
           });
         }

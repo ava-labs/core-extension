@@ -24,7 +24,7 @@ export function OnboardingStepHeader({
         <Typography
           variant="h3"
           sx={{
-            pt: 3,
+            pt: 3.5,
           }}
           data-testid={`${testId}-header`}
         >

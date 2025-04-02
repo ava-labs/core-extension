@@ -157,6 +157,7 @@ export type PubKeyType = {
    * Public keys used for X/P chain are from a different derivation path.
    */
   xp?: string;
+  svm?: string;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
   ed25519?: string;
 };

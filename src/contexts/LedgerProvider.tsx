@@ -22,6 +22,7 @@ import {
 } from 'rxjs';
 import { getLedgerTransport } from '@src/contexts/utils/getLedgerTransport';
 import AppAvalanche from '@avalabs/hw-app-avalanche';
+import AppSolana from '@ledgerhq/hw-app-solana';
 import {
   AppClient as Btc,
   DefaultWalletPolicy,
@@ -40,6 +41,7 @@ import {
   getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
   quitLedgerApp,
+  getSolanaPublicKeyFromLedger,
 } from '@avalabs/core-wallets-sdk';
 import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
 import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
@@ -52,6 +54,7 @@ export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
   BITCOIN = 'Bitcoin',
   ETHEREUM = 'Ethereum',
+  SOLANA = 'Solana',
   UNKNOWN = 'UNKNOWN',
 }
 
@@ -74,7 +77,7 @@ const LedgerContext = createContext<{
   getPublicKey(
     accountIndex: number,
     pathType: DerivationPath,
-    vm?: VM,
+    vm?: VM | 'SVM',
   ): Promise<Buffer>;
   avaxAppVersion: string | null;
   masterFingerprint: string | undefined;
@@ -95,7 +98,7 @@ const LedgerContext = createContext<{
 export function LedgerContextProvider({ children }: { children: any }) {
   const [initialized, setInialized] = useState(false);
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
-  const [app, setApp] = useState<Btc | AppAvalanche | Eth>();
+  const [app, setApp] = useState<Btc | AppAvalanche | Eth | AppSolana>();
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
   const transportRef = useRef<Transport | null>(null);
@@ -194,7 +197,9 @@ export function LedgerContextProvider({ children }: { children: any }) {
   }, [request]);
 
   const initLedgerApp = useCallback(
-    async (transport?: Transport | null): Promise<Btc | AppAvalanche | Eth> => {
+    async (
+      transport?: Transport | null,
+    ): Promise<Btc | AppAvalanche | Eth | AppSolana> => {
       if (!transport) {
         throw new Error('Ledger not connected');
       }
@@ -235,6 +240,19 @@ export function LedgerContextProvider({ children }: { children: any }) {
           setApp(btcAppInstance);
           setAppType(LedgerAppType.BITCOIN);
           return btcAppInstance;
+        }
+      }
+
+      const solanaAppInstance = new AppSolana(transport);
+      if (solanaAppInstance) {
+        const appInfo = await getLedgerAppInfo(transport);
+
+        if (
+          LedgerAppType.SOLANA === (appInfo.applicationName as LedgerAppType)
+        ) {
+          setApp(solanaAppInstance);
+          setAppType(LedgerAppType.SOLANA);
+          return solanaAppInstance;
         }
       }
 
@@ -306,10 +324,15 @@ export function LedgerContextProvider({ children }: { children: any }) {
   }, []);
 
   const getPublicKey = useCallback(
-    async (accountIndex: number, pathType: DerivationPath, vm: VM = 'EVM') => {
+    async (accountIndex: number, pathType: DerivationPath, vm: VM | 'SVM') => {
       if (!transportRef.current) {
         throw new Error('no device detected');
       }
+
+      if (vm === 'SVM') {
+        return getSolanaPublicKeyFromLedger(accountIndex, transportRef.current);
+      }
+
       return getPubKeyFromTransport(
         transportRef.current,
         accountIndex,

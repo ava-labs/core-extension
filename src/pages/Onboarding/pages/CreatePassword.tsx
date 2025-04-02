@@ -27,6 +27,8 @@ import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
 import { WalletType } from '@avalabs/types';
 import Joi from 'joi';
 import { isNewsletterConfigured } from '@src/utils/newsletter';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 enum EmailValidationResult {
   Undetermined,
@@ -52,6 +54,7 @@ export const CreatePassword = () => {
     setNewsletterEmail,
     onboardingWalletType,
   } = useOnboardingContext();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const [walletName, setWalletName] = useState<string>();
   const [password, setPassword] = useState<string>('');
   const [confirmPasswordVal, setConfirmPasswordVal] = useState<string>('');
@@ -85,8 +88,16 @@ export const CreatePassword = () => {
     ) {
       return { stepsNumber: 3, activeStep: 1 };
     }
+    if (onboardingPhase === OnboardingPhase.LEDGER) {
+      return isFlagEnabled(FeatureGates.SOLANA_SUPPORT)
+        ? {
+            stepsNumber: 5,
+            activeStep: 3,
+          }
+        : { stepsNumber: 3, activeStep: 1 };
+    }
     return { stepsNumber: 4, activeStep: 2 };
-  }, [onboardingPhase]);
+  }, [onboardingPhase, isFlagEnabled]);
 
   useEffect(() => {
     if (!onboardingPhase) {
