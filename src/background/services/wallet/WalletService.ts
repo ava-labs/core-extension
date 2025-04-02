@@ -294,18 +294,18 @@ export class WalletService implements OnUnlock {
           secrets.derivationPathSpec,
           'AVM',
         );
-        const pubkeyEVM = getPublicKeyFor(
-          secrets,
+        const evmExtendedPubKey = getExtendedPublicKeyFor(
+          secrets.extendedPublicKeys,
           derivationPathEVM,
           'secp256k1',
         );
-        const pubkeyAVM = getPublicKeyFor(
-          secrets,
+        const avmExtendedPubKey = getExtendedPublicKeyFor(
+          secrets.extendedPublicKeys,
           derivationPathAVM,
           'secp256k1',
         );
 
-        assertPresent(pubkeyEVM, SecretsError.PublicKeyNotFound);
+        assertPresent(evmExtendedPubKey, SecretsError.PublicKeyNotFound);
 
         return new KeystoneWallet(
           secrets.masterFingerprint,
@@ -313,8 +313,8 @@ export class WalletService implements OnUnlock {
           this.keystoneService,
           network.chainId,
           tabId,
-          pubkeyEVM.key,
-          pubkeyAVM ? pubkeyAVM.key : undefined,
+          evmExtendedPubKey.key,
+          avmExtendedPubKey ? avmExtendedPubKey.key : undefined,
         );
       }
 
@@ -542,18 +542,18 @@ export class WalletService implements OnUnlock {
           secrets.derivationPathSpec,
           'AVM',
         );
-        const pubkeyEVM = getPublicKeyFor(
-          secrets,
+        const evmExtendedPubKey = getExtendedPublicKeyFor(
+          secrets.extendedPublicKeys,
           derivationPathEVM,
           'secp256k1',
         );
-        const pubkeyAVM = getPublicKeyFor(
-          secrets,
+        const avmExtendedPubKey = getExtendedPublicKeyFor(
+          secrets.extendedPublicKeys,
           derivationPathAVM,
           'secp256k1',
         );
 
-        assertPresent(pubkeyEVM, SecretsError.PublicKeyNotFound);
+        assertPresent(evmExtendedPubKey, SecretsError.PublicKeyNotFound);
 
         return new KeystoneWallet(
           secrets.masterFingerprint,
@@ -561,8 +561,8 @@ export class WalletService implements OnUnlock {
           this.keystoneService,
           network.chainId,
           tabId,
-          pubkeyEVM.key,
-          pubkeyAVM ? pubkeyAVM.key : undefined,
+          evmExtendedPubKey.key,
+          avmExtendedPubKey ? avmExtendedPubKey.key : undefined,
         );
       }
 

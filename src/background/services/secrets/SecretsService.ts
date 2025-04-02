@@ -23,6 +23,7 @@ import {
   EVM_BASE_DERIVATION_PATH,
   ImportedAccountSecrets,
   PrimaryWalletSecrets,
+  isKeystoneSecrets,
   SecretType,
 } from './models';
 import { isPrimaryAccount } from '../accounts/utils/typeGuards';
@@ -840,11 +841,7 @@ export class SecretsService implements OnUnlock {
         );
         newPublicKeys.push(publicKeySVM.toJSON());
       }
-    } else if (
-      [SecretType.Keystone, SecretType.Keystone3Pro].includes(
-        secrets.secretType,
-      )
-    ) {
+    } else if (isKeystoneSecrets(secrets)) {
       if (!hasEVMPublicKey) {
         const publicKeyEVM = AddressPublicKey.fromExtendedPublicKeys(
           secrets.extendedPublicKeys,

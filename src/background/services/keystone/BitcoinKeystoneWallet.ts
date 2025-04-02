@@ -41,6 +41,14 @@ export class BitcoinKeystoneWallet {
     const cryptoPSBT = new CryptoPSBT(psbt.toBuffer());
     const ur = cryptoPSBT.toUR();
 
+    const formatResult = (_psbt: Psbt) => {
+      if (_psbt.validateSignaturesOfAllInputs()) {
+        _psbt.finalizeAllInputs();
+        return _psbt.extractTransaction();
+      }
+      return _psbt.extractTransaction();
+    };
+
     if (this.viaUSB) {
       const app = new KeystoneUSBEthSDK(
         (await createKeystoneTransport()) as any,
@@ -52,7 +60,7 @@ export class BitcoinKeystoneWallet {
 
       const signedTx = CryptoPSBT.fromCBOR(signedCborBuffer).getPSBT();
 
-      return Psbt.fromBuffer(signedTx).extractTransaction();
+      return formatResult(Psbt.fromBuffer(signedTx));
     }
 
     const signedCborBuffer = await this.keystoneTransport.requestSignature(
@@ -65,6 +73,6 @@ export class BitcoinKeystoneWallet {
 
     const signedTx = CryptoPSBT.fromCBOR(signedCborBuffer).getPSBT();
 
-    return Psbt.fromBuffer(signedTx).extractTransaction();
+    return formatResult(Psbt.fromBuffer(signedTx));
   }
 }

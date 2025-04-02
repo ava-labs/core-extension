@@ -77,6 +77,15 @@ export interface MnemonicSecrets extends PrimarySecretsBase {
   derivationPathSpec: DerivationPath.BIP44;
 }
 
+export const isKeystoneSecrets = (
+  secrets: PrimaryWalletSecrets,
+): secrets is KeystoneSecrets => {
+  return (
+    secrets.secretType === SecretType.Keystone ||
+    secrets.secretType === SecretType.Keystone3Pro
+  );
+};
+
 export interface KeystoneSecrets extends PrimarySecretsBase {
   secretType: SecretType.Keystone | SecretType.Keystone3Pro;
   masterFingerprint: string;
