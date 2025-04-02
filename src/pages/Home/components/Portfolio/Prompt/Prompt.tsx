@@ -2,10 +2,8 @@ import {
   Box,
   Button,
   InputAdornment,
-  keyframes,
   SendIcon,
   Stack,
-  styled,
   TextField,
   Typography,
   useTheme,
@@ -34,43 +32,9 @@ import { useSwapContext } from '@src/contexts/SwapProvider';
 import { stringToBigint } from '@src/utils/stringToBigint';
 import { isAPIError } from '@src/pages/Swap/utils';
 import { Overlay } from '@src/components/common/Overlay';
+import { PromptBackground, PromptButton } from './GradientElements';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
-const promptBackgroundAnimation = keyframes`
- to {
-		--angle: 360deg;
-	}
-`;
-
-// CSS.registerProperty({
-//   name: '--angle',
-//   syntax: '<angle>',
-//   inherits: false,
-//   initialValue: '0deg',
-// });
-
-const PromptBackground = styled(Stack)(({ hasAnimation }: any) => ({
-  background: `conic-gradient(
-    from var(--angle),
-    #000000 0deg,
-    #B0FF18 50deg,
-    #A1FF68 100deg,
-    #26F2FF 140deg,
-    #7748FF 180deg,
-    #FF048C 220deg,
-    #000000 270deg
-  )`,
-  opacity: 0.2,
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100vw',
-  height: '100vh',
-  animation: hasAnimation
-    ? `10s ${promptBackgroundAnimation} linear infinite`
-    : 'none',
-}));
 
 export function Prompt() {
   const theme = useTheme();
@@ -419,23 +383,14 @@ export function Prompt() {
 
   return (
     <>
-      <Button
-        placeholder="Core AI - Manage your wallet"
-        value={input}
-        size="small"
-        sx={{
-          mt: 2,
-          mb: 1,
-          mx: 2,
-        }}
+      <PromptButton
         onClick={() => {
           setIsDialogOpen(true);
         }}
-      >
-        {t('Core AI - Manage your wallet')}
-      </Button>
+      />
+
       {isDialogOpen && (
-        <Overlay>
+        <Overlay sx={{ zIndex: 2000 }}>
           <PromptBackground hasAnimation />
           <Stack
             sx={{
