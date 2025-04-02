@@ -265,7 +265,11 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         );
       }
 
-      const network = this.networkService.getAvalancheNetworkXP();
+      const network =
+        vm === EVM
+          ? await this.networkService.getAvalancheNetwork()
+          : await this.networkService.getAvalancheNetworkXP();
+
       const prov = await this.networkService.getAvalanceProviderXP();
       const { txHash, signedTx } = await this.walletService.sign(
         {

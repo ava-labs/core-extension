@@ -31,7 +31,7 @@ import {
   SolanaSigner,
 } from '@avalabs/core-wallets-sdk';
 import { NetworkService } from '../network/NetworkService';
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import {
   personalSign,
@@ -81,6 +81,9 @@ import {
 import { assertPresent } from '@src/utils/assertions';
 import { CommonError, LedgerError, SecretsError } from '@src/utils/errors';
 import { omitUndefined } from '@src/utils/object';
+import { AddressResolver } from '../secrets/AddressResolver';
+import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
+import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
 
 @singleton()
 export class WalletService implements OnUnlock {
@@ -94,6 +97,7 @@ export class WalletService implements OnUnlock {
     private fireblocksService: FireblocksService,
     private secretService: SecretsService,
     private accountsService: AccountsService,
+    private addressResolver: AddressResolver,
   ) {}
 
   async emitsWalletsInfo(wallets: WalletDetails[]) {
@@ -243,7 +247,23 @@ export class WalletService implements OnUnlock {
     if (secretType === SecretType.Seedless) {
       const accountIndexToUse =
         accountIndex === undefined ? secrets.account.index : accountIndex;
-      const addressPublicKey = secrets.publicKeys[accountIndexToUse];
+
+      const derivationPaths = await this.addressResolver.getDerivationPathsByVM(
+        accountIndexToUse,
+        secrets.derivationPathSpec,
+        [NetworkVMType.AVM, NetworkVMType.EVM],
+      );
+
+      const derivationPath =
+        isXchainNetwork(network) || isPchainNetwork(network)
+          ? derivationPaths[NetworkVMType.AVM]
+          : derivationPaths[NetworkVMType.EVM];
+
+      const addressPublicKey = getPublicKeyFor(
+        secrets,
+        derivationPath,
+        'secp256k1',
+      );
 
       if (!addressPublicKey) {
         throw new Error('Account public key not available');
@@ -932,34 +952,32 @@ export class WalletService implements OnUnlock {
       return [];
     }
 
-    assertPresent(indices[0], SecretsError.NoAccountIndex);
+    return indices.map((index) => {
+      const avmDerivationPath = getAddressDerivationPath(
+        index,
+        secrets.derivationPathSpec,
+        'AVM',
+      );
+      const avmExtendedPubKey = getExtendedPublicKeyFor(
+        secrets.extendedPublicKeys,
+        avmDerivationPath,
+        'secp256k1',
+      );
 
-    const avmDerivationPath = getAddressDerivationPath(
-      0,
-      secrets.derivationPathSpec,
-      'AVM',
-    );
-    const avmExtendedPubKey = getExtendedPublicKeyFor(
-      secrets.extendedPublicKeys,
-      avmDerivationPath,
-      'secp256k1',
-    );
+      assertPresent(
+        avmExtendedPubKey,
+        SecretsError.MissingExtendedPublicKey,
+        `AVM @ ${avmDerivationPath}`,
+      );
 
-    assertPresent(
-      avmExtendedPubKey,
-      SecretsError.MissingExtendedPublicKey,
-      `AVM @ ${avmDerivationPath}`,
-    );
-
-    return indices.map((index) =>
-      Avalanche.getAddressFromXpub(
+      return Avalanche.getAddressFromXpub(
         avmExtendedPubKey.key,
         index,
         provXP,
         chainAlias,
         isChange,
-      ),
-    );
+      );
+    });
   }
 
   private async parseWalletPolicyDetails(account: Account) {
