@@ -27,6 +27,8 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { measureDuration } from '@src/utils/measureDuration';
 import { HEADERS } from '../../glacier/glacierConfig';
+import { NetworkVMType } from '@avalabs/vm-module-types';
+import { NetworkWithCaipId } from '../../network/models';
 
 type TxParams = {
   transactionHex: string;
@@ -265,9 +267,12 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
         );
       }
 
-      const network =
+      const network: NetworkWithCaipId =
         vm === EVM
-          ? await this.networkService.getAvalancheNetwork()
+          ? {
+              ...(await this.networkService.getAvalancheNetwork()),
+              vmName: NetworkVMType.CoreEth,
+            }
           : await this.networkService.getAvalancheNetworkXP();
 
       const prov = await this.networkService.getAvalanceProviderXP();
