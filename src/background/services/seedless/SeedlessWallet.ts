@@ -13,8 +13,12 @@ import {
   BitcoinInputUTXO,
   BitcoinOutputUTXO,
   BitcoinProvider,
+  compileSolanaTx,
   createPsbt,
+  deserializeTransactionMessage,
   getEvmAddressFromPubKey,
+  serializeSolanaTx,
+  SolanaProvider,
 } from '@avalabs/core-wallets-sdk';
 import { sha256 } from '@noble/hashes/sha256';
 import { utils } from '@avalabs/avalanchejs';
@@ -39,6 +43,7 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { AddressPublicKeyJson } from '../secrets/models';
 import { assertPresent } from '@src/utils/assertions';
 import { CommonError } from '@src/utils/errors';
+import { base64, hex } from '@scure/base';
 
 type ConstructorOpts = {
   networkService?: NetworkService;
@@ -263,7 +268,11 @@ export class SeedlessWallet {
       this.#handleError(err);
     }
 
-    const requiredKeyTypes: cs.KeyTypeApi[] = ['SecpEthAddr', 'SecpAvaAddr'];
+    const requiredKeyTypes: cs.KeyTypeApi[] = [
+      'SecpEthAddr',
+      'SecpAvaAddr',
+      'Ed25519SolanaAddr',
+    ];
     const keys = rawKeys
       ?.filter(
         (k) =>
@@ -277,9 +286,14 @@ export class SeedlessWallet {
             return acc;
           }
 
-          const index = Number(
-            key.derivation_info.derivation_path.split('/').pop(),
-          );
+          const index =
+            key.key_type === 'Ed25519SolanaAddr'
+              ? parseInt(
+                  key.derivation_info.derivation_path
+                    .split('/')
+                    .at(-2) as string,
+                )
+              : Number(key.derivation_info.derivation_path.split('/').pop());
           if (index === undefined) {
             return acc;
           }
@@ -344,6 +358,16 @@ export class SeedlessWallet {
           type: 'address-pubkey',
         },
       );
+
+      if (key['Ed25519SolanaAddr']?.derivation_info?.derivation_path) {
+        pubkeys.push({
+          curve: 'ed25519',
+          derivationPath:
+            key['Ed25519SolanaAddr'].derivation_info.derivation_path,
+          key: strip0x(key['Ed25519SolanaAddr'].public_key),
+          type: 'address-pubkey',
+        });
+      }
     });
 
     if (!pubkeys?.length) {
@@ -354,7 +378,7 @@ export class SeedlessWallet {
   }
 
   async #getSigningKey(
-    type: cs.Secp256k1,
+    type: cs.Secp256k1 | cs.Ed25519,
     lookupPublicKey?: string,
   ): Promise<cs.KeyInfo> {
     if (!lookupPublicKey) {
@@ -374,6 +398,61 @@ export class SeedlessWallet {
       }
 
       return key;
+    } catch (err) {
+      this.#handleError(err);
+    }
+  }
+
+  #requiresSolanaSignature(
+    address: string,
+    signatures: Record<string, Uint8Array | null>,
+  ) {
+    if (address in signatures) {
+      // If our signature is required, check if it's already been added.
+      return !signatures[address];
+    }
+
+    return false;
+  }
+
+  async signSolanaTx(
+    base64EncodedTx: string,
+    provider: SolanaProvider,
+  ): Promise<string> {
+    if (!this.#addressPublicKey?.key) {
+      throw new Error('Public key not available');
+    }
+    const txMessage = await deserializeTransactionMessage(
+      base64EncodedTx,
+      provider,
+    );
+    const { signatures, messageBytes } = compileSolanaTx(txMessage);
+
+    try {
+      const session = await this.#getSession();
+      const signingKey = await this.#getSigningKey(
+        cs.Ed25519.Solana,
+        this.#addressPublicKey.key,
+      );
+      const address = signingKey.materialId;
+
+      if (!this.#requiresSolanaSignature(address, signatures)) {
+        return base64EncodedTx;
+      }
+
+      const response = await session.signSolana(signingKey.materialId, {
+        message_base64: base64.encode(Uint8Array.from(messageBytes)),
+      });
+      const { signature: signatureHex } = response.data();
+      const signature = hex.decode(strip0x(signatureHex));
+
+      return serializeSolanaTx({
+        messageBytes,
+        signatures: {
+          ...signatures,
+          [address]: signature,
+        },
+      });
     } catch (err) {
       this.#handleError(err);
     }
