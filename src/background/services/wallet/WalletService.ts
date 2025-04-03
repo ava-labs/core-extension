@@ -432,7 +432,8 @@ export class WalletService implements OnUnlock {
     // Avalanche signers
     if (
       network.vmName === NetworkVMType.AVM ||
-      network.vmName === NetworkVMType.PVM
+      network.vmName === NetworkVMType.PVM ||
+      network.vmName === NetworkVMType.CoreEth
     ) {
       if (secretType === SecretType.Mnemonic) {
         const accountIndexToUse =

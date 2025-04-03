@@ -591,7 +591,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
           externalIndices: undefined,
           internalIndices: undefined,
         },
-        { rpcUrl: 'RPCURL', vmName: 'EVM' },
+        { rpcUrl: 'RPCURL', vmName: 'CoreEth' },
         frontendTabId,
         'avalanche_sendTransaction',
       );
