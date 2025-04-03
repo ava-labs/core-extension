@@ -1,4 +1,10 @@
-import { Button, keyframes, Stack, styled } from '@avalabs/core-k2-components';
+import {
+  Box,
+  Button,
+  keyframes,
+  Stack,
+  styled,
+} from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
 const promptBackgroundAnimation = keyframes`
@@ -12,7 +18,8 @@ const promptButtonBackgroundAnimation = keyframes`
 		background-position: 0% 50%;
 	}
 	50% {
-		background-position: 100% 50%;
+		background-position: 100% 100%;
+        --angle2: 90deg;
 	}
 	100% {
 		background-position: 0% 50%;
@@ -24,6 +31,12 @@ CSS.registerProperty({
   syntax: '<angle>',
   inherits: false,
   initialValue: '0deg',
+});
+CSS.registerProperty({
+  name: '--angle2',
+  syntax: '<angle>',
+  inherits: false,
+  initialValue: '270deg',
 });
 
 export const PromptButtonBackground = styled(Stack)(
@@ -38,7 +51,6 @@ export const PromptButtonBackground = styled(Stack)(
       #FF048C 260deg,
       #000000 330deg
     )`,
-    // background: 'black',
     animation: hasAnimation
       ? `10s ${promptBackgroundAnimation} linear infinite`
       : 'none',
@@ -71,16 +83,16 @@ const PromptStack = styled(Stack)(({ theme }) => ({
   position: 'relative',
   '&:hover > div': {
     color: theme.palette.grey[900],
-    background: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
-    backgroundSize: '400% 400%',
-    animation: `15s ${promptButtonBackgroundAnimation} ease infinite`,
-    filter: `blur(10px)`,
+    background: 'linear-gradient(var(--angle2), #26F2FFCC, #FF048CCC)',
+    backgroundSize: '150% 150%',
+    animation: `15s ${promptButtonBackgroundAnimation} linear infinite`,
+    filter: `blur(12.6px)`,
   },
-  '&:hover > button': {
+  ':hover > button': {
     color: theme.palette.grey[900],
-    background: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
-    backgroundSize: '400% 400%',
-    animation: `15s ${promptButtonBackgroundAnimation} ease infinite`,
+    background: 'linear-gradient(var(--angle2), #26F2FFCC, #FF048CCC)',
+    backgroundSize: '150% 150%',
+    animation: `15s ${promptButtonBackgroundAnimation} linear infinite`,
   },
 }));
 
@@ -90,7 +102,10 @@ export const PromptButton = ({ onClick }) => {
     <PromptStack onClick={onClick}>
       <PromptButtonBackground hasAnimation />
       <PromptButtonStyled size="medium">
-        ✨{t('Core AI - Manage your wallet')}
+        <Box component="span" sx={{ mr: 1 }}>
+          ✨
+        </Box>
+        {t('Core AI - Manage your wallet')}
       </PromptButtonStyled>
     </PromptStack>
   );
