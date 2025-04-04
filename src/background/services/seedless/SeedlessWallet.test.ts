@@ -1001,7 +1001,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         expect.stringMatching(/\/addAccount$/),
         expect.objectContaining({
           method: 'POST',
-          body: JSON.stringify({ accountIndex, identityProof, mnemonicId }),
+          body: JSON.stringify({ identityProof, mnemonicId, accountIndex }),
         }),
       );
     });
@@ -1016,7 +1016,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       it('raises an error', async () => {
         session.proveIdentity.mockResolvedValue({} as any);
         await expect(wallet.addAccount(1)).rejects.toThrow(
-          /Adding new account failed/,
+          /addAccount request failed/,
         );
       });
     });
