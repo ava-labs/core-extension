@@ -18,6 +18,7 @@ import {
   WalletEvents,
 } from '../wallet/models';
 import {
+  AccountWithSecrets,
   AddressPublicKeyJson,
   Curve,
   EVM_BASE_DERIVATION_PATH,
@@ -287,7 +288,7 @@ export class SecretsService implements OnUnlock {
     throw new Error('Unsupported import type');
   }
 
-  async getAccountSecrets(account: Account) {
+  async getAccountSecrets(account: Account): Promise<AccountWithSecrets> {
     const walletKeys = await this.#loadSecrets(true);
 
     if (account.type === AccountType.PRIMARY) {
@@ -301,7 +302,7 @@ export class SecretsService implements OnUnlock {
       }
 
       return {
-        ...(account ? { account: account } : null),
+        account,
         ...activeWalletSecrets,
       };
     }
