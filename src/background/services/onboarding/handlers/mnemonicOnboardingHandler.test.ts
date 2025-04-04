@@ -19,10 +19,10 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { SettingsService } from '../../settings/SettingsService';
 import { NetworkService } from '../../network/NetworkService';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
+import { addChainsToFavoriteIfNeeded } from '../utils/addChainsToFavoriteIfNeeded';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
-jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
+jest.mock('../utils/addChainsToFavoriteIfNeeded');
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
   const actual = jest.requireActual('@avalabs/core-wallets-sdk');
@@ -195,6 +195,6 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
       analyticsServiceMock.saveTemporaryAnalyticsIds,
     ).not.toHaveBeenCalled();
 
-    expect(addXPChainToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
+    expect(addChainsToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });
