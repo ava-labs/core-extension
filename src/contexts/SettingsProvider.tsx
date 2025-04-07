@@ -37,6 +37,7 @@ import {
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
 import { isTokenMalicious } from '@src/utils/isTokenMalicious';
+import { SetCoreAssistantHandler } from '@src/background/services/settings/handlers/setCoreAssistant';
 
 type SettingsFromProvider = SettingsState & {
   lockWallet(): Promise<true>;
@@ -58,6 +59,7 @@ type SettingsFromProvider = SettingsState & {
   setSettingsActivePage: (
     activePage: SettingsPages,
   ) => Dispatch<SetStateAction<SettingsPages>>;
+  setCoreAssistant: (state: boolean) => Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -196,6 +198,13 @@ export function SettingsContextProvider({ children }: { children: any }) {
     });
   }
 
+  function setCoreAssistant(state: boolean) {
+    return request<SetCoreAssistantHandler>({
+      method: ExtensionRequest.SETTINGS_SET_CORE_ASSISTANT,
+      params: [state],
+    });
+  }
+
   return (
     <SettingsContext.Provider
       value={
@@ -216,6 +225,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
           setIsSettingsOpen,
           settingsActivePage,
           setSettingsActivePage,
+          setCoreAssistant,
         } as SettingsFromProvider
       }
     >

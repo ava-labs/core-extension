@@ -28,8 +28,12 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
   } = useAccountsContext();
   const { isBridgeDevEnv, setIsBridgeDevEnv } = useBridgeContext();
   const { capture } = useAnalyticsContext();
-  const { showTokensWithoutBalances, toggleShowTokensWithoutBalanceSetting } =
-    useSettingsContext();
+  const {
+    showTokensWithoutBalances,
+    toggleShowTokensWithoutBalanceSetting,
+    setCoreAssistant,
+    coreAssistant,
+  } = useSettingsContext();
   const history = useHistory();
 
   const testnetModeUnavailableReason = useMemo(() => {
@@ -97,6 +101,16 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
               }}
             />
           </Tooltip>
+        </ListItem>
+        <ListItem data-testid="core-assistant-menu-item">
+          <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
+            {t('Core Assistant')}
+          </ListItemText>
+          <Switch
+            size="small"
+            checked={coreAssistant}
+            onChange={() => setCoreAssistant(!coreAssistant)}
+          />
         </ListItem>
         {!isProductionBuild() ? (
           <ListItem data-testid="bridge-dev-env-menu-item">

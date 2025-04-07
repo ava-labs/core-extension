@@ -1,19 +1,18 @@
 import {
-  Box,
   Button,
-  InputAdornment,
-  SendIcon,
+  ScrollbarsRef,
   Stack,
-  TextField,
   Typography,
   useTheme,
   XIcon,
+  Scrollbars,
+  Grow,
+  Backdrop,
 } from '@avalabs/core-k2-components';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FunctionCallingMode, GoogleGenerativeAI } from '@google/generative-ai';
 import { functionDeclarations, systemPromptTemplate } from './models';
 import { useTranslation } from 'react-i18next';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
@@ -31,8 +30,13 @@ import { errorValues } from 'eth-rpc-errors/dist/error-constants';
 import { useSwapContext } from '@src/contexts/SwapProvider';
 import { stringToBigint } from '@src/utils/stringToBigint';
 import { isAPIError } from '@src/pages/Swap/utils';
-import { Overlay } from '@src/components/common/Overlay';
 import { PromptBackground, PromptButton } from './GradientElements';
+import {
+  AIDialog,
+  UserInput,
+  TypingAvatar,
+  UserDialog,
+} from './PromptElements';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -46,6 +50,7 @@ export function Prompt() {
   const { accounts, selectAccount } = useAccountsContext();
   const { request } = useConnectionContext();
   const { swap, getRate } = useSwapContext();
+  const scrollbarRef = useRef<ScrollbarsRef | null>(null);
 
   const [prompts, setPrompts] = useState<
     {
@@ -58,7 +63,15 @@ export function Prompt() {
       content: `Hey there! I'm Core AI, here to help you manage your assets safely and smoothly. What can I do for you today?`,
     },
   ]);
+
+  const isTyping = prompts[prompts.length - 1]?.type === 'user';
+
   const tokens = useTokensWithBalances();
+  useEffect(() => {
+    if (prompts) {
+      scrollbarRef?.current?.scrollToBottom();
+    }
+  }, [prompts]);
 
   const functions = useMemo(
     () => ({
@@ -382,15 +395,14 @@ export function Prompt() {
   );
 
   return (
-    <>
+    <Stack>
       <PromptButton
         onClick={() => {
           setIsDialogOpen(true);
         }}
       />
-
-      {isDialogOpen && (
-        <Overlay sx={{ zIndex: 2000 }}>
+      <Grow in={isDialogOpen}>
+        <Backdrop sx={{ zIndex: 2000 }} open>
           <PromptBackground hasAnimation />
           <Stack
             sx={{
@@ -401,12 +413,14 @@ export function Prompt() {
               overflow: 'hidden',
               position: 'relative',
               backgroundColor: 'background.paper',
+              borderRadius: 2,
             }}
           >
             <Stack
               sx={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
+                pb: 2,
               }}
             >
               <Typography variant="h4">{t('Core AI Assistant')}</Typography>
@@ -426,63 +440,20 @@ export function Prompt() {
               </Button>
             </Stack>
             <Stack sx={{ flexGrow: 1 }}>
-              <Scrollbars>
-                {prompts.map((p, i) => (
-                  <Box
-                    key={i}
-                    sx={{
-                      backgroundColor:
-                        p.type === 'system'
-                          ? theme.palette.grey[600]
-                          : theme.palette.grey[800],
-                      py: 1,
-                      px: 2,
-                      my: 1,
-                      maxWidth: '70%',
-                      width: 'fit-content',
-                      borderRadius: 1,
-                      justifySelf:
-                        p.type === 'system' ? 'flex-start' : 'flex-end',
-                      wordWrap: 'break-word',
-                    }}
-                  >
-                    <Typography>{p.content}</Typography>
-                  </Box>
-                ))}
+              <Scrollbars ref={scrollbarRef}>
+                {prompts.map((message, i) => {
+                  if (message.type === 'system') {
+                    return <AIDialog message={message} key={i} />;
+                  }
+                  return <UserDialog message={message} key={i} />;
+                })}
+                {isTyping && <TypingAvatar />}
               </Scrollbars>
             </Stack>
-            <TextField
-              placeholder="Core AI - Manage your wallet"
-              value={input}
-              size="small"
-              focused
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <SendIcon
-                      sx={{
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => {
-                        prompt(input);
-                      }}
-                    />
-                  </InputAdornment>
-                ),
-              }}
-              onChange={(e) => {
-                setInput(e.target.value);
-              }}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  prompt(input);
-                }
-              }}
-            />
+            <UserInput input={input} setInput={setInput} prompt={prompt} />
           </Stack>
-        </Overlay>
-      )}
-    </>
+        </Backdrop>
+      </Grow>
+    </Stack>
   );
 }
