@@ -19,7 +19,7 @@ import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useTranslation } from 'react-i18next';
 import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwapError } from './components/SwapError';
-import { calculateRate } from './utils';
+import { calculateRate, isSlippageValid } from './utils';
 import {
   Stack,
   toast,
@@ -271,6 +271,7 @@ export function Swap() {
     selectedToToken &&
     optimalRate &&
     swapGasLimit &&
+    isSlippageValid(slippageTolerance) &&
     networkFee;
 
   const isDetailsAvailable =

@@ -29,7 +29,7 @@ export enum ExtensionRequest {
   NFT_BALANCES_GET = 'nft_balances_get',
   NFT_REFRESH_METADATA = 'nft_refresh_metadata',
   TOKEN_PRICE_GET = 'token_price_get',
-  BALANCE_AVAX_GET = 'balance_avax_get',
+  BALANCE_NATIVE_GET = 'balance_native_get',
 
   BRIDGE_GET_CONFIG = 'bridge_get_config',
 
