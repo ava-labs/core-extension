@@ -195,6 +195,7 @@ export const useIsFunctionAvailable = (
   const {
     accounts: { active },
   } = useAccountsContext();
+
   const isReady = Boolean(network && active);
 
   const checkIsFunctionAvailable = (functionToCheck: FunctionNames) => {
@@ -281,7 +282,7 @@ export const useIsFunctionAvailable = (
     return true;
   };
 
-  if (!network || !active || !functionName) {
+  if (!functionName) {
     return {
       isReady,
       isFunctionAvailable: false,
