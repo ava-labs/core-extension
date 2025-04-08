@@ -16,8 +16,10 @@ import { useHistory } from 'react-router-dom';
 
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
+import useIsUsingKeystone3Wallet from '@src/hooks/useIsUsingKeystone3Wallet';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/components/LedgerApprovalDialog';
+import { KeystoneApprovalDialog } from '../SignTransaction/components/KeystoneApprovalDialog';
 
 import { AccountType } from '@src/background/services/accounts/models';
 import { useScopedToast } from '@src/hooks/useScopedToast';
@@ -50,6 +52,7 @@ export function Accounts() {
 
   const [addAccountLoading, setAddAccountLoading] = useState(false);
   const { hasLedgerTransport } = useLedgerContext();
+  const isUsingKeystone3 = useIsUsingKeystone3Wallet();
   const { capture } = useAnalyticsContext();
   const theme = useTheme();
   const history = useHistory();
@@ -106,6 +109,11 @@ export function Accounts() {
       {addAccountLoading && hasLedgerTransport && (
         <Overlay>
           <LedgerApprovalDialog header={t('Waiting for Ledger')} />
+        </Overlay>
+      )}
+      {addAccountLoading && isUsingKeystone3 && (
+        <Overlay>
+          <KeystoneApprovalDialog header={t('Waiting for Keystone')} />
         </Overlay>
       )}
       {confirmRemovalDialog()}

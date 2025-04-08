@@ -73,7 +73,8 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
     // For Ledger (BIP44) and Keystone, we only have the extended public keys.
     if (
       secrets.secretType === SecretType.Ledger ||
-      secrets.secretType === SecretType.Keystone
+      secrets.secretType === SecretType.Keystone ||
+      secrets.secretType === SecretType.Keystone3Pro
     ) {
       assertDerivationPath(derivationPath);
       return AddressPublicKey.fromExtendedPublicKeys(

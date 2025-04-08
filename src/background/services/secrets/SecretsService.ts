@@ -23,6 +23,7 @@ import {
   EVM_BASE_DERIVATION_PATH,
   ImportedAccountSecrets,
   PrimaryWalletSecrets,
+  isKeystoneSecrets,
   SecretType,
 } from './models';
 import { isPrimaryAccount } from '../accounts/utils/typeGuards';
@@ -65,6 +66,7 @@ export class SecretsService implements OnUnlock {
       [SecretType.Ledger]: 'Ledger',
       [SecretType.LedgerLive]: 'Ledger Live',
       [SecretType.Keystone]: 'Keystone',
+      [SecretType.Keystone3Pro]: 'Keystone3 Pro',
       [SecretType.Seedless]: 'Seedless',
     };
     const storedSecrets = await this.#loadSecrets(false);
@@ -839,8 +841,7 @@ export class SecretsService implements OnUnlock {
         );
         newPublicKeys.push(publicKeySVM.toJSON());
       }
-    } else if (secrets.secretType === SecretType.Keystone) {
-      // For Keystone, we can only derive EVM/Bitcoin public key.
+    } else if (isKeystoneSecrets(secrets)) {
       if (!hasEVMPublicKey) {
         const publicKeyEVM = AddressPublicKey.fromExtendedPublicKeys(
           secrets.extendedPublicKeys,
@@ -848,6 +849,14 @@ export class SecretsService implements OnUnlock {
           derivationPathEVM,
         ).toJSON();
         newPublicKeys.push(publicKeyEVM);
+      }
+      if (!hasAVMPublicKey) {
+        const publicKeyAVM = AddressPublicKey.fromExtendedPublicKeys(
+          secrets.extendedPublicKeys,
+          'secp256k1',
+          derivationPathAVM,
+        ).toJSON();
+        newPublicKeys.push(publicKeyAVM);
       }
     }
 

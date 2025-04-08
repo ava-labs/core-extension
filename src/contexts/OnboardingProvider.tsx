@@ -297,6 +297,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
         {
           masterFingerprint,
           xpub,
+          xpubXP,
           password,
           analyticsConsent: !!analyticsConsent,
           walletName: walletName,
@@ -310,6 +311,7 @@ export function OnboardingContextProvider({ children }: { children: any }) {
     request,
     walletName,
     xpub,
+    xpubXP,
   ]);
 
   const submit = useCallback(
