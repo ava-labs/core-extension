@@ -40,12 +40,11 @@ export const getCurrencyFormatter = (currency = 'USD') => {
 };
 
 const modifyFractionNumber = (amount: number) => {
-  const maxFractionLengt = 3;
-
   const [integer, fraction] = parseScientificNotation(amount.toString());
   if (!fraction) {
     return amount;
   }
+  const maxFractionLengt = Number(integer) === 0 ? 3 : 2; // Only show 3 decimals we're below $1 (or other currency)
   const lastNonZeroFractionIndex =
     maxFractionLengt -
     (fraction
