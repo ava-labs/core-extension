@@ -314,7 +314,12 @@ export function Swap() {
               setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
               setIsToTokenSelectOpen(false);
             }}
-            tokensList={tokensWBalances}
+            // tokensList={tokensWBalances}
+            tokensList={tokensWBalances.filter(
+              (token) =>
+                token.name !== selectedToToken?.name ||
+                token.symbol !== selectedToToken?.symbol,
+            )}
             skipHandleMaxAmount
             isOpen={isFromTokenSelectOpen}
             selectedToken={selectedFromToken}
