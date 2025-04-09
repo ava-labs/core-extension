@@ -49,9 +49,7 @@ export function NotificationsContextProvider({ children }: { children: any }) {
       await request<SubscribeToNotification>({
         method: ExtensionRequest.NOTIFICATION_SUBSCRIBE,
         params: notificationType,
-      });
-
-      await syncSubscriptions();
+      }).finally(() => syncSubscriptions());
     },
     [request, syncSubscriptions],
   );
@@ -61,9 +59,7 @@ export function NotificationsContextProvider({ children }: { children: any }) {
       await request<UnsubscribeFromNotification>({
         method: ExtensionRequest.NOTIFICATION_UNSUBSCRIBE,
         params: notificationType,
-      });
-
-      await syncSubscriptions();
+      }).finally(() => syncSubscriptions());
     },
     [request, syncSubscriptions],
   );
