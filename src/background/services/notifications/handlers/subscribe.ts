@@ -1,23 +1,25 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { BalanceNotificationService } from '../BalanceNotificationService';
+import { NotificationTypes } from '../models';
+import { NotificationsService } from '../NotificationsService';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.BALANCE_NOTIFICATION_UNSUBSCRIBE,
+  ExtensionRequest.NOTIFICATION_SUBSCRIBE,
   boolean,
-  []
+  NotificationTypes
 >;
 
 @injectable()
-export class UnsubscribeFromBalanceNotifications implements HandlerType {
-  method = ExtensionRequest.BALANCE_NOTIFICATION_UNSUBSCRIBE as const;
+export class SubscribeToNotification implements HandlerType {
+  method = ExtensionRequest.NOTIFICATION_SUBSCRIBE as const;
 
-  constructor(private balanceNotificationService: BalanceNotificationService) {}
+  constructor(private notificationsService: NotificationsService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
+    const notificationType = request.params;
     try {
-      await this.balanceNotificationService.unsubscribe();
+      await this.notificationsService.subscribe(notificationType);
       return {
         ...request,
         result: true,

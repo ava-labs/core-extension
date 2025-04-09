@@ -167,6 +167,7 @@ export enum ExtensionRequest {
   GASLESS_CREATE_OFFSCREEN = 'gasless_create_offscreen',
   GASLESS_CLOSE_OFFSCREEN = 'gasless_close_offscreen',
 
-  BALANCE_NOTIFICATION_SUBSCRIBE = 'balance_notification_subscribe',
-  BALANCE_NOTIFICATION_UNSUBSCRIBE = 'balance_notification_unsubscribe',
+  NOTIFICATION_SUBSCRIBE = 'notification_subscribe',
+  NOTIFICATION_UNSUBSCRIBE = 'notification_unsubscribe',
+  NOTIFICATION_GET_SUBSCRIPTIONS = 'notification_get_subscriptions',
 }

@@ -1,12 +1,13 @@
 import { singleton } from 'tsyringe';
-import { AccountsService } from '../../../accounts/AccountsService';
-import { AccountsEvents } from '../../../accounts/models';
-import { AppCheckService } from '../../../appcheck/AppCheckService';
+import { AccountsService } from '../accounts/AccountsService';
+import { AccountsEvents } from '../accounts/models';
+import { AppCheckService } from '../appcheck/AppCheckService';
 import { ChainId } from '@avalabs/core-chains-sdk';
 
 @singleton()
 export class BalanceNotificationService {
   #clientId?: string;
+  #subscribedAddresses: string[] = [];
 
   constructor(
     private appCheckService: AppCheckService,
@@ -31,7 +32,10 @@ export class BalanceNotificationService {
       .getAccountList()
       .map((account) => account.addressC);
 
-    if (!evmAddresses) {
+    if (
+      !evmAddresses.length ||
+      JSON.stringify(this.#subscribedAddresses) === JSON.stringify(evmAddresses)
+    ) {
       return;
     }
 
@@ -64,6 +68,8 @@ export class BalanceNotificationService {
     if (!response.ok) {
       throw new Error(response.statusText);
     }
+
+    this.#subscribedAddresses = evmAddresses;
   }
 
   async unsubscribe() {
@@ -91,5 +97,7 @@ export class BalanceNotificationService {
     if (!response.ok) {
       throw new Error(response.statusText);
     }
+
+    this.#subscribedAddresses = [];
   }
 }

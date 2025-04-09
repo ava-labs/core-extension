@@ -11,6 +11,7 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation } from 'react-i18next';
 import { useNotificationsContext } from '@src/contexts/NotificationsProvider';
+import { NotificationTypes } from '@src/background/services/notifications/models';
 
 export function Notifications({
   goBack,
@@ -18,11 +19,7 @@ export function Notifications({
   width,
 }: SettingsPageProps) {
   const { t } = useTranslation();
-  const {
-    isSubscribedToBalanceChanges,
-    subscribeToBalanceChanges,
-    unsubscribeFromBalanceChanges,
-  } = useNotificationsContext();
+  const { subscriptions, subscribe, unsubscribe } = useNotificationsContext();
 
   return (
     <Stack
@@ -58,13 +55,13 @@ export function Notifications({
           </Tooltip>
           <Switch
             size="small"
-            checked={isSubscribedToBalanceChanges}
+            checked={subscriptions[NotificationTypes.BALANCE_CHANGES]}
             onChange={async () => {
-              if (isSubscribedToBalanceChanges) {
-                await unsubscribeFromBalanceChanges();
+              if (subscriptions[NotificationTypes.BALANCE_CHANGES]) {
+                await unsubscribe(NotificationTypes.BALANCE_CHANGES);
+              } else {
+                await subscribe(NotificationTypes.BALANCE_CHANGES);
               }
-
-              await subscribeToBalanceChanges();
             }}
             sx={{
               ml: 'auto',

@@ -1,63 +1,83 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { SubscribeToBalanceNotifications } from '@src/background/services/notifications/notifications/balance/handlers/subscribeToBalanceNotifications';
-import { UnsubscribeFromBalanceNotifications } from '@src/background/services/notifications/notifications/balance/handlers/unsubscribeFromBalanceNotifications';
-import { createContext, useCallback, useContext, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useConnectionContext } from './ConnectionProvider';
+import { NotificationTypes } from '@src/background/services/notifications/models';
+import { SubscribeToNotification } from '@src/background/services/notifications/handlers/subscribe';
+import { GetNotificationSubscriptions } from '@src/background/services/notifications/handlers/getSubscriptions';
+import { UnsubscribeFromNotification } from '@src/background/services/notifications/handlers/unsubscribe';
 
 const NotificationsContext = createContext<{
-  isSubscribedToBalanceChanges: boolean;
-  subscribeToBalanceChanges(): Promise<void>;
-  unsubscribeFromBalanceChanges(): Promise<void>;
+  subscriptions: Record<NotificationTypes, boolean>;
+  subscribe(notificationType: NotificationTypes): Promise<void>;
+  unsubscribe(notificationType: NotificationTypes): Promise<void>;
 }>({
-  isSubscribedToBalanceChanges: true,
-  async subscribeToBalanceChanges() {},
-  async unsubscribeFromBalanceChanges() {},
+  subscriptions: {
+    [NotificationTypes.BALANCE_CHANGES]: true,
+    [NotificationTypes.PRICE_ALERTS]: true,
+  },
+  async subscribe() {},
+  async unsubscribe() {},
 });
 
 export function NotificationsContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
 
-  // TODO: handle multiple notification types here
-  // TODO: get subscription status from storage
-  const [isSubscribedToBalanceChanges, setIsSubscribedToBalanceChanges] =
-    useState(true);
+  const [subscriptions, setSubscriptions] = useState<
+    Record<NotificationTypes, boolean>
+  >({
+    [NotificationTypes.BALANCE_CHANGES]: true,
+    [NotificationTypes.PRICE_ALERTS]: true,
+  });
 
-  const subscribeToBalanceChanges = useCallback(async () => {
-    if (isSubscribedToBalanceChanges) {
-      return;
-    }
-
-    const result = await request<SubscribeToBalanceNotifications>({
-      method: ExtensionRequest.BALANCE_NOTIFICATION_SUBSCRIBE,
+  const syncSubscriptions = useCallback(async () => {
+    const result = await request<GetNotificationSubscriptions>({
+      method: ExtensionRequest.NOTIFICATION_GET_SUBSCRIPTIONS,
       params: [],
     });
 
-    if (result === true) {
-      setIsSubscribedToBalanceChanges(true);
-    }
-  }, [isSubscribedToBalanceChanges, request]);
+    setSubscriptions(result);
+  }, [request]);
 
-  const unsubscribeFromBalanceChanges = useCallback(async () => {
-    if (!isSubscribedToBalanceChanges) {
-      return;
-    }
+  const subscribe = useCallback(
+    async (notificationType: NotificationTypes) => {
+      await request<SubscribeToNotification>({
+        method: ExtensionRequest.NOTIFICATION_SUBSCRIBE,
+        params: notificationType,
+      });
 
-    const result = await request<UnsubscribeFromBalanceNotifications>({
-      method: ExtensionRequest.BALANCE_NOTIFICATION_UNSUBSCRIBE,
-      params: [],
-    });
+      await syncSubscriptions();
+    },
+    [request, syncSubscriptions],
+  );
 
-    if (result === true) {
-      setIsSubscribedToBalanceChanges(false);
-    }
-  }, [isSubscribedToBalanceChanges, request]);
+  const unsubscribe = useCallback(
+    async (notificationType: NotificationTypes) => {
+      await request<UnsubscribeFromNotification>({
+        method: ExtensionRequest.NOTIFICATION_UNSUBSCRIBE,
+        params: notificationType,
+      });
+
+      await syncSubscriptions();
+    },
+    [request, syncSubscriptions],
+  );
+
+  useEffect(() => {
+    syncSubscriptions();
+  }, [syncSubscriptions]);
 
   return (
     <NotificationsContext.Provider
       value={{
-        isSubscribedToBalanceChanges,
-        subscribeToBalanceChanges,
-        unsubscribeFromBalanceChanges,
+        subscriptions,
+        subscribe,
+        unsubscribe,
       }}
     >
       {children}
