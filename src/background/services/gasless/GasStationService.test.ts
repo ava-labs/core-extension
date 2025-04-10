@@ -103,11 +103,17 @@ describe('src/background/services/gasless/GasStationService', () => {
       networkFeeService,
     );
 
+    const serviceSpy = jest.spyOn(service, 'getEligibility');
     await service.getEligibility({ chainId: 'chainId' });
 
     expect(gaslessService.isEligibleForChain).toHaveBeenCalledWith({
       chainId: 'chainId',
     });
+    expect(serviceSpy).toHaveBeenCalledTimes(2);
+
+    await service.getEligibility({ chainId: 'chainId' });
+    expect(gaslessService.isEligibleForChain).toHaveBeenCalledTimes(1);
+    expect(serviceSpy).toHaveBeenCalledTimes(3);
   });
 
   it('should dispatch the modified state object', () => {

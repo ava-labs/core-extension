@@ -32,6 +32,12 @@ export class GasStationService {
   txHex = '';
   #attempt = 0;
   #sdk: GaslessSdk;
+  #eligibilityCache = {};
+  #waitingForEligibilityList: {
+    chainId: string;
+    fromAddress?: string;
+    nonce?: number;
+  }[] = [];
 
   constructor(
     private appCheckService: AppCheckService,
@@ -62,21 +68,63 @@ export class GasStationService {
     chainId,
     fromAddress,
     nonce,
+    index,
   }: {
     chainId: string;
     fromAddress?: string;
     nonce?: number;
+    index?: number;
   }) {
     const token = await this.#getAppcheckToken();
+    const chacheKey = `${chainId}${token}`;
+
+    if (this.#eligibilityCache[chacheKey] && !fromAddress && !nonce) {
+      return this.#eligibilityCache[chacheKey];
+    }
+
+    // handle the multiple eligibility requests
+    if (!index && index !== 0) {
+      const data = { chainId, fromAddress, nonce };
+      this.#waitingForEligibilityList.push(data);
+      console.log('he');
+      return await this.getEligibility({
+        ...data,
+        index: 0,
+      });
+    }
+
     if (!token) {
       throw new Error('Cannot get the Appcheck Token');
     }
     this.#sdk.setAppCheckToken(token);
-    return await this.#sdk.isEligibleForChain({
+    const eligibility = await this.#sdk.isEligibleForChain({
       chainId,
       from: fromAddress,
       nonce,
     });
+
+    // cache the result if there is only the chainId
+    // We only request the eligibility by chainId when we want to have a clue the user maybe can get the gas fee before we are actually get any transaction details
+    // TLDR; we want to know thisroughly before an actual transaction
+    if (!fromAddress && !nonce) {
+      this.#eligibilityCache = {
+        ...this.#eligibilityCache,
+        [chacheKey]: eligibility,
+      };
+    }
+
+    this.#waitingForEligibilityList.splice(index, 1);
+    const nextEligibilityCheckData = this.#waitingForEligibilityList[0];
+    if (nextEligibilityCheckData) {
+      return await this.getEligibility({
+        chainId: nextEligibilityCheckData.chainId,
+        fromAddress: nextEligibilityCheckData.fromAddress,
+        nonce: nextEligibilityCheckData.nonce,
+        index: 0,
+      });
+    }
+
+    return eligibility;
   }
 
   async setDefaultStateValues(value?: GaslessStateValues) {
