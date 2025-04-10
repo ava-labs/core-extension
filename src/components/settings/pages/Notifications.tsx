@@ -24,6 +24,18 @@ const NOTIFICATION_TYPE_DETAILS = {
     title: 'Balance',
     description: 'Wallet balance change alerts',
   },
+  [NewsNotificationTypes.PRODUCT_ANNOUNCEMENTS]: {
+    title: 'Product Announcements',
+    description: 'Learn about new features and changes',
+  },
+  [NewsNotificationTypes.OFFERS_AND_PROMOTIONS]: {
+    title: 'Offers and Promotions',
+    description: 'Airdrops and promotional offers',
+  },
+  [NewsNotificationTypes.MARKET_NEWS]: {
+    title: 'Market News',
+    description: 'News and market information alerts',
+  },
   [NewsNotificationTypes.PRICE_ALERTS]: {
     title: 'Price Alerts',
     description: 'Price alerts for your favorite tokens',
@@ -71,46 +83,40 @@ export function Notifications({
         title={t('Notifications')}
       />
       <List>
-        {Object.entries(NOTIFICATION_TYPE_DETAILS).map(
-          ([type, details]) =>
-            subscriptions[type] !== undefined && (
-              <ListItem data-testid={`notification-option-${type}`} key={type}>
-                <ListItemText
-                  sx={{ alignItems: 'center', flex: 'none' }}
-                  primaryTypographyProps={{ variant: 'body2' }}
-                >
-                  {details.title}
-                </ListItemText>
-                <Tooltip
-                  sx={{ ml: 0.5 }}
-                  PopperProps={{
-                    sx: {
-                      maxWidth: '240px',
-                    },
-                  }}
-                  title={t(details.description)}
-                >
-                  <InfoCircleIcon sx={{ cursor: 'pointer' }} size="16" />
-                </Tooltip>
-                <Switch
-                  size="small"
-                  checked={subscriptions[type]}
-                  onChange={(_, isChecked) => {
-                    subscriptions[type] = isChecked;
-                    handleSubscriptionChange(
-                      type as NotificationTypes,
-                      isChecked,
-                    );
-                  }}
-                  disabled={isLoading}
-                  sx={{
-                    ml: 'auto',
-                    cursor: isLoading ? 'not-allowed' : 'pointer',
-                  }}
-                />
-              </ListItem>
-            ),
-        )}
+        {Object.entries(NOTIFICATION_TYPE_DETAILS).map(([type, details]) => (
+          <ListItem data-testid={`notification-option-${type}`} key={type}>
+            <ListItemText
+              sx={{ alignItems: 'center', flex: 'none' }}
+              primaryTypographyProps={{ variant: 'body2' }}
+            >
+              {details.title}
+            </ListItemText>
+            <Tooltip
+              sx={{ ml: 0.5 }}
+              PopperProps={{
+                sx: {
+                  maxWidth: '240px',
+                },
+              }}
+              title={t(details.description)}
+            >
+              <InfoCircleIcon sx={{ cursor: 'pointer' }} size="16" />
+            </Tooltip>
+            <Switch
+              size="small"
+              checked={subscriptions[type]}
+              onChange={(_, isChecked) => {
+                subscriptions[type] = isChecked;
+                handleSubscriptionChange(type as NotificationTypes, isChecked);
+              }}
+              disabled={isLoading}
+              sx={{
+                ml: 'auto',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+              }}
+            />
+          </ListItem>
+        ))}
       </List>
     </Stack>
   );

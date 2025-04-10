@@ -8,6 +8,9 @@ export enum BalanceNotificationTypes {
 }
 
 export enum NewsNotificationTypes {
+  PRODUCT_ANNOUNCEMENTS = 'PRODUCT_ANNOUNCEMENTS',
+  OFFERS_AND_PROMOTIONS = 'OFFERS_AND_PROMOTIONS',
+  MARKET_NEWS = 'MARKET_NEWS',
   PRICE_ALERTS = 'PRICE_ALERTS',
 }
 

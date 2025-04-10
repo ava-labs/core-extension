@@ -23,6 +23,9 @@ const NotificationsContext = createContext<{
 }>({
   subscriptions: {
     [BalanceNotificationTypes.BALANCE_CHANGES]: true,
+    [NewsNotificationTypes.PRODUCT_ANNOUNCEMENTS]: true,
+    [NewsNotificationTypes.OFFERS_AND_PROMOTIONS]: true,
+    [NewsNotificationTypes.MARKET_NEWS]: true,
     [NewsNotificationTypes.PRICE_ALERTS]: true,
   },
   async subscribe() {},
@@ -36,6 +39,9 @@ export function NotificationsContextProvider({ children }: { children: any }) {
     Record<NotificationTypes, boolean>
   >({
     [BalanceNotificationTypes.BALANCE_CHANGES]: true,
+    [NewsNotificationTypes.PRODUCT_ANNOUNCEMENTS]: true,
+    [NewsNotificationTypes.OFFERS_AND_PROMOTIONS]: true,
+    [NewsNotificationTypes.MARKET_NEWS]: true,
     [NewsNotificationTypes.PRICE_ALERTS]: true,
   });
 

@@ -31,6 +31,9 @@ export const NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_DEFAULT_STATE: Notificat
 export const NOTIFICATIONS_NEWS_SUBSCRIPTION_DEFAULT_STATE: NotificationsNewsSubscriptionStorage =
   {
     [NewsNotificationTypes.PRICE_ALERTS]: true,
+    [NewsNotificationTypes.PRODUCT_ANNOUNCEMENTS]: true,
+    [NewsNotificationTypes.OFFERS_AND_PROMOTIONS]: true,
+    [NewsNotificationTypes.MARKET_NEWS]: true,
   };
 
 export const NOTIFICATION_CATEGORIES: Record<
