@@ -2,6 +2,10 @@ import { FunctionDeclaration, SchemaType } from '@google/generative-ai';
 
 export const functionDeclarations: FunctionDeclaration[] = [
   {
+    name: 'close',
+    description: `Close the chat window.`,
+  },
+  {
     name: 'send',
     description: `Send the specified amount of a token to the recepient address on the current network.`,
     parameters: {

@@ -553,7 +553,7 @@ describe('contexts/SwapProvider', () => {
       });
     });
 
-    fdescribe('when swapping non-native token', () => {
+    describe('when swapping non-native token', () => {
       let allowanceMock;
       let requestMock;
 

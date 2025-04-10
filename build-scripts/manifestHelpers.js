@@ -8,7 +8,6 @@ const set = require('lodash/set');
  * @property {string} actionDefaultTitle
  * @property {string} [oAuthClientId]
  * @property {string} [publicKey]
- * @property {string} [publicKey]
  */
 
 /**
@@ -17,14 +16,7 @@ const set = require('lodash/set');
  * @returns {function(Buffer): string} Replacer function
  */
 const transformManifestFiles =
-  ({
-    name,
-    shortName,
-    actionDefaultTitle,
-    oAuthClientId,
-    publicKey,
-    originTrialsPromptAPIKey,
-  }) =>
+  ({ name, shortName, actionDefaultTitle, oAuthClientId, publicKey }) =>
   (rawContent) => {
     const contentAsText = rawContent.toString();
     let parsed = JSON.parse(contentAsText);
@@ -50,13 +42,6 @@ const transformManifestFiles =
       } else {
         // Otherwise remove the `key` property from the manifest
         delete parsed.key;
-      }
-
-      if (originTrialsPromptAPIKey) {
-        parsed = set(parsed, 'trial_tokens', [originTrialsPromptAPIKey]);
-      } else {
-        // Otherwise remove the `trial_tokens` property from the manifest
-        delete parsed.trial_tokens;
       }
 
       return JSON.stringify(parsed, null, 2);

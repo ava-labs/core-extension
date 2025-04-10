@@ -50,6 +50,7 @@ export function Prompt() {
   const { accounts, selectAccount } = useAccountsContext();
   const { request } = useConnectionContext();
   const { swap, getRate } = useSwapContext();
+  const [isTyping, setIsTyping] = useState(false);
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
 
   const [prompts, setPrompts] = useState<
@@ -64,7 +65,7 @@ export function Prompt() {
     },
   ]);
 
-  const isTyping = prompts[prompts.length - 1]?.type === 'user';
+  // const isTyping = prompts[prompts.length - 1]?.type === 'user';
 
   const tokens = useTokensWithBalances();
   useEffect(() => {
@@ -75,8 +76,11 @@ export function Prompt() {
 
   const functions = useMemo(
     () => ({
+      close: async () => {
+        setIsDialogOpen(false);
+        return true;
+      },
       send: async ({ recepient, token, amount }) => {
-        console.log('SEND CALLED', { recepient, token, amount });
         if (!accounts.active) {
           throw new Error(`You don't have an active account`);
         }
@@ -212,7 +216,7 @@ export function Prompt() {
           );
         }
 
-        const result = await swap({
+        await swap({
           srcToken:
             srcToken.type === TokenType.ERC20
               ? srcToken.address
@@ -224,12 +228,11 @@ export function Prompt() {
           srcAmount: rate.optimalRate.srcAmount,
           priceRoute: rate.optimalRate,
           destAmount: rate.destAmount,
-          gasLimit: Number(rate.optimalRate.gasCost),
-          slippage: 0.15,
+          slippage: 0.1,
         });
 
         return {
-          content: `Swap successful. Successfully swapped ${amount}${srcToken.symbol} to ${rate.destAmount}${toToken.symbol}. Tx hash: ${result.swapTxHash}`,
+          content: `Swap successful. Successfully swapped ${amount}${srcToken.symbol} to ${rate.destAmount}${toToken.symbol}.`,
         };
       },
     }),
@@ -292,7 +295,6 @@ export function Prompt() {
   }, [tokens, network, contacts, accounts, networks]);
 
   const model = useMemo(() => {
-    console.log('SYSTEM PROMPT', systemPrompt);
     return genAI.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: {
@@ -317,6 +319,7 @@ export function Prompt() {
 
   const prompt = useCallback(
     async (message: string) => {
+      setIsTyping(true);
       setPrompts((prev) => {
         return [...prev, { type: 'user', content: message }];
       });
@@ -337,7 +340,6 @@ export function Prompt() {
         try {
           const apiResponse = await functions[call.name](call.args);
 
-          console.log('PROMPT apiResponse', apiResponse);
           // Send the API response back to the model so it can generate
           // a text response that can be displayed to the user.
           const result2 = await chat.sendMessage([
@@ -348,8 +350,6 @@ export function Prompt() {
               },
             },
           ]);
-          console.log('PROMPT result2', result2);
-
           // Log the text response.
           setPrompts((prev) => {
             return [
@@ -363,7 +363,6 @@ export function Prompt() {
               ? errorValues[e.code]?.message || 'Unkown error happened'
               : e.toString();
 
-          console.log('PROMPT ERROR', errorMessage);
           // Send the API response back to the model so it can generate
           // a text response that can be displayed to the user.
           const errorResult = await chat.sendMessage([
@@ -390,6 +389,7 @@ export function Prompt() {
           return [...prev, { type: 'system', content: result.response.text() }];
         });
       }
+      setIsTyping(false);
     },
     [functions, model],
   );
@@ -399,17 +399,17 @@ export function Prompt() {
       <PromptButton
         onClick={() => {
           setIsDialogOpen(true);
+          setIsTyping(false);
         }}
       />
       <Grow in={isDialogOpen}>
-        <Backdrop sx={{ zIndex: 2000 }} open>
+        <Backdrop sx={{ zIndex: 1051 }} open>
           <PromptBackground hasAnimation />
           <Stack
             sx={{
               width: '375px',
               height: '568px',
               m: 2,
-              p: 2,
               overflow: 'hidden',
               position: 'relative',
               backgroundColor: 'background.paper',
@@ -420,7 +420,7 @@ export function Prompt() {
               sx={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                pb: 2,
+                p: 2,
               }}
             >
               <Typography variant="h4">{t('Core AI Assistant')}</Typography>
@@ -439,8 +439,8 @@ export function Prompt() {
                 <XIcon size={24} sx={{ color: 'primary.main' }} />
               </Button>
             </Stack>
-            <Stack sx={{ flexGrow: 1 }}>
-              <Scrollbars ref={scrollbarRef}>
+            <Scrollbars ref={scrollbarRef}>
+              <Stack sx={{ p: 2, flexGrow: 1 }}>
                 {prompts.map((message, i) => {
                   if (message.type === 'system') {
                     return <AIDialog message={message} key={i} />;
@@ -448,9 +448,11 @@ export function Prompt() {
                   return <UserDialog message={message} key={i} />;
                 })}
                 {isTyping && <TypingAvatar />}
-              </Scrollbars>
+              </Stack>
+            </Scrollbars>
+            <Stack sx={{ p: 2 }}>
+              <UserInput input={input} setInput={setInput} prompt={prompt} />
             </Stack>
-            <UserInput input={input} setInput={setInput} prompt={prompt} />
           </Stack>
         </Backdrop>
       </Grow>

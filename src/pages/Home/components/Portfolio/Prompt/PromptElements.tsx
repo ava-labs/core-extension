@@ -49,7 +49,7 @@ export const AIDialog = ({ message }) => {
 export const UserDialog = ({ message }) => {
   const theme = useTheme();
   return (
-    <Box
+    <Stack
       sx={{
         backgroundColor: theme.palette.common.white,
         py: 1,
@@ -59,13 +59,13 @@ export const UserDialog = ({ message }) => {
         width: 'fit-content',
         borderRadius: '20px',
         borderTopRightRadius: '3px',
-        justifySelf: 'flex-end',
+        alignSelf: 'flex-end',
         wordWrap: 'break-word',
         color: theme.palette.grey[900],
       }}
     >
       <Typography>{message.content}</Typography>
-    </Box>
+    </Stack>
   );
 };
 

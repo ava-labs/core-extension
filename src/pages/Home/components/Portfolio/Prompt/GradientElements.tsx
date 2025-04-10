@@ -9,18 +9,18 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const promptBackgroundAnimation = keyframes`
- to {
-		--angle: 360deg;
+  to {
+	  --angle: 360deg;
 	}
 `;
 
 const promptButtonBackgroundAnimation = keyframes`
-    0% {
+  0% {
 		background-position: 0% 50%;
 	}
 	50% {
 		background-position: 100% 100%;
-        --angle2: 90deg;
+    --angle2: 90deg;
 	}
 	100% {
 		background-position: 0% 50%;
@@ -28,22 +28,22 @@ const promptButtonBackgroundAnimation = keyframes`
 `;
 
 const promptTextAnimation = keyframes`
-    0% {
+  0% {
     opacity: 0;
     transform: translate3d(25%, 0px, 0px);
-}
-20% {
+  }
+  20% {
     opacity: 1;
     transform: translate3d(0px, 0px, 0px);
-}
-80% {
+  }
+  80% {
     opacity: 1;
     transform: translate3d(0px, 0px, 0px);
-}
-100% {
+  }
+  100% {
     opacity: 0;
     transform: translate3d(25%, 0px, 0px);
-}
+  }
 `;
 
 const TextAnimation = styled('span')`
@@ -149,7 +149,7 @@ export const PromptButton = ({ onClick }) => {
     <PromptStack onClick={onClick}>
       <PromptButtonBackground hasAnimation />
       <PromptButtonStyled size="medium">
-        <Box component="span" sx={{ mr: 1 }}>
+        <Box component="span" sx={{ mr: 1, fontSize: 24 }}>
           ✨
         </Box>
         <TextAnimation>{buttonLabels[index]}</TextAnimation>
@@ -160,15 +160,15 @@ export const PromptButton = ({ onClick }) => {
 
 export const PromptBackground = styled(Stack)(({ hasAnimation }: any) => ({
   background: `conic-gradient(
-      from var(--angle),
-      #000000 0deg,
-      #B0FF18 50deg,
-      #A1FF68 100deg,
-      #26F2FF 140deg,
-      #7748FF 180deg,
-      #FF048C 220deg,
-      #000000 270deg
-    )`,
+    from var(--angle),
+    #000000 0deg,
+    #B0FF18 50deg,
+    #A1FF68 100deg,
+    #26F2FF 140deg,
+    #7748FF 180deg,
+    #FF048C 220deg,
+    #000000 270deg
+  )`,
   opacity: 0.2,
   position: 'absolute',
   top: 0,
