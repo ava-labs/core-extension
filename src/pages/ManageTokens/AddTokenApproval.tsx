@@ -1,4 +1,4 @@
-import { ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useApproveAction } from '@src/hooks/useApproveAction';
@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
-import { AddCustomTokenData } from '@src/background/services/settings/models';
+import { AddCustomTokenData } from 'packages/service-worker/src/services/settings/models';
 
 export function AddTokenApproval() {
   const { t } = useTranslation();

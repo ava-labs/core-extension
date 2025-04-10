@@ -1,4 +1,4 @@
-import { Transaction } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import { Transaction } from 'packages/service-worker/src/services/wallet/handlers/eth_sendTransaction/models';
 
 export function getToAddressesFromTransaction(transaction: Transaction): {
   to?: string;

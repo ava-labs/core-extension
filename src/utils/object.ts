@@ -1,4 +1,4 @@
-import { EnsureDefined, ExcludeUndefined } from '@src/background/models';
+import { EnsureDefined, ExcludeUndefined } from 'packages/service-worker/src/models';
 
 export const omitUndefined = <T extends Record<PropertyKey, unknown>>(obj: T) =>
   Object.fromEntries(

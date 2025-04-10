@@ -3,12 +3,12 @@ import { GoogleColorIcon, Button } from '@avalabs/core-k2-components';
 import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,
-} from '@src/background/services/onboarding/models';
+} from 'packages/service-worker/src/services/onboarding/models';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTranslation } from 'react-i18next';
 import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
-import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
+import { SeedlessAuthProvider } from 'packages/service-worker/src/services/wallet/models';
 import { authenticateWithGoogle } from '@src/utils/seedless/authenticateWithGoogle';
 
 export interface SeedlesButton {

@@ -26,16 +26,16 @@ import {
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { isBitcoinNetwork } from 'packages/service-worker/src/services/network/utils/isBitcoinNetwork';
 import { openNewTab } from '@src/utils/extensionUtils';
 import { getCoreWebUrl } from '@src/utils/getCoreWebUrl';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { isPchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalanchePchainNetwork';
 import { PAndL } from '@src/components/common/ProfitAndLoss';
 import { hasUnconfirmedBalance } from '@src/utils/hasUnconfirmedBalance';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { NotSupportedByWallet } from '@src/components/common/NotSupportedByWallet';
-import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
-import { getUnconfirmedBalanceInCurrency } from '@src/background/services/balances/models';
+import { isXchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalancheXchainNetwork';
+import { getUnconfirmedBalanceInCurrency } from 'packages/service-worker/src/services/balances/models';
 import { isTokenMalicious } from '@src/utils/isTokenMalicious';
 import { MaliciousTokenWarningBox } from '@src/components/common/MaliciousTokenWarning';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';

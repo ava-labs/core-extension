@@ -1,5 +1,5 @@
-import { Account } from '@src/background/services/accounts/models';
-import { Balances } from '@src/background/services/balances/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
+import { Balances } from 'packages/service-worker/src/services/balances/models';
 import getAllAddressesForAccount from './getAllAddressesForAccount';
 
 export function hasAccountBalances(

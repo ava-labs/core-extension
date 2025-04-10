@@ -1,9 +1,9 @@
 import * as Sentry from '@sentry/react';
-import sharedSentryConfig from './sharedSentryConfig';
+import { Monitoring } from '@avalabs/core-ext-common';
 
 if (process.env.SENTRY_DSN) {
   Sentry.init({
-    ...sharedSentryConfig,
+    ...Monitoring.sharedSentryConfig,
     integrations: [
       /**
        * eliminating dom and history from the breadcrumbs. This should eliminate

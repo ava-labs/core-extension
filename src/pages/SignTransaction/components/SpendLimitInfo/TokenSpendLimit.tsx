@@ -16,8 +16,8 @@ import {
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { UpdateActionTxDataHandler } from 'packages/service-worker/src/services/actions/handlers/updateTxData';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',

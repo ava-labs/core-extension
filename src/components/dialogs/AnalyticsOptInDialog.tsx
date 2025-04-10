@@ -10,7 +10,7 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 
 import { TypographyLink } from '@src/pages/Onboarding/components/TypographyLink';
-import { AnalyticsConsent } from '@src/background/services/settings/models';
+import { AnalyticsConsent } from 'packages/service-worker/src/services/settings/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useAnalyticsConsentCallbacks } from '@src/hooks/useAnalyticsConsentCallbacks';
 

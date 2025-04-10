@@ -1,9 +1,9 @@
 import { filter } from 'rxjs';
 import { createContext, useCallback, useContext, useReducer } from 'react';
 
-import { WalletConnectImportAccount } from '@src/background/services/walletConnect/handlers/walletConnectImportAccount';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { isUriGeneratedEvent } from '@src/background/services/walletConnect/events/eventFilters';
+import { WalletConnectImportAccount } from 'packages/service-worker/src/services/walletConnect/handlers/walletConnectImportAccount';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { isUriGeneratedEvent } from 'packages/service-worker/src/services/walletConnect/events/eventFilters';
 
 import {
   AccountImportState,

@@ -5,7 +5,7 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
+import { isNftTokenType } from 'packages/service-worker/src/services/balances/nft/utils/isNFT';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useTranslation } from 'react-i18next';
 import { ActivityCardProp } from './ActivityCard';

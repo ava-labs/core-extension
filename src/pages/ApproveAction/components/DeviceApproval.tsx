@@ -2,8 +2,8 @@ import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 
-import { Action, ActionStatus } from '@src/background/services/actions/models';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { Action, ActionStatus } from 'packages/service-worker/src/services/actions/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 

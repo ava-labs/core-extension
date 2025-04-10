@@ -7,7 +7,7 @@ import {
 
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@src/monitoring/sentryCaptureException';
+} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
 
 import { getSignerToken } from '@src/utils/seedless/getSignerToken';
 import {
@@ -23,8 +23,8 @@ import {
   AuthErrorCode,
   MfaRequestType,
   RecoveryMethod,
-} from '@src/background/services/seedless/models';
-import { mapMfasToRecoveryMethods } from '@src/background/services/seedless/utils';
+} from 'packages/service-worker/src/services/seedless/models';
+import { mapMfasToRecoveryMethods } from 'packages/service-worker/src/services/seedless/utils';
 
 export enum AuthStep {
   NotInitialized,

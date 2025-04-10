@@ -1,7 +1,7 @@
 import {
   ExtensionConnectionEvent,
   RequestHandlerType,
-} from '@src/background/connections/models';
+} from 'packages/service-worker/src/connections/models';
 import {
   createContext,
   useCallback,
@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { Observable, Subject } from 'rxjs';
 import browser, { Runtime } from 'webextension-polyfill';
-import { EXTENSION_SCRIPT } from '@src/common';
+import { EXTENSION_SCRIPT } from 'packages/common/src/script-names';
 import { requestEngine } from '@src/contexts/utils/connectionResponseMapper';
 import { Signal, ValueCache } from 'micro-signals';
 import { LoadingContent } from '@src/popup/LoadingContent';

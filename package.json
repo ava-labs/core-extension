@@ -22,6 +22,9 @@
     "scanner": "i18next-scanner --config i18next-scanner.config.js",
     "sentry": "node sentryscript.js"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {
     "@avalabs/avalanche-module": "1.6.2",
     "@avalabs/avalanchejs": "4.2.0-alpha.1",

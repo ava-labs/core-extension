@@ -6,7 +6,7 @@ import {
   ImportedPrivateKeyAccount,
   PrimaryAccount,
   WalletConnectAccount,
-} from '@src/background/services/accounts/models';
+} from 'packages/service-worker/src/services/accounts/models';
 
 describe('src/utils/shouldUseWalletConnectApproval.ts', () => {
   const network = {

@@ -29,7 +29,7 @@ import { SendEVM } from './components/SendEVM';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useHistory } from 'react-router-dom';
-import { Network } from '@src/background/services/network/models';
+import { Network } from 'packages/service-worker/src/services/network/models';
 import { SendBTC } from './components/SendBTC';
 import { LoadingSendForm } from './components/LoadingSendForm';
 import { SendPVM } from './components/SendPVM';

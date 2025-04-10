@@ -1,5 +1,5 @@
-import { Network } from '@src/background/services/network/models';
-import { Account } from '@src/background/services/accounts/models';
+import { Network } from 'packages/service-worker/src/services/network/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
 import {
   AvmCapableAccount,
   PvmCapableAccount,
@@ -15,7 +15,7 @@ import {
   TokenWithBalanceSPL,
   TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
-import { NetworkFee } from '@src/background/services/networkFee/models';
+import { NetworkFee } from 'packages/service-worker/src/services/networkFee/models';
 
 export type SendPageProps<Provider, Token, Tokens> = {
   network: Network;

@@ -1,15 +1,15 @@
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useCallback, useEffect, useState } from 'react';
 import * as H from 'history';
 import {
   NavigationHistoryDataState,
   NavigationHistoryState,
-} from '@src/background/services/navigationHistory/models';
-import { SetNavigationHistoryDataHandler } from '@src/background/services/navigationHistory/handlers/setNavigationHistoryData';
-import { GetNavigationHistoryHandler } from '@src/background/services/navigationHistory/handlers/getNavigationHistory';
-import { SetNavigationHistoryHandler } from '@src/background/services/navigationHistory/handlers/setNavigationHistory';
-import { GetNavigationHistoryDataHandler } from '@src/background/services/navigationHistory/handlers/getNavigationHistoryData';
+} from 'packages/service-worker/src/services/navigationHistory/models';
+import { SetNavigationHistoryDataHandler } from 'packages/service-worker/src/services/navigationHistory/handlers/setNavigationHistoryData';
+import { GetNavigationHistoryHandler } from 'packages/service-worker/src/services/navigationHistory/handlers/getNavigationHistory';
+import { SetNavigationHistoryHandler } from 'packages/service-worker/src/services/navigationHistory/handlers/setNavigationHistory';
+import { GetNavigationHistoryDataHandler } from 'packages/service-worker/src/services/navigationHistory/handlers/getNavigationHistoryData';
 
 export function usePageHistory() {
   const { request } = useConnectionContext();

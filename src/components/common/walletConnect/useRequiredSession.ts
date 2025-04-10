@@ -6,13 +6,13 @@ import {
   isSessionPermissionsMismatchEvent,
   isUriGeneratedEvent,
   isWalletConnectEvent,
-} from '@src/background/services/walletConnect/events/eventFilters';
-import { EstablishRequiredSession } from '@src/background/services/walletConnect/handlers/establishRequiredSession';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+} from 'packages/service-worker/src/services/walletConnect/events/eventFilters';
+import { EstablishRequiredSession } from 'packages/service-worker/src/services/walletConnect/handlers/establishRequiredSession';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import {
   WalletConnectEventType,
   WalletConnectSessionInfo,
-} from '@src/background/services/walletConnect/models';
+} from 'packages/service-worker/src/services/walletConnect/models';
 
 export const useRequiredSession = () => {
   const { tabId, events, request } = useConnectionContext();

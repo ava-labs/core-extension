@@ -7,9 +7,9 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SettingsPages } from '@src/components/settings/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
-import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
+import { isPchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalanchePchainNetwork';
+import { isXchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalancheXchainNetwork';
+import { isSolanaNetwork } from 'packages/service-worker/src/services/network/utils/isSolanaNetwork';
 
 type AddressDropdownListProps = {
   contacts: Contact[];

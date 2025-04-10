@@ -8,23 +8,23 @@ import {
   useState,
 } from 'react';
 
-import { NetworkFee } from '@src/background/services/networkFee/models';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { GetNetworkFeeHandler } from '@src/background/services/networkFee/handlers/getNetworkFee';
+import { NetworkFee } from 'packages/service-worker/src/services/networkFee/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { GetNetworkFeeHandler } from 'packages/service-worker/src/services/networkFee/handlers/getNetworkFee';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { chainIdToCaip } from '@src/utils/caipConversion';
+import { chainIdToCaip } from '@avalabs/core-ext-utils/src/caipConversion';
 
 import { useNetworkContext } from './NetworkProvider';
-import { FundTxHandler } from '@src/background/services/gasless/handlers/fundTx';
-import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/handlers/getGaslessEligibility';
-import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallenge';
+import { FundTxHandler } from 'packages/service-worker/src/services/gasless/handlers/fundTx';
+import { GetGaslessEligibilityHandler } from 'packages/service-worker/src/services/gasless/handlers/getGaslessEligibility';
+import { FetchAndSolveChallengeHandler } from 'packages/service-worker/src/services/gasless/handlers/fetchAndSolveChallenge';
 import { filter, map } from 'rxjs';
-import { gaslessChallangeUpdateEventListener } from '@src/background/services/gasless/events/gaslessChallangeUpdateListener';
+import { gaslessChallangeUpdateEventListener } from 'packages/service-worker/src/services/gasless/events/gaslessChallangeUpdateListener';
 import { AddressLike } from 'ethers';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
-import { GaslessPhase } from '@src/background/services/gasless/model';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
+import { SetDefaultStateValuesHandler } from 'packages/service-worker/src/services/gasless/handlers/setDefaultStateValues';
+import { GaslessPhase } from 'packages/service-worker/src/services/gasless/model';
 import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
 
 const NetworkFeeContext = createContext<{

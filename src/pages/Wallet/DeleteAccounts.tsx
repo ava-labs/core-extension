@@ -6,7 +6,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { useApproveAction } from '@src/hooks/useApproveAction';
-import { ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import {
   ApprovalSection,
@@ -14,10 +14,10 @@ import {
   ApprovalSectionHeader,
 } from '@src/components/common/approval/ApprovalSection';
 import { WebsiteDetails } from '../SignTransaction/components/ApprovalTxDetails';
-import type { DomainMetadata } from '@src/background/models';
+import type { DomainMetadata } from 'packages/service-worker/src/models';
 import { truncateAddress } from '@src/utils/truncateAddress';
-import type { DeleteAccountsDisplayData } from '@src/background/services/accounts/handlers/avalanche_deleteAccounts';
-import { AccountType } from '@src/background/services/accounts/models';
+import type { DeleteAccountsDisplayData } from 'packages/service-worker/src/services/accounts/handlers/avalanche_deleteAccounts';
+import { AccountType } from 'packages/service-worker/src/services/accounts/models';
 
 export function DeleteAccount() {
   const { t } = useTranslation();

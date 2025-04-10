@@ -13,7 +13,7 @@ import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import { useDialog } from '@src/contexts/DialogContextProvider';
 import { LedgerDisconnected } from '@src/pages/Ledger/LedgerDisconnected';
 import { LedgerIncorrectApp } from '@src/pages/Ledger/LedgerIncorrectApp';
-import { isEthereumNetwork } from '@src/background/services/network/utils/isEthereumNetwork';
+import { isEthereumNetwork } from 'packages/service-worker/src/services/network/utils/isEthereumNetwork';
 
 export function useLedgerDisconnectedDialog(
   onCancel: () => void,

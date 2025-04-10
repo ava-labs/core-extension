@@ -1,6 +1,6 @@
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { Account, AccountType } from '@src/background/services/accounts/models';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { Account, AccountType } from 'packages/service-worker/src/services/accounts/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 describe('utils/getAddressForChain', () => {
   const account1: Account = {

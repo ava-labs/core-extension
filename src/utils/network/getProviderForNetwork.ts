@@ -8,7 +8,7 @@ import {
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { FetchRequest, Network as EthersNetwork } from 'ethers';
 
-import { Network } from '@src/background/services/network/models';
+import { Network } from 'packages/service-worker/src/services/network/models';
 
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 

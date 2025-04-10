@@ -9,7 +9,7 @@ import { TokenUnit } from '@avalabs/core-utils-sdk';
 import {
   FeeRate,
   NetworkFee,
-} from '@src/background/services/networkFee/models';
+} from 'packages/service-worker/src/services/networkFee/models';
 import {
   Button,
   ChevronDownIcon,
@@ -30,8 +30,8 @@ import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { CustomGasSettings } from './CustomGasSettings';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import GaslessFee from './GaslessFee';
-import { GaslessPhase } from '@src/background/services/gasless/model';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { GaslessPhase } from 'packages/service-worker/src/services/gasless/model';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { TruncateFeeAmount } from './TruncateFeeAmount';
 

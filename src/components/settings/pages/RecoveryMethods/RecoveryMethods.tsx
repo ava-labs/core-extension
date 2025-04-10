@@ -8,7 +8,7 @@ import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvid
 import {
   RecoveryMethodFido,
   RecoveryMethodType,
-} from '@src/background/services/seedless/models';
+} from 'packages/service-worker/src/services/seedless/models';
 import { KeyType } from '@src/utils/seedless/fido/types';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 

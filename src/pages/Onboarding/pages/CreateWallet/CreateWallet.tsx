@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { createNewMnemonic } from '@src/background/services/wallet/utils/createMnemonicPhrase';
+import { createNewMnemonic } from 'packages/service-worker/src/services/wallet/utils/createMnemonicPhrase';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { ConfirmPhrase } from './ConfirmPhrase';
 import { CopyPhrase } from './CopyPhrase';
@@ -7,7 +7,7 @@ import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,
   OnboardingURLs,
-} from '@src/background/services/onboarding/models';
+} from 'packages/service-worker/src/services/onboarding/models';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { WalletType } from '@avalabs/types';

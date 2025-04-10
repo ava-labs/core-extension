@@ -1,0 +1,6 @@
+{
+  "name": "@avalabs/core-ext-messaging",
+  "packageManager": "yarn@4.7.0",
+  "main": "src/index.ts",
+  "private": true
+}

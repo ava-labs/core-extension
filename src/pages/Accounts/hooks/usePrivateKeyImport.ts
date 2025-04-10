@@ -3,8 +3,8 @@ import { utils } from '@avalabs/avalanchejs';
 
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@src/monitoring/sentryCaptureException';
-import { ImportType } from '@src/background/services/accounts/models';
+} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
+import { ImportType } from 'packages/service-worker/src/services/accounts/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 export const usePrivateKeyImport = () => {

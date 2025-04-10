@@ -6,9 +6,9 @@ import { SeedlesButton } from './GoogleButton';
 import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,
-} from '@src/background/services/onboarding/models';
+} from 'packages/service-worker/src/services/onboarding/models';
 import { authenticateWithApple } from '@src/utils/seedless/authenticateWithApple';
-import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
+import { SeedlessAuthProvider } from 'packages/service-worker/src/services/wallet/models';
 import { useSeedlessActions } from '@src/pages/Onboarding/hooks/useSeedlessActions';
 
 export function AppleButton({ setIsLoading }: SeedlesButton) {

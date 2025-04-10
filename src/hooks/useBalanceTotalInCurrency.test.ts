@@ -1,4 +1,4 @@
-import { Account, AccountType } from '@src/background/services/accounts/models';
+import { Account, AccountType } from 'packages/service-worker/src/services/accounts/models';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { renderHook } from '@testing-library/react-hooks';
 import { useBalanceTotalInCurrency } from './useBalanceTotalInCurrency';

@@ -7,12 +7,12 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 
-import { CurrencyExchangeRates } from '@src/background/services/currency/models';
-import { currencyRatesUpdatedEventListener } from '@src/background/services/currency/events/listeners';
+import { CurrencyExchangeRates } from 'packages/service-worker/src/services/currency/models';
+import { currencyRatesUpdatedEventListener } from 'packages/service-worker/src/services/currency/events/listeners';
 
 import { useConnectionContext } from './ConnectionProvider';
-import { GetCurrencyExchangeRatesHandler } from '@src/background/services/currency/handlers/getCurrencyExchangeRates';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { GetCurrencyExchangeRatesHandler } from 'packages/service-worker/src/services/currency/handlers/getCurrencyExchangeRates';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 
 type CurrencyConversionOptions = {
   from: string;

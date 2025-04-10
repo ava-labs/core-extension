@@ -5,7 +5,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
+import { SeedlessAuthProvider } from 'packages/service-worker/src/services/wallet/models';
 
 type Props = {
   provider?: SeedlessAuthProvider;

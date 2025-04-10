@@ -24,10 +24,10 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 
-import { AccountType } from '@src/background/services/accounts/models';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { AccountType } from 'packages/service-worker/src/services/accounts/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import { useScopedToast } from '@src/hooks/useScopedToast';
-import { isPrimaryAccount } from '@src/background/services/accounts/utils/typeGuards';
+import { isPrimaryAccount } from 'packages/service-worker/src/services/accounts/utils/typeGuards';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';

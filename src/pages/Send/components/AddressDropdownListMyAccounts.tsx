@@ -13,12 +13,12 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { SettingsPages } from '@src/components/settings/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
-import { WalletId } from '@src/background/services/accounts/models';
+import { WalletId } from 'packages/service-worker/src/services/accounts/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { isPchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalanchePchainNetwork';
 import { useMemo } from 'react';
-import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
-import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
+import { isXchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalancheXchainNetwork';
+import { isSolanaNetwork } from 'packages/service-worker/src/services/network/utils/isSolanaNetwork';
 
 export type MyAccountContact = {
   id: string;

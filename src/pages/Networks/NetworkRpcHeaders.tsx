@@ -12,8 +12,8 @@ import { useTranslation } from 'react-i18next';
 import {
   CustomRpcHeaders,
   PLACEHOLDER_RPC_HEADERS,
-} from '@src/background/services/network/models';
-import { isValidHttpHeader } from '@src/background/services/network/utils/isValidHttpHeader';
+} from 'packages/service-worker/src/services/network/models';
+import { isValidHttpHeader } from 'packages/service-worker/src/services/network/utils/isValidHttpHeader';
 
 type Props = {
   isReadOnly: boolean;

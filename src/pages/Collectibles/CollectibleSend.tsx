@@ -14,7 +14,7 @@ import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
-import { Network } from '@src/background/services/network/models';
+import { Network } from 'packages/service-worker/src/services/network/models';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';

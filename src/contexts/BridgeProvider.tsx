@@ -11,18 +11,18 @@ import {
   WrapStatus,
 } from '@avalabs/core-bridge-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { isBridgeStateUpdateEventListener } from '@src/background/services/bridge/events/listeners';
-import { BridgeCreateTransactionHandler } from '@src/background/services/bridge/handlers/createBridgeTransaction';
-import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
-import { BridgeRemoveTransactionHandler } from '@src/background/services/bridge/handlers/removeBridgeTransaction';
-import { BridgeSetIsDevEnvHandler } from '@src/background/services/bridge/handlers/setIsDevEnv';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { isBridgeStateUpdateEventListener } from 'packages/service-worker/src/services/bridge/events/listeners';
+import { BridgeCreateTransactionHandler } from 'packages/service-worker/src/services/bridge/handlers/createBridgeTransaction';
+import { BridgeGetStateHandler } from 'packages/service-worker/src/services/bridge/handlers/getBridgeState';
+import { BridgeRemoveTransactionHandler } from 'packages/service-worker/src/services/bridge/handlers/removeBridgeTransaction';
+import { BridgeSetIsDevEnvHandler } from 'packages/service-worker/src/services/bridge/handlers/setIsDevEnv';
 import {
   BridgeState,
   DefaultBridgeState,
   PartialBridgeTransaction,
-} from '@src/background/services/bridge/models';
-import { filterBridgeStateToNetwork } from '@src/background/services/bridge/utils';
+} from 'packages/service-worker/src/services/bridge/models';
+import { filterBridgeStateToNetwork } from 'packages/service-worker/src/services/bridge/utils';
 import Big from 'big.js';
 import {
   createContext,

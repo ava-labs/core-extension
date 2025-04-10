@@ -9,12 +9,12 @@ import {
   GlobeIcon,
 } from '@avalabs/core-k2-components';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { Account } from '@src/background/services/accounts/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
-import { ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useTranslation } from 'react-i18next';
 import {
@@ -26,10 +26,10 @@ import { AlertDialog } from './components/AlertDialog';
 import { AlertBox } from './components/AlertBox';
 import { WarningBox } from './components/WarningBox';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import { BlockaidData, useDAppScan } from '@src/hooks/useDAppScan';
 import { mapAddressesToVMs } from '@src/utils/address';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 export function PermissionsPage() {

@@ -4,7 +4,7 @@ import {
   TextField,
   Typography,
 } from '@avalabs/core-k2-components';
-import { AuthErrorCode } from '@src/background/services/seedless/models';
+import { AuthErrorCode } from 'packages/service-worker/src/services/seedless/models';
 import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { useTotpErrorMessage } from '@src/hooks/useTotpErrorMessage';
 import { useState } from 'react';

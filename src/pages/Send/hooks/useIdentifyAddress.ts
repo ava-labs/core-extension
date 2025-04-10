@@ -4,10 +4,10 @@ import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useCallback } from 'react';
 import { isBitcoin } from '@src/utils/isBitcoin';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { isPchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalanchePchainNetwork';
+import { isXchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalancheXchainNetwork';
 import { correctAddressByPrefix } from '../utils/correctAddressByPrefix';
-import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
+import { isSolanaNetwork } from 'packages/service-worker/src/services/network/utils/isSolanaNetwork';
 
 const UNSAVED_CONTACT_BASE = {
   id: '',

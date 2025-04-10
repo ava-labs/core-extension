@@ -6,7 +6,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { DefiPerpetualItem } from '@src/background/services/defi/models';
+import { DefiPerpetualItem } from 'packages/service-worker/src/services/defi/models';
 
 import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';
 import { DefiTokenAvatarGroup } from './DefiTokenAvatarGroup';

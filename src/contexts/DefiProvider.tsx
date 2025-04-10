@@ -7,10 +7,10 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 
-import { DefiPortfolio } from '@src/background/services/defi/models';
-import { GetDefiPortfolioHandler } from '@src/background/services/defi/handlers/getDefiPortfolio';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { defiPortfolioUpdatedEventListener } from '@src/background/services/defi/events/listeners';
+import { DefiPortfolio } from 'packages/service-worker/src/services/defi/models';
+import { GetDefiPortfolioHandler } from 'packages/service-worker/src/services/defi/handlers/getDefiPortfolio';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { defiPortfolioUpdatedEventListener } from 'packages/service-worker/src/services/defi/events/listeners';
 
 import { useAccountsContext } from './AccountsProvider';
 import { useConnectionContext } from './ConnectionProvider';

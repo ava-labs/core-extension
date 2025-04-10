@@ -21,7 +21,7 @@ import { Redirect } from 'react-router-dom';
 import { usePersistedTabs } from '@src/hooks/usePersistedTabs';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { FAB } from '@src/components/common/fab/FAB';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 
 export enum PortfolioTabs {
   ASSETS,

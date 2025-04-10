@@ -1,4 +1,4 @@
-import { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
+import { WalletConnectSessionInfo } from 'packages/service-worker/src/services/walletConnect/models';
 
 export type WalletConnectUri = `wc:${string}`;
 

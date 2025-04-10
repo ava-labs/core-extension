@@ -19,11 +19,11 @@ import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { LedgerApprovalDialog } from '@src/pages/SignTransaction/components/LedgerApprovalDialog';
 
-import { AccountType } from '@src/background/services/accounts/models';
+import { AccountType } from 'packages/service-worker/src/services/accounts/models';
 import { useScopedToast } from '@src/hooks/useScopedToast';
 import { NetworkSwitcher } from '@src/components/common/header/NetworkSwitcher';
 import { Overlay } from '@src/components/common/Overlay';
-import { isPrimaryAccount } from '@src/background/services/accounts/utils/typeGuards';
+import { isPrimaryAccount } from 'packages/service-worker/src/services/accounts/utils/typeGuards';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';

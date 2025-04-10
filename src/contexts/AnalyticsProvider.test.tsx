@@ -1,5 +1,5 @@
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { AnalyticsEvents } from '@src/background/services/analytics/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { AnalyticsEvents } from 'packages/service-worker/src/services/analytics/models';
 import { fireEvent, render, screen } from '@src/tests/test-utils';
 import { Subject } from 'rxjs';
 import {
@@ -8,7 +8,7 @@ import {
 } from './AnalyticsProvider';
 import { useConnectionContext } from './ConnectionProvider';
 import { useSettingsContext } from './SettingsProvider';
-import { AnalyticsConsent } from '@src/background/services/settings/models';
+import { AnalyticsConsent } from 'packages/service-worker/src/services/settings/models';
 
 const renderWithAnalytics = (ui, { ...renderOptions }) => {
   return render(

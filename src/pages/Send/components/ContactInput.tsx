@@ -20,13 +20,13 @@ import { ContainedDropdown } from '@src/components/common/ContainedDropdown';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { isBitcoin } from '@src/utils/isBitcoin';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { isPchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalanchePchainNetwork';
+import { isXchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalancheXchainNetwork';
 import {
   isValidAvmAddress,
   isValidPvmAddress,
 } from '@src/utils/isAddressValid';
-import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
+import { isSolanaNetwork } from 'packages/service-worker/src/services/network/utils/isSolanaNetwork';
 
 const truncateName = (name: string) => {
   if (name.length < 28) return name;

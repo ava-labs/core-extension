@@ -6,7 +6,7 @@ import {
 import { toast } from '@avalabs/core-k2-components';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { useHistory } from 'react-router-dom';
-import { OnboardingURLs } from '@src/background/services/onboarding/models';
+import { OnboardingURLs } from 'packages/service-worker/src/services/onboarding/models';
 import {
   requestOidcAuth,
   getOidcClient,
@@ -22,13 +22,13 @@ import {
   useState,
 } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
+import { SeedlessAuthProvider } from 'packages/service-worker/src/services/wallet/models';
 import { getSignerToken } from '@src/utils/seedless/getSignerToken';
 import { RecoveryMethodTypes } from '../pages/Seedless/models';
 import { launchFidoFlow } from '@src/utils/seedless/fido/launchFidoFlow';
 import { FIDOApiEndpoint, KeyType } from '@src/utils/seedless/fido/types';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 
 type OidcTokenGetter = () => Promise<string>;
 type GetAuthButtonCallbackOptions = {

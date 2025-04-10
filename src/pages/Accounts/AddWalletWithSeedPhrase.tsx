@@ -20,7 +20,7 @@ import {
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 
-import { Account } from '@src/background/services/accounts/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
@@ -29,7 +29,7 @@ import { useConvertedCurrencyFormatter } from '../DeFi/hooks/useConvertedCurrenc
 
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@src/monitoring/sentryCaptureException';
+} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
 import { NameYourWallet } from './components/NameYourWallet';
 import { useImportSeedphrase } from './hooks/useImportSeedphrase';
 import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';

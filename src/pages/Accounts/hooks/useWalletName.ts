@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { SecretType } from '@src/background/services/secrets/models';
+import { SecretType } from 'packages/service-worker/src/services/secrets/models';
 
 export const useWalletName = () => {
   const { t } = useTranslation();

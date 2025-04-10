@@ -11,7 +11,7 @@ import {
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { CURRENCIES } from '@src/background/services/settings/models';
+import { CURRENCIES } from 'packages/service-worker/src/services/settings/models';
 import { TFunction, useTranslation } from 'react-i18next';
 import { StyledListButton } from '../components/StyledListItemButton';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';

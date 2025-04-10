@@ -9,7 +9,7 @@ import { bigToLocaleString } from '@avalabs/core-utils-sdk';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { bigintToBig } from '@src/utils/bigintToBig';
-import { AvalancheChainStrings } from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+import { AvalancheChainStrings } from 'packages/service-worker/src/services/wallet/handlers/eth_sendTransaction/models';
 
 export function AddDelegator({
   tx,

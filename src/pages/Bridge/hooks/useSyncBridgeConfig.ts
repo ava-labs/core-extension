@@ -1,8 +1,8 @@
 import { useBridgeConfigUpdater, useBridgeSDK } from '@avalabs/core-bridge-sdk';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { isBridgeStateUpdateEventListener } from '@src/background/services/bridge/events/listeners';
-import { BridgeGetConfigHandler } from '@src/background/services/bridge/handlers/getBridgeConfig';
-import { networkUpdatedEventListener } from '@src/background/services/network/events/networkUpdatedEventListener';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { isBridgeStateUpdateEventListener } from 'packages/service-worker/src/services/bridge/events/listeners';
+import { BridgeGetConfigHandler } from 'packages/service-worker/src/services/bridge/handlers/getBridgeConfig';
+import { networkUpdatedEventListener } from 'packages/service-worker/src/services/network/events/networkUpdatedEventListener';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useCallback, useEffect } from 'react';
 import { filter } from 'rxjs';

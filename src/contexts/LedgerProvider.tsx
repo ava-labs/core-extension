@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import { resolve } from '@src/utils/promiseResolver';
 import {
@@ -29,11 +29,11 @@ import {
 } from 'ledger-bitcoin';
 
 import Transport from '@ledgerhq/hw-transport';
-import { ledgerDiscoverTransportsEventListener } from '@src/background/services/ledger/events/ledgerDiscoverTransportsEventListener';
-import { LedgerEvent } from '@src/background/services/ledger/models';
-import { LedgerResponseHandler } from '@src/background/services/ledger/handlers/ledgerResponse';
-import { InitLedgerTransportHandler } from '@src/background/services/ledger/handlers/initLedgerTransport';
-import { RemoveLedgerTransportHandler } from '@src/background/services/ledger/handlers/removeLedgerTransport';
+import { ledgerDiscoverTransportsEventListener } from 'packages/service-worker/src/services/ledger/events/ledgerDiscoverTransportsEventListener';
+import { LedgerEvent } from 'packages/service-worker/src/services/ledger/models';
+import { LedgerResponseHandler } from 'packages/service-worker/src/services/ledger/handlers/ledgerResponse';
+import { InitLedgerTransportHandler } from 'packages/service-worker/src/services/ledger/handlers/initLedgerTransport';
+import { RemoveLedgerTransportHandler } from 'packages/service-worker/src/services/ledger/handlers/removeLedgerTransport';
 import {
   DerivationPath,
   getLedgerAppInfo,
@@ -41,10 +41,10 @@ import {
   getPubKeyFromTransport,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
-import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
-import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
-import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
-import { lockStateChangedEventListener } from '@src/background/services/lock/events/lockStateChangedEventListener';
+import { CloseLedgerTransportHandler } from 'packages/service-worker/src/services/ledger/handlers/closeOpenTransporters';
+import { GetLedgerVersionWarningHandler } from 'packages/service-worker/src/services/ledger/handlers/getLedgerVersionWarning';
+import { LedgerVersionWarningClosedHandler } from 'packages/service-worker/src/services/ledger/handlers/setLedgerVersionWarningClosed';
+import { lockStateChangedEventListener } from 'packages/service-worker/src/services/lock/events/lockStateChangedEventListener';
 import { VM } from '@avalabs/avalanchejs';
 import Eth from '@ledgerhq/hw-app-eth';
 

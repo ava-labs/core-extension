@@ -15,8 +15,8 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { ActionStatus } from '@src/background/services/actions/models';
-import { MessageType } from '@src/background/services/messages/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
+import { MessageType } from 'packages/service-worker/src/services/messages/models';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
@@ -30,7 +30,7 @@ import { SignDataV3 } from './components/SignDataV3';
 import { SignDataV4 } from './components/SignDataV4';
 import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
 import { useIsIntersecting } from './hooks/useIsIntersecting';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
 import { useLedgerDisconnectedDialog } from '@src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { LedgerAppType } from '@src/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/components/LedgerApprovalOverlay';
@@ -45,7 +45,7 @@ import {
 } from '@src/hooks/useIsFunctionAvailable';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { AccountType } from '@src/background/services/accounts/models';
+import { AccountType } from 'packages/service-worker/src/services/accounts/models';
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { MaliciousTxAlert } from '@src/components/common/MaliciousTxAlert';
 import { TxWarningBox } from '@src/components/common/TxWarningBox';

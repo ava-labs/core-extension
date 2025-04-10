@@ -1,4 +1,4 @@
-import { deserializeFromJSON } from '@src/background/serialization/deserialize';
+import { deserializeFromJSON } from '@avalabs/core-ext-messaging/src/serialization/deserialize';
 import { isDevelopment } from '@src/utils/environment';
 import { requestLog, responseLog } from '@src/utils/logging';
 import { firstValueFrom, Subject } from 'rxjs';
@@ -9,13 +9,13 @@ import {
   isConnectionResponse,
   isConnectionEvent,
   ExtensionConnectionEvent,
-} from '../../background/connections/models';
-import { serializeToJSON } from '@src/background/serialization/serialize';
+} from '../../../packages/service-worker/src/connections/models';
+import { serializeToJSON } from '@avalabs/core-ext-messaging/src/serialization/serialize';
 import {
   JsonRpcRequest,
   JsonRpcRequestPayload,
-} from '@src/background/connections/dAppConnection/models';
-import { PartialBy } from '@src/background/models';
+} from 'packages/service-worker/src/connections/dAppConnection/models';
+import { PartialBy } from 'packages/service-worker/src/models';
 
 const responseMap = new Map<
   string,

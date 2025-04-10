@@ -1,6 +1,6 @@
-import { initializeProvider } from './background/providers/initializeInpageProvider';
-import onPageActivated from './background/providers/utils/onPageActivated';
-import AutoPairingPostMessageConnection from './background/utils/messaging/AutoPairingPostMessageConnection';
+import { initializeProvider } from '../packages/inpage/src/initializeInpageProvider';
+import onPageActivated from '../packages/utils/src/onPageActivated';
+import AutoPairingPostMessageConnection from '../packages/messaging/src/AutoPairingPostMessageConnection';
 
 const shouldInjectProvider = () => {
   return doctypeCheck() && suffixCheck() && documentElementCheck();

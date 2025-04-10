@@ -14,7 +14,7 @@ import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency'
 import { truncateAddress } from '@src/utils/truncateAddress';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { getAddressByVMType } from '@src/utils/address';
-import { Account } from '@src/background/services/accounts/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
 
 const renderValue = (account: Account, vmType: NetworkVMType) => (
   <Typography

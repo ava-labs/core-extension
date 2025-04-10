@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { filter } from 'rxjs';
 
-import { isApprovalRequest } from '@src/background/services/approvals/events/approvalEventFilters';
-import { ApprovalRequest } from '@src/background/services/approvals/models';
-import { isActionsUpdate } from '@src/background/services/actions/events/actionEventFilters';
+import { isApprovalRequest } from 'packages/service-worker/src/services/approvals/events/approvalEventFilters';
+import { ApprovalRequest } from 'packages/service-worker/src/services/approvals/models';
+import { isActionsUpdate } from 'packages/service-worker/src/services/actions/events/actionEventFilters';
 
 import { useConnectionContext } from './ConnectionProvider';
 

@@ -12,12 +12,12 @@ import { PageTitle } from '@src/components/common/PageTitle';
 import { Trans, useTranslation } from 'react-i18next';
 import { useHistory, useParams } from 'react-router-dom';
 import { FireblocksAvatar } from './components/FireblocksAvatar';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useCallback, useState } from 'react';
 import { TextFieldLabel } from '@src/components/common/TextFieldLabel';
 import { LoadingOverlay } from '@src/components/common/LoadingOverlay';
-import { FireblocksUpdateApiCredentialsHandler } from '@src/background/services/fireblocks/handlers/fireblocksUpdateApiCredentials';
+import { FireblocksUpdateApiCredentialsHandler } from 'packages/service-worker/src/services/fireblocks/handlers/fireblocksUpdateApiCredentials';
 import { useFireblocksErrorMessage } from './hooks/useFireblocksErrorMessage';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 

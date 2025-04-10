@@ -12,7 +12,7 @@ import {
   getEvmAddressFromPubKey,
   getPublicKeyFromPrivateKey,
 } from '@avalabs/core-wallets-sdk';
-import { Account } from '@src/background/services/accounts/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';

@@ -18,7 +18,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { AccountType } from '@src/background/services/accounts/models';
+import { AccountType } from 'packages/service-worker/src/services/accounts/models';
 
 export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();

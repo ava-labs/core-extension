@@ -4,13 +4,13 @@ import { formatDistanceToNow } from 'date-fns';
 
 import { isProductionBuild } from '@src/utils/environment';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { InitRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/initRecoveryPhraseExport';
-import { CompleteRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/completeRecoveryPhraseExport';
-import { GetRecoveryPhraseExportStateHandler } from '@src/background/services/seedless/handlers/getRecoveryPhraseExportState';
-import { CancelRecoveryPhraseExportHandler } from '@src/background/services/seedless/handlers/cancelRecoveryPhraseExport';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { InitRecoveryPhraseExportHandler } from 'packages/service-worker/src/services/seedless/handlers/initRecoveryPhraseExport';
+import { CompleteRecoveryPhraseExportHandler } from 'packages/service-worker/src/services/seedless/handlers/completeRecoveryPhraseExport';
+import { GetRecoveryPhraseExportStateHandler } from 'packages/service-worker/src/services/seedless/handlers/getRecoveryPhraseExportState';
+import { CancelRecoveryPhraseExportHandler } from 'packages/service-worker/src/services/seedless/handlers/cancelRecoveryPhraseExport';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedlessAnalytics';
+import { SeedlessExportAnalytics } from 'packages/service-worker/src/services/seedless/seedlessAnalytics';
 
 export enum ExportState {
   Loading,

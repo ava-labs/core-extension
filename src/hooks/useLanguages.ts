@@ -1,7 +1,7 @@
 import {
   LanguageLinks,
   Languages,
-} from '@src/background/services/settings/models';
+} from 'packages/service-worker/src/services/settings/models';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useTranslation } from 'react-i18next';
 

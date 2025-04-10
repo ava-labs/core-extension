@@ -3,8 +3,8 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useEffect, useState } from 'react';
-import { MigrateMissingPublicKeysFromLedgerHandler } from '@src/background/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { MigrateMissingPublicKeysFromLedgerHandler } from 'packages/service-worker/src/services/ledger/handlers/migrateMissingPublicKeysFromLedger';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 const useIsIncorrectDevice = () => {

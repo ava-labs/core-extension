@@ -1,4 +1,4 @@
-import { ExtensionConnectionMessage } from '@src/background/connections/models';
+import { ExtensionConnectionMessage } from 'packages/service-worker/src/connections/models';
 import { Observable, tap } from 'rxjs';
 import { isDevelopment } from './environment';
 export const repeat = (str, times) => new Array(times + 1).join(str);

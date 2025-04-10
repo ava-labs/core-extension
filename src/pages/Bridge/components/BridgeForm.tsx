@@ -31,9 +31,9 @@ import { isNativeAsset } from '@avalabs/bridge-unified';
 
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
-import { NavigationHistoryDataState } from '@src/background/services/navigationHistory/models';
+import { NavigationHistoryDataState } from 'packages/service-worker/src/services/navigationHistory/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
@@ -44,9 +44,9 @@ import { NetworkSelector } from './NetworkSelector';
 import { findMatchingBridgeAsset } from '../utils/findMatchingBridgeAsset';
 import { BridgeTypeFootnote } from './BridgeTypeFootnote';
 import { BridgeOptions } from '../models';
-import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { isBitcoinNetwork } from 'packages/service-worker/src/services/network/utils/isBitcoinNetwork';
 import { CustomFees } from '@src/components/common/CustomFees';
-import { NetworkFee } from '@src/background/services/networkFee/models';
+import { NetworkFee } from 'packages/service-worker/src/services/networkFee/models';
 
 export type BridgeFormProps = ReturnType<typeof useBridge> & {
   isPending: boolean;

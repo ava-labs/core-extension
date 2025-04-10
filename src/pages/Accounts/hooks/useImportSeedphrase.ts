@@ -3,10 +3,10 @@ import { useCallback, useState } from 'react';
 import {
   ImportSeedphraseWalletParams,
   ImportWalletResult,
-} from '@src/background/services/wallet/handlers/models';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+} from 'packages/service-worker/src/services/wallet/handlers/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { ImportSeedPhraseHandler } from '@src/background/services/wallet/handlers/importSeedPhrase';
+import { ImportSeedPhraseHandler } from 'packages/service-worker/src/services/wallet/handlers/importSeedPhrase';
 
 type ImportWalletFn = (
   params: ImportSeedphraseWalletParams,

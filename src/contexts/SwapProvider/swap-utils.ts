@@ -13,7 +13,7 @@ import {
   WrappedError,
 } from '@src/utils/errors';
 import { resolve } from '@src/utils/promiseResolver';
-import { RequestHandlerType } from '@src/background/connections/models';
+import { RequestHandlerType } from 'packages/service-worker/src/connections/models';
 import { SwapError } from '@src/pages/Swap/hooks/useSwap';
 
 import {

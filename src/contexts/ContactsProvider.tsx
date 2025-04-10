@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import {
   createContext,
   useCallback,
@@ -8,13 +8,13 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
-import { ContactsState } from '@src/background/services/contacts/models';
+import { ContactsState } from 'packages/service-worker/src/services/contacts/models';
 import type { Contact } from '@avalabs/types';
-import { contactsUpdatedEventListener } from '@src/background/services/contacts/events/listeners';
-import { GetContactsHandler } from '@src/background/services/contacts/handlers/getContacts';
-import { CreateContactHandler } from '@src/background/services/contacts/handlers/createContact';
-import { UpdateContactHandler } from '@src/background/services/contacts/handlers/updateContact';
-import { RemoveContactHandler } from '@src/background/services/contacts/handlers/removeContact';
+import { contactsUpdatedEventListener } from 'packages/service-worker/src/services/contacts/events/listeners';
+import { GetContactsHandler } from 'packages/service-worker/src/services/contacts/handlers/getContacts';
+import { CreateContactHandler } from 'packages/service-worker/src/services/contacts/handlers/createContact';
+import { UpdateContactHandler } from 'packages/service-worker/src/services/contacts/handlers/updateContact';
+import { RemoveContactHandler } from 'packages/service-worker/src/services/contacts/handlers/removeContact';
 
 type ContactsFromProvider = ContactsState & {
   createContact(contact: Contact): Promise<any>;

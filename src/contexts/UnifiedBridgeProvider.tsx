@@ -27,14 +27,14 @@ import {
 } from '@avalabs/bridge-unified';
 import { filter, map } from 'rxjs';
 
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import {
   UNIFIED_BRIDGE_DEFAULT_STATE,
   UnifiedBridgeError,
   UnifiedBridgeState,
-} from '@src/background/services/unifiedBridge/models';
-import { UnifiedBridgeGetState } from '@src/background/services/unifiedBridge/handlers';
-import { isUnifiedBridgeStateUpdate } from '@src/background/services/unifiedBridge/events/eventFilters';
+} from 'packages/service-worker/src/services/unifiedBridge/models';
+import { UnifiedBridgeGetState } from 'packages/service-worker/src/services/unifiedBridge/handlers';
+import { isUnifiedBridgeStateUpdate } from 'packages/service-worker/src/services/unifiedBridge/events/eventFilters';
 
 import { useNetworkContext } from './NetworkProvider';
 import { useConnectionContext } from './ConnectionProvider';
@@ -42,19 +42,19 @@ import { CommonError } from '@src/utils/errors';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { useAccountsContext } from './AccountsProvider';
-import { UnifiedBridgeTrackTransfer } from '@src/background/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
+import { UnifiedBridgeTrackTransfer } from 'packages/service-worker/src/services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 import { lowerCaseKeys } from '@src/utils/lowerCaseKeys';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { isBitcoinCaipId } from '@src/utils/caipConversion';
-import { Account } from '@src/background/services/accounts/models';
+import { isBitcoinCaipId } from '@avalabs/core-ext-utils/src/caipConversion';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
 import { getEnabledBridgeTypes } from '@src/utils/getEnabledBridgeTypes';
 import {
   SupportedProvider,
   getProviderForNetwork,
 } from '@src/utils/network/getProviderForNetwork';
 import { assert } from '@src/utils/assertions';
-import { BridgeGetStateHandler } from '@src/background/services/bridge/handlers/getBridgeState';
-import { isBridgeStateUpdateEventListener } from '@src/background/services/bridge/events/listeners';
+import { BridgeGetStateHandler } from 'packages/service-worker/src/services/bridge/handlers/getBridgeState';
+import { isBridgeStateUpdateEventListener } from 'packages/service-worker/src/services/bridge/events/listeners';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(

@@ -3,7 +3,7 @@ import { Stack, SxProps } from '@avalabs/core-k2-components';
 import {
   PrimaryAccount,
   WalletId,
-} from '@src/background/services/accounts/models';
+} from 'packages/service-worker/src/services/accounts/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 
 import { WalletContainer } from './WalletContainer';

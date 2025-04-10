@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { EnterPassword } from './EnterPassword';
 import { ShowPrivateKey } from './ShowPrivateKey';
 import { Stack, useTheme } from '@avalabs/core-k2-components';
-import { GetPrivateKeyHandler } from '@src/background/services/accounts/handlers/getPrivateKey';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { GetPrivateKeyHandler } from 'packages/service-worker/src/services/accounts/handlers/getPrivateKey';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useLocation } from 'react-router-dom';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
@@ -11,11 +11,11 @@ import {
   AccountType,
   GetPrivateKeyErrorTypes,
   PrivateKeyChain,
-} from '@src/background/services/accounts/models';
+} from 'packages/service-worker/src/services/accounts/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useTranslation } from 'react-i18next';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { SecretType } from '@src/background/services/secrets/models';
+import { SecretType } from 'packages/service-worker/src/services/secrets/models';
 
 export function ExportPrivateKey() {
   const theme = useTheme();

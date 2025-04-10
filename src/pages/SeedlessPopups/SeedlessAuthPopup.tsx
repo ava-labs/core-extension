@@ -4,8 +4,8 @@ import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { AuthStep, useSeedlessAuth } from '@src/hooks/useSeedlessAuth';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { UpdateSignerTokenHandler } from '@src/background/services/seedless/handlers/updateSignerToken';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { UpdateSignerTokenHandler } from 'packages/service-worker/src/services/seedless/handlers/updateSignerToken';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { getOidcTokenProvider } from '@src/utils/seedless/getOidcTokenProvider';
@@ -14,7 +14,7 @@ import { TOTPChallenge } from '@src/components/common/seedless/components/TOTPCh
 import { AuthenticationError } from '@src/components/common/seedless/components/AuthenticationError';
 import { WaitingForAuthentication } from '@src/components/common/seedless/components/WaitingForAuthentication';
 import { FIDOChallenge } from '@src/components/common/seedless/components/FIDOChallenge';
-import { AuthErrorCode } from '@src/background/services/seedless/models';
+import { AuthErrorCode } from 'packages/service-worker/src/services/seedless/models';
 import { MfaChoicePrompt } from '@src/components/common/seedless/components/MfaChoicePrompt';
 
 const FATAL_ERRORS = [

@@ -1,11 +1,11 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { Account } from '@src/background/services/accounts/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
 import {
   isFireblocksAccount,
   isWalletConnectAccount,
-} from '@src/background/services/accounts/utils/typeGuards';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
-import isFireblocksApiSupported from '@src/background/services/fireblocks/utils/isFireblocksApiSupported';
+} from 'packages/service-worker/src/services/accounts/utils/typeGuards';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
+import isFireblocksApiSupported from 'packages/service-worker/src/services/fireblocks/utils/isFireblocksApiSupported';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import useIsUsingSeedlessAccount from './useIsUsingSeedlessAccount';
@@ -13,13 +13,13 @@ import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import {
   isPchainNetwork,
   isPchainNetworkId,
-} from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+} from 'packages/service-worker/src/services/network/utils/isAvalanchePchainNetwork';
 import {
   isXchainNetwork,
   isXchainNetworkId,
-} from '@src/background/services/network/utils/isAvalancheXchainNetwork';
-import { isEthereumNetwork } from '@src/background/services/network/utils/isEthereumNetwork';
-import { isAvalancheNetwork } from '@src/background/services/network/utils/isAvalancheNetwork';
+} from 'packages/service-worker/src/services/network/utils/isAvalancheXchainNetwork';
+import { isEthereumNetwork } from 'packages/service-worker/src/services/network/utils/isEthereumNetwork';
+import { isAvalancheNetwork } from 'packages/service-worker/src/services/network/utils/isAvalancheNetwork';
 
 export enum FunctionNames {
   BRIDGE = 'Bridge',

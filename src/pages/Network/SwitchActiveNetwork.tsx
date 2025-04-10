@@ -10,7 +10,7 @@ import { Network } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
 
 import { TokenIcon } from '@src/components/common/TokenIcon';
-import { ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import useWillSwitchToPrimaryAccount from '@src/hooks/useWillSwitchToPrimaryAccount';
 

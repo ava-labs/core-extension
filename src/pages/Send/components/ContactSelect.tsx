@@ -21,14 +21,14 @@ import {
   AddressDropdownListMyAccounts,
   MyAccountContacts,
 } from './AddressDropdownListMyAccounts';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
-import { isNonXPHistoryItem } from '@src/background/services/history/utils/isTxHistoryItem';
+import { isPchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalanchePchainNetwork';
+import { isNonXPHistoryItem } from 'packages/service-worker/src/services/history/utils/isTxHistoryItem';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
 import { indexOf } from 'lodash';
-import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
-import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { isBitcoinNetwork } from 'packages/service-worker/src/services/network/utils/isBitcoinNetwork';
+import { isXchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalancheXchainNetwork';
 import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
-import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
+import { isSolanaNetwork } from 'packages/service-worker/src/services/network/utils/isSolanaNetwork';
 
 interface ContactSelectProps {
   selectedContact?: Contact;

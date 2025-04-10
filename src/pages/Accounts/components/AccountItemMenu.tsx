@@ -13,8 +13,8 @@ import {
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { Account } from '@src/background/services/accounts/models';
-import { SecretType } from '@src/background/services/secrets/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
+import { SecretType } from 'packages/service-worker/src/services/secrets/models';
 
 import { usePrivateKeyExport } from '../hooks/usePrivateKeyExport';
 import { useAccountManager } from '../providers/AccountManagerProvider';
