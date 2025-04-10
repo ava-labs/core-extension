@@ -5,9 +5,10 @@ import {
   getMessaging,
   MessagePayload,
   onBackgroundMessage,
+  isSupported as isSupportedBrowserByFcm,
 } from 'firebase/messaging/sw';
 import { singleton } from 'tsyringe';
-import { FcmMessageEvents, FirebaseEvents, FcmMessageListener } from './models';
+import { FirebaseEvents, FcmMessageListener } from './models';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
@@ -22,13 +23,14 @@ export class FirebaseService {
   #fcmToken?: string;
   #firebaseEventEmitter = new EventEmitter();
   #fcmMessageEventEmitter = new EventEmitter();
+  #fcmMessageHandlers: Record<string, (payload: MessagePayload) => void> = {};
 
   constructor(private featureFlagService: FeatureFlagService) {
     if (!process.env.FIREBASE_CONFIG) {
       throw new Error('FIREBASE_CONFIG is missing');
     }
 
-    if (!isSupportedBrowser()) {
+    if (!isSupportedBrowser() || !isSupportedBrowserByFcm()) {
       return;
     }
 
@@ -65,8 +67,6 @@ export class FirebaseService {
               serviceWorkerRegistration: globalThis.registration,
             });
 
-            console.log(this.#fcmToken);
-
             this.#isFcmInitialized = true;
             this.#firebaseEventEmitter.emit(FirebaseEvents.FCM_INITIALIZED);
             return;
@@ -97,14 +97,19 @@ export class FirebaseService {
     this.#firebaseEventEmitter.on(event, callback);
   }
 
-  addFcmMessageListener(event: FcmMessageEvents, listener: FcmMessageListener) {
+  addFcmMessageListener(event: string, listener: FcmMessageListener) {
+    if (this.#fcmMessageHandlers[event]) {
+      throw new Error(`Message handler for event ${event} already exists`);
+    }
+
     this.#fcmMessageEventEmitter.on(event, listener);
+    this.#fcmMessageHandlers[event] = listener;
   }
 
   async #handleMessage(payload: MessagePayload) {
     const event = payload.data?.event ?? '';
 
-    if (Object.values(FcmMessageEvents).includes(event as FcmMessageEvents)) {
+    if (this.#fcmMessageHandlers[event]) {
       this.#fcmMessageEventEmitter.emit(event, payload);
     }
   }

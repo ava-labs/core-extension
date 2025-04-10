@@ -1,6 +1,7 @@
 import { singleton } from 'tsyringe';
 import { AppCheckService } from '../appcheck/AppCheckService';
 import {
+  NewsNotificationTypes,
   NotificationsNewsSubscriptionStorage,
   NotificationTypes,
 } from './models';
@@ -10,6 +11,9 @@ import {
   NOTIFICATIONS_NEWS_SUBSCRIPTION_DEFAULT_STATE,
   NOTIFICATIONS_NEWS_SUBSCRIPTION_STORAGE_KEY,
 } from './constants';
+import { FirebaseService } from '../firebase/FirebaseService';
+import { MessagePayload } from 'firebase/messaging';
+import { sendNotification } from './handlers/utils/sendNotification';
 
 @singleton()
 export class NewsNotificationService {
@@ -18,15 +22,19 @@ export class NewsNotificationService {
   constructor(
     private appCheckService: AppCheckService,
     private storageService: StorageService,
+    private firebaseService: FirebaseService,
   ) {}
 
   async init(clientId: string) {
     this.#clientId = clientId;
-    // when to subscribe first time?
-  }
 
-  async getSubscriptions() {
-    return this.#getSubscriptionStateFromStorage();
+    for (const event of Object.values(NewsNotificationTypes)) {
+      this.firebaseService.addFcmMessageListener(event, (payload) =>
+        this.#handleMessage(payload),
+      );
+    }
+
+    // when to subscribe first time?
   }
 
   async #getSubscriptionStateFromStorage() {
@@ -44,6 +52,17 @@ export class NewsNotificationService {
       NOTIFICATIONS_NEWS_SUBSCRIPTION_STORAGE_KEY,
       subscriptions,
     );
+  }
+
+  #handleMessage(payload: MessagePayload) {
+    return sendNotification({
+      payload,
+      allowedEvents: NOTIFICATION_CATEGORIES.NEWS,
+    });
+  }
+
+  async getSubscriptions() {
+    return this.#getSubscriptionStateFromStorage();
   }
 
   async subscribe(
@@ -72,7 +91,7 @@ export class NewsNotificationService {
       (await this.appCheckService.getAppcheckToken()) ?? {};
 
     if (!appcheckToken) {
-      throw new Error('appcheck token is missing');
+      throw new Error('AppCheck token is missing');
     }
 
     const response = await fetch(
@@ -112,7 +131,7 @@ export class NewsNotificationService {
       (await this.appCheckService.getAppcheckToken()) ?? {};
 
     if (!appcheckToken) {
-      throw new Error('appcheck token is missing');
+      throw new Error('AppCheck token is missing');
     }
 
     const response = await fetch(

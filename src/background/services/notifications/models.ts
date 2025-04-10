@@ -33,3 +33,11 @@ export type NotificationsNewsSubscriptionStorage = Record<
   NewsNotificationTypes,
   boolean
 >;
+
+export type NotificationPayload = {
+  data: {
+    title: string;
+    body: string;
+    event: NotificationTypes;
+  };
+};

@@ -5,6 +5,7 @@ import { AppCheckService } from '../appcheck/AppCheckService';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { StorageService } from '../storage/StorageService';
 import {
+  NOTIFICATION_CATEGORIES,
   NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_DEFAULT_STATE,
   NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_STORAGE_KEY,
 } from './constants';
@@ -12,6 +13,9 @@ import {
   BalanceNotificationTypes,
   NotificationsBalanceChangesSubscriptionStorage,
 } from './models';
+import { FirebaseService } from '../firebase/FirebaseService';
+import { MessagePayload } from 'firebase/messaging';
+import { sendNotification } from './handlers/utils/sendNotification';
 
 @singleton()
 export class BalanceNotificationService {
@@ -21,10 +25,15 @@ export class BalanceNotificationService {
     private appCheckService: AppCheckService,
     private accountService: AccountsService,
     private storageService: StorageService,
+    private firebaseService: FirebaseService,
   ) {}
 
   async init(clientId: string) {
     this.#clientId = clientId;
+
+    for (const event of Object.values(BalanceNotificationTypes)) {
+      this.firebaseService.addFcmMessageListener(event, this.#handleMessage);
+    }
 
     await this.subscribe();
 
@@ -58,6 +67,13 @@ export class BalanceNotificationService {
       NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_STORAGE_KEY,
       { isSubscribed, addresses, chainIds },
     );
+  }
+
+  #handleMessage(payload: MessagePayload) {
+    return sendNotification({
+      payload,
+      allowedEvents: NOTIFICATION_CATEGORIES.BALANCE_CHANGES,
+    });
   }
 
   async subscribe() {
