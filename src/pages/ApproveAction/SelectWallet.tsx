@@ -1,4 +1,4 @@
-import { ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';

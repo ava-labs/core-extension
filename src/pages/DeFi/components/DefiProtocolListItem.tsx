@@ -11,7 +11,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 
-import { DefiProtocol } from '@src/background/services/defi/models';
+import { DefiProtocol } from 'packages/service-worker/src/services/defi/models';
 import { openNewTab } from '@src/utils/extensionUtils';
 
 import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';

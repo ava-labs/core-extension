@@ -22,12 +22,12 @@ import { getAddressFromXPub } from '@avalabs/core-wallets-sdk';
 import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
 import { DerivedAddresses } from '../../components/DerivedAddresses';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,
   OnboardingURLs,
-} from '@src/background/services/onboarding/models';
+} from 'packages/service-worker/src/services/onboarding/models';
 import { useHistory } from 'react-router-dom';
 import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 import { WalletType } from '@avalabs/types';

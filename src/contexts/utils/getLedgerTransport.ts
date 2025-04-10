@@ -3,7 +3,7 @@ import { resolve } from '../../utils/promiseResolver';
 import Transport from '@ledgerhq/hw-transport';
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@src/monitoring/sentryCaptureException';
+} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
 
 export async function getLedgerTransport(): Promise<Transport | null> {
   const [usbTransport, error] = await resolve(TransportWebUSB.openConnected());

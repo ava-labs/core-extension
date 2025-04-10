@@ -23,7 +23,7 @@ import {
   useSeedlessMnemonicExport,
 } from '@src/hooks/useSeedlessMnemonicExport';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedlessAnalytics';
+import { SeedlessExportAnalytics } from 'packages/service-worker/src/services/seedless/seedlessAnalytics';
 
 import { SettingsHeader } from '../SettingsHeader';
 import { SettingsPageProps } from '../models';

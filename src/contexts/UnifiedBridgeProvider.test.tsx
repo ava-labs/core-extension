@@ -19,13 +19,13 @@ import {
   UnifiedBridgeProvider,
   useUnifiedBridgeContext,
 } from './UnifiedBridgeProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { chainIdToCaip } from '@src/utils/caipConversion';
+import { chainIdToCaip } from '@avalabs/core-ext-utils/src/caipConversion';
 import { CommonError } from '@src/utils/errors';
-import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
+import { UnifiedBridgeError } from 'packages/service-worker/src/services/unifiedBridge/models';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
 

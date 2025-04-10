@@ -1,7 +1,7 @@
 import { t } from 'i18next';
 import { KeyIcon, QRCodeIcon, UsbIcon } from '@avalabs/core-k2-components';
 
-import { RecoveryMethodType } from '@src/background/services/seedless/models';
+import { RecoveryMethodType } from 'packages/service-worker/src/services/seedless/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 import { RecoveryMethod } from '../../../common/seedless/components/RecoveryMethod';

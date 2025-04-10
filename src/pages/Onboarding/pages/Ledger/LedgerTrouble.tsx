@@ -9,7 +9,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { useHistory } from 'react-router-dom';
-import { OnboardingURLs } from '@src/background/services/onboarding/models';
+import { OnboardingURLs } from 'packages/service-worker/src/services/onboarding/models';
 import { useLanguage } from '@src/hooks/useLanguages';
 import { TypographyLink } from '../../components/TypographyLink';
 import { LedgerTroubleSteps } from '../../../../components/ledger/LedgerTroublesSteps';

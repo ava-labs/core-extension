@@ -31,7 +31,7 @@ import {
   NftTokenWithBalance,
 } from '@avalabs/vm-module-types';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { GaslessPhase } from '@src/background/services/gasless/model';
+import { GaslessPhase } from 'packages/service-worker/src/services/gasless/model';
 
 type Props = SendPageProps<
   JsonRpcBatchInternal,

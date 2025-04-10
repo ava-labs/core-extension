@@ -7,16 +7,16 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { Trans } from 'react-i18next';
-import { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
-import { Account } from '@src/background/services/accounts/models';
+import { WalletConnectSessionInfo } from 'packages/service-worker/src/services/walletConnect/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
 import { useMemo } from 'react';
 import { ApprovalStep } from '../../utils/getActiveStepForRemoteApproval';
 import { RemoteApprovalConfirmation } from '../RemoteApproval/RemoteApprovalConfirmation';
 import { FireblocksAvatar } from '@src/pages/Fireblocks/components/FireblocksAvatar';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
-import isFireblocksApiSupported from '@src/background/services/fireblocks/utils/isFireblocksApiSupported';
-import { isFireblocksAccount } from '@src/background/services/accounts/utils/typeGuards';
+import { isBitcoinNetwork } from 'packages/service-worker/src/services/network/utils/isBitcoinNetwork';
+import isFireblocksApiSupported from 'packages/service-worker/src/services/fireblocks/utils/isFireblocksApiSupported';
+import { isFireblocksAccount } from 'packages/service-worker/src/services/accounts/utils/typeGuards';
 
 interface FireblocksApprovalReviewProps {
   isValidSession: boolean;

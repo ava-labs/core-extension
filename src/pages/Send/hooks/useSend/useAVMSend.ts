@@ -4,15 +4,15 @@ import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { bigToBigInt, resolve } from '@avalabs/core-utils-sdk';
 import { useCallback, useMemo, useState } from 'react';
 
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { SendErrorMessage } from '@src/utils/send/models';
 import { isValidAvmAddress } from '@src/utils/isAddressValid';
 import { stripAddressPrefix } from '@src/utils/stripAddressPrefix';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import type { AvalancheSendTransactionHandler } from '@src/background/services/wallet/handlers/avalanche_sendTransaction';
+import type { AvalancheSendTransactionHandler } from 'packages/service-worker/src/services/wallet/handlers/avalanche_sendTransaction';
 
 import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
 import { SendAdapterAVM } from './models';

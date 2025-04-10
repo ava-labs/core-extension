@@ -14,8 +14,8 @@ import {
   SolanaSendOptions,
 } from '../../models';
 
-import { Account } from '@src/background/services/accounts/models';
-import { EnsureDefined } from '@src/background/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
+import { EnsureDefined } from 'packages/service-worker/src/models';
 import { SendErrorMessage } from '@src/utils/send/models';
 import {
   NetworkTokenWithBalance,

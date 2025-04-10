@@ -9,8 +9,8 @@ import { useEffect, useState } from 'react';
 import useRegisterBtcWalletPolicy from './hooks/useRegisterBtcWalletPolicy';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { StoreBtcWalletPolicyDetails } from '@src/background/services/wallet/handlers/storeBtcWalletPolicyDetails';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { StoreBtcWalletPolicyDetails } from 'packages/service-worker/src/services/wallet/handlers/storeBtcWalletPolicyDetails';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { Trans, useTranslation } from 'react-i18next';
 
 enum TextType {

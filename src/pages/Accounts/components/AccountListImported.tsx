@@ -2,10 +2,10 @@ import { t } from 'i18next';
 import { useState } from 'react';
 import { Collapse, Stack } from '@avalabs/core-k2-components';
 
-import { Account } from '@src/background/services/accounts/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { isImportedAccount } from '@src/background/services/accounts/utils/typeGuards';
-import { IMPORTED_ACCOUNTS_WALLET_ID } from '@src/background/services/balances/handlers/getTotalBalanceForWallet/models';
+import { isImportedAccount } from 'packages/service-worker/src/services/accounts/utils/typeGuards';
+import { IMPORTED_ACCOUNTS_WALLET_ID } from 'packages/service-worker/src/services/balances/handlers/getTotalBalanceForWallet/models';
 
 import { useWalletTotalBalance } from '../hooks/useWalletTotalBalance';
 import { SelectionMode } from '../providers/AccountManagerProvider';

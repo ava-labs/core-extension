@@ -1,4 +1,4 @@
-import { ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useEffect, useState } from 'react';
@@ -29,7 +29,7 @@ import { getSendErrorMessage } from '../Send/utils/sendErrorMessages';
 import { TransactionDetailItem } from '@src/components/common/approval/TransactionDetailItem';
 import { useFeeCustomizer } from './hooks/useFeeCustomizer';
 import { DeviceApproval } from './components/DeviceApproval';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { TxBalanceChange } from '../SignTransaction/components/TxBalanceChange';
 import { AlertBox } from '../Permissions/components/AlertBox';
@@ -39,7 +39,7 @@ import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/Spe
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { GaslessPhase } from '@src/background/services/gasless/model';
+import { GaslessPhase } from 'packages/service-worker/src/services/gasless/model';
 
 type WithContextAlert = {
   alert: { type: 'info'; title: string; notice: string };

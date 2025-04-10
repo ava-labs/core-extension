@@ -1,5 +1,5 @@
 import { useApproveAction } from '@src/hooks/useApproveAction';
-import { ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { ContactInfo } from '@src/components/settings/components/ContactInfo';
 import { Contact } from '@avalabs/types';

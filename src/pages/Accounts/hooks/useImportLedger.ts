@@ -3,10 +3,10 @@ import { useCallback, useState } from 'react';
 import {
   ImportLedgerWalletParams,
   ImportWalletResult,
-} from '@src/background/services/wallet/handlers/models';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+} from 'packages/service-worker/src/services/wallet/handlers/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { ImportLedgerHandler } from '@src/background/services/wallet/handlers/importLedger';
+import { ImportLedgerHandler } from 'packages/service-worker/src/services/wallet/handlers/importLedger';
 
 type ImportWalletFn = (
   params: ImportLedgerWalletParams,

@@ -4,7 +4,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { AuthErrorCode } from '@src/background/services/seedless/models';
+import { AuthErrorCode } from 'packages/service-worker/src/services/seedless/models';
 
 type Props = {
   error: AuthErrorCode;

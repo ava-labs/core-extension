@@ -17,7 +17,7 @@ import { usePermissionContext } from '@src/contexts/PermissionsProvider';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation, Trans } from 'react-i18next';
-import { Account } from '@src/background/services/accounts/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 import { NetworkVMType } from '@avalabs/vm-module-types';

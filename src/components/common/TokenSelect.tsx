@@ -13,7 +13,7 @@ import EthLogo from '@src/images/tokens/eth.png';
 import {
   hasUnconfirmedBTCBalance,
   isAvaxWithUnavailableBalance,
-} from '@src/background/services/balances/models';
+} from 'packages/service-worker/src/services/balances/models';
 import { bigToLocaleString, TokenUnit } from '@avalabs/core-utils-sdk';
 import { useTranslation } from 'react-i18next';
 import { BalanceColumn } from '@src/components/common/BalanceColumn';

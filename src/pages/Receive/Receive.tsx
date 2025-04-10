@@ -11,7 +11,7 @@ import {
   AvalancheQRCodeLogo,
 } from '@src/components/icons/QRCodeLogos';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
+import { isEthereumChainId } from 'packages/service-worker/src/services/network/utils/isEthereumNetwork';
 import { useTranslation } from 'react-i18next';
 import { PrimaryAddressK2 } from '@src/components/common/AddressK2';
 import {
@@ -19,14 +19,14 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { isPchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalanchePchainNetwork';
 import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
 import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
-import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { isXchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalancheXchainNetwork';
 
 export const Receive = () => {
   const { t } = useTranslation();

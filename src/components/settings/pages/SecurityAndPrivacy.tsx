@@ -4,8 +4,8 @@ import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ResetExtensionStateHandler } from 'packages/service-worker/src/services/storage/handlers/resetExtensionState';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Badge,
@@ -24,12 +24,12 @@ import {
 } from '@avalabs/core-k2-components';
 import { useState } from 'react';
 import Dialog from '@src/components/common/Dialog';
-import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedlessAnalytics';
-import { AnalyticsConsent } from '@src/background/services/settings/models';
+import { SeedlessExportAnalytics } from 'packages/service-worker/src/services/seedless/seedlessAnalytics';
+import { AnalyticsConsent } from 'packages/service-worker/src/services/settings/models';
 import { useAnalyticsConsentCallbacks } from '@src/hooks/useAnalyticsConsentCallbacks';
-import { SecretType } from '@src/background/services/secrets/models';
+import { SecretType } from 'packages/service-worker/src/services/secrets/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
 
 export function SecurityAndPrivacy({

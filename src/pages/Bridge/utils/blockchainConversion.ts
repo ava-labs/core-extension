@@ -1,8 +1,8 @@
 import { Blockchain, BridgeConfig } from '@avalabs/core-bridge-sdk';
 import { Chain } from '@avalabs/bridge-unified';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
-import { caipToChainId } from '@src/utils/caipConversion';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
+import { caipToChainId } from '@avalabs/core-ext-utils/src/caipConversion';
 import { t } from 'i18next';
 
 export const blockchainToNetwork = (

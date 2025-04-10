@@ -1,9 +1,9 @@
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { analyticsStateUpdatedEventListener } from '@src/background/services/analytics/events/listeners';
-import { CaptureAnalyticsEventHandler } from '@src/background/services/analytics/handlers/captureAnalyticsEvent';
-import { ClearAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/clearAnalyticsIds';
-import { GetAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/getAnalyticsIds';
-import { InitAnalyticsIdsHandler } from '@src/background/services/analytics/handlers/initAnalyticsIds';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { analyticsStateUpdatedEventListener } from 'packages/service-worker/src/services/analytics/events/listeners';
+import { CaptureAnalyticsEventHandler } from 'packages/service-worker/src/services/analytics/handlers/captureAnalyticsEvent';
+import { ClearAnalyticsIdsHandler } from 'packages/service-worker/src/services/analytics/handlers/clearAnalyticsIds';
+import { GetAnalyticsIdsHandler } from 'packages/service-worker/src/services/analytics/handlers/getAnalyticsIds';
+import { InitAnalyticsIdsHandler } from 'packages/service-worker/src/services/analytics/handlers/initAnalyticsIds';
 import {
   createContext,
   useCallback,
@@ -14,7 +14,7 @@ import {
 import { filter, first, from, merge } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useSettingsContext } from './SettingsProvider';
-import { AnalyticsConsent } from '@src/background/services/settings/models';
+import { AnalyticsConsent } from 'packages/service-worker/src/services/settings/models';
 
 type CaptureFn = (
   eventName: string,

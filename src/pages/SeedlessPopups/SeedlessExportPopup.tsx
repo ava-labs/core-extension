@@ -19,7 +19,7 @@ import { PageTitle, PageTitleVariant } from '@src/components/common/PageTitle';
 import { ExportPending } from '@src/components/common/seedless/components/ExportPending';
 import { PhraseReadyToExport } from '@src/components/common/seedless/components/PhraseReadyToExport';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { SeedlessExportAnalytics } from '@src/background/services/seedless/seedlessAnalytics';
+import { SeedlessExportAnalytics } from 'packages/service-worker/src/services/seedless/seedlessAnalytics';
 import { ExportError } from '@src/components/common/seedless/components/ExportError';
 
 export const SeedlessExportPopup = () => {

@@ -1,5 +1,5 @@
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { ActionStatus } from '@src/background/services/actions/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
 import { TokenIcon } from '@src/components/common/TokenIcon';
 import { useCallback, useEffect, useState } from 'react';
 import { useApproveAction } from '../../hooks/useApproveAction';
@@ -22,9 +22,9 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { SiteAvatar } from '@src/components/common/SiteAvatar';
-import { buildGlacierAuthHeaders } from '@src/background/services/network/utils/buildGlacierAuthHeaders';
+import { buildGlacierAuthHeaders } from 'packages/service-worker/src/services/network/utils/buildGlacierAuthHeaders';
 import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';
-import { AddEthereumChainDisplayData } from '@src/background/services/network/models';
+import { AddEthereumChainDisplayData } from 'packages/service-worker/src/services/network/models';
 
 export function AddCustomNetworkPopup() {
   const { t } = useTranslation();

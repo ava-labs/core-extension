@@ -6,7 +6,7 @@ import {
 } from './types';
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@src/monitoring/sentryCaptureException';
+} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
 
 const REGISTRATION_RESPONSE_SCHEMA = Joi.object<
   EncodedFIDORegistrationResult,

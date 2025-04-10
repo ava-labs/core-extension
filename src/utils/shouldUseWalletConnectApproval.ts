@@ -1,5 +1,5 @@
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { Account, AccountType } from '@src/background/services/accounts/models';
+import { Account, AccountType } from 'packages/service-worker/src/services/accounts/models';
 
 function shouldUseWalletConnectApproval(network: Network, account: Account) {
   // We are not supporting CoreEth as a network

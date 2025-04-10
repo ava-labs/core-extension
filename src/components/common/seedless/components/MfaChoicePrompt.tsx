@@ -10,9 +10,9 @@ import { useTranslation } from 'react-i18next';
 import {
   MfaChoiceRequest,
   RecoveryMethod as RecoveryMethodT,
-} from '@src/background/services/seedless/models';
+} from 'packages/service-worker/src/services/seedless/models';
 import { RecoveryMethod } from '@src/components/common/seedless/components/RecoveryMethod';
-import { PartialBy } from '@src/background/models';
+import { PartialBy } from 'packages/service-worker/src/models';
 
 type Props = {
   mfaChoice?: PartialBy<MfaChoiceRequest, 'mfaId'>;

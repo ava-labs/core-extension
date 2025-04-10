@@ -2,16 +2,16 @@ import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { errorCodes } from 'eth-rpc-errors';
 
-import { FireblocksErrorCode } from '@src/background/services/fireblocks/models';
+import { FireblocksErrorCode } from 'packages/service-worker/src/services/fireblocks/models';
 import {
   CommonError,
   RpcErrorCode,
   SecretsError,
   isWrappedError,
 } from '@src/utils/errors';
-import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
+import { UnifiedBridgeError } from 'packages/service-worker/src/services/unifiedBridge/models';
 import { KeystoreError } from '@src/utils/keystore/models';
-import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
+import { SeedphraseImportError } from 'packages/service-worker/src/services/wallet/handlers/models';
 import { SwapErrorCode } from '@src/contexts/SwapProvider/models';
 
 type ErrorTranslation = {

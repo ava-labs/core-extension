@@ -7,9 +7,9 @@ import {
   Transaction,
   TransactionAction,
   TransactionType,
-} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
-import { Action } from '@src/background/services/actions/models';
-import { serializeToJSON } from '@src/background/serialization/serialize';
+} from 'packages/service-worker/src/services/wallet/handlers/eth_sendTransaction/models';
+import { Action } from 'packages/service-worker/src/services/actions/models';
+import { serializeToJSON } from '@avalabs/core-ext-messaging/src/serialization/serialize';
 
 const CALL_WITH_NO_DETAILS = JSON.stringify({ type: 'call' });
 

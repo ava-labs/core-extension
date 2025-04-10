@@ -18,7 +18,7 @@ import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,
   OnboardingURLs,
-} from '@src/background/services/onboarding/models';
+} from 'packages/service-worker/src/services/onboarding/models';
 import { useHistory } from 'react-router-dom';
 import {
   LedgerConnector,

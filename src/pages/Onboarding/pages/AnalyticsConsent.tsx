@@ -2,7 +2,7 @@ import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import {
   OnboardingURLs,
   OnboardingPhase,
-} from '@src/background/services/onboarding/models';
+} from 'packages/service-worker/src/services/onboarding/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import {

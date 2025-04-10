@@ -1,4 +1,4 @@
-import { Action, ActionStatus } from '@src/background/services/actions/models';
+import { Action, ActionStatus } from 'packages/service-worker/src/services/actions/models';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography, Divider } from '@avalabs/core-k2-components';
@@ -17,7 +17,7 @@ import { CustomFees, GasFeeModifier } from '@src/components/common/CustomFees';
 import {
   BridgeActionDisplayData,
   CustomGasSettings,
-} from '@src/background/services/bridge/models';
+} from 'packages/service-worker/src/services/bridge/models';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';

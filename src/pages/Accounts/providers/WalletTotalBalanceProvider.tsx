@@ -12,11 +12,11 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import {
   IMPORTED_ACCOUNTS_WALLET_ID,
   TotalBalanceForWallet,
-} from '@src/background/services/balances/handlers/getTotalBalanceForWallet/models';
+} from 'packages/service-worker/src/services/balances/handlers/getTotalBalanceForWallet/models';
 import { useWalletContext } from '@src/contexts/WalletProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { GetTotalBalanceForWalletHandler } from '@src/background/services/balances/handlers/getTotalBalanceForWallet';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { GetTotalBalanceForWalletHandler } from 'packages/service-worker/src/services/balances/handlers/getTotalBalanceForWallet';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 
 interface WalletTotalBalanceContextProps {
   children?: React.ReactNode;

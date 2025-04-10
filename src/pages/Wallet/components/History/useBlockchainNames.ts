@@ -1,7 +1,7 @@
 import { BridgeTransaction } from '@avalabs/core-bridge-sdk';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
 
-import { TxHistoryItem } from '@src/background/services/history/models';
+import { TxHistoryItem } from 'packages/service-worker/src/services/history/models';
 import { isPendingBridgeTransaction } from '@src/utils/bridgeTransactionUtils';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 

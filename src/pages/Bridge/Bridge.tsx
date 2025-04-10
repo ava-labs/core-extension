@@ -21,9 +21,9 @@ import {
   useIsFunctionAvailable,
 } from '@src/hooks/useIsFunctionAvailable';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
-import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { isBitcoinNetwork } from 'packages/service-worker/src/services/network/utils/isBitcoinNetwork';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { HallidayBanner } from '@src/components/common/HallidayBanner';
 

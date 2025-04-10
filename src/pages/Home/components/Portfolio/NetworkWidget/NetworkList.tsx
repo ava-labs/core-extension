@@ -18,11 +18,11 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { filterBridgeStateToNetwork } from '@src/background/services/bridge/utils';
+import { filterBridgeStateToNetwork } from 'packages/service-worker/src/services/bridge/utils';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
-import { caipToChainId } from '@src/utils/caipConversion';
+import { caipToChainId } from '@avalabs/core-ext-utils/src/caipConversion';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
 
 const LogoContainer = styled('div')`
   margin-top: 4px;

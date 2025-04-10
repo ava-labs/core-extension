@@ -8,9 +8,9 @@ import {
 
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { Account } from '@src/background/services/accounts/models';
-import { isPrimaryAccount } from '@src/background/services/accounts/utils/typeGuards';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
+import { isPrimaryAccount } from 'packages/service-worker/src/services/accounts/utils/typeGuards';
 
 interface AccountManagerContextProps {
   children?: React.ReactNode;

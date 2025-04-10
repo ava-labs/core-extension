@@ -21,7 +21,7 @@ import { ConnectionIndicatorK2 } from '../ConnectionIndicatorK2';
 import { NetworkSwitcher } from './NetworkSwitcher';
 import { AccountSelectorButton } from '../account/AccountSelectorButton';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { AccountType } from '@src/background/services/accounts/models';
+import { AccountType } from 'packages/service-worker/src/services/accounts/models';
 import { WalletChip } from '../WalletChip';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';

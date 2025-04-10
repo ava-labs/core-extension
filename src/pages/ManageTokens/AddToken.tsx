@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useEffect, useMemo, useState } from 'react';
@@ -6,8 +6,8 @@ import { useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { AddCustomTokenHandler } from '@src/background/services/settings/handlers/addCustomToken';
-import { GetTokenDataHandler } from '@src/background/services/settings/handlers/getTokenDataByAddress';
+import { AddCustomTokenHandler } from 'packages/service-worker/src/services/settings/handlers/addCustomToken';
+import { GetTokenDataHandler } from 'packages/service-worker/src/services/settings/handlers/getTokenDataByAddress';
 import { useTranslation } from 'react-i18next';
 import {
   Button,

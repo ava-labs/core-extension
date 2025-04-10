@@ -1,8 +1,8 @@
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useAppDimensions } from '@src/hooks/useAppDimensions';
 import { useEffect, useRef, useState } from 'react';
-import { ResetExtensionStateHandler } from '@src/background/services/storage/handlers/resetExtensionState';
+import { ResetExtensionStateHandler } from 'packages/service-worker/src/services/storage/handlers/resetExtensionState';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Button,

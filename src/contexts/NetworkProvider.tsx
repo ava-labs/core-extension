@@ -10,17 +10,17 @@ import {
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { networksUpdatedEventListener } from '@src/background/services/network/events/networksUpdatedEventListener';
+import { networksUpdatedEventListener } from 'packages/service-worker/src/services/network/events/networksUpdatedEventListener';
 import { useAnalyticsContext } from './AnalyticsProvider';
-import { SetDevelopermodeNetworkHandler } from '@src/background/services/network/handlers/setDeveloperMode';
-import { GetNetworksStateHandler } from '@src/background/services/network/handlers/getNetworkState';
-import { RemoveCustomNetworkHandler } from '@src/background/services/network/handlers/removeCustomNetwork';
-import { RemoveFavoriteNetworkHandler } from '@src/background/services/network/handlers/removeFavoriteNetwork';
-import { SaveCustomNetworkHandler } from '@src/background/services/network/handlers/saveCustomNetwork';
-import { AddFavoriteNetworkHandler } from '@src/background/services/network/handlers/addFavoriteNetwork';
-import { UpdateDefaultNetworkHandler } from '@src/background/services/network/handlers/updateDefaultNetwork';
+import { SetDevelopermodeNetworkHandler } from 'packages/service-worker/src/services/network/handlers/setDeveloperMode';
+import { GetNetworksStateHandler } from 'packages/service-worker/src/services/network/handlers/getNetworkState';
+import { RemoveCustomNetworkHandler } from 'packages/service-worker/src/services/network/handlers/removeCustomNetwork';
+import { RemoveFavoriteNetworkHandler } from 'packages/service-worker/src/services/network/handlers/removeFavoriteNetwork';
+import { SaveCustomNetworkHandler } from 'packages/service-worker/src/services/network/handlers/saveCustomNetwork';
+import { AddFavoriteNetworkHandler } from 'packages/service-worker/src/services/network/handlers/addFavoriteNetwork';
+import { UpdateDefaultNetworkHandler } from 'packages/service-worker/src/services/network/handlers/updateDefaultNetwork';
 import {
   Avalanche,
   BitcoinProvider,
@@ -31,12 +31,12 @@ import {
   Network,
   NetworkOverrides,
   NetworkWithCaipId,
-} from '@src/background/services/network/models';
+} from 'packages/service-worker/src/services/network/models';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { isNetworkUpdatedEvent } from '@src/background/services/network/events/isNetworkUpdatedEvent';
-import { SetActiveNetworkHandler } from '@src/background/services/network/handlers/setActiveNetwork';
+import { isNetworkUpdatedEvent } from 'packages/service-worker/src/services/network/events/isNetworkUpdatedEvent';
+import { SetActiveNetworkHandler } from 'packages/service-worker/src/services/network/handlers/setActiveNetwork';
 import { updateIfDifferent } from '@src/utils/updateIfDifferent';
-import { getNetworkCaipId } from '@src/utils/caipConversion';
+import { getNetworkCaipId } from '@avalabs/core-ext-utils/src/caipConversion';
 import { networkChanged } from './NetworkProvider/networkChanges';
 
 const NetworkContext = createContext<{

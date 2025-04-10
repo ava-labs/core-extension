@@ -6,7 +6,7 @@ import {
   extractKeysFromDecryptedFile,
   readKeyFile,
 } from '@src/utils/keystore/keystore';
-import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
+import { SeedphraseImportError } from 'packages/service-worker/src/services/wallet/handlers/models';
 import { isWrappedError } from '@src/utils/errors';
 import {
   AllKeyFileTypes,

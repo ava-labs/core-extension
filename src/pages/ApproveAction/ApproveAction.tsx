@@ -1,5 +1,5 @@
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { ActionStatus } from '@src/background/services/actions/models';
+import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useGetRequestId } from '../../hooks/useGetRequestId';

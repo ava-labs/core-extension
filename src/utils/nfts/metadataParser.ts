@@ -1,7 +1,7 @@
 import {
   RawTokenAttribute,
   TokenAttribute,
-} from '@src/background/services/balances/models';
+} from 'packages/service-worker/src/services/balances/models';
 
 export const parseAttributes = (attributes) => {
   return Array.isArray(attributes)

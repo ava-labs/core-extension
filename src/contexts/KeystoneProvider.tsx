@@ -6,15 +6,15 @@ import {
   useState,
 } from 'react';
 
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { useConnectionContext } from './ConnectionProvider';
 import { filter } from 'rxjs';
 import {
   DeviceResponseData,
   KeystoneEvent,
   DeviceRequestData,
-} from '@src/background/services/keystone/models';
-import { SubmitKeystoneSignature } from '@src/background/services/keystone/handlers/keystoneSubmitSignature';
+} from 'packages/service-worker/src/services/keystone/models';
+import { SubmitKeystoneSignature } from 'packages/service-worker/src/services/keystone/handlers/keystoneSubmitSignature';
 
 const KeystoneContext = createContext<{
   txRequest?: DeviceRequestData;

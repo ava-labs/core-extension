@@ -1,5 +1,5 @@
-import { GetNativeBalanceHandler } from '@src/background/services/balances/handlers/getNativeBalance';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { GetNativeBalanceHandler } from 'packages/service-worker/src/services/balances/handlers/getNativeBalance';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 export function useGetAvaxBalance() {

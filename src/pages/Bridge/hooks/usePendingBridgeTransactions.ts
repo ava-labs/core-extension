@@ -1,7 +1,7 @@
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
-import { caipToChainId } from '@src/utils/caipConversion';
+import { caipToChainId } from '@avalabs/core-ext-utils/src/caipConversion';
 import { useMemo } from 'react';
 
 export const usePendingBridgeTransactions = () => {

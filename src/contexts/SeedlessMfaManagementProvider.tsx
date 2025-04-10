@@ -8,27 +8,27 @@ import {
 } from 'react';
 import { filter } from 'rxjs';
 
-import { SecretType } from '@src/background/services/secrets/models';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { SecretType } from 'packages/service-worker/src/services/secrets/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import {
   MfaRequestType,
   RecoveryMethod,
   TotpResetChallenge,
-} from '@src/background/services/seedless/models';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { GetRecoveryMethodsHandler } from '@src/background/services/seedless/handlers/getRecoveryMethods';
-import { InitAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/initAuthenticatorChange';
-import { CompleteAuthenticatorChangeHandler } from '@src/background/services/seedless/handlers/completeAuthenticatorChange';
-import { isSeedlessMfaMethodsUpdatedEvent } from '@src/background/services/seedless/events/eventFilters';
+} from 'packages/service-worker/src/services/seedless/models';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { GetRecoveryMethodsHandler } from 'packages/service-worker/src/services/seedless/handlers/getRecoveryMethods';
+import { InitAuthenticatorChangeHandler } from 'packages/service-worker/src/services/seedless/handlers/initAuthenticatorChange';
+import { CompleteAuthenticatorChangeHandler } from 'packages/service-worker/src/services/seedless/handlers/completeAuthenticatorChange';
+import { isSeedlessMfaMethodsUpdatedEvent } from 'packages/service-worker/src/services/seedless/events/eventFilters';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import { KeyType } from '@src/utils/seedless/fido/types';
-import { AddFidoDeviceHandler } from '@src/background/services/seedless/handlers/addFidoDevice';
-import { RemoveFidoDeviceHandler } from '@src/background/services/seedless/handlers/removeFidoDevice';
+import { AddFidoDeviceHandler } from 'packages/service-worker/src/services/seedless/handlers/addFidoDevice';
+import { RemoveFidoDeviceHandler } from 'packages/service-worker/src/services/seedless/handlers/removeFidoDevice';
 
 import { useConnectionContext } from './ConnectionProvider';
 import { useWalletContext } from './WalletProvider';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
-import { RemoveTotpHandler } from '@src/background/services/seedless/handlers/removeTotp';
+import { RemoveTotpHandler } from 'packages/service-worker/src/services/seedless/handlers/removeTotp';
 
 interface SeedlessMfaManagementContextProps {
   children?: React.ReactNode;

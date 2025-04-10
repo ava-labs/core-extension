@@ -1,4 +1,4 @@
-import { isSyncDomain } from '@src/background/services/network/utils/getSyncDomain';
+import { isSyncDomain } from 'packages/service-worker/src/services/network/utils/getSyncDomain';
 
 import { isActiveTab } from './isActiveTab';
 import { runtime } from 'webextension-polyfill';

@@ -3,8 +3,8 @@ import { render, RenderOptions } from '@testing-library/react';
 import {
   JsonRpcRequestParams,
   JsonRpcRequestPayload,
-} from '@src/background/connections/dAppConnection/models';
-import { PartialBy } from '@src/background/models';
+} from 'packages/service-worker/src/connections/dAppConnection/models';
+import { PartialBy } from 'packages/service-worker/src/models';
 import { CommonError, ErrorCode } from '@src/utils/errors';
 import { ethErrors } from 'eth-rpc-errors';
 

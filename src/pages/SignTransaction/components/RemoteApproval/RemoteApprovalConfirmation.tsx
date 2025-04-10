@@ -5,8 +5,8 @@ import {
   Stack,
 } from '@avalabs/core-k2-components';
 import { truncateAddress } from '@avalabs/core-utils-sdk';
-import { Account } from '@src/background/services/accounts/models';
-import { WalletConnectSessionInfo } from '@src/background/services/walletConnect/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
+import { WalletConnectSessionInfo } from 'packages/service-worker/src/services/walletConnect/models';
 import { t } from 'i18next';
 import { useMemo, useState } from 'react';
 

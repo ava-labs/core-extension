@@ -14,10 +14,10 @@ import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
-import { PubKeyType } from '@src/background/services/wallet/models';
+import { PubKeyType } from 'packages/service-worker/src/services/wallet/models';
 import { NameYourWallet } from './components/NameYourWallet';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { SecretType } from '@src/background/services/secrets/models';
+import { SecretType } from 'packages/service-worker/src/services/secrets/models';
 import { useImportLedger } from './hooks/useImportLedger';
 import {
   LedgerConnector,
@@ -30,7 +30,7 @@ import {
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@src/monitoring/sentryCaptureException';
+} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { useLedgerContext } from '@src/contexts/LedgerProvider';
 import { Overlay } from '@src/components/common/Overlay';

@@ -4,12 +4,12 @@ import { useBalancesContext } from '@src/contexts/BalancesProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { GetTokensListHandler } from '@src/background/services/tokens/handlers/getTokenList';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { GetTokensListHandler } from 'packages/service-worker/src/services/tokens/handlers/getTokenList';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { merge } from 'lodash';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
 
 type UseTokensWithBalanceOptions = {
   // Requests the tokens WITH and WITHOUT balances

@@ -2,7 +2,7 @@ import { BridgeType } from '@avalabs/bridge-unified';
 import {
   FeatureFlags,
   FeatureGates,
-} from '@src/background/services/featureFlags/models';
+} from 'packages/service-worker/src/services/featureFlags/models';
 
 export const getEnabledBridgeTypes = (featureFlags: Partial<FeatureFlags>) => {
   const enabled: BridgeType[] = [];

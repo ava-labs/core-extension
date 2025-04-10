@@ -12,7 +12,7 @@ import {
   DefiPerpetualItem,
   DefiRewardItem,
   DefiVestingItem,
-} from '@src/background/services/defi/models';
+} from 'packages/service-worker/src/services/defi/models';
 
 import { DefiPortfolioLending } from './DefiPortfolioLending';
 import { DefiPortfolioCommon } from './DefiPortfolioCommon';

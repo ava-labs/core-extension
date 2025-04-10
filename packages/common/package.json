@@ -1,0 +1,6 @@
+{
+  "name": "@avalabs/core-ext-common",
+  "packageManager": "yarn@4.7.0",
+  "private": true,
+  "main": "src/index.ts"
+}

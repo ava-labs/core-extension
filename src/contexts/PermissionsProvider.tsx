@@ -6,12 +6,12 @@ import {
   useState,
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { Permissions } from '@src/background/services/permissions/models';
-import { permissionsUpdatedEventListener } from '@src/background/services/permissions/events/permissionsStateUpdatesListener';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { Permissions } from 'packages/service-worker/src/services/permissions/models';
+import { permissionsUpdatedEventListener } from 'packages/service-worker/src/services/permissions/events/permissionsStateUpdatesListener';
 import { filter, map } from 'rxjs';
-import { GetAllPermissionsHandler } from '@src/background/services/permissions/handlers/getAllPermissions';
-import { RevokeAddressPermissionsForDomainHandler } from '@src/background/services/permissions/handlers/revokeAddressPermissionsForDomain';
+import { GetAllPermissionsHandler } from 'packages/service-worker/src/services/permissions/handlers/getAllPermissions';
+import { RevokeAddressPermissionsForDomainHandler } from 'packages/service-worker/src/services/permissions/handlers/revokeAddressPermissionsForDomain';
 import { toLower } from 'lodash';
 
 const PermissionContext = createContext<{

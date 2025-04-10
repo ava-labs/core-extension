@@ -1,10 +1,10 @@
-import { Account } from '@src/background/services/accounts/models';
+import { Account } from 'packages/service-worker/src/services/accounts/models';
 import {
   Balances,
   TotalPriceChange,
-} from '@src/background/services/balances/models';
+} from 'packages/service-worker/src/services/balances/models';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
 import { hasAccountBalances } from './hasAccountBalances';
 
 export function calculateTotalBalance(

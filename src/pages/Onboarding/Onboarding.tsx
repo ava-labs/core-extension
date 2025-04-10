@@ -18,7 +18,7 @@ import { CreateWallet } from './pages/CreateWallet/CreateWallet';
 import {
   OnboardingPhase,
   OnboardingURLs,
-} from '@src/background/services/onboarding/models';
+} from 'packages/service-worker/src/services/onboarding/models';
 import { Keystone } from './pages/Keystone/Keystone';
 import { LedgerConnect } from './pages/Ledger/LedgerConnect';
 import { ImportWallet } from './pages/ImportWallet';

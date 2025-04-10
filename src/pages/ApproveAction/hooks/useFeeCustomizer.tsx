@@ -7,8 +7,8 @@ import {
 } from '@avalabs/vm-module-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { NetworkWithCaipId } from '@src/background/services/network/models';
-import { NetworkFee } from '@src/background/services/networkFee/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
+import { NetworkFee } from 'packages/service-worker/src/services/networkFee/models';
 
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import {
@@ -18,8 +18,8 @@ import {
 } from '@src/components/common/CustomFees';
 import { SendErrorMessage } from '@src/utils/send/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { UpdateActionTxDataHandler } from '@src/background/services/actions/handlers/updateTxData';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
+import { UpdateActionTxDataHandler } from 'packages/service-worker/src/services/actions/handlers/updateTxData';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useBalancesContext } from '@src/contexts/BalancesProvider';
@@ -27,7 +27,7 @@ import {
   Action,
   MultiTxAction,
   isBatchApprovalAction,
-} from '@src/background/services/actions/models';
+} from 'packages/service-worker/src/services/actions/models';
 
 const getInitialFeeRate = (
   data?: SigningData | MultiTxFeeData,

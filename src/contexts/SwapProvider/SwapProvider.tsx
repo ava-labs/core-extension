@@ -14,7 +14,7 @@ import browser from 'webextension-polyfill';
 import { useNetworkContext } from '../NetworkProvider';
 import { useAccountsContext } from '../AccountsProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import Big from 'big.js';
@@ -54,13 +54,13 @@ import {
   WrappedError,
 } from '@src/utils/errors';
 import { useWalletContext } from '../WalletProvider';
-import { SecretType } from '@src/background/services/secrets/models';
+import { SecretType } from 'packages/service-worker/src/services/secrets/models';
 import { toast } from '@avalabs/core-k2-components';
 import { SwapPendingToast } from '@src/pages/Swap/components/SwapPendingToast';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
 import {
   constructPartialSDK,
   constructFetchFetcher,

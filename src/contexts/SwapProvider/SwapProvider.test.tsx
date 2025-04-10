@@ -21,8 +21,8 @@ import {
 } from './models';
 import { SwapContextProvider, useSwapContext } from './SwapProvider';
 import { useNetworkFeeContext } from '../NetworkFeeProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
-import { SecretType } from '@src/background/services/secrets/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
+import { SecretType } from 'packages/service-worker/src/services/secrets/models';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import * as swapUtils from './swap-utils';
 import { CommonError } from '@src/utils/errors';

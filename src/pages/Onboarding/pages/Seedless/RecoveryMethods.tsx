@@ -11,13 +11,13 @@ import { MethodCard } from './components/MethodCard';
 import { PageNav } from '../../components/PageNav';
 import { useHistory } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import {
   AuthenticatorModal,
   AuthenticatorSteps,
 } from './modals/AuthenticatorModal';
-import { OnboardingURLs } from '@src/background/services/onboarding/models';
+import { OnboardingURLs } from 'packages/service-worker/src/services/onboarding/models';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
 import { FIDOModal } from './modals/FIDOModal';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';

@@ -1,13 +1,13 @@
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { GetActionHandler } from '@src/background/services/actions/handlers/getActions';
-import { UpdateActionHandler } from '@src/background/services/actions/handlers/updateAction';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { GetActionHandler } from 'packages/service-worker/src/services/actions/handlers/getActions';
+import { UpdateActionHandler } from 'packages/service-worker/src/services/actions/handlers/updateAction';
 import {
   Action,
   ActionUpdate,
   MultiTxAction,
   isBatchApprovalAction,
-} from '@src/background/services/actions/models';
-import { ActionStatus } from '@src/background/services/actions/models';
+} from 'packages/service-worker/src/services/actions/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { useWindowGetsClosedOrHidden } from '@src/utils/useWindowGetsClosedOrHidden';
 import { useCallback, useEffect, useState } from 'react';

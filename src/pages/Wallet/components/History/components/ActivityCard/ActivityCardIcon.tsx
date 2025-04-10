@@ -10,8 +10,8 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { TransactionType } from '@avalabs/vm-module-types';
-import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
-import { TxHistoryItem } from '@src/background/services/history/models';
+import { isNftTokenType } from 'packages/service-worker/src/services/balances/nft/utils/isNFT';
+import { TxHistoryItem } from 'packages/service-worker/src/services/history/models';
 import { CollectibleMedia } from '@src/pages/Collectibles/components/CollectibleMedia';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';

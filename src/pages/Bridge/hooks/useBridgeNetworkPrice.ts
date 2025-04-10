@@ -3,7 +3,7 @@ import { Chain } from '@avalabs/bridge-unified';
 import { useMemo } from 'react';
 import { networkToBlockchain } from '../utils/blockchainConversion';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { caipToChainId } from '@src/utils/caipConversion';
+import { caipToChainId } from '@avalabs/core-ext-utils/src/caipConversion';
 
 export const useBridgeNetworkPrice = (chain?: Blockchain | Chain) => {
   const { networks } = useNetworkContext();

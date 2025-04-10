@@ -27,7 +27,7 @@ import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvid
 import {
   AuthErrorCode,
   TotpResetChallenge,
-} from '@src/background/services/seedless/models';
+} from 'packages/service-worker/src/services/seedless/models';
 import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 
 import { AuthenticatorVerifyScreen } from './AuthenticatorVerifyScreen';

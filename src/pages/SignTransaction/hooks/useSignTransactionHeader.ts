@@ -1,7 +1,7 @@
 import {
   Transaction,
   TransactionType,
-} from '@src/background/services/wallet/handlers/eth_sendTransaction/models';
+} from 'packages/service-worker/src/services/wallet/handlers/eth_sendTransaction/models';
 import { useTranslation } from 'react-i18next';
 
 export const useSignTransactionHeader = (

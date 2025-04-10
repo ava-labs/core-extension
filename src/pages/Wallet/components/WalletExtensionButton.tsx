@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { WalletExtensionType } from '@src/background/services/web3/models';
+import { WalletExtensionType } from 'packages/service-worker/src/services/web3/models';
 import { EIP6963ProviderInfo } from '@avalabs/vm-module-types';
 import { useRef, useState } from 'react';
 

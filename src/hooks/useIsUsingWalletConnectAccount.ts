@@ -1,4 +1,4 @@
-import { AccountType } from '@src/background/services/accounts/models';
+import { AccountType } from 'packages/service-worker/src/services/accounts/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 
 const useIsUsingWalletConnectAccount = () => {

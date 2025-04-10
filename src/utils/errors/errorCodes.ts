@@ -1,8 +1,8 @@
-import { FireblocksErrorCode } from '@src/background/services/fireblocks/models';
-import { SeedlessError } from '@src/background/services/seedless/models';
-import { UnifiedBridgeError } from '@src/background/services/unifiedBridge/models';
-import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
-import { VMModuleError } from '@src/background/vmModules/models';
+import { FireblocksErrorCode } from 'packages/service-worker/src/services/fireblocks/models';
+import { SeedlessError } from 'packages/service-worker/src/services/seedless/models';
+import { UnifiedBridgeError } from 'packages/service-worker/src/services/unifiedBridge/models';
+import { SeedphraseImportError } from 'packages/service-worker/src/services/wallet/handlers/models';
+import { VMModuleError } from 'packages/service-worker/src/vmModules/models';
 import { SwapErrorCode } from '@src/contexts/SwapProvider/models';
 import { KeystoreError } from '@src/utils/keystore/models';
 

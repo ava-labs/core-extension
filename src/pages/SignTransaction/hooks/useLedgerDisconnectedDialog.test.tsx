@@ -15,7 +15,7 @@ import { isLedgerVersionCompatible } from '@src/utils/isLedgerVersionCompatible'
 import { renderHook } from '@testing-library/react-hooks';
 import { useTranslation } from 'react-i18next';
 import { useLedgerDisconnectedDialog } from './useLedgerDisconnectedDialog';
-import { SecretType } from '@src/background/services/secrets/models';
+import { SecretType } from 'packages/service-worker/src/services/secrets/models';
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(),

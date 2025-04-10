@@ -31,7 +31,7 @@ import { KeystoneContextProvider } from '@src/contexts/KeystoneProvider';
 import { CurrenciesContextProvider } from '@src/contexts/CurrenciesProvider';
 import { DefiContextProvider } from '@src/contexts/DefiProvider';
 import { WalletConnectContextProvider } from '@src/contexts/WalletConnectContextProvider/WalletConnectContextProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import { TestnetBanner } from '@src/components/common/TestnetBanner';
 import { SeedlessAuthPrompt } from '@src/components/common/seedless/SeedlessAuthPrompt';
 import { UnifiedBridgeProvider } from '@src/contexts/UnifiedBridgeProvider';

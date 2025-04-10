@@ -1,19 +1,19 @@
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { LockWalletHandler } from '@src/background/services/lock/handlers/lockWallet';
-import { settingsUpdatedEventListener } from '@src/background/services/settings/events/listeners';
-import { GetSettingsHandler } from '@src/background/services/settings/handlers/getSettings';
-import { SetAnalyticsConsentHandler } from '@src/background/services/settings/handlers/setAnalyticsConsent';
-import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
-import { UpdateCurrencyHandler } from '@src/background/services/settings/handlers/updateCurrencySelection';
-import { UpdateShowNoBalanceHandler } from '@src/background/services/settings/handlers/updateShowTokensNoBalance';
-import { UpdateThemeHandler } from '@src/background/services/settings/handlers/updateTheme';
-import { UpdateTokensVisiblityHandler } from '@src/background/services/settings/handlers/updateTokensVisibility';
-import { UpdateCollectiblesVisibilityHandler } from '@src/background/services/settings/handlers/updateCollectiblesVisibility';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { LockWalletHandler } from 'packages/service-worker/src/services/lock/handlers/lockWallet';
+import { settingsUpdatedEventListener } from 'packages/service-worker/src/services/settings/events/listeners';
+import { GetSettingsHandler } from 'packages/service-worker/src/services/settings/handlers/getSettings';
+import { SetAnalyticsConsentHandler } from 'packages/service-worker/src/services/settings/handlers/setAnalyticsConsent';
+import { SetLanguageHandler } from 'packages/service-worker/src/services/settings/handlers/setLanguage';
+import { UpdateCurrencyHandler } from 'packages/service-worker/src/services/settings/handlers/updateCurrencySelection';
+import { UpdateShowNoBalanceHandler } from 'packages/service-worker/src/services/settings/handlers/updateShowTokensNoBalance';
+import { UpdateThemeHandler } from 'packages/service-worker/src/services/settings/handlers/updateTheme';
+import { UpdateTokensVisiblityHandler } from 'packages/service-worker/src/services/settings/handlers/updateTokensVisibility';
+import { UpdateCollectiblesVisibilityHandler } from 'packages/service-worker/src/services/settings/handlers/updateCollectiblesVisibility';
 import {
   Languages,
   SettingsState,
   ThemeVariant,
-} from '@src/background/services/settings/models';
+} from 'packages/service-worker/src/services/settings/models';
 import { SettingsPages } from '@src/components/settings/models';
 import { changeLanguage } from 'i18next';
 import {

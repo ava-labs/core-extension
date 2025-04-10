@@ -24,7 +24,7 @@ import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvid
 import {
   RecoveryMethodFido,
   SeedlessError,
-} from '@src/background/services/seedless/models';
+} from 'packages/service-worker/src/services/seedless/models';
 
 enum State {
   Initial = 'initial',

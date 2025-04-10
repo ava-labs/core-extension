@@ -11,10 +11,10 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { TokenUnit, weiToAvax } from '@avalabs/core-utils-sdk';
-import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
-import { TxHistoryItem } from '@src/background/services/history/models';
-import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
-import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { isNftTokenType } from 'packages/service-worker/src/services/balances/nft/utils/isNFT';
+import { TxHistoryItem } from 'packages/service-worker/src/services/history/models';
+import { isSolanaNetwork } from 'packages/service-worker/src/services/network/utils/isSolanaNetwork';
+import { isBitcoinNetwork } from 'packages/service-worker/src/services/network/utils/isBitcoinNetwork';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import Big from 'big.js';

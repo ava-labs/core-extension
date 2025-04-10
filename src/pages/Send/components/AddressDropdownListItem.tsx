@@ -11,9 +11,9 @@ import {
   XAndPChainsIcon,
 } from '@avalabs/core-k2-components';
 import { ContactAddress } from './ContactAddress';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { isPchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalanchePchainNetwork';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { isXchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalancheXchainNetwork';
 
 import SolanaLogo from '@src/images/logos/solana.png';
 

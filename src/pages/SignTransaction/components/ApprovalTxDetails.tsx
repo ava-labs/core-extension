@@ -13,7 +13,7 @@ import { truncateAddress } from '@src/utils/truncateAddress';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { openNewTab } from '@src/utils/extensionUtils';
-import { DomainMetadata } from '@src/background/models';
+import { DomainMetadata } from 'packages/service-worker/src/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { TxDetailsRow } from '@src/components/common/approval/TxDetailsRow';
 

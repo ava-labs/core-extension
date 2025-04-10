@@ -4,7 +4,7 @@ import { Avatar, Stack, Typography } from '@avalabs/core-k2-components';
 import {
   DefiLendingItem,
   DefiToken,
-} from '@src/background/services/defi/models';
+} from 'packages/service-worker/src/services/defi/models';
 
 import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';
 

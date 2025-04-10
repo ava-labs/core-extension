@@ -10,7 +10,7 @@ import {
 import { useImportSeedphrase } from './useImportSeedphrase';
 import { usePrivateKeyImport } from './usePrivateKeyImport';
 import { useKeystoreFileImport } from './useKeystoreFileImport';
-import { SeedphraseImportError } from '@src/background/services/wallet/handlers/models';
+import { SeedphraseImportError } from 'packages/service-worker/src/services/wallet/handlers/models';
 import { utils } from '@avalabs/avalanchejs';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 

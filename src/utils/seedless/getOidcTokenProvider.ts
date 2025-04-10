@@ -1,4 +1,4 @@
-import { SeedlessAuthProvider } from '@src/background/services/wallet/models';
+import { SeedlessAuthProvider } from 'packages/service-worker/src/services/wallet/models';
 import { authenticateWithGoogle } from './authenticateWithGoogle';
 import { authenticateWithApple } from './authenticateWithApple';
 

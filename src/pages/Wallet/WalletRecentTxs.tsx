@@ -4,7 +4,7 @@ import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { NoTransactions } from './components/NoTransactions';
 import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { TxHistoryItem } from '@src/background/services/history/models';
+import { TxHistoryItem } from 'packages/service-worker/src/services/history/models';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { useTranslation } from 'react-i18next';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
@@ -20,21 +20,21 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { isNftTokenType } from '@src/background/services/balances/nft/utils/isNFT';
+import { isNftTokenType } from 'packages/service-worker/src/services/balances/nft/utils/isNFT';
 import { usePendingBridgeTransactions } from '../Bridge/hooks/usePendingBridgeTransactions';
 import {
   isPchainTxHistoryItem,
   isNonXPHistoryItem,
-} from '@src/background/services/history/utils/isTxHistoryItem';
+} from 'packages/service-worker/src/services/history/utils/isTxHistoryItem';
 import { PchainActivityCard } from './components/History/components/ActivityCard/PchainActivityCard';
-import { isPchainNetwork } from '@src/background/services/network/utils/isAvalanchePchainNetwork';
+import { isPchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalanchePchainNetwork';
 import {
   PchainFilterTxTypeMap,
   PchainFilterType,
   XchainFilterTxTypeMap,
   XchainFilterType,
 } from './models';
-import { isXchainNetwork } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
+import { isXchainNetwork } from 'packages/service-worker/src/services/network/utils/isAvalancheXchainNetwork';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { XchainActivityCard } from './components/History/components/ActivityCard/XchainActivityCard';
 import { getBridgedAssetSymbol } from '@src/utils/bridge/getBridgedAssetSymbol';

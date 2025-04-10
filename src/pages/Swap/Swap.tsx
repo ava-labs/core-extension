@@ -34,10 +34,10 @@ import {
 } from '@avalabs/core-k2-components';
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@src/monitoring/sentryCaptureException';
+} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
 import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import { isBitcoinNetwork } from 'packages/service-worker/src/services/network/utils/isBitcoinNetwork';
 import { isUserRejectionError } from '@src/utils/errors';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';

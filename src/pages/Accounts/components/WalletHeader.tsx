@@ -12,8 +12,8 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import { SecretType } from '@src/background/services/secrets/models';
-import { WalletDetails } from '@src/background/services/wallet/models';
+import { SecretType } from 'packages/service-worker/src/services/secrets/models';
+import { WalletDetails } from 'packages/service-worker/src/services/wallet/models';
 
 import { useAccountManager } from '../providers/AccountManagerProvider';
 import { OverflowingTypography } from './OverflowingTypography';

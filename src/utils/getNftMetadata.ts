@@ -1,4 +1,4 @@
-import { NftMetadata } from '@src/background/services/balances/models';
+import { NftMetadata } from 'packages/service-worker/src/services/balances/models';
 import { ipfsResolverWithFallback } from './ipsfResolverWithFallback';
 
 async function fetchWithTimeout(uri: string, timeout = 5000) {

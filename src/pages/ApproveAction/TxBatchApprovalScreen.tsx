@@ -13,8 +13,8 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { Overlay } from '@src/components/common/Overlay';
-import { ActionStatus } from '@src/background/services/actions/models';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { ActionStatus } from 'packages/service-worker/src/services/actions/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';

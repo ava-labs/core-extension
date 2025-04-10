@@ -1,14 +1,14 @@
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { onboardingUpdatedEventListener } from '@src/background/services/onboarding/events/listeners';
-import { GetIsOnboardedHandler } from '@src/background/services/onboarding/handlers/getIsOnBoarded';
+import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { onboardingUpdatedEventListener } from 'packages/service-worker/src/services/onboarding/events/listeners';
+import { GetIsOnboardedHandler } from 'packages/service-worker/src/services/onboarding/handlers/getIsOnBoarded';
 import {
   OnboardingPhase,
   OnboardingState,
-} from '@src/background/services/onboarding/models';
+} from 'packages/service-worker/src/services/onboarding/models';
 import {
   PubKeyType,
   SeedlessAuthProvider,
-} from '@src/background/services/wallet/models';
+} from 'packages/service-worker/src/services/wallet/models';
 import {
   useIsSpecificContextContainer,
   ContextContainer,
@@ -32,15 +32,15 @@ import { toast } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { useAnalyticsContext } from './AnalyticsProvider';
-import { MnemonicOnboardingHandler } from '@src/background/services/onboarding/handlers/mnemonicOnboardingHandler';
-import { SeedlessOnboardingHandler } from '@src/background/services/onboarding/handlers/seedlessOnboardingHandler';
-import { KeystoneOnboardingHandler } from '@src/background/services/onboarding/handlers/keystoneOnboardingHandler';
-import { LedgerOnboardingHandler } from '@src/background/services/onboarding/handlers/ledgerOnboardingHandler';
+import { MnemonicOnboardingHandler } from 'packages/service-worker/src/services/onboarding/handlers/mnemonicOnboardingHandler';
+import { SeedlessOnboardingHandler } from 'packages/service-worker/src/services/onboarding/handlers/seedlessOnboardingHandler';
+import { KeystoneOnboardingHandler } from 'packages/service-worker/src/services/onboarding/handlers/keystoneOnboardingHandler';
+import { LedgerOnboardingHandler } from 'packages/service-worker/src/services/onboarding/handlers/ledgerOnboardingHandler';
 import { WalletType } from '@avalabs/types';
 import { signUpForNewsletter } from '@src/utils/newsletter';
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@src/monitoring/sentryCaptureException';
+} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
 
 const Onboarding = lazy(() =>
   import('../pages/Onboarding/Onboarding').then((m) => ({

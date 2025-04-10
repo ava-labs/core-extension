@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { FireblocksBtcAccessErrorCode } from '@src/background/services/fireblocks/models';
-import getFireblocksBtcAccessErrorCode from '@src/background/services/fireblocks/utils/getFireblocksBtcAccessErrorCode';
+import { FireblocksBtcAccessErrorCode } from 'packages/service-worker/src/services/fireblocks/models';
+import getFireblocksBtcAccessErrorCode from 'packages/service-worker/src/services/fireblocks/utils/getFireblocksBtcAccessErrorCode';
 
 export const useFireblocksErrorMessage = () => {
   const { t } = useTranslation();

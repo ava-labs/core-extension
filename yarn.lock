@@ -196,6 +196,50 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@avalabs/core-ext-common@workspace:*, @avalabs/core-ext-common@workspace:packages/common":
+  version: 0.0.0-use.local
+  resolution: "@avalabs/core-ext-common@workspace:packages/common"
+  languageName: unknown
+  linkType: soft
+
+"@avalabs/core-ext-content-script@workspace:packages/content-script":
+  version: 0.0.0-use.local
+  resolution: "@avalabs/core-ext-content-script@workspace:packages/content-script"
+  dependencies:
+    "@avalabs/core-ext-common": "workspace:*"
+    "@avalabs/core-ext-messaging": "workspace:*"
+    "@avalabs/core-ext-utils": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@avalabs/core-ext-inpage@workspace:packages/inpage":
+  version: 0.0.0-use.local
+  resolution: "@avalabs/core-ext-inpage@workspace:packages/inpage"
+  dependencies:
+    "@avalabs/core-ext-common": "workspace:*"
+    "@avalabs/core-ext-messaging": "workspace:*"
+    "@avalabs/core-ext-types": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@avalabs/core-ext-messaging@workspace:*, @avalabs/core-ext-messaging@workspace:packages/messaging":
+  version: 0.0.0-use.local
+  resolution: "@avalabs/core-ext-messaging@workspace:packages/messaging"
+  languageName: unknown
+  linkType: soft
+
+"@avalabs/core-ext-types@workspace:*, @avalabs/core-ext-types@workspace:packages/types":
+  version: 0.0.0-use.local
+  resolution: "@avalabs/core-ext-types@workspace:packages/types"
+  languageName: unknown
+  linkType: soft
+
+"@avalabs/core-ext-utils@workspace:*, @avalabs/core-ext-utils@workspace:packages/utils":
+  version: 0.0.0-use.local
+  resolution: "@avalabs/core-ext-utils@workspace:packages/utils"
+  languageName: unknown
+  linkType: soft
+
 "@avalabs/core-gasless-sdk@npm:3.1.0-alpha.45":
   version: 3.1.0-alpha.45
   resolution: "@avalabs/core-gasless-sdk@npm:3.1.0-alpha.45"

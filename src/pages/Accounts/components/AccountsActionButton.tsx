@@ -26,7 +26,7 @@ import { useHistory } from 'react-router-dom';
 import browser from 'webextension-polyfill';
 
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isProductionBuild } from '@src/utils/environment';
 import { ChainId } from '@avalabs/core-chains-sdk';

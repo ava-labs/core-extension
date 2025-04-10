@@ -9,12 +9,12 @@ import {
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
 
-import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { NetworkWithCaipId } from 'packages/service-worker/src/services/network/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { isNFT } from '@src/background/services/balances/nft/utils/isNFT';
+import { isNFT } from 'packages/service-worker/src/services/balances/nft/utils/isNFT';
 
 import { findMatchingBridgeAsset } from '../utils/findMatchingBridgeAsset';
 import { BridgeOptions } from '../models';
