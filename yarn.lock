@@ -5308,6 +5308,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@google/generative-ai@npm:0.21.0":
+  version: 0.21.0
+  resolution: "@google/generative-ai@npm:0.21.0"
+  checksum: 10c0/cff5946c5964f2380e5097d82bd563d79be27a1a5ac604aaaad3f9ba3382992e4f0a371bd255baabfba4e5bdf296d8ce1410cbd65424afa98e64b2590fe49f3b
+  languageName: node
+  linkType: hard
+
 "@google/semantic-release-replace-plugin@npm:1.1.0":
   version: 1.1.0
   resolution: "@google/semantic-release-replace-plugin@npm:1.1.0"
@@ -12055,6 +12062,7 @@ __metadata:
     "@eslint/js": "npm:9.16.0"
     "@ethereumjs/common": "npm:2.6.5"
     "@ethereumjs/tx": "npm:3.4.0"
+    "@google/generative-ai": "npm:0.21.0"
     "@google/semantic-release-replace-plugin": "npm:1.1.0"
     "@hpke/core": "npm:1.2.5"
     "@keystonehq/animated-qr": "npm:0.5.2"

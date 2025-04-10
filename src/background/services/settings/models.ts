@@ -62,6 +62,7 @@ export interface SettingsState {
   collectiblesVisibility: CollectiblesVisibility;
   analyticsConsent: AnalyticsConsent;
   language: Languages;
+  coreAssistant: boolean;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';

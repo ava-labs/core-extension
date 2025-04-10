@@ -19,6 +19,8 @@ import { useSettingsContext } from '@src/contexts/SettingsProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { AccountType } from '@src/background/services/accounts/models';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
@@ -28,9 +30,14 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
   } = useAccountsContext();
   const { isBridgeDevEnv, setIsBridgeDevEnv } = useBridgeContext();
   const { capture } = useAnalyticsContext();
-  const { showTokensWithoutBalances, toggleShowTokensWithoutBalanceSetting } =
-    useSettingsContext();
+  const {
+    showTokensWithoutBalances,
+    toggleShowTokensWithoutBalanceSetting,
+    setCoreAssistant,
+    coreAssistant,
+  } = useSettingsContext();
   const history = useHistory();
+  const { featureFlags } = useFeatureFlagContext();
 
   const testnetModeUnavailableReason = useMemo(() => {
     const isFireblocksAccount = activeAccount?.type === AccountType.FIREBLOCKS;
@@ -98,6 +105,18 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
             />
           </Tooltip>
         </ListItem>
+        {featureFlags[FeatureGates.CORE_ASSISTANT] && (
+          <ListItem data-testid="core-assistant-menu-item">
+            <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
+              {t('Core Assistant')}
+            </ListItemText>
+            <Switch
+              size="small"
+              checked={coreAssistant}
+              onChange={() => setCoreAssistant(!coreAssistant)}
+            />
+          </ListItem>
+        )}
         {!isProductionBuild() ? (
           <ListItem data-testid="bridge-dev-env-menu-item">
             <ListItemText

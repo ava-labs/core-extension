@@ -9,6 +9,7 @@ export function calculateTotalBalanceForAccounts(
   accounts: Partial<Account>[],
   networks: NetworkWithCaipId[],
 ): number {
+  console.log('DEBUG', accounts, networks, balances);
   return accounts.reduce((sum: number, account: Partial<Account>) => {
     const accountBalance = calculateTotalBalance(account, networks, balances);
     return sum + (accountBalance.sum ?? 0);

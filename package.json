@@ -51,6 +51,7 @@
     "@cubist-labs/cubesigner-sdk-ethers-v6": "0.3.28",
     "@ethereumjs/common": "2.6.5",
     "@ethereumjs/tx": "3.4.0",
+    "@google/generative-ai": "0.21.0",
     "@hpke/core": "1.2.5",
     "@keystonehq/animated-qr": "0.5.2",
     "@keystonehq/bc-ur-registry-eth": "0.15.2",
