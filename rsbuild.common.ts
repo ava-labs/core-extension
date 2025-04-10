@@ -4,26 +4,60 @@ import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
 import { CopyRspackPlugin } from '@rspack/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 
+const entriesToSkipHtmlGeneration = {
+  backgroundPage: path.join(__dirname, 'src/background/index.ts'),
+  contentscript: path.join(__dirname, 'src/contentscript.ts'),
+};
+
 export default defineConfig({
-  source: {
-    entry: {
-      backgroundPage: path.join(__dirname, 'src/background/index.ts'),
-      popup: path.join(__dirname, 'src/popup/index.tsx'),
-      contentscript: path.join(__dirname, 'src/contentscript.ts'),
-      offscreen: path.join(__dirname, 'src/offscreen.ts'),
+  environments: {
+    web: {
+      source: {
+        decorators: {
+          version: 'legacy',
+        },
+        entry: {
+          popup: path.join(__dirname, 'src/popup/index.tsx'),
+          offscreen: path.join(__dirname, 'src/offscreen.ts'),
+        },
+      },
+      output: {
+        target: 'web',
+      },
+    },
+    'web-worker': {
+      source: {
+        entry: {
+          backgroundPage: path.join(__dirname, 'src/background/index.ts'),
+          contentscript: path.join(__dirname, 'src/contentscript.ts'),
+        },
+      },
+      output: {
+        target: 'web-worker',
+      },
     },
   },
   output: {
+    cleanDistPath: {
+      keep: [
+        // preserving the files from the inpage build
+        /dist\/js\/inpage.js/,
+        /dist\/js\/vendors-node_modules_avalabs_core-chains-sdk\w*/,
+      ],
+    },
     sourceMap: {
       js: 'hidden-source-map',
     },
+    inlineStyles: true,
+    injectStyles: true,
     filename: {
       js: '[name].js', // this is the default, but just to make sure
     },
     distPath: {
       js: 'js',
+      jsAsync: 'js',
       image: 'images',
-      font: 'assets',
+      font: 'js/assets',
       // assets: 'assets',
     },
   },
@@ -45,19 +79,24 @@ export default defineConfig({
     },
     dedupe: ['bn.js'],
   },
-  plugins: [pluginNodePolyfill(), pluginReact()],
+  plugins: [
+    pluginNodePolyfill(),
+    pluginReact({
+      swcReactOptions: {
+        refresh: false,
+      },
+    }),
+  ],
   tools: {
     rspack: {
       plugins: [
         new CopyRspackPlugin({
           patterns: [
-            { from: 'src/index.html', to: '../popup.html' },
-            { from: 'src/index.html', to: '../home.html' },
-            { from: 'src/index.html', to: '../confirm.html' },
-            { from: 'src/index.html', to: '../fullscreen.html' },
-            { from: 'src/images', to: '../images' },
-            { from: 'src/localization/locales', to: '../locales', force: true },
-            { from: 'src/offscreen.html', to: '../offscreen.html' },
+            { from: 'src/index.html', to: 'home.html' },
+            { from: 'src/index.html', to: 'confirm.html', force: true },
+            { from: 'src/index.html', to: 'fullscreen.html', force: true },
+            { from: 'src/images', to: 'images' },
+            { from: 'src/localization/locales', to: 'locales', force: true },
           ],
         }),
       ],

@@ -57,6 +57,7 @@ export default defineConfig(({ envMode }) => {
     },
     plugins: [pluginNodePolyfill()],
     tools: {
+      htmlPlugin: false,
       rspack: {
         plugins: [
           new DefinePlugin({
@@ -67,50 +68,6 @@ export default defineConfig(({ envMode }) => {
               : '"CORE_EXTENSION_VERSION"',
           }),
         ],
-        module: {
-          rules: [
-            {
-              test: /\.(js|ts)$/,
-              exclude: [/node_modules/],
-              loader: 'builtin:swc-loader',
-              options: {
-                env: {
-                  targets: ['last 2 Chrome versions'],
-                },
-                jsc: {
-                  parser: {
-                    syntax: 'typescript',
-                  },
-                },
-              },
-              type: 'javascript/auto',
-            },
-            {
-              test: /\.(jsx|tsx)$/,
-              use: {
-                loader: 'builtin:swc-loader',
-                options: {
-                  jsc: {
-                    parser: {
-                      syntax: 'ecmascript',
-                      jsx: true,
-                    },
-                    transform: {
-                      react: {
-                        pragma: 'React.createElement',
-                        pragmaFrag: 'React.Fragment',
-                        throwIfNamespace: true,
-                        development: false,
-                        useBuiltins: false,
-                      },
-                    },
-                  },
-                },
-              },
-              type: 'javascript/auto',
-            },
-          ],
-        },
       },
     },
   };

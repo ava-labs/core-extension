@@ -2,6 +2,7 @@ import 'dotenv/config.js';
 import { mergeRsbuildConfig, loadEnv } from '@rsbuild/core';
 import { CopyRspackPlugin } from '@rspack/core';
 import commonConfig from './rsbuild.common';
+
 // import Dotenv from 'dotenv-webpack';
 import { transformManifestFiles } from './build-scripts/manifestHelpers.js';
 const { parsed } = loadEnv();
@@ -9,13 +10,13 @@ const { parsed } = loadEnv();
 export default mergeRsbuildConfig(commonConfig, {
   mode: 'development',
   output: {
+    target: 'web',
     sourceMap: {
       js: 'inline-source-map',
     },
   },
   source: {
     define: {
-      'process.env.NODE_ENV': JSON.stringify('development'), // webpack DefinePlugin
       ...parsed,
     },
   },

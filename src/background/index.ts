@@ -9,5 +9,7 @@ import Big from 'big.js';
 Big.PE = 99;
 Big.NE = -18;
 
+console.log('bruvbayscbiashcbiadbc');
 const runtime = container.resolve(BackgroundRuntime);
+console.log('unruecnascasd', runtime);
 runtime.activate();
