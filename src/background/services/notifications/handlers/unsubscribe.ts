@@ -1,8 +1,14 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
-import { NotificationTypes } from '../models';
-import { NotificationsService } from '../NotificationsService';
+import {
+  NewsNotificationTypes,
+  NotificationCategories,
+  NotificationTypes,
+} from '../models';
+import { BalanceNotificationService } from '../BalanceNotificationService';
+import { NewsNotificationService } from '../NewsNotificationService';
+import { getNotificationCategory } from './utils/getNotificationCategory';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NOTIFICATION_UNSUBSCRIBE,
@@ -14,12 +20,27 @@ type HandlerType = ExtensionRequestHandler<
 export class UnsubscribeFromNotification implements HandlerType {
   method = ExtensionRequest.NOTIFICATION_UNSUBSCRIBE as const;
 
-  constructor(private notificationsService: NotificationsService) {}
+  constructor(
+    private balanceNotificationService: BalanceNotificationService,
+    private newsNotificationService: NewsNotificationService,
+  ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const notificationType = request.params;
     try {
-      await this.notificationsService.unsubscribe(notificationType);
+      const category = getNotificationCategory(notificationType);
+
+      switch (category) {
+        case NotificationCategories.BALANCE_CHANGES:
+          await this.balanceNotificationService.unsubscribe();
+          break;
+        case NotificationCategories.NEWS:
+          await this.newsNotificationService.unsubscribe(
+            notificationType as NewsNotificationTypes,
+          );
+          break;
+      }
+
       return {
         ...request,
         result: true,

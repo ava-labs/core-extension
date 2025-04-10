@@ -7,7 +7,11 @@ import {
   useState,
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
-import { NotificationTypes } from '@src/background/services/notifications/models';
+import {
+  BalanceNotificationTypes,
+  NewsNotificationTypes,
+  NotificationTypes,
+} from '@src/background/services/notifications/models';
 import { SubscribeToNotification } from '@src/background/services/notifications/handlers/subscribe';
 import { GetNotificationSubscriptions } from '@src/background/services/notifications/handlers/getSubscriptions';
 import { UnsubscribeFromNotification } from '@src/background/services/notifications/handlers/unsubscribe';
@@ -18,8 +22,8 @@ const NotificationsContext = createContext<{
   unsubscribe(notificationType: NotificationTypes): Promise<void>;
 }>({
   subscriptions: {
-    [NotificationTypes.BALANCE_CHANGES]: true,
-    [NotificationTypes.PRICE_ALERTS]: true,
+    [BalanceNotificationTypes.BALANCE_CHANGES]: true,
+    [NewsNotificationTypes.PRICE_ALERTS]: true,
   },
   async subscribe() {},
   async unsubscribe() {},
@@ -31,8 +35,8 @@ export function NotificationsContextProvider({ children }: { children: any }) {
   const [subscriptions, setSubscriptions] = useState<
     Record<NotificationTypes, boolean>
   >({
-    [NotificationTypes.BALANCE_CHANGES]: true,
-    [NotificationTypes.PRICE_ALERTS]: true,
+    [BalanceNotificationTypes.BALANCE_CHANGES]: true,
+    [NewsNotificationTypes.PRICE_ALERTS]: true,
   });
 
   const syncSubscriptions = useCallback(async () => {

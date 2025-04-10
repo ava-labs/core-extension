@@ -12,15 +12,19 @@ import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation } from 'react-i18next';
 import { useNotificationsContext } from '@src/contexts/NotificationsProvider';
-import { NotificationTypes } from '@src/background/services/notifications/models';
+import {
+  BalanceNotificationTypes,
+  NewsNotificationTypes,
+  NotificationTypes,
+} from '@src/background/services/notifications/models';
 import { useCallback, useState } from 'react';
 
 const NOTIFICATION_TYPE_DETAILS = {
-  [NotificationTypes.BALANCE_CHANGES]: {
+  [BalanceNotificationTypes.BALANCE_CHANGES]: {
     title: 'Balance',
     description: 'Wallet balance change alerts',
   },
-  [NotificationTypes.PRICE_ALERTS]: {
+  [NewsNotificationTypes.PRICE_ALERTS]: {
     title: 'Price Alerts',
     description: 'Price alerts for your favorite tokens',
   },

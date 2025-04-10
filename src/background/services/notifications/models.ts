@@ -3,16 +3,33 @@ export enum NotificationCategories {
   NEWS = 'NEWS',
 }
 
-export enum NotificationTypes {
+export enum BalanceNotificationTypes {
   BALANCE_CHANGES = 'BALANCE_CHANGES',
+}
+
+export enum NewsNotificationTypes {
   PRICE_ALERTS = 'PRICE_ALERTS',
 }
 
-export type NotificationsState = {
-  clientId?: string;
-  subscriptions: Record<NotificationTypes, boolean>;
-};
+export type NotificationTypes =
+  | BalanceNotificationTypes
+  | NewsNotificationTypes;
 
 export enum NotificationsEvents {
   CLIENT_REGISTERED = 'CLIENT_REGISTERED',
 }
+
+export type NotificationsClientIdStorage = {
+  clientId?: string;
+};
+
+export type NotificationsBalanceChangesSubscriptionStorage = {
+  isSubscribed: boolean;
+  addresses: string[];
+  chainIds: string[];
+};
+
+export type NotificationsNewsSubscriptionStorage = Record<
+  NewsNotificationTypes,
+  boolean
+>;

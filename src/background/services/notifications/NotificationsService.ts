@@ -2,26 +2,24 @@ import { singleton } from 'tsyringe';
 import { AppCheckService } from '../appcheck/AppCheckService';
 import { StorageService } from '../storage/StorageService';
 import {
-  DEFAULT_STATE,
-  NOTIFICATION_CATEGORIES,
-  STORAGE_KEY,
+  NOTIFICATIONS_CLIENT_ID_STORAGE_KEY,
+  NOTIFICATIONS_CLIENT_ID_DEFAULT_STATE,
 } from './constants';
-import { NotificationsState, NotificationTypes } from './models';
 import { FirebaseService } from '../firebase/FirebaseService';
 import { FirebaseEvents } from '../firebase/models';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import { BalanceNotificationService } from './BalanceNotificationService';
-
+import { NewsNotificationService } from './NewsNotificationService';
 @singleton()
 export class NotificationsService {
-  #state = DEFAULT_STATE;
-  #fcmToken?: string;
+  #clientId?: string;
 
   constructor(
     private storageService: StorageService,
     private firebaseService: FirebaseService,
     private appCheckService: AppCheckService,
     private balanceNotificationService: BalanceNotificationService,
+    private newsNotificationService: NewsNotificationService,
   ) {
     this.firebaseService.addFirebaseEventListener(
       FirebaseEvents.FCM_INITIALIZED,
@@ -29,21 +27,14 @@ export class NotificationsService {
         await this.#init();
       },
     );
-
-    this.firebaseService.addFirebaseEventListener(
-      FirebaseEvents.FCM_TERMINATED,
-      () => {
-        this.#fcmToken = undefined;
-      },
-    );
   }
 
   async #init() {
-    this.#fcmToken = this.firebaseService.getFcmToken();
-    this.#state =
-      (await this.storageService.loadUnencrypted<NotificationsState>(
-        STORAGE_KEY,
-      )) ?? DEFAULT_STATE;
+    this.#clientId = (
+      (await this.storageService.loadUnencrypted<{ clientId?: string }>(
+        NOTIFICATIONS_CLIENT_ID_STORAGE_KEY,
+      )) ?? NOTIFICATIONS_CLIENT_ID_DEFAULT_STATE
+    ).clientId;
 
     const { deviceArn: clientId } = await incrementalPromiseResolve(
       () => this.#registerDevice(),
@@ -56,22 +47,24 @@ export class NotificationsService {
       throw new Error('registration failed');
     }
 
-    this.#state = {
-      clientId,
-      subscriptions: {
-        ...DEFAULT_STATE.subscriptions,
-        ...this.#state.subscriptions,
-      },
-    };
+    if (this.#clientId !== clientId) {
+      this.#clientId = clientId;
 
-    await this.storageService.saveUnencrypted(STORAGE_KEY, this.#state);
+      await this.storageService.saveUnencrypted(
+        NOTIFICATIONS_CLIENT_ID_STORAGE_KEY,
+        { clientId },
+      );
+    }
 
     // init individual notification services when device is registered
     await this.balanceNotificationService.init(clientId);
+    await this.newsNotificationService.init(clientId);
   }
 
   async #registerDevice() {
-    if (!this.#fcmToken) {
+    const fcmToken = this.firebaseService.getFcmToken();
+
+    if (!fcmToken) {
       throw new Error('fcm token is missing');
     }
 
@@ -91,9 +84,9 @@ export class NotificationsService {
           'X-Firebase-AppCheck': appcheckToken,
         },
         body: JSON.stringify({
-          deviceToken: this.#fcmToken,
+          deviceToken: fcmToken,
           appType: 'CORE_EXTENSION',
-          ...(this.#state.clientId && { deviceArn: this.#state.clientId }),
+          ...(this.#clientId && { deviceArn: this.#clientId }),
         }),
       },
     );
@@ -109,7 +102,7 @@ export class NotificationsService {
     return result;
   }
 
-  #getServiceForNotificationType(notificationType: NotificationTypes) {
+  /* #getServiceForNotificationType(notificationType: NotificationTypes) {
     const [category] =
       Object.entries(NOTIFICATION_CATEGORIES).find(([_, events]) =>
         events.find((event) => event === notificationType),
@@ -150,7 +143,7 @@ export class NotificationsService {
 
     this.#state.subscriptions[notificationType] = false;
     await this.storageService.save(STORAGE_KEY, this.#state);
-  }
+  } */
 
   /* async #refreshSubscriptions() {
     const isSubscribedToBalanceChanges =
