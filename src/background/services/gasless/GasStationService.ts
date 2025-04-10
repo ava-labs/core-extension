@@ -86,7 +86,6 @@ export class GasStationService {
     if (!index && index !== 0) {
       const data = { chainId, fromAddress, nonce };
       this.#waitingForEligibilityList.push(data);
-      console.log('he');
       return await this.getEligibility({
         ...data,
         index: 0,
