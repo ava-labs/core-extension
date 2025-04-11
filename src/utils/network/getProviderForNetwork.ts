@@ -72,7 +72,8 @@ export const getProviderForNetwork = async (
     return provider;
   } else if (
     network.vmName === NetworkVMType.AVM ||
-    network.vmName === NetworkVMType.PVM
+    network.vmName === NetworkVMType.PVM ||
+    network.vmName === NetworkVMType.CoreEth
   ) {
     return network.isTestnet
       ? Avalanche.JsonRpcProvider.getDefaultFujiProvider()
