@@ -41,6 +41,9 @@ export class BalanceNotificationService {
         await this.subscribe();
       },
     );
+
+    // attempt to refresh the existing subscriptions
+    await this.subscribe();
   }
 
   async getSubscriptions() {

@@ -32,10 +32,13 @@ export class NewsNotificationService implements OnStorageReady {
     for (const event of Object.values(NewsNotificationTypes)) {
       this.firebaseService.addFcmMessageListener(event, this.#handleMessage);
     }
+
+    // attempt to refresh the existing subscriptions
+    await this.subscribe([]);
   }
 
   async onStorageReady() {
-    // refresh the existing subscriptions
+    // attempt to refresh the existing subscriptions
     await this.subscribe([]);
   }
 
@@ -71,6 +74,11 @@ export class NewsNotificationService implements OnStorageReady {
   async subscribe(
     notificationTypes: (keyof NotificationsNewsSubscriptionStorage)[],
   ) {
+    // device is not registered yet
+    if (!this.#clientId) {
+      return;
+    }
+
     if (
       notificationTypes.some(
         (notificationType) =>
