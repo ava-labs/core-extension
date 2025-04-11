@@ -54,6 +54,7 @@ export const NOTIFICATION_PAYLOAD_SCHEMA = Joi.object<
     title: Joi.string().required(),
     body: Joi.string().required(),
     event: Joi.string().required(),
+    type: Joi.string().required(),
   })
     .required()
     .unknown(true),

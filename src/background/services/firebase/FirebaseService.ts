@@ -15,6 +15,7 @@ import sentryCaptureException, {
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureFlagEvents, FeatureGates } from '../featureFlags/models';
 import { isSupportedBrowser } from '@src/utils/isSupportedBrowser';
+import { MESSAGE_EVENT as APPCHECK_MESSAGE_EVENT } from '../appcheck/AppCheckService';
 
 @singleton()
 export class FirebaseService {
@@ -97,20 +98,25 @@ export class FirebaseService {
     this.#firebaseEventEmitter.on(event, callback);
   }
 
-  addFcmMessageListener(event: string, listener: FcmMessageListener) {
-    if (this.#fcmMessageHandlers[event]) {
-      throw new Error(`Message handler for event ${event} already exists`);
+  addFcmMessageListener(type: string, listener: FcmMessageListener) {
+    if (this.#fcmMessageHandlers[type]) {
+      throw new Error(`Message handler for type ${type} already exists`);
     }
 
-    this.#fcmMessageEventEmitter.on(event, listener);
-    this.#fcmMessageHandlers[event] = listener;
+    this.#fcmMessageEventEmitter.on(type, listener);
+    this.#fcmMessageHandlers[type] = listener;
   }
 
   async #handleMessage(payload: MessagePayload) {
-    const event = payload.data?.event ?? '';
+    // TODO: remove this once we can set type for ID challenges
+    if (payload.data?.event === APPCHECK_MESSAGE_EVENT) {
+      this.#fcmMessageEventEmitter.emit(payload.data.event, payload);
+    }
 
-    if (this.#fcmMessageHandlers[event]) {
-      this.#fcmMessageEventEmitter.emit(event, payload);
+    const type = payload.data?.type ?? '';
+
+    if (this.#fcmMessageHandlers[type]) {
+      this.#fcmMessageEventEmitter.emit(type, payload);
     }
   }
 }

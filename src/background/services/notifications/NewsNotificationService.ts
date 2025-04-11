@@ -1,7 +1,7 @@
 import { singleton } from 'tsyringe';
 import { AppCheckService } from '../appcheck/AppCheckService';
 import {
-  NewsNotificationTypes,
+  NotificationCategories,
   NotificationsNewsSubscriptionStorage,
   NotificationTypes,
 } from './models';
@@ -30,10 +30,10 @@ export class NewsNotificationService implements OnUnlock {
 
   async init(clientId: string) {
     this.#clientId = clientId;
-
-    for (const event of Object.values(NewsNotificationTypes)) {
-      this.firebaseService.addFcmMessageListener(event, this.#handleMessage);
-    }
+    this.firebaseService.addFcmMessageListener(
+      NotificationCategories.NEWS,
+      this.#handleMessage,
+    );
 
     // attempt to refresh the existing subscriptions
     await this.subscribe([]);
@@ -64,6 +64,7 @@ export class NewsNotificationService implements OnUnlock {
   #handleMessage(payload: MessagePayload) {
     return sendNotification({
       payload,
+      allowedType: NotificationCategories.NEWS,
       allowedEvents: NOTIFICATION_CATEGORIES.NEWS,
     });
   }

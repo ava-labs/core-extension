@@ -1,13 +1,18 @@
 import { MessagePayload } from 'firebase/messaging';
-import { NotificationTypes } from '../models';
+import { NotificationCategories, NotificationTypes } from '../models';
 import { NOTIFICATION_PAYLOAD_SCHEMA } from '../constants';
 
 type Params = {
   payload: MessagePayload;
-  allowedEvents: NotificationTypes[];
+  allowedType: NotificationCategories;
+  allowedEvents?: NotificationTypes[];
 };
 
-export const sendNotification = ({ payload, allowedEvents }: Params) => {
+export const sendNotification = ({
+  payload,
+  allowedType,
+  allowedEvents,
+}: Params) => {
   const { error: payloadError, value: notificationPayload } =
     NOTIFICATION_PAYLOAD_SCHEMA.validate(payload);
 
@@ -15,7 +20,14 @@ export const sendNotification = ({ payload, allowedEvents }: Params) => {
     throw new Error(`Invalid payload: ${payloadError.message}`);
   }
 
-  if (!allowedEvents.includes(notificationPayload.data.event)) {
+  if (allowedType !== notificationPayload.data.type) {
+    return;
+  }
+
+  if (
+    allowedEvents &&
+    !allowedEvents.includes(notificationPayload.data.event)
+  ) {
     return;
   }
 

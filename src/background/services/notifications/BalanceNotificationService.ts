@@ -5,12 +5,12 @@ import { AppCheckService } from '../appcheck/AppCheckService';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { StorageService } from '../storage/StorageService';
 import {
-  NOTIFICATION_CATEGORIES,
   NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_DEFAULT_STATE,
   NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_STORAGE_KEY,
 } from './constants';
 import {
   BalanceNotificationTypes,
+  NotificationCategories,
   NotificationsBalanceChangesSubscriptionStorage,
 } from './models';
 import { FirebaseService } from '../firebase/FirebaseService';
@@ -31,10 +31,10 @@ export class BalanceNotificationService {
 
   async init(clientId: string) {
     this.#clientId = clientId;
-
-    for (const event of Object.values(BalanceNotificationTypes)) {
-      this.firebaseService.addFcmMessageListener(event, this.#handleMessage);
-    }
+    this.firebaseService.addFcmMessageListener(
+      NotificationCategories.BALANCE_CHANGES,
+      this.#handleMessage,
+    );
 
     this.accountService.addListener(
       AccountsEvents.ACCOUNTS_UPDATED,
@@ -74,7 +74,7 @@ export class BalanceNotificationService {
   #handleMessage(payload: MessagePayload) {
     return sendNotification({
       payload,
-      allowedEvents: NOTIFICATION_CATEGORIES.BALANCE_CHANGES,
+      allowedType: NotificationCategories.BALANCE_CHANGES,
     });
   }
 

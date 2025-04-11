@@ -42,5 +42,6 @@ export type NotificationPayload = {
     title: string;
     body: string;
     event: NotificationTypes;
+    type: NotificationCategories;
   };
 };
