@@ -8,7 +8,8 @@ import {
   WalletEvents,
   WalletDetails,
   SUPPORTED_PRIMARY_SECRET_TYPES,
-  isSolanaSigningRequest,
+  isSolanaRequest,
+  isSolanaMsgRequest,
 } from './models';
 import {
   MessageParams,
@@ -84,7 +85,6 @@ import { omitUndefined } from '@src/utils/object';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
 import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
-
 @singleton()
 export class WalletService implements OnUnlock {
   private eventEmitter = new EventEmitter();
@@ -594,7 +594,7 @@ export class WalletService implements OnUnlock {
       throw new Error('Wallet not found');
     }
 
-    if (isSolanaSigningRequest(tx)) {
+    if (isSolanaRequest(tx)) {
       if (
         !(wallet instanceof SolanaSigner) &&
         !(wallet instanceof SolanaLedgerSigner)
@@ -602,13 +602,31 @@ export class WalletService implements OnUnlock {
         throw new Error('Unable to find a proper signer');
       }
 
-      const signedTx = await wallet.signTx(
-        tx.data,
-        (await getProviderForNetwork(network)) as SolanaProvider,
-      );
+      if (isSolanaMsgRequest(tx)) {
+        if (wallet instanceof SolanaLedgerSigner) {
+          /**
+           * FIXME:
+           * I have a PoC that seems to be working, but obtained signatures are not verified
+           * properly by the dApps. I think it's because the dApps provide a UTF-8 message,
+           * but for it to be accepted by Solana Ledger app, we need to serialize it,
+           * add a message header etc., and I think Ledger then signs the whole thing, which
+           * makes it impossible to verify the signature with the original message.
+           */
+          throw new Error(
+            'Signing off-chain messages is not yet supported with Ledger',
+          );
+        }
+
+        return {
+          signedTx: await wallet.signMessage(tx.data),
+        };
+      }
 
       return {
-        signedTx,
+        signedTx: await wallet.signTx(
+          tx.data,
+          (await getProviderForNetwork(network)) as SolanaProvider,
+        ),
       };
     }
 
