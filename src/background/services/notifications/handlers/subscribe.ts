@@ -8,7 +8,7 @@ import {
 } from '../models';
 import { BalanceNotificationService } from '../BalanceNotificationService';
 import { NewsNotificationService } from '../NewsNotificationService';
-import { getNotificationCategory } from './utils/getNotificationCategory';
+import { getNotificationCategory } from '../utils/getNotificationCategory';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NOTIFICATION_SUBSCRIBE,
@@ -36,9 +36,9 @@ export class SubscribeToNotification implements HandlerType {
           await this.balanceNotificationService.subscribe();
           break;
         case NotificationCategories.NEWS:
-          await this.newsNotificationService.subscribe(
+          await this.newsNotificationService.subscribe([
             notificationType as NewsNotificationTypes,
-          );
+          ]);
           break;
       }
 

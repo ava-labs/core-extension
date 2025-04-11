@@ -13,10 +13,11 @@ import {
 } from './constants';
 import { FirebaseService } from '../firebase/FirebaseService';
 import { MessagePayload } from 'firebase/messaging';
-import { sendNotification } from './handlers/utils/sendNotification';
+import { sendNotification } from './utils/sendNotification';
+import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
 
 @singleton()
-export class NewsNotificationService {
+export class NewsNotificationService implements OnStorageReady {
   #clientId?: string;
 
   constructor(
@@ -29,17 +30,18 @@ export class NewsNotificationService {
     this.#clientId = clientId;
 
     for (const event of Object.values(NewsNotificationTypes)) {
-      this.firebaseService.addFcmMessageListener(event, (payload) =>
-        this.#handleMessage(payload),
-      );
+      this.firebaseService.addFcmMessageListener(event, this.#handleMessage);
     }
+  }
 
-    // when to subscribe first time?
+  async onStorageReady() {
+    // refresh the existing subscriptions
+    await this.subscribe([]);
   }
 
   async #getSubscriptionStateFromStorage() {
     return (
-      (await this.storageService.loadUnencrypted<NotificationsNewsSubscriptionStorage>(
+      (await this.storageService.load<NotificationsNewsSubscriptionStorage>(
         NOTIFICATIONS_NEWS_SUBSCRIPTION_STORAGE_KEY,
       )) ?? NOTIFICATIONS_NEWS_SUBSCRIPTION_DEFAULT_STATE
     );
@@ -48,7 +50,7 @@ export class NewsNotificationService {
   async #saveSubscriptionStateToStorage(
     subscriptions: NotificationsNewsSubscriptionStorage,
   ) {
-    await this.storageService.saveUnencrypted(
+    await this.storageService.save(
       NOTIFICATIONS_NEWS_SUBSCRIPTION_STORAGE_KEY,
       subscriptions,
     );
@@ -65,11 +67,17 @@ export class NewsNotificationService {
     return this.#getSubscriptionStateFromStorage();
   }
 
+  // adds the notification types to the existing subscriptions
   async subscribe(
-    notificationType: keyof NotificationsNewsSubscriptionStorage,
+    notificationTypes: (keyof NotificationsNewsSubscriptionStorage)[],
   ) {
-    if (!NOTIFICATION_CATEGORIES.NEWS.includes(notificationType)) {
-      throw new Error(`Invalid notification type ${notificationType}`);
+    if (
+      notificationTypes.some(
+        (notificationType) =>
+          !NOTIFICATION_CATEGORIES.NEWS.includes(notificationType),
+      )
+    ) {
+      throw new Error(`Invalid notification type provided`);
     }
 
     const state = await this.#getSubscriptionStateFromStorage();
@@ -81,11 +89,9 @@ export class NewsNotificationService {
       })
       .filter(Boolean) as NotificationTypes[];
 
-    if (existingSubscriptions.includes(notificationType)) {
-      return;
-    }
-
-    const newSubscriptions = [...existingSubscriptions, notificationType];
+    const newSubscriptions = [
+      ...new Set([...existingSubscriptions, ...notificationTypes]),
+    ];
 
     const { token: appcheckToken } =
       (await this.appCheckService.getAppcheckToken()) ?? {};
@@ -115,7 +121,7 @@ export class NewsNotificationService {
 
     await this.#saveSubscriptionStateToStorage({
       ...state,
-      [notificationType]: true,
+      ...notificationTypes.map((type) => ({ [type]: true })),
     });
   }
 

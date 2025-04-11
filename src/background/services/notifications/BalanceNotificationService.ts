@@ -15,7 +15,7 @@ import {
 } from './models';
 import { FirebaseService } from '../firebase/FirebaseService';
 import { MessagePayload } from 'firebase/messaging';
-import { sendNotification } from './handlers/utils/sendNotification';
+import { sendNotification } from './utils/sendNotification';
 
 @singleton()
 export class BalanceNotificationService {
@@ -35,8 +35,6 @@ export class BalanceNotificationService {
       this.firebaseService.addFcmMessageListener(event, this.#handleMessage);
     }
 
-    await this.subscribe();
-
     this.accountService.addListener(
       AccountsEvents.ACCOUNTS_UPDATED,
       async () => {
@@ -45,14 +43,14 @@ export class BalanceNotificationService {
     );
   }
 
-  async getSubscription() {
+  async getSubscriptions() {
     const state = await this.#getSubscriptionStateFromStorage();
     return { [BalanceNotificationTypes.BALANCE_CHANGES]: state.isSubscribed };
   }
 
   async #getSubscriptionStateFromStorage() {
     return (
-      (await this.storageService.loadUnencrypted<NotificationsBalanceChangesSubscriptionStorage>(
+      (await this.storageService.load<NotificationsBalanceChangesSubscriptionStorage>(
         NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_STORAGE_KEY,
       )) ?? NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_DEFAULT_STATE
     );
@@ -63,7 +61,7 @@ export class BalanceNotificationService {
     addresses,
     chainIds,
   }: NotificationsBalanceChangesSubscriptionStorage) {
-    await this.storageService.saveUnencrypted(
+    await this.storageService.save(
       NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_STORAGE_KEY,
       { isSubscribed, addresses, chainIds },
     );

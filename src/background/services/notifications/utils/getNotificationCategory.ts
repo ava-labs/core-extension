@@ -1,5 +1,5 @@
-import { NOTIFICATION_CATEGORIES } from '../../constants';
-import { NotificationCategories, NotificationTypes } from '../../models';
+import { NOTIFICATION_CATEGORIES } from '../constants';
+import { NotificationCategories, NotificationTypes } from '../models';
 
 export const getNotificationCategory = (
   notificationType: NotificationTypes,

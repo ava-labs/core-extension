@@ -22,7 +22,7 @@ export class GetNotificationSubscriptions implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     try {
       const [balanceSubscription, newsSubscriptions] = await Promise.all([
-        this.balanceNotificationService.getSubscription(),
+        this.balanceNotificationService.getSubscriptions(),
         this.newsNotificationService.getSubscriptions(),
       ]);
 

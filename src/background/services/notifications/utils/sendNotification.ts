@@ -1,6 +1,6 @@
 import { MessagePayload } from 'firebase/messaging';
-import { NotificationTypes } from '../../models';
-import { NOTIFICATION_PAYLOAD_SCHEMA } from '../../constants';
+import { NotificationTypes } from '../models';
+import { NOTIFICATION_PAYLOAD_SCHEMA } from '../constants';
 
 type Params = {
   payload: MessagePayload;
