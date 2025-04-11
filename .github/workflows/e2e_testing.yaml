@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 20.18.3
       - name: enable corepack
         run: |
           corepack enable
@@ -68,6 +68,8 @@ jobs:
           rm -fv ./dist/images/keystone/keystone_onboarding_step_1.png
           rm -fv ./dist/images/keystone/keystone_onboarding_step_2.png
           rm -fv ./dist/images/keystone/keystone_onboarding_step_3.png
+          rm -fv ./dist/images/Core_logo_white_text_black_background.png
+          rm -fv ./dist/images/Core_logo_black_text_white_background.png
       - name: Add extension key to manifest file
         run: |
           echo $(cat ./dist/manifest.json | jq '.key = "${{ secrets.EXTENSION_PUBLIC_KEY }}"') > ./dist/manifest.json
