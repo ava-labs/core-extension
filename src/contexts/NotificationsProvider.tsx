@@ -1,11 +1,5 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import {
   BalanceNotificationTypes,
@@ -18,6 +12,7 @@ import { UnsubscribeFromNotification } from '@src/background/services/notificati
 
 const NotificationsContext = createContext<{
   subscriptions: Record<NotificationTypes, boolean>;
+  syncSubscriptions(): Promise<void>;
   subscribe(notificationType: NotificationTypes): Promise<void>;
   unsubscribe(notificationType: NotificationTypes): Promise<void>;
 }>({
@@ -28,6 +23,7 @@ const NotificationsContext = createContext<{
     [NewsNotificationTypes.MARKET_NEWS]: true,
     [NewsNotificationTypes.PRICE_ALERTS]: true,
   },
+  async syncSubscriptions() {},
   async subscribe() {},
   async unsubscribe() {},
 });
@@ -74,14 +70,11 @@ export function NotificationsContextProvider({ children }: { children: any }) {
     [request, syncSubscriptions],
   );
 
-  useEffect(() => {
-    syncSubscriptions();
-  }, [syncSubscriptions]);
-
   return (
     <NotificationsContext.Provider
       value={{
         subscriptions,
+        syncSubscriptions,
         subscribe,
         unsubscribe,
       }}

@@ -16,7 +16,7 @@ import {
 import { FirebaseService } from '../firebase/FirebaseService';
 import { MessagePayload } from 'firebase/messaging';
 import { sendNotification } from './utils/sendNotification';
-
+import { LockService } from '../lock/LockService';
 @singleton()
 export class BalanceNotificationService {
   #clientId?: string;
@@ -26,6 +26,7 @@ export class BalanceNotificationService {
     private accountService: AccountsService,
     private storageService: StorageService,
     private firebaseService: FirebaseService,
+    private lockService: LockService,
   ) {}
 
   async init(clientId: string) {
@@ -78,6 +79,11 @@ export class BalanceNotificationService {
   }
 
   async subscribe() {
+    // device is not registered yet or wallet is locked
+    if (!this.#clientId || this.lockService.locked) {
+      return;
+    }
+
     const state = await this.#getSubscriptionStateFromStorage();
 
     // fixed list of chain ids for now

@@ -17,7 +17,7 @@ import {
   NewsNotificationTypes,
   NotificationTypes,
 } from '@src/background/services/notifications/models';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const NOTIFICATION_TYPE_DETAILS = {
   [BalanceNotificationTypes.BALANCE_CHANGES]: {
@@ -48,7 +48,8 @@ export function Notifications({
   width,
 }: SettingsPageProps) {
   const { t } = useTranslation();
-  const { subscriptions, subscribe, unsubscribe } = useNotificationsContext();
+  const { subscriptions, syncSubscriptions, subscribe, unsubscribe } =
+    useNotificationsContext();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubscriptionChange = useCallback(
@@ -68,6 +69,10 @@ export function Notifications({
     },
     [subscribe, t, unsubscribe],
   );
+
+  useEffect(() => {
+    syncSubscriptions();
+  }, [syncSubscriptions]);
 
   return (
     <Stack

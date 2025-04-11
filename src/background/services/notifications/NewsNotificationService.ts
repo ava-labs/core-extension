@@ -14,16 +14,18 @@ import {
 import { FirebaseService } from '../firebase/FirebaseService';
 import { MessagePayload } from 'firebase/messaging';
 import { sendNotification } from './utils/sendNotification';
-import { OnStorageReady } from '@src/background/runtime/lifecycleCallbacks';
+import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
+import { LockService } from '../lock/LockService';
 
 @singleton()
-export class NewsNotificationService implements OnStorageReady {
+export class NewsNotificationService implements OnUnlock {
   #clientId?: string;
 
   constructor(
     private appCheckService: AppCheckService,
     private storageService: StorageService,
     private firebaseService: FirebaseService,
+    private lockService: LockService,
   ) {}
 
   async init(clientId: string) {
@@ -37,7 +39,7 @@ export class NewsNotificationService implements OnStorageReady {
     await this.subscribe([]);
   }
 
-  async onStorageReady() {
+  async onUnlock() {
     // attempt to refresh the existing subscriptions
     await this.subscribe([]);
   }
@@ -74,8 +76,8 @@ export class NewsNotificationService implements OnStorageReady {
   async subscribe(
     notificationTypes: (keyof NotificationsNewsSubscriptionStorage)[],
   ) {
-    // device is not registered yet
-    if (!this.#clientId) {
+    // device is not registered yet or wallet is locked
+    if (!this.#clientId || this.lockService.locked) {
       return;
     }
 
@@ -129,7 +131,10 @@ export class NewsNotificationService implements OnStorageReady {
 
     await this.#saveSubscriptionStateToStorage({
       ...state,
-      ...notificationTypes.map((type) => ({ [type]: true })),
+      ...notificationTypes.reduce(
+        (acc, type) => ({ ...acc, [type]: true }),
+        {},
+      ),
     });
   }
 
