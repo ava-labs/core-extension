@@ -314,7 +314,11 @@ export function Swap() {
               setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
               setIsToTokenSelectOpen(false);
             }}
-            tokensList={tokensWBalances}
+            tokensList={tokensWBalances.filter(
+              (token) =>
+                token.name !== selectedToToken?.name ||
+                token.symbol !== selectedToToken?.symbol,
+            )}
             skipHandleMaxAmount
             isOpen={isFromTokenSelectOpen}
             selectedToken={selectedFromToken}
@@ -403,7 +407,11 @@ export function Swap() {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
               setIsFromTokenSelectOpen(false);
             }}
-            tokensList={allSwappableTokens}
+            tokensList={allSwappableTokens.filter(
+              (token) =>
+                token.name !== selectedFromToken?.name ||
+                token.symbol !== selectedFromToken?.symbol,
+            )}
             isOpen={isToTokenSelectOpen}
             selectedToken={selectedToToken}
             inputAmount={toAmount}
