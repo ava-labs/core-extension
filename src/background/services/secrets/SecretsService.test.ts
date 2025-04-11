@@ -1554,4 +1554,84 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       );
     });
   });
+
+  describe('appendPublicKeys()', () => {
+    const existingWallet = {
+      id: 'wallet1',
+      secretType: SecretType.Mnemonic,
+      publicKeys: [
+        {
+          derivationPath: "m/44'/501'/0'/0'",
+          key: 'key1',
+          type: 'address-pubkey',
+          curve: 'ed25519',
+        },
+      ],
+    } as const;
+    const newKeys = [
+      {
+        derivationPath: "m/44'/501'/0'/0'",
+        key: 'key1',
+        type: 'address-pubkey',
+        curve: 'ed25519',
+      } as const,
+      {
+        derivationPath: "m/44'/501'/1'/0'",
+        key: 'key2',
+        type: 'address-pubkey',
+        curve: 'ed25519',
+      } as const,
+      {
+        derivationPath: "m/44'/501'/2'/0'",
+        key: 'key3',
+        type: 'address-pubkey',
+        curve: 'ed25519',
+      } as const,
+    ];
+
+    beforeEach(() => {
+      jest.spyOn(secretsService, 'updateSecrets').mockResolvedValue('wallet1');
+      jest
+        .spyOn(secretsService, 'getSecretsById')
+        .mockResolvedValue(existingWallet as any);
+    });
+
+    it('appends new public keys to an existing wallet', async () => {
+      const result = await secretsService.appendPublicKeys('wallet1', newKeys);
+
+      expect(result).toBe('wallet1');
+      expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+        {
+          publicKeys: newKeys,
+        },
+        'wallet1',
+      );
+    });
+
+    it('does not duplicate existing keys', async () => {
+      const result = await secretsService.appendPublicKeys('wallet1', [
+        ...existingWallet.publicKeys,
+        ...newKeys,
+      ]);
+
+      expect(result).toBe('wallet1');
+      expect(secretsService.updateSecrets).toHaveBeenCalledWith(
+        {
+          publicKeys: newKeys,
+        },
+        'wallet1',
+      );
+    });
+
+    it('should throw an error if wallet is not a primary wallet', async () => {
+      jest.spyOn(secretsService, 'getSecretsById').mockResolvedValue({
+        id: 'wallet1',
+        secretType: SecretType.PrivateKey,
+      } as any);
+
+      await expect(
+        secretsService.appendPublicKeys('wallet1', []),
+      ).rejects.toThrow('Cannot append public keys to a non-primary wallet');
+    });
+  });
 });
