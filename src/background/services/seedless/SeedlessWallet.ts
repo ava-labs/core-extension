@@ -13,8 +13,12 @@ import {
   BitcoinInputUTXO,
   BitcoinOutputUTXO,
   BitcoinProvider,
+  compileSolanaTx,
   createPsbt,
+  deserializeTransactionMessage,
   getEvmAddressFromPubKey,
+  serializeSolanaTx,
+  SolanaProvider,
 } from '@avalabs/core-wallets-sdk';
 import { sha256 } from '@noble/hashes/sha256';
 import { utils } from '@avalabs/avalanchejs';
@@ -39,6 +43,7 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { AddressPublicKeyJson } from '../secrets/models';
 import { assertPresent } from '@src/utils/assertions';
 import { CommonError } from '@src/utils/errors';
+import { base64, hex } from '@scure/base';
 
 type ConstructorOpts = {
   networkService?: NetworkService;
@@ -88,7 +93,7 @@ export class SeedlessWallet {
     );
   }
 
-  async addAccount(accountIndex) {
+  async addAccount(accountIndex: number) {
     if (accountIndex < 1) {
       // To add a new account this way, we first need to know at least one
       // public key -- to be able to finx the mnemonic ID that we'll use
@@ -97,37 +102,7 @@ export class SeedlessWallet {
       throw new Error('Account index must be greater than or equal to 1');
     }
 
-    const session = await this.#getSession();
-    const identityProof = await session.proveIdentity();
-    const mnemonicId = await this.#getMnemonicId();
-
-    try {
-      const response = await fetch(
-        process.env.SEEDLESS_URL + '/v1/addAccount',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            accountIndex,
-            identityProof,
-            mnemonicId,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new CoreApiError('Adding new account failed');
-      }
-    } catch (err) {
-      // Rethrow known errors
-      if (err instanceof CoreApiError) {
-        throw err;
-      }
-
-      throw new Error('Core Seedless API is unreachable');
-    }
+    return this.#mutateSeedlessAccount('addAccount', { accountIndex });
   }
 
   async #getMnemonicId(withPrefix = false): Promise<string> {
@@ -252,6 +227,52 @@ export class SeedlessWallet {
     return result.data();
   }
 
+  async #mutateSeedlessAccount(
+    endpoint: 'addAccount',
+    params: { accountIndex: number },
+  );
+  async #mutateSeedlessAccount(endpoint: 'deriveMissingKeys', params?: never);
+  async #mutateSeedlessAccount(
+    endpoint: 'addAccount' | 'deriveMissingKeys',
+    params?: object,
+  ) {
+    const session = await this.#getSession();
+    const identityProof = await session.proveIdentity();
+    const mnemonicId = await this.#getMnemonicId();
+
+    try {
+      const response = await fetch(
+        process.env.SEEDLESS_URL + '/v1/' + endpoint,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            identityProof,
+            mnemonicId,
+            ...params,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new CoreApiError(`${endpoint} request failed`);
+      }
+    } catch (err) {
+      // Rethrow known errors
+      if (err instanceof CoreApiError) {
+        throw err;
+      }
+
+      throw new Error('Core Seedless API is unreachable');
+    }
+  }
+
+  async deriveMissingKeys() {
+    return this.#mutateSeedlessAccount('deriveMissingKeys');
+  }
+
   async getPublicKeys(): Promise<AddressPublicKeyJson[]> {
     const session = await this.#getSession();
     // get keys and filter out non derived ones and group them
@@ -263,12 +284,17 @@ export class SeedlessWallet {
       this.#handleError(err);
     }
 
-    const requiredKeyTypes: cs.KeyTypeApi[] = ['SecpEthAddr', 'SecpAvaAddr'];
+    const requiredKeyTypes: cs.KeyTypeApi[] = [
+      cs.Secp256k1.Evm,
+      cs.Secp256k1.Ava,
+    ];
+    const optionalKeyTypes: cs.KeyTypeApi[] = [cs.Ed25519.Solana];
+    const allowedKeyTypes = [...requiredKeyTypes, ...optionalKeyTypes];
     const keys = rawKeys
       ?.filter(
         (k) =>
           k.enabled &&
-          requiredKeyTypes.includes(k.key_type) &&
+          allowedKeyTypes.includes(k.key_type) &&
           k.derivation_info?.derivation_path,
       )
       .reduce(
@@ -277,9 +303,14 @@ export class SeedlessWallet {
             return acc;
           }
 
-          const index = Number(
-            key.derivation_info.derivation_path.split('/').pop(),
-          );
+          const index =
+            key.key_type === cs.Ed25519.Solana
+              ? parseInt(
+                  key.derivation_info.derivation_path
+                    .split('/')
+                    .at(-2) as string,
+                )
+              : Number(key.derivation_info.derivation_path.split('/').pop());
           if (index === undefined) {
             return acc;
           }
@@ -319,13 +350,13 @@ export class SeedlessWallet {
     const pubkeys = [] as AddressPublicKeyJson[];
 
     derivedKeys.forEach((key) => {
-      if (!key || !key['SecpAvaAddr'] || !key['SecpEthAddr']) {
+      if (!key || !key[cs.Secp256k1.Ava] || !key[cs.Secp256k1.Evm]) {
         return;
       }
 
       if (
-        !key['SecpEthAddr'].derivation_info?.derivation_path ||
-        !key['SecpAvaAddr'].derivation_info?.derivation_path
+        !key[cs.Secp256k1.Evm].derivation_info?.derivation_path ||
+        !key[cs.Secp256k1.Ava].derivation_info?.derivation_path
       ) {
         throw new Error('Derivation path not found');
       }
@@ -333,17 +364,27 @@ export class SeedlessWallet {
       pubkeys.push(
         {
           curve: 'secp256k1',
-          derivationPath: key['SecpEthAddr'].derivation_info.derivation_path,
-          key: strip0x(key['SecpEthAddr'].public_key),
+          derivationPath: key[cs.Secp256k1.Evm].derivation_info.derivation_path,
+          key: strip0x(key[cs.Secp256k1.Evm].public_key),
           type: 'address-pubkey',
         },
         {
           curve: 'secp256k1',
-          derivationPath: key['SecpAvaAddr'].derivation_info.derivation_path,
-          key: strip0x(key['SecpAvaAddr'].public_key),
+          derivationPath: key[cs.Secp256k1.Ava].derivation_info.derivation_path,
+          key: strip0x(key[cs.Secp256k1.Ava].public_key),
           type: 'address-pubkey',
         },
       );
+
+      if (key[cs.Ed25519.Solana]?.derivation_info?.derivation_path) {
+        pubkeys.push({
+          curve: 'ed25519',
+          derivationPath:
+            key[cs.Ed25519.Solana].derivation_info.derivation_path,
+          key: strip0x(key[cs.Ed25519.Solana].public_key),
+          type: 'address-pubkey',
+        });
+      }
     });
 
     if (!pubkeys?.length) {
@@ -354,7 +395,7 @@ export class SeedlessWallet {
   }
 
   async #getSigningKey(
-    type: cs.Secp256k1,
+    type: cs.Secp256k1 | cs.Ed25519,
     lookupPublicKey?: string,
   ): Promise<cs.KeyInfo> {
     if (!lookupPublicKey) {
@@ -374,6 +415,61 @@ export class SeedlessWallet {
       }
 
       return key;
+    } catch (err) {
+      this.#handleError(err);
+    }
+  }
+
+  #requiresSolanaSignature(
+    address: string,
+    signatures: Record<string, Uint8Array | null>,
+  ) {
+    if (address in signatures) {
+      // If our signature is required, check if it's already been added.
+      return !signatures[address];
+    }
+
+    return false;
+  }
+
+  async signSolanaTx(
+    base64EncodedTx: string,
+    provider: SolanaProvider,
+  ): Promise<string> {
+    if (!this.#addressPublicKey?.key) {
+      throw new Error('Public key not available');
+    }
+    const txMessage = await deserializeTransactionMessage(
+      base64EncodedTx,
+      provider,
+    );
+    const { signatures, messageBytes } = compileSolanaTx(txMessage);
+
+    try {
+      const session = await this.#getSession();
+      const signingKey = await this.#getSigningKey(
+        cs.Ed25519.Solana,
+        this.#addressPublicKey.key,
+      );
+      const address = signingKey.materialId;
+
+      if (!this.#requiresSolanaSignature(address, signatures)) {
+        return base64EncodedTx;
+      }
+
+      const response = await session.signSolana(signingKey.materialId, {
+        message_base64: base64.encode(Uint8Array.from(messageBytes)),
+      });
+      const { signature: signatureHex } = response.data();
+      const signature = hex.decode(strip0x(signatureHex));
+
+      return serializeSolanaTx({
+        messageBytes,
+        signatures: {
+          ...signatures,
+          [address]: signature,
+        },
+      });
     } catch (err) {
       this.#handleError(err);
     }

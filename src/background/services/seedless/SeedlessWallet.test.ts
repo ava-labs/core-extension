@@ -6,6 +6,9 @@ import {
   BitcoinProvider,
   getEvmAddressFromPubKey,
   createPsbt,
+  deserializeTransactionMessage,
+  serializeSolanaTx,
+  compileSolanaTx,
 } from '@avalabs/core-wallets-sdk';
 import * as cs from '@cubist-labs/cubesigner-sdk';
 import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
@@ -27,6 +30,9 @@ import {
   avaKey2,
   evmKey2,
   btcKey,
+  solanaKey,
+  solanaKey2,
+  anotherValidSolanaKey,
 } from './fixtures/rawKeys';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SeedlessWallet } from './SeedlessWallet';
@@ -40,6 +46,7 @@ import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { MfaRequestType } from './models';
+import { base64, hex } from '@scure/base';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
 import { AddressPublicKey } from '../secrets/AddressPublicKey';
 
@@ -50,6 +57,7 @@ jest.mock('../network/NetworkService');
 jest.mock('./SeedlessBtcSigner');
 jest.mock('./SeedlessMfaService');
 jest.mock('@src/utils/network/getProviderForNetwork');
+jest.mock('@scure/base');
 
 describe('src/background/services/seedless/SeedlessWallet', () => {
   const sessionStorage = jest.mocked<SeedlessTokenStorage>(
@@ -175,6 +183,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             derivationPath: avaKey.derivation_info.derivation_path,
             curve: 'secp256k1',
           }).toJSON(),
+          AddressPublicKey.fromJSON({
+            key: strip0x(solanaKey.publicKey),
+            derivationPath: solanaKey.derivation_info.derivation_path,
+            curve: 'ed25519',
+          }).toJSON(),
         ]);
       });
     });
@@ -201,6 +214,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             curve: 'secp256k1',
           }).toJSON(),
           AddressPublicKey.fromJSON({
+            key: strip0x(solanaKey.publicKey),
+            derivationPath: solanaKey.derivation_info.derivation_path,
+            curve: 'ed25519',
+          }).toJSON(),
+          AddressPublicKey.fromJSON({
             key: strip0x(evmKey2.publicKey),
             derivationPath: evmKey2.derivation_info.derivation_path,
             curve: 'secp256k1',
@@ -209,6 +227,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             key: strip0x(avaKey2.publicKey),
             derivationPath: avaKey2.derivation_info.derivation_path,
             curve: 'secp256k1',
+          }).toJSON(),
+          AddressPublicKey.fromJSON({
+            key: strip0x(solanaKey2.publicKey),
+            derivationPath: solanaKey2.derivation_info.derivation_path,
+            curve: 'ed25519',
           }).toJSON(),
         ]);
       });
@@ -241,8 +264,103 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             derivationPath: anotherValidAvaKey.derivation_info.derivation_path,
             curve: 'secp256k1',
           }).toJSON(),
+          AddressPublicKey.fromJSON({
+            key: strip0x(anotherValidSolanaKey.publicKey),
+            derivationPath:
+              anotherValidSolanaKey.derivation_info.derivation_path,
+            curve: 'ed25519',
+          }).toJSON(),
         ]);
       });
+    });
+  });
+
+  describe('signSolanaTx', () => {
+    const signature = '0xA1B2C3D4';
+    const mockBase64Tx = 'mockBase64Transaction';
+    const mockMessageBytes = new Uint8Array([1, 2, 3]);
+    const mockSignatures = {
+      [solanaKey.material_id]: null,
+    };
+    const mockProvider = {} as any;
+    let session: jest.Mocked<cs.SignerSession>;
+
+    beforeEach(() => {
+      // Mock deserializeTransactionMessage
+      (compileSolanaTx as jest.Mock).mockReturnValue({
+        signatures: mockSignatures,
+        messageBytes: mockMessageBytes,
+      });
+
+      // Mock serializeSolanaTx
+      (serializeSolanaTx as jest.Mock).mockReturnValue('serializedTx');
+
+      // Mock base64 and hex utilities
+      jest.spyOn(base64, 'encode').mockReturnValue('encodedMessage');
+      jest.spyOn(hex, 'decode').mockReturnValue(new Uint8Array([4, 5, 6]));
+
+      session = {
+        keys: jest.fn().mockResolvedValue(validKeySet),
+        signSolana: jest.fn().mockResolvedValue({
+          data: jest.fn().mockReturnValue({ signature }),
+        }),
+      } as any;
+      jest
+        .mocked(cs.SignerSession.loadSignerSession)
+        .mockResolvedValue(session);
+
+      wallet = new SeedlessWallet({
+        networkService,
+        sessionStorage,
+        addressPublicKey: {
+          key: strip0x(solanaKey.publicKey),
+        } as any,
+      });
+    });
+
+    it('should successfully sign a Solana transaction', async () => {
+      const result = await wallet.signSolanaTx(mockBase64Tx, mockProvider);
+
+      expect(deserializeTransactionMessage).toHaveBeenCalledWith(
+        mockBase64Tx,
+        mockProvider,
+      );
+      expect(session.signSolana).toHaveBeenCalledWith(solanaKey.material_id, {
+        message_base64: 'encodedMessage',
+      });
+      expect(serializeSolanaTx).toHaveBeenCalledWith({
+        messageBytes: mockMessageBytes,
+        signatures: {
+          [solanaKey.material_id]: new Uint8Array([4, 5, 6]),
+        },
+      });
+      expect(result).toBe('serializedTx');
+    });
+
+    it('returns the original transaction if signature is not required', async () => {
+      // Mock signatures with existing signature
+      (compileSolanaTx as jest.Mock).mockReturnValue({
+        signatures: {
+          [solanaKey.material_id]: new Uint8Array([1, 2, 3]),
+        },
+        messageBytes: mockMessageBytes,
+      });
+
+      const result = await wallet.signSolanaTx(mockBase64Tx, mockProvider);
+
+      expect(session.signSolana).not.toHaveBeenCalled();
+      expect(result).toBe(mockBase64Tx);
+    });
+
+    it('throws error if public key is not available', async () => {
+      // Create wallet without addressPublicKey
+      wallet = new SeedlessWallet({
+        sessionStorage: {},
+      } as any);
+
+      await expect(
+        wallet.signSolanaTx(mockBase64Tx, mockProvider),
+      ).rejects.toThrow('Public key not available');
     });
   });
 
@@ -883,7 +1001,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         expect.stringMatching(/\/addAccount$/),
         expect.objectContaining({
           method: 'POST',
-          body: JSON.stringify({ accountIndex, identityProof, mnemonicId }),
+          body: JSON.stringify({ identityProof, mnemonicId, accountIndex }),
         }),
       );
     });
@@ -898,7 +1016,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       it('raises an error', async () => {
         session.proveIdentity.mockResolvedValue({} as any);
         await expect(wallet.addAccount(1)).rejects.toThrow(
-          /Adding new account failed/,
+          /addAccount request failed/,
         );
       });
     });

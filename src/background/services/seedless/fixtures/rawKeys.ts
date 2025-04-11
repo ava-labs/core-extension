@@ -93,6 +93,40 @@ export const evmKey2 = {
   materialId: '0x8152d4841e61f8b3803ef47626707cf6be56d521',
 };
 
+export const solanaKey = {
+  key_type: 'Ed25519SolanaAddr',
+  key_id: 'Key#Solana_9pkoDvM1LG6VdeyRn6C8f9jMCCxFUBw96nnqHMRq3miu',
+  material_id: '9pkoDvM1LG6VdeyRn6C8f9jMCCxFUBw96nnqHMRq3miu',
+  materialId: '9pkoDvM1LG6VdeyRn6C8f9jMCCxFUBw96nnqHMRq3miu',
+  enabled: true,
+  derivation_info: {
+    mnemonic_id: validMnemonic.materialId,
+    derivation_path: "m/44'/501'/0'/0'",
+  },
+  id: 'Key#0x8152d4841e61f8b3803ef47626707cf6be56d522',
+  type: 'Ed25519SolanaAddr',
+  owner: 'User#users-uuid',
+  public_key: '0x1234567890abcdef',
+  publicKey: '0x1234567890abcdef',
+};
+
+export const solanaKey2 = {
+  key_type: 'Ed25519SolanaAddr',
+  key_id: 'Key#Solana_9pkoDvM1LG6VdeyRn6C8f9jMCCxFUBw96nnqHMRq3miy',
+  material_id: '9pkoDvM1LG6VdeyRn6C8f9jMCCxFUBw96nnqHMRq3miy',
+  materialId: '9pkoDvM1LG6VdeyRn6C8f9jMCCxFUBw96nnqHMRq3miy',
+  enabled: true,
+  derivation_info: {
+    mnemonic_id: validMnemonic.materialId,
+    derivation_path: "m/44'/501'/1'/0'",
+  },
+  id: 'Key#0x8152d4841e61f8b3803ef47626707cf6be56d522',
+  type: 'Ed25519SolanaAddr',
+  owner: 'User#users-uuid',
+  public_key: '0x1234567890abcdff',
+  publicKey: '0x1234567890abcdff',
+};
+
 export const avaKey2 = {
   key_type: 'SecpAvaAddr',
   key_id: 'Key#Ava_avax1mrtwgj4qgexgde60vsn53gk83mghfmrpvqdtf1',
@@ -203,6 +237,24 @@ export const anotherValidAvaKey = {
   materialId: 'AnotherValidAvaAddress',
 };
 
+export const anotherValidSolanaKey = {
+  key_type: 'Ed25519SolanaAddr',
+  key_id: 'Key#Ava_AnotherValidSolanaAddress',
+  material_id: 'AnotherValidSolanaAddress',
+  materialId: 'AnotherValidSolanaAddress',
+  purpose: 'Ava',
+  enabled: true,
+  owner: 'User#users-uuid',
+  public_key: 'AnotherValidSolanaPublicKey',
+  derivation_info: {
+    mnemonic_id: anotherValidMnemonic.materialId,
+    derivation_path: "m/44'/501'/0'/0",
+  },
+  id: 'Key#Ava_AnotherValidSolanaAddress',
+  type: 'Ed25519SolanaAddr',
+  publicKey: 'AnotherValidSolanaPublicKey',
+};
+
 export const anotherValidBtcKey = {
   key_type: 'SecpBtc',
   key_id: 'Key#Btc_AnotherValidBtcAddress',
@@ -282,15 +334,22 @@ export const validKeySet = [
   validMnemonic,
   btcTestKey,
   avaTestKey,
+  solanaKey,
 ];
 
-export const validKeySetWithTwoAccounts = [evmKey2, avaKey2, ...validKeySet];
+export const validKeySetWithTwoAccounts = [
+  evmKey2,
+  avaKey2,
+  solanaKey2,
+  ...validKeySet,
+];
 
 export const anotherValidKeySet = [
   anotherValidMnemonic,
   anotherValidEvmKey,
   anotherValidBtcKey,
   anotherValidAvaKey,
+  anotherValidSolanaKey,
 ];
 
 export const invalidKeySet = [randomEvmKey, randomMnemonic];
