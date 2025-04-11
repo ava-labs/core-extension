@@ -17,6 +17,7 @@ import { FirebaseService } from '../firebase/FirebaseService';
 import { MessagePayload } from 'firebase/messaging';
 import { sendNotification } from './utils/sendNotification';
 import { LockService } from '../lock/LockService';
+import { debounce } from 'lodash';
 @singleton()
 export class BalanceNotificationService {
   #clientId?: string;
@@ -38,9 +39,9 @@ export class BalanceNotificationService {
 
     this.accountService.addListener(
       AccountsEvents.ACCOUNTS_UPDATED,
-      async () => {
+      debounce(async () => {
         await this.subscribe();
-      },
+      }, 1000),
     );
 
     // attempt to refresh the existing subscriptions

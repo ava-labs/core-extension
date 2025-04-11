@@ -40,7 +40,6 @@ export class FirebaseService {
     );
 
     onBackgroundMessage(getMessaging(this.#app), (payload) => {
-      console.log(payload);
       this.#handleMessage(payload);
     });
 
