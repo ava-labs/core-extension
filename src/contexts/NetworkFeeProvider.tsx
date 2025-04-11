@@ -134,8 +134,6 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
       return;
     }
 
-    setGaslessEligibility(network.chainId);
-
     let timer: ReturnType<typeof setTimeout>;
     let isMounted = true;
 
@@ -156,7 +154,7 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [getNetworkFee, iteration, network?.chainId, setGaslessEligibility]);
+  }, [getNetworkFee, iteration, network?.chainId]);
 
   const fetchAndSolveGaslessChallange = useCallback(
     async () =>
