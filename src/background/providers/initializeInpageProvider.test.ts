@@ -92,6 +92,21 @@ describe('src/background/providers/initializeInpageProvider', () => {
       expect(errorSpy).toHaveBeenCalledTimes(1);
     });
 
+    it(`catches error when setting window.ethereum on fallback`, () => {
+      const otherWalletMock = { isMetaMask: true };
+      Object.defineProperty(windowMock, 'ethereum', {
+        get: () => otherWalletMock,
+      });
+
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+        //do nothing
+      });
+      initializeProvider(connectionMock, 10, windowMock);
+
+      expect(windowMock.ethereum).toBe(otherWalletMock);
+      expect(errorSpy).toHaveBeenCalledTimes(2);
+    });
+
     describe('legacy support: window.web3', () => {
       it('sets window.web3 object', () => {
         const provider = initializeProvider(connectionMock, 10, windowMock);
