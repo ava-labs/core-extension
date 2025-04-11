@@ -22,6 +22,12 @@ describe('contexts/utils/getCurrencyFormatter', () => {
     // NOTE: this is the last point (in terms of the number of the fraction part) we handle, below that the scientific notation is not something we deal with at the moment
     const value3 = formatter(0.0023);
     expect(value3).toBe('$0.002');
+
+    expect(formatter(123.123)).toBe('$123.12');
+    expect(formatter(123.1234)).toBe('$123.12');
+    expect(formatter(123.0123)).toBe('$123.01');
+    expect(formatter(123.00123)).toBe('$123.00');
+    expect(formatter(123.000123)).toBe('$123.00');
   });
 
   it('should transform a small number to `0.001` or a big number to `∞` from scientific notation', () => {

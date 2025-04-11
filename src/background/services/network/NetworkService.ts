@@ -401,7 +401,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     });
   }
 
-  private _getXchainNetwork(isTestnet: boolean): Network {
+  private _getXchainNetwork(isTestnet: boolean): NetworkWithCaipId {
     const network = isTestnet
       ? AVALANCHE_XP_TEST_NETWORK
       : AVALANCHE_XP_NETWORK;
