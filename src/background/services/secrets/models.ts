@@ -125,11 +125,22 @@ export type ImportedAccountSecrets =
   | ImportedWalletConnectSecrets
   | ImportedFireblocksSecrets;
 
+export type AccountWithSeedlessSecrets = Extract<
+  AccountWithSecrets,
+  { secretType: SecretType.Seedless }
+>;
+
+export type PrimaryAccountWithSecrets = {
+  account: PrimaryAccount;
+} & PrimaryWalletSecrets;
+
+export type ImportedAccountWithSecrets = {
+  account: ImportedAccount;
+} & ImportedAccountSecrets;
+
 export type AccountWithSecrets =
-  | ({
-      account?: PrimaryAccount;
-    } & PrimaryWalletSecrets)
-  | ({ account: ImportedAccount } & ImportedAccountSecrets);
+  | PrimaryAccountWithSecrets
+  | ImportedAccountWithSecrets;
 
 export type DerivedAddresses = {
   addressC: string;
