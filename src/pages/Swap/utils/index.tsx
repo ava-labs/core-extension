@@ -1,9 +1,15 @@
 import { TokenIcon as TokenImage } from '@src/components/common/TokenIcon';
 import { calculateGasAndFees } from '@src/utils/calculateGasAndFees';
-import { TokenType, TokenWithBalanceEVM } from '@avalabs/vm-module-types';
+import {
+  TokenType,
+  TokenWithBalance,
+  TokenWithBalanceEVM,
+} from '@avalabs/vm-module-types';
 import { stringToBigint } from '@src/utils/stringToBigint';
 import { WrappedError } from '@src/utils/errors';
 import { OptimalRate } from '@paraswap/sdk';
+import { SwappableToken } from '../models';
+import { JupiterQuote } from '@src/contexts/SwapProvider/models';
 
 interface GetTokenIconProps {
   token?: TokenWithBalanceEVM;
@@ -40,7 +46,7 @@ export const getTokenIcon = (token: TokenWithBalanceEVM) => {
   );
 };
 
-export const getMaxValue = (token?: TokenWithBalanceEVM, fee?: string) => {
+export const getMaxValue = (token?: SwappableToken, fee?: string) => {
   if (!token || !fee) {
     return;
   }
@@ -55,7 +61,7 @@ export function isAPIError(rate: any): rate is WrappedError {
   return typeof rate.message === 'string';
 }
 
-export const getTokenAddress = (token?: TokenWithBalanceEVM) => {
+export const getTokenAddress = (token?: SwappableToken) => {
   if (!token) {
     return undefined;
   }
@@ -73,7 +79,7 @@ export const getMaxValueWithGas = ({
   gasLimit?: number;
   avaxPrice: number;
   tokenDecimals?: number;
-  selectedFromToken: TokenWithBalanceEVM;
+  selectedFromToken: SwappableToken;
 }) => {
   const newFees = calculateGasAndFees({
     gasPrice: customGasPrice,
@@ -86,13 +92,17 @@ export const getMaxValueWithGas = ({
   return max;
 };
 
-export const calculateRate = (optimalRate: OptimalRate) => {
-  const { destAmount, destDecimals, srcAmount, srcDecimals } = optimalRate;
-  const destAmountNumber =
-    parseInt(destAmount, 10) / Math.pow(10, destDecimals);
-  const sourceAmountNumber =
-    parseInt(srcAmount, 10) / Math.pow(10, srcDecimals);
-  return destAmountNumber / sourceAmountNumber;
+export const calculateRate = (optimalRate: OptimalRate | JupiterQuote) => {
+  if ('destAmount' in optimalRate) {
+    const { destAmount, destDecimals, srcAmount, srcDecimals } = optimalRate;
+    const destAmountNumber =
+      parseInt(destAmount, 10) / Math.pow(10, destDecimals);
+    const sourceAmountNumber =
+      parseInt(srcAmount, 10) / Math.pow(10, srcDecimals);
+    return destAmountNumber / sourceAmountNumber;
+  }
+
+  return 0; // TODO: handle jupiter quote
 };
 
 export interface Token {
@@ -129,3 +139,10 @@ export const isSlippageValid = (value: string) => {
   }
   return false;
 };
+
+export const isSwappableToken = (
+  token: TokenWithBalance,
+): token is SwappableToken =>
+  token.type === TokenType.ERC20 ||
+  token.type === TokenType.NATIVE ||
+  token.type === TokenType.SPL;

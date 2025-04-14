@@ -1,6 +1,5 @@
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { useEffect, useMemo, useState } from 'react';
 import { resolve } from '@src/utils/promiseResolver';
 import { TransactionDetails } from './components/TransactionDetails';
@@ -39,10 +38,10 @@ import { TokenSelect } from '@src/components/common/TokenSelect';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import { isUserRejectionError } from '@src/utils/errors';
-import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
 import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { SwappableToken } from './models';
+import { useSwappableTokens } from './hooks/useSwapTokens';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -71,14 +70,7 @@ export function Swap() {
   } = useIsFunctionAvailable(FunctionNames.SWAP);
   const history = useHistory();
   const theme = useTheme();
-  const tokensWBalances = useTokensWithBalances({
-    disallowedAssets: DISALLOWED_SWAP_ASSETS,
-  });
-
-  const allTokensOnNetwork = useTokensWithBalances({
-    forceShowTokensWithoutBalances: true,
-    disallowedAssets: DISALLOWED_SWAP_ASSETS,
-  });
+  const { sourceTokens, targetTokens } = useSwappableTokens();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -97,7 +89,6 @@ export function Swap() {
     onFromInputAmountChange,
     onToInputAmountChange,
     getSwapValues,
-    swapGasLimit,
     selectedFromToken,
     selectedToToken,
     destinationInputField,
@@ -108,36 +99,36 @@ export function Swap() {
     swapWarning,
     isReversed,
     toTokenValue,
-    optimalRate,
+    quote,
     destAmount,
     resetValues,
   } = useSwapStateFunctions();
 
   const allSwappableTokens = useMemo(
     () =>
-      allTokensOnNetwork.filter(
+      targetTokens.filter(
         (token) =>
           (token.type === TokenType.ERC20 || token.type === TokenType.NATIVE) &&
           (token.name !== selectedFromToken?.name ||
             token.symbol !== selectedFromToken?.symbol),
       ),
-    [allTokensOnNetwork, selectedFromToken?.name, selectedFromToken?.symbol],
+    [targetTokens, selectedFromToken?.name, selectedFromToken?.symbol],
   );
 
   const isFromTokenKnown = useMemo(
     () =>
       selectedFromToken
-        ? tokensWBalances.some(getTokenFinder(selectedFromToken))
+        ? sourceTokens.some(getTokenFinder(selectedFromToken))
         : true,
-    [tokensWBalances, selectedFromToken],
+    [sourceTokens, selectedFromToken],
   );
 
   const isToTokenKnown = useMemo(
     () =>
       selectedToToken
-        ? allTokensOnNetwork.some(getTokenFinder(selectedToToken))
+        ? targetTokens.some(getTokenFinder(selectedToToken))
         : true,
-    [allTokensOnNetwork, selectedToToken],
+    [targetTokens, selectedToToken],
   );
 
   // If we detect the form has tokens that do not belong to the newly selected network,
@@ -180,12 +171,12 @@ export function Swap() {
 
   const fromTokensList = useMemo(
     () =>
-      tokensWBalances.filter(
+      sourceTokens.filter(
         (token) =>
           token.name !== selectedToToken?.name ||
           token.symbol !== selectedToToken?.symbol,
       ),
-    [selectedToToken?.name, selectedToToken?.symbol, tokensWBalances],
+    [selectedToToken?.name, selectedToToken?.symbol, sourceTokens],
   );
 
   async function performSwap() {
@@ -198,12 +189,12 @@ export function Swap() {
     } = getSwapValues();
     if (
       !networkFee ||
-      !optimalRate?.gasCost ||
       !toTokenDecimals ||
       !toTokenAddress ||
       !fromTokenAddress ||
       !fromTokenDecimals ||
-      !amount
+      !amount ||
+      !quote
     ) {
       return;
     }
@@ -218,9 +209,7 @@ export function Swap() {
         destToken: toTokenAddress,
         srcDecimals: fromTokenDecimals,
         destDecimals: toTokenDecimals,
-        srcAmount: optimalRate.srcAmount,
-        priceRoute: optimalRate,
-        destAmount: optimalRate.destAmount,
+        quote,
         slippage: parseFloat(slippage),
       }),
     );
@@ -282,13 +271,12 @@ export function Swap() {
     !swapError?.message &&
     selectedFromToken &&
     selectedToToken &&
-    optimalRate &&
-    swapGasLimit &&
+    quote &&
     isSlippageValid(slippageTolerance) &&
     networkFee;
 
   const isDetailsAvailable =
-    selectedFromToken && selectedToToken && optimalRate && networkFee;
+    selectedFromToken && selectedToToken && quote && networkFee;
 
   if (!isDetailsAvailable && isTransactionDetailsOpen) {
     setIsTransactionDetailsOpen(false);
@@ -327,7 +315,7 @@ export function Swap() {
               setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
               setIsToTokenSelectOpen(false);
             }}
-            tokensList={fromTokensList}
+            tokensList={sourceTokens}
             skipHandleMaxAmount
             isOpen={isFromTokenSelectOpen}
             selectedToken={selectedFromToken}
@@ -416,7 +404,7 @@ export function Swap() {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
               setIsFromTokenSelectOpen(false);
             }}
-            tokensList={allSwappableTokens}
+            tokensList={targetTokens}
             isOpen={isToTokenSelectOpen}
             selectedToken={selectedToToken}
             inputAmount={toAmount}
@@ -434,7 +422,7 @@ export function Swap() {
             <TransactionDetails
               fromTokenSymbol={selectedFromToken?.symbol}
               toTokenSymbol={selectedToToken?.symbol}
-              rate={calculateRate(optimalRate)}
+              rate={calculateRate(quote)}
               slippage={slippageTolerance}
               setSlippage={(slippage) => setSlippageTolerance(slippage)}
               setIsOpen={setIsTransactionDetailsOpen}
@@ -478,5 +466,6 @@ const getTokenFinder = (selectedToken: SwappableToken) => {
   }
 
   return (token: TokenWithBalance) =>
-    token.type === TokenType.ERC20 && token.address === selectedToken.address;
+    (token.type === TokenType.ERC20 || token.type === TokenType.SPL) &&
+    token.address === selectedToken.address;
 };

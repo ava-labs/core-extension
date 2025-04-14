@@ -20,6 +20,7 @@ import {
 } from '@src/background/services/network/utils/isAvalancheXchainNetwork';
 import { isEthereumNetwork } from '@src/background/services/network/utils/isEthereumNetwork';
 import { isAvalancheNetwork } from '@src/background/services/network/utils/isAvalancheNetwork';
+import { isSolanaNetwork } from '@src/background/services/network/utils/isSolanaNetwork';
 
 export enum FunctionNames {
   BRIDGE = 'Bridge',
@@ -166,7 +167,11 @@ const enabledFeatures = {
     ChainId.AVALANCHE_TESTNET_ID,
     ChainId.ETHEREUM_HOMESTEAD,
   ],
-  Swap: [ChainId.AVALANCHE_MAINNET_ID, ChainId.ETHEREUM_HOMESTEAD],
+  Swap: [
+    ChainId.AVALANCHE_MAINNET_ID,
+    ChainId.ETHEREUM_HOMESTEAD,
+    ChainId.SOLANA_MAINNET_ID,
+  ],
   Buy: [ChainId.AVALANCHE_MAINNET_ID, ChainId.AVALANCHE_TESTNET_ID],
 };
 
@@ -232,7 +237,7 @@ export const useIsFunctionAvailable = (
         ? featureFlags[FeatureGates.SWAP_ETHEREUM]
         : isAvalancheNetwork(network)
           ? featureFlags[FeatureGates.SWAP_C_CHAIN]
-          : false;
+          : isSolanaNetwork(network); // TODO: hide behind a feature flag
     }
 
     const featureFlagToCheck = FeatureFlagMap[functionToCheck];

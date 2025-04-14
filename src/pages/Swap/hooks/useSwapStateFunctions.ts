@@ -6,15 +6,25 @@ import { USDC_ADDRESSES } from '@src/utils/constants';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
-import { useSwap } from './useSwap';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
 import { stringToBigint } from '@src/utils/stringToBigint';
 
 import { Amount, DestinationInput, getTokenAddress } from '../utils';
 import { useTokensBySymbols } from './useTokensBySymbols';
 import { SwappableToken } from '../models';
+import { useSwapContext } from '@src/contexts/SwapProvider';
 
 export function useSwapStateFunctions() {
+  const {
+    setSwapError,
+    destAmount,
+    setDestAmount,
+    swapFormValuesStream,
+    swapError,
+    isSwapLoading,
+    setIsSwapLoading,
+    quote,
+  } = useSwapContext();
   const tokensWBalances = useTokensWithBalances({
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
@@ -40,18 +50,6 @@ export function useSwapStateFunctions() {
   const [fromTokenValue, setFromTokenValue] = useState<Amount>();
   const [toTokenValue, setToTokenValue] = useState<Amount>();
 
-  const {
-    setValuesDebouncedSubject,
-    swapError,
-    isSwapLoading,
-    setIsSwapLoading,
-    optimalRate,
-    swapGasLimit,
-    destAmount,
-    setDestAmount,
-    setSwapError,
-  } = useSwap();
-
   const calculateTokenValueToInput = useCallback(
     (
       amount: bigint,
@@ -65,8 +63,8 @@ export function useSwapStateFunctions() {
 
       setSwapWarning('');
       setDestinationInputField(destinationInput);
-      setValuesDebouncedSubject.next({
-        ...setValuesDebouncedSubject.getValue(),
+      swapFormValuesStream.next({
+        ...swapFormValuesStream.getValue(),
         fromTokenAddress: getTokenAddress(sourceToken),
         toTokenAddress: getTokenAddress(destinationToken),
         fromTokenDecimals: sourceToken.decimals,
@@ -76,7 +74,7 @@ export function useSwapStateFunctions() {
         fromTokenBalance: sourceToken?.balance,
       });
     },
-    [setValuesDebouncedSubject],
+    [swapFormValuesStream],
   );
 
   const { $NATIVE, USDC } = useTokensBySymbols({
@@ -147,13 +145,13 @@ export function useSwapStateFunctions() {
         setSelectedToToken(USDC);
       }
 
-      setValuesDebouncedSubject.next({
-        ...setValuesDebouncedSubject.getValue(),
+      swapFormValuesStream.next({
+        ...swapFormValuesStream.getValue(),
         amount: undefined,
         destinationInputField: undefined,
       });
     },
-    [setValuesDebouncedSubject, $NATIVE, USDC],
+    [swapFormValuesStream, $NATIVE, USDC],
   );
 
   const calculateSwapValue = ({
@@ -340,7 +338,7 @@ export function useSwapStateFunctions() {
     sendAmountEnteredAnalytics('Swap');
   };
 
-  const getSwapValues = () => setValuesDebouncedSubject.getValue();
+  const getSwapValues = () => swapFormValuesStream.getValue();
 
   return {
     calculateTokenValueToInput,
@@ -348,9 +346,8 @@ export function useSwapStateFunctions() {
     onTokenChange,
     onFromInputAmountChange,
     onToInputAmountChange,
-    setValuesDebouncedSubject,
+    swapFormValuesStream,
     selectedFromToken,
-    swapGasLimit,
     selectedToToken,
     destinationInputField,
     fromTokenValue,
@@ -360,7 +357,7 @@ export function useSwapStateFunctions() {
     swapWarning,
     isReversed,
     toTokenValue,
-    optimalRate,
+    quote,
     destAmount,
     getSwapValues,
     resetValues,

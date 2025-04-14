@@ -14,7 +14,7 @@ import {
 } from '@src/utils/errors';
 import { resolve } from '@src/utils/promiseResolver';
 import { RequestHandlerType } from '@src/background/connections/models';
-import { SwapError } from '@src/pages/Swap/hooks/useSwap';
+import { SwapError } from '@src/contexts/SwapProvider/models';
 
 import {
   PARASWAP_RETRYABLE_ERRORS,
@@ -27,21 +27,24 @@ import {
   PARASWAP_PARTNER_ADDRESS,
   PARASWAP_PARTNER_FEE_BPS,
 } from './constants';
-import { FetcherError, TransactionParams } from '@paraswap/sdk';
+import { FetcherError, OptimalRate, TransactionParams } from '@paraswap/sdk';
 
-export function validateParams(
-  params: Partial<SwapParams>,
-): Required<SwapParams> | never {
-  const {
-    srcToken,
-    destToken,
-    srcAmount,
-    srcDecimals,
-    destDecimals,
-    destAmount,
-    priceRoute,
-    slippage,
-  } = params;
+export function validateParaswapParams(
+  params: Partial<SwapParams<OptimalRate>>,
+):
+  | Required<
+      SwapParams<OptimalRate> & { srcAmount: string; destAmount: string }
+    >
+  | never {
+  const { srcToken, destToken, srcDecimals, destDecimals, quote, slippage } =
+    params;
+
+  if (!quote) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: quote'),
+    );
+  }
 
   if (!srcToken) {
     throw swapError(
@@ -57,7 +60,7 @@ export function validateParams(
     );
   }
 
-  if (!srcAmount) {
+  if (!quote.srcAmount) {
     throw swapError(
       SwapErrorCode.MissingParams,
       new Error('Missing parameter: srcAmount'),
@@ -78,17 +81,10 @@ export function validateParams(
     );
   }
 
-  if (!destAmount) {
+  if (!quote.destAmount) {
     throw swapError(
       SwapErrorCode.MissingParams,
       new Error('Missing parameter: destAmount'),
-    );
-  }
-
-  if (!priceRoute) {
-    throw swapError(
-      SwapErrorCode.MissingParams,
-      new Error('Missing parameter: priceRoute'),
     );
   }
 
@@ -101,12 +97,12 @@ export function validateParams(
 
   return {
     srcToken,
+    srcAmount: quote.srcAmount,
     destToken,
-    srcAmount,
+    destAmount: quote.destAmount,
     srcDecimals,
     destDecimals,
-    destAmount,
-    priceRoute,
+    quote,
     slippage,
   };
 }
