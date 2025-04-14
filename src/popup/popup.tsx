@@ -43,6 +43,7 @@ import { AppRoutes } from './AppRoutes';
 import { InAppApprovalOverlay } from '@src/components/common/InAppApprovalOverlay';
 import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
 import LedgerSolanaAddressPrompt from '@src/pages/Ledger/LedgerSolanaAddressPrompt';
+import { SeedlessUpdatingAccountDialog } from '@src/components/common/seedless/SeedlessUpdatingAccountDialog';
 
 const pagesWithoutHeader = [
   '/tokens/manage',
@@ -181,6 +182,7 @@ export function Popup() {
                                                 <LedgerRegisterBtcWalletPolicy />
                                                 <LedgerSolanaAddressPrompt />
                                                 <SeedlessAuthPrompt />
+                                                <SeedlessUpdatingAccountDialog />
                                                 {isMiniMode && (
                                                   <InAppApprovalOverlay />
                                                 )}
