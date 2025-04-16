@@ -1,11 +1,12 @@
 import { BehaviorSubject } from 'rxjs';
 import { Address, OptimalRate, PriceString, SwapSide } from '@paraswap/sdk';
 
-import { DestinationInput } from '@src/pages/Swap/utils';
-import { WalletDetails } from '@src/background/services/wallet/models';
 import { Account } from '@src/background/services/accounts/models';
+import { WalletDetails } from '@src/background/services/wallet/models';
+import { DestinationInput } from '@src/pages/Swap/utils';
 import { NetworkWithCaipId } from '@src/background/services/network/models';
-import { NetworkFee } from '@src/background/services/networkFee/models';
+
+import type { JupiterQuote } from './schemas';
 
 /**
  * Paraswap may return both data and an error sometimes.
@@ -85,6 +86,7 @@ export type GetRateParams = {
   srcAmount: string;
   swapSide?: SwapSide;
   fromTokenBalance?: bigint;
+  slippageTolerance?: string;
 };
 
 export type SwapFormValues = {
@@ -95,6 +97,7 @@ export type SwapFormValues = {
   fromTokenDecimals?: number;
   destinationInputField?: DestinationInput;
   fromTokenBalance?: bigint;
+  slippageTolerance?: string;
 };
 
 type GetRateResult<T extends SwapQuote> =
@@ -112,8 +115,8 @@ type GetRateResult<T extends SwapQuote> =
 export type SwapContextAPI = {
   getRate(params: GetRateParams): Promise<GetRateResult<SwapQuote>>;
   swap(params: SwapParams<SwapQuote>): Promise<void>;
-  swapError: SwapError;
-  setSwapError(error: SwapError): void;
+  error: SwapError;
+  setError(error: SwapError): void;
   isSwapLoading: boolean;
   setIsSwapLoading(isSwapLoading: boolean): void;
   quote: OptimalRate | JupiterQuote | null;
@@ -170,6 +173,8 @@ export enum SwapErrorCode {
   UnknownSpender = 'unknown-spender',
   UnexpectedApiResponse = 'unexpected-api-response',
   CannotBuildTx = 'cannot-build-tx',
+  InvalidParams = 'invalid-params',
+  FeatureDisabled = 'feature-disabled',
 }
 
 export interface SwapError {
@@ -177,31 +182,42 @@ export interface SwapError {
   hasTryAgain?: boolean;
 }
 
-export type JupiterQuote = {
-  inputMint: string;
-  inAmount: string;
-  outputMint: string;
-  outAmount: string;
-  otherAmountThreshold: string;
-  swapMode: 'ExactIn' | 'ExactOut';
-  slippageBps: number;
-  platformFee: {
-    amount: string;
-    feeBps: number;
-  };
-  priceImpactPct: string;
-  routePlan: unknown[];
-  contextSlot: number;
-  timeTaken: number;
-};
-
-type WalletState = Partial<{
+export type SwapWalletState = Partial<{
   account: Account;
   network: NetworkWithCaipId;
-  networkFee: NetworkFee | null;
   walletDetails: WalletDetails;
 }>;
-export type SwapAdapter<T extends SwapQuote> = (walletState: WalletState) => {
+
+export type TransactionResult = {
+  success: boolean;
+  error?: string | null;
+};
+
+export type OnTransactionReceiptCallback = (params: {
+  isSuccessful: boolean;
+  pendingToastId: string;
+  txHash: string;
+  chainId: number;
+  userAddress: string;
+  srcToken: string;
+  destToken: string;
+  srcAmount: string;
+  destAmount: string;
+  srcDecimals: number;
+  destDecimals: number;
+}) => void;
+
+export type SwapAdapterMethods = {
+  onTransactionReceipt: OnTransactionReceiptCallback;
+  showPendingToast: () => string;
+};
+
+export type SwapAdapter<T extends SwapQuote> = (
+  walletState: SwapWalletState,
+  methods: SwapAdapterMethods,
+) => {
   getRate: (params: GetRateParams) => Promise<GetRateResult<T>>;
   swap: (params: SwapParams<T>) => Promise<void>;
 };
+
+export type { JupiterQuote };

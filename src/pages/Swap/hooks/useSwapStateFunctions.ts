@@ -16,11 +16,11 @@ import { useSwapContext } from '@src/contexts/SwapProvider';
 
 export function useSwapStateFunctions() {
   const {
-    setSwapError,
+    setError,
     destAmount,
     setDestAmount,
     swapFormValuesStream,
-    swapError,
+    error,
     isSwapLoading,
     setIsSwapLoading,
     quote,
@@ -49,6 +49,18 @@ export function useSwapStateFunctions() {
   const [defaultFromValue, setFromDefaultValue] = useState<bigint>();
   const [fromTokenValue, setFromTokenValue] = useState<Amount>();
   const [toTokenValue, setToTokenValue] = useState<Amount>();
+  const [slippageTolerance, setSlippageTolerance] = useState('1');
+
+  const updateSlippage = useCallback(
+    (value: string) => {
+      setSlippageTolerance(value);
+      swapFormValuesStream.next({
+        ...swapFormValuesStream.getValue(),
+        slippageTolerance: value,
+      });
+    },
+    [swapFormValuesStream],
+  );
 
   const calculateTokenValueToInput = useCallback(
     (
@@ -72,9 +84,10 @@ export function useSwapStateFunctions() {
         amount,
         destinationInputField: destinationInput,
         fromTokenBalance: sourceToken?.balance,
+        slippageTolerance,
       });
     },
-    [swapFormValuesStream],
+    [swapFormValuesStream, slippageTolerance],
   );
 
   const { $NATIVE, USDC } = useTokensBySymbols({
@@ -194,7 +207,7 @@ export function useSwapStateFunctions() {
       );
       return;
     }
-    setSwapError({ message: '' });
+    setError({ message: '' });
     setSelectedFromToken(toToken);
     setSelectedToToken(fromToken);
     setIsReversed((reversed) => reversed);
@@ -351,7 +364,7 @@ export function useSwapStateFunctions() {
     selectedToToken,
     destinationInputField,
     fromTokenValue,
-    swapError: swapError.message ? swapError : null,
+    swapError: error.message ? error : null,
     isLoading: isSwapLoading,
     defaultFromValue,
     swapWarning,
@@ -359,6 +372,8 @@ export function useSwapStateFunctions() {
     toTokenValue,
     quote,
     destAmount,
+    slippageTolerance,
+    updateSlippage,
     getSwapValues,
     resetValues,
   };

@@ -237,7 +237,9 @@ export const useIsFunctionAvailable = (
         ? featureFlags[FeatureGates.SWAP_ETHEREUM]
         : isAvalancheNetwork(network)
           ? featureFlags[FeatureGates.SWAP_C_CHAIN]
-          : isSolanaNetwork(network); // TODO: hide behind a feature flag
+          : isSolanaNetwork(network)
+            ? featureFlags[FeatureGates.SWAP_SOLANA]
+            : false;
     }
 
     const featureFlagToCheck = FeatureFlagMap[functionToCheck];

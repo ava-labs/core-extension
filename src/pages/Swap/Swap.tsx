@@ -8,7 +8,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
-import { ParaswapNotice } from './components/ParaswapNotice';
+import { SwapEngineNotice } from './components/SwapEngineNotice';
 import {
   FunctionNames,
   useIsFunctionAvailable,
@@ -75,7 +75,6 @@ export function Swap() {
     accounts: { active: activeAccount },
   } = useAccountsContext();
 
-  const [slippageTolerance, setSlippageTolerance] = useState('1');
   const [isFromTokenSelectOpen, setIsFromTokenSelectOpen] = useState(false);
   const [isToTokenSelectOpen, setIsToTokenSelectOpen] = useState(false);
   const [isTransactionDetailsOpen, setIsTransactionDetailsOpen] =
@@ -102,6 +101,8 @@ export function Swap() {
     quote,
     destAmount,
     resetValues,
+    slippageTolerance,
+    updateSlippage,
   } = useSwapStateFunctions();
 
   const allSwappableTokens = useMemo(
@@ -422,9 +423,12 @@ export function Swap() {
             <TransactionDetails
               fromTokenSymbol={selectedFromToken?.symbol}
               toTokenSymbol={selectedToToken?.symbol}
-              rate={calculateRate(quote)}
+              rate={calculateRate(quote, {
+                srcDecimals: selectedFromToken?.decimals,
+                destDecimals: selectedToToken?.decimals,
+              })}
               slippage={slippageTolerance}
-              setSlippage={(slippage) => setSlippageTolerance(slippage)}
+              setSlippage={(slippage) => updateSlippage(slippage)}
               setIsOpen={setIsTransactionDetailsOpen}
               isTransactionDetailsOpen={isTransactionDetailsOpen}
             />
@@ -432,7 +436,7 @@ export function Swap() {
           <ReviewOrderButtonContainer
             isTransactionDetailsOpen={isTransactionDetailsOpen}
           >
-            <ParaswapNotice />
+            <SwapEngineNotice />
             <Button
               data-testid="swap-review-order-button"
               sx={{

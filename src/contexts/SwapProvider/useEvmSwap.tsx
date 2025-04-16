@@ -3,21 +3,17 @@ import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { TransactionParams } from '@avalabs/evm-module';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { useConnectionContext } from '../ConnectionProvider';
-import browser from 'webextension-polyfill';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import Big from 'big.js';
-import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { RpcMethod } from '@avalabs/vm-module-types';
 import { BN } from 'bn.js';
-import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useTranslation } from 'react-i18next';
 import {
   GetRateParams,
   SwapParams,
-  DISALLOWED_SWAP_ASSETS,
   BuildTxParams,
   GetSwapPropsParams,
   ValidTransactionResponse,
@@ -45,10 +41,7 @@ import {
   WrappedError,
 } from '@src/utils/errors';
 import { SecretType } from '@src/background/services/secrets/models';
-import { toast } from '@avalabs/core-k2-components';
-import { SwapPendingToast } from '@src/pages/Swap/components/SwapPendingToast';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
 import {
   constructPartialSDK,
   constructFetchFetcher,
@@ -60,23 +53,14 @@ import {
   constructGetSpender,
 } from '@paraswap/sdk';
 import { NATIVE_TOKEN_ADDRESS } from './constants';
-import { toastCardWithLink } from '@src/utils/toastCardWithLink';
-import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
-export const useEvmSwap: SwapAdapter<OptimalRate> = ({
-  account,
-  network,
-  networkFee,
-  walletDetails,
-}) => {
+export const useEvmSwap: SwapAdapter<OptimalRate> = (
+  { account, network, walletDetails },
+  { onTransactionReceipt, showPendingToast },
+) => {
   const { request } = useConnectionContext();
   const { isFlagEnabled } = useFeatureFlagContext();
-  const { captureEncrypted } = useAnalyticsContext();
   const { t } = useTranslation();
-  const tokens = useTokensWithBalances({
-    forceShowTokensWithoutBalances: true,
-    disallowedAssets: DISALLOWED_SWAP_ASSETS,
-  });
 
   const [rpcProvider, setRpcProvider] = useState<JsonRpcBatchInternal>();
 
@@ -136,7 +120,7 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = ({
       }
 
       if (!isFlagEnabled(FeatureGates.SWAP)) {
-        throw new Error(`Feature (SWAP) is currently unavailable`);
+        throw swapError(SwapErrorCode.FeatureDisabled);
       }
 
       assertPresent(paraswap, SwapErrorCode.ClientNotInitialized);
@@ -227,7 +211,7 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = ({
       assertPresent(paraswap, SwapErrorCode.ClientNotInitialized);
 
       if (!isFlagEnabled(FeatureGates.SWAP)) {
-        throw new Error(`Feature (SWAP) is currently unavailable`);
+        throw swapError(SwapErrorCode.FeatureDisabled);
       }
 
       const responseSchema = Joi.object<ValidTransactionResponse>({
@@ -331,119 +315,6 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = ({
     [paraswap, network],
   );
 
-  const findSymbol = useCallback(
-    (symbolOrAddress: string) => {
-      const tokenInfo = tokens.find((token) =>
-        token.type === TokenType.NATIVE
-          ? token.symbol === symbolOrAddress
-          : token.address === symbolOrAddress,
-      );
-
-      return tokenInfo?.symbol ?? symbolOrAddress;
-    },
-    [tokens],
-  );
-
-  const notifyOnSwapResult = useCallback(
-    async ({
-      provider,
-      txHash,
-      chainId,
-      userAddress,
-      srcToken,
-      destToken,
-      srcAmount,
-      destAmount,
-      srcDecimals,
-      destDecimals,
-    }: {
-      provider: JsonRpcBatchInternal;
-      txHash: string;
-      chainId: number;
-      userAddress: string;
-      srcToken: string;
-      destToken: string;
-      srcAmount: string;
-      destAmount: string;
-      srcDecimals: number;
-      destDecimals: number;
-    }) => {
-      const toastId = toast.custom(
-        <SwapPendingToast onDismiss={() => toast.remove(toastId)}>
-          {t('Swap pending...')}
-        </SwapPendingToast>,
-        {
-          duration: Infinity,
-        },
-      );
-
-      provider.waitForTransaction(txHash).then(async (tx) => {
-        const isSuccessful = tx && tx.status === 1;
-
-        captureEncrypted(isSuccessful ? 'SwapSuccessful' : 'SwapFailed', {
-          address: userAddress,
-          txHash: txHash,
-          chainId,
-        });
-
-        const srcAsset = findSymbol(srcToken);
-        const destAsset = findSymbol(destToken);
-        const srcAssetAmount = new Big(srcAmount)
-          .div(10 ** srcDecimals)
-          .toString();
-        const destAssetAmount = new Big(destAmount)
-          .div(10 ** destDecimals)
-          .toString();
-
-        const notificationText = isSuccessful
-          ? t('Swap transaction succeeded! 🎉')
-          : t('Swap transaction failed! ❌');
-
-        toast.remove(toastId);
-
-        if (isSuccessful) {
-          toastCardWithLink({
-            title: notificationText,
-            url: getExplorerAddressByNetwork(
-              network as NetworkWithCaipId,
-              txHash,
-            ),
-            label: t('View in Explorer'),
-          });
-        } else {
-          toast.error(notificationText, { duration: 5000 });
-        }
-
-        browser.notifications.create({
-          type: 'basic',
-          title: notificationText,
-          iconUrl: '../../../../images/icon-192.png',
-          priority: 2,
-          message: isSuccessful
-            ? t(
-                'Successfully swapped {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}',
-                {
-                  srcAmount: srcAssetAmount,
-                  destAmount: destAssetAmount,
-                  srcToken: srcAsset,
-                  destToken: destAsset,
-                },
-              )
-            : t(
-                'Could not swap {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}',
-                {
-                  srcToken: srcAsset,
-                  destToken: destAsset,
-                  srcAmount: srcAssetAmount,
-                  destAmount: destAssetAmount,
-                },
-              ),
-        });
-      });
-    },
-    [network, captureEncrypted, findSymbol, t],
-  );
-
   /**
    * Used to perform a batch swap operation (approval + transfer) in a single click for the user.
    * Some notes:
@@ -455,11 +326,10 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = ({
   const oneClickSwap = useCallback(
     async (params: SwapParams<OptimalRate>) => {
       if (!isFlagEnabled(FeatureGates.ONE_CLICK_SWAP)) {
-        throw new Error(`Feature (SWAP) is currently unavailable`);
+        throw swapError(SwapErrorCode.FeatureDisabled);
       }
 
       assertPresent(network, CommonError.NoActiveNetwork);
-      assertPresent(networkFee, CommonError.UnknownNetworkFee);
       assertPresent(account, CommonError.NoActiveAccount);
       assertPresent(rpcProvider, CommonError.Unknown);
       assert(!network.isTestnet, CommonError.UnknownNetwork);
@@ -577,37 +447,43 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = ({
         swapTxHash = txHash;
       }
 
-      notifyOnSwapResult({
-        provider: rpcProvider,
-        txHash: swapTxHash,
-        chainId: network.chainId,
-        userAddress,
-        srcToken,
-        destToken,
-        srcAmount,
-        destAmount,
-        srcDecimals,
-        destDecimals,
+      const pendingToastId = showPendingToast();
+
+      rpcProvider.waitForTransaction(swapTxHash).then((receipt) => {
+        const isSuccessful = Boolean(receipt && receipt.status === 1);
+
+        onTransactionReceipt({
+          isSuccessful,
+          pendingToastId,
+          txHash: swapTxHash,
+          chainId: network.chainId,
+          userAddress,
+          srcToken,
+          destToken,
+          srcAmount,
+          destAmount,
+          srcDecimals,
+          destDecimals,
+        });
       });
     },
     [
       isFlagEnabled,
       network,
-      networkFee,
       account,
       rpcProvider,
       getSwapTxProps,
       buildTx,
-      notifyOnSwapResult,
       request,
       t,
+      onTransactionReceipt,
+      showPendingToast,
     ],
   );
 
   const regularSwap = useCallback(
     async (params: SwapParams<OptimalRate>) => {
       assertPresent(network, CommonError.NoActiveNetwork);
-      assertPresent(networkFee, CommonError.UnknownNetworkFee);
       assertPresent(account, CommonError.NoActiveAccount);
       assertPresent(rpcProvider, CommonError.Unknown);
       assert(!network.isTestnet, CommonError.UnknownNetwork);
@@ -616,9 +492,9 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = ({
         srcToken,
         destToken,
         srcAmount,
+        destAmount,
         srcDecimals,
         destDecimals,
-        destAmount,
         quote,
         slippage,
       } = validateParaswapParams(params);
@@ -675,7 +551,6 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = ({
           10,
         ),
       );
-
       if (txBuildDataError || !swapTx) {
         throw swapError(SwapErrorCode.CannotBuildTx, txBuildDataError);
       }
@@ -699,36 +574,43 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = ({
         throw swapError(CommonError.UnableToSign, signError);
       }
 
-      notifyOnSwapResult({
-        provider: rpcProvider,
-        txHash: swapTxHash,
-        chainId: network.chainId,
-        userAddress,
-        srcToken,
-        destToken,
-        srcAmount,
-        destAmount,
-        srcDecimals,
-        destDecimals,
+      const pendingToastId = showPendingToast();
+
+      rpcProvider.waitForTransaction(swapTxHash).then((receipt) => {
+        const isSuccessful = Boolean(receipt && receipt.status === 1);
+
+        onTransactionReceipt({
+          isSuccessful,
+          pendingToastId,
+          txHash: swapTxHash,
+          chainId: network.chainId,
+          userAddress,
+          srcToken,
+          destToken,
+          srcAmount,
+          destAmount,
+          srcDecimals,
+          destDecimals,
+        });
       });
     },
     [
       network,
-      networkFee,
       account,
       rpcProvider,
       getSwapTxProps,
       request,
-      notifyOnSwapResult,
       buildTx,
       t,
+      onTransactionReceipt,
+      showPendingToast,
     ],
   );
 
   const swap = useCallback(
     async (params: SwapParams<OptimalRate>) => {
       if (!isFlagEnabled(FeatureGates.SWAP)) {
-        throw new Error(`Feature (SWAP) is currently unavailable`);
+        throw swapError(SwapErrorCode.FeatureDisabled);
       }
 
       const isOneClickSwapEnabled = isFlagEnabled(FeatureGates.ONE_CLICK_SWAP);

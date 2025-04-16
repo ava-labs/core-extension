@@ -14,7 +14,11 @@ import {
 } from '@src/utils/errors';
 import { resolve } from '@src/utils/promiseResolver';
 import { RequestHandlerType } from '@src/background/connections/models';
-import { SwapError } from '@src/contexts/SwapProvider/models';
+import {
+  isJupiterQuote,
+  JupiterQuote,
+  SwapError,
+} from '@src/contexts/SwapProvider/models';
 
 import {
   PARASWAP_RETRYABLE_ERRORS,
@@ -100,6 +104,79 @@ export function validateParaswapParams(
     srcAmount: quote.srcAmount,
     destToken,
     destAmount: quote.destAmount,
+    srcDecimals,
+    destDecimals,
+    quote,
+    slippage,
+  };
+}
+
+export function validateJupiterParams(
+  params: Partial<SwapParams<JupiterQuote>>,
+):
+  | Required<
+      SwapParams<JupiterQuote> & { srcAmount: string; destAmount: string }
+    >
+  | never {
+  const { srcToken, destToken, srcDecimals, destDecimals, quote, slippage } =
+    params;
+
+  if (!quote) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: quote'),
+    );
+  }
+
+  if (!isJupiterQuote(quote)) {
+    throw swapError(
+      SwapErrorCode.InvalidParams,
+      new Error('Invalid parameter: quote'),
+    );
+  }
+
+  if (!srcToken) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: srcToken'),
+    );
+  }
+
+  if (!destToken) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: destToken'),
+    );
+  }
+
+  if (!srcDecimals) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: srcDecimals'),
+    );
+  }
+
+  if (!destDecimals) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: destDecimals'),
+    );
+  }
+
+  if (!slippage) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: slippage'),
+    );
+  }
+
+  const isSelling = quote.swapMode === 'ExactIn';
+
+  return {
+    srcToken,
+    srcAmount: isSelling ? quote.outAmount : quote.inAmount,
+    destToken,
+    destAmount: isSelling ? quote.inAmount : quote.outAmount,
     srcDecimals,
     destDecimals,
     quote,

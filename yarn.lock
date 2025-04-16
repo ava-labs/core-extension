@@ -12120,6 +12120,7 @@ __metadata:
     webpack-cli: "npm:4.9.2"
     webpack-merge: "npm:5.8.0"
     xss: "npm:1.0.13"
+    zod: "npm:3.23.8"
     zxcvbn: "npm:4.4.2"
   languageName: unknown
   linkType: soft

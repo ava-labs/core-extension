@@ -18,3 +18,8 @@ export const PARASWAP_PARTNER_FEE_BPS = 85 as const satisfies number;
  */
 export const NATIVE_TOKEN_ADDRESS =
   '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+
+/**
+ * The address Jupiter uses for Solana native tokens.
+ */
+export const SOL_MINT = 'So11111111111111111111111111111111111111112';
