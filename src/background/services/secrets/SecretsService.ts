@@ -1,4 +1,4 @@
-import { omit, pick } from 'lodash';
+import { omit, pick, uniqBy } from 'lodash';
 import { singleton } from 'tsyringe';
 
 import EventEmitter from 'events';
@@ -18,6 +18,7 @@ import {
   WalletEvents,
 } from '../wallet/models';
 import {
+  AccountWithSecrets,
   AddressPublicKeyJson,
   Curve,
   EVM_BASE_DERIVATION_PATH,
@@ -36,7 +37,7 @@ import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { LedgerService } from '../ledger/LedgerService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
-import { hasPublicKeyFor } from './utils';
+import { hasPublicKeyFor, isPrimaryWalletSecrets } from './utils';
 import { AddressPublicKey } from './AddressPublicKey';
 import { AddressResolver } from './AddressResolver';
 import { mapVMAddresses } from '@src/utils/address';
@@ -141,6 +142,26 @@ export class SecretsService implements OnUnlock {
         derivationPath: wallet.derivationPathSpec as DerivationPath,
       };
     });
+  }
+
+  async appendPublicKeys(walletId: string, publicKeys: AddressPublicKeyJson[]) {
+    const storedSecrets = await this.getSecretsById(walletId);
+
+    if (!isPrimaryWalletSecrets(storedSecrets)) {
+      throw new Error('Cannot append public keys to a non-primary wallet');
+    }
+
+    const newKeys = uniqBy(
+      [...storedSecrets.publicKeys, ...publicKeys],
+      'derivationPath',
+    );
+
+    return this.updateSecrets(
+      {
+        publicKeys: newKeys,
+      },
+      walletId,
+    );
   }
 
   async updateSecrets(
@@ -267,7 +288,7 @@ export class SecretsService implements OnUnlock {
     throw new Error('Unsupported import type');
   }
 
-  async getAccountSecrets(account: Account) {
+  async getAccountSecrets(account: Account): Promise<AccountWithSecrets> {
     const walletKeys = await this.#loadSecrets(true);
 
     if (account.type === AccountType.PRIMARY) {
@@ -281,7 +302,7 @@ export class SecretsService implements OnUnlock {
       }
 
       return {
-        ...(account ? { account: account } : null),
+        account,
         ...activeWalletSecrets,
       };
     }
@@ -738,6 +759,8 @@ export class SecretsService implements OnUnlock {
     const newPublicKeys: AddressPublicKeyJson[] = [];
 
     if (secrets.secretType === SecretType.LedgerLive) {
+      // Adding Solana public keys must be performed via separate flow,
+      // as it requires a different app to be enabled on the device.
       if (!hasEVMPublicKey) {
         assertPresent(
           ledgerService.recentTransport,
@@ -788,6 +811,8 @@ export class SecretsService implements OnUnlock {
     } else if (secrets.secretType === SecretType.Ledger) {
       // For Ledger, we can only use the extended public keys to
       // derive EVM/Bitcoin & AVM public keys.
+      // Adding Solana public keys must be performed via separate flow,
+      // as it requires a different app to be enabled on the device.
       if (!hasEVMPublicKey) {
         const publicKeyEVM = AddressPublicKey.fromExtendedPublicKeys(
           secrets.extendedPublicKeys,

@@ -134,7 +134,8 @@ import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/h
 import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallenge';
 import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
 import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
-
+import { AppendSolanaPublicKeysHandler } from '@src/background/services/secrets/handlers/appendSolanaPublicKeys';
+import { DeriveMissingKeysHandler } from '@src/background/services/seedless/handlers/deriveMissingKeys';
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
  * There is no automatic module discovery in ts like available in java,
@@ -399,6 +400,14 @@ import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/h
   {
     token: 'ExtensionRequestHandler',
     useToken: SetDefaultStateValuesHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: AppendSolanaPublicKeysHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: DeriveMissingKeysHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

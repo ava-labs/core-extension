@@ -1,11 +1,6 @@
 import Joi from 'joi';
 
-import {
-  btcWalletPolicyDetailsSchema,
-  fireblocksSchema,
-  privateKeySchema,
-  walletConnectSchema,
-} from './commonSchemas';
+import { btcWalletPolicyDetailsSchema } from './commonSchemas';
 import * as New from './newModels';
 
 const addressPublicKeySchema = Joi.object<New.AddressPublicKey>({
@@ -83,11 +78,8 @@ export const newSecretsSchema = Joi.object({
       seedlessSchema,
     )
     .required(),
-  importedAccounts: Joi.object()
-    .pattern(
-      Joi.string(),
-      Joi.alternatives(privateKeySchema, walletConnectSchema, fireblocksSchema),
-    )
-    .optional(),
+  // We don't really care about the contents of `importedAccounts`,
+  // as we don't modify it in any way.
+  importedAccounts: Joi.object().unknown().optional(),
   version: Joi.number().valid(5).required(),
 }).unknown();

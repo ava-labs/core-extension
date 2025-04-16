@@ -148,7 +148,6 @@ export const useSvmSend: SendAdapterSVM = ({
         return hash;
       } catch (err) {
         console.error(err);
-        setError(SendErrorMessage.UNKNOWN_ERROR);
         throw err;
       } finally {
         setIsSending(false);

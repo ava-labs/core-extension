@@ -137,3 +137,17 @@ export type SendAdapterAVM = SendAdapter<
   AdapterOptionsX,
   TokenWithBalanceAVM
 >;
+
+export const isInsufficientBalanceError = (err: any) => {
+  if (!err || !err.message || typeof err.message !== 'string') {
+    return false;
+  }
+
+  const knownInsufficientBalanceSubstrings = [
+    'insufficient funds',
+    'exceeds balance',
+  ];
+  return knownInsufficientBalanceSubstrings.some((substr) =>
+    err.message.includes(substr),
+  );
+};

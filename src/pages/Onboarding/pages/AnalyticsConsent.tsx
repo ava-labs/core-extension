@@ -15,6 +15,8 @@ import { PageNav } from '../components/PageNav';
 import { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 
 export const AnalyticsConsent = () => {
   const {
@@ -25,6 +27,7 @@ export const AnalyticsConsent = () => {
     newsletterEmail,
     isNewsletterEnabled,
   } = useOnboardingContext();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const { capture, stopDataCollection } = useAnalyticsContext();
   const { t } = useTranslation();
   const history = useHistory();
@@ -43,8 +46,16 @@ export const AnalyticsConsent = () => {
     ) {
       return { stepsNumber: 3, activeStep: 2 };
     }
+    if (onboardingPhase === OnboardingPhase.LEDGER) {
+      return isFlagEnabled(FeatureGates.SOLANA_SUPPORT)
+        ? {
+            stepsNumber: 5,
+            activeStep: 4,
+          }
+        : { stepsNumber: 3, activeStep: 2 };
+    }
     return { stepsNumber: 4, activeStep: 3 };
-  }, [onboardingPhase]);
+  }, [onboardingPhase, isFlagEnabled]);
 
   useEffect(() => {
     if (!onboardingPhase) {

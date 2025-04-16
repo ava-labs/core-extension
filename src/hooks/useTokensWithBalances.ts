@@ -10,6 +10,7 @@ import { merge } from 'lodash';
 import { getAddressForChain } from '@src/utils/getAddressForChain';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { NetworkWithCaipId } from '@src/background/services/network/models';
+import { lowerCaseKeys } from '@src/utils/lowerCaseKeys';
 
 type UseTokensWithBalanceOptions = {
   // Requests the tokens WITH and WITHOUT balances
@@ -167,8 +168,8 @@ export const useTokensWithBalances = (
     if (forceShowTokensWithoutBalances || showTokensWithoutBalances) {
       const merged = merge(
         {},
-        allTokensWithPlaceholderBalances,
-        networkBalances,
+        lowerCaseKeys(allTokensWithPlaceholderBalances),
+        lowerCaseKeys(networkBalances),
       );
 
       return visibleTokens(nativeTokensFirst(Object.values(merged)));
