@@ -1,5 +1,4 @@
 import { singleton } from 'tsyringe';
-import { AppCheckService } from '../appcheck/AppCheckService';
 import { StorageService } from '../storage/StorageService';
 import {
   NOTIFICATIONS_CLIENT_ID_STORAGE_KEY,
@@ -10,6 +9,9 @@ import { FirebaseEvents } from '../firebase/models';
 import { incrementalPromiseResolve } from '@src/utils/incrementalPromiseResolve';
 import { BalanceNotificationService } from './BalanceNotificationService';
 import { NewsNotificationService } from './NewsNotificationService';
+import { sendRequest } from './utils/sendRequest';
+import { RegisterDeviceResponse } from './models';
+
 @singleton()
 export class NotificationsService {
   #clientId?: string;
@@ -17,7 +19,6 @@ export class NotificationsService {
   constructor(
     private storageService: StorageService,
     private firebaseService: FirebaseService,
-    private appCheckService: AppCheckService,
     private balanceNotificationService: BalanceNotificationService,
     private newsNotificationService: NewsNotificationService,
   ) {
@@ -36,69 +37,45 @@ export class NotificationsService {
       )) ?? NOTIFICATIONS_CLIENT_ID_DEFAULT_STATE
     ).clientId;
 
-    const { deviceArn: clientId } = await incrementalPromiseResolve(
-      () => this.#registerDevice(),
-      (res) => !res.deviceArn, // we want to retry until we get a correct response
-      0,
-      5,
-    );
+    const { deviceArn } =
+      (await incrementalPromiseResolve(
+        () => this.#registerDevice(),
+        (res) => !res?.deviceArn, // we want to retry until we get a correct response
+        0,
+        5,
+      )) ?? {};
 
-    if (!clientId) {
+    if (!deviceArn) {
       throw new Error('registration failed');
     }
 
-    if (this.#clientId !== clientId) {
-      this.#clientId = clientId;
+    if (this.#clientId !== deviceArn) {
+      this.#clientId = deviceArn;
 
       await this.storageService.saveUnencrypted(
         NOTIFICATIONS_CLIENT_ID_STORAGE_KEY,
-        { clientId },
+        { clientId: deviceArn },
       );
     }
 
     // init individual notification services when device is registered
-    await this.balanceNotificationService.init(clientId);
-    await this.newsNotificationService.init(clientId);
+    await this.balanceNotificationService.init(deviceArn);
+    await this.newsNotificationService.init(deviceArn);
   }
 
   async #registerDevice() {
     const fcmToken = this.firebaseService.getFcmToken();
 
     if (!fcmToken) {
-      throw new Error('fcm token is missing');
+      throw new Error('Error while registering device: fcm token is missing');
     }
 
-    const { token: appcheckToken } =
-      (await this.appCheckService.getAppcheckToken()) ?? {};
-
-    if (!appcheckToken) {
-      throw new Error('appcheck token is missing');
-    }
-
-    const response = await fetch(
-      `${process.env.NOTIFICATION_SENDER_SERVICE_URL}/v1/push/register`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Firebase-AppCheck': appcheckToken,
-        },
-        body: JSON.stringify({
-          deviceToken: fcmToken,
-          appType: 'CORE_EXTENSION',
-          ...(this.#clientId && { deviceArn: this.#clientId }),
-        }),
+    return sendRequest<RegisterDeviceResponse>({
+      path: 'v1/push/register',
+      clientId: this.#clientId,
+      payload: {
+        deviceToken: fcmToken,
       },
-    );
-
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
-
-    const result = ((await response.json()) ?? {}) as {
-      deviceArn?: string;
-    };
-
-    return result;
+    });
   }
 }

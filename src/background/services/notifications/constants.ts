@@ -23,17 +23,17 @@ export const NOTIFICATIONS_CLIENT_ID_DEFAULT_STATE: NotificationsClientIdStorage
 
 export const NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_DEFAULT_STATE: NotificationsBalanceChangesSubscriptionStorage =
   {
-    isSubscribed: true,
+    isSubscribed: false,
     addresses: [],
     chainIds: [],
   };
 
 export const NOTIFICATIONS_NEWS_SUBSCRIPTION_DEFAULT_STATE: NotificationsNewsSubscriptionStorage =
   {
-    [NewsNotificationTypes.PRICE_ALERTS]: true,
-    [NewsNotificationTypes.PRODUCT_ANNOUNCEMENTS]: true,
-    [NewsNotificationTypes.OFFERS_AND_PROMOTIONS]: true,
-    [NewsNotificationTypes.MARKET_NEWS]: true,
+    [NewsNotificationTypes.PRICE_ALERTS]: false,
+    [NewsNotificationTypes.PRODUCT_ANNOUNCEMENTS]: false,
+    [NewsNotificationTypes.OFFERS_AND_PROMOTIONS]: false,
+    [NewsNotificationTypes.MARKET_NEWS]: false,
   };
 
 export const NOTIFICATION_CATEGORIES: Record<

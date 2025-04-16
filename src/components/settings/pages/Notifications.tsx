@@ -18,6 +18,7 @@ import {
   NotificationTypes,
 } from '@src/background/services/notifications/models';
 import { useCallback, useEffect, useState } from 'react';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 const NOTIFICATION_TYPE_DETAILS = {
   [BalanceNotificationTypes.BALANCE_CHANGES]: {
@@ -50,6 +51,7 @@ export function Notifications({
   const { t } = useTranslation();
   const { subscriptions, syncSubscriptions, subscribe, unsubscribe } =
     useNotificationsContext();
+  const { capture } = useAnalyticsContext();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubscriptionChange = useCallback(
@@ -61,13 +63,19 @@ export function Notifications({
           await unsubscribe(notificationType);
         }
       };
+
       setIsLoading(true);
 
       handler()
         .catch(() => toast.error(t('Failed to update notification settings')))
         .finally(() => setIsLoading(false));
+
+      capture('NotificationSettingsUpdated', {
+        type: notificationType,
+        enabled: isChecked,
+      });
     },
-    [subscribe, t, unsubscribe],
+    [capture, subscribe, t, unsubscribe],
   );
 
   useEffect(() => {
@@ -111,6 +119,7 @@ export function Notifications({
               size="small"
               checked={subscriptions[type]}
               onChange={(_, isChecked) => {
+                // optimistic update, will be corrected after the subscription is confirmed or rejected
                 subscriptions[type] = isChecked;
                 handleSubscriptionChange(type as NotificationTypes, isChecked);
               }}
@@ -119,6 +128,7 @@ export function Notifications({
                 ml: 'auto',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
               }}
+              data-testid={`notification-toggle-${type}`}
             />
           </ListItem>
         ))}

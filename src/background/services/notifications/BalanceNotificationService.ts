@@ -1,7 +1,6 @@
 import { singleton } from 'tsyringe';
 import { AccountsService } from '../accounts/AccountsService';
 import { AccountsEvents } from '../accounts/models';
-import { AppCheckService } from '../appcheck/AppCheckService';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { StorageService } from '../storage/StorageService';
 import {
@@ -18,12 +17,12 @@ import { MessagePayload } from 'firebase/messaging';
 import { sendNotification } from './utils/sendNotification';
 import { LockService } from '../lock/LockService';
 import { debounce } from 'lodash';
+import { sendRequest } from './utils/sendRequest';
 @singleton()
 export class BalanceNotificationService {
   #clientId?: string;
 
   constructor(
-    private appCheckService: AppCheckService,
     private accountService: AccountsService,
     private storageService: StorageService,
     private firebaseService: FirebaseService,
@@ -40,12 +39,12 @@ export class BalanceNotificationService {
     this.accountService.addListener(
       AccountsEvents.ACCOUNTS_UPDATED,
       debounce(async () => {
-        await this.subscribe();
+        await this.subscribe(true);
       }, 1000),
     );
 
     // attempt to refresh the existing subscriptions
-    await this.subscribe();
+    await this.subscribe(true);
   }
 
   async getSubscriptions() {
@@ -79,13 +78,17 @@ export class BalanceNotificationService {
     });
   }
 
-  async subscribe() {
+  async subscribe(verifyStorageState = false) {
     // device is not registered yet or wallet is locked
     if (!this.#clientId || this.lockService.locked) {
       return;
     }
 
     const state = await this.#getSubscriptionStateFromStorage();
+
+    if (verifyStorageState && !state.isSubscribed) {
+      return;
+    }
 
     // fixed list of chain ids for now
     const chainIds = [
@@ -106,32 +109,14 @@ export class BalanceNotificationService {
       return;
     }
 
-    const { token: appcheckToken } =
-      (await this.appCheckService.getAppcheckToken()) ?? {};
-
-    if (!appcheckToken) {
-      throw new Error('appcheck token is missing');
-    }
-
-    const response = await fetch(
-      `${process.env.NOTIFICATION_SENDER_SERVICE_URL}/v1/push/balance-changes/subscribe`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Firebase-AppCheck': appcheckToken,
-        },
-        body: JSON.stringify({
-          deviceArn: this.#clientId,
-          chainIds,
-          addresses,
-        }),
+    await sendRequest({
+      path: 'v1/push/balance-changes/subscribe',
+      clientId: this.#clientId,
+      payload: {
+        chainIds,
+        addresses,
       },
-    );
-
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
+    });
 
     await this.#saveSubscriptionStateToStorage({
       isSubscribed: true,
@@ -147,30 +132,11 @@ export class BalanceNotificationService {
       return;
     }
 
-    const { token: appcheckToken } =
-      (await this.appCheckService.getAppcheckToken()) ?? {};
-
-    if (!appcheckToken) {
-      throw new Error('appcheck token is missing');
-    }
-
-    const response = await fetch(
-      `${process.env.NOTIFICATION_SENDER_SERVICE_URL}/v1/push/balance-changes/unsubscribe`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Firebase-AppCheck': appcheckToken,
-        },
-        body: JSON.stringify({
-          deviceArn: this.#clientId,
-        }),
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
+    await sendRequest({
+      path: 'v1/push/balance-changes/unsubscribe',
+      clientId: this.#clientId,
+      payload: {},
+    });
 
     await this.#saveSubscriptionStateToStorage({
       isSubscribed: false,

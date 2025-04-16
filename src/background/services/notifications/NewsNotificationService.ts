@@ -1,5 +1,4 @@
 import { singleton } from 'tsyringe';
-import { AppCheckService } from '../appcheck/AppCheckService';
 import {
   NotificationCategories,
   NotificationsNewsSubscriptionStorage,
@@ -16,13 +15,13 @@ import { MessagePayload } from 'firebase/messaging';
 import { sendNotification } from './utils/sendNotification';
 import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { LockService } from '../lock/LockService';
+import { sendRequest } from './utils/sendRequest';
 
 @singleton()
 export class NewsNotificationService implements OnUnlock {
   #clientId?: string;
 
   constructor(
-    private appCheckService: AppCheckService,
     private storageService: StorageService,
     private firebaseService: FirebaseService,
     private lockService: LockService,
@@ -104,31 +103,13 @@ export class NewsNotificationService implements OnUnlock {
       ...new Set([...existingSubscriptions, ...notificationTypes]),
     ];
 
-    const { token: appcheckToken } =
-      (await this.appCheckService.getAppcheckToken()) ?? {};
-
-    if (!appcheckToken) {
-      throw new Error('AppCheck token is missing');
-    }
-
-    const response = await fetch(
-      `${process.env.NOTIFICATION_SENDER_SERVICE_URL}/v1/push/news/subscribe`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Firebase-AppCheck': appcheckToken,
-        },
-        body: JSON.stringify({
-          deviceArn: this.#clientId,
-          events: newSubscriptions,
-        }),
+    await sendRequest({
+      path: 'v1/push/news/subscribe',
+      clientId: this.#clientId,
+      payload: {
+        events: newSubscriptions,
       },
-    );
-
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
+    });
 
     await this.#saveSubscriptionStateToStorage({
       ...state,
@@ -147,31 +128,14 @@ export class NewsNotificationService implements OnUnlock {
     }
 
     const state = await this.#getSubscriptionStateFromStorage();
-    const { token: appcheckToken } =
-      (await this.appCheckService.getAppcheckToken()) ?? {};
 
-    if (!appcheckToken) {
-      throw new Error('AppCheck token is missing');
-    }
-
-    const response = await fetch(
-      `${process.env.NOTIFICATION_SENDER_SERVICE_URL}/v1/push/news/unsubscribe`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Firebase-AppCheck': appcheckToken,
-        },
-        body: JSON.stringify({
-          deviceArn: this.#clientId,
-          events: [notificationType],
-        }),
+    await sendRequest({
+      path: 'v1/push/news/unsubscribe',
+      clientId: this.#clientId,
+      payload: {
+        events: [notificationType],
       },
-    );
-
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
+    });
 
     await this.#saveSubscriptionStateToStorage({
       ...state,

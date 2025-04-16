@@ -45,3 +45,7 @@ export type NotificationPayload = {
     type: NotificationCategories;
   };
 };
+
+export type RegisterDeviceResponse = {
+  deviceArn: string;
+};
