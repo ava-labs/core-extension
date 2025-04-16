@@ -69,13 +69,14 @@ export const UserDialog = ({ message }) => {
   );
 };
 
-export const UserInput = ({ input, setInput, prompt }) => {
+export const UserInput = ({ input, setInput, prompt, disabled }) => {
   const { t } = useTranslation();
   return (
     <TextField
       placeholder={t('Core AI')}
       value={input}
       size="large"
+      disabled={disabled}
       sx={{
         color: 'grey.400',
         backgroundColor: 'grey.800',

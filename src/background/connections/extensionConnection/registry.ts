@@ -135,6 +135,8 @@ import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/
 import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
 import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
 import { SetCoreAssistantHandler } from '@src/background/services/settings/handlers/setCoreAssistant';
+import { FirebaseStartChatHandler } from '@src/background/services/firebase/handlers/startChat';
+import { FirebaseSendMessageHandler } from '@src/background/services/firebase/handlers/sendMessage';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -404,6 +406,14 @@ import { SetCoreAssistantHandler } from '@src/background/services/settings/handl
   {
     token: 'ExtensionRequestHandler',
     useToken: SetCoreAssistantHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: FirebaseStartChatHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: FirebaseSendMessageHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

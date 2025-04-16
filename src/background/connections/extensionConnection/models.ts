@@ -167,4 +167,7 @@ export enum ExtensionRequest {
   GASLESS_SET_DEFAUlT_STATE_VALUES = 'gasless_set_default_state_values',
   GASLESS_CREATE_OFFSCREEN = 'gasless_create_offscreen',
   GASLESS_CLOSE_OFFSCREEN = 'gasless_close_offscreen',
+
+  FIREBASE_START_CHAT = 'firebase_start_chat',
+  FIREBASE_SEND_MESSAGE = 'firebase_send_message',
 }

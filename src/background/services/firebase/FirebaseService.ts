@@ -14,6 +14,13 @@ import sentryCaptureException, {
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureFlagEvents, FeatureGates } from '../featureFlags/models';
 import { isSupportedBrowser } from '@src/utils/isSupportedBrowser';
+import {
+  getVertexAI,
+  getGenerativeModel,
+  GenerativeModel,
+  ChatSession,
+  EnhancedGenerateContentResponse,
+} from 'firebase/vertexai';
 
 @singleton()
 export class FirebaseService {
@@ -22,6 +29,8 @@ export class FirebaseService {
   #fcmToken?: string;
   #firebaseEventEmitter = new EventEmitter();
   #fcmMessageEventEmitter = new EventEmitter();
+  #model?: GenerativeModel;
+  #chat?: ChatSession;
 
   constructor(private featureFlagService: FeatureFlagService) {
     if (!process.env.FIREBASE_CONFIG) {
@@ -96,6 +105,59 @@ export class FirebaseService {
 
   addFcmMessageListener(event: FcmMessageEvents, listener: FcmMessageListener) {
     this.#fcmMessageEventEmitter.on(event, listener);
+  }
+
+  #getModel({ tools, toolConfig, systemInstruction }) {
+    if (!this.#app) {
+      throw new Error('Firebase app has not initialized');
+    }
+    const vertexAI = getVertexAI(this.#app);
+    return getGenerativeModel(vertexAI, {
+      model: 'gemini-2.0-flash',
+      generationConfig: {
+        temperature: 0.5,
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 8192,
+      },
+      tools,
+      toolConfig,
+      systemInstruction,
+    });
+  }
+
+  async startChat({ tools, toolConfig, systemInstruction, history }) {
+    if (!this.#model) {
+      this.#model = this.#getModel({
+        tools,
+        toolConfig,
+        systemInstruction,
+      });
+    }
+    this.#chat = this.#model.startChat({
+      history,
+      generationConfig: {
+        maxOutputTokens: 100,
+      },
+    });
+    return true;
+  }
+
+  async sendModelMessage(message: string) {
+    if (!this.#chat) {
+      // this.#chat = this.startChat();
+      throw new Error('No chat');
+    }
+    console.log('message: ', message);
+
+    const result = await this.#chat.sendMessage(message);
+
+    const response = result.response;
+    console.log('sendModelMessage response: ', response);
+    const text = response.text();
+    console.log('text: ', text);
+    return response;
+    // return text;
   }
 
   async #handleMessage(payload: MessagePayload) {

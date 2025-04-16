@@ -42,6 +42,7 @@ import { ApprovalRoutes } from './ApprovalRoutes';
 import { AppRoutes } from './AppRoutes';
 import { InAppApprovalOverlay } from '@src/components/common/InAppApprovalOverlay';
 import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
+import { FirebaseContextProvider } from '@src/contexts/FirebaseProvider';
 
 const pagesWithoutHeader = [
   '/tokens/manage',
@@ -122,87 +123,89 @@ export function Popup() {
     !pagesWithoutHeader.some((path) => location.pathname.startsWith(path));
 
   return (
-    <DialogContextProvider>
-      <LedgerContextProvider>
-        <KeystoneContextProvider>
-          <OnboardingContextProvider>
-            <AccountsContextProvider>
-              <NetworkContextProvider>
-                <NetworkFeeContextProvider>
-                  <WalletContextProvider>
-                    <CurrenciesContextProvider>
-                      <BalancesProvider>
-                        <DefiContextProvider>
-                          <SwapContextProvider>
-                            <UnifiedBridgeProvider>
-                              <BridgeProvider>
-                                <ContactsContextProvider>
-                                  <PermissionContextProvider>
-                                    <WalletConnectContextProvider>
-                                      <SeedlessMfaManagementProvider>
-                                        <WalletLoading>
-                                          <ApprovalsContextProvider>
-                                            <TestnetBanner />
-                                            <AnalyticsOptInDialog />
-                                            <Stack
-                                              sx={{
-                                                flexGrow: 1,
-                                                width: dimensions.width,
-                                                maxHeight: 'auto',
-                                                overflow: 'auto',
-                                                alignItems: 'center',
-                                                margin: 'auto',
-                                              }}
-                                            >
-                                              {displayHeader && (
-                                                <Stack sx={{ width: 1 }}>
-                                                  <Header />
-                                                </Stack>
-                                              )}
-
+    <FirebaseContextProvider>
+      <DialogContextProvider>
+        <LedgerContextProvider>
+          <KeystoneContextProvider>
+            <OnboardingContextProvider>
+              <AccountsContextProvider>
+                <NetworkContextProvider>
+                  <NetworkFeeContextProvider>
+                    <WalletContextProvider>
+                      <CurrenciesContextProvider>
+                        <BalancesProvider>
+                          <DefiContextProvider>
+                            <SwapContextProvider>
+                              <UnifiedBridgeProvider>
+                                <BridgeProvider>
+                                  <ContactsContextProvider>
+                                    <PermissionContextProvider>
+                                      <WalletConnectContextProvider>
+                                        <SeedlessMfaManagementProvider>
+                                          <WalletLoading>
+                                            <ApprovalsContextProvider>
+                                              <TestnetBanner />
+                                              <AnalyticsOptInDialog />
                                               <Stack
-                                                direction="row"
                                                 sx={{
                                                   flexGrow: 1,
-                                                  justifyContent: 'center',
-                                                  py: isMiniMode ? 0 : 2,
-                                                  maxWidth: '100%',
-                                                  maxHeight: '100%',
-                                                  width: appWidth,
+                                                  width: dimensions.width,
+                                                  maxHeight: 'auto',
+                                                  overflow: 'auto',
+                                                  alignItems: 'center',
+                                                  margin: 'auto',
                                                 }}
                                               >
-                                                {isConfirm ? (
-                                                  <ApprovalRoutes />
-                                                ) : (
-                                                  <AppRoutes />
+                                                {displayHeader && (
+                                                  <Stack sx={{ width: 1 }}>
+                                                    <Header />
+                                                  </Stack>
                                                 )}
-                                                <LedgerIncorrectDevice />
-                                                <LedgerRegisterBtcWalletPolicy />
-                                                <SeedlessAuthPrompt />
-                                                {isMiniMode && (
-                                                  <InAppApprovalOverlay />
-                                                )}
+
+                                                <Stack
+                                                  direction="row"
+                                                  sx={{
+                                                    flexGrow: 1,
+                                                    justifyContent: 'center',
+                                                    py: isMiniMode ? 0 : 2,
+                                                    maxWidth: '100%',
+                                                    maxHeight: '100%',
+                                                    width: appWidth,
+                                                  }}
+                                                >
+                                                  {isConfirm ? (
+                                                    <ApprovalRoutes />
+                                                  ) : (
+                                                    <AppRoutes />
+                                                  )}
+                                                  <LedgerIncorrectDevice />
+                                                  <LedgerRegisterBtcWalletPolicy />
+                                                  <SeedlessAuthPrompt />
+                                                  {isMiniMode && (
+                                                    <InAppApprovalOverlay />
+                                                  )}
+                                                </Stack>
                                               </Stack>
-                                            </Stack>
-                                          </ApprovalsContextProvider>
-                                        </WalletLoading>
-                                      </SeedlessMfaManagementProvider>
-                                    </WalletConnectContextProvider>
-                                  </PermissionContextProvider>
-                                </ContactsContextProvider>
-                              </BridgeProvider>
-                            </UnifiedBridgeProvider>
-                          </SwapContextProvider>
-                        </DefiContextProvider>
-                      </BalancesProvider>
-                    </CurrenciesContextProvider>
-                  </WalletContextProvider>
-                </NetworkFeeContextProvider>
-              </NetworkContextProvider>
-            </AccountsContextProvider>
-          </OnboardingContextProvider>
-        </KeystoneContextProvider>
-      </LedgerContextProvider>
-    </DialogContextProvider>
+                                            </ApprovalsContextProvider>
+                                          </WalletLoading>
+                                        </SeedlessMfaManagementProvider>
+                                      </WalletConnectContextProvider>
+                                    </PermissionContextProvider>
+                                  </ContactsContextProvider>
+                                </BridgeProvider>
+                              </UnifiedBridgeProvider>
+                            </SwapContextProvider>
+                          </DefiContextProvider>
+                        </BalancesProvider>
+                      </CurrenciesContextProvider>
+                    </WalletContextProvider>
+                  </NetworkFeeContextProvider>
+                </NetworkContextProvider>
+              </AccountsContextProvider>
+            </OnboardingContextProvider>
+          </KeystoneContextProvider>
+        </LedgerContextProvider>
+      </DialogContextProvider>
+    </FirebaseContextProvider>
   );
 }

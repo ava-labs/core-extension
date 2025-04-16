@@ -37,6 +37,7 @@ import {
   TypingAvatar,
   UserDialog,
 } from './PromptElements';
+import { useFirebaseContext } from '@src/contexts/FirebaseProvider';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -52,15 +53,17 @@ export function Prompt() {
   const { swap, getRate } = useSwapContext();
   const [isTyping, setIsTyping] = useState(false);
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
+  const { startChat, sendMessage } = useFirebaseContext();
+  const [isModelReady, setIsModelReady] = useState(false);
 
   const [prompts, setPrompts] = useState<
     {
-      type: 'system' | 'user';
+      role: 'model' | 'user';
       content: string;
     }[]
   >([
     {
-      type: 'system',
+      role: 'model',
       content: `Hey there! I'm Core AI, here to help you manage your assets safely and smoothly. What can I do for you today?`,
     },
   ]);
@@ -294,15 +297,54 @@ export function Prompt() {
       );
   }, [tokens, network, contacts, accounts, networks]);
 
-  const model = useMemo(() => {
-    return genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      generationConfig: {
-        temperature: 0.5,
-        topP: 0.95,
-        topK: 40,
-        maxOutputTokens: 8192,
-      },
+  // const model = useMemo(() => {
+  //   return genAI.getGenerativeModel({
+  //     model: 'gemini-2.0-flash',
+  //     generationConfig: {
+  //       temperature: 0.5,
+  //       topP: 0.95,
+  //       topK: 40,
+  //       maxOutputTokens: 8192,
+  //     },
+  //     tools: [
+  //       {
+  //         functionDeclarations,
+  //       },
+  //     ],
+  //     toolConfig: {
+  //       functionCallingConfig: {
+  //         mode: FunctionCallingMode.AUTO,
+  //       },
+  //     },
+  //     systemInstruction: systemPrompt,
+  //   });
+  // }, [systemPrompt]);
+
+  // const model = useMemo(async () => {
+  //   await getModel({
+  //     modelVersion: 'gemini-2.0-flash',
+  //     generationConfig: {
+  //       temperature: 0.5,
+  //       topP: 0.95,
+  //       topK: 40,
+  //       maxOutputTokens: 8192,
+  //     },
+  //     tools: [
+  //       {
+  //         functionDeclarations,
+  //       },
+  //     ],
+  //     toolConfig: {
+  //       functionCallingConfig: {
+  //         mode: FunctionCallingMode.AUTO,
+  //       },
+  //     },
+  //     systemInstruction: systemPrompt,
+  //   });
+  // }, [systemPrompt]);
+
+  useEffect(() => {
+    startChat({
       tools: [
         {
           functionDeclarations,
@@ -314,25 +356,34 @@ export function Prompt() {
         },
       },
       systemInstruction: systemPrompt,
-    });
-  }, [systemPrompt]);
+    })
+      .then((res) => {
+        console.log('res: ', res);
+        setIsModelReady(true);
+      })
+      .catch(() => {
+        console.error('catch');
+        setIsModelReady(false);
+      });
+  }, [prompts, startChat, systemPrompt]);
 
   const prompt = useCallback(
     async (message: string) => {
       setIsTyping(true);
       setPrompts((prev) => {
-        return [...prev, { type: 'user', content: message }];
+        return [...prev, { role: 'user', content: message }];
       });
       setInput('');
+      const response = await sendMessage(message);
+      console.log('result: ', response);
 
-      const chat = model.startChat();
+      // const chat = model.startChat();
 
       // Send the message to the model.
-      const result = await chat.sendMessage(message);
+      // const result = await chat.sendMessage(message);
 
       // For simplicity, this uses the first function call found.
-      const call = result?.response?.functionCalls()?.[0];
-
+      const call = response?.functionCalls()?.[0];
       if (call) {
         // Call the executable function named in the function call
         // with the arguments specified in the function call and
@@ -342,7 +393,7 @@ export function Prompt() {
 
           // Send the API response back to the model so it can generate
           // a text response that can be displayed to the user.
-          const result2 = await chat.sendMessage([
+          const result2 = await sendMessage([
             {
               functionResponse: {
                 name: 'send',
@@ -352,10 +403,7 @@ export function Prompt() {
           ]);
           // Log the text response.
           setPrompts((prev) => {
-            return [
-              ...prev,
-              { type: 'system', content: result2.response.text() },
-            ];
+            return [...prev, { role: 'model', content: result2.text() }];
           });
         } catch (e: any) {
           const errorMessage =
@@ -365,7 +413,7 @@ export function Prompt() {
 
           // Send the API response back to the model so it can generate
           // a text response that can be displayed to the user.
-          const errorResult = await chat.sendMessage([
+          const errorResult = await sendMessage([
             {
               functionResponse: {
                 name: 'send',
@@ -378,20 +426,17 @@ export function Prompt() {
 
           // Log the text response.
           setPrompts((prev) => {
-            return [
-              ...prev,
-              { type: 'system', content: errorResult.response.text() },
-            ];
+            return [...prev, { role: 'model', content: errorResult.text() }];
           });
         }
       } else {
         setPrompts((prev) => {
-          return [...prev, { type: 'system', content: result.response.text() }];
+          return [...prev, { role: 'model', content: response.text() }];
         });
       }
       setIsTyping(false);
     },
-    [functions, model],
+    [functions, sendMessage],
   );
 
   return (
@@ -442,7 +487,7 @@ export function Prompt() {
             <Scrollbars ref={scrollbarRef}>
               <Stack sx={{ p: 2, flexGrow: 1 }}>
                 {prompts.map((message, i) => {
-                  if (message.type === 'system') {
+                  if (message.role === 'model') {
                     return <AIDialog message={message} key={i} />;
                   }
                   return <UserDialog message={message} key={i} />;
@@ -451,7 +496,12 @@ export function Prompt() {
               </Stack>
             </Scrollbars>
             <Stack sx={{ p: 2 }}>
-              <UserInput input={input} setInput={setInput} prompt={prompt} />
+              <UserInput
+                input={input}
+                setInput={setInput}
+                prompt={prompt}
+                disabled={!isModelReady}
+              />
             </Stack>
           </Stack>
         </Backdrop>
