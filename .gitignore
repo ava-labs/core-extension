@@ -44,6 +44,7 @@ typings/
 .idea
 .idea/*
 
+__dist
 dist
 builds
 .DS_Store
