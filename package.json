@@ -13,7 +13,6 @@
     "dev": "yarn run build:inpage && webpack -w --config webpack.dev.js",
     "rsbuild:dev": "yarn run rsbuild:build:inpage && rsbuild build -w --config rsbuild.dev.ts",
     "rsbuild:deva": "yarn run rsbuild:build:inpage && rsbuild inspect --verbose --config rsbuild.dev.ts",
-    "rsbuild:devbbbbb": "yarn run rsbuild:build:inpage && webpack -w --config webpack.dev.js",
     "lint": "eslint --fix \"src/**/*.ts*\"",
     "typecheck": "yarn tsc --skipLibCheck --noEmit",
     "postinstall": "husky install",
