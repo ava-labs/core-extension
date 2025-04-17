@@ -10,5 +10,4 @@ Big.PE = 99;
 Big.NE = -18;
 
 const runtime = container.resolve(BackgroundRuntime);
-
 runtime.activate();
