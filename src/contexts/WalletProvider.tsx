@@ -81,17 +81,25 @@ export function WalletContextProvider({ children }: { children: any }) {
     }
   }, [activeAccount, wallets]);
 
+  useEffect(() => {
+    if (isWalletLocked) {
+      setWallets([]);
+      setWalletDetails(undefined);
+    } else {
+      request<GetWalletDetailsHandler>({
+        method: ExtensionRequest.WALLET_GET_DETAILS,
+      }).then((_wallets) => {
+        setWallets(_wallets);
+      });
+    }
+  }, [isWalletLocked, request]);
+
   // listen for wallet creation
   useEffect(() => {
     if (!request || !events) {
       return;
     }
     setIsWalletLoading(true);
-    request<GetWalletDetailsHandler>({
-      method: ExtensionRequest.WALLET_GET_DETAILS,
-    }).then((_wallets) => {
-      setWallets(_wallets);
-    });
 
     request<GetLockStateHandler>({
       method: ExtensionRequest.LOCK_GET_STATE,
