@@ -3,31 +3,32 @@ import { mergeRsbuildConfig, loadEnv } from '@rsbuild/core';
 import { CopyRspackPlugin } from '@rspack/core';
 import commonConfig from './rsbuild.common';
 
-// import Dotenv from 'dotenv-webpack';
 import { transformManifestFiles } from './build-scripts/manifestHelpers.js';
 const { parsed } = loadEnv();
+
+const processEnv = Object.entries(parsed).reduce<Record<string, string>>(
+  (accumulator, [envVariable, value]) => ({
+    ...accumulator,
+    [`process.env.${envVariable}`]: JSON.stringify(value),
+  }),
+  {},
+);
 
 export default mergeRsbuildConfig(commonConfig, {
   mode: 'development',
   output: {
-    target: 'web',
     sourceMap: {
       js: 'inline-source-map',
     },
   },
   source: {
     define: {
-      ...parsed,
+      ...processEnv,
     },
   },
   tools: {
     rspack: {
       plugins: [
-        // new Dotenv({
-        //   ignoreStub: true,
-        //   safe: true, // load '.env.example' to verify the '.env' variables are all set
-        //   allowEmptyValues: true,
-        // }),
         new CopyRspackPlugin({
           patterns: [
             {

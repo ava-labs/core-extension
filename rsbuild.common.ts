@@ -4,20 +4,23 @@ import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
 import { CopyRspackPlugin } from '@rspack/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 
-const entriesToSkipHtmlGeneration = {
-  backgroundPage: path.join(__dirname, 'src/background/index.ts'),
-  contentscript: path.join(__dirname, 'src/contentscript.ts'),
-};
-
 export default defineConfig({
   environments: {
     web: {
+      html: {
+        mountId: 'popup',
+        template: 'src/rsbuild_index.html',
+        title: 'Core',
+      },
       source: {
         decorators: {
           version: 'legacy',
         },
         entry: {
           popup: path.join(__dirname, 'src/popup/index.tsx'),
+          home: path.join(__dirname, 'src/popup/index.tsx'),
+          fullscreen: path.join(__dirname, 'src/popup/index.tsx'),
+          confirm: path.join(__dirname, 'src/popup/index.tsx'),
           offscreen: path.join(__dirname, 'src/offscreen.ts'),
         },
       },
@@ -27,6 +30,9 @@ export default defineConfig({
     },
     'web-worker': {
       source: {
+        decorators: {
+          version: 'legacy',
+        },
         entry: {
           backgroundPage: path.join(__dirname, 'src/background/index.ts'),
           contentscript: path.join(__dirname, 'src/contentscript.ts'),
@@ -88,18 +94,26 @@ export default defineConfig({
     }),
   ],
   tools: {
-    rspack: {
-      plugins: [
+    rspack: (_, { appendPlugins, appendRules }) => {
+      appendPlugins(
         new CopyRspackPlugin({
           patterns: [
-            { from: 'src/index.html', to: 'home.html' },
-            { from: 'src/index.html', to: 'confirm.html', force: true },
-            { from: 'src/index.html', to: 'fullscreen.html', force: true },
             { from: 'src/images', to: 'images' },
             { from: 'src/localization/locales', to: 'locales', force: true },
           ],
         }),
-      ],
+      );
+      appendRules({
+        test: /\.wasm$/,
+        // Tells WebPack that this module should be included as
+        // base64-encoded binary file and not as code
+        loader: 'base64-loader',
+        // Disables WebPack's opinion where WebAssembly should be,
+        // makes it think that it's not WebAssembly
+        //
+        // Error: WebAssembly module is included in initial chunk.
+        type: 'javascript/auto',
+      });
     },
   },
 });

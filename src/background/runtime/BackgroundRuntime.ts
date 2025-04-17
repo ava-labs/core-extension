@@ -22,12 +22,9 @@ export class BackgroundRuntime {
     private addressResolver: AddressResolver,
     private appCheckService: AppCheckService,
     private gasStationService: GasStationService,
-  ) {
-    console.log('hellllo', connectionService, appCheckService);
-  }
+  ) {}
 
   activate() {
-    console.log('asdasdasdasdasdsd');
     this.onInstalled();
     this.registerInpageScript();
     this.addContextMenus();
