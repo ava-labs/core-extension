@@ -4,6 +4,7 @@ import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
 import { CopyRspackPlugin } from '@rspack/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 
+// TODO: off screen html title should be: Core Extension Gasless Off Screen
 export default defineConfig({
   environments: {
     web: {
