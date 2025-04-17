@@ -16,9 +16,7 @@ export function updateIfDifferent<
   setStateFn: StateSetter,
   newState: ExtractTypeFromStateSetter<StateSetter>['StateType'],
 ) {
-  console.log('asdasd', newState);
   setStateFn((prevState) => {
-    console.log('%%%%%', prevState);
     if (newState === prevState) {
       return prevState;
     }
