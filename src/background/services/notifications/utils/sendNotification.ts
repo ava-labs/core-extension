@@ -1,4 +1,4 @@
-import { MessagePayload } from 'firebase/messaging';
+import { MessagePayload } from 'firebase/messaging/sw';
 import { NotificationCategories, NotificationTypes } from '../models';
 import { NOTIFICATION_PAYLOAD_SCHEMA } from '../constants';
 

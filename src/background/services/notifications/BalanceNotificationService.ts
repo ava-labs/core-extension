@@ -78,7 +78,7 @@ export class BalanceNotificationService {
     });
   }
 
-  async subscribe(verifyStorageState = false) {
+  async subscribe(shouldVerifyStorageState = false) {
     // device is not registered yet or wallet is locked
     if (!this.#clientId || this.lockService.locked) {
       return;
@@ -86,7 +86,7 @@ export class BalanceNotificationService {
 
     const state = await this.#getSubscriptionStateFromStorage();
 
-    if (verifyStorageState && !state.isSubscribed) {
+    if (shouldVerifyStorageState && !state.isSubscribed) {
       return;
     }
 
