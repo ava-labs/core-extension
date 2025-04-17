@@ -65,12 +65,6 @@ export const useSvmSend: SendAdapterSVM = ({
       setIsValidating(true);
 
       const amountBigInt = stringToBigint(amount || '0', token.decimals);
-
-      if (!amountBigInt || amountBigInt < 0) {
-        setErrorAndEndValidating(SendErrorMessage.AMOUNT_REQUIRED);
-        return;
-      }
-
       const remainingBalance = token.balance - amountBigInt;
 
       // Handle max amount first
@@ -82,12 +76,17 @@ export const useSvmSend: SendAdapterSVM = ({
           return;
         }
       } else {
-        setMaxAmount(nativeToken.balance.toString());
+        setMaxAmount(token.balance.toString());
 
         if (remainingBalance < 0n) {
           setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
           return;
         }
+      }
+
+      if (!amountBigInt || amountBigInt < 0) {
+        setErrorAndEndValidating(SendErrorMessage.AMOUNT_REQUIRED);
+        return;
       }
 
       if (!address) {

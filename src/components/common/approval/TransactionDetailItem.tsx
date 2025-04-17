@@ -58,7 +58,9 @@ const PlainTextInfo = ({ item }: { item: string }) => (
 
 const TextInfo = ({ item }: { item: TextItem }) => (
   <TxDetailsRow label={item.label}>
-    <Typography variant="caption">{item.value}</Typography>
+    <Typography variant="caption" sx={{ wordBreak: 'break-all' }}>
+      {item.value}
+    </Typography>
   </TxDetailsRow>
 );
 

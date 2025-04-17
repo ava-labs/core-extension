@@ -95,6 +95,8 @@ export const ContactSelect = ({
             ? identity.addressBTC
             : isPchainNetwork(network) || isXchainNetwork(network)
               ? identity.addressXP
+                ? isSolanaNetwork(network)
+                : identity.addressSVM
               : identity.address;
 
           const userAddress = isBitcoinNetwork(network)
@@ -103,14 +105,18 @@ export const ContactSelect = ({
               ? stripAddressPrefix(activeAccount?.addressPVM ?? '')
               : isXchainNetwork(network)
                 ? stripAddressPrefix(activeAccount?.addressAVM ?? '')
-                : activeAccount?.addressC;
+                : isSolanaNetwork(network)
+                  ? activeAccount?.addressSVM
+                  : activeAccount?.addressC;
 
           const addressesInList = acc.map((value) =>
             isBitcoinNetwork(network)
               ? value.addressBTC
               : isPchainNetwork(network) || isXchainNetwork(network)
                 ? value.addressXP
-                : value.address,
+                : isSolanaNetwork(network)
+                  ? value.addressSVM
+                  : value.address,
           );
           if (
             indexOf(addressesInList, addressToCheck) === -1 &&
@@ -129,6 +135,7 @@ export const ContactSelect = ({
     activeAccount?.addressBTC,
     activeAccount?.addressC,
     activeAccount?.addressPVM,
+    activeAccount?.addressSVM,
     getTransactionHistory,
     identifyAddress,
     network,

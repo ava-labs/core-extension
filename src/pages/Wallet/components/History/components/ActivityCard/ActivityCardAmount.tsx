@@ -5,14 +5,22 @@ import { useAccountsContext } from '@src/contexts/AccountsProvider';
 import { ActivityCardProp } from './ActivityCard';
 import { TransactionType } from '@avalabs/vm-module-types';
 import { TruncateFeeAmount } from '@src/components/common/TruncateFeeAmount';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useMemo } from 'react';
+import { getAddressForChain } from '@src/utils/getAddressForChain';
 
 export function ActivityCardAmount({ historyItem }: ActivityCardProp) {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+  const { network } = useNetworkContext();
+
+  const userAddress = useMemo(
+    () => getAddressForChain(network, activeAccount),
+    [network, activeAccount],
+  );
 
   function getSourceToken(tx: TxHistoryItem) {
-    const userAddress = activeAccount?.addressC;
     if (!userAddress) {
       return undefined;
     }
@@ -20,14 +28,13 @@ export function ActivityCardAmount({ historyItem }: ActivityCardProp) {
   }
 
   function getTargetToken(tx: TxHistoryItem) {
-    const userAddress = activeAccount?.addressC;
     if (!userAddress) {
       return undefined;
     }
     return tx.tokens.find((token) => token.to?.address === userAddress);
   }
 
-  if (historyItem.txType === TransactionType.SWAP && activeAccount?.addressC) {
+  if (historyItem.txType === TransactionType.SWAP && userAddress) {
     const source = getSourceToken(historyItem);
     const target = getTargetToken(historyItem);
     return (
