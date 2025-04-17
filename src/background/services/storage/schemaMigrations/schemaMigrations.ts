@@ -42,8 +42,12 @@ export const migrateToLatest = async <T>(
         currentMigration.migration.previousSchema.validate(result);
 
       if (validationError) {
+        const mismatchingPaths = validationError.details
+          .map((d, i) => `${i + 1}: {${d.path}}`)
+          .join(' | ');
+
         throw new Error(
-          `Error while upgrading ${key} to version ${currentMigration.version}`,
+          `Error while upgrading ${key} to version ${currentMigration.version}. Unexpected data types in paths: ${mismatchingPaths}`,
         );
       }
 

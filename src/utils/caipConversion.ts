@@ -3,6 +3,7 @@ import {
   BitcoinCaip2ChainId,
   ChainId,
 } from '@avalabs/core-chains-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { EnsureDefined, PartialBy } from '@src/background/models';
 import { Network } from '@src/background/services/network/models';
@@ -24,6 +25,13 @@ export const SolanaCaipId = {
   [ChainId.SOLANA_MAINNET_ID]: `${CaipNamespace.SOLANA}:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`,
   [ChainId.SOLANA_DEVNET_ID]: `${CaipNamespace.SOLANA}:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`,
   [ChainId.SOLANA_TESTNET_ID]: `${CaipNamespace.SOLANA}:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z`,
+};
+
+export const AvaxLegacyCaipId = {
+  [ChainId.AVALANCHE_P]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.pBlockchainID}`,
+  [ChainId.AVALANCHE_X]: `${CaipNamespace.AVAX}:${Avalanche.MainnetContext.xBlockchainID}`,
+  [ChainId.AVALANCHE_TEST_P]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.pBlockchainID}`,
+  [ChainId.AVALANCHE_TEST_X]: `${CaipNamespace.AVAX}:fuji${Avalanche.FujiContext.xBlockchainID}`,
 };
 
 export const AvaxCaipId = {
@@ -104,7 +112,9 @@ export const caipToChainId = (identifier: string): number => {
 
   if (namespace === CaipNamespace.AVAX) {
     const chainId = Object.keys(AvaxCaipId).find(
-      (chainIdLookup) => AvaxCaipId[chainIdLookup] === identifier,
+      (chainIdLookup) =>
+        AvaxCaipId[chainIdLookup] === identifier ||
+        AvaxLegacyCaipId[chainIdLookup] === identifier,
     );
 
     if (!chainId) {

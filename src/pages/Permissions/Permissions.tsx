@@ -158,7 +158,7 @@ export function PermissionsPage() {
       >
         <Stack sx={{ gap: 3, py: 1.5 }}>
           <Box sx={{ width: '100%' }}>
-            <Typography variant="h4">{t('Connect Core to Dapp')}</Typography>
+            <Typography variant="h4">{t('Connect Core to dApp')}</Typography>
           </Box>
           <Stack sx={{ gap: 2.5, alignItems: 'center' }}>
             {featureFlags[FeatureGates.BLOCKAID_DAPP_SCAN] &&
