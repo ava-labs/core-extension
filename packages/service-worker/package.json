@@ -1,5 +1,5 @@
 {
-  "name": "service-worker",
+  "name": "@avalabs/core-ext-service-worker",
   "packageManager": "yarn@4.7.0",
   "dependencies": {
     "@avalabs/avalanche-module": "1.6.2",

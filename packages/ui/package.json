@@ -1,0 +1,5 @@
+{
+  "name": "@avalabs/core-ext-ui",
+  "packageManager": "yarn@4.7.0",
+  "private": true
+}
