@@ -73,8 +73,6 @@ export default defineConfig({
       '@src': path.resolve(__dirname, 'src/'),
       react: path.resolve('./node_modules/react'),
       'react-dom': path.resolve('./node_modules/react-dom'),
-      // use alias for bn.js to prevent bundling it >23 times per output file (saves ~1.5MB)
-      // 'bn.js': path.resolve('./node_modules/bn.js'),
       path: require.resolve('path-browserify'),
       '@hpke/core': path.resolve('./node_modules/@hpke/core/esm/core/mod.js'),
       '@cubist-labs/cubesigner-sdk': path.resolve(
