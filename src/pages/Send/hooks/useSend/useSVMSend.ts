@@ -82,7 +82,7 @@ export const useSvmSend: SendAdapterSVM = ({
           return;
         }
       } else {
-        setMaxAmount(nativeToken.balance.toString());
+        setMaxAmount(token.balance.toString());
 
         if (remainingBalance < 0n) {
           setErrorAndEndValidating(SendErrorMessage.INSUFFICIENT_BALANCE);
