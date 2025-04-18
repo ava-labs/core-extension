@@ -211,7 +211,7 @@ describe('background/providers/utils/AutoPairingPostMessageConnection', () => {
       },
     });
 
-    // messages are ingnored till conneciton ID is received
+    // messages are ingnored till connection ID is received
     expect(messageListener).not.toHaveBeenCalled();
 
     (addEventListenerSpy.mock.calls[0]?.[1] as any)({
