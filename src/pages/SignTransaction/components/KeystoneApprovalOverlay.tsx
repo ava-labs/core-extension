@@ -105,7 +105,7 @@ export function KeystoneApprovalOverlay({
 
   const handleError = useCallback((error: string) => {
     if (!error || error.includes('Dimensions')) {
-      // The component continously scans and raises an undefined error
+      // The component continuously scans and raises an undefined error
       // when it's not able to find the QR code.
       return;
     }
