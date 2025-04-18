@@ -12,7 +12,7 @@ const AES_LENGTH = 256;
 
 const TAG_LENGTH = 128;
 
-const KEYGEN_ITERATIONS_V3 = 200000; // v3 and and any version above
+const KEYGEN_ITERATIONS_V3 = 200000; // v3 and any version above
 
 const makeSalt = () => randomBytes(SALT_SIZE);
 
