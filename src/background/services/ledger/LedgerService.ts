@@ -38,7 +38,7 @@ export class LedgerService implements OnLock, OnUnlock {
   }
 
   /**
-   * The issue solved here is that when the extnesion itself requests a signer
+   * The issue solved here is that when the extension itself requests a signer
    * it doesnt care what window is the signer. It cares that the window is still
    * active and able to sign. So we simply grab the most recent transport created
    * and delegate the signing to that window
