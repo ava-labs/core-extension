@@ -43,6 +43,7 @@ import { useAccountRemoval } from './hooks/useAccountRemoval';
 import { usePrivateKeyExport } from './hooks/usePrivateKeyExport';
 import { WalletTypeIcon } from './components/WalletTypeIcon';
 import { useWalletTypeName } from './hooks/useWalletTypeName';
+import { SolanaLogoIcon } from '@src/components/common/SolanaLogoIcon';
 
 export const AccountDetailsView = () => {
   const { t } = useTranslation();
@@ -249,6 +250,18 @@ export const AccountDetailsView = () => {
                   copyHandler={onAddressCopy(
                     account.addressBTC,
                     'AccountDetailsBTCAddressCopied',
+                  )}
+                />
+              )}
+              {account.addressSVM && (
+                <AccountDetailsAddressRow
+                  data-testid="account-address-solana"
+                  icon={<SolanaLogoIcon size={32} sx={{ p: 0.5 }} />}
+                  label={t('Solana')}
+                  address={account.addressSVM}
+                  copyHandler={onAddressCopy(
+                    account.addressSVM,
+                    'AccountDetailsSolanaAddressCopied',
                   )}
                 />
               )}
