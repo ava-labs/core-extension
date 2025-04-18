@@ -17,7 +17,7 @@ interface ConnectionIndicatorProps {
 }
 
 /**
- * Used for positioning the tooltip content so that the conainer overlaps with the indicator dot.
+ * Used for positioning the tooltip content so that the container overlaps with the indicator dot.
  * This prevents the Conent from disappearing when the mouse is moved over it.
  */
 const ContentContainer = (props: StackProps) => (
