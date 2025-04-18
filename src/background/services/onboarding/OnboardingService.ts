@@ -32,7 +32,7 @@ export class OnboardingService {
   async activate() {
     const state = await this.loadFromStorage();
     if (state.reImportMnemonic) {
-      // Reopen onboarding flow after the the user hit the "forgot password flow"
+      // Reopen onboarding flow after the user hit the "forgot password flow"
       // Need to open the page here since the extension gets reset after
       // wiping it's storage as the first step to ensure a clean state.
       browser.tabs.create({ url: ContextContainer.HOME });
