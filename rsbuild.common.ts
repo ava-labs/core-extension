@@ -10,7 +10,7 @@ export default defineConfig({
     web: {
       html: {
         mountId: 'popup',
-        template: 'src/rsbuild_index.html',
+        template: 'src/rsbuild_template_index.html',
         title: 'Core',
       },
       source: {
@@ -49,7 +49,6 @@ export default defineConfig({
       keep: [
         // preserving the files from the inpage build
         /dist\/js\/inpage.js/,
-        /dist\/js\/vendors-node_modules_avalabs_core-chains-sdk\w*/,
       ],
     },
     sourceMap: {

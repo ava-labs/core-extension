@@ -36,15 +36,18 @@ export default defineConfig(({ envMode }) => {
     mode: 'development',
     source: {
       entry: {
-        inpage: path.join(__dirname, 'src/inpage.js'),
+        // TODO: rename this to src/inpage.ts once moved to rsbuild
+        inpage: path.join(__dirname, 'src/inpage_dup.ts'),
       },
     },
     output: {
+      target: 'web-worker',
       sourceMap: {
         js: 'hidden-source-map',
       },
       filename: {
-        js: '[name].js', // this is the default, but just to make sure
+        // TODO: rename this to [name].js once moved over to rsbuild
+        js: 'inpage.js', // this is the default, but just to make sure
       },
       distPath: {
         root: path.join(__dirname, 'dist'),

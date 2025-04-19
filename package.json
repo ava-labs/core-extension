@@ -25,6 +25,9 @@
     "scanner": "i18next-scanner --config i18next-scanner.config.js",
     "sentry": "node sentryscript.js"
   },
+  "browserslist": [
+    "last 2 Chrome versions"
+  ],
   "dependencies": {
     "@avalabs/avalanche-module": "1.7.0",
     "@avalabs/avalanchejs": "4.2.0-alpha.1",
