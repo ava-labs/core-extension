@@ -11,6 +11,7 @@ import {
   AVALANCHE_BASE_DERIVATION_PATH,
   SecretType,
 } from '../../secrets/models';
+import { KNOWN_CORE_DOMAINS } from '@src/constants';
 
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@src/utils/canSkipApproval');
@@ -167,7 +168,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
         await handleRequest(buildRpcCall(request));
         expect(canSkipApproval).toHaveBeenCalledWith('core.app', 3, {
           allowInactiveTabs: true,
-          domainWhitelist: EXPOSED_DOMAINS,
+          domainWhitelist: [...EXPOSED_DOMAINS, ...KNOWN_CORE_DOMAINS],
         });
       });
 

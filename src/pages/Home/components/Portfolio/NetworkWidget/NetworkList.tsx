@@ -60,6 +60,10 @@ export function NetworkList() {
 
   const favoriteNetworksWithoutActive = favoriteNetworks
     .filter((networkItem) => networkItem.chainId !== network?.chainId)
+    .filter((networkItem) => {
+      const networkAddress = getAddressForChain(networkItem, activeAccount);
+      return networkAddress !== '';
+    }) // Only get networks that the active account supports
     .sort((a, b) => {
       const networkBalanceForA = getNetworkValue(a);
       const networkBalanceForB = getNetworkValue(b);

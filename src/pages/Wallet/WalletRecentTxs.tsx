@@ -203,7 +203,9 @@ export function WalletRecentTxs({
     return unfilteredTxHistory
       .filter((tx) => {
         if (tokenSymbolFilter && isNonXPHistoryItem(tx)) {
-          return tokenSymbolFilter === tx.tokens?.[0]?.symbol;
+          return tx.tokens
+            ?.map((tok) => tok.symbol)
+            .includes(tokenSymbolFilter);
         } else {
           return true;
         }

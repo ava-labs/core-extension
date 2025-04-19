@@ -23,11 +23,13 @@ import { AccountsService } from '../AccountsService';
 import { getAddressesInRange } from '../utils/getAddressesInRange';
 import { getExtendedPublicKey } from '../../secrets/utils';
 import { AVALANCHE_BASE_DERIVATION_PATH } from '../../secrets/models';
+import { KNOWN_CORE_DOMAINS } from '@src/constants';
 
 const EXPOSED_DOMAINS = [
   'develop.avacloud-app.pages.dev',
   'avacloud.io',
   'staging--ava-cloud.avacloud-app.pages.dev',
+  ...KNOWN_CORE_DOMAINS,
 ];
 
 @injectable()
