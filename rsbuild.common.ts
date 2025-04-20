@@ -1,17 +1,23 @@
 import { defineConfig } from '@rsbuild/core';
+import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 import path from 'path';
 import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
 import { CopyRspackPlugin } from '@rspack/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 
-// TODO: off screen html title should be: Core Extension Gasless Off Screen
 export default defineConfig({
   environments: {
     web: {
       html: {
         mountId: 'popup',
         template: 'src/rsbuild_template_index.html',
-        title: 'Core',
+        title({ entryName }) {
+          if (entryName === 'offscreen') {
+            return 'Core Extension Gasless Off Screen';
+          }
+
+          return 'Core';
+        },
       },
       source: {
         decorators: {
@@ -101,6 +107,10 @@ export default defineConfig({
           ],
         }),
       );
+      if (process.env.RSDOCTOR === 'true') {
+        appendPlugins(new RsdoctorRspackPlugin({}));
+      }
+
       appendRules({
         test: /\.wasm$/,
         // Tells WebPack that this module should be included as
