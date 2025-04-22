@@ -2,7 +2,7 @@ import AutoPairingPostMessageConnection from '../utils/messaging/AutoPairingPost
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { initializeProvider } from './initializeInpageProvider';
 import { EVMProvider } from '@avalabs/evm-module/dist/provider';
-// import { SolanaWalletProvider } from '@avalabs/svm-module/dist/provider';
+import { SolanaWalletProvider } from '@avalabs/svm-module/dist/provider';
 
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
   const mocks = {
@@ -43,7 +43,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
     expect(EVMProvider).toHaveBeenCalledWith(
       expect.objectContaining({ maxListeners: 10 }),
     );
-    // expect(SolanaWalletProvider).toHaveBeenCalled(); TODO: uncomment with Solana support public rollout
+    expect(SolanaWalletProvider).toHaveBeenCalled();
     expect(provider.isAvalanche).toBe(true);
   });
 
@@ -90,6 +90,21 @@ describe('src/background/providers/initializeInpageProvider', () => {
       expect(windowMock.ethereum).toBe(otherWalletMock);
       expect(setMock).toHaveBeenCalledWith(provider);
       expect(errorSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it(`catches error when setting window.ethereum on fallback`, () => {
+      const otherWalletMock = { isMetaMask: true };
+      Object.defineProperty(windowMock, 'ethereum', {
+        get: () => otherWalletMock,
+      });
+
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+        //do nothing
+      });
+      initializeProvider(connectionMock, 10, windowMock);
+
+      expect(windowMock.ethereum).toBe(otherWalletMock);
+      expect(errorSpy).toHaveBeenCalledTimes(2);
     });
 
     describe('legacy support: window.web3', () => {

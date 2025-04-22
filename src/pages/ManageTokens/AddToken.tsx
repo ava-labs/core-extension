@@ -18,10 +18,16 @@ import {
 } from '@avalabs/core-k2-components';
 import { TokenCardWithBalance } from '@src/components/common/TokenCardWithBalance';
 import { TokenIcon } from '@src/components/common/TokenIcon';
-import { TokenType, TokenWithBalanceERC20 } from '@avalabs/vm-module-types';
+import {
+  NetworkVMType,
+  TokenType,
+  TokenWithBalanceERC20,
+} from '@avalabs/vm-module-types';
 import { isTokenMalicious } from '@src/utils/isTokenMalicious';
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { MaliciousTokenWarningBox } from '@src/components/common/MaliciousTokenWarning';
+import { FunctionIsUnavailable } from '@src/components/common/FunctionIsUnavailable';
+import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
 
 export function AddToken() {
   const { t } = useTranslation();
@@ -108,6 +114,15 @@ export function AddToken() {
     () => existingToken ?? newTokenData,
     [existingToken, newTokenData],
   );
+
+  if (network && network.vmName !== NetworkVMType.EVM) {
+    return (
+      <FunctionIsUnavailable
+        functionName={FunctionNames.FEATURE}
+        network={network.chainName}
+      />
+    );
+  }
 
   return (
     <>

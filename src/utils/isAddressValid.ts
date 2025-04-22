@@ -1,5 +1,6 @@
 import { isBech32Address } from '@avalabs/core-bridge-sdk';
 import { isAddress } from 'ethers';
+import { isAddress as isSvmAddress } from '@solana/kit';
 import { stripAddressPrefix } from './stripAddressPrefix';
 import { utils } from '@avalabs/avalanchejs';
 
@@ -17,6 +18,10 @@ export const isValidPvmAddress = (address: string) => {
 
 export const isValidAvmAddress = (address: string) => {
   return isValidXPAddressWithPrefix(address, 'X-');
+};
+
+export const isValidSvmAddress = (address: string) => {
+  return isSvmAddress(address);
 };
 
 function isValidXPAddressWithPrefix(value: string, forcedPrefix?: string) {

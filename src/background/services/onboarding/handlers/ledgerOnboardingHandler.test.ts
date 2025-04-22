@@ -20,10 +20,10 @@ import {
   SecretType,
 } from '../../secrets/models';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
+import { addChainsToFavoriteIfNeeded } from '../utils/addChainsToFavoriteIfNeeded';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
-jest.mock('../utils/addXPChainsToFavoriteIfNeeded');
+jest.mock('../utils/addChainsToFavoriteIfNeeded');
 
 const WALLET_ID = 'wallet-id';
 
@@ -118,6 +118,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
         password: 'password',
         walletName: 'wallet-name',
         analyticsConsent: false,
+        numberOfAccountsToCreate: 1,
       },
     ]);
 
@@ -140,6 +141,70 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
         buildExtendedPublicKey('xpubXP', AVALANCHE_BASE_DERIVATION_PATH),
       ],
       publicKeys: [],
+      derivationPathSpec: DerivationPath.BIP44,
+      secretType: SecretType.Ledger,
+      name: 'wallet-name',
+    });
+    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
+      walletId: WALLET_ID,
+    });
+
+    expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);
+
+    expect(
+      analyticsServiceMock.saveTemporaryAnalyticsIds,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('sets up a ledger wallet with extended keys and solana keys correctly', async () => {
+    const handler = getHandler();
+    const request = getRequest([
+      {
+        xpub: 'xpub',
+        xpubXP: 'xpubXP',
+        pubKeys: [
+          { evm: '', svm: 'svm1' },
+          { evm: '', svm: 'svm2' },
+        ],
+        password: 'password',
+        walletName: 'wallet-name',
+        analyticsConsent: false,
+        numberOfAccountsToCreate: 2,
+      },
+    ]);
+
+    const result = await handler.handle(buildRpcCall(request));
+
+    expect(result).toEqual({
+      ...request,
+      result: true,
+    });
+
+    expect(getXpubFromMnemonic).not.toHaveBeenCalled();
+    expect(Avalanche.getXpubFromMnemonic).not.toHaveBeenCalled();
+    expect(storageServiceMock.createStorageKey).toHaveBeenCalledWith(
+      'password',
+    );
+    expect(walletServiceMock.init).toHaveBeenCalledWith({
+      mnemonic: undefined,
+      extendedPublicKeys: [
+        buildExtendedPublicKey('xpub', EVM_BASE_DERIVATION_PATH),
+        buildExtendedPublicKey('xpubXP', AVALANCHE_BASE_DERIVATION_PATH),
+      ],
+      publicKeys: [
+        {
+          curve: 'ed25519',
+          derivationPath: "m/44'/501'/0'/0'",
+          key: 'svm1',
+          type: 'address-pubkey',
+        },
+        {
+          curve: 'ed25519',
+          derivationPath: "m/44'/501'/1'/0'",
+          key: 'svm2',
+          type: 'address-pubkey',
+        },
+      ],
       derivationPathSpec: DerivationPath.BIP44,
       secretType: SecretType.Ledger,
       name: 'wallet-name',
@@ -248,6 +313,6 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       analyticsServiceMock.saveTemporaryAnalyticsIds,
     ).not.toHaveBeenCalled();
 
-    expect(addXPChainToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
+    expect(addChainsToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });

@@ -8,7 +8,8 @@ import {
   WalletEvents,
   WalletDetails,
   SUPPORTED_PRIMARY_SECRET_TYPES,
-  isSolanaSigningRequest,
+  isSolanaRequest,
+  isSolanaMsgRequest,
 } from './models';
 import {
   MessageParams,
@@ -26,6 +27,7 @@ import {
   getWalletFromMnemonic,
   JsonRpcBatchInternal,
   LedgerSigner,
+  SolanaLedgerSigner,
   SolanaProvider,
   SolanaSigner,
 } from '@avalabs/core-wallets-sdk';
@@ -59,7 +61,7 @@ import { UnsignedTx } from '@avalabs/avalanchejs';
 import { toUtf8 } from 'ethereumjs-util';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
-import { SecretType } from '../secrets/models';
+import { AccountWithSeedlessSecrets, SecretType } from '../secrets/models';
 import { FIREBLOCKS_REQUEST_EXPIRY } from '../fireblocks/models';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
@@ -83,7 +85,7 @@ import { omitUndefined } from '@src/utils/object';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
 import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
-
+import { isSolanaNetwork } from '../network/utils/isSolanaNetwork';
 @singleton()
 export class WalletService implements OnUnlock {
   private eventEmitter = new EventEmitter();
@@ -171,6 +173,48 @@ export class WalletService implements OnUnlock {
     return true;
   }
 
+  async #getSeedlessWallet(
+    secrets: AccountWithSeedlessSecrets,
+    network: Network,
+    accountIndex?: number,
+  ) {
+    const accountIndexToUse =
+      accountIndex === undefined ? secrets.account.index : accountIndex;
+
+    const vmName =
+      isXchainNetwork(network) || isPchainNetwork(network)
+        ? NetworkVMType.AVM
+        : isSolanaNetwork(network)
+          ? NetworkVMType.SVM
+          : NetworkVMType.EVM; // Our Bitcoin implementation uses the EVM derivation path
+
+    const curve = isSolanaNetwork(network) ? 'ed25519' : 'secp256k1';
+
+    const derivationPaths = await this.addressResolver.getDerivationPathsByVM(
+      accountIndexToUse,
+      secrets.derivationPathSpec,
+      [vmName],
+    );
+
+    const addressPublicKey = getPublicKeyFor(
+      secrets,
+      derivationPaths[vmName],
+      curve,
+    );
+
+    if (!addressPublicKey) {
+      throw new Error('Account public key not available');
+    }
+
+    return new SeedlessWallet({
+      networkService: this.networkService,
+      sessionStorage: new SeedlessTokenStorage(this.secretService),
+      addressPublicKey,
+      network,
+      sessionManager: container.resolve(SeedlessSessionManager),
+    });
+  }
+
   private async getWallet({
     network,
     tabId,
@@ -202,6 +246,21 @@ export class WalletService implements OnUnlock {
           );
         case SecretType.PrivateKey:
           return new SolanaSigner(Buffer.from(secrets.secret, 'hex'));
+        case SecretType.Ledger:
+        case SecretType.LedgerLive: {
+          if (!this.ledgerService.recentTransport) {
+            throw new Error('Ledger transport not available');
+          }
+          const accountIndexToUse =
+            accountIndex === undefined ? secrets.account.index : accountIndex;
+
+          return new SolanaLedgerSigner(
+            accountIndexToUse,
+            this.ledgerService.recentTransport,
+          );
+        }
+        case SecretType.Seedless:
+          return this.#getSeedlessWallet(secrets, network, accountIndex);
         default:
           throw new Error(
             `Unsupported wallet type for Solana transaction: ${secretType}`,
@@ -231,38 +290,7 @@ export class WalletService implements OnUnlock {
     // Seedless wallet uses a universal signer class (one for all tx types)
 
     if (secretType === SecretType.Seedless) {
-      const accountIndexToUse =
-        accountIndex === undefined ? secrets.account.index : accountIndex;
-
-      const derivationPaths = await this.addressResolver.getDerivationPathsByVM(
-        accountIndexToUse,
-        secrets.derivationPathSpec,
-        [NetworkVMType.AVM, NetworkVMType.EVM],
-      );
-
-      const derivationPath =
-        isXchainNetwork(network) || isPchainNetwork(network)
-          ? derivationPaths[NetworkVMType.AVM]
-          : derivationPaths[NetworkVMType.EVM];
-
-      const addressPublicKey = getPublicKeyFor(
-        secrets,
-        derivationPath,
-        'secp256k1',
-      );
-
-      if (!addressPublicKey) {
-        throw new Error('Account public key not available');
-      }
-
-      const wallet = new SeedlessWallet({
-        networkService: this.networkService,
-        sessionStorage: new SeedlessTokenStorage(this.secretService),
-        addressPublicKey,
-        network,
-        sessionManager: container.resolve(SeedlessSessionManager),
-      });
-      return wallet;
+      return this.#getSeedlessWallet(secrets, network, accountIndex);
     }
 
     // EVM signers
@@ -432,7 +460,8 @@ export class WalletService implements OnUnlock {
     // Avalanche signers
     if (
       network.vmName === NetworkVMType.AVM ||
-      network.vmName === NetworkVMType.PVM
+      network.vmName === NetworkVMType.PVM ||
+      network.vmName === NetworkVMType.CoreEth
     ) {
       if (secretType === SecretType.Mnemonic) {
         const accountIndexToUse =
@@ -579,18 +608,45 @@ export class WalletService implements OnUnlock {
       throw new Error('Wallet not found');
     }
 
-    if (isSolanaSigningRequest(tx)) {
-      if (!(wallet instanceof SolanaSigner)) {
+    if (isSolanaRequest(tx)) {
+      if (
+        !(wallet instanceof SolanaSigner) &&
+        !(wallet instanceof SolanaLedgerSigner) &&
+        !(wallet instanceof SeedlessWallet)
+      ) {
         throw new Error('Unable to find a proper signer');
       }
 
-      const signedTx = await wallet.signTx(
-        tx.data,
-        (await getProviderForNetwork(network)) as SolanaProvider,
-      );
+      if (isSolanaMsgRequest(tx)) {
+        if (!(wallet instanceof SolanaSigner)) {
+          /**
+           * FIXME:
+           * I have a PoC that seems to be working, but obtained signatures are not verified
+           * properly by the dApps. I think it's because the dApps provide a UTF-8 message,
+           * but for it to be accepted by Solana Ledger app, we need to serialize it,
+           * add a message header etc., and I think Ledger then signs the whole thing, which
+           * makes it impossible to verify the signature with the original message.
+           */
+          throw new Error(
+            'Signing off-chain messages is only supported with seedphrase wallets at the moment',
+          );
+        }
+
+        return {
+          signedTx: await wallet.signMessage(tx.data),
+        };
+      }
+
+      const provider = (await getProviderForNetwork(network)) as SolanaProvider;
+
+      if (wallet instanceof SeedlessWallet) {
+        return {
+          signedTx: await wallet.signSolanaTx(tx.data, provider),
+        };
+      }
 
       return {
-        signedTx,
+        signedTx: await wallet.signTx(tx.data, provider),
       };
     }
 

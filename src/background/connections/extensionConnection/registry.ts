@@ -75,7 +75,7 @@ import { GetFeatureFlagsHandler } from '@src/background/services/featureFlags/ha
 import { FeatureFlagsUpdatedEvent } from '@src/background/services/featureFlags/events/featureFlagsUpdatedEvent';
 import { CloseLedgerTransportHandler } from '@src/background/services/ledger/handlers/closeOpenTransporters';
 import { LedgerCloseTransportEvent } from '@src/background/services/ledger/events/ledgerCloseTransport';
-import { GetAvaxBalanceHandler } from '@src/background/services/balances/handlers/getAvaxBalance';
+import { GetNativeBalanceHandler } from '@src/background/services/balances/handlers/getNativeBalance';
 import { GetLedgerVersionWarningHandler } from '@src/background/services/ledger/handlers/getLedgerVersionWarning';
 import { LedgerVersionWarningClosedHandler } from '@src/background/services/ledger/handlers/setLedgerVersionWarningClosed';
 import { SetLanguageHandler } from '@src/background/services/settings/handlers/setLanguage';
@@ -134,6 +134,8 @@ import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/h
 import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallenge';
 import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
 import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
+import { AppendSolanaPublicKeysHandler } from '@src/background/services/secrets/handlers/appendSolanaPublicKeys';
+import { DeriveMissingKeysHandler } from '@src/background/services/seedless/handlers/deriveMissingKeys';
 import { SubscribeToNotification } from '@src/background/services/notifications/handlers/subscribe';
 import { UnsubscribeFromNotification } from '@src/background/services/notifications/handlers/unsubscribe';
 import { GetNotificationSubscriptions } from '@src/background/services/notifications/handlers/getSubscriptions';
@@ -253,7 +255,7 @@ import { SubscriptionsChangedEvents } from '@src/background/services/notificatio
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
   { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
-  { token: 'ExtensionRequestHandler', useToken: GetAvaxBalanceHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetNativeBalanceHandler },
   {
     token: 'ExtensionRequestHandler',
     useToken: GetLedgerVersionWarningHandler,
@@ -403,6 +405,14 @@ import { SubscriptionsChangedEvents } from '@src/background/services/notificatio
   {
     token: 'ExtensionRequestHandler',
     useToken: SetDefaultStateValuesHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: AppendSolanaPublicKeysHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: DeriveMissingKeysHandler,
   },
   {
     token: 'ExtensionRequestHandler',

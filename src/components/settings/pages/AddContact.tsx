@@ -34,6 +34,7 @@ export function AddContact({ goBack, navigateTo, width }: SettingsPageProps) {
     address: '',
     addressBTC: '',
     addressXP: '',
+    addressSVM: '',
   });
 
   const { createContact } = useContactsContext();

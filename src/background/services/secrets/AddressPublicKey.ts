@@ -70,12 +70,20 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
       );
     }
 
-    // For Ledger (BIP44) and Keystone, we only have the extended public keys.
+    // For Ledger (BIP44) and Keystone, look if we already have the public key stored.
+    // If not, fall back to the extended public keys.
     if (
       secrets.secretType === SecretType.Ledger ||
       secrets.secretType === SecretType.Keystone
     ) {
       assertDerivationPath(derivationPath);
+
+      const pubKeyJson = getPublicKeyFor(secrets, derivationPath, curve);
+
+      if (pubKeyJson) {
+        return AddressPublicKey.fromJSON(pubKeyJson);
+      }
+
       return AddressPublicKey.fromExtendedPublicKeys(
         secrets.extendedPublicKeys,
         curve,

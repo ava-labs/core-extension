@@ -73,7 +73,7 @@ const useDropdownProps = ({
             border: `1px solid ${theme.palette.grey[850]}`,
             maxWidth: 343,
             maxHeight: 144,
-            mt: 2,
+            mt: 3.5,
             ...paperSx,
           },
           ...otherPaperProps,

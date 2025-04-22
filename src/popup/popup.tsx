@@ -42,6 +42,8 @@ import { ApprovalRoutes } from './ApprovalRoutes';
 import { AppRoutes } from './AppRoutes';
 import { InAppApprovalOverlay } from '@src/components/common/InAppApprovalOverlay';
 import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
+import LedgerSolanaAddressPrompt from '@src/pages/Ledger/LedgerSolanaAddressPrompt';
+import { SeedlessUpdatingAccountDialog } from '@src/components/common/seedless/SeedlessUpdatingAccountDialog';
 import { NotificationsContextProvider } from '@src/contexts/NotificationsProvider';
 
 const pagesWithoutHeader = [
@@ -126,12 +128,12 @@ export function Popup() {
     <DialogContextProvider>
       <LedgerContextProvider>
         <KeystoneContextProvider>
-          <OnboardingContextProvider>
-            <AccountsContextProvider>
-              <NetworkContextProvider>
-                <NotificationsContextProvider>
-                  <NetworkFeeContextProvider>
-                    <WalletContextProvider>
+          <AccountsContextProvider>
+            <NetworkContextProvider>
+              <OnboardingContextProvider>
+                <NetworkFeeContextProvider>
+                  <WalletContextProvider>
+                    <NotificationsContextProvider>
                       <CurrenciesContextProvider>
                         <BalancesProvider>
                           <DefiContextProvider>
@@ -180,7 +182,9 @@ export function Popup() {
                                                   )}
                                                   <LedgerIncorrectDevice />
                                                   <LedgerRegisterBtcWalletPolicy />
+                                                  <LedgerSolanaAddressPrompt />
                                                   <SeedlessAuthPrompt />
+                                                  <SeedlessUpdatingAccountDialog />
                                                   {isMiniMode && (
                                                     <InAppApprovalOverlay />
                                                   )}
@@ -198,12 +202,12 @@ export function Popup() {
                           </DefiContextProvider>
                         </BalancesProvider>
                       </CurrenciesContextProvider>
-                    </WalletContextProvider>
-                  </NetworkFeeContextProvider>
-                </NotificationsContextProvider>
-              </NetworkContextProvider>
-            </AccountsContextProvider>
-          </OnboardingContextProvider>
+                    </NotificationsContextProvider>
+                  </WalletContextProvider>
+                </NetworkFeeContextProvider>
+              </OnboardingContextProvider>
+            </NetworkContextProvider>
+          </AccountsContextProvider>
         </KeystoneContextProvider>
       </LedgerContextProvider>
     </DialogContextProvider>

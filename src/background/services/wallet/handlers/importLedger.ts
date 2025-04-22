@@ -2,6 +2,7 @@ import { injectable } from 'tsyringe';
 import {
   DerivationPath,
   getAddressDerivationPath,
+  getSolanaDerivationPath,
 } from '@avalabs/core-wallets-sdk';
 
 import { assertPresent } from '@src/utils/assertions';
@@ -22,6 +23,7 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { ImportLedgerWalletParams, ImportWalletResult } from './models';
 import { SecretsError } from '@src/utils/errors';
 import { buildExtendedPublicKey } from '../../secrets/utils';
+import { isNotNullish } from '@src/utils/typeUtils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_IMPORT_LEDGER,
@@ -131,11 +133,26 @@ export class ImportLedgerHandler implements HandlerType {
           buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH),
         );
       }
+      const solanaKeys = (pubKeys ?? [])
+        .map((pubKey, index) => {
+          if (!pubKey.svm) {
+            return null;
+          }
+
+          return {
+            type: 'address-pubkey',
+            curve: 'ed25519',
+            derivationPath: getSolanaDerivationPath(index),
+            key: pubKey.svm,
+          } as const;
+        })
+        .filter(isNotNullish);
+
       id = await this.walletService.addPrimaryWallet({
         secretType,
         derivationPathSpec: DerivationPath.BIP44,
         extendedPublicKeys,
-        publicKeys: [], // Those will be populated at the end of this function
+        publicKeys: solanaKeys, // The EVM and XP address keys will be populated at the end of this function
         name,
       });
     } else {
@@ -172,6 +189,15 @@ export class ImportLedgerHandler implements HandlerType {
             type: 'address-pubkey',
           });
         }
+
+        if (pubKey.svm) {
+          publicKeys.push({
+            curve: 'ed25519',
+            key: pubKey.svm,
+            derivationPath: getSolanaDerivationPath(index),
+            type: 'address-pubkey',
+          });
+        }
       }
 
       id = await this.walletService.addPrimaryWallet({
@@ -185,7 +211,7 @@ export class ImportLedgerHandler implements HandlerType {
     const accountsToBeCreated = numberOfAccountsToCreate || 3;
     const accountsToCreate = Math.min(
       3,
-      pubKeys
+      pubKeys?.length
         ? Math.min(pubKeys.length, accountsToBeCreated)
         : accountsToBeCreated,
     );

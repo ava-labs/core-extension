@@ -16,7 +16,7 @@ import {
   NftSendOptions,
   SendOptions,
 } from '../../models';
-import { SendAdapterEVM } from './models';
+import { isInsufficientBalanceError, SendAdapterEVM } from './models';
 import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@src/utils/stringToBigint';
 
@@ -174,7 +174,7 @@ export const useEVMSend: SendAdapterEVM = ({
           setError(SendErrorMessage.UNSUPPORTED_TOKEN);
         }
       } catch (err: any) {
-        if (!!err?.message && err?.message.includes('insufficient funds')) {
+        if (isInsufficientBalanceError(err)) {
           setError(SendErrorMessage.INSUFFICIENT_BALANCE);
         } else {
           // We don't want to send those errors to Sentry,

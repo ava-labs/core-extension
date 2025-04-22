@@ -35,7 +35,17 @@ const MOCK_SCHEMA_MAP = {
         migration: {
           up: jest.fn(async (data) => ({ ...data, version: 2 })),
           previousSchema: {
-            validate: jest.fn(() => ({ error: 'invalid schema' })),
+            validate: jest.fn(() => ({
+              error: {
+                message: 'invalid schema',
+                details: [
+                  {
+                    path: ['foo'],
+                    type: 'string',
+                  },
+                ],
+              },
+            })),
           },
         },
       },
