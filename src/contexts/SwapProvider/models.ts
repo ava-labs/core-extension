@@ -175,6 +175,7 @@ export enum SwapErrorCode {
   CannotBuildTx = 'cannot-build-tx',
   InvalidParams = 'invalid-params',
   FeatureDisabled = 'feature-disabled',
+  TransactionError = 'transaction-error',
 }
 
 export interface SwapError {

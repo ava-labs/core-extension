@@ -12006,6 +12006,7 @@ __metadata:
     "@sentry/browser": "npm:7.66.0"
     "@sentry/integrations": "npm:7.66.0"
     "@sentry/react": "npm:7.66.0"
+    "@solana-program/token": "npm:0.5.1"
     "@testing-library/react": "npm:12.1.5"
     "@testing-library/react-hooks": "npm:8.0.1"
     "@types/argon2-browser": "npm:1.18.4"

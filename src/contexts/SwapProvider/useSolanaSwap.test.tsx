@@ -232,7 +232,7 @@ describe('contexts/SwapProvider/useSolanaSwap', () => {
       });
     });
 
-    describe('when C-chain address is unknown', () => {
+    describe('when Solana address is unknown', () => {
       it.each([
         buildWalletState({ account: undefined }),
         buildWalletState({ account: { addressSVM: '' } as any }),
@@ -259,6 +259,59 @@ describe('contexts/SwapProvider/useSolanaSwap', () => {
         await expectToThrowErrorCode(
           swap(getSwapParams()),
           SwapErrorCode.CannotBuildTx,
+        );
+      });
+    });
+
+    it('throws if Jupiter API transaction simulation returns an error', async () => {
+      jest.mocked(global.fetch).mockResolvedValue({
+        ok: true,
+        json: jest.fn().mockResolvedValue({
+          swapTransaction: 'ZHVwYQ==', // should be a base64 encoded string
+          simulationError: {
+            errorCode: 'TRANSACTION_ERROR',
+          },
+        }),
+      } as any);
+
+      const { swap } = await buildAdapter(buildWalletState());
+
+      await act(async () => {
+        await expectToThrowErrorCode(
+          swap(getSwapParams()),
+          SwapErrorCode.TransactionError,
+        );
+      });
+    });
+
+    it('applies the fee account', async () => {
+      jest
+        .spyOn(swapUtils, 'getJupiterFeeAccount')
+        .mockResolvedValueOnce('feeAccount');
+
+      const requestMock = jest.fn().mockResolvedValueOnce('txsignature');
+
+      jest.mocked(useConnectionContext).mockReturnValue({
+        request: requestMock,
+      } as any);
+
+      jest.mocked(global.fetch).mockResolvedValue({
+        ok: true,
+        json: jest.fn().mockResolvedValue({
+          swapTransaction: 'ZHVwYQ==', // should be a base64 encoded string
+        }),
+      } as any);
+
+      const { swap } = await buildAdapter(buildWalletState());
+
+      await act(async () => {
+        await swap(getSwapParams());
+
+        await expect(global.fetch).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({
+            body: expect.stringContaining(`"feeAccount":"feeAccount"`), // part of JSON stringified body
+          }),
         );
       });
     });

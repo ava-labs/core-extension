@@ -11,12 +11,18 @@ import { fetchAndVerify } from '@src/utils/fetchAndVerify';
 import { isUserRejectionError } from '@src/utils/errors';
 import { AccountError, CommonError } from '@src/utils/errors';
 import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
+import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
 
-import { SOL_MINT } from './constants';
-import { swapError, validateJupiterParams } from './swap-utils';
+import { JUPITER_PARTNER_FEE_BPS, SOL_MINT } from './constants';
+import {
+  getJupiterFeeAccount,
+  swapError,
+  validateJupiterParams,
+} from './swap-utils';
 import { JUPITER_QUOTE_SCHEMA, JUPITER_TX_SCHEMA } from './schemas';
 import {
   GetRateParams,
@@ -25,7 +31,6 @@ import {
   SwapErrorCode,
   SwapParams,
 } from './models';
-import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 export const useSolanaSwap: SwapAdapter<JupiterQuote> = (
   { account, network },
@@ -33,6 +38,7 @@ export const useSolanaSwap: SwapAdapter<JupiterQuote> = (
 ) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
+  const { capture } = useAnalyticsContext();
   const { isFlagEnabled } = useFeatureFlagContext();
 
   const waitForTransaction = useCallback(
@@ -112,12 +118,17 @@ export const useSolanaSwap: SwapAdapter<JupiterQuote> = (
         };
       }
 
+      const feeParams = isFlagEnabled(FeatureGates.SWAP_FEES_JUPITER)
+        ? { platformFeeBps: JUPITER_PARTNER_FEE_BPS.toString() }
+        : undefined;
+
       const params = new URLSearchParams({
         inputMint,
         outputMint,
         swapMode,
         amount,
         slippageBps: Math.round(slippageBps).toString(),
+        ...feeParams,
       });
 
       try {
@@ -128,8 +139,6 @@ export const useSolanaSwap: SwapAdapter<JupiterQuote> = (
           console.error('Unable to get swap quote from Jupiter', error);
           throw swapError(SwapErrorCode.UnexpectedApiResponse);
         });
-
-        // TODO: add monetization params
 
         if (
           typeof fromTokenBalance === 'bigint' &&
@@ -184,6 +193,22 @@ export const useSolanaSwap: SwapAdapter<JupiterQuote> = (
         quote,
       } = validateJupiterParams(params);
 
+      const provider = await getProviderForNetwork(network);
+
+      if (!isSolanaProvider(provider)) {
+        throw swapError(CommonError.MismatchingProvider);
+      }
+
+      const feeAccount = await getJupiterFeeAccount(
+        isFlagEnabled(FeatureGates.SWAP_FEES_JUPITER),
+        quote,
+        provider,
+        (mint) =>
+          capture('SolanaSwapFeeAccountNotInitialized', {
+            mint,
+          }),
+      );
+
       const [txResponse, buildTxError] = await resolve(
         fetchAndVerify(
           [
@@ -197,6 +222,7 @@ export const useSolanaSwap: SwapAdapter<JupiterQuote> = (
                 quoteResponse: quote,
                 userPublicKey,
                 dynamicComputeUnitLimit: true, // Gives us a higher chance of the transaction landing
+                feeAccount,
               }),
             },
           ],
@@ -206,6 +232,14 @@ export const useSolanaSwap: SwapAdapter<JupiterQuote> = (
 
       if (!txResponse || buildTxError) {
         throw swapError(SwapErrorCode.CannotBuildTx, buildTxError);
+      }
+
+      // The /swap endpoint may return errors, as it attempts to simulate the transaction too.
+      if (txResponse.simulationError) {
+        throw swapError(
+          SwapErrorCode.TransactionError,
+          txResponse.simulationError,
+        );
       }
 
       const [txHash, signError] = await resolve(
@@ -252,6 +286,7 @@ export const useSolanaSwap: SwapAdapter<JupiterQuote> = (
       account,
       network,
       request,
+      capture,
       onTransactionReceipt,
       waitForTransaction,
       showPendingToast,

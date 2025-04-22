@@ -22,6 +22,7 @@ export const JUPITER_QUOTE_SCHEMA = z.object({
 
 export const JUPITER_TX_SCHEMA = z.object({
   swapTransaction: z.string().base64(),
+  simulationError: z.any().nullable(), // This is not documented, so we're not validating its contents. We only care if it's present at the moment.
 });
 
 export type JupiterQuote = z.infer<typeof JUPITER_QUOTE_SCHEMA>;
