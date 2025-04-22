@@ -11,6 +11,7 @@ import {
   BalanceNotificationTypes,
   NotificationCategories,
   NotificationsBalanceChangesSubscriptionStorage,
+  SubscriptionEvents,
 } from './models';
 import { FirebaseService } from '../firebase/FirebaseService';
 import { MessagePayload } from 'firebase/messaging';
@@ -18,9 +19,12 @@ import { sendNotification } from './utils/sendNotification';
 import { LockService } from '../lock/LockService';
 import { debounce } from 'lodash';
 import { sendRequest } from './utils/sendRequest';
+import EventEmitter from 'events';
+import { ExtensionConnectionEvent } from '@src/background/connections/models';
 @singleton()
 export class BalanceNotificationService {
   #clientId?: string;
+  #eventEmitter = new EventEmitter();
 
   constructor(
     private accountService: AccountsService,
@@ -45,9 +49,20 @@ export class BalanceNotificationService {
 
     // attempt to refresh the existing subscriptions
     await this.subscribe(true);
+
+    this.#eventEmitter.emit(
+      SubscriptionEvents.SUBSCRIPTIONS_CHANGED_EVENT,
+      await this.getSubscriptions(),
+    );
   }
 
   async getSubscriptions() {
+    if (this.lockService.locked) {
+      return {
+        [BalanceNotificationTypes.BALANCE_CHANGES]: false,
+      };
+    }
+
     const state = await this.#getSubscriptionStateFromStorage();
     return { [BalanceNotificationTypes.BALANCE_CHANGES]: state.isSubscribed };
   }
@@ -69,6 +84,10 @@ export class BalanceNotificationService {
       NOTIFICATIONS_BALANCE_CHANGES_SUBSCRIPTION_STORAGE_KEY,
       { isSubscribed, addresses, chainIds },
     );
+
+    this.#eventEmitter.emit(SubscriptionEvents.SUBSCRIPTIONS_CHANGED_EVENT, {
+      [BalanceNotificationTypes.BALANCE_CHANGES]: isSubscribed,
+    });
   }
 
   #handleMessage(payload: MessagePayload) {
@@ -143,5 +162,12 @@ export class BalanceNotificationService {
       addresses: [],
       chainIds: [],
     });
+  }
+
+  addListener(
+    event: SubscriptionEvents,
+    handler: (event: ExtensionConnectionEvent) => void,
+  ): void {
+    this.#eventEmitter.on(event, handler);
   }
 }

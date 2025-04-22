@@ -3,6 +3,7 @@ import {
   NotificationCategories,
   NotificationsNewsSubscriptionStorage,
   NotificationTypes,
+  SubscriptionEvents,
 } from './models';
 import { StorageService } from '../storage/StorageService';
 import {
@@ -16,10 +17,13 @@ import { sendNotification } from './utils/sendNotification';
 import { OnUnlock } from '@src/background/runtime/lifecycleCallbacks';
 import { LockService } from '../lock/LockService';
 import { sendRequest } from './utils/sendRequest';
+import EventEmitter from 'events';
+import { ExtensionConnectionEvent } from '@src/background/connections/models';
 
 @singleton()
 export class NewsNotificationService implements OnUnlock {
   #clientId?: string;
+  #eventEmitter = new EventEmitter();
 
   constructor(
     private storageService: StorageService,
@@ -58,6 +62,11 @@ export class NewsNotificationService implements OnUnlock {
       NOTIFICATIONS_NEWS_SUBSCRIPTION_STORAGE_KEY,
       subscriptions,
     );
+
+    this.#eventEmitter.emit(
+      SubscriptionEvents.SUBSCRIPTIONS_CHANGED_EVENT,
+      subscriptions,
+    );
   }
 
   #handleMessage(payload: MessagePayload) {
@@ -69,6 +78,10 @@ export class NewsNotificationService implements OnUnlock {
   }
 
   async getSubscriptions() {
+    if (this.lockService.locked) {
+      return NOTIFICATIONS_NEWS_SUBSCRIPTION_DEFAULT_STATE;
+    }
+
     return this.#getSubscriptionStateFromStorage();
   }
 
@@ -141,5 +154,12 @@ export class NewsNotificationService implements OnUnlock {
       ...state,
       [notificationType]: false,
     });
+  }
+
+  addListener(
+    event: SubscriptionEvents,
+    handler: (event: ExtensionConnectionEvent) => void,
+  ): void {
+    this.#eventEmitter.on(event, handler);
   }
 }

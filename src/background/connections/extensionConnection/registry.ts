@@ -137,6 +137,7 @@ import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/h
 import { SubscribeToNotification } from '@src/background/services/notifications/handlers/subscribe';
 import { UnsubscribeFromNotification } from '@src/background/services/notifications/handlers/unsubscribe';
 import { GetNotificationSubscriptions } from '@src/background/services/notifications/handlers/getSubscriptions';
+import { SubscriptionsChangedEvents } from '@src/background/services/notifications/events/subscriptionsChangedEvent';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -446,5 +447,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: UnifiedBridgeEvents },
   { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
   { token: 'ExtensionEventEmitter', useToken: GaslessChallangeUpdateEvent },
+  { token: 'ExtensionEventEmitter', useToken: SubscriptionsChangedEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

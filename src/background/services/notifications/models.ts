@@ -14,6 +14,10 @@ export enum NewsNotificationTypes {
   PRICE_ALERTS = 'PRICE_ALERTS',
 }
 
+export enum SubscriptionEvents {
+  SUBSCRIPTIONS_CHANGED_EVENT = 'SUBSCRIPTIONS_CHANGED_EVENT',
+}
+
 export type NotificationTypes =
   | BalanceNotificationTypes
   | NewsNotificationTypes;

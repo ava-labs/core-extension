@@ -1,5 +1,12 @@
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { createContext, useCallback, useContext, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import { filter } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import {
   BalanceNotificationTypes,
@@ -9,6 +16,7 @@ import {
 import { SubscribeToNotification } from '@src/background/services/notifications/handlers/subscribe';
 import { GetNotificationSubscriptions } from '@src/background/services/notifications/handlers/getSubscriptions';
 import { UnsubscribeFromNotification } from '@src/background/services/notifications/handlers/unsubscribe';
+import { subscriptionsChangedEventListener } from '@src/background/services/notifications/events/subscriptionsChangedEventListener';
 
 const NotificationsContext = createContext<{
   subscriptions: Record<NotificationTypes, boolean>;
@@ -29,7 +37,7 @@ const NotificationsContext = createContext<{
 });
 
 export function NotificationsContextProvider({ children }: { children: any }) {
-  const { request } = useConnectionContext();
+  const { request, events } = useConnectionContext();
 
   const [subscriptions, setSubscriptions] = useState<
     Record<NotificationTypes, boolean>
@@ -69,6 +77,25 @@ export function NotificationsContextProvider({ children }: { children: any }) {
     },
     [request, syncSubscriptions],
   );
+
+  useEffect(() => {
+    syncSubscriptions().catch(
+      // noop
+      () => {},
+    );
+  }, [syncSubscriptions]);
+
+  useEffect(() => {
+    const notificationChangesSubscription = events()
+      .pipe(filter(subscriptionsChangedEventListener))
+      .subscribe(() => {
+        syncSubscriptions();
+      });
+
+    return () => {
+      notificationChangesSubscription.unsubscribe();
+    };
+  }, [events, syncSubscriptions]);
 
   return (
     <NotificationsContext.Provider
