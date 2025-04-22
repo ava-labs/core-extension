@@ -7,6 +7,7 @@ import {
   BitcoinColorIcon,
   XAndPChainsIcon,
 } from '@avalabs/core-k2-components';
+import { SolanaLogoIcon } from '@src/components/common/SolanaLogoIcon';
 
 export const ContactInfo = ({ contact }: { contact: Contact }) => {
   return (
@@ -82,6 +83,25 @@ export const ContactInfo = ({ contact }: { contact: Contact }) => {
               size={16}
             />
             <SimpleAddress address={contact.addressBTC} />
+          </Stack>
+        )}
+        {contact.addressSVM && (
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              width: '120px',
+              mt: 1,
+            }}
+            data-testid="contact-li-copy-svm-address"
+          >
+            <SolanaLogoIcon
+              sx={{
+                mr: 0.5,
+              }}
+              size={16}
+            />
+            <SimpleAddress address={contact.addressSVM} />
           </Stack>
         )}
       </Stack>
