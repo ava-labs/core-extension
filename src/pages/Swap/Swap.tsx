@@ -105,7 +105,7 @@ export function Swap() {
     updateSlippage,
   } = useSwapStateFunctions();
 
-  const allSwappableTokens = useMemo(
+  const toTokensList = useMemo(
     () =>
       targetTokens.filter(
         (token) =>
@@ -316,7 +316,7 @@ export function Swap() {
               setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
               setIsToTokenSelectOpen(false);
             }}
-            tokensList={sourceTokens}
+            tokensList={fromTokensList}
             skipHandleMaxAmount
             isOpen={isFromTokenSelectOpen}
             selectedToken={selectedFromToken}
@@ -405,7 +405,7 @@ export function Swap() {
               setIsToTokenSelectOpen(!isToTokenSelectOpen);
               setIsFromTokenSelectOpen(false);
             }}
-            tokensList={targetTokens}
+            tokensList={toTokensList}
             isOpen={isToTokenSelectOpen}
             selectedToken={selectedToToken}
             inputAmount={toAmount}
