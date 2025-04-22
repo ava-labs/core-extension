@@ -31,7 +31,7 @@ export class FirebaseService {
       throw new Error('FIREBASE_CONFIG is missing');
     }
 
-    if (!isSupportedBrowser() || !isSupportedBrowserByFcm()) {
+    if (!isSupportedBrowser()) {
       return;
     }
 
@@ -46,6 +46,12 @@ export class FirebaseService {
     this.featureFlagService.addListener(
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
       async (featureFlags) => {
+        const isSupported = await isSupportedBrowserByFcm();
+
+        if (!isSupported) {
+          return;
+        }
+
         try {
           if (
             this.#isFcmInitialized &&

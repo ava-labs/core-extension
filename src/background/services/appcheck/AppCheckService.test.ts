@@ -6,9 +6,10 @@ import {
   setTokenAutoRefreshEnabled,
 } from 'firebase/app-check';
 import { FirebaseService } from '../firebase/FirebaseService';
-import { FcmMessageEvents, FirebaseEvents } from '../firebase/models';
+import { FirebaseEvents } from '../firebase/models';
 import {
   AppCheckService,
+  MESSAGE_EVENT,
   WAIT_FOR_CHALLENGE_ATTEMPT_COUNT,
   WAIT_FOR_CHALLENGE_DELAY_MS,
 } from './AppCheckService';
@@ -53,7 +54,7 @@ describe('AppCheckService', () => {
 
   it('subscribes for events on activation correctly', () => {
     expect(firebaseService.addFcmMessageListener).toHaveBeenCalledWith(
-      FcmMessageEvents.ID_CHALLENGE,
+      MESSAGE_EVENT,
       expect.any(Function),
     );
 
@@ -166,7 +167,7 @@ describe('AppCheckService', () => {
           requestId: crypto.randomUUID(),
           registrationId: 'registrationId',
           type: ChallengeTypes.BASIC,
-          event: FcmMessageEvents.ID_CHALLENGE,
+          event: MESSAGE_EVENT,
           details: '{}',
         },
       } as unknown as MessagePayload);
