@@ -54,6 +54,7 @@ export const useSvmSend: SendAdapterSVM = ({
         to: address,
         mint: token.address,
         amount: BigInt(stringToBigint(amount, token.decimals)),
+        decimals: token.decimals,
         provider,
       });
     },
