@@ -448,7 +448,11 @@ export function WalletRecentTxs({
         )}
 
         {filteredTxHistory.length === 0 ? (
-          <NoTransactions loading={loading} />
+          <NoTransactions
+            loading={loading}
+            network={network}
+            explorerUrl={explorerUrl}
+          />
         ) : (
           <>
             {bridgeTransactions &&
