@@ -31,6 +31,12 @@ export class NotificationsService {
   }
 
   async #init() {
+    const fcmToken = this.firebaseService.getFcmToken();
+
+    if (!fcmToken) {
+      throw new Error('Error while registering device: fcm token is missing');
+    }
+
     this.#clientId = (
       (await this.storageService.loadUnencrypted<{ clientId?: string }>(
         NOTIFICATIONS_CLIENT_ID_STORAGE_KEY,
@@ -39,14 +45,14 @@ export class NotificationsService {
 
     const { deviceArn } =
       (await incrementalPromiseResolve(
-        () => this.#registerDevice(),
+        () => this.#registerDevice(fcmToken),
         (res) => !res?.deviceArn, // we want to retry until we get a correct response
         0,
         5,
       )) ?? {};
 
     if (!deviceArn) {
-      throw new Error('registration failed');
+      throw new Error('Error while registering device: device arn is missing');
     }
 
     if (this.#clientId !== deviceArn) {
@@ -63,13 +69,7 @@ export class NotificationsService {
     await this.newsNotificationService.init(deviceArn);
   }
 
-  async #registerDevice() {
-    const fcmToken = this.firebaseService.getFcmToken();
-
-    if (!fcmToken) {
-      throw new Error('Error while registering device: fcm token is missing');
-    }
-
+  async #registerDevice(fcmToken: string) {
     return sendRequest<RegisterDeviceResponse>({
       path: 'v1/push/register',
       clientId: this.#clientId,
