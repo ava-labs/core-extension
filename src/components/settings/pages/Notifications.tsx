@@ -20,29 +20,6 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
-const NOTIFICATION_TYPE_DETAILS = {
-  [BalanceNotificationTypes.BALANCE_CHANGES]: {
-    title: 'Balance',
-    description: 'Wallet balance change alerts',
-  },
-  [NewsNotificationTypes.PRODUCT_ANNOUNCEMENTS]: {
-    title: 'Product Announcements',
-    description: 'Learn about new features and changes',
-  },
-  [NewsNotificationTypes.OFFERS_AND_PROMOTIONS]: {
-    title: 'Offers and Promotions',
-    description: 'Airdrops and promotional offers',
-  },
-  [NewsNotificationTypes.MARKET_NEWS]: {
-    title: 'Market News',
-    description: 'News and market information alerts',
-  },
-  [NewsNotificationTypes.PRICE_ALERTS]: {
-    title: 'Price Alerts',
-    description: 'Price alerts for your favorite tokens',
-  },
-};
-
 export function Notifications({
   goBack,
   navigateTo,
@@ -53,6 +30,29 @@ export function Notifications({
     useNotificationsContext();
   const { capture } = useAnalyticsContext();
   const [isLoading, setIsLoading] = useState(false);
+
+  const NOTIFICATION_TYPE_DETAILS = {
+    [BalanceNotificationTypes.BALANCE_CHANGES]: {
+      title: t('Balance'),
+      description: t('Wallet balance change alerts'),
+    },
+    [NewsNotificationTypes.PRODUCT_ANNOUNCEMENTS]: {
+      title: t('Product Announcements'),
+      description: t('Learn about new features and changes'),
+    },
+    [NewsNotificationTypes.OFFERS_AND_PROMOTIONS]: {
+      title: t('Offers and Promotions'),
+      description: t('Airdrops and promotional offers'),
+    },
+    [NewsNotificationTypes.MARKET_NEWS]: {
+      title: t('Market News'),
+      description: t('News and market information alerts'),
+    },
+    [NewsNotificationTypes.PRICE_ALERTS]: {
+      title: t('Price Alerts'),
+      description: t('Price alerts for your favorite tokens'),
+    },
+  };
 
   const handleSubscriptionChange = useCallback(
     async (notificationType: NotificationTypes, isChecked: boolean) => {
