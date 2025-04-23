@@ -42,11 +42,11 @@ export function NotificationsContextProvider({ children }: { children: any }) {
   const [subscriptions, setSubscriptions] = useState<
     Record<NotificationTypes, boolean>
   >({
-    [BalanceNotificationTypes.BALANCE_CHANGES]: false,
-    [NewsNotificationTypes.PRODUCT_ANNOUNCEMENTS]: false,
-    [NewsNotificationTypes.OFFERS_AND_PROMOTIONS]: false,
-    [NewsNotificationTypes.MARKET_NEWS]: false,
-    [NewsNotificationTypes.PRICE_ALERTS]: false,
+    [BalanceNotificationTypes.BALANCE_CHANGES]: true,
+    [NewsNotificationTypes.PRODUCT_ANNOUNCEMENTS]: true,
+    [NewsNotificationTypes.OFFERS_AND_PROMOTIONS]: true,
+    [NewsNotificationTypes.MARKET_NEWS]: true,
+    [NewsNotificationTypes.PRICE_ALERTS]: true,
   });
 
   const syncSubscriptions = useCallback(async () => {
