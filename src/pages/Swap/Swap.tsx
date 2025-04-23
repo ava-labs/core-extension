@@ -109,9 +109,8 @@ export function Swap() {
     () =>
       targetTokens.filter(
         (token) =>
-          (token.type === TokenType.ERC20 || token.type === TokenType.NATIVE) &&
-          (token.name !== selectedFromToken?.name ||
-            token.symbol !== selectedFromToken?.symbol),
+          token.name !== selectedFromToken?.name ||
+          token.symbol !== selectedFromToken?.symbol,
       ),
     [targetTokens, selectedFromToken?.name, selectedFromToken?.symbol],
   );

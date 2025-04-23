@@ -153,7 +153,10 @@ export const isSlippageValid = (value: string) => {
 
 export const isSwappableToken = (
   token: TokenWithBalance,
-): token is SwappableToken =>
-  token.type === TokenType.ERC20 ||
-  token.type === TokenType.NATIVE ||
-  token.type === TokenType.SPL;
+): token is SwappableToken => {
+  if (token.type === TokenType.SPL) {
+    return !token.name.includes('(Sanctum Automated)'); // Filter-out some automated LP tokens
+  }
+
+  return token.type === TokenType.ERC20 || token.type === TokenType.NATIVE;
+};
