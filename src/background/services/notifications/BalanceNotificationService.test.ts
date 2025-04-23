@@ -77,6 +77,10 @@ describe('BalanceNotificationService', () => {
     });
 
     it('should subscribe correctly', async () => {
+      accountsServiceMock.getAccountList
+        .mockReturnValueOnce([{ addressC: '0x123' }])
+        .mockReturnValueOnce([{ addressC: '0x123' }, { addressC: '0x456' }]);
+
       const balanceNotificationService =
         createBalanceNotificationService(false);
       await balanceNotificationService.init('deviceArn');
@@ -143,6 +147,10 @@ describe('BalanceNotificationService', () => {
     });
 
     it('should unsubscribe correctly', async () => {
+      accountsServiceMock.getAccountList.mockReturnValueOnce([
+        { addressC: '0x123' },
+      ]);
+
       const balanceNotificationService =
         createBalanceNotificationService(false);
       await balanceNotificationService.init('deviceArn');
@@ -178,6 +186,10 @@ describe('BalanceNotificationService', () => {
   });
 
   it('should send a notification when a new message is received', async () => {
+    accountsServiceMock.getAccountList.mockReturnValueOnce([
+      { addressC: '0x123' },
+    ]);
+
     const balanceNotificationService = createBalanceNotificationService(false);
     await balanceNotificationService.init('deviceArn');
 
@@ -193,6 +205,10 @@ describe('BalanceNotificationService', () => {
   });
 
   it('should return the current subscriptions', async () => {
+    accountsServiceMock.getAccountList.mockReturnValueOnce([
+      { addressC: '0x123' },
+    ]);
+
     const balanceNotificationService = createBalanceNotificationService(false);
     await balanceNotificationService.init('deviceArn');
 

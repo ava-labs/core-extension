@@ -21,6 +21,7 @@ import { debounce } from 'lodash';
 import { sendRequest } from './utils/sendRequest';
 import EventEmitter from 'events';
 import { ExtensionConnectionEvent } from '@src/background/connections/models';
+
 @singleton()
 export class BalanceNotificationService {
   #clientId?: string;
