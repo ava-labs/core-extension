@@ -1,12 +1,12 @@
 import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
 import { AvalancheSelectAccountHandler } from './avalanche_selectAccount';
 import { container } from 'tsyringe';
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
+import { openExtensionNewWindow } from 'packages/utils/src/extensionUtils';
 import { ActionsService } from '../../actions/ActionsService';
 import { DEFERRED_RESPONSE } from 'packages/service-worker/src/connections/middlewares/models';
 import { AccountType } from '../models';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 jest.mock('@src/utils/canSkipApproval');

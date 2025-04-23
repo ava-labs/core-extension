@@ -32,8 +32,8 @@ import {
 import { resolve, wait } from '@avalabs/core-utils-sdk';
 import { Network as EthersNetwork } from 'ethers';
 import { SigningResult } from '../wallet/models';
-import { getExponentialBackoffDelay } from '@src/utils/exponentialBackoff';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { getExponentialBackoffDelay } from '@core/utils';
+import { getProviderForNetwork } from '@core/utils';
 import {
   FeatureFlagEvents,
   FeatureFlags,
@@ -47,7 +47,7 @@ import {
   caipToChainId,
   chainIdToCaip,
   decorateWithCaipId,
-} from '@avalabs/core-ext-utils';
+} from '@core/utils';
 import { getSyncDomain, isSyncDomain } from './utils/getSyncDomain';
 import { isSolanaNetwork } from './utils/isSolanaNetwork';
 

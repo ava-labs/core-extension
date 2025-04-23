@@ -14,7 +14,7 @@ import {
 } from '../../permissions/models';
 import { Web3Event } from '../../../connections/dAppConnection/models';
 import { injectable } from 'tsyringe';
-import { AccountsChangedEventData } from '@avalabs/core-ext-inpage';
+import { AccountsChangedEventData } from '@core/inpage';
 
 /**
  * Emits `accountChanged` events for each dApp according to EIP-1193

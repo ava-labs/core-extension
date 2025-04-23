@@ -8,7 +8,7 @@ import {
 import { filter, firstValueFrom, map, Subject, Subscription } from 'rxjs';
 
 import { OnLock, OnUnlock } from '../../runtime/lifecycleCallbacks';
-import { DecodedFIDOResult, KeyType } from '@src/utils/seedless/fido/types';
+import { DecodedFIDOResult, KeyType } from '@core/utils';
 
 import {
   AuthErrorCode,

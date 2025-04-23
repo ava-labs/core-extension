@@ -24,8 +24,8 @@ import { Action } from '../../actions/models';
 import { BridgeService } from '../BridgeService';
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { blockchainToNetwork } from '@src/pages/Bridge/utils/blockchainConversion';
-import { findTokenForAsset } from '@src/pages/Bridge/utils/findTokenForAsset';
+import { blockchainToNetwork } from 'packages/ui/pages/Bridge/utils/blockchainConversion';
+import { findTokenForAsset } from 'packages/ui/pages/Bridge/utils/findTokenForAsset';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { isBitcoinNetwork } from '../../network/utils/isBitcoinNetwork';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
@@ -40,10 +40,10 @@ import {
   buildBtcTx,
   getBtcInputUtxos,
   validateBtcSend,
-} from '@src/utils/send/btcSendUtils';
-import { resolve } from '@src/utils/promiseResolver';
+} from '@core/utils';
+import { resolve } from '@core/utils';
 import { TokenType, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { getProviderForNetwork } from '@core/utils';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 
 type BridgeActionParams = [

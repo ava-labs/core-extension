@@ -9,7 +9,7 @@ import {
   NetworkVMType,
   TokenType,
 } from '@avalabs/vm-module-types';
-import { mapVMAddresses } from '@src/utils/address';
+import { mapVMAddresses } from '@core/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCE_NATIVE_GET,

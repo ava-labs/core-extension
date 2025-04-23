@@ -14,8 +14,8 @@ import { SvmModule } from '@avalabs/svm-module';
 import { ethErrors } from 'eth-rpc-errors';
 import { singleton } from 'tsyringe';
 
-import { assertPresent } from '@src/utils/assertions';
-import { isDevelopment } from '@src/utils/environment';
+import { assertPresent } from '@core/utils';
+import { isDevelopment } from '@core/utils';
 
 import { NetworkWithCaipId } from '../services/network/models';
 import { VMModuleError } from './models';
@@ -24,7 +24,7 @@ import {
   AvaxCaipId,
   AvaxLegacyCaipId,
   BitcoinCaipId,
-} from '@avalabs/core-ext-utils';
+} from '@core/utils';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2

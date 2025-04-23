@@ -1,5 +1,5 @@
 import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
-import { KeyType } from '@src/utils/seedless/fido/types';
+import { KeyType } from 'packages/utils/src/seedless/fido/types';
 
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { AddFidoDeviceHandler } from './addFidoDevice';

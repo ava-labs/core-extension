@@ -7,7 +7,7 @@ import {
 import { singleton } from 'tsyringe';
 import { wait } from '@avalabs/core-utils-sdk';
 
-import { CommonError } from '@src/utils/errors';
+import { CommonError } from '@core/utils';
 
 import { HEADERS } from './glacierConfig';
 

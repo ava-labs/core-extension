@@ -8,10 +8,10 @@ import {
 } from 'firebase/messaging/sw';
 import { singleton } from 'tsyringe';
 import { FcmMessageEvents, FirebaseEvents, FcmMessageListener } from './models';
-import { Monitoring } from '@avalabs/core-ext-common';
+import { Monitoring } from '@core/common';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureFlagEvents, FeatureGates } from '../featureFlags/models';
-import { isSupportedBrowser } from '@src/utils/isSupportedBrowser';
+import { isSupportedBrowser } from '@core/utils';
 
 @singleton()
 export class FirebaseService {

@@ -24,7 +24,7 @@ import { Network } from '@avalabs/glacier-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { measureDuration } from '@src/utils/measureDuration';
+import { measureDuration } from '@core/utils';
 import { HEADERS } from '../../glacier/glacierConfig';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { NetworkWithCaipId } from '../../network/models';

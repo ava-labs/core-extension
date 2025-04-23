@@ -17,7 +17,7 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { measureDuration } from '@src/utils/measureDuration';
+import { measureDuration } from 'packages/utils/src/measureDuration';
 import { HEADERS } from '../../glacier/glacierConfig';
 
 jest.mock('@avalabs/avalanchejs');

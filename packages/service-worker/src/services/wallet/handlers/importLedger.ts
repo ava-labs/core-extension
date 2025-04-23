@@ -4,7 +4,7 @@ import {
   getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
 
-import { assertPresent } from '@src/utils/assertions';
+import { assertPresent } from '@core/utils';
 import { ExtensionRequest } from '../../../connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 
@@ -20,7 +20,7 @@ import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 
 import { ImportLedgerWalletParams, ImportWalletResult } from './models';
-import { SecretsError } from '@src/utils/errors';
+import { SecretsError } from '@core/utils';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<

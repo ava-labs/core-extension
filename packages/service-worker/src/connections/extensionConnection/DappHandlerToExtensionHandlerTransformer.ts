@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-import { resolve } from '@src/utils/promiseResolver';
+import { resolve } from '@core/utils';
 
 import {
   DAppProviderRequest,

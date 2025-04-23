@@ -20,7 +20,7 @@ import { LockService } from '../lock/LockService';
 import { filterStaleActions } from './utils';
 import { ACTION_HANDLED_BY_MODULE } from '../../models';
 import { DAppProviderRequest } from '../../connections/dAppConnection/models';
-import { getUpdatedSigningData } from '@src/utils/actions/getUpdatedActionData';
+import { getUpdatedSigningData } from '@core/utils';
 import { BtcTxUpdateFn, EvmTxUpdateFn } from '@avalabs/vm-module-types';
 import { ApprovalController } from '../../vmModules/ApprovalController';
 

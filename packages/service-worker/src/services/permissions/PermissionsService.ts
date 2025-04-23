@@ -13,9 +13,9 @@ import {
   DappPermissions,
 } from './models';
 import { Account } from '../accounts/models';
-import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
-import { SYNCED_DOMAINS } from '@src/constants';
-import { getAddressByVMType } from '@src/utils/address';
+import getAllAddressesForAccount from '@core/utils';
+import { SYNCED_DOMAINS } from 'packages/common/src/constants';
+import { getAddressByVMType } from '@core/utils';
 
 @singleton()
 export class PermissionsService implements OnLock {

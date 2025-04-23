@@ -1,7 +1,7 @@
 import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
 import { UpdateActionTxDataHandler } from './updateTxData';
 import { matchingPayload } from '@src/tests/test-utils';
-import { SendErrorMessage } from '@src/utils/send/models';
+import { SendErrorMessage } from 'packages/utils/src/send/models';
 import { HandlerParameters } from 'packages/service-worker/src/connections/models';
 
 describe('src/background/services/actions/handlers/updateTxData', () => {

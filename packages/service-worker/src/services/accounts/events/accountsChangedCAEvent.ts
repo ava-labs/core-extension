@@ -8,7 +8,7 @@ import {
   ExtensionConnectionEvent,
 } from '../../../connections/models';
 import { Web3Event } from '../../../connections/dAppConnection/models';
-import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
+import getAllAddressesForAccount from '@core/utils';
 
 import { AccountsEvents } from '../models';
 import { AccountsService } from '../AccountsService';

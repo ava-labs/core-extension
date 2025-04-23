@@ -1,6 +1,7 @@
 {
-  "name": "@avalabs/core-ext-service-worker",
+  "name": "@core/service-worker",
   "packageManager": "yarn@4.7.0",
+  "main": "src/index.ts",
   "dependencies": {
     "@avalabs/avalanche-module": "1.6.2",
     "@avalabs/avalanchejs": "4.2.0-alpha.1",
@@ -11,9 +12,6 @@
     "@avalabs/core-coingecko-sdk": "3.1.0-alpha.45",
     "@avalabs/core-covalent-sdk": "3.1.0-alpha.45",
     "@avalabs/core-etherscan-sdk": "3.1.0-alpha.45",
-    "@avalabs/core-ext-common": "workspace:*",
-    "@avalabs/core-ext-types": "workspace:*",
-    "@avalabs/core-ext-utils": "workspace:*",
     "@avalabs/core-gasless-sdk": "3.1.0-alpha.45",
     "@avalabs/core-k2-components": "4.18.0-alpha.53",
     "@avalabs/core-snowtrace-sdk": "3.1.0-alpha.45",
@@ -29,6 +27,9 @@
     "@avalabs/vm-module-types": "1.6.2",
     "@blockaid/client": "0.10.0",
     "@coinbase/cbpay-js": "1.6.0",
+    "@core/common": "workspace:*",
+    "@core/types": "workspace:*",
+    "@core/utils": "workspace:*",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
     "@cubist-labs/cubesigner-sdk-ethers-v6": "0.3.28",
     "@ethereumjs/common": "2.6.5",

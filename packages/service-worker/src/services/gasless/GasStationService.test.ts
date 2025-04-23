@@ -5,7 +5,7 @@ import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 import { GasStationService } from './GasStationService';
 import { GaslessSdk } from '@avalabs/core-gasless-sdk';
 import { Transaction, TransactionLike } from 'ethers';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
 import { GaslessEvents } from './model';
 
 jest.mock('@avalabs/core-gasless-sdk', () => {

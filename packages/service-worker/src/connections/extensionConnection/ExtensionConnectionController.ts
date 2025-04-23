@@ -17,17 +17,17 @@ import {
   disconnectLog,
   eventLog,
   responseLog,
-} from '@src/utils/logging';
+} from '@core/utils';
 
 import { resolve } from '@avalabs/core-utils-sdk';
-import { isDevelopment } from '@src/utils/environment';
+import { isDevelopment } from '@core/utils';
 import './registry';
 import '../dAppConnection/registry';
 import {
   deserializeFromJSON,
   serializeToJSON,
-} from '@avalabs/core-ext-messaging';
-import { Monitoring } from '@avalabs/core-ext-common';
+} from '@core/messaging';
+import { Monitoring } from '@core/common';
 
 import { DappHandlerToExtensionHandlerTransformer } from './DappHandlerToExtensionHandlerTransformer';
 import { NetworkService } from '../../services/network/NetworkService';

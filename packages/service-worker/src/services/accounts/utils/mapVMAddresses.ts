@@ -1,5 +1,5 @@
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { omitUndefined } from '@src/utils/object';
+import { omitUndefined } from '@core/utils';
 
 export const mapVMAddresses = (addresses: Record<NetworkVMType, string>) =>
   omitUndefined({

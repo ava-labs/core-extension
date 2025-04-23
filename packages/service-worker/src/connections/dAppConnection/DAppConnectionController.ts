@@ -5,7 +5,7 @@ import {
   disconnectLog,
   eventLog,
   responseLog,
-} from '@src/utils/logging';
+} from '@core/utils';
 import { injectable, injectAll } from 'tsyringe';
 import { Runtime } from 'webextension-polyfill';
 import { Context, Pipeline } from '../middlewares/models';
@@ -25,14 +25,14 @@ import './registry';
 import { NetworkService } from '../../services/network/NetworkService';
 import { DAppRequestHandler } from './DAppRequestHandler';
 import { LockService } from '../../services/lock/LockService';
-import { PortConnection } from '@avalabs/core-ext-messaging';
+import { PortConnection } from '@core/messaging';
 import {
   DAppProviderRequest,
   JsonRpcFailure,
   JsonRpcRequest,
   JsonRpcSuccess,
 } from './models';
-import { Monitoring } from '@avalabs/core-ext-common';
+import { Monitoring } from '@core/common';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
 

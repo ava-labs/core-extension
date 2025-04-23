@@ -7,7 +7,7 @@ import { DAppProviderRequest } from '../../connections/dAppConnection/models';
 import { WalletConnectTransport } from './models';
 import { MessageType } from '../messages/models';
 import { SigningResult } from '../wallet/models';
-import { makeBNLike } from '@src/utils/makeBNLike';
+import { makeBNLike } from '@core/utils';
 
 export class WalletConnectSigner {
   constructor(

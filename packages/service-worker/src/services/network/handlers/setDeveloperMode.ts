@@ -4,10 +4,10 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 
 import { ExtensionRequest } from '../../../connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
-import { resolve } from '@src/utils/promiseResolver';
+import { resolve } from '@core/utils';
 
 import { NetworkService } from '../NetworkService';
-import { chainIdToCaip } from '@avalabs/core-ext-utils';
+import { chainIdToCaip } from '@core/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SET_DEVELOPER_MODE,

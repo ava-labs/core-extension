@@ -1,5 +1,5 @@
 import { Context, Middleware } from './models';
-import { resolve } from '@src/utils/promiseResolver';
+import { resolve } from '@core/utils';
 import {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,

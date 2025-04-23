@@ -4,7 +4,7 @@ import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequ
 import { DAppProviderRequest } from '../../../connections/dAppConnection/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { NetworkService } from '../../network/NetworkService';
-import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { canSkipApproval } from '@core/utils';
 import { Action } from '../../actions/models';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';

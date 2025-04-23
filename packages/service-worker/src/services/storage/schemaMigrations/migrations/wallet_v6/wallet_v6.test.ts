@@ -1,5 +1,5 @@
 import { AddressPublicKey } from 'packages/service-worker/src/services/secrets/AddressPublicKey';
-import { CommonError } from '@src/utils/errors';
+import { CommonError } from 'packages/utils/src/errors';
 
 import { expectToThrowErrorCode } from '@src/tests/test-utils';
 

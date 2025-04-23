@@ -1,4 +1,4 @@
-import { JsonRpcRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
+import { JsonRpcRequest } from '@core/service-worker';
 
 export type Response = {
   type: 'response';

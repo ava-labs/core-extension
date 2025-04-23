@@ -1,5 +1,5 @@
 {
-  "name": "@avalabs/core-ext-types",
+  "name": "@core/types",
   "packageManager": "yarn@4.7.0",
   "private": true,
   "main": "src/index.ts"

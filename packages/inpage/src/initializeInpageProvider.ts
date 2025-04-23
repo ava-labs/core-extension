@@ -3,8 +3,8 @@ import {
   initialize as initializeSolanaProvider,
   SolanaWalletProvider,
 } from '@avalabs/svm-module/dist/provider';
+import type { AbstractConnection } from '@core/messaging';
 
-import type { AbstractConnection } from '@avalabs/core-ext-messaging';
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { EventNames, type EIP6963ProviderDetail } from './models';

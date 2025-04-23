@@ -23,10 +23,10 @@ import {
   getAllAddressesForAccounts,
   getIncludedNetworks,
 } from './helpers';
-import { getXPChainIds } from '@src/utils/getDefaultChainIds';
+import { getXPChainIds } from '@core/utils';
 import { getExtendedPublicKey } from '../../../secrets/utils';
 import { AVALANCHE_BASE_DERIVATION_PATH } from '../../../secrets/models';
-import { isNotNullish } from '@src/utils/typeUtils';
+import { isNotNullish } from '@core/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,

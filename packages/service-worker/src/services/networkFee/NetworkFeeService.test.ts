@@ -1,6 +1,6 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { NetworkFeeService } from './NetworkFeeService';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
 import { NetworkWithCaipId } from '../network/models';
 import { serializeToJSON } from '@avalabs/core-ext-messaging/src/serialization/serialize';
 

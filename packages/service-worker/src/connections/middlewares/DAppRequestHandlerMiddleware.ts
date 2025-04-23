@@ -1,6 +1,6 @@
 import { DEFERRED_RESPONSE, Middleware } from './models';
-import { resolve } from '@src/utils/promiseResolver';
-import { engine } from '@src/utils/jsonRpcEngine';
+import { resolve } from '@core/utils';
+import { engine } from '@core/utils';
 import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
 import { ethErrors } from 'eth-rpc-errors';
 import {

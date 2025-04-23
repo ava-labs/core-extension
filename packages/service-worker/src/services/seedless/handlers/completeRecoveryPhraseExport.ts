@@ -15,7 +15,7 @@ import { SeedlessMfaService } from '../SeedlessMfaService';
 import { NetworkService } from '../../network/NetworkService';
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
+} from '@core/common/src/monitoring/sentryCaptureException';
 import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<

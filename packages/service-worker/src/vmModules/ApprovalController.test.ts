@@ -4,7 +4,7 @@ import { DappInfo, DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
 import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
 import { chainIdToCaip } from '@avalabs/core-ext-utils/src/caipConversion';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
 
 import { WalletService } from '../services/wallet/WalletService';
 import { NetworkService } from '../services/network/NetworkService';

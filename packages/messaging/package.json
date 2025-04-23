@@ -1,6 +1,9 @@
 {
-  "name": "@avalabs/core-ext-messaging",
+  "name": "@core/messaging",
   "packageManager": "yarn@4.7.0",
   "main": "src/index.ts",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "typescript": "5.7.3"
+  }
 }

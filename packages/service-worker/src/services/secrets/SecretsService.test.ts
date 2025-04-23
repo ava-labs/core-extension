@@ -25,9 +25,9 @@ import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import * as utils from './utils';
 import { expectToThrowErrorCode } from '@src/tests/test-utils';
-import { LedgerError } from '@src/utils/errors';
+import { LedgerError } from 'packages/utils/src/errors';
 import { AddressResolver } from './AddressResolver';
-import { mapVMAddresses } from '@src/utils/address';
+import { mapVMAddresses } from 'packages/utils/src/address';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 jest.mock('../storage/StorageService');

@@ -1,4 +1,4 @@
-import { DomainMetadata } from '@avalabs/core-ext-types';
+import { DomainMetadata } from '@core/types';
 
 /**
  * Gets site metadata and returns it

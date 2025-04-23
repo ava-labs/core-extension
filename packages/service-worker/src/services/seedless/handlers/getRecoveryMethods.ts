@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 
-import { resolve } from '@src/utils/promiseResolver';
+import { resolve } from '@core/utils';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { ExtensionRequest } from '../../../connections/extensionConnection/models';
 

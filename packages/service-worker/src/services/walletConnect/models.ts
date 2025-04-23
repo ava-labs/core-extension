@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 import { SessionTypes } from '@walletconnect/types';
-import { isDevelopment } from '@src/utils/environment';
+import { isDevelopment } from '@core/utils';
 
 export enum WalletConnectEvent {
   UriGenerated = 'WalletConnect:uri_generated',

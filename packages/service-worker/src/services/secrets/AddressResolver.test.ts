@@ -7,7 +7,7 @@ import type { NetworkService } from '../network/NetworkService';
 import type { SecretsService } from './SecretsService';
 import { AddressResolver } from './AddressResolver';
 import { expectToThrowErrorCode, matchingPayload } from '@src/tests/test-utils';
-import { SecretsError } from '@src/utils/errors';
+import { SecretsError } from 'packages/utils/src/errors';
 import { SecretType } from './models';
 import { ChainId } from '@avalabs/core-chains-sdk';
 

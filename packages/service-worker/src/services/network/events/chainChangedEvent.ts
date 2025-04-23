@@ -6,7 +6,7 @@ import {
 } from '../../../connections/models';
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
-import { caipToChainId } from '@avalabs/core-ext-utils/src/caipConversion';
+import { caipToChainId } from '@core/utils';
 import { NetworkService } from '../NetworkService';
 import { getSyncDomain } from '../utils/getSyncDomain';
 

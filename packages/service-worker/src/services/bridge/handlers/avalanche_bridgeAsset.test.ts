@@ -25,8 +25,8 @@ import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData
 import { openApprovalWindow } from 'packages/service-worker/src/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { FeatureGates } from '../../featureFlags/models';
-import { getBtcInputUtxos } from '@src/utils/send/btcSendUtils';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { getBtcInputUtxos } from 'packages/utils/src/send/btcSendUtils';
+import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
 import { TokenType } from '@avalabs/vm-module-types';
 
 jest.mock('@src/background/runtime/openApprovalWindow');

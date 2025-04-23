@@ -1,7 +1,7 @@
 import { injectable } from 'tsyringe';
 import { runtime } from 'webextension-polyfill';
 
-import { resolve } from '@src/utils/promiseResolver';
+import { resolve } from '@core/utils';
 import { ExtensionRequest } from '../../../connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 

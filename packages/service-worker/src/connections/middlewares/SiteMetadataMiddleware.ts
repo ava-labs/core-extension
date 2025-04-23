@@ -1,4 +1,4 @@
-import { DomainMetadata } from '@avalabs/core-ext-types';
+import { DomainMetadata } from '@core/types';
 import { Runtime } from 'webextension-polyfill';
 import {
   DAppProviderRequest,

@@ -6,8 +6,8 @@ import { SecretsService } from '../secrets/SecretsService';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SeedlessEvents } from './models';
 import { isTokenExpiredError } from './utils';
-import { isFailedToFetchError } from '@src/utils/isFailedToFetchError';
-import { Monitoring } from '@avalabs/core-ext-common';
+import { isFailedToFetchError } from '@core/utils';
+import { Monitoring } from '@core/common';
 
 @singleton()
 export class SeedlessSessionManager {

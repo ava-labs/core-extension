@@ -39,9 +39,9 @@ import { OnUnlock } from '../../runtime/lifecycleCallbacks';
 import { hasPublicKeyFor } from './utils';
 import { AddressPublicKey } from './AddressPublicKey';
 import { AddressResolver } from './AddressResolver';
-import { mapVMAddresses } from '@src/utils/address';
-import { assertPresent } from '@src/utils/assertions';
-import { LedgerError } from '@src/utils/errors';
+import { mapVMAddresses } from '@core/utils';
+import { assertPresent } from '@core/utils';
+import { LedgerError } from '@core/utils';
 
 /**
  * Use this service to fetch, save or delete account secrets.

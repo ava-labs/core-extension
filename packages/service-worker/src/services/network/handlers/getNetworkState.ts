@@ -1,6 +1,6 @@
 import { ExtensionRequest } from '../../../connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
-import { resolve } from '@src/utils/promiseResolver';
+import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 import { ChainListWithCaipIds, NetworkWithCaipId } from '../models';

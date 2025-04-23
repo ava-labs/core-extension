@@ -13,8 +13,8 @@ import type {
 import { SignJWT } from 'jose';
 import { inject, singleton } from 'tsyringe';
 
-import { Monitoring } from '@avalabs/core-ext-common';
-import { CommonError, isWrappedError } from '@src/utils/errors';
+import { Monitoring } from '@core/common';
+import { CommonError, isWrappedError } from '@core/utils';
 
 import type {
   AddressResponse,

@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import { rpcErrors } from '@metamask/rpc-errors';
 
-import { CommonError } from '@src/utils/errors';
+import { CommonError } from '@core/utils';
 
 const VERSION = 2 as const;
 

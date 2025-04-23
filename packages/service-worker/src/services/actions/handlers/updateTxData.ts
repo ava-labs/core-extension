@@ -5,7 +5,7 @@ import {
   EvmTxBatchUpdateFn,
 } from '@avalabs/vm-module-types';
 
-import { SendErrorMessage } from '@src/utils/send/models';
+import { SendErrorMessage } from '@core/utils';
 import { ExtensionRequest } from '../../../connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 

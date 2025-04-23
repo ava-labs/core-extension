@@ -9,8 +9,8 @@ import {
 import { PermissionsService } from './PermissionsService';
 import { omit } from 'lodash';
 import { Account } from '../accounts/models';
-import { mapAddressesToVMs } from '@src/utils/address';
-import { SYNCED_DOMAINS } from '@src/constants';
+import { mapAddressesToVMs } from 'packages/utils/src/address';
+import { SYNCED_DOMAINS } from 'packages/common/src/constants';
 
 jest.mock('../storage/StorageService');
 

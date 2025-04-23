@@ -1,7 +1,7 @@
 import { injectable } from 'tsyringe';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
-import { resolve } from '@src/utils/promiseResolver';
+import { resolve } from '@core/utils';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { ExtensionRequest } from '../../../connections/extensionConnection/models';
 

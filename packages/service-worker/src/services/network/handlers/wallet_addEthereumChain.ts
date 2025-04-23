@@ -15,8 +15,8 @@ import {
 } from '../models';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
-import { decorateWithCaipId } from '@avalabs/core-ext-utils';
-import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { decorateWithCaipId } from '@core/utils';
+import { canSkipApproval } from '@core/utils';
 
 type Params = [AddEthereumChainParameter];
 

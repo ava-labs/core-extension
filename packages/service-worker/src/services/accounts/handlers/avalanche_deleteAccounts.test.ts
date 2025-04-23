@@ -10,7 +10,7 @@ import {
   type ImportedAccount,
   type PrimaryAccount,
 } from '../models';
-import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
 import { AvalancheDeleteAccountsHandler } from './avalanche_deleteAccounts';
 import type { WalletDetails } from '../../wallet/models';
 

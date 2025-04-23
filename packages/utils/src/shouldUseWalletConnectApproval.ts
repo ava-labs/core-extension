@@ -1,0 +1,20 @@
+import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { Account, AccountType } from '@core/service-worker';
+
+function shouldUseWalletConnectApproval(network: Network, account: Account) {
+  // We are not supporting CoreEth as a network
+  if (network.vmName === NetworkVMType.CoreEth) {
+    return false;
+  }
+
+  if (
+    account.type === AccountType.FIREBLOCKS ||
+    account.type === AccountType.WALLET_CONNECT
+  ) {
+    return network.vmName === NetworkVMType.BITCOIN ? false : true;
+  }
+
+  return false;
+}
+
+export default shouldUseWalletConnectApproval;

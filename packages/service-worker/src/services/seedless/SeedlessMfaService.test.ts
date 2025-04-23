@@ -4,7 +4,7 @@ import { SecretsService } from '../secrets/SecretsService';
 
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { MfaRequestData, MfaRequestType, SeedlessEvents } from './models';
-import { KeyType } from '@src/utils/seedless/fido/types';
+import { KeyType } from 'packages/utils/src/seedless/fido/types';
 
 jest.mock('@cubist-labs/cubesigner-sdk');
 

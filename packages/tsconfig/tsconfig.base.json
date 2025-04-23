@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Default",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@src/*": ["src/*"]
+    },
+    "target": "ESNext",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    // "rootDir": "./src",
+    "outDir": "dist/js",
+    "strict": true,
+    "sourceMap": true,
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "lib": ["es2015", "es2021", "es2023", "dom"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "noUncheckedIndexedAccess": true,
+    "types": ["chrome", "jest"]
+  },
+  "exclude": ["**/node_modules/*"]
+}

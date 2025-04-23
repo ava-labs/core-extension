@@ -2,7 +2,7 @@ import { ExtensionRequest } from '../../../connections/extensionConnection/model
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { resolve } from '@src/utils/promiseResolver';
+import { resolve } from '@core/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_REMOVE_FAVORITE_NETWORK,

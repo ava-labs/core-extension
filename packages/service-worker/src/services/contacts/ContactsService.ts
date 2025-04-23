@@ -3,7 +3,7 @@ import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import { ContactsEvents, CONTACTS_STORAGE_KEY, ContactsState } from './models';
 import type { Contact } from '@avalabs/types';
-import { isContactValid } from '@src/utils/isContactValid';
+import { isContactValid } from '@core/utils';
 
 @singleton()
 export class ContactsService {

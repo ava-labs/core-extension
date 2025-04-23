@@ -7,7 +7,7 @@ import { NetworkService } from '../NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { chainIdToCaip } from '@avalabs/core-ext-utils/src/caipConversion';
+import { chainIdToCaip } from '@core/utils';
 
 @injectable()
 export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {

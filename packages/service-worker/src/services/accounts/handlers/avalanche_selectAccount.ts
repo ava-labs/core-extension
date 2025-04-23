@@ -12,7 +12,7 @@ import { Account } from '../models';
 import { Action, buildActionForRequest } from '../../actions/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { isPrimaryAccount } from '../utils/typeGuards';
-import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { canSkipApproval } from '@core/utils';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 type Params = [selectedIndexOrID: number | string];

@@ -13,10 +13,10 @@ import {
 import { AnalyticsEvents } from '../analytics/models';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
-import { formatAndLog } from '../../../../../src/utils/logging';
+import { formatAndLog } from '../../../../utils/src/logging';
 import { getFeatureFlags } from './utils/getFeatureFlags';
 import { coerce, satisfies, validRange } from 'semver';
-import { isProductionBuild } from '@src/utils/environment';
+import { isProductionBuild } from '@core/utils';
 
 @singleton()
 export class FeatureFlagService {

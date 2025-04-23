@@ -4,7 +4,7 @@ import { ExtensionRequestHandler } from '../../../connections/models';
 import { injectable } from 'tsyringe';
 import { TokenManagerService } from '../../tokens/TokenManagerService';
 import { NetworkService } from '../../network/NetworkService';
-import { Monitoring } from '@avalabs/core-ext-common';
+import { Monitoring } from '@core/common';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_GET_TOKEN_DATA,

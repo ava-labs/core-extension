@@ -64,7 +64,7 @@ import { FIREBLOCKS_REQUEST_EXPIRY } from '../fireblocks/models';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { getProviderForNetwork } from '@core/utils';
 import { Network } from '../network/models';
 import { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
@@ -77,9 +77,9 @@ import {
   getPublicKeyFor,
   isPrimaryWalletSecrets,
 } from '../secrets/utils';
-import { assertPresent } from '@src/utils/assertions';
-import { CommonError, LedgerError, SecretsError } from '@src/utils/errors';
-import { omitUndefined } from '@src/utils/object';
+import { assertPresent } from '@core/utils';
+import { CommonError, LedgerError, SecretsError } from '@core/utils';
+import { omitUndefined } from '@core/utils';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
 import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';

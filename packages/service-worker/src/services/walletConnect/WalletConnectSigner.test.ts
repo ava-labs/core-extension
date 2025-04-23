@@ -5,7 +5,7 @@ import { PubKeyType } from '../wallet/models';
 import { AVM, EVM, PVM } from '@avalabs/avalanchejs';
 import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
 import { BNLike } from 'ethereumjs-util';
-import { makeBNLike } from '@src/utils/makeBNLike';
+import { makeBNLike } from 'packages/utils/src/makeBNLike';
 
 jest.mock('@src/utils/makeBNLike', () => ({
   makeBNLike: jest.fn(),

@@ -1,5 +1,9 @@
 {
-  "name": "@avalabs/core-ext-ui",
+  "name": "@core/ui",
   "packageManager": "yarn@4.7.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@core/common": "workspace:*",
+    "@core/utils": "workspace:*"
+  }
 }

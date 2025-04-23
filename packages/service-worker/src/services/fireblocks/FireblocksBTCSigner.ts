@@ -13,7 +13,7 @@ import type {
 import { wait } from '@avalabs/core-utils-sdk';
 import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 
-import { wrapError } from '@src/utils/errors';
+import { wrapError } from '@core/utils';
 
 import { BtcTransactionRequest, SigningResult } from '../wallet/models';
 import {

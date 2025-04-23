@@ -196,50 +196,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-ext-common@workspace:*, @avalabs/core-ext-common@workspace:packages/common":
-  version: 0.0.0-use.local
-  resolution: "@avalabs/core-ext-common@workspace:packages/common"
-  languageName: unknown
-  linkType: soft
-
-"@avalabs/core-ext-content-script@workspace:packages/content-script":
-  version: 0.0.0-use.local
-  resolution: "@avalabs/core-ext-content-script@workspace:packages/content-script"
-  dependencies:
-    "@avalabs/core-ext-common": "workspace:*"
-    "@avalabs/core-ext-messaging": "workspace:*"
-    "@avalabs/core-ext-utils": "workspace:*"
-  languageName: unknown
-  linkType: soft
-
-"@avalabs/core-ext-inpage@workspace:packages/inpage":
-  version: 0.0.0-use.local
-  resolution: "@avalabs/core-ext-inpage@workspace:packages/inpage"
-  dependencies:
-    "@avalabs/core-ext-common": "workspace:*"
-    "@avalabs/core-ext-messaging": "workspace:*"
-    "@avalabs/core-ext-types": "workspace:*"
-  languageName: unknown
-  linkType: soft
-
-"@avalabs/core-ext-messaging@workspace:*, @avalabs/core-ext-messaging@workspace:packages/messaging":
-  version: 0.0.0-use.local
-  resolution: "@avalabs/core-ext-messaging@workspace:packages/messaging"
-  languageName: unknown
-  linkType: soft
-
-"@avalabs/core-ext-types@workspace:*, @avalabs/core-ext-types@workspace:packages/types":
-  version: 0.0.0-use.local
-  resolution: "@avalabs/core-ext-types@workspace:packages/types"
-  languageName: unknown
-  linkType: soft
-
-"@avalabs/core-ext-utils@workspace:*, @avalabs/core-ext-utils@workspace:packages/utils":
-  version: 0.0.0-use.local
-  resolution: "@avalabs/core-ext-utils@workspace:packages/utils"
-  languageName: unknown
-  linkType: soft
-
 "@avalabs/core-gasless-sdk@npm:3.1.0-alpha.45":
   version: 3.1.0-alpha.45
   resolution: "@avalabs/core-gasless-sdk@npm:3.1.0-alpha.45"
@@ -3748,6 +3704,264 @@ __metadata:
   checksum: 10c0/d6419001d8044954f68ec077a54b21ad73f36901287abf496cf31ccf4d66ea7b816adf7143290d0f382f2ef625416b1d2fa99ad8b80876e1d5772a8c7165cd26
   languageName: node
   linkType: hard
+
+"@core/common@workspace:*, @core/common@workspace:packages/common":
+  version: 0.0.0-use.local
+  resolution: "@core/common@workspace:packages/common"
+  languageName: unknown
+  linkType: soft
+
+"@core/content-script@workspace:packages/content-script":
+  version: 0.0.0-use.local
+  resolution: "@core/content-script@workspace:packages/content-script"
+  dependencies:
+    "@core/common": "workspace:*"
+    "@core/messaging": "workspace:*"
+    "@core/utils": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@core/inpage@workspace:packages/inpage":
+  version: 0.0.0-use.local
+  resolution: "@core/inpage@workspace:packages/inpage"
+  dependencies:
+    "@avalabs/evm-module": "npm:1.6.2"
+    "@avalabs/svm-module": "npm:1.6.2"
+    "@core/common": "workspace:*"
+    "@core/messaging": "workspace:*"
+    "@core/types": "workspace:*"
+    eth-rpc-errors: "npm:4.0.3"
+    ethers: "npm:6.13.5"
+    events: "npm:3.3.0"
+    node-polyfill-webpack-plugin: "npm:1.1.4"
+    typescript: "npm:5.7.3"
+    webpack: "npm:5.76.0"
+    webpack-cli: "npm:4.9.2"
+    webpack-merge: "npm:5.8.0"
+  languageName: unknown
+  linkType: soft
+
+"@core/messaging@workspace:*, @core/messaging@workspace:packages/messaging":
+  version: 0.0.0-use.local
+  resolution: "@core/messaging@workspace:packages/messaging"
+  dependencies:
+    typescript: "npm:5.7.3"
+  languageName: unknown
+  linkType: soft
+
+"@core/service-worker@workspace:packages/service-worker":
+  version: 0.0.0-use.local
+  resolution: "@core/service-worker@workspace:packages/service-worker"
+  dependencies:
+    "@avalabs/avalanche-module": "npm:1.6.2"
+    "@avalabs/avalanchejs": "npm:4.2.0-alpha.1"
+    "@avalabs/bitcoin-module": "npm:1.6.2"
+    "@avalabs/bridge-unified": "npm:4.0.2"
+    "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.45"
+    "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.45"
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.45"
+    "@avalabs/core-covalent-sdk": "npm:3.1.0-alpha.45"
+    "@avalabs/core-etherscan-sdk": "npm:3.1.0-alpha.45"
+    "@avalabs/core-gasless-sdk": "npm:3.1.0-alpha.45"
+    "@avalabs/core-k2-components": "npm:4.18.0-alpha.53"
+    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-alpha.45"
+    "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.45"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.45"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.45"
+    "@avalabs/evm-module": "npm:1.6.2"
+    "@avalabs/glacier-sdk": "npm:3.1.0-alpha.45"
+    "@avalabs/hvm-module": "npm:1.6.2"
+    "@avalabs/hw-app-avalanche": "npm:0.14.1"
+    "@avalabs/svm-module": "npm:1.6.2"
+    "@avalabs/types": "npm:3.1.0-alpha.45"
+    "@avalabs/vm-module-types": "npm:1.6.2"
+    "@babel/plugin-proposal-decorators": "npm:7.24.1"
+    "@babel/preset-env": "npm:7.24.4"
+    "@babel/preset-react": "npm:7.24.1"
+    "@babel/preset-typescript": "npm:7.24.1"
+    "@babel/runtime": "npm:7.24.4"
+    "@blockaid/client": "npm:0.10.0"
+    "@coinbase/cbpay-js": "npm:1.6.0"
+    "@commitlint/cli": "npm:17.0.3"
+    "@commitlint/config-angular": "npm:17.0.3"
+    "@commitlint/config-conventional": "npm:17.0.3"
+    "@core/common": "workspace:*"
+    "@core/types": "workspace:*"
+    "@core/utils": "workspace:*"
+    "@cubist-labs/cubesigner-sdk": "npm:0.3.28"
+    "@cubist-labs/cubesigner-sdk-ethers-v6": "npm:0.3.28"
+    "@eslint/compat": "npm:1.2.4"
+    "@eslint/eslintrc": "npm:3.2.0"
+    "@eslint/js": "npm:9.16.0"
+    "@ethereumjs/common": "npm:2.6.5"
+    "@ethereumjs/tx": "npm:3.4.0"
+    "@google/semantic-release-replace-plugin": "npm:1.1.0"
+    "@hpke/core": "npm:1.2.5"
+    "@keystonehq/animated-qr": "npm:0.5.2"
+    "@keystonehq/bc-ur-registry-eth": "npm:0.15.2"
+    "@keystonehq/ur-decoder": "npm:0.9.2"
+    "@lavamoat/allow-scripts": "npm:2.0.0"
+    "@lavamoat/preinstall-always-fail": "npm:1.0.0"
+    "@ledgerhq/hw-app-btc": "npm:10.2.4"
+    "@ledgerhq/hw-app-eth": "npm:6.36.1"
+    "@ledgerhq/hw-transport-webusb": "npm:6.28.6"
+    "@metamask/eth-sig-util": "npm:4.0.1"
+    "@metamask/rpc-errors": "npm:6.3.0"
+    "@noble/curves": "npm:1.6.0"
+    "@noble/hashes": "npm:1.3.2"
+    "@openzeppelin/contracts": "npm:4.9.6"
+    "@paraswap/sdk": "npm:7.2.3"
+    "@scure/base": "npm:1.2.4"
+    "@semantic-release/commit-analyzer": "npm:9.0.2"
+    "@semantic-release/exec": "npm:6.0.3"
+    "@semantic-release/github": "npm:8.0.2"
+    "@sentry/browser": "npm:7.66.0"
+    "@sentry/integrations": "npm:7.66.0"
+    "@sentry/react": "npm:7.66.0"
+    "@testing-library/react": "npm:12.1.5"
+    "@testing-library/react-hooks": "npm:8.0.1"
+    "@types/argon2-browser": "npm:1.18.4"
+    "@types/big.js": "npm:6.1.6"
+    "@types/bn.js": "npm:5.1.1"
+    "@types/chrome": "npm:0.0.304"
+    "@types/events": "npm:3.0.0"
+    "@types/jest": "npm:29.5.11"
+    "@types/lodash": "npm:4.14.182"
+    "@types/node": "npm:16.10.0"
+    "@types/qrcode.react": "npm:1.0.2"
+    "@types/react": "npm:17.0.38"
+    "@types/react-custom-scrollbars": "npm:4.0.10"
+    "@types/react-dom": "npm:17.0.11"
+    "@types/react-modal": "npm:3.13.1"
+    "@types/react-router-dom": "npm:5.3.3"
+    "@types/react-test-renderer": "npm:17.0.2"
+    "@types/react-transition-group": "npm:4.4.4"
+    "@types/react-virtualized": "npm:9.21.21"
+    "@types/styled-components": "npm:5.1.21"
+    "@types/web3": "npm:1.2.2"
+    "@types/webextension-polyfill": "npm:0.10.0"
+    "@typescript-eslint/eslint-plugin": "npm:8.17.0"
+    "@typescript-eslint/parser": "npm:8.17.0"
+    "@walletconnect/core": "npm:2.9.1"
+    "@walletconnect/sign-client": "npm:2.9.1"
+    "@walletconnect/types": "npm:2.9.1"
+    "@walletconnect/utils": "npm:2.9.2"
+    argon2-browser: "npm:1.18.0"
+    babel-jest: "npm:29.7.0"
+    babel-loader: "npm:9.1.3"
+    babel-plugin-transform-typescript-metadata: "npm:0.3.2"
+    base64-loader: "npm:1.0.0"
+    bestzip: "npm:2.2.0"
+    bip32: "npm:2.0.6"
+    bip39: "npm:3.0.4"
+    bitcoinjs-lib: "npm:5.2.0"
+    bn.js: "npm:5.2.1"
+    conventional-changelog-cli: "npm:2.2.2"
+    copy-webpack-plugin: "npm:10.2.1"
+    css-loader: "npm:5.2.4"
+    date-fns: "npm:2.28.0"
+    detect-browser: "npm:5.3.0"
+    dotenv-webpack: "npm:7.0.3"
+    eslint: "npm:9.15.0"
+    eslint-config-prettier: "npm:9.1.0"
+    eslint-plugin-prettier: "npm:5.2.1"
+    eslint-plugin-react: "npm:7.37.2"
+    eslint-plugin-react-hooks: "npm:5.1.0"
+    eth-json-rpc-middleware: "npm:8.0.1"
+    eth-rpc-errors: "npm:4.0.3"
+    ethers: "npm:6.13.5"
+    events: "npm:3.3.0"
+    file-loader: "npm:6.2.0"
+    firebase: "npm:11.1.0"
+    fireblocks-sdk: "npm:5.20.0"
+    fs: "npm:0.0.1-security"
+    globals: "npm:15.13.0"
+    husky: "npm:7.0.4"
+    hypersdk-client: "npm:0.4.17"
+    i18next: "npm:21.9.2"
+    i18next-http-backend: "npm:1.4.4"
+    i18next-scanner: "npm:4.1.1"
+    i18next-scanner-typescript: "npm:1.2.1"
+    identity-obj-proxy: "npm:3.0.0"
+    jest: "npm:29.7.0"
+    jest-environment-jsdom: "npm:29.3.1"
+    joi: "npm:17.7.0"
+    jose: "npm:4.15.5"
+    json-rpc-engine: "npm:6.1.0"
+    ledger-bitcoin: "npm:0.2.3"
+    lint-staged: "npm:12.3.1"
+    lodash: "npm:4.17.21"
+    lru-cache: "npm:7.10.1"
+    micro-key-producer: "npm:0.7.5"
+    micro-signals: "npm:2.4.0"
+    node-polyfill-webpack-plugin: "npm:1.1.4"
+    path-browserify: "npm:1.0.1"
+    postinstall-postinstall: "npm:2.1.0"
+    prettier: "npm:3.4.2"
+    qrcode.react: "npm:1.0.1"
+    react: "npm:17.0.2"
+    react-custom-scrollbars-2: "npm:4.4.0"
+    react-docgen-typescript-loader: "npm:3.7.2"
+    react-docgen-typescript-webpack-plugin: "npm:1.1.0"
+    react-dom: "npm:17.0.2"
+    react-i18next: "npm:11.18.6"
+    react-icons: "npm:4.11.0"
+    react-lottie: "npm:1.2.3"
+    react-masonry-css: "npm:1.0.16"
+    react-modal: "npm:3.14.4"
+    react-router-dom: "npm:5.3.0"
+    react-scripts: "npm:5.0.1"
+    react-test-renderer: "npm:17.0.2"
+    react-timer-hook: "npm:3.0.5"
+    react-transition-group: "npm:4.4.2"
+    react-virtualized: "npm:9.22.3"
+    reflect-metadata: "npm:0.1.13"
+    rxjs: "npm:7.5.1"
+    semantic-release: "npm:19.0.3"
+    semver: "npm:7.6.0"
+    shell-quote: "npm:1.8.1"
+    style-loader: "npm:3.3.1"
+    ts-jest: "npm:29.3.0"
+    ts-loader: "npm:9.2.6"
+    tsyringe: "npm:4.8.0"
+    tweetnacl: "npm:1.0.3"
+    typescript: "npm:5.8.2"
+    web3: "npm:1.8.2"
+    webextension-polyfill: "npm:0.10.0"
+    webpack: "npm:5.76.0"
+    webpack-cli: "npm:4.9.2"
+    webpack-merge: "npm:5.8.0"
+    xss: "npm:1.0.13"
+    zxcvbn: "npm:4.4.2"
+  languageName: unknown
+  linkType: soft
+
+"@core/tsconfig@workspace:packages/tsconfig":
+  version: 0.0.0-use.local
+  resolution: "@core/tsconfig@workspace:packages/tsconfig"
+  languageName: unknown
+  linkType: soft
+
+"@core/types@workspace:*, @core/types@workspace:packages/types":
+  version: 0.0.0-use.local
+  resolution: "@core/types@workspace:packages/types"
+  languageName: unknown
+  linkType: soft
+
+"@core/ui@workspace:packages/ui":
+  version: 0.0.0-use.local
+  resolution: "@core/ui@workspace:packages/ui"
+  dependencies:
+    "@core/common": "workspace:*"
+    "@core/utils": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@core/utils@workspace:*, @core/utils@workspace:packages/utils":
+  version: 0.0.0-use.local
+  resolution: "@core/utils@workspace:packages/utils"
+  languageName: unknown
+  linkType: soft
 
 "@cspotcode/source-map-support@npm:^0.8.0":
   version: 0.8.1
@@ -28730,193 +28944,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"service-worker@workspace:packages/service-worker":
-  version: 0.0.0-use.local
-  resolution: "service-worker@workspace:packages/service-worker"
-  dependencies:
-    "@avalabs/avalanche-module": "npm:1.6.2"
-    "@avalabs/avalanchejs": "npm:4.2.0-alpha.1"
-    "@avalabs/bitcoin-module": "npm:1.6.2"
-    "@avalabs/bridge-unified": "npm:4.0.2"
-    "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.45"
-    "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.45"
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.45"
-    "@avalabs/core-covalent-sdk": "npm:3.1.0-alpha.45"
-    "@avalabs/core-etherscan-sdk": "npm:3.1.0-alpha.45"
-    "@avalabs/core-ext-common": "workspace:*"
-    "@avalabs/core-ext-types": "workspace:*"
-    "@avalabs/core-ext-utils": "workspace:*"
-    "@avalabs/core-gasless-sdk": "npm:3.1.0-alpha.45"
-    "@avalabs/core-k2-components": "npm:4.18.0-alpha.53"
-    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-alpha.45"
-    "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.45"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.45"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.45"
-    "@avalabs/evm-module": "npm:1.6.2"
-    "@avalabs/glacier-sdk": "npm:3.1.0-alpha.45"
-    "@avalabs/hvm-module": "npm:1.6.2"
-    "@avalabs/hw-app-avalanche": "npm:0.14.1"
-    "@avalabs/svm-module": "npm:1.6.2"
-    "@avalabs/types": "npm:3.1.0-alpha.45"
-    "@avalabs/vm-module-types": "npm:1.6.2"
-    "@babel/plugin-proposal-decorators": "npm:7.24.1"
-    "@babel/preset-env": "npm:7.24.4"
-    "@babel/preset-react": "npm:7.24.1"
-    "@babel/preset-typescript": "npm:7.24.1"
-    "@babel/runtime": "npm:7.24.4"
-    "@blockaid/client": "npm:0.10.0"
-    "@coinbase/cbpay-js": "npm:1.6.0"
-    "@commitlint/cli": "npm:17.0.3"
-    "@commitlint/config-angular": "npm:17.0.3"
-    "@commitlint/config-conventional": "npm:17.0.3"
-    "@cubist-labs/cubesigner-sdk": "npm:0.3.28"
-    "@cubist-labs/cubesigner-sdk-ethers-v6": "npm:0.3.28"
-    "@eslint/compat": "npm:1.2.4"
-    "@eslint/eslintrc": "npm:3.2.0"
-    "@eslint/js": "npm:9.16.0"
-    "@ethereumjs/common": "npm:2.6.5"
-    "@ethereumjs/tx": "npm:3.4.0"
-    "@google/semantic-release-replace-plugin": "npm:1.1.0"
-    "@hpke/core": "npm:1.2.5"
-    "@keystonehq/animated-qr": "npm:0.5.2"
-    "@keystonehq/bc-ur-registry-eth": "npm:0.15.2"
-    "@keystonehq/ur-decoder": "npm:0.9.2"
-    "@lavamoat/allow-scripts": "npm:2.0.0"
-    "@lavamoat/preinstall-always-fail": "npm:1.0.0"
-    "@ledgerhq/hw-app-btc": "npm:10.2.4"
-    "@ledgerhq/hw-app-eth": "npm:6.36.1"
-    "@ledgerhq/hw-transport-webusb": "npm:6.28.6"
-    "@metamask/eth-sig-util": "npm:4.0.1"
-    "@metamask/rpc-errors": "npm:6.3.0"
-    "@noble/curves": "npm:1.6.0"
-    "@noble/hashes": "npm:1.3.2"
-    "@openzeppelin/contracts": "npm:4.9.6"
-    "@paraswap/sdk": "npm:7.2.3"
-    "@scure/base": "npm:1.2.4"
-    "@semantic-release/commit-analyzer": "npm:9.0.2"
-    "@semantic-release/exec": "npm:6.0.3"
-    "@semantic-release/github": "npm:8.0.2"
-    "@sentry/browser": "npm:7.66.0"
-    "@sentry/integrations": "npm:7.66.0"
-    "@sentry/react": "npm:7.66.0"
-    "@testing-library/react": "npm:12.1.5"
-    "@testing-library/react-hooks": "npm:8.0.1"
-    "@types/argon2-browser": "npm:1.18.4"
-    "@types/big.js": "npm:6.1.6"
-    "@types/bn.js": "npm:5.1.1"
-    "@types/chrome": "npm:0.0.304"
-    "@types/events": "npm:3.0.0"
-    "@types/jest": "npm:29.5.11"
-    "@types/lodash": "npm:4.14.182"
-    "@types/node": "npm:16.10.0"
-    "@types/qrcode.react": "npm:1.0.2"
-    "@types/react": "npm:17.0.38"
-    "@types/react-custom-scrollbars": "npm:4.0.10"
-    "@types/react-dom": "npm:17.0.11"
-    "@types/react-modal": "npm:3.13.1"
-    "@types/react-router-dom": "npm:5.3.3"
-    "@types/react-test-renderer": "npm:17.0.2"
-    "@types/react-transition-group": "npm:4.4.4"
-    "@types/react-virtualized": "npm:9.21.21"
-    "@types/styled-components": "npm:5.1.21"
-    "@types/web3": "npm:1.2.2"
-    "@types/webextension-polyfill": "npm:0.10.0"
-    "@typescript-eslint/eslint-plugin": "npm:8.17.0"
-    "@typescript-eslint/parser": "npm:8.17.0"
-    "@walletconnect/core": "npm:2.9.1"
-    "@walletconnect/sign-client": "npm:2.9.1"
-    "@walletconnect/types": "npm:2.9.1"
-    "@walletconnect/utils": "npm:2.9.2"
-    argon2-browser: "npm:1.18.0"
-    babel-jest: "npm:29.7.0"
-    babel-loader: "npm:9.1.3"
-    babel-plugin-transform-typescript-metadata: "npm:0.3.2"
-    base64-loader: "npm:1.0.0"
-    bestzip: "npm:2.2.0"
-    bip32: "npm:2.0.6"
-    bip39: "npm:3.0.4"
-    bitcoinjs-lib: "npm:5.2.0"
-    bn.js: "npm:5.2.1"
-    conventional-changelog-cli: "npm:2.2.2"
-    copy-webpack-plugin: "npm:10.2.1"
-    css-loader: "npm:5.2.4"
-    date-fns: "npm:2.28.0"
-    detect-browser: "npm:5.3.0"
-    dotenv-webpack: "npm:7.0.3"
-    eslint: "npm:9.15.0"
-    eslint-config-prettier: "npm:9.1.0"
-    eslint-plugin-prettier: "npm:5.2.1"
-    eslint-plugin-react: "npm:7.37.2"
-    eslint-plugin-react-hooks: "npm:5.1.0"
-    eth-json-rpc-middleware: "npm:8.0.1"
-    eth-rpc-errors: "npm:4.0.3"
-    ethers: "npm:6.13.5"
-    events: "npm:3.3.0"
-    file-loader: "npm:6.2.0"
-    firebase: "npm:11.1.0"
-    fireblocks-sdk: "npm:5.20.0"
-    fs: "npm:0.0.1-security"
-    globals: "npm:15.13.0"
-    husky: "npm:7.0.4"
-    hypersdk-client: "npm:0.4.17"
-    i18next: "npm:21.9.2"
-    i18next-http-backend: "npm:1.4.4"
-    i18next-scanner: "npm:4.1.1"
-    i18next-scanner-typescript: "npm:1.2.1"
-    identity-obj-proxy: "npm:3.0.0"
-    jest: "npm:29.7.0"
-    jest-environment-jsdom: "npm:29.3.1"
-    joi: "npm:17.7.0"
-    jose: "npm:4.15.5"
-    json-rpc-engine: "npm:6.1.0"
-    ledger-bitcoin: "npm:0.2.3"
-    lint-staged: "npm:12.3.1"
-    lodash: "npm:4.17.21"
-    lru-cache: "npm:7.10.1"
-    micro-key-producer: "npm:0.7.5"
-    micro-signals: "npm:2.4.0"
-    node-polyfill-webpack-plugin: "npm:1.1.4"
-    path-browserify: "npm:1.0.1"
-    postinstall-postinstall: "npm:2.1.0"
-    prettier: "npm:3.4.2"
-    qrcode.react: "npm:1.0.1"
-    react: "npm:17.0.2"
-    react-custom-scrollbars-2: "npm:4.4.0"
-    react-docgen-typescript-loader: "npm:3.7.2"
-    react-docgen-typescript-webpack-plugin: "npm:1.1.0"
-    react-dom: "npm:17.0.2"
-    react-i18next: "npm:11.18.6"
-    react-icons: "npm:4.11.0"
-    react-lottie: "npm:1.2.3"
-    react-masonry-css: "npm:1.0.16"
-    react-modal: "npm:3.14.4"
-    react-router-dom: "npm:5.3.0"
-    react-scripts: "npm:5.0.1"
-    react-test-renderer: "npm:17.0.2"
-    react-timer-hook: "npm:3.0.5"
-    react-transition-group: "npm:4.4.2"
-    react-virtualized: "npm:9.22.3"
-    reflect-metadata: "npm:0.1.13"
-    rxjs: "npm:7.5.1"
-    semantic-release: "npm:19.0.3"
-    semver: "npm:7.6.0"
-    shell-quote: "npm:1.8.1"
-    style-loader: "npm:3.3.1"
-    ts-jest: "npm:29.3.0"
-    ts-loader: "npm:9.2.6"
-    tsyringe: "npm:4.8.0"
-    tweetnacl: "npm:1.0.3"
-    typescript: "npm:5.8.2"
-    web3: "npm:1.8.2"
-    webextension-polyfill: "npm:0.10.0"
-    webpack: "npm:5.76.0"
-    webpack-cli: "npm:4.9.2"
-    webpack-merge: "npm:5.8.0"
-    xss: "npm:1.0.13"
-    zxcvbn: "npm:4.4.2"
-  languageName: unknown
-  linkType: soft
-
 "servify@npm:^0.1.12":
   version: 0.1.12
   resolution: "servify@npm:0.1.12"
@@ -31006,6 +31033,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:5.7.3":
+  version: 5.7.3
+  resolution: "typescript@npm:5.7.3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/b7580d716cf1824736cc6e628ab4cd8b51877408ba2be0869d2866da35ef8366dd6ae9eb9d0851470a39be17cbd61df1126f9e211d8799d764ea7431d5435afa
+  languageName: node
+  linkType: hard
+
 "typescript@npm:5.8.2":
   version: 5.8.2
   resolution: "typescript@npm:5.8.2"
@@ -31023,6 +31060,16 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/aa0e2a766412a0c9f609133681753cc88098aa44e079820d203dc0628a8fc3997d4e6b93c2c813c483f770698561c3225c5ab3e5c8896639cfc5d94528e3005f
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A5.7.3#optional!builtin<compat/typescript>":
+  version: 5.7.3
+  resolution: "typescript@patch:typescript@npm%3A5.7.3#optional!builtin<compat/typescript>::version=5.7.3&hash=5786d5"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/6fd7e0ed3bf23a81246878c613423730c40e8bdbfec4c6e4d7bf1b847cbb39076e56ad5f50aa9d7ebd89877999abaee216002d3f2818885e41c907caaa192cc4
   languageName: node
   linkType: hard
 

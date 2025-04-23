@@ -9,7 +9,7 @@ import { FireblocksErrorCode } from './models';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
-import { CommonError } from '@src/utils/errors';
+import { CommonError } from 'packages/utils/src/errors';
 import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../accounts/AccountsService';
 

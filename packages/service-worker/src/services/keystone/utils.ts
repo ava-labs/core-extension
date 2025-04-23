@@ -2,7 +2,7 @@ import { TxData } from '@ethereumjs/tx';
 import { BufferLike } from 'ethereumjs-util';
 import { TransactionRequest } from 'ethers';
 
-import { makeBNLike } from '@src/utils/makeBNLike';
+import { makeBNLike } from '@core/utils';
 
 /**
  * Convert tx data from `TransactionRequest` (ethers) to `TxData` (@ethereumjs)

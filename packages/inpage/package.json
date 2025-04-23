@@ -1,11 +1,26 @@
 {
-  "name": "@avalabs/core-ext-inpage",
+  "name": "@core/inpage",
   "packageManager": "yarn@4.7.0",
   "private": true,
   "main": "src/index.ts",
+  "scripts": {
+    "build": "webpack --config webpack.inpage.js"
+  },
   "dependencies": {
-    "@avalabs/core-ext-common": "workspace:*",
-    "@avalabs/core-ext-messaging": "workspace:*",
-    "@avalabs/core-ext-types": "workspace:*"
+    "@avalabs/evm-module": "1.6.2",
+    "@avalabs/svm-module": "1.6.2",
+    "@core/common": "workspace:*",
+    "@core/messaging": "workspace:*",
+    "@core/types": "workspace:*",
+    "eth-rpc-errors": "4.0.3",
+    "events": "3.3.0"
+  },
+  "devDependencies": {
+    "ethers": "6.13.5",
+    "node-polyfill-webpack-plugin": "1.1.4",
+    "typescript": "5.7.3",
+    "webpack": "5.76.0",
+    "webpack-cli": "4.9.2",
+    "webpack-merge": "5.8.0"
   }
 }

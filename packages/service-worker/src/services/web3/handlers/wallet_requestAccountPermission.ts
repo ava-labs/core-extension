@@ -11,7 +11,7 @@ import { Action, ActionType } from '../../actions/models';
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { getAddressByVMType } from '@src/utils/address';
+import { getAddressByVMType } from '@core/utils';
 
 /**
  * This is called when the user requests to connect the via dapp. We need

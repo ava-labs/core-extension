@@ -5,8 +5,8 @@ import { Module, NetworkVMType } from '@avalabs/vm-module-types';
 
 import type { ModuleManager } from '../../vmModules/ModuleManager';
 import { PickKeys } from '../../models';
-import { CommonError, SecretsError } from '@src/utils/errors';
-import { assertPresent } from '@src/utils/assertions';
+import { CommonError, SecretsError } from '@core/utils';
+import { assertPresent } from '@core/utils';
 
 import { NetworkWithCaipId } from '../network/models';
 import { NetworkService } from '../network/NetworkService';

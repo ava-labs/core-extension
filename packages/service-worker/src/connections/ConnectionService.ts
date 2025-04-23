@@ -3,7 +3,7 @@ import {
   CONTENT_SCRIPT,
   EXTENSION_SCRIPT,
   OFFSCREEN_SCRIPT,
-} from '@avalabs/core-ext-common';
+} from '@core/common';
 import { container, singleton } from 'tsyringe';
 import { DAppConnectionController } from './dAppConnection/DAppConnectionController';
 import { ConnectionController } from './models';

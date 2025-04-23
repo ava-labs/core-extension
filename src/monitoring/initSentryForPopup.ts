@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/react';
-import { Monitoring } from '@avalabs/core-ext-common';
+import { Monitoring } from '@core/common';
 
 if (process.env.SENTRY_DSN) {
   Sentry.init({

@@ -4,7 +4,7 @@ import { DAppProviderRequest } from './../../../connections/dAppConnection/model
 import { DEFERRED_RESPONSE } from './../../../connections/middlewares/models';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ethErrors } from 'eth-rpc-errors';
-import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 
 jest.mock('@src/background/runtime/openApprovalWindow');

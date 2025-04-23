@@ -1,7 +1,7 @@
 import {
   deserializeFromJSON,
   serializeToJSON,
-} from '@avalabs/core-ext-messaging';
+} from '@core/messaging';
 import { CallbackManager } from '../../runtime/CallbackManager';
 import {
   decryptWithKey,

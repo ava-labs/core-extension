@@ -1,5 +1,5 @@
 import { Account } from 'packages/service-worker/src/services/accounts/models';
-import { calculateTotalBalance } from '@src/utils/calculateTotalBalance';
+import { calculateTotalBalance } from 'packages/utils/src/calculateTotalBalance';
 
 import { calculateTotalBalanceForAccounts } from './calculateTotalBalanceForAccounts';
 

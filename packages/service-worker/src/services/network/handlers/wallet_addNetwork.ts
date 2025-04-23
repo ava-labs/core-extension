@@ -13,7 +13,7 @@ import { NetworkService } from '../NetworkService';
 import { CustomNetworkPayload } from '../models';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { runtime } from 'webextension-polyfill';
-import { caipToChainId } from '@avalabs/core-ext-utils';
+import { caipToChainId } from '@core/utils';
 import { NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
 
 interface AddNetworkPayload {

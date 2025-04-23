@@ -10,7 +10,7 @@ import { Action, buildActionForRequest } from '../../actions/models';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { NetworkWithCaipId } from '../models';
-import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { canSkipApproval } from '@core/utils';
 
 type Params = [{ chainId: string | number }];
 

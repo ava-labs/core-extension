@@ -1,20 +1,22 @@
 import EventEmitter from 'events';
+import { chainIdToCaip } from '@core/utils';
+import { AbstractConnection } from '@core/messaging';
+import { ethErrors, serializeError } from 'eth-rpc-errors';
+
 import {
   DAppProviderRequest,
   JsonRpcRequest,
   JsonRpcRequestPayload,
 } from '../../service-worker/src/connections/dAppConnection/models';
 import { PartialBy } from '../../service-worker/src/models';
-import { ethErrors, serializeError } from 'eth-rpc-errors';
-import { AbstractConnection } from '@avalabs/core-ext-messaging';
-import RequestRatelimiter from './utils/RequestRatelimiter';
+
 import {
   InitializationStep,
   ProviderReadyPromise,
 } from './utils/ProviderReadyPromise';
 import onDomReady from './utils/onDomReady';
+import RequestRatelimiter from './utils/RequestRatelimiter';
 import { getSiteMetadata } from './utils/getSiteMetadata';
-import { chainIdToCaip } from '@avalabs/core-ext-utils';
 
 export class ChainAgnosticProvider extends EventEmitter {
   #contentScriptConnection: AbstractConnection;

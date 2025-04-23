@@ -8,7 +8,7 @@ import {
 } from '../../../connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
-import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { canSkipApproval } from '@core/utils';
 
 import { type Action, buildActionForRequest } from '../../actions/models';
 import { SecretsService } from '../../secrets/SecretsService';

@@ -16,18 +16,18 @@ import {
   disconnectLog,
   eventLog,
   responseLog,
-} from '@src/utils/logging';
+} from '@core/utils';
 import './registry';
 
 import { resolve } from '@avalabs/core-utils-sdk';
-import { isDevelopment } from '@src/utils/environment';
+import { isDevelopment } from '@core/utils';
 import '../extensionConnection/registry';
 import '../dAppConnection/registry';
 import {
   serializeToJSON,
   deserializeFromJSON,
-} from '@avalabs/core-ext-messaging';
-import { Monitoring } from '@avalabs/core-ext-common';
+} from '@core/messaging';
+import { Monitoring } from '@core/common';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 
 @injectable()

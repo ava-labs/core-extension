@@ -20,7 +20,7 @@ import {
 } from '../tokens/models';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { SettingsService } from '../settings/SettingsService';
-import { isFulfilled } from '@src/utils/typeUtils';
+import { isFulfilled } from '@core/utils';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { groupTokensByType } from './utils/groupTokensByType';
 import { BalancesInfo } from './events/balancesUpdatedEvent';

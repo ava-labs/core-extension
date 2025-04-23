@@ -1,4 +1,4 @@
-import { DomainMetadata } from '@avalabs/core-ext-types';
+import { DomainMetadata } from '@core/types';
 import { TxDisplayOptions } from '../models';
 import { TokenType } from '@avalabs/vm-module-types';
 import { EnsureDefined } from '../../../../models';

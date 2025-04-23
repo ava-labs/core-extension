@@ -3,7 +3,7 @@ import { DAppProviderRequest } from '@src/background/connections/dAppConnection/
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAddressesInRangeHandler } from './avalanche_getAddressesInRange';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { AccountsService } from '../AccountsService';

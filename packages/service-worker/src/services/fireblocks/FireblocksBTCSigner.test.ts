@@ -7,7 +7,7 @@ import {
   KnownAddressDictionary,
   TRANSACTION_POLLING_INTERVAL_MS,
 } from './models';
-import { CommonError } from '@src/utils/errors';
+import { CommonError } from 'packages/utils/src/errors';
 import { ethErrors } from 'eth-rpc-errors';
 
 jest.mock('@avalabs/core-utils-sdk');

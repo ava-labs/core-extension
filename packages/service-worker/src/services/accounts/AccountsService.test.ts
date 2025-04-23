@@ -15,15 +15,15 @@ import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { PermissionsService } from '../permissions/PermissionsService';
 import { SecretsService } from '../secrets/SecretsService';
 import { emptyAddresses } from '../secrets/utils';
-import { isProductionBuild } from '@src/utils/environment';
+import { isProductionBuild } from 'packages/utils/src/environment';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 import { SecretType } from '../secrets/models';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { ModuleManager } from 'packages/service-worker/src/vmModules/ModuleManager';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { mapAddressesToVMs, mapVMAddresses } from '@src/utils/address';
+import { mapAddressesToVMs, mapVMAddresses } from 'packages/utils/src/address';
 import { expectToThrowErrorCode } from '@src/tests/test-utils';
-import { AccountError } from '@src/utils/errors';
+import { AccountError } from 'packages/utils/src/errors';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 jest.mock('../storage/StorageService');

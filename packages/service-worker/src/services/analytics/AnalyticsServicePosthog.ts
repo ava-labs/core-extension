@@ -1,5 +1,5 @@
 import { HttpClient } from '@avalabs/core-utils-sdk';
-import { getUserEnvironment } from '@src/utils/getUserEnvironment';
+import { getUserEnvironment } from '@core/utils';
 import { singleton } from 'tsyringe';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { SettingsService } from '../settings/SettingsService';
@@ -8,7 +8,7 @@ import { AnalyticsCapturedEvent, AnalyticsState, BlockchainId } from './models';
 import { FeatureGates } from '../featureFlags/models';
 import { AnalyticsConsent } from '../settings/models';
 import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
-import { Monitoring } from '@avalabs/core-ext-common';
+import { Monitoring } from '@core/common';
 import { ChainId } from '@avalabs/core-chains-sdk';
 
 @singleton()

@@ -2,7 +2,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import AbstractConnection from './AbstractConnection';
 import { Message } from '../../../src/background/utils/messaging/models';
 import { DEFERRED_RESPONSE } from 'packages/service-worker/src/connections/middlewares/models';
-import * as environment from '@src/utils/environment';
+import * as environment from 'packages/utils/src/environment';
 
 class TestConnection extends AbstractConnection {
   constructor(

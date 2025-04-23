@@ -3,7 +3,7 @@ import { HistoryService } from './HistoryService';
 import { TxHistoryItem } from './models';
 import { NetworkVMType, TokenType } from '@avalabs/vm-module-types';
 import { TransactionType } from '@avalabs/vm-module-types';
-import { ETHEREUM_ADDRESS } from '@src/utils/bridgeTransactionUtils';
+import { ETHEREUM_ADDRESS } from 'packages/utils/src/bridgeTransactionUtils';
 import { BridgeType } from '@avalabs/bridge-unified';
 
 describe('src/background/services/history/HistoryService.ts', () => {

@@ -7,7 +7,7 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 
 import { AvalancheRenameAccountHandler } from './avalanche_renameAccount';
 import { Account } from '../models';
-import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
 
 jest.mock('@src/utils/canSkipApproval');
 jest.mock('@src/background/runtime/openApprovalWindow');

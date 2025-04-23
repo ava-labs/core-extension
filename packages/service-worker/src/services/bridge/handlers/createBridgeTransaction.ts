@@ -2,7 +2,7 @@ import { ExtensionRequestHandler } from '../../../connections/models';
 import { ExtensionRequest } from '../../../connections/extensionConnection/models';
 import { BridgeService } from '../BridgeService';
 import { PartialBridgeTransaction } from '../models';
-import { resolve } from '@src/utils/promiseResolver';
+import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 
 type HandlerType = ExtensionRequestHandler<

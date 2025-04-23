@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
 import browser from 'webextension-polyfill';
 
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
+import { openExtensionNewWindow } from '@core/utils';
 
 import { Action, MultiTxAction } from '../actions/models';
 import { ActionsService } from '../actions/ActionsService';

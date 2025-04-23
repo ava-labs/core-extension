@@ -12,8 +12,8 @@ import {
 } from '@walletconnect/utils';
 import { intToHex } from 'ethereumjs-util';
 
-import { areArraysOverlapping } from '@src/utils/array';
-import { isDevelopment } from '@src/utils/environment';
+import { areArraysOverlapping } from '@core/utils';
+import { isDevelopment } from '@core/utils';
 
 import { WalletConnectStorage } from './WalletConnectStorage';
 import {
@@ -31,7 +31,7 @@ import {
 } from './models';
 import { buildSessionProposal } from './utils';
 import { WalletConnectAddresses } from '../accounts/models';
-import { isUserRejectionError } from '@src/utils/errors';
+import { isUserRejectionError } from '@core/utils';
 
 @singleton()
 export class WalletConnectService implements WalletConnectTransport {

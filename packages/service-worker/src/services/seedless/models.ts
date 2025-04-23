@@ -1,5 +1,5 @@
 import { TotpChallenge } from '@cubist-labs/cubesigner-sdk';
-import { DecodedFIDOResult, KeyType } from '@src/utils/seedless/fido/types';
+import { DecodedFIDOResult, KeyType } from '@core/utils';
 
 export const TOTP_ISSUER = 'Core' as const;
 

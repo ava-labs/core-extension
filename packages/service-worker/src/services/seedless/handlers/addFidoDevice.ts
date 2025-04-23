@@ -2,7 +2,7 @@ import { injectable } from 'tsyringe';
 
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { ExtensionRequest } from '../../../connections/extensionConnection/models';
-import { KeyType } from '@src/utils/seedless/fido/types';
+import { KeyType } from '@core/utils';
 
 import { SeedlessMfaService } from '../SeedlessMfaService';
 

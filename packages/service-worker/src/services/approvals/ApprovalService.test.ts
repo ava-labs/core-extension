@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-import { openExtensionNewWindow } from '@src/utils/extensionUtils';
+import { openExtensionNewWindow } from 'packages/utils/src/extensionUtils';
 
 import { ActionsService } from '../actions/ActionsService';
 import { ApprovalService } from './ApprovalService';

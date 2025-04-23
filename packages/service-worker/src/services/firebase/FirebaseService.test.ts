@@ -14,7 +14,7 @@ import {
 } from '../featureFlags/models';
 import { deleteToken, getToken, MessagePayload } from 'firebase/messaging';
 import { FcmMessageEvents, FirebaseEvents } from './models';
-import { isSupportedBrowser } from '@src/utils/isSupportedBrowser';
+import { isSupportedBrowser } from 'packages/utils/src/isSupportedBrowser';
 
 jest.mock('firebase/app');
 jest.mock('firebase/messaging');

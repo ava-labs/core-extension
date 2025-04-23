@@ -1,6 +1,6 @@
 import { Maybe } from '@avalabs/core-utils-sdk';
 import { RpcResponse } from '@avalabs/vm-module-types';
-import { DomainMetadata } from '@avalabs/core-ext-types';
+import { DomainMetadata } from '@core/types';
 import { EthereumProviderError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 

@@ -9,8 +9,8 @@ import {
   AddressPublicKeyJson,
   ExtendedPublicKey,
 } from '../../../../secrets/models';
-import { assertPresent } from '@src/utils/assertions';
-import { CommonError } from '@src/utils/errors';
+import { assertPresent } from '@core/utils';
+import { CommonError } from '@core/utils';
 import { AddressPublicKey } from '../../../../secrets/AddressPublicKey';
 import { rpcErrors } from '@metamask/rpc-errors';
 

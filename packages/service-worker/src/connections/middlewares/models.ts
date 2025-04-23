@@ -1,4 +1,4 @@
-import { DomainMetadata } from '@avalabs/core-ext-types';
+import { DomainMetadata } from '@core/types';
 import { NetworkWithCaipId } from '../../services/network/models';
 
 export type Next = () => Promise<void> | void;

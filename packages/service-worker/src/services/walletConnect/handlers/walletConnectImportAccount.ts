@@ -12,7 +12,7 @@ import {
 } from '../../accounts/models';
 import { isCoreMobile } from '../utils';
 import { PubKeyType } from '../../wallet/models';
-import { Monitoring } from '@avalabs/core-ext-common';
+import { Monitoring } from '@core/common';
 import { FIREBLOCKS_APP_NAME, WalletConnectSessionInfo } from '../models';
 
 type HandlerType = ExtensionRequestHandler<

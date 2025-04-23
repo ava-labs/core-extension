@@ -1,11 +1,11 @@
 {
-  "name": "@avalabs/core-ext-content-script",
+  "name": "@core/content-script",
   "packageManager": "yarn@4.7.0",
   "private": true,
   "main": "src/index.ts",
   "dependencies": {
-    "@avalabs/core-ext-common": "workspace:*",
-    "@avalabs/core-ext-messaging": "workspace:*",
-    "@avalabs/core-ext-utils": "workspace:*"
+    "@core/common": "workspace:*",
+    "@core/messaging": "workspace:*",
+    "@core/utils": "workspace:*"
   }
 }

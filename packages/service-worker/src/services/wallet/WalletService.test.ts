@@ -55,7 +55,7 @@ import { HVMWallet } from './HVMWallet';
 import { TransactionPayload, VMABI } from 'hypersdk-client';
 import { buildExtendedPublicKey } from '../secrets/utils';
 import { expectToThrowErrorCode } from '@src/tests/test-utils';
-import { SecretsError } from '@src/utils/errors';
+import { SecretsError } from 'packages/utils/src/errors';
 import { AddressResolver } from '../secrets/AddressResolver';
 
 jest.mock('../network/NetworkService');

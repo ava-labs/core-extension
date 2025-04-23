@@ -7,8 +7,8 @@ import { BtcWalletPolicyDetails } from '@avalabs/vm-module-types';
 import { getPublicKeyFromPrivateKey } from '@avalabs/core-wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 
-import { SecretsError } from '@src/utils/errors';
-import { assertPresent } from '@src/utils/assertions';
+import { SecretsError } from '@core/utils';
+import { assertPresent } from '@core/utils';
 
 import {
   AddressPublicKeyJson,

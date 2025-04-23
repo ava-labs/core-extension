@@ -6,8 +6,8 @@ import { AccountsService } from '../accounts/AccountsService';
 import { TxHistoryItem } from './models';
 import { Transaction } from '@avalabs/vm-module-types';
 import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
-import { resolve } from '@src/utils/promiseResolver';
-import { Monitoring } from '@avalabs/core-ext-common';
+import { resolve } from '@core/utils';
+import { Monitoring } from '@core/common';
 import { AnalyzeTxParams } from '@avalabs/bridge-unified';
 
 @singleton()

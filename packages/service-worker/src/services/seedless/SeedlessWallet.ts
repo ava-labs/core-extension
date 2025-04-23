@@ -35,10 +35,10 @@ import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { isTokenExpiredError } from './utils';
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { toUtf8 } from 'ethereumjs-util';
-import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork';
+import { getProviderForNetwork } from '@core/utils';
 import { AddressPublicKeyJson } from '../secrets/models';
-import { assertPresent } from '@src/utils/assertions';
-import { CommonError } from '@src/utils/errors';
+import { assertPresent } from '@core/utils';
+import { CommonError } from '@core/utils';
 
 type ConstructorOpts = {
   networkService?: NetworkService;

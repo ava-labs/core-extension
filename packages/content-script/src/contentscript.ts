@@ -1,10 +1,10 @@
 import browser from 'webextension-polyfill';
-import { CONTENT_SCRIPT } from '@avalabs/core-ext-common';
-import { onPageActivated } from '@avalabs/core-ext-utils';
+import { CONTENT_SCRIPT } from '@core/common';
+import { onPageActivated } from '@core/utils';
 import {
   AutoPairingPostMessageConnection,
   PortConnection,
-} from '@avalabs/core-ext-messaging';
+} from '@core/messaging';
 
 function setupStream() {
   /**

@@ -6,7 +6,7 @@ import { Account } from '../../accounts/models';
 import { NetworkService } from '../../network/NetworkService';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 import { Balances } from '../models';
-import { caipToChainId } from '@avalabs/core-ext-utils/src/caipConversion';
+import { caipToChainId } from '@core/utils';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<

@@ -8,7 +8,7 @@ import { WalletAddEthereumChainHandler } from './wallet_addEthereumChain';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
 import { decorateWithCaipId } from '@avalabs/core-ext-utils/src/caipConversion';
-import { canSkipApproval } from '@src/utils/canSkipApproval';
+import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
 
 jest.mock('@src/utils/canSkipApproval');
 jest.mock('../NetworkService');
