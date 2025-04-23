@@ -245,6 +245,37 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
           </Tooltip>
         </Stack>
       )}
+      {contact.addressSVM && (
+        <Stack sx={{ mt: 4 }}>
+          <Tooltip
+            title={contact.addressSVM}
+            sx={{ display: 'block' }}
+            disableInteractive
+          >
+            <TextField
+              size="small"
+              InputProps={{
+                readOnly: true,
+                endAdornment: (
+                  <CopyIcon
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      copyAddress(contact.addressSVM || '');
+                    }}
+                    sx={{
+                      cursor: 'pointer',
+                    }}
+                  />
+                ),
+              }}
+              value={truncateAddress(contact.addressSVM)}
+              label={t('Solana Address')}
+              fullWidth
+              rows={2}
+            />
+          </Tooltip>
+        </Stack>
+      )}
     </Stack>
   );
 
