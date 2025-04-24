@@ -1,6 +1,6 @@
 import { Stack, styled } from '@avalabs/core-k2-components';
 
-import { useAppDimensions } from '@src/hooks/useAppDimensions';
+import { useAppDimensions } from '@/hooks/useAppDimensions';
 
 const LogoContainer = styled('div')`
   img {

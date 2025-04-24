@@ -1,12 +1,11 @@
 import { resolve } from '@avalabs/core-utils-sdk';
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { TokenManagerService } from '../../tokens/TokenManagerService';
 import { SettingsService } from '../SettingsService';
 import { NetworkService } from '../../network/NetworkService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_ADD_CUSTOM_TOKEN,
   boolean,
   [tokenAddress: string]

@@ -1,10 +1,8 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler, SettingsState } from '@core/types';
 import { injectable } from 'tsyringe';
-import { SettingsState } from '@core/types';
 import { SettingsService } from '../SettingsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_GET,
   SettingsState
 >;

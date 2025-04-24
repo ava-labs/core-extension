@@ -1,9 +1,8 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_UPDATE_CURRENCY,
   true,
   [currency: string]

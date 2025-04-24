@@ -1,10 +1,8 @@
 import React, { FC, ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
-import {
+import { PartialBy,
   JsonRpcRequestParams,
-  JsonRpcRequestPayload,
-} from '@core/service-worker';
-import { PartialBy } from '@core/service-worker';
+  JsonRpcRequestPayload, } from '@core/types';
 import { CommonError, ErrorCode } from '@core/utils';
 import { ethErrors } from 'eth-rpc-errors';
 

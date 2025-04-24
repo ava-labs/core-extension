@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { AnalyticsService } from '../AnalyticsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ANALYTICS_CLEAR_IDS,
   true
 >;

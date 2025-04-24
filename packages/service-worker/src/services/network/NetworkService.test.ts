@@ -14,7 +14,7 @@ import {
   NETWORK_STORAGE_KEY,
 } from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import { FeatureGates } from '../featureFlags/models';
+import { FeatureGates } from '@core/common/src/models';
 import { runtime } from 'webextension-polyfill';
 import { decorateWithCaipId } from '@core/utils';
 

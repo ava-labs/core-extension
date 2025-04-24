@@ -2,7 +2,7 @@ import { FeatureFlagService } from '../FeatureFlagService';
 import { ExtensionRequest, ExtensionRequestHandler, FeatureGates } from '@core/types';
 import { injectable } from 'tsyringe';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.FEATURE_FLAGS_GET,
   Record<FeatureGates, boolean>
 >;

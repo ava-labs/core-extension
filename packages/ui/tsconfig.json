@@ -6,5 +6,5 @@
       "@shared/*": ["../../src/*"]
     }
   },
-  "include": ["./src", "globals.d.ts", "../common/src/feature-flags.ts"]
+  "include": ["./src", "globals.d.ts"]
 }

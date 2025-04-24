@@ -1,12 +1,11 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { TokenManagerService } from '../../tokens/TokenManagerService';
 import { NetworkService } from '../../network/NetworkService';
 import { Monitoring } from '@core/common';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_GET_TOKEN_DATA,
   NetworkContractToken | null | false,
   [tokenAddress: string]

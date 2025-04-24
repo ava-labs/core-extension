@@ -13,7 +13,7 @@ import { coerce, satisfies, validRange } from 'semver';
 import { AnalyticsService } from '../analytics/AnalyticsService';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
-import { DEFAULT_FLAGS, FEATURE_FLAGS_OVERRIDES_KEY } from './models';
+import { DEFAULT_FLAGS, FEATURE_FLAGS_OVERRIDES_KEY } from '@core/common';
 import { getFeatureFlags } from './utils/getFeatureFlags';
 
 @singleton()

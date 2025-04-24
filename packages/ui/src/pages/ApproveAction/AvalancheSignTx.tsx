@@ -5,7 +5,7 @@ import { Avalanche } from '@avalabs/core-wallets-sdk';
 
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { LoadingOverlay } from '../../src/components/common/LoadingOverlay';
+import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { ActionStatus } from '@core/service-worker';
 
 import { ImportTxView } from './components/ApproveImportTx';

@@ -7,13 +7,13 @@ import { render } from 'react-dom';
 import browser from 'webextension-polyfill';
 // MemoryRouter doesn't handle deep linking well.  And BrowserRouter doesn't work in extensions.
 import { HashRouter as Router } from 'react-router-dom';
-import { ConnectionContextProvider } from '@src/contexts/ConnectionProvider';
-import { AnalyticsContextProvider } from '@src/contexts/AnalyticsProvider';
-import { SettingsContextProvider } from '@src/contexts/SettingsProvider';
+import { ConnectionContextProvider } from '@/contexts/ConnectionProvider';
+import { AnalyticsContextProvider } from '@/contexts/AnalyticsProvider';
+import { SettingsContextProvider } from '@/contexts/SettingsProvider';
 import { LoadingContent } from './LoadingContent';
-import { FeatureFlagsContextProvider } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureFlagsContextProvider } from '@/contexts/FeatureFlagsProvider';
 import { I18nextProvider } from 'react-i18next';
-import i18n from '@src/localization/init';
+import i18n from '@shared/localization/init';
 import { darkTheme, ThemeProvider } from '@avalabs/core-k2-components';
 
 const App = lazy(() => {

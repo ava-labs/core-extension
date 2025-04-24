@@ -26,7 +26,7 @@ import {
 import { TransactionDetailItem } from 'packages/ui/src/components/common/approval/TransactionDetailItem';
 import { useWindowGetsClosedOrHidden } from '@core/utils';
 
-import { LoadingOverlay } from '../../src/components/common/LoadingOverlay';
+import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { TxBalanceChange } from '../SignTransaction/components/TxBalanceChange';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';

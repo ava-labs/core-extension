@@ -30,7 +30,7 @@ import {
   FeatureFlagEvents,
   FeatureFlags,
   FeatureGates,
-} from '../featureFlags/models';
+} from '@core/common/src/models';
 import { Monitoring } from '@core/common';
 import { getEnabledBridgeTypes } from '@core/utils';
 

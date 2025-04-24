@@ -22,11 +22,11 @@ import { useImportLedger } from './hooks/useImportLedger';
 import {
   LedgerConnector,
   LedgerConnectorData,
-} from '../../src/components/ledger/LedgerConnector';
+} from '../../components/ledger/LedgerConnector';
 import {
   LedgerTroubleSteps,
   LedgerTroubleStepsFontVariant,
-} from '../../src/components/ledger/LedgerTroublesSteps';
+} from '../../components/ledger/LedgerTroublesSteps';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import sentryCaptureException, {
   SentryExceptionTypes,

@@ -6,7 +6,7 @@ import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 
 import { FeatureFlagService } from './FeatureFlagService';
-import { DEFAULT_FLAGS } from './models';
+import { DEFAULT_FLAGS } from '@core/common';
 import { getFeatureFlags } from './utils/getFeatureFlags';
 
 jest.mock('./utils/getFeatureFlags');

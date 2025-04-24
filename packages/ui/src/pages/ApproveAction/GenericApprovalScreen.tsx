@@ -2,7 +2,7 @@ import { ActionStatus } from '@core/service-worker';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useEffect, useState } from 'react';
-import { LoadingOverlay } from '../../src/components/common/LoadingOverlay';
+import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
 import { AlertType, DisplayData, RpcMethod } from '@avalabs/vm-module-types';
 import {

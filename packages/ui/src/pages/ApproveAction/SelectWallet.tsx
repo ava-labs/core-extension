@@ -3,7 +3,7 @@ import { SiteAvatar } from 'packages/ui/src/components/common/SiteAvatar';
 import { useApproveAction } from '@src/hooks/useApproveAction';
 import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback } from 'react';
-import { LoadingOverlay } from '../../src/components/common/LoadingOverlay';
+import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import {
   WalletExtensionButton,
   CoreExtensionButton,

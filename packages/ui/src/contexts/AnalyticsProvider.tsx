@@ -1,9 +1,11 @@
-import { ExtensionRequest } from '@core/service-worker';
-import { analyticsStateUpdatedEventListener } from '@core/service-worker';
-import { CaptureAnalyticsEventHandler } from '@core/service-worker';
-import { ClearAnalyticsIdsHandler } from '@core/service-worker';
-import { GetAnalyticsIdsHandler } from '@core/service-worker';
-import { InitAnalyticsIdsHandler } from '@core/service-worker';
+import { ExtensionRequest } from '@core/types';
+import {
+  analyticsStateUpdatedEventListener,
+  CaptureAnalyticsEventHandler,
+  ClearAnalyticsIdsHandler,
+  GetAnalyticsIdsHandler,
+  InitAnalyticsIdsHandler,
+} from '@core/service-worker';
 import {
   createContext,
   useCallback,
@@ -14,7 +16,7 @@ import {
 import { filter, first, from, merge } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
 import { useSettingsContext } from './SettingsProvider';
-import { AnalyticsConsent } from '@core/service-worker';
+import { AnalyticsConsent } from '@core/types';
 
 type CaptureFn = (
   eventName: string,

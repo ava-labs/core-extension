@@ -1,9 +1,8 @@
 import { filter } from 'rxjs';
 import { createContext, useCallback, useContext, useReducer } from 'react';
 
-import { WalletConnectImportAccount } from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
-import { isUriGeneratedEvent } from '@core/service-worker';
+import { isUriGeneratedEvent, WalletConnectImportAccount } from '@core/service-worker';
+import { ExtensionRequest } from '@core/types';
 
 import {
   AccountImportState,
@@ -33,7 +32,7 @@ const WalletConnectContext = createContext<{
   },
 });
 
-export const WalletConnectContextProvider: React.FC = ({ children }) => {
+export const WalletConnectContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { events, request, tabId } = useConnectionContext();
   const [importState, dispatch] = useReducer(importReducer, {
     status: AccountImportStatus.NotInitiated,

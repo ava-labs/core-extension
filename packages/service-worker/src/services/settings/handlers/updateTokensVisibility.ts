@@ -1,10 +1,8 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler, TokensVisibility } from '@core/types';
 import { injectable } from 'tsyringe';
-import { TokensVisibility } from '@core/types';
 import { SettingsService } from '../SettingsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_UPDATE_TOKENS_VISIBILITY,
   true,
   [tokensVisibility: TokensVisibility]

@@ -1,7 +1,7 @@
 import {
   ExtensionConnectionEvent,
   RequestHandlerType,
-} from '@core/service-worker';
+} from '@core/types';
 import {
   createContext,
   useCallback,
@@ -11,11 +11,11 @@ import {
 } from 'react';
 import { Observable, Subject } from 'rxjs';
 import browser, { Runtime } from 'webextension-polyfill';
-import { EXTENSION_SCRIPT } from 'packages/common/src/script-names';
-import { requestEngine } from '@src/contexts/utils/connectionResponseMapper';
+import { EXTENSION_SCRIPT } from '@core/common';
+import { requestEngine } from '@/contexts/utils/connectionResponseMapper';
 import { Signal, ValueCache } from 'micro-signals';
-import { LoadingContent } from '@src/popup/LoadingContent';
-import { networkChanges } from './NetworkProvider/networkChanges';
+import { LoadingContent } from '@/popup/LoadingContent';
+import { networkChanges } from '@/contexts/NetworkProvider/networkChanges';
 
 const requestEngineCache = new ValueCache<ReturnType<typeof requestEngine>>();
 const requestEngineSignal = new Signal<ReturnType<typeof requestEngine>>();

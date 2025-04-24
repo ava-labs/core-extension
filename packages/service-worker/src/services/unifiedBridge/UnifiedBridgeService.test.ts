@@ -6,7 +6,7 @@ import {
   getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
 import { UnifiedBridgeService } from './UnifiedBridgeService';
-import { FeatureGates } from '../featureFlags/models';
+import { FeatureGates } from '@core/common/src/models';
 import { wait } from '@avalabs/core-utils-sdk';
 
 jest.mock('@avalabs/bridge-unified');

@@ -7,7 +7,7 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { TypographyLink } from '../../../pages/Onboarding/components/TypographyLink';
+import { TypographyLink } from '../../pages/Onboarding/components/TypographyLink';
 
 export enum LedgerTroubleStepsFontVariant {
   small = 'body1',

@@ -1,4 +1,3 @@
-export { CORE_DOMAINS, ConnectionController, JSONRPCRequestWithDomain, ConnectionInfo, DAppEventEmitter, ExtensionConnectionEvent, ExtensionConnectionMessage, ExtensionConnectionMessageResponse, ExtensionEventEmitter, ExtensionRequestHandler, HandlerParameters, OffscreenEventEmitter, RequestHandlerType, isConnectionEvent, isConnectionResponse } from './connections/models';
 export type { HandlerType as GetRecoveryPhraseExportStateHandler } from './services/seedless/handlers/getRecoveryPhraseExportState';
 // export { ChooseMfaMethodHandler } from './services/seedless/handlers/chooseMfaMethod';
 // export { RemoveFidoDeviceHandler } from './services/seedless/handlers/removeFidoDevice';
@@ -10,11 +9,12 @@ export type { HandlerType as GetRecoveryPhraseExportStateHandler } from './servi
 // export { SubmitMfaResponseHandler } from './services/seedless/handlers/submitMfaResponse';
 // export { CompleteAuthenticatorChangeHandler } from './services/seedless/handlers/completeAuthenticatorChange';
 // export { HasSignerTokenExpiredHandler } from './services/seedless/handlers/hasSignerTokenExpired';
-// export { ClearAnalyticsIdsHandler } from './services/analytics/handlers/clearAnalyticsIds';
-// export { StoreAnalyticsIdsHandler } from './services/analytics/handlers/storeAnalyticsIds';
-// export { CaptureAnalyticsEventHandler } from './services/analytics/handlers/captureAnalyticsEvent';
-// export { InitAnalyticsIdsHandler } from './services/analytics/handlers/initAnalyticsIds';
-// export { GetAnalyticsIdsHandler } from './services/analytics/handlers/getAnalyticsIds';
+export { HandlerType as ClearAnalyticsIdsHandler } from './services/analytics/handlers/clearAnalyticsIds';
+export { HandlerType as StoreAnalyticsIdsHandler } from './services/analytics/handlers/storeAnalyticsIds';
+export { HandlerType as CaptureAnalyticsEventHandler } from './services/analytics/handlers/captureAnalyticsEvent';
+export { HandlerType as InitAnalyticsIdsHandler } from './services/analytics/handlers/initAnalyticsIds';
+export { HandlerType as GetAnalyticsIdsHandler } from './services/analytics/handlers/getAnalyticsIds';
+export { analyticsStateUpdatedEventListener } from './services/analytics/events/listeners';
 // export { GetNetworkFeeHandler } from './services/networkFee/handlers/getNetworkFee';
 // export { GetRecoveryMethodsHandler } from './services/seedless/handlers/getRecoveryMethods';
 // export { UpdateSignerTokenHandler } from './services/seedless/handlers/updateSignerToken';
@@ -38,7 +38,8 @@ export type { HandlerType as GetRecoveryPhraseExportStateHandler } from './servi
 // export { LedgerOnboardingHandler } from './services/onboarding/handlers/ledgerOnboardingHandler';
 // export { RefreshNftMetadataHandler } from './services/balances/handlers/refreshNftMetadata';
 // export { GetNativeBalanceHandler } from './services/balances/handlers/getNativeBalance';
-// export { GetFeatureFlagsHandler } from './services/featureFlags/handlers/getFeatureFlags';
+export { HandlerType as GetFeatureFlagsHandler } from './services/featureFlags/handlers/getFeatureFlags';
+export { featureFlagsUpdatedEventListener } from './services/featureFlags/events/featureFlagsUpdatedEventListener';
 // export { UpdateBalancesForNetworkHandler } from './services/balances/handlers/updateBalancesForNetwork';
 // export { GetTotalBalanceForWalletHandler } from './services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
 // export { UpdateActionHandler } from './services/actions/handlers/updateAction';
@@ -59,7 +60,8 @@ export type { HandlerType as GetRecoveryPhraseExportStateHandler } from './servi
 // export { GetNavigationHistoryHandler } from './services/navigationHistory/handlers/getNavigationHistory';
 // export { EstablishRequiredSession } from './services/walletConnect/handlers/establishRequiredSession';
 // export { GetPrivateKeyHandler } from './services/accounts/handlers/getPrivateKey';
-// export { WalletConnectImportAccount } from './services/walletConnect/handlers/walletConnectImportAccount';
+export { HandlerType as WalletConnectImportAccount } from './services/walletConnect/handlers/walletConnectImportAccount';
+export { isUriGeneratedEvent } from './services/walletConnect/events/eventFilters';
 // export { GetAccountsHandler } from './services/accounts/handlers/getAccounts';
 // export { SelectAccountHandler } from './services/accounts/handlers/selectAccount';
 // export { AddAccountHandler } from './services/accounts/handlers/addAccount';
@@ -69,7 +71,7 @@ export type { HandlerType as GetRecoveryPhraseExportStateHandler } from './servi
 // export { GetPermissionsForDomainHandler } from './services/permissions/handlers/getPermissionsForDomain';
 // export { RevokeAddressPermissionsForDomainHandler } from './services/permissions/handlers/revokeAddressPermissionsForDomain';
 // export { SubmitKeystoneSignature } from './services/keystone/handlers/keystoneSubmitSignature';
-// export { LockWalletHandler } from './services/lock/handlers/lockWallet';
+export { LockWalletHandler } from './services/lock/handlers/lockWallet';
 // export { GetLockStateHandler } from './services/lock/handlers/getLockState';
 // export { UnlockWalletHandler } from './services/lock/handlers/unlockWalletState';
 // export { LockChangePasswordHandler } from './services/lock/handlers/changeWalletPassword';
@@ -85,8 +87,24 @@ export type { HandlerType as GetRecoveryPhraseExportStateHandler } from './servi
 // export { RemoveContactHandler } from './services/contacts/handlers/removeContact';
 // export { UpdateContactHandler } from './services/contacts/handlers/updateContact';
 // export { CreateContactHandler } from './services/contacts/handlers/createContact';
-// export { UpdateThemeHandler } from './services/settings/handlers/updateTheme';
-// export { GetSettingsHandler } from './services/settings/handlers/getSettings';
-// export { UpdateCurrencyHandler } from './services/settings/handlers/updateCurrencySelection';
-// export { UpdateCollectiblesVisibilityHandler } from './services/settings/handlers/updateCollectiblesVisibility';
-export { DAppProviderRequest, JsonRpcFailure, JsonRpcRequest, JsonRpcRequestParams, JsonRpcRequestPayload, JsonRpcResponse,  JsonRpcSuccess, Web3Event } from '@core/types';
+export { HandlerType as UpdateThemeHandler } from './services/settings/handlers/updateTheme';
+export { HandlerType as GetSettingsHandler } from './services/settings/handlers/getSettings';
+export { HandlerType as UpdateCurrencyHandler } from './services/settings/handlers/updateCurrencySelection';
+export { HandlerType as UpdateCollectiblesVisibilityHandler } from './services/settings/handlers/updateCollectiblesVisibility';
+export { HandlerType as UpdateShowNoBalanceHandler } from './services/settings/handlers/updateShowTokensNoBalance';
+export { HandlerType as UpdateTokensVisiblityHandler } from './services/settings/handlers/updateTokensVisibility';
+export { HandlerType as SetAnalyticsConsentHandler } from './services/settings/handlers/setAnalyticsConsent';
+export { HandlerType as SetLanguageHandler } from './services/settings/handlers/setLanguage';
+export { HandlerType as AddCustomTokenHandler } from './services/settings/handlers/addCustomToken';
+export { HandlerType as GetTokenDataHandler } from './services/settings/handlers/getTokenDataByAddress';
+export { settingsUpdatedEventListener } from './services/settings/events/listeners';
+export {
+  DAppProviderRequest,
+  JsonRpcFailure,
+  JsonRpcRequest,
+  JsonRpcRequestParams,
+  JsonRpcRequestPayload,
+  JsonRpcResponse,
+  JsonRpcSuccess,
+  Web3Event,
+} from '@core/types';

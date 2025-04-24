@@ -1,42 +1,43 @@
-import { ExtensionRequest } from '@core/service-worker';
-import { LockWalletHandler } from '@core/service-worker';
-import { settingsUpdatedEventListener } from '@core/service-worker';
-import { GetSettingsHandler } from '@core/service-worker';
-import { SetAnalyticsConsentHandler } from '@core/service-worker';
-import { SetLanguageHandler } from '@core/service-worker';
-import { UpdateCurrencyHandler } from '@core/service-worker';
-import { UpdateShowNoBalanceHandler } from '@core/service-worker';
-import { UpdateThemeHandler } from '@core/service-worker';
-import { UpdateTokensVisiblityHandler } from '@core/service-worker';
-import { UpdateCollectiblesVisibilityHandler } from '@core/service-worker';
-import {
-  Languages,
-  SettingsState,
-  ThemeVariant,
-} from '@core/service-worker';
-import { SettingsPages } from 'packages/ui/src/components/settings/models';
-import { changeLanguage } from 'i18next';
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useCallback,
-  useState,
-  Dispatch,
-  SetStateAction,
-} from 'react';
-import { filter, map } from 'rxjs';
-import { omit, set } from 'lodash';
-import { useConnectionContext } from './ConnectionProvider';
-import { getCurrencyFormatter } from './utils/getCurrencyFormatter';
-import { updateIfDifferent } from '@core/utils';
+import { SettingsPages } from '@/components/settings/models';
 import {
   NftTokenWithBalance,
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
-import { isTokenMalicious } from '@core/utils';
+import {
+  GetSettingsHandler,
+  LockWalletHandler,
+  SetAnalyticsConsentHandler,
+  SetLanguageHandler,
+  settingsUpdatedEventListener,
+  UpdateCollectiblesVisibilityHandler,
+  UpdateCurrencyHandler,
+  UpdateShowNoBalanceHandler,
+  UpdateThemeHandler,
+  UpdateTokensVisiblityHandler,
+} from '@core/service-worker';
+import {
+  ExtensionRequest,
+  Languages,
+  SettingsState,
+  ThemeVariant,
+} from '@core/types';
+import { isTokenMalicious, updateIfDifferent } from '@core/utils';
+import { changeLanguage } from 'i18next';
+import { omit, set } from 'lodash';
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { filter, map } from 'rxjs';
+import { useConnectionContext } from './ConnectionProvider';
+import { getCurrencyFormatter } from './utils/getCurrencyFormatter';
 
 type SettingsFromProvider = SettingsState & {
   lockWallet(): Promise<true>;

@@ -3,5 +3,12 @@
   "packageManager": "yarn@4.7.0",
   "private": true,
   "main": "src/index.ts",
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@sentry/browser": "7.66.0",
+    "webextension-polyfill": "0.10.0"
+  },
+  "devDependencies": {
+    "@types/webextension-polyfill": "0.10.0"
+  }
 }

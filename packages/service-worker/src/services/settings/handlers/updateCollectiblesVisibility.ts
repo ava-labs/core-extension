@@ -1,10 +1,8 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler, CollectiblesVisibility } from '@core/types';
 import { injectable } from 'tsyringe';
-import { CollectiblesVisibility } from '@core/types';
 import { SettingsService } from '../SettingsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_UPDATE_COLLECTIBLES_VISIBILITY,
   true,
   [collectiblesVisibility: CollectiblesVisibility]

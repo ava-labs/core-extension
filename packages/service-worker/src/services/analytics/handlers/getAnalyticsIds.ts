@@ -6,7 +6,7 @@ import {
 import { injectable } from 'tsyringe';
 import { AnalyticsService } from '../AnalyticsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ANALYTICS_GET_IDS,
   AnalyticsState | undefined
 >;

@@ -1,47 +1,46 @@
 import { Stack } from '@avalabs/core-k2-components';
-import { Header } from 'packages/ui/src/components/common/header/Header';
-import { WalletLoading } from 'packages/ui/src/components/common/WalletLoading';
-import { AccountsContextProvider } from '@src/contexts/AccountsProvider';
-import { BalancesProvider } from '@src/contexts/BalancesProvider';
-import { BridgeProvider } from '@src/contexts/BridgeProvider';
-import { ContactsContextProvider } from '@src/contexts/ContactsProvider';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { LedgerContextProvider } from '@src/contexts/LedgerProvider';
-import { NetworkContextProvider } from '@src/contexts/NetworkProvider';
-import { OnboardingContextProvider } from '@src/contexts/OnboardingProvider';
-import { PermissionContextProvider } from '@src/contexts/PermissionsProvider';
-import { SwapContextProvider } from '@src/contexts/SwapProvider/SwapProvider';
-import { WalletContextProvider } from '@src/contexts/WalletProvider';
-import { useAppDimensions } from '@src/hooks/useAppDimensions';
+import { Header } from '@/components/common/header/Header';
+import { WalletLoading } from '@/components/common/WalletLoading';
+import { AccountsContextProvider } from '@/contexts/AccountsProvider';
+import { BalancesProvider } from '@/contexts/BalancesProvider';
+import { BridgeProvider } from '@/contexts/BridgeProvider';
+import { ContactsContextProvider } from '@/contexts/ContactsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
+import { LedgerContextProvider } from '@/contexts/LedgerProvider';
+import { NetworkContextProvider } from '@/contexts/NetworkProvider';
+import { OnboardingContextProvider } from '@/contexts/OnboardingProvider';
+import { PermissionContextProvider } from '@/contexts/PermissionsProvider';
+import { SwapContextProvider } from '@/contexts/SwapProvider/SwapProvider';
+import { WalletContextProvider } from '@/contexts/WalletProvider';
+import { useAppDimensions } from '@/hooks/useAppDimensions';
 import {
-  ContextContainer,
   useIsSpecificContextContainer,
-} from '@src/hooks/useIsSpecificContextContainer';
-import { useOnline } from '@src/hooks/useOnline';
-import { usePageHistory } from '@src/hooks/usePageHistory';
-import { DialogContextProvider } from '@src/contexts/DialogContextProvider';
+} from '@/hooks/useIsSpecificContextContainer';
+import { useOnline } from '@/hooks/useOnline';
+import { usePageHistory } from '@/hooks/usePageHistory';
+import { DialogContextProvider } from '@/contexts/DialogContextProvider';
 
 import { useEffect, useMemo } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { OfflineContent } from './OfflineContent';
 import { useTranslation } from 'react-i18next';
-import LedgerIncorrectDevice from 'packages/ui/pages/Ledger/LedgerIncorrectDevice';
-import LedgerRegisterBtcWalletPolicy from 'packages/ui/pages/Ledger/LedgerRegisterBtcWalletPolicy';
-import { KeystoneContextProvider } from '@src/contexts/KeystoneProvider';
-import { CurrenciesContextProvider } from '@src/contexts/CurrenciesProvider';
-import { DefiContextProvider } from '@src/contexts/DefiProvider';
-import { WalletConnectContextProvider } from '@src/contexts/WalletConnectContextProvider/WalletConnectContextProvider';
-import { FeatureGates } from '@core/service-worker';
-import { TestnetBanner } from 'packages/ui/src/components/common/TestnetBanner';
-import { SeedlessAuthPrompt } from 'packages/ui/src/components/common/seedless/SeedlessAuthPrompt';
-import { UnifiedBridgeProvider } from '@src/contexts/UnifiedBridgeProvider';
-import { AnalyticsOptInDialog } from 'packages/ui/src/components/dialogs/AnalyticsOptInDialog';
-import { SeedlessMfaManagementProvider } from '@src/contexts/SeedlessMfaManagementProvider';
-import { ApprovalsContextProvider } from '@src/contexts/ApprovalsProvider';
+import LedgerIncorrectDevice from '@/pages/Ledger/LedgerIncorrectDevice';
+import LedgerRegisterBtcWalletPolicy from '@/pages/Ledger/LedgerRegisterBtcWalletPolicy';
+import { KeystoneContextProvider } from '@/contexts/KeystoneProvider';
+import { CurrenciesContextProvider } from '@/contexts/CurrenciesProvider';
+import { DefiContextProvider } from '@/contexts/DefiProvider';
+import { WalletConnectContextProvider } from '@/contexts/WalletConnectContextProvider';
+import { ContextContainer, FeatureGates } from '@core/types';
+import { TestnetBanner } from '@/components/common/TestnetBanner';
+import { SeedlessAuthPrompt } from '@/components/common/seedless/SeedlessAuthPrompt';
+import { UnifiedBridgeProvider } from '@/contexts/UnifiedBridgeProvider';
+import { AnalyticsOptInDialog } from '@/components/dialogs/AnalyticsOptInDialog';
+import { SeedlessMfaManagementProvider } from '@/contexts/SeedlessMfaManagementProvider';
+import { ApprovalsContextProvider } from '@/contexts/ApprovalsProvider';
 import { ApprovalRoutes } from './ApprovalRoutes';
 import { AppRoutes } from './AppRoutes';
-import { InAppApprovalOverlay } from 'packages/ui/src/components/common/InAppApprovalOverlay';
-import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
+import { InAppApprovalOverlay } from '@/components/common/InAppApprovalOverlay';
+import { NetworkFeeContextProvider } from '@/contexts/NetworkFeeProvider';
 
 const pagesWithoutHeader = [
   '/tokens/manage',

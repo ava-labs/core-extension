@@ -1,10 +1,8 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler, ThemeVariant } from '@core/types';
 import { injectable } from 'tsyringe';
-import { ThemeVariant } from '@core/types';
 import { SettingsService } from '../SettingsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_UPDATE_THEME,
   true,
   [theme: ThemeVariant]
