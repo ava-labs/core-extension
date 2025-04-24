@@ -1,6 +1,6 @@
 import { container } from 'tsyringe';
 
-import { Action, MultiTxAction } from '@core/types/src/models';
+import { Action, MultiTxAction } from '@core/types';
 import { ApprovalService } from '../services/approvals/ApprovalService';
 
 export const openApprovalWindow = async (

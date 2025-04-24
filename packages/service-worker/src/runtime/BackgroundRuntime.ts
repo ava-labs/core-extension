@@ -1,4 +1,4 @@
-import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
+import { ContextContainer } from '@core/types';
 import browser from 'webextension-polyfill';
 import { ConnectionService } from '../connections/ConnectionService';
 import { singleton } from 'tsyringe';
