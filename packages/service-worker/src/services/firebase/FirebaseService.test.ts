@@ -1,25 +1,26 @@
+import {
+	FcmMessageEvents,
+	FeatureFlagEvents,
+	FeatureFlags,
+	FeatureGates,
+	FirebaseEvents
+} from '@core/types';
+import { isSupportedBrowser } from '@core/utils';
 import { FirebaseApp, initializeApp } from 'firebase/app';
+import { deleteToken, getToken, MessagePayload } from 'firebase/messaging';
+import {
+	getMessaging,
+	Messaging,
+	NextFn,
+	onBackgroundMessage,
+} from 'firebase/messaging/sw';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FirebaseService } from './FirebaseService';
-import {
-  getMessaging,
-  Messaging,
-  NextFn,
-  onBackgroundMessage,
-} from 'firebase/messaging/sw';
-import {
-  FeatureFlagEvents,
-  FeatureFlags,
-  FeatureGates,
-} from '../featureFlags/models';
-import { deleteToken, getToken, MessagePayload } from 'firebase/messaging';
-import { FcmMessageEvents, FirebaseEvents } from '@core/types/src/models';
-import { isSupportedBrowser } from 'packages/utils/src/isSupportedBrowser';
 
 jest.mock('firebase/app');
 jest.mock('firebase/messaging');
 jest.mock('firebase/messaging/sw');
-jest.mock('@src/utils/isSupportedBrowser');
+jest.mock('@core/utils');
 
 describe('FirebaseService', () => {
   const realEnv = process.env;

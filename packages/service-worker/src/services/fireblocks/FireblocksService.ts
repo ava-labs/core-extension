@@ -14,14 +14,16 @@ import { SignJWT } from 'jose';
 import { inject, singleton } from 'tsyringe';
 
 import { Monitoring } from '@core/common';
-import { CommonError, isWrappedError } from '@core/utils';
+import { isWrappedError } from '@core/utils';
 
-import type {
+import {
+  CommonError,
   AddressResponse,
   FireblocksSecretsProvider,
   PaginatedAddressesResponse,
-} from '@core/types/src/models';
-import { FireblocksErrorCode, KnownAddressDictionary } from '@core/types/src/models';
+  FireblocksErrorCode,
+  KnownAddressDictionary,
+} from '@core/types';
 
 // Create registry for FireblocksSecretsProviders to be injected.
 // FireblocksSecretsProvider is an interface that can have multiple implementation,

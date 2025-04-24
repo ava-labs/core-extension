@@ -4,6 +4,7 @@ export * from './accounts';
 export * from './network/getProviderForNetwork';
 export * from './network/addGlacierAPIKeyIfNeeded';
 export * from './getSyncDomain';
+export * from './errors';
 export * from './send/btcSendUtils';
 export * from './calculateTotalBalance';
 export * from './shouldUseWalletConnectApproval';

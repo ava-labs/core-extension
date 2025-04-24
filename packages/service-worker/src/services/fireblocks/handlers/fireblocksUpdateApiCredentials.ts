@@ -1,21 +1,21 @@
 import { importPKCS8 } from 'jose';
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { FireblocksService } from '../FireblocksService';
-import { AccountsService } from '../../accounts/AccountsService';
-import { AccountType } from '../../accounts/models';
-import { NetworkService } from '../../network/NetworkService';
+import { AccountsService } from '@/services/accounts/AccountsService';
+import { NetworkService } from '@/services/network/NetworkService';
+import { SecretsService } from '@/services/secrets/SecretsService';
 import {
+  AccountType,
+  ExtensionRequest,
+  ExtensionRequestHandler,
   FireblocksBtcAccessError,
   FireblocksBtcAccessErrorCode,
   FireblocksSecretsProvider,
   MAINNET_LOOKUP_ASSETS,
+  SecretType,
   TESTNET_LOOKUP_ASSETS,
-} from '@core/types/src/models';
-import { SecretsService } from '../../secrets/SecretsService';
-import { SecretType } from '../../secrets/models';
+} from '@core/types';
+import { FireblocksService } from '../FireblocksService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.FIREBLOCKS_UPDATE_API_CREDENTIALS,

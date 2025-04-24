@@ -2,21 +2,19 @@ import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
 import browser from 'webextension-polyfill';
 
-import { AnalyticsService } from '../analytics/AnalyticsService';
 import {
-  DEFAULT_FLAGS,
-  FeatureFlagEvents,
-  FeatureFlags,
-  FEATURE_FLAGS_OVERRIDES_KEY,
-  FeatureGates,
-} from './models';
-import { AnalyticsEvents } from '@core/types/src/models';
+	AnalyticsEvents,
+	FeatureFlagEvents,
+	FeatureFlags,
+	FeatureGates,
+} from '@core/types';
+import { formatAndLog, isProductionBuild } from '@core/utils';
+import { coerce, satisfies, validRange } from 'semver';
+import { AnalyticsService } from '../analytics/AnalyticsService';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
-import { formatAndLog } from '../../../../utils/src/logging';
+import { DEFAULT_FLAGS, FEATURE_FLAGS_OVERRIDES_KEY } from './models';
 import { getFeatureFlags } from './utils/getFeatureFlags';
-import { coerce, satisfies, validRange } from 'semver';
-import { isProductionBuild } from '@core/utils';
 
 @singleton()
 export class FeatureFlagService {

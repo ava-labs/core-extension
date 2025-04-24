@@ -1,11 +1,11 @@
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+  FeatureFlagEvents,
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { FeatureFlagService } from '../FeatureFlagService';
-import { FeatureFlagEvents } from '../models';
 
 @singleton()
 export class FeatureFlagsUpdatedEvent implements ExtensionEventEmitter {

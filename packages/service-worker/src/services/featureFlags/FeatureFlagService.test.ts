@@ -1,12 +1,12 @@
 import { noop } from '@avalabs/core-utils-sdk';
 import browser from 'webextension-polyfill';
 
-import { AnalyticsEvents } from '@core/types/src/models';
+import { AnalyticsEvents,FeatureFlagEvents, FeatureGates } from '@core/types';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 
 import { FeatureFlagService } from './FeatureFlagService';
-import { DEFAULT_FLAGS, FeatureFlagEvents, FeatureGates } from './models';
+import { DEFAULT_FLAGS } from './models';
 import { getFeatureFlags } from './utils/getFeatureFlags';
 
 jest.mock('./utils/getFeatureFlags');

@@ -1,19 +1,19 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { AccountsService } from '../../accounts/AccountsService';
-import { NetworkService } from '../../network/NetworkService';
-import { SecretsService } from '../../secrets/SecretsService';
-import { FireblocksUpdateApiCredentialsHandler } from './fireblocksUpdateApiCredentials';
-import { AccountType } from '../../accounts/models';
-import { FireblocksService } from '../FireblocksService';
-import { importPKCS8 } from 'jose';
+import { AccountsService } from '@/services/accounts/AccountsService';
+import { NetworkService } from '@/services/network/NetworkService';
+import { SecretsService } from '@/services/secrets/SecretsService';
 import {
+  AccountType,
+  ExtensionRequest,
   FireblocksBtcAccessError,
   FireblocksBtcAccessErrorCode,
   MAINNET_LOOKUP_ASSETS,
+  SecretType,
   TESTNET_LOOKUP_ASSETS,
-} from '@core/types/src/models';
-import { SecretType } from '../../secrets/models';
-import { buildRpcCall } from '@src/tests/test-utils';
+} from '@core/types';
+import { buildRpcCall } from '@shared/tests/test-utils';
+import { importPKCS8 } from 'jose';
+import { FireblocksService } from '../FireblocksService';
+import { FireblocksUpdateApiCredentialsHandler } from './fireblocksUpdateApiCredentials';
 
 jest.mock('../FireblocksService', () => ({
   FireblocksService: jest.fn().mockReturnValue({
@@ -21,9 +21,9 @@ jest.mock('../FireblocksService', () => ({
     getBtcAddressByAccountId: jest.fn(),
   }),
 }));
-jest.mock('../../accounts/AccountsService');
-jest.mock('../../network/NetworkService');
-jest.mock('../../secrets/SecretsService');
+jest.mock('@/services/accounts/AccountsService');
+jest.mock('@/services/network/NetworkService');
+jest.mock('@/services/secrets/SecretsService');
 jest.mock('jose');
 
 describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredentials.ts', () => {

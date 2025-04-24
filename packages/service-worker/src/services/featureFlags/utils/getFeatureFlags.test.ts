@@ -1,6 +1,6 @@
-import { FeatureGates, DISABLED_FLAG_VALUES } from '../models';
+import { FeatureGates } from '@core/types';
 import { getFeatureFlags } from './getFeatureFlags';
-
+import { DISABLED_FLAG_VALUES } from '../models';
 describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
   const realEnv = process.env;
   let realFetch;

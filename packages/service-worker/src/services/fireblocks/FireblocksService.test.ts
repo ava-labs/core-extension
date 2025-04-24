@@ -1,22 +1,24 @@
+import { AccountsService } from '@/services/accounts/AccountsService';
+import { SecretsService } from '@/services/secrets/SecretsService';
+import { Monitoring } from '@core/common';
+import {
+  Account,
+  AccountType,
+  CommonError,
+  FireblocksAccount,
+  FireblocksErrorCode,
+  SecretType,
+} from '@core/types';
+import { ethErrors } from 'eth-rpc-errors';
 import { sha256 } from 'ethers';
 import { PeerType } from 'fireblocks-sdk';
-import { Account, AccountType, FireblocksAccount } from '../accounts/models';
-import { SecretType } from '../secrets/models';
-import { SecretsService } from '../secrets/SecretsService';
 import { FireblocksSecretsService } from './FireblocksSecretsService';
 import { FireblocksService } from './FireblocksService';
-import { FireblocksErrorCode } from '@core/types/src/models';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
-import { CommonError } from 'packages/utils/src/errors';
-import { ethErrors } from 'eth-rpc-errors';
-import { AccountsService } from '../accounts/AccountsService';
 
 jest.mock('ethers');
-jest.mock('../accounts/AccountsService');
-jest.mock('../secrets/SecretsService');
-jest.mock('@src/monitoring/sentryCaptureException');
+jest.mock('@/services/accounts/AccountsService');
+jest.mock('@/services/secrets/SecretsService');
+jest.mock('@core/common');
 
 jest.mock('jose', () => {
   const jose = jest.requireActual('jose');
@@ -357,7 +359,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
     try {
       await service.request({ path: '/anything' });
     } catch {
-      expect(sentryCaptureException).toHaveBeenCalledWith(
+      expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
         ethErrors.rpc.internal({
           data: {
             reason: FireblocksErrorCode.Unknown,
@@ -368,7 +370,7 @@ describe('src/background/services/fireblocks/FireblocksService', () => {
               'Cannot read properties of undefined (reading "type")',
           },
         }),
-        SentryExceptionTypes.FIREBLOCKS,
+        Monitoring.SentryExceptionTypes.FIREBLOCKS,
       );
     }
   });

@@ -1,28 +1,29 @@
+import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
+import { wait } from '@avalabs/core-utils-sdk';
+import type {
+  CreateTransactionResponse,
+  TransactionArguments,
+  TransactionDestination,
+  TransactionResponse,
+  TransferPeerPath,
+} from 'fireblocks-sdk';
 import {
   PeerType,
   TransactionOperation,
   TransactionStatus,
 } from 'fireblocks-sdk';
-import type {
-  TransferPeerPath,
-  CreateTransactionResponse,
-  TransactionDestination,
-  TransactionResponse,
-  TransactionArguments,
-} from 'fireblocks-sdk';
-import { wait } from '@avalabs/core-utils-sdk';
-import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 
 import { wrapError } from '@core/utils';
 
-import { BtcTransactionRequest, SigningResult } from '@core/types/src/models';
 import {
+  BtcTransactionRequest,
   FireblocksErrorCode,
+  SigningResult,
   TRANSACTION_POLLING_INTERVAL_MS,
   TX_SUBMISSION_FAILURE_STATUSES,
-} from '@core/types/src/models';
-import { FireblocksService } from './FireblocksService';
+} from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
+import { FireblocksService } from './FireblocksService';
 
 /**
  * Class used to dispatch BTC transactions using Fireblocks API.

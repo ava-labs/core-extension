@@ -1,7 +1,7 @@
 import {
   BTC_ACCESS_ERROR_PREFIX,
   FireblocksBtcAccessErrorCode,
-} from '@core/types/src/models';
+} from '@core/types';
 import getFireblocksBtcAccessErrorCode from './getFireblocksBtcAccessErrorCode';
 
 describe('src/background/services/fireblocks/utils/getFireblocksBtcAccessErrorCode', () => {

@@ -1,15 +1,14 @@
 import { importPKCS8, KeyLike } from 'jose';
 import { singleton } from 'tsyringe';
 
-import { SecretType } from '../secrets/models';
-import { SecretsService } from '../secrets/SecretsService';
-
+import { AccountsService } from '@/services/accounts/AccountsService';
+import { SecretsService } from '@/services/secrets/SecretsService';
 import {
-  FireblocksBtcAccessError,
-  FireblocksBtcAccessErrorCode,
-  FireblocksSecretsProvider,
-} from '@core/types/src/models';
-import { AccountsService } from '../accounts/AccountsService';
+	FireblocksBtcAccessError,
+	FireblocksBtcAccessErrorCode,
+	FireblocksSecretsProvider,
+	SecretType,
+} from '@core/types';
 
 @singleton()
 export class FireblocksSecretsService implements FireblocksSecretsProvider {

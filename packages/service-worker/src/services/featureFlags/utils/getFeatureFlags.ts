@@ -1,5 +1,5 @@
-import { FeatureGates, DISABLED_FLAG_VALUES } from '../models';
-
+import { FeatureGates } from '@core/types';
+import { DISABLED_FLAG_VALUES } from '../models';
 export async function getFeatureFlags(
   token?: string,
   userId?: string,

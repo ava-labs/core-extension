@@ -1,4 +1,4 @@
-import { waitForIntervalRuns } from '@src/tests/test-utils';
+import { waitForIntervalRuns } from '@shared/tests/test-utils';
 import { PeerType, TransactionStatus } from 'fireblocks-sdk';
 import { FireblocksBTCSigner } from './FireblocksBTCSigner';
 import { FireblocksService } from './FireblocksService';
@@ -6,8 +6,8 @@ import {
   FireblocksErrorCode,
   KnownAddressDictionary,
   TRANSACTION_POLLING_INTERVAL_MS,
-} from '@core/types/src/models';
-import { CommonError } from 'packages/utils/src/errors';
+	CommonError,
+} from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 
 jest.mock('@avalabs/core-utils-sdk');
@@ -17,7 +17,7 @@ jest.mock('ethers', () => ({
   sha256: jest.fn().mockReturnValue('0x1234'),
 }));
 
-jest.mock('@src/monitoring/sentryCaptureException');
+jest.mock('@core/utils');
 
 jest.mock('jose', () => {
   const jose = jest.requireActual('jose');
