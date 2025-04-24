@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import { SendErrorMessage } from '@core/utils';
+import { SendErrorMessage } from '@core/types';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 import {

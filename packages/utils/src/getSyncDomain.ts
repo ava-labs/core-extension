@@ -1,6 +1,6 @@
 import { runtime } from 'webextension-polyfill';
 
-import { SYNCED_DOMAINS } from 'packages/common/src/constants';
+import { SYNCED_DOMAINS } from '@core/common';
 
 export const isSyncDomain = (
   domain: string,

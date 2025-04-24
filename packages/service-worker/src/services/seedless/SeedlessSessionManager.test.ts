@@ -1,6 +1,6 @@
 import { CubeSigner, SignerSession } from '@cubist-labs/cubesigner-sdk';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
-import { SeedlessEvents } from './models';
+import { SeedlessEvents } from '@core/types/src/models';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';

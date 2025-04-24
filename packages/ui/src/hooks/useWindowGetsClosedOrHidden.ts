@@ -1,7 +1,7 @@
+import { ContextContainer } from '@core/types';
 import {
-  ContextContainer,
   useIsSpecificContextContainer,
-} from '@src/hooks/useIsSpecificContextContainer';
+} from './useIsSpecificContextContainer';
 import { useEffect } from 'react';
 import { filter, first, fromEventPattern, merge } from 'rxjs';
 

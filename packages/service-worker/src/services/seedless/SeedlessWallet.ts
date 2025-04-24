@@ -30,7 +30,7 @@ import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { Transaction } from 'bitcoinjs-lib';
 import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
 import { Network } from '../network/models';
-import { CoreApiError } from './models';
+import { CoreApiError } from '@core/types/src/models';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { isTokenExpiredError } from './utils';
 import { SeedlessMfaService } from './SeedlessMfaService';

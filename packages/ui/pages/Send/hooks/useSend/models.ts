@@ -16,7 +16,7 @@ import {
 
 import { Account } from '@core/service-worker';
 import { EnsureDefined } from '@core/service-worker';
-import { SendErrorMessage } from '@core/utils';
+import { SendErrorMessage } from '@core/types';
 import {
   NetworkTokenWithBalance,
   TokenWithBalanceAVM,

@@ -141,13 +141,6 @@ export interface AccessWalletMultipleInput {
   key: string;
 }
 
-export enum KeystoreError {
-  InvalidPassword = 'keystore-invalid-password',
-  InvalidVersion = 'keystore-invalid-version',
-  NoNewWallets = 'keystore-no-new-wallets',
-  Unknown = 'keystore-unknown-error',
-}
-
 export type KeystoreFileContentInfo = {
   seedPhrasesCount: number;
   privateKeysCount: number;

@@ -16,7 +16,7 @@ import {
   AddPrimaryWalletSecrets,
   WalletDetails,
   WalletEvents,
-} from '../wallet/models';
+} from '@core/types/src/models';
 import {
   AddressPublicKeyJson,
   Curve,

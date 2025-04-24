@@ -18,7 +18,7 @@ import { buildRpcCall } from '@src/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
 import { Account } from '../../accounts/models';
 import { AddressPublicKey } from '../../secrets/AddressPublicKey';
-import { PubKeyType } from '../../wallet/models';
+import { PubKeyType } from '@core/types/src/models';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
 jest.mock('../../secrets/SecretsService');

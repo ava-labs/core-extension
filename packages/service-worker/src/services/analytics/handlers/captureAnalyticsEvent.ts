@@ -4,7 +4,7 @@ import { injectable } from 'tsyringe';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { AnalyticsServicePosthog } from '../AnalyticsServicePosthog';
 import { AnalyticsCapturedEvent } from '../models';
-import { FeatureGates } from '../../featureFlags/models';
+import { FeatureGates } from '@core/types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ANALYTICS_CAPTURE_EVENT,

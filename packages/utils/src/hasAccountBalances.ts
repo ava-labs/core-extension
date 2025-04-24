@@ -1,6 +1,5 @@
-import { Account } from '@core/service-worker';
-import { Balances } from '@core/service-worker';
-import getAllAddressesForAccount from './getAllAddressesForAccount';
+import { Account, Balances } from '@core/types';
+import { getAllAddressesForAccount } from '@core/utils';
 
 export function hasAccountBalances(
   balances: Balances,

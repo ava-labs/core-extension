@@ -10,7 +10,7 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { SettingsService } from '../../settings/SettingsService';
 import { NetworkService } from '../../network/NetworkService';
 import { SeedlessOnboardingHandler } from './seedlessOnboardingHandler';
-import { SeedlessAuthProvider } from '../../wallet/models';
+import { SeedlessAuthProvider } from '@core/types/src/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import {
   MemorySessionStorage,

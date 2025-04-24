@@ -4,16 +4,8 @@ import {
   BridgeTransfer,
   ChainAssetMap,
 } from '@avalabs/bridge-unified';
-import { FeatureGates } from '../featureFlags/models';
+import { FeatureGates } from '@core/types';
 
-export enum UnifiedBridgeError {
-  UnknownAsset = 'unknown-asset',
-  AmountLessThanFee = 'amount-less-than-fee',
-  InvalidFee = 'invalid-fee',
-  UnsupportedNetwork = 'unsupported-network',
-  InvalidTxPayload = 'invalid-tx-payload',
-  NonBitcoinAccount = 'non-bitcoin-account',
-}
 
 export type UnifiedBridgeState = {
   pendingTransfers: Record<string, BridgeTransfer>;

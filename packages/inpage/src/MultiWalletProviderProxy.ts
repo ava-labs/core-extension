@@ -3,11 +3,16 @@ import { ethErrors } from 'eth-rpc-errors';
 import { Maybe } from '@avalabs/core-utils-sdk';
 import { EVMProvider } from '@avalabs/evm-module/dist/provider';
 
-import {
+import type {
   DAppProviderRequest,
-  type JsonRpcRequestPayload,
-  type JsonRpcResponse,
+  JsonRpcRequestPayload,
+  JsonRpcResponse,
 } from '@core/service-worker';
+
+const CONNECT_METHODS = [
+  'eth_requestAccounts',
+  'wallet_requestAccountPermission',
+] as const as DAppProviderRequest[];
 
 export class MultiWalletProviderProxy extends EventEmitter {
   #_providers: EVMProvider[] = [];
@@ -142,11 +147,7 @@ export class MultiWalletProviderProxy extends EventEmitter {
     const { method } = args;
 
     // trigger wallet selection flow at connect in case multiple providers are available
-    if (
-      (method === DAppProviderRequest.CONNECT_METHOD ||
-        method === DAppProviderRequest.WALLET_CONNECT) &&
-      this.#_providers.length > 1
-    ) {
+    if (CONNECT_METHODS.includes(method) && this.#_providers.length > 1) {
       await this.#toggleWalletSelection();
     }
 

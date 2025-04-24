@@ -36,7 +36,7 @@ module.exports = (env, argv) => {
     mode: 'development',
     devtool: 'hidden-source-map',
     entry: {
-      inpage: path.join(__dirname, 'inpage.js'),
+      inpage: path.join(__dirname, 'inpage.ts'),
     },
     output: {
       path: path.join(__dirname, 'dist/js'),

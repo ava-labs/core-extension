@@ -31,7 +31,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { resolve, wait } from '@avalabs/core-utils-sdk';
 import { Network as EthersNetwork } from 'ethers';
-import { SigningResult } from '../wallet/models';
+import { SigningResult } from '@core/types/src/models';
 import { getExponentialBackoffDelay } from '@core/utils';
 import { getProviderForNetwork } from '@core/utils';
 import {
@@ -48,7 +48,7 @@ import {
   chainIdToCaip,
   decorateWithCaipId,
 } from '@core/utils';
-import { getSyncDomain, isSyncDomain } from './utils/getSyncDomain';
+import { getSyncDomain, isSyncDomain } from '@core/utils/src/getSyncDomain';
 import { isSolanaNetwork } from './utils/isSolanaNetwork';
 
 @singleton()

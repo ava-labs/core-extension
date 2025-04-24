@@ -9,7 +9,7 @@ import {
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
-import { AddPrimaryWalletSecrets, AvalancheTransactionRequest } from './models';
+import { AddPrimaryWalletSecrets, AvalancheTransactionRequest } from '@core/types/src/models';
 import { AVALANCHE_XP_TEST_NETWORK } from '@avalabs/core-chains-sdk';
 import {
   BitcoinLedgerWallet,

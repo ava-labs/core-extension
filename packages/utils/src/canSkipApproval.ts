@@ -1,7 +1,7 @@
-import { isSyncDomain } from '@core/service-worker';
-
-import { isActiveTab } from './isActiveTab';
 import { runtime } from 'webextension-polyfill';
+
+import { isSyncDomain } from './getSyncDomain';
+import { isActiveTab } from './isActiveTab';
 
 type SkipApprovalOptions = {
   allowInactiveTabs?: boolean;

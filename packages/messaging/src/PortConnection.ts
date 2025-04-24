@@ -1,8 +1,7 @@
 import { Runtime } from 'webextension-polyfill';
 import { AbstractConnection } from './AbstractConnection';
 import { Message } from './models';
-import { serializeToJSON } from 'packages/messaging/src/serialization/serialize';
-import { deserializeFromJSON } from 'packages/messaging/src/serialization/deserialize';
+import { serializeToJSON, deserializeFromJSON} from './serialization';
 
 export class PortConnection extends AbstractConnection {
   #port: Runtime.Port;

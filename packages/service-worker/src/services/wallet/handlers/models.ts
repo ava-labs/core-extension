@@ -1,6 +1,7 @@
 import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
+import { PubKeyType } from '@core/types';
+
 import { SecretType } from '../../secrets/models';
-import { PubKeyType } from '../models';
 
 export interface DisplayData_BitcoinSendTx {
   from: string;
@@ -33,9 +34,6 @@ export type ImportWalletResult = {
   id: string;
 };
 
-export enum SeedphraseImportError {
-  ExistingSeedphrase = 'existing-seedphrase',
-}
 
 export type TxDisplayOptions = {
   customApprovalScreenTitle?: string;

@@ -1,6 +1,6 @@
 import { t } from 'i18next';
 
-import { SendErrorMessage } from '@core/utils';
+import { SendErrorMessage } from '@core/types';
 
 export function getSendErrorMessage(
   key: SendErrorMessage,

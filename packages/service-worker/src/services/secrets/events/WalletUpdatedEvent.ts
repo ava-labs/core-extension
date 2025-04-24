@@ -1,4 +1,4 @@
-import { WalletEvents } from '../../wallet/models';
+import { WalletEvents } from '@core/types/src/models';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,

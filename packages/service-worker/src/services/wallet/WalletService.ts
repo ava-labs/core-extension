@@ -9,7 +9,7 @@ import {
   WalletDetails,
   SUPPORTED_PRIMARY_SECRET_TYPES,
   isSolanaSigningRequest,
-} from './models';
+} from '@core/types/src/models';
 import {
   MessageParams,
   MessageType,

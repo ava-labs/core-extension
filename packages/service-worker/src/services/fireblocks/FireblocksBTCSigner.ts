@@ -15,7 +15,7 @@ import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 
 import { wrapError } from '@core/utils';
 
-import { BtcTransactionRequest, SigningResult } from '../wallet/models';
+import { BtcTransactionRequest, SigningResult } from '@core/types/src/models';
 import {
   FireblocksErrorCode,
   TRANSACTION_POLLING_INTERVAL_MS,

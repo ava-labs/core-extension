@@ -1,6 +1,6 @@
 import { ACCOUNTS_STORAGE_KEY } from '../../accounts/models';
 import { WALLET_STORAGE_ENCRYPTION_KEY } from '../models';
-import { WALLET_STORAGE_KEY } from '../../wallet/models';
+import { WALLET_STORAGE_KEY } from '@core/types/src/models';
 import { NETWORK_STORAGE_KEY } from '../../network/models';
 import accounts_v2 from './migrations/accounts_v2';
 import wallet_v2 from './migrations/wallet_v2';

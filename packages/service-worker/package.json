@@ -2,6 +2,7 @@
   "name": "@core/service-worker",
   "packageManager": "yarn@4.7.0",
   "main": "src/index.ts",
+  "sideEffects": false,
   "dependencies": {
     "@avalabs/avalanche-module": "1.6.2",
     "@avalabs/avalanchejs": "4.2.0-alpha.1",

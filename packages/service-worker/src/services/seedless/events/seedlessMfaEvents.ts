@@ -6,7 +6,7 @@ import {
   ExtensionEventEmitter,
 } from '../../../connections/models';
 
-import { SeedlessEvents } from '../models';
+import { SeedlessEvents } from '@core/types/src/models';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 @singleton()

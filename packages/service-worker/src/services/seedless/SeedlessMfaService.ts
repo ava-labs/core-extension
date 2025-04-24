@@ -27,7 +27,7 @@ import {
   SeedlessEvents,
   TOTP_ISSUER,
   TotpResetChallenge,
-} from './models';
+} from '@core/types/src/models';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SecretsService } from '../secrets/SecretsService';
 import { isFailedMfaError, mapMfasToRecoveryMethods } from './utils';

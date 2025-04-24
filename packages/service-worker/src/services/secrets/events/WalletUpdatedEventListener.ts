@@ -1,5 +1,5 @@
 import { ExtensionConnectionEvent } from '../../../connections/models';
-import { WalletDetails, WalletEvents } from '../../wallet/models';
+import { WalletDetails, WalletEvents } from '@core/types/src/models';
 
 export function walletStateChangedEventListener(
   evt: ExtensionConnectionEvent<WalletDetails[]>,

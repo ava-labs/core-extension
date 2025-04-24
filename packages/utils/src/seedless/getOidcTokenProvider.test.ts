@@ -1,4 +1,4 @@
-import { SeedlessAuthProvider } from '../../../service-worker/src/services/wallet/models';
+import { SeedlessAuthProvider } from '@core/types/src/models';
 import { authenticateWithApple } from './authenticateWithApple';
 import { authenticateWithGoogle } from './authenticateWithGoogle';
 import { getOidcTokenProvider } from './getOidcTokenProvider';

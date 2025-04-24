@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { resolve } from '@core/utils';
 import { FeatureGates } from '@core/service-worker';
 import { useWalletContext } from '@src/contexts/WalletProvider';
-import { SendErrorMessage } from '@core/utils';
+import { SendErrorMessage } from '@core/types';
 import { isValidPvmAddress } from '@core/utils';
 import { stripAddressPrefix } from '@core/utils';
 import { DAppProviderRequest } from '@core/service-worker';

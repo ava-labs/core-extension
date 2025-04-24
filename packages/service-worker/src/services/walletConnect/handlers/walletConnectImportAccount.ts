@@ -11,7 +11,7 @@ import {
   IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP,
 } from '../../accounts/models';
 import { isCoreMobile } from '../utils';
-import { PubKeyType } from '../../wallet/models';
+import { PubKeyType } from '@core/types/src/models';
 import { Monitoring } from '@core/common';
 import { FIREBLOCKS_APP_NAME, WalletConnectSessionInfo } from '../models';
 

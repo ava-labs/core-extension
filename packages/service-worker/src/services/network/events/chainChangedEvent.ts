@@ -8,7 +8,7 @@ import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
 import { caipToChainId } from '@core/utils';
 import { NetworkService } from '../NetworkService';
-import { getSyncDomain } from '../utils/getSyncDomain';
+import { getSyncDomain } from '@core/utils/src/getSyncDomain';
 
 /**
  * Emits `chainChanged` events for each dApp according to EIP-1193

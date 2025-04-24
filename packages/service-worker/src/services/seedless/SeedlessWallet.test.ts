@@ -39,7 +39,7 @@ import {
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { SeedlessMfaService } from './SeedlessMfaService';
-import { MfaRequestType } from './models';
+import { MfaRequestType } from '@core/types/src/models';
 import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
 import { AddressPublicKey } from '../secrets/AddressPublicKey';
 

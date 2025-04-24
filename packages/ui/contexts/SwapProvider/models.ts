@@ -1,5 +1,5 @@
 import { Address, OptimalRate, PriceString, SwapSide } from '@paraswap/sdk';
-import { WrappedError } from '@core/utils';
+import { WrappedError } from '@core/types';
 
 /**
  * Paraswap may return both data and an error sometimes.
@@ -100,14 +100,3 @@ export type ValidTransactionResponse = {
   gas?: string;
   gasPrice?: string;
 };
-
-export enum SwapErrorCode {
-  ClientNotInitialized = 'client-not-initialized',
-  MissingParams = 'missing-params',
-  CannotFetchAllowance = 'cannot-fetch-allowance',
-  MissingContractMethod = 'missing-contract-method',
-  ApiError = 'api-error',
-  UnknownSpender = 'unknown-spender',
-  UnexpectedApiResponse = 'unexpected-api-response',
-  CannotBuildTx = 'cannot-build-tx',
-}

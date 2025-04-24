@@ -1,6 +1,6 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
-import { PubKeyType } from '../models';
+import { PubKeyType } from '@core/types/src/models';
 
 const getDerivationPath = ({
   mnemonic,

@@ -10,7 +10,8 @@ import { isAddress, Address } from '@solana/kit';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
 
-import { SendErrorMessage } from '@core/utils';
+
+import { SendErrorMessage } from '@core/types';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 
 import { SendAdapterSVM } from './models';

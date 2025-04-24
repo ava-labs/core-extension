@@ -12,7 +12,7 @@ import {
 } from '../models';
 import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
 import { AvalancheDeleteAccountsHandler } from './avalanche_deleteAccounts';
-import type { WalletDetails } from '../../wallet/models';
+import type { WalletDetails } from '@core/types/src/models';
 
 jest.mock('@src/utils/canSkipApproval');
 jest.mock('@src/background/runtime/openApprovalWindow');

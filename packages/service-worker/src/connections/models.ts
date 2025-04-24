@@ -10,7 +10,7 @@ import {
   JsonRpcRequest,
   JsonRpcRequestPayload,
 } from './dAppConnection/models';
-import { ErrorData } from '@core/utils';
+import { ErrorData } from '@core/types';
 import { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 import { DAppRequestHandler } from './dAppConnection/DAppRequestHandler';

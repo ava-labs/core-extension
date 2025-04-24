@@ -13,7 +13,7 @@ import { UserExportInitResponse } from '@cubist-labs/cubesigner-sdk';
 import { isExportRequestOutdated } from '../utils';
 import { AccountsService } from '../../accounts/AccountsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_GET_RECOVERY_PHRASE_EXPORT_STATE,
   UserExportInitResponse | undefined
 >;

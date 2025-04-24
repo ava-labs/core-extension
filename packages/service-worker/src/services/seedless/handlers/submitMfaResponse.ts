@@ -3,7 +3,7 @@ import { injectable } from 'tsyringe';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { ExtensionRequest } from '../../../connections/extensionConnection/models';
 
-import { MfaResponseData } from '../models';
+import { MfaResponseData } from '@core/types/src/models';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 type HandlerType = ExtensionRequestHandler<

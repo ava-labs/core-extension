@@ -3,7 +3,7 @@ import {
   UserExportInitResponse,
 } from '@cubist-labs/cubesigner-sdk';
 import { ArrayElement } from '../../models';
-import { MfaRequestType, RecoveryMethod } from './models';
+import { MfaRequestType, RecoveryMethod } from '@core/types/src/models';
 
 export const isTokenExpiredError = (
   err: unknown,

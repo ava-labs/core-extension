@@ -4,7 +4,7 @@ import { CubeSigner, SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 import { SecretsService } from '../secrets/SecretsService';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
-import { SeedlessEvents } from './models';
+import { SeedlessEvents } from '@core/types/src/models';
 import { isTokenExpiredError } from './utils';
 import { isFailedToFetchError } from '@core/utils';
 import { Monitoring } from '@core/common';

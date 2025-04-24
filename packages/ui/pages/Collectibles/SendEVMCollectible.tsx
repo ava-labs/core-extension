@@ -14,7 +14,7 @@ import {
 import { useQueryParams } from '@src/hooks/useQueryParams';
 import { isValidAddress } from '@core/utils';
 import { handleTxOutcome } from '@core/utils';
-import { SendErrorMessage } from '@core/utils';
+import { SendErrorMessage } from '@core/types';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 import { useEVMSend } from '../Send/hooks/useSend/useEVMSend';

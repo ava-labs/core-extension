@@ -5,7 +5,7 @@ import { SecretType } from '../../secrets/models';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 import { GetRecoveryMethodsHandler } from './getRecoveryMethods';
-import { MfaRequestType } from '../models';
+import { MfaRequestType } from '@core/types/src/models';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
 

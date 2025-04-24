@@ -16,7 +16,7 @@ import {
   CustomGasFeesProps,
   GasFeeModifier,
 } from 'packages/ui/src/components/common/CustomFees';
-import { SendErrorMessage } from '@core/utils';
+import { SendErrorMessage } from '@core/types';
 import { useConnectionContext } from '@src/contexts/ConnectionProvider';
 import { UpdateActionTxDataHandler } from '@core/service-worker';
 import { ExtensionRequest } from '@core/service-worker';

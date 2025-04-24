@@ -1,5 +1,6 @@
 import { PartialBy } from '@avalabs/vm-module-types';
-import { PubKeyType } from '@core/types';
+
+import { PubKeyType } from './wallet';
 
 export enum AccountType {
   PRIMARY = 'primary',

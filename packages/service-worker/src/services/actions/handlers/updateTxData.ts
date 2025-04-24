@@ -4,8 +4,8 @@ import {
   BtcTxUpdateFn,
   EvmTxBatchUpdateFn,
 } from '@avalabs/vm-module-types';
+import { SendErrorMessage } from '@core/types';
 
-import { SendErrorMessage } from '@core/utils';
 import { ExtensionRequest } from '../../../connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 

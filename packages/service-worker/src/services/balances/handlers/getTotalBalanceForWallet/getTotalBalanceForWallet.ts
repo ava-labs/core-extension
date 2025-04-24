@@ -1,6 +1,11 @@
 import { injectable } from 'tsyringe';
 import { Network } from '@avalabs/glacier-sdk';
 import { TokenType } from '@avalabs/vm-module-types';
+import {
+  getAllAddressesForAccounts,
+  getXPChainIds,
+  isNotNullish,
+} from '@core/utils';
 
 import { ExtensionRequest } from '../../../../connections/extensionConnection/models';
 import { ExtensionRequestHandler } from '../../../../connections/models';
@@ -20,13 +25,10 @@ import {
 import {
   calculateTotalBalanceForAccounts,
   getAccountsWithActivity,
-  getAllAddressesForAccounts,
   getIncludedNetworks,
 } from './helpers';
-import { getXPChainIds } from '@core/utils';
 import { getExtendedPublicKey } from '../../../secrets/utils';
 import { AVALANCHE_BASE_DERIVATION_PATH } from '../../../secrets/models';
-import { isNotNullish } from '@core/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,

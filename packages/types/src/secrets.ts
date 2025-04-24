@@ -1,18 +1,18 @@
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 import {
   FireblocksApiData,
   ImportedAccount,
   PrimaryAccount,
   WalletConnectAddresses,
-} from '../accounts/models';
+} from './account';
 import {
   BtcWalletPolicyDetails,
   PubKeyType,
   SeedlessAuthProvider,
-} from '@core/types/src/models';
-import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { NetworkVMType } from '@avalabs/vm-module-types';
+} from './wallet';
 
 export enum SecretType {
   // Primary wallet types

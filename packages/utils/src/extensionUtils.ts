@@ -1,7 +1,7 @@
 import browser, { Windows } from 'webextension-polyfill';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
+import { ContextContainer } from '@core/types';
 
 const NOTIFICATION_WIDTH = 375;
 const NOTIFICATION_HEIGHT = 668;

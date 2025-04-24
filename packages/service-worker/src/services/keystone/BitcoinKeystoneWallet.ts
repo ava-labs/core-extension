@@ -2,7 +2,7 @@ import { BitcoinProviderAbstract, createPsbt } from '@avalabs/core-wallets-sdk';
 import { CryptoPSBT } from '@keystonehq/bc-ur-registry-eth';
 import { Psbt, Transaction } from 'bitcoinjs-lib';
 
-import { BtcTransactionRequest } from '../wallet/models';
+import { BtcTransactionRequest } from '@core/types/src/models';
 import { KeystoneTransport } from './models';
 
 export class BitcoinKeystoneWallet {

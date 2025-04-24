@@ -7,7 +7,7 @@ export * from './hasAccountBalances';
 export * from './isAddressValid';
 export * from './isContactValid';
 export * from './logging';
-export * from './getAllAddressesForAccount';
+export * from './account';
 export * from './getEnabledBridgeTypes';
 export * from './getExplorerAddress';
 export * from './getNftMetadata';
@@ -26,7 +26,7 @@ export * from './calculateGasAndFees';
 export * from './isTokenMalicious';
 export * from './toastCardWithLink';
 export * from './updateIfDifferent';
-export * from './useWindowGetsClosedOrHidden';
+export * from '../../ui/src/hooks/useWindowGetsClosedOrHidden';
 export * from './sumByProperty';
 export * from './newsletter';
 export * from './normalizeBalance';
@@ -62,3 +62,5 @@ export * from './noop';
 export * from './number';
 export * from './truncateAddress';
 export * from './filterFalsyValues';
+export * from './blockchainConversion'
+export * from './account'
