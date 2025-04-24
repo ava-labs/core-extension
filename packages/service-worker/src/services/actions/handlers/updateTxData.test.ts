@@ -3,7 +3,7 @@ import {
 	HandlerParameters,
 	SendErrorMessage,
 } from '@core/types';
-import { matchingPayload } from '@src/tests/test-utils';
+import { matchingPayload } from '@shared/tests/test-utils';
 import { UpdateActionTxDataHandler } from './updateTxData';
 
 describe('src/background/services/actions/handlers/updateTxData', () => {

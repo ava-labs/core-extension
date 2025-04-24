@@ -9,7 +9,7 @@ import {
   DAppRequestHandler,
 } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
-import { ApprovalController } from 'packages/service-worker/src/vmModules/ApprovalController';
+import { ApprovalController } from '@/vmModules/ApprovalController';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { ActionsService } from './ActionsService';

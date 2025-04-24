@@ -1,5 +1,5 @@
 import { ExtensionRequest, FeatureGates } from '@core/types';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { CaptureAnalyticsEventHandler } from './captureAnalyticsEvent';
 
 describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
