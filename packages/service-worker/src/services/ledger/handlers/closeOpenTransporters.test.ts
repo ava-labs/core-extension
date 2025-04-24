@@ -1,6 +1,6 @@
 import { ExtensionRequest } from '@core/types';
 import { CloseLedgerTransportHandler } from './closeOpenTransporters';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/ledger/handlers/closeOpenTransporters.ts', () => {
   const request = {

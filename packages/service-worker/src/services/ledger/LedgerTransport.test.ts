@@ -1,11 +1,11 @@
 import { Subject } from 'rxjs';
 import { StatusCodes } from '@ledgerhq/hw-transport';
 import { LedgerTransport } from './LedgerTransport';
-import { DeviceRequestData, DeviceResponseData } from '@core/types';
+import { LedgerDeviceRequestData, LedgerDeviceResponseData } from '@core/types';
 
 describe('src/background/services/ledger/LedgerTransport.ts', () => {
-  let ledgerDeviceRequest$: Subject<DeviceRequestData>;
-  let ledgerDeviceResponse$: Subject<DeviceResponseData>;
+  let ledgerDeviceRequest$: Subject<LedgerDeviceRequestData>;
+  let ledgerDeviceResponse$: Subject<LedgerDeviceResponseData>;
   let ledgerTransport: LedgerTransport;
   const uuid = 'uuid';
 
@@ -13,8 +13,8 @@ describe('src/background/services/ledger/LedgerTransport.ts', () => {
     jest.resetAllMocks();
     (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
 
-    ledgerDeviceRequest$ = new Subject<DeviceRequestData>();
-    ledgerDeviceResponse$ = new Subject<DeviceResponseData>();
+    ledgerDeviceRequest$ = new Subject<LedgerDeviceRequestData>();
+    ledgerDeviceResponse$ = new Subject<LedgerDeviceResponseData>();
 
     ledgerTransport = new LedgerTransport(
       ledgerDeviceRequest$,
@@ -44,7 +44,7 @@ describe('src/background/services/ledger/LedgerTransport.ts', () => {
     ledgerDeviceResponse$.next({
       requestId: uuid,
       error: '111',
-    } as DeviceResponseData);
+    } as LedgerDeviceResponseData);
 
     await expect(prom).rejects.toThrow(
       expect.objectContaining({
@@ -63,7 +63,7 @@ describe('src/background/services/ledger/LedgerTransport.ts', () => {
     ledgerDeviceResponse$.next({
       requestId: uuid,
       result,
-    } as DeviceResponseData);
+    } as LedgerDeviceResponseData);
 
     await expect(prom).resolves.toEqual(Buffer.from(result));
     expect(requestSpy).toHaveBeenCalledWith({

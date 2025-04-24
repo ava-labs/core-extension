@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import { Subject, Subscription } from 'rxjs';
 import { singleton } from 'tsyringe';
 import { LedgerTransport } from './LedgerTransport';
-import { DeviceRequestData, DeviceResponseData, LedgerEvent } from '@core/types';
+import { LedgerEvent, LedgerDeviceRequestData, LedgerDeviceResponseData } from '@core/types';
 import LRU from 'lru-cache';
 
 const ledgerTransportLRUCache = new LRU<string, LedgerTransport>({
@@ -17,8 +17,8 @@ const ledgerTransportLRUCache = new LRU<string, LedgerTransport>({
 export class LedgerService implements OnLock, OnUnlock {
   private eventEmitter = new EventEmitter();
 
-  private ledgerDeviceRequest$ = new Subject<DeviceRequestData>();
-  private ledgerDeviceResponse$ = new Subject<DeviceResponseData>();
+  private ledgerDeviceRequest$ = new Subject<LedgerDeviceRequestData>();
+  private ledgerDeviceResponse$ = new Subject<LedgerDeviceResponseData>();
   private ledgerRequestSubscription?: Subscription;
 
   onUnlock(): void | Promise<void> {
@@ -103,7 +103,7 @@ export class LedgerService implements OnLock, OnUnlock {
     );
   }
 
-  ledgerResponse(response: DeviceResponseData) {
+  ledgerResponse(response: LedgerDeviceResponseData) {
     this.ledgerDeviceResponse$.next(response);
   }
 

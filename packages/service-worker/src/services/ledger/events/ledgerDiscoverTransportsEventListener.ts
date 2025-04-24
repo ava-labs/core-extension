@@ -1,5 +1,4 @@
-import { ExtensionConnectionEvent } from '../../../connections/models';
-import { LedgerEvent } from '@core/types';
+import { ExtensionConnectionEvent, LedgerEvent } from '@core/types';
 
 export function ledgerDiscoverTransportsEventListener(
   evt: ExtensionConnectionEvent,

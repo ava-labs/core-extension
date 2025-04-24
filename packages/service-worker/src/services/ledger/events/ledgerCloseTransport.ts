@@ -1,11 +1,11 @@
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+	LedgerEvent,
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { LedgerService } from '../LedgerService';
-import { LedgerEvent } from '@core/types';
 
 @singleton()
 export class LedgerCloseTransportEvent implements ExtensionEventEmitter {

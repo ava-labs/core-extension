@@ -1,10 +1,9 @@
 import EventEmitter from 'events';
 import LRU from 'lru-cache';
 import { Subject } from 'rxjs';
-import { DeviceResponseData } from '@core/types';
+import { LedgerEvent, LedgerDeviceResponseData } from '@core/types';
 import { LedgerService } from './LedgerService';
 import { LedgerTransport } from './LedgerTransport';
-import { LedgerEvent } from '@core/types';
 
 jest.mock('events');
 jest.mock('rxjs');
@@ -150,7 +149,7 @@ describe('src/background/services/ledger/LedgerService.ts', () => {
   });
 
   it('returns the next ledger response correctly', () => {
-    const responseMock = { foo: 'bar' } as unknown as DeviceResponseData;
+    const responseMock = { foo: 'bar' } as unknown as LedgerDeviceResponseData;
 
     ledgerService.ledgerResponse(responseMock);
     expect(ledgerDeviceResponseMock.next).toBeCalledWith(responseMock);

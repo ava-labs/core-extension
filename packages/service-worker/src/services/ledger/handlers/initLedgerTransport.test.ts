@@ -1,12 +1,12 @@
 import { ExtensionRequest } from '@core/types';
 import { InitLedgerTransportHandler } from './initLedgerTransport';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/ledger/handlers/initLedgerTransport.ts', () => {
   const transportId = '1';
   const request = {
     id: '123',
-    method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
+    method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
     params: [transportId],
   } as any;
 

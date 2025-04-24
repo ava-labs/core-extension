@@ -1,7 +1,9 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  LEDGER_VERSION_WARNING_WAS_CLOSED,
+} from '@core/types';
 import { injectable } from 'tsyringe';
-import { LEDGER_VERSION_WARNING_WAS_CLOSED } from '@core/types';
 import { StorageService } from '../../storage/StorageService';
 
 type HandlerType = ExtensionRequestHandler<

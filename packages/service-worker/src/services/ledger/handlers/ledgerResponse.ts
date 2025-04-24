@@ -1,13 +1,15 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  LedgerDeviceResponseData,
+} from '@core/types';
 import { injectable } from 'tsyringe';
 import { LedgerService } from '../LedgerService';
-import { DeviceResponseData } from '@core/types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_RESPONSE,
   true,
-  [response: DeviceResponseData]
+  [response: LedgerDeviceResponseData]
 >;
 
 @injectable()

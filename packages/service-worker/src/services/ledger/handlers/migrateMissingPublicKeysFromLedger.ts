@@ -5,14 +5,14 @@ import {
   getPubKeyFromTransport,
   getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { injectable } from 'tsyringe';
 import {
-  AVALANCHE_BASE_DERIVATION_PATH,
+  ExtensionRequest,
+  ExtensionRequestHandler,
   AddressPublicKeyJson,
   SecretType,
-} from '../../secrets/models';
+  AVALANCHE_BASE_DERIVATION_PATH,
+} from '@core/types';
+import { injectable } from 'tsyringe';
 import { SecretsService } from '../../secrets/SecretsService';
 import { LedgerService } from '../LedgerService';
 import { AccountsService } from '../../accounts/AccountsService';

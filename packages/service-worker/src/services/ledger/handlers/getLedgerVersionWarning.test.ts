@@ -1,7 +1,6 @@
-import { ExtensionRequest } from '@core/types';
-import { LEDGER_VERSION_WARNING_WAS_CLOSED } from '@core/types';
+import { ExtensionRequest, LEDGER_VERSION_WARNING_WAS_CLOSED } from '@core/types';
 import { GetLedgerVersionWarningHandler } from './getLedgerVersionWarning';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/ledger/handlers/getLedgerVersionWarning.ts', () => {
   const request = {

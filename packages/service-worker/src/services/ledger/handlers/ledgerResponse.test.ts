@@ -1,6 +1,6 @@
 import { ExtensionRequest } from '@core/types';
 import { LedgerResponseHandler } from './ledgerResponse';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/ledger/handlers/ledgerResponse.ts', () => {
   const response = { foo: 'bar' };

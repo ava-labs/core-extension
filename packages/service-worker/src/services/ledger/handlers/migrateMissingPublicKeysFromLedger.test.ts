@@ -4,21 +4,21 @@ import {
   getPubKeyFromTransport,
   getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from '@core/types';
 import {
+	Account,
+	ExtensionRequest,
   AVALANCHE_BASE_DERIVATION_PATH,
   AddressPublicKeyJson,
   EVM_BASE_DERIVATION_PATH,
   SecretType,
-} from '../../secrets/models';
+	PubKeyType,
+} from '@core/types';
 import { SecretsService } from '../../secrets/SecretsService';
 import { LedgerTransport } from '../LedgerTransport';
 import { MigrateMissingPublicKeysFromLedgerHandler } from './migrateMissingPublicKeysFromLedger';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
-import { Account } from '../../accounts/models';
 import { AddressPublicKey } from '../../secrets/AddressPublicKey';
-import { PubKeyType } from '@core/types';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
 jest.mock('../../secrets/SecretsService');

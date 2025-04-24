@@ -4,12 +4,12 @@ import Transport, {
   TransportStatusError,
 } from '@ledgerhq/hw-transport';
 import { filter, firstValueFrom, map, Subject } from 'rxjs';
-import { DeviceResponseData } from '@core/types';
+import { LedgerDeviceResponseData } from '@core/types';
 
 export class LedgerTransport extends Transport {
   constructor(
     private deviceRequest: Subject<any>,
-    private deviceResponse: Subject<DeviceResponseData>,
+    private deviceResponse: Subject<LedgerDeviceResponseData>,
     private connectionUUID: string,
   ) {
     super();
