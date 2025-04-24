@@ -1,5 +1,8 @@
-import { ExtensionConnectionEvent } from '../../../connections/models';
-import { ContactsState, ContactsEvents } from '@core/types/src/models';
+import {
+  ContactsState,
+  ContactsEvents,
+  ExtensionConnectionEvent,
+} from '@core/types';
 
 export function contactsUpdatedEventListener(
   evt: ExtensionConnectionEvent<ContactsState>,

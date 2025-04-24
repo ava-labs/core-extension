@@ -40,3 +40,4 @@ export * from './util-types';
 export * from './wallet-connect';
 export * from './wallet';
 export * from './web3';
+export * from './transaction';

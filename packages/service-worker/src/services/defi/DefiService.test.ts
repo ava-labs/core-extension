@@ -6,7 +6,7 @@ import {
   DefiPortfolio,
   DefiProtocol,
   DefiServiceEvents,
-} from '@core/types/src/models';
+} from '@core/types';
 
 const mockDebankService = {
   getUserProtocols: jest.fn(),

@@ -4,10 +4,10 @@ import { EventEmitter } from 'events';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+  CurrencyServiceEvents,
+} from '@core/types';
 
 import { CurrencyService } from '../CurrencyService';
-import { CurrencyServiceEvents } from '@core/types/src/models';
 
 @singleton()
 export class CurrencyRatesUpdatedEvents implements ExtensionEventEmitter {

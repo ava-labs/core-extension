@@ -1,8 +1,7 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { DefiProtocol, ExtensionRequest } from '@core/types';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { DefiService } from '../DefiService';
 import { GetDefiPortfolioHandler } from './getDefiPortfolio';
-import { DefiProtocol } from '@core/types/src/models';
-import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/defi/handlers/getDefiPortfolio.ts', () => {
   beforeEach(() => {

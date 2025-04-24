@@ -1,9 +1,8 @@
-import { DomainMetadata } from '@core/types';
-import { TxDisplayOptions } from '../models';
+import { EnsureDefined } from './util-types';
+import { DomainMetadata } from './domain-metadata';
 import { TokenType } from '@avalabs/vm-module-types';
-import { EnsureDefined } from '../../../../models';
 
-export enum AvalancheChainStrings {
+	export enum AvalancheChainStrings {
   AVM = 'X Chain',
   PVM = 'P Chain',
   EVM = 'C Chain',
@@ -222,3 +221,11 @@ export interface EthSendTransactionParamsWithGas
   gasLimit: string;
   maxFeePerGas: string;
 }
+
+export type TxDisplayOptions = {
+  customApprovalScreenTitle?: string;
+  contextInformation?: {
+    title: string;
+    notice?: string;
+  };
+};

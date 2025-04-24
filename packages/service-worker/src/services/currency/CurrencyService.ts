@@ -11,7 +11,7 @@ import {
   CurrencyExchangeRatesState,
   CurrencyServiceEvents,
   ExchangeRatesSchema,
-} from '@core/types/src/models';
+} from '@core/types';
 
 @singleton()
 export class CurrencyService implements OnLock, OnUnlock {

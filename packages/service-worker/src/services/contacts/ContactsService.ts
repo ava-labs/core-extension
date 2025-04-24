@@ -1,7 +1,11 @@
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
-import { ContactsEvents, CONTACTS_STORAGE_KEY, ContactsState } from '@core/types/src/models';
+import {
+  ContactsEvents,
+  CONTACTS_STORAGE_KEY,
+  ContactsState,
+} from '@core/types';
 import type { Contact } from '@avalabs/types';
 import { isContactValid } from '@core/utils';
 

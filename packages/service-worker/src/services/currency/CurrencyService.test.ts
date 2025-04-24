@@ -5,7 +5,7 @@ import {
   CURRENCY_EXCHANGE_RATES_STORAGE_KEY,
   CURRENCY_EXCHANGE_RATES_URL,
   CurrencyServiceEvents,
-} from '@core/types/src/models';
+} from '@core/types';
 
 const mockStorageService = {
   saveUnencrypted: jest.fn(),

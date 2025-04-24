@@ -1,8 +1,10 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { CurrencyExchangeRatesState } from '@core/types/src/models';
+import {
+  CurrencyExchangeRatesState,
+  ExtensionRequest,
+} from '@core/types';
 import { CurrencyService } from '../CurrencyService';
 import { GetCurrencyExchangeRatesHandler } from './getCurrencyExchangeRates';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/currency/handlers/getCurrencyExchangeRates.ts', () => {
   const currencyService = (state?: CurrencyExchangeRatesState) =>

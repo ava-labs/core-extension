@@ -4,9 +4,9 @@ import { EventEmitter } from 'events';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+  DefiServiceEvents,
+} from '@core/types';
 
-import { DefiServiceEvents } from '@core/types/src/models';
 import { DefiService } from '../DefiService';
 
 @singleton()

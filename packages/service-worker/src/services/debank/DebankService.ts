@@ -13,9 +13,6 @@ import {
   DefiRewardItem,
   DefiItemGroup,
   DefiPerpetualItem,
-} from '@core/types/src/models';
-
-import {
   DebankChain,
   DebankComplexProtocol,
   DebankPortfolioItemObject,
@@ -23,15 +20,14 @@ import {
   DebankPortfolioTokenItem,
   DebankTxPreExecutionResult,
   ExplainTxResponse,
-} from '@core/types/src/models';
-import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import { FeatureGates } from '../featureFlags/models';
-import { Network } from '@avalabs/core-chains-sdk';
-import { txParamsToTransactionData } from './utils/txParamsToTransactionData';
-import {
+  FeatureGates,
   EthSendTransactionParamsWithGas,
   TransactionDisplayValues,
-} from '../wallet/handlers/eth_sendTransaction/models';
+} from '@core/types';
+
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
+import { Network } from '@avalabs/core-chains-sdk';
+import { txParamsToTransactionData } from './utils/txParamsToTransactionData';
 import { debankActionsToTransactionActions } from './utils/debankActionsToTransactionActions';
 import { mapTokenItemToTransactionToken } from './utils/mapTokenItemToTransactionToken';
 import { mapNftToTransactionNft } from './utils/mapNftToTransactionNft';

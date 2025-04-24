@@ -1,12 +1,14 @@
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '@core/types/src/models';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
+import {
+	Action,
+  DAppRequestHandler,
+  DAppProviderRequest,
+  DEFERRED_RESPONSE,
+} from '@core/types';
 import { isContactValid } from '@core/utils';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { Action } from '@core/types/src/models';
 import { ContactsService } from '../ContactsService';
-import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 
 @injectable()
 export class AvalancheUpdateContactHandler extends DAppRequestHandler {

@@ -1,5 +1,8 @@
-import { ExtensionConnectionEvent } from '../../../connections/models';
-import { DefiPortfolioUpdatedEvent, DefiServiceEvents } from '@core/types/src/models';
+import {
+  DefiPortfolioUpdatedEvent,
+  DefiServiceEvents,
+	ExtensionConnectionEvent,
+} from '@core/types';
 
 export function defiPortfolioUpdatedEventListener(
   evt: ExtensionConnectionEvent<DefiPortfolioUpdatedEvent>,

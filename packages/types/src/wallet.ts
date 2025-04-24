@@ -176,3 +176,24 @@ export type AddPrimaryWalletSecrets = DistributiveOmit<
   PrimaryWalletSecretsWithOptionalName,
   'id'
 >;
+
+export type ImportSeedphraseWalletParams = {
+  mnemonic: string;
+  name?: string;
+};
+
+export type ImportLedgerWalletParams = {
+  xpub: string;
+  xpubXP: string;
+  pubKeys?: PubKeyType[];
+  secretType: SecretType.Ledger | SecretType.LedgerLive;
+  name?: string;
+  dryRun?: boolean;
+  numberOfAccountsToCreate?: number;
+};
+
+export type ImportWalletResult = {
+  type: SecretType;
+  name?: string;
+  id: string;
+};

@@ -1,5 +1,8 @@
-import { ExtensionConnectionEvent } from '../../../connections/models';
-import { CurrencyServiceEvents, CurrencyExchangeRatesState } from '@core/types/src/models';
+import {
+  CurrencyServiceEvents,
+  CurrencyExchangeRatesState,
+	ExtensionConnectionEvent,
+} from '@core/types';
 
 export function currencyRatesUpdatedEventListener(
   evt: ExtensionConnectionEvent<CurrencyExchangeRatesState['rates']>,

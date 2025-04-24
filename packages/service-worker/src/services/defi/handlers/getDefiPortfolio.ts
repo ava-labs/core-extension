@@ -1,9 +1,11 @@
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  DefiPortfolio,
+} from '@core/types';
 
-import { DefiPortfolio } from '@core/types/src/models';
 import { DefiService } from '../DefiService';
 
 type HandlerType = ExtensionRequestHandler<
