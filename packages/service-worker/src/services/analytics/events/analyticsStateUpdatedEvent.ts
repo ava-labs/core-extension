@@ -1,11 +1,11 @@
-import { AnalyticsEvents } from '@core/types/src/models';
 import {
-  ExtensionConnectionEvent,
-  ExtensionEventEmitter,
-} from '../../../connections/models';
+	AnalyticsEvents,
+	ExtensionConnectionEvent,
+	ExtensionEventEmitter,
+} from '@core/types';
 import { EventEmitter } from 'events';
-import { AnalyticsService } from '../AnalyticsService';
 import { singleton } from 'tsyringe';
+import { AnalyticsService } from '../AnalyticsService';
 
 @singleton()
 export class AnalyticsUpdatedEvents implements ExtensionEventEmitter {

@@ -1,7 +1,6 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { CaptureAnalyticsEventHandler } from './captureAnalyticsEvent';
-import { FeatureGates } from '../../featureFlags/models';
+import { ExtensionRequest, FeatureGates } from '@core/types';
 import { buildRpcCall } from '@src/tests/test-utils';
+import { CaptureAnalyticsEventHandler } from './captureAnalyticsEvent';
 
 describe('background/services/analytics/handlers/captureAnalyticsEvent', () => {
   const featureFlagServiceMock = {

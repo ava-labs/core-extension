@@ -4,9 +4,13 @@ import { singleton } from 'tsyringe';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { SettingsService } from '../settings/SettingsService';
 import { AnalyticsService } from './AnalyticsService';
-import { AnalyticsCapturedEvent, AnalyticsState, BlockchainId } from '@core/types/src/models';
-import { FeatureGates } from '../featureFlags/models';
-import { AnalyticsConsent } from '@core/types/src/models';
+import {
+  AnalyticsCapturedEvent,
+  AnalyticsState,
+  BlockchainId,
+  FeatureGates,
+  AnalyticsConsent,
+} from '@core/types';
 import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
 import { Monitoring } from '@core/common';
 import { ChainId } from '@avalabs/core-chains-sdk';

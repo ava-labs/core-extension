@@ -1,16 +1,16 @@
-import { OnLock, OnStorageReady } from '../../runtime/lifecycleCallbacks';
-import { EventEmitter } from 'events';
-import { singleton } from 'tsyringe';
-import { StorageService } from '../storage/StorageService';
 import {
+  ANALYTICS_SESSION_KEY,
+  ANALYTICS_STORAGE_KEY,
+  ANALYTICS_UNENCRYPTED_STORAGE_KEY,
   AnalyticsEvents,
   AnalyticsSessionState,
   AnalyticsState,
   AnalyticsUnencryptedState,
-  ANALYTICS_SESSION_KEY,
-  ANALYTICS_STORAGE_KEY,
-  ANALYTICS_UNENCRYPTED_STORAGE_KEY,
-} from '@core/types/src/models';
+} from '@core/types';
+import { EventEmitter } from 'events';
+import { singleton } from 'tsyringe';
+import { OnLock, OnStorageReady } from '../../runtime/lifecycleCallbacks';
+import { StorageService } from '../storage/StorageService';
 
 @singleton()
 export class AnalyticsService implements OnStorageReady, OnLock {

@@ -1,21 +1,25 @@
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import { FeatureGates } from '../featureFlags/models';
+import { AnalyticsConsent, BlockchainId, FeatureGates } from '@core/types';
 
 import { HttpClient } from '@avalabs/core-utils-sdk';
 import { AnalyticsServicePosthog } from './AnalyticsServicePosthog';
 import { AnalyticsService } from './AnalyticsService';
 import { SettingsService } from '../settings/SettingsService';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
+import { Monitoring } from '@core/common';
 import browser from 'webextension-polyfill';
 import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
-import { AnalyticsConsent } from '@core/types/src/models';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { BlockchainId } from '@core/types/src/models';
 
 jest.mock('@avalabs/core-utils-sdk');
-jest.mock('@src/monitoring/sentryCaptureException');
+jest.mock('@core/common', () => ({
+  ...jest.requireActual('@core/common'),
+  Monitoring: {
+    sentryCaptureException: jest.fn(),
+    SentryExceptionTypes: {
+      ANALYTICS: 'analytics',
+    },
+  },
+}));
 jest.mock('webextension-polyfill');
 jest.mock('./utils/encryptAnalyticsData');
 
@@ -175,9 +179,9 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
       it('captures the error to Sentry', async () => {
         await service.captureEvent(dummyEvent);
 
-        expect(sentryCaptureException).toHaveBeenCalledWith(
+        expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
           new Error('Analytics State is not available.'),
-          SentryExceptionTypes.ANALYTICS,
+          Monitoring.SentryExceptionTypes.ANALYTICS,
         );
       });
     });
@@ -206,9 +210,9 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
       it('captures the error to Sentry', async () => {
         await service.captureEvent(dummyEvent);
 
-        expect(sentryCaptureException).toHaveBeenCalledWith(
+        expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
           new Error('Analytics State is not available.'),
-          SentryExceptionTypes.ANALYTICS,
+          Monitoring.SentryExceptionTypes.ANALYTICS,
         );
       });
     });

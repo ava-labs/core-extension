@@ -1,10 +1,12 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  AnalyticsCapturedEvent,
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  FeatureGates,
+} from '@core/types';
 import { injectable } from 'tsyringe';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { AnalyticsServicePosthog } from '../AnalyticsServicePosthog';
-import { AnalyticsCapturedEvent } from '@core/types/src/models';
-import { FeatureGates } from '@core/types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
