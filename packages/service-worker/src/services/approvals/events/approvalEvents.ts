@@ -2,12 +2,12 @@ import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 
 import {
+	ApprovalEvent,
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+} from '@core/types';
 
 import { ApprovalService } from '../ApprovalService';
-import { ApprovalEvent } from '@core/types/src/models';
 
 @singleton()
 export class ApprovalEvents implements ExtensionEventEmitter {

@@ -1,12 +1,12 @@
 import browser from 'webextension-polyfill';
 
-import { openExtensionNewWindow } from 'packages/utils/src/extensionUtils';
+import { openExtensionNewWindow } from '@core/utils';
 
 import { ActionsService } from '../actions/ActionsService';
 import { ApprovalService } from './ApprovalService';
-import { ApprovalEvent } from '@core/types/src/models';
+import { ApprovalEvent } from '@core/types';
 
-jest.mock('@src/utils/extensionUtils');
+jest.mock('@core/utils');
 
 describe('src/background/services/approvals/ApprovalService', () => {
   let service: ApprovalService;

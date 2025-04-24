@@ -3,10 +3,9 @@ import { singleton } from 'tsyringe';
 import browser from 'webextension-polyfill';
 
 import { openExtensionNewWindow } from '@core/utils';
+import { Action, ApprovalEvent, MultiTxAction } from '@core/types';
 
-import { Action, MultiTxAction } from '@core/types/src/models';
 import { ActionsService } from '../actions/ActionsService';
-import { ApprovalEvent } from '@core/types/src/models';
 
 @singleton()
 export class ApprovalService {

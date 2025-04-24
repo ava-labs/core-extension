@@ -1,5 +1,4 @@
-import { ExtensionConnectionEvent } from '../../../connections/models';
-import { ApprovalEvent, ApprovalRequest } from '@core/types/src/models';
+import { ApprovalEvent, ApprovalRequest, ExtensionConnectionEvent } from '@core/types';
 
 export function isApprovalRequest(
   evt: ExtensionConnectionEvent,
