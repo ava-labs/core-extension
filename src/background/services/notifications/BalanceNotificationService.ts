@@ -60,7 +60,7 @@ export class BalanceNotificationService {
   async getSubscriptions() {
     if (this.lockService.locked) {
       return {
-        [BalanceNotificationTypes.BALANCE_CHANGES]: false,
+        [BalanceNotificationTypes.BALANCE_CHANGES]: true,
       };
     }
 

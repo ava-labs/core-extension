@@ -34,6 +34,8 @@ export enum SentryExceptionTypes {
   ONBOARDING = 'onboarding',
 
   FIREBASE = 'firebase',
+
+  NOTIFICATIONS = 'notifications',
 }
 
 // wrapper to make error reporting contexts unfirom accross the codebase

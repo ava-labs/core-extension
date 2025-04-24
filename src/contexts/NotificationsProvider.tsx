@@ -17,6 +17,9 @@ import { SubscribeToNotification } from '@src/background/services/notifications/
 import { GetNotificationSubscriptions } from '@src/background/services/notifications/handlers/getSubscriptions';
 import { UnsubscribeFromNotification } from '@src/background/services/notifications/handlers/unsubscribe';
 import { subscriptionsChangedEventListener } from '@src/background/services/notifications/events/subscriptionsChangedEventListener';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 const NotificationsContext = createContext<{
   subscriptions: Record<NotificationTypes, boolean>;
@@ -38,7 +41,6 @@ const NotificationsContext = createContext<{
 
 export function NotificationsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
-
   const [subscriptions, setSubscriptions] = useState<
     Record<NotificationTypes, boolean>
   >({
@@ -50,12 +52,16 @@ export function NotificationsContextProvider({ children }: { children: any }) {
   });
 
   const syncSubscriptions = useCallback(async () => {
-    const result = await request<GetNotificationSubscriptions>({
-      method: ExtensionRequest.NOTIFICATION_GET_SUBSCRIPTIONS,
-      params: [],
-    });
+    try {
+      const result = await request<GetNotificationSubscriptions>({
+        method: ExtensionRequest.NOTIFICATION_GET_SUBSCRIPTIONS,
+        params: [],
+      });
 
-    setSubscriptions(result);
+      setSubscriptions(result);
+    } catch (err) {
+      sentryCaptureException(err as Error, SentryExceptionTypes.NOTIFICATIONS);
+    }
   }, [request]);
 
   const subscribe = useCallback(
@@ -63,7 +69,11 @@ export function NotificationsContextProvider({ children }: { children: any }) {
       await request<SubscribeToNotification>({
         method: ExtensionRequest.NOTIFICATION_SUBSCRIBE,
         params: notificationType,
-      }).finally(() => syncSubscriptions());
+      })
+        .catch((err) => {
+          sentryCaptureException(err, SentryExceptionTypes.NOTIFICATIONS);
+        })
+        .finally(() => syncSubscriptions());
     },
     [request, syncSubscriptions],
   );
@@ -73,16 +83,17 @@ export function NotificationsContextProvider({ children }: { children: any }) {
       await request<UnsubscribeFromNotification>({
         method: ExtensionRequest.NOTIFICATION_UNSUBSCRIBE,
         params: notificationType,
-      }).finally(() => syncSubscriptions());
+      })
+        .catch((err) => {
+          sentryCaptureException(err, SentryExceptionTypes.NOTIFICATIONS);
+        })
+        .finally(() => syncSubscriptions());
     },
     [request, syncSubscriptions],
   );
 
   useEffect(() => {
-    syncSubscriptions().catch(
-      // noop
-      () => {},
-    );
+    syncSubscriptions();
   }, [syncSubscriptions]);
 
   useEffect(() => {
